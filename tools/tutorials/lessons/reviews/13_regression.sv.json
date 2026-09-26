@@ -1,46 +1,38 @@
 {
   "lesson": "13_regression",
-  "language": "sv",
-  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "english_sha256": "2e037a0eedfdac229744cbbaa82819ee8680d8fb607655490493ef36f4b0f71b",
   "review": {
-    "kind": "Editorial caption translation checked against English and the accepted real-data recording",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "Distinguish 759 stored results from the displayed 434-guide family.",
-      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
-      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
-    ]
+    "listening_review": false
   },
-  "title": "Regression: ett riktigt exempel från parade tabeller till resultat",
-  "description": "Läs in det nedladdningsbara screeningexemplet, konfigurera en begränsad guide-permutationsanalys, granska den verkliga konsolen och figurerna och hitta specialverktygen som nu ligger inuti Regression.",
+  "language": "sv",
+  "title": "Regression: från parade tabeller till resultat",
+  "description": "Para ihop fenotyppoäng med guideräkningar, välj en inferensmetod, kör exemplet och utforska resultat per guide och per gen.",
   "objectives": [
-    "Läs in fyra par med poäng- och räknetabeller via den synliga testdataknappen och välj en separat utdatamapp.",
-    "Skilj mellan inferensmetod, resultatnivå och analysenhet och återskapa det begränsade exemplet utan att behandla antalet permutationer som en rekommendation för slutanalysen.",
-    "Granska verkliga resultat, figurer och diagnostiska begränsningar; skilj interaktiv granskning från en direkt omberäkning av analysen.",
-    "Hitta Regressions inbyggda verktyg, valfri AI-hjälp och aktuell Python-ingång."
+    "Läsa in parade poäng- och räkningstabeller och välja en utdatamapp.",
+    "Ställa in inferensmetod, rapportnivå och analysenhet.",
+    "Köra exemplet och granska resultaten tillsammans med tillhörande diagnostik."
   ],
-  "prerequisite": "Inspelat i spaCR 1.5.0.9. Öppna spaCR och välj Regression bland Core-modulerna. Exemplet hämtar poäng- och räknefiler eller återanvänder cacheminnet. Den inspelade analysen kräver ingen mätdatabas, bildutsnitt, extern annoteringstjänst eller AI-prenumeration. Den korta permutationskörningen visar arbetsflödet, inte fastställda biologiska fynd.",
+  "prerequisite": "Öppna Regression och välj Load test data för att få fyra parade poäng- och räkningstabeller. Använd en ny utdatamapp. En mätdatabas är valfri för den här analysen av poäng och räkningar; vyer på objektnivå kräver motsvarande mätdata och bilder.",
   "scenes": [
-    "Öppna Regression bland Core-modulerna. Modulen kopplar fenotyppoäng till guideförekomst och rapporterar samband med den inferensmetod du väljer. Verktygen längst upp hör nu hemma i modulen; de är inte längre separata rutor på Home.",
-    "Välj Load test data under Input Tables. Programmet hämtar screeningexemplet eller återanvänder verifierade cachefiler; inspelningen använder cacheminnet. Konsolen rapporterar fyra poängtabeller och fyra räknetabeller, parade efter platta.",
-    "Granska alla fyra parade rader. Varje platta behöver sina matchande poäng- och räknefiler; den valfria kolumnen för mätdatabas är tom här. Bredda inställningspanelen vid behov och använd en ny utdatamapp så att demonstrationen inte blandas med en befintlig analys.",
-    "Byt från Essentials till All settings och sök efter en inställning med dess etikett eller API-nyckel. Här är inference nonparametric: permutationstestning av guider. Det skiljer sig från parametrisk regression som anpassar alla prediktorer samtidigt och kräver en identifierbar design.",
-    "Level besvarar en annan fråga: Vad ska rapporteras? Välj both för separata guide- och genresultat. Det valet bestämmer inte inferensmetoden. Guide- och genresultat är olika testfamiljer, så kontrollera avsedd familj innan du tolkar justerad signifikans.",
-    "Använd well som analysenhet i exemplet. Den inlästa förinställningen anger responskolumn, transformationer, kontroller och uteslutningar. Granska antagandena innan du anpassar arbetsflödet till din egen screening. En nedladdad förinställning är en exempeldesign, inte en allmän rekommendation.",
-    "Sätt det minsta stödet för en guide till två brunnar i denna begränsade körning. Det filtrerar vilka guider som testas, men bevisar inte tillräcklig statistisk styrka. En guide som förekommer i mycket få brunnar måste fortfarande tolkas försiktigt.",
-    "Välj 199 permutationer för att återskapa den korta demonstrationen. Det begränsar det minsta möjliga empiriska p-värdet till 0,005, vilket kan vara för grovt efter korrigering för multipla tester. Planera ett lämpligt antal permutationer för ditt verkliga försök.",
-    "Sätt permutationsfröet till noll för körningen som visas. Behåll exemplets plattblock och rad- och kolumntermer för störvariation, om inte din design motiverar ändringar. Ett fast frö stöder reproducerbarhet men rättar inte ogiltiga antaganden om utbytbarhet.",
-    "Regression backend är ingen universell accelerationsknapp. Fältet gäller stödda estimatorer som anpassar modeller; en ändring gör inte denna guide-permutationsdemonstration till GPU-regression. Andra spaCR-moduler har egna enhetsval. Följ kontrollerna och konsolen för den operation som faktiskt körs.",
-    "Välj none som annoteringskälla i detta fristående exempel. De statistiska resultaten kräver ingen extern sökning efter genannoteringar. Använd annoteringar som passar organismen och identifiersystemet i din egen screening, i stället för att anta att varje guidebeteckning går att slå upp.",
-    "Rensa sökningen, kontrollera utdatamappen och tryck Run. Följ den verkliga konsolen när indata samordnas, valda filter används och resultaten beräknas. Regression skapar diagnostiska figurer direkt; för denna inspelning finns ingen separat Plot-knapp att slå på.",
-    "Det färdiga exemplet gav 434 guideresultat, 325 genresultat och fem figurer. Finished betyder att programmet är klart; det godkänner inte försöksdesignen eller fastställer biologiska fynd. Läs även de diagnostiska varningarna, inte bara slutmeddelandet. Rapporten om utbytbarhet misslyckades i denna körning; permutationstestets antaganden behöver därför fortfarande bedömas oberoende.",
-    "Runs identifierar den sparade analysen; Results visar den valda körningen. Kontrollera mapp och inställningar när du jämför körningar. En ändring i formuläret räknar inte om resultatet som visas. Kör analysen igen när du vill testa ett nytt val.",
-    "Results innehåller koefficienttabellen och interaktiva vyer bredvid de skapade figurerna. Körningen har totalt 759 rader på båda nivåerna; den här vyn väljer de 434 guideresultaten. Använd Level för att välja testfamilj. Interaktiv granskning av sparade resultat kör inte inferensen på nytt.",
-    "Öppna p-values för att granska resultatfördelningen. Tolka den tillsammans med vald testfamilj, permutationsupplösning och diagnostik, inte som automatiskt bevis på en effekt. Den separata Diagnostics-handledningen förklarar de sparade design- och inferenspanelerna i detalj.",
-    "Measurements har kontroller för ytterligare uppmätta responsvariabler. Exemplet saknar ansluten mätdatabas. Att öppna fliken skapar ingen databas och gör ingen svepning över mätvariabler. Tillhandahåll nödvändiga mätdata innan du använder verktygen i ditt eget försök.",
-    "Cells kan koppla valda resultat till underliggande objekt när lämpliga mätdata och bilder finns. Här är databaskolumnen tom, så det finns inget cellmontage att visa. Blanda inte ihop en otillgänglig objektvy med en misslyckad poäng- och räkneanalys.",
-    "De inbyggda verktygen är Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler och Diagnostics. Håll pekaren över ikonerna för att identifiera dem. De länkade handledningarna beskriver varje arbetsflöde. En prediktionsprofil behöver exempelvis lämpliga resultat från en anpassad modell, vilket denna permutationskörning inte ger.",
-    "AI aktiverar valfri hjälp via leverantören som ställts in i Preferences under AI. Ställ en konkret fråga om resultat eller inställningar och jämför råden med data. Här visas en osänd exempelfråga: Ingen leverantör kontaktades och inget svar genererades för inspelningen.",
-    "För skript använder du perform_regression i spaCRs maskininlärningsmodul med motsvarande inställningar och läser den aktuella API-dokumentationen. Spara indatatabeller, inställningar, utdata och diagnostisk tolkning tillsammans. Använd Parameter Sweep medvetet för jämförelser och håll utforskande val åtskilda från beslut om slutanalysen."
+    "Från Home öppnar du Regression. Modulen relaterar fenotyppoäng till guidernas förekomst. Börja med en poängtabell och en räkningstabell per platta och välj sedan hur samband ska testas och rapporteras.",
+    "I Input Tables klickar du på Load test data och väntar tills exemplet har lästs in. Det innehåller fyra poängtabeller och fyra räkningstabeller, parade per platta.",
+    "Granska varje parad rad och kontrollera plattans namn, poängfilen och räkningsfilen. Lämna den valfria kolumnen för mätdatabas tom i det här exemplet. Välj en ny utdatamapp för analysen.",
+    "Byt till All settings och använd sökrutan för att hitta Inference. Välj nonparametric för det här exemplet med guidepermutation. Använd en parametrisk metod när din fråga och din design kräver att flera prediktorer anpassas tillsammans.",
+    "Level väljer vilka resultat som rapporteras. Välj both för att få resultat både per guide och per gen. Håll de här testfamiljerna åtskilda när du granskar justerad signifikans.",
+    "Välj well som analysenhet i det här exemplet. Granska svarskolumnen, transformationerna, kontrollerna och de uteslutna brunnarna. Anpassa inställningarna till designen av din egen screen innan du kör nya data.",
+    "Minsta guidestöd styr i hur många brunnar en guide måste finnas innan den testas. Ställ in det på 2 för att följa det här lilla exemplet. Välj ett lämpligt stödkrav för ditt experiment.",
+    "Ställ in 199 permutationer för en snabb första körning. Fler permutationer ger finare upplösning av det empiriska p-värdet men tar längre tid. Välj ett större antal när din slutliga analys kräver det.",
+    "Ställ permutationsfröet på 0 för att upprepa samma randomisering. Behåll exemplets plattblock och stördtermerna för rad och kolumn. För egna data väljer du block som tar hänsyn till vilka observationer som kan bytas ut enligt försöksdesignen.",
+    "Välj none i Annotation source för att köra exemplet utan uppslag av genannoteringar. För en annan screen väljer du annoteringar som passar dess organism och identifierarsystem.",
+    "Rensa sökningen, kontrollera de parade indata och utdatamappen och klicka sedan på Run. Följ konsolen medan modulen passar ihop tabellerna, filtrerar guider och beräknar resultaten. Diagnostikfigurerna skapas tillsammans med analysen.",
+    "När körningen är klar öppnar du Runs och väljer den sparade analysen. Bekräfta mappen och inställningarna innan du jämför den med en annan körning. Kör analysen igen efter att ha ändrat inställningarna om du vill ha nya resultat.",
+    "Öppna Results och växla mellan guide- och genresultat med Level. Granska resultattabellen och de interaktiva vyerna. De sparade filerna results_grna.csv och results_gene.csv innehåller motsvarande tabeller för vidare analys.",
+    "Öppna vyn för p-värden och verktyget Diagnostics. Granska resultatfördelningen tillsammans med permutationsupplösningen, testfamiljen och designvarningarna. Åtgärda viktiga diagnostiska problem innan du tolkar samband.",
+    "Använd verktygsfältet för att öppna Volcano Explorer, Hit List eller Investigate Hit som nästa steg. Deras handledningar visar hur du granskar valda resultat. Håll ihop indatatabeller, sparade inställningar, resultatfiler och diagnostikrapporter när du delar analysen."
   ]
 }

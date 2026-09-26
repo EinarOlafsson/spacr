@@ -1,31 +1,33 @@
 {
   "lesson": "53_prediction_profiler",
-  "english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
   "review": {
-    "kind": "Editorial translation from frozen English; synthetic-data, no-refitting, range and noncausal boundaries preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "fr",
-  "title": "Profil des prédictions",
-  "description": "Importez un modèle ajusté sur des données synthétiques, faites varier une entrée et examinez les effets des valeurs maintenues fixes et des réglages du tracé.",
+  "title": "Prediction Profiler : explorer un modèle ajusté",
+  "description": "Chargez les coefficients d’un modèle, faites varier une entrée en fixant les autres et examinez les réponses prédites.",
   "objectives": [
-    "Ouvrir Prediction Profiler dans Regression et importer des coefficients appropriés.",
-    "Distinguer ajustement, lien inverse, plages supposées et résolution du tracé.",
-    "Comparer les entrées, modifier les valeurs fixes et rétablir les points médians."
+    "Charger les coefficients avec la bonne fonction de lien.",
+    "Balayer une entrée et ajuster les valeurs fixées.",
+    "Examiner les courbes de réponse et la sensibilité."
   ],
-  "prerequisite": "Extrayez l’exemple SYNTHETIC dans un nouveau dossier. Il contient 121 observations construites, les coefficients d’un véritable ajustement OLS avec statsmodels, un manifeste et un script reproductible. Aucune validation biologique ni sur des données réservées n’est revendiquée. L’interface importe feature/coefficient et Intercept, sans ajuster le modèle ni charger les observations. Gardez identity. Elle suppose deux lignes de valeurs 0..1 et des valeurs fixes de 0.5. Le classement utilise 0.05..0.95 ; la courbe couvre 0..1. Les 338 valeurs des courbes et douze valeurs du classement ont été vérifiées. Des effets marginaux de permutation ne remplacent pas un modèle prédictif ajusté conjointement. API : spacr.profiler.from_coefficients, profile, sensitivity. ProfilerScreen.set_model/set_design sont des interfaces programmatiques, pas des sélecteurs de fichiers. Aucun intervalle de confiance, effet causal, publication ou accord après écoute n’est revendiqué.",
+  "prerequisite": "Téléchargez l’exemple synthétique de coefficients, ou utilisez les coefficients d’un modèle ajusté approprié. Faites correspondre sa fonction de lien et l’encodage des entrées. La voie du fichier de coefficients suppose des plages d’entrée de zéro à un ; des effets marginaux séparés ne remplacent pas un modèle de prédiction ajusté conjointement.",
   "scenes": [
-    "Ouvrez Regression, puis Prediction Profiler dans ses outils imbriqués. Cette leçon utilise un exemple pédagogique explicitement synthétique, et non des résultats de criblage biologique. Nous examinons un modèle ajusté en faisant varier une entrée et en maintenant l’autre fixe. Le profileur lit le modèle ; il n’en entraîne pas un autre.",
-    "Téléchargez et extrayez l’exemple joint, puis utilisez Browse pour ouvrir son fichier de coefficients OLS synthétiques. Il contient une constante et deux coefficients d’entrée ajustés. L’archive fournit aussi les observations et le script de préparation. Ces coefficients proviennent d’un véritable ajustement par moindres carrés sur des données construites, pas de résultats de régression inventés.",
-    "Gardez Link sur identity, car cet exemple a été ajusté par moindres carrés ordinaires. Les autres liens correspondent à d’autres familles de modèles ; changer ce sélecteur ne convertit ni ne réentraîne votre modèle initial. Une courbe plausible sur une mauvaise échelle de réponse reste incorrecte. Utilisez toujours le lien de l’ajustement.",
-    "Lisez le message d’état : aucune matrice de plan n’a été fournie, donc l’importation du fichier suppose que chaque entrée varie de zéro à un. Nos entrées synthétiques ont cette plage, mais pas nécessairement les vôtres. Le classement utilise les cinquième et quatre-vingt-quinzième centiles ; Moves by n’est pas la différence entre les deux extrémités complètes du tracé.",
-    "L’entrée A est sélectionnée pour le balayage. Déplacez le curseur de B du point médian jusqu’à un. La réponse prédite diminue, car le coefficient ajusté de B est négatif. Cela change le scénario à valeurs fixes, pas les données d’entraînement ni les coefficients. Lisez les valeurs numériques aux extrémités, pas seulement la forme de la droite.",
-    "Placez B à zéro et comparez à nouveau. La réponse augmente. Le graphique adapte son échelle verticale : des droites d’apparence parallèle peuvent donc correspondre à des niveaux de réponse différents. Ce sont des prédictions d’un modèle supposé, pas la preuve qu’une modification de B provoquerait un effet expérimental.",
-    "Reset held values ramène les curseurs au milieu des plages supposées, soit un demi ici. Le modèle n’est pas réajusté. Avec cette importation des seuls coefficients, ce milieu n’est pas une médiane mesurée dans vos données initiales : ces données n’ont jamais été chargées dans le profileur.",
-    "Sélectionnez B dans la liste classée. B varie maintenant sur l’axe horizontal et A reste fixé à un demi. La courbe descendante correspond au coefficient négatif de B. La liste classe la sensibilité du modèle ; ce n’est ni un test de significativité, ni un intervalle de confiance, ni une liste de résultats biologiques validés.",
-    "Passez Points de soixante et un à onze. Ce réglage détermine combien de positions sont évaluées pour tracer la courbe ; il ne change ni la taille de l’échantillon ni la qualité de l’ajustement. Notre exemple linéaire conserve les mêmes extrémités. Davantage de points tracés n’ajoutent pas d’observations, ne réduisent pas l’incertitude et n’améliorent pas un modèle déjà ajusté.",
-    "B étant toujours sélectionné, placez A à un et examinez les nouvelles valeurs aux extrémités, puis réinitialisez. Pour vos propres analyses, fournissez les coefficients d’un modèle ajusté approprié et vérifiez son lien, sa constante, son codage et ses plages. Ne remplacez pas un modèle prédictif ajusté conjointement par des effets séparés issus de tests de permutation."
+    "Ouvrez Regression, puis Prediction Profiler pour explorer les réponses prédites par un modèle ajusté. L’exemple associé utilise des données synthétiques.",
+    "Téléchargez et décompressez l’exemple, puis utilisez Browse pour aller jusqu’au CSV synthétique de coefficients OLS. Incluez l’ordonnée à l’origine lorsque vous fournissez vos propres coefficients.",
+    "Réglez Link sur la fonction utilisée par le modèle ajusté. Gardez identity pour cet exemple de moindres carrés ordinaires.",
+    "Vérifiez les informations de plage après le chargement. La voie du fichier de coefficients suppose que chaque entrée va de zéro à un. Confirmez que cela correspond à l’usage prévu avant d’interpréter les courbes.",
+    "Sélectionnez Input A pour le balayage. Placez le curseur d’Input B, qui est fixé, sur un et examinez la courbe de réponse obtenue.",
+    "Placez B sur zéro et comparez les valeurs de réponse. Observez l’échelle de l’axe autant que la courbe, car le graphique peut changer d’échelle.",
+    "Cliquez sur Reset held values pour ramener les curseurs au milieu de leurs plages supposées, un demi dans cet exemple.",
+    "Sélectionnez Input B dans la liste classée pour balayer B en gardant A fixe. Le classement résume la sensibilité du modèle sur les plages d’entrée configurées.",
+    "Modifiez Points pour choisir le nombre de positions évaluées le long de la courbe. Onze donne une grille plus grossière que soixante et un, sans changer le modèle ajusté.",
+    "Ajustez les valeurs fixées pour explorer d’autres scénarios, puis réinitialisez-les à la fin. Interprétez les courbes comme des prédictions du modèle et évaluez les effets expérimentaux réels avec des données appropriées."
   ]
 }

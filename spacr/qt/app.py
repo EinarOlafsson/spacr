@@ -2570,6 +2570,9 @@ class MainWindow(QMainWindow):
         self._sidebar.nav_selected.connect(self._on_drawer_navigated)
         self._sidebar.fold_child_selected.connect(self.open_module)
         self._sidebar.module_hovered.connect(self._show_module_hint)
+        from .widgets.dock import DockEdge
+        self._dock_edge = DockEdge(self._sidebar)
+        row.insertWidget(row.indexOf(self._dock_slot) + 1, self._dock_edge)
 
         from .widgets.drawer import EdgeDrawer
         self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
@@ -3051,7 +3054,7 @@ class MainWindow(QMainWindow):
         self._app_actions: dict[str, QAction] = {}
         self._section_menus: dict[str, QMenu] = {}
         from .widgets.fold_strip import folded_modules
-        from .organisms import ORGANISMS
+        from .organisms import ORGANISMS, workflow
 
         folded = folded_children()
         catalogue = folded_modules()
@@ -3096,6 +3099,10 @@ class MainWindow(QMainWindow):
                             child_action.triggered.connect(
                                 lambda checked=False, k=child: self._open_organism_module(k))
                             self._app_actions[child] = child_action
+                        elif workflow(key, _icon):
+                            child_action.setProperty("organismWorkflow", workflow(key, _icon)[0])
+                            child_action.triggered.connect(
+                                lambda checked=False, o=key, i=_icon: self._open_organism_workflow(o, i))
                         else:
                             child_action.setText(tr("{name} — Coming soon", name=tr(title)))
                             child_action.setEnabled(False)
@@ -3718,6 +3725,19 @@ class MainWindow(QMainWindow):
         else:
             self.open_module(key)
 
+    def _open_organism_workflow(self, organism: str, icon: str) -> None:
+        """Open the existing module behind an organism tile, with its preset.
+
+        :param organism: the organism page key.
+        :param icon: the tile's icon key in that organism's ``workflows``.
+        """
+        from .organisms import workflow
+        from .screens.organism_screen import open_workflow
+
+        route = workflow(organism, icon)
+        if route is not None:
+            open_workflow(self, route)
+
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
         for key, action in getattr(self, "_app_actions", {}).items():
@@ -3789,6 +3809,9 @@ class MainWindow(QMainWindow):
         """
         from .preferences import get_refresh_news
 
+        if self._closing:
+            LOG.debug("Not refreshing the news for a window that is closing")
+            return
         if not get_refresh_news():
             LOG.debug("News refresh is switched off in Preferences")
             return
@@ -4184,18 +4207,39 @@ class MainWindow(QMainWindow):
                 panel.shutdown()
             except Exception:
                 pass
-        for attribute in ("_update_worker", "_news_worker"):
-            worker = getattr(self, attribute, None)
-            if worker is not None:
-                try:
-                    worker.wait(5000)
-                except RuntimeError:
-                    pass
+        self._release_update_workers()
         super().closeEvent(event)
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
                 app.quit()
+
+    _UPDATE_WORKER_WAIT_MS = 5000
+
+    def _release_update_workers(self) -> None:
+        """Wait for the updater threads, and detach any that will not stop.
+
+        Both workers are children of this window, and Qt aborts the whole
+        process when a running QThread is destroyed with its parent. A news
+        fetch has no overall deadline (the socket timeout does not cover name
+        resolution), so it can outlast the wait. A worker still running after
+        it is taken off the window and parked by :func:`bridge.drain_thread`,
+        which keeps it alive until it returns instead of terminating it.
+        The wait is :attr:`_UPDATE_WORKER_WAIT_MS` per worker.
+        """
+        from .bridge import drain_thread
+
+        for attribute in ("_update_worker", "_news_worker"):
+            worker = getattr(self, attribute, None)
+            if worker is None:
+                continue
+            try:
+                if worker.wait(self._UPDATE_WORKER_WAIT_MS):
+                    continue
+                worker.setParent(None)
+            except RuntimeError:
+                continue
+            drain_thread(worker, timeout_ms=0)
 
     def dock_mode(self) -> str:
         """The user's dock preference — ``auto`` / ``locked`` / ``hidden``.
@@ -4290,11 +4334,14 @@ class MainWindow(QMainWindow):
         if mode == "locked":
             if sidebar.parent() is not slot:
                 slot.layout().addWidget(sidebar)
-            sidebar.setFixedWidth(sidebar.fitting_width())
+            sidebar.setFixedWidth(sidebar.column_width())
             sidebar.show()
             slot.show()
         else:
             slot.hide()
+        edge = getattr(self, "_dock_edge", None)
+        if edge is not None:
+            edge.setVisible(mode == "locked")
 
         action = getattr(self, "_act_all_apps", None)
         if action is not None:

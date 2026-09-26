@@ -1,36 +1,34 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
   "review": {
-    "kind": "Parent editorial caption translation of frozen English; units, exact exclusions and export limitations retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "de",
-  "title": "Motilitätsanalyse",
-  "description": "Live-Filter und Einheiten mit reproduzierbaren synthetischen Spuren in Measure > Motility vergleichen.",
+  "title": "Motilitätsassay",
+  "description": "Messen Sie Bewegung aus verfolgten Objekten, prüfen Sie Track-Filter und speichern Sie Ergebnisse pro Frame und pro Well.",
   "objectives": [
-    "Motility in Measure finden und die exakten Beispielarrays laden.",
-    "Filter ohne erneutes Bildlesen oder Modellberechnung vergleichen.",
-    "Unbekannte Einheiten, hypothetische Umrechnung und Ergebnisgrenzen unterscheiden."
+    "Ein Projekt mit verfolgten zusammengeführten Arrays laden.",
+    "Maskenebenen, Track-Filter und Aufnahmeeinheiten wählen.",
+    "Die Analyse ausführen und die Bewegungstabellen und -diagramme finden."
   ],
-  "prerequisite": "SYNTHETIC_motility_tracks.zip in einen neuen Ordner entpacken. Acht synthetische Arrays: Kernintensität 0, Zellintensität 1, verfolgte Zellmaske 2, Kernmaske 3. Keine Erregerebene und keine gemessene Kalibrierung. Den Ordner mit merged wählen. Live: 2 Intensitätskanäle, verfolgte Ebene 2, Erreger -1, 8 Bilder, Mindestlänge 3, Kalibrierung 0/0. 2 Pixel/µm und 60 s/Bild sind ausschließlich hypothetisch. Propagate settings ausgeschaltet lassen. PDF-Markierungen sind kontrastarm; Screen behebt das nicht. Keine biologische oder Infektionsvalidierung. API: spacr.timelapse.automated_motility_assay. AI bleibt aus.",
+  "prerequisite": "Schließen Sie einen Timelapse-Lauf ab oder laden Sie SYNTHETIC_motility_tracks.zip herunter und entpacken Sie es. Wählen Sie den Ordner, der merged enthält. Das Beispiel hat acht Frames, Kernintensität in Kanal 0, Zellintensität in Kanal 1, verfolgte Zellmasken in Ebene 2 und Kernmasken in Ebene 3. Es hat keine Pathogenmaske und keine physikalische Kalibrierung.",
   "scenes": [
-    "Measure öffnen und über Time zum Tab Motility Assay wechseln. Das Modul ist verschachtelt, keine eigene Home-Kachel. Timelapse in Mask erzeugt Spuren; Motility vermisst sie. Wenn die Bilder noch nicht verfolgt sind, zuerst die Timelapse-Lektion ansehen.",
-    "Das unten verlinkte synthetische Beispiel mit verfolgten Arrays herunterladen und in einen neuen Ordner entpacken. Source auf den Ordner mit merged setzen. Acht Bilder enthalten sechzehn Zellspuren. cell wählen, Kernkanal null und Zellkanal eins; kein Erregerkanal.",
-    "Für aufgenommene Experimente echte Pixelskala und Bildintervalle verwenden. Zwei Pixel pro Mikrometer und sechzig Sekunden pro Bild sind hier bewusst hypothetisch und dienen nur der Rechnung. Das Batch-Formular verlangt Zahlen; seine Vorgaben belegen keine Mikroskopkalibrierung.",
-    "Reuse existing measurements für die neue Kopie ausgeschaltet lassen und die Qualitätskontrollgrafiken einschalten. Ohne Erregerkanal ist die Infektionskontrolle in diesem Lauf deaktiviert. Optionale Klassifikatoren werden nicht geprüft; diese Lehrspuren belegen keinen Infektionseffekt.",
-    "Das kleine Beispiel starten und die Konsole lesen. Gespeichert werden 128 Bildbeobachtungen, eine Well-Zusammenfassung mit sechzehn Spuren und PDFs. Diese erscheinen nicht in der Abbildungswarteschlange. Die Version warnt vor blassen Exportfarben; Dateien vor Verwendung in Berichten prüfen.",
-    "Live öffnet Motility preview. Console und System bei Platzmangel einklappen und denselben entpackten Ordner wählen. Vorschaukennzahlen und Batch-Einstellungen sind getrennt. Propagate settings beim Experimentieren ausgeschaltet lassen, damit ein vorübergehender Filter nicht den nächsten vollständigen Lauf verändert.",
-    "Zwei Intensitätskanäle, verfolgte Maskenebene zwei und Erregermaskenebene minus eins, also keine, einstellen. Alle acht Bilder anzeigen. Eine Kernmaske ist keine Erregermaske. Beide Kalibrierungsfelder auf null setzen, für unbekannte Einheiten, dann Run preview anklicken.",
-    "Die Vorschau liest 128 Objektbeobachtungen und meldet bei Mindestlänge drei sechzehn nutzbare Spuren. Die mittlere Geschwindigkeit beträgt etwa 1,4 Pixel pro Bild. Ohne beide Kalibrierungswerte darf sie nicht als Mikrometer pro Minute bezeichnet werden.",
-    "Min track length auf neun erhöhen. Jede Spur hat nur acht Bilder; alle sechzehn werden aus der nutzbaren Zusammenfassung ausgeschlossen und die mittlere Geschwindigkeit ist nicht verfügbar. Spuren und Bilder werden nicht gelöscht. Eine leere Zusammenfassung bedeutet nicht Geschwindigkeit null.",
-    "Das Minimum auf drei zurücksetzen. Sechzehn nutzbare Spuren, Längenverteilung und Geschwindigkeitspunkte kehren zurück. Die Kennzahlen werden aus zwischengespeicherten Beobachtungen berechnet. Eine Änderung startet keine Segmentierung neu und beweist keine korrekten ursprünglichen Tracking-Identitäten.",
-    "Drop over-straight tracks bei Schwelle 0,95 aktivieren. Geradlinigkeit ist Nettoverschiebung geteilt durch Weglänge. Fünfzehn fast gerade Lehrspuren entfallen, eine bleibt. Geradlinige Bewegung kann echt sein; dieser Filter beweist keine Drift und ist keine Analyseempfehlung.",
-    "Den Filter ausschalten und prüfen, dass alle sechzehn Spuren zurückkehren. Vor Annahme einer Filterregel Diagramme und verbleibende Anzahl vergleichen. uninfected bedeutet hier lediglich, dass die Erregerebene fehlt; es ist keine validierte biologische Negativgruppe.",
-    "Zwei Pixel pro Mikrometer eingeben, das Bildintervall jedoch unbekannt lassen. Die Anzeige bleibt bei Pixeln pro Bild. Eine räumliche Skala ergänzt keine fehlende Zeit; die Wiedergabegeschwindigkeit ist nicht das Aufnahmeintervall.",
-    "Nun sechzig Sekunden pro Bild eingeben. Mit beiden hypothetischen Werten sinkt der Zahlenwert von etwa 1,4 Pixeln pro Bild auf 0,7 Mikrometer pro Minute. Die Identitäten ändern sich nicht. Das Trajektoriendiagramm zeigt Verschiebungen weiter in Pixeln; nur die Geschwindigkeitseinheit ändert sich.",
-    "Beide Kalibrierungsfelder der Vorschau auf null zurücksetzen. Die ursprüngliche Pixel-Zusammenfassung kehrt exakt zurück. Die Rechenübung von echten Aufnahmemetadaten trennen; die Batch-Funktion steht in der API-Referenz. spaCR AI erklärt Einstellungen, zertifiziert aber weder Kalibrierung, Infektionsstatus noch wissenschaftliche Gültigkeit."
+    "Öffnen Sie von Home aus Measure und dann über Time Motility Assay. Beginnen Sie mit verfolgten Bildern aus Timelapse oder laden Sie das Beispielarchiv unten herunter, um mitzumachen.",
+    "Entpacken Sie das Beispiel und setzen Sie Source auf den Ordner, der merged enthält. Wählen Sie cells als verfolgte Objekte, Kernkanal 0 und Zellkanal 1. Lassen Sie den Pathogenkanal in diesem Beispiel leer.",
+    "Schalten Sie Live ein, um Motility preview zu öffnen, und wählen Sie denselben Projektordner. Prüfen Sie in der Vorschau die Tracks und probieren Sie Filter aus, bevor Sie die vollständige Analyse starten. Lassen Sie Propagate settings ausgeschaltet, solange Sie vorläufige Einstellungen testen.",
+    "Stellen Sie zwei Intensitätskanäle ein, die verfolgte Maskenebene auf 2 und die Pathogen-Maskenebene auf −1, also keine. Zeigen Sie alle acht Frames in der Vorschau an. Setzen Sie in der Vorschau für dieses unkalibrierte Beispiel beide Kalibrierwerte auf 0 und klicken Sie dann auf Run preview.",
+    "Bei einer minimalen Track-Länge von 3 hat das Beispiel sechzehn verwertbare Tracks. Prüfen Sie Trajektorien, Längenverteilung und Geschwindigkeitsübersicht. Die Geschwindigkeit liegt bei etwa 1,4 Pixeln pro Frame, da das Beispiel weder Aufnahmemaßstab noch Intervall hat.",
+    "Min track length legt fest, über wie viele Frames ein Objekt reichen muss, um in die Übersicht einzugehen. Erhöhen Sie den Wert, um kurze Tracks auszuschließen, und beobachten Sie die verbleibende Anzahl. Behalten Sie für dieses Beispiel mit acht Frames den Wert 3 bei.",
+    "Drop over-straight tracks schließt Tracks oberhalb der gewählten Geradlinigkeitsschwelle aus. Die Geradlinigkeit ist die Nettoverschiebung geteilt durch die gesamte Weglänge. Vergleichen Sie verbleibende Tracks und Diagramme, bevor Sie eine Schwelle wählen; lassen Sie diesen Filter ausgeschaltet, wenn geradlinige Bewegung Teil Ihres Experiments ist.",
+    "Geben Sie für aufgenommene Daten Pixel pro Mikrometer und Sekunden pro Frame aus den Metadaten von Mikroskop und Aufnahme ein. Mit beiden Werten kann die Vorschau die Geschwindigkeit in Mikrometern pro Minute angeben. Um die Umrechnung an diesem Lehrbeispiel auszuprobieren: Zwei Pixel pro Mikrometer und 60 Sekunden pro Frame ändern den Mittelwert auf etwa 0,7. Das sind Beispielwerte, keine gemessene Kalibrierung.",
+    "Stellen Sie Pixelmaßstab und Frame-Intervall auch im Formular der vollständigen Analyse ein; Änderungen in der Vorschau bleiben getrennt, bis Sie sie übertragen. Prüfen Sie gewähltes Objekt, Kanäle und Filter, bevor Sie den Lauf starten. Bewahren Sie die Aufnahmewerte zusammen mit Ihren Ergebnissen auf.",
+    "Lassen Sie Reuse existing measurements beim ersten Lauf ausgeschaltet und aktivieren Sie die Qualitätskontrolldiagramme. Ohne Pathogenkanal bleibt die Infektions-Qualitätskontrolle deaktiviert. Klicken Sie auf Run und verfolgen Sie den Fortschritt in der Konsole.",
+    "Wenn der Lauf abgeschlossen ist, öffnen Sie im Projektordner measurements und dann measurements.db. Die gewählte Tabelle enthält Beobachtungen pro Frame; die zugehörige Tabelle well_motility fasst die Bewegung pro Well zusammen. Prüfen Sie die gespeicherten Diagramme und ihre Einheiten, bevor Sie Bedingungen vergleichen oder Abbildungen exportieren."
   ]
 }

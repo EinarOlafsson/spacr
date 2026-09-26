@@ -1,22 +1,35 @@
 {
-  "lesson": "54_qc_dashboard", "language": "fr", "english_sha256": "6d392cd91316120b850599122e922009dda2919f8085ccbc9908a473d69f377d",
-  "review": {"kind": "Editorial translation checked against English and actual read-only QC results", "native_speaker_signoff": false},
-  "title": "QC : lire les preuves, pas seulement le résumé",
-  "description": "Lisez de vrais rapports téléchargés et calculés, distinguez contrôles manquants, avertissements et échecs, et trouvez les trois outils imbriqués de QC.",
-  "objectives": ["Trouver QC et ses outils imbriqués.", "Choisir le dossier exact du projet ou de l’exécution limitée et examiner les cinq catégories de preuves.", "Distinguer résultats manquants, avertissements et échecs sans supposer que le tableau de bord valide toute l’analyse.", "Actualiser les preuves existantes sans recalculer ni modifier les fichiers sources."],
-  "prerequisite": "Téléchargez d’abord les exemples Annotate et Mask. La capture réutilise la base de mesures d’Annotate, les rapports d’origine de l’exemple Mask et la véritable exécution de tutoriel Mask sur deux champs et Measure sur un champ, dans plate1/test. QC ne télécharge rien et ne calcule aucun nouveau score. Le dossier parent et test correspondent à des périmètres différents, pas à une expérience d’amélioration avant/après.",
+  "lesson": "54_qc_dashboard",
+  "english_sha256": "8d73de741cc8b5d38c497eac960c0dfe562312ed73b07d6f02e536ba8ec4c174",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "QC : examiner les rapports qualité d’un projet",
+  "description": "Choisissez un projet, lisez les rapports qualité disponibles, étudiez les avertissements et actualisez le tableau de bord.",
+  "objectives": [
+    "Choisir le projet ou l’exécution à examiner.",
+    "Lire les rapports disponibles, manquants et obsolètes.",
+    "Étudier les constats et actualiser l’affichage."
+  ],
+  "prerequisite": "Utilisez un projet avec des rapports qualité enregistrés. Les exemples téléchargés de Mask et d’Annotate fournissent des ensembles de rapports différents ; choisissez le projet ou le dossier d’exécution précis à examiner.",
   "scenes": [
-    "Ouvrez QC dans la catégorie Data de Home. Ce tableau de bord lit les rapports qualité déjà sur disque. Il ne produit pas de masques, ne mesure pas d’images et n’entraîne pas de classifieur. Le résumé rassemble les preuves disponibles ; il ne certifie pas que toute l’analyse est correcte.",
-    "L’en-tête regroupe Layer Viewer, Control Charts et Outliers sous QC. Leurs leçons spécialisées restent dans Submodules sous ce parent. Utilisez ces outils pour examiner une observation, pas pour remplacer des preuves manquantes par une couleur rassurante.",
-    "Utilisez Browse pour sélectionner le vrai dossier du projet. Nous ouvrons d’abord l’exemple téléchargé d’Annotate : ce dossier contient des mesures mais aucun rapport de segmentation. QC n’a pas de téléchargement d’exemple distinct ; réutilisez le projet réel du travail précédent.",
-    "Missing signifie que le lecteur ne dispose d’aucun rapport exploitable pour ce contrôle. Ce n’est ni une réussite ni la preuve d’un échec. Un calcul effectué dans une autre vue n’a peut-être pas enregistré de rapport lisible ici. Vérifiez toujours la source indiquée et son périmètre.",
-    "Choisissez maintenant le sous-dossier test contenant les sorties réelles de nos exécutions limitées de Mask et Measure. Sélectionner le dossier parent n’est pas équivalent. Les populations et fichiers diffèrent ; leurs verdicts ne constituent donc pas une comparaison contrôlée avant/après.",
-    "Le sous-ensemble signale un avertissement de segmentation : un champ cellulaire présente une distribution hétérogène des tailles. Lisez les conseils et examinez les images. Un indicateur fondé sur la taille ne démontre ni deux types cellulaires biologiques ni une erreur sur tous les contours.",
-    "La carte des unités indique une cohérence interne dans quatre tables de mesures. Cela ne valide pas indépendamment l’étalonnage ou chaque caractéristique. Fuite entre entraînement et test, effets de plaque et accord entre annotateurs n’ont toujours pas de rapport ici ; une carte verte ne les fait pas réussir.",
-    "Lisez les cinq catégories, y compris les conseils sous les cartes manquantes. Conservez les rapports d’origine et examinez le travail concerné. En particulier, un verdict de fuite dépend d’identités et de groupes d’échantillons corrects ; une réussite logicielle ne prouve pas à elle seule leur indépendance biologique.",
-    "Les rapports téléchargés de la plaque complète comportent des échecs et des avertissements. Le résumé cite un champ de pathogènes à faible nombre d’objets ; les détails listent d’autres indicateurs. Ces rapports préexistants du grand exemple ne sont ni de nouveaux scores calculés à l’ouverture de QC ni la preuve d’une amélioration par notre petite exécution.",
-    "Appuyez sur Refresh après avoir vérifié la source. Ici, le statut indique qu’aucun fichier n’a changé : les preuves existantes sont réutilisées. Refresh n’est pas Run ; il n’a ni recalculé les scores des masques ni corrigé un avertissement. Les empreintes de nos bases et rapports restent identiques.",
-    "Une mention de résultat périmé, lorsqu’elle apparaît, demande de vérifier le rapport et ses entrées. Ce tableau de bord est consultatif et ne bloque pas l’exécution. Les cartes sont du texte explicatif, pas des boutons ouvrant ou réparant automatiquement chaque analyse en échec.",
-    "Pour une lecture par script, spacr.qt.widgets.qc_summary propose read_dashboard et format_dashboard. Ces fonctions rassemblent les preuves existantes au lieu de lancer des contrôles. Gardez les rapports sources avec le projet et revenez à l’analyse ou à la leçon spécialisée pertinente pour mener l’investigation."
+    "Ouvrez QC depuis la catégorie Data de Home pour examiner les rapports qualité enregistrés avec un projet.",
+    "L’en-tête ouvre Layer Viewer, Control Charts et Outliers. Utilisez leurs tutoriels lorsqu’un constat du tableau de bord demande une étude plus poussée.",
+    "Cliquez sur Browse et choisissez le dossier du projet. Sélectionnez le dossier qui contient les rapports de l’exécution à évaluer.",
+    "Interprétez Missing comme un rapport indisponible pour ce contrôle. Suivez les indications pour obtenir le rapport nécessaire avant de conclure.",
+    "Choisissez un sous-dossier d’exécution lorsque ses sorties sont séparées du projet parent. Vérifiez que la portée affichée correspond aux données que vous voulez examiner.",
+    "Lisez les avertissements de segmentation et examinez les champs correspondants. Pour un avertissement sur la distribution des tailles, comparez les images et les contours des objets pour en comprendre la cause.",
+    "Examinez la carte des unités avec les autres catégories. Un rapport d’unités cohérent règle ce contrôle ; les rapports manquants demandent toujours votre attention.",
+    "Lisez les cinq catégories et leurs indications. Pour les fuites, vérifiez que les identités d’échantillons et le regroupement reflètent les unités de validation indépendantes prévues.",
+    "Ouvrez le détail des échecs ou des avertissements pour identifier les champs concernés et les rapports sources. Utilisez l’outil d’analyse approprié pour les étudier.",
+    "Cliquez sur Refresh lorsque des rapports changent sur le disque. Le tableau de bord relit les éléments disponibles ; produisez des rapports à jour avec l’analyse qui les génère.",
+    "Étudiez un rapport obsolète au regard de ses données d’entrée et de ses paramètres. Gardez les constats non résolus visibles dans la revue de votre projet.",
+    "Conservez les rapports qualité avec le projet. Poursuivez dans les outils spécialisés associés ou dans le tutoriel du module concerné pour traiter chaque constat."
   ]
 }

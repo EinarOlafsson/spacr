@@ -1,23 +1,33 @@
 {
   "lesson": "30_plate_queue",
-  "english_sha256": "d2d89e7731cbc26bd8a3e6ba45c0fcce624c7559ba73145109dd8ed5dbf79371",
-  "review": {"kind": "Parent editorial translation against frozen English and verified GUI; visible English controls retained", "independent_peer_review": false, "native_speaker_signoff": false},
+  "english_sha256": "eb4beef71da36ce5936175783b37122fd029a5af93e937fe4797c0fa03344477",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "pt-BR",
-  "title": "Plate Queue: executar, parar entre tarefas e continuar",
-  "description": "Coloque na fila duas repetições isoladas do exemplo verificado de Recruitment, confira os resultados salvos e diferencie uma parada controlada da recuperação após falha, ainda não testada.",
-  "objectives": ["Importar uma configuração validada e encontrar Plate queue em Help.", "Adicionar as configurações atuais e uma pasta preparada como tarefas separadas.", "Observar o processamento sequencial, parar entre tarefas e continuar sem repetir as concluídas.", "Conferir resultados numéricos e limpar registros concluídos sem excluir projetos."],
-  "prerequisite": "Conclua primeiro o tutorial Recruitment. O subconjunto verificado de quatro campos de imagem é copiado para duas pastas: são os mesmos dados adquiridos, não placas independentes ou réplicas biológicas. Cada pasta contém measurements/measurements.db e settings/recruitment_settings.csv. O primeiro CSV é importado pelo seletor real; a segunda pasta é arrastada para a fila. Não se usa um executor simulado, modelo ou solicitação de AI. Plate Queue não tem Load test data nem prévia próprios. Import CSV não é demonstrado: atualmente cria tarefas de Mask, não de qualquer módulo. Rótulos longos podem ficar truncados; confira caminhos completos e configurações antes de adicionar. A recuperação após falha e a repetição de tarefas com erro não foram verificadas.",
+  "title": "Plate Queue: executar vários projetos preparados",
+  "description": "Adicione o projeto atual ou arraste pastas preparadas para uma fila, execute os trabalhos em ordem e continue depois de uma parada controlada.",
+  "objectives": [
+    "Adicionar projetos preparados com as configurações de módulo salvas.",
+    "Executar a fila e pará-la entre trabalhos.",
+    "Encontrar os resultados de cada projeto e limpar as entradas concluídas."
+  ],
+  "prerequisite": "Prepare um projeto e as configurações de módulo salvas dele. Para praticar, use duas cópias do exemplo do Recruitment em pastas separadas; elas contêm os mesmos dados e não são réplicas biológicas.",
   "scenes": [
-    "Comece pelo exemplo validado de Recruitment. Copiamos o banco de medições de quatro campos de imagem para duas pastas separadas, cada uma com suas configurações. São duas repetições dos mesmos dados reais, não placas independentes. Em Recruitment, escolha Import settings e abra o CSV da primeira pasta.",
-    "O console confirma o carregamento das configurações. Confira a origem e os canais antes de adicionar; verificamos cada valor solicitado após a importação. Veja o tutorial Recruitment para figuras, console e prévia. A fila não determina se suas escolhas biológicas são adequadas.",
-    "Abra Help e depois Plate queue. Essa ferramenta compartilhada é acessada pelo menu, não por um novo cartão em Home. O executor atual processa uma tarefa por vez; esta tela não tem seletor de limite de processos de trabalho nem de política de retomada.",
-    "Escolha Add current plate. A primeira linha guarda uma cópia da configuração Recruitment recém-carregada. Confira módulo e origem antes de executar. A tabela mostra identificador, módulo, rótulo, estado e tempo decorrido; não é um editor completo de configurações.",
-    "Arraste a segunda pasta preparada para a fila. As configurações Recruitment salvas identificam o módulo e a pasta arrastada vira a origem. As duas linhas indicam queued. Pastas separadas isolam os resultados; adicionar duas vezes a mesma pasta não garantiria esse isolamento.",
-    "Escolha Run queue. A primeira tarefa passa para running e a segunda continua em queued. É o processamento real de Recruitment, não um progresso simulado. A lista acompanha tarefas sem mostrar todas as imagens ou etapas intermediárias.",
-    "Pressione Stop durante a primeira tarefa. O executor termina a tarefa atual e para antes de iniciar outra. Não é cancelamento imediato: espere a tarefa ativa terminar, sem presumir que seus resultados já pararam de mudar.",
-    "Agora a primeira linha indica success e a segunda continua em queued. Escolha Run queue novamente para processar só a restante. Verificamos que os registros de horário da primeira não mudaram. Essa parada controlada não comprova recuperação após uma falha do computador.",
-    "As duas tarefas indicam success. Cada projeto contém os CSV de células e poços: duzentas e vinte e três células mantidas em quatro poços. Identidades e razões de recrutamento foram conferidas independentemente com as medições; o estado verde sozinho não provaria que os números estão corretos.",
-    "Plot estava ativado, mas este executor não mostra nem salva as figuras de Recruitment. Consulte o tutorial do módulo para esse trabalho com figuras. A fila também não tem painel de conversa AI; nenhuma solicitação de AI ou execução de modelo foi necessária aqui.",
-    "Clear finished remove registros concluídos da fila, não as pastas ou os resultados dos projetos. Preservamos o registro antes de limpar e verificamos que os dois projetos permaneceram. Para scripts, PlateQueue no módulo de fila de placas do Qt gerencia registros persistentes; não é a função de análise Recruitment."
+    "Prepare o primeiro projeto no módulo de análise dele. No Recruitment, escolha Import settings e abra o CSV de configurações do projeto. O exemplo usa duas cópias separadas dos mesmos dados medidos para praticar a execução de vários trabalhos.",
+    "Confira Source, o mapeamento de canais e os rótulos de condição. Salve as configurações que a fila deve usar e deixe este projeto aberto.",
+    "Abra Help e depois Plate queue. A fila executa um item por vez, na ordem da lista.",
+    "Escolha Add current plate. Uma linha nova guarda o módulo e as configurações atuais. Confira o módulo, a origem e o rótulo antes de iniciar a fila.",
+    "Arraste outra pasta de projeto preparada para a fila. As configurações salvas dela identificam o módulo, e a pasta arrastada vira a origem. Use pastas de projeto separadas quando cada trabalho precisar dos próprios arquivos de saída.",
+    "Escolha Run queue. A primeira linha muda para running enquanto os itens seguintes continuam em queued. Acompanhe o status e o tempo decorrido para ver o progresso.",
+    "Pressione Stop quando quiser que a fila termine o item atual e pare antes do próximo. Aguarde o trabalho ativo terminar.",
+    "A linha concluída agora mostra success e a próxima continua em queued. Escolha Run queue de novo para continuar com o item restante.",
+    "Quando os dois trabalhos terminarem, abra a pasta de saída de cada projeto. No Recruitment, inspecione os resultados CSV de células e de poços. Use o Recruitment diretamente quando quiser o fluxo de figuras dele; esta fila não exibe nem salva esses gráficos.",
+    "Escolha Clear finished para remover as entradas concluídas da lista. As pastas de projeto e os resultados salvos continuam disponíveis."
   ]
 }

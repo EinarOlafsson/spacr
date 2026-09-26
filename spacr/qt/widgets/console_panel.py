@@ -1148,6 +1148,9 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._restore_split()
         self._split.splitterMoved.connect(self._on_split_moved)
 
+        #: The right-hand column's text size (item 529); see
+        #: :meth:`apply_column_text_scale`.
+        self._column_text_scale = 1.0
         self._font_pt = self._zoomed_font_pt()
 
         self._ai_active: bool = False
@@ -1224,7 +1227,24 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
 
     def apply_zoom(self) -> None:
         """Re-read Zoom and restyle every entry. Called on a preferences save."""
-        self.set_console_font_pt(self._zoomed_font_pt())
+        self.set_console_font_pt(max(1, int(round(
+            self._zoomed_font_pt()
+            * getattr(self, "_column_text_scale", 1.0)))))
+
+    def apply_column_text_scale(self, scale: float) -> None:
+        """Size the console's text with the column it sits in (item 529).
+
+        The entries carry their own point size (a per-widget sheet and an
+        explicit font), which a sheet on the column cannot reach, so the
+        column's Ctrl + wheel hands its size here and it multiplies Zoom.
+
+        :param scale: 1.0 for the size Zoom alone gives.
+        """
+        scale = float(scale or 1.0)
+        if scale == getattr(self, "_column_text_scale", 1.0):
+            return
+        self._column_text_scale = scale
+        self.apply_zoom()
 
     def set_console_font_pt(self, pt: int) -> None:
         """Set the console font size and apply it to every existing entry.

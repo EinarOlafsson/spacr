@@ -1,31 +1,33 @@
 {
   "lesson": "53_prediction_profiler",
-  "english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
   "review": {
-    "kind": "Editorial caption translation from frozen English; quantitative and synthetic-data caveats preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "is",
-  "title": "Spásnið",
-  "description": "Flytja inn líkan sem er metið á tilbúnum gögnum og skoða áhrif fastra gilda og stillinga línurits á spárnar.",
+  "title": "Prediction Profiler: kannaðu aðlagað líkan",
+  "description": "Hlaðu inn stuðlum líkans, breyttu einu inntaki meðan hin eru föst og skoðaðu spáð svör.",
   "objectives": [
-    "Opna Prediction Profiler í Regression og flytja inn viðeigandi stuðlatöflu.",
-    "Greina á milli mats líkans, andhverfs tengifalls, áætlaðra bila og upplausnar línurits.",
-    "Bera saman báðar inntaksbreytur, breyta föstum gildum og endurheimta miðpunkta."
+    "Hlaða inn stuðlum með réttu tengifalli.",
+    "Sópa einu inntaki og stilla föstu gildin.",
+    "Skoða svörunarferla og næmi."
   ],
-  "prerequisite": "Afþjappið SYNTHETIC-dæminu í nýja möppu. Það inniheldur 121 tilbúna athugun, stuðla úr raunverulegu OLS-mati með statsmodels, upplýsingaskrá og endurgeranlega skriftu. Engin líffræðileg staðfesting eða prófun á fráteknum gögnum er fullyrt. Viðmótið les feature/coefficient og Intercept, en metur ekki líkanið og les ekki athuganirnar. Haldið identity. Við innlestur skráar er gert ráð fyrir tveimur línum á bilinu 0..1 og föstum gildum 0.5. Röðun notar 0.05..0.95 en ferillinn nær yfir 0..1. 338 ferilgildi og tólf röðunargildi voru sannreynd óháð. Aðskilin jaðaráhrif úr umraðunarprófum koma ekki í stað spálíkans þar sem breyturnar eru metnar saman. API: spacr.profiler.from_coefficients, profile, sensitivity; ProfilerScreen.set_model/set_design eru forritunarviðmót, ekki skráavalshnappar. Engin öryggisbil, orsakatengsl, útgáfa eða samþykki eftir hlustun er fullyrt.",
+  "prerequisite": "Sæktu tilbúna stuðladæmið, eða notaðu stuðla úr hentugu aðlöguðu líkani. Samræmdu tengifall þess og kóðun inntaka. Leiðin um stuðlaskrá gerir ráð fyrir inntaksbilum frá 0 til 1; aðskilin jaðaráhrif koma ekki í stað sameiginlega aðlagaðs spálíkans.",
   "scenes": [
-    "Opnið Regression og síðan Prediction Profiler meðal verkfæranna innan þess. Kennslustundin notar skýrt merkt tilbúið kennsludæmi, ekki niðurstöður líffræðilegrar skimunar. Við skoðum metið líkan með því að breyta einni inntaksbreytu og halda hinni fastri. Verkfærið les líkanið; það þjálfar ekki annað.",
-    "Sækið og afþjappið meðfylgjandi dæmi og notið Browse til að opna skrána með OLS-stuðlum tilbúna dæmisins. Hún inniheldur skurðpunkt og tvo metna inntaksstuðla. Athuganirnar og undirbúningsskriftan fylgja líka. Stuðlarnir koma úr raunverulegu mati með aðferð minnstu kvaðrata á tilbúnum gögnum, ekki uppspunnum aðhvarfsniðurstöðum.",
-    "Haldið Link á identity því dæmið var metið með venjulegri aðferð minnstu kvaðrata. Önnur tengiföll tilheyra öðrum líkanaflokkum; valið umbreytir ekki upprunalega líkaninu og þjálfar það ekki aftur. Trúverðugur ferill á röngum svarkvarða er samt rangur. Notið tengifallið úr upprunalega matinu.",
-    "Lesið stöðuskilaboðin: Ekkert hönnunarfylki var afhent, svo skráainnflutningurinn gerir ráð fyrir að hver inntaksbreyta fari frá núlli til eins. Tilbúnu breyturnar okkar hafa þetta bil en ykkar breytur gera það ekki endilega. Röðunin notar 5. og 95. hundraðsmörk; Moves by er ekki mismunurinn milli ystu endapunkta ferilsins.",
-    "Inntaksbreyta A er valin til að breyta eftir ferlinum. Færið sleða B frá miðpunkti að einum. Spáð svar lækkar því metinn stuðull B er neikvæður. Þetta breytir sviðsmyndinni með föstum gildum, ekki þjálfunargögnum eða stuðlum. Lesið tölugildi endapunktanna auk þess að skoða lögun línunnar.",
-    "Færið B að núlli og berið saman aftur. Svarið hækkar. Línuritið breytir kvarða lóðrétta ássins, svo línur sem virðast samsíða geta sýnt mismunandi svarstig. Þetta eru spár innan tiltekins líkans, ekki sönnun þess að breyting á B myndi valda áhrifum í tilraun.",
-    "Reset held values færir sleðana aftur að miðpunktum áætluðu bilanna, hér einum hálfum. Líkanið er ekki metið aftur. Þegar aðeins stuðlaskrá er lesin er þessi miðpunktur ekki miðgildi mælt úr upprunalegu gögnunum: Þau gögn voru aldrei lesin inn í verkfærið.",
-    "Veljið B í röðuðum lista. Nú breytist B eftir lárétta ásnum en A er haldið við einn hálfan. Lækkandi ferillinn samsvarar neikvæðum stuðli B. Listinn raðar næmni líkansins; hann er ekki marktektarpróf, öryggisbil eða listi yfir staðfestar líffræðilegar niðurstöður.",
-    "Breytið Points úr sextíu og einum í ellefu. Þetta velur fjölda staða sem eru reiknaðir fyrir ferilinn, en breytir hvorki úrtaksstærð né gæðum matsins. Línulega dæmið heldur sömu endapunktum. Fleiri punktar á línuriti bæta ekki við athugunum, minnka ekki óvissu og bæta ekki þegar metið líkan.",
-    "Með B enn valið færið þið A að einum og lesið nýja endapunkta svarsins. Endurstillið gildin að lokum. Fyrir eigin greiningu þurfið þið stuðla úr viðeigandi metnu líkani; athugið tengifall, skurðpunkt, kóðun og bil. Notið ekki aðskilin áhrif úr umraðunarprófum í stað spálíkans þar sem breyturnar eru metnar saman."
+    "Opnaðu Regression og svo Prediction Profiler til að kanna spáð svör úr aðlöguðu líkani. Tengda dæmið notar tilbúin gögn.",
+    "Sæktu og afþjappaðu dæmið og notaðu svo Browse til að fara í tilbúnu CSV-skrána með OLS-stuðlum. Taktu skurðpunktinn með þegar þú leggur fram eigin aðlagaða stuðla.",
+    "Stilltu Link á fallið sem aðlagaða líkanið notar. Haltu identity fyrir þetta dæmi um venjulega minnstu kvaðrata.",
+    "Athugaðu upplýsingar um bil eftir innlestur. Leiðin um stuðlaskrá gerir ráð fyrir að hvert inntak nái frá 0 til 1. Staðfestu að það passi við fyrirhugaða notkun áður en þú túlkar ferlana.",
+    "Veldu Input A fyrir sópið. Færðu sleða fasta Input B á 1 og skoðaðu svörunarferilinn sem kemur út.",
+    "Færðu B á 0 og berðu saman svörunargildin. Horfðu á kvarða ássins jafnt sem línuna, því grafið getur breytt kvarða.",
+    "Smelltu á Reset held values til að setja sleðana aftur á miðpunkt áætlaðra bila sinna, 0,5 í þessu dæmi.",
+    "Veldu Input B í röðuðum listanum til að sópa B meðan A er fast. Röðunin tekur saman næmi líkansins yfir stillt inntaksbil.",
+    "Breyttu Points til að velja hve margar stöður eru reiknaðar eftir ferlinum. Ellefu gefur grófara net en sextíu og einn án þess að breyta aðlagaða líkaninu.",
+    "Stilltu föstu gildin til að kanna fleiri sviðsmyndir og endurstilltu þau þegar þú ert búin. Túlkaðu ferlana sem spár líkansins og metðu raunveruleg tilraunaáhrif með viðeigandi gögnum."
   ]
 }

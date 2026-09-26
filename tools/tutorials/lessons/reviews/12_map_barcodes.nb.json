@@ -1,0 +1,35 @@
+{
+  "lesson": "12_map_barcodes",
+  "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Map Barcodes: fra sekvenseringslesninger til tellinger",
+  "description": "Last inn parede lesninger og bibliotekreferanser, finn strekkodeposisjonene, bruk innstillingene og lagre guidetellingene.",
+  "objectives": [
+    "Laste ned et lite eksempel med parede lesninger og velge samsvarende referansetabeller.",
+    "Undersøke strekkodenes posisjoner og orientering før du bruker et forslag.",
+    "Kjøre kartleggingen og undersøke tellinger og kvalitetskontrollutdata."
+  ],
+  "prerequisite": "Velg Load test data i Map Barcodes. Eksemplet bruker lesningene SRR33531217, de samsvarende kolonne- og radtabellene primers_3 og guidereferansene. Bruk referansetabeller som passer ditt eget bibliotek når du behandler andre lesninger.",
+  "scenes": [
+    "Fra Home åpner du Map Barcodes. Inndataene er sekvenseringslesninger og referansetabeller som navngir strekkodene i biblioteket ditt. Utdataene teller hver observerte kombinasjon og er klare for kvalitetskontroll av sekvenseringen og videre analyse.",
+    "Klikk på Load test data og velg begge lesningene i paret fra arkivets første kjøring. Begrens hver fil til 10 000 lesninger i dette eksemplet, og vent til den parede prøven er lastet ned.",
+    "Velg de samsvarende referansetabellene for kolonner, rader og guider. Hver tabell kobler strekkodenavn til sekvenser. Hold navnene konsistente med plateoppsettet og guideidentifikatorene som brukes i resten av analysen.",
+    "Åpne Find barcodes og start søket. Forhåndsvisningen tar prøver fra begge lesningene i paret og kontrollerer strekkodenes posisjoner og orienteringer. Vent på resultatene før du endrer hovedskjemaet.",
+    "Sammenlign Observed med By chance, og undersøk deretter foreslått orientering, forskyvning og vurdering for hver strekkode. Foretrekk posisjoner som støttes av mange lesninger og tydelig atskilte forventede referanser. Åpne forklaringen på vurderingen hvis resultatet er usikkert.",
+    "Undersøk guideresultatene for begge lesningene i paret. I dette eksemplet støtter lesning 1 den revers-komplementære guidesekvensen, og lesning 2 støtter den lagrede orienteringen. Bruk resultatene for ditt bibliotek og ditt lesepar når du velger orientering.",
+    "Kontroller også radstrekkoden. Her støtter lesning 1 dens reverse komplement, og lesning 2 støtter den lagrede sekvensen. Gå gjennom kolonne, guide og rad samlet, slik at hele kombinasjonen identifiserer riktig brønn og riktig guide.",
+    "Åpne lesningsvisningen for å undersøke enkeltlesninger. Bruk fargeforklaringen til å finne segmentene for kolonne, guide, rad og anker. Kontroller at de foreslåtte posisjonene stemmer med bibliotekets forventede struktur.",
+    "Gå gjennom de foreslåtte uttrekksinnstillingene, og klikk deretter på Apply these settings for å kopiere dem inn i skjemaet. Eksemplet bruker et uttrekksvindu på 89 baser. Kontroller de oppdaterte feltene før du starter kjøringen.",
+    "Følg orienteringsmerknadene når du velger de endelige referansefilene. I dette eksemplet velger du revers-komplementære kopier av rad- og guidereferansene og beholder kolonnereferansen slik den er lagret. Behold alle strekkodenavn når du lager disse kopiene.",
+    "Velg det nedlastede leseparet, to arbeidsprosesser og blokker på 1 000 lesninger. Aktiver lagring av annoterte lesninger hvis du vil undersøke enkelttilordninger. Klikk på Run; denne kartleggingsflyten bruker CPU.",
+    "Når kartleggingen er ferdig, undersøker du unique_combinations.csv og kvalitetskontrollutdataene. Tellingstabellen kobler kolonne-, rad- og guidenavn til antall lesninger. Gå gjennom umatchede og tvetydige tilordninger i Barcode QC, og koble deretter tellingene til fenotypepoeng i Regression."
+  ]
+}

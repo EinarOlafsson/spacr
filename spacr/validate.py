@@ -1040,7 +1040,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "barcode_mapping": "",
     "compartments": "",
     "compression": "",
-    "complevel": "",
+    "complevel": "comp_level",
     "correlate": "",
     "downstream": "",
     "upstream": "",
@@ -1166,13 +1166,30 @@ def _object_role_in(key):
 
 
 def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem]:
-    """Flag keys that look like a typo of a real setting.
+    """Flag keys spaCR does not know: a likely typo, or simply unknown.
 
-    Only keys with a close match are reported: spaCR's newer pipelines
-    (stitching, motility, plotting) legitimately carry keys that are not in
-    ``expected_types``, and warning about all of them would be noise.
+    Decision 2026-09-25 (item 237): "settings files with retired keys: WARN
+    AND MIGRATE -- known retired keys are migrated to their successors;
+    truly unknown keys produce a visible warning but the run continues."
+
+    A key with a close match to a live setting is reported as a typo with
+    the suggestion. A key with no close match, that is not retired
+    (:func:`_check_retired_keys` speaks for those) and not renamed, is now
+    reported too -- as a WARNING, never an ERROR, so the run goes ahead
+    with the value ignored. "Known" is broad: ``expected_types``, the
+    tooltips, the category lists and every key a ``set_default_*`` /
+    ``get_*_settings`` helper produces, plus the app's own extra keys. A
+    plugin app's settings are its own, so for one only the typo check runs.
+    A key with no value is not reported: older settings files carry their
+    section headings ("General", "Cell", ...) as blank rows, and a blank
+    value changes nothing whatever its name.
     """
     known = _known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
+    try:
+        from .plugins import get_app as _get_plugin_app
+        plugin = bool(app) and _get_plugin_app(app) is not None
+    except Exception:
+        plugin = False
     problems: List[Problem] = []
     for key in settings:
         if not isinstance(key, str) or key in known:
@@ -1193,6 +1210,14 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
                 WARNING, key,
                 f"'{key}' is not a spaCR setting; did you mean '{close[0]}'?",
                 f"Rename '{key}' to '{close[0]}' — as it stands the value is ignored and the default is used."))
+        elif (not plugin and not key.startswith("_")
+              and settings[key] not in (None, "")):
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' is not a setting spaCR knows.",
+                f"The run continues and '{key}' is ignored. Remove it from "
+                f"the settings file, or check the spelling if it was meant "
+                f"to change something."))
     return problems
 
 

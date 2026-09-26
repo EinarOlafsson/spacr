@@ -2870,7 +2870,8 @@ class CellMontageView(QWidget):
                 rows, groups, parent=self._tabs,
                 settings=self.picture_settings(),
                 databases=self.databases(),
-                counts=getattr(self, "_counts", None))
+                counts=getattr(self, "_counts", None),
+                results=self._results_path() or None)
             self._graph_tab = self._tabs.insertTab(1, self._graph_panel,
                                                    "Compare")
             self._hide_close_button(1)

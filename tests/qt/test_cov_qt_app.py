@@ -1807,6 +1807,73 @@ def test_closing_after_the_update_worker_was_reaped_is_safe(win):
     assert not win.isVisible()
 
 
+def test_a_news_fetch_that_outlasts_the_close_is_detached_not_destroyed(
+        win, monkeypatch):
+    """A running QThread destroyed with its parent window aborts the process.
+
+    Coverage shard 0 of CI run 36020180024 lost three workers to SIGABRT
+    ("QThread: Destroyed while thread '' is still running") this way: Home
+    asked for a GitHub release fetch, the window closed, and the next test's
+    deferred-delete flush destroyed the window with the fetch still running.
+    The socket timeout does not bound name resolution, so the close wait can
+    run out; what outlives it has to leave the window before the window goes.
+    """
+    import threading
+
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    import spacr.updater as updater
+    from spacr.qt import bridge
+
+    release = threading.Event()
+
+    def _unanswered_fetch():
+        release.wait(10)
+        return []
+
+    monkeypatch.setattr(updater, "fetch_release_notes", _unanswered_fetch)
+    monkeypatch.setattr(MainWindow, "_UPDATE_WORKER_WAIT_MS", 50)
+    win._refresh_news()
+    worker = win._news_worker
+    assert worker.isRunning(), "the fetch should still be in flight"
+
+    try:
+        win.close()
+        assert worker.parent() is None, (
+            "a fetch still running at close stayed a child of the window, "
+            "so deleting the window destroys a running QThread")
+        assert any(thread is worker
+                   for thread, _ in list(bridge._PARKED_THREADS))
+        win.deleteLater()
+        QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert worker.isRunning(), "the fetch survives its window"
+    finally:
+        release.set()
+    assert worker.wait(10_000)
+    bridge.prune_parked_threads()
+    assert not any(thread is worker
+                   for thread, _ in list(bridge._PARKED_THREADS))
+
+
+def test_a_news_refresh_asked_for_after_close_starts_no_thread(
+        win, monkeypatch):
+    """Home asks for the news one event-loop turn after it is shown.
+
+    A window closed before that turn used to start the fetch anyway, after
+    its close had already waited for the workers it knew about.
+    """
+    import spacr.updater as updater
+
+    fetched = []
+    monkeypatch.setattr(updater, "fetch_release_notes",
+                        lambda: fetched.append(True) or [])
+    win.close()
+    win._refresh_news()
+    assert getattr(win, "_news_worker", None) is None
+    assert fetched == []
+
+
 def test_a_panel_that_refuses_to_shut_down_does_not_block_the_close(
         win, monkeypatch):
     from spacr.qt.widgets.console_panel import ConsolePanel

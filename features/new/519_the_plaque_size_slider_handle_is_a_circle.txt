@@ -1,7 +1,7 @@
 THE PLAQUE SIZE SLIDER HANDLE IS A CIRCLE
 
-Status: DONE 2026-09-25 (implemented, tests pass; awaiting the maintainer's
-check in the real app). Filed 2026-09-25.
+Status: DONE 2026-09-25 (implemented, tests pass, on nightly as 99232b6c7,
+checked 2026-09-25; awaiting the maintainer's check in the real app). Filed 2026-09-25.
 Owner: unassigned. Related: 517/518 (plaque preview), the per-preview scale
 slider (preview_scale.py), the GUI scale layer (gui_scale.py).
 

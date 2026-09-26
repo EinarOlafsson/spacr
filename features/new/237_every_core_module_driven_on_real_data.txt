@@ -2,7 +2,9 @@
 EVERY CORE MODULE DRIVEN ON REAL DATA, AND FULLY TESTED
 ================================================================================
 
-Status:    DONE 2026-08-27. Section P is closed and the coverage half is
+Status:    DONE 2026-09-25 -- retired keys WARN AND MIGRATE, unknown keys
+           warn, CPU versions of the cheap e2e tests (closing section).
+           Earlier: DONE 2026-08-27. Section P is closed and the coverage half is
            out of scope by the maintainer's own instruction: "Don't waste
            tokens by measuring coverage. Just focus on completing all items
            on the instructions list."
@@ -1317,3 +1319,72 @@ empty problem list. That cutoff is deliberate and
 documented in the function ("spaCR's newer pipelines legitimately carry keys
 that are not in expected_types"), so widening it is a user-facing decision
 rather than a fix, and it is recorded here for one.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DECIDED AND BUILT: RETIRED KEYS WARN AND MIGRATE; CPU VERSIONS
+--------------------------------------------------------------------------------
+
+Maintainer decision (2026-09-25): "settings files with retired keys: WARN
+AND MIGRATE -- known retired keys are migrated to their successors; truly
+unknown keys produce a visible warning but the run continues."
+
+This closes the "ALSO OBSERVED, NOT FIXED" paragraph above (an unknown key
+with no close match, e.g. `upscale_factor` before it was in the retired
+table or `mosaic_csv_out`, was accepted in silence).
+
+WHAT WAS ALREADY THERE, AND STAYS: `RENAMED_SETTINGS` + `_fold_renamed_settings`
+migrate renamed keys in every factory, with a log line per move; the
+pre-flight (`validate._check_retired_keys`) warns for every retired name,
+saying "renamed to X" or "no longer a spaCR setting".
+
+WHAT CHANGED:
+
+  * MIGRATE: `complevel` is now a RENAME to `comp_level` (RENAMED_SETTINGS
+    and RETIRED_SETTINGS agree). This section recorded it as a misspelling
+    of the live `comp_level`, so it is the one retired key in the eleven
+    with a verified successor; an old barcode-mapping file's compression
+    level now reaches the run instead of being dropped. The other ten have
+    no verified 1:1 successor (upstream/downstream/barcode_coordinates are
+    replaced by a different read-window model), so they keep the "no longer
+    a spaCR setting" warning and are ignored -- guessing a successor would
+    send a value somewhere it does not belong.
+  * WARN: `validate._check_unknown_keys` now reports a key with NO close
+    match as a WARNING -- "'<key>' is not a setting spaCR knows. The run
+    continues and '<key>' is ignored." -- never an ERROR, so nothing is
+    blocked. Not reported: keys spaCR knows (expected_types, tooltips,
+    categories, every set_default_*/get_*_settings key, the app's extras),
+    retired or renamed keys (their own message), keys starting with "_"
+    (spaCR's bookkeeping), keys with a blank value (old files keep their
+    section headings "General", "Cell", ... as blank rows), and plugin apps
+    (their settings are their own; the typo check still runs).
+    The pre-flight is shown by the GUI before a run (bridge), by `spacr run`
+    and by batch, so the warning is visible where the run starts.
+
+SECOND QUESTION -- "GPU-only e2e tests get CPU versions?" -- ANSWERED YES,
+WHERE CHEAP (tests/test_real_data_image_modules.py):
+
+  * test_module_ingest_organizes_channels and
+    test_module_ingest_writes_to_persistent_log never touched Cellpose; only
+    the `_stub_plate` fixture demanded a card. Fixture and gpu marks
+    removed: they now run everywhere.
+  * test_module_preprocess_generate_masks_writes_cell_masks runs on the
+    CPU when there is no card, on one 128 px field instead of four (the
+    assertions are per field): 81 s measured with CUDA_VISIBLE_DEVICES=''
+    on a loaded machine, against 188 s for the four fields. gpu mark
+    removed, `slow` kept, skips only when Cellpose is not installed.
+  Measured: tests/test_real_data_image_modules.py with no card went from
+  "6 skipped" to "3 passed, 3 skipped".
+  * NOT converted: the organelle / v2 / measure tests in that file and the
+    six stages of tests/test_full_pipeline_e2e.py (ResNet training, full
+    workspaces). They repeat the mask stage with more object types or train
+    a network; on the CPU that is minutes to hours for no new coverage.
+
+Tests: tests/test_validate.py (unknown key is a WARNING and not an ERROR,
+"_" keys and blank heading rows are not reported, complevel migrates to
+comp_level through the barcode factory),
+tests/test_a_renamed_setting_keeps_old_files_working.py (comp_level's
+factory named). ~3,000 settings/validation/doctor/CLI/Qt-preflight tests
+re-run: all pass except test_cov_8_cli_registry's plugin-SDK log check,
+which fails only inside that large batch and passes alone (order-dependent
+logger state, not this change).

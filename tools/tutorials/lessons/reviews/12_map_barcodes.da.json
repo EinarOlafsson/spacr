@@ -1,0 +1,35 @@
+{
+  "lesson": "12_map_barcodes",
+  "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Map Barcodes: fra sekventeringsreads til optællinger",
+  "description": "Indlæs parrede reads og biblioteksreferencer, find stregkodernes positioner, anvend indstillingerne, og gem guideoptællingerne.",
+  "objectives": [
+    "Hente et lille eksempel med parrede reads og vælge matchende referencetabeller.",
+    "Undersøge stregkodernes positioner og orientering, før du anvender et forslag.",
+    "Køre mapningen og undersøge optællinger og kvalitetskontroloutput."
+  ],
+  "prerequisite": "Vælg Load test data i Map Barcodes. Eksemplet bruger reads fra SRR33531217, de matchende kolonne- og rækketabeller primers_3 og guidereferencerne. Brug referencetabeller, der passer til dit eget bibliotek, når du behandler andre reads.",
+  "scenes": [
+    "Fra Home åbner du Map Barcodes. Input er sekventeringsreads og referencetabeller, der navngiver stregkoderne i dit bibliotek. Output tæller hver observeret kombination og er klar til kvalitetskontrol af sekventeringen og videre analyse.",
+    "Klik på Load test data, og vælg begge reads i parret fra arkivets første kørsel. Begræns hver fil til 10.000 reads i dette eksempel, og vent derefter, til den parrede prøve er hentet.",
+    "Vælg de matchende referencetabeller for kolonner, rækker og guides. Hver tabel knytter stregkodenavne til sekvenser. Hold navnene i overensstemmelse med pladelayoutet og de guide-id'er, der bruges i resten af analysen.",
+    "Åbn Find barcodes, og start søgningen. Forhåndsvisningen tager stikprøver fra begge reads i parret og kontrollerer stregkodernes positioner og orienteringer. Vent på resultaterne, før du ændrer hovedformularen.",
+    "Sammenlign Observed med By chance, og undersøg derefter den foreslåede orientering, forskydning og vurdering for hver stregkode. Foretræk positioner, der understøttes af mange reads og tydeligt adskilte forventede referencer. Åbn forklaringen på vurderingen, hvis resultatet er usikkert.",
+    "Undersøg guideresultaterne for begge reads i parret. I dette eksempel understøtter read 1 den revers-komplementære guidesekvens, og read 2 understøtter den gemte orientering. Brug resultaterne for dit bibliotek og dit read-par, når du vælger orientering.",
+    "Kontrollér også rækkestregkoden. Her understøtter read 1 dens reverse komplement, og read 2 understøtter den gemte sekvens. Gennemgå kolonne, guide og række samlet, så hele kombinationen identificerer den tilsigtede brønd og guide.",
+    "Åbn read-fremviseren for at undersøge enkelte reads. Brug farveforklaringen til at finde segmenterne for kolonne, guide, række og anker. Kontrollér, at de foreslåede positioner stemmer med bibliotekets forventede struktur.",
+    "Gennemgå de foreslåede udtræksindstillinger, og klik derefter på Apply these settings for at kopiere dem ind i formularen. Eksemplet bruger et udtræksvindue på 89 baser. Kontrollér de opdaterede felter, før du starter kørslen.",
+    "Følg bemærkningerne om orientering, når du vælger dine endelige referencefiler. I dette eksempel vælger du revers-komplementære kopier af række- og guidereferencerne og beholder kolonnereferencen, som den er gemt. Bevar alle stregkodenavne, når du laver kopierne.",
+    "Vælg det hentede read-par, to arbejdsprocesser og blokke på 1.000 reads. Slå lagring af annoterede reads til, hvis du vil undersøge enkelte tildelinger. Klik på Run; dette mapningsforløb bruger CPU'en.",
+    "Når mapningen er færdig, undersøger du unique_combinations.csv og kvalitetskontrollens output. Optællingstabellen knytter kolonne-, række- og guidenavne til antal reads. Gennemgå umatchede og tvetydige tildelinger i Barcode QC, og kobl derefter optællingerne til fænotypescorer i Regression."
+  ]
+}

@@ -1,31 +1,35 @@
 {
   "lesson": "59_anndata_export",
-  "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "da",
-  "title": "AnnData Export: aktuel vej og afprøvet API-omvej",
-  "description": "Find den indlejrede eksport, forstå fejlen med manglende metadata, og eksportér det virkelige eksempel med en udtrykkelig, kontrolleret Python-omvej.",
+  "title": "AnnData Export: gem målte objekter og egenskaber",
+  "description": "Eksportér sammenlagte målinger eller én objekttabel til h5ad, vælg, hvordan manglende værdier håndteres, og bevar objekternes metadata.",
   "objectives": [
-    "Find AnnData Export i Measure og måledatabasen.",
-    "Skeln mellem GUI-fejl og API-omvej uden at opfinde metadata.",
-    "Sammenlign sammenføjede, celle- og kernematricer og fire strategier for manglende værdier.",
-    "Genåbn filer og bevar identiteter, annoteringer, billeder og oprindelse."
+    "Åbne AnnData Export og vælge et målt projekt.",
+    "Vælge sammenlagte målinger eller én tabel og en politik for manglende værdier.",
+    "Eksportere en h5ad-fil med egenskabsnavne og objektmetadata."
   ],
-  "prerequisite": "Brug en KOPI af measurements.db fra det downloadede Annotate-eksempel; bevar originalen og billederne. Pak den tilknyttede ZIP ud og læg scriptet ved kopien i spaCR-miljøet. Det kalder spacr.anndata_export.build_anndata og koder kun helt manglende object-kolonner i obs som tomme kategorier. Manglende værdier forbliver manglende; ingen kalibrering eller etiketter opfindes, og denne kodning ændrer ikke X. GUI-fejlen er IKKE rettet. Eksisterende mål afvises; nye filer genindlæses og kontrolleres. SQLite-kontroller: sammenføjet/keep 2341x1136; cell/keep og mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Ingen UMAP, GPU-kørsel, indlejrede billeder, AI-forespørgsel, biologisk validering eller publicering. Den oprindelige GUI-fejl bevares.",
+  "prerequisite": "Brug et projekt, hvor Measure er gennemført, eller hent måleeksemplet via Annotate. Arbejd på en kopi af projektet, og behold dets kildebilleder. Brug den aktuelle nightly-version til den almindelige eksport, der vises her.",
   "scenes": [
-    "Åbn Measure og derefter det indlejrede AnnData Export. AnnData gemmer en matrix med objektrækker og egenskabskolonner sammen med observationsmetadata og egenskabsnavne. Lektionen viser den aktuelle GUI-vej, men de vellykkede eksporter bruger en udtrykkelig Python-omvej. Vi påstår ikke, at GUI-eksportfejlen er rettet.",
-    "Brug en kopi af den reelt downloadede måledatabase, ikke en opdigtet tabel. Bevar billeder og originaldatabase uændret. GUI tager projektmappen; vores kommandolinjeeksempel tager selve måledatabasefilen. Slå den valgfrie indlejringsberegning fra til denne sammenligning. Matrixeksport kræver ingen GPU.",
-    "Se først den uændrede skriver fejle. Nogle observationskolonner indeholder kun manglende værdier med datatypen object, som skriveren ikke kan serialisere. Ukendt voxelkalibrering er et eksempel. Afslutningskode én og en delvis fil er ikke succes. Erstat ikke ukendte værdier med nul eller teksten None for at skjule fejlen.",
-    "Hent hjælpescriptet og undersøg dets lagringsomvej. Det bruger den rigtige funktion build_anndata og koder derefter kun helt manglende object-metadata som tomme kategoriske kolonner. Manglende værdier forbliver manglende; kendte metadata og egenskabsmatricen ændres ikke af kodningen. Det gør ikke fysisk kalibrering til en videnskabeligt kategorisk størrelse.",
-    "Kør scriptet med kildedatabasen, en ny outputsti og strategien keep. Det sammenføjede eksempel har to tusind tre hundrede enogfyrre cellerækker og et tusind et hundrede seksogtredive egenskaber. Tilknyttede kerne- og patogenmålinger samles pr. celle. Fire hundrede tusind tre hundrede tyve manglende egenskabsværdier forbliver manglende, ikke nul.",
-    "Tilføj single-table cell for én objekttypes egne målinger, og behold manglende værdier. Filen har de samme to tusind tre hundrede enogfyrre cellerækker, men kun to hundrede enogtres egenskaber. Otteogtyve værdier mangler. Sammenlign egenskabsnavne og rækkeidentiteter, ikke kun filstørrelse eller kolonneantal.",
-    "Strategien mean er et særskilt analytisk valg, ikke en del af lagringsomvejen. Her udfylder den otteogtyve manglende værdier med kolonnernes observerede gennemsnit. Det eksporterede lag for manglende værdier registrerer de oprindelige positioner. Kontrollér, at imputering passer til analysen; en komplet matrix er ikke automatisk bedre eller uden skævhed.",
-    "Strategien drop-features fjerner kolonner med manglende værdier. Her fjernes fire kolonner, så to hundrede syvoghalvtreds egenskaber og alle cellerækker bevares. Undersøg hvilke målinger der blev fjernet og hvorfor. Strategien ændrer egenskabssættet og kan kassere nyttig information; den er ingen generel anbefaling til datarensning.",
-    "Strategien drop-objects fjerner i stedet rækker med manglende egenskabsværdier. Her fjernes syv celler; to tusind tre hundrede fireogtredive rækker og alle to hundrede enogtres egenskaber er tilbage. Manglende værdier kan hænge sammen med fænotype, billedoptagelse eller segmentering. Undersøg udelukkelserne, før de resterende celler anses for repræsentative.",
-    "Vælg single-table nucleus for én række pr. kerne frem for sammenfattede kerneegenskaber på cellerækker. Eksemplet indeholder to tusind seks hundrede toogfirs kerner og tre hundrede enogfyrre egenskaber. Bevar forbindelser til overordnede objekter og objektidentiteter. Flere kerner end celler betyder ikke, at eksporten skabte ekstra celler.",
-    "Genåbn hver gemt fil. Scriptet sammenligner hele matricen, ordnede objekt- og egenskabsidentiteter, manglende værdier og observationsmetadata; uafhængige SQLite-kontroller bestod også for alle seks filer. Annoteringer forbliver metadata, ikke træningsvariable indsat i matricen. Billeder er ikke indlejret: bevar kildefiler og stier med eksporten.",
-    "Brug et nyt outputnavn for hver strategi, og gem script, indstillinger og pakkeversioner. Scriptet afviser et eksisterende mål frem for at overskrive det. Kontrollerne dokumenterer databevarelse for eksemplet, ikke biologisk gyldighed eller en repareret GUI. Se de tilknyttede API- og målelektioner for resten af arbejdsgangen."
+    "Fra Home åbner du Measure og vælger derefter AnnData Export. Brug værktøjet til at gemme målte objekter, deres egenskaber og metadata samlet i en h5ad-fil.",
+    "Vælg dit målte projekt som Source. I denne gennemgang bruger du en kopi af måleeksemplet, der fås via Annotate. Hold dets målemappe og kildebilleder samlet.",
+    "Lad Single table være tom for at samle de valgte tabeller på cellerækker. Angiv et outputfilnavn, der ender på h5ad. Behold float32 og gzip for en kompakt numerisk eksport.",
+    "Sæt Row limit til 0 for at medtage alle tilgængelige rækker. En positiv grænse er nyttig til en lille første eksport. Lad Compute UMAP være slået fra, når du kun har brug for målematricen.",
+    "Vælg keep som politik for manglende værdier, og tryk derefter på Run. Læs afslutningsmeddelelsen. Det sammenlagte eksempel indeholder 2.341 cellerækker og 1.136 egenskaber.",
+    "Sæt Single table til cell, og vælg et nyt outputfilnavn. Kør igen for kun at eksportere cellemålingerne. Her har resultatet 261 egenskaber og 28 manglende værdier.",
+    "Vælg mean for at erstatte manglende egenskabsværdier med kolonnernes observerede gennemsnit. Eksporten registrerer også deres oprindelige placeringer i et lag for manglende værdier. Brug denne politik, når imputering med gennemsnit passer til din videre analyse.",
+    "Vælg drop_features for at fjerne kolonner, der indeholder manglende værdier. Eksemplet beholder alle celler og fjerner fire egenskabskolonner. Kontrollér de bevarede egenskabsnavne, når du sammenligner eksporter.",
+    "Vælg drop_objects for at fjerne rækker med manglende egenskabsværdier. Her fjernes syv celler. Overvej, om de udelukkede objekter kan ændre din analyse.",
+    "Vælg nucleus som enkelt tabel, når du har brug for én række pr. kerne. Eksemplet giver 2.682 kerner og 341 egenskaber.",
+    "Slå Register artifact til, så outputtet kan findes i projektet. Gem hver politik under sit eget filnavn, og behold dens indstillinger. h5ad-filen indeholder målinger og metadata; opbevar kildebillederne separat.",
+    "Åbn den resulterende h5ad-fil i din videre analyse, og undersøg dens dimensioner, egenskabsnavne og objektmetadata. Fra Python bruger run_anndata_export de samme indstillinger, mens build_anndata opbygger dataene i hukommelsen."
   ]
 }

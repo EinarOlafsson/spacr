@@ -2,7 +2,9 @@
 THE FLOW THRESHOLD DEFAULT IS CELLPOSE'S OWN, 0.4, AND THE WARNING TELLS THE TRUTH
 ================================================================================
 
-Status:    done 2026-09-19, reviewed and corrected the same day. See the
+Status:    DONE 2026-09-25 -- example pack at 0.4, real-data run recorded
+           (closing section). Earlier: done 2026-09-19, reviewed and
+           corrected the same day. See the
            trailing notes. Not yet listed in 00_INDEX.txt (its check is red
            on nightly for duplicate numbers 412-418; index 428 with them).
 Requested: 2026-09-17, GitHub #123, by jak18015 on spaCR 1.5.0.8, in these
@@ -176,3 +178,61 @@ spaCR_settings/1_generate_masks_settings.csv still carries nucleus_/cell_/
 pathogen_FT 100 and so draws the warning that such a value comes from an
 old saved file -- whether the pack moves to 0.4 is the maintainer's call; a
 real-data comparison of 0.4 against 100.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DECIDED AND DONE: THE EXAMPLE PACK MOVES TO 0.4; REAL-DATA RUN
+--------------------------------------------------------------------------------
+
+Maintainer decision (2026-09-25): the example pack
+spaCR_settings/1_generate_masks_settings.csv moves flow_threshold
+(nucleus_/cell_/pathogen_FT) from 100 to 0.4, matching the default; run the
+example Mask on real test data with 100 and with 0.4 (CPU) and record
+objects per class and F1 vs ground truth if available.
+
+THE PACK: nucleus_FT, cell_FT, pathogen_FT are 0.4. Loading it no longer
+draws the "such a value comes from an old saved file" warning.
+tests/test_the_flow_threshold_default_is_cellposes_own.py gains
+test_the_example_pack_carries_the_default_flow_threshold (the three keys are
+0.4 and `_flow_threshold_problems` is silent on each).
+
+THE REAL-DATA RUN. Data: /home/olafsson/datasets/plate1, field E01 F001,
+all four channels, a centred 512 x 512 crop of the 1994 px field (a whole
+field is hours per class on the CPU with Cellpose 4's cpsam). Settings: the
+example pack as loaded by `spacr.cli.load_settings_file`, with src, the
+plate's own channel map (nucleus 0, cell 1, pathogen 2 -- the pack's cell
+channel 3 is a different stain on this plate), plot off, batch 1 -- and the
+three FT keys set to 100 or 0.4. spaCR's `preprocess_generate_masks`,
+Cellpose 4 cpsam, CUDA_VISIBLE_DEVICES='' (CPU), 8 GB cap. Driver and outputs:
+/tmp/spacr-dec2-scratch/ft428/ (drive_ft.py, f1.py, ft100/, ft04/).
+
+GROUND TRUTH: none exists for plate1. The comparison is against the masks
+the recorded plate1 run kept (masks/*_mask_stack/plate1_E01_1_1.npy, Cellpose
+3 cyto/nuclei at FT 100), cropped identically -- an AGREEMENT score with an
+earlier segmentation, not accuracy. A match is IoU >= 0.5, one-to-one.
+
+    objects in the merged array (reference in the crop), F1 vs reference
+
+                  FT 100              FT 0.4
+    cell          46  (3)  F1 0.041   2  (3)  F1 0.400
+    nucleus        1  (6)  F1 0.286   1  (6)  F1 0.286
+    pathogen       1  (1)  F1 1.000   1  (1)  F1 1.000
+    CPU time      778 s               608 s
+
+    Before the merge, the pipeline's own log: cell 53 objects/FOV at an
+    average 394 px2 (FT 100) against 2 at 7,539 px2 (FT 0.4).
+
+WHAT IT SAYS. At FT 100 Cellpose keeps every mask it proposes, and on this
+crop that is 53 small fragments (about 22 px across at a configured cell
+diameter of 160 px): 1 of 46 matches a reference cell. At 0.4 the flow-error
+filter rejects the fragments and the two cells kept include one that
+matches. Nucleus and pathogen come out identical at both thresholds -- the
+filter rejected nothing there -- and the nucleus plane is poor at both (1 of
+6), which is the pack's nucleus settings (background 500 subtracted, CP_prob
+0) on this plate rather than the threshold.
+
+CAVEATS, stated so the numbers are not over-read: one 512 px crop of one
+field, few objects (3 reference cells), a reference that is itself a
+segmentation by a different network, and the pack's own diameters and
+thresholds rather than the plate's recorded ones. It is enough to say 0.4
+does not lose the objects that were really there on this crop and removes
+the fragments 100 lets through; it is not a benchmark.

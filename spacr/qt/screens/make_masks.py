@@ -2653,6 +2653,33 @@ _ZOO_PENDING_ROLE = int(Qt.UserRole) + 18
 def _zoo_cellpose_models() -> List[tuple]:
     """``(key, path or None, entry)`` for every Cellpose model in the zoo.
 
+    :func:`_zoo_models_of_kind` for the ``cellpose`` kind.
+    """
+    return _zoo_models_of_kind("cellpose")
+
+
+def _zoo_cellpose_dino_models() -> List[tuple]:
+    """``(model setting, caption)`` for each Cellpose-DINO model downloaded.
+
+    Item 525. The setting is ``cellpose_dino:<path>``, which
+    :func:`load_cellpose_model` and :func:`_backend_model` run in the
+    Cellpose-DINO backend, and the caption is the one the Model zoo...
+    button gives such a model. A row that is not downloaded is left out:
+    the Model zoo picker is where one is downloaded, next to its backend's
+    install.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import _cellpose_dino_value
+
+    return [(_cellpose_dino_value(path),
+             tr("Cellpose-DINO · {model}", model=os.path.basename(path)))
+            for _key, path, _entry in _zoo_models_of_kind("cellpose_dino")
+            if path]
+
+
+def _zoo_models_of_kind(kind: str) -> List[tuple]:
+    """``(key, path or None, entry)`` for every zoo model of ``kind``.
+
     ``path`` is where the model is on this machine -- the entry's own path,
     or its file in the folder the Model zoo picker downloads into -- and None
     for one not downloaded. ``entry`` is the zoo's own record, which is what
@@ -2666,6 +2693,8 @@ def _zoo_cellpose_models() -> List[tuple]:
     they do not want those models, and a Mode box that listed them anyway
     would be the one place that ignored them. So the same persisted headings
     filter this list.
+
+    :param kind: the zoo kind, ``cellpose`` or ``cellpose_dino``.
     """
     try:
         from ... import model_zoo
@@ -2680,7 +2709,7 @@ def _zoo_cellpose_models() -> List[tuple]:
         return []
     found = []
     for entry in entries:
-        if getattr(entry, "kind", "") != "cellpose":
+        if getattr(entry, "kind", "") != kind:
             continue
         if model_zoo.source_of(entry) not in sources:
             continue
@@ -3237,6 +3266,29 @@ _MAGNIFIER_BACKENDS = {
     "dinocell": ("dinocell", "DINOCell"),
     "samcell": ("samcell", "SAMCell"),
 }
+
+def _offer_cellpose_dino_modes() -> List[str]:
+    """Make each downloaded Cellpose-DINO model a magnifier mode (item 525).
+
+    Unlike Cellpose 3's four stock models, a Cellpose-DINO model is a
+    checkpoint the user downloaded, so its modes are found when the Mode box
+    is built rather than written here: ``cellpose_dino:<path>`` joins
+    :data:`_MAGNIFIER_BACKENDS` under its backend and caption, and
+    :data:`_MAGNIFIER_SEGMENTERS` with :func:`_backend_segmenter`, which
+    loads it through :func:`_backend_model`. Greying and the install offer
+    then treat it as every other backend mode.
+
+    :returns: the modes added, in the zoo's order.
+    """
+    added = []
+    for mode, label in _zoo_cellpose_dino_models():
+        if mode in _MAGNIFIER_BACKENDS:
+            continue
+        _MAGNIFIER_BACKENDS[mode] = ("cellpose_dino", label)
+        _MAGNIFIER_SEGMENTERS[mode] = _backend_segmenter
+        added.append(mode)
+    return added
+
 
 #: Loaded DINOCell and SAMCell models, by backend name, for the life of the
 #: process. Building one loads a ViT checkpoint, and the box asks on every
@@ -7595,6 +7647,7 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(install_test_data_button(self))
         from ..make_masks_datasets import install_dataset_button
         nav_row.addWidget(install_dataset_button(self))
+        nav_row.addWidget(self._build_contribute_button())
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -7937,6 +7990,83 @@ class MakeMasksScreen(QWidget):
         Cellpose.
         """
         screen._on_run()
+
+    def _build_contribute_button(self) -> QPushButton:
+        """The "Contribute images and masks…" button beside the datasets one."""
+        from ..i18n import tr
+        from ..widgets.model_share_dialog import contribute_masks_tooltip
+
+        button = QPushButton(tr("Contribute images and masks…"), self)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(contribute_masks_tooltip())
+        button.clicked.connect(
+            lambda _checked=False: self.contribute_images_and_masks())
+        self._btn_contribute = button
+        return button
+
+    def _contribution_sources(self) -> tuple:
+        """The image on screen and the folder's curated images, as items.
+
+        :returns: ``(current, curated)`` for
+            :class:`~spacr.qt.widgets.model_share_dialog.ContributeMasksDialog`:
+            ``current`` is the field on screen with the mask being edited,
+            ``curated`` every field with a saved mask (the one on screen
+            with the mask on screen). Both ``None`` when no folder is open;
+            Cellpose ``_seg.npy`` bundles are left out, having no image file
+            of their own to send.
+        """
+        files = list(getattr(self, "_image_files", None) or [])
+        if not files:
+            return None, None
+        index = getattr(self, "_current_index", 0)
+        current = None
+        curated = []
+        for i, filename in enumerate(files):
+            if engine.is_seg_bundle(filename):
+                continue
+            folder = (self._field_folders[i] if self._field_folders
+                      else self._folder)
+            source = os.path.join(folder, filename)
+            if i == index:
+                labels = getattr(self._canvas, "mask", None)
+                current = {"name": filename, "source": source,
+                           "labels": None if labels is None
+                           else np.array(labels, copy=True)}
+                if labels is not None and np.any(labels):
+                    curated.append(dict(current))
+                continue
+            mask = engine.mask_save_path(folder, filename,
+                                         **self._layout_kwargs())
+            if os.path.isfile(mask):
+                curated.append({"name": filename, "source": source,
+                                "mask": mask})
+        return current, curated
+
+    def contribute_images_and_masks(self, *, show: bool = True,
+                                    upload=None, threaded: bool = True):
+        """Open the dialog that sends images and masks to a community dataset.
+
+        One click from curation: the dialog opens on the image on screen
+        and its mask, with every curated image of the folder one choice
+        away, and an images folder plus a masks folder as the third way in.
+
+        :param show: show the dialog; False only builds it (tests).
+        :param upload: ``fn(folder, target) -> url`` in place of the real
+            upload (tests).
+        :param threaded: send on a worker thread.
+        :returns: the dialog.
+        """
+        from ..widgets.model_share_dialog import ContributeMasksDialog
+
+        current, curated = self._contribution_sources()
+        dialog = ContributeMasksDialog(
+            current=current, curated=curated, upload=upload,
+            threaded=threaded, parent=self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose, show)
+        self._contribute_dialog = dialog
+        if show:
+            dialog.show()
+        return dialog
 
     def save_curated_mask(self) -> str:
         """Write the labels Curate corrected back to the mask file.
@@ -10536,6 +10666,7 @@ class MakeMasksScreen(QWidget):
         if _cellpose_installed():
             self._mag_mode.addItem("Cellpose", "cellpose")
         self._mag_uninstalled = set()
+        _offer_cellpose_dino_modes()
         for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
             self._mag_mode.addItem(label, mode)
         self._resync_magnifier_modes()
@@ -11581,6 +11712,9 @@ class MakeMasksScreen(QWidget):
         after the picker closes or a download ends, the zoo rows are rebuilt
         -- so a model just downloaded becomes selectable -- and the model
         chosen stays chosen, without a change signal when it did not change.
+        Each Cellpose-DINO model downloaded follows, as
+        ``cellpose_dino:<path>`` under "Cellpose-DINO · <file>" (item 525),
+        which :func:`load_cellpose_model` runs in its backend.
         """
         from ..i18n import tr
         from ..model_install import UNINSTALLED_GREY
@@ -11612,6 +11746,13 @@ class MakeMasksScreen(QWidget):
                         "from the model zoo and selects it.", name=key),
                         Qt.ToolTipRole)
                 combo.setItemData(combo.count() - 1, True, _ZOO_ROLE)
+            for value, label in _zoo_cellpose_dino_models():
+                if combo.findData(value) >= 0:
+                    continue
+                combo.addItem(label, value)
+                row = combo.count() - 1
+                combo.setItemData(row, value, Qt.ToolTipRole)
+                combo.setItemData(row, True, _ZOO_ROLE)
             index = combo.findData(chosen) if chosen is not None else -1
             combo.setCurrentIndex(max(index, 0))
         finally:
@@ -12940,6 +13081,8 @@ class MakeMasksScreen(QWidget):
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._close_levels()
         self._canvas.set_image_and_mask(image, mask)
+        self._canvas.ruler.calibrate_from_file(
+            os.path.join(self._folder or "", filename), image.shape)
         self._loaded_mask = np.array(mask, copy=True)
         self._loaded_from_save_path = os.path.isfile(engine.mask_save_path(
             self._folder, filename, **self._layout_kwargs()))

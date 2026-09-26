@@ -311,7 +311,8 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def package(work: Path, out: Path, truth: List[dict]) -> Path:
+def package(work: Path, out: Path, truth: List[dict],
+            segmented: bool = False) -> Path:
     """Copy what the example ships out of the Mask/Measure work folder."""
     root = out / "dataset"
     if root.exists():
@@ -348,13 +349,27 @@ def package(work: Path, out: Path, truth: List[dict]) -> Path:
         counts[row["state"]] = counts.get(row["state"], 0) + 1
     (out / "README.md").write_text(
         _card(size, _sha256(archive), counts,
-              len(list((root / "merged").glob("*.npy")))),
+              len(list((root / "merged").glob("*.npy"))), segmented),
         encoding="utf-8")
     print(f"invasion: {archive} {size / 1e6:.1f} MB; truth {counts}")
     return archive
 
 
-def _card(size: int, digest: str, counts: Dict[str, int], fields: int) -> str:
+_DRAWN_MASKS = """**The label planes are the objects the generator drew, not a
+Cellpose segmentation**: Mask with Cellpose-SAM did not finish one plate row
+in 40 minutes on CPU, and the GPU was not available. `--segment` on the
+builder runs Mask instead, for a rebuild on a GPU."""
+
+_SEGMENTED_MASKS = """**The label planes are spaCR's own Mask output**
+(Cellpose-SAM on the nucleus, cell and total-parasite channels, run on a GPU
+with `--segment`), so they carry a real segmentation's misses and merges;
+`ground_truth.csv` is still the generator's list of what was drawn."""
+
+
+def _card(size: int, digest: str, counts: Dict[str, int], fields: int,
+          segmented: bool = False) -> str:
+    masks = _SEGMENTED_MASKS if segmented else _DRAWN_MASKS
+    kind = "segmented by Mask" if segmented else "drawn, see above"
     truth = "\n".join(f"| {state} | {n:,} |" for state, n in sorted(counts.items()))
     return f"""---
 license: mit
@@ -389,12 +404,9 @@ SHA-256 `{digest}`.
 fields with the lattice, object shapes and noise model of `spacr.qt.synthetic`
 (seeded from well and field, so reproducible byte for byte) and writes each
 field as the merged stack spaCR's Mask module produces: four image planes,
-then cell, nucleus and pathogen label planes. **The label planes are the
-objects the generator drew, not a Cellpose segmentation**: Mask with
-Cellpose-SAM did not finish one plate row in 40 minutes on CPU, and the GPU
-was not available. **spaCR's own Measure module** then measured every field,
-so `measurements.db` holds measured intensities, not the generator's
-numbers. `--segment` on the builder runs Mask instead, for a rebuild on a GPU.
+then cell, nucleus and pathogen label planes. {masks} **spaCR's own Measure
+module** then measured every field, so `measurements.db` holds measured
+intensities, not the generator's numbers.
 
 The design is the one the Invasion tutorial's synthetic data used: a
 staining-control column and two conditions with a known mixture of invaded
@@ -425,7 +437,7 @@ has something to get wrong.
 - `measurements/measurements.db` -- Measure's tables (cell, nucleus,
   pathogen, cytoplasm).
 - `merged/` -- the {fields} merged stacks: four image planes, then the cell,
-  nucleus and pathogen masks (drawn, see above).
+  nucleus and pathogen masks ({kind}).
 - `ground_truth.csv` -- every parasite the generator drew, with its position,
   host cell and state. Compare the module's calls against it:
 
@@ -460,7 +472,7 @@ def main(argv: Sequence[str] = None) -> int:
         truth_rows = write_merged(work, rows=tuple(args.rows))
     from spacr.measure import measure_crop
     measure_crop(measure_settings(work))
-    package(work, out, truth_rows)
+    package(work, out, truth_rows, segmented=args.segment)
     return 0
 
 
