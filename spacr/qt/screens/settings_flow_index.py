@@ -525,6 +525,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'manders_thresholds',
     'map_name',
     'mask_dims',
+    'mask_gpu_indices',
+    'mask_parallel',
     'mask_src',
     'masks',
     'match_column',

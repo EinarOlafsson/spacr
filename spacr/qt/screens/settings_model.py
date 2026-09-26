@@ -275,7 +275,9 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                        "remove_background", "diameter", "resize", "width_height",
                        "target_size", "augment", "verbose"},
     "mask": {"pathogen_model"},
-    "timelapse": {"timelapse"},
+    # Parallel GPU masks refuse timelapse and t_stack runs, so the Timelapse
+    # panel keeps both keys at their off/blank defaults without showing them.
+    "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",

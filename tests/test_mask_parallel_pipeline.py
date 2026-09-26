@@ -20,6 +20,17 @@ DEVICES = [{'index': 0, 'name': 'Card A', 'memory_bytes': 1 << 30, 'backend': 'c
            {'index': 1, 'name': 'Card B', 'memory_bytes': 1 << 30, 'backend': 'cuda'}]
 
 
+@pytest.fixture(autouse=True)
+def _unrestricted_gpu_visibility(monkeypatch):
+    """Match the stand-in DEVICES: no visibility list hides them.
+
+    The suite runs with CUDA_VISIBLE_DEVICES='' on shared machines, which
+    would contradict the two stand-in cards these tests discover.
+    """
+    for key in ('CUDA_VISIBLE_DEVICES', 'HIP_VISIBLE_DEVICES', 'ROCR_VISIBLE_DEVICES'):
+        monkeypatch.delenv(key, raising=False)
+
+
 def _segment(src, settings, role, *, batch_paths, on_batch_done, run_qc):
     """Deterministic CPU segmenter that refuses to overwrite any output."""
     from spacr.cancellation import checkpoint
