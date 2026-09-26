@@ -1,0 +1,1104 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#9",
+      "source": "legend, purpose, observation and implication text placed below the panel in the PDF.",
+      "source_sha256": "082262c22af07f5efa189176755f063b051cbb23b04e8602453e46033651fcaa",
+      "context": "legend, purpose, observation and implication text placed below the panel in the PDF.",
+      "translation": "लेजेंड, उद्देश्य, अवलोकन और निहितार्थ पाठ, जो PDF में पैनल के नीचे रखा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#10",
+      "source": "``(min, max)`` vertical axis limits, also recorded in the stats CSV.",
+      "source_sha256": "bd15eebff3fc20958bd977d51cbd453503cf76a7ded24d3c978ffd0c689aa540",
+      "context": "``(min, max)`` vertical axis limits, also recorded in the stats CSV.",
+      "translation": "``(min, max)`` ऊर्ध्वाधर अक्ष सीमाएँ, जो stats CSV में भी दर्ज होती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#11",
+      "source": "y value of the dashed horizontal threshold line; points with a label that lie above it and to the right of ``effect_threshold`` get their label drawn.",
+      "source_sha256": "bc13b95182185acf2d070767c3bae1a2a8f4833a7ceab9a9c4bb5c17ac0f51e6",
+      "context": "y value of the dashed horizontal threshold line; points with a label that lie above it and to the right of ``effect_threshold`` get their label drawn.",
+      "translation": "धराशायी क्षैतिज थ्रेशोल्ड रेखा का y मान; जिन लेबल वाले बिंदुओं की स्थिति इसके ऊपर और ``effect_threshold`` के दाईं ओर है, उनका लेबल बनाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#12",
+      "source": "what the dashed horizontal line represents, quoted in the legend text and stats CSV.",
+      "source_sha256": "4c9c1aac97ff69e7c4cbab26ec218f2d0ebe0f34a5b3e7b2cc081b4e2498f495",
+      "context": "what the dashed horizontal line represents, quoted in the legend text and stats CSV.",
+      "translation": "धराशायी क्षैतिज रेखा क्या दर्शाती है, जिसे लेजेंड पाठ और stats CSV में उद्धृत किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#13",
+      "source": "x value of the dotted vertical effect-threshold line.",
+      "source_sha256": "27159a1664c4aed73909dbfa6b1889f035ff678082b2dde46b4d467352bc4fec",
+      "context": "x value of the dotted vertical effect-threshold line.",
+      "translation": "बिंदीदार ऊर्ध्वाधर प्रभाव-थ्रेशोल्ड रेखा का x मान।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#14",
+      "source": "what the dotted vertical line represents, quoted in the legend text and stats CSV.",
+      "source_sha256": "46405c88524e4c1a58e6ad7a536e5786645b2d4ee4da3106643a74bbd9733633",
+      "context": "what the dotted vertical line represents, quoted in the legend text and stats CSV.",
+      "translation": "बिंदीदार ऊर्ध्वाधर रेखा क्या दर्शाती है, जिसे लेजेंड पाठ और stats CSV में उद्धृत किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#4",
+      "source": "column of horizontal (effect) values; must be numeric.",
+      "source_sha256": "2960b18a2c0b22e17030af87b17cb4e9e9404e5456033d1f0d648f507cb36525",
+      "context": "column of horizontal (effect) values; must be numeric.",
+      "translation": "क्षैतिज (प्रभाव) मानों का स्तंभ; संख्यात्मक होना चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#5",
+      "source": "column of vertical values; must be numeric.",
+      "source_sha256": "182dfac5600428cb50f6bad9c6d72977546c44184aa81abe459580e5e914bd90",
+      "context": "column of vertical values; must be numeric.",
+      "translation": "ऊर्ध्वाधर मानों का स्तंभ; संख्यात्मक होना चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#6",
+      "source": "column of LOPIT/TAGM localisation categories that colour the points; every category must have a colour in ``palette``.",
+      "source_sha256": "390bc8060a3d2f985110ee030f5e97d610eddcb8e3c30fba9d8ec9553361382b",
+      "context": "column of LOPIT/TAGM localisation categories that colour the points; every category must have a colour in ``palette``.",
+      "translation": "LOPIT/TAGM स्थानीयकरण श्रेणियों का स्तंभ जो बिंदुओं को रंग देता है; हर श्रेणी का ``palette`` में एक रंग होना चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#9",
+      "source": "``(min, max)`` horizontal axis limits, also recorded in the stats CSV.",
+      "source_sha256": "848d9a67773256e53fd800c6c02c841384de62b3860d0e31fb0cc45becd68af1",
+      "context": "``(min, max)`` horizontal axis limits, also recorded in the stats CSV.",
+      "translation": "``(min, max)`` क्षैतिज अक्ष सीमाएँ, जो stats CSV में भी दर्ज होती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.report.Section#8",
+      "source": ":data:`STATUS_OK`, :data:`STATUS_MISSING`, or :data:`STATUS_PROBLEM`.",
+      "source_sha256": "51a9ca13677c776c9faa5b9e5203f954c21879991efc906b7fd47446bd5db101",
+      "context": ":data:`STATUS_OK`, :data:`STATUS_MISSING`, or :data:`STATUS_PROBLEM`.",
+      "translation": ":data:`STATUS_OK`, :data:`STATUS_MISSING` या :data:`STATUS_PROBLEM`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.resource_log#5",
+      "source": "WHY IT IS NOT VERBOSE LOGGING. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon thread that is never the GUI thread, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
+      "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
+      "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
+      "translation": "यह वर्बोज़ लॉगिंग क्यों नहीं है। वर्बोज़ लॉगिंग केवल यह तय करती है कि कौन-से लॉग रिकॉर्ड रखे जाएँ, इसलिए उसके पास मेमोरी का कोई हिसाब देने को नहीं है। उसने एक समय जो फ़ंक्शन ट्रेसर स्थापित किया था, वह हर कॉल और हर रिटर्न पर सक्रिय होता था, और स्टार्टअप का बीस गुना समय लेता था। ट्रेसर के माध्यम से लिया गया हिसाब वास्तविक प्रोग्राम के बजाय ट्रेस किए गए प्रोग्राम का वर्णन करेगा, और ठीक उसी प्रोग्राम को कोई मापना नहीं चाहता। इसलिए यह इसके बजाय नमूने लेता है: प्रति सेकंड एक psutil रीडिंग, एक daemon थ्रेड पर जो कभी GUI थ्रेड नहीं होता, अन्यथा अप्रभावित रन पर। चेकबॉक्स के बजाय तीन अवस्थाएँ, क्योंकि उपयोगी डिफ़ॉल्ट \"off\" नहीं है -- संसाधनों का सबसे मूल्यवान डेटा उन रनों से आता है जिनके विफल होने की किसी को अपेक्षा नहीं थी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.resume.completed_fields_in_merged#5",
+      "source": "restrict the scan to these stems. Defaults to every ``.npy`` in ``src`` whose name does not start with a dot: a macOS ``._`` sidecar ends in ``.npy`` too and is not a field.",
+      "source_sha256": "7b47b76533e52b4138dfbadea00ed0141d4c4e64d381da49ca3bfddbe5c90d5e",
+      "context": "restrict the scan to these stems. Defaults to every ``.npy`` in ``src`` whose name does not start with a dot: a macOS ``._`` sidecar ends in ``.npy`` too and is not a field.",
+      "translation": "स्कैन को इन स्टेम तक सीमित करें। डिफ़ॉल्ट रूप से हर वह ``.npy`` जो ``src`` में है और जिसका नाम बिंदु से शुरू नहीं होता: macOS की ``._`` साइडकार फ़ाइल भी ``.npy`` पर समाप्त होती है और वह फ़ील्ड नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.rra.rank_aggregate#4",
+      "source": "``\"neg\"``, ``\"pos\"`` or ``\"both\"``.",
+      "source_sha256": "4c2b257de9edc448e04ce2a6f515a5d7875d51b5d93d00dac7f2851a1d4901a6",
+      "context": "``\"neg\"``, ``\"pos\"`` or ``\"both\"``.",
+      "translation": "``\"neg\"``, ``\"pos\"`` या ``\"both\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_compare.Finding#2",
+      "source": ":data:`BLOCKING` or :data:`WARNING`.",
+      "source_sha256": "5c72e5d48679dc67ed076617e293b5952ac6fb56c060fd50e3be8a47cbfba267",
+      "context": ":data:`BLOCKING` or :data:`WARNING`.",
+      "translation": ":data:`BLOCKING` या :data:`WARNING`।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.run_compare.HitChange#2",
+      "source": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` or ``\"held\"``.",
+      "source_sha256": "0baf3aec5c8bf8e5a5f4738f2ea29aa447aceea7a28893168d76b0a5bc753a84",
+      "context": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` or ``\"held\"``.",
+      "translation": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` या ``\"held\"``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#0",
+      "source": "Describe object types once, collapsing organelle slots into a regex.",
+      "source_sha256": "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
+      "context": "Describe object types once, collapsing organelle slots into a regex.",
+      "translation": "ऑब्जेक्ट प्रकारों का एक बार वर्णन करें, ऑर्गेनेल स्लॉट को एक regex में समेटते हुए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#1",
+      "source": "internal object identifiers, in display order.",
+      "source_sha256": "760e45115cd2aa3ddc62378e0bc0413289019e46c298796d26471281ba17ffb5",
+      "context": "internal object identifiers, in display order.",
+      "translation": "आंतरिक ऑब्जेक्ट पहचानकर्ता, प्रदर्शन क्रम में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#2",
+      "source": "comma-separated types. Organelle identifiers are represented by one exact pattern, such as ``organelle(?:[b-z]|[a-z]{2})?`` for all slots. This changes presentation only, never stored identifiers or parsing.",
+      "source_sha256": "171071046f8826b4bb3a934ac411a3caf70775979028ff5d2196f6b8b35619ff",
+      "context": "comma-separated types. Organelle identifiers are represented by one exact pattern, such as ``organelle(?:[b-z]|[a-z]{2})?`` for all slots. This changes presentation only, never stored identifiers or parsing.",
+      "translation": "अल्पविराम से अलग किए गए प्रकार। ऑर्गेनेल पहचानकर्ता एक सटीक पैटर्न से दर्शाए जाते हैं, जैसे सभी स्लॉट के लिए ``organelle(?:[b-z]|[a-z]{2})?``। यह केवल प्रस्तुति बदलता है, कभी संग्रहीत पहचानकर्ता या पार्सिंग नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.schema.parse_prcf#6",
+      "source": "e.g. ``'plate1_r1_c1_f2'`` or ``'plate1_r1_c1_f2_t3'``.",
+      "source_sha256": "4cdac837d8e8ce51e7bab6b3fa48169145c7c97a1419d54d50749a47296dffbe",
+      "context": "e.g. ``'plate1_r1_c1_f2'`` or ``'plate1_r1_c1_f2_t3'``.",
+      "translation": "उदाहरण: ``'plate1_r1_c1_f2'`` या ``'plate1_r1_c1_f2_t3'``।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.schema.parse_prcfo#3",
+      "source": "e.g. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` or ``'plate1_r1_c1_f2_nucleus7'``.",
+      "source_sha256": "34f72d16518586e8b5f0fba00ce214b10e4448ca27115ec38606e729ba28e464",
+      "context": "e.g. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` or ``'plate1_r1_c1_f2_nucleus7'``.",
+      "translation": "उदाहरण: ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` या ``'plate1_r1_c1_f2_nucleus7'``।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.average_precision#1",
+      "source": "the ground-truth label image, 0 for background and one integer id per object.",
+      "source_sha256": "ee4ab18db1a34cacd4ba3a926332eadcc8abd55aa2f48f10e7eeeefdb7b13bfe",
+      "context": "the ground-truth label image, 0 for background and one integer id per object.",
+      "translation": "ग्राउंड-ट्रुथ लेबल छवि, पृष्ठभूमि के लिए 0 और प्रति ऑब्जेक्ट एक पूर्णांक id।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.average_precision#2",
+      "source": "the predicted label image, the same shape as ``truth``.",
+      "source_sha256": "7cef880b60762f3c35c0c8537e9f376c361728a95f42da6a9546f2ed67d7822e",
+      "context": "the predicted label image, the same shape as ``truth``.",
+      "translation": "पूर्वानुमानित लेबल छवि, ``truth`` के समान आकार की।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_against_baseline#2",
+      "source": "the finetuned model's label image for the same field.",
+      "source_sha256": "6eaa6ee6e980d77b84c9dc942b68ef883ee79aa5e1fee1aa6e1045ba2b2f4ad5",
+      "context": "the finetuned model's label image for the same microscope field of view.",
+      "translation": "उसी फ़ील्ड के लिए फ़ाइन-ट्यून किए गए मॉडल की लेबल छवि।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_against_baseline#3",
+      "source": "the vanilla model's label image for the same field.",
+      "source_sha256": "ce139cd740d52100af4a4a5259cf472987d80c6c10b75d3196b59d5266562490",
+      "context": "the vanilla model's label image for the same microscope field of view.",
+      "translation": "उसी फ़ील्ड के लिए मूल (vanilla) मॉडल की लेबल छवि।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#2",
+      "source": "ground truth per object, 0 or 1.",
+      "source_sha256": "5f8d086a44b2740fdaa1488ec1146cfd07599cb12a4ad656f520d008b06c3e00",
+      "context": "ground truth per object, 0 or 1.",
+      "translation": "प्रति ऑब्जेक्ट ग्राउंड ट्रुथ, 0 या 1।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#3",
+      "source": "the finetuned classifier's predicted probability of the positive class, one per label.",
+      "source_sha256": "f1aed30813817a6ff4bafaf38f57f7c035b77949d596b140fc963ec08857dc01",
+      "context": "the finetuned machine-learning classification model's predicted probability of the positive class, one per label.",
+      "translation": "फ़ाइन-ट्यून किए गए क्लासिफ़ायर द्वारा पूर्वानुमानित सकारात्मक वर्ग की प्रायिकता, प्रति लेबल एक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#4",
+      "source": "the vanilla classifier's predicted probability of the positive class, one per label.",
+      "source_sha256": "e6d38dd6f33139f9964e5c26091cfc41b9d933a0f79e60b2875cab4a98e46f0b",
+      "context": "the vanilla machine-learning classification model's predicted probability of the positive class, one per label.",
+      "translation": "मूल (vanilla) क्लासिफ़ायर द्वारा पूर्वानुमानित सकारात्मक वर्ग की प्रायिकता, प्रति लेबल एक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.load_holdout#1",
+      "source": "path to the hold-out manifest JSON, which must declare ``name``, ``version`` and ``fields``.",
+      "source_sha256": "ddb881556d528af38b614cc2b711627fb657dcb9f155a369a080dc21307199cd",
+      "context": "path to the hold-out manifest JSON, which must declare ``name``, ``version`` and ``fields``.",
+      "translation": "होल्ड-आउट मैनिफ़ेस्ट JSON का पथ, जिसमें ``name``, ``version`` और ``fields`` घोषित होने चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.score_holdout#2",
+      "source": "the held-out set's name, carried into the result.",
+      "source_sha256": "e03ba97193609d2e0b2f9d479f331ed4dc7d69e14b36dced33b1124a98c73ceb",
+      "context": "the held-out set's name, carried into the result.",
+      "translation": "होल्ड-आउट सेट का नाम, जो परिणाम में आगे ले जाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.score_holdout#3",
+      "source": "the held-out set's version, carried into the result.",
+      "source_sha256": "85bb415aab3c4fabdd3d73fa773f1736e8ce52c68231cd9518cf0a8db459d61f",
+      "context": "the held-out set's version, carried into the result.",
+      "translation": "होल्ड-आउट सेट का संस्करण, जो परिणाम में आगे ले जाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.score_model_on_holdout#1",
+      "source": "the hold-out set whose fields' images are predicted and whose truth masks are read.",
+      "source_sha256": "6700e0ac8fa8ea7fda7fc6f64c942d56ad978cc94541412759c8e75cc4de55d8",
+      "context": "the hold-out set whose microscope fields of view' images are predicted and whose truth masks are read.",
+      "translation": "वह होल्ड-आउट सेट जिसके फ़ील्डों की छवियों पर पूर्वानुमान किया जाता है और जिसके सत्य मास्क पढ़े जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_csv#1",
+      "source": "the table rows, as from :func:`scorecard_rows`; the first row's keys are the CSV columns, and no rows gives ``\"\"``.",
+      "source_sha256": "58364729364ace6703a2c638e6dfe1ad86e2bbdfbf3baa6189176e44885784df",
+      "context": "the table rows, as from :func:`scorecard_rows`; the first row's structured-data names are the CSV columns, and no rows gives ``\"\"``.",
+      "translation": "तालिका पंक्तियाँ, जैसी :func:`scorecard_rows` से मिलती हैं; पहली पंक्ति की कुंजियाँ CSV स्तंभ हैं, और कोई पंक्ति न होने पर ``\"\"`` मिलता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_rows#2",
+      "source": "the finetuned model's score.",
+      "source_sha256": "9a4ddad6df58a7795b1d0c33f22b70d4f17cbdae89b6d07981f9ab5d185796a2",
+      "context": "the finetuned model's score.",
+      "translation": "फ़ाइन-ट्यून किए गए मॉडल का स्कोर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_rows#3",
+      "source": "the vanilla model's score, on the same set name and version.",
+      "source_sha256": "dd7aaf34d08113390ed86637ab14357bddff9960d083d8e957083c9bdd3ef54e",
+      "context": "the vanilla model's score, on the same set name and version.",
+      "translation": "मूल (vanilla) मॉडल का स्कोर, उसी सेट नाम और संस्करण पर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.verify_holdout#1",
+      "source": "the hold-out set whose truth masks are checked on disk.",
+      "source_sha256": "2a9c5d8ac80e740041e87b2aa22a7957592cfd7cae2e140aac5293b2eaed77e8",
+      "context": "the hold-out set whose truth masks are checked on disk.",
+      "translation": "वह होल्ड-आउट सेट जिसके सत्य मास्क डिस्क पर जाँचे जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.screen_data.ScreenAsset#3",
+      "source": "``\"measurements\"`` or ``\"crops\"``.",
+      "source_sha256": "86ca1b1ab7225d300a7a1272f83042515f040984eda451d4e49deaf7935c81d2",
+      "context": "``\"measurements\"`` or ``\"crops\"``.",
+      "translation": "``\"measurements\"`` या ``\"crops\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#10",
+      "source": "``% border-touching objects`` Objects that touch the field edge are truncated, so their crops are cut off and their areas understate the truth. For objects of diameter *d* on a *W*-wide field the geometric expectation is about ``2*d/W`` — 8% for 60 px cells on a 1400 px field. ``seg_qc_border_fraction`` defaults to 0.30: a configurable review threshold, not a universal geometric limit.",
+      "source_sha256": "35993bb7adf1146609e384165c4fda0d181fe179fee3a32cbae36d78dbc81b9d",
+      "context": "``% border-touching objects`` Objects that touch the microscope field of view edge are truncated, so their extracted image regions are cut off and their areas understate the truth. For objects of diameter *d* on a *W*-wide microscope field of view the geometric expectation is about ``2*d/W`` — 8% for 60 px cells on a 1400 px microscope field of view. ``seg_qc_border_fraction`` defaults to 0.30: a configurable review threshold, not a universal geometric limit.",
+      "translation": "``% border-touching objects`` जो ऑब्जेक्ट फ़ील्ड के किनारे को छूते हैं वे कटे हुए होते हैं, इसलिए उनके क्रॉप अधूरे होते हैं और उनका क्षेत्रफल वास्तविकता से कम दिखता है। *W* चौड़े फ़ील्ड पर *d* व्यास वाले ऑब्जेक्ट के लिए ज्यामितीय अपेक्षा लगभग ``2*d/W`` है — 1400 px फ़ील्ड पर 60 px कोशिकाओं के लिए 8%। ``seg_qc_border_fraction`` का डिफ़ॉल्ट 0.30 है: एक कॉन्फ़िगर करने योग्य समीक्षा थ्रेशोल्ड, कोई सार्वभौमिक ज्यामितीय सीमा नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#11",
+      "source": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
+      "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
+      "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
+      "translation": "``size outliers`` उन ऑब्जेक्ट का अंश जिनका समतुल्य व्यास ``median ± seg_qc_outlier_mad * 1.4826 * MAD`` से बाहर पड़ता है। माध्यिका और MAD, माध्य और मानक विचलन नहीं: मलबे के पाँच टुकड़े मानक विचलन को तब तक फुला देते हैं जब तक कुछ भी बाहरी मान न रहे, और ठीक यही वह स्थिति है जिसे पकड़ने के लिए यह जाँच बनी है (``tests/test_seg_qc.py`` दोनों की तुलना करता है)। *k* = 5 जानबूझकर ढीला है — वास्तविक आकार वितरण lognormal होते हैं और Gaussian से भारी पूँछ वाले होते हैं, इसलिए 3 sigma एक पूरी तरह अच्छे फ़ील्ड के भी कुछ प्रतिशत को चिह्नित कर देता है। फ़्लैग तब सक्रिय होता है जब ``seg_qc_outlier_fraction`` (0.15) से अधिक ऑब्जेक्ट उस सीमा से बाहर हों। भारी पूँछ, मिश्रित आबादी और सेगमेंटेशन दोष सभी इसे सक्रिय कर सकते हैं; फ़्लैग यह नहीं बताता कि इनमें से कौन मौजूद है। किनारे वाले ऑब्जेक्ट हर आकार सांख्यिकी से बाहर रखे जाते हैं, ठीक वैसे ही जैसे ``diameter._region_diameters`` उन्हें बाहर रखता है, क्योंकि कटे हुए ऑब्जेक्ट का क्षेत्रफल झूठा होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#17",
+      "source": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` Every flag in :data:`FLAGS` in plain language: what it means for the measurements, possible explanations, and what to inspect. Where uneven illumination is one possible cause, the entry says so and points at :mod:`spacr.illumination`, which estimates the lamp profile from the plate's own fields and divides it out. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → plate ``plate1``, well ``E07``, row ``E``, column 7. Naming the plate and the wells is the difference between \"3 plates failed\" and something a user can go and look at. ``diagnose(field_qcs)`` → ``[Finding]`` Per-plate, per-flag findings that name the plate and the wells, plus the positional ones no single field can see: a plate whose object count or object size steps between one half of the rows (or columns) and the other. These patterns warrant checking illumination, experimental layout, treatment and biology; they do not establish a cause. ``read_digest(src)`` → ``QCDigest`` The cheap path: locate ``qc/segmentation_qc_*.csv`` under a project, parse it, roll it up, diagnose it, and compare each card's mtime against its mask stack so a card written before the last re-mask is reported as out of date rather than believed. Scores nothing. ``score_digest(src)`` → ``QCDigest`` The expensive path, for the user who asks for it explicitly: score the mask stacks under a project, write the cards, return the same digest. ``format_digest(digest)`` The printable version.",
+      "source_sha256": "4e5ab2039531bb8fa1017de18ec328e6368ff0e4cf8eef752ebb7759f4d80d40",
+      "context": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` Every flag in :data:`FLAGS` in plain language: what it means for the measurements, possible explanations, and what to inspect. Where uneven illumination is one possible cause, the entry says so and points at :mod:`spacr.illumination`, which estimates the lamp profile from the laboratory microplate's own microscope fields of view and divides it out. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → laboratory microplate ``plate1``, microplate sample position ``E07``, row ``E``, column 7. Naming the laboratory microplate and the microplate sample positions is the difference between \"3 laboratory microplates failed\" and something a user can go and look at. ``diagnose(field_qcs)`` → ``[Finding]`` Per-laboratory microplate, per-flag findings that name the laboratory microplate and the microplate sample positions, plus the positional ones no single microscope field of view can see: a laboratory microplate whose object count or object size steps between one half of the rows (or columns) and the other. These patterns warrant checking illumination, experimental layout, treatment and biology; they do not establish a cause. ``read_digest(src)`` → ``QCDigest`` The cheap path: locate ``qc/segmentation_qc_*.csv`` under a project, parse it, roll it up, diagnose it, and compare each card's mtime against its mask stack so a card written before the last re-mask is reported as out of date rather than believed. Scores nothing. ``score_digest(src)`` → ``QCDigest`` The expensive path, for the user who asks for it explicitly: score the mask stacks under a project, write the cards, return the same digest. ``format_digest(digest)`` The printable version.",
+      "translation": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` :data:`FLAGS` का हर फ़्लैग सरल भाषा में: मापों के लिए उसका क्या अर्थ है, संभावित कारण, और क्या जाँचना है। जहाँ असमान प्रदीप्ति एक संभावित कारण है, वहाँ प्रविष्टि यह बताती है और :mod:`spacr.illumination` की ओर इंगित करती है, जो प्लेट के अपने फ़ील्डों से लैंप प्रोफ़ाइल का अनुमान लगाता है और उससे विभाजित करके उसे हटा देता है। ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → प्लेट ``plate1``, वेल ``E07``, पंक्ति ``E``, स्तंभ 7। प्लेट और वेलों का नाम बताना ही \"3 प्लेटें विफल हुईं\" और ऐसी चीज़ के बीच का अंतर है जिसे उपयोगकर्ता जाकर देख सकता है। ``diagnose(field_qcs)`` → ``[Finding]`` प्रति-प्लेट, प्रति-फ़्लैग निष्कर्ष जो प्लेट और वेलों का नाम बताते हैं, साथ ही वे स्थितिगत निष्कर्ष जिन्हें कोई अकेला फ़ील्ड नहीं देख सकता: ऐसी प्लेट जिसकी ऑब्जेक्ट गिनती या ऑब्जेक्ट आकार पंक्तियों (या स्तंभों) के एक आधे और दूसरे आधे के बीच अचानक बदलता है। ये पैटर्न प्रदीप्ति, प्रायोगिक लेआउट, उपचार और जीवविज्ञान की जाँच का कारण हैं; ये कोई कारण स्थापित नहीं करते। ``read_digest(src)`` → ``QCDigest`` सस्ता मार्ग: किसी प्रोजेक्ट के अंतर्गत ``qc/segmentation_qc_*.csv`` खोजें, उसे पार्स करें, समेकित करें, उसका निदान करें, और हर कार्ड के mtime की तुलना उसके मास्क स्टैक से करें, ताकि अंतिम री-मास्क से पहले लिखे गए कार्ड पर भरोसा करने के बजाय उसे पुराना बताया जाए। कुछ भी स्कोर नहीं करता। ``score_digest(src)`` → ``QCDigest`` महँगा मार्ग, उस उपयोगकर्ता के लिए जो इसे स्पष्ट रूप से माँगता है: किसी प्रोजेक्ट के अंतर्गत मास्क स्टैक स्कोर करें, कार्ड लिखें, वही डाइजेस्ट लौटाएँ। ``format_digest(digest)`` प्रिंट करने योग्य संस्करण।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#2",
+      "source": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every channel, computes hundreds of features per object and writes them to SQLite. On a full plate that is hours. A plate whose segmentation collapsed — a channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious fields, but cannot establish their cause or validate biological interpretation.",
+      "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
+      "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
+      "translation": "``measure_crop`` spaCR का महँगा चरण है: यह हर मास्क खोलता है, हर चैनल से हर ऑब्जेक्ट काटता है, प्रति ऑब्जेक्ट सैकड़ों फ़ीचर की गणना करता है और उन्हें SQLite में लिखता है। पूरी प्लेट पर इसमें घंटों लगते हैं। जिस प्लेट का सेगमेंटेशन ढह गया हो — कोई चैनल फ़ोकस से बाहर, व्यास दो गुना गलत, कोई संगम मोनोलेयर जो पट्टियों में जुड़ गई — उसमें भी ठीक उतने ही घंटे लगते हैं और फिर एक ऐसी माप तालिका बनती है जिसे फेंकना पड़ता है। विफलता केवल मास्क से ही स्पष्ट है; कोई देखता नहीं, क्योंकि देखने का अर्थ है हाथ से हज़ार ``.npy`` फ़ाइलें खोलना। मास्क सांख्यिकी संदिग्ध फ़ील्डों को उजागर कर सकती है, लेकिन उनका कारण स्थापित नहीं कर सकती या जैविक व्याख्या को मान्य नहीं कर सकती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#3",
+      "source": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every field against a handful of robust statistics, and prints a scorecard naming fields that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop fields. Deciding which fields to keep is the user's call and it needs the evidence, not a filter.",
+      "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
+      "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
+      "translation": "इसलिए यह मॉड्यूल देखता है। यह :mod:`spacr.object` द्वारा अभी-अभी लिखे गए लेबल मास्क पढ़ता है, हर फ़ील्ड को कुछ मज़बूत सांख्यिकी के आधार पर स्कोर करता है, और एक स्कोरकार्ड प्रिंट करता है जिसमें कॉन्फ़िगर की गई सीमाओं से आगे जाने वाले फ़ील्डों के नाम होते हैं। यह कुछ नहीं बदलता: ``seg_qc='report'`` (डिफ़ॉल्ट) फ़्लैग सामने लाता है, यह चुपचाप फ़ील्ड नहीं हटाता। कौन-से फ़ील्ड रखने हैं, यह तय करना उपयोगकर्ता का काम है और उसके लिए प्रमाण चाहिए, फ़िल्टर नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#7",
+      "source": "``object count`` and its deviation from the plate median ``count_ratio`` is ``n_objects / plate_median``; outside ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 to 4-fold) the field is flagged. Such a difference may reflect treatment, infection, seeding, acquisition or segmentation. Inspect the experimental layout and images; the count ratio alone cannot distinguish those explanations.",
+      "source_sha256": "a9652be9b277bfce5d3276905441f03e164e6e17d9644021028483dfab9f4519",
+      "context": "``object count`` and its deviation from the laboratory microplate median ``count_ratio`` is ``n_objects / plate_median``; outside ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 to 4-fold) the microscope field of view is flagged. Such a difference may reflect treatment, infection, seeding, acquisition or segmentation. Inspect the experimental layout and images; the count ratio alone cannot distinguish those explanations.",
+      "translation": "``object count`` और प्लेट माध्यिका से उसका विचलन ``count_ratio`` ``n_objects / plate_median`` है; ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 से 4 गुना) से बाहर होने पर फ़ील्ड चिह्नित होता है। ऐसा अंतर उपचार, संक्रमण, कोशिका सीडिंग, अधिग्रहण या सेगमेंटेशन को दर्शा सकता है। प्रायोगिक लेआउट और छवियों का निरीक्षण करें; केवल गिनती अनुपात इन व्याख्याओं में भेद नहीं कर सकता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#8",
+      "source": "``under-segmentation`` (fused objects) Detected the way :mod:`spacr.diameter` detects it, and for the same reason: **both halves of the signature are required**. The field must be dense enough for fusion to be the explanation (foreground at or above ``seg_qc_foreground_fraction``, default 0.35 — the same number ``diameter.estimate_diameters(fused_fraction=...)`` uses, because it is the same question), *and* the mask must under-count what the pixels support: either one label covers more than ``seg_qc_max_object_fraction`` of the field (0.25, again diameter.py's number), or the Euclidean distance transform of the foreground resolves at least ``seg_qc_split_ratio`` (2.0) inscribed-circle maxima per mask object. Requiring both matters in each direction: a dense but correctly separated field reaches 35% foreground and is fine, while an elongated or hollow object shatters the distance transform into several maxima and is also fine. diameter.py demands a 5-fold seed excess because it compares against raw Otsu components, where a confluent monolayer is one blob; here the comparison is against a Cellpose mask that already separates most objects, and the smallest fusion worth catching — every object being a welded pair — is exactly 2. Large, irregular or confluent biological objects can also trigger the heuristic; confirm boundaries against the raw images.",
+      "source_sha256": "3e1f6a4f6d40e15088b91fc4636e817a5ec433bce3518835f9feb7096d8f4458",
+      "context": "``under-segmentation`` (fused objects) Detected the way :mod:`spacr.diameter` detects it, and for the same reason: **both halves of the signature are required**. The microscope field of view must be dense enough for fusion to be the explanation (foreground at or above ``seg_qc_foreground_fraction``, default 0.35 — the same number ``diameter.estimate_diameters(fused_fraction=...)`` uses, because it is the same question), *and* the mask must under-count what the pixels support: either one label covers more than ``seg_qc_max_object_fraction`` of the microscope field of view (0.25, again diameter.py's number), or the Euclidean distance transform of the foreground resolves at least ``seg_qc_split_ratio`` (2.0) inscribed-circle maxima per mask object. Requiring both matters in each direction: a dense but correctly separated microscope field of view reaches 35% foreground and is fine, while an elongated or hollow object shatters the distance transform into several maxima and is also fine. diameter.py demands a 5-fold seed excess because it compares against raw Otsu components, where a confluent monolayer is one blob; here the comparison is against a Cellpose mask that already separates most objects, and the smallest fusion worth catching — every object being a welded pair — is exactly 2. Large, irregular or confluent biological objects can also trigger the heuristic; confirm boundaries against the raw images.",
+      "translation": "``under-segmentation`` (जुड़े हुए ऑब्जेक्ट) उसी तरह पहचाना जाता है जैसे :mod:`spacr.diameter` पहचानता है, और उसी कारण से: **संकेत के दोनों हिस्से आवश्यक हैं**। फ़ील्ड इतना घना होना चाहिए कि जुड़ाव ही व्याख्या हो (फ़ोरग्राउंड ``seg_qc_foreground_fraction`` के बराबर या उससे ऊपर, डिफ़ॉल्ट 0.35 — वही संख्या जो ``diameter.estimate_diameters(fused_fraction=...)`` उपयोग करता है, क्योंकि प्रश्न वही है), *और* मास्क को पिक्सेल द्वारा समर्थित संख्या से कम गिनना चाहिए: या तो एक लेबल फ़ील्ड के ``seg_qc_max_object_fraction`` से अधिक भाग को ढकता है (0.25, फिर से diameter.py की संख्या), या फ़ोरग्राउंड का यूक्लिडियन दूरी रूपांतरण प्रति मास्क ऑब्जेक्ट कम से कम ``seg_qc_split_ratio`` (2.0) अंतर्वृत्त मैक्सिमा दिखाता है। दोनों की आवश्यकता हर दिशा में मायने रखती है: घना लेकिन सही ढंग से अलग किया गया फ़ील्ड 35% फ़ोरग्राउंड तक पहुँचता है और ठीक है, जबकि लंबा या खोखला ऑब्जेक्ट दूरी रूपांतरण को कई मैक्सिमा में तोड़ देता है और वह भी ठीक है। diameter.py 5 गुना अधिक सीड माँगता है क्योंकि वह कच्चे Otsu घटकों से तुलना करता है, जहाँ संगम मोनोलेयर एक ही धब्बा है; यहाँ तुलना ऐसे Cellpose मास्क से है जो अधिकांश ऑब्जेक्ट पहले ही अलग कर देता है, और पकड़ने योग्य सबसे छोटा जुड़ाव — हर ऑब्जेक्ट का एक जुड़ा हुआ जोड़ा होना — ठीक 2 है। बड़े, अनियमित या संगम जैविक ऑब्जेक्ट भी इस अनुमानी नियम को सक्रिय कर सकते हैं; सीमाओं की पुष्टि कच्ची छवियों से करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#9",
+      "source": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the field's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, but these defaults must be adapted for genuinely small objects. Relative to the plate: the field holds ``seg_qc_size_ratio``-fold more objects than the plate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
+      "source_sha256": "de3d9d7254732ef378abd9d523f001bae639400112d2f01dc6efbe7935097c4d",
+      "context": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the microscope field of view's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, but these defaults must be adapted for genuinely small objects. Relative to the laboratory microplate: the microscope field of view holds ``seg_qc_size_ratio``-fold more objects than the laboratory microplate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
+      "translation": "``over-segmentation`` (बिखरे हुए ऑब्जेक्ट) दो संकेत। निरपेक्ष रूप से: फ़ील्ड के कम से कम ``seg_qc_tiny_fraction`` (0.30) ऑब्जेक्ट का आर-पार माप ``seg_qc_min_diameter`` (5 px) से कम है — spaCR का व्यास अनुमानक 4 px से छोटे घटकों को मलबे के रूप में पहले ही हटा देता है, लेकिन वास्तव में छोटे ऑब्जेक्ट के लिए इन डिफ़ॉल्ट को अनुकूलित करना होगा। प्लेट के सापेक्ष: फ़ील्ड में प्लेट माध्यिका की तुलना में ``seg_qc_size_ratio`` गुना अधिक ऑब्जेक्ट हैं, प्लेट के माध्यिका व्यास के ``1/seg_qc_size_ratio`` पर। यह नियंत्रण जानबूझकर डिफ़ॉल्ट रूप से 1.4 = sqrt(2) है — एक में जुड़े दो ऑब्जेक्ट का समतुल्य व्यास एक ऑब्जेक्ट का sqrt(2) गुना होता है, और दो में टूटे एक ऑब्जेक्ट का 1/sqrt(2) गुना, इसलिए 1.4 कोई मनमानी सहनशीलता नहीं, बल्कि स्वयं जुड़े-जोड़े / आधे-में-टूटे का संकेत है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest#7",
+      "source": "what :func:`diagnose` made of current, readable cards.",
+      "source_sha256": "6e98f705276d32622323c653b2722fc6661e65b1bc063bc8239436a3c5a594a2",
+      "context": "what :func:`diagnose` made of current, readable cards.",
+      "translation": "वर्तमान, पढ़ने योग्य कार्डों से :func:`diagnose` ने जो निष्कर्ष निकाला।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest.failing_fields#0",
+      "source": "Fields scored ``'fail'`` in current, readable cards.",
+      "source_sha256": "087d7330441efb6c419490e8a975b28c7bc7db27633f9fc64fccc8f0a5b9312b",
+      "context": "Fields scored ``'fail'`` in current, readable cards.",
+      "translation": "वर्तमान, पढ़ने योग्य कार्डों में ``'fail'`` स्कोर पाए फ़ील्ड।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest.n_fields#0",
+      "source": "Fields scored in current, readable cards; stale rows are excluded.",
+      "source_sha256": "341744fd4236fe20769f498595a56c8f3a9d8f6dd1422b752fceaf2aa065082d",
+      "context": "Fields scored in current, readable cards; stale rows are excluded.",
+      "translation": "वर्तमान, पढ़ने योग्य कार्डों में स्कोर किए गए फ़ील्ड; पुरानी पंक्तियाँ बाहर रखी जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc.Scorecard.verdict#0",
+      "source": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
+      "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
+      "context": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
+      "translation": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` या ``'error'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.seg_qc.qc_mode#3",
+      "source": "``'off'``, ``'report'`` or ``'flag'``.",
+      "source_sha256": "9c8b90ba958d182c320912edf49e3ab25ac67465618c5022a82bc61485180d53",
+      "context": "``'off'``, ``'report'`` or ``'flag'``.",
+      "translation": "``'off'``, ``'report'`` या ``'flag'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.sequencing.generate_barecode_mapping#6",
+      "source": "``mode`` — ``'paired'`` or ``'single'``.",
+      "source_sha256": "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
+      "context": "``mode`` — ``'paired'`` or ``'single'``.",
+      "translation": "``mode`` — ``'paired'`` या ``'single'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.sequencing_qc.ThresholdChoice#4",
+      "source": "``'median'`` or ``'mean'``.",
+      "source_sha256": "c914d6cde8163f1294884b5e5d3098d9affebf81351930028c949fe5bf19bfc0",
+      "context": "``'median'`` or ``'mean'``.",
+      "translation": "``'median'`` या ``'mean'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.settings.bundled_barcode_path#1",
+      "source": "``'column'``, ``'grna'`` or ``'row'``.",
+      "source_sha256": "dc25f1240dab29bdeafb2943a2b547afbd2fe81c9a8a386d8155324c764dca45",
+      "context": "``'column'``, ``'grna'`` or ``'row'``.",
+      "translation": "``'column'``, ``'grna'`` या ``'row'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.settings.set_annotate_default_settings#1",
+      "source": "``crop_size`` was called ``img_size`` until 2026-09-19. A dict that still says ``img_size`` has its value moved across before any default lands, so an older settings file keeps the size it chose.",
+      "source_sha256": "5a647356370395929f44fc2af2bc8ce457ec228fe17a6d48272b02a8b3603852",
+      "context": "``crop_size`` was called ``img_size`` until 2026-09-19. A key-value mapping that still says ``img_size`` has its value moved across before any default lands, so an older settings file keeps the size it chose.",
+      "translation": "``crop_size`` को 2026-09-19 तक ``img_size`` कहा जाता था। जो dict अब भी ``img_size`` कहता है, उसका मान किसी भी डिफ़ॉल्ट के लागू होने से पहले स्थानांतरित कर दिया जाता है, ताकि पुरानी सेटिंग्स फ़ाइल अपना चुना हुआ आकार बनाए रखे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.settings_advisor.Question#3",
+      "source": "``'number'`` or ``'choice'``.",
+      "source_sha256": "63ace43dd0edfb8419121333420cda2d2416efb7b688f16d94de917131b09336",
+      "context": "``'number'`` or ``'choice'``.",
+      "translation": "``'number'`` या ``'choice'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.settings_advisor.requirements_for_unit#1",
+      "source": "``'cell'`` or ``'well'``.",
+      "source_sha256": "912479767d502dd4428175876b30094f695681b405eeae38e7c3032a50fa2625",
+      "context": "``'cell'`` or ``'well'``.",
+      "translation": "``'cell'`` या ``'well'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sra.estimated_bytes#2",
+      "source": "the run files to download.",
+      "source_sha256": "3c153032c4e64108482710ab44f31f016e9c393ec52f696a0a7cf1178e165b2f",
+      "context": "the run files to download.",
+      "translation": "डाउनलोड की जाने वाली रन फ़ाइलें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sra.estimated_bytes#3",
+      "source": "reads to take from each file, or None for whole files; each file's share is ``max_reads / read_count``, capped at 1.",
+      "source_sha256": "7e829f37c6d4aae9f0325434a35a73a62bbea5e6fba22a6d92b427b6200b9f86",
+      "context": "reads to take from each file, or None for whole files; each file's share is ``max_reads / read_count``, capped at 1.",
+      "translation": "हर फ़ाइल से ली जाने वाली रीड, या पूरी फ़ाइलों के लिए None; हर फ़ाइल का हिस्सा ``max_reads / read_count`` है, अधिकतम 1 तक सीमित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#3",
+      "source": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
+      "source_sha256": "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
+      "context": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
+      "translation": "स्ट्रीम की जाने वाली आर्काइव फ़ाइल; उसका ``url`` पढ़ा जाता है और उसका ``filename`` आउटपुट का नाम तय करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#4",
+      "source": "folder the ``.fastq.gz`` file is written into; created if missing.",
+      "source_sha256": "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
+      "context": "folder the ``.fastq.gz`` file is written into; created if missing.",
+      "translation": "वह फ़ोल्डर जिसमें ``.fastq.gz`` फ़ाइल लिखी जाती है; अनुपस्थित होने पर बनाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.sra.total_bytes#1",
+      "source": "the run files; their ``size_bytes`` are summed, so a file of unknown size adds zero.",
+      "source_sha256": "d122d2e1d5b46e1b4fbce99891734f5d25730f91dd65df52bee024da8c41670e",
+      "context": "the run files; their ``size_bytes`` are summed, so a file of unknown size adds zero.",
+      "translation": "रन फ़ाइलें; उनके ``size_bytes`` का योग लिया जाता है, इसलिए अज्ञात आकार वाली फ़ाइल शून्य जोड़ती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.stream_dataset.build_selection#3",
+      "source": "dst : str Output folder; created if missing, and ``stream_selection.csv`` is written into it.",
+      "source_sha256": "0d8632b46d8f161667495ca5561542895e300c0df6bdf3a24bb62275ecc857bf",
+      "context": "dst : str Output folder; created if missing, and ``stream_selection.csv`` is written into it.",
+      "translation": "dst : str आउटपुट फ़ोल्डर; अनुपस्थित होने पर बनाया जाता है, और ``stream_selection.csv`` उसमें लिखी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.stream_dataset.crop_name#3",
+      "source": "field_stem : str File stem of the image field the object comes from; escaped, it begins the crop name. object_id : int Label id of the object; it follows the stem in the name.",
+      "source_sha256": "263316f92516d05be28dd2a480b8a7eafa7d6805f9a531b6a65a7a42798b37f5",
+      "context": "field_stem : str File stem of the microscope image field of view the object comes from; escaped, it begins the extracted image region name. object_id : int Label id of the object; it follows the stem in the name.",
+      "translation": "field_stem : str उस छवि फ़ील्ड का फ़ाइल स्टेम जिससे ऑब्जेक्ट आता है; एस्केप किए जाने के बाद यह क्रॉप नाम की शुरुआत बनता है। object_id : int ऑब्जेक्ट की लेबल id; नाम में यह स्टेम के बाद आती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.stream_dataset.settings_for_method#2",
+      "source": "method : str Selection method name (``'column'`` or ``'array'``), matched case-insensitively after stripping whitespace.",
+      "source_sha256": "16931865a08e319119f125b5cb0113b41d75041676cd16d913e39367870eecf7",
+      "context": "method : str Selection method name (``'column'`` or ``'array'``), matched case-insensitively after stripping whitespace.",
+      "translation": "method : str चयन विधि का नाम (``'column'`` या ``'array'``), जिसका मिलान व्हाइटस्पेस हटाने के बाद अक्षर-आकार की परवाह किए बिना किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.stream_dataset.stream#1",
+      "source": "Each merged field is loaded once and all selected objects from that field are extracted before advancing. Missing or ambiguous field matches are reported as missing crops; a different field is never used as a fallback.",
+      "source_sha256": "9b6fc7664f0614f6a9150230560849ff5474c766405334d110a6edc55424cf22",
+      "context": "Each merged microscope field of view is loaded once and all selected objects from that microscope field of view are extracted before advancing. Missing or ambiguous microscope field of view matches are reported as missing extracted image regions; a different microscope field of view is never used as a fallback.",
+      "translation": "हर मर्ज किया गया फ़ील्ड एक बार लोड किया जाता है और आगे बढ़ने से पहले उस फ़ील्ड से सभी चयनित ऑब्जेक्ट निकाले जाते हैं। अनुपस्थित या अस्पष्ट फ़ील्ड मिलानों को अनुपस्थित क्रॉप के रूप में दर्ज किया जाता है; विकल्प के रूप में कभी किसी दूसरे फ़ील्ड का उपयोग नहीं किया जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.Cellpose3Checkpoint#0",
+      "source": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
+      "source_sha256": "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3",
+      "context": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
+      "translation": "एक Cellpose 3 चेकपॉइंट Cellpose 4 को दिया गया, जो उसे लोड नहीं कर सकता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#5",
+      "source": "``diameter``, ``flow_threshold`` and ``CP_prob``, read by :func:`spacr.plaque.segment_plaque_image`, the call the Plaque preview makes too.",
+      "source_sha256": "6c6e649957d0b9c583c81c447713b9b3b3db4949a7b6bc6afbe768633e9fd6e3",
+      "context": "``diameter``, ``flow_threshold`` and ``CP_prob``, read by :func:`spacr.plaque.segment_plaque_image`, the call the Plaque preview makes too.",
+      "translation": "``diameter``, ``flow_threshold`` और ``CP_prob``, जिन्हें :func:`spacr.plaque.segment_plaque_image` पढ़ता है, वही कॉल जो Plaque पूर्वावलोकन भी करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#6",
+      "source": "``plaque_mode`` -- ``'figure'`` hands the folder to :func:`spacr.plaque_papers.measure_figure_folder` instead.",
+      "source_sha256": "42198a3abf9a706c48ef47734cb8536dda97a3ae52285ac4ffd2ba8f4888ddff",
+      "context": "``plaque_mode`` -- ``'figure'`` hands the folder to :func:`spacr.plaque_papers.measure_figure_folder` instead.",
+      "translation": "``plaque_mode`` -- ``'figure'`` फ़ोल्डर को इसके बजाय :func:`spacr.plaque_papers.measure_figure_folder` को सौंप देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#0",
+      "source": "Measure marker recruitment with host-cell and per-well summaries.",
+      "source_sha256": "e8dce620bb42d900fe4ffcff575b8b74cc2c218642da91103eb51332b87c5044",
+      "context": "Measure marker recruitment with host-cell and per-microplate sample position summaries.",
+      "translation": "मेज़बान-कोशिका और प्रति-वेल सारांशों के साथ मार्कर भर्ती (recruitment) मापें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#1",
+      "source": "Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from a spacr ``measurements.db``, annotates each row with cell type / pathogen / treatment based on plate metadata, filters objects by size and intensity, computes the pathogen-to-cytoplasm mean-intensity ratio for ``channel_of_interest``, groups by well and writes both ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.",
+      "source_sha256": "a29f43922aa0cb30f176d04778b1fdd408509368b812cb139973604ece725c8b",
+      "context": "Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from a spacr ``measurements.db``, annotates each row with cell type / pathogen / treatment based on laboratory microplate metadata, filters objects by size and intensity, computes the pathogen-to-cytoplasm mean-intensity ratio for ``channel_of_interest``, groups by well and writes both ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.",
+      "translation": "spacr ``measurements.db`` से मर्ज की गई कोशिका/नाभिक/रोगजनक/साइटोप्लाज़्म फ़ीचर तालिकाएँ पढ़ता है, प्लेट मेटाडेटा के आधार पर हर पंक्ति को कोशिका प्रकार / रोगजनक / उपचार से एनोटेट करता है, ऑब्जेक्ट को आकार और तीव्रता से फ़िल्टर करता है, ``channel_of_interest`` के लिए रोगजनक-से-साइटोप्लाज़्म माध्य-तीव्रता अनुपात की गणना करता है, वेल के अनुसार समूह बनाता है और भर्ती प्लॉट के साथ ``results/cells.csv`` और ``results/wells.csv`` दोनों लिखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#10",
+      "source": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim`` — recorded object-channel mapping used by image overlays and intensity filtering.",
+      "source_sha256": "cb6d273d8f2360ea8ec4bef8ba6f62a667ebc6ecc72eac903fb617f1f6bd3721",
+      "context": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim`` — recorded object-image data channel mapping used by image overlays and intensity filtering.",
+      "translation": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim`` — छवि ओवरले और तीव्रता फ़िल्टरिंग द्वारा उपयोग की जाने वाली दर्ज ऑब्जेक्ट-चैनल मैपिंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#15",
+      "source": "List ``[cells, wells]`` — the host-cell and per-well recruitment DataFrames, also written to CSV under ``src/results``.",
+      "source_sha256": "a361b3555fcb6119b2af0e473de644e51360e86efcabf19fd118ecc10bff870c",
+      "context": "List ``[cells, wells]`` — the host-cell and per-microplate sample position recruitment DataFrames, also written to CSV under ``src/results``.",
+      "translation": "सूची ``[cells, wells]`` — मेज़बान-कोशिका और प्रति-वेल भर्ती DataFrames, जो ``src/results`` के अंतर्गत CSV में भी लिखे जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#2",
+      "source": "Each cell row combines the pathogen measurements assigned to that host cell. Pathogen mean intensities are averaged across its associated objects; these rows represent host cells rather than independently measured vacuoles. The main recruitment ratio divides that aggregate pathogen mean by the cell's cytoplasm mean. Each well averages its retained cell ratios.",
+      "source_sha256": "92758f0c3daf51c7599fc7762df2cd5c50a2acc4f27e3c75df90b7b6df3cc203",
+      "context": "Each cell row combines the pathogen measurements assigned to that host cell. Pathogen mean intensities are averaged across its associated objects; these rows represent host cells rather than independently measured vacuoles. The main recruitment ratio divides that aggregate pathogen mean by the cell's cytoplasm mean. Each microplate sample position averages its retained cell ratios.",
+      "translation": "हर कोशिका पंक्ति उस मेज़बान कोशिका को सौंपे गए रोगजनक मापों को जोड़ती है। रोगजनक माध्य तीव्रताओं का उसके संबद्ध ऑब्जेक्ट पर औसत लिया जाता है; ये पंक्तियाँ स्वतंत्र रूप से मापी गई रिक्तिकाओं का नहीं, बल्कि मेज़बान कोशिकाओं का प्रतिनिधित्व करती हैं। मुख्य भर्ती अनुपात उस समेकित रोगजनक माध्य को कोशिका के साइटोप्लाज़्म माध्य से विभाजित करता है। हर वेल अपनी रखी गई कोशिकाओं के अनुपातों का औसत लेता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#3",
+      "source": "In the GUI, open Home > Toxoplasma > Recruitment. Select a measured project, map its channels and plate conditions, review the object filters, and Run. Inspect the retained counts and ratio columns before comparing conditions. Condition plots show between-well standard deviations. For measurements linked to individual vacuoles, use :mod:`spacr.host_pathogen`.",
+      "source_sha256": "fc79e36854da76e195f32ef1e797cc60fba0119db86589d27aca7d7ae8047840",
+      "context": "In the GUI, open Home > Toxoplasma > Recruitment. Select a measured project, map its channels and laboratory microplate conditions, review the object filters, and Run. Inspect the retained counts and ratio columns before comparing conditions. Condition plots show between-well standard deviations. For measurements linked to individual vacuoles, use :mod:`spacr.host_pathogen`.",
+      "translation": "GUI में Home > Toxoplasma > Recruitment खोलें। एक मापा गया प्रोजेक्ट चुनें, उसके चैनल और प्लेट स्थितियाँ मैप करें, ऑब्जेक्ट फ़िल्टर की समीक्षा करें, और Run दबाएँ। स्थितियों की तुलना करने से पहले रखी गई गिनतियों और अनुपात स्तंभों का निरीक्षण करें। स्थिति प्लॉट वेलों के बीच मानक विचलन दिखाते हैं। अलग-अलग रिक्तिकाओं से जुड़े मापों के लिए :mod:`spacr.host_pathogen` का उपयोग करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#5",
+      "source": "``src`` — folder containing ``measurements/measurements.db`` and optional ``merged`` images for overlays. A database path is also accepted; a database outside a measurements folder may be moved into one, so use a project copy when reorganizing existing data.",
+      "source_sha256": "28d0a82095526582605eff4a5f53a1d538458fa91379f2695bbf50254e04a0f5",
+      "context": "``src`` — folder containing ``measurements/measurements.db`` and optional ``merged`` images for overlays. A database path is also accepted; a database outside a measurements folder may be moved into one, so use a project copy when reorganizing existing data.",
+      "translation": "``src`` — वह फ़ोल्डर जिसमें ``measurements/measurements.db`` और ओवरले के लिए वैकल्पिक ``merged`` छवियाँ हैं। डेटाबेस पथ भी स्वीकार किया जाता है; measurements फ़ोल्डर के बाहर का डेटाबेस किसी measurements फ़ोल्डर में ले जाया जा सकता है, इसलिए मौजूदा डेटा को पुनर्गठित करते समय प्रोजेक्ट की प्रति का उपयोग करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.analyze_replication#1",
+      "source": "``replication_method='direct_count'`` is the default described below. ``'size_proxy'`` delegates to :func:`analyze_endodyogeny` and returns its area-derived, host-aggregated readout instead. Both return the selected method in ``replication_method``. ``'deep_learning_coming_soon'`` raises :class:`NotImplementedError` before any data are read or outputs written; the whole-vacuole classification model is not available yet.",
+      "source_sha256": "605c05e5ef87a845b292da76a0192c107f810769f3830dcf030806f270899ba8",
+      "context": "``replication_method='direct_count'`` is the default described below. ``'size_proxy'`` delegates to :func:`analyze_endodyogeny` and returns its area-derived, host-aggregated readout instead. Both return the selected method in ``replication_method``. ``'deep_learning_coming_soon'`` raises :class:`NotImplementedError` before any data are read or outputs written; the whole-vacuole classification model is not available yet.",
+      "translation": "``replication_method='direct_count'`` नीचे वर्णित डिफ़ॉल्ट है। ``'size_proxy'`` काम :func:`analyze_endodyogeny` को सौंपता है और इसके बजाय उसका क्षेत्रफल-आधारित, मेज़बान-स्तर पर समेकित परिणाम लौटाता है। दोनों चुनी गई विधि ``replication_method`` में लौटाते हैं। ``'deep_learning_coming_soon'`` कोई भी डेटा पढ़े जाने या आउटपुट लिखे जाने से पहले :class:`NotImplementedError` त्रुटि उठाता है; पूरी-रिक्तिका वर्गीकरण मॉडल अभी उपलब्ध नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.explain_cellpose3#0",
+      "source": "Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.",
+      "source_sha256": "c06357c30e243f47a56f0866d851a560d8821236c421d5e6e896d33f29b70c14",
+      "context": "Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.",
+      "translation": "किसी Cellpose 3 चेकपॉइंट को Cellpose 4 द्वारा अस्वीकार किए जाने को सलाह में बदलें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.explain_cellpose3#1",
+      "source": "the exception Cellpose raised.",
+      "source_sha256": "3c9d865f9dc45b7149be58619e293798d57edd70f7f0b4da1d40d20eacb72d4c",
+      "context": "the exception Cellpose raised.",
+      "translation": "वह अपवाद जो Cellpose ने उठाया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.explain_cellpose3#2",
+      "source": "what was asked for, for the message.",
+      "source_sha256": "9cd77fa3259421669734c34089afc8d0e363009f2248c20dc3e3b6e263f22ed2",
+      "context": "what was asked for, for the message.",
+      "translation": "जो माँगा गया था, संदेश के लिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.explain_cellpose3#3",
+      "source": "a :class:`Cellpose3Checkpoint` when ``exc`` is that refusal, else ``exc`` unchanged.",
+      "source_sha256": "a89c9d48df95a75729bff383e3ea939f57642d28b9d70afcc0d662d4e5ad9682",
+      "context": "a :class:`Cellpose3Checkpoint` when ``exc`` is that refusal, else ``exc`` unchanged.",
+      "translation": "एक :class:`Cellpose3Checkpoint`, जब ``exc`` वही अस्वीकृति हो, अन्यथा अपरिवर्तित ``exc``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.split_wells#5",
+      "source": "AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER WHOLE, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no crop and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
+      "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
+      "context": "An image the detector finds nothing in is copied into the split folder whole, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no extracted image region and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
+      "translation": "जिस छवि में डिटेक्टर को कुछ नहीं मिलता, उसे बिना ज्यामिति के पूरी की पूरी विभाजित फ़ोल्डर में कॉपी किया जाता है, इसलिए उसका विश्लेषण फिर भी होता है और बस उसका कोई रूलर नहीं होता। जो चेतावनी \"passed through whole\" कहती है और फिर छवि को छोड़ देती है, वह कुछ भी आगे नहीं भेजती: जब किसी फ़ोल्डर की कुछ छवियाँ विभाजित हुईं और अन्य नहीं, तो अन्य छवियाँ न कोई क्रॉप देतीं न कोई पंक्ति, और कुछ भी नहीं बताता कि वे मौजूद थीं। सब-या-कुछ-नहीं वाली स्थिति -- जहाँ फ़ंक्शन ``src`` पर लौट आता है -- ही एकमात्र स्थिति है जो संदेश के वादे के अनुसार व्यवहार करती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.train_cellpose#0",
+      "source": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
+      "source_sha256": "ebd4ed4f5e79d91bddd8fa3b2b1ded10960a06fd3cd87d7cf51f529dda8f0094",
+      "context": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
+      "translation": "मूल युग्मित छवियों और इंस्टेंस-लेबल मास्क के साथ Cellpose-SAM को फ़ाइन-ट्यून करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.train_cellpose#1",
+      "source": "image folder src; optional mask_src (default src/masks), validation test_src/test_mask_src, base_model, model_name, AdamW schedule, channels/channel_axis, normalize/percentiles, scale_range, min_train_masks, optional image limits and checkpoint controls. Legacy project/train/images plus project/train/masks remains accepted when mask_src is blank.",
+      "source_sha256": "469d8e68bdebf115e71e4f4d6c9731fba782bbc3cdd0ac5ecd087fb189556ef8",
+      "context": "image folder src; optional mask_src (default src/masks), validation test_src/test_mask_src, base_model, model_name, AdamW schedule, image data channels/channel_axis, normalize/percentiles, scale_range, min_train_masks, optional image limits and checkpoint controls. Legacy project/train/images plus project/train/masks remains accepted when mask_src is blank.",
+      "translation": "छवि फ़ोल्डर src; वैकल्पिक mask_src (डिफ़ॉल्ट src/masks), सत्यापन test_src/test_mask_src, base_model, model_name, AdamW शेड्यूल, चैनल/channel_axis, normalize/percentiles, scale_range, min_train_masks, वैकल्पिक छवि सीमाएँ और चेकपॉइंट नियंत्रण। mask_src खाली होने पर पुराना project/train/images तथा project/train/masks अब भी स्वीकार किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.train_cellpose#2",
+      "source": "Cellpose's checkpoint path, training losses and validation losses. Weights are written beneath save_path/models (default src/models/cellpose_model/models).",
+      "source_sha256": "d297cd371f123940ac73792b2a1a2c1c9c1671d84550f6c55a83c9992bcdbe7d",
+      "context": "Cellpose's checkpoint path, training losses and validation losses. Weights are written beneath save_path/models (default src/models/cellpose_model/models).",
+      "translation": "Cellpose का चेकपॉइंट पथ, प्रशिक्षण लॉस और सत्यापन लॉस। भार save_path/models के अंतर्गत लिखे जाते हैं (डिफ़ॉल्ट src/models/cellpose_model/models)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.submodules.train_cellpose#3",
+      "source": "invalid settings, unpaired images or incompatible masks.",
+      "source_sha256": "68bd070f095c6f864e4a8bf8cb655ee99edbf1869fb2db981ac89179562b4e4f",
+      "context": "invalid settings, unpaired images or incompatible masks.",
+      "translation": "अमान्य सेटिंग्स, बिना जोड़ी वाली छवियाँ या असंगत मास्क।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest#4",
+      "source": "1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a run that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not when the model is confident, not on a re-run. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a run came out wrong. 3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. A JUDGEMENT IS RECORDED, NOT INFERRED (item 512). Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "source_sha256": "0b9f3aa6e3b48fabeed1ae527d7b299f0b987d758a6005b56782d566cdf5a6d7",
+      "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred (item 512). Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
+      "translation": "1. सुझाव को कभी निर्णय समझने की भूल नहीं हो सकती। सुझाव अपने अलग मानों के रूप में संग्रहीत होते हैं -- सुझाया गया 1 11 बन जाता है -- इसलिए एनोटेशन स्तंभ पढ़ने वाली कोई भी चीज़ उसे मनुष्य का उत्तर नहीं समझ सकती, और गलत हुए रन को यह याद रखकर नहीं कि कौन-सी पंक्तियाँ छुई गईं, बल्कि एक मान हटाकर पलटा जाता है। 2. सुझाव कभी किसी एनोटेशन को अधिलेखित नहीं करता। लेखन ``IS NULL`` के साथ होता है। न तब जब मॉडल आश्वस्त हो, न दोबारा रन करने पर। मनुष्य के लेबल वह ग्राउंड ट्रुथ हैं जिस पर मॉडल फ़िट किया गया था; चुपचाप एक भी खोने से घंटों का नुकसान होगा और तब तक पता नहीं चलेगा जब तक कोई रन गलत न निकले। 3. कोई विश्वास-सीमा नहीं, इसलिए क्रम ही संदेह को दर्शाता है। हर बिना एनोटेशन वाले क्रॉप को एक सुझाव मिलता है, सबसे अधिक विश्वास वाले पहले क्रम में, और समीक्षक वहीं रुकता है जहाँ वह सहमत होना बंद करता है। थ्रेशोल्ड उसके लिए यह निर्णय ऐसी संख्या से कर देगा जिसे किसी ने नहीं चुना। 4. निर्णय दर्ज किया जाता है, अनुमानित नहीं (आइटम 512)। किसी सुझाव की पुष्टि उसे सामान्य लेबल में बदल देती है और अस्वीकृति उसे हटा देती है -- और दोनों स्तंभ के बगल में, ``<column>_verdict`` में, पुष्टि किए गए (``+c``) या अस्वीकृत (``-c``) वर्ग के रूप में लिखे जाते हैं। अस्वीकृति ऐसी जानकारी है जिस पर अगला दौर प्रशिक्षित हो सकता है -- दो-वर्ग वाले स्तंभ में \"not class 1\" वर्ग 2 का उदाहरण है -- जबकि NULL केवल चुप्पी होती। निर्णय स्तंभ पहली बार स्रोत खोले जाने पर जोड़ा जाता है, इसलिए उससे पहले बनी तालिकाओं को यह बिना किसी माइग्रेशन चरण के मिल जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#0",
+      "source": "Add the verdict column to ``png_table`` if it is missing.",
+      "source_sha256": "00c0342135c5fb537853a28f40c9ec4e70011a5bdc76a4b6777ce20ff199fbbd",
+      "context": "Add the verdict column to ``png_table`` if it is missing.",
+      "translation": "यदि ``png_table`` में निर्णय स्तंभ अनुपस्थित हो तो उसे जोड़ें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#1",
+      "source": "Called when a source is opened, which is how a table made before the column existed gains it: an ``ALTER TABLE ... ADD COLUMN`` with no default is a metadata change in SQLite and rewrites no rows.",
+      "source_sha256": "2b07ecfc124de1a7de73b2ed616282ccb170e0afb50445de5df32b09e16ff824",
+      "context": "Called when a source is opened, which is how a table made before the column existed gains it: an ``ALTER TABLE ... ADD COLUMN`` with no default is a metadata change in SQLite and rewrites no rows.",
+      "translation": "स्रोत खोले जाने पर कॉल किया जाता है, और इसी तरह स्तंभ से पहले बनी तालिका को वह मिलता है: बिना डिफ़ॉल्ट वाला ``ALTER TABLE ... ADD COLUMN`` SQLite में मेटाडेटा परिवर्तन है और कोई पंक्ति दोबारा नहीं लिखता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#2",
+      "source": "path to a ``measurements.db``.",
+      "source_sha256": "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+      "context": "path to a ``measurements.db``.",
+      "translation": "किसी ``measurements.db`` का पथ।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#3",
+      "source": "the column whose judgements it will hold.",
+      "source_sha256": "bccf44b833d925410e1a66281b65f69f983ab85c9bdf2fdefa32cf47d7edb5a4",
+      "context": "the column whose judgements it will hold.",
+      "translation": "वह स्तंभ जिसके निर्णय यह रखेगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#4",
+      "source": "the crop table.",
+      "source_sha256": "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
+      "context": "the extracted-image-region table.",
+      "translation": "क्रॉप तालिका।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.suggest.ensure_verdict_column#5",
+      "source": "True when the column exists afterwards.",
+      "source_sha256": "aeeaed1e38bda049eccd4bf6be3053a57d460ce0a3d8a93e3fb5c3a69946fc6e",
+      "context": "True when the column exists afterwards.",
+      "translation": "बाद में स्तंभ मौजूद होने पर True।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.fetch_verdicts#0",
+      "source": "The recorded judgement of each of ``paths`` that has one.",
+      "source_sha256": "d5ea58e07ce483bc4c2e4cbd73469e376f2802612b7b01834e0556a916993ee2",
+      "context": "The recorded judgement of each of ``paths`` that has one.",
+      "translation": "``paths`` में से हर उस पथ का दर्ज निर्णय जिसका कोई निर्णय है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.fetch_verdicts#2",
+      "source": "the column the judgements belong to.",
+      "source_sha256": "c9edf0f9f2b20e917abe2966d222b4e5690d89c8dc8e3d1b64d0cbaa7acf6f99",
+      "context": "the column the judgements belong to.",
+      "translation": "वह स्तंभ जिससे निर्णय संबंधित हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.fetch_verdicts#3",
+      "source": "the crops on the page.",
+      "source_sha256": "6c3066c392b39a79f718134545a2516be7bb52fca99e91f9cd4adf9602c32146",
+      "context": "the extracted image regions on the page.",
+      "translation": "पेज पर मौजूद क्रॉप।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.fetch_verdicts#5",
+      "source": "``{png_path: verdict}`` for the crops that carry one; empty when the column does not exist yet.",
+      "source_sha256": "540703f0145090fe85f472b40aaec7b268d7c7193c7345daf6f42af32677020a",
+      "context": "``{png_path: verdict}`` for the extracted image regions that carry one; empty when the column does not exist yet.",
+      "translation": "उन क्रॉप के लिए ``{png_path: verdict}`` जिन पर निर्णय दर्ज है; स्तंभ के अभी मौजूद न होने पर खाली।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.judgement_counts#0",
+      "source": "How the column's suggestions stand: judged, and still to judge.",
+      "source_sha256": "42d4636ff5909674a9561e602945872e2db53bf394af227e127598756003d778",
+      "context": "How the column's suggestions stand: judged, and still to judge.",
+      "translation": "स्तंभ के सुझावों की स्थिति: कितने पर निर्णय हो चुका, और कितने पर अभी निर्णय होना है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.judgement_counts#2",
+      "source": "the column the suggestions were written into.",
+      "source_sha256": "2edde29b80b50ede3c138dca438d0f8d106fb3eebdd02acc718ed13cb1ad1d61",
+      "context": "the column the suggestions were written into.",
+      "translation": "वह स्तंभ जिसमें सुझाव लिखे गए थे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.judgement_counts#4",
+      "source": "``{\"left\": n, \"confirmed\": n, \"rejected\": n}`` -- ``left`` is the suggestions nobody has judged yet, the other two are every judgement recorded in the column so far.",
+      "source_sha256": "304724a6090c0707106acac66b7e90dc0fa7a7265c75cd1a435dc93df73537ec",
+      "context": "``{\"left\": n, \"confirmed\": n, \"rejected\": n}`` -- ``left`` is the suggestions nobody has judged yet, the other two are every judgement recorded in the column so far.",
+      "translation": "``{\"left\": n, \"confirmed\": n, \"rejected\": n}`` -- ``left`` वे सुझाव हैं जिन पर अभी तक किसी ने निर्णय नहीं किया, अन्य दो अब तक स्तंभ में दर्ज हर निर्णय हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.rejected_suggestions#0",
+      "source": "The crops whose suggestion was rejected, and the class that was refused.",
+      "source_sha256": "7650dad656ad61cb386fce9ca3bcc15299b5c79eecb8044387e41d0564cf06d2",
+      "context": "The extracted image regions whose suggestion was rejected, and the class that was refused.",
+      "translation": "वे क्रॉप जिनका सुझाव अस्वीकार किया गया, और वह वर्ग जिसे अस्वीकार किया गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.rejected_suggestions#1",
+      "source": "Only crops the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the crop twice.",
+      "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
+      "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
+      "translation": "केवल वे क्रॉप लौटाए जाते हैं जिन्हें एनोटेटर ने उसके बाद से लेबल नहीं किया है: अस्वीकृति के बाद दिया गया लेबल अधिक मज़बूत कथन है और फ़िट उसे स्तंभ से ही पढ़ता है, इसलिए अस्वीकृति को भी सौंपने से क्रॉप दो बार गिना जाएगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.rejected_suggestions#5",
+      "source": "``{png_path: rejected class}``; empty when nothing was rejected or the verdict column does not exist.",
+      "source_sha256": "26de997dc1e186058a9e405cecb5953da19899d2c17c33fb8be1dcfdc7fbd533",
+      "context": "``{png_path: rejected class}``; empty when nothing was rejected or the verdict column does not exist.",
+      "translation": "``{png_path: rejected class}``; जब कुछ भी अस्वीकार न हुआ हो या निर्णय स्तंभ मौजूद न हो, तब खाली।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.resolve_suggestions#8",
+      "source": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the crops then wear the same mark as ones confirmed one at a time, and the count the screen shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
+      "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
+      "context": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the extracted image regions then wear the same mark as ones confirmed one at a time, and the count the application view shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
+      "translation": "सामूहिक KEEP अपने द्वारा रखे गए हर सुझाव की पुष्टि है, इसलिए इसे निर्णय स्तंभ में भी दर्ज किया जाता है (जब स्तंभ मौजूद हो): तब क्रॉप पर वही चिह्न लगता है जो एक-एक करके पुष्टि किए गए क्रॉप पर लगता है, और पेज द्वारा दिखाई गई गिनती वास्तव में हुई घटना से मेल खाती है। सामूहिक THROW कोई निर्णय नहीं है -- \"मैं इनकी समीक्षा नहीं करना चाहता\" का अर्थ \"these are wrong\" नहीं है -- इसलिए यह कुछ भी दर्ज नहीं करता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.verdict_column#0",
+      "source": "The column beside ``annotation_column`` that records judgements.",
+      "source_sha256": "295f1539cc65d7146774f994201847562fc701d4e27425104fef69c5da9e1f96",
+      "context": "The column beside ``annotation_column`` that records judgements.",
+      "translation": "``annotation_column`` के बगल का वह स्तंभ जो निर्णय दर्ज करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.verdict_column#1",
+      "source": "One value per crop: ``+c`` when a suggested class ``c`` was confirmed, ``-c`` when it was rejected, NULL when nothing was judged. It lives in the crop table rather than in the screen so a judgement survives a restart and reaches the next round of training.",
+      "source_sha256": "f5f644508ecf645a388ca2871f7b4029710b07341dc50e37561c8f8a84aa525e",
+      "context": "One value per extracted image region: ``+c`` when a suggested class ``c`` was confirmed, ``-c`` when it was rejected, NULL when nothing was judged. It lives in the extracted-image-region table rather than in the screen so a judgement survives a restart and reaches the next round of training.",
+      "translation": "प्रति क्रॉप एक मान: ``+c``, जब सुझाए गए वर्ग ``c`` की पुष्टि हुई हो; ``-c``, जब वह अस्वीकार हुआ हो; NULL, जब कोई निर्णय न हुआ हो। यह पेज में नहीं बल्कि क्रॉप तालिका में रहता है, ताकि निर्णय पुनरारंभ के बाद भी बना रहे और प्रशिक्षण के अगले दौर तक पहुँचे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.suggest.verdict_column#3",
+      "source": "the verdict column's name.",
+      "source_sha256": "a9c3d276eaf79ce313802f8704616c1af37585c537606dfc4a14e9a184db9a03",
+      "context": "the verdict column's name.",
+      "translation": "निर्णय स्तंभ का नाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#0",
+      "source": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
+      "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
+      "context": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
+      "translation": "वह साधारण जोड़ने वाला (stitcher) जिसे timeflows फ़ोर्क को पीछे छोड़ना है, और वह स्कोर जो यह बताता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#1",
+      "source": "WHAT IT IS FOR",
+      "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
+      "context": "What it is for",
+      "translation": "यह किसलिए है",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_baseline#10",
+      "source": "HOW A TRACKING IS REPRESENTED",
+      "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
+      "context": "How a tracking is represented",
+      "translation": "ट्रैकिंग को कैसे दर्शाया जाता है",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#11",
+      "source": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where THE LABEL IS THE TRACK ID, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
+      "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
+      "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
+      "translation": "Cell Tracking Challenge की परिपाटी, क्योंकि मेट्रिक उसी के हैं: एक लेबल स्टैक जिसमें लेबल ही ट्रैक id है, इसलिए कोई ऑब्जेक्ट तब तक अपना लेबल रखता है जब तक वह वही ऑब्जेक्ट है, साथ में एक वैकल्पिक वंशावली जो हर लेबल को उसके पैरेंट लेबल से मैप करती है। इसलिए विभाजन दो नए लेबल हैं जिनका पैरेंट पुराना लेबल है; जो ट्रैकर विभाजन व्यक्त नहीं कर सकता वह कोई वंशावली पास नहीं करता और दो अनुपस्थित पैरेंट एज की कीमत चुकाता है, जो साधारण जोड़ने वाले की ईमानदार कीमत है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#12",
+      "source": "WHY IT DOES NOT CALL ``spacr.timelapse``",
+      "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
+      "context": "Why it does not call ``spacr.timelapse``",
+      "translation": "यह ``spacr.timelapse`` को कॉल क्यों नहीं करता",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#13",
+      "source": ":func:`spacr.timelapse.link_by_iou` does the same linking and is the one the pipeline uses. It is not imported here for two reasons. Importing ``spacr.timelapse`` pulls in matplotlib, OpenCV and the tracking backends, which is a heavy import for a scoring module that has to run inside a training loop, and its overlap arithmetic is a Python double loop over pairs of boolean masks -- fine for the frames a run produces, far too slow for scoring a held out set every epoch. The arithmetic here is a single cross-tabulation per frame pair. Where the two are meant to agree -- which pairs of labels are matched at a given threshold -- the tests say so.",
+      "source_sha256": "34b6ad6824009cc8f50d0aa845c426f6fe6c4bfbe214d2a0aeb78a6e9a75c34e",
+      "context": ":func:`spacr.timelapse.link_by_iou` does the same linking and is the one the workflow uses. It is not imported here for two reasons. Importing ``spacr.timelapse`` pulls in matplotlib, OpenCV and the tracking backends, which is a heavy import for a scoring module that has to run inside a training loop, and its overlap arithmetic is a Python double loop over pairs of boolean masks -- fine for the frames a run produces, far too slow for scoring a held out set every epoch. The arithmetic here is a single cross-tabulation per frame pair. Where the two are meant to agree -- which pairs of labels are matched at a given threshold -- the tests say so.",
+      "translation": ":func:`spacr.timelapse.link_by_iou` वही लिंकिंग करता है और वर्कफ़्लो उसी का उपयोग करता है। उसे यहाँ दो कारणों से आयात नहीं किया गया है। ``spacr.timelapse`` को आयात करने से matplotlib, OpenCV और ट्रैकिंग बैकएंड भी आ जाते हैं, जो ऐसे स्कोरिंग मॉड्यूल के लिए भारी आयात है जिसे प्रशिक्षण लूप के भीतर चलना है, और उसका ओवरलैप अंकगणित बूलियन मास्क के जोड़ों पर Python का दोहरा लूप है -- किसी रन द्वारा बनाए गए फ़्रेमों के लिए ठीक, पर हर epoch में अलग रखे गए सेट को स्कोर करने के लिए बहुत धीमा। यहाँ का अंकगणित प्रति फ़्रेम जोड़ा एक ही क्रॉस-तालिका है। जहाँ दोनों को सहमत होना है -- किसी दिए गए थ्रेशोल्ड पर लेबलों के कौन-से जोड़े मिलाए जाते हैं -- वहाँ परीक्षण यही बताते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#2",
+      "source": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking field already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
+      "source_sha256": "9dc1931fbcdb644f877bf82f20900207010a07852a0f13f3ecb34d20e92f028b",
+      "context": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
+      "translation": "timeflows योजना (``features/future/426``) का चरण 2 एक संख्या है, कोई सुविधा नहीं। तीसरा Cellpose हेड लिखे, प्रशिक्षित और बनाए रखे जाने से पहले एक बेसलाइन होनी चाहिए: हर फ़्रेम का स्वतंत्र रूप से सेगमेंटेशन करें, फ़्रेमों को मास्क ओवरलैप से जोड़ें, और परिणाम को ग्राउंड ट्रुथ के विरुद्ध उन मापों से स्कोर करें जिन पर ट्रैकिंग का क्षेत्र पहले से सहमत है। फ़ोर्क जो भी बनाए, वह या तो इससे बेहतर होगा या नहीं होगा, और योजना स्पष्ट कहती है कि \"साधारण जोड़ने वाला पहले से ही पर्याप्त अच्छा है\" एक वास्तविक संभावित परिणाम है जिसे होने पर स्वीकार किया जाना चाहिए। वह परिणाम तभी दिखाई देता है जब यह संख्या पहले से मौजूद हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#3",
+      "source": "WHAT IS IN HERE",
+      "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
+      "context": "What is in here",
+      "translation": "इसमें क्या है",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#4",
+      "source": ":func:`stitch_by_iou` -- per-frame labels in, one consistent id per object out. Hungarian assignment on the IoU between consecutive frames, which is the standard overlap stitcher and deliberately nothing cleverer.",
+      "source_sha256": "10d5f96670a333973745017a37401e99a3b17df9d56ca262b84087f96d252765",
+      "context": ":func:`stitch_by_iou` -- per-frame labels in, one consistent id per object out. Hungarian assignment on the IoU between consecutive frames, which is the standard overlap stitcher and deliberately nothing cleverer.",
+      "translation": ":func:`stitch_by_iou` -- प्रति-फ़्रेम लेबल अंदर, प्रति ऑब्जेक्ट एक सुसंगत id बाहर। क्रमागत फ़्रेमों के बीच IoU पर हंगेरियन आवंटन, जो मानक ओवरलैप जोड़ने वाला है और जानबूझकर इससे अधिक चतुर कुछ नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#5",
+      "source": ":func:`det_score` and :func:`tra_score` -- the Cell Tracking Challenge's DET and TRA, built on the AOGM cost of Matula et al. (2015): the weighted count of the edit operations that would turn the computed tracking graph into the ground-truth one, normalised by the cost of building the ground truth from nothing.",
+      "source_sha256": "9a04c2cb7b6a63343058e4914ac4122dfff508a1e438724ef4e7c6993bb7ab5e",
+      "context": ":func:`det_score` and :func:`tra_score` -- the Cell Tracking Challenge's DET and TRA, built on the AOGM cost of Matula et al. (2015): the weighted count of the edit operations that would turn the computed tracking graph into the ground-truth one, normalised by the cost of building the ground truth from nothing.",
+      "translation": ":func:`det_score` और :func:`tra_score` -- Cell Tracking Challenge के DET और TRA, Matula et al. (2015) की AOGM लागत पर आधारित: उन संपादन संक्रियाओं की भारित गिनती जो गणना किए गए ट्रैकिंग ग्राफ़ को ग्राउंड-ट्रुथ ग्राफ़ में बदल देंगी, शून्य से ग्राउंड ट्रुथ बनाने की लागत से सामान्यीकृत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#6",
+      "source": ":func:`identity_switches` -- how often one ground-truth object changes computed id. TRA already pays for this, mixed in with everything else; the count is reported separately because it is the failure a biologist sees, and because a tracker can trade it against segmentation errors without TRA moving much.",
+      "source_sha256": "3ee9725170ba824b4230af200c8f3ec942a35cd34ba6546a3bb23cfd2143536b",
+      "context": ":func:`identity_switches` -- how often one ground-truth object changes computed id. TRA already pays for this, mixed in with everything else; the count is reported separately because it is the failure a biologist sees, and because a tracker can trade it against segmentation errors without TRA moving much.",
+      "translation": ":func:`identity_switches` -- कोई ग्राउंड-ट्रुथ ऑब्जेक्ट कितनी बार अपनी गणना की गई id बदलता है। TRA इसकी कीमत पहले से चुकाता है, बाकी सब कुछ के साथ मिलाकर; गिनती अलग से दर्ज की जाती है क्योंकि यही वह विफलता है जो एक जीवविज्ञानी देखता है, और क्योंकि कोई ट्रैकर TRA में अधिक बदलाव लाए बिना इसे सेगमेंटेशन त्रुटियों के बदले में अदल-बदल सकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#7",
+      "source": ":func:`score_tracking` -- all of it in one row, with the raw operation counts beside the scores.",
+      "source_sha256": "c2c0b13a4e61c4929f876a34be19f383a8a4b2dcc1b9346f8e847047bb163957",
+      "context": ":func:`score_tracking` -- all of it in one row, with the raw operation counts beside the scores.",
+      "translation": ":func:`score_tracking` -- यह सब एक पंक्ति में, स्कोर के बगल में कच्ची संक्रिया गिनतियों के साथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#8",
+      "source": "WHY THE OPERATION COUNTS ARE PUBLIC",
+      "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
+      "context": "Why the operation counts are public",
+      "translation": "संक्रिया गिनतियाँ सार्वजनिक क्यों हैं",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#9",
+      "source": "DET and TRA are one number each and both are dominated by the vertex terms: a false negative costs ten and a redundant edge costs one, so a tracker can lose half its links and still score well if its segmentation is good. The counts of false negatives, false positives, splits, and added, deleted and changed edges say which half of the problem the number came from. The plan needs exactly that distinction later -- the gap between linking given perfect segmentation and end-to-end linking is what decides whether to work on the head or on the backbone -- so the counts are part of the output rather than an internal.",
+      "source_sha256": "a005cbfcb7148e472212e888279d997281ae4ab403a5825447bdab63cbc982c9",
+      "context": "DET and TRA are one number each and both are dominated by the vertex terms: a false negative costs ten and a redundant edge costs one, so a tracker can lose half its links and still score well if its segmentation is good. The counts of false negatives, false positives, splits, and added, deleted and changed edges say which half of the problem the number came from. The plan needs exactly that distinction later -- the gap between linking given perfect segmentation and end-to-end linking is what decides whether to work on the head or on the backbone -- so the counts are part of the output rather than an internal.",
+      "translation": "DET और TRA में से हर एक एक संख्या है और दोनों पर शीर्ष पदों का प्रभुत्व है: एक फ़ॉल्स नेगेटिव की लागत दस है और एक अनावश्यक एज की लागत एक, इसलिए कोई ट्रैकर अपने आधे लिंक खोकर भी अच्छा स्कोर कर सकता है यदि उसका सेगमेंटेशन अच्छा हो। फ़ॉल्स नेगेटिव, फ़ॉल्स पॉज़िटिव, विभाजनों (splits), और जोड़े गए, हटाए गए और बदले गए एज की गिनतियाँ बताती हैं कि संख्या समस्या के किस आधे हिस्से से आई। योजना को बाद में ठीक यही भेद चाहिए -- पूर्ण सेगमेंटेशन मानकर लिंकिंग और एंड-टू-एंड लिंकिंग के बीच का अंतर ही तय करता है कि हेड पर काम करना है या आधार नेटवर्क पर -- इसलिए गिनतियाँ किसी आंतरिक विवरण के बजाय आउटपुट का हिस्सा हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#0",
+      "source": "Count the edit operations between a computed tracking and the truth.",
+      "source_sha256": "244dd9a93d926c9b9b765c4bd5cf7c021e1559e0f7d1aa23580d9a8ae6cb55a1",
+      "context": "Count the edit operations between a computed tracking and the truth.",
+      "translation": "गणना की गई ट्रैकिंग और सत्य के बीच की संपादन संक्रियाएँ गिनें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#1",
+      "source": "Vertex operations follow the detection matching: a ground-truth object nothing detects is a false negative, a computed segment that detects nothing is a false positive, and a computed segment that detects several objects has to be split once per extra object.",
+      "source_sha256": "555e463eed71c252b151242bafffdb6bc385ca10f0364b12d3b62b90d965c8c0",
+      "context": "Vertex operations follow the detection matching: a ground-truth object nothing detects is a false negative, a computed segment that detects nothing is a false positive, and a computed segment that detects several objects has to be split once per extra object.",
+      "translation": "शीर्ष संक्रियाएँ पहचान-मिलान का अनुसरण करती हैं: जिस ग्राउंड-ट्रुथ ऑब्जेक्ट को कुछ भी नहीं पहचानता वह फ़ॉल्स नेगेटिव है, जो गणना किया गया सेगमेंट कुछ भी नहीं पहचानता वह फ़ॉल्स पॉज़िटिव है, और जो गणना किया गया सेगमेंट कई ऑब्जेक्ट पहचानता है उसे हर अतिरिक्त ऑब्जेक्ट के लिए एक बार विभाजित करना होगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#2",
+      "source": "Edge operations are counted on the mapped graph. A computed edge is carried onto the ground truth only when BOTH of its endpoints detect exactly one ground-truth object each; anything else has an endpoint that does not exist in the truth, so the edge is deleted. A ground-truth edge with no computed counterpart is added, and one whose counterpart has the other semantics -- a division link scored as a plain track link, or the reverse -- is changed rather than rebuilt.",
+      "source_sha256": "e6c67534dc1122a2e917d1c60a9b6bc196d1dc98ee519908327a937aa33b516f",
+      "context": "Edge operations are counted on the mapped graph. A computed edge is carried onto the ground truth only when BOTH of its endpoints detect exactly one ground-truth object each; anything else has an endpoint that does not exist in the truth, so the edge is deleted. A ground-truth edge with no computed counterpart is added, and one whose counterpart has the other semantics -- a division link scored as a plain track link, or the reverse -- is changed rather than rebuilt.",
+      "translation": "एज संक्रियाएँ मैप किए गए ग्राफ़ पर गिनी जाती हैं। गणना किया गया एज ग्राउंड ट्रुथ पर केवल तभी ले जाया जाता है जब उसके दोनों सिरे ठीक एक-एक ग्राउंड-ट्रुथ ऑब्जेक्ट पहचानते हों; अन्य किसी भी स्थिति में एक सिरा ऐसा होता है जो सत्य में मौजूद नहीं, इसलिए एज हटा दिया जाता है। जिस ग्राउंड-ट्रुथ एज का कोई गणना किया गया समकक्ष नहीं है वह जोड़ा जाता है, और जिसके समकक्ष का अर्थ दूसरा है -- साधारण ट्रैक लिंक के रूप में स्कोर किया गया विभाजन लिंक, या इसका उल्टा -- उसे फिर से बनाने के बजाय बदला जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#3",
+      "source": "ground-truth label stack, label = track id.",
+      "source_sha256": "bc071e98a7d7876dfb2f78c2b994c01800a8d0d5448f00dc7a857220d8a60f53",
+      "context": "ground-truth label stack, label = track id.",
+      "translation": "ग्राउंड-ट्रुथ लेबल स्टैक, लेबल = ट्रैक id।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#4",
+      "source": "computed label stack, label = track id.",
+      "source_sha256": "6b6caedc36ea371c31a2eb732c5b3e428ce1c3a2f71eaecd0fef4a4d7ae70eac",
+      "context": "computed label stack, label = track id.",
+      "translation": "गणना किया गया लेबल स्टैक, लेबल = ट्रैक id।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#5",
+      "source": "mapping of ground-truth label to parent label.",
+      "source_sha256": "7a8ea972e641372504c268057cc936507e0c0209ecb786975ca255d43cb79817",
+      "context": "mapping of ground-truth label to parent label.",
+      "translation": "ग्राउंड-ट्रुथ लेबल से पैरेंट लेबल की मैपिंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#6",
+      "source": "mapping of computed label to parent label.",
+      "source_sha256": "aaedaa0a435f1bebb007283c6d3ff6bffe6e7d646682d30ccde514e256f7287f",
+      "context": "mapping of computed label to parent label.",
+      "translation": "गणना किए गए लेबल से पैरेंट लेबल की मैपिंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#7",
+      "source": "AOGM weights. Anything left out keeps its :data:`AOGM_WEIGHTS` value, so ``{'fp': 10.0}`` changes the price of a false positive and nothing else.",
+      "source_sha256": "ea9149bcb865bc27a196720b97e33f8835cfb7ee86a386a6bc3dded1fdff5f74",
+      "context": "AOGM weights. Anything left out keeps its :data:`AOGM_WEIGHTS` value, so ``{'fp': 10.0}`` changes the price of a false positive and nothing else.",
+      "translation": "AOGM भार। जो कुछ छोड़ा गया है वह अपना :data:`AOGM_WEIGHTS` मान रखता है, इसलिए ``{'fp': 10.0}`` केवल फ़ॉल्स पॉज़िटिव की कीमत बदलता है और कुछ नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#8",
+      "source": "dict of the six operation counts (``fn``, ``fp``, ``ns``, ``ed``, ``ea``, ``ec``), the graph sizes (``n_gt_vertices``, ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) and the four costs: ``aogm_d`` and ``aogm_d0`` for detection, ``aogm`` and ``aogm_0`` for tracking.",
+      "source_sha256": "b04d5df75825f235fc203e61205948e2b90ed034ba8d7c17fee9e51cebeaac91",
+      "context": "key-value mapping of the six operation counts (``fn``, ``fp``, ``ns``, ``ed``, ``ea``, ``ec``), the graph sizes (``n_gt_vertices``, ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) and the four costs: ``aogm_d`` and ``aogm_d0`` for detection, ``aogm`` and ``aogm_0`` for tracking.",
+      "translation": "छह संक्रिया गिनतियों (``fn``, ``fp``, ``ns``, ``ed``, ``ea``, ``ec``), ग्राफ़ आकारों (``n_gt_vertices``, ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) और चार लागतों का dict: पहचान के लिए ``aogm_d`` और ``aogm_d0``, ट्रैकिंग के लिए ``aogm`` और ``aogm_0``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#0",
+      "source": "The Cell Tracking Challenge's DET: detection only, no links.",
+      "source_sha256": "675914bcab3622ae4acd0c9398cc149a12062edae869f1e2f2325489101941db",
+      "context": "The Cell Tracking Challenge's DET: detection only, no links.",
+      "translation": "Cell Tracking Challenge का DET: केवल पहचान, कोई लिंक नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#1",
+      "source": "ground-truth label stack.",
+      "source_sha256": "24bda980edbbc792013c0c61637c4ac1172c58a0952c154b8a11925862360e26",
+      "context": "ground-truth label stack.",
+      "translation": "ग्राउंड-ट्रुथ लेबल स्टैक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#2",
+      "source": "computed label stack.",
+      "source_sha256": "4a7915192a34157c137bfa6c4235d4c78d446030db64638a263b1b134e59ca36",
+      "context": "computed label stack.",
+      "translation": "गणना किया गया लेबल स्टैक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#3",
+      "source": "AOGM weights; :data:`AOGM_WEIGHTS` when ``None``.",
+      "source_sha256": "085c6b99f2a1a751cfc01b95bcc4d66015b0b55473ea1ba4fb6b2e4ba6ec85c6",
+      "context": "AOGM weights; :data:`AOGM_WEIGHTS` when ``None``.",
+      "translation": "AOGM भार; :data:`AOGM_WEIGHTS`, जब ``None`` हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#4",
+      "source": "an :func:`aogm_costs` result to reuse instead of measuring again.",
+      "source_sha256": "27786f78d71506d48717bce0ec3b682c50041d9002a93abccd68434606390633",
+      "context": "an :func:`aogm_costs` result to reuse instead of measuring again.",
+      "translation": "फिर से मापने के बजाय पुनः उपयोग के लिए :func:`aogm_costs` का परिणाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.det_score#5",
+      "source": "float in ``[0, 1]``; ``1.0`` when every object is detected once.",
+      "source_sha256": "e9f24b575d7e4ff91cef6ccc8c1f27e30ef283ac9381087fb5f0b0e4fdb7b0dc",
+      "context": "float in ``[0, 1]``; ``1.0`` when every object is detected once.",
+      "translation": "``[0, 1]`` में float; हर ऑब्जेक्ट के ठीक एक बार पहचाने जाने पर ``1.0``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.identity_switches#0",
+      "source": "Count how often a ground-truth object changes computed identity.",
+      "source_sha256": "f5686da6330d393de754babba1a1de74316318e39e966f4df7acae377684f3e3",
+      "context": "Count how often a ground-truth object changes computed identity.",
+      "translation": "गिनें कि कोई ग्राउंड-ट्रुथ ऑब्जेक्ट कितनी बार अपनी गणना की गई पहचान बदलता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline.identity_switches#1",
+      "source": "Each ground-truth track is walked in frame order over the frames where it was detected, and every change of computed label is one switch. Frames where the object was missed are skipped rather than ending the track, so an object that is lost and then found again under a NEW id is counted as a switch. That is the failure a biologist reads as \"the cell became another cell\", and a tracker that hides it by dropping the frame should not score better for dropping it.",
+      "source_sha256": "08177c002c9ef2cc4c6cad6bfefa6b1ebe26ee56b93202c6304ef4d1f5793614",
+      "context": "Each ground-truth track is walked in frame order over the frames where it was detected, and every change of computed label is one switch. Frames where the object was missed are skipped rather than ending the track, so an object that is lost and then found again under a NEW id is counted as a switch. That is the failure a biologist reads as \"the cell became another cell\", and a tracker that hides it by dropping the frame should not score better for dropping it.",
+      "translation": "हर ग्राउंड-ट्रुथ ट्रैक को फ़्रेम क्रम में उन फ़्रेमों पर देखा जाता है जहाँ वह पहचाना गया, और गणना किए गए लेबल का हर बदलाव एक स्विच है। जिन फ़्रेमों में ऑब्जेक्ट छूट गया उन्हें ट्रैक समाप्त करने के बजाय छोड़ दिया जाता है, इसलिए जो ऑब्जेक्ट खोकर किसी नई id के साथ फिर मिलता है, उसे स्विच गिना जाता है। यही वह विफलता है जिसे जीवविज्ञानी \"कोशिका दूसरी कोशिका बन गई\" के रूप में पढ़ता है, और जो ट्रैकर फ़्रेम छोड़कर इसे छिपाता है उसे ऐसा करने के लिए बेहतर स्कोर नहीं मिलना चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
