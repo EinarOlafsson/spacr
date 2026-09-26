@@ -2559,10 +2559,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "decides which measured features survive. Open it when the model "
         "overfits, or when thousands of correlated features are drowning the "
         "few that matter.",
-    "EVALUATION & RESULTS":
-        "How the fitted model is judged and how the result is shown — "
-        "cross-validation, calibration, the leakage audit, the heatmap, and "
-        "where the scores are written. Shared by both classifier families.",
     "EVALUATION":
         "How the fitted model is judged: cross-validation and the held-out "
         "plate, the evaluation report with its calibration curve and bins, "
