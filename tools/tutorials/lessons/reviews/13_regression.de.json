@@ -1,46 +1,38 @@
 {
   "lesson": "13_regression",
-  "language": "de",
-  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "english_sha256": "2e037a0eedfdac229744cbbaa82819ee8680d8fb607655490493ef36f4b0f71b",
   "review": {
-    "kind": "Editorial caption translation checked against English and the accepted real-data recording",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "Distinguish 759 stored results from the displayed 434-guide family.",
-      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
-      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
-    ]
+    "listening_review": false
   },
-  "title": "Regression: mit echten Beispieldaten von Tabellen zu Ergebnissen",
-  "description": "Laden Sie den herunterladbaren Beispiel-Screen, konfigurieren Sie eine begrenzte Guide-Permutationsanalyse, prüfen Sie die echte Konsole und Abbildungen und finden Sie die jetzt in Regression eingebetteten Spezialwerkzeuge.",
+  "language": "de",
+  "title": "Regression: von gepaarten Tabellen zu Ergebnissen",
+  "description": "Verknüpfen Sie Phänotyp-Werte mit Guide-Zählungen, wählen Sie eine Inferenzmethode, führen Sie das Beispiel aus und untersuchen Sie Guide- und Genergebnisse.",
   "objectives": [
-    "Vier zusammengehörige Score-/Count-Tabellenpaare über die sichtbare Testdaten-Schaltfläche laden und einen eigenen Ausgabeordner wählen.",
-    "Inferenzverfahren, Ergebnisebene und Analyseeinheit unterscheiden und das begrenzte Beispiel reproduzieren, ohne seine Permutationszahl als Empfehlung für die endgültige Analyse zu verstehen.",
-    "Echte Ergebnisse, Abbildungen und diagnostische Grenzen prüfen; interaktives Betrachten von einer Live-Neuberechnung unterscheiden.",
-    "Die eingebetteten Regression-Werkzeuge, optionale KI-Hilfe und den aktuellen Python-Einstiegspunkt finden."
+    "Gepaarte Wert- und Zähltabellen laden und einen Ausgabeordner wählen.",
+    "Inferenzmethode, Berichtsebene und Analyseeinheit festlegen.",
+    "Das Beispiel ausführen und die Ergebnisse zusammen mit der zugehörigen Diagnostik prüfen."
   ],
-  "prerequisite": "Aufgenommen mit spaCR 1.5.0.9. Öffnen Sie spaCR und wählen Sie Regression unter den Core-Modulen. Das Beispiel lädt Score-/Count-Dateien herunter oder verwendet den Cache. Für die aufgezeichnete Analyse sind keine Messdatenbank, Bildausschnitte, externen Annotationsdienste oder KI-Abonnements erforderlich. Der kurze Permutationslauf zeigt den Ablauf, keine gesicherten biologischen Entdeckungen.",
+  "prerequisite": "Öffnen Sie Regression und wählen Sie Load test data, um vier gepaarte Wert- und Zähltabellen zu erhalten. Verwenden Sie einen neuen Ausgabeordner. Eine Messdatenbank ist für diese Analyse von Werten und Zählungen optional; Ansichten auf Objektebene benötigen die entsprechenden Messdaten und Bilder.",
   "scenes": [
-    "Öffnen Sie Regression unter den Core-Modulen. Es verknüpft Phänotyp-Scores mit der Guide-Häufigkeit und berichtet Zusammenhänge gemäß dem gewählten Inferenzverfahren. Die Werkzeuge oben gehören jetzt zu diesem Modul; sie sind keine eigenen Home-Kacheln mehr.",
-    "Wählen Sie unter Input Tables die Schaltfläche Load test data. Die Anwendung lädt den Beispiel-Screen herunter oder verwendet geprüfte Cache-Dateien; diese Aufnahme nutzt den Cache. Die Konsole meldet vier Score- und vier Count-Tabellen, jeweils nach Platte gepaart.",
-    "Prüfen Sie alle vier Tabellenpaare. Jede Platte benötigt ihre passende Score- und Count-Datei; die optionale Messdatenbank-Spalte ist hier leer. Verbreitern Sie bei Bedarf das Einstellungsfeld und verwenden Sie einen neuen Ausgabeordner, damit die Demonstration nicht mit einer bestehenden Analyse vermischt wird.",
-    "Wechseln Sie von Essentials zu All settings und suchen Sie Einstellungen anhand ihrer Beschriftung oder ihres API-Schlüssels. Hier ist inference auf nonparametric gesetzt: Guide-Permutationstests. Das unterscheidet sich von einer parametrischen Regression, die alle Prädiktoren gemeinsam anpasst und ein identifizierbares Design voraussetzt.",
-    "Level beantwortet eine andere Frage: Welche Ebene soll ausgegeben werden? Wählen Sie both für getrennte Guide- und Gen-Ergebnisse. Damit wird nicht das Inferenzverfahren ausgewählt. Guide- und Gen-Ergebnisse sind unterschiedliche Testfamilien; prüfen Sie daher die gewünschte Familie, bevor Sie korrigierte Signifikanz interpretieren.",
-    "Verwenden Sie well als Analyseeinheit für dieses Beispiel. Die geladene Voreinstellung liefert Antwortspalte, Transformationen, Kontrollen und Ausschlüsse. Prüfen Sie diese Annahmen, bevor Sie den Ablauf auf Ihren Screen übertragen. Eine heruntergeladene Voreinstellung ist ein Beispieldesign, keine allgemeingültige Empfehlung.",
-    "Setzen Sie die minimale Guide-Unterstützung für diesen begrenzten Lauf auf zwei Wells. Das filtert die getesteten Guides, belegt aber keine ausreichende statistische Teststärke. Guides, die in sehr wenigen Wells vorkommen, müssen weiterhin vorsichtig interpretiert werden.",
-    "Stellen Sie 199 Permutationen ein, um die kurze Demonstration zu reproduzieren. Dadurch beträgt der kleinste erreichbare empirische p-Wert 0,005, was nach Korrektur für multiples Testen zu grob sein kann. Planen Sie für Ihr echtes Experiment eine geeignete Permutationszahl.",
-    "Setzen Sie den Permutations-Seed für den gezeigten Lauf auf null. Behalten Sie die Plattenblöcke sowie die Zeilen- und Spalten-Störterme des Beispiels bei, sofern Ihr Design keine Änderung rechtfertigt. Ein fester Seed unterstützt die Reproduzierbarkeit, repariert aber keine ungültigen Austauschbarkeitsannahmen.",
-    "Regression backend ist kein allgemeiner Beschleunigungsschalter. Das Feld gilt für unterstützte Schätzer mit Modellanpassung; seine Änderung macht diese Guide-Permutationsdemonstration nicht zu einer GPU-Regression. Andere spaCR-Module haben eigene Geräteoptionen. Orientieren Sie sich an den Bedienelementen und der Konsole des tatsächlich laufenden Vorgangs.",
-    "Wählen Sie für dieses eigenständige Beispiel none als Annotationsquelle. Die statistischen Ergebnisse benötigen keine externe Genannotationsabfrage. Verwenden Sie für Ihren Screen Annotationen, die zu Organismus und Kennungssystem passen, statt anzunehmen, dass jede Guide-Bezeichnung aufgelöst wird.",
-    "Leeren Sie die Suche, prüfen Sie den Ausgabeordner und drücken Sie Run. Verfolgen Sie in der echten Konsole, wie Eingaben abgeglichen, gewählte Filter angewendet und Ergebnisse berechnet werden. Regression erzeugt diagnostische Abbildungen direkt; für diese Aufnahme gibt es keinen gesonderten Plot-Schalter.",
-    "Das abgeschlossene Beispiel lieferte 434 Guide-Ergebnisse, 325 Gen-Ergebnisse und fünf Abbildungen. Finished bedeutet, dass die Software fertig ist; es bestätigt weder das experimentelle Design noch biologische Entdeckungen. Lesen Sie neben der Abschlussmeldung auch die diagnostischen Warnungen. Der Austauschbarkeitsbericht ist bei diesem Lauf fehlgeschlagen; die Voraussetzungen des Permutationstests müssen deshalb weiterhin unabhängig geprüft werden.",
-    "Runs kennzeichnet die gespeicherte Analyse; Results zeigt den ausgewählten Lauf. Prüfen Sie beim Vergleich von Läufen Ordner und Einstellungen. Eine Änderung im Formular berechnet das angezeigte Ergebnis nicht neu. Starten Sie die Analyse erneut, wenn Sie eine neue Auswahl testen möchten.",
-    "Results enthält die Koeffiziententabelle und interaktive Ansichten neben den erzeugten Abbildungen. Der Lauf umfasst auf beiden Ebenen zusammen 759 Zeilen; hier sind die 434 Guide-Ergebnisse ausgewählt. Wählen Sie die Testfamilie mit Level. Interaktives Betrachten gespeicherter Ergebnisse führt die Inferenz nicht erneut aus.",
-    "Öffnen Sie p-values, um die Ergebnisverteilung zu prüfen. Interpretieren Sie sie zusammen mit Testfamilie, Permutationsauflösung und Diagnostik, nicht als automatischen Effektbeleg. Das separate Diagnostics-Tutorial erklärt die gespeicherten Design- und Inferenzansichten ausführlich.",
-    "Measurements bietet Bedienelemente für weitere Messantworten. Diesem Beispiel ist keine Messdatenbank zugeordnet; das Öffnen des Reiters erstellt keine und führt keinen Messgrößen-Sweep aus. Stellen Sie die erforderlichen Messdaten bereit, bevor Sie diese Werkzeuge für Ihr Experiment nutzen.",
-    "Cells kann ausgewählte Ergebnisse mit den zugrunde liegenden Objekten verknüpfen, wenn geeignete Messdaten und Bilder vorliegen. Hier ist die Datenbankspalte leer, daher gibt es keine Zellmontage. Verwechseln Sie eine nicht verfügbare Objektansicht nicht mit einer fehlgeschlagenen Score-/Count-Analyse.",
-    "Die eingebetteten Werkzeuge heißen Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler und Diagnostics. Fahren Sie zum Identifizieren über ihre Symbole. Die verlinkten Tutorials erklären die einzelnen Abläufe. Ein Vorhersageprofiler benötigt beispielsweise geeignete Ergebnisse eines angepassten Modells, die dieser Permutationslauf nicht liefert.",
-    "AI aktiviert optionale Hilfe über den Anbieter, der in Preferences unter AI eingestellt ist. Stellen Sie eine konkrete Frage zu Ergebnissen oder Einstellungen und prüfen Sie Hinweise anhand der Daten. Hier wird nur eine ungesendete Beispielfrage gezeigt: Für die Aufnahme wurde kein Anbieter kontaktiert und keine Antwort erzeugt.",
-    "Für Skripte verwenden Sie perform_regression im Machine-Learning-Modul von spaCR mit den zugehörigen Einstellungen und lesen die aktuelle API-Dokumentation. Bewahren Sie Eingabetabellen, gespeicherte Einstellungen, Ausgaben und diagnostische Interpretation zusammen auf. Nutzen Sie Parameter Sweep gezielt für Vergleiche und trennen Sie explorative Entscheidungen von Entscheidungen zur endgültigen Analyse."
+    "Öffnen Sie von Home aus Regression. Dieses Modul setzt Phänotyp-Werte mit der Guide-Häufigkeit in Beziehung. Beginnen Sie mit einer Werttabelle und einer Zähltabelle pro Platte und legen Sie dann fest, wie Zusammenhänge getestet und berichtet werden.",
+    "Klicken Sie in Input Tables auf Load test data und warten Sie, bis das Beispiel geladen ist. Es liefert vier Werttabellen und vier Zähltabellen, nach Platte gepaart.",
+    "Prüfen Sie jede gepaarte Zeile und kontrollieren Sie Plattenname, Wertdatei und Zähldatei. Lassen Sie die optionale Spalte für die Messdatenbank in diesem Beispiel leer. Wählen Sie einen neuen Ausgabeordner für die Analyse.",
+    "Wechseln Sie zu All settings und suchen Sie über das Suchfeld nach Inference. Wählen Sie für dieses Beispiel mit Guide-Permutation nonparametric. Verwenden Sie eine parametrische Methode, wenn Fragestellung und Versuchsplan eine gemeinsame Anpassung mehrerer Prädiktoren erfordern.",
+    "Level legt fest, welche Ergebnisse berichtet werden. Wählen Sie both, um Ergebnisse auf Guide- und auf Genebene zu erhalten. Halten Sie diese Testfamilien getrennt, wenn Sie die adjustierte Signifikanz prüfen.",
+    "Wählen Sie für dieses Beispiel well als Analyseeinheit. Prüfen Sie Antwortspalte, Transformationen, Kontrollen und ausgeschlossene Wells. Passen Sie diese Einstellungen an das Design Ihres eigenen Screens an, bevor Sie neue Daten verarbeiten.",
+    "Die minimale Guide-Unterstützung legt fest, in wie vielen Wells ein Guide vorkommen muss, bevor er getestet wird. Setzen Sie sie für dieses kleine Beispiel auf 2. Wählen Sie eine für Ihr Experiment geeignete Anforderung.",
+    "Stellen Sie für einen schnellen ersten Lauf 199 Permutationen ein. Mehr Permutationen ergeben eine feinere Auflösung des empirischen p-Werts und dauern länger. Wählen Sie eine höhere Zahl, wenn Ihre abschließende Analyse das erfordert.",
+    "Setzen Sie den Permutations-Seed auf 0, um dieselbe Randomisierung zu wiederholen. Behalten Sie die Plattenblöcke des Beispiels sowie die Stör-Terme für Zeile und Spalte bei. Wählen Sie für eigene Daten Blöcke, die berücksichtigen, welche Beobachtungen nach dem Versuchsplan austauschbar sind.",
+    "Wählen Sie in Annotation source none, um das Beispiel ohne Nachschlagen von Genannotationen auszuführen. Wählen Sie für einen anderen Screen Annotationen, die zu dessen Organismus und Kennungssystem passen.",
+    "Leeren Sie die Suche, prüfen Sie die gepaarten Eingaben und den Ausgabeordner und klicken Sie dann auf Run. Verfolgen Sie in der Konsole, wie das Modul die Tabellen abgleicht, Guides filtert und die Ergebnisse berechnet. Die Diagnoseabbildungen entstehen zusammen mit der Analyse.",
+    "Wenn der Lauf abgeschlossen ist, öffnen Sie Runs und wählen die gespeicherte Analyse. Bestätigen Sie Ordner und Einstellungen, bevor Sie sie mit einem anderen Lauf vergleichen. Führen Sie die Analyse nach geänderten Einstellungen erneut aus, wenn Sie neue Ergebnisse wünschen.",
+    "Öffnen Sie Results und wechseln Sie mit Level zwischen Guide- und Genergebnissen. Prüfen Sie die Ergebnistabelle und die interaktiven Ansichten. Die gespeicherten Dateien results_grna.csv und results_gene.csv enthalten die entsprechenden Tabellen für weitere Analysen.",
+    "Öffnen Sie die Ansicht der p-Werte und das Werkzeug Diagnostics. Prüfen Sie die Verteilung der Ergebnisse zusammen mit der Permutationsauflösung, der Testfamilie und den Designwarnungen. Klären Sie wichtige diagnostische Probleme, bevor Sie Zusammenhänge interpretieren.",
+    "Öffnen Sie über die Werkzeugleiste Volcano Explorer, Hit List oder Investigate Hit für den nächsten Schritt. Deren Tutorials zeigen, wie Sie ausgewählte Ergebnisse untersuchen. Halten Sie Eingabetabellen, gespeicherte Einstellungen, Ergebnisdateien und Diagnoseberichte zusammen, wenn Sie die Analyse weitergeben."
   ]
 }
