@@ -331,14 +331,7 @@ class _DragsTheWindowByTheMenuBar(QObject):
             return False
 
 
-#: Libraries a data screen imports at module scope, brought in on a worker
-#: thread once a first module screen is on show; see
-#: :func:`_import_the_data_libraries_off_the_gui_thread`.
 _DATA_LIBRARIES = ("pandas",)
-
-#: Seconds after a module screen is on show before the data libraries start
-#: importing, so the import does not share the interpreter lock with the
-#: open that has just finished painting.
 _DATA_LIBRARIES_AFTER_S = 1.0
 
 _DATA_LIBRARIES_STARTED = False
@@ -357,6 +350,11 @@ def _import_the_data_libraries_off_the_gui_thread():
     (:func:`spacr.qt.gil_priority.responsive_gui`), so the data screen
     opened next finds it imported. A screen opened while the import is still
     running waits on Python's import lock rather than importing twice.
+
+    The libraries are :data:`_DATA_LIBRARIES`, those a data screen imports at
+    module scope. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
+    seconds after a module screen is on show, so the import does not share
+    the interpreter lock with the open that has just finished painting.
 
     :returns: the started thread, or ``None`` when it was started before or
         everything is imported already.
