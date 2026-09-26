@@ -1,6 +1,8 @@
 BLIND-SCORING MODE
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). Annotate
+and Make Masks blind and unblind with a logged key; manual counting has no
+screen to blind yet.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -24,3 +26,81 @@ DONE WHEN
     With blinding on, no screen shows metadata that identifies the
     condition; unblinding restores it and the log records who unblinded
     when.
+
+NOTE 2026-09-26 -- BUILT, AS AN ALPHA FEATURE (with item 573)
+
+What was built
+    API, in the existing spacr/run_journal.py (no new module):
+      start_blinding(items, scope=, src=, seed=)   shuffles under codes
+          (B0001, B0002, ... in the shuffled order); the key (seed, order,
+          codes, who, when) goes to ~/.spacr/blinding/<key id>.json, beside
+          the run journal and outside the data folder, and a "blinded"
+          event to <key id>.log.jsonl.
+      unblind(key_id, reason=)   appends an "unblinded" event (who =
+          user@host, when = UTC to the microsecond, reason) BEFORE it
+          returns {code: item}, so the key cannot be opened through the API
+          without the record.
+      private: _blinding_events, _close_blinding (a "closed" event when a
+          session ends without unblinding), _unblinding_times(src) (what
+          item 573's lock reads).
+    Annotate: a checkable "Blind" button (AnnotateBlindToggle) beside
+      Settings. On: every crop of the population on screen (whole table,
+      threshold filter, uncertainty queue or a routed request) is put in the
+      key's shuffled order, and the order survives every recount (the count
+      worker re-reads and re-sorts). The source line says "Blinded: ..."
+      instead of the folder and database path, the page line says
+      "Blinded · Page N of M ..." and drops a routed request's reason, and
+      Coverage (per well and plate), Auto-annotate (by metadata) and View in
+      database (png_path carries the well) are disabled. Off asks "Unblind?"
+      and records the unblinding; the table order, source line and buttons
+      come back. Opening another source, or closing the screen, ends the
+      session with a "closed" event and does NOT unblind.
+    Make Masks curation: a checkable "Blind" button (MakeMasksBlindToggle)
+      after "ROIs...". On: the open fields (folder, drop queue or
+      spacr-make-masks session) are shuffled under a key and every field is
+      named on screen by its code -- the status line, "Loading" and
+      "Waiting to load", the Keep/Discard verdict line and its "now on" --
+      and the source line says "Blinded: N fields ...". Recrop is refused
+      while blinded (its new fields are named after the source field). Off
+      asks, records the unblinding, puts the fields back in their own order
+      (a field made while blinded follows its predecessor) and stays on the
+      field that was showing.
+
+DONE WHEN, checked
+    With blinding on, the Annotate test reads every visible label on the
+    screen and finds no plate, condition or well text, and the Make Masks
+    test finds the code, not the file name, on the status and source lines.
+    Unblinding restores the order and names, and the key's log holds the
+    "unblinded" event with who and when (both GUI tests and the API test).
+
+Tests
+    tests/test_544_573_blind_key_and_analysis_lock.py (key shuffle, codes,
+    seed, key stored outside the data, the unblinding record and folder
+    matching, closing without unblinding).
+    tests/qt/test_544_573_blind_scoring_and_lock_on_screen.py (Annotate:
+    shuffled population, no plate/well/file text on any visible label,
+    identifying tools disabled, order kept through a recount, a refused
+    unblind keeps blinding, unblinding restores and is logged, a new source
+    closes the session; Make Masks: the code on the status line, shuffled
+    and restored order, recrop refused; all three new controls hidden and
+    shown by the alpha switch).
+
+Not done
+    Manual counting (spacr/counting.py, spacr/qt/counting_tool.py) is not
+    placed on any screen, so there is no counting screen to blind. When it
+    is, it takes the same start_blinding/unblind pair.
+    Make Masks still prints a field's file name in rarer messages not
+    routed through the code: warnings from a failed read or save, the
+    Cellpose-bundle notice, Mask the whole folder's confirmation (which
+    names the folder), and whatever text the canvas's status signal
+    carries. Annotate's Settings dialog still shows the database path, and
+    the console keeps the "Opened <path>" line written before blinding.
+    Unblinding is all-or-nothing per key; there is no partial reveal.
+    "Who" is the operating-system user and host; spaCR has no login.
+
+ALPHA: widgets AnnotateBlindToggle (Annotate's "Blind" button) and
+MakeMasksBlindToggle (Make Masks' "Blind" button); no settings keys,
+choices, apps or models. Registered as ALPHA_FEATURES[544]['widgets'] in
+spacr/settings.py (item 569's gate), applied when each button is built and
+live by the app when the preference changes. The API in spacr.run_journal
+is not gated (API, not GUI).

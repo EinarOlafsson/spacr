@@ -946,9 +946,50 @@ def _collect_provenance(src: Path, runs: Sequence[Dict[str, Any]],
     body.extend(fp_html)
     lines.extend(fp_lines)
 
+    lock_html, lock_lines, lock_flags = _analysis_locks(runs)
+    body.extend(lock_html)
+    lines.extend(lock_lines)
+    section.notes.extend(lock_flags)
+
     section.body_html = "\n".join(body)
     section.text_lines = lines
     return section
+
+
+def _analysis_locks(runs: Sequence[Dict[str, Any]]
+                    ) -> Tuple[List[str], List[str], List[str]]:
+    """How each run stands against its preregistered analysis lock.
+
+    Read from the ``analysis_lock`` entry :mod:`spacr.run_journal` writes
+    into a manifest when a lock applies to the run; a run without one is
+    not listed. A run whose settings or files differ from the lock, or
+    whose lock was made after unblinding or no longer matches its hash, is
+    also returned as a flag, which the report states at the top.
+
+    :param runs: the journalled runs, as :func:`_load_journal_runs` returns
+        them.
+    :returns: HTML fragments, text lines and flag sentences.
+    """
+    html: List[str] = []
+    text: List[str] = []
+    flags: List[str] = []
+    for run in runs:
+        manifest = run.get("manifest") or {}
+        lock = manifest.get("analysis_lock") if isinstance(manifest, dict) else None
+        if not isinstance(lock, dict) or not lock.get("status"):
+            continue
+        summary = str(lock.get("summary") or lock.get("status"))
+        name = run["dir"].name
+        if not html:
+            html.append("<p class='muted'>Preregistered analysis lock:</p><ul>")
+            text.append("  preregistered analysis lock:")
+        html.append(f"<li><code>{_esc(name)}</code> → {_esc(summary)}</li>")
+        text.append(f"    {name}: {summary}")
+        if lock.get("status") != "verified":
+            flags.append(f"Run {name}: {summary}")
+    if html:
+        html.append("</ul>")
+    return html, text, flags
 
 
 #: Manifest schema at which :mod:`spacr.run_journal` began recording input
@@ -1949,6 +1990,9 @@ def collect_report(src: Any,
             existing_keys.add(contribution.key)
     except Exception:
         LOG.exception("Could not initialise plugin report sections")
+
+    for flag in _analysis_locks(runs)[2]:
+        sections[0].notes.append(flag)
 
     if artifacts.get("truncated"):
         sections[0].notes.append(

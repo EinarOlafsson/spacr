@@ -216,7 +216,8 @@ TOOLS = ROOT / "tools"
 # test_docstring_correctness.
 # 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
 # 11,861 with item 588's mask_engine.fill_label_holes.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_861
+# 11,865 with items 544 and 573's four spacr.run_journal callables.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_865
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

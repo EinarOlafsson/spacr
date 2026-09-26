@@ -6814,6 +6814,9 @@ ALPHA_FEATURES = {
                      'confluency_window', 'confluency_qc_threshold'),
         'widgets': ('MeasureConfluencyToggle',),
     },
+    544: {
+        'widgets': ('AnnotateBlindToggle', 'MakeMasksBlindToggle'),
+    },
     545: {
         'widgets': ('MakeMasksRoisButton',),
     },
@@ -6837,9 +6840,16 @@ ALPHA_FEATURES = {
                    'omnipose_worm_bact_omni', 'omnipose_worm_high_res_omni',
                    'omnipose_cyto2_omni'),
     },
+    555: {
+        'widgets': ('MakeMasksPromptCategory',),
+        'models': ('microsam_v1',),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
+    },
+    573: {
+        'widgets': ('AnalysisLockButton',),
     },
 }
 
