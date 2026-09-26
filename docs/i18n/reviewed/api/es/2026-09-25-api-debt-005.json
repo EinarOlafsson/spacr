@@ -1,0 +1,1160 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.screens.activation.host_of#2",
+      "source": "the widget to start from, usually a folded page; None gives None.",
+      "source_sha256": "8b2b000bda721f26ba7b7a2b3b3471b622003c5b387281fe6de4f23a442893ce",
+      "context": "the widget to start from, usually a folded page; None gives None.",
+      "translation": "el widget desde el que empezar, normalmente una página plegada; None da None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.activation.open_page#1",
+      "source": "the screen that may carry the activation fold's opener; None gives None.",
+      "source_sha256": "d497a926e17c9bcbd9035ada4940b58787f48cb6bef3ba453452b108aa1b2778",
+      "context": "the screen that may carry the activation fold's opener; None gives None.",
+      "translation": "la pantalla que puede llevar el control que abre el pliegue de activación; None da None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class once each running job thread has been asked to quit and waited on (up to five seconds each).",
+      "source_sha256": "14259a8bc77e9bf1b366fc9e8b1c73f671ab594b8910d6f7f62aa67782feae05",
+      "context": "the close event, passed on to the base class once each executing job independent execution path has been asked to quit and waited on (up to five seconds each).",
+      "translation": "el evento de cierre, que se pasa a la clase base una vez que a cada hilo de trabajo en ejecución se le ha pedido que termine y se le ha esperado (hasta cinco segundos cada uno).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.select_columns#1",
+      "source": "annotation column names to check; every other listed column is unchecked. Names not in the list are reported in the status line.",
+      "source_sha256": "d52be0e0c8c6b22f0927526a543a3549db4eb9bba0fb0c85eb34cb967ae6c221",
+      "context": "annotation column names to check; every other listed column is unchecked. Names not in the list are reported in the status line.",
+      "translation": "nombres de columnas de anotación que se marcan; todas las demás columnas enumeradas se desmarcan. Los nombres que no están en la lista se indican en la línea de estado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.select_disagreement#2",
+      "source": "zero-based row of the disagreement table; out of range clears the preview.",
+      "source_sha256": "f82c6369e3953a48a052e8259238874efdbde6ff74bfd6b97b1b346efe7a18e4",
+      "context": "zero-based row of the disagreement table; out of range clears the preview.",
+      "translation": "fila, contando desde cero, de la tabla de desacuerdos; fuera de rango, borra la vista previa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.set_database#2",
+      "source": "``measurements.db`` file, run ``src`` folder or ``measurements`` folder; resolved with :func:`spacr.qt.screens.db_browser.resolve_db_path`.",
+      "source_sha256": "afdc8879bcd1e0ed8359b2909fb3826f19a87cf3d02a0e8e7e2ee49e68cd5dc7",
+      "context": "``measurements.db`` file, run ``src`` folder or ``measurements`` folder; resolved with :func:`spacr.qt.screens.db_browser.resolve_db_path`.",
+      "translation": "archivo ``measurements.db``, carpeta ``src`` de la ejecución o carpeta ``measurements``; se resuelve con :func:`spacr.qt.screens.db_browser.resolve_db_path`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.AlignScreen.apply_settings#1",
+      "source": "partial or full Align settings; missing keys are filled from :func:`spacr.align.default_settings` before the controls are set.",
+      "source_sha256": "86a8f20a07b2a92bdcdbb8be71af529867c9fc551e2c2da5334a752f5de8a846",
+      "context": "partial or full Align settings; missing structured-data names are filled from :func:`spacr.align.default_settings` before the controls are set.",
+      "translation": "ajustes de Align parciales o completos; las claves que faltan se rellenan desde :func:`spacr.align.default_settings` antes de establecer los controles.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.mousePressEvent#1",
+      "source": "the mouse press event; only its position is read. A press outside every tile emits ``-1``.",
+      "source_sha256": "21fc520a444ed8fc27362685dc2b58da82d25412d2cb980adccc4bde5e17bbe1",
+      "context": "the mouse press event; only its position is read. A press outside every tile emits ``-1``.",
+      "translation": "el evento de pulsación del ratón; solo se lee su posición. Una pulsación fuera de todas las teselas emite ``-1``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.paintEvent#1",
+      "source": "the paint event; not read, the whole widget is redrawn.",
+      "source_sha256": "a546835d8d0b6f0040aac53f32776c9614af0d10ca852ac5cc867cf5670f7958",
+      "context": "the paint event; not read, the whole widget is redrawn.",
+      "translation": "el evento de pintado; no se lee, se vuelve a dibujar todo el widget.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.set_plan#1",
+      "source": "the plan whose placements are drawn; ``None`` shows the empty-state hint.",
+      "source_sha256": "23a5e30c657d64bdb9bb1b1eba4038117a11774fab696aa9e0d4ab94b6794e66",
+      "context": "the plan whose placements are drawn; ``None`` shows the empty-state hint.",
+      "translation": "el plan cuyas colocaciones se dibujan; ``None`` muestra la indicación de estado vacío.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.confidence_colour#2",
+      "source": "registration confidence from 0 to 1; values outside 0.3-1.0 are clamped to the ends of the ramp.",
+      "source_sha256": "f965ce025df8a8eed54a0e8b7bb372bc8c4908d434ec1166b0fd039f4c253a11",
+      "context": "registration confidence from 0 to 1; values outside 0.3-1.0 are clamped to the ends of the ramp.",
+      "translation": "confianza del registro de 0 a 1; los valores fuera de 0.3-1.0 se limitan a los extremos de la rampa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.confidence_colour#3",
+      "source": "placement method, one of the ``spacr.align.METHOD_*`` values; ``\"nominal\"`` gives the warning colour and ``\"unreadable\"`` the error colour regardless of confidence.",
+      "source_sha256": "176fe6ad314cbe9a0b680d4b56115a54b501385400c07b41a0e3b31886fef9b1",
+      "context": "placement method, one of the ``spacr.align.METHOD_*`` values; ``\"nominal\"`` gives the warning colour and ``\"unreadable\"`` the error colour regardless of confidence.",
+      "translation": "método de colocación, uno de los valores ``spacr.align.METHOD_*``; ``\"nominal\"`` da el color de advertencia y ``\"unreadable\"`` el color de error, sea cual sea la confianza.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#10",
+      "source": "A SUGGESTION IS JUDGED, NOT RELABELLED (item 512). A crop Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the key legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "source_sha256": "4fdaae1db8987abfa8b9fd8d63c4aefc84a97dd1fd067712b35b38c46b27fc16",
+      "context": "A suggestion is judged, not relabelled (item 512). An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "translation": "UNA SUGERENCIA SE JUZGA, NO SE REETIQUETA (elemento 512). Un recorte para el que Suggest propuso una clase lleva una insignia ámbar ``?`` junto a su anillo discontinuo. Un clic o ``Y`` la confirma (pasa a ser una etiqueta normal y lleva una marca verde); un clic derecho o ``N`` la rechaza (vuelve a quedar sin respuesta y lleva una cruz roja); ``U`` deshace cualquiera de las dos. La barra situada sobre la leyenda lo indica, y cuenta lo que contienen la página y la columna. Cada juicio se escribe en la columna ``<column>_verdict`` como ``+c`` o ``-c``, de modo que sobrevive a un reinicio, y a la siguiente ronda de Suggest se le entregan los rechazos para entrenar. Véase :meth:`AnnotateScreen._judge` y :func:`spacr.suggest.verdict_column`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#9",
+      "source": "A PAGE IS WHAT FITS (item 512). The grid holds exactly the crops that fit the room the crop pane gives it, at the crop size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first crop on screen stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "source_sha256": "cae822239c94b804ff9338aa4d1846cf19ad53d231e49525ab832c099283b2bd",
+      "context": "A page is what fits (item 512). The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "translation": "UNA PÁGINA ES LO QUE CABE (elemento 512). La cuadrícula contiene exactamente los recortes que caben en el espacio que le da el panel de recortes, con el tamaño de recorte que piden los ajustes, y nunca se desplaza: abrir la consola, plegar un panel, cambiar la escala de la GUI o redimensionar la ventana vuelve a calcular la página y pasa el resto a la siguiente, el contador de páginas lo sigue, y el primer recorte en pantalla se queda donde estaba. Véase :func:`grid_that_fits` y :meth:`AnnotateScreen._refit_grid`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class after every worker has been stopped or drained.",
+      "source_sha256": "c1d3fc3ec3e5e47e134fb18262cbfc252d2e0dbceee023a3a28ad1eb2743d6ee",
+      "context": "the close event, passed on to the base class after every worker has been stopped or drained.",
+      "translation": "el evento de cierre, que se pasa a la clase base después de que todos los procesos de trabajo se hayan detenido o vaciado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.eventFilter#2",
+      "source": "the watched object: the grid scroll area, its viewport or the grid holder. Resizes count only on the viewport, and mouse presses, moves and releases drive the selection band only on the grid holder.",
+      "source_sha256": "8de623cc7eb1579ba19a6ce3fb949c135b820d77839e07c16e3427410708fb78",
+      "context": "the watched object: the grid scroll area, its viewport or the grid holder. Resizes count only on the viewport, and mouse presses, moves and releases drive the selection band only on the grid holder.",
+      "translation": "el objeto observado: el área de desplazamiento de la cuadrícula, su ventana de visualización o el contenedor de la cuadrícula. Los redimensionados solo cuentan en la ventana de visualización, y las pulsaciones, movimientos y liberaciones del ratón solo controlan la banda de selección en el contenedor de la cuadrícula.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.eventFilter#3",
+      "source": "the event; key presses go to :meth:`handle_key`, and ``Leave`` clears the hover.",
+      "source_sha256": "c8ccd7e906cafda083b735661a606cdcc5e29dfe01ed49511dcf1ade8fc713c2",
+      "context": "the event; key presses go to :meth:`handle_key`, and ``Leave`` clears the hover.",
+      "translation": "el evento; las pulsaciones de teclas van a :meth:`handle_key`, y ``Leave`` borra el estado de cursor encima.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.handle_key#2",
+      "source": "Qt key code, Qt key name or literal character, normalised with :func:`key_token`.",
+      "source_sha256": "f8c4ca05efb4be49f8aa9f6d8772b17c4587f6a2b65c47fd85b92b1632c61939",
+      "context": "Qt key code, Qt key name or literal character, normalised with :func:`key_token`.",
+      "translation": "código de tecla de Qt, nombre de tecla de Qt o carácter literal, normalizado con :func:`key_token`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.keyPressEvent#1",
+      "source": "the key event; its key code and text are read, and it is accepted when the key is bound.",
+      "source_sha256": "32a44685cfb2aa5b4d3867fb1f8d85e2f48e4c905b60597a222bf9760144d349",
+      "context": "the key event; its key code and text are read, and it is accepted when the key is bound.",
+      "translation": "el evento de teclado; se leen su código de tecla y su texto, y se acepta cuando la tecla está asignada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.resizeEvent#1",
+      "source": "the resize event, passed to the base class; the grid is re-measured from the widget's new size.",
+      "source_sha256": "7412713f3f2639c1662146c5e570457bb6bd67fbb80137e1772ce9156f2969ec",
+      "context": "the resize event, passed to the base class; the grid is re-measured from the widget's new size.",
+      "translation": "el evento de redimensionado, que se pasa a la clase base; la cuadrícula se vuelve a medir a partir del nuevo tamaño del widget.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#0",
+      "source": "``(fill, glyph)`` for the corner badge a judged or judgeable crop wears.",
+      "source_sha256": "d02a905e93a98f5bd4c6dd39bb06a520a75083b66caf6e4fea42f458dbd3e3eb",
+      "context": "``(fill, glyph)`` for the corner badge a judged or judgeable extracted image region wears.",
+      "translation": "``(fill, glyph)`` para la insignia de esquina que lleva un recorte juzgado o que se puede juzgar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#1",
+      "source": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
+      "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "translation": "Elemento 512. Una sugerencia es ámbar, una sugerencia confirmada verde y una rechazada roja -- los propios colores de advertencia, éxito y error del tema, de modo que la insignia sigue un cambio de tema igual que el resto de la interfaz. El glifo se dibuja en el color de fondo del tema, que es negro en el tema oscuro y casi blanco en el claro; cada uno de esos rellenos se eligió frente a él y se lee con un contraste mejor que 4.5:1 en ambos. None de los tres es un color de clase, así que una insignia nunca se interpreta como una clase.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#2",
+      "source": "one of :data:`JUDGEMENT_STATES`.",
+      "source_sha256": "7edbc9bf3a3b34cd6f802cea98ee83889357d69c6d73bf684d07d71ff41d1e16",
+      "context": "one of :data:`JUDGEMENT_STATES`.",
+      "translation": "uno de :data:`JUDGEMENT_STATES`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#3",
+      "source": "which theme to answer for; the one on screen when None.",
+      "source_sha256": "f2b52d3da23ae2696084367095059fe5e3d2557707e7e3f65a8d07e402e07a3b",
+      "context": "which theme to answer for; the one on application view when None.",
+      "translation": "para qué tema responder; el que está en pantalla cuando es None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#4",
+      "source": "``(fill, glyph)`` hex colours.",
+      "source_sha256": "33864a9aba841a363620ed2ed8b92aa89af209f45e2870f7fc9e9026a8375ddb",
+      "context": "``(fill, glyph)`` hex colours.",
+      "translation": "colores hexadecimales ``(fill, glyph)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#0",
+      "source": "``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.",
+      "source_sha256": "20135f404e68d411c61c5eed4261cb2502d5c5b56f43d729b2d98d26c6e484a6",
+      "context": "``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.",
+      "translation": "``(rows, cols)`` de teselas de ``tile_w`` x ``tile_h`` que caben en un espacio.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#1",
+      "source": "Pure arithmetic, so a page size can be asserted without a window. ``margin`` comes off every edge of the ``width`` x ``height`` room, ``gap`` sits between tiles and not after the last one, and there is always at least one row and one column: a room smaller than a tile shows one crop rather than none.",
+      "source_sha256": "0ca0580b9a74797e56e38613595ea89bc034a835ed3df1f747730d815377b464",
+      "context": "Pure arithmetic, so a page size can be asserted without a window. ``margin`` comes off every edge of the ``width`` x ``height`` room, ``gap`` sits between tiles and not after the last one, and there is always at least one row and one column: a room smaller than a tile shows one extracted image region rather than none.",
+      "translation": "Aritmética pura, para poder comprobar un tamaño de página sin ventana. ``margin`` se resta de cada borde del espacio de ``width`` x ``height``, ``gap`` va entre teselas y no después de la última, y siempre hay al menos una fila y una columna: un espacio más pequeño que una tesela muestra un recorte en lugar de ninguno.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#2",
+      "source": "the room's width, in the same pixels as the tiles.",
+      "source_sha256": "47ae44eeccdf616b6129bbeec8d74dfeebfe48d05a4ae1d47c8655436546f699",
+      "context": "the room's width, in the same pixels as the tiles.",
+      "translation": "el ancho del espacio, en los mismos píxeles que las teselas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#3",
+      "source": "the room's height.",
+      "source_sha256": "707ffd9245c8f2ad6dc88fd2604ea9101d7366ab241e7b1b1b3630917f89fe16",
+      "context": "the room's height.",
+      "translation": "la altura del espacio.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#4",
+      "source": "one tile's width, rings included.",
+      "source_sha256": "28188a1c6de1091e9116d8eb341ed60949d5fde40b7be3ff269c31f58111bc5b",
+      "context": "one tile's width, rings included.",
+      "translation": "ancho de una tesela, anillos incluidos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#5",
+      "source": "one tile's height, rings included.",
+      "source_sha256": "3cb017cc6c9d2e63fdaf785dc37da862e77e9296d8f33682de4382bf5c38aab2",
+      "context": "one tile's height, rings included.",
+      "translation": "altura de una tesela, anillos incluidos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#6",
+      "source": "the layout's spacing between tiles.",
+      "source_sha256": "40ab2bbfe2e95da853f5513bb506a162bcde34b239dc2e3003f6de6e5dd7b1d1",
+      "context": "the layout's spacing between tiles.",
+      "translation": "el espaciado del diseño entre teselas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#7",
+      "source": "the layout's margin on each edge.",
+      "source_sha256": "c32c295529d1da01ef5d9254fbd7999d314f112f681616e641ea5234b730b7af",
+      "context": "the layout's margin on each edge.",
+      "translation": "el margen del diseño en cada borde.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.key_token#2",
+      "source": "Qt key code (an int or int-like value), a key name such as ``\"Left\"``, or a literal character such as ``\"1\"``.",
+      "source_sha256": "60622257a6bf62ebe4e21a57c62137ba10f3f777f9003c5aeae356c7cb88830d",
+      "context": "Qt key code (an int or int-like value), a key name such as ``\"Left\"``, or a literal character such as ``\"1\"``.",
+      "translation": "código de tecla de Qt (un int o un valor similar a int), un nombre de tecla como ``\"Left\"``, o un carácter literal como ``\"1\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#0",
+      "source": "True when a recorded judgement no longer agrees with the label.",
+      "source_sha256": "f2e864653c379f76b3a8d01fbd9611a900f40762013c995210acd14a08624bd9",
+      "context": "True when a recorded judgement no longer agrees with the label.",
+      "translation": "True cuando un juicio registrado ya no concuerda con la etiqueta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#1",
+      "source": "A confirmation of class c stands while the crop is labelled c; a rejection of class c stands until the crop is labelled c after all. Relabelling a confirmed crop, or labelling a rejected one as the class that was rejected, withdraws the judgement, so the verdict column never says something the annotation column contradicts.",
+      "source_sha256": "51cf2136f3a5203164009d9eba2799e14764276bcf874d20c9bfd565bc648c13",
+      "context": "A confirmation of class c stands while the extracted image region is labelled c; a rejection of class c stands until the extracted image region is labelled c after all. Relabelling a confirmed extracted image region, or labelling a rejected one as the class that was rejected, withdraws the judgement, so the verdict column never says something the annotation column contradicts.",
+      "translation": "Una confirmación de la clase c se mantiene mientras el recorte esté etiquetado como c; un rechazo de la clase c se mantiene hasta que el recorte acabe etiquetado como c. Reetiquetar un recorte confirmado, o etiquetar uno rechazado con la clase que se rechazó, retira el juicio, de modo que la columna de veredicto nunca dice algo que contradiga la columna de anotación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#2",
+      "source": "``+c``, ``-c`` or None.",
+      "source_sha256": "b3186cfc999b0e7779b2b8b9130b702a65a1ea890407ecca59ec3a78f611c136",
+      "context": "``+c``, ``-c`` or None.",
+      "translation": "``+c``, ``-c`` o None.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#3",
+      "source": "the crop's label, a suggestion or None.",
+      "source_sha256": "ce8ad95e3d0c344a2dce6eb6619b8166ef8aad51f79eebb4c2b6521331c52aef",
+      "context": "the extracted image region's label, a suggestion or None.",
+      "translation": "la etiqueta del recorte, una sugerencia o None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#4",
+      "source": "True when the verdict should be withdrawn.",
+      "source_sha256": "73e11c14d760fcfdc29fbb1689940c8f282b5fe3792973cc3ac15ff84b100302",
+      "context": "True when the verdict should be withdrawn.",
+      "translation": "True cuando el veredicto debe retirarse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#0",
+      "source": "Name a card someone else put in the runtime splitter.",
+      "source_sha256": "cc61228c9f64ca0ae97936ef05e9e269d3c9bfe246cd3e49bfcca1068d60a24c",
+      "context": "Name a card someone else put in the runtime splitter.",
+      "translation": "Da nombre a una tarjeta que otro código colocó en el divisor de ejecución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#1",
+      "source": ":mod:`spacr.qt.preview_registry` inserts a declared preview above the console; adopting it makes it collapse by its title, resize by its edge, and -- as a preview -- take the height when it is shown.",
+      "source_sha256": "f3656b4f90486eaa074c101aed27b80d2fdf856e97543885f46457682a2a8274",
+      "context": ":mod:`spacr.qt.preview_registry` inserts a declared preview above the console; adopting it makes it collapse by its title, resize by its edge, and -- as a preview -- take the height when it is shown.",
+      "translation": ":mod:`spacr.qt.preview_registry` inserta una vista previa declarada encima de la consola; adoptarla hace que se contraiga por su título, se redimensione por su borde y -- como vista previa -- ocupe la altura cuando se muestra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#2",
+      "source": "the card, already in the runtime splitter.",
+      "source_sha256": "dffb1a3b1cbe5a97b4e9eb53147039614150d5ba550bc87a6e8a2c39e7d356bf",
+      "context": "the card, already in the runtime splitter.",
+      "translation": "la tarjeta, ya en el divisor de ejecución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#3",
+      "source": "whether showing it collapses the console, System, the buttons and the settings column.",
+      "source_sha256": "b9b606fdc4906e085da96d42eeb30f15c9e8721c5124b14ecd8f7b99a44d1c7e",
+      "context": "whether showing it collapses the console, System, the buttons and the settings column.",
+      "translation": "si mostrarla contrae la consola, System, los botones y la columna de ajustes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#4",
+      "source": "the pane, or None when this screen has no such splitter.",
+      "source_sha256": "023be284c097d9524411add8f7218854a0f128e8ca2d1a4b88e2cb5b8a9e4694",
+      "context": "the pane, or None when this screen has no such splitter.",
+      "translation": "el panel, o None cuando esta pantalla no tiene ese divisor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict#2",
+      "source": "setting key to value mapping; legacy key names are translated first, and it is merged over the current values.",
+      "source_sha256": "e2c1e926747cd4c93f095026ecab13f06fb8af5d97d72cc566982d1390c865a5",
+      "context": "setting name to value mapping; legacy structured-data name names are translated first, and it is merged over the current values.",
+      "translation": "mapeo de clave de ajuste a valor; los nombres de clave heredados se traducen primero, y se combina sobre los valores actuales.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state#2",
+      "source": "mapping with ``app_key`` and ``settings`` keys, as saved with the workspace; anything that is not a dict, names another module, or has no settings applies nothing.",
+      "source_sha256": "98adbeaeda257e21da97d8cbfd7eb70829e6b5d1fb43babf9460ad098739a1aa",
+      "context": "mapping with ``app_key`` and ``settings`` structured-data names, as saved with the workspace; anything that is not a key-value mapping, names another module, or has no settings applies nothing.",
+      "translation": "mapeo con las claves ``app_key`` y ``settings``, tal como se guarda con el espacio de trabajo; cualquier cosa que no sea un dict, que nombre otro módulo o que no tenga ajustes no aplica nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.changeEvent#5",
+      "source": "the state-change event; it is passed to the base class, and only its type is read -- ``ApplicationPaletteChange`` and ``PaletteChange`` re-theme the backdrops.",
+      "source_sha256": "130ce0831eacb82cd98a32a206c09fe6689912c0d54c5703598e66dd9d43879f",
+      "context": "the state-change event; it is passed to the base class, and only its type is read -- ``ApplicationPaletteChange`` and ``PaletteChange`` re-theme the backdrops.",
+      "translation": "el evento de cambio de estado; se pasa a la clase base, y solo se lee su tipo -- ``ApplicationPaletteChange`` y ``PaletteChange`` vuelven a aplicar el tema a los fondos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "source": "the close event; ignored (so the screen stays open) when the worker is still running three seconds after the cancel request.",
+      "source_sha256": "49ffd506b6f618a3e2eb51bc2710b1c67b4b3b0c0808d93d914d967736430f8a",
+      "context": "the close event; ignored (so the screen stays open) when the worker is still executing three seconds after the cancel request.",
+      "translation": "el evento de cierre; se ignora (así que la pantalla sigue abierta) cuando el proceso de trabajo sigue ejecutándose tres segundos después de la solicitud de cancelación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.dimension_is_on#1",
+      "source": "``\"z\"`` (3D) or ``\"t\"`` (time); a dimension this screen does not track reads as off.",
+      "source_sha256": "aed0168fcabb17073bb3f5939e1618c647ba45c7c6a28e6fdfb9fd2ec9d9e6aa",
+      "context": "``\"z\"`` (3D) or ``\"t\"`` (time); a dimension this screen does not track reads as off.",
+      "translation": "``\"z\"`` (3D) o ``\"t\"`` (tiempo); una dimensión que esta pantalla no sigue se interpreta como desactivada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.dimension_switch#1",
+      "source": "``\"z\"`` for the 3D toggle or ``\"t\"`` for the Time toggle.",
+      "source_sha256": "627134b258d861188c2b8d44fddd41b6ebb175b56a45e880f075f319896c3337",
+      "context": "``\"z\"`` for the 3D toggle or ``\"t\"`` for the Time toggle.",
+      "translation": "``\"z\"`` para el conmutador 3D o ``\"t\"`` para el conmutador Time.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.eventFilter#1",
+      "source": "the watched widget; its ``settingsCategory`` or ``settingKey`` property decides whether a category blurb or a setting's help is shown.",
+      "source_sha256": "d7fa144a6cd7dfb7588bc2bee4d63e0af8fa147b69862ee2dc4139efe056a831",
+      "context": "the watched widget; its ``settingsCategory`` or ``settingKey`` property decides whether a category blurb or a setting's help is shown.",
+      "translation": "el widget observado; su propiedad ``settingsCategory`` o ``settingKey`` decide si se muestra la descripción de una categoría o la ayuda de un ajuste.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.eventFilter#2",
+      "source": "the filtered event; a ``ToolTip`` on a widget with hover help is swallowed, ``Enter`` shows the help and ``Leave`` hides it, and every event is otherwise passed to the base class.",
+      "source_sha256": "0977194cb24229afdd2b33cd834c5f4974541c8bc07e11858abf6a119366d1a9",
+      "context": "the filtered event; a ``ToolTip`` on a widget with hover help is swallowed, ``Enter`` shows the help and ``Leave`` hides it, and every event is otherwise passed to the base class.",
+      "translation": "el evento filtrado; un ``ToolTip`` sobre un widget con ayuda al pasar el cursor se descarta, ``Enter`` muestra la ayuda y ``Leave`` la oculta, y en los demás casos cada evento se pasa a la clase base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#0",
+      "source": "Fill the OPS settings with the test data, fetching it when needed.",
+      "source_sha256": "d1faefdfb9001b443829b7bc97fc69078a5a7afe8b985e3050052cff8ed766b1",
+      "context": "Fill the OPS settings with the test data, fetching it when needed.",
+      "translation": "Rellena los ajustes de OPS con los datos de prueba, descargándolos cuando haga falta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#2",
+      "source": "replaces the cache folder, for tests.",
+      "source_sha256": "712f27328e107f729f2e189c432c99c13a5f0175620d4c3e1489ac8e3a9602ce",
+      "context": "replaces the cache folder, for tests.",
+      "translation": "sustituye a la carpeta de caché, para las pruebas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#3",
+      "source": "the settings that were applied; empty while a download is still running or after a failure.",
+      "source_sha256": "a7fd94076f09b924b6e2a78c696d3846d4124137d1626f6bd71af00bb488a38d",
+      "context": "the settings that were applied; empty while a download is still executing or after a failure.",
+      "translation": "los ajustes que se aplicaron; vacío mientras una descarga sigue en curso o después de un fallo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.paintEvent#2",
+      "source": "the paint event; handed to the base class only when there is no page fill. The fill always covers the whole screen, not just the event's region.",
+      "source_sha256": "439477830c58ef32e5cd58d4cc5895bafbe050f5dfdf796c4dfd037439340a4d",
+      "context": "the paint event; handed to the base class only when there is no page fill. The fill always covers the whole application view, not just the event's region.",
+      "translation": "el evento de pintado; se entrega a la clase base solo cuando no hay relleno de página. El relleno siempre cubre toda la pantalla, no solo la región del evento.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.pick_wells_for#1",
+      "source": "the settings field holding a well specification; its ``text()`` seeds the picker and ``setText()`` receives the choice when the field has them.",
+      "source_sha256": "9b2bcc03911dcd0b7a54130878dbaff80ba9f54fea7cbed2731a28f44296d08c",
+      "context": "the settings microscope field of view holding a microplate sample position specification; its ``text()`` seeds the picker and ``setText()`` receives the choice when the microscope field of view has them.",
+      "translation": "el campo de ajustes que contiene una especificación de pocillos; su ``text()`` inicializa el selector y ``setText()`` recibe la elección cuando el campo los tiene.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#0",
+      "source": "Put ``folder`` in this module's ``src`` field. Returns whether it took.",
+      "source_sha256": "88866acf67e97d5525ef039e74c9c6e79a0c0687e728edee7293beb01d5a0ec3",
+      "context": "Put ``folder`` in this module's ``src`` field. Returns whether it took.",
+      "translation": "Pone ``folder`` en el campo ``src`` de este módulo. Devuelve si surtió efecto.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#1",
+      "source": "The counterpart of Make Masks' ``_open_folder`` for a module screen: a module does not open a folder, it runs on one. Reaches the widget the same way :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift on where ``src`` lives.",
+      "source_sha256": "13822cc9f525cd1c975921f35bcdfc3cdc67f73cc24b57cfc2f2d8a628e76212",
+      "context": "The counterpart of Make Masks' ``_open_folder`` for a module application view: a module does not open a folder, it executes on one. Reaches the widget the same way :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift on where ``src`` lives.",
+      "translation": "El equivalente del ``_open_folder`` de Make Masks para la pantalla de un módulo: un módulo no abre una carpeta, se ejecuta sobre una. Llega al widget de la misma forma que :meth:`_put_the_measure_example_in_place`, de modo que las dos vías no pueden discrepar sobre dónde está ``src``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#2",
+      "source": "the folder to run on, as a path or a string.",
+      "source_sha256": "235b9d8d91f97a062bc6cfdb843cd0d851c316d3103bf846659be898b08eaf55",
+      "context": "the folder to execute on, as a path or a string.",
+      "translation": "la carpeta sobre la que ejecutar, como ruta o como cadena.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#1",
+      "source": "mapping of dataset name to label stack.",
+      "source_sha256": "3993cd047759bf4cac339436e5dab37b08c223153487d5faae41c2b687ee5632",
+      "context": "mapping of dataset name to label stack.",
+      "translation": "mapeo del nombre del conjunto de datos a la pila de etiquetas.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#2",
+      "source": "optional mapping of dataset name to frame timestamps.",
+      "source_sha256": "9a96e8a6428ab30c416c6f0d783aa6c6eaefb674084a185f76973c23849325c2",
+      "context": "optional mapping of dataset name to frame timestamps.",
+      "translation": "mapeo opcional del nombre del conjunto de datos a las marcas de tiempo de los fotogramas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#3",
+      "source": "optional mapping of dataset name to a stated interval.",
+      "source_sha256": "cee4e5ca699e6a64a6f689a0202a8a7c520bea6b867eb8e974f9d3645569a8df",
+      "context": "optional mapping of dataset name to a stated interval.",
+      "translation": "mapeo opcional del nombre del conjunto de datos a un intervalo declarado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#4",
+      "source": "passed to :func:`recycled_labels`.",
+      "source_sha256": "d41143e214b35c15a09591ac6683fec50e0ff4d51361a27c92c8e4f84a2fa36d",
+      "context": "passed to :func:`recycled_labels`.",
+      "translation": "se pasa a :func:`recycled_labels`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#5",
+      "source": "``DataFrame`` of every dataset's rows, followed by one ``frame_interval_across_datasets`` row reported under the dataset name ``all``. Two datasets imaged at different intervals are a different problem from one dataset imaged unevenly, and only this row sees it.",
+      "source_sha256": "1b49697b157e5730c6d851a06ee37fae468a0e747a4460118da860487bb0df6a",
+      "context": "``DataFrame`` of every dataset's rows, followed by one ``frame_interval_across_datasets`` row reported under the dataset name ``all``. Two datasets imaged at different intervals are a different problem from one dataset imaged unevenly, and only this row sees it.",
+      "translation": "``DataFrame`` con las filas de cada conjunto de datos, seguidas de una fila ``frame_interval_across_datasets`` notificada con el nombre de conjunto de datos ``all``. Dos conjuntos de datos adquiridos a intervalos distintos son un problema diferente de un conjunto de datos adquirido de forma irregular, y solo esta fila lo detecta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#0",
+      "source": "Answer step 1's four questions about one label stack, as a table.",
+      "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
+      "context": "Answer step 1's four questions about one label stack, as a table.",
+      "translation": "Responde a las cuatro preguntas del paso 1 sobre una pila de etiquetas, en forma de tabla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#1",
+      "source": "label stack, ``(T, Y, X)`` or a sequence of 2-D frames.",
+      "source_sha256": "f4b2ee517948033a5188cb43902ef1da7f9be600a2d00fba2f1737df9aa25520",
+      "context": "label stack, ``(T, Y, X)`` or a sequence of 2-D frames.",
+      "translation": "pila de etiquetas, ``(T, Y, X)`` o una secuencia de fotogramas 2D.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#2",
+      "source": "the name the rows are reported under.",
+      "source_sha256": "4ae551ece60018795d0f30a34563a032766b7ac5a8b2685bbcf9e15be104ad38",
+      "context": "the name the rows are reported under.",
+      "translation": "el nombre con el que se notifican las filas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#3",
+      "source": "acquisition time of each frame, when it is known.",
+      "source_sha256": "1c2954179a7518d7bb2b388e575ab7e9883513fa33bfd09b0fee0fa679909fed",
+      "context": "acquisition time of each frame, when it is known.",
+      "translation": "tiempo de adquisición de cada fotograma, cuando se conoce.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#4",
+      "source": "a stated frame interval, used when there are no timestamps.",
+      "source_sha256": "f249164d38b5ccceaac194e35a77a2b6ef0821fd060165cf0bcc520c627f7117",
+      "context": "a stated frame interval, used when there are no timestamps.",
+      "translation": "un intervalo entre fotogramas declarado, que se usa cuando no hay marcas de tiempo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#6",
+      "source": "``DataFrame`` with the columns ``dataset``, ``check``, ``value``, ``verdict`` and ``detail``, one row per check.",
+      "source_sha256": "73e26ff66a147240857ee4464218bbde4d3dbb897a448eb57e8792cc8ece40d5",
+      "context": "``DataFrame`` with the columns ``dataset``, ``check``, ``value``, ``verdict`` and ``detail``, one row per check.",
+      "translation": "``DataFrame`` con las columnas ``dataset``, ``check``, ``value``, ``verdict`` y ``detail``, una fila por comprobación.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.dataset_names#0",
+      "source": "A distinct name for each stack path, as short as it can be.",
+      "source_sha256": "6d38379f24b9f885ab0d8e5496a3ab096fac4699dda09b2f2834b613d05f1e7e",
+      "context": "A distinct name for each stack path, as short as it can be.",
+      "translation": "Un nombre distinto para cada ruta de pila, lo más corto posible.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.dataset_names#1",
+      "source": "Named after the last path component, the fourteen Cell Tracking Challenge movies are all ``TRA`` -- they live at ``<movie>/01_GT/TRA`` -- and keyed on that, each overwrote the one before, so only the last was audited (found 2026-09-21, the first run on real movies). A name that repeats takes in parent folders until every name is unique.",
+      "source_sha256": "fa68a38e06027451607316e4bc84e7de16d962356433ce8d2913b0282dc23f1d",
+      "context": "Named after the last path component, the fourteen Cell Tracking Challenge movies are all ``TRA`` -- they live at ``<movie>/01_GT/TRA`` -- and keyed on that, each overwrote the one before, so only the last was audited (found 2026-09-21, the first run on real movies). A name that repeats takes in parent folders until every name is unique.",
+      "translation": "Si se nombran según el último componente de la ruta, las catorce películas del Cell Tracking Challenge se llaman todas ``TRA`` -- están en ``<movie>/01_GT/TRA`` -- y, al usar ese nombre como clave, cada una sobrescribía a la anterior, de modo que solo se auditaba la última (detectado el 2026-09-21, en la primera ejecución con películas reales). Un nombre que se repite va incorporando carpetas superiores hasta que todos los nombres son únicos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.dataset_names#2",
+      "source": "the stack paths, in order.",
+      "source_sha256": "00f1b8a747ba26eb0efa27c61ae0a28042674b164f19751499467db900c436f7",
+      "context": "the stack paths, in order.",
+      "translation": "las rutas de las pilas, en orden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.dataset_names#3",
+      "source": "one name per path, in the same order.",
+      "source_sha256": "e189d7d4d08d0a56006a8ce7038754da70f1316ff2a58459171e460ba3f00123",
+      "context": "one name per path, in the same order.",
+      "translation": "un nombre por ruta, en el mismo orden.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.displacement_table#0",
+      "source": "Per-frame displacement of every label that survives a frame.",
+      "source_sha256": "d07c5d195586d997386e24b5ed457687a0a1a583be763a00123e9834791ded48",
+      "context": "Per-frame displacement of every label that survives a frame.",
+      "translation": "Desplazamiento por fotograma de cada etiqueta que sobrevive de un fotograma al siguiente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.displacement_table#1",
+      "source": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
+      "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
+      "context": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
+      "translation": "Solo se miden fotogramas CONSECUTIVOS. Una etiqueta que reaparece tras un hueco no aporta nada aquí, porque la distancia que recorrió no es un desplazamiento por fotograma, e incluirla en el promedio inflaría el número que este módulo existe para notificar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.displacement_table#2",
+      "source": "the table :func:`label_frames` returns.",
+      "source_sha256": "78c96e353bf2c1a6a77c4d11b012ab92e8152f6478af179af6188444985cd330",
+      "context": "the table :func:`label_frames` returns.",
+      "translation": "la tabla que devuelve :func:`label_frames`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.displacement_table#3",
+      "source": "``DataFrame`` with ``label``, ``frame``, ``displacement`` in pixels, ``diameter`` of the object in the earlier frame, and ``displacement_over_diameter``.",
+      "source_sha256": "7121aa2084ac81d5a60075a74306100b014f62945039b1f3924f63bf5cb6f542",
+      "context": "``DataFrame`` with ``label``, ``frame``, ``displacement`` in pixels, ``diameter`` of the object in the earlier frame, and ``displacement_over_diameter``.",
+      "translation": "``DataFrame`` con ``label``, ``frame``, ``displacement`` en píxeles, ``diameter`` del objeto en el fotograma anterior y ``displacement_over_diameter``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.division_events#0",
+      "source": "Find divisions and say which labelling convention they follow.",
+      "source_sha256": "a813ede0621a64e1731b9708e294d61e22fcf3fb68a4107903adc0224cb5de14",
+      "context": "Find divisions and say which labelling convention they follow.",
+      "translation": "Encuentra divisiones e indica qué convención de etiquetado siguen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.division_events#1",
+      "source": "A child is called an object's child when at least ``child_overlap`` of the child's own area came from that object. Two or more children of one parent in one step is a division, and the convention is read off the ids: either one child carries the parent's id forward, or both children are new.",
+      "source_sha256": "828aa294f6b7e3db96ee4f5d55713e4ed51484c55f2632a16ddf7f6d5472faa5",
+      "context": "A child is called an object's child when at least ``child_overlap`` of the child's own area came from that object. Two or more children of one parent in one step is a division, and the convention is read off the ids: either one child carries the parent's id forward, or both children are new.",
+      "translation": "Un objeto se considera hijo de otro cuando al menos ``child_overlap`` del área propia del hijo procede de ese objeto. Dos o más hijos de un mismo progenitor en un paso constituyen una división, y la convención se deduce de los ids: o bien un hijo conserva el id del progenitor, o bien ambos hijos son nuevos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.division_events#3",
+      "source": "fraction of the child's area that has to come from the parent. Default :data:`CHILD_OVERLAP`.",
+      "source_sha256": "037678f0b79cb02b9eb4f7084d59318f5a5adf9c281c9bf15d1126d298053600",
+      "context": "fraction of the child's area that has to come from the parent. Default :data:`CHILD_OVERLAP`.",
+      "translation": "fracción del área del hijo que debe proceder del progenitor. Predeterminado :data:`CHILD_OVERLAP`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.division_events#4",
+      "source": "``DataFrame`` with ``frame`` (the frame the children are in), ``parent_label``, ``n_children``, ``child_labels`` and ``convention``, which is ``'child_inherits_parent'`` or ``'children_are_new'``.",
+      "source_sha256": "bd50762ad324dbd13506af97ee46290142a3dc2f52edcc633e93a6a9646685bc",
+      "context": "``DataFrame`` with ``frame`` (the frame the children are in), ``parent_label``, ``n_children``, ``child_labels`` and ``convention``, which is ``'child_inherits_parent'`` or ``'children_are_new'``.",
+      "translation": "``DataFrame`` con ``frame`` (el fotograma en el que están los hijos), ``parent_label``, ``n_children``, ``child_labels`` y ``convention``, que es ``'child_inherits_parent'`` o ``'children_are_new'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.format_qc_table#0",
+      "source": "Render a QC table as aligned text.",
+      "source_sha256": "ed46e52b6214ea37e414e20cf9dae07f4fac81d4cedbda00c027bd6a4d96c904",
+      "context": "Render a QC table as aligned text.",
+      "translation": "Representa una tabla de QC como texto alineado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.format_qc_table#1",
+      "source": "the table :func:`audit_label_consistency` returns.",
+      "source_sha256": "32fdf966a380cef23b323fffef058b28028b8def6847fddc1d9dfb1c319b7faa",
+      "context": "the table :func:`audit_label_consistency` returns.",
+      "translation": "la tabla que devuelve :func:`audit_label_consistency`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.format_qc_table#2",
+      "source": "how much of the detail sentence to print per row.",
+      "source_sha256": "a8e322174aaeb962016aaec352f1e373813a91f0a2801cfe0615de379900499f",
+      "context": "how much of the detail sentence to print per row.",
+      "translation": "cuánto de la frase de detalle se imprime por fila.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.format_qc_table#3",
+      "source": "the table as a string, one line per row, with no trailing newline.",
+      "source_sha256": "b4814fb8c8aa78c6592a5ca3c27241667a2b9986ec9ed4b32a98c5132e28355c",
+      "context": "the table as a string, one line per row, with no trailing newline.",
+      "translation": "la tabla como cadena, una línea por fila, sin salto de línea final.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#0",
+      "source": "Reduce frame timing to an interval and a verdict about its constancy.",
+      "source_sha256": "ec30cf326ea8df806e15a5f9787749eb8359b294d221fa481de9fffc9ce37a93",
+      "context": "Reduce frame timing to an interval and a verdict about its constancy.",
+      "translation": "Reduce la temporización de los fotogramas a un intervalo y un veredicto sobre su constancia.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#1",
+      "source": "acquisition time of each frame, in any one unit. Two frames are the minimum that says anything.",
+      "source_sha256": "2eedc02eb8d13148d92db30621a172963eaa0c43d924fe831cd78778dc055594",
+      "context": "acquisition time of each frame, in any one unit. Two frames are the minimum that says anything.",
+      "translation": "tiempo de adquisición de cada fotograma, en una única unidad cualquiera. Dos fotogramas son el mínimo que aporta información.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#2",
+      "source": "a stated interval, used when no timestamps are given. It is reported as stated and never contradicts a measurement.",
+      "source_sha256": "bdc06ec2f57dd6627b007c3e5804bbaa2682bcdce601a1b20a43e40bc191693f",
+      "context": "a stated interval, used when no timestamps are given. It is reported as stated and never contradicts a measurement.",
+      "translation": "un intervalo declarado, que se usa cuando no se proporcionan marcas de tiempo. Se notifica tal como se declara y nunca contradice una medición.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#3",
+      "source": "absolute spread between the largest and smallest interval that still counts as constant.",
+      "source_sha256": "c86b78cc428de2a45e8ed743943a917d686039cc2f0261f1bafdcd66ab6c1a1b",
+      "context": "absolute spread between the largest and smallest interval that still counts as constant.",
+      "translation": "dispersión absoluta entre el intervalo mayor y el menor que todavía cuenta como constante.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#4",
+      "source": "dict with ``interval``, ``spread``, ``source`` (``'measured'``, ``'stated'`` or ``'missing'``) and ``verdict``.",
+      "source_sha256": "32debbb4e5f55f6839c4a1d15643d0048ff7f057441132962406ed1c4c82ef7a",
+      "context": "key-value mapping with ``interval``, ``spread``, ``source`` (``'measured'``, ``'stated'`` or ``'missing'``) and ``verdict``.",
+      "translation": "diccionario con ``interval``, ``spread``, ``source`` (``'measured'``, ``'stated'`` o ``'missing'``) y ``verdict``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_frames#2",
+      "source": "``DataFrame`` with one row per object per frame and the columns ``frame``, ``label``, ``area``, ``y``, ``x`` and ``diameter``, where the diameter is the area-equivalent circle diameter in pixels.",
+      "source_sha256": "909c273d6b155b58a8db1510fcdb07232e7d48f6736b40b16fe70211ba239189",
+      "context": "``DataFrame`` with one row per object per frame and the columns ``frame``, ``label``, ``area``, ``y``, ``x`` and ``diameter``, where the diameter is the area-equivalent circle diameter in pixels.",
+      "translation": "``DataFrame`` con una fila por objeto y fotograma y las columnas ``frame``, ``label``, ``area``, ``y``, ``x`` y ``diameter``, donde el diámetro es el diámetro del círculo de área equivalente en píxeles.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_spans#0",
+      "source": "Summarise where each label lives in the movie.",
+      "source_sha256": "4da880ca45a65e63e90b39e4c7ccd2cdd56eb3dd1744649cda2842a757f084f8",
+      "context": "Summarise where each label lives in the movie.",
+      "translation": "Resume dónde aparece cada etiqueta en la película.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_spans#2",
+      "source": "``DataFrame`` with one row per label carrying ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` and ``missing_frames``. ``n_missing`` counts frames between the first and the last appearance in which the label is absent, which is the only kind of gap that can hide a recycled id.",
+      "source_sha256": "098de28ac9d91e9335c7456ce07899feee9923fbb6acfbca2cd1634adc89c75b",
+      "context": "``DataFrame`` with one row per label carrying ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` and ``missing_frames``. ``n_missing`` counts frames between the first and the last appearance in which the label is absent, which is the only kind of gap that can hide a recycled id.",
+      "translation": "``DataFrame`` con una fila por etiqueta que contiene ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` y ``missing_frames``. ``n_missing`` cuenta los fotogramas, entre la primera y la última aparición, en los que la etiqueta está ausente, que es el único tipo de hueco que puede ocultar un id reciclado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#0",
+      "source": "Read a label stack from a file or a folder of frames.",
+      "source_sha256": "3ce10360e6b4bfd1140accfef03fe58087ea8594863ba64126d1547a1aa25ebd",
+      "context": "Read a label stack from a file or a folder of frames.",
+      "translation": "Lee una pila de etiquetas desde un archivo o una carpeta de fotogramas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#1",
+      "source": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
+      "source_sha256": "7c1049011d7348f225794f7036a8746f04e2b2a08a27444793a106753b22b15e",
+      "context": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
+      "translation": "archivo ``.npy``, archivo ``.tif``/``.tiff`` o una carpeta con un archivo por fotograma, leídos en orden alfabético de nombre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#2",
+      "source": "``(T, Y, X)`` integer array.",
+      "source_sha256": "bbd223fe617db5d8c97f14a5c4f5ce36d5e8f12ab99030ac871ce0236281d03f",
+      "context": "``(T, Y, X)`` integer array.",
+      "translation": "array de enteros ``(T, Y, X)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#3",
+      "source": "when the folder holds nothing readable, or the suffix is not one of the three above.",
+      "source_sha256": "2c99e07ce0cfbe7a3b80d84b5acbc08c820d560b9b0eedd91f06185cf3ad45f7",
+      "context": "when the folder holds nothing readable, or the suffix is not one of the three above.",
+      "translation": "cuando la carpeta no contiene nada legible o el sufijo no es ninguno de los tres anteriores.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#0",
+      "source": "Run the QC over one or more label stacks and print the table.",
+      "source_sha256": "296dd7c61debdc466a8f4dd0fa40afdaf9f72015f2b26ee4ad976c9328a75195",
+      "context": "Run the QC over one or more label stacks and print the table.",
+      "translation": "Ejecuta el QC sobre una o más pilas de etiquetas e imprime la tabla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#1",
+      "source": "command line arguments; ``sys.argv[1:]`` when ``None``.",
+      "source_sha256": "a6bb0bb1668e347e033a2bc7a19927342d952fb8b8c62135b53e513e4bb5ccba",
+      "context": "command line arguments; ``sys.argv[1:]`` when ``None``.",
+      "translation": "argumentos de la línea de comandos; ``sys.argv[1:]`` cuando es ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#2",
+      "source": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
+      "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
+      "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
+      "translation": "``0`` cuando ninguna comprobación ha fallado, ``1`` cuando alguna sí. Un fallo aquí es una afirmación sobre la ANOTACIÓN, no sobre este programa: significa que los datos no respaldan lo que el plan de timeflows supone sobre ellos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#0",
+      "source": "List every label that disappears and comes back, and judge each one.",
+      "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
+      "context": "List every label that disappears and comes back, and judge each one.",
+      "translation": "Enumera cada etiqueta que desaparece y vuelve, y evalúa cada una.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#1",
+      "source": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
+      "source_sha256": "c1baf2ba619a070b8a036b9c4e851c5944b6ba9cbd3df487d2faeb53c57e8a6f",
+      "context": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
+      "translation": "Un id reciclado -- el mismo número asignado a un objeto no relacionado después de que el primero se haya ido -- es el defecto al que está expuesto todo el plan, y tiene exactamente el mismo aspecto que un hueco de seguimiento de un fotograma. Lo que los distingue es la distancia: un objeto real que no se detectó en un fotograma vuelve a encontrarse cerca de donde estaba y normalmente todavía solapa con su propia máscara. Por eso cada hueco se notifica con la distancia recorrida por fotograma ausente, el solapamiento entre la máscara anterior al hueco y la máscara posterior, y la distancia que recorre en un fotograma un objeto continuo en los mismos datos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#3",
+      "source": "the table :func:`label_frames` returns, when it has already been measured. Measured here when ``None``.",
+      "source_sha256": "a37a91151f2c9e8cdb75d2ceb12e52596b7b35f2a1378bf7b171bbaa26c012cd",
+      "context": "the table :func:`label_frames` returns, when it has already been measured. Measured here when ``None``.",
+      "translation": "la tabla que devuelve :func:`label_frames`, cuando ya se ha medido. Se mide aquí cuando es ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#4",
+      "source": "distance per missing frame, in pixels, above which a gap is called reuse. ``None`` measures it from the data as :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the continuous per-frame displacement, falling back to the median object diameter when nothing in the stack survives a frame.",
+      "source_sha256": "a9077fc5c166b691a4775d18b8fc343f6d49625da56001ab10051db081a4d052",
+      "context": "distance per missing frame, in pixels, above which a gap is called reuse. ``None`` measures it from the data as :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the continuous per-frame displacement, falling back to the median object diameter when nothing in the stack survives a frame.",
+      "translation": "distancia por fotograma ausente, en píxeles, por encima de la cual un hueco se considera reutilización. ``None`` la mide a partir de los datos como :data:`REUSE_DISPLACEMENT_FACTOR` veces el percentil 95 del desplazamiento continuo por fotograma, y recurre a la mediana del diámetro de los objetos cuando nada en la pila sobrevive de un fotograma al siguiente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#5",
+      "source": "``DataFrame`` with one row per gap: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and ``verdict`` (``'gap'`` or ``'reuse-suspected'``).",
+      "source_sha256": "826d4e20a58bc4247ec0b1e1b919f6b4668201552844dbca4e3f6f323f2db3b7",
+      "context": "``DataFrame`` with one row per gap: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and ``verdict`` (``'gap'`` or ``'reuse-suspected'``).",
+      "translation": "``DataFrame`` con una fila por hueco: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` y ``verdict`` (``'gap'`` o ``'reuse-suspected'``).",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.timelapse.automated_motility_assay#2",
+      "source": "dict of assay settings; see ``get_automated_motility_assay_default_settings`` for keys including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
+      "source_sha256": "6b64508bcb3db07b855edf6e851ab479a8ebcab82a7751e795d3f9f19a58adda",
+      "context": "key-value mapping of assay settings; see ``get_automated_motility_assay_default_settings`` for structured-data names including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
+      "translation": "diccionario de ajustes del ensayo; véase ``get_automated_motility_assay_default_settings`` para las claves, entre ellas ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim`` y ``reuse_existing_measurements``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.uniprot.Resolution#1",
+      "source": "``'bundled'``, ``'accession'``, ``'organism'`` or ``'unknown'``.",
+      "source_sha256": "87346797c09dc811073f7e2efb9ff89bc954c2d6f4c027567c6d94037f26da5a",
+      "context": "``'bundled'``, ``'accession'``, ``'organism'`` or ``'unknown'``.",
+      "translation": "``'bundled'``, ``'accession'``, ``'organism'`` o ``'unknown'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.updater#5",
+      "source": "It also answers Home's News panel, through :func:`fetch_release_notes`: the published releases, cached for a day, so a running copy can show a release newer than the one bundled in its own wheel.",
+      "source_sha256": "0e7dc016793ee4ca9c3efac211012bb100c2424a61828b5b80dd3417f193c667",
+      "context": "It also answers Home's News panel, through :func:`fetch_release_notes`: the published releases, cached for a day, so a running copy can show a release newer than the one bundled in its own wheel.",
+      "translation": "También alimenta el panel Noticias de Inicio, mediante :func:`fetch_release_notes`: las versiones publicadas, en caché durante un día, para que una copia en ejecución pueda mostrar una versión más reciente que la incluida en su propio wheel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.PackageChange.describe#0",
+      "source": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
+      "source_sha256": "1fb0f487a65bf4e090df523d3d710ba630a6eade161a41d22857ef2a0f6650fa",
+      "context": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
+      "translation": "``'numpy 1.26.4 -> 2.2.6'`` o ``'cuml-cu12 26.8.0 (new)'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#0",
+      "source": "The repository's releases, newest first, or ``[]``.",
+      "source_sha256": "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
+      "context": "The repository's releases, newest first, or ``[]``.",
+      "translation": "Las versiones del repositorio, de la más reciente a la más antigua, o ``[]``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#1",
+      "source": "NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
+      "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
+      "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
+      "translation": "NUNCA LLAME A ESTO EN EL HILO DE LA GUI. Abre un socket. El panel Noticias de Inicio lo solicita a través del mismo :class:`_UpdateWorker` en el que se ejecuta la comprobación manual de actualizaciones, después de que se haya mostrado la página.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#2",
+      "source": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
+      "source_sha256": "9c8f9d735106e346dcb83b0bdd2b598bca41999abde8f32fc6bc56166655395f",
+      "context": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
+      "translation": "Sin autenticar, porque la alternativa es un token que el usuario no tiene. Eso implica el límite de peticiones compartido por dirección, y por eso la respuesta se guarda en caché durante un día y todo fallo es silencioso: el ``spacr/resources/release_notes.json`` incluido sigue siendo la fuente de verdad sin conexión y una lista vacía simplemente lo deja como está.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#3",
+      "source": "request timeout in seconds. Short on purpose.",
+      "source_sha256": "683518d92d4d70fc6ea8b92a696d78f230cda680870e99eec4cc2dfa61b68c30",
+      "context": "request timeout in seconds. Short on purpose.",
+      "translation": "tiempo de espera de la petición en segundos. Corto a propósito.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#4",
+      "source": "how old a cached answer may be before it is asked again, in seconds.",
+      "source_sha256": "9b0b3f334aeb242980613aa333fbc09ab61078ae0ed1724ad3401262b7ffa1ec",
+      "context": "how old a cached answer may be before it is asked again, in seconds.",
+      "translation": "antigüedad máxima que puede tener una respuesta en caché antes de volver a consultarse, en segundos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#5",
+      "source": "release records shaped like the bundled resource's, or an empty list when the answer is unavailable for any reason at all.",
+      "source_sha256": "b6df52cba5b0cb072e39cd81c374730d8a36e4857495705144f09ff1fdec9b26",
+      "context": "release records shaped like the bundled resource's, or an empty list when the answer is unavailable for any reason at all.",
+      "translation": "registros de versiones con la misma forma que los del recurso incluido, o una lista vacía cuando la respuesta no está disponible por cualquier motivo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#0",
+      "source": "Launch the updated Qt application after the old event loop has stopped.",
+      "source_sha256": "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
+      "context": "Launch the updated Qt application after the old event loop has stopped.",
+      "translation": "Inicia la aplicación Qt actualizada después de que el antiguo bucle de eventos se haya detenido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#1",
+      "source": "process identifier of the detached replacement application.",
+      "source_sha256": "df7bffe98977459e3629ebbd6df90bf7b5a73b2f150eb0f13c1399867f7646e4",
+      "context": "process identifier of the detached replacement application.",
+      "translation": "identificador de proceso de la aplicación de reemplazo desvinculada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#2",
+      "source": "the replacement could not be started.",
+      "source_sha256": "c1bc615c92ef69f5875a3aacdfa3c47b58cb0e8561a586baa8e7151397d4806d",
+      "context": "the replacement could not be started.",
+      "translation": "no se pudo iniciar el reemplazo.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.updater.news_cache_path#0",
+      "source": "Where the fetched release list is remembered between launches.",
+      "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
+      "context": "Where the fetched release list is remembered between launches.",
+      "translation": "Dónde se guarda la lista de versiones descargada entre un inicio y otro.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.run_pip_upgrade#2",
+      "source": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "source_sha256": "0d823b21391fd6e582c7f79a809383d7870af304a14633c0cd3a95dab6e867eb",
+      "context": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "translation": "instala exactamente esta versión ofrecida y la verifica en un proceso nuevo antes de informar del éxito. None mantiene una actualización sin versión fijada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#0",
+      "source": "Upgrade this interpreter, optionally to the exact version offered.",
+      "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
+      "context": "Upgrade this interpreter, optionally to the exact version offered.",
+      "translation": "Actualiza este intérprete, opcionalmente a la versión exacta ofrecida.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "allow prerelease packages.",
+      "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
+      "context": "allow prerelease packages.",
+      "translation": "permite paquetes de versiones preliminares.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#2",
+      "source": "explicit version selected by the update check.",
+      "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
+      "context": "explicit version selected by the update check.",
+      "translation": "versión explícita seleccionada por la comprobación de actualizaciones.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.ResNet.initialize_base#4",
+      "source": "``'imagenet'`` or ``'none'``.",
+      "source_sha256": "96f001c0da20357e41ea89d5767ceb0cebd011f10fee5ccfb7e63b904bf5d433",
+      "context": "``'imagenet'`` or ``'none'``.",
+      "translation": "``'imagenet'`` o ``'none'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#10",
+      "source": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every field finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected field set.",
+      "source_sha256": "0b483d7e974fd7bf8fed14df4cbebc83f61407b8f7b7e074e855fc405e605482",
+      "context": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every microscope field of view finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected microscope field of view set.",
+      "translation": "si las tres carpetas contienen distinto número de archivos o nombres de archivo que no coinciden, o si una máscara está truncada, no es numérica, está vacía, no es bidimensional o tiene dimensiones distintas de las de sus compañeras. También se comprueban las máscaras de orgánulos disponibles. La validación, solo de cabeceras, de cada campo termina antes de que se modifique cualquier máscara o se inicien los procesos de trabajo. Una carpeta de salida explícita debe ser distinta de todas las carpetas de origen y no debe contener máscaras fuera del conjunto de campos seleccionado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#8",
+      "source": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected field is rebuilt from its source on each invocation, including after interrupted work.",
+      "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
+      "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
+      "translation": "carpeta separada opcional para las máscaras ajustadas. None conserva el comportamiento histórico de modificar en el lugar. Una carpeta separada mantiene todas las máscaras de origen idénticas byte a byte, y cada campo seleccionado se reconstruye a partir de su origen en cada invocación, también después de un trabajo interrumpido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#3",
+      "source": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "source_sha256": "31f7b901992dd6f980688625984d84045eaa65d0a70d4eef3a0b87d167ceffdd",
+      "context": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "translation": "se acepta para los llamadores que lo pasan. Solo se cuentan los arrays de máscaras estructuralmente completos, esté activado o no, de modo que un array vacío o truncado que dejó una ejecución interrumpida se vuelve a poner en cola.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#4",
+      "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
+      "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
+      "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
+      "translation": "``True`` cuando falta la carpeta de máscaras o cuando algún nombre de archivo de pila esperado no tiene una máscara completa. Las máscaras no relacionadas no pueden sustituir a un campo que falta y no obligan a volver a procesar los campos completos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.lasso_reg#3",
+      "source": "``'lasso'`` or ``'ridge'``.",
+      "source_sha256": "d87fa963235100757ae8ed6593bae68208f8fc409a82246858a5a52fddf2f82d",
+      "context": "``'lasso'`` or ``'ridge'``.",
+      "translation": "``'lasso'`` o ``'ridge'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.measure_test_mode#2",
+      "source": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a field. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which plane is which, and a ``test/merged`` without it is read as a legacy folder, against the default plane order.",
+      "source_sha256": "a2d5c1b9d11d5a9d6577513db0262d1fd5101ac12e26bd74ef1e43e1b4efeade",
+      "context": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a microscope field of view. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which image layer is which, and a ``test/merged`` without it is read as a legacy folder, against the default image layer order.",
+      "translation": "Solo se muestrean los arrays ``.npy`` visibles, de modo que un archivo auxiliar ``._`` de macOS nunca se mide en lugar de un campo. El ``.spacr_plane_layout.json`` de la carpeta también se copia cuando existe: es lo que indica qué plano es cada uno, y una carpeta ``test/merged`` sin él se lee como una carpeta heredada, con el orden de planos predeterminado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#14",
+      "source": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "source_sha256": "4de9b1bac442db49e4259666396b504d6cea95e039ed10d68ce1974c225f7c6f",
+      "context": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "translation": "entradas del filtro de objetos (cualquier regionprop escalar con un mínimo y un máximo), evaluadas con los límites anteriores en una sola pasada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.preprocess_data#7",
+      "source": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "source_sha256": "a9f96a9d58b325a2d70df263552d73dd8c68dfdba5be167f70e0dcd418571ecf",
+      "context": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "translation": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` o ``combat``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#10",
+      "source": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "source_sha256": "76b0e4af2a3fc6d2357c3b9f80f7433cc87f90478ca56302d89f698e65e6cacb",
+      "context": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "translation": "si falta el archivo de máscara de células o de núcleos correspondiente, o si un archivo de máscara contiene objetos serializados con pickle: las máscaras son arrays simples y nunca se deserializa nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#3",
+      "source": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a run killed during the write leaves the previous whole mask, never a truncated one.",
+      "source_sha256": "40d7b307f3b754fd749a196f732cca4b0ebdfbed5a27dae5238e1a060c132a31",
+      "context": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a processing session killed during the write leaves the previous whole mask, never a truncated one.",
+      "translation": "carpeta de máscaras de células (se sobrescriben en el lugar). La máscara ajustada reemplaza a la antigua de forma atómica, de modo que una ejecución interrumpida durante la escritura deja la máscara anterior entera, nunca una truncada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#8",
+      "source": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "source_sha256": "f8c93a039ab2ba106c1d26d3d9460fc245fca4618e2ef00bbae69f77142870cf",
+      "context": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "translation": "destino separado opcional para las máscaras ajustadas. None mantiene el ajuste en el lugar. Un destino explícito debe ser distinto de todas las carpetas de máscaras de origen, también a través de enlaces simbólicos de directorio.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#7",
+      "source": "``'dbscan'`` or ``'kmeans'``.",
+      "source_sha256": "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
+      "context": "``'dbscan'`` or ``'kmeans'``.",
+      "translation": "``'dbscan'`` o ``'kmeans'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#8",
+      "source": "``'umap'`` or ``'tsne'``.",
+      "source_sha256": "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
+      "context": "``'umap'`` or ``'tsne'``.",
+      "translation": "``'umap'`` o ``'tsne'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.validate.validate_settings#1",
+      "source": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is run.",
+      "source_sha256": "2d227b6d455184e300aee08b223db31e785aacf26c66d29ca620ba9d1607f878",
+      "context": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is executed.",
+      "translation": "Los datos de imagen se comprueban mediante cabeceras y listados de directorios. Una PSF habilitada también carga su núcleo de tamaño limitado para validar la calibración y los valores; no se realiza ningún procesamiento de imágenes ni inferencia en GPU.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.workspace.save#4",
+      "source": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "source_sha256": "a346a4ae4445c5dc4561ae4ad35ae319000466eb9c1891dca8984101a62ce716",
+      "context": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "translation": "``'off'``, ``'reference'`` o ``'copy'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes#2",
+      "source": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "source_sha256": "b1cd5d7b1f5318210eed9d03ee95f35b395bf4ad0eaf117296a216030c7f9e2b",
+      "context": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "translation": "``(Z, Y, X)`` o ``(Z, Y, X, C)``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes_4d#4",
+      "source": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "source_sha256": "fde87c2383a2d70fb2c91dde4d3faa2d1ceb0b76201245a613cfe1e501a11f75",
+      "context": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "translation": "``(T, Z, Y, X)`` o ``(T, Z, Y, X, C)``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.zstack.format_4d#2",
+      "source": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "source_sha256": "cdea53d430d950ea001e7e755164a8faffff42e026296f0452b52aacfaa161b4",
+      "context": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "translation": "un :class:`TStackResult` o un :class:`TrackResult`.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
