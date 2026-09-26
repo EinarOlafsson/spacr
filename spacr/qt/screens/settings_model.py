@@ -1178,6 +1178,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "strict_errors", "max_failure_rate", "on_error",
             "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs",
             "batch_size", "pipeline_style", "diameter_estimate_n_fields",
+            "mask_parallel", "mask_gpu_indices",
         )),
     ),
     "measure": (
@@ -8505,6 +8506,7 @@ class SettingsWidgets:
 
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
+        self._refresh_mask_gpu_enablement()
         self._refresh_analysis_unit_lock()
         self._refresh_regression_backend()
         self._state_passes_ready = True
@@ -8635,7 +8637,8 @@ class SettingsWidgets:
         owned = getattr(self, "_keys_decided_by_a_pass", None)
         if owned is not None:
             return owned
-        owned = {"exclude_rows", "regression_backend", "metric"}
+        owned = {"exclude_rows", "regression_backend", "metric",
+                 "mask_parallel", "mask_gpu_indices"}
         owned.update(self._rules_for_this_panel())
         owned.update(_ALL_BASIS_SETTINGS)
         for keys in _UMAP_REDUCER_SETTINGS.values():
@@ -8661,6 +8664,7 @@ class SettingsWidgets:
         """:meth:`_decide_the_state_of_every_control`, one pass per step."""
         for decide in (self._refresh_contextual_widgets,
                        self._refresh_umap_reducer_enablement,
+                       self._refresh_mask_gpu_enablement,
                        self._refresh_analysis_unit_lock,
                        self._refresh_regression_backend):
             try:
@@ -9498,6 +9502,8 @@ class SettingsWidgets:
             self._refresh_umap_reducer_enablement()
         if key == "analysis_unit":
             self._refresh_analysis_unit_lock()
+        if key == "mask_parallel":
+            self._refresh_mask_gpu_enablement()
         return True
 
     def set_hidden_value(self, key: str, value: Any) -> bool:
@@ -9610,6 +9616,53 @@ class SettingsWidgets:
             except Exception:                                # noqa: BLE001
                 LOGGER.debug("could not re-run the dependency rules",
                              exc_info=True)
+
+    def _refresh_mask_gpu_enablement(self) -> None:
+        """Grey parallel GPU mask controls this computer cannot use.
+
+        Both stay greyed, with the reason on hover, when fewer than two
+        compatible CUDA/ROCm GPUs are visible. A saved value is kept, so a
+        settings file sent through Cluster Distribution still runs on the
+        GPUs allocated to that job. The GPU list is greyed while
+        mask_parallel is off.
+        """
+        parallel = self._built_control("mask_parallel")
+        indices = self._built_control("mask_gpu_indices")
+        if parallel is None and indices is None:
+            return
+        from ..i18n import tr
+        from ... import _mask_workers
+
+        count = _mask_workers._mask_gpu_count_for_controls()
+        if count < 2:
+            note = tr(
+                "Needs two or more compatible CUDA or ROCm GPUs; {count} "
+                "found on this computer. Cluster Distribution runs use the "
+                "GPUs allocated to the job.").format(count=count)
+            for control in (parallel, indices):
+                if control is not None:
+                    control.setEnabled(False)
+                    _apply_greyed_note(control, note)
+            return
+        if parallel is not None:
+            parallel.setEnabled(True)
+            _clear_greyed_note(parallel)
+            if not parallel.property("_spacr_mask_gpu_wired"):
+                parallel.setProperty("_spacr_mask_gpu_wired", True)
+                _connect_value_changed(
+                    parallel,
+                    lambda *_args: self._refresh_mask_gpu_enablement())
+        if indices is None:
+            return
+        enabled = (bool(self._read_widget(parallel))
+                   if parallel is not None else True)
+        indices.setEnabled(enabled)
+        if enabled:
+            _clear_greyed_note(indices)
+        else:
+            _apply_greyed_note(indices, tr(
+                "Used only when mask_parallel is on. {count} GPUs found."
+            ).format(count=count))
 
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""

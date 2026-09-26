@@ -460,6 +460,30 @@ def pausable(fn: Callable) -> Callable:
 #: 96" without anything having to be threaded through the pipeline.
 _PROGRESS_RE = re.compile(r"\bProgress:\s*(\d+)\s*/\s*(\d+)")
 
+_MASK_GPU_RE = re.compile(
+    r"\[mask GPUs\] (\w+) Progress: (\d+)/(\d+) archives, failed (\d+)"
+    r"((?: \| GPU \S+ \w+ \d+/\d+)*)")
+_MASK_GPU_WORKER_RE = re.compile(r"GPU (\S+) (\w+) (\d+)/(\d+)")
+
+
+def mask_gpu_progress(text: str) -> Optional[dict]:
+    """Read the newest parallel mask progress line in ``text``, if any.
+
+    ``spacr._mask_workers._progress_line`` writes the line; this returns the
+    object role, overall ``done``/``total``/``failed`` archive counts and a
+    ``workers`` list of ``(device, state, done, total)`` tuples.
+    """
+    matches = list(_MASK_GPU_RE.finditer(text or ""))
+    if not matches:
+        return None
+    match = matches[-1]
+    workers = [(device, state, int(done), int(total))
+               for device, state, done, total
+               in _MASK_GPU_WORKER_RE.findall(match.group(5))]
+    return {"object_type": match.group(1), "done": int(match.group(2)),
+            "total": int(match.group(3)), "failed": int(match.group(4)),
+            "workers": workers}
+
 WORKER_SETTING_KEYS = (
     "n_jobs",
     "n_workers",

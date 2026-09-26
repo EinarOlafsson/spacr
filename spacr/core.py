@@ -250,6 +250,8 @@ def preprocess_generate_masks(settings):
 
     if settings.get('pipeline_style', 'v1') == 'v2':
         settings = set_default_settings_preprocess_generate_masks(settings)
+        if settings.get('mask_parallel'):
+            print('mask_parallel applies to the v1 mask pipeline; this v2 run segments on one device.')
         settings = _set_organelle_defaults(settings)
         from .pipeline_v2 import run_v2
         from ._v1_v2_bridge import (
@@ -392,6 +394,9 @@ def preprocess_generate_masks(settings):
                     if settings['test_mode']:
                         print(f'Starting Test mode ...')
 
+                    from ._mask_workers import _parallel_mask_plan
+                    gpu_plan = _parallel_mask_plan(settings)
+
                     if settings['preprocess']:
                         settings, src = preprocess_img_data(settings)
 
@@ -456,7 +461,11 @@ def preprocess_generate_masks(settings):
                                     src, 'cell_mask_stack',
                                     resume=settings.get('resume', False)):
                                 start = time.time()
-                                generate_cellpose_masks_sam(mask_src, settings, 'cell')
+                                if gpu_plan is None:
+                                    generate_cellpose_masks_sam(mask_src, settings, 'cell')
+                                else:
+                                    from ._mask_workers import _generate_masks_in_parallel
+                                    _generate_masks_in_parallel(mask_src, settings, 'cell', gpu_plan)
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)
@@ -470,7 +479,11 @@ def preprocess_generate_masks(settings):
                                     src, 'nucleus_mask_stack',
                                     resume=settings.get('resume', False)):
                                 start = time.time()
-                                generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
+                                if gpu_plan is None:
+                                    generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
+                                else:
+                                    from ._mask_workers import _generate_masks_in_parallel
+                                    _generate_masks_in_parallel(mask_src, settings, 'nucleus', gpu_plan)
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)
@@ -484,7 +497,11 @@ def preprocess_generate_masks(settings):
                                     src, 'pathogen_mask_stack',
                                     resume=settings.get('resume', False)):
                                 start = time.time()
-                                generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
+                                if gpu_plan is None:
+                                    generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
+                                else:
+                                    from ._mask_workers import _generate_masks_in_parallel
+                                    _generate_masks_in_parallel(mask_src, settings, 'pathogen', gpu_plan)
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)
@@ -510,6 +527,7 @@ def preprocess_generate_masks(settings):
                                     batch_size=None,
                                     operation_type=f'{organelle_role}_mask_gen')
 
+                        adjusted_cells = None
                         if settings['adjust_cells']:
                             if not settings['timelapse']:
                                 if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
@@ -525,9 +543,14 @@ def preprocess_generate_masks(settings):
                                             organelle_folder = candidate
 
                                     print(f'Adjusting cell masks with nuclei and pathogen masks')
-                                    adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
                                     from .object import _run_seg_qc
-                                    _run_seg_qc(mask_src, settings, 'cell')
+                                    if gpu_plan is None:
+                                        adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
+                                        _run_seg_qc(mask_src, settings, 'cell')
+                                    else:
+                                        from ._mask_workers import _finalize_adjusted_cells
+                                        adjusted_cells = _finalize_adjusted_cells(mask_src, organelle_folder, n_jobs=settings['n_jobs'])
+                                        _run_seg_qc(mask_src, settings, 'cell', mask_folder=adjusted_cells)
                                     stop = time.time()
                                     adjust_time = (stop-start)/60
                                     print(f'Cell mask adjustment: {adjust_time} min.')
@@ -547,7 +570,9 @@ def preprocess_generate_masks(settings):
                                 for role in ORGANELLE_ROLES[1:]
                                 if (dim := settings.get(
                                     f'{role}_channel')) is not None},
-                            resume=settings.get('resume', False)
+                            resume=settings.get('resume', False),
+                            **({'mask_folders': {'cell': adjusted_cells}}
+                               if adjusted_cells is not None else {})
                         )
 
                         if settings['timelapse'] and settings.get('motility_analysis', False):

@@ -3999,6 +3999,32 @@ class AppScreen(QWidget):
         except Exception:
             return 0
 
+    def _show_mask_gpu_progress(self, chunk: str) -> None:
+        """Show per-GPU and overall batch counts from a parallel mask run.
+
+        :param chunk: worker output; lines without a parallel mask progress
+            report leave the label unchanged.
+        """
+        from ..bridge import mask_gpu_progress
+        from ..i18n import tr
+
+        report = mask_gpu_progress(chunk)
+        if report is None:
+            return
+        states = {"starting": tr("starting"), "running": tr("running"),
+                  "success": tr("done"), "failed": tr("failed"),
+                  "cancelled": tr("stopped")}
+        parts = [tr("{done}/{total} {role} batches done, {failed} failed").format(
+            done=report["done"], total=report["total"],
+            role=report["object_type"], failed=report["failed"])]
+        parts.extend(
+            tr("GPU {device}: {done}/{total} {state}").format(
+                device=device, done=done, total=total,
+                state=states.get(state, state))
+            for device, state, done, total in report["workers"])
+        self._gpu_progress.setText("  ·  ".join(parts))
+        self._gpu_progress.setVisible(True)
+
     def _lay_out_setting_row(self, section, label, widget) -> None:
         """Put one setting on ``section``'s form: its label, then its field.
 
@@ -7003,6 +7029,10 @@ class AppScreen(QWidget):
         self._progress.setVisible(False)
         self._progress.setFixedWidth(240)
         row.addWidget(self._progress)
+        self._gpu_progress = QLabel()
+        self._gpu_progress.setObjectName("MaskGpuProgress")
+        self._gpu_progress.setVisible(False)
+        row.addWidget(self._gpu_progress)
 
         from ..widgets import AiToggleLabel
 
@@ -7766,6 +7796,8 @@ class AppScreen(QWidget):
         self._btn_run.setEnabled(False)
         self._btn_stop.setEnabled(True)
         self._progress.setVisible(True)
+        self._gpu_progress.clear()
+        self._gpu_progress.setVisible(False)
 
         import time as _time
         self._run_started_at = _time.time()
@@ -7792,6 +7824,7 @@ class AppScreen(QWidget):
         self._thread, worker = make_thread(entry, settings)
         self._worker = worker
         worker.line_ready.connect(self._console.append_stdout)
+        worker.line_ready.connect(self._show_mask_gpu_progress)
         worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
         worker.result_ready.connect(self._on_pipeline_result)
