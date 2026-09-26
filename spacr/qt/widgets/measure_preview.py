@@ -1383,8 +1383,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             return
         pixmap = numpy_to_qpixmap(result["overlay"])
         side = max(160, self._thumb_px * 3)
-        self._confluency_view.setPixmap(pixmap.scaled(
-            side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self._confluency_view.setPixmap(
+            scaled_for(pixmap, self._confluency_view, side, side))
         self._confluency_view.show()
         verdict = (tr("monolayer QC passed") if result.get("monolayer_ok")
                    else tr("below the monolayer QC threshold"))
