@@ -14,6 +14,12 @@ its test module, so a pixel here means what it means there.
 """
 from __future__ import annotations
 
+from spacr.model_zoo import mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = mask_model_kinds()
+
 import shutil
 from pathlib import Path
 
@@ -370,7 +376,7 @@ def test_the_model_zoo_button_opens_the_cellpose_zoo_and_selects_the_pick(
 
         monkeypatch.setattr(model_zoo_picker, "choose_model", choose)
         button.click()
-        assert opened == [(made, ("cellpose", "cellpose3", "cellpose_dino"))]
+        assert opened == [(made, MASK_KINDS)]
         assert made._cp_model.currentData() == str(fetched)
         assert made._cp_model.currentText() == "toxoplasma_pv_v1"
         assert ("toxoplasma_pv_v1 (not downloaded)", None, False) not in _rows(

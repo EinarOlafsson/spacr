@@ -146,6 +146,8 @@ IMPORT_TO_DIST = {
     "PIL": "pillow",
     "PySide6": "PySide6",
     "cv2": "opencv-python-headless",
+    # Omnipose (item 553) ships its Cellpose fork inside its own wheel.
+    "cellpose_omni": "omnipose",
     "cuml": "cuml-cu12",
     "cupy": "cupy-cuda12x",
     # `cupyx` is a SUBPACKAGE of the same distribution, not a second
@@ -159,6 +161,8 @@ IMPORT_TO_DIST = {
     # that cannot be installed.
     "mpl_toolkits": "matplotlib",
     "huggingface_hub": "huggingface-hub",
+    # InstanSeg (item 552) publishes its package as instanseg-torch.
+    "instanseg": "instanseg-torch",
     # No import statement anywhere -- see STRING_LITERAL_ONLY. Here so that the
     # day one is written, `omero` resolves to `omero-py` (which the `omero`
     # extra declares) rather than to a distribution of that name, which is a
@@ -197,7 +201,17 @@ STRING_LITERAL_ONLY = {"umap", "omero"}
 # SpotNet requires an older Python/TensorFlow stack and runs exclusively in
 # its own environment. Its pinned installer manifest is the declaration;
 # adding it to setup.py would offer an incompatible host-environment extra.
-ISOLATED_WORKER_IMPORTS = {"deepcell_spots": "_worker_detect_spots"}
+# StarDist (item 551) is the same: TensorFlow and CSBDeep live only in its
+# environment, imported by its worker adapter and the worker's device probe.
+# Each import maps to the top-level functions or classes allowed to name it.
+ISOLATED_WORKER_IMPORTS = {
+    "deepcell_spots": ("_worker_detect_spots",),
+    "stardist": ("_StarDistAdapter",),
+    "csbdeep": ("_StarDistAdapter",),
+    "tensorflow": ("_tensorflow_device",),
+    "instanseg": ("_InstanSegAdapter",),
+    "cellpose_omni": ("_OmniposeAdapter",),
+}
 BACKEND_SOURCE = PKG / "_segmentation_backends.py"
 
 
@@ -284,32 +298,42 @@ def _isolated_declaration(mod, files, tree=None):
     assert files == {str(BACKEND_SOURCE.relative_to(REPO_ROOT))}
     if tree is None:
         tree = ast.parse(BACKEND_SOURCE.read_text(encoding="utf-8"))
+    def probed(fields):
+        """Whether a spec's self-test imports ``mod`` or a module in it."""
+        return "probe" in fields and any(
+            name == mod or name.startswith(mod + ".")
+            for name in ast.literal_eval(fields["probe"]))
+
     specs = [node for node in ast.walk(tree)
              if isinstance(node, ast.Call)
              and isinstance(node.func, ast.Name) and node.func.id == "_BackendSpec"
-             and any(kw.arg == "module" and isinstance(kw.value, ast.Constant)
-                     and kw.value.value == mod for kw in node.keywords)]
-    assert len(specs) == 1, f"{mod} needs one isolated installer declaration"
-    fields = {kw.arg: kw.value for kw in specs[0].keywords}
-    assert "in_process" not in fields or ast.literal_eval(fields["in_process"]) is False
+             and probed({kw.arg: kw.value for kw in node.keywords})]
+    assert specs, f"{mod} needs an isolated installer declaration that probes it"
     spec_class = next(node for node in tree.body
                       if isinstance(node, ast.ClassDef) and node.name == "_BackendSpec")
     default = next(node.value for node in spec_class.body
                    if isinstance(node, ast.AnnAssign)
                    and node.target.id == "in_process")
     assert ast.literal_eval(default) is False
-    distribution = _norm(ast.literal_eval(fields["distribution"]))
-    requirements = [Requirement(value)
-                    for value in ast.literal_eval(fields["requirements"])]
-    assert any(_norm(req.name) == distribution
-               and any(pin.operator == "==" and "*" not in pin.version
-                       for pin in req.specifier)
-               for req in requirements), f"{mod} has no pinned installation requirement"
-    assert mod in ast.literal_eval(fields["probe"])
-    worker = next(node for node in tree.body
-                  if isinstance(node, ast.FunctionDef)
-                  and node.name == ISOLATED_WORKER_IMPORTS[mod])
-    worker_nodes = set(ast.walk(worker))
+    distribution = _norm(IMPORT_TO_DIST.get(mod, mod))
+    pinned = False
+    for spec in specs:
+        fields = {kw.arg: kw.value for kw in spec.keywords}
+        assert ("in_process" not in fields
+                or ast.literal_eval(fields["in_process"]) is False)
+        requirements = [Requirement(value)
+                        for value in ast.literal_eval(fields["requirements"])]
+        pinned = pinned or any(
+            _norm(req.name) == distribution
+            and any(pin.operator == "==" and "*" not in pin.version
+                    for pin in req.specifier)
+            for req in requirements)
+    assert pinned, f"{mod} has no pinned installation requirement"
+    workers = [node for node in tree.body
+               if isinstance(node, (ast.FunctionDef, ast.ClassDef))
+               and node.name in ISOLATED_WORKER_IMPORTS[mod]]
+    assert workers, f"{mod}'s worker is not in the backend source"
+    worker_nodes = {n for worker in workers for n in ast.walk(worker)}
     imports = [node for node in ast.walk(tree)
                if (isinstance(node, ast.ImportFrom) and node.module
                    and node.module.split(".")[0] == mod)

@@ -1781,6 +1781,8 @@ class ModelZooPicker(QDialog):
             html += _cellpose3_card(entry)
         elif getattr(entry, "kind", "") == "cellpose_dino":
             html += _cellpose_dino_card(entry)
+        elif _prefixed_kind(entry):
+            html += _prefixed_card(entry)
         url = getattr(entry, "model_card_url", "")
         if url:
             html += f'<p><a href="{url}">{url}</a></p>'
@@ -1933,7 +1935,9 @@ class ModelZooPicker(QDialog):
         to the Cellpose 3 backend, where a bare ``cyto3`` would be read as a
         retired Cellpose name and run as cpsam. A Cellpose-DINO checkpoint is
         handed back as ``cellpose_dino:<path>`` (item 525), which sends the
-        object to the Cellpose-DINO backend.
+        object to the Cellpose-DINO backend. A StarDist, InstanSeg or
+        Omnipose model is handed back as ``<prefix><name>`` (items 551-553),
+        e.g. ``stardist:2D_versatile_fluo``.
         """
         entry = self.selected_entry()
         local = (self._local_path(entry)
@@ -1948,6 +1952,10 @@ class ModelZooPicker(QDialog):
             from ..._segmentation_backends import _cellpose_dino_value
 
             local = _cellpose_dino_value(local)
+        elif _prefixed_kind(entry):
+            from ..._segmentation_backends import _prefixed_value
+
+            local = _prefixed_value(_prefixed_kind(entry), local)
         self._chosen_path = local
         self.model_chosen.emit(local)
         self.accept()
@@ -2042,6 +2050,9 @@ def _status_text(entry, local) -> str:
         return "needs the Cellpose 3 backend"
     if kind == "cellpose_dino" and not _cellpose_dino_ready():
         return tr("needs the Cellpose-DINO backend")
+    if _prefixed_kind(entry) and source == "stock" and not local:
+        return tr("needs the {backend} backend",
+                  backend=_prefixed_label(entry))
     return "on this machine" if local else "not downloaded"
 
 
@@ -2072,6 +2083,12 @@ def _where_a_backend_is_chosen(entry) -> str:
             "{name} is a backend, not a checkpoint file. Install it here, "
             "then download a Cellpose-DINO model from the bioimage.io "
             "heading and press Use this model on it.", name=name)
+    if spec is not None and spec.prefix:
+        return i18n.tr(
+            "{name} is a backend, not a checkpoint file. Install it here, "
+            "then choose one of its models listed with it and press Use "
+            "this model, which writes {prefix}<model> into the object's "
+            "model setting.", name=name, prefix=spec.prefix)
     if spec is not None and not spec.segments:
         return i18n.tr(
             "{name} is not a segmentation model, so no model field takes it. "
@@ -2103,7 +2120,9 @@ def _needs_install(entry) -> bool:
     True for a backend that is not installed, for a Cellpose 3 model of
     the backend's own while the backend is not installed, and for a
     Cellpose-DINO model while the Cellpose-DINO backend is not (item 525):
-    nothing spaCR has can run one without it. A bioimage.io Cellpose 3
+    nothing spaCR has can run one without it. So is a StarDist,
+    InstanSeg or Omnipose model while its backend is not installed (items
+    551-553). A bioimage.io Cellpose 3
     checkpoint downloads like any other model; the card says what it needs
     to run.
     """
@@ -2112,7 +2131,8 @@ def _needs_install(entry) -> bool:
         return getattr(entry, "source", "") not in ("installed", "installing")
     if kind == "cellpose_dino":
         return not _cellpose_dino_ready()
-    return (kind == "cellpose3" and getattr(entry, "source", "") == "stock"
+    return ((kind == "cellpose3" or bool(_prefixed_kind(entry)))
+            and getattr(entry, "source", "") == "stock"
             and not getattr(entry, "path", ""))
 
 
@@ -2208,6 +2228,49 @@ def _cellpose_dino_card(entry) -> str:
             tr("Licence: {licence}", licence=licence)) + "</p>"
     out += "<p>" + _html.escape(tr(_SPECS[_CELLPOSE_DINO].licence_note)) \
         + "</p>"
+    return out
+
+
+def _prefixed_kind(entry) -> str:
+    """The prefixed backend (StarDist, InstanSeg, Omnipose) a model row
+    runs in, or ``''`` for every other row."""
+    from ... import model_zoo
+
+    kind = str(getattr(entry, "kind", "") or "")
+    return kind if kind in model_zoo.PREFIXED_KINDS else ""
+
+
+def _prefixed_label(entry) -> str:
+    """The name of the backend a prefixed model row runs in."""
+    from ..._segmentation_backends import _SPECS
+
+    return _SPECS[_prefixed_kind(entry)].label
+
+
+def _prefixed_card(entry) -> str:
+    """A StarDist, InstanSeg or Omnipose model's card: whether its backend
+    is here, what Use this model writes, and the backend's licence."""
+    import html as _html
+
+    from ..._segmentation_backends import _SPECS
+
+    name = _prefixed_kind(entry)
+    spec = _SPECS[name]
+    state = _disk_state(name)
+    ready = bool(state is not None and state.ready)
+    out = ("<p><i>" + _html.escape(
+        tr("Runs through the {backend} backend, which is installed. Use "
+           "this model writes {prefix}{model} into the object's model "
+           "setting, which runs that object through {backend} with its "
+           "usual Mask generation settings.", backend=spec.label,
+           prefix=spec.prefix, model=getattr(entry, "name", "") or "")
+        if ready else
+        tr("Needs the {backend} backend, which runs in an environment of "
+           "its own and is not installed — press Install to install it.",
+           backend=spec.label)) + "</i></p>")
+    out += "<p>" + _html.escape(
+        tr("Licence: {licence}", licence=spec.licence)) + "</p>"
+    out += "<p>" + _html.escape(tr(spec.licence_note)) + "</p>"
     return out
 
 
