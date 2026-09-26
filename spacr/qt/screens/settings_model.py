@@ -8562,6 +8562,13 @@ class SettingsWidgets:
         if self.app_key == "umap" and isinstance(affinity_widget, QComboBox):
             affinity_widget.currentTextChanged.connect(
                 self._on_umap_reducer_changed)
+        architecture_widget = self._widgets.get("model_type")
+        if self.app_key == "activation" and architecture_widget is not None:
+            for signal_name in ("currentTextChanged", "textChanged"):
+                signal = getattr(architecture_widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._refresh_attribution_method_enablement)
+                    break
 
         self._connect_setting_dependency_signals()
 
@@ -8569,6 +8576,7 @@ class SettingsWidgets:
 
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
+        self._refresh_attribution_method_enablement()
         self._refresh_analysis_unit_lock()
         self._refresh_regression_backend()
         self._state_passes_ready = True
@@ -9674,6 +9682,47 @@ class SettingsWidgets:
             except Exception:                                # noqa: BLE001
                 LOGGER.debug("could not re-run the dependency rules",
                              exc_info=True)
+
+    def _refresh_attribution_method_enablement(self, *_args) -> None:
+        """Grey the ``cam_type`` entries that do not apply to ``model_type``.
+
+        Asked of :func:`spacr.attribution.cam_type_applicability`, the same
+        rule ``generate_activation_map`` refuses a run by, so the menu and the
+        run cannot disagree. A greyed entry keeps its place and carries the
+        reason as its tooltip -- Chefer relevance on a ResNet, a CAM on a
+        pure ViT, DeepSHAP on a model that reuses its ReLU modules.
+        """
+        if self.app_key != "activation":
+            return
+        combo = self._built_control("cam_type")
+        if not isinstance(combo, QComboBox):
+            return
+        try:
+            from ...attribution import cam_type_applicability
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("attribution rules unavailable", exc_info=True)
+            return
+        from ..i18n import tr
+
+        architecture = self._widgets.get("model_type")
+        model_type = str(self._read_widget(architecture) or "").strip() \
+            if architecture is not None else ""
+        items = combo.model()
+        for index in range(combo.count()):
+            name = str(combo.itemData(index) or combo.itemText(index))
+            try:
+                applies, reason = cam_type_applicability(
+                    name, model_type=model_type or None)
+            except Exception:                                # noqa: BLE001
+                applies, reason = True, ""
+            item = items.item(index) if hasattr(items, "item") else None
+            if item is not None:
+                item.setEnabled(applies)
+            combo.setItemData(
+                index, "" if applies else tr(
+                    "Not applicable to {model}: {reason}",
+                    model=model_type or tr("this model"), reason=reason),
+                Qt.ToolTipRole)
 
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""
