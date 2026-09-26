@@ -75,7 +75,7 @@ setting prefix. Everything below is written against the spec, so 552 and
     _load_backend and then through the UNCHANGED Cellpose-SAM eval call.
   spacr/_mask_workers.py: parallel preparation refuses a prefixed object.
   spacr/model_zoo.py: PREFIXED_KINDS (kinds named after each prefixed
-    backend, added to KINDS), mask_model_kinds(), _prefixed_model_entries()
+    backend, added to KINDS), _mask_model_kinds(), _prefixed_model_entries()
     (one stock row per model, path = the name once the backend is
     installed, "needs the StarDist backend" before), _backend_for, the
     "spaCR" source heading, catalogue().
@@ -92,7 +92,7 @@ setting prefix. Everything below is written against the spec, so 552 and
     installed backend's models in the Model list; the Model zoo... button
     labels a pick "StarDist · <model>".
   live_preview (model box rules, zoo button), app_screen._model_kinds_for
-    and ObjectSettingsGrid's zoo button ask for mask_model_kinds().
+    and ObjectSettingsGrid's zoo button ask for _mask_model_kinds().
 
 THE DIAMETER. StarDist has no diameter, but its scale argument rescales the
 plane, and it matters: on plate1_E01_1_1 (40x nuclei, median 86 px, 49 in
@@ -164,19 +164,19 @@ TESTS
     saved, _prefixed_masks, the adapter with a faked StarDist (shapes,
     min_size, percentile normalisation, the diameter as scale, logit ->
     prob_thresh, named settings), the real .npy hand-off into
-    parse_cellpose4_output, the zoo rows, mask_model_kinds.
+    parse_cellpose4_output, the zoo rows, _mask_model_kinds.
   tests/qt/test_prefixed_backend_rows_offer_their_backend.py (new, 16):
     alpha off hides rows / modes / Model list entries and on shows them;
     missing backend -> Status, card, Install -> install_backend; installed
     -> Use writes stardist:<model>; backend row text; zoo screen status;
     Live preview routing and box rules; Timelapse frame; zoo buttons ask for
-    mask_model_kinds(); Make Masks label, loader, Mode box, Model list.
+    _mask_model_kinds(); Make Masks label, loader, Mode box, Model list.
   Changed: test_declared_dependencies_match_imports (worker-only imports
     may be classes and probed by any spec that pins them: stardist,
     csbdeep, tensorflow), test_backends_live_in_their_own_environment
     (adapter ratchet lists StarDist), test_the_zoo_lists_every_backend...
     (one more backend row), and five qt tests that pinned the Mask-model
-    kinds as a literal now read mask_model_kinds().
+    kinds as a literal now read _mask_model_kinds().
   Backend / zoo / bioimage / Cellpose 3 / DINO / preview / pipeline_v2 /
     mask-worker / alpha-gate selection (78 files), after rebasing on nightly
     d48d76207: 1680 passed, 16 skipped, 3 failed, 2 errors, at machine load

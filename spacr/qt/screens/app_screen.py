@@ -4779,7 +4779,7 @@ class AppScreen(QWidget):
         """
         from ... import model_zoo
 
-        return (model_zoo.mask_model_kinds()
+        return (model_zoo._mask_model_kinds()
                 if str(key).endswith("_model_name") else ("cellpose",))
 
     def _choose_a_model_for(self, field, key: str = "") -> None:

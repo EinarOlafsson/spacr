@@ -490,7 +490,7 @@ def test_each_model_is_a_zoo_row_that_needs_its_backend(tmp_path):
 
 
 def test_mask_generation_fields_ask_the_zoo_for_every_prefixed_kind():
-    assert zoo.mask_model_kinds() == (
+    assert zoo._mask_model_kinds() == (
         "cellpose", "cellpose3", "cellpose_dino") + PREFIXED
 
 

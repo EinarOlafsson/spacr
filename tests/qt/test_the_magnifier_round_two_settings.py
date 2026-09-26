@@ -14,11 +14,11 @@ its test module, so a pixel here means what it means there.
 """
 from __future__ import annotations
 
-from spacr.model_zoo import mask_model_kinds
+from spacr.model_zoo import _mask_model_kinds
 
 #: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
 #: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
-MASK_KINDS = mask_model_kinds()
+MASK_KINDS = _mask_model_kinds()
 
 import shutil
 from pathlib import Path

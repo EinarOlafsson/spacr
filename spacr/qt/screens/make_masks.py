@@ -12458,7 +12458,7 @@ class MakeMasksScreen(QWidget):
                                                _prefixed_choice)
 
         path = model_zoo_picker.choose_model(
-            self, kinds=model_zoo.mask_model_kinds())
+            self, kinds=model_zoo._mask_model_kinds())
         if not path:
             return None
         path = str(path)

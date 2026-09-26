@@ -2540,7 +2540,7 @@ def _cellpose3_model_entries() -> List["ModelEntry"]:
     return out
 
 
-def mask_model_kinds() -> Tuple[str, ...]:
+def _mask_model_kinds() -> Tuple[str, ...]:
     """The kinds an object's model setting in Mask generation can run:
     Cellpose-SAM, Cellpose 3, Cellpose-DINO and each prefixed backend's
     models. What every Model zoo button beside such a setting asks for."""
