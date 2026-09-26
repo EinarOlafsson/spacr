@@ -1191,6 +1191,20 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Write the ranked hit table, every well's scores and the plate summary "
     "as CSV, and one plate heatmap per statistic, into a folder",
     'hit report written to {folder}',
+    # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
+    # status lines, and the Confluency (Alpha) category help.
+    'Confluency',
+    'Confluency failed: {error}',
+    'Confluency {percent} ({source}), {verdict}',
+    'How much of each field is covered by cells, measured per field and per '
+    'well into measurements.db with a monolayer QC flag: from the cell masks, '
+    'from the texture of a brightfield or phase channel, or from a '
+    'fluorescent stain. Plaque and infection results from a thin or torn '
+    'monolayer can then be dropped or divided by the covered fraction.',
+    'Show the area of this field Measure would count as covered by cells, '
+    'using the Confluency settings of the run.',
+    'below the monolayer QC threshold',
+    'monolayer QC passed',
 })
 
 

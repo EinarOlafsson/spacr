@@ -1303,7 +1303,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # spacr.figures.plates.score_ramp; ControlChartScreen.hit_options,
     # rescore_hits, choose_hit_export, export_hits, hit_result. The locale
     # catalogs are not regenerated here (catalog lane).
-    expected = 11_860
+    # 11,860 -> 11,861 after merging nightly: item 588's
+    # spacr.qt.mask_engine.fill_label_holes.
+    expected = 11_861
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1348,7 +1350,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,528 -> 11,651 -> 11,661 with `expected` above, for the same moves.
     # 11,758 -> 11,816 with `expected` above.
     # 11,816 -> 11,834 with `expected` above.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_860
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_861
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

@@ -128,7 +128,8 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
 # 11,834 on 2026-09-26: item 545's eighteen ROI callables.
 # 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
-REAL_SYMBOL_COUNT = 11_860
+# 11,861 with item 588's mask_engine.fill_label_holes.
+REAL_SYMBOL_COUNT = 11_861
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

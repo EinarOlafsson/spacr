@@ -318,8 +318,51 @@ def parasites_per_cell(db_path: str) -> pd.DataFrame:
     return merged.drop(columns=["n"])
 
 
+def _monolayer_by_group(db_path: str, keys: Sequence[str]) -> Dict[tuple, dict]:
+    """Confluency per report group, when the Measure run measured it.
+
+    When the Measure run also measured confluency, every row of
+    :func:`infection_report` gains ``monolayer_ok`` and each group two more
+    metrics: ``confluency``, the covered fraction of the imaged area, and
+    ``parasites_per_confluency``, the parasite count over that fraction,
+    which compares wells per unit of monolayer rather than per field imaged.
+    ``infection_report(..., monolayer_filter=True)`` drops the groups whose
+    monolayer failed the confluency QC; it is ignored when no confluency was
+    measured.
+
+    :param db_path: path to a ``measurements.db``.
+    :param keys: the report's grouping columns; a group with ``fieldID``
+        takes that field's own confluency, otherwise the well's pooled one.
+    :returns: identity tuple (as strings) -> ``confluency``, ``n_fields``
+        and ``monolayer_ok``; empty when the run wrote no confluency.
+    """
+    from .measure import _confluency_by_well, _read_confluency
+
+    try:
+        fields = _read_confluency(db_path)
+    except Exception:
+        return {}
+    if fields.empty:
+        return {}
+    if FIELD_KEY in keys:
+        table = fields.assign(n_fields=1)
+    else:
+        table = _confluency_by_well(fields)
+    wanted = [key for key in keys if key in table.columns]
+    if len(wanted) != len(keys):
+        return {}
+    out = {}
+    for _, row in table.iterrows():
+        identity = tuple(str(row[key]) for key in keys)
+        out[identity] = {"confluency": float(row["confluency"]),
+                         "n_fields": int(row["n_fields"]),
+                         "monolayer_ok": int(row["monolayer_ok"])}
+    return out
+
+
 def infection_report(db_path: str, *,
-                     by_field: bool = False) -> pd.DataFrame:
+                     by_field: bool = False,
+                     monolayer_filter: bool = False) -> pd.DataFrame:
     """Infection metrics per well, each with the denominator it was computed over.
 
     EVERY ROW CARRIES ITS DENOMINATOR because that is where these numbers go
@@ -357,10 +400,17 @@ def infection_report(db_path: str, *,
         if field:
             keys = keys + [field]
 
+    monolayer = _monolayer_by_group(db_path, keys) if keys else {}
+
     rows: List[dict] = []
     grouped = per_cell.groupby(keys, dropna=False) if keys else [((), per_cell)]
     for name, block in grouped:
         identity = dict(zip(keys, name if isinstance(name, tuple) else (name,)))
+        cover = monolayer.get(tuple(str(identity[key]) for key in keys))
+        if monolayer and monolayer_filter and (
+                cover is None or not cover["monolayer_ok"]):
+            continue
+        first_row = len(rows)
         cells = len(block)
         infected = int((block["pathogen_count"] > 0).sum())
         parasites = int(block["pathogen_count"].sum())
@@ -395,6 +445,17 @@ def infection_report(db_path: str, *,
         add("infected_count", float(infected), cell_population, cells)
         add("parasite_count", float(parasites), "parasites with a host cell",
             parasites)
+        if monolayer:
+            fraction = cover["confluency"] if cover else float("nan")
+            fields = cover["n_fields"] if cover else 0
+            add("confluency", fraction, "imaged field area", fields)
+            add("parasites_per_confluency",
+                parasites / fraction if fraction and fraction > 0
+                else float("nan"),
+                "covered fraction of the imaged area", fields)
+            ok = cover["monolayer_ok"] if cover else float("nan")
+            for row in rows[first_row:]:
+                row["monolayer_ok"] = ok
     return pd.DataFrame(rows)
 
 
