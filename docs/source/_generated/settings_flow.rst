@@ -6384,7 +6384,7 @@ Read by ``select_crops``, ``validate``.
 fill_in
 -------
 
-(bool) - Post-process each Cellpose mask with fill_holes_in_mask in the mask-finetune and plaque tools. The mask is relabelled by connectivity over all nonzero pixels, then interior holes are filled component by component. Relabelling does not preserve the original label values, so touching objects can merge. Default False. Plaque Analysis starts with this enabled so plaque interiors are filled before scoring.
+(bool) - Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks.
 
 | :py:func:`~spacr.spacr_cellpose.identify_masks_finetune` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_plaques`
@@ -14656,7 +14656,7 @@ Read by ``_pen_of``.
 percentiles
 -----------
 
-(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background \* Signal_to_noise. Default None in the Cellpose steps.
+(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background \* Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps.
 
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
