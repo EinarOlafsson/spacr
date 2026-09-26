@@ -917,6 +917,255 @@ def collect_installers(
     return copied
 
 
+#: Zenodo's record id for the spaCR *concept*: every GitHub release is archived
+#: as a new version under it, and each version gets its own DOI.
+ZENODO_CONCEPT_RECORD = "21343316"
+ZENODO_CONCEPT_DOI = f"10.5281/zenodo.{ZENODO_CONCEPT_RECORD}"
+ZENODO_RECORDS_API = "https://zenodo.org/api/records"
+PYPI_RELEASE_API = "https://pypi.org/pypi/spacr/{version}/json"
+CONDA_RECIPE_PATH = Path("conda-forge/recipe/recipe.yaml")
+#: The CITATION.cff identifier that names one release, e.g.
+#: ``description: "Version DOI: this release, spaCR 1.5.1.0. Cite this ..."``.
+#: The concept DOI's description names no version, which is what tells the two
+#: apart -- the same rule tests/test_packaging_metadata.py applies.
+CITATION_VERSION_DOI_ENTRY = re.compile(
+    r'^(?P<indent>[ \t]*)- type:[ \t]*doi[ \t]*\n'
+    r'(?P=indent)[ \t]+value:[ \t]*"(?P<value>[^"\n]+)"[ \t]*\n'
+    r'(?P=indent)[ \t]+description:[ \t]*"'
+    r'(?P<before>[^"\n]*?\bspaCR\s+)(?P<named>\d+(?:\.\d+)*)(?P<after>[^"\n]*)"',
+    re.MULTILINE,
+)
+RECIPE_VERSION = re.compile(
+    r'^(?P<prefix>[ \t]*version:[ \t]*")(?P<value>[^"\n]+)(?P<suffix>")',
+    re.MULTILINE)
+RECIPE_SHA256 = re.compile(
+    r'^(?P<prefix>[ \t]*sha256:[ \t]*)(?P<value>[0-9A-Fa-f]{64})\b',
+    re.MULTILINE)
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+DOI_PATTERN = re.compile(r"^10\.\d{4,9}/\S+$")
+
+
+class MetadataNotReady(RuntimeError):
+    """A release exists but a service has not published what it mints yet."""
+
+
+def fetch_json(url: str):
+    """GET ``url`` and decode it as JSON (the only network access here)."""
+    import json
+    import urllib.request
+
+    request = urllib.request.Request(
+        url, headers={"Accept": "application/json",
+                      "User-Agent": "spacr-release-helper"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        return json.load(response)
+
+
+def _is_transient(exc: BaseException) -> bool:
+    """Network and 404/429/5xx answers are worth waiting out; others are not."""
+    import urllib.error
+
+    if isinstance(exc, MetadataNotReady):
+        return True
+    if isinstance(exc, urllib.error.HTTPError):
+        return exc.code in (404, 408, 425, 429) or exc.code >= 500
+    return isinstance(exc, (urllib.error.URLError, TimeoutError, OSError))
+
+
+def _with_retries(lookup, *, attempts: int, delay: float, sleep, label: str):
+    """Call ``lookup`` until it answers, waiting ``delay`` s between tries.
+
+    Zenodo mints a version DOI a few minutes after the GitHub release that
+    triggers it, so "not there yet" is the expected first answer rather than
+    an error.
+    """
+    import sys
+
+    if attempts < 1:
+        raise ValueError("attempts must be at least 1")
+    for attempt in range(1, attempts + 1):
+        try:
+            return lookup()
+        except Exception as exc:
+            if not _is_transient(exc) or attempt == attempts:
+                raise
+            print(f"{label}: attempt {attempt}/{attempts}: {exc}; "
+                  f"retrying in {delay:g} s", file=sys.stderr)
+            sleep(delay)
+    raise AssertionError("unreachable")
+
+
+def zenodo_version_record(
+    version: str,
+    *,
+    fetch=fetch_json,
+    concept: str = ZENODO_CONCEPT_RECORD,
+) -> dict[str, str]:
+    """Return ``{"doi", "released"}`` for spaCR ``version`` on Zenodo.
+
+    Searches every version under the concept record. Zenodo's GitHub
+    integration names each version after the release tag (``v1.5.1.0``), so
+    both spellings are accepted. Raises :class:`MetadataNotReady` while the
+    version has not been archived.
+    """
+    from urllib.parse import urlencode
+
+    url = f"{ZENODO_RECORDS_API}?" + urlencode({
+        "q": f"conceptrecid:{concept}",
+        "all_versions": "true",
+        "sort": "mostrecent",
+        "size": "25",
+    })
+    payload = fetch(url)
+    hits = ((payload or {}).get("hits") or {}).get("hits") or []
+    wanted = str(Version(version))
+    for hit in hits:
+        metadata = hit.get("metadata") or {}
+        named = str(metadata.get("version") or "").strip()
+        if named[:1] in ("v", "V"):
+            named = named[1:]
+        try:
+            if str(Version(named)) != wanted:
+                continue
+        except InvalidVersion:
+            continue
+        if str(hit.get("conceptrecid", concept)) != str(concept):
+            continue
+        doi = str(hit.get("doi") or metadata.get("doi") or "").strip()
+        if not DOI_PATTERN.match(doi):
+            raise MetadataNotReady(
+                f"Zenodo lists spaCR {version} but has not minted its DOI yet")
+        if doi == f"10.5281/zenodo.{concept}":
+            raise ValueError(
+                f"Zenodo returned the concept DOI {doi} for spaCR {version}; "
+                "a version DOI is required")
+        released = str(metadata.get("publication_date") or "").strip()
+        try:
+            released = date.fromisoformat(released[:10]).isoformat()
+        except ValueError as exc:
+            raise ValueError(
+                f"Zenodo publication date {released!r} for spaCR {version} "
+                "is not an ISO date") from exc
+        return {"doi": doi, "released": released}
+    raise MetadataNotReady(
+        f"Zenodo has not archived spaCR {version} under concept {concept} yet")
+
+
+def pypi_sdist_sha256(version: str, *, fetch=fetch_json) -> str:
+    """Return the SHA-256 PyPI records for ``spacr-<version>.tar.gz``."""
+    payload = fetch(PYPI_RELEASE_API.format(version=version))
+    for entry in (payload or {}).get("urls") or []:
+        if entry.get("packagetype") != "sdist":
+            continue
+        digest = str((entry.get("digests") or {}).get("sha256") or "").lower()
+        if not SHA256_PATTERN.match(digest):
+            raise ValueError(
+                f"PyPI's sdist for spaCR {version} carries no valid sha256")
+        return digest
+    raise MetadataNotReady(f"PyPI has no sdist for spaCR {version} yet")
+
+
+def lookup_release_metadata(
+    version: str,
+    *,
+    fetch=fetch_json,
+    attempts: int = 40,
+    delay: float = 30.0,
+    sleep=None,
+) -> dict[str, str]:
+    """Wait for Zenodo's version DOI and PyPI's sdist digest for ``version``."""
+    import time
+
+    sleep = time.sleep if sleep is None else sleep
+    record = _with_retries(
+        lambda: zenodo_version_record(version, fetch=fetch),
+        attempts=attempts, delay=delay, sleep=sleep, label="Zenodo")
+    sha256 = _with_retries(
+        lambda: pypi_sdist_sha256(version, fetch=fetch),
+        attempts=attempts, delay=delay, sleep=sleep, label="PyPI")
+    return {"version": str(Version(version)), "doi": record["doi"],
+            "released": record["released"], "sha256": sha256}
+
+
+def _single(pattern: re.Pattern[str], text: str, what: str, path: Path):
+    matches = list(pattern.finditer(text))
+    if len(matches) != 1:
+        raise ValueError(
+            f"Expected exactly one {what} in {path}, found {len(matches)}")
+    return matches[0]
+
+
+def _refuse_older(current: str, requested: str, path: Path) -> None:
+    try:
+        older = Version(requested) < Version(current)
+    except InvalidVersion as exc:
+        raise ValueError(f"{path} names an invalid version {current!r}") from exc
+    if older:
+        raise ValueError(
+            f"{path} already names spaCR {current}; refusing to move it back "
+            f"to {requested}")
+
+
+def updated_citation_text(
+    text: str,
+    metadata: dict[str, str],
+    citation_path: Path = Path("CITATION.cff"),
+) -> str:
+    """Point ``CITATION.cff`` at one release: version, date and version DOI."""
+    version, doi = metadata["version"], metadata["doi"]
+    if not DOI_PATTERN.match(doi) or doi == ZENODO_CONCEPT_DOI:
+        raise ValueError(f"{doi!r} is not a version DOI")
+    current = _citation_field(text, "version", citation_path).group("value")
+    _refuse_older(current, version, citation_path)
+    text = _replace_citation_field(text, "version", version, citation_path)
+    text = _replace_citation_field(
+        text, "date-released", metadata["released"], citation_path)
+    text = _replace_citation_field(text, "doi", doi, citation_path)
+    entry = _single(CITATION_VERSION_DOI_ENTRY, text,
+                    "version-DOI identifier", citation_path)
+    return (text[:entry.start("value")] + doi
+            + text[entry.end("value"):entry.start("named")] + version
+            + text[entry.end("named"):])
+
+
+def updated_recipe_text(
+    text: str,
+    metadata: dict[str, str],
+    recipe_path: Path = CONDA_RECIPE_PATH,
+) -> str:
+    """Point the reference conda recipe at one release's PyPI sdist."""
+    version, sha256 = metadata["version"], metadata["sha256"].lower()
+    if not SHA256_PATTERN.match(sha256):
+        raise ValueError(f"{sha256!r} is not a SHA-256 digest")
+    found = _single(RECIPE_VERSION, text, "quoted version", recipe_path)
+    _refuse_older(found.group("value"), version, recipe_path)
+    text = text[:found.start("value")] + version + text[found.end("value"):]
+    digest = _single(RECIPE_SHA256, text, "sha256", recipe_path)
+    return text[:digest.start("value")] + sha256 + text[digest.end("value"):]
+
+
+def sync_release_metadata(root: Path, metadata: dict[str, str]) -> list[Path]:
+    """Write one release's DOI and sdist digest; return the files changed.
+
+    Both files are computed before either is written, so a malformed recipe
+    cannot leave a half-updated citation behind. An absent recipe is skipped:
+    it is an optional reference mirror.
+    """
+    citation = root / "CITATION.cff"
+    recipe = root / CONDA_RECIPE_PATH
+    planned = [(citation, updated_citation_text(
+        citation.read_text(encoding="utf-8"), metadata, citation))]
+    if recipe.is_file():
+        planned.append((recipe, updated_recipe_text(
+            recipe.read_text(encoding="utf-8"), metadata, recipe)))
+    changed = []
+    for path, updated in planned:
+        if path.read_text(encoding="utf-8") != updated:
+            path.write_text(updated, encoding="utf-8")
+            changed.append(path)
+    return changed
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -996,6 +1245,27 @@ def main() -> int:
         if command == "audit-published":
             publication_parser.add_argument("--site", help="also audit this public archive URL")
 
+    metadata_parser = subparsers.add_parser(
+        "sync-release-metadata",
+        help=("record a published release's Zenodo version DOI and PyPI sdist "
+              "sha256 in CITATION.cff and the conda-forge recipe"))
+    metadata_parser.add_argument(
+        "--version", dest="release_version",
+        help="released version (defaults to setup.py's VERSION)")
+    metadata_parser.add_argument("--root", type=Path, default=Path("."))
+    metadata_parser.add_argument(
+        "--metadata", type=Path,
+        help="JSON written by --lookup-only; skips the network lookups")
+    metadata_parser.add_argument(
+        "--lookup-only", action="store_true",
+        help="print the looked-up metadata as JSON and change no file")
+    metadata_parser.add_argument(
+        "--attempts", type=int, default=40,
+        help="tries per service before giving up (default 40)")
+    metadata_parser.add_argument(
+        "--delay", type=float, default=30.0,
+        help="seconds between tries (default 30)")
+
     args = parser.parse_args()
     if args.command == "version":
         print(read_version(args.setup))
@@ -1039,6 +1309,23 @@ def main() -> int:
                 print("\n".join(errors))
                 return 1
             print("Installer publication matches GitHub's published assets.")
+    elif args.command == "sync-release-metadata":
+        import json
+        version = args.release_version or read_version(args.root / "setup.py")
+        if args.metadata:
+            metadata = json.loads(args.metadata.read_text(encoding="utf-8"))
+            if metadata.get("version") != str(Version(version)):
+                raise SystemExit(
+                    f"{args.metadata} records spaCR {metadata.get('version')}, "
+                    f"not {version}")
+        else:
+            metadata = lookup_release_metadata(
+                version, attempts=args.attempts, delay=args.delay)
+        if args.lookup_only:
+            print(json.dumps(metadata, indent=2, sort_keys=True))
+            return 0
+        for path in sync_release_metadata(args.root, metadata):
+            print(path)
     else:
         for path in collect_installers(
                 args.source, args.destination, args.readme, args.setup,
