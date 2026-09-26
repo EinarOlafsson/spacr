@@ -6778,9 +6778,9 @@ def _alpha_names(kind):
     """Every name registered as alpha under ``kind``, across all items.
 
     ``ALPHA_FEATURES`` is the one registry of everything built from
-    ``features/future`` that ships as an alpha feature -- the maintainer's
-    rule of 2026-09-26 (item 569, ``features/README.md``): hidden unless
-    Preferences -> Show alpha features is on. Each entry is keyed by the item
+    ``features/future`` that ships as an alpha feature (see
+    ``features/README.md``): hidden unless Preferences -> Show alpha
+    features is on. Each entry is keyed by the item
     number and lists what that item adds under the kinds in ``ALPHA_KINDS``:
     ``settings`` (settings keys, hidden from the form, the settings search
     and its counts), ``choices`` (``{key: (dropdown values,)}``), ``widgets``
