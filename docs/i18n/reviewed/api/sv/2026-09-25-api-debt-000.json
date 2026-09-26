@@ -1,0 +1,2088 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr._gc#0",
+      "source": "Explicit pipeline cleanup without destroying GUI objects on workers.",
+      "source_sha256": "c50c70b6b939f0fcd374acf0a70719e46a024c1bc6e570aa3971bded65b6bcfc",
+      "context": "Explicit workflow cleanup without destroying GUI objects on workers.",
+      "translation": "Uttrycklig städning i pipelinen utan att förstöra GUI-objekt i arbetstrådar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._gc.collect#0",
+      "source": "Collect now, or request a full sweep on the GUI's next timer tick.",
+      "source_sha256": "530b2b8be72798edd85ae4c841a6014f4ba37c8189d3cb1816d7737b63634ddc",
+      "context": "Collect now, or request a full sweep on the GUI's next timer tick.",
+      "translation": "Samla in nu, eller begär ett fullständigt svep vid GUI:ts nästa timertick.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._gc.collect#1",
+      "source": "Worker sweeps can destroy unrelated Qt widgets on the wrong thread. A running GUI therefore services worker requests through :func:`spacr.qt.gc_policy.collect_once`. Repeated requests coalesce. Headless processes and the GUI thread retain synchronous collection; checking for an application does not import Qt into headless jobs.",
+      "source_sha256": "37c13200053ca8421052abad7727c69eb8e49d366bedb467f8d83079584fea8f",
+      "context": "Worker sweeps can destroy unrelated Qt widgets on the wrong independent execution path. An executing GUI therefore services worker requests through :func:`spacr.qt.gc_policy.collect_once`. Repeated requests coalesce. Headless processes and the main GUI execution path retain synchronous collection; checking for an application does not import Qt into headless jobs.",
+      "translation": "Svep i arbetstrådar kan förstöra orelaterade Qt-widgetar i fel tråd. Ett körande GUI hanterar därför arbetstrådarnas begäranden via :func:`spacr.qt.gc_policy.collect_once`. Upprepade begäranden slås samman. Huvudlösa processer och GUI-tråden behåller synkron insamling; kontrollen av om det finns ett program importerar inte Qt i huvudlösa jobb.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._gc.collect#2",
+      "source": "unreachable objects collected, or zero for a deferred request.",
+      "source_sha256": "e58f48524edaca9aceb23294fce8b0ebe44d39a67b777cebe616ea8dfe3b2a6f",
+      "context": "unreachable objects collected, or zero for a deferred request.",
+      "translation": "antal insamlade oåtkomliga objekt, eller noll för en uppskjuten begäran.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._mask_workers#0",
+      "source": "Process isolation and cooperative stop for assigned mask batches.",
+      "source_sha256": "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153",
+      "context": "Process isolation and cooperative stop for assigned mask batches.",
+      "translation": "Processisolering och kooperativt stopp för tilldelade maskbatcher.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._merged_names#0",
+      "source": "Filename grouping for merged timelapse arrays, without analysis imports.",
+      "source_sha256": "29dab18b207dea34f8251c5ed435b552489f6524d86208b8d89372a424fa0282",
+      "context": "Filename grouping for merged timelapse arrays, without analysis imports.",
+      "translation": "Gruppering av filnamn för sammanslagna tidsserie-arrayer, utan import av analysmoduler.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._merged_names.parse_merged_filename#0",
+      "source": "Parse a merged filename for grouping and numeric timepoint sorting.",
+      "source_sha256": "8ba3a421082d2eed67b65335fb7f9e15b109f5b947955215e743cceb7383be27",
+      "context": "Parse a merged filename for grouping and numeric timepoint sorting.",
+      "translation": "Tolka ett sammanslaget filnamn för gruppering och numerisk sortering av tidpunkter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._merged_names.parse_merged_filename#1",
+      "source": "These are legacy display/grouping fields, not canonical database keys. Row IDs are letters, column/time IDs are integers, and ``prcf`` uses the well rather than separate row and column keys. Use :func:`spacr.schema.parse_field_stem` for database identities.",
+      "source_sha256": "768a68ea745ab6159733cc2901fca9f460a58798942e051fcfd7a16bd68f9a69",
+      "context": "These are legacy display/grouping microscope fields of view, not canonical database structured-data names. Row IDs are letters, column/time IDs are integers, and ``prcf`` uses the microplate sample position rather than separate row and column structured-data names. Use :func:`spacr.schema.parse_field_stem` for database identities.",
+      "translation": "Detta är äldre fält för visning/gruppering, inte kanoniska databasnycklar. Rad-ID:n är bokstäver, kolumn-/tids-ID:n är heltal, och ``prcf`` använder brunnen i stället för separata rad- och kolumnnycklar. Använd :func:`spacr.schema.parse_field_stem` för databasidentiteter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._merged_names.parse_merged_filename#2",
+      "source": "path or filename in ``plate_well_field_time.npy`` form.",
+      "source_sha256": "d2c15a3d145ad9011dae39ac2d50dbf5c26fcda26da314523a57cf4c00264ae4",
+      "context": "path or filename in ``plate_well_field_time.npy`` form.",
+      "translation": "sökväg eller filnamn på formen ``plate_well_field_time.npy``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._merged_names.parse_merged_filename#3",
+      "source": "plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft and filename. Missing field/time values default to ``1``/``0``.",
+      "source_sha256": "e1519a2ffff715d099b957b28e1750fc0697acb2eb039b47c2982d1e8832041b",
+      "context": "plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft and filename. Missing field/time values default to ``1``/``0``.",
+      "translation": "plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft och filnamnet. Saknade fält-/tidsvärden får standardvärdet ``1``/``0``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.PYPI_PACKAGE#0",
+      "source": "Install the latest compatible stable release from the official PyPI index.",
+      "source_sha256": "24043ad21025cbd4614682bd8f4ff20c74a910f2aae11b2cb369479090f91585",
+      "context": "Install the latest compatible stable release from the official PyPI index.",
+      "translation": "Installera den senaste kompatibla stabila utgåvan från det officiella PyPI-indexet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source": "Optional explicit source for development installations.",
+      "source_sha256": "62d2579e5a409ab73664aebf2e332a6ce0bfdf50f69543911b4654fa4c68cfce",
+      "context": "Optional explicit source for development installations.",
+      "translation": "Valfri uttrycklig källa för utvecklingsinstallationer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#0",
+      "source": "Compare the actual isolated installation with compatible stable PyPI releases.",
+      "source_sha256": "ac37e36f747dc794e3a8d52b633a03c6b0724a3b4fa5c59420f9ca7fb1e369ff",
+      "context": "Compare the actual isolated installation with compatible stable PyPI releases.",
+      "translation": "Jämför den faktiska isolerade installationen med kompatibla stabila utgåvor på PyPI.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#2",
+      "source": "optional cancellation event for subprocesses.",
+      "source_sha256": "2a6038ff6c10abd2e914afb14d3270a32aed55b6bf50fbd0ab73dadcd74a5664",
+      "context": "optional cancellation event for subprocesses.",
+      "translation": "valfri avbrytningshändelse för underprocesser.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#3",
+      "source": "optional cancellable command runner for tests.",
+      "source_sha256": "5a64a08b84c1aad78432184fb527796029fbdac075104569bedd14a3d73d89aa",
+      "context": "optional cancellable command runner for tests.",
+      "translation": "valfri avbrytbar kommandokörare för tester.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#4",
+      "source": "installed/latest version strings and an ``available`` boolean.",
+      "source_sha256": "b5e5669ceb44bbc906c6bb6755d9e4e3877ccc0d81464a9ebac174dff804c363",
+      "context": "installed/latest version strings and an ``available`` boolean.",
+      "translation": "installerad/senaste versionssträng och en boolesk ``available``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#5",
+      "source": "the installation or package index cannot be checked.",
+      "source_sha256": "f735c67c1ddfaace436e814516661ec496778fe9e1727746808578f24f5e8802",
+      "context": "the installation or package index cannot be checked.",
+      "translation": "installationen eller paketindexet kan inte kontrolleras.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.default_source#0",
+      "source": "Use PyPI unless a developer explicitly overrides the installation source.",
+      "source_sha256": "f8ac08042343fa09872e85dad9cf8e4e9f1c004d6c40310cf04eb5c51252cd49",
+      "context": "Use PyPI unless a developer explicitly overrides the installation source.",
+      "translation": "Använd PyPI om inte en utvecklare uttryckligen åsidosätter installationskällan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.default_source#1",
+      "source": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.",
+      "source_sha256": "eefc7385a8be3c85e49a119b1aceac9968def78e51ee4ad2396978c14fb50283",
+      "context": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.",
+      "translation": "``SPACR_STARPLAST_SOURCE`` eller det icke-fastlåsta paketnamnet på PyPI.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.install_starplast#10",
+      "source": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL.",
+      "source_sha256": "1cd328cac94b83da34716fd85839249408b78b0541b7f7113c03b1056b789890",
+      "context": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL.",
+      "translation": "den valda källan är varken en lämplig lokal Git-arbetskopia, PyPI-paketet eller en tillåten officiell arkiv-URL.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.install_starplast#2",
+      "source": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
+      "source_sha256": "a6dd51e96b540c9586a79238e3aa62de516e2a6035a114f5a6e5c9261aef2ccb",
+      "context": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
+      "translation": "starplast på PyPI, eller en uttrycklig lokal Git-arbetskopia eller arkiv-URL; annars default_source. PyPI löser upp den senaste kompatibla stabila utgåvan vid installationstillfället, utan fastlåst version.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#0",
+      "source": "Upgrade the owned environment using pip and PyPI, then verify its data.",
+      "source_sha256": "ebff26c8b458079570815e35318891db3647d276ae314b6c4f128699cbf4b9b3",
+      "context": "Upgrade the owned environment using pip and PyPI, then verify its data.",
+      "translation": "Uppgradera den egna miljön med pip och PyPI och verifiera sedan dess data.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#1",
+      "source": "ignored; upgrades always use the PyPI Starplast package.",
+      "source_sha256": "97c77d0e0cf8e8afb97d775baea9fbe0d8e2729261134fd76d2f7a49c38167e3",
+      "context": "ignored; upgrades always use the PyPI Starplast package.",
+      "translation": "ignoreras; uppgraderingar använder alltid Starplast-paketet på PyPI.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#3",
+      "source": "optional ``(step, total, text)`` callback.",
+      "source_sha256": "c8e11f066eaa06173ba973c531735a8a9eeca096c70ae447a172ca9ac233f1be",
+      "context": "optional ``(step, total, text)`` callback.",
+      "translation": "valfri ``(step, total, text)``-återanropsfunktion.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#4",
+      "source": "optional subprocess cancellation event.",
+      "source_sha256": "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
+      "context": "optional subprocess cancellation event.",
+      "translation": "valfri avbrytningshändelse för underprocesser.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#5",
+      "source": "optional command runner for tests.",
+      "source_sha256": "e3f674322e836851cad0fca4abaeda3f0ca4e1510108fd7bc75f2d46605dbf17",
+      "context": "optional command runner for tests.",
+      "translation": "valfri kommandokörare för tester.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#6",
+      "source": "verified environment path.",
+      "source_sha256": "19691b329b7e74e50f4e192cb57fc51c47afd7a7f33a69212ec001efbd6f85cb",
+      "context": "verified environment path.",
+      "translation": "sökväg till den verifierade miljön.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#7",
+      "source": "upgrade failed or was cancelled. Files and logs remain for diagnosis; an interrupted environment must be repaired before launch.",
+      "source_sha256": "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c",
+      "context": "upgrade failed or was cancelled. Files and logs remain for diagnosis; an interrupted environment must be repaired before launch.",
+      "translation": "uppgraderingen misslyckades eller avbröts. Filer och loggar finns kvar för felsökning; en avbruten miljö måste repareras innan start.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.capabilities#3",
+      "source": "optional existing accelerator snapshot. Providing it avoids another resolution and any dtype-probe allocations, as required by the doctor's metadata-only check.",
+      "source_sha256": "ad800e0d4267521ed9dd9ee88a1f337b521e6dd643e17a40f8d5105dcd3711e7",
+      "context": "optional existing accelerator snapshot. Providing it avoids another resolution and any dtype-probe allocations, as required by the doctor's metadata-only check.",
+      "translation": "valfri befintlig ögonblicksbild av acceleratorn. Om den anges undviks ytterligare en upplösning och alla allokeringar för dtype-sonder, vilket doctor-kontrollen, som bara läser metadata, kräver.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.capabilities#4",
+      "source": "task, accelerated flag and explanation for each capability.",
+      "source_sha256": "f5df687222d3686862c1f8d68106723d3d533f4e4d1e0c00499b610cfbd20540",
+      "context": "task, accelerated flag and explanation for each capability.",
+      "translation": "uppgift, flagga för acceleration och förklaring för varje förmåga.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_gpu#1",
+      "source": "Cellpose does its own device resolution and already knows about MPS -- ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it cannot do is guess, so it must be TOLD there is a GPU. Passing ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit device is supplied. An explicit Cellpose device takes precedence.",
+      "source_sha256": "afe087464bfad63c02c73d1ef7064c3c7a07c59dee6a07e681f52ce136361a82",
+      "context": "Cellpose does its own device resolution and already knows about MPS -- ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it cannot do is guess, so it must be TOLD there is a GPU. Passing ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit device is supplied. An explicit Cellpose device takes precedence.",
+      "translation": "Cellpose gör sin egen enhetsupplösning och känner redan till MPS -- ``assign_device(gpu=True)`` svarar ``mps`` på en Metal-maskin. Vad den inte kan göra är att gissa, så den måste FÅ VETA att det finns en GPU. Att skicka ``torch.cuda.is_available()`` här låser en Mac till CPU:n när ingen uttrycklig enhet anges. En uttrycklig Cellpose-enhet har företräde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_kwargs#0",
+      "source": "Consistent device and weight precision for ``CellposeModel`` inference.",
+      "source_sha256": "ce02ca9048b4671a445be09ceb1c9f758321d5d68d09535dea2de42e3126da61",
+      "context": "Consistent device and weight precision for ``CellposeModel`` inference.",
+      "translation": "Konsekvent enhet och viktprecision för inferens med ``CellposeModel``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_kwargs#2",
+      "source": "``gpu`` -- controls Cellpose's selection when no explicit device is supplied, including callers that deliberately drop ``device`` below.",
+      "source_sha256": "7cfd07e7b613a1836695b882521af8b8ba687c879af109b5b6996fd40d0b8cdd",
+      "context": "``gpu`` -- controls Cellpose's selection when no explicit device is supplied, including callers that deliberately drop ``device`` below.",
+      "translation": "``gpu`` -- styr valet i Cellpose när ingen uttrycklig enhet anges, inklusive anropare som avsiktligt tar bort ``device`` nedan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_kwargs#3",
+      "source": "``device`` -- from the one resolver, so cellpose and spaCR cannot disagree about the same machine; an explicit device takes precedence.",
+      "source_sha256": "66585f86b3a5591511b8be63bbb587246267c8b479fc9694285b9055a12417f4",
+      "context": "``device`` -- from the one resolver, so cellpose and spaCR cannot disagree about the same machine; an explicit device takes precedence.",
+      "translation": "``device`` -- från den enda upplösaren, så att cellpose och spaCR inte kan vara oense om samma maskin; en uttrycklig enhet har företräde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_kwargs#4",
+      "source": "``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default and Metal on torch 2.2 has no bfloat16, so the default is a ``TypeError: BFloat16 is not supported on MPS`` at construction. Measured on the reporting iMac; float32 weights work there and cost VRAM, which is the right trade for a card that otherwise sits idle. CPU inference also uses float32: bfloat16 support does not imply native arithmetic, and emulation can be substantially slower. This matches Make Masks; float32 arithmetic need not produce identical predictions to bfloat16.",
+      "source_sha256": "01e3269686bf0c8c620ad49a202b0c33f9cbb40bc7d0c0c40db10cda2bdfc42d",
+      "context": "``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default and Metal on torch 2.2 has no bfloat16, so the default is a ``TypeError: BFloat16 is not supported on MPS`` at construction. Measured on the reporting iMac; float32 weights work there and cost VRAM, which is the right trade for a card that otherwise sits idle. CPU inference also uses float32: bfloat16 support does not imply native arithmetic, and emulation can be substantially slower. This matches Make Masks; float32 arithmetic need not produce identical predictions to bfloat16.",
+      "translation": "``use_bfloat16`` -- cpsam laddar som standard sina vikter i bfloat16 och Metal i torch 2.2 saknar bfloat16, så standardinställningen ger ett ``TypeError: BFloat16 is not supported on MPS`` vid konstruktionen. Uppmätt på den rapporterande iMac-datorn; float32-vikter fungerar där och kostar VRAM, vilket är rätt avvägning för ett kort som annars står oanvänt. Inferens på CPU använder också float32: stöd för bfloat16 innebär inte inbyggd aritmetik, och emulering kan vara betydligt långsammare. Detta motsvarar Make Masks; aritmetik i float32 behöver inte ge identiska prediktioner som bfloat16.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.inspect_torch#2",
+      "source": "torch module whose availability metadata should be inspected.",
+      "source_sha256": "d01f030800874f4e31a4043311f06e82d2444e0a8b9631249b6d1ebbcbddff0a",
+      "context": "torch module whose availability metadata should be inspected.",
+      "translation": "torch-modul vars tillgänglighetsmetadata ska inspekteras.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.inspect_torch#3",
+      "source": "False avoids CUDA/XPU property queries that can initialize their runtime. Availability queries still run.",
+      "source_sha256": "987c8012dc7950af266bc25c33e1483250fcc19af77fbf1ae38e55c2c693cb91",
+      "context": "False avoids CUDA/XPU property queries that can initialize their runtime. Availability queries still run.",
+      "translation": "False undviker egenskapsfrågor mot CUDA/XPU som kan initiera deras körtidsmiljö. Tillgänglighetsfrågor körs fortfarande.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.inspect_torch#4",
+      "source": "False skips CUDA/ROCm entirely, for a process whose environment deliberately hides those devices. Other backends remain eligible. This function does not allocate dtype-probe tensors.",
+      "source_sha256": "41587a71851fa5e5c3059c7d8025e4687c213f76616897cf72ea8500ebcddf11",
+      "context": "False skips CUDA/ROCm entirely, for a process whose environment deliberately hides those devices. Other backends remain eligible. This function does not allocate dtype-probe tensors.",
+      "translation": "False hoppar helt över CUDA/ROCm, för en process vars miljö avsiktligt döljer de enheterna. Andra backends är fortfarande valbara. Den här funktionen allokerar inga tensorer för dtype-sonder.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.accelerator.inspect_torch#5",
+      "source": "accelerator described by the supplied torch module.",
+      "source_sha256": "66d3841f19faa82a28101145ba864ee54ef072644335950e8a81f151b7f238f5",
+      "context": "accelerator described by the supplied torch module.",
+      "translation": "accelerator som beskrivs av den angivna torch-modulen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.active_learning.StoppingVerdict#8",
+      "source": "``'rising'``, ``'flat'``, ``'falling'`` or ``'unknown'``.",
+      "source_sha256": "00bc9bf3297762e1b8669a5b66f166eadf654e691ad11d2191c0b0a6d688ffe7",
+      "context": "``'rising'``, ``'flat'``, ``'falling'`` or ``'unknown'``.",
+      "translation": "``'rising'``, ``'flat'``, ``'falling'`` eller ``'unknown'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.active_learning.retrain_round#26",
+      "source": "``{crop key: rejected class}`` -- suggestions the annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In a two-class column a rejection of class 1 is an example of class 2, and it is fitted as one; a crop that has since been labelled is left to its label, and in a column with any other classes the rejection cannot be turned into a label and is counted in the notes instead. A rejection is information, not silence: without this the model that proposed the wrong class would be fitted on exactly the same evidence next round and propose it again.",
+      "source_sha256": "a1c2ae31255926042ea1c7995c687f0ca39c1662ca318fc07f82e46dc4ff5eb9",
+      "context": "``{crop key: rejected class}`` -- suggestions the annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In a two-class column a rejection of class 1 is an example of class 2, and it is fitted as one; an extracted image region that has since been labelled is left to its label, and in a column with any other classes the rejection cannot be turned into a label and is counted in the notes instead. A rejection is information, not silence: without this the model that proposed the wrong class would be fitted on exactly the same evidence next round and propose it again.",
+      "translation": "``{crop key: rejected class}`` -- förslag som annoteraren AVVISADE (:func:`spacr.suggest.rejected_suggestions`). I en kolumn med två klasser är ett avvisande av klass 1 ett exempel på klass 2, och det anpassas som ett sådant; ett utsnitt som sedan dess har fått en etikett lämnas åt sin etikett, och i en kolumn med andra klasser kan avvisandet inte omvandlas till en etikett och räknas i stället i anteckningarna. Ett avvisande är information, inte tystnad: utan detta skulle modellen som föreslog fel klass anpassas på exakt samma underlag nästa omgång och föreslå den igen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.align.CanvasSpec.canvas_yx#1",
+      "source": "global-frame row position, in pixels; ``origin_y`` is subtracted and the result rounded to the nearest integer.",
+      "source_sha256": "1acd06309fa3f9806724c71dd440fb6758d2dbd90b3d66fc649acb24cf65171e",
+      "context": "global-frame row position, in pixels; ``origin_y`` is subtracted and the result rounded to the nearest integer.",
+      "translation": "radposition i den globala ramen, i pixlar; ``origin_y`` subtraheras och resultatet avrundas till närmaste heltal.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.align.CanvasSpec.canvas_yx#2",
+      "source": "global-frame column position, in pixels; ``origin_x`` is subtracted and the result rounded to the nearest integer.",
+      "source_sha256": "abacb1dd0fc7228e735bb36b55b875f68441b1cf30460cef99050e4320ecc47b",
+      "context": "global-frame column position, in pixels; ``origin_x`` is subtracted and the result rounded to the nearest integer.",
+      "translation": "kolumnposition i den globala ramen, i pixlar; ``origin_x`` subtraheras och resultatet avrundas till närmaste heltal.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.align.format_plan#2",
+      "source": "alignment plan to summarise: its canvas shape, origin, placement and pair counts, nominal fallbacks, residuals, unplaced tiles and warnings are listed.",
+      "source_sha256": "0ec57aa3ad90e3d94063db2dfed01fb93cc6850d3a410ce3b59a10b2da646e16",
+      "context": "alignment plan to summarise: its canvas shape, origin, placement and pair counts, nominal fallbacks, residuals, unplaced microscope image fields and warnings are listed.",
+      "translation": "justeringsplan att sammanfatta: dess dukform, origo, placering och antal par, nominella reservlägen, residualer, oplacerade rutor och varningar listas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.align.group_tiles#2",
+      "source": "tiles to split; each is grouped by its ``plate`` and ``well`` attributes and sorted by its original ``index`` within the group.",
+      "source_sha256": "105f4ad7bfdafe6820a894dfdf965d0188a1a6ebcdde8f48f6be401b1d491fa4",
+      "context": "tiles to split; each is grouped by its ``plate`` and ``well`` attributes and sorted by its original ``index`` within the group.",
+      "translation": "rutor att dela upp; var och en grupperas efter sina attribut ``plate`` och ``well`` och sorteras efter sitt ursprungliga ``index`` inom gruppen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.anndata_export.export_anndata#1",
+      "source": "Everything :func:`build_anndata` accepts is accepted here and passed through; this adds the write and the artifact registration. A failed write preserves any existing destination; only a completed file replaces it and is registered as an artifact.",
+      "source_sha256": "74c0b12d18be373f05529fc4896f8d9d6a1893deda9f11e581fa17a1345ab6d0",
+      "context": "Everything :func:`build_anndata` accepts is accepted here and passed through; this adds the write and the artifact registration. A failed write preserves any existing destination; only a completed file replaces it and is registered as an artifact.",
+      "translation": "Allt som :func:`build_anndata` accepterar accepteras här och skickas vidare; detta lägger till skrivningen och registreringen av artefakten. En misslyckad skrivning bevarar ett befintligt mål; endast en färdig fil ersätter det och registreras som en artefakt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.artifacts.Artifact#16",
+      "source": ":data:`STATUS_COMPLETE`, :data:`STATUS_PARTIAL` or :data:`STATUS_FAILED`.",
+      "source_sha256": "71d7a3ca7a2ffd6625e1f31140c6253dcad6d0abaf6b94777bfbe4fa9f1a9995",
+      "context": ":data:`STATUS_COMPLETE`, :data:`STATUS_PARTIAL` or :data:`STATUS_FAILED`.",
+      "translation": ":data:`STATUS_COMPLETE`, :data:`STATUS_PARTIAL` eller :data:`STATUS_FAILED`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.artifacts.Registry.downstream_of#2",
+      "source": "id or :class:`Artifact`.",
+      "source_sha256": "0e5e31f38e507c6b2f3d7f61a0dec1380b2ee4b3d2feed745e3e9d2648bde927",
+      "context": "id or :class:`Artifact`.",
+      "translation": "id eller :class:`Artifact`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.attribution.Curve#1",
+      "source": "``'deletion'`` or ``'insertion'``.",
+      "source_sha256": "9a66779b7096e81c996dda331127212cbf3ff46cfe10170f488b0901e82ea408",
+      "context": "``'deletion'`` or ``'insertion'``.",
+      "translation": "``'deletion'`` eller ``'insertion'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.barcode_search.OrientationFinding#19",
+      "source": "``PRESENT``, ``ABSENT`` or ``INDETERMINATE``.",
+      "source_sha256": "6272b19cb663011bce661657084005a1e50445303b62d9eefd92f410df08a690",
+      "context": "``PRESENT``, ``ABSENT`` or ``INDETERMINATE``.",
+      "translation": "``PRESENT``, ``ABSENT`` eller ``INDETERMINATE``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.baseline.resolve#2",
+      "source": ":data:`ZERO`, :data:`CONTROLS`, :data:`NAMED` or :data:`VALUE`.",
+      "source_sha256": "76fedc84d73364108a1360793853c2d5a7dfed845bc8ee524ffbb0cbe92c80da",
+      "context": ":data:`ZERO`, :data:`CONTROLS`, :data:`NAMED` or :data:`VALUE`.",
+      "translation": ":data:`ZERO`, :data:`CONTROLS`, :data:`NAMED` eller :data:`VALUE`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.batch.Progress#2",
+      "source": "``'queue_started'``, ``'job_started'``, ``'job_finished'``, ``'job_skipped'``, ``'queue_stopped'`` or ``'queue_finished'``.",
+      "source_sha256": "3306c2e61052d9d04c8a75a0e2a1f3d88728c16e02a5c0ea16aa54f385ac9477",
+      "context": "``'queue_started'``, ``'job_started'``, ``'job_finished'``, ``'job_skipped'``, ``'queue_stopped'`` or ``'queue_finished'``.",
+      "translation": "``'queue_started'``, ``'job_started'``, ``'job_finished'``, ``'job_skipped'``, ``'queue_stopped'`` eller ``'queue_finished'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.batch.fmt_duration#2",
+      "source": "``'—'``, ``'42.1s'``, ``'7m 12s'`` or ``'7h 41m'``.",
+      "source_sha256": "30973612f79bc2cb9a33116f3ee53fe430aa8d7498017dd2b3dd94dcd5d78d8b",
+      "context": "``'—'``, ``'42.1s'``, ``'7m 12s'`` or ``'7h 41m'``.",
+      "translation": "``'—'``, ``'42.1s'``, ``'7m 12s'`` eller ``'7h 41m'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.batch.resolve_job_settings#1",
+      "source": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline dict) read under today's setting names, then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader, migration and coercion so a value the CLI accepts is a value the queue accepts.",
+      "source_sha256": "999932b87419b7d4b83512692055d60b43babd06daeb01c1d4d01b2bff1f883c",
+      "context": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline key-value mapping) read under today's setting names, then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader, migration and coercion so a value the CLI accepts is a value the work list accepts.",
+      "translation": "Skiktas exakt som ``spacr-run`` skiktar dem — modulens standardvärden, sedan inställningsfilen (eller den inbäddade dict:en) läst under dagens inställningsnamn, sedan åsidosättningarna från ``--set`` — med :mod:`spacr.cli`s egen inläsare, migrering och typomvandling, så att ett värde som CLI:t accepterar är ett värde som kön accepterar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.batch_correction.correct_from_metadata#11",
+      "source": "``\"error\"`` or ``\"skip\"``.",
+      "source_sha256": "3842bc5b8dc4b017c25c557fb8f85f94ffb0dcc4a077ba04b9a0e7061ef7ba41",
+      "context": "``\"error\"`` or ``\"skip\"``.",
+      "translation": "``\"error\"`` eller ``\"skip\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cell_montage.Coefficient#3",
+      "source": "``'gene'`` or ``'grna'``.",
+      "source_sha256": "075be2a1fb1583d7285dcbdf30e460446c2aa0cece8ed95dec7d63a9d6847165",
+      "context": "``'gene'`` or ``'grna'``.",
+      "translation": "``'gene'`` eller ``'grna'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cell_montage.MontagePlan#6",
+      "source": "``'sum'`` or ``'separate'``.",
+      "source_sha256": "7b5cbadd2d90f012773f35fc5963be7b301fcf729faaae2cf68a961e9f38a2cc",
+      "context": "``'sum'`` or ``'separate'``.",
+      "translation": "``'sum'`` eller ``'separate'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cell_montage.RouteRequirements#2",
+      "source": "``'png'``, ``'merged-mask'``, ``'merged-bbox'``, or ``'none'``.",
+      "source_sha256": "3dcf810f973795a305e4ab196cdba1060bf86ccd55766707258060138cc34aea",
+      "context": "``'png'``, ``'merged-mask'``, ``'merged-bbox'``, or ``'none'``.",
+      "translation": "``'png'``, ``'merged-mask'``, ``'merged-bbox'`` eller ``'none'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels#0",
+      "source": "Versioned crop decoding shared by classification and its checkpoints.",
+      "source_sha256": "ab115c417e9882b335d552bb8f4fa093adac4394c949baddc89fc3a4998e49a0",
+      "context": "Versioned extracted image region decoding shared by classification and its checkpoints.",
+      "translation": "Versionerad avkodning av utsnitt som delas av klassificeringen och dess kontrollpunkter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.checkpoint_policy#0",
+      "source": "Read a checkpoint's decoder contract, preserving historical untagged models.",
+      "source_sha256": "75fe18af7c62cd58d511ca9a8a3bdbda1ab85fc63eead54beb56029a8fb6dc31",
+      "context": "Read a checkpoint's decoder contract, preserving historical untagged models.",
+      "translation": "Läs en kontrollpunkts avkodarkontrakt och bevara historiska modeller utan tagg.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.checkpoint_policy#1",
+      "source": "artifact mapping returned by ``load_model_artifact``.",
+      "source_sha256": "3230fbed4539ac046de007c40b3874e949326bdc24e911ac656c9e3da13d5b30",
+      "context": "artifact mapping returned by ``load_model_artifact``.",
+      "translation": "artefaktmappning som returneras av ``load_model_artifact``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.checkpoint_policy#2",
+      "source": "explain the legacy fallback when the contract is absent.",
+      "source_sha256": "df1aa5a4181a9ede060e6b0989670ce21469b088163b1dc42bb14ddef0e922f4",
+      "context": "explain the legacy fallback when the contract is absent.",
+      "translation": "förklara det äldre reservbeteendet när kontraktet saknas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.checkpoint_policy#3",
+      "source": "validated policy name. Missing metadata selects stored PIL RGB.",
+      "source_sha256": "4be7d2d2d326a55746284818ec77c429ed23a454177a12516b312f0f2c853444",
+      "context": "validated policy name. Missing metadata selects stored PIL RGB.",
+      "translation": "validerat policynamn. Saknad metadata väljer lagrad PIL RGB.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.initialization_policy#0",
+      "source": "Select decoding before training loaders are built for a resumed model.",
+      "source_sha256": "c7e6662b822a559be42fbf656d4c7ae6b9adc2624cb2f7eb812008d4e9b5780a",
+      "context": "Select decoding before training loaders are built for a resumed model.",
+      "translation": "Välj avkodning innan träningsinläsarna byggs för en återupptagen modell.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.initialization_policy#1",
+      "source": "trusted checkpoint path, or None for a new training run.",
+      "source_sha256": "84b8ee08a46447f815520e16c8c6f891b883cb74828ce70946e62697b232992b",
+      "context": "trusted checkpoint path, or None for a new training processing session.",
+      "translation": "betrodd sökväg till kontrollpunkten, eller None för en ny träningskörning.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.initialization_policy#2",
+      "source": "saved policy, legacy fallback, or declared uint8 for new training.",
+      "source_sha256": "4b0d52b29107e67246a5edca6a067d6f4aab8527afc75f869c1b965267e217a6",
+      "context": "saved policy, legacy fallback, or declared uint8 for new training.",
+      "translation": "sparad policy, äldre reservbeteende eller deklarerad uint8 för ny träning.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#0",
+      "source": "Find the decoding record through loaders, subsets and combined datasets.",
+      "source_sha256": "f4571abe74609797f08bf62b1b2d26845523463fe74f34051f00010cb5fc3f0e",
+      "context": "Find the decoding record through loaders, subsets and combined datasets.",
+      "translation": "Hitta avkodningsposten via inläsare, delmängder och kombinerade datamängder.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#1",
+      "source": "Unknown external tensor datasets return None. Mixed recorded policies are refused because a single checkpoint cannot describe both transformations.",
+      "source_sha256": "b3144eed7596862d955314e1fc234e0119da5e47ed4012a648295e17028dd4fb",
+      "context": "Unknown external tensor datasets return None. Mixed recorded policies are refused because a single checkpoint cannot describe both transformations.",
+      "translation": "Okända externa tensordatamängder returnerar None. Blandade registrerade policyer avvisas, eftersom en enda kontrollpunkt inte kan beskriva båda transformationerna.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#2",
+      "source": "loader or dataset exposing ``crop_loading_policy``, ``dataset`` or ``datasets``.",
+      "source_sha256": "351d9dcb17f0c53484faf331d7fe202bfea2ee09ba373007320a3477f021ace2",
+      "context": "loader or dataset exposing ``crop_loading_policy``, ``dataset`` or ``datasets``.",
+      "translation": "inläsare eller datamängd som exponerar ``crop_loading_policy``, ``dataset`` eller ``datasets``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#3",
+      "source": "a validated policy name, or None if no policy is recorded.",
+      "source_sha256": "2c5554da99859d710ffb4f8287aac97479d64699aaf576d015be3135321c99cd",
+      "context": "a validated policy name, or None if no policy is recorded.",
+      "translation": "ett validerat policynamn, eller None om ingen policy är registrerad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#4",
+      "source": "a policy is unsupported or combined datasets disagree, including a mixture of recorded and unknown policies.",
+      "source_sha256": "0cf1095fea7650caacdc0471b3d755628396ef240d8aad19cb3a2ccb18432129",
+      "context": "a policy is unsupported or combined datasets disagree, including a mixture of recorded and unknown policies.",
+      "translation": "en policy stöds inte eller kombinerade datamängder är oense, inklusive en blandning av registrerade och okända policyer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#0",
+      "source": "Decode a path or archive stream using the model's recorded policy.",
+      "source_sha256": "926fb74b286104118b7b7afcfe9822cf8f383ef927864d10c7a74ebfe458f949",
+      "context": "Decode a path or archive stream using the model's recorded policy.",
+      "translation": "Avkoda en sökväg eller arkivström med modellens registrerade policy.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#1",
+      "source": "image path or seekable binary stream, as accepted by PIL.",
+      "source_sha256": "e315827a7cc3e2331e4e68302655197f0832eb895b262e889b981b6bfdfa688a",
+      "context": "image path or seekable binary stream, as accepted by PIL.",
+      "translation": "bildsökväg eller sökbar binär ström, så som PIL accepterar den.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#2",
+      "source": "declared uint8 decoding or historical stored PIL RGB.",
+      "source_sha256": "a8302986a376f53b2286c833d69a39b75fde400f2457a9ec3364a761491dda3d",
+      "context": "declared uint8 decoding or historical stored PIL RGB.",
+      "translation": "deklarerad uint8-avkodning eller historisk lagrad PIL RGB.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#3",
+      "source": "source format; None resolves the path's per-file crop marker. Archive callers must supply a format (1 when unmarked).",
+      "source_sha256": "5a842941ed7a38a532b09c4f35ce0d907419c895f8c9f7a41ab21b80e5d903b6",
+      "context": "source format; None resolves the path's per-file extracted image region marker. Archive callers must supply a format (1 when unmarked).",
+      "translation": "källformat; None löser upp sökvägens utsnittsmarkör per fil. Anropare med arkiv måste ange ett format (1 när det är omarkerat).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#4",
+      "source": "retain the labelled loader's historical EXIF handling.",
+      "source_sha256": "3c2d2c8d9b7b8c13e0d18fa4e7924f00d2784adeabbd895c402245d4f93a5f08",
+      "context": "retain the labelled loader's historical EXIF handling.",
+      "translation": "behåll den märkta inläsarens historiska EXIF-hantering.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#5",
+      "source": "independently owned PIL RGB image with its file handle closed.",
+      "source_sha256": "6878842e32c6cec352d6f366407b35acf92dc07170e42cbc70dc40888292779c",
+      "context": "independently owned PIL RGB image with its file handle closed.",
+      "translation": "oberoende ägd PIL RGB-bild med sitt filhandtag stängt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#0",
+      "source": "Record actual loader decoding and reject checkpoint or validation conflicts.",
+      "source_sha256": "617eda864840c1bb28357110ae9689a690db38c32d6f950a2a109b1b3e1026d2",
+      "context": "Record actual loader decoding and reject checkpoint or validation conflicts.",
+      "translation": "Registrera inläsarens faktiska avkodning och avvisa konflikter med kontrollpunkt eller validering.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#1",
+      "source": "training loader or dataset whose decoding is inspected.",
+      "source_sha256": "887945c504d799e74dcb63e5dacb11df3e57d100d63d5e090d3f219cbb03bca6",
+      "context": "training loader or dataset whose decoding is inspected.",
+      "translation": "träningsinläsare eller datamängd vars avkodning inspekteras.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#2",
+      "source": "validation loader or dataset checked for agreement.",
+      "source_sha256": "0de7901faf01f6c167df1dd5b8e55feaf6d65ac34668f5d87a3f84befa7ba170",
+      "context": "validation loader or dataset checked for agreement.",
+      "translation": "valideringsinläsare eller datamängd som kontrolleras för överensstämmelse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#3",
+      "source": "optional preprocessing mapping copied into the result; an explicit policy must agree with a recorded training policy.",
+      "source_sha256": "df14b9563159c7d0cc3c838087fb1edbdd3f2c055e94e2ce0d3f1c9ff4b5d6b8",
+      "context": "optional preprocessing mapping copied into the result; an explicit policy must agree with a recorded training policy.",
+      "translation": "valfri mappning för förbehandling som kopieras till resultatet; en uttrycklig policy måste stämma med en registrerad träningspolicy.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#4",
+      "source": "optional loaded checkpoint metadata checked against the selected policy; an untagged checkpoint uses the historical policy.",
+      "source_sha256": "9b2299bc70a30933730ee728f869c4d913e56ac74acfee57e5ee4f96702d2e1d",
+      "context": "optional loaded checkpoint metadata checked against the selected policy; an untagged checkpoint uses the historical policy.",
+      "translation": "valfri inläst kontrollpunktsmetadata som kontrolleras mot den valda policyn; en kontrollpunkt utan tagg använder den historiska policyn.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#5",
+      "source": "a new preprocessing dictionary, including the policy when known. Unknown external datasets are not assigned a decoder automatically.",
+      "source_sha256": "297eacc0d81800d96cd1965ce8c685502f9d0e4f74135c8636d0c90b7b3b24e6",
+      "context": "a new preprocessing key-value mapping, including the policy when known. Unknown external datasets are not assigned a decoder automatically.",
+      "translation": "en ny förbehandlingsdictionary, inklusive policyn när den är känd. Okända externa datamängder tilldelas inte automatiskt någon avkodare.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#6",
+      "source": "a supplied policy is unsupported or the recorded training, validation, preprocessing or checkpoint policies conflict.",
+      "source_sha256": "8ff01b64ead0a7afad46b4cffcba1ad31bbad0e0f37bf529baaea8fe1696c6d4",
+      "context": "a supplied policy is unsupported or the recorded training, validation, preprocessing or checkpoint policies conflict.",
+      "translation": "en angiven policy stöds inte, eller de registrerade policyerna för träning, validering, förbehandling eller kontrollpunkt står i konflikt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.validate_policy#0",
+      "source": "Accept only implemented crop decoding policies; never guess a new one.",
+      "source_sha256": "f190abb55fe18a070a0e84f0a5bc3957c630a87ddfdf1007a30478e3d67e1735",
+      "context": "Accept only implemented extracted image region decoding policies; never guess a new one.",
+      "translation": "Acceptera endast implementerade policyer för avkodning av utsnitt; gissa aldrig en ny.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.validate_policy#1",
+      "source": "``declared_uint8_v1`` or ``stored_pil_v1``.",
+      "source_sha256": "86ddbf36e7bc1c9984ce1543d14af4c2e51c17674d9e082a03fd248fb2cc674e",
+      "context": "``declared_uint8_v1`` or ``stored_pil_v1``.",
+      "translation": "``declared_uint8_v1`` eller ``stored_pil_v1``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.validate_policy#2",
+      "source": "the unchanged, validated policy name.",
+      "source_sha256": "ea4047035bf68b9089f92c6a19880f06c4b8ba24b67863d068a1bc7b7eca1e34",
+      "context": "the unchanged, validated policy name.",
+      "translation": "det oförändrade, validerade policynamnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classification_pixels.validate_policy#3",
+      "source": "the supplied policy is not implemented.",
+      "source_sha256": "8c2f032750adb5cdf203b02ca07392c7cc4c8b55f866120d6c94d245a7d87f25",
+      "context": "the supplied policy is not implemented.",
+      "translation": "den angivna policyn är inte implementerad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.augmentation_family#2",
+      "source": "crop path or file name; only its basename without the final extension is used, with trailing augmentation suffixes stripped repeatedly.",
+      "source_sha256": "4d5757e061365e6306e7dbf4bd3a71a6a07d5475666b6921c47a795dea9bb934",
+      "context": "extracted-image-region path or file name; only its basename without the final extension is used, with trailing augmentation suffixes stripped repeatedly.",
+      "translation": "sökväg eller filnamn för utsnittet; endast dess basnamn utan den sista filändelsen används, och avslutande augmenteringssuffix tas bort upprepade gånger.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.dataset_split_paths#1",
+      "source": "dataset folder that contains the split folders; ``~`` is expanded.",
+      "source_sha256": "1dde56a83d0ec9048681972ab41c8dc337a53de77e539e5caa9c206a0c79f695",
+      "context": "dataset folder that contains the split folders; ``~`` is expanded.",
+      "translation": "datamängdsmapp som innehåller uppdelningsmapparna; ``~`` expanderas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.dataset_split_paths#2",
+      "source": "name of the split subfolder, such as ``train`` or ``test``. A missing folder returns an empty list; files with an image or ``.npy`` suffix are collected recursively below it.",
+      "source_sha256": "6bade2577b7841e0bcf24ce4d46dd636f9c884895d643284befb71379f3047a4",
+      "context": "name of the split subfolder, such as ``train`` or ``test``. A missing folder returns an empty list; files with an image or ``.npy`` suffix are collected recursively below it.",
+      "translation": "namnet på uppdelningens undermapp, till exempel ``train`` eller ``test``. En saknad mapp ger en tom lista; filer med bild- eller ``.npy``-suffix samlas in rekursivt under den.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.expected_calibration_error#1",
+      "source": "true class index per sample, aligned with the rows of ``probabilities``.",
+      "source_sha256": "f97e7ac75b8a59dd6eb491636a38fba708da7de2aff4a6a8ca95ce8644ee8e1b",
+      "context": "true class index per sample, aligned with the rows of ``probabilities``.",
+      "translation": "sant klassindex per prov, i linje med raderna i ``probabilities``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.expected_calibration_error#2",
+      "source": "predicted probabilities, either a positive-class vector or a samples-by-classes matrix; validated and row-normalised by :func:`normalize_probabilities`. Its length must equal that of ``y_true``.",
+      "source_sha256": "d9577f1121da9ba73c2bf2db9250a8ed39924daf83b9fb0c5d109706c6a7dac8",
+      "context": "predicted probabilities, either a positive-class vector or a samples-by-classes matrix; validated and row-normalised by :func:`normalize_probabilities`. Its length must equal that of ``y_true``.",
+      "translation": "predikterade sannolikheter, antingen en vektor för den positiva klassen eller en matris med prov gånger klasser; valideras och radnormaliseras av :func:`normalize_probabilities`. Dess längd måste vara lika med längden av ``y_true``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.find_evaluation_bundles#1",
+      "source": "folder searched recursively for evaluation manifests, or a manifest file (returned alone) or any other file (its folder is searched). A missing path raises :class:`FileNotFoundError`.",
+      "source_sha256": "2ec4b86702a5e358d1305df17a45848d1291f5511b2efa9a8063c9b2f1a04635",
+      "context": "folder searched recursively for evaluation manifests, or a manifest file (returned alone) or any other file (its folder is searched). A missing path throws :class:`FileNotFoundError`.",
+      "translation": "mapp som genomsöks rekursivt efter utvärderingsmanifest, eller en manifestfil (returneras ensam) eller någon annan fil (dess mapp genomsöks). En saknad sökväg genererar :class:`FileNotFoundError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.fit_temperature#1",
+      "source": "true class index per sample; at least two samples and two distinct classes are required.",
+      "source_sha256": "6ca1fc7bc06e7e0e4b13d89692d297a34bbbaca1a2f8b3f47a0fd8e378963d7a",
+      "context": "true class index per sample; at least two samples and two distinct classes are required.",
+      "translation": "sant klassindex per prov; minst två prov och två olika klasser krävs.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.fit_temperature#2",
+      "source": "uncalibrated predicted probabilities, a positive-class vector or a samples-by-classes matrix, normalised by :func:`normalize_probabilities` before the fit.",
+      "source_sha256": "0a5cbb24f01a8c0af6cff8617cd0c59db48d28d489eeb5c2c2d9ac5aadef73aa",
+      "context": "uncalibrated predicted probabilities, a positive-class vector or a samples-by-classes matrix, normalised by :func:`normalize_probabilities` before the fit.",
+      "translation": "okalibrerade predikterade sannolikheter, en vektor för den positiva klassen eller en matris med prov gånger klasser, normaliserade av :func:`normalize_probabilities` före anpassningen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.load_evaluation_bundle#1",
+      "source": "an evaluation manifest file, or the bundle folder that contains it; ``~`` is expanded. Tables named by the manifest that are absent load as empty frames.",
+      "source_sha256": "3605221e0adad0629c2c71fc37f72d20b83130a872650f3b6d8007470668ac23",
+      "context": "an evaluation manifest file, or the bundle folder that contains it; ``~`` is expanded. Tables named by the manifest that are absent load as empty frames.",
+      "translation": "en utvärderingsmanifestfil, eller paketmappen som innehåller den; ``~`` expanderas. Tabeller som manifestet namnger men som saknas läses in som tomma ramar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.normalize_probabilities#1",
+      "source": "a one-dimensional positive-class vector, a one-column matrix (both expanded to two classes), or a samples-by-classes matrix. Values must be finite and within 0 to 1, and no row may sum to zero.",
+      "source_sha256": "9f2931926be846caddb9c151a8e96742bc9cb0696ed3f6e130577cf63c4545cd",
+      "context": "a one-dimensional positive-class vector, a one-column matrix (both expanded to two classes), or a samples-by-classes matrix. Values must be finite and within 0 to 1, and no row may sum to zero.",
+      "translation": "en endimensionell vektor för den positiva klassen, en matris med en kolumn (båda utökas till två klasser) eller en matris med prov gånger klasser. Värdena måste vara ändliga och ligga inom 0 till 1, och ingen rad får summera till noll.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.normalize_split_level#1",
+      "source": "requested split level: ``cell``, ``field``, ``well`` or ``plate`` (exact, lower-case). ``None``, ``False``, ``'none'`` and ``'off'`` map to ``cell``; anything else raises :class:`ValueError`.",
+      "source_sha256": "e40e7fefa5de06069dbdd5174d37c2c8c86a4b728fcf76160c40a3cc26a14630",
+      "context": "requested split level: ``cell``, ``field``, ``well`` or ``plate`` (exact, lower-case). ``None``, ``False``, ``'none'`` and ``'off'`` map to ``cell``; anything else raises :class:`ValueError`.",
+      "translation": "begärd uppdelningsnivå: ``cell``, ``field``, ``well`` eller ``plate`` (exakt, gemener). ``None``, ``False``, ``'none'`` och ``'off'`` mappas till ``cell``; allt annat genererar :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.sample_identity#2",
+      "source": "crop path or file name. Augmentation suffixes are removed and the stem is split on underscores to find the plate, well and field parts.",
+      "source_sha256": "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac",
+      "context": "extracted-image-region path or file name. Augmentation suffixes are removed and the stem is split on underscores to find the laboratory microplate, microplate sample position and microscope field of view parts.",
+      "translation": "sökväg eller filnamn för utsnittet. Augmenteringssuffix tas bort och filnamnsstammen delas vid understreck för att hitta delarna för platta, brunn och fält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.split_columns_for#2",
+      "source": "split level, normalised by :func:`normalize_split_level`.",
+      "source_sha256": "883fc7e4670911cf4ab3aac64861c90c46241b41ff802590fe57ca019230a93a",
+      "context": "split level, normalised by :func:`normalize_split_level`.",
+      "translation": "uppdelningsnivå, normaliserad av :func:`normalize_split_level`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.split_columns_for#3",
+      "source": "column names available in the table; every identity column the level needs must be present or :class:`ValueError` is raised.",
+      "source_sha256": "6884ffaa9d98f9a70ed392191c3f1ed3d6faf3e28574f8a1024b2bda8eaa6720",
+      "context": "column names available in the table; every identity column the level needs must be present or :class:`ValueError` is raised.",
+      "translation": "kolumnnamn som finns i tabellen; varje identitetskolumn som nivån behöver måste finnas, annars genereras :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_evaluation_bundle#1",
+      "source": "folder that receives the bundle; created with its parents if needed.",
+      "source_sha256": "d9a69f7e5fe14395dcdcbe45f120b3ba92e9677093cada580a55b13b558b3acf",
+      "context": "folder that receives the bundle; created with its parents if needed.",
+      "translation": "mapp som tar emot paketet; skapas tillsammans med sina överordnade mappar vid behov.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_evaluation_bundle#2",
+      "source": "mapping as returned by :func:`evaluate_predictions`, with ``summary``, ``predictions``, ``confusion_counts``, ``confusion_normalized``, ``per_plate`` and ``calibration`` entries.",
+      "source_sha256": "f67cbca546f307ff60364b64e8965e0142259004cfc0ea2c420a475435e116b0",
+      "context": "mapping as returned by :func:`evaluate_predictions`, with ``summary``, ``predictions``, ``confusion_counts``, ``confusion_normalized``, ``per_plate`` and ``calibration`` entries.",
+      "translation": "mappning så som den returneras av :func:`evaluate_predictions`, med posterna ``summary``, ``predictions``, ``confusion_counts``, ``confusion_normalized``, ``per_plate`` och ``calibration``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_leakage_audit#1",
+      "source": "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically.",
+      "source_sha256": "748d34afa2c7a8191aaf8456dcd2803ea285bf86e5b7b74ec3740486ce2d49a1",
+      "context": "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically.",
+      "translation": "mål-JSON-fil; ``~`` expanderas och saknade överordnade mappar skapas. Den ersätts atomärt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_leakage_audit#2",
+      "source": "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping.",
+      "source_sha256": "8ad5ad8c5d4b47fed0d00a7cde539506323f13d9db7e2579a18defa4d8b7842a",
+      "context": "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping.",
+      "translation": "läckagerapport eller granskning att skriva: ett objekt med en ``to_dict()``-metod, eller en mappning.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.classify.resolve_family#3",
+      "source": "``'cv'`` or ``'ml'``.",
+      "source_sha256": "2816bfa64b4cbe138dc4db1f46b485aff612268c6d124634db44271b827f2c2e",
+      "context": "``'cv'`` or ``'ml'``.",
+      "translation": "``'cv'`` eller ``'ml'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli.resolve_settings#1",
+      "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
+      "source_sha256": "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+      "context": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
+      "translation": "Skiktas från lägsta till högsta: modulens egna standardvärden, inställningsfilen och sedan åsidosättningarna från ``--set``. Filen läses först under dagens namn -- se :func:`_under_todays_names`, utan vilken ett värde som filen satte under ett gammalt namn förlorade mot standardvärdet som redan låg under det nya.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli.resolve_settings#5",
+      "source": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",
+      "source_sha256": "71cd8a699d1f3109ac9f4f9da2a60e25c20d1190a4f8238e0ac01a0e9cd97806",
+      "context": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",
+      "translation": "lista som tar emot migreringsmeddelandena och skickas direkt till :func:`_under_todays_names`; en anropare som skriver ut en förhandskontrollrapport lämnar dem vidare till :func:`_preflight` så att nycklarna som sammanslagningen förbrukade fortfarande namnges där.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli_download#2",
+      "source": "WHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches the example sets -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. The OPS and Align & Stitch samples are fetched only when named (``spacr-download ops stitch``) or with ``all``. It does NOT fetch the published TSG101 screen, which is 33 GB. A command that spent 33 GB of somebody's quota because they typed its name with no arguments would be a bug however well documented, so the screen is opt-in, is asked for in pieces, and is confirmed before it starts. The pieces are :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about 0.5 GB and four crop folders of about 8 GB, any subset of which can be named.",
+      "source_sha256": "cbeaa646852275e319331195d9c56909734676f0283735c25d09e0d5d60defdb",
+      "context": "What it will and will not do without being asked. With no arguments it fetches the example sets -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. The OPS and Align & Stitch samples are fetched only when named (``spacr-download ops stitch``) or with ``all``. It does NOT fetch the published TSG101 screen, which is 33 GB. A command that spent 33 GB of somebody's quota because they typed its name with no arguments would be a bug however well documented, so the screen is opt-in, is asked for in pieces, and is confirmed before it starts. The pieces are :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about 0.5 GB and four extracted image region folders of about 8 GB, any subset of which can be named.",
+      "translation": "VAD DEN GÖR OCH INTE GÖR UTAN ATT BLI TILLFRÅGAD. Utan argument hämtar den exempeluppsättningarna -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment och den syntetiska Invasion-uppsättningen -- som tillsammans är ungefär 1.8 GB. Proverna för OPS och Align & Stitch hämtas bara när de namnges (``spacr-download ops stitch``) eller med ``all``. Den hämtar INTE den publicerade TSG101-screeningen, som är 33 GB. Ett kommando som förbrukade 33 GB av någons kvot för att de skrev dess namn utan argument vore en bugg, hur väl dokumenterat det än var, så screeningen är opt-in, begärs i delar och bekräftas innan den startar. Delarna är de från :mod:`spacr.screen_data`, oförändrade: fyra mätdatabaser på ungefär 0.5 GB och fyra utsnittsmappar på ungefär 8 GB, av vilka valfri delmängd kan namnges.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli_download.example_folder#0",
+      "source": "The one plate folder the three plate example sets unpack into.",
+      "source_sha256": "354ba7e0ced3cba236accddc4c99e877c5d1b29d77582195eaf7e4954136358b",
+      "context": "The one plate folder the three plate example sets unpack into.",
+      "translation": "Den enda plattmapp som de tre plattexempeluppsättningarna packas upp i.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli_download.example_folder#2",
+      "source": "The assay sets are not stages of that plate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
+      "source_sha256": "a0bb4d82a9a85d2cf00b406af7df8ca8f6f07a3c225a8de35b45b1194d264280",
+      "context": "The assay sets are not stages of that laboratory microplate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
+      "translation": "Analysuppsättningarna är inte steg för den plattan, och var och en packas upp i en egen mapp; se :func:`spacr.example_archives.example_set_folder`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli_make_masks#1",
+      "source": "A curation session has to be startable from a terminal, pointed at a folder, bounded, and resumable. Curation is done over SSH and on more than one machine, and the answer until now was ``spacr/cli.py``'s flat refusal — *\"Make Masks is a manual mask editor; run it in the GUI\"*. That sentence is still true about the brush and false about the session. This module is the session",
+      "source_sha256": "0f2837e3a323ac3929fe092b5e566fa850770a24c250c2809f7cb153f5994373",
+      "context": "A curation session has to be startable from a terminal, pointed at a folder, bounded, and resumable. Curation is done over SSH and on more than one machine, and the answer until now was ``spacr/cli.py``'s flat refusal — *\"Make Masks is a manual mask editor; run it in the GUI\"*. That sentence is still true about the brush and false about the session. This module is the session",
+      "translation": "En kurateringssession måste kunna startas från en terminal, pekas mot en mapp, vara avgränsad och kunna återupptas. Kurering görs över SSH och på mer än en maskin, och svaret hittills var ``spacr/cli.py``s kategoriska vägran — *\"Make Masks is a manual mask editor; run it in the GUI\"*. Den meningen är fortfarande sann om penseln och falsk om sessionen. Den här modulen är sessionen",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli_make_masks#7",
+      "source": "All three layouts open the editor",
+      "source_sha256": "30c86adf14efb7a9ebbeed1ed3e0000eccea603353ffef58ffe6514ae039c6bb",
+      "context": "All three layouts open the editor",
+      "translation": "Alla tre layouterna öppnar redigeraren",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli_make_masks#8",
+      "source": ":func:`spacr.curation_queue.detect_layout` reads three layouts, and the editor edits each where it lies: a ``nested`` folder's masks in ``<folder>/masks``, a ``sibling`` set's in the ``masks/`` beside its ``images/`` -- never ``images/masks``, which would orphan every draft the set already has -- and a ``seg`` folder's ``_seg.npy`` bundles written back into themselves. :mod:`spacr.qt.mask_engine` says why in place is sound and no convert step is needed.",
+      "source_sha256": "8b92ca1e3962dc13e5284e4bc8a00e4d120378666a064b40c8bd87de0feb4bbb",
+      "context": ":func:`spacr.curation_queue.detect_layout` reads three layouts, and the editor edits each where it lies: a ``nested`` folder's masks in ``<folder>/masks``, a ``sibling`` set's in the ``masks/`` beside its ``images/`` -- never ``images/masks``, which would orphan every draft the set already has -- and a ``seg`` folder's ``_seg.npy`` bundles written back into themselves. :mod:`spacr.qt.mask_engine` says why in place is sound and no convert step is needed.",
+      "translation": ":func:`spacr.curation_queue.detect_layout` läser tre layouter, och redigeraren redigerar var och en där den ligger: en ``nested``-mapps masker i ``<folder>/masks``, en ``sibling``-uppsättnings i ``masks/`` bredvid dess ``images/`` -- aldrig ``images/masks``, vilket skulle göra varje utkast som uppsättningen redan har föräldralöst -- och en ``seg``-mapps ``_seg.npy``-paket skrivs tillbaka in i sig själva. :mod:`spacr.qt.mask_engine` förklarar varför redigering på plats är sund och varför inget konverteringssteg behövs.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.Mapping.to_row#2",
+      "source": "``'converted'``, ``'existing'`` or ``'failed'``.",
+      "source_sha256": "00eb63101bd6225337ffaa4497bd822024e36567ca1583565373bfab0cfd6041",
+      "context": "``'converted'``, ``'existing'`` or ``'failed'``.",
+      "translation": "``'converted'``, ``'existing'`` eller ``'failed'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.plan#4",
+      "source": "**field** — 1..N per well, over the distinct field keys; or, for sources :func:`scan` read by a ``metadata_type``, the field numbers the filenames state, when every field has one and none repeats.",
+      "source_sha256": "3f3ab89675f685c50d567d9021e54db406a00eff0ec183bf7b70d5ddb35ea939",
+      "context": "**microscope field of view** — 1..N per microplate sample position, over the distinct microscope field of view structured-data names; or, for sources :func:`scan` read by a ``metadata_type``, the microscope field of view numbers the filenames state, when every microscope field of view has one and none repeats.",
+      "translation": "**fält** — 1..N per brunn, över de distinkta fältnycklarna; eller, för källor som :func:`scan` läste med en ``metadata_type``, de fältnummer som filnamnen anger, när varje fält har ett och inget upprepas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.plan#9",
+      "source": "``'index'`` or ``'name'``.",
+      "source_sha256": "0f2ed6e8bedefae084b8b17d926c67fefcad4e4db3671a8d0f723ee4a4318292",
+      "context": "``'index'`` or ``'name'``.",
+      "translation": "``'index'`` eller ``'name'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.scan#11",
+      "source": "when ``src`` is not a directory, ``layout`` is not recognised, or ``metadata_type`` names no convention.",
+      "source_sha256": "52c9cda9166a7d9f9c36919c034e6f56d23e3cff5d47f48d75f2145735221307",
+      "context": "when ``src`` is not a directory, ``layout`` is not recognised, or ``metadata_type`` names no convention.",
+      "translation": "när ``src`` inte är en katalog, ``layout`` inte känns igen eller ``metadata_type`` inte namnger någon konvention.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.scan#8",
+      "source": "a filename convention from Mask's ``metadata_type`` list (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...). When given, plate, well, field, channel, z and t are READ FROM EACH NAME by that convention's pattern, and the folders only supply what the name does not carry -- the plate for a convention with no plate group, the well for one whose \"well\" is a scene index or a literal word. A file whose name does not follow the convention is reported unreadable, with the reason, rather than guessed at. ``None``, ``''`` and ``'auto'`` keep the folder-and-token inference.",
+      "source_sha256": "e8cf8c99d55295fa4b672504bb85a79562d58dc0b7635c2beddd9e2ebe7b69b6",
+      "context": "a filename convention from Mask's ``metadata_type`` list (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...). When given, laboratory microplate, microplate sample position, microscope field of view, image data channel, z and t are read from each name by that convention's pattern, and the folders only supply what the name does not carry -- the laboratory microplate for a convention with no laboratory microplate group, the microplate sample position for one whose \"well\" is a scene index or a literal word. A file whose name does not follow the convention is reported unreadable, with the reason, rather than guessed at. ``None``, ``''`` and ``'auto'`` keep the folder-and-token inference.",
+      "translation": "en filnamnskonvention från Masks ``metadata_type``-lista (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...). När den anges LÄSES platta, brunn, fält, kanal, z och t FRÅN VARJE NAMN med konventionens mönster, och mapparna bidrar bara med det som namnet inte bär -- plattan för en konvention utan plattgrupp, brunnen för en vars \"well\" är ett scenindex eller ett bokstavligt ord. En fil vars namn inte följer konventionen rapporteras som oläsbar, med orsaken, i stället för att gissas. ``None``, ``''`` och ``'auto'`` behåller härledningen från mappar och token.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.scan#9",
+      "source": "the pattern for ``metadata_type='custom'``, with named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally ``plateID``, ``timeID``, ``sliceID``).",
+      "source_sha256": "a69d1645e44ae514654008fbe1b31d7ab1819b62d70c844d67f856b73e2c50cd",
+      "context": "the pattern for ``metadata_type='custom'``, with named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally ``plateID``, ``timeID``, ``sliceID``).",
+      "translation": "mönstret för ``metadata_type='custom'``, med de namngivna grupperna ``wellID``, ``fieldID`` och ``chanID`` (och valfritt ``plateID``, ``timeID``, ``sliceID``).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.write_map#9",
+      "source": "``status`` — ``converted``, ``existing`` or ``failed``;",
+      "source_sha256": "7dbe2f32f264439c79db66376e11ca0bb82f8f3691ebe8ce61abfe28dc410066",
+      "context": "``status`` — ``converted``, ``existing`` or ``failed``;",
+      "translation": "``status`` — ``converted``, ``existing`` eller ``failed``;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#12",
+      "source": "``motility_analysis`` — when timelapse is enabled, analyze the completed merged frames once per plate, rebuilding measurements from the current masks rather than reusing an older assay table.",
+      "source_sha256": "2daed458812e607f041e55b4d5f2e02a55059df2ed7f124c73170578959ae7cf",
+      "context": "``motility_analysis`` — when timelapse is enabled, analyze the completed merged frames once per laboratory microplate, rebuilding measurements from the current masks rather than reusing an older assay table.",
+      "translation": "``motility_analysis`` — när tidsserier är aktiverade analyseras de färdiga sammanslagna bildrutorna en gång per platta, och mätningarna byggs om från de aktuella maskerna i stället för att en äldre analystabell återanvänds.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#0",
+      "source": "Choose a set of crops, then read them a page at a time.",
+      "source_sha256": "3101c85055dffc1d4d8e57a74fee8c1d22766eec91d86896d75630d6bf5387d6",
+      "context": "Choose a set of extracted image regions, then read them a page at a time.",
+      "translation": "Välj en uppsättning utsnitt och läs dem sedan en sida i taget.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#1",
+      "source": "**WHAT IT IS FOR.** Every screen that shows objects has had its own way of finding them, and the Embeddings screen had none at all -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existed and nothing in ``spacr/`` called it, so the only route to a label-free vector was to open Python. This module is the missing half: it turns a question about a plate into a stack of pixels, and it does it in two steps so a GUI can stay answerable between them.",
+      "source_sha256": "cea439e50c1bfbd8e82ed329bde7a6d73038961b4fdd36627239e6a5a37f1b18",
+      "context": "**What it is for.** Every application view that shows objects has had its own way of finding them, and the Embeddings application view had none at all -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existed and nothing in ``spacr/`` called it, so the only route to a label-free vector was to open Python. This module is the missing half: it turns a question about a plate into a stack of pixels, and it does it in two steps so a GUI can stay answerable between them.",
+      "translation": "**VAD DEN ÄR TILL FÖR.** Varje programvy som visar objekt har haft sitt eget sätt att hitta dem, och Embeddings-vyn hade inget alls -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` fanns men ingenting i ``spacr/`` anropade den, så den enda vägen till en etikettfri vektor var att öppna Python. Den här modulen är den saknade halvan: den omvandlar en fråga om en platta till en stapel pixlar, och den gör det i två steg så att ett GUI kan förbli responsivt mellan dem.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#2",
+      "source": "**PLANNING IS NOT LOADING, and that separation is the whole design.** :func:`plan_crops` asks the database or the folder *which objects match* and reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one ``scandir``. It is milliseconds on a plate of sixty thousand crops, so a screen can run it on a click and tell the user what they asked for before committing to reading any of it. :func:`load_crops` then reads the pixels in pages, reporting after each one. A caller that runs the second half on a worker thread gets a progress number per page and a stop that takes effect within a page rather than at the end.",
+      "source_sha256": "a2b7234b8098f4c5c55bbda35e8d9803f520b4056638fcfc5dc39b98541f258e",
+      "context": "**Planning is not loading, and that separation is the whole design.** :func:`plan_crops` asks the database or the folder *which objects match* and reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one ``scandir``. It is milliseconds on a plate of sixty thousand extracted image regions, so a screen can execute it on a click and tell the user what they asked for before committing to reading any of it. :func:`load_crops` then reads the pixels in pages, reporting after each one. A caller that executes the second half on a background execution unit gets a progress number per page and a stop that takes effect within a page rather than at the end.",
+      "translation": "**PLANERING ÄR INTE INLÄSNING, och den uppdelningen är hela designen.** :func:`plan_crops` frågar databasen eller mappen *vilka objekt som matchar* och läser inga pixlar alls: en ``COUNT`` och en ``SELECT`` av identifierare, eller en enda ``scandir``. Det tar millisekunder på en platta med sextiotusen utsnitt, så en programvy kan köra det vid ett klick och tala om för användaren vad den bad om innan något av det läses. :func:`load_crops` läser sedan pixlarna sidvis och rapporterar efter varje sida. En anropare som kör den andra halvan i en arbetstråd får ett förloppsvärde per sida och ett stopp som får verkan inom en sida i stället för vid slutet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#3",
+      "source": "**WHAT IT NEEDS.** Either a ``measurements.db`` -- where the crops are chosen by object class, by plate, or by a predicate over ``png_list`` -- or a folder of crop PNGs. Nothing else: the pixels themselves come from :func:`spacr.crops.resolve_crop_source`, so this module inherits the existing answer to \"are there pre-generated crops here, or do we cut from ``merged/*.npy``\" rather than inventing a second one, and a legacy folder is corrected on load exactly as it is everywhere else.",
+      "source_sha256": "0246ed020295fb5f7fa9294f43b79e139378001612699d3898a2907e813b6e68",
+      "context": "**What it needs.** Either a ``measurements.db`` -- where the extracted image regions are chosen by object class, by plate, or by a predicate over ``png_list`` -- or a folder of extracted image region PNGs. Nothing else: the pixels themselves come from :func:`spacr.crops.resolve_crop_source`, so this module inherits the existing answer to \"are there pre-generated extracted image regions here, or do we cut from ``merged/*.npy``\" rather than inventing a second one, and a legacy folder is corrected on load exactly as it is everywhere else.",
+      "translation": "**VAD DEN BEHÖVER.** Antingen en ``measurements.db`` -- där utsnitten väljs efter objektklass, efter platta eller med ett predikat över ``png_list`` -- eller en mapp med utsnitts-PNG:er. Inget annat: själva pixlarna kommer från :func:`spacr.crops.resolve_crop_source`, så den här modulen ärver det befintliga svaret på \"finns det förgenererade utsnitt här, eller skär vi ut från ``merged/*.npy``\" i stället för att uppfinna ett andra, och en äldre mapp korrigeras vid inläsning precis som överallt annars.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#4",
+      "source": "**WHAT IT PRODUCES.** One ``(objects, height, width, channels)`` uint8 array, which is the layout :func:`spacr.embeddings.embed_array` documents and :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus a JSON-serialisable ``record`` of what was actually read -- how many matched, how many were taken, the crop shape, and how many crops had to be conformed to it.",
+      "source_sha256": "7cbd39f7b940b46852f5602d894db6eab98ffcde8412e68e8c6b9381c6baece2",
+      "context": "**What it produces.** One ``(objects, height, width, channels)`` uint8 array, which is the layout :func:`spacr.embeddings.embed_array` documents and :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus a JSON-serialisable ``record`` of what was actually read -- how many matched, how many were taken, the extracted image region shape, and how many extracted image regions had to be conformed to it.",
+      "translation": "**VAD DEN PRODUCERAR.** En uint8-array ``(objects, height, width, channels)``, vilket är den layout som :func:`spacr.embeddings.embed_array` dokumenterar och :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` kräver, plus en JSON-serialiserbar ``record`` över vad som faktiskt lästes -- hur många som matchade, hur många som togs, utsnittsformen och hur många utsnitt som måste anpassas till den.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#5",
+      "source": "**WHAT TO DO NEXT.** Hand the array to the Embeddings screen, or straight to :func:`spacr.embeddings.embed_array`.",
+      "source_sha256": "b10cc334b1c8590ce9def8b83370b72555d59dac5c73c0dcedc5d80791d85485",
+      "context": "**What to do next.** Hand the array to the Embeddings screen, or straight to :func:`spacr.embeddings.embed_array`.",
+      "translation": "**VAD DU GÖR HÄRNÄST.** Lämna arrayen till Embeddings-vyn, eller direkt till :func:`spacr.embeddings.embed_array`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#6",
+      "source": "**A CAP IS PART OF THE ANSWER, NOT A FAILURE TO LOAD EVERYTHING.** Sixty thousand crops of 96x96x3 is 1.6 GB before a backbone has seen one of them, and a screen that tries it dies on a machine that could have embedded the first two thousand happily. So :attr:`CropQuery.limit` is a real default and the plan says what it left behind -- \"the first 2,000 of 61,433\" -- rather than quietly returning a subset that looks like the whole plate.",
+      "source_sha256": "f5416d81e92af3e5782b6df0c779f69b6655ac044f706b098fd1086e379a768c",
+      "context": "**A cap is part of the answer, not a failure to load everything.** Sixty thousand extracted image regions of 96x96x3 is 1.6 GB before a backbone has seen one of them, and a screen that tries it dies on a machine that could have embedded the first two thousand happily. So :attr:`CropQuery.limit` is a real default and the plan says what it left behind -- \"the first 2,000 of 61,433\" -- rather than quietly returning a subset that looks like the whole plate.",
+      "translation": "**ETT TAK ÄR EN DEL AV SVARET, INTE ETT MISSLYCKANDE ATT LÄSA IN ALLT.** Sextiotusen utsnitt på 96x96x3 är 1.6 GB innan ett backbone-nätverk har sett ett enda av dem, och en programvy som försöker det dör på en maskin som utan problem hade kunnat bädda in de första tvåtusen. Därför är :attr:`CropQuery.limit` ett verkligt standardvärde, och planen säger vad den lämnade utanför -- \"de första 2,000 av 61,433\" -- i stället för att i tysthet returnera en delmängd som ser ut som hela plattan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#7",
+      "source": "**AND A CAP IS NOT THE ONLY THING THAT REMOVES A ROW, SO IT IS COUNTED ON ITS OWN.** The merged route drops every row it cannot cut, and reporting that as a cap is the same sentence read backwards: a complete answer dressed as a subset, telling the user to raise a limit that never bit. So :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap between the first two and :attr:`CropPlan.dropped` the gap between the last two, and they reach the panel as separate clauses.",
+      "source_sha256": "b03529a0c8a16d11a9d75ec30f7641740b14ab9c0f1ae1fa4c8e5d0cfe29ac51",
+      "context": "**And a cap is not the only thing that removes a row, so it is counted on its own.** The merged route drops every row it cannot cut, and reporting that as a cap is the same sentence read backwards: a complete answer dressed as a subset, telling the user to raise a limit that never bit. So :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap between the first two and :attr:`CropPlan.dropped` the gap between the last two, and they reach the panel as separate clauses.",
+      "translation": "**OCH ETT TAK ÄR INTE DET ENDA SOM TAR BORT EN RAD, SÅ DET RÄKNAS FÖR SIG.** Den sammanslagna vägen släpper varje rad som den inte kan skära ut, och att rapportera det som ett tak är samma mening läst baklänges: ett fullständigt svar förklätt till en delmängd, som uppmanar användaren att höja en gräns som aldrig slog till. Därför är :attr:`CropPlan.matched`, :attr:`CropPlan.selected` och :attr:`CropPlan.count` tre tal, :attr:`CropPlan.capped` är skillnaden mellan de två första och :attr:`CropPlan.dropped` skillnaden mellan de två sista, och de når panelen som separata satser.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#8",
+      "source": "**AN EMPTY RESULT IS A SENTENCE, NEVER AN EMPTY ARRAY.** A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which names the table, the class, the plate and the predicate that were asked for AND what the database does hold, because \"no crops\" on its own sends a user to look for a broken install when they have asked for plate 9 of an eight-plate screen.",
+      "source_sha256": "64d3e787e6c1589ed05899b1fa0efa9af0a8caa64964c6cb571bb56c36c90a3e",
+      "context": "**An empty result is a sentence, never an empty array.** A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which names the table, the class, the plate and the predicate that were asked for AND what the database does hold, because \"no crops\" on its own sends a user to look for a broken install when they have asked for plate 9 of an eight-plate screen.",
+      "translation": "**ETT TOMT RESULTAT ÄR EN MENING, ALDRIG EN TOM ARRAY.** En plan som inte matchade något bär :attr:`CropPlan.empty_reason`, som namnger tabellen, klassen, plattan och predikatet som efterfrågades OCH vad databasen faktiskt innehåller, eftersom \"no crops\" ensamt skickar en användare att leta efter en trasig installation när den har bett om platta 9 i en screening med åtta plattor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader#9",
+      "source": "**THE PREDICATE IS SQL AND THE DATABASE IS OPENED READ-ONLY.** ``where`` is a fragment of the user's own query language against their own file; refusing it would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so the connection is opened with ``readonly=True`` -- SQLite's ``query_only``, which refuses every write at the engine -- and a predicate carrying a statement separator is rejected before it is sent.",
+      "source_sha256": "5344722e1829dc66e3e587f9e0d9dfd5f168597192263dd45a579f0b076fdd04",
+      "context": "**The predicate is sql and the database is opened read-only.** ``where`` is a fragment of the user's own query language against their own file; refusing it would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so the connection is opened with ``readonly=True`` -- SQLite's ``query_only``, which refuses every write at the engine -- and a predicate carrying a statement separator is rejected before it is sent.",
+      "translation": "**PREDIKATET ÄR SQL OCH DATABASEN ÖPPNAS SKRIVSKYDDAD.** ``where`` är ett fragment av användarens eget frågespråk mot användarens egen fil; att vägra det skulle innebära att uppfinna ett sämre. Det skarvas in i en ``WHERE``-sats, så anslutningen öppnas med ``readonly=True`` -- SQLite:s ``query_only``, som vägrar varje skrivning i databasmotorn -- och ett predikat som innehåller en satsavgränsare avvisas innan det skickas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropLoadError#0",
+      "source": "A set of crops that cannot be loaded, and why.",
+      "source_sha256": "7ab67d66deb5395cb67e537c55c3092a0363eaf24b3d1e7194e4a7d5cc0e3983",
+      "context": "A set of extracted image regions that cannot be loaded, and why.",
+      "translation": "En uppsättning utsnitt som inte kan läsas in, och varför.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropLoadError#1",
+      "source": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
+      "source_sha256": "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778",
+      "context": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
+      "translation": "Bär en mening som passar i en statusrad: varje undantag som genereras i den här modulen namnger sökvägen, klassen eller predikatet som orsakade det, eftersom anroparen är en programvy och dess enda sätt att förklara ett fel är att upprepa den här texten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#0",
+      "source": "What a query matched, before any pixel was read.",
+      "source_sha256": "5bce440c131c6cfb6be8836af2fce1b93c6120fa6b53ac7183ebf5cdea46a379",
+      "context": "What a query matched, before any pixel was read.",
+      "translation": "Vad en fråga matchade, innan någon pixel lästes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#1",
+      "source": "the :class:`CropQuery` this answers.",
+      "source_sha256": "89c6c37c0d12ea865a9f4c0dcf76f4d72cafaf47827c738872d4d320fc6693c4",
+      "context": "the :class:`CropQuery` this answers.",
+      "translation": "den :class:`CropQuery` som detta besvarar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#2",
+      "source": "one opaque handle per crop, in the order they load -- a row mapping for the database source, a path string for the folder one. Never longer than ``query.limit``.",
+      "source_sha256": "bcaf4735740d4ae4ca2dcc96c6022330ebebf187e04fed5796f44946f8db923f",
+      "context": "one opaque handle per extracted image region, in the order they load -- a row mapping for the database source, a path string for the folder one. Never longer than ``query.limit``.",
+      "translation": "ett ogenomskinligt handtag per utsnitt, i den ordning de läses in -- en radmappning för databaskällan, en sökvägssträng för mappkällan. Aldrig längre än ``query.limit``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#3",
+      "source": "how many crops the query matched in total, before the limit and before the merged route's join. More than ``selected`` exactly when the cap bit.",
+      "source_sha256": "6a7e3f39308cb59a47c400b32da4c3960a6784d76c2d6d13de3811411c5e2f0c",
+      "context": "how many extracted image regions the query matched in total, before the limit and before the merged route's join. More than ``selected`` exactly when the cap bit.",
+      "translation": "hur många utsnitt frågan matchade totalt, före gränsen och före den sammanslagna vägens join. Fler än ``selected`` exakt när taket slog till.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#4",
+      "source": "how many rows the selection actually took, which is ``min(matched, limit)``. Left at ``0`` it defaults to ``len(rows)``, which is right for every plan that has no join to lose rows to.",
+      "source_sha256": "23cae9f33148dfca08572e70e8f05142ac276d07aa8b89d9069fca23cff727af",
+      "context": "how many rows the selection actually took, which is ``min(matched, limit)``. Left at ``0`` it defaults to ``len(rows)``, which is right for every plan that has no join to lose rows to.",
+      "translation": "hur många rader urvalet faktiskt tog, vilket är ``min(matched, limit)``. Lämnas det som ``0`` blir standardvärdet ``len(rows)``, vilket är rätt för varje plan som inte har någon join att förlora rader till.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#5",
+      "source": "which pixel route was chosen and why, from :meth:`spacr.crops.CropSource.describe`.",
+      "source_sha256": "22b89e20a778b08bec5f7473a2b5da0af1725c95245c77318d3c5fec1683ae93",
+      "context": "which pixel route was chosen and why, from :meth:`spacr.crops.CropSource.describe`.",
+      "translation": "vilken pixelväg som valdes och varför, från :meth:`spacr.crops.CropSource.describe`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#6",
+      "source": "the sentence to show when nothing matched, naming both what was asked and what is there. Empty when something did.",
+      "source_sha256": "aec37bc44716588af36844eef4ad1abd506f7f91e22613fdc4e784c13cf50244",
+      "context": "the sentence to show when nothing matched, naming both what was asked and what is there. Empty when something did.",
+      "translation": "meningen som visas när ingenting matchade, och som namnger både vad som efterfrågades och vad som finns. Tom när något matchade.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#7",
+      "source": "**THREE NUMBERS, NOT TWO, BECAUSE TWO THINGS REMOVE ROWS AND THEY ASK THE READER FOR DIFFERENT THINGS.** ``matched`` is what the query found, ``selected`` is what the limit left of it, and ``count`` is what survived the merged route's join -- which drops every row with no single object label (``'omulti'`` / ``'onone'``) or no merged array recorded. Only the first gap is a cap, and only a cap is repaired by raising 'At most'; telling a user to raise a limit that never bit hands them an action that returns the same rows and reprints the same sentence.",
+      "source_sha256": "f622fbebcfd51538703ad24eedbb583f73fca0ab0d0343fe5113afe82137173b",
+      "context": "**Three numbers, NOT TWO, because two things remove rows and they ask the reader for different things.** ``matched`` is what the query found, ``selected`` is what the limit left of it, and ``count`` is what survived the merged route's join -- which drops every row with no single object label (``'omulti'`` / ``'onone'``) or no merged array recorded. Only the first gap is a cap, and only a cap is repaired by raising 'At most'; telling a user to raise a limit that never bit hands them an action that returns the same rows and reprints the same sentence.",
+      "translation": "**TRE TAL, INTE TVÅ, EFTERSOM TVÅ SAKER TAR BORT RADER OCH DE BER LÄSAREN OM OLIKA SAKER.** ``matched`` är vad frågan hittade, ``selected`` är vad gränsen lämnade kvar av det, och ``count`` är vad som överlevde den sammanslagna vägens join -- som släpper varje rad utan en enda objektetikett (``'omulti'`` / ``'onone'``) eller utan registrerad sammanslagen array. Endast den första skillnaden är ett tak, och endast ett tak åtgärdas genom att höja 'At most'; att uppmana en användare att höja en gräns som aldrig slog till ger dem en åtgärd som returnerar samma rader och skriver ut samma mening igen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.__post_init__#0",
+      "source": "Default ``selected`` to the rows, for a plan built without a join.",
+      "source_sha256": "a12505a72ae193f2e9c3c153d01c45b132fcc61b2bcff8df328564bbbb9b41c6",
+      "context": "Default ``selected`` to the rows, for a plan built without a join.",
+      "translation": "Sätt ``selected`` som standard till raderna, för en plan som byggts utan join.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.__post_init__#1",
+      "source": "A plan whose rows came straight out of the selection -- the folder route, and anything a test or a script builds by hand -- selected exactly what it carries, and should not have to say so.",
+      "source_sha256": "fe8e620fc3ec9656810451bd8419f30ae4969a5dad955c55080f4ae777be9b3c",
+      "context": "A plan whose rows came straight out of the selection -- the folder route, and anything a test or a script builds by hand -- selected exactly what it carries, and should not have to say so.",
+      "translation": "En plan vars rader kom direkt ur urvalet -- mappvägen, och allt som ett test eller ett skript bygger för hand -- valde exakt det den bär och ska inte behöva säga det.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.capped#0",
+      "source": "Whether the limit kept crops out of this plan.",
+      "source_sha256": "8e737266d37b1d457ea661ef3f3b55a80ffaef0ead2163cdc415e276a2de77a3",
+      "context": "Whether the limit kept extracted image regions out of this plan.",
+      "translation": "Om gränsen höll utsnitt utanför den här planen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.capped#1",
+      "source": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- running backwards.",
+      "source_sha256": "09b5e05963b68f89371a6eeea3bddf3fc36519172c78ac20650c24398acfb140",
+      "context": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- executing backwards.",
+      "translation": "Mot :attr:`selected`, aldrig mot :attr:`count`: en inläsning via den sammanslagna vägen som förlorade rader i joinen har ``matched > count`` utan någon gräns i närheten, och att rapportera det som ett tak vore att köra modulens eget löfte -- att ett tak är en del av svaret -- baklänges.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.count#0",
+      "source": "How many crops this plan will load.",
+      "source_sha256": "5783b2c4d9978bf0dab791660e1c57b4a4a10883eb720a222c0bd5a41c2bf1f6",
+      "context": "How many extracted image regions this plan will load.",
+      "translation": "Hur många utsnitt den här planen kommer att läsa in.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.describe#0",
+      "source": "One line a status bar can show the moment planning returns.",
+      "source_sha256": "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
+      "context": "One line a status bar can show the moment planning returns.",
+      "translation": "En rad som en statusrad kan visa i samma ögonblick som planeringen returnerar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.describe#1",
+      "source": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole plate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
+      "source_sha256": "187ec99c4bdf7a02d259ccd36b18da370ed11edde57bd937ac27918e91d49b07",
+      "context": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole laboratory microplate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
+      "translation": "Anger vad som togs ut ur vad, så att en inläsning med tak läses som en avsiktlig delmängd och inte som hela plattan -- och namnger en släppt rad som en släppt rad, i en egen sats, så att de två aldrig kommer fram som ett enda tal.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.dropped#0",
+      "source": "How many selected rows could not be turned into a crop at all.",
+      "source_sha256": "d13f25d4fc33c9203e4f7d7148f1ddf40bada6e44ee4f163f1f760da5fc4f3f8",
+      "context": "How many selected rows could not be turned into an extracted image region at all.",
+      "translation": "Hur många valda rader som inte alls kunde omvandlas till ett utsnitt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.dropped#1",
+      "source": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
+      "source_sha256": "0789aba28ec84bf8f908b0d810214b1da90dbba2101109d2bdbaba71472506a0",
+      "context": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
+      "translation": "Skilt från noll endast på den sammanslagna vägen, och ett fullständigt svar snarare än ett med tak: raderna är borta eftersom de inte kan skäras ut, så det finns inget som en större gräns skulle tillföra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.is_empty#0",
+      "source": "Whether the query matched nothing at all.",
+      "source_sha256": "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7",
+      "context": "Whether the query matched nothing at all.",
+      "translation": "Om frågan inte matchade någonting alls.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.pages#0",
+      "source": "``(start, stop)`` for each page, covering every row exactly once.",
+      "source_sha256": "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
+      "context": "``(start, stop)`` for each page, covering every row exactly once.",
+      "translation": "``(start, stop)`` för varje sida, som täcker varje rad exakt en gång.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.pages#1",
+      "source": "crops per page; ``0`` takes the query's own.",
+      "source_sha256": "09b9cca425e30be907c8a04079133a410a3c83c1e993ff77a898c86f12987194",
+      "context": "extracted image regions per page; ``0`` takes the query's own.",
+      "translation": "utsnitt per sida; ``0`` använder frågans eget värde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#0",
+      "source": "Which crops to load, and how much of the answer to take.",
+      "source_sha256": "e780d9c102021b621038eaa6301ce0e76a26e93711cde02a74c57426b4316917",
+      "context": "Which extracted image regions to load, and how much of the answer to take.",
+      "translation": "Vilka utsnitt som ska läsas in, och hur mycket av svaret som ska tas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#1",
+      "source": ":data:`CROP_SOURCE_DATABASE` or :data:`CROP_SOURCE_FOLDER`.",
+      "source_sha256": "09c0a9e82563e15bf96380f034ede2a0413dced3590cbd0dc7c907845cc6752d",
+      "context": ":data:`CROP_SOURCE_DATABASE` or :data:`CROP_SOURCE_FOLDER`.",
+      "translation": ":data:`CROP_SOURCE_DATABASE` eller :data:`CROP_SOURCE_FOLDER`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#2",
+      "source": "the ``measurements.db``, or the folder of crop PNGs.",
+      "source_sha256": "8620a4710c3804ea0816c30615597152794ce6b3e6f290690a5bb919d7a02ba6",
+      "context": "the ``measurements.db``, or the folder of extracted image region PNGs.",
+      "translation": "``measurements.db``, eller mappen med utsnitts-PNG:er.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#3",
+      "source": "which object class the crops are of -- ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'`` or an organelle role. It picks the object-id column in ``png_list`` and the mask plane a streamed crop is cut by, so it is not cosmetic: asking for nuclei out of a cell ``png_list`` yields nothing rather than yielding cells. Ignored by the folder source, which has no classes.",
+      "source_sha256": "c5b4e2ccee27a145b5090940425d34dcb167adbb0682ba6db949d1071690c34f",
+      "context": "which object class the extracted image regions are of -- ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'`` or an organelle role. It picks the object-id column in ``png_list`` and the mask image layer a streamed extracted image region is cut by, so it is not cosmetic: asking for nuclei out of a cell ``png_list`` yields nothing rather than yielding cells. Ignored by the folder source, which has no classes.",
+      "translation": "vilken objektklass utsnitten tillhör -- ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'`` eller en organellroll. Den väljer objekt-id-kolumnen i ``png_list`` och det maskplan som ett strömmat utsnitt skärs ut med, så den är inte kosmetisk: att be om kärnor ur en ``png_list`` för celler ger ingenting i stället för att ge celler. Ignoreras av mappkällan, som inte har några klasser.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#4",
+      "source": "one plate, or ``''`` for every plate.",
+      "source_sha256": "8dc57b38aecdea842b0f9117ce2dc32bfc12beb497423ce507a74e423fbe4827",
+      "context": "one plate, or ``''`` for every plate.",
+      "translation": "en platta, eller ``''`` för alla plattor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#5",
+      "source": "an SQL predicate over ``png_list``, or ``''``. Spliced into the ``WHERE`` clause of a read-only connection; see the module docstring for why it is accepted at all.",
+      "source_sha256": "b3df794f5e0c819696732d1374dc6cd1743b9a170b99c5b60624a8d4090d8c81",
+      "context": "an SQL predicate over ``png_list``, or ``''``. Spliced into the ``WHERE`` clause of a read-only connection; see the module docstring for why it is accepted at all.",
+      "translation": "ett SQL-predikat över ``png_list``, eller ``''``. Skarvas in i ``WHERE``-satsen i en skrivskyddad anslutning; se modulens docstring för varför det alls accepteras.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#6",
+      "source": "the most crops to take, ``0`` for no cap. The plan records what the cap left behind.",
+      "source_sha256": "50bf0b0e4c640726bacb650dfddc28807528858c95ec465f749dc7ce4155142a",
+      "context": "the most extracted image regions to take, ``0`` for no cap. The plan records what the cap left behind.",
+      "translation": "det största antal utsnitt som tas, ``0`` för inget tak. Planen registrerar vad taket lämnade utanför.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#7",
+      "source": "crops read per page by :func:`load_crops`.",
+      "source_sha256": "1583722817b7e4c447145880cc876d34271c96ef651d9db8eb817b49ced4e421",
+      "context": "extracted image regions read per page by :func:`load_crops`.",
+      "translation": "utsnitt som läses per sida av :func:`load_crops`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#8",
+      "source": "``'png'`` to read pre-generated crops, ``'merged'`` to cut them from ``merged/*.npy``, ``''`` to let :func:`spacr.crops.resolve_crop_source` decide. Database source only.",
+      "source_sha256": "b5d2389a0809cbe3227273c3839fd3ce11b60e024a656b2e563a9e8664608505",
+      "context": "``'png'`` to read pre-generated extracted image regions, ``'merged'`` to cut them from ``merged/*.npy``, ``''`` to let :func:`spacr.crops.resolve_crop_source` decide. Database source only.",
+      "translation": "``'png'`` för att läsa förgenererade utsnitt, ``'merged'`` för att skära ut dem från ``merged/*.npy``, ``''`` för att låta :func:`spacr.crops.resolve_crop_source` avgöra. Endast databaskällan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery.describe#0",
+      "source": "One line naming everything this query asked for.",
+      "source_sha256": "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
+      "context": "One line naming everything this query asked for.",
+      "translation": "En rad som namnger allt som den här frågan bad om.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery.describe#1",
+      "source": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
+      "source_sha256": "185b1e2bcbaaeea2e8c5c6736d191d6fde53c5741966a6b94c5df89ad1fa4413",
+      "context": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
+      "translation": "Används i statusraden och i varje avslag, så att en användare som läser \"no crops\" kan se frågan som gav upphov till det utan att öppna panelen igen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#0",
+      "source": "Centre a crop in a ``height`` x ``width`` frame, padding or trimming.",
+      "source_sha256": "116da44772294181c3518db148bfcf3cb39788dc5de2118c3b8ea46ec9209673",
+      "context": "Centre an extracted image region in a ``height`` x ``width`` frame, padding or trimming.",
+      "translation": "Centrera ett utsnitt i en ram på ``height`` x ``width``, med utfyllnad eller beskärning.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#1",
+      "source": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling a crop changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a field, so two crops of the same object arrive the same way whichever route cut them.",
+      "source_sha256": "60186be9400f437b29441174605c238c3cd6ffb76e03f55629de9867f45dfe9d",
+      "context": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling an extracted image region changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a microscope field of view, so two extracted image regions of the same object arrive the same way whichever route cut them.",
+      "translation": "Utfyllnad i stället för storleksändring, och det är hela beslutet: en stapel måste vara rektangulär innan ett backbone-nätverk ser den, och omskalning av ett utsnitt ändrar den skenbara storleken på objektet i det, vilket är en fenotyp. Nollutfyllnad ändrar bakgrunden, vilket inte är det. Det är också vad :func:`spacr.crop_source.crop_at` redan gör med en ruta som sträcker sig utanför kanten på ett synfält, så två utsnitt av samma objekt kommer fram på samma sätt oavsett vilken väg som skar ut dem.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#3",
+      "source": "the target first axis.",
+      "source_sha256": "0c03f6d04bef062ccefe2e2d7fd96c8ab16397383d7d6ed6c78d1d916d05f217",
+      "context": "the target first axis.",
+      "translation": "målets första axel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#4",
+      "source": "the target second axis.",
+      "source_sha256": "f4d88723a6065e77fb3f419ca29b5f95581d2a167d0e74e8e5126ee6dde51de9",
+      "context": "the target second axis.",
+      "translation": "målets andra axel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#5",
+      "source": "``crop`` itself when it already fits, so the common case copies nothing.",
+      "source_sha256": "fc003355dc4c199685ae0941eb2a3a8ce9b103d54063cc5cb8e48d7e02cd388b",
+      "context": "``crop`` itself when it already fits, so the common case copies nothing.",
+      "translation": "``crop`` självt när det redan passar, så att det vanliga fallet inte kopierar något.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#0",
+      "source": "Read every crop in ``plan``, a page at a time.",
+      "source_sha256": "5a96d2756f9e2cf1b136e576245a4674ca38cd6b9a5b818f706d40e195cc3f30",
+      "context": "Read every extracted image region in ``plan``, a page at a time.",
+      "translation": "Läs varje utsnitt i ``plan``, en sida i taget.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#1",
+      "source": "Nothing here touches a widget and nothing here is Qt: ``progress`` and ``cancelled`` are plain callables, so a screen passes a signal emit and a flag and the same function drives a script or a test.",
+      "source_sha256": "06b00d66bc4b7eb77882d60b8e40c96ea277b69e1c602a9d1f027e3c4c4daeb8",
+      "context": "Nothing here touches a widget and nothing here is Qt: ``progress`` and ``cancelled`` are plain callables, so an application view passes a signal emit and a flag and the same function drives a script or a test.",
+      "translation": "Ingenting här rör en widget och ingenting här är Qt: ``progress`` och ``cancelled`` är vanliga anropsbara objekt, så en programvy skickar en signal-emit och en flagga, och samma funktion driver ett skript eller ett test.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#2",
+      "source": "from :func:`plan_crops`.",
+      "source_sha256": "65a3c4d4d80550d081ec32eb7549cb5d5aa74d2097f6f122bf847094455a5933",
+      "context": "from :func:`plan_crops`.",
+      "translation": "från :func:`plan_crops`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#3",
+      "source": "called ``(done, total)`` after each page, on whatever thread this runs on. A caller on a worker thread must not touch a widget from it -- emit a signal.",
+      "source_sha256": "eb0010fb5be13d6905d9b555be71e45c6dbdfc797faab28a345b701a42cc3f0d",
+      "context": "called ``(done, total)`` after each page, on whatever independent execution path this executes on. A caller on a background execution unit must not touch a widget from it -- emit a signal.",
+      "translation": "anropas som ``(done, total)`` efter varje sida, i den tråd som detta körs i. En anropare i en arbetstråd får inte röra en widget därifrån -- skicka en signal.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#4",
+      "source": "called before each page; a true answer stops the load and returns the pages already read, which is why the result can be shorter than ``plan.count``. Checked between pages, so a stop takes at most one page to take effect.",
+      "source_sha256": "ce33e95fcf93d9c9443096de1c6e97182f1738808e9dbaa88feede3989afe578",
+      "context": "called before each page; a true answer stops the load and returns the pages already read, which is why the result can be shorter than ``plan.count``. Checked between pages, so a stop takes at most one page to take effect.",
+      "translation": "anropas före varje sida; ett sant svar stoppar inläsningen och returnerar de sidor som redan lästs, vilket är skälet till att resultatet kan vara kortare än ``plan.count``. Kontrolleras mellan sidor, så ett stopp tar högst en sida att få verkan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#5",
+      "source": "filled in with what was read -- ``matched``, ``selected``, ``dropped``, ``loaded``, ``crop_shape``, ``conformed``, ``capped``, ``source``, ``stopped``. ``matched`` minus ``selected`` is the cap; ``selected`` minus ``loaded`` is rows that could not be cut, plus whatever a stop left unread. JSON-serialisable, so a caller can keep it beside the matrix.",
+      "source_sha256": "dc08dcbe9db7d2d1740cdb14edc9e75698d2b415b326aecb295059e2f50fab1b",
+      "context": "filled in with what was read -- ``matched``, ``selected``, ``dropped``, ``loaded``, ``crop_shape``, ``conformed``, ``capped``, ``source``, ``stopped``. ``matched`` minus ``selected`` is the cap; ``selected`` minus ``loaded`` is rows that could not be cut, plus whatever a stop left unread. JSON-serialisable, so a caller can keep it beside the matrix.",
+      "translation": "fylls i med det som lästes -- ``matched``, ``selected``, ``dropped``, ``loaded``, ``crop_shape``, ``conformed``, ``capped``, ``source``, ``stopped``. ``matched`` minus ``selected`` är taket; ``selected`` minus ``loaded`` är rader som inte kunde skäras ut, plus det som ett stopp lämnade oläst. JSON-serialiserbar, så att en anropare kan spara den bredvid matrisen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#6",
+      "source": "``(objects, height, width, channels)``, the layout :func:`spacr.embeddings.embed_array` documents. Every crop is padded or trimmed to the first one's frame; see :func:`conform_crop`.",
+      "source_sha256": "e3a4de7c4407da3c8f37c2ff007ee8e5e8156b0454f9fb788ef457a95a2fcdf3",
+      "context": "``(objects, height, width, channels)``, the layout :func:`spacr.embeddings.embed_array` documents. Every extracted image region is padded or trimmed to the first one's frame; see :func:`conform_crop`.",
+      "translation": "``(objects, height, width, channels)``, den layout som :func:`spacr.embeddings.embed_array` dokumenterar. Varje utsnitt fylls ut eller beskärs till det förstas ram; se :func:`conform_crop`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#7",
+      "source": "the plan is empty, or a page could not be read.",
+      "source_sha256": "7bffaa505d5b39e392271761a97aae58217dbc5c1d70c9088deaa693b4ab3812",
+      "context": "the plan is empty, or a page could not be read.",
+      "translation": "planen är tom, eller en sida kunde inte läsas.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#0",
+      "source": "Read one page of ``plan``'s crops.",
+      "source_sha256": "c731df150ea03eff5ec4076ec311175d4584efa68b21d8aa19d0ccc9430cf33b",
+      "context": "Read one page of ``plan``'s extracted image regions.",
+      "translation": "Läs en sida av utsnitten i ``plan``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#2",
+      "source": "first row of the page.",
+      "source_sha256": "cb658de6879f6403c51ebdbc823aef94a7df960bd147bc76740e7b88d9c59f9e",
+      "context": "first row of the page.",
+      "translation": "sidans första rad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#3",
+      "source": "one past its last row.",
+      "source_sha256": "0ea4ed348f9fa7689ef2bdc566f38c8e6e6a7bb3ca7bb5ab02785f43bd236e69",
+      "context": "one past its last row.",
+      "translation": "en efter dess sista rad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#4",
+      "source": "``(height, width, channels)`` every crop must come back as. ``None`` takes the first crop of the page as the template, which is how :func:`load_crops` fixes the stack's shape from page one.",
+      "source_sha256": "446d81e14c622446b0a95b7ddbb652f0afce108f88585d59504862afeed896ca",
+      "context": "``(height, width, channels)`` every extracted image region must come back as. ``None`` takes the first extracted image region of the page as the template, which is how :func:`load_crops` fixes the stack's shape from page one.",
+      "translation": "``(height, width, channels)`` som varje utsnitt måste komma tillbaka som. ``None`` använder sidans första utsnitt som mall, vilket är hur :func:`load_crops` fastställer stapelns form från sida ett.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#5",
+      "source": "``(page, conformed)`` -- the ``(n, height, width, channels)`` array, and how many of its crops had to be padded or trimmed to fit.",
+      "source_sha256": "906e7c394f5f9dfe93cd460e5ddf688ce6fc50b9499a27c59878fca43a6ba4fa",
+      "context": "``(page, conformed)`` -- the ``(n, height, width, channels)`` array, and how many of its extracted image regions had to be padded or trimmed to fit.",
+      "translation": "``(page, conformed)`` -- arrayen ``(n, height, width, channels)``, och hur många av dess utsnitt som måste fyllas ut eller beskäras för att passa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#6",
+      "source": "a crop could not be read, or came back with a different number of channels than the page's template -- which is a real difference between two crops and is not silently padded away.",
+      "source_sha256": "c0240e4633845e204c36bcaa1b898500cb9afe33f21bf7451334e85f60f43f29",
+      "context": "an extracted image region could not be read, or came back with a different number of channels than the page's template -- which is a real difference between two extracted image regions and is not silently padded away.",
+      "translation": "ett utsnitt kunde inte läsas, eller kom tillbaka med ett annat antal kanaler än sidans mall -- vilket är en verklig skillnad mellan två utsnitt och inte fylls ut i tysthet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#0",
+      "source": "Which object classes this database actually has crops for.",
+      "source_sha256": "e7155a44166f94540889ed55468eada039382cd5d9d83e7e056e11970336e90c",
+      "context": "Which object classes this database actually has extracted image regions for.",
+      "translation": "Vilka objektklasser den här databasen faktiskt har utsnitt för.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#1",
+      "source": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
+      "source_sha256": "d93cdcaa6d1a917bb9a1223dfe5ee870266c36a8d358082f51d556eaf0034020",
+      "context": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
+      "translation": "En klass erbjuds endast när dess id-kolumn finns OCH innehåller minst ett värde, eftersom en ``png_list`` skriven för celler har en tom ``nucleus_id``-kolumn i vissa scheman, och att erbjuda den skulle lägga ett val i panelen som bara någonsin kan returnera ingenting.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#2",
+      "source": "the ``measurements.db``.",
+      "source_sha256": "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+      "context": "the ``measurements.db``.",
+      "translation": "``measurements.db``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#3",
+      "source": "the crop table; ``'png_list'``.",
+      "source_sha256": "0f0ba0c1c3d7407963e0cf78a3b0d4477de70924487935d6cd8d01bd26cfbef2",
+      "context": "the extracted-image-region table; ``'png_list'``.",
+      "translation": "utsnittstabellen; ``'png_list'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#4",
+      "source": "class names in :data:`spacr.png_list.PNG_LIST_ID_COLUMNS` order. Empty when the database has no crop table.",
+      "source_sha256": "686737cd5a6b1f8a8f953b25d2d1c0b33fe1ed09ff815c55392323aab1ad5665",
+      "context": "class names in :data:`spacr.png_list.PNG_LIST_ID_COLUMNS` order. Empty when the database has no extracted-image-region table.",
+      "translation": "klassnamn i ordningen enligt :data:`spacr.png_list.PNG_LIST_ID_COLUMNS`. Tom när databasen inte har någon utsnittstabell.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_crops#0",
+      "source": "Answer ``query`` without reading a pixel.",
+      "source_sha256": "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
+      "context": "Answer ``query`` without reading a pixel.",
+      "translation": "Besvara ``query`` utan att läsa en enda pixel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_crops#1",
+      "source": "what to select.",
+      "source_sha256": "e10afc171ccd4b6a99f6ef473975336d77e96c9c1145a527be4208bf23637226",
+      "context": "what to select.",
+      "translation": "vad som ska väljas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_crops#2",
+      "source": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
+      "source_sha256": "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
+      "context": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
+      "translation": "en :class:`CropPlan`. Kontrollera :attr:`CropPlan.is_empty` före inläsningen -- en tom plan är ett svar, inte ett misslyckande, och den bär meningen som förklarar den.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_crops#3",
+      "source": "an unknown source, or a path that is not there.",
+      "source_sha256": "b4b9bfc5694f92f5864f2207447a673d827daead8d3973c5834b3c8f01a16d92",
+      "context": "an unknown source, or a path that is not there.",
+      "translation": "en okänd källa, eller en sökväg som inte finns.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#0",
+      "source": "Choose crops out of a ``measurements.db``, reading no pixels.",
+      "source_sha256": "e708900911e0f41204e959544c6f2d3c53d108a547b0b1fa0834a92904162492",
+      "context": "Choose extracted image regions out of a ``measurements.db``, reading no pixels.",
+      "translation": "Välj utsnitt ur en ``measurements.db`` utan att läsa några pixlar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#1",
+      "source": "The rows come back carrying ``png_path`` -- what :class:`spacr.crops.PngCropSource` reads -- and, through :func:`spacr.png_list.crop_rows_from_png_list`, ``path_name`` and an integer ``object_label``, which is what :class:`spacr.crops.MergedCropSource` needs. So the plan is good for whichever route :func:`spacr.crops.resolve_crop_source` picks, and the route is picked here, once, rather than per crop.",
+      "source_sha256": "75a8c9c005a85cda5470627e586c7833b521f5e471cb09326d4567bf903d17d8",
+      "context": "The rows come back carrying ``png_path`` -- what :class:`spacr.crops.PngCropSource` reads -- and, through :func:`spacr.png_list.crop_rows_from_png_list`, ``path_name`` and an integer ``object_label``, which is what :class:`spacr.crops.MergedCropSource` needs. So the plan is good for whichever route :func:`spacr.crops.resolve_crop_source` picks, and the route is picked here, once, rather than per extracted image region.",
+      "translation": "Raderna kommer tillbaka med ``png_path`` -- det som :class:`spacr.crops.PngCropSource` läser -- och, via :func:`spacr.png_list.crop_rows_from_png_list`, ``path_name`` och en heltals-``object_label``, vilket är vad :class:`spacr.crops.MergedCropSource` behöver. Planen duger alltså för vilken väg :func:`spacr.crops.resolve_crop_source` än väljer, och vägen väljs här, en gång, i stället för per utsnitt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#2",
+      "source": "what to select. ``query.source`` is not re-checked.",
+      "source_sha256": "5239f931b08b5b2701695521a9118f27800cb65f9d5e23c13b3828fcb7ecbdbe",
+      "context": "what to select. ``query.source`` is not re-checked.",
+      "translation": "vad som ska väljas. ``query.source`` kontrolleras inte igen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#3",
+      "source": "a :class:`CropPlan`, possibly an empty one carrying :attr:`CropPlan.empty_reason`.",
+      "source_sha256": "23fda222011167b529de1eacf25bade8196f0b39b67a214506f38cc772af509d",
+      "context": "a :class:`CropPlan`, possibly an empty one carrying :attr:`CropPlan.empty_reason`.",
+      "translation": "en :class:`CropPlan`, eventuellt en tom som bär :attr:`CropPlan.empty_reason`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#4",
+      "source": "the database is missing, has no crop table, or refused the selection.",
+      "source_sha256": "720266e22fdf6e3ac86f01209ab17d03acf641a8ef534727df7bbbeecd7a471d",
+      "context": "the database is missing, has no extracted-image-region table, or refused the selection.",
+      "translation": "databasen saknas, har ingen utsnittstabell eller vägrade urvalet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_folder#0",
+      "source": "Choose crops out of a folder of ``*.png``, reading no pixels.",
+      "source_sha256": "c69672ecdbfb1157dc0da98e66a7b34a156c9bf7309a9556cbe0fb26558a467e",
+      "context": "Choose extracted image regions out of a folder of ``*.png``, reading no pixels.",
+      "translation": "Välj utsnitt ur en mapp med ``*.png`` utan att läsa några pixlar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_folder#1",
+      "source": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
+      "source_sha256": "46d6502567fd73dd3c51c1f5e1439cfef8d5279a35f91413eddf5ddc7fd6f476",
+      "context": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
+      "translation": "vad som ska väljas. Endast ``path`` och ``limit`` gäller: en mapp registrerar varken klass eller platta, och att säga det i :attr:`CropPlan.source_label` är bättre än att filtrera på en filnamnskonvention som ingen körning garanterar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_folder#3",
+      "source": "no folder was chosen, or it is not a directory.",
+      "source_sha256": "de6e6a1912cee21e2fa6a73bf3f9308020a409ce4f9f0f2c4ea48d1959dc4cd3",
+      "context": "no folder was chosen, or it is not a directory.",
+      "translation": "ingen mapp valdes, eller så är den inte en katalog.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plates#0",
+      "source": "Every plate the crop table names, sorted.",
+      "source_sha256": "1e903f865a91ef21f1e1f5c89e057b3cd2feef07c0ca52e6b87415d4aa37416e",
+      "context": "Every plate the extracted-image-region table names, sorted.",
+      "translation": "Varje platta som utsnittstabellen namnger, sorterade.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.plates#3",
+      "source": "plate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before plate keys existed reads rather than an error.",
+      "source_sha256": "1d3d2b4ee16c630697b2c277204f7ea8ab39e1dbf7bdb24780522e92d571ec49",
+      "context": "laboratory microplate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before laboratory microplate structured-data names existed reads rather than an error.",
+      "translation": "plattidentifierare som strängar. Tom när tabellen saknar kolumnen ``plateID``, vilket är hur en databas som skrevs innan plattnycklar fanns läses, snarare än ett fel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.inapplicable_settings#3",
+      "source": "the crop source whose settings stay active; any spelling in :data:`CROP_SOURCE_ALIASES`, matched case-insensitively. An unknown source raises :class:`CropSourceError`.",
+      "source_sha256": "ca3fc42db81170c6cd9ea642d11a2c1c7a1db78d150de71930943214c3c88c6b",
+      "context": "the extracted-image-region source whose settings stay active; any spelling in :data:`CROP_SOURCE_ALIASES`, matched case-insensitively. An unknown source throws :class:`CropSourceError`.",
+      "translation": "den utsnittskälla vars inställningar förblir aktiva; valfri stavning i :data:`CROP_SOURCE_ALIASES`, matchad utan hänsyn till skiftläge. En okänd källa genererar :class:`CropSourceError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.mask_plane_for#2",
+      "source": "the object name (e.g. ``cell``, ``nucleus``); lower-cased and used to build the ``<name>_mask_dim`` setting key.",
+      "source_sha256": "608c9514bcd0639d1f821f734b6a837aa1440a3cb46c994136e61c59d47138e4",
+      "context": "the object name (e.g. ``cell``, ``nucleus``); lower-cased and used to build the ``<name>_mask_dim`` setting name.",
+      "translation": "objektnamnet (t.ex. ``cell``, ``nucleus``); omvandlas till gemener och används för att bygga inställningsnyckeln ``<name>_mask_dim``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.mask_plane_for#3",
+      "source": "the settings mapping the ``<name>_mask_dim`` plane index is read from.",
+      "source_sha256": "5631f7e9d3de7f393b00ddddf18d9d386f5d5631855bfae7873783883b107238",
+      "context": "the settings mapping the ``<name>_mask_dim`` image layer index is read from.",
+      "translation": "den inställningsmappning som planindexet ``<name>_mask_dim`` läses från.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.matches_path#2",
+      "source": "the crop's file path, tested as a string for the ``path_string`` substring and for its extension.",
+      "source_sha256": "1a19e0d37b8b66bf944d0dc1e24e629f282e1a5b29b51ea308c19cc729538b6a",
+      "context": "the extracted image region's file path, tested as a string for the ``path_string`` substring and for its extension.",
+      "translation": "utsnittets filsökväg, testad som sträng för delsträngen ``path_string`` och för sin filändelse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.normalise_extension#2",
+      "source": "an extension such as ``'.TIF'``, ``'tif'`` or ``'cell_png'`` (only the part after the last underscore is kept); empty or None gives ``''``.",
+      "source_sha256": "e7327d145e5da40ae37da2aae86cc97ce5de04a767a580c3eab113e8a65ee6da",
+      "context": "an extension such as ``'.TIF'``, ``'tif'`` or ``'cell_png'`` (only the part after the last underscore is kept); empty or None gives ``''``.",
+      "translation": "en filändelse som ``'.TIF'``, ``'tif'`` eller ``'cell_png'`` (endast delen efter det sista understrecket behålls); tom eller None ger ``''``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.object_bounds#2",
+      "source": "2-D label image holding the object.",
+      "source_sha256": "c5121309793dfad5f4322a19a35c321a8752ad1945243998651247c52a986c76",
+      "context": "2-D label image holding the object.",
+      "translation": "2-D-etikettbild som innehåller objektet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.object_bounds#3",
+      "source": "the label value of the object to bound.",
+      "source_sha256": "d908c04a19bfd316d8e039cc407d91dd8986f8c2b4eb590038172c4627f86427",
+      "context": "the label value of the object to bound.",
+      "translation": "etikettvärdet för objektet som ska avgränsas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.resolve_source#2",
+      "source": "the settings mapping; its ``crop_source`` value is looked up in :data:`CROP_SOURCE_ALIASES`, and an empty value means ``png``.",
+      "source_sha256": "4df20642c9e499cf8905ffee7ad277a6f6b3d3c7c670362fda963ec7ecbd7568",
+      "context": "the settings mapping; its ``crop_source`` value is looked up in :data:`CROP_SOURCE_ALIASES`, and an empty value means ``png``.",
+      "translation": "inställningsmappningen; dess värde för ``crop_source`` slås upp i :data:`CROP_SOURCE_ALIASES`, och ett tomt värde betyder ``png``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.select_crops#1",
+      "source": "candidate crop file paths.",
+      "source_sha256": "62a2dae1a1706731e5b876fdfbe4017718f69ccbe74f1f03a216509494aaee97",
+      "context": "candidate extracted-image-region file paths.",
+      "translation": "kandidatsökvägar till utsnittsfiler.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.select_crops#2",
+      "source": "the settings mapping; ``path_string`` (or, failing that, ``png_type``) and ``file_type`` are passed to :func:`matches_path`.",
+      "source_sha256": "e9c9d1fbe911cb27e80f5e8d1a92b6fd9b32375bf01f885f3ec950399514c6f6",
+      "context": "the settings mapping; ``path_string`` (or, failing that, ``png_type``) and ``file_type`` are passed to :func:`matches_path`.",
+      "translation": "inställningsmappningen; ``path_string`` (eller, om den saknas, ``png_type``) och ``file_type`` skickas till :func:`matches_path`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.stream_planes#2",
+      "source": "the settings mapping; ``channel_arrays`` is read first, then ``extract_channels``.",
+      "source_sha256": "f918692ffae791c42553f2fbcc2cb16b6ceba385870f420c15bd7de0b4d6c8f0",
+      "context": "the settings mapping; ``channel_arrays`` is read first, then ``extract_channels``.",
+      "translation": "inställningsmappningen; ``channel_arrays`` läses först, sedan ``extract_channels``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_source.validate#2",
+      "source": "the training settings mapping to check: the crop source, plus ``file_type`` for ``png`` or the plane, crop-shape, coordinate and mask settings for a streamed source.",
+      "source_sha256": "868696dfa1b6d7168b53e92ca95cdac0a82a46ec70580db9b164286d0c587d77",
+      "context": "the training settings mapping to check: the extracted-image-region source, plus ``file_type`` for ``png`` or the plane, extracted image region-shape, coordinate and mask settings for a streamed source.",
+      "translation": "mappningen av träningsinställningar som ska kontrolleras: utsnittskällan, plus ``file_type`` för ``png``, eller inställningarna för plan, utsnittsform, koordinater och mask för en strömmad källa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#0",
+      "source": "Decode a PIL crop without clipping its high-bit-depth intensities.",
+      "source_sha256": "0c36361a423694c6142eca8d2ab7cabb8d9c21744114fa5edd0ef3bfadbce785",
+      "context": "Decode a PIL extracted image region without clipping its high-bit-depth intensities.",
+      "translation": "Avkoda ett PIL-utsnitt utan att klippa dess intensiteter med hög bitdjup.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#1",
+      "source": "open PIL image; owned and closed by the caller.",
+      "source_sha256": "8c32e2916963d1e090c944f3c7555f8a14dae95ad3ac1df3eb435c4e6babe153",
+      "context": "open PIL image; owned and closed by the caller.",
+      "translation": "öppen PIL-bild; ägs och stängs av anroparen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#2",
+      "source": "source crop format, including an archive member's marker.",
+      "source_sha256": "c208acfce05efdf0e5f2e018f54e4910430a6ac78b5df1f22c2803250f1f0979",
+      "context": "source image-region format, including an archive member's marker.",
+      "translation": "källformat för utsnittet, inklusive en arkivmedlems markör.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#3",
+      "source": "requested channel ordering, normally declared format 3.",
+      "source_sha256": "8607cc6fed89823bf8377ca63b148268f0941b58b12201abdc8f6d7b43c9ddbb",
+      "context": "requested channel ordering, normally declared format 3.",
+      "translation": "begärd kanalordning, normalt det deklarerade formatet 3.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#4",
+      "source": "apply EXIF orientation before decoding, for classification.",
+      "source_sha256": "b81e211a1c15e7a7df043eed618e160623f42065ea7b9c5e714acd3120b348b1",
+      "context": "apply EXIF orientation before decoding, for classification.",
+      "translation": "tillämpa EXIF-orientering före avkodning, för klassificering.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#5",
+      "source": "contiguous, independently owned HWC RGB uint8 array.",
+      "source_sha256": "a5f2939c63a3d7698b3561d069e96508b41e48e3626f5880de49f9142f958be3",
+      "context": "contiguous, independently owned HWC RGB uint8 array.",
+      "translation": "sammanhängande, oberoende ägd HWC RGB uint8-array.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#6",
+      "source": "either format is unsupported.",
+      "source_sha256": "a3e25cb6b0ac652705f409502f14478966b600bd50f2b47d2b5007c3155f2468",
+      "context": "either format is unsupported.",
+      "translation": "något av formaten stöds inte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder#10",
+      "source": "``'rewrite'`` or ``'mark'``.",
+      "source_sha256": "2ce6fac10143da65163a30aea42d894a59b8876fe8f99d87002e2efb7c690daa",
+      "context": "``'rewrite'`` or ``'mark'``.",
+      "translation": "``'rewrite'`` eller ``'mark'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.quiet_crop_paths#0",
+      "source": "Silence the per-crop announcements on the CALLING THREAD only.",
+      "source_sha256": "7c28ef4f9c5cbdd75cbba7b6148883504b0cd0093da213bb96a93fa014f83455",
+      "context": "Silence the per extracted image region announcements on the calling thread only.",
+      "translation": "Tysta meddelandena per utsnitt ENDAST I DEN ANROPANDE TRÅDEN.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.quiet_crop_paths#1",
+      "source": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader running at the same time -- in the app, for whichever screen is reading crops in another thread, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing crop there reads as a silent success until the bulk read finishes and puts the flag back.",
+      "source_sha256": "2d5decfb542b4e3d350d17a66e5bd4bc662e5c6124ef53672d2901eab7f90e66",
+      "context": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader executing at the same time -- in the app, for whichever screen is reading extracted image regions in another independent execution path, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing extracted image region there reads as a silent success until the bulk read finishes and puts the flag back.",
+      "translation": ":data:`PRINT_CROP_PATHS` är en enda brytare för hela processen, så en massläsare som stänger av den runt sitt eget arbete stänger av den för alla andra läsare som körs samtidigt -- i appen, för den programvy som läser utsnitt i en annan tråd, som då förlorar raden ``<- NOT ON DISK`` som är det enda skälet till att flaggan som standard är på. Ett saknat utsnitt där ser då ut som en tyst framgång tills massläsningen är klar och återställer flaggan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.quiet_crop_paths#2",
+      "source": "So a reader that wants quiet asks for quiet here instead: the suppression is thread-local, the global flag is left exactly as it was, and a concurrent reader on another thread keeps its diagnostics.",
+      "source_sha256": "15f432b32190fc4e729f53637ba9a4408cd55fd63e537191d256f3d92694129c",
+      "context": "So a reader that wants quiet asks for quiet here instead: the suppression is execution-path-local, the global flag is left exactly as it was, and a concurrent reader on another independent execution path keeps its diagnostics.",
+      "translation": "En läsare som vill ha tystnad ber alltså om tystnad här i stället: undertryckningen är trådlokal, den globala flaggan lämnas exakt som den var, och en samtidig läsare i en annan tråd behåller sin diagnostik.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.quiet_crop_paths#3",
+      "source": "a context manager. Restores the previous state on the way out, including when the body raises, and nests.",
+      "source_sha256": "595d3451d4d0d167df8ba35b71fd030af5876b5be3b4892f62d0d7f450bc9620",
+      "context": "a context manager. Restores the previous state on the way out, including when the body raises, and nests.",
+      "translation": "en kontexthanterare. Återställer det tidigare tillståndet på vägen ut, även när kroppen genererar ett undantag, och kan nästlas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.read_crop_png#5",
+      "source": "what ordering you want *back*. The default is the declared one. Formats 1 and 3 share this order; format 2 requests the intermediate reversed order. Classification also needs its recorded intensity-decoding policy, handled by :mod:`spacr.classification_pixels`.",
+      "source_sha256": "fc52f4b592f1add8dd9dd33257d5c51300d8493bb2d31cb54dbc9e024a474db9",
+      "context": "what ordering you want *back*. The default is the declared one. Formats 1 and 3 share this order; format 2 requests the intermediate reversed order. Classification also needs its recorded intensity-decoding policy, handled by :mod:`spacr.classification_pixels`.",
+      "translation": "vilken ordning du vill få *tillbaka*. Standard är den deklarerade. Format 1 och 3 delar den här ordningen; format 2 begär den mellanliggande omvända ordningen. Klassificering behöver också sin registrerade policy för intensitetsavkodning, som hanteras av :mod:`spacr.classification_pixels`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.read_merged_plane_layout#2",
+      "source": "a merged folder, or a ``.npy`` file inside one (its parent folder is used); the ``.spacr_plane_layout.json`` sidecar is read from that folder.",
+      "source_sha256": "549332f06bbc41cfd266b20b9a729dfe67de61eb13bb05340387abefff415b13",
+      "context": "a merged folder, or a ``.npy`` file inside one (its parent folder is used); the ``.spacr_plane_layout.json`` sidecar is read from that folder.",
+      "translation": "en sammanslagen mapp, eller en ``.npy``-fil i en sådan (dess överordnade mapp används); sidofilen ``.spacr_plane_layout.json`` läses från den mappen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.reconcile_merged_mask_dims#2",
+      "source": "Every organelle slot the manifest records gets its plane, and every slot ``settings`` carries is set to the manifest's answer. A slot that neither names is left out of the copy rather than set to ``None``. The cell, nucleus and pathogen keys are always set, so a plane the manifest does not record is switched off.",
+      "source_sha256": "52deb80d95b0c20520dbe2a029ad6a4248144df9adf3bbcacc04982a4d45e546",
+      "context": "Every organelle slot the manifest records gets its image layer, and every slot ``settings`` carries is set to the manifest's answer. A slot that neither names is left out of the copy rather than set to ``None``. The cell, nucleus and pathogen structured-data names are always set, so an image layer the manifest does not record is switched off.",
+      "translation": "Varje organellplats som manifestet registrerar får sitt plan, och varje plats som ``settings`` har sätts till manifestets svar. En plats som ingen av dem namnger utelämnas ur kopian i stället för att sättas till ``None``. Nycklarna för cell, kärna och patogen sätts alltid, så ett plan som manifestet inte registrerar stängs av.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.reconcile_merged_mask_dims#3",
+      "source": "the run settings; its ``<role>_mask_dim`` keys are read and a copy with those keys reconciled is returned (the mapping itself is not modified).",
+      "source_sha256": "036a33790fda44bf4134e48a5e9937e6e918613a3a546386b8bc6611effe9a47",
+      "context": "the processing-session settings; its ``<role>_mask_dim`` structured-data names are read and a copy with those structured-data names reconciled is returned (the mapping itself is not modified).",
+      "translation": "körningsinställningarna; deras ``<role>_mask_dim``-nycklar läses och en kopia med de nycklarna avstämda returneras (själva mappningen ändras inte).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.reconcile_merged_mask_dims#4",
+      "source": "the merged folder whose plane-layout manifest is applied.",
+      "source_sha256": "299376ba90c44e0ad0928a338c9a4aa37657c391dd5b380749f3ad1ee93090e0",
+      "context": "the merged folder whose image layer-layout manifest is applied.",
+      "translation": "den sammanslagna mapp vars manifest för planlayout tillämpas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.reconcile_merged_mask_dims#5",
+      "source": "settings keys the caller supplied explicitly; a non-``None`` value under one of these that disagrees with the manifest raises ``PlaneLayoutConflict``.",
+      "source_sha256": "5854c02f3af7e0cbe507eb14fc9535121f6761aa045cf386ee303565623bce63",
+      "context": "setting names the caller supplied explicitly; a non-``None`` value under one of these that disagrees with the manifest raises ``PlaneLayoutConflict``.",
+      "translation": "inställningsnycklar som anroparen angav uttryckligen; ett värde som inte är ``None`` under någon av dem och som inte stämmer med manifestet genererar ``PlaneLayoutConflict``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.say_crop_paths#0",
+      "source": "Turn the per-crop path printing on or off, for the whole process.",
+      "source_sha256": "1b17bf3ea8c9b0ca6b6fa79ca23f79b6892f1897c127f5a6d0089362b2a66b8b",
+      "context": "Turn the per extracted image region path printing on or off, for the whole process.",
+      "translation": "Slå på eller av utskriften av sökvägar per utsnitt, för hela processen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue#0",
+      "source": "A curation session is a queue with a memory, not one field.",
+      "source_sha256": "574adf1c2af156173cdc04cfa14dcd78263b8e69cfa829dbd0e3a8c0d54e09e8",
+      "context": "A curation session is a work list with a memory, not one field.",
+      "translation": "En kurateringssession är en kö med ett minne, inte ett enskilt synfält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue#1",
+      "source": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
+      "source_sha256": "f08654017bb002c7e1b24f54ab252e691fae9f380f64007960025997e3dbf7bb",
+      "context": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
+      "translation": "Make Masks är den bättre redigeraren och det specialbyggda verktyget utanför repositoriet är det bättre arbetsflödet, och ingen av dem är båda. Den här modulen är arbetsflödeshalvan, inflyttad i spaCR: vilka synfält som väntar, i vilken ordning de ska erbjudas, hur många som ska erbjudas innan sessionen slutar, och vad som redan har beslutats om vart och ett.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue#4",
+      "source": "The layout mismatch is the thing to settle first: silently assuming one layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected",
+      "source_sha256": "e3fe8dd55a40465988109da7de8da3cbecacb06fea7f81d0c28a2c562359e782",
+      "context": "The layout mismatch is the thing to settle first: silently assuming one layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected",
+      "translation": "Layoutskillnaden är det som ska redas ut först: att i tysthet anta en layout är hur en mapp full av arbete läses in som tom. Därför accepteras alla tre, och den som ligger framför oss detekteras",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue#5",
+      "source": "Accepting all three is safer than picking a winner. An existing curation set opens unconverted, so nothing has to be moved before work can start -- and the EDITOR takes all three too, reading and saving each where it lies (:mod:`spacr.qt.mask_engine` says how).",
+      "source_sha256": "3ffb139150b72f77e1a1cafa84bfbc14b59887886714a32cf4fd4b164e6cc2f4",
+      "context": "Accepting all three is safer than picking a winner. An existing curation set opens unconverted, so nothing has to be moved before work can start -- and the EDITOR takes all three too, reading and saving each where it lies (:mod:`spacr.qt.mask_engine` says how).",
+      "translation": "Att acceptera alla tre är säkrare än att utse en vinnare. En befintlig kurateringsuppsättning öppnas okonverterad, så ingenting behöver flyttas innan arbetet kan börja -- och REDIGERAREN tar också alla tre, och läser och sparar var och en där den ligger (:mod:`spacr.qt.mask_engine` beskriver hur).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue#9",
+      "source": "The record lives at ``<folder>/curate_status.csv``, inside the queue folder rather than beside it, so it syncs with the images and a session resumes on the other machine. A row about a stem that is not in this folder is kept on rewrite for exactly that reason: the curator may be resuming somewhere the rest of the set has not arrived yet, and dropping those rows would hand back work already done. A folder with no record of its own but with the external tool's ``<parent>/<name>_status.csv`` beside it resumes from that one and writes back to it (:func:`status_path`), so a set curated half in each tool keeps one record.",
+      "source_sha256": "f0224749dc63fa4b083480f188a201087274f9c7b70b8bcdd10b1463d16bf2e8",
+      "context": "The record lives at ``<folder>/curate_status.csv``, inside the work list folder rather than beside it, so it syncs with the images and a session resumes on the other machine. A row about a stem that is not in this folder is kept on rewrite for exactly that reason: the curator may be resuming somewhere the rest of the set has not arrived yet, and dropping those rows would hand back work already done. A folder with no record of its own but with the external tool's ``<parent>/<name>_status.csv`` beside it resumes from that one and writes back to it (:func:`status_path`), so a set curated half in each tool keeps one record.",
+      "translation": "Posten ligger i ``<folder>/curate_status.csv``, inne i kömappen i stället för bredvid den, så att den synkroniseras med bilderna och en session kan återupptas på den andra maskinen. En rad om en filnamnsstam som inte finns i den här mappen behålls vid omskrivning av exakt det skälet: kuratorn kan återuppta någonstans dit resten av uppsättningen ännu inte har kommit, och att släppa de raderna skulle lämna tillbaka arbete som redan är gjort. En mapp utan egen post men med det externa verktygets ``<parent>/<name>_status.csv`` bredvid sig återupptas från den och skriver tillbaka till den (:func:`status_path`), så att en uppsättning som kurerats till hälften i vardera verktyget behåller en enda post.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.CurationQueue#8",
+      "source": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the queue is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
+      "source_sha256": "115cf3e21dd39328e311520f468ada15037517f4f69902310b9fe4d0adc92dee",
+      "context": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the work list is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
+      "translation": "vad kuratorn bör veta före det första synfältet -- en ``prob``- eller ``easy``-ordning utan poängfil, eller med synfält som poängfilen inte namnger, och en återupptagningspost som är det externa verktygets fil bredvid mappen, som varje sparning sedan skriver till. Skrivs ut när kön byggs och visas med den av redigeraren, eftersom en ordning som i tysthet blev en annan, eller en sparning som i tysthet hamnar utanför den mapp som öppnades, är det fel som den här modulen är mest noga med.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.CurationQueue.order_phrase#0",
+      "source": "``sorted by <order>``, naming the order that was asked",
+      "source_sha256": "0bd1fb6521e921fda11849ace65b0be12cebe09756ff58d3dcd93915c68c8fff",
+      "context": "``sorted by <order>``, naming the order that was asked",
+      "translation": "``sorted by <order>``, som namnger den ordning som efterfrågades",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.CurationQueue.order_phrase#1",
+      "source": "for too whenever it is not the one that was used.",
+      "source_sha256": "bb4161cd1b22e754fc9625f6c5b76a85be681bb37f4c96536fc61226c692e5d7",
+      "context": "for too whenever it is not the one that was used.",
+      "translation": "också, närhelst den inte är den som användes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.QueueLayout.status_path#0",
+      "source": "where this queue's resume record is read and written:",
+      "source_sha256": "5b998d4fb7e730a4cc7d2b17d77bd623be35e1f175ca5755270066ab3aa2e0fd",
+      "context": "where this work list's resume record is read and written:",
+      "translation": "var den här köns återupptagningspost läses och skrivs:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.QueueLayout.status_path#1",
+      "source": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
+      "source_sha256": "b677be671969ec54c55905633ebd991a39cbfae8a4becae785cfe9f2ee5833e4",
+      "context": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
+      "translation": "``<folder>/curate_status.csv``, eller det externa kurateringsverktygets ``<parent>/<name>_status.csv`` bredvid mappen när det är den posten mappen har. :func:`status_path` avgör.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.QueueSummary#0",
+      "source": "What is left to do in a curation session.",
+      "source_sha256": "5881e9a16c16af52f601701196ec3693966840fa16a98bc76bdec042927454ac",
+      "context": "What is left to do in a curation session.",
+      "translation": "Vad som återstår att göra i en kurateringssession.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.build_queue#2",
+      "source": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the queue as :attr:`CurationQueue.notices` for the editor to show.",
+      "source_sha256": "b0b8528a818d3986b5fab0bdc9cb878b44d0052fb24179a4ff6f8534e9203c93",
+      "context": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the work list as :attr:`CurationQueue.notices` for the editor to show.",
+      "translation": "Sannolikheter läses bara för de ordningar som använder dem, så ``name`` och ``value`` läser ingen poängfil alls. För ``prob`` och ``easy`` är avsaknaden av poäng aldrig tyst: utan poängfil faller ordningen tillbaka till ``value`` och säger det, och namnger båda platserna den letade på; en poängfil som lämnar några väntande synfält utan poäng anger hur många; och varifrån poängen kom skrivs ut. De varningarna, och den som säger att förloppet skrivs tillbaka till det externa verktygets post bredvid mappen, sparas på kön som :attr:`CurationQueue.notices` för redigeraren att visa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.external_record#0",
+      "source": "Where the external curation tool keeps one of a queue's files.",
+      "source_sha256": "c0858e11ed71fae1d06a94c23670a4b31b4a40c4121f8040b387a513123bfab8",
+      "context": "Where the external curation tool keeps one of a work list's files.",
+      "translation": "Var det externa kurateringsverktyget förvarar en av köns filer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.external_record#1",
+      "source": "the queue folder.",
+      "source_sha256": "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+      "context": "the work list folder.",
+      "translation": "kömappen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.external_record#2",
+      "source": ":data:`EXTERNAL_STATUS_SUFFIX` or :data:`EXTERNAL_SCORES_SUFFIX`.",
+      "source_sha256": "afd2263f9e1e9a04c1c98815c19ae8d7901cd249a445e0e5db9a3d0b935824c3",
+      "context": ":data:`EXTERNAL_STATUS_SUFFIX` or :data:`EXTERNAL_SCORES_SUFFIX`.",
+      "translation": ":data:`EXTERNAL_STATUS_SUFFIX` eller :data:`EXTERNAL_SCORES_SUFFIX`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.external_record#3",
+      "source": "``<parent>/<name><suffix>``, beside the queue folder rather than in it. The folder is made absolute first, without touching the disk, so ``.`` has a name to put in front of the suffix.",
+      "source_sha256": "308b928276a7a6d63062888e47e191bad6e4dfec90b33c9e021d179db9ad141e",
+      "context": "``<parent>/<name><suffix>``, beside the work list folder rather than in it. The folder is made absolute first, without touching the disk, so ``.`` has a name to put in front of the suffix.",
+      "translation": "``<parent>/<name><suffix>``, bredvid kömappen i stället för i den. Mappen görs först absolut, utan att röra disken, så att ``.`` har ett namn att sätta framför suffixet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.load_draft_counts#2",
+      "source": "SO AN UNREADABLE CACHE IS RECOUNTED, NEVER RAISED. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
+      "source_sha256": "5e7c3c18e4fd57b77cf6e15871d910e92d2bacb4d505f20aef6160123cb43765",
+      "context": "So an unreadable cache is recounted, never reported as an error. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
+      "translation": "EN OLÄSBAR CACHE RÄKNAS DÄRFÖR OM OCH GENERERAR ALDRIG ETT UNDANTAG. En fil som trunkerats av en krasch mitt under skrivning är inte giltig UTF-8, och att släppa ut det skulle fälla hela sessionen på grund av en optimering -- utkasten finns på disken och är sanningen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.load_probabilities#0",
+      "source": "Read the queue's scores file, when there is one.",
+      "source_sha256": "d4c352596b7be35ec0f4dd33b20839402b1cfcf47496b983c9d875ace2b58cc6",
+      "context": "Read the work list's scores file, when there is one.",
+      "translation": "Läs köns poängfil, när en sådan finns.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.load_probabilities#2",
+      "source": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
+      "source_sha256": "9d9b86d24499b2a7c6559417a1af6ae7966cfe69cd9932ac8f1c14bfe9f3b9d2",
+      "context": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
+      "translation": "``{stem: probability}``, och ``{}`` när det inte finns någon poängfil (se :func:`scores_path`) -- vilket är det som får ``prob`` och ``easy`` att falla tillbaka, högljutt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.load_probabilities#3",
+      "source": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
+      "source_sha256": "e676006d686e08d3ef2f4ece65c95eac2152ea0a14bcbde2631a1da95dac3028",
+      "context": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
+      "translation": "när ``curate_scores.csv`` finns men saknar stamkolumn eller en igenkänd sannolikhetskolumn. En poängfil som finns men inte kan användas är ett misstag värt att stanna för; en saknad är ett vanligt tillstånd.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.scores_path#0",
+      "source": "Where this queue's probabilities are read from, if anywhere.",
+      "source_sha256": "bd72668396ebaa479cdebfb9ad69a2c150c52f5b0d790f2595cef4fb1b459312",
+      "context": "Where this work list's probabilities are read from, if anywhere.",
+      "translation": "Varifrån den här köns sannolikheter läses, om någonstans.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.scores_path#1",
+      "source": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
+      "source_sha256": "20ef1f8bb91368c0ca4075a90fd17021aa4b14afdb330e05ff49c96ab81e0b34",
+      "context": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
+      "translation": "``<folder>/curate_scores.csv`` först; annars det externa kurateringsverktygets ``<parent>/<name>_scores.csv`` när dess rubrikrad har en ``stem``-kolumn och en sannolikhetskolumn, vilket är hur plackprojektets poäng skrivs. En fil bredvid mappen som inte ser ut som poäng är ingen poängfil och förbigås i stället för att tillåtas stoppa sessionen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.scores_path#3",
+      "source": "the scores file, or ``None`` when there is none.",
+      "source_sha256": "de78a6fa2c90c41c1c3272eccd7a1a02fe075e7982c24b8d5853d4f351350163",
+      "context": "the scores file, or ``None`` when there is none.",
+      "translation": "poängfilen, eller ``None`` när det inte finns någon.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.status_path#0",
+      "source": "Where this queue's resume record is read from and written to.",
+      "source_sha256": "d8d6d0dbca7c39bb59107144c0af0943ab2c9bcd7592745aa8a2f697b6ec36e1",
+      "context": "Where this work list's resume record is read from and written to.",
+      "translation": "Varifrån den här köns återupptagningspost läses och vart den skrivs.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.status_path#1",
+      "source": "``<folder>/curate_status.csv``, inside the queue folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every field already done or skipped as undone while the other tool went on reading the first.",
+      "source_sha256": "b3dd21bf4e574c0b58ff302f7e0ac5fa07a53c23f66a0a7f8b17e08b35c3c45c",
+      "context": "``<folder>/curate_status.csv``, inside the work list folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every microscope field of view already done or skipped as undone while the other tool went on reading the first.",
+      "translation": "``<folder>/curate_status.csv``, inne i kömappen så att den följer med bilderna när uppsättningen synkroniseras mellan maskiner -- UTOM när mappen saknar en sådan och det externa kurateringsverktygets post, ``<parent>/<name>_status.csv``, ligger bredvid den med kolumnerna ``stem`` och ``state``. Den posten är då DEN posten, som läses och skrivs tillbaka på plats: de uppsättningar som verktyget kurerade behåller sitt förlopp där och ingenting inne i mappen, och att starta en andra fil skulle öppna varje synfält som redan gjorts eller hoppats över som ogjort igen, medan det andra verktyget fortsatte att läsa den första.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
