@@ -1,0 +1,2504 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.FrameSequence#5",
+      "source": "``\"files\"``, ``\"tiff\"`` or ``\"npy\"``.",
+      "source_sha256": "ac27ee718a8226ee56d5e3e04c2363f955e5bb4c123badf803eca43081a5e32a",
+      "context": "``\"files\"``, ``\"tiff\"`` or ``\"npy\"``.",
+      "translation": "``\"files\"``, ``\"tiff\"`` 또는 ``\"npy\"`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.FrameSequence.frame#1",
+      "source": "preview-frame position; outside ``0`` to ``len(indices) - 1`` raises :class:`IndexError`. Frames read are kept in a small cache.",
+      "source_sha256": "834b2cc3c4ec3a7617a355679727d91dfae8a94f1d7aa1763cd64c49525cf7df",
+      "context": "preview-frame position; outside ``0`` to ``len(indices) - 1`` raises :class:`IndexError`. Frames read are kept in a small cache.",
+      "translation": "미리 보기 프레임 위치입니다. ``0`` 에서 ``len(indices) - 1`` 범위를 벗어나면 :class:`IndexError` 가 발생합니다. 읽은 프레임은 작은 캐시에 보관됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.apply_settings#1",
+      "source": "the Timelapse settings; a copy is kept, and the linking mode, displacement, memory, object, transient filter and that object's channel, diameter and model are read from it.",
+      "source_sha256": "aa532dce05380bd3f2dc19d6e612f6207a9b8ad08c2a7961b832596dd9a33f4a",
+      "context": "the Timelapse settings; a copy is kept, and the linking mode, displacement, memory, object, transient filter and that object's channel, diameter and model are read from it.",
+      "translation": "Timelapse 설정입니다. 사본을 보관하며, 연결 모드, 변위, 메모리, 객체, 일시적 필터, 그리고 그 객체의 채널, 지름, 모델을 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.attach_movie_panel#2",
+      "source": "the movie panel; its ``max_fields_changed`` signal is connected and a previously attached panel is disconnected.",
+      "source_sha256": "9c80acbc4d52a268b47134c44e221278df7959747d6500819a5a2964e63134db",
+      "context": "the movie panel; its ``max_fields_changed`` signal is connected and a previously attached panel is disconnected.",
+      "translation": "동영상 패널입니다. 그 패널의 ``max_fields_changed`` 신호를 연결하고, 이전에 연결된 패널은 연결을 해제합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.closeEvent#2",
+      "source": "the close event; passed on to the base class after the workers finish (up to 5 s each).",
+      "source_sha256": "3914bc8567b60be449b115b1b034fce8fdfc0b3a7e5e014c378bc776ad7e7ae6",
+      "context": "the close event; passed on to the base class after the workers finish (up to 5 s each).",
+      "translation": "닫기 이벤트입니다. 작업자들이 끝난 뒤(각각 최대 5 s) 기본 클래스로 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_masks#2",
+      "source": "the label images: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "source_sha256": "254cc27a9e6de79a6d78f1844f6eb6ad4a1c7ec65e67f2cce99377e83a15c751",
+      "context": "the label images: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "translation": "레이블 이미지입니다: 프레임 디렉터리, 여러 페이지 TIFF, 또는 첫 번째 축이 시간인 ``.npy`` 스택.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_masks#3",
+      "source": "False, with the reason in the status line, when it cannot be opened.",
+      "source_sha256": "70664777721e24eac0333861cf08340b4f08d4e786d4fdd92170e07574dd41ee",
+      "context": "False, with the reason in the status line, when it cannot be opened.",
+      "translation": "열 수 없으면 False 이며, 그 이유는 상태 줄에 표시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_masks_async#3",
+      "source": "the label images: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time. ``None`` or empty submits nothing.",
+      "source_sha256": "5a6dade24c778ee7b98e2d8ed7c99abc63227d02a71242a73176c687eed50522",
+      "context": "the label images: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time. ``None`` or empty submits nothing.",
+      "translation": "레이블 이미지입니다: 프레임 디렉터리, 여러 페이지 TIFF, 또는 첫 번째 축이 시간인 ``.npy`` 스택. ``None`` 이거나 비어 있으면 아무것도 제출하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_sequence#2",
+      "source": "the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "source_sha256": "c0ba687aebbf9a18688fce9d3add7844b5e9d5ff5648345c3c6aa88178cd3302",
+      "context": "the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "translation": "이미지 시퀀스입니다: 프레임 디렉터리, 여러 페이지 TIFF, 또는 첫 번째 축이 시간인 ``.npy`` 스택.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_sequence_async#2",
+      "source": "the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time. ``None`` or empty submits nothing.",
+      "source_sha256": "784a4d628149fc5694b06961adcc1b0c9d7ddc6d390b031bcbe9e01e952964ab",
+      "context": "the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time. ``None`` or empty submits nothing.",
+      "translation": "이미지 시퀀스입니다: 프레임 디렉터리, 여러 페이지 TIFF, 또는 첫 번째 축이 시간인 ``.npy`` 스택. ``None`` 이거나 비어 있으면 아무것도 제출하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_sequence_async#3",
+      "source": "list the sibling fields next to ``path`` for the field dropdown; ``False`` reuses the cached listing.",
+      "source_sha256": "ee1b168bc6501a9411c46b61aa0fca872f21fdcbb8240d38d43105fc1a50f127",
+      "context": "list the sibling fields next to ``path`` for the field dropdown; ``False`` reuses the cached listing.",
+      "translation": "현미경 시야 드롭다운을 위해 ``path`` 옆에 있는 형제 현미경 시야를 나열합니다. ``False`` 이면 캐시된 목록을 재사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.set_propagate_callback#1",
+      "source": "the callable, or ``None`` to remove it.",
+      "source_sha256": "7352cd850bd0a12d0469ab3cb66ca55b215dfdfdc0e34a10e8001e5f78b511f8",
+      "context": "the callable, or ``None`` to remove it.",
+      "translation": "호출 가능 객체이며, ``None`` 이면 제거합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.showEvent#1",
+      "source": "the show event; passed on to the base class first.",
+      "source_sha256": "51633d83b83eeabbef0531f1b10673ffd91e298e05dcf3002a62d3f4eb842347",
+      "context": "the show event; passed on to the base class first.",
+      "translation": "표시 이벤트이며, 먼저 기본 클래스로 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.backend_available#2",
+      "source": "linking backend name, one of :data:`TRACK_MODES` (case-insensitive); ``iou`` needs no optional package.",
+      "source_sha256": "965a5ec27f0f6c660b12a1f82a16c600abfa207d4be46a483d8efd2c47eab260",
+      "context": "linking backend name, one of :data:`TRACK_MODES` (case-insensitive); ``iou`` needs no optional package.",
+      "translation": "연결 백엔드 이름으로, :data:`TRACK_MODES` 중 하나입니다(대소문자 구분 없음). ``iou`` 는 선택적 패키지가 필요하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#2",
+      "source": "the field to open: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "source_sha256": "9bacb1fb14b873d10fe2027adece0f0963b4a5e5fc8581cf4b8f0deaa140775f",
+      "context": "the field to open: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "translation": "열 현미경 시야입니다: 프레임 디렉터리, 여러 페이지 TIFF, 또는 첫 번째 축이 시간인 ``.npy`` 스택.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#3",
+      "source": "cap on the number of frames read.",
+      "source_sha256": "e3ec77b044d24bb283812a64d3a7aae1562cc09e99fb57ec9c7ca573a68934e2",
+      "context": "cap on the number of frames read.",
+      "translation": "읽을 프레임 수의 상한입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#4",
+      "source": "segmentation parameters, as :func:`segment_frame` takes them; its ``channel`` is also returned.",
+      "source_sha256": "29253a1775aa16ba06b0b4134ed85b2807c039feda88b6823c37e94d3d5259f8",
+      "context": "segmentation parameters, as :func:`segment_frame` takes them; its ``channel`` is also returned.",
+      "translation": ":func:`segment_frame` 이 받는 형식의 분할 매개변수이며, 그 ``channel`` 도 반환됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#5",
+      "source": "keyword arguments for :func:`link_tracks`.",
+      "source_sha256": "0141870d8e99dcc4e43b53b67c6f4c2abbbf7e6646f2854f4935ee6d1517abfc",
+      "context": "keyword arguments for :func:`link_tracks`.",
+      "translation": ":func:`link_tracks` 에 전달할 키워드 인수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#6",
+      "source": "an existing (T, H, W) label stack to reuse instead of segmenting; its frame count must match the sequence.",
+      "source_sha256": "2fdd8220f6bf106260e55804dedb775181b3d43076e5b2fe4b310dd01d2a29ca",
+      "context": "an existing (T, H, W) label stack to reuse instead of segmenting; its frame count must match the sequence.",
+      "translation": "분할 대신 재사용할 기존 (T, H, W) 레이블 스택입니다. 프레임 수가 시퀀스와 일치해야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#7",
+      "source": "a no-argument callable returning ``True`` to stop.",
+      "source_sha256": "346c9a4f77c98d7199467bccbc0be8ada354c46a394d947c609ff8bdf59dec51",
+      "context": "a no-argument callable returning ``True`` to stop.",
+      "translation": "중지하려면 ``True`` 를 반환하는 인수 없는 호출 가능 객체입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_timelapse_preview_card#3",
+      "source": "return ``None`` for the panel and leave the card empty, for :func:`_fill_timelapse_preview_card` to fill the first time it is shown -- how Mask carries this preview for its folded Timelapse switch without building ~130 widgets nobody has asked to see.",
+      "source_sha256": "9951446224bedff3e56715346dcb41f815807ab82efea8400705452cfcf5f2ea",
+      "context": "return ``None`` for the panel and leave the card empty, for :func:`_fill_timelapse_preview_card` to fill the first time it is shown -- how Mask carries this preview for its folded Timelapse switch without building ~130 widgets nobody has asked to see.",
+      "translation": "패널로 ``None`` 을 반환하고 카드를 비워 두어, 처음 표시될 때 :func:`_fill_timelapse_preview_card` 가 채우게 합니다 -- 아무도 보자고 하지 않은 위젯 약 130 개를 만들지 않고 Mask 가 접힌 Timelapse 스위치용 미리 보기를 담는 방식입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.frame_channel#2",
+      "source": "the frame array; a 2-D frame is returned as is and one with other than three dimensions is squeezed.",
+      "source_sha256": "cea2f5c5447df46fa898d9dcba05f75999ee0e43b97d5f0174a594e563a37b28",
+      "context": "the frame array; a 2-D frame is returned as is and one with other than three dimensions is squeezed.",
+      "translation": "프레임 배열입니다. 2-D 프레임은 그대로 반환되며, 삼차원이 아닌 프레임은 길이가 하나인 축이 제거됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.frame_channel#3",
+      "source": "the channel index to take (wrapped modulo the channel count on a channel-first frame).",
+      "source_sha256": "fff718694e62221fc1ecc7e7e9f65b249b0d16347200c2c28faa14e0b7deb572",
+      "context": "the channel index to take (wrapped modulo the channel count on a channel-first frame).",
+      "translation": "가져올 채널 인덱스입니다(채널 우선 프레임에서는 채널 수로 나눈 나머지로 순환).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#1",
+      "source": "label stack with at least two frames; any other shape raises :class:`ValueError`.",
+      "source_sha256": "26ffa4f7dda2882d9c11555769d204ff73550890106c17687b3fbbce1d317f1e",
+      "context": "label stack with at least two frames; any other shape raises :class:`ValueError`.",
+      "translation": "최소 두 프레임을 가진 레이블 스택입니다. 다른 형태이면 :class:`ValueError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#2",
+      "source": "linking backend, one of :data:`TRACK_MODES`.",
+      "source_sha256": "3f826f852480c7edf320b32c1b4183bd663b32c5d77d72e54d4ed9b77307a594",
+      "context": "linking backend, one of :data:`TRACK_MODES`.",
+      "translation": "연결 백엔드이며, :data:`TRACK_MODES` 중 하나입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#3",
+      "source": "maximum displacement between frames, in pixels, passed to the ``trackpy``, ``btrack`` and ``ultrack`` backends.",
+      "source_sha256": "0ffeae13c7a7cd1a6305b64d7e2e8a48e6de19c8eeabd21baf1dde441e7184e4",
+      "context": "maximum displacement between frames, in pixels, passed to the ``trackpy``, ``btrack`` and ``ultrack`` backends.",
+      "translation": "프레임 간 최대 변위(픽셀)이며, ``trackpy``, ``btrack``, ``ultrack`` 백엔드에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#4",
+      "source": "frames an object may vanish for (``trackpy`` only).",
+      "source_sha256": "246bb8df5dc458112647068e3e9f7bc886c50fc9be0627f8373675cb4c4443d9",
+      "context": "frames an object may vanish for (``trackpy`` only).",
+      "translation": "객체가 사라져 있을 수 있는 프레임 수입니다(``trackpy`` 전용).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#5",
+      "source": "minimum overlap to link (``iou`` only).",
+      "source_sha256": "3639b26ab867845a65f9c97c7c3c4e27b9de852a16c6fc8dd8a8050e29df4c18",
+      "context": "minimum overlap to link (``iou`` only).",
+      "translation": "연결에 필요한 최소 겹침입니다(``iou`` 전용).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#6",
+      "source": "intensity stack for ``trackastra``.",
+      "source_sha256": "2e41e02221003c3e29fd38695f00876f7eddc6e1b3e7e6467b6b4ccef21914a7",
+      "context": "intensity stack for ``trackastra``.",
+      "translation": "``trackastra`` 용 강도 스택입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#7",
+      "source": "``trackastra`` model name.",
+      "source_sha256": "a28710d2f3558ad684714f833f67ae9cc18821b1cabf69bcad4c2e044b5d86b4",
+      "context": "``trackastra`` model name.",
+      "translation": "``trackastra`` 모델 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#8",
+      "source": "``trackastra`` linking mode.",
+      "source_sha256": "540180cea0723c24e75b4b10eaf7022d7270489d8a79ad80c23fb422aa836151",
+      "context": "``trackastra`` linking mode.",
+      "translation": "``trackastra`` 연결 모드입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.relabel_by_track#2",
+      "source": "the (T, H, W) label stack the tracks were built from.",
+      "source_sha256": "edecdb7bc9f2313db772f0c2744d5f2eaebdcc312b417eebcd77591522a25bbe",
+      "context": "the (T, H, W) label stack the tracks were built from.",
+      "translation": "트랙을 만든 원본 (T, H, W) 레이블 스택입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.relabel_by_track#3",
+      "source": "the track table from :func:`link_tracks`; ``None`` or an empty table gives an all-zero stack.",
+      "source_sha256": "0516dd0bac6ae0f4e6f67d33b01c306cd8491a728586ccaa65c6c75b571034ef",
+      "context": "the track table from :func:`link_tracks`; ``None`` or an empty table gives an all-zero stack.",
+      "translation": ":func:`link_tracks` 가 반환한 트랙 테이블입니다. ``None`` 이거나 빈 테이블이면 모두 영인 스택을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#10",
+      "source": "channel of ``image`` to draw.",
+      "source_sha256": "d8213535675744824be34ee8a42b055f744a913d0c81715c96998f900a5ce4d9",
+      "context": "channel of ``image`` to draw.",
+      "translation": "그릴 ``image`` 의 채널입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#11",
+      "source": "an RGB ``uint8`` array.",
+      "source_sha256": "7d851dd0e1c4db99ee06824d30c5ecaff3484810cf304422555ecc6fd30c06a2",
+      "context": "an RGB ``uint8`` array.",
+      "translation": "RGB ``uint8`` 배열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#2",
+      "source": "the frame to draw, 2-D or with a channel axis; the plane is picked with :func:`frame_channel`.",
+      "source_sha256": "070854b3b7142345181f5b094f332753607f7ce7b21bb6454149b999ec7264b0",
+      "context": "the frame to draw, 2-D or with an image data channel axis; the image layer is picked with :func:`frame_channel`.",
+      "translation": "그릴 프레임이며, 2-D 이거나 채널 축을 가집니다. 이미지 레이어는 :func:`frame_channel` 로 선택합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#3",
+      "source": "optional track-relabelled mask for this frame, outlined per track colour.",
+      "source_sha256": "baf0d2c8af7d5dbce63e1137638a9ea594ed4883c50567b63b0ff423286e998f",
+      "context": "optional track-relabelled mask for this frame, outlined per track colour.",
+      "translation": "이 프레임에 대한 선택적 트랙 기준 재레이블 마스크이며, 트랙 색상별로 윤곽선이 그려집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#4",
+      "source": "optional track table with ``x``, ``y``, ``frame`` and ``track_id``; trails are drawn up to ``frame``.",
+      "source_sha256": "edd3b968b50cd3c10cdc3751375d443a6542335edf8a37ac8254bed9c948c91b",
+      "context": "optional track table with ``x``, ``y``, ``frame`` and ``track_id``; trails are drawn up to ``frame``.",
+      "translation": "``x``, ``y``, ``frame``, ``track_id`` 를 가진 선택적 트랙 테이블입니다. 궤적은 ``frame`` 까지 그려집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#5",
+      "source": "index of this frame in the track table.",
+      "source_sha256": "daefd6b7975e5c6f31bce6d261eee69e3fad231b2b1b8c1228dc55c2b53ee9d0",
+      "context": "index of this frame in the track table.",
+      "translation": "트랙 테이블에서 이 프레임의 인덱스입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#6",
+      "source": "how many earlier frames each trail reaches back.",
+      "source_sha256": "d966629819284737297820e50942291919b530fb06491b8281c7517f688fcde8",
+      "context": "how many earlier frames each trail reaches back.",
+      "translation": "각 궤적이 거슬러 올라가는 이전 프레임 수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#7",
+      "source": "stretch the plane between the two percentiles.",
+      "source_sha256": "0e8a1c97a9917e9bf5a099b2a8236406b1f55a6a43e487f0394ab0af7d63fe8b",
+      "context": "stretch the image layer between the two percentiles.",
+      "translation": "두 백분위수 사이로 이미지 레이어를 늘립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#8",
+      "source": "lower percentile of the stretch.",
+      "source_sha256": "42e8e854bc8952474ce15d7e7d6a4ac2aeff6febb408534efc129de47c2fe8d8",
+      "context": "lower percentile of the stretch.",
+      "translation": "늘이기의 하위 백분위수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#9",
+      "source": "upper percentile of the stretch.",
+      "source_sha256": "61030dfeaf59ce907000097b3f5785da250b93f5d6759e47f6393cbe3a5fdf71",
+      "context": "upper percentile of the stretch.",
+      "translation": "늘이기의 상위 백분위수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.run_preview_pass#1",
+      "source": "the request; its cached masks are used first, then its mask sequence, then its image sequence is segmented with ``req.seg``, and the masks are linked with ``req.track``. With none of these it raises :class:`ValueError`.",
+      "source_sha256": "0006b31cf3fd7a7eb3f8fa1498523abe9684a33e81a779e13a70ad112aef6871",
+      "context": "the request; its cached masks are used first, then its mask sequence, then its image sequence is segmented with ``req.seg``, and the masks are linked with ``req.track``. With none of these it raises :class:`ValueError`.",
+      "translation": "요청입니다. 캐시된 마스크를 먼저 사용하고, 그다음 마스크 시퀀스를 사용하며, 그다음 이미지 시퀀스를 ``req.seg`` 로 분할하고, 마스크는 ``req.track`` 으로 연결합니다. 이 중 아무것도 없으면 :class:`ValueError` 를 발생시킵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.segment_frame#2",
+      "source": "the frame, 2-D or with a channel axis.",
+      "source_sha256": "b52ed797035ad72bb03ef9138bf5bf12e0dbd16cac5006122cf4d0f246ff28aa",
+      "context": "the frame, 2-D or with a channel axis.",
+      "translation": "프레임이며, 2-D 이거나 채널 축을 가집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.segment_frame#3",
+      "source": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
+      "source_sha256": "7901c5b1ff077fc23be6f70cea27611f39b1a78524c0d860f81f146a094623ce",
+      "context": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
+      "translation": "분할 설정입니다. ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold``, ``cellprob`` 를 읽으며, 각각 기본값이 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#2",
+      "source": "the frame sequence to segment.",
+      "source_sha256": "998bf5c62e8b9e6361a5ce55f7fe827159406844b22b398b70dc2bdd1fce23ef",
+      "context": "the frame sequence to segment.",
+      "translation": "분할할 프레임 시퀀스입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#3",
+      "source": "segmentation settings, as :func:`segment_frame` takes them.",
+      "source_sha256": "c11d65eff366b26a0cd5946652cd62bd8b6a67a3c09e22fa05af65e901290355",
+      "context": "segmentation settings, as :func:`segment_frame` takes them.",
+      "translation": ":func:`segment_frame` 이 받는 형식의 분할 설정입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.track_colour#1",
+      "source": "the track id, converted with ``int``; it indexes :data:`TRACK_COLOURS` cyclically.",
+      "source_sha256": "fcafa0d8a309f3a4f9616388d605e4963075685b0b4824d3d3fc9f61801c6bfe",
+      "context": "the track id, converted with ``int``; it indexes :data:`TRACK_COLOURS` cyclically.",
+      "translation": "``int`` 로 변환되는 트랙 ID 이며, :data:`TRACK_COLOURS` 를 순환적으로 인덱싱합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle#3",
+      "source": "let a long caption wrap to the available width. False keeps the existing single-line switch layout.",
+      "source_sha256": "6cd300010e9da0a349b45880229791a5e37c5207c18c7ae430c5fa039ad86303",
+      "context": "let a long caption wrap to the available width. False keeps the existing single-line switch layout.",
+      "translation": "긴 캡션이 사용 가능한 너비에 맞춰 줄 바꿈되게 합니다. False 이면 기존의 한 줄 스위치 배치를 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.heightForWidth#0",
+      "source": "Return enough height to paint the complete wrapped caption.",
+      "source_sha256": "138e12c8c4b8aab5c9367c346eea6be06b497f77f514280eb232922a2778c184",
+      "context": "Return enough height to paint the complete wrapped caption.",
+      "translation": "줄 바꿈된 캡션 전체를 그릴 수 있는 충분한 높이를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.heightForWidth#1",
+      "source": "available control width in logical pixels.",
+      "source_sha256": "4762ce89b854d47d1018d43ca0218de2bb27987dc28b47cef86f4176d03f7f16",
+      "context": "available control width in logical pixels.",
+      "translation": "논리 픽셀 단위의 사용 가능한 컨트롤 너비입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.heightForWidth#2",
+      "source": "wrapped height, or the native checkbox result when disabled.",
+      "source_sha256": "09ebea0079891c233b597e2842974976553c3dc45765ad0210d9cca5bc9fa2b8",
+      "context": "wrapped height, or the native checkbox result when disabled.",
+      "translation": "줄 바꿈된 높이, 또는 비활성화된 경우 기본 체크박스의 결과입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.minimumSizeHint#0",
+      "source": "Allow wrapped captions to shrink without making their text a width floor.",
+      "source_sha256": "06fb37762680de4f54646aed3d7a09e4957b4cbd8f755bfb6b8a976c19bb6c38",
+      "context": "Allow wrapped captions to shrink without making their text a width floor.",
+      "translation": "줄 바꿈되는 캡션이 텍스트 폭을 최소 너비로 삼지 않고 줄어들 수 있게 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.mouseMoveEvent#1",
+      "source": "the mouse move; its x position drags the knob once it is 3 pixels or more from the press.",
+      "source_sha256": "65447bad7c87bb4acdb2ee1fe0179cbd3420a92f567eee22cf40e28424d7aeb2",
+      "context": "the mouse move; its x position drags the knob once it is 3 pixels or more from the press.",
+      "translation": "마우스 이동입니다. 누른 위치에서 3 픽셀 이상 떨어지면 그 x 위치로 손잡이를 끕니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.mousePressEvent#1",
+      "source": "the mouse press; a left-button press on an enabled switch is consumed and its x position recorded, and any other press goes to the base class.",
+      "source_sha256": "e729ea5e6a47afec6d723a1af91caab4101ca702d5d8a1a96059e0a1040cbb8c",
+      "context": "the mouse press; a left-button press on an enabled switch is consumed and its x position recorded, and any other press goes to the base class.",
+      "translation": "마우스 누름입니다. 활성화된 스위치에서 왼쪽 버튼을 누르면 이벤트를 소비하고 x 위치를 기록하며, 그 밖의 누름은 기본 클래스로 전달합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.mouseReleaseEvent#1",
+      "source": "the mouse release; only a left-button release ending a press on this switch is handled, anything else goes to the base class.",
+      "source_sha256": "0026400cac5aa0c41c555299ef0ee29899e0643e5da3ca1c6da2bb42b3258a04",
+      "context": "the mouse release; only a left-button release ending a press on this switch is handled, anything else goes to the base class.",
+      "translation": "마우스 놓기입니다. 이 스위치에서 시작된 누름을 끝내는 왼쪽 버튼 놓기만 처리하며, 그 밖의 경우는 기본 클래스로 전달합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.paintEvent#1",
+      "source": "the paint event; not read, since the whole switch is redrawn from its state every time.",
+      "source_sha256": "ea609c48f211ee3433e0cb0b773401b6f6246c2ca383401b9a371cbaf34f88b9",
+      "context": "the paint event; not read, since the whole switch is redrawn from its state every time.",
+      "translation": "페인트 이벤트입니다. 스위치 전체를 매번 상태로부터 다시 그리므로 읽지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#1",
+      "source": "the trellis specification the grid was computed from.",
+      "source_sha256": "f9d4851a510fe4180d4d0f1fe196602830703f987e9b5ee8e72951e7acc0697e",
+      "context": "the trellis specification the grid was computed from.",
+      "translation": "격자를 계산한 기준이 된 트렐리스 사양입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#4",
+      "source": "column name to column kind for ``frame``, with the graph spec's role overrides applied.",
+      "source_sha256": "652a93678ff220bac52c768f0835072682db7e518ddb94a9a1605cf1a9e76ca6",
+      "context": "column name to column kind for ``frame``, with the graph spec's role overrides applied.",
+      "translation": "``frame`` 의 열 이름에서 열 종류로의 매핑이며, 그래프 사양의 역할 재정의가 적용된 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#5",
+      "source": "the facet layout the panels came from.",
+      "source_sha256": "416801ab68faf754e1b760ca926f2e12e9fcab9ebdbbee8352cee4bcf284cc67",
+      "context": "the facet layout the panels came from.",
+      "translation": "패널이 나온 패싯 배치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#6",
+      "source": "every panel in row-major order, blank slots included.",
+      "source_sha256": "67b2928ecee73445ecfb10d098884468ff0dc5eac805d585ae2dc4ec563d8a77",
+      "context": "every panel in row-major order, blank slots included.",
+      "translation": "빈 슬롯을 포함하여 행 우선 순서로 나열된 모든 패널입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#7",
+      "source": "``(rows, columns)`` of the panel grid.",
+      "source_sha256": "f2703f213978fb2dd7a6a63d083df2072037e188783bc97008c45b7b426ddb45",
+      "context": "``(rows, columns)`` of the panel grid.",
+      "translation": "패널 격자의 ``(rows, columns)`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#2",
+      "source": "one horizontal edge of the rectangle, in data units.",
+      "source_sha256": "f47174d6b524f8bacee46e29796a5d8819bb702fcc31224845919aabc4c15115",
+      "context": "one horizontal edge of the rectangle, in data units.",
+      "translation": "사각형의 한쪽 가로 경계이며, 데이터 단위입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#3",
+      "source": "one vertical edge, in data units.",
+      "source_sha256": "9804b5dc2b4dac66b8ce13c2691438f444d88aae5e52bb9c5c2691cfc3f3dce3",
+      "context": "one vertical edge, in data units.",
+      "translation": "한쪽 세로 경계이며, 데이터 단위입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#4",
+      "source": "the other horizontal edge; the edges may come in either order.",
+      "source_sha256": "9651d7b61ee8f342299e9ee4526f04139c6ee02d0a70caae463e141281b81d13",
+      "context": "the other horizontal edge; the edges may come in either order.",
+      "translation": "다른 쪽 가로 경계입니다. 경계는 어느 순서로 주어져도 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#5",
+      "source": "the other vertical edge.",
+      "source_sha256": "77eac8c1e6ff9c382ff57d9cf899eadcc8309613ca939ebbb0b7318a6efc1008",
+      "context": "the other vertical edge.",
+      "translation": "다른 쪽 세로 경계입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#6",
+      "source": "the grid row of the panel brushed, from 0.",
+      "source_sha256": "d329796a984f8cb3bcbea7ff21c363a62bc0a09219a5526979182043b583a6e7",
+      "context": "the grid row of the panel brushed, from 0.",
+      "translation": "브러시가 적용된 패널의 격자 행이며, 0 부터 셉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#7",
+      "source": "the grid column of the panel brushed, from 0.",
+      "source_sha256": "622a6ce62017cf89996831c555af66764cf6ab9aa5dfac4c7772780c02df1b95",
+      "context": "the grid column of the panel brushed, from 0.",
+      "translation": "브러시가 적용된 패널의 격자 열이며, 0 부터 셉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#8",
+      "source": "a boolean mask over :attr:`source`; all ``False`` for a blank slot.",
+      "source_sha256": "688c63896e4c9c213f45aa72cfdae6b2757b166a6344f07d4f4234d8b09190bc",
+      "context": "a boolean mask over :attr:`source`; all ``False`` for a blank slot.",
+      "translation": ":attr:`source` 에 대한 불리언 마스크입니다. 빈 슬롯이면 모두 ``False`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#2",
+      "source": "the panel's grid row, from 0.",
+      "source_sha256": "002d7cba62d5bebfad70611c34b564fbd401e227ade21e6f3808228a649e3f35",
+      "context": "the panel's grid row, from 0.",
+      "translation": "패널의 격자 행이며, 0 부터 셉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#3",
+      "source": "the panel's grid column, from 0.",
+      "source_sha256": "7c48a8dcc6c1ea65e5e56481e1c25b4eec7a7b876b049461aaf4dc2c170ade2e",
+      "context": "the panel's grid column, from 0.",
+      "translation": "패널의 격자 열이며, 0 부터 셉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#4",
+      "source": "the row-facet level this panel holds, or ``None``.",
+      "source_sha256": "ab52fabcb75649338229ee8a678cf950ef3aaa1a469dccb04625b484e82e599e",
+      "context": "the row-facet level this panel holds, or ``None``.",
+      "translation": "이 패널이 담는 행 패싯 수준 또는 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#5",
+      "source": "the column-facet level this panel holds, or ``None``.",
+      "source_sha256": "d6c8df2ec26abc5a2ff629f62980f0d3a7d73cdc1fbba7308f916cf1712e89db",
+      "context": "the column-facet level this panel holds, or ``None``.",
+      "translation": "이 패널이 담는 열 패싯 수준 또는 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#6",
+      "source": "positional indices of this panel's rows in the laid-out frame.",
+      "source_sha256": "361b28e74655d43de6484cbe9c97b65fbb533c66268057456a581895a792b3ab",
+      "context": "positional indices of this panel's rows in the laid-out frame.",
+      "translation": "배치된 프레임에서 이 패널의 행이 차지하는 위치 인덱스입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#7",
+      "source": "the axis limits and orders this panel is drawn with.",
+      "source_sha256": "e6a52dc88a6f2217c30dd60aaf61f3be013fad1e972530d04ae93d467fc8c15a",
+      "context": "the axis limits and orders this panel is drawn with.",
+      "translation": "이 패널을 그릴 때 사용하는 축 한계와 순서입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.wrap_positions#2",
+      "source": "number of levels to place.",
+      "source_sha256": "fdab2804ddd39c9b0321f33b3c43dce14e9b8e675b920e37f4b52886a79f360b",
+      "context": "number of levels to place.",
+      "translation": "배치할 수준의 개수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.wrap_positions#3",
+      "source": "panels per row; below 1 puts every level in its own row of one.",
+      "source_sha256": "49ac19af89885f20284df9361b75dbc476f0168d6fea99d09225849f0134cd76",
+      "context": "panels per row; below 1 puts every level in its own row of one.",
+      "translation": "행당 패널 수입니다. 1 미만이면 모든 수준을 각각 한 칸짜리 행에 둡니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.brush#2",
+      "source": "horizontal position of one corner of the rectangle, in the panel's data coordinates; the corners may be given in either order.",
+      "source_sha256": "7f75c974d89807c77379db48d22eca61d0ef069e9cb3129b87e2383b8e7eac39",
+      "context": "horizontal position of one corner of the rectangle, in the panel's data coordinates; the corners may be given in either order.",
+      "translation": "사각형 한 모서리의 가로 위치이며, 패널의 데이터 좌표로 나타냅니다. 모서리는 어느 순서로 주어져도 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.brush#3",
+      "source": "vertical position of that corner, in the panel's data coordinates; the corners may be given in either order.",
+      "source_sha256": "cf77e6dbe94e7a50ce03a1d9d7cd75141dd297bba74bd244717744fc7afc7478",
+      "context": "vertical position of that corner, in the panel's data coordinates; the corners may be given in either order.",
+      "translation": "그 모서리의 세로 위치이며, 패널의 데이터 좌표로 나타냅니다. 모서리는 어느 순서로 주어져도 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.brush#4",
+      "source": "horizontal position of the opposite corner.",
+      "source_sha256": "e4f671e6f487dcd9ffb15550513b9270543a02e652bc0ade0fd60267461c1ddb",
+      "context": "horizontal position of the opposite corner.",
+      "translation": "반대쪽 모서리의 가로 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.brush#5",
+      "source": "vertical position of the opposite corner.",
+      "source_sha256": "c1fddd9b59f1f3d0d4ac82848b63e236d9a671c694cdb114182d43840ffd5b31",
+      "context": "vertical position of the opposite corner.",
+      "translation": "반대쪽 모서리의 세로 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.on_linked_selection_changed#1",
+      "source": "the new shared selection; not read directly, since the highlight is recomputed from the canvas's linked selection.",
+      "source_sha256": "659d8a7b3ecfaec4a6044e2d4f145861732b6144dd484d838e5bbff7cd0d86b3",
+      "context": "the new shared selection; not read directly, since the highlight is recomputed from the canvas's linked selection.",
+      "translation": "새 공유 선택입니다. 강조 표시는 캔버스의 연결된 선택으로부터 다시 계산되므로 직접 읽지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.set_spec#1",
+      "source": "the inner chart spec, combined with the current grid options through ``TrellisSpec.with_graph``.",
+      "source_sha256": "f9ea4870841b85919158d83ba768efb1fc8dccdab2f530eb3f4d0d8b53aaf336",
+      "context": "the inner chart spec, combined with the current grid options through ``TrellisSpec.with_graph``.",
+      "translation": "내부 차트 사양이며, ``TrellisSpec.with_graph`` 를 통해 현재 격자 옵션과 결합됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.set_trellis_spec#1",
+      "source": "the complete trellis spec: grid options plus the inner chart spec in its ``graph`` attribute.",
+      "source_sha256": "fc06ce0173ad98cebd97b3f1a845cb1cb26182237317bc58ca8e0d6bcfb49454",
+      "context": "the complete trellis spec: grid options plus the inner chart spec in its ``graph`` attribute.",
+      "translation": "전체 트렐리스 사양입니다: 격자 옵션과 ``graph`` 속성에 든 내부 차트 사양.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisPanelWidget#6",
+      "source": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
+      "source_sha256": "0641e549844c7dd40b6f78e06ec4a4f75248bc5d816d3acba52fe2d3873f48dc",
+      "context": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
+      "translation": "항목 471: 선반 영역(\"Channels\")과 캔버스(\"Trellis\")는 하나의 :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``)의 섹션입니다. 각 섹션은 제목으로 접히고 둘 사이의 경계는 끌 수 있으며, 처음에는 예전의 300 / 900 분할로 열립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.apply_display#1",
+      "source": "``{display key: value}``; keys the explorer does not know and ``None`` values are skipped, and ``None`` for the whole mapping changes nothing.",
+      "source_sha256": "05e797380a9bc004cef9e8e844f6ffb835533fe919e1df4c217975cf62c440b6",
+      "context": "``{display key: value}``; structured-data names that the explorer does not know and ``None`` values are skipped, and ``None`` for the whole mapping changes nothing.",
+      "translation": "``{display key: value}`` 입니다. 탐색기가 모르는 키와 ``None`` 값은 건너뛰며, 매핑 전체가 ``None`` 이면 아무것도 바뀌지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.on_linked_selection_changed#1",
+      "source": "the :class:`~spacr.selection.Selection` another view published; the points whose object keys it names are ringed, and an inactive selection rings none.",
+      "source_sha256": "2350ffbbe69806485f4f1b7e69640c1112a8ed24f00ce028f4849e22aaecbaa8",
+      "context": "the :class:`~spacr.selection.Selection` another view published; the points whose object keys it names are ringed, and an inactive selection rings none.",
+      "translation": "다른 뷰가 게시한 :class:`~spacr.selection.Selection` 입니다. 그 선택이 지정하는 객체 키의 점들에 고리를 표시하며, 비활성 선택은 아무 점에도 고리를 표시하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.set_payload#2",
+      "source": "the dict attached by ``generate_image_umap``: ``embedding`` (shape (N, 2)), ``labels`` and ``records`` of the same length, and optionally ``frame`` (a DataFrame with N rows) and ``display`` (initial display values). A wrong shape or length raises :class:`ValueError`.",
+      "source_sha256": "d9c25faa2b5d9ecd6dbf96763f668c08efc229af7a70d52d69e3c20741b104a5",
+      "context": "the key-value mapping attached by ``generate_image_umap``: ``embedding`` (shape (N, 2)), ``labels`` and ``records`` of the same length, and optionally ``frame`` (a DataFrame with N rows) and ``display`` (initial display values). A wrong shape or length raises :class:`ValueError`.",
+      "translation": "``generate_image_umap`` 이 첨부한 사전입니다: ``embedding`` (형태 (N, 2)), 같은 길이의 ``labels`` 와 ``records``, 선택적으로 ``frame`` (N 행 DataFrame)과 ``display`` (초기 표시 값). 형태나 길이가 잘못되면 :class:`ValueError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.set_propagate_callback#2",
+      "source": "called with a dict of settings, keyed by their persisted names, after the display settings window is accepted; any exception it raises is logged and ignored.",
+      "source_sha256": "394ebdf0dae5027d63b276a1b979d0eaa298575a76dededdf23a15f2aca710fd",
+      "context": "called with a key-value mapping of settings, keyed by their persisted names, after the display settings window is accepted; any exception it raises is logged and ignored.",
+      "translation": "표시 설정 창이 수락된 뒤, 저장된 이름을 키로 하는 설정 사전과 함께 호출됩니다. 이 함수가 발생시키는 예외는 모두 기록되고 무시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.show_point#1",
+      "source": "position of the point in the payload's records; converted to ``int``, and an out-of-range index does nothing.",
+      "source_sha256": "8cbeea26087f90b1e6ac3d2adb3de9ccbbccd9a82dfe356683e210b64868a2e4",
+      "context": "position of the point in the payload's records; converted to ``int``, and an out-of-range index does nothing.",
+      "translation": "페이로드 레코드에서 점의 위치입니다. ``int`` 로 변환되며, 범위를 벗어난 인덱스는 아무 동작도 하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.as_settings_keys#1",
+      "source": "display values keyed by display name; keys in :data:`SETTINGS_KEY_FOR_DISPLAY` are renamed and the rest kept as they are. ``None`` gives an empty dict.",
+      "source_sha256": "5998edb27fc37483c0dc795b2002abc991bed4087ae212e0b2c68d9aabce26df",
+      "context": "display values keyed by display name; structured-data names in :data:`SETTINGS_KEY_FOR_DISPLAY` are renamed and the rest kept as they are. ``None`` gives an empty key-value mapping.",
+      "translation": "표시 이름을 키로 하는 표시 값입니다. :data:`SETTINGS_KEY_FOR_DISPLAY` 에 있는 키는 이름이 바뀌고 나머지는 그대로 유지됩니다. ``None`` 이면 빈 사전을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#2",
+      "source": "the label shown beside the editor.",
+      "source_sha256": "d4fb86ad6d9c5e6c44971d7c15451818e01a86423edc5093f0bb4e0c5f9133e5",
+      "context": "the label shown beside the editor.",
+      "translation": "편집기 옆에 표시되는 레이블입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
+      "context": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "translation": "편집기 유형입니다: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` 또는 ``\"choice\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#4",
+      "source": "lower bound for a numeric editor (unused otherwise).",
+      "source_sha256": "53dea136e96fbfeea3ea78af7292b56d9b4a1db57195ac6640fc935b49d7f4ff",
+      "context": "lower bound for a numeric editor (unused otherwise).",
+      "translation": "숫자 편집기의 하한입니다(그 외에는 사용하지 않음).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#5",
+      "source": "upper bound for a numeric editor (unused otherwise).",
+      "source_sha256": "982b6bc6bc5ec9305ebfb42adbf0d5ff4bfa105e5dd5476a813c23ee313ded10",
+      "context": "upper bound for a numeric editor (unused otherwise).",
+      "translation": "숫자 편집기의 상한입니다(그 외에는 사용하지 않음).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#6",
+      "source": "what applying it takes: :data:`TIER_STYLE`, :data:`TIER_REDRAW` or :data:`TIER_RERUN`.",
+      "source_sha256": "c555e56db4f9d01a24c33fb85333f0f07cc47fc2fbaa64b968f785716373aca0",
+      "context": "what applying it takes: :data:`TIER_STYLE`, :data:`TIER_REDRAW` or :data:`TIER_RERUN`.",
+      "translation": "적용하는 데 필요한 작업입니다: :data:`TIER_STYLE`, :data:`TIER_REDRAW` 또는 :data:`TIER_RERUN`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#7",
+      "source": "the options of a ``\"choice\"`` field.",
+      "source_sha256": "23317f43478a669144bb78f73e1c3f23b0111a33eac48f038e22069c42073bc0",
+      "context": "the options of a ``\"choice\"`` field.",
+      "translation": "``\"choice\"`` 항목의 선택지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.apply_to_figure#1",
+      "source": "the matplotlib figure the Image UMAP was drawn into.",
+      "source_sha256": "46020fc4e3763155d40a0ee98a3d6888ee70ff1cb8b464b43a9a384a8ac827fb",
+      "context": "the matplotlib figure the Image UMAP was drawn into.",
+      "translation": "Image UMAP 이 그려진 matplotlib 그림입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.apply_to_figure#2",
+      "source": "the figure's saved embedding payload, used for a redraw.",
+      "source_sha256": "db94d06d1261ef83eb6bff40842d38e0e08db515ea349a9d39ac26ab9509f557",
+      "context": "the figure's saved embedding payload, used for a redraw.",
+      "translation": "다시 그리기에 사용되는, 그림에 저장된 임베딩 페이로드입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.apply_to_figure#3",
+      "source": "setting key to value; keys that differ from ``previous`` decide the work: any redraw-tier key replots, otherwise any style-tier key restyles.",
+      "source_sha256": "ac53f66d9cd080523dc2ab8df30f8ffd99257d8a1050e51d13e2a264f4ab8f26",
+      "context": "setting name to value; structured-data names that differ from ``previous`` decide the work: any redraw-tier structured-data name replots, otherwise any style-tier structured-data name restyles.",
+      "translation": "설정 키에서 값으로의 매핑입니다. ``previous`` 와 다른 키가 작업을 결정합니다. 다시 그리기 단계의 키가 하나라도 있으면 다시 플롯하고, 그렇지 않고 스타일 단계의 키가 있으면 스타일만 다시 적용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.apply_to_figure#4",
+      "source": "the values last applied; ``None`` treats every key as changed.",
+      "source_sha256": "b6ab01be4e6e73a79802c3d7fa86055eaee57332ccc23a5cfb69e907271b7d87",
+      "context": "the values last applied; ``None`` treats every structured-data name as changed.",
+      "translation": "마지막으로 적용된 값입니다. ``None`` 이면 모든 키를 변경된 것으로 취급합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.keys_for_tier#1",
+      "source": ":data:`TIER_STYLE`, :data:`TIER_REDRAW` or :data:`TIER_RERUN`; any other value gives an empty tuple.",
+      "source_sha256": "fa2b2e4b322b0e30df4428f962a2e1310367964e136886d472e7f36dc3afd830",
+      "context": ":data:`TIER_STYLE`, :data:`TIER_REDRAW` or :data:`TIER_RERUN`; any other value gives an empty tuple.",
+      "translation": ":data:`TIER_STYLE`, :data:`TIER_REDRAW` 또는 :data:`TIER_RERUN` 입니다. 다른 값이면 빈 튜플을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.redraw_umap_figure#2",
+      "source": "the matplotlib figure; ``None`` returns False.",
+      "source_sha256": "05b80677d3bf41f4f97571f1f8f998bf6802bc92cffcffb6765be5c4a3664545",
+      "context": "the matplotlib figure; ``None`` returns False.",
+      "translation": "matplotlib 그림입니다. ``None`` 이면 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.redraw_umap_figure#3",
+      "source": "dict holding ``embedding`` (array of shape (N, 2)), ``plot_labels`` or ``labels`` (one per point), and optionally ``records`` with ``image`` paths and ``theme_colors``. A missing or mismatched embedding or labels returns False.",
+      "source_sha256": "fcf7bd6399bae0fbcc48e74b12cc677e58d1da787ab8e854a0ee9bca98d056f2",
+      "context": "key-value mapping holding ``embedding`` (array of shape (N, 2)), ``plot_labels`` or ``labels`` (one per point), and optionally ``records`` with ``image`` paths and ``theme_colors``. A missing or mismatched embedding or labels returns False.",
+      "translation": "``embedding`` ((N, 2) 형태의 배열), ``plot_labels`` 또는 ``labels`` (점마다 하나), 그리고 선택적으로 ``records`` (``image`` 경로 포함)와 ``theme_colors`` 를 담은 사전입니다. 임베딩이나 레이블이 없거나 맞지 않으면 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.redraw_umap_figure#4",
+      "source": "setting key to value; an unset key uses the shipped default.",
+      "source_sha256": "0186c17bf7c9e833973b8169c4dbc014d9a60c5b8729c362ee14a5a182f32d26",
+      "context": "setting name to value; an unset structured-data name uses the shipped default.",
+      "translation": "설정 키에서 값으로의 매핑입니다. 설정되지 않은 키는 기본 제공 기본값을 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.restyle_umap_figure#4",
+      "source": "setting key to value; only ``dot_size``, ``point_alpha``, ``outline_width`` and ``point_color`` are read, and a missing key is left alone.",
+      "source_sha256": "e5744af14af702edec65997bab0d1ab469a13156312b330669c89321a1a63978",
+      "context": "setting name to value; only ``dot_size``, ``point_alpha``, ``outline_width`` and ``point_color`` are read, and a missing structured-data name is left alone.",
+      "translation": "설정 키에서 값으로의 매핑입니다. ``dot_size``, ``point_alpha``, ``outline_width``, ``point_color`` 만 읽으며, 없는 키는 그대로 둡니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.restyle_umap_figure#5",
+      "source": "True when any artist was changed.",
+      "source_sha256": "429d51134f78fe193aee895643d5545662d4450174a17497a7c86f4d9f8329a5",
+      "context": "True when any artist was changed.",
+      "translation": "아티스트가 하나라도 변경되면 True 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView.set_appearance#1",
+      "source": "the rendering settings to change, read by the keys ``marker`` (``\"circle\"``, ``\"square\"``, ``\"diamond\"`` or ``\"cross\"``; anything else raises :class:`ValueError`), ``size`` (clipped to 1-24), ``alpha`` (clipped to 0.05-1.0) and ``cmap`` (an unknown colour map falls back to ``\"spaCR\"``). A missing key keeps its current value.",
+      "source_sha256": "67216ce53ac9703f4e36dc24e79e9da47c76037906a6fe275383e9f8e84d1c38",
+      "context": "the rendering settings to change, read by the structured-data names ``marker`` (``\"circle\"``, ``\"square\"``, ``\"diamond\"`` or ``\"cross\"``; anything else raises :class:`ValueError`), ``size`` (clipped to 1-24), ``alpha`` (clipped to 0.05-1.0) and ``cmap`` (an unknown colour map falls back to ``\"spaCR\"``). A missing structured-data name keeps its current value.",
+      "translation": "변경할 렌더링 설정이며, 키 ``marker`` (``\"circle\"``, ``\"square\"``, ``\"diamond\"`` 또는 ``\"cross\"``. 그 외 값은 :class:`ValueError` 발생), ``size`` (1-24 로 제한), ``alpha`` (0.05-1.0 으로 제한), ``cmap`` (알 수 없는 색상 맵은 ``\"spaCR\"`` 로 대체)로 읽습니다. 없는 키는 현재 값을 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#1",
+      "source": "the embedding, an array of shape (n, 2) or (n, 3); a 2-D map gets a zero third axis, and an empty, NaN-holding or otherwise shaped array raises :class:`ValueError`.",
+      "source_sha256": "6a100d671e313cc02ec8573ab23f003ef825c68ac7aa96faa83e67f83595240e",
+      "context": "the embedding, an array of shape (n, 2) or (n, 3); a 2-D map gets a zero third axis, and an empty, NaN-holding or otherwise shaped array raises :class:`ValueError`.",
+      "translation": "임베딩으로, (n, 2) 또는 (n, 3) 형태의 배열입니다. 2-D 맵은 세 번째 축을 영으로 채우며, 비어 있거나 NaN 을 포함하거나 다른 형태인 배열은 :class:`ValueError` 를 발생시킵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#2",
+      "source": "width of the drawing area, in pixels.",
+      "source_sha256": "6bdaca14dd8e3ea8e7a9d406339bc153248bd96bb426659146288045fca063d5",
+      "context": "width of the drawing area, in pixels.",
+      "translation": "그리기 영역의 너비(픽셀)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#3",
+      "source": "height of the drawing area, in pixels.",
+      "source_sha256": "ff014a1a0dbcd4febe0796d21c6647429c2344344424484e8ee456ce8639865a",
+      "context": "height of the drawing area, in pixels.",
+      "translation": "그리기 영역의 높이(픽셀)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#4",
+      "source": "rotation about the vertical axis, in radians.",
+      "source_sha256": "67ac8b666a8092c585706aae1a328acc35c71ba57b0462ad4ff1f12d2ea81ffa",
+      "context": "rotation about the vertical axis, in radians.",
+      "translation": "수직축을 중심으로 한 회전(라디안)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#5",
+      "source": "rotation about the horizontal axis, in radians.",
+      "source_sha256": "e2058c6559a1af72518094f7cdf9fd40f8d65db9e563b53dc8e550f7391728fb",
+      "context": "rotation about the horizontal axis, in radians.",
+      "translation": "수평축을 중심으로 한 회전(라디안)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#6",
+      "source": "magnification of the fitted view, floored at 0.05.",
+      "source_sha256": "26f3c33d6b55dd7c17ad7903633273e499637ccf83771a693a57d1518a7c8acc",
+      "context": "magnification of the fitted view, floored at 0.05.",
+      "translation": "맞춘 뷰의 확대 배율이며, 최소 0.05 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.colors_for_labels#1",
+      "source": "one cluster label per point, or ``None`` for no clusters (every point in the plain point colour under ``\"spaCR\"``, otherwise spread along ``cmap``); negative labels are HDBSCAN noise and are drawn grey. Labels whose shape is not ``(count,)`` give the plain point colour for all.",
+      "source_sha256": "a27d92b7ad2da02c8ec7fe1abcbf01dc50a9588428c2e281025d8562ffe46cec",
+      "context": "one cluster label per point, or ``None`` for no clusters (every point in the plain point colour under ``\"spaCR\"``, otherwise spread along ``cmap``); negative labels are HDBSCAN noise and are drawn grey. Labels whose shape is not ``(count,)`` give the plain point colour for all.",
+      "translation": "점마다 클러스터 레이블 하나, 또는 클러스터가 없으면 ``None`` 입니다(모든 점이 ``\"spaCR\"`` 에서는 기본 점 색, 그렇지 않으면 ``cmap`` 을 따라 분산된 색). 음수 레이블은 HDBSCAN 잡음이며 회색으로 그려집니다. 형태가 ``(count,)`` 가 아닌 레이블은 모두 기본 점 색이 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.colors_for_labels#2",
+      "source": "number of points to colour.",
+      "source_sha256": "3c7aa05e2f0fca529b52cce32464ba1225d683dc24fec1a5edbcd6289614bb1c",
+      "context": "number of points to colour.",
+      "translation": "색을 칠할 점의 개수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.colors_for_labels#3",
+      "source": "a colour map from :func:`available_colormaps`; ``\"spaCR\"`` is the native palette.",
+      "source_sha256": "028213d33cb2ee19a0bff3066d214492c069bce52d26d65b1acf001556a8f4cb",
+      "context": "a colour map from :func:`available_colormaps`; ``\"spaCR\"`` is the native palette.",
+      "translation": ":func:`available_colormaps` 의 색상 맵이며, ``\"spaCR\"`` 은 기본 팔레트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.colors_for_labels#4",
+      "source": "point opacity, clipped to 0.05-1.0.",
+      "source_sha256": "3f6cb655ffe70959e7e72592dda23c629446e02783f545361a7ac659ebb876fe",
+      "context": "point opacity, clipped to 0.05-1.0.",
+      "translation": "점 불투명도이며, 0.05-1.0 으로 제한됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.thumbnail_image#2",
+      "source": "one cluster label per point, or ``None``; coloured as :func:`colors_for_labels` does.",
+      "source_sha256": "eefa21bee6c21cb2419c6ee8a171e41ee3be567bf7f8b17f468ce5ceff4c2278",
+      "context": "one cluster label per point, or ``None``; coloured as :func:`colors_for_labels` does.",
+      "translation": "점마다 클러스터 레이블 하나, 또는 ``None`` 입니다. :func:`colors_for_labels` 와 같은 방식으로 색을 칠합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.thumbnail_image#3",
+      "source": "side of the square thumbnail in pixels; at least 48.",
+      "source_sha256": "b6e4d3e81b5c29b4d27206e59839b8365b2d3bcd144b1f3df299bbf64e396267",
+      "context": "side of the square thumbnail in pixels; at least 48.",
+      "translation": "정사각형 썸네일의 한 변 길이(픽셀)이며, 최소 48 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.usage_bar.UsageBar.changeEvent#2",
+      "source": "the change event, passed to the base class; a font, application-font or style change re-measures the columns.",
+      "source_sha256": "b31d80c507e7f74398c8a4004ff6236f47abe04b01dcdb0fc6d42f0ca6a9e2b8",
+      "context": "the change event, passed to the base class; a font, application-font or style change re-measures the columns.",
+      "translation": "기본 클래스로 전달되는 변경 이벤트입니다. 글꼴, 애플리케이션 글꼴 또는 스타일이 바뀌면 열을 다시 측정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.usage_bar.UsageBar.showEvent#2",
+      "source": "the show event, passed to the base class after the columns are re-measured.",
+      "source_sha256": "dd12b92312115f344d230a4a9e45de2924f77d673f9ce6c197df478964554b47",
+      "context": "the show event, passed to the base class after the columns are re-measured.",
+      "translation": "열을 다시 측정한 뒤 기본 클래스로 전달되는 표시 이벤트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer#5",
+      "source": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
+      "source_sha256": "6325a527a2f604029f704ea5c7a4d0658153463b6b4bdbba44a7b25e4c00f249",
+      "context": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
+      "translation": "항목 471: 플롯(\"Volcano plot\")과 선택된 점 테이블(\"Selected point\")은 세로 :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` 의 섹션입니다 -- 각 섹션은 제목으로 접히고 둘 사이의 경계는 끌 수 있습니다 -- 그리고 그 열은 범주가 이미 접히는 스타일 컨트롤과 끌 수 있는 경계를 공유합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.label_for#1",
+      "source": "the style setting's key, as its control was registered; an unknown key gives ``None``.",
+      "source_sha256": "4661ef2d3a1ad5e3e6c5f014ea0c102cb2975084c86a41de3c2644c960af84c9",
+      "context": "the style setting's structured-data name, as its control was registered; an unknown structured-data name gives ``None``.",
+      "translation": "컨트롤이 등록된 대로의 스타일 설정 키입니다. 알 수 없는 키이면 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.merge_annotation_file#2",
+      "source": "annotation file; ``.xlsx``/``.xls`` is read as Excel, anything else as CSV. It must share a column with the results (unless ``on`` names one) or :class:`ValueError` is raised.",
+      "source_sha256": "bbe9bf74743d53373386f44da1a2c6a77d91c5e07dd20b5bc2a765c91d9e9914",
+      "context": "annotation file; ``.xlsx``/``.xls`` is read as Excel, anything else as CSV. It must share a column with the results (unless ``on`` names one) or :class:`ValueError` is raised.",
+      "translation": "어노테이션 파일입니다. ``.xlsx``/``.xls`` 는 Excel 로, 그 외에는 CSV 로 읽습니다. 결과와 공유하는 열이 있어야 하며(``on`` 이 열을 지정하지 않는 한), 그렇지 않으면 :class:`ValueError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.nearest_point#2",
+      "source": "the click's x position in data units of the x column.",
+      "source_sha256": "9a775f533ae254faccdb2641d4f4414b6adf7509cea985651e145bd7e558458b",
+      "context": "the click's x position in data units of the x column.",
+      "translation": "x 열의 데이터 단위로 나타낸 클릭의 x 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.nearest_point#3",
+      "source": "the click's y position in plotted units (after the ``-log10`` transform when the style applies one).",
+      "source_sha256": "12b428b4259b44f1876abd6b5fffa961a81ed54d3c27a808517dfaa30b2a6fe1",
+      "context": "the click's y position in plotted units (after the ``-log10`` transform when the style applies one).",
+      "translation": "플롯 단위로 나타낸 클릭의 y 위치입니다(스타일이 ``-log10`` 변환을 적용하면 그 변환 후).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.nearest_point#4",
+      "source": "the row position, or ``None`` when no point lies within 0.05 of the normalised visible range.",
+      "source_sha256": "4422713dfb69b5c90d5649666d4c2f2a21fc8af21758c61d57aef923e136cce2",
+      "context": "the row position, or ``None`` when no point lies within 0.05 of the normalised visible range.",
+      "translation": "행 위치이며, 정규화된 표시 범위의 0.05 이내에 점이 없으면 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.section_for#1",
+      "source": "the style setting's key; an unknown key, or one registered outside a section, gives ``None``.",
+      "source_sha256": "c3a9510d92e61459dced1d1b9a72c0f55e90e8633d12a00a94d74467507d7d10",
+      "context": "the style setting's structured-data name; an unknown structured-data name, or one registered outside a section, gives ``None``.",
+      "translation": "스타일 설정 키입니다. 알 수 없는 키이거나 섹션 밖에 등록된 키이면 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.select_point#1",
+      "source": "positional row index into the results frame (not a label).",
+      "source_sha256": "5f5791ce73eab8ced969b4b861143c99cb8757790829e38404d6ef296451430e",
+      "context": "positional row index into the results frame (not a label).",
+      "translation": "결과 프레임의 위치 기반 행 인덱스입니다(레이블이 아님).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#0",
+      "source": "Camera arithmetic for the Gate Editor's 3D volume.",
+      "source_sha256": "8f4d2ac81b91fa9a032135640a4c8610287dc468076e614b6e2668b492ff2b09",
+      "context": "Camera arithmetic for the Data-selection boundary Editor's 3D volume.",
+      "translation": "Gate Editor 의 3D 볼륨을 위한 카메라 계산입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#1",
+      "source": "Pure numpy, no Qt and no matplotlib, so it can be tested on its own.",
+      "source_sha256": "fb482a462fca3cec43c0bd6b83f2a88a0e8a83d72a562d4844b908ec66fb46ae",
+      "context": "Pure numpy, no Qt and no matplotlib, so it can be tested on its own.",
+      "translation": "순수 numpy 이며 Qt 와 matplotlib 을 사용하지 않으므로 단독으로 테스트할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#2",
+      "source": "matplotlib describes a 3D camera with three angles -- ``elev``, ``azim`` and ``roll`` -- and builds the screen axes from them in ``Axes3D.get_proj``. Dragging by adding to ``elev`` and ``azim`` is a turntable: it can never roll the view, it flips when the elevation passes the pole, and a clamp on the elevation (what the editor used to do) makes whole orientations unreachable.",
+      "source_sha256": "ec55198f3827d5f46a0049e6dbaedfc25bdec9daa60f437e62e3a89bb5d67863",
+      "context": "matplotlib describes a 3D camera with three angles -- ``elev``, ``azim`` and ``roll`` -- and builds the screen axes from them in ``Axes3D.get_proj``. Dragging by adding to ``elev`` and ``azim`` is a turntable: it can never roll the view, it flips when the elevation passes the pole, and a clamp on the elevation (what the editor used to do) makes whole orientations unreachable.",
+      "translation": "matplotlib 은 3D 카메라를 세 개의 각도 -- ``elev``, ``azim``, ``roll`` -- 로 기술하고 ``Axes3D.get_proj`` 에서 이로부터 화면 축을 구성합니다. ``elev`` 와 ``azim`` 에 값을 더해 끄는 방식은 턴테이블입니다. 뷰를 롤할 수 없고, 고도가 극점을 지나면 뒤집히며, 고도를 제한하면(편집기가 예전에 하던 방식) 방향 전체에 도달할 수 없게 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#3",
+      "source": "This module goes the other way round. The camera is held as the three screen axes ``u`` (right), ``v`` (up) and ``w`` (out of the screen) in matplotlib's box coordinates; a drag rotates that frame about the screen axes, which is a trackball, and :func:`angles_from_axes` turns the frame back into the three angles ``view_init`` takes. Every orientation is reachable and nothing snaps.",
+      "source_sha256": "b9ea7086dd4eb5a9c9e63920c7cd9e90dbaf73d7f172a56bb13245a2165e9047",
+      "context": "This module goes the other way round. The camera is held as the three screen axes ``u`` (right), ``v`` (up) and ``w`` (out of the screen) in matplotlib's box coordinates; a drag rotates that frame about the screen axes, which is a trackball, and :func:`angles_from_axes` turns the frame back into the three angles ``view_init`` takes. Every orientation is reachable and nothing snaps.",
+      "translation": "이 모듈은 반대 방향으로 접근합니다. 카메라는 matplotlib 상자 좌표에서 세 화면 축 ``u`` (오른쪽), ``v`` (위), ``w`` (화면 밖)로 유지되며, 끌기는 그 프레임을 화면 축을 중심으로 회전시키는데 이것이 트랙볼입니다. :func:`angles_from_axes` 는 프레임을 다시 ``view_init`` 가 받는 세 각도로 변환합니다. 모든 방향에 도달할 수 있고 갑자기 튀는 것은 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.angles_from_axes#0",
+      "source": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
+      "source_sha256": "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
+      "context": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
+      "translation": "matplotlib 이 이 프레임을 그리게 하는 ``(elev, azim, roll)`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.angles_from_axes#1",
+      "source": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
+      "source_sha256": "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
+      "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
+      "translation": "``elev`` 는 ``[-90, 90]`` 안에 유지되므로 수직 방향이 뒤집히지 않습니다. 그다음 롤이 프레임이 가진 시선 축 둘레의 회전을 모두 담당합니다. 바로 아래(또는 위)를 볼 때는 방위각이 자유로우므로 롤이 영이 되도록 선택합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.angles_from_axes#2",
+      "source": "the screen's right-pointing axis.",
+      "source_sha256": "fb6c82c72ea807f3582ee9604d55518952e10d7c29d70ff49deeb43ae512fb83",
+      "context": "the screen's right-pointing axis.",
+      "translation": "화면의 오른쪽을 가리키는 축입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.angles_from_axes#3",
+      "source": "the axis pointing out of the screen.",
+      "source_sha256": "138833a2d86a57eef4bfd790e8c42664bffa82af4e59319546098b37a54145d5",
+      "context": "the axis pointing out of the screen.",
+      "translation": "화면 밖을 가리키는 축입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#0",
+      "source": "Turn the volume about one of its own data axes.",
+      "source_sha256": "f952811fc9ca5432b4caedeee60a8e3e71f3d3a1a30fd7e49a89f9158e636f00",
+      "context": "Turn the volume about one of its own data axes.",
+      "translation": "볼륨을 자체 데이터 축 중 하나를 중심으로 회전합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#1",
+      "source": "the camera elevation in degrees.",
+      "source_sha256": "da4f49bb42c24fbc90308a3046c4cc3d25c724b62839119e0a5115e54ef2ad86",
+      "context": "the camera elevation in degrees.",
+      "translation": "카메라 고도각(도 단위)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#2",
+      "source": "the camera azimuth in degrees.",
+      "source_sha256": "abf9c3e2b257f2488fca33fc06d3bb60dabf1e863bbd364c31e3d2ec5cdfcaab",
+      "context": "the camera azimuth in degrees.",
+      "translation": "카메라 방위각(도 단위)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#3",
+      "source": "the camera roll in degrees.",
+      "source_sha256": "d71603d1d6d08c0a3579c9a4c179c728eac29b1223704c64385f60206c26816f",
+      "context": "the camera roll in degrees.",
+      "translation": "카메라 롤 각도(도 단위)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#4",
+      "source": "``\"x\"``, ``\"y\"`` or ``\"z\"`` -- the measurement the volume spins about, which stays put on screen while the other two turn.",
+      "source_sha256": "6df2d5a4635d117709db79a8c67be9018a2ff2f71aeeb690e5898989aa183087",
+      "context": "``\"x\"``, ``\"y\"`` or ``\"z\"`` -- the measurement the volume spins about, which stays put on application view while the other two turn.",
+      "translation": "``\"x\"``, ``\"y\"`` 또는 ``\"z\"`` -- 볼륨이 회전하는 기준 축으로, 나머지 두 축이 회전하는 동안 화면에서 제자리에 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#5",
+      "source": "how far; positive turns the volume anticlockwise when that axis points at the viewer.",
+      "source_sha256": "8eda035c9980fadc8b03117d8672b5c4f522efd8c419167ea9fc08bb6ed44b05",
+      "context": "how far; positive turns the volume anticlockwise when that axis points at the viewer.",
+      "translation": "회전 크기입니다. 양수이면 해당 축이 보는 사람을 향할 때 볼륨이 반시계 방향으로 회전합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.rotate_about_world#6",
+      "source": "the new ``(elev, azim, roll)``.",
+      "source_sha256": "a151df9ea3c2af8018455d737e6fb11dce72f2e53e3a8e3d1b1e80900844b30e",
+      "context": "the new ``(elev, azim, roll)``.",
+      "translation": "새 ``(elev, azim, roll)`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.trackball#0",
+      "source": "Turn the view as if the volume were grabbed and dragged.",
+      "source_sha256": "70215b4417d077775134c40ff7e12c9d17696b5aa19b6a5081da31b7af0233f7",
+      "context": "Turn the view as if the volume were grabbed and dragged.",
+      "translation": "볼륨을 잡고 끄는 것처럼 뷰를 회전합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.trackball#1",
+      "source": "A drag to the right turns the volume about the screen's vertical so its front follows the pointer; a drag up turns it about the screen's horizontal. Both are applied to the frame, not to the angles, so the two directions compose freely and there is no pole to stop at.",
+      "source_sha256": "fe783ffcd7c067b77213be0c435afa1867eedf95aa7d72af0eaa936ffcfe5f24",
+      "context": "A drag to the right turns the volume about the screen's vertical so its front follows the pointer; a drag up turns it about the screen's horizontal. Both are applied to the frame, not to the angles, so the two directions compose freely and there is no pole to stop at.",
+      "translation": "오른쪽으로 끌면 화면의 수직축을 중심으로 볼륨이 회전하여 앞면이 포인터를 따라가고, 위로 끌면 화면의 수평축을 중심으로 회전합니다. 둘 다 각도가 아니라 프레임에 적용되므로 두 방향이 자유롭게 합성되며 멈춰야 할 극점이 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.trackball#5",
+      "source": "how far the pointer moved right, as an angle.",
+      "source_sha256": "47598778f4bf7647a075568edb569f9ad59e0cae4dbd0fb4a7282b955e99a1b8",
+      "context": "how far the pointer moved right, as an angle.",
+      "translation": "포인터가 오른쪽으로 이동한 거리를 각도로 나타낸 값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.trackball#6",
+      "source": "how far it moved up, as an angle.",
+      "source_sha256": "0f305ab349df3eb8a00f2ee723faaaa5346a45e180539f4a598bfc856a18db82",
+      "context": "how far it moved up, as an angle.",
+      "translation": "위로 이동한 거리를 각도로 나타낸 값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.view_axes#0",
+      "source": "The screen axes matplotlib builds from three camera angles.",
+      "source_sha256": "f61d8e8d45cb875a567ac752101cf777a6420d2593f146c03488f3ea38bebcfd",
+      "context": "The screen axes matplotlib builds from three camera angles.",
+      "translation": "matplotlib 이 세 카메라 각도로부터 만드는 화면 축입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.view_axes#1",
+      "source": "Mirrors ``Axes3D.get_proj`` and ``proj3d._view_axes`` for a Z-up axes: ``w`` points from the centre of the box to the eye, ``u`` is ``V x w`` with ``V`` the vertical axis (negated past the pole), and ``roll`` turns ``u`` and ``v`` about ``w``.",
+      "source_sha256": "094e71d6607e19bf8bf191a398edaa694f0a6a43f68f21e9346f75080eaebc3e",
+      "context": "Mirrors ``Axes3D.get_proj`` and ``proj3d._view_axes`` for a Z-up axes: ``w`` points from the centre of the box to the eye, ``u`` is ``V x w`` with ``V`` the vertical axis (negated past the pole), and ``roll`` turns ``u`` and ``v`` about ``w``.",
+      "translation": "Z 축이 위인 좌표축에 대해 ``Axes3D.get_proj`` 와 ``proj3d._view_axes`` 를 그대로 따릅니다. ``w`` 는 상자 중심에서 눈을 향하고, ``u`` 는 ``V x w`` 이며 ``V`` 는 수직축(극점을 지나면 부호 반전)이고, ``roll`` 은 ``u`` 와 ``v`` 를 ``w`` 를 중심으로 회전시킵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view.view_axes#5",
+      "source": "``(u, v, w)``, three orthonormal vectors.",
+      "source_sha256": "69411a1934d3e544cdc561ab377f6cf9499833be53a42ee021843fc4a5e075af",
+      "context": "``(u, v, w)``, three orthonormal vectors.",
+      "translation": "``(u, v, w)`` 이며, 세 개의 정규 직교 벡터입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram#0",
+      "source": "Interactive workflow diagrams built from the shared module and artifact map.",
+      "source_sha256": "b625789774c55de873e857a43110fc4179cff20fb82fbd6683431d1c71cac32c",
+      "context": "Interactive workflow diagrams built from the shared module and artifact map.",
+      "translation": "공유 모듈 및 산출물 맵으로 구성한 대화형 워크플로 다이어그램입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram#1",
+      "source": "Solid arrows describe documented handoffs. Dashed arrows connect matching artifact types or pathway prerequisites; their explanations distinguish these from verified handoffs. Nodes and edges never start analysis. Hover or select one to read its description in the owning dialog's fixed details area.",
+      "source_sha256": "268f5baf393e9ede2fe55d3a331c27a875a63322c27883ee7bad0d1a763d4eb2",
+      "context": "Solid arrows describe documented handoffs. Dashed arrows connect matching artifact types or pathway prerequisites; their explanations distinguish these from verified handoffs. Nodes and edges never start analysis. Hover or select one to read its description in the owning dialog's fixed details area.",
+      "translation": "실선 화살표는 문서화된 인계를 나타냅니다. 파선 화살표는 일치하는 산출물 유형이나 경로 전제 조건을 연결하며, 그 설명은 이를 검증된 인계와 구별합니다. 노드와 간선은 절대 분석을 시작하지 않습니다. 하나에 마우스를 올리거나 선택하면 소유 대화 상자의 고정된 세부 정보 영역에서 설명을 읽을 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.DiagramDialog#0",
+      "source": "A diagram window with a rounded, 80-percent opaque background.",
+      "source_sha256": "12a279ae98b1543825da60d4f5a391f474c63d3c1df9f159c07a15adc0b6efc3",
+      "context": "A diagram window with a rounded, 80-percent opaque background.",
+      "translation": "모서리가 둥글고 80 퍼센트 불투명한 배경을 가진 다이어그램 창입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.DiagramDialog#1",
+      "source": "owning widget; defaults to None for a top-level window.",
+      "source_sha256": "24907a12728d3e46c6a8517f25af2422f86fb02fd970ad6ea69fcffee0600eff",
+      "context": "owning widget; defaults to None for a top-level window.",
+      "translation": "소유 위젯이며, 최상위 창인 경우 기본값 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.DiagramDialog#2",
+      "source": "Keep the background translucent without reducing text opacity.",
+      "source_sha256": "3c744e7c52d7334054873023947a5cb7e439c4dac1633341fbb08e8eb9ca6d68",
+      "context": "Keep the background translucent without reducing text opacity.",
+      "translation": "텍스트 불투명도를 줄이지 않고 배경을 반투명하게 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.DiagramDialog.paintEvent#0",
+      "source": "Paint one 80-percent surface beneath the diagram and its controls.",
+      "source_sha256": "c3fe81fd7236dcd025c65f7b311cc4b18c6e846f9f98238c751d68bb47eed7d7",
+      "context": "Paint one 80-percent surface beneath the diagram and its controls.",
+      "translation": "다이어그램과 그 컨트롤 아래에 80 퍼센트 표면 하나를 그립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.DiagramDialog.paintEvent#1",
+      "source": "Qt paint event; the complete background is repainted.",
+      "source_sha256": "8544b27093841a6febd445415c4b35c740ad674711adcb952ce4a8739f1f4fe6",
+      "context": "Qt paint event; the complete background is repainted.",
+      "translation": "Qt 페인트 이벤트이며, 배경 전체가 다시 그려집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.DiagramDialog.paintEvent#2",
+      "source": "None; text and child controls retain their own opacity.",
+      "source_sha256": "a7e026dcd75cff26f163bfe61af6e5b6d797f229ed1ea8d2d9b898dd8683c271",
+      "context": "None; text and child controls retain their own opacity.",
+      "translation": "None 입니다. 텍스트와 자식 컨트롤은 자체 불투명도를 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog#0",
+      "source": "Show every mapped module and directed input/output connection.",
+      "source_sha256": "70397b02b61a263cc2b772a6141784e6580461346abbd2dd1b498cf3f59ae87e",
+      "context": "Show every mapped module and directed input/output connection.",
+      "translation": "매핑된 모든 모듈과 방향성 있는 입력/출력 연결을 표시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog#1",
+      "source": "owning main window.",
+      "source_sha256": "4585e4e0645cd1b2ad4b7109dbe8d98c66d22fe43131d3a5ab6d4a905a4e1182",
+      "context": "owning main window.",
+      "translation": "소유 주 창입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog#2",
+      "source": "workflow map override; None reads the bundled map.",
+      "source_sha256": "81a757e46ce625cce79207397a8fe46cee88ef7032276381f263f45ee42c4347",
+      "context": "workflow map override; None reads the bundled map.",
+      "translation": "워크플로 맵 재정의입니다. None 이면 번들된 맵을 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.SpacrFlowchartDialog#3",
+      "source": "Build the network, keyboard selectors, view controls and details.",
+      "source_sha256": "049c7182325e1efc3131df763c6e53c325129617f505479897a2d8ef49eda284",
+      "context": "Build the network, keyboard selectors, view controls and details.",
+      "translation": "네트워크, 키보드 선택기, 보기 컨트롤, 세부 정보를 구성합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView#0",
+      "source": "Zoomable, pannable map whose selection emits explanatory HTML.",
+      "source_sha256": "3fa56da81245a106bcc60adaa60e88ab89cf857858b8440186e4840b465f188f",
+      "context": "Zoomable, pannable map whose selection emits explanatory HTML.",
+      "translation": "선택 시 설명 HTML 을 방출하는, 확대/축소 및 이동이 가능한 맵입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView#1",
+      "source": "shared workflow map.",
+      "source_sha256": "36d56839b80d0e0e294c06295a0257661f2df776ffdea69ead1328b32946a290",
+      "context": "shared workflow map.",
+      "translation": "공유 워크플로 맵입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView#2",
+      "source": "optional subset of module keys for one pathway.",
+      "source_sha256": "c4678ac1cee40232e4b75ef06e0c2d51a20b49877a3192992a735642228e1732",
+      "context": "optional subset of module keys for one pathway.",
+      "translation": "한 경로에 대한 모듈 키의 선택적 부분 집합입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView#3",
+      "source": "optional pathway dependencies; no sequence links are invented.",
+      "source_sha256": "d7c141443e3c62ad46f7ae3f3afb27e3e775b41fded9d5b3ca13d38b010df696",
+      "context": "optional pathway dependencies; no sequence links are invented.",
+      "translation": "선택적 경로 의존성이며, 순서 연결을 임의로 만들어 내지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView#5",
+      "source": "show module titles only; full input/output descriptions remain in the emitted explanation. Suitable for the complete network.",
+      "source_sha256": "acd7146d2a9370ee08641deff7befe206c621200f55e59e4cc395afd53bfec70",
+      "context": "show module titles only; full input/output descriptions remain in the emitted explanation. Suitable for the complete network.",
+      "translation": "모듈 제목만 표시합니다. 전체 입력/출력 설명은 방출되는 설명에 남아 있습니다. 전체 네트워크에 적합합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView#6",
+      "source": "Build nodes and directed connections once; hover changes only ink.",
+      "source_sha256": "d6f95fedb76559a8df2cac3b93ee9e275e648f4e4062d63f481ac657272459ed",
+      "context": "Build nodes and directed connections once; hover changes only ink.",
+      "translation": "노드와 방향성 연결을 한 번만 구성하며, 마우스를 올리면 색만 바뀝니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge#0",
+      "source": "Describe a connection and highlight its two endpoint modules.",
+      "source_sha256": "01146d9a9e6e5f1b79a99194c441a81b593e5ed52850f6053eae855cd1aaa3dc",
+      "context": "Describe a connection and highlight its two endpoint modules.",
+      "translation": "연결을 설명하고 두 끝점 모듈을 강조 표시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge#1",
+      "source": "graphical edge item from this view's edges list.",
+      "source_sha256": "5a659f1399bd5972453617033f88c9e3e3225e03b0c90c769b0c89fe7692895e",
+      "context": "graphical edge item from this view's edges list.",
+      "translation": "이 뷰의 간선 목록에 있는 그래픽 간선 항목입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge#2",
+      "source": "when True, fit the edge and both endpoint nodes into the viewport and disable automatic fitting; defaults to False.",
+      "source_sha256": "b0981a878f9e4196344d22b6e19e0a90c20761e75f60049372e765a770025eb4",
+      "context": "when True, fit the edge and both endpoint nodes into the viewport and disable automatic fitting; defaults to False.",
+      "translation": "True 이면 간선과 두 끝점 노드를 뷰포트에 맞추고 자동 맞춤을 비활성화합니다. 기본값은 False 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_edge#3",
+      "source": "None; emits explanation HTML and the activated signal.",
+      "source_sha256": "fe1104cb355a3b08a465196566efd196499fb16fa53701ab36db58255695a654",
+      "context": "None; emits explanation HTML and the activated signal.",
+      "translation": "None 입니다. 설명 HTML 과 활성화 신호를 방출합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_node#0",
+      "source": "Highlight a module and emit its explanation without running analysis.",
+      "source_sha256": "84afd644a73861e8964627e0e34c1c7816c89c8d57221572fec6cfe89f821bc7",
+      "context": "Highlight a module and emit its explanation without executing analysis.",
+      "translation": "분석을 실행하지 않고 모듈을 강조 표시하고 설명을 방출합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_node#1",
+      "source": "module key present in this view.",
+      "source_sha256": "731537c60793ddd8e82869736a5ed38dbcfcc70d49314521ba54fc7c9ce157fe",
+      "context": "module key present in this view.",
+      "translation": "이 뷰에 있는 모듈 키입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.describe_node#2",
+      "source": "when True, reset the zoom and center the module, disabling automatic fitting; defaults to False.",
+      "source_sha256": "2da84b3203e5f2e55a0ae08fc0c8b888678689fae91c739d721974c603d370ed",
+      "context": "when True, reset the zoom and center the module, disabling automatic fitting; defaults to False.",
+      "translation": "True 이면 확대/축소를 재설정하고 모듈을 중앙에 두며 자동 맞춤을 비활성화합니다. 기본값은 False 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.fit_diagram#0",
+      "source": "Fit the complete diagram with preserved aspect ratio and resume auto-fit.",
+      "source_sha256": "cb3fcb9a8b75acaec01c2cfa9f6ddd10e4833d030ec8c1597d8bcb683ae46537",
+      "context": "Fit the complete diagram with preserved aspect ratio and resume auto-fit.",
+      "translation": "가로세로 비율을 유지한 채 전체 다이어그램을 맞추고 자동 맞춤을 재개합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.fit_diagram#1",
+      "source": "None; updates the view transform and automatic resize behavior.",
+      "source_sha256": "820b9ff42e22704de89431bb972b0d7e6f379a286fbe7f04ce288ebb47f69b32",
+      "context": "None; updates the view transform and automatic resize behavior.",
+      "translation": "None 입니다. 뷰 변환과 자동 크기 조정 동작을 갱신합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.resizeEvent#0",
+      "source": "Refit on resize while automatic fitting remains enabled.",
+      "source_sha256": "b3df762ed3e69ade7fe2898ac263c2c3681b34d5637d5d5ee1da053f5585ebc2",
+      "context": "Refit on resize while automatic fitting remains enabled.",
+      "translation": "자동 맞춤이 활성화되어 있는 동안 크기가 바뀌면 다시 맞춥니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.resizeEvent#1",
+      "source": "Manual zoom or explicit centering disables automatic fitting until :meth:`fit_diagram` is called again.",
+      "source_sha256": "8930d64af0d740726b77dec6a01d3464631b5b38b057e05e43f7c7ee8078e09b",
+      "context": "Manual zoom or explicit centering disables automatic fitting until :meth:`fit_diagram` is called again.",
+      "translation": "수동 확대/축소나 명시적 중앙 정렬은 :meth:`fit_diagram` 이 다시 호출될 때까지 자동 맞춤을 비활성화합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.resizeEvent#2",
+      "source": "Qt resize event forwarded to the base view.",
+      "source_sha256": "2a69c217b4edaf4d766907f1bd77230e6b9903ce11ea643cd48b83a25ba64bb4",
+      "context": "Qt resize event forwarded to the base view.",
+      "translation": "기본 뷰로 전달되는 Qt 크기 조정 이벤트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.showEvent#0",
+      "source": "Fit once when a viewport first acquires a useful size.",
+      "source_sha256": "bd422afd6c385f5ec837c7d66af469530bf78cf67cbf3b33b9bd3112a1d5385c",
+      "context": "Fit once when a viewport first acquires a useful size.",
+      "translation": "뷰포트가 처음으로 쓸 만한 크기를 얻을 때 한 번 맞춥니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.showEvent#1",
+      "source": "Qt show event forwarded to the base view.",
+      "source_sha256": "6919f6b752634cd761190980de2337829f601b2c5e689281e67f212fa882a47c",
+      "context": "Qt show event forwarded to the base view.",
+      "translation": "기본 뷰로 전달되는 Qt 표시 이벤트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.wheelEvent#0",
+      "source": "Use Ctrl+wheel for zoom; ordinary wheel scrolls the diagram.",
+      "source_sha256": "86ef2a8d4518fd4483e567018264d954a5f2b2c552a334e85d84d3e9e7d0f161",
+      "context": "Use Ctrl+wheel for zoom; ordinary wheel scrolls the diagram.",
+      "translation": "확대/축소에는 Ctrl+휠을 사용하며, 일반 휠은 다이어그램을 스크롤합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.wheelEvent#1",
+      "source": "Qt wheel event; control-modified events are accepted here, and other events are forwarded to the base view.",
+      "source_sha256": "cfb1d36f3cd845ac50255ea979af5ad712f2c507dcc7a8c2bb8a0f7bf0d7c51e",
+      "context": "Qt wheel event; control-modified events are accepted here, and other events are forwarded to the base view.",
+      "translation": "Qt 휠 이벤트입니다. 컨트롤 키와 함께 발생한 이벤트는 여기서 처리하고, 다른 이벤트는 기본 뷰로 전달합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.zoom#0",
+      "source": "Scale the view without changing node layout.",
+      "source_sha256": "e38c06c2b0e472feede3fdd0f63c407e12a757368719b5e1fe648ca9c39c95e6",
+      "context": "Scale the view without changing node layout.",
+      "translation": "노드 배치를 바꾸지 않고 뷰의 배율을 조정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.WorkflowView.zoom#1",
+      "source": "multiplier for the current view scale. The change is applied only when the resulting scale is between 0.04 and 3, inclusive; accepted changes disable automatic fitting.",
+      "source_sha256": "d789834fdd4e21818111de3a1d30b036a4a966cf2e6b1c8be56e83a4d8b0c6f1",
+      "context": "multiplier for the current view scale. The change is applied only when the resulting scale is between 0.04 and 3, inclusive; accepted changes disable automatic fitting.",
+      "translation": "현재 뷰 배율에 곱할 값입니다. 결과 배율이 0.04 이상 3 이하일 때만 변경이 적용되며, 적용된 변경은 자동 맞춤을 비활성화합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.connections#0",
+      "source": "Return documented handoffs and explicitly distinguished inferred links.",
+      "source_sha256": "6397210a0432ce605dd6730abc8a277db5ff8e2bd58bf328bbf4abd2e9a7c0a4",
+      "context": "Return documented handoffs and explicitly distinguished inferred links.",
+      "translation": "문서화된 인계와, 명시적으로 구별된 추론 연결을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.connections#2",
+      "source": "optional module subset; None includes every mapped module.",
+      "source_sha256": "582000a79d242544a92f4dc396570bc8ba7cda6e2fae174324397ef8560a4802",
+      "context": "optional module subset; None includes every mapped module.",
+      "translation": "선택적 모듈 부분 집합입니다. None 이면 매핑된 모든 모듈을 포함합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.connections#3",
+      "source": "pathway steps, whose ``after`` dependencies define its edges. None builds the full network, including matching artifact types.",
+      "source_sha256": "847c7d0eebaf75dd202c0ba1c673471b77bea081daac8c6d169f609c9e26a3ca",
+      "context": "pathway steps, whose ``after`` dependencies define its edges. None builds the full network, including matching artifact types.",
+      "translation": "경로 단계이며, 그 ``after`` 의존성이 간선을 정의합니다. None 이면 일치하는 산출물 유형을 포함한 전체 네트워크를 구성합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.connections#4",
+      "source": "dictionaries with ``from``, ``to``, ``artifacts``, ``handoff`` and ``kind`` (documented, compatible or prerequisite). Inferred compatibility describes matching types, not an automatic file import.",
+      "source_sha256": "8692c45742dc3379f506d0eff528179f39b6acd4752895226dbe86a0cc37f285",
+      "context": "key-value mappings with ``from``, ``to``, ``artifacts``, ``handoff`` and ``kind`` (documented, compatible or prerequisite). Inferred compatibility describes matching types, not an automatic file import.",
+      "translation": "``from``, ``to``, ``artifacts``, ``handoff``, ``kind`` (문서화됨, 호환, 전제 조건)를 가진 사전들입니다. 추론된 호환성은 일치하는 유형을 설명할 뿐 자동 파일 가져오기를 뜻하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.edge_description#0",
+      "source": "Explain a connection and link both endpoint APIs.",
+      "source_sha256": "42105762a77705c0d215c0623c11fc792a4e4a60659cb65ed62bcf4578222791",
+      "context": "Explain a connection and link both endpoint APIs.",
+      "translation": "연결을 설명하고 두 끝점의 APIs 에 링크합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.edge_description#1",
+      "source": "shared workflow map containing both endpoint modules.",
+      "source_sha256": "5efcf471b395d53874cb865c76b01ef56378f5cd72648d9583f1745d9fba0cfa",
+      "context": "shared workflow map containing both endpoint modules.",
+      "translation": "두 끝점 모듈을 모두 포함하는 공유 워크플로 맵입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.edge_description#2",
+      "source": "connection record returned by :func:`connections`.",
+      "source_sha256": "7d65503ae1b35ba4374b16bb4d506e24fcf062975a5cc887203f139e023a0245",
+      "context": "connection record returned by :func:`connections`.",
+      "translation": ":func:`connections` 가 반환한 연결 레코드입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.edge_description#3",
+      "source": "escaped, translated HTML describing artifact locations and whether the edge is a documented handoff, a matching data type or a pathway prerequisite. Inferred links do not establish file compatibility.",
+      "source_sha256": "a6683528f1cef283a85baeea6c6479cd203589f491eb48fe243e4f300abdf20c",
+      "context": "escaped, translated HTML describing artifact locations and whether the edge is a documented handoff, a matching data type or a pathway prerequisite. Inferred links do not establish file compatibility.",
+      "translation": "산출물 위치와, 간선이 문서화된 인계인지, 일치하는 데이터 유형인지, 경로 전제 조건인지를 설명하는 이스케이프되고 번역된 HTML 입니다. 추론된 연결은 파일 호환성을 보장하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.node_description#0",
+      "source": "Describe a module, its API link and its input/output artifacts.",
+      "source_sha256": "197599a39ce1edfcbef385f01f0e5cfbc86acdd7e076de046a8fd93cb18d0706",
+      "context": "Describe a module, its API link and its input/output artifacts.",
+      "translation": "모듈, 그 API 링크, 입력/출력 산출물을 설명합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.node_description#2",
+      "source": "module key present in the map.",
+      "source_sha256": "02aaa48bc9b72429db62b42bbf00258bcb25a2fa0f035aa2d4169971fce3c076",
+      "context": "module key present in the map.",
+      "translation": "맵에 있는 모듈 키입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.node_description#3",
+      "source": "escaped, translated HTML for the fixed details panel.",
+      "source_sha256": "13d2504707b32688adf45226bbb6022fc67fabb6bbfe23632df4cd733cef2af9",
+      "context": "escaped, translated HTML for the fixed details panel.",
+      "translation": "고정된 세부 정보 패널용으로 이스케이프되고 번역된 HTML 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.show_spacr_flowchart#0",
+      "source": "Open or raise the window's single nonmodal spaCR workflow diagram.",
+      "source_sha256": "6efb7e799e2b8bd5bc84394127366e265fff9f04c34eaaf82791c9ff6f9f5508",
+      "context": "Open or raise the window's single nonmodal spaCR workflow diagram.",
+      "translation": "창의 단일 비모달 spaCR 워크플로 다이어그램을 열거나 앞으로 가져옵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.show_spacr_flowchart#1",
+      "source": "owning main window, which retains the dialog for reuse.",
+      "source_sha256": "b4a6d2f62392d6ddd253d326262eb605f45977991307722963ff8c425807cf41",
+      "context": "owning main window, which retains the dialog for reuse.",
+      "translation": "재사용을 위해 대화 상자를 보관하는 소유 주 창입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.show_spacr_flowchart#2",
+      "source": "the shown and activated :class:`SpacrFlowchartDialog`.",
+      "source_sha256": "4e2664fb7c3faec46db4992d159a36a9f701cb4b9287fe4705e8cffe253ed9e5",
+      "context": "the shown and activated :class:`SpacrFlowchartDialog`.",
+      "translation": "표시되고 활성화된 :class:`SpacrFlowchartDialog` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.workflow_map#0",
+      "source": "Read the bundled module map, or an explicitly supplied JSON path.",
+      "source_sha256": "04eba32f63d60f5fb9d0d1e2c31644cd82683e725555bde78e112a75f1cb791b",
+      "context": "Read the bundled module map, or an explicitly supplied JSON path.",
+      "translation": "번들된 모듈 맵 또는 명시적으로 지정된 JSON 경로를 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.workflow_map#1",
+      "source": "JSON file; None selects the bundled module_workflows.json.",
+      "source_sha256": "e1c37b8746f942a4ced3f6c2952a764762364836182d1eaa38ac6196143b618a",
+      "context": "JSON file; None selects the bundled module_workflows.json.",
+      "translation": "JSON 파일입니다. None 이면 번들된 module_workflows.json 을 선택합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.workflow_map#2",
+      "source": "the parsed map; modules and artifacts must be dictionaries. The bundled map also supplies pathways and connections.",
+      "source_sha256": "df69efcf127dd6a1e549d2fe68e45bc81a9f2eddcc518d42edaca15847b44f51",
+      "context": "the parsed map; modules and artifacts must be key-value mappings. The bundled map also supplies pathways and connections.",
+      "translation": "파싱된 맵입니다. 모듈과 산출물은 사전이어야 합니다. 번들된 맵은 경로와 연결도 제공합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.workflow_map#3",
+      "source": "the file cannot be read.",
+      "source_sha256": "6a229420763e13d32d7641117a918a347b0431996cb065c9898a2345a35977b2",
+      "context": "the file cannot be read.",
+      "translation": "파일을 읽을 수 없는 경우입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.workflow_diagram.workflow_map#4",
+      "source": "invalid JSON or missing module/artifact dictionaries.",
+      "source_sha256": "7cbf6731cfa94feb0e51d53c27d4ed31d048fc8c0921528c3902929541626c84",
+      "context": "invalid JSON or missing module/artifact key-value mappings.",
+      "translation": "잘못된 JSON 이거나 모듈/산출물 사전이 없는 경우입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#0",
+      "source": "One image view that fits, zooms, pans -- and can be tied to another.",
+      "source_sha256": "bdf6df34f4091edfb8f9b0c9c8fea42ca916ca89f699c6eb7dd71d6ec230a0fa",
+      "context": "One image view that fits, zooms, pans -- and can be tied to another.",
+      "translation": "맞춤, 확대/축소, 이동이 가능하고 -- 다른 뷰와 연결할 수 있는 이미지 뷰 하나입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#1",
+      "source": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC field browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the field browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "source_sha256": "9f5df3d601c570edb7c19f0e2332ea71cd19b0fbba16b2b435d739f41d24e3bd",
+      "context": "spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC microscope field of view browser's own ``_FieldView``. Item 473's raw-versus-enhanced window needed the same thing twice over, and a third copy of \"a QGraphicsView with a pixmap in it\" is how a codebase ends up with three that behave subtly differently. So the microscope field of view browser's view moved here unchanged, under a name that says it is shared, and the browser goes on using it under its old one.",
+      "translation": "spaCR 에는 이미 로드 시 맞춤, 휠 확대/축소, 끌어서 이동하는 이미지 캔버스가 있었습니다. QC 현미경 시야 브라우저 자체의 ``_FieldView`` 입니다. 항목 473 의 원본 대 향상 이미지 창에는 같은 것이 두 개 필요했고, \"픽스맵을 담은 QGraphicsView\" 의 세 번째 사본을 만드는 것이야말로 코드베이스가 미묘하게 다르게 동작하는 세 개의 사본을 갖게 되는 경로입니다. 그래서 현미경 시야 브라우저의 뷰를 공유된다는 것을 나타내는 이름으로 변경 없이 이곳으로 옮겼고, 브라우저는 예전 이름으로 계속 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#2",
+      "source": "WHAT IS NEW HERE IS THE TIE. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
+      "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
+      "context": "What is new here is the tie. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
+      "translation": "여기서 새로운 것은 바로 연결입니다. 같은 영역의 두 뷰는 정합 상태를 유지할 때만 나란히 놓을 가치가 있습니다. 현미경 시야를 향상된 자기 자신과 비교하는 큐레이터는 둘 사이의 차이를 찾고 있으며, 두 뷰가 가리키는 위치의 차이는 정보가 아닌 유일한 차이입니다. :meth:`ZoomableImageView.link_to` 는 뷰 그룹이 하나의 확대/축소와 하나의 스크롤 위치를 공유하게 하므로, 어느 뷰를 확대/축소하거나 이동해도 모두가 함께 움직입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view#3",
+      "source": "The tie is on the VIEW and not on the window, because what has to match is the transform and the two scroll bars -- the things a view owns. Views in a group must show images of the same size for the tie to mean anything; the compare window builds both of its pictures from one region, so they do.",
+      "source_sha256": "3b2873ed9de0f8f4659805ba8a0bb8c761e19512cb302a027126c7f5b3614112",
+      "context": "The tie is on the VIEW and not on the window, because what has to match is the transform and the two scroll bars -- the things a view owns. Views in a group must show images of the same size for the tie to mean anything; the compare window builds both of its pictures from one region, so they do.",
+      "translation": "연결은 창이 아니라 반드시 뷰에 있습니다. 일치해야 하는 것이 변환과 두 스크롤 막대 -- 뷰가 소유한 것들 -- 이기 때문입니다. 연결이 의미를 가지려면 그룹의 뷰는 같은 크기의 이미지를 보여야 하며, 비교 창은 두 그림을 하나의 영역에서 만들므로 그렇게 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView#0",
+      "source": "Fit-on-load image canvas with wheel zoom and drag panning.",
+      "source_sha256": "b83826d96225e71da81ed31663e7d55d963f89df4d1f8e26f51c2fd9b47f4643",
+      "context": "Fit-on-load image canvas with wheel zoom and drag panning.",
+      "translation": "휠 확대/축소와 끌어서 이동을 지원하는, 로드 시 맞춤 이미지 캔버스입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView#2",
+      "source": "Build the view with its own scene, fitted on first load.",
+      "source_sha256": "b233e70200ec38b2dc0f83838a15aa67e1a4792e671aec8d91d0c9738cfc809e",
+      "context": "Build the view with its own scene, fitted on first load.",
+      "translation": "자체 장면을 가진 뷰를 구성하며, 처음 로드할 때 맞춥니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.clear_image#0",
+      "source": "Empty the view.",
+      "source_sha256": "bb4f6950d494f46914c8d88e853aa8e5170f359a26ec075dab161e9d8ad967eb",
+      "context": "Empty the view.",
+      "translation": "뷰를 비웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.fit#0",
+      "source": "Fit the whole image in the view again, and the peers with it.",
+      "source_sha256": "2603f96b3286859cc085f89a0ab68f9b871d45bdd96d20aecfb08310c73923ed",
+      "context": "Fit the whole image in the view again, and the peers with it.",
+      "translation": "전체 이미지를 다시 뷰에 맞추고, 연결된 뷰도 함께 맞춥니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.link_to#0",
+      "source": "Move with ``other``, and make ``other`` move with this one.",
+      "source_sha256": "5ad5c5acc9eeb0d5df00a076c711df90b3b3d0abd3baeed1b6023568442f8786",
+      "context": "Move with ``other``, and make ``other`` move with this one.",
+      "translation": "``other`` 와 함께 움직이고, ``other`` 도 이 뷰와 함께 움직이게 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.link_to#1",
+      "source": "Symmetric and transitive by construction: every view already in either group joins the other, so a group of three all follow each other however they were linked up.",
+      "source_sha256": "b2e7618de489f806210f89499918b9841d38e952c8190a9e544c1d1b0f66a745",
+      "context": "Symmetric and transitive by construction: every view already in either group joins the other, so a group of three all follow each other however they were linked up.",
+      "translation": "구성상 대칭적이고 추이적입니다. 어느 한쪽 그룹에 이미 있는 모든 뷰가 다른 그룹에 합류하므로, 뷰 세 개로 이루어진 그룹은 어떻게 연결되었든 모두 서로를 따릅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.link_to#2",
+      "source": "the view to tie this one to.",
+      "source_sha256": "fdbfbaef1f351f608e8394b7772659d60591d6735936c93961567fa0fa7f0200",
+      "context": "the view to tie this one to.",
+      "translation": "이 뷰를 연결할 대상 뷰입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.resizeEvent#0",
+      "source": "Re-fit the image, unless the user has zoomed.",
+      "source_sha256": "ed8b235f2fcdc1911f06a684f0ee9216b1088351a6cc4454cfd82cd19861cc74",
+      "context": "Re-fit the image, unless the user has zoomed.",
+      "translation": "사용자가 확대/축소하지 않았다면 이미지를 다시 맞춥니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.set_pixmap#0",
+      "source": "Show a new image, fitted, and forget any zoom the user had applied.",
+      "source_sha256": "f4fb3b923ed7080d2b6186c8c370ea6352f4365df9cb3a1f1ecc90d6f962df98",
+      "context": "Show a new image, fitted, and forget any zoom the user had applied.",
+      "translation": "새 이미지를 맞춤 크기로 표시하고, 사용자가 적용한 확대/축소를 모두 잊습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.set_pixmap#1",
+      "source": "the composite to show; a null one clears the view.",
+      "source_sha256": "aee5b4819b33a9e5a6c10ff7388b594fc3de2a50c40daea5679b4ffe53766a1b",
+      "context": "the composite to show; a null one clears the view.",
+      "translation": "표시할 합성 이미지입니다. 비어 있는 이미지를 주면 뷰를 지웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.wheelEvent#0",
+      "source": "Zoom on the wheel, and remember that the user did.",
+      "source_sha256": "5738b7e997c0e1d07e8d78dfeea586565cfb5b0c7c5762fbdb90750912476397",
+      "context": "Zoom on the wheel, and remember that the user did.",
+      "translation": "휠로 확대/축소하고, 사용자가 확대/축소했다는 사실을 기억합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.wheelEvent#1",
+      "source": "Once they have zoomed, a resize stops re-fitting -- a view that snapped back to fit every time the splitter moved would undo the inspection the zoom was for.",
+      "source_sha256": "a74ddd2c8bc3de3a7c6c59532e6ca213972076ca69530b33fe6679fa26206261",
+      "context": "Once they have zoomed, a resize stops re-fitting -- a view that snapped back to fit every time the splitter moved would undo the inspection the zoom was for.",
+      "translation": "사용자가 확대/축소한 뒤에는 크기가 바뀌어도 다시 맞추지 않습니다 -- 분할기가 움직일 때마다 맞춤 크기로 되돌아가는 뷰는 확대/축소의 목적이었던 검사를 무효로 만들 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.wheelEvent#2",
+      "source": "the wheel event.",
+      "source_sha256": "8737045ad2ec63121d8545d0dd3ef1f18da64e4a916c16a09cb54455f2f16b7d",
+      "context": "the wheel event.",
+      "translation": "휠 이벤트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_by#0",
+      "source": "Zoom by ``factor`` about the view's middle, and move the peers.",
+      "source_sha256": "0c9d588ab5709bff61d168d898c334ee799643c3f1554e17fac31632c3dc60ec",
+      "context": "Zoom by ``factor`` about the view's middle, and move the peers.",
+      "translation": "뷰의 중앙을 기준으로 ``factor`` 만큼 확대/축소하고, 연결된 뷰도 함께 움직입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_by#1",
+      "source": "The wheel zooms about the cursor (``AnchorUnderMouse``); a button has no cursor position to speak of, so it zooms about the middle, which is what a person pressing + expects to keep in view.",
+      "source_sha256": "6659440c3c3ec6caae747da58376e8b3c887471012d6c19bd45384cadec6d8f8",
+      "context": "The wheel zooms about the cursor (``AnchorUnderMouse``); a button has no cursor position to speak of, so it zooms about the middle, which is what a person pressing + expects to keep in view.",
+      "translation": "휠은 커서를 기준으로 확대/축소합니다(``AnchorUnderMouse``). 버튼에는 이렇다 할 커서 위치가 없으므로 중앙을 기준으로 확대/축소하며, + 를 누르는 사람은 바로 그 부분이 화면에 유지되기를 기대합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_by#2",
+      "source": "above 1 zooms in, below 1 zooms out.",
+      "source_sha256": "261f546b87b310bfe14e4206b80f2d1ffd6ce3b47fbb4236dd22cc8ca705b6b6",
+      "context": "above 1 zooms in, below 1 zooms out.",
+      "translation": "1 보다 크면 확대, 1 보다 작으면 축소합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_factor#0",
+      "source": "How far this view is zoomed in, as a scale factor.",
+      "source_sha256": "1e9f146a8937422b0ac2cda7acfbb3f82694cc7cb6a5292afcbb9b67ac330ba8",
+      "context": "How far this view is zoomed in, as a scale factor.",
+      "translation": "이 뷰가 확대된 정도를 배율로 나타낸 값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_annotation.AnnotationRequest#14",
+      "source": "``'auto'``, ``'xgboost'`` or ``'hist_gradient_boosting'``.",
+      "source_sha256": "5ed16fbaa5eb2a423223caac9329b21176eab490d901a55bd18af7555a83e114",
+      "context": "``'auto'``, ``'xgboost'`` or ``'hist_gradient_boosting'``.",
+      "translation": "``'auto'``, ``'xgboost'`` 또는 ``'hist_gradient_boosting'`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_diagnostics.plot_design_diagnostics#1",
+      "source": "well-by-guide fraction matrix, one row per analysed well, as taken by :func:`design_report`.",
+      "source_sha256": "e95fd5dabbd9b09f477215d6d2a131216641dc27b3bb51c93d131b59e527194c",
+      "context": "well-by-guide fraction matrix, one row per analysed well, as taken by :func:`design_report`.",
+      "translation": "시료 위치별 가이드 비율 행렬로, 분석된 시료 위치마다 한 행이며 :func:`design_report` 가 받는 형식입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_diagnostics.plot_inference_diagnostics#2",
+      "source": "raw P values of the tested family; non-finite values are dropped before plotting.",
+      "source_sha256": "3d4e9b80e3c3c527d13ef85a7578019318095e9a8a842cab5903171cefc88278",
+      "context": "raw P values of the tested family; non-finite values are dropped before plotting.",
+      "translation": "검정한 계열의 원시 P 값입니다. 유한하지 않은 값은 플롯하기 전에 제외됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_diagnostics.plot_residual_diagnostics#1",
+      "source": "observed response per observation.",
+      "source_sha256": "81d46c157719d7264baa09170d172f59c0489c8c51e6975bcf632211aee789a4",
+      "context": "observed response per observation.",
+      "translation": "관측값마다의 관측 반응입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_diagnostics.plot_residual_diagnostics#2",
+      "source": "fitted value per observation, aligned with ``observed``; the residuals are ``observed - fitted``.",
+      "source_sha256": "e9fc1935c7635ba7976b2e3c86bfccf032f9412543cb363561a0166c0e7776f0",
+      "context": "fitted value per observation, aligned with ``observed``; the residuals are ``observed - fitted``.",
+      "translation": "``observed`` 와 정렬된 관측값별 적합값이며, 잔차는 ``observed - fitted`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_diagnostics.score_inference#3",
+      "source": "inference summary with ``tests``, ``genomic_inflation`` and optionally ``pi0`` and ``estimated_non_null``, as built by :func:`plot_inference_diagnostics`. No tests, or a non-finite inflation factor, scores ``unknown``.",
+      "source_sha256": "7a5e4a38641880827df0471e51b555c3eaeb0066caa0eed88de1e31481dc38a6",
+      "context": "inference summary with ``tests``, ``genomic_inflation`` and optionally ``pi0`` and ``estimated_non_null``, as built by :func:`plot_inference_diagnostics`. No tests, or a non-finite inflation factor, scores ``unknown``.",
+      "translation": "``tests``, ``genomic_inflation`` 및 선택적으로 ``pi0`` 와 ``estimated_non_null`` 을 담은 추론 요약이며, :func:`plot_inference_diagnostics` 가 생성합니다. 검정이 없거나 인플레이션 계수가 유한하지 않으면 ``unknown`` 으로 채점됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_families.family_group#2",
+      "source": "``'parametric'``, ``'robust_semiparametric'`` or ``'rank_based'``.",
+      "source_sha256": "98ca6c771e891c4cb0903cabc1556b9b7aee5baa453e4d560b8e793676b20fbb",
+      "context": "``'parametric'``, ``'robust_semiparametric'`` or ``'rank_based'``.",
+      "translation": "``'parametric'``, ``'robust_semiparametric'`` 또는 ``'rank_based'`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_layout.infer_regression_layout#2",
+      "source": "the independent-variable table; only its column names are read.",
+      "source_sha256": "77507dd1deb7632a63a58dd80bbf4ac8265e581add9d4dfb9ad709beddea0048",
+      "context": "the independent-variable table; only its column names are read.",
+      "translation": "독립 변수 테이블이며, 열 이름만 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_layout.long_to_wide_regression_data#2",
+      "source": "long table with one row per observation and predictor; it must carry the index, predictor and value columns, and the values must be finite numbers.",
+      "source_sha256": "5261d57a031e12c49449eefe1656f84fa1d49fc115a2b6cf29c478661d846d1d",
+      "context": "long table with one row per observation and predictor; it must carry the index, predictor and value columns, and the values must be finite numbers.",
+      "translation": "관측값과 예측 변수마다 한 행인 긴 형식 테이블입니다. 인덱스, 예측 변수, 값 열을 포함해야 하며, 값은 유한한 숫자여야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_layout.normalise_count_table_layout#1",
+      "source": "count table in long or wide layout. A ``grna_name`` column is read as ``grna`` when the default guide column is absent.",
+      "source_sha256": "99798019bd066743665e210def8696023e9d83eb0dc5cbff82a3bdd6039cb828",
+      "context": "count table in long or wide layout. A ``grna_name`` column is read as ``grna`` when the default guide column is absent.",
+      "translation": "긴 형식 또는 넓은 형식의 개수 테이블입니다. 기본 가이드 열이 없으면 ``grna_name`` 열을 ``grna`` 로 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_layout.wide_to_long_regression_data#2",
+      "source": "wide table with one predictor per column plus observation metadata columns; anything but a :class:`pandas.DataFrame` raises :class:`TypeError`.",
+      "source_sha256": "748012a8f9a493b5871af10516cf845791591ee5c6bf685fe1b4bc05cda7c6d6",
+      "context": "wide table with one predictor per column plus observation metadata columns; anything but a :class:`pandas.DataFrame` raises :class:`TypeError`.",
+      "translation": "열마다 예측 변수 하나와 관측 메타데이터 열을 가진 넓은 형식 테이블입니다. :class:`pandas.DataFrame` 이 아닌 것은 :class:`TypeError` 를 발생시킵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.apply_primary_call#1",
+      "source": "regression results; the frame is copied, not modified.",
+      "source_sha256": "ae0e87d56ea62bd9cac54a0ebeabf0082f03d021c0ad630e4496cc4bb6041261",
+      "context": "regression results; the frame is copied, not modified.",
+      "translation": "회귀 결과이며, 프레임은 수정되지 않고 복사됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.apply_primary_call#2",
+      "source": "column of numeric effect sizes compared with ``effect_threshold``; a non-numeric value raises.",
+      "source_sha256": "0f8b19a3602f25231eb04ede6ea3e36dee013656ff0564b0c1c3c3a7946a3903",
+      "context": "column of numeric effect sizes compared with ``effect_threshold``; a non-numeric value raises.",
+      "translation": "``effect_threshold`` 와 비교되는 숫자형 효과 크기 열입니다. 숫자가 아닌 값이 있으면 예외가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.apply_primary_call#3",
+      "source": "column whose truth value (after ``astype(bool)``) marks rows that pass Benjamini-Hochberg correction.",
+      "source_sha256": "c4698b439a269909671187335823511e856d9ef763d55f5216566758d832da2e",
+      "context": "column whose truth value (after ``astype(bool)``) marks rows that pass Benjamini-Hochberg correction.",
+      "translation": "(``astype(bool)`` 적용 후의) 참 값이 Benjamini-Hochberg 보정을 통과한 행을 표시하는 열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.apply_primary_call#4",
+      "source": "effect-size cut; ``primary_call`` is true where the BH flag is set and the effect is strictly greater than this.",
+      "source_sha256": "761569b4dd6a97cd64382d51f26f8f2bdf935385da580a8644da89358a9e5733",
+      "context": "effect-size cut; ``primary_call`` is true where the BH flag is set and the effect is strictly greater than this.",
+      "translation": "효과 크기 기준값입니다. BH 플래그가 설정되어 있고 효과가 이 값보다 엄격하게 클 때 ``primary_call`` 이 참입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.build_manifest_packages#1",
+      "source": "the figure manifest, a mapping or the path of a JSON file, with a filename-safe ``figure_id``, an optional ``columns`` count and a non-empty ``panels`` list.",
+      "source_sha256": "248a54a25151321cadf306ee80952e127ac733e58046427d70b3b5aeb26fbd98",
+      "context": "the figure manifest, a mapping or the path of a JSON file, with a filename-safe ``figure_id``, an optional ``columns`` count and a non-empty ``panels`` list.",
+      "translation": "그림 매니페스트로, 매핑 또는 JSON 파일 경로이며, 파일 이름으로 안전한 ``figure_id``, 선택적 ``columns`` 개수, 비어 있지 않은 ``panels`` 목록을 가집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.build_manifest_packages#2",
+      "source": "run artifacts keyed by the ``source`` names the panels use; each declares ``level`` (``'grna'`` or ``'gene'``), ``phenotype`` and exactly one of ``data`` (a DataFrame) or ``path``.",
+      "source_sha256": "ac88dd82400b8517968e8bc28d52b50a5d6b8228f46a368353e80895f6da55f7",
+      "context": "processing-session artifacts keyed by the ``source`` names the panels use; each declares ``level`` (``'grna'`` or ``'gene'``), ``phenotype`` and exactly one of ``data`` (a DataFrame) or ``path``.",
+      "translation": "패널이 사용하는 ``source`` 이름을 키로 하는 처리 세션 산출물입니다. 각각 ``level`` (``'grna'`` 또는 ``'gene'``), ``phenotype``, 그리고 ``data`` (DataFrame) 또는 ``path`` 중 정확히 하나를 선언합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.build_manifest_packages#3",
+      "source": "output folder; each panel is written to its own ``<panel_id>`` subfolder and the composed figure to ``<figure_id>.pdf``.",
+      "source_sha256": "feab9017da59d3e4f2141dde28c8b93eaa20abe227a8b37ba026ea802c3b2ccc",
+      "context": "output folder; each panel is written to its own ``<panel_id>`` subfolder and the composed figure to ``<figure_id>.pdf``.",
+      "translation": "출력 폴더입니다. 각 패널은 자체 ``<panel_id>`` 하위 폴더에, 합성된 그림은 ``<figure_id>.pdf`` 에 기록됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.compose_vector_figure#1",
+      "source": "single-page panel PDFs, placed row by row on a grid of equal tiles; at least one is required.",
+      "source_sha256": "24f5cafa0b83d2ffb454be7b2369970953b78fdfe7fd70bb1b29004361e76761",
+      "context": "single-page panel PDFs, placed row by row on a grid of equal tiles; at least one is required.",
+      "translation": "한 페이지짜리 패널 PDFs 로, 같은 크기의 타일 격자에 행 단위로 배치됩니다. 최소 하나가 필요합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.compose_vector_figure#2",
+      "source": "path of the composed PDF; its parent folder is created and the file is replaced atomically.",
+      "source_sha256": "9e43bb27993633b4696a99dd7921b44d789683fb691bd579fa0cdb56bca57674",
+      "context": "path of the composed PDF; its parent folder is created and the file is replaced atomically.",
+      "translation": "합성된 PDF 의 경로입니다. 상위 폴더가 생성되고 파일은 원자적으로 교체됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.guide_control_threshold#1",
+      "source": "per-gRNA results; non-targeting controls are the rows whose normalised guide name starts with ``000000_``, and at least two are required.",
+      "source_sha256": "18a9a5bd5a72692b3d061e2806acea9bbfafc30cfb8ce2411c17196b6567554b",
+      "context": "per-gRNA results; non-targeting controls are the rows whose normalised guide name starts with ``000000_``, and at least two are required.",
+      "translation": "gRNA 별 결과입니다. 비표적 대조군은 정규화된 가이드 이름이 ``000000_`` 로 시작하는 행이며, 최소 두 개가 필요합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.guide_control_threshold#2",
+      "source": "column of numeric control effects whose mean and sample SD define the threshold.",
+      "source_sha256": "e2b2696e5ca9133972cd33b6afa468a9dc065c9574640f73e25e2b121b2d2a61",
+      "context": "column of numeric control effects whose mean and sample SD define the threshold.",
+      "translation": "평균과 표본 표준 편차가 임계값을 정의하는 숫자형 대조군 효과 열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.shared_limits#1",
+      "source": "the panels' data frames; at least one is required and every value in both columns must be finite.",
+      "source_sha256": "726380ad8058f6b118489bb1b25a50e6c25d6ad81c4f5c9722d68be04369a154",
+      "context": "the panels' data frames; at least one is required and every value in both columns must be finite.",
+      "translation": "패널들의 데이터 프레임입니다. 최소 하나가 필요하며 두 열의 모든 값이 유한해야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.shared_limits#2",
+      "source": "column giving horizontal positions.",
+      "source_sha256": "2074717e0ec2d770c9f0f339f0d7d735d9149401c4dccdfa530dad67f8a06a3d",
+      "context": "column giving horizontal positions.",
+      "translation": "가로 위치를 제공하는 열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.shared_limits#3",
+      "source": "column giving vertical positions; the lower y limit is always 0.",
+      "source_sha256": "9a8bd7c0855577ac2f08bbc2d1c3db2143367b7dac439f838049382134d8cf1e",
+      "context": "column giving vertical positions; the lower y limit is always 0.",
+      "translation": "세로 위치를 제공하는 열입니다. 아래쪽 y 한계는 항상 0 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#1",
+      "source": "regression results, one row per point; the frame is copied and extended with the plotted values before writing.",
+      "source_sha256": "a3f5df38e4bbc0c1a7cf4d50d8cafa5ac25d1daabcd979964b4dc25c81b703d7",
+      "context": "regression results, one row per point; the frame is copied and extended with the plotted values before writing.",
+      "translation": "점마다 한 행인 회귀 결과입니다. 프레임은 복사되며, 기록하기 전에 플롯된 값으로 확장됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#2",
+      "source": "folder the four files (``<panel_id>.pdf``, ``<panel_id>.png``, ``<panel_id>_stats.csv`` and ``<panel_id>_data.csv``) are written to; created if absent.",
+      "source_sha256": "0645b66ec6fe83320804ec7a9dbe100276257ba9fa4c14b0eb34a268125c461f",
+      "context": "folder the four files (``<panel_id>.pdf``, ``<panel_id>.png``, ``<panel_id>_stats.csv`` and ``<panel_id>_data.csv``) are written to; created if absent.",
+      "translation": "네 파일(``<panel_id>.pdf``, ``<panel_id>.png``, ``<panel_id>_stats.csv``, ``<panel_id>_data.csv``)을 기록할 폴더이며, 없으면 생성됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#3",
+      "source": "panel identifier used as the file-name stem and recorded in the stats CSV.",
+      "source_sha256": "1b47c00221377f1a29c90e1df4c37f523067c5ae03217d2edb326c8b0b5d4193",
+      "context": "panel identifier used as the file-name stem and recorded in the stats CSV.",
+      "translation": "파일 이름 어간으로 사용되고 통계 CSV 에 기록되는 패널 식별자입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#4",
+      "source": "column holding each row's category, compared as strings.",
+      "source_sha256": "3388d69ccf747fd831735288a9a633888b338a967892685b015615bdb598983b",
+      "context": "column holding each row's category, compared as strings.",
+      "translation": "각 행의 범주를 담은 열이며, 문자열로 비교됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#5",
+      "source": "column of vertical values; every value must be numeric and finite.",
+      "source_sha256": "b3c7131491deb27c6fbd220aee4ff43146d71a8b5297589f9dfba0fb03e91cba",
+      "context": "column of vertical values; every value must be numeric and finite.",
+      "translation": "세로 값 열입니다. 모든 값은 숫자이고 유한해야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#6",
+      "source": "left-to-right order of the categories; the names must be distinct and match the observed categories exactly.",
+      "source_sha256": "ce81d18f4e3df881bc432a85f117af632086bd07acbd2c6bdc57b2fb9e109c06",
+      "context": "left-to-right order of the categories; the names must be distinct and match the observed categories exactly.",
+      "translation": "범주의 왼쪽에서 오른쪽 순서입니다. 이름은 서로 달라야 하며 관측된 범주와 정확히 일치해야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#7",
+      "source": "horizontal axis label.",
+      "source_sha256": "4d7e6e6fc937d6f241a8fe763f623d354eb18106f026a11d25dd0ca1439ad713",
+      "context": "horizontal axis label.",
+      "translation": "가로축 레이블입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#8",
+      "source": "vertical axis label.",
+      "source_sha256": "ec983a650445c32c046b6472f5ded15d3785aef8a8d4563c97a5530e15cdd48f",
+      "context": "vertical axis label.",
+      "translation": "세로축 레이블입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#9",
+      "source": "legend, purpose, observation and implication text placed below the panel in the PDF.",
+      "source_sha256": "082262c22af07f5efa189176755f063b051cbb23b04e8602453e46033651fcaa",
+      "context": "legend, purpose, observation and implication text placed below the panel in the PDF.",
+      "translation": "PDF 에서 패널 아래에 배치되는 범례, 목적, 관찰, 함의 텍스트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#10",
+      "source": "``(min, max)`` vertical axis limits, also recorded in the stats CSV.",
+      "source_sha256": "bd15eebff3fc20958bd977d51cbd453503cf76a7ded24d3c978ffd0c689aa540",
+      "context": "``(min, max)`` vertical axis limits, also recorded in the stats CSV.",
+      "translation": "``(min, max)`` 세로축 한계이며, 통계 CSV 에도 기록됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#11",
+      "source": "y value of the dashed horizontal threshold line; points with a label that lie above it and to the right of ``effect_threshold`` get their label drawn.",
+      "source_sha256": "bc13b95182185acf2d070767c3bae1a2a8f4833a7ceab9a9c4bb5c17ac0f51e6",
+      "context": "y value of the dashed horizontal threshold line; points with a label that lie above it and to the right of ``effect_threshold`` get their label drawn.",
+      "translation": "파선으로 그린 가로 임계선의 y 값입니다. 레이블이 있는 점 중 이 선보다 위에 있고 ``effect_threshold`` 보다 오른쪽에 있는 점은 레이블이 그려집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#12",
+      "source": "what the dashed horizontal line represents, quoted in the legend text and stats CSV.",
+      "source_sha256": "4c9c1aac97ff69e7c4cbab26ec218f2d0ebe0f34a5b3e7b2cc081b4e2498f495",
+      "context": "what the dashed horizontal line represents, quoted in the legend text and stats CSV.",
+      "translation": "파선 가로선이 나타내는 내용이며, 범례 텍스트와 통계 CSV 에 인용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#13",
+      "source": "x value of the dotted vertical effect-threshold line.",
+      "source_sha256": "27159a1664c4aed73909dbfa6b1889f035ff678082b2dde46b4d467352bc4fec",
+      "context": "x value of the dotted vertical effect-threshold line.",
+      "translation": "점선으로 그린 세로 효과 임계선의 x 값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#14",
+      "source": "what the dotted vertical line represents, quoted in the legend text and stats CSV.",
+      "source_sha256": "46405c88524e4c1a58e6ad7a536e5786645b2d4ee4da3106643a74bbd9733633",
+      "context": "what the dotted vertical line represents, quoted in the legend text and stats CSV.",
+      "translation": "점선 세로선이 나타내는 내용이며, 범례 텍스트와 통계 CSV 에 인용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#4",
+      "source": "column of horizontal (effect) values; must be numeric.",
+      "source_sha256": "2960b18a2c0b22e17030af87b17cb4e9e9404e5456033d1f0d648f507cb36525",
+      "context": "column of horizontal (effect) values; must be numeric.",
+      "translation": "가로(효과) 값 열이며, 숫자형이어야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#5",
+      "source": "column of vertical values; must be numeric.",
+      "source_sha256": "182dfac5600428cb50f6bad9c6d72977546c44184aa81abe459580e5e914bd90",
+      "context": "column of vertical values; must be numeric.",
+      "translation": "세로 값 열이며, 숫자형이어야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#6",
+      "source": "column of LOPIT/TAGM localisation categories that colour the points; every category must have a colour in ``palette``.",
+      "source_sha256": "390bc8060a3d2f985110ee030f5e97d610eddcb8e3c30fba9d8ec9553361382b",
+      "context": "column of LOPIT/TAGM localisation categories that colour the points; every category must have a colour in ``palette``.",
+      "translation": "점의 색을 정하는 LOPIT/TAGM 국재화 범주 열입니다. 모든 범주는 ``palette`` 에 색이 있어야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#9",
+      "source": "``(min, max)`` horizontal axis limits, also recorded in the stats CSV.",
+      "source_sha256": "848d9a67773256e53fd800c6c02c841384de62b3860d0e31fb0cc45becd68af1",
+      "context": "``(min, max)`` horizontal axis limits, also recorded in the stats CSV.",
+      "translation": "``(min, max)`` 가로축 한계이며, 통계 CSV 에도 기록됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.report.Section#8",
+      "source": ":data:`STATUS_OK`, :data:`STATUS_MISSING`, or :data:`STATUS_PROBLEM`.",
+      "source_sha256": "51a9ca13677c776c9faa5b9e5203f954c21879991efc906b7fd47446bd5db101",
+      "context": ":data:`STATUS_OK`, :data:`STATUS_MISSING`, or :data:`STATUS_PROBLEM`.",
+      "translation": ":data:`STATUS_OK`, :data:`STATUS_MISSING` 또는 :data:`STATUS_PROBLEM` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.resource_log#5",
+      "source": "WHY IT IS NOT VERBOSE LOGGING. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon thread that is never the GUI thread, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
+      "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
+      "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
+      "translation": "왜 상세 로깅이 아닌가. 상세 로깅은 어떤 로그 레코드를 남길지만 결정하므로, 메모리에 대해 알려 줄 수 있는 것이 없습니다. 상세 로깅이 한때 설치했던 함수 추적기는 모든 호출과 모든 반환마다 실행되었고, 시작 시간의 스무 배 비용이 들었습니다. 추적기를 통해 얻은 기록은 실제 프로그램이 아니라 추적된 프로그램을 설명하게 되는데, 그것은 바로 아무도 측정하고 싶어 하지 않는 프로그램입니다. 그래서 대신 샘플링합니다. 결코 GUI 실행 경로가 아닌 데몬 실행 경로에서, 그 외에는 교란되지 않은 처리 세션에 대해 초당 한 번 psutil 을 읽습니다. 체크박스가 아니라 세 가지 상태인 이유는 유용한 기본값이 \"off\" 가 아니기 때문입니다 -- 가장 가치 있는 리소스 데이터는 아무도 실패할 것이라 예상하지 않은 처리 세션에서 나옵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.resume.completed_fields_in_merged#5",
+      "source": "restrict the scan to these stems. Defaults to every ``.npy`` in ``src`` whose name does not start with a dot: a macOS ``._`` sidecar ends in ``.npy`` too and is not a field.",
+      "source_sha256": "7b47b76533e52b4138dfbadea00ed0141d4c4e64d381da49ca3bfddbe5c90d5e",
+      "context": "restrict the scan to these stems. Defaults to every ``.npy`` in ``src`` whose name does not start with a dot: a macOS ``._`` sidecar ends in ``.npy`` too and is not a field.",
+      "translation": "스캔을 이 어간들로 제한합니다. 기본값은 모든 ``.npy`` 이며, ``src`` 안에서 이름이 점으로 시작하지 않는 것만 해당합니다. macOS ``._`` 보조 파일도 ``.npy`` 로 끝나지만 현미경 시야가 아니기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.rra.rank_aggregate#4",
+      "source": "``\"neg\"``, ``\"pos\"`` or ``\"both\"``.",
+      "source_sha256": "4c2b257de9edc448e04ce2a6f515a5d7875d51b5d93d00dac7f2851a1d4901a6",
+      "context": "``\"neg\"``, ``\"pos\"`` or ``\"both\"``.",
+      "translation": "``\"neg\"``, ``\"pos\"`` 또는 ``\"both\"`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.run_compare.Finding#2",
+      "source": ":data:`BLOCKING` or :data:`WARNING`.",
+      "source_sha256": "5c72e5d48679dc67ed076617e293b5952ac6fb56c060fd50e3be8a47cbfba267",
+      "context": ":data:`BLOCKING` or :data:`WARNING`.",
+      "translation": ":data:`BLOCKING` 또는 :data:`WARNING` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.run_compare.HitChange#2",
+      "source": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` or ``\"held\"``.",
+      "source_sha256": "0baf3aec5c8bf8e5a5f4738f2ea29aa447aceea7a28893168d76b0a5bc753a84",
+      "context": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` or ``\"held\"``.",
+      "translation": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` 또는 ``\"held\"`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#0",
+      "source": "Describe object types once, collapsing organelle slots into a regex.",
+      "source_sha256": "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
+      "context": "Describe object types once, collapsing organelle slots into a regex.",
+      "translation": "객체 유형을 한 번씩 설명하며, 소기관 슬롯은 하나의 정규식으로 묶습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#1",
+      "source": "internal object identifiers, in display order.",
+      "source_sha256": "760e45115cd2aa3ddc62378e0bc0413289019e46c298796d26471281ba17ffb5",
+      "context": "internal object identifiers, in display order.",
+      "translation": "표시 순서대로 나열된 내부 객체 식별자입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#2",
+      "source": "comma-separated types. Organelle identifiers are represented by one exact pattern, such as ``organelle(?:[b-z]|[a-z]{2})?`` for all slots. This changes presentation only, never stored identifiers or parsing.",
+      "source_sha256": "171071046f8826b4bb3a934ac411a3caf70775979028ff5d2196f6b8b35619ff",
+      "context": "comma-separated types. Organelle identifiers are represented by one exact pattern, such as ``organelle(?:[b-z]|[a-z]{2})?`` for all slots. This changes presentation only, never stored identifiers or parsing.",
+      "translation": "쉼표로 구분된 유형입니다. 소기관 식별자는 모든 슬롯에 대해 ``organelle(?:[b-z]|[a-z]{2})?`` 와 같은 정확한 패턴 하나로 표현됩니다. 이는 표시 방식만 바꾸며, 저장된 식별자나 파싱은 절대 바꾸지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.schema.parse_prcf#6",
+      "source": "e.g. ``'plate1_r1_c1_f2'`` or ``'plate1_r1_c1_f2_t3'``.",
+      "source_sha256": "4cdac837d8e8ce51e7bab6b3fa48169145c7c97a1419d54d50749a47296dffbe",
+      "context": "e.g. ``'plate1_r1_c1_f2'`` or ``'plate1_r1_c1_f2_t3'``.",
+      "translation": "예: ``'plate1_r1_c1_f2'`` 또는 ``'plate1_r1_c1_f2_t3'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.schema.parse_prcfo#3",
+      "source": "e.g. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` or ``'plate1_r1_c1_f2_nucleus7'``.",
+      "source_sha256": "34f72d16518586e8b5f0fba00ce214b10e4448ca27115ec38606e729ba28e464",
+      "context": "e.g. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` or ``'plate1_r1_c1_f2_nucleus7'``.",
+      "translation": "예: ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` 또는 ``'plate1_r1_c1_f2_nucleus7'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.average_precision#1",
+      "source": "the ground-truth label image, 0 for background and one integer id per object.",
+      "source_sha256": "ee4ab18db1a34cacd4ba3a926332eadcc8abd55aa2f48f10e7eeeefdb7b13bfe",
+      "context": "the ground-truth label image, 0 for background and one integer id per object.",
+      "translation": "정답 레이블 이미지이며, 배경은 0 이고 객체마다 정수 ID 하나입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.average_precision#2",
+      "source": "the predicted label image, the same shape as ``truth``.",
+      "source_sha256": "7cef880b60762f3c35c0c8537e9f376c361728a95f42da6a9546f2ed67d7822e",
+      "context": "the predicted label image, the same shape as ``truth``.",
+      "translation": "예측된 레이블 이미지이며, ``truth`` 와 같은 형태입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_against_baseline#2",
+      "source": "the finetuned model's label image for the same field.",
+      "source_sha256": "6eaa6ee6e980d77b84c9dc942b68ef883ee79aa5e1fee1aa6e1045ba2b2f4ad5",
+      "context": "the finetuned model's label image for the same microscope field of view.",
+      "translation": "같은 현미경 시야에 대한 미세 조정 모델의 레이블 이미지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_against_baseline#3",
+      "source": "the vanilla model's label image for the same field.",
+      "source_sha256": "ce139cd740d52100af4a4a5259cf472987d80c6c10b75d3196b59d5266562490",
+      "context": "the vanilla model's label image for the same microscope field of view.",
+      "translation": "같은 현미경 시야에 대한 기본 모델의 레이블 이미지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#2",
+      "source": "ground truth per object, 0 or 1.",
+      "source_sha256": "5f8d086a44b2740fdaa1488ec1146cfd07599cb12a4ad656f520d008b06c3e00",
+      "context": "ground truth per object, 0 or 1.",
+      "translation": "객체별 정답이며, 0 또는 1 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#3",
+      "source": "the finetuned classifier's predicted probability of the positive class, one per label.",
+      "source_sha256": "f1aed30813817a6ff4bafaf38f57f7c035b77949d596b140fc963ec08857dc01",
+      "context": "the finetuned machine-learning classification model's predicted probability of the positive class, one per label.",
+      "translation": "미세 조정된 분류기가 예측한 양성 클래스 확률이며, 레이블마다 하나입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#4",
+      "source": "the vanilla classifier's predicted probability of the positive class, one per label.",
+      "source_sha256": "e6d38dd6f33139f9964e5c26091cfc41b9d933a0f79e60b2875cab4a98e46f0b",
+      "context": "the vanilla machine-learning classification model's predicted probability of the positive class, one per label.",
+      "translation": "기본 분류기가 예측한 양성 클래스 확률이며, 레이블마다 하나입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.load_holdout#1",
+      "source": "path to the hold-out manifest JSON, which must declare ``name``, ``version`` and ``fields``.",
+      "source_sha256": "ddb881556d528af38b614cc2b711627fb657dcb9f155a369a080dc21307199cd",
+      "context": "path to the hold-out manifest JSON, which must declare ``name``, ``version`` and ``fields``.",
+      "translation": "보류 세트 매니페스트 JSON 의 경로이며, ``name``, ``version``, ``fields`` 를 선언해야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.score_holdout#2",
+      "source": "the held-out set's name, carried into the result.",
+      "source_sha256": "e03ba97193609d2e0b2f9d479f331ed4dc7d69e14b36dced33b1124a98c73ceb",
+      "context": "the held-out set's name, carried into the result.",
+      "translation": "결과에 함께 담기는 보류 세트의 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.score_holdout#3",
+      "source": "the held-out set's version, carried into the result.",
+      "source_sha256": "85bb415aab3c4fabdd3d73fa773f1736e8ce52c68231cd9518cf0a8db459d61f",
+      "context": "the held-out set's version, carried into the result.",
+      "translation": "결과에 함께 담기는 보류 세트의 버전입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.score_model_on_holdout#1",
+      "source": "the hold-out set whose fields' images are predicted and whose truth masks are read.",
+      "source_sha256": "6700e0ac8fa8ea7fda7fc6f64c942d56ad978cc94541412759c8e75cc4de55d8",
+      "context": "the hold-out set whose microscope fields of view' images are predicted and whose truth masks are read.",
+      "translation": "현미경 시야 이미지를 예측하고 정답 마스크를 읽어 들이는 보류 세트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_csv#1",
+      "source": "the table rows, as from :func:`scorecard_rows`; the first row's keys are the CSV columns, and no rows gives ``\"\"``.",
+      "source_sha256": "58364729364ace6703a2c638e6dfe1ad86e2bbdfbf3baa6189176e44885784df",
+      "context": "the table rows, as from :func:`scorecard_rows`; the first row's structured-data names are the CSV columns, and no rows gives ``\"\"``.",
+      "translation": "테이블 행이며, :func:`scorecard_rows` 가 반환하는 형태입니다. 첫 번째 행의 키가 CSV 열이 되며, 행이 없으면 ``\"\"`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_rows#2",
+      "source": "the finetuned model's score.",
+      "source_sha256": "9a4ddad6df58a7795b1d0c33f22b70d4f17cbdae89b6d07981f9ab5d185796a2",
+      "context": "the finetuned model's score.",
+      "translation": "미세 조정된 모델의 점수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_rows#3",
+      "source": "the vanilla model's score, on the same set name and version.",
+      "source_sha256": "dd7aaf34d08113390ed86637ab14357bddff9960d083d8e957083c9bdd3ef54e",
+      "context": "the vanilla model's score, on the same set name and version.",
+      "translation": "같은 세트 이름과 버전에 대한 기본 모델의 점수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.scorecard.verify_holdout#1",
+      "source": "the hold-out set whose truth masks are checked on disk.",
+      "source_sha256": "2a9c5d8ac80e740041e87b2aa22a7957592cfd7cae2e140aac5293b2eaed77e8",
+      "context": "the hold-out set whose truth masks are checked on disk.",
+      "translation": "디스크에서 정답 마스크를 확인할 보류 세트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.screen_data.ScreenAsset#3",
+      "source": "``\"measurements\"`` or ``\"crops\"``.",
+      "source_sha256": "86ca1b1ab7225d300a7a1272f83042515f040984eda451d4e49deaf7935c81d2",
+      "context": "``\"measurements\"`` or ``\"crops\"``.",
+      "translation": "``\"measurements\"`` 또는 ``\"crops\"`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#10",
+      "source": "``% border-touching objects`` Objects that touch the field edge are truncated, so their crops are cut off and their areas understate the truth. For objects of diameter *d* on a *W*-wide field the geometric expectation is about ``2*d/W`` — 8% for 60 px cells on a 1400 px field. ``seg_qc_border_fraction`` defaults to 0.30: a configurable review threshold, not a universal geometric limit.",
+      "source_sha256": "35993bb7adf1146609e384165c4fda0d181fe179fee3a32cbae36d78dbc81b9d",
+      "context": "``% border-touching objects`` Objects that touch the microscope field of view edge are truncated, so their extracted image regions are cut off and their areas understate the truth. For objects of diameter *d* on a *W*-wide microscope field of view the geometric expectation is about ``2*d/W`` — 8% for 60 px cells on a 1400 px microscope field of view. ``seg_qc_border_fraction`` defaults to 0.30: a configurable review threshold, not a universal geometric limit.",
+      "translation": "``% border-touching objects`` 현미경 시야 가장자리에 닿는 객체는 잘려 있으므로, 그 추출된 이미지 영역은 잘려 나가고 면적은 실제보다 작게 나타납니다. 지름 *d* 인 객체가 너비 *W* 인 현미경 시야에 있을 때 기하학적 기대값은 약 ``2*d/W`` 입니다 — 1400 px 현미경 시야의 60 px 세포라면 8% 입니다. ``seg_qc_border_fraction`` 의 기본값은 0.30 이며, 보편적인 기하학적 한계가 아니라 설정 가능한 검토 임계값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#11",
+      "source": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
+      "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
+      "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
+      "translation": "``size outliers`` 등가 지름이 ``median ± seg_qc_outlier_mad * 1.4826 * MAD`` 밖에 있는 객체의 비율입니다. 평균과 표준 편차가 아니라 중앙값과 MAD 를 씁니다. 잔해 다섯 조각만으로도 표준 편차가 부풀어 더 이상 어떤 것도 이상치가 아니게 되는데, 이 검사가 잡아내려고 존재하는 바로 그 경우입니다(``tests/test_seg_qc.py`` 가 둘을 대비합니다). *k* = 5 는 의도적으로 느슨합니다 — 실제 크기 분포는 로그 정규 분포이며 가우시안보다 꼬리가 두꺼우므로, 3 sigma 기준은 완전히 정상적인 현미경 시야에서도 몇 퍼센트를 표시합니다. 이 플래그는 객체 중 ``seg_qc_outlier_fraction`` (0.15)보다 많은 비율이 그 범위 밖에 있을 때 발생합니다. 두꺼운 꼬리, 혼합된 집단, 분할 결함 모두 이를 촉발할 수 있으며, 플래그는 그중 무엇이 존재하는지 식별하지 않습니다. 경계 객체는 ``diameter._region_diameters`` 가 제외하는 것과 똑같이 모든 크기 통계에서 제외되는데, 잘린 객체의 면적은 거짓이기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#17",
+      "source": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` Every flag in :data:`FLAGS` in plain language: what it means for the measurements, possible explanations, and what to inspect. Where uneven illumination is one possible cause, the entry says so and points at :mod:`spacr.illumination`, which estimates the lamp profile from the plate's own fields and divides it out. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → plate ``plate1``, well ``E07``, row ``E``, column 7. Naming the plate and the wells is the difference between \"3 plates failed\" and something a user can go and look at. ``diagnose(field_qcs)`` → ``[Finding]`` Per-plate, per-flag findings that name the plate and the wells, plus the positional ones no single field can see: a plate whose object count or object size steps between one half of the rows (or columns) and the other. These patterns warrant checking illumination, experimental layout, treatment and biology; they do not establish a cause. ``read_digest(src)`` → ``QCDigest`` The cheap path: locate ``qc/segmentation_qc_*.csv`` under a project, parse it, roll it up, diagnose it, and compare each card's mtime against its mask stack so a card written before the last re-mask is reported as out of date rather than believed. Scores nothing. ``score_digest(src)`` → ``QCDigest`` The expensive path, for the user who asks for it explicitly: score the mask stacks under a project, write the cards, return the same digest. ``format_digest(digest)`` The printable version.",
+      "source_sha256": "4e5ab2039531bb8fa1017de18ec328e6368ff0e4cf8eef752ebb7759f4d80d40",
+      "context": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` Every flag in :data:`FLAGS` in plain language: what it means for the measurements, possible explanations, and what to inspect. Where uneven illumination is one possible cause, the entry says so and points at :mod:`spacr.illumination`, which estimates the lamp profile from the laboratory microplate's own microscope fields of view and divides it out. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → laboratory microplate ``plate1``, microplate sample position ``E07``, row ``E``, column 7. Naming the laboratory microplate and the microplate sample positions is the difference between \"3 laboratory microplates failed\" and something a user can go and look at. ``diagnose(field_qcs)`` → ``[Finding]`` Per-laboratory microplate, per-flag findings that name the laboratory microplate and the microplate sample positions, plus the positional ones no single microscope field of view can see: a laboratory microplate whose object count or object size steps between one half of the rows (or columns) and the other. These patterns warrant checking illumination, experimental layout, treatment and biology; they do not establish a cause. ``read_digest(src)`` → ``QCDigest`` The cheap path: locate ``qc/segmentation_qc_*.csv`` under a project, parse it, roll it up, diagnose it, and compare each card's mtime against its mask stack so a card written before the last re-mask is reported as out of date rather than believed. Scores nothing. ``score_digest(src)`` → ``QCDigest`` The expensive path, for the user who asks for it explicitly: score the mask stacks under a project, write the cards, return the same digest. ``format_digest(digest)`` The printable version.",
+      "translation": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` :data:`FLAGS` 의 모든 플래그를 쉬운 말로 설명합니다: 측정값에 대해 무엇을 뜻하는지, 가능한 설명, 무엇을 확인해야 하는지. 불균일한 조명이 가능한 원인 중 하나라면 항목에 그렇게 적고 :mod:`spacr.illumination` 을 가리키는데, 이 모듈은 플레이트 자체의 현미경 시야로부터 램프 프로파일을 추정해 이를 나누어 제거합니다. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → 플레이트 ``plate1``, 시료 위치 ``E07``, 행 ``E``, 열 7. 플레이트와 시료 위치를 명시하는 것이 \"플레이트 3 개 실패\" 와 사용자가 직접 가서 볼 수 있는 정보의 차이입니다. ``diagnose(field_qcs)`` → ``[Finding]`` 플레이트별, 플래그별 결과로 플레이트와 시료 위치를 명시하며, 단일 현미경 시야로는 볼 수 없는 위치 기반 결과도 포함합니다. 즉 객체 수나 객체 크기가 행(또는 열)의 한쪽 절반과 다른 쪽 절반 사이에서 단차를 보이는 플레이트입니다. 이러한 패턴은 조명, 실험 레이아웃, 처리 조건, 생물학을 확인할 근거가 되지만 원인을 확정하지는 않습니다. ``read_digest(src)`` → ``QCDigest`` 저비용 경로: 프로젝트 아래에서 ``qc/segmentation_qc_*.csv`` 를 찾아 파싱하고, 집계하고, 진단하며, 각 카드의 mtime 을 해당 마스크 스택과 비교하여 마지막 마스크 재생성 전에 기록된 카드는 그대로 믿지 않고 오래된 것으로 보고합니다. 아무것도 채점하지 않습니다. ``score_digest(src)`` → ``QCDigest`` 명시적으로 요청하는 사용자를 위한 고비용 경로: 프로젝트 아래의 마스크 스택을 채점하고, 카드를 기록하고, 같은 요약을 반환합니다. ``format_digest(digest)`` 출력용 버전입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#2",
+      "source": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every channel, computes hundreds of features per object and writes them to SQLite. On a full plate that is hours. A plate whose segmentation collapsed — a channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious fields, but cannot establish their cause or validate biological interpretation.",
+      "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
+      "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
+      "translation": "``measure_crop`` 은 spaCR 에서 비용이 큰 단계입니다. 모든 마스크를 열고, 모든 채널에서 모든 객체를 잘라 내고, 객체마다 수백 개의 특징을 계산하여 SQLite 에 기록합니다. 전체 플레이트라면 몇 시간이 걸립니다. 분할이 무너진 플레이트 — 초점이 맞지 않은 채널, 두 배나 틀린 지름, 판 모양으로 융합된 컨플루언트 단층 — 도 정확히 같은 시간이 들고, 결국 버려야 할 측정 테이블을 만들어 냅니다. 이 실패는 마스크만 봐도 명백하지만, 확인하려면 ``.npy`` 파일 천 개를 손으로 열어야 하므로 아무도 보지 않습니다. 마스크 통계는 의심스러운 현미경 시야를 강조할 수 있지만, 그 원인을 확정하거나 생물학적 해석을 검증할 수는 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#3",
+      "source": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every field against a handful of robust statistics, and prints a scorecard naming fields that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop fields. Deciding which fields to keep is the user's call and it needs the evidence, not a filter.",
+      "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
+      "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
+      "translation": "그래서 이 모듈이 확인합니다. :mod:`spacr.object` 가 방금 기록한 레이블 마스크를 읽고, 몇 가지 강건한 통계로 모든 현미경 시야를 채점하고, 설정된 임계값을 넘는 현미경 시야를 명시한 점수표를 출력합니다. 아무것도 바꾸지 않습니다. ``seg_qc='report'`` (기본값)는 플래그를 드러낼 뿐 현미경 시야를 조용히 제외하지 않습니다. 어떤 현미경 시야를 유지할지는 사용자가 결정할 일이며, 그 결정에는 필터가 아니라 근거가 필요합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#7",
+      "source": "``object count`` and its deviation from the plate median ``count_ratio`` is ``n_objects / plate_median``; outside ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 to 4-fold) the field is flagged. Such a difference may reflect treatment, infection, seeding, acquisition or segmentation. Inspect the experimental layout and images; the count ratio alone cannot distinguish those explanations.",
+      "source_sha256": "a9652be9b277bfce5d3276905441f03e164e6e17d9644021028483dfab9f4519",
+      "context": "``object count`` and its deviation from the laboratory microplate median ``count_ratio`` is ``n_objects / plate_median``; outside ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 to 4-fold) the microscope field of view is flagged. Such a difference may reflect treatment, infection, seeding, acquisition or segmentation. Inspect the experimental layout and images; the count ratio alone cannot distinguish those explanations.",
+      "translation": "``object count`` 와 플레이트 중앙값으로부터의 편차: ``count_ratio`` 는 ``n_objects / plate_median`` 이며, ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 에서 4 배) 밖이면 현미경 시야에 플래그가 지정됩니다. 이러한 차이는 처리 조건, 감염, 세포 파종, 획득 또는 분할을 반영할 수 있습니다. 실험 레이아웃과 이미지를 확인하십시오. 개수 비율만으로는 이러한 설명을 구별할 수 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#8",
+      "source": "``under-segmentation`` (fused objects) Detected the way :mod:`spacr.diameter` detects it, and for the same reason: **both halves of the signature are required**. The field must be dense enough for fusion to be the explanation (foreground at or above ``seg_qc_foreground_fraction``, default 0.35 — the same number ``diameter.estimate_diameters(fused_fraction=...)`` uses, because it is the same question), *and* the mask must under-count what the pixels support: either one label covers more than ``seg_qc_max_object_fraction`` of the field (0.25, again diameter.py's number), or the Euclidean distance transform of the foreground resolves at least ``seg_qc_split_ratio`` (2.0) inscribed-circle maxima per mask object. Requiring both matters in each direction: a dense but correctly separated field reaches 35% foreground and is fine, while an elongated or hollow object shatters the distance transform into several maxima and is also fine. diameter.py demands a 5-fold seed excess because it compares against raw Otsu components, where a confluent monolayer is one blob; here the comparison is against a Cellpose mask that already separates most objects, and the smallest fusion worth catching — every object being a welded pair — is exactly 2. Large, irregular or confluent biological objects can also trigger the heuristic; confirm boundaries against the raw images.",
+      "source_sha256": "3e1f6a4f6d40e15088b91fc4636e817a5ec433bce3518835f9feb7096d8f4458",
+      "context": "``under-segmentation`` (fused objects) Detected the way :mod:`spacr.diameter` detects it, and for the same reason: **both halves of the signature are required**. The microscope field of view must be dense enough for fusion to be the explanation (foreground at or above ``seg_qc_foreground_fraction``, default 0.35 — the same number ``diameter.estimate_diameters(fused_fraction=...)`` uses, because it is the same question), *and* the mask must under-count what the pixels support: either one label covers more than ``seg_qc_max_object_fraction`` of the microscope field of view (0.25, again diameter.py's number), or the Euclidean distance transform of the foreground resolves at least ``seg_qc_split_ratio`` (2.0) inscribed-circle maxima per mask object. Requiring both matters in each direction: a dense but correctly separated microscope field of view reaches 35% foreground and is fine, while an elongated or hollow object shatters the distance transform into several maxima and is also fine. diameter.py demands a 5-fold seed excess because it compares against raw Otsu components, where a confluent monolayer is one blob; here the comparison is against a Cellpose mask that already separates most objects, and the smallest fusion worth catching — every object being a welded pair — is exactly 2. Large, irregular or confluent biological objects can also trigger the heuristic; confirm boundaries against the raw images.",
+      "translation": "``under-segmentation`` (융합된 객체) :mod:`spacr.diameter` 가 검출하는 방식과 같은 방식으로, 같은 이유로 검출합니다: **서명의 두 부분이 모두 필요합니다**. 현미경 시야는 융합이 설명이 될 만큼 조밀해야 하고(전경이 ``seg_qc_foreground_fraction`` 이상, 기본값 0.35 — 같은 질문이므로 ``diameter.estimate_diameters(fused_fraction=...)`` 가 사용하는 것과 같은 숫자), *또한* 마스크가 픽셀이 뒷받침하는 것보다 적게 세어야 합니다. 즉 레이블 하나가 현미경 시야의 ``seg_qc_max_object_fraction`` 보다 많이 덮거나(0.25, 역시 diameter.py 의 숫자), 전경의 유클리드 거리 변환이 마스크 객체당 최소 ``seg_qc_split_ratio`` (2.0)개의 내접원 최댓값을 분해해 내야 합니다. 둘 다 요구하는 것은 양방향으로 중요합니다. 조밀하지만 올바르게 분리된 현미경 시야는 전경이 35% 에 이르러도 괜찮고, 길쭉하거나 속이 빈 객체는 거리 변환을 여러 최댓값으로 쪼개지만 이 역시 괜찮습니다. diameter.py 는 원시 Otsu 성분과 비교하므로 5 배의 시드 초과를 요구하는데, 거기서는 컨플루언트 단층이 하나의 덩어리이기 때문입니다. 여기서는 이미 대부분의 객체를 분리하는 Cellpose 마스크와 비교하며, 잡아낼 가치가 있는 가장 작은 융합 — 모든 객체가 붙어 버린 쌍인 경우 — 은 정확히 2 입니다. 크거나 불규칙하거나 컨플루언트한 생물학적 객체도 이 휴리스틱을 촉발할 수 있으므로, 원시 이미지로 경계를 확인하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc#9",
+      "source": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the field's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, but these defaults must be adapted for genuinely small objects. Relative to the plate: the field holds ``seg_qc_size_ratio``-fold more objects than the plate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
+      "source_sha256": "de3d9d7254732ef378abd9d523f001bae639400112d2f01dc6efbe7935097c4d",
+      "context": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the microscope field of view's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, but these defaults must be adapted for genuinely small objects. Relative to the laboratory microplate: the microscope field of view holds ``seg_qc_size_ratio``-fold more objects than the laboratory microplate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
+      "translation": "``over-segmentation`` (산산이 조각난 객체) 두 가지 서명이 있습니다. 절대 기준: 현미경 시야 객체의 최소 ``seg_qc_tiny_fraction`` (0.30)이 지름 ``seg_qc_min_diameter`` (5 px) 미만입니다 — spaCR 의 지름 추정기는 이미 4 px 미만의 성분을 잔해로 버리지만, 실제로 작은 객체에 대해서는 이 기본값을 조정해야 합니다. 플레이트 대비 기준: 현미경 시야가 플레이트 중앙값보다 ``seg_qc_size_ratio`` 배 많은 객체를, 중앙값 지름의 ``1/seg_qc_size_ratio`` 크기로 가집니다. 이 조절값의 기본값이 1.4 = sqrt(2) 인 것은 의도적입니다 — 하나로 붙은 두 객체는 하나일 때의 sqrt(2) 배 등가 지름을 가지고, 둘로 쪼개진 객체는 1/sqrt(2) 배를 가지므로, 1.4 는 임의의 허용 오차가 아니라 융합 쌍 / 반쪽 분리 서명 그 자체입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest#7",
+      "source": "what :func:`diagnose` made of current, readable cards.",
+      "source_sha256": "6e98f705276d32622323c653b2722fc6661e65b1bc063bc8239436a3c5a594a2",
+      "context": "what :func:`diagnose` made of current, readable cards.",
+      "translation": "현재 읽을 수 있는 카드들로부터 :func:`diagnose` 가 도출한 결과입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest.failing_fields#0",
+      "source": "Fields scored ``'fail'`` in current, readable cards.",
+      "source_sha256": "087d7330441efb6c419490e8a975b28c7bc7db27633f9fc64fccc8f0a5b9312b",
+      "context": "Fields scored ``'fail'`` in current, readable cards.",
+      "translation": "현재 읽을 수 있는 카드에서 ``'fail'`` 로 채점된 현미경 시야입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest.n_fields#0",
+      "source": "Fields scored in current, readable cards; stale rows are excluded.",
+      "source_sha256": "341744fd4236fe20769f498595a56c8f3a9d8f6dd1422b752fceaf2aa065082d",
+      "context": "Fields scored in current, readable cards; stale rows are excluded.",
+      "translation": "현재 읽을 수 있는 카드에서 채점된 현미경 시야이며, 오래된 행은 제외됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.seg_qc.Scorecard.verdict#0",
+      "source": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
+      "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
+      "context": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
+      "translation": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` 또는 ``'error'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc.qc_mode#3",
+      "source": "``'off'``, ``'report'`` or ``'flag'``.",
+      "source_sha256": "9c8b90ba958d182c320912edf49e3ab25ac67465618c5022a82bc61485180d53",
+      "context": "``'off'``, ``'report'`` or ``'flag'``.",
+      "translation": "``'off'``, ``'report'`` 또는 ``'flag'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
