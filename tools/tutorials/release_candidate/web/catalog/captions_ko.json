@@ -8781,24 +8781,24 @@
       "id": "53_prediction_profiler",
       "number": 53,
       "slug": "prediction_profiler",
-      "title": "Prediction Profiler: explore a fitted model",
+      "title": "Prediction Profiler: 적합된 모델 탐색",
       "series": 5,
       "app_key": "profiler",
       "section": "Explore",
-      "description": "Load model coefficients, vary one input while holding others fixed, and inspect predicted responses.",
+      "description": "모델 계수를 불러오고, 다른 입력은 고정한 채 한 입력을 바꾸며 예측 반응을 확인합니다.",
       "objectives": [
-        "Load coefficients with the correct model link.",
-        "Sweep one input and adjust held values.",
-        "Inspect response curves and sensitivity."
+        "올바른 연결 함수로 계수를 불러옵니다.",
+        "한 입력을 스윕하고 고정값을 조정합니다.",
+        "반응 곡선과 민감도를 확인합니다."
       ],
       "example_files": [
         "SYNTHETIC_profiler_example.zip"
       ],
-      "prerequisite": "Download the synthetic coefficient example, or use coefficients from a suitable fitted model. Match its link and input encoding. The coefficient-file route assumes input ranges of zero to one; separate marginal effects are not substitutes for a jointly fitted prediction model.",
+      "prerequisite": "합성 계수 예제를 내려받거나, 적절히 적합된 모델의 계수를 쓰세요. 연결 함수와 입력 인코딩을 맞추세요. 계수 파일 방식은 입력 범위를 0에서 1로 가정합니다. 따로 구한 한계 효과는 함께 적합한 예측 모델을 대신할 수 없습니다.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "Open Regression, then Prediction Profiler to explore predicted responses from a fitted model. The linked example uses synthetic data.",
+          "narration": "Regression을 연 뒤 Prediction Profiler를 열어 적합된 모델의 예측 반응을 살펴보세요. 연결된 예제는 합성 데이터를 씁니다.",
           "focus": [
             460,
             45,
@@ -8812,7 +8812,7 @@
         },
         {
           "visual": "03_explicit_synthetic_coefficients_picker",
-          "narration": "Download and unzip the example, then Browse to the synthetic OLS coefficients CSV. Include the intercept when supplying your own fitted coefficients.",
+          "narration": "예제를 내려받아 압축을 푼 뒤 Browse로 합성 OLS 계수 CSV를 찾으세요. 자신이 적합한 계수를 쓸 때는 절편도 포함하세요.",
           "focus": [
             890,
             390,
@@ -8823,7 +8823,7 @@
         },
         {
           "visual": "05_link_options_keep_identity",
-          "narration": "Set Link to the function used by the fitted model. Keep identity for this ordinary least-squares example.",
+          "narration": "Link를 적합된 모델이 쓴 함수로 지정하세요. 이 보통 최소제곱 예제에서는 identity를 유지하세요.",
           "focus": [
             2910,
             465,
@@ -8834,7 +8834,7 @@
         },
         {
           "visual": "04_loaded_identity_model",
-          "narration": "Check the range information after loading. The coefficient-file route assumes each input spans zero to one. Confirm that this matches your intended use before interpreting the curves.",
+          "narration": "불러온 뒤 범위 정보를 확인하세요. 계수 파일 방식은 각 입력이 0에서 1까지라고 가정합니다. 곡선을 해석하기 전에 이것이 의도한 용도와 맞는지 확인하세요.",
           "focus": [
             470,
             530,
@@ -8845,7 +8845,7 @@
         },
         {
           "visual": "06_hold_b_at_one",
-          "narration": "Select Input A for the sweep. Move the held Input B slider to one and inspect the resulting response curve.",
+          "narration": "스윕할 입력으로 Input A를 고르세요. 고정된 Input B 슬라이더를 1로 옮기고 그에 따른 반응 곡선을 확인하세요.",
           "focus": [
             1480,
             590,
@@ -8856,7 +8856,7 @@
         },
         {
           "visual": "07_hold_b_at_zero",
-          "narration": "Move B to zero and compare the response values. Watch the axis scale as well as the line, because the plot may rescale.",
+          "narration": "B를 0으로 옮기고 반응 값을 비교하세요. 그래프의 축척이 바뀔 수 있으니 선뿐 아니라 축 눈금도 보세요.",
           "focus": [
             1480,
             590,
@@ -8867,7 +8867,7 @@
         },
         {
           "visual": "08_reset_midpoints",
-          "narration": "Click Reset held values to return the sliders to the midpoints of their assumed ranges, one half in this example.",
+          "narration": "Reset held values를 클릭하면 슬라이더가 가정된 범위의 중간, 이 예제에서는 0.5로 돌아갑니다.",
           "focus": [
             1470,
             1435,
@@ -8878,7 +8878,7 @@
         },
         {
           "visual": "09_sweep_second_input",
-          "narration": "Select Input B in the ranked list to sweep B while holding A fixed. The ranking summarizes model sensitivity over its configured input ranges.",
+          "narration": "순위 목록에서 Input B를 선택하면 A를 고정한 채 B를 스윕합니다. 이 순위는 설정한 입력 범위에서의 모델 민감도를 요약합니다.",
           "focus": [
             470,
             590,
@@ -8889,7 +8889,7 @@
         },
         {
           "visual": "10_eleven_grid_points",
-          "narration": "Change Points to choose the number of positions evaluated along the plotted curve. Eleven gives a coarser grid than sixty-one without changing the fitted model.",
+          "narration": "Points를 바꿔 곡선을 따라 계산할 위치 수를 고르세요. 11은 61보다 성긴 격자를 주지만 적합된 모델은 바뀌지 않습니다.",
           "focus": [
             1480,
             465,
@@ -8900,7 +8900,7 @@
         },
         {
           "visual": "11_hold_a_at_one",
-          "narration": "Adjust the held values to explore further scenarios, then reset when finished. Interpret the curves as model predictions and assess real experimental effects with appropriate data.",
+          "narration": "고정값을 조정해 다른 상황을 탐색하고, 끝나면 재설정하세요. 곡선은 모델 예측으로 해석하고, 실제 실험 효과는 적절한 데이터로 평가하세요.",
           "focus": [
             1480,
             590,
@@ -8918,6 +8918,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9762,22 +9802,22 @@
       "id": "59_anndata_export",
       "number": 59,
       "slug": "anndata_export",
-      "title": "AnnData Export: save measured objects and features",
+      "title": "AnnData Export: 측정된 객체와 특징 저장",
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
       "section": "Measure",
-      "description": "Export joined measurements or one object table to h5ad, choose how to handle missing values and retain object metadata.",
+      "description": "결합된 측정값이나 객체 표 하나를 h5ad로 내보내고, 결측값 처리 방식을 고르고, 객체 메타데이터를 유지합니다.",
       "objectives": [
-        "Open AnnData Export and select a measured project.",
-        "Choose joined or single-table measurements and a missing-value policy.",
-        "Export an h5ad file with feature names and object metadata."
+        "AnnData Export를 열고 측정된 프로젝트를 선택합니다.",
+        "결합 측정값 또는 단일 표와 결측값 정책을 고릅니다.",
+        "특징 이름과 객체 메타데이터가 있는 h5ad 파일을 내보냅니다."
       ],
-      "prerequisite": "Use a project that has completed Measure, or download the measurements example through Annotate. Work on a copy of the project and retain its source images. Use the current nightly build for the normal exporter shown here.",
+      "prerequisite": "Measure를 마친 프로젝트를 쓰거나, Annotate에서 측정 예제를 내려받으세요. 프로젝트 사본으로 작업하고 원본 이미지를 보관하세요. 여기서 보여 주는 일반 내보내기에는 현재 nightly 빌드를 쓰세요.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "From Home, open Measure, then choose AnnData Export. Use this tool to save measured objects, their features and their metadata together in an h5ad file.",
+          "narration": "Home에서 Measure를 연 뒤 AnnData Export를 선택하세요. 측정된 객체, 그 특징, 메타데이터를 h5ad 파일 하나에 함께 저장할 때 씁니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -9786,57 +9826,57 @@
         },
         {
           "visual": "03_private_downloaded_project",
-          "narration": "Select your measured project as Source. For this walkthrough, use a copy of the measurements example available through Annotate. Keep its measurements folder and source images together.",
+          "narration": "측정된 프로젝트를 Source로 선택하세요. 이 안내에서는 Annotate에서 구할 수 있는 측정 예제의 사본을 쓰세요. 측정 폴더와 원본 이미지를 함께 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_joined_keep_settings",
-          "narration": "Leave Single table empty to combine the selected tables onto cell rows. Set an output filename ending in h5ad. Keep float32 and gzip for a compact numerical export.",
+          "narration": "선택한 표를 세포 행에 결합하려면 Single table을 비워 두세요. 출력 파일 이름은 h5ad로 끝나게 정하세요. 간결한 수치 내보내기를 위해 float32와 gzip을 유지하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_setting_anndata_row_limit",
-          "narration": "Set Row limit to zero to include every available row. A positive limit is useful for a small first export. Leave Compute UMAP off when you only need the measurement matrix.",
+          "narration": "사용 가능한 모든 행을 포함하려면 Row limit을 0으로 두세요. 양수 한도는 작은 첫 내보내기에 유용합니다. 측정 행렬만 필요하면 Compute UMAP을 끈 채로 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_joined_keep_finished",
-          "narration": "Choose keep as the missing-value policy, then press Run. Read the completion message. The joined example contains two thousand three hundred forty-one cell rows and one thousand one hundred thirty-six features.",
+          "narration": "결측값 정책으로 keep을 고른 뒤 Run을 누르세요. 완료 메시지를 읽으세요. 결합 예제에는 세포 행 2,341개와 특징 1,136개가 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06_cell_keep_finished",
-          "narration": "Set Single table to cell and choose a new output filename. Run again to export the cell measurements alone. Here, the result has two hundred sixty-one features and twenty-eight missing values.",
+          "narration": "Single table을 cell로 두고 새 출력 파일 이름을 고르세요. 다시 실행해 세포 측정값만 내보내세요. 여기서는 결과에 특징 261개와 결측값 28개가 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "07_cell_mean_finished",
-          "narration": "Choose mean to replace missing feature values with observed column means. The export also records their original positions in a missing-value layer. Use this policy when mean imputation fits your downstream analysis.",
+          "narration": "mean을 고르면 결측된 특징 값이 각 열의 관측 평균으로 대체됩니다. 내보내기는 원래 결측 위치도 별도의 결측값 레이어에 기록합니다. 평균 대체가 이후 분석에 맞을 때 이 정책을 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_cell_drop_features_finished",
-          "narration": "Choose drop_features to remove columns containing missing values. This example retains all cells and removes four feature columns. Check the retained feature names when comparing exports.",
+          "narration": "drop_features를 고르면 결측값이 있는 열이 제거됩니다. 이 예제는 모든 세포를 유지하고 특징 열 4개를 제거합니다. 내보내기를 비교할 때 남은 특징 이름을 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_cell_drop_objects_finished",
-          "narration": "Choose drop_objects to remove rows containing missing feature values. Seven cells are removed here. Consider whether the excluded objects could change your analysis.",
+          "narration": "drop_objects를 고르면 특징 값이 결측된 행이 제거됩니다. 여기서는 세포 7개가 제거됩니다. 제외된 객체가 분석을 바꿀 수 있는지 검토하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "10_nucleus_keep_finished",
-          "narration": "Choose nucleus as the single table when you need one row per nucleus. This example produces two thousand six hundred eighty-two nuclei and three hundred forty-one features.",
+          "narration": "핵마다 한 행이 필요하면 단일 표로 nucleus를 고르세요. 이 예제는 핵 2,682개와 특징 341개를 만듭니다.",
           "hold_after": 0.7
         },
         {
           "visual": "04_setting_anndata_register_artifact",
-          "narration": "Enable Register artifact to make the output discoverable in the project. Save each policy under a distinct filename and retain its settings. The h5ad file contains measurements and metadata; keep the source images separately.",
+          "narration": "Register artifact를 켜면 출력을 프로젝트에서 찾을 수 있습니다. 정책마다 다른 파일 이름으로 저장하고 그 설정을 보관하세요. h5ad 파일에는 측정값과 메타데이터가 들어 있으며, 원본 이미지는 따로 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "10_nucleus_keep_finished",
-          "narration": "Open the resulting h5ad file in your downstream analysis and inspect its shape, feature names and object metadata. From Python, run_anndata_export uses the same settings, while build_anndata constructs the data in memory.",
+          "narration": "만들어진 h5ad 파일을 이후 분석에서 열고 크기, 특징 이름, 객체 메타데이터를 확인하세요. Python에서는 run_anndata_export가 같은 설정을 쓰고, build_anndata는 데이터를 메모리에 만듭니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9846,6 +9886,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9857,18 +9937,18 @@
       "app_key": "pca",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "PCA: explore measurements and export components",
-      "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
+      "title": "PCA: 측정값 탐색과 주성분 내보내기",
+      "description": "측정된 객체를 불러오고, 특징을 고르고, 주성분을 비교한 뒤 점수, 적재값, 설명 분산을 내보냅니다.",
       "objectives": [
-        "Load a measurement database or CSV and select features.",
-        "Choose scaling, missing-value handling and filters.",
-        "Inspect component scores and loadings, then export three result tables."
+        "측정 데이터베이스나 CSV를 불러오고 특징을 선택합니다.",
+        "척도 조정, 결측값 처리, 필터를 고릅니다.",
+        "주성분 점수와 적재값을 확인한 뒤 결과 표 세 개를 내보냅니다."
       ],
-      "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
+      "prerequisite": "Annotate 튜토리얼의 예제를 내려받아 measurements.db 사본으로 작업하세요. 이 안내는 그 cell 표를 쓰며, 웰 4개에 걸친 측정 객체 2,341개가 들어 있습니다. 원본 데이터베이스를 보관하고, 특징 목록, 필터, 척도 조정, 결측값 정책을 기록하세요.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
+          "narration": "Home에서 Image UMAP을 연 뒤 PCA를 선택하세요. PCA로 여러 측정 열을 주성분으로 요약합니다. 연결된 Annotate 예제의 측정 데이터베이스로 시작하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -9877,12 +9957,12 @@
         },
         {
           "visual": "03_real_measurement_picker",
-          "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
+          "narration": "PCA 제목 옆의 Load table을 클릭하세요. measurements.db를 열고 cell을 선택하세요. 표시된 표와 객체 수를 확인하세요. 측정 열이 있는 CSV를 불러올 수도 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "04_three_features_before_run",
-          "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
+          "narration": "특징 검색을 지우고 None을 클릭해 보이는 특징의 선택을 모두 해제하세요. cell_area, cell_channel_1_mean_intensity, cell_perimeter를 선택하세요. 검색을 다시 지우고 Components를 3으로 둔 뒤 Run PCA를 클릭하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -9896,7 +9976,7 @@
         },
         {
           "visual": "05_standardised_three_features",
-          "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
+          "narration": "Scale을 Standardise로 두어 각 특징을 중심화하고 표본 표준 편차로 나누세요. 스크리 그림을 읽으세요. 처음 두 주성분이 선택한 특징 분산의 약 65.7%와 31.7%를 설명합니다.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -9907,7 +9987,7 @@
         },
         {
           "visual": "07_pc3_against_pc1",
-          "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
+          "narration": "Colour에서 rowID를, X에서 PC 3을, Y에서 PC 1을 고르세요. 이 컨트롤은 적합된 결과를 다시 그립니다. 각 점은 세포 하나를 나타내며, 이 예제에서 rowID는 공간상의 행을 나타냅니다.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -9918,7 +9998,7 @@
         },
         {
           "visual": "09_biplot_restored",
-          "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
+          "narration": "PC 1과 PC 2로 돌아가세요. Loadings biplot을 켜고 끄며 특징 화살표를 표시하거나 숨기세요. 화살표는 표시된 주성분과의 상관을 보여 주므로, 방향과 점선 기준 원을 이용해 특징을 비교하세요.",
           "hold_after": 0.7,
           "focus": [
             1600,
@@ -9929,7 +10009,7 @@
         },
         {
           "visual": "11_raw_units_pca",
-          "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
+          "narration": "Centre only를 고르면 원래 측정 척도로 적합합니다. 이제 첫 번째 주성분이 약 90.1%를 설명합니다. 척도 조정에 따라 요약하는 질문이 달라집니다. 공통 척도로 특징을 비교하려면 Standardise로 되돌리세요.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -9940,7 +10020,7 @@
         },
         {
           "visual": "13_live_filter_refits_basis",
-          "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
+          "narration": "오른쪽 필터에서 cell_area를 추가하고 최솟값을 21,925로 두세요. 패널은 남은 세포 1,171개로 PCA를 다시 적합하므로, 집단과 주성분 방향이 모두 바뀝니다.",
           "hold_after": 0.7,
           "focus": [
             3360,
@@ -9951,7 +10031,7 @@
         },
         {
           "visual": "14_clear_restores_full_basis",
-          "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
+          "narration": "필터의 Clear all을 클릭해 전체 집단으로 되돌리세요. 필터링 후 객체 수를 확인하세요. 원본 데이터베이스는 바뀌지 않으며, 표시된 결과만 선택한 집단에 대해 다시 계산됩니다.",
           "hold_after": 0.7,
           "focus": [
             1410,
@@ -9962,7 +10042,7 @@
         },
         {
           "visual": "15_missing_feature_ticked_not_run",
-          "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
+          "narration": "네 번째 특징으로 cell_channel_0_homogeneity_distance_32를 선택하세요. Run PCA를 클릭해 결과에 포함하세요. 이 예제는 그 열에 측정값 7개가 비어 있으니, NaN으로 적합에서 이를 어떻게 처리할지 고르세요.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -9973,7 +10053,7 @@
         },
         {
           "visual": "16_auto_seven_rows_removed",
-          "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
+          "narration": "Auto에서는 행의 2%를 넘게 결측된 특징을 제거한 뒤 불완전한 행을 뺍니다. 여기서는 특징 4개가 모두 남고 세포 7개가 제외됩니다. 실제로 분석된 특징과 객체는 보고서에서 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -9984,7 +10064,7 @@
         },
         {
           "visual": "18_drop_feature_keeps_objects",
-          "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
+          "narration": "Drop features를 고르면 결측값이 있는 선택 특징이 제거됩니다. 이 예제에서는 질감 특징이 제거되고 세포는 모두 남습니다. 체크박스가 켜져 있더라도, 제외된 특징은 결과 안내에 표시됩니다.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -9995,7 +10075,7 @@
         },
         {
           "visual": "19_mean_imputes_seven_values",
-          "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
+          "narration": "Mean-impute를 고르면 계산 중 결측값을 특징의 관측 평균으로 대체해 모든 세포와 특징을 유지합니다. 여기서는 값 7개가 대체됩니다. 대체된 값은 추정치이므로 결과를 발표할 때 이 선택을 기록하세요.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -10006,7 +10086,7 @@
         },
         {
           "visual": "20_complete_cases",
-          "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
+          "narration": "Complete cases를 고르면 선택한 특징을 유지하고 불완전한 행을 제외합니다. 원래 예제로 돌아가려면 Auto를 고르고, 질감 특징의 선택을 해제하고, 검색을 지운 뒤 Run PCA를 클릭하고 Colour를 none으로 두세요.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -10017,12 +10097,12 @@
         },
         {
           "visual": "22_actual_three_file_export",
-          "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
+          "narration": "Export를 클릭하고 pca_example 같은 기본 이름을 고르세요. 패널은 CSV 파일 세 개를 씁니다. 분석한 객체의 점수, 특징의 적재값과 상관, 주성분별 설명 분산입니다. 점수 표에는 원본 측정 열도 포함됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "23_export_confirmation",
-          "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
+          "narration": "내보낸 표를 열고 특징 목록, 필터, 분석 설정과 함께 보관하세요. 분리를 해석할 때는 세포를 각 웰 안의 관측값으로 다루세요. Python에서 재현 가능한 분석에는 spacr.qt.widgets.pca_model의 pca와 PCASpec을 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -10033,6 +10113,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10043,18 +10163,18 @@
       "series": 5,
       "app_key": "tabulate",
       "section": "Explore",
-      "title": "Tabulate: summarize measurements by well and field",
-      "description": "Group measured objects, select summary statistics, inspect missing groups and export a pivot table or send it to Graph Builder.",
+      "title": "Tabulate: 웰과 시야별 측정값 요약",
+      "description": "측정된 객체를 그룹으로 묶고, 요약 통계를 고르고, 빈 그룹을 확인한 뒤 피벗 표를 내보내거나 Graph Builder로 보냅니다.",
       "objectives": [
-        "Load measurements and group them by well or field.",
-        "Choose values, statistics and filters while checking contributing counts.",
-        "Export CSV summaries and refresh their Graph Builder plots."
+        "측정값을 불러와 웰이나 시야별로 묶습니다.",
+        "기여 개수를 확인하며 값, 통계, 필터를 고릅니다.",
+        "CSV 요약을 내보내고 Graph Builder 그래프를 새로 고칩니다."
       ],
-      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. Its cell table has 2,341 objects across four wells. Keep spatial labels distinct from treatment labels, and choose the grouping level appropriate to your experiment.",
+      "prerequisite": "Annotate 튜토리얼에서 측정 예제를 내려받아 measurements.db 사본으로 작업하세요. 그 cell 표에는 웰 4개에 걸친 객체 2,341개가 있습니다. 공간 라벨과 처리 라벨을 구분하고, 실험에 맞는 그룹화 수준을 고르세요.",
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "From Home, open Database Browser, then choose Tabulate. Use this tool to summarize measurement columns by well, field or another group. This walkthrough uses the database from the linked Annotate example.",
+          "narration": "Home에서 Database Browser를 연 뒤 Tabulate를 선택하세요. 이 도구로 측정 열을 웰, 시야 또는 다른 그룹별로 요약합니다. 이 안내에서는 연결된 Annotate 예제의 데이터베이스를 씁니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -10063,17 +10183,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Inside Tabulate, click Load table, open measurements.db and choose cell. Use Tabulate’s own controls to select its input and export. Check the table and the two thousand three hundred forty-one loaded objects.",
+          "narration": "Tabulate 안에서 Load table을 클릭하고 measurements.db를 연 뒤 cell을 고르세요. 입력 선택과 내보내기에는 Tabulate 자체 컨트롤을 쓰세요. 표와 불러온 객체 2,341개를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_count_preset",
-          "narration": "Choose Plate slash row slash column to group by plate and well. Leave Values empty to count source rows. The four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one cells.",
+          "narration": "플레이트와 웰로 묶으려면 Plate/row/column을 고르세요. 원본 행을 세려면 Values를 비워 두세요. 네 웰에는 각각 세포 615개, 525개, 700개, 501개가 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06b_blank_not_zero_tooltip",
-          "narration": "Search for fieldID and drag it into Columns. This creates a well-by-field grid. Hover over a blank cell to inspect it: this example has one combination with no source rows. Keep that distinct from a measured zero.",
+          "narration": "fieldID를 검색해 Columns로 끌어다 놓으세요. 그러면 웰과 시야의 격자가 만들어집니다. 빈 칸 위에 포인터를 올려 확인하세요. 이 예제에는 원본 행이 없는 조합이 하나 있습니다. 이것은 측정된 0과 구분하세요.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -10084,12 +10204,12 @@
         },
         {
           "visual": "08_area_mean_sample_sd",
-          "narration": "Clear Columns, then drag cell_area into Values. The default summary shows count, mean and sample standard deviation. Searching finds column names; changing the axes or statistics recomputes the summary.",
+          "narration": "Columns를 비운 뒤 cell_area를 Values로 끌어다 놓으세요. 기본 요약은 개수, 평균, 표본 표준 편차를 보여 줍니다. 검색으로 열 이름을 찾을 수 있고, 축이나 통계를 바꾸면 요약이 다시 계산됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_read_full_cell_statistics",
-          "narration": "Hover over a result cell to see all its statistics and the contributing count, including lines hidden by the row height. Standard deviation describes variation among the objects in that group.",
+          "narration": "결과 칸 위에 포인터를 올리면 행 높이 때문에 가려진 줄까지 포함해 모든 통계와 기여 개수가 보입니다. 표준 편차는 그 그룹 안 객체 간의 변동을 나타냅니다.",
           "hold_after": 0.7,
           "focus": [
             985,
@@ -10100,7 +10220,7 @@
         },
         {
           "visual": "09b_full_median_sem_quantile",
-          "narration": "Enable median, sem and quantile to add those statistics. Set Quantile at to zero point seven five for the upper quartile. SEM uses the available object count; choose the experimental replicate level separately when estimating biological uncertainty.",
+          "narration": "median, sem, quantile을 켜서 그 통계를 추가하세요. 상위 사분위수를 보려면 Quantile at을 0.75로 두세요. SEM은 사용할 수 있는 객체 수를 쓰므로, 생물학적 불확실성을 추정할 때는 실험 반복 수준을 따로 고르세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10111,7 +10231,7 @@
         },
         {
           "visual": "10b_half_quantile_tooltip",
-          "narration": "Set Quantile at to zero point five to display the median. The first well now shows twenty-two thousand four hundred for both. Restore zero point seven five and switch off the extra statistics to return to the simpler summary.",
+          "narration": "Quantile at을 0.5로 두면 중앙값이 표시됩니다. 이제 첫 번째 웰은 두 값 모두 22,400을 보여 줍니다. 더 간단한 요약으로 돌아가려면 0.75로 되돌리고 추가 통계를 끄세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10122,7 +10242,7 @@
         },
         {
           "visual": "11b_source_count_vs_feature_n",
-          "narration": "Replace cell_area with cell_channel_0_homogeneity_distance_32. This feature has seven missing values, so its contributing counts are smaller than the source-row counts. Use those counts when comparing groups.",
+          "narration": "cell_area를 cell_channel_0_homogeneity_distance_32로 바꾸세요. 이 특징에는 결측값이 7개 있어 기여 개수가 원본 행 수보다 적습니다. 그룹을 비교할 때 이 개수를 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10133,12 +10253,12 @@
         },
         {
           "visual": "13_all_well_statistics_picker",
-          "narration": "Restore cell_area and click Export CSV inside Tabulate. Choose a new filename. This well summary contains the three grouping keys, count, mean and standard deviation. Keep your grouping, statistic and filter choices beside the exported file.",
+          "narration": "cell_area로 되돌리고 Tabulate 안에서 Export CSV를 클릭하세요. 새 파일 이름을 고르세요. 이 웰 요약에는 그룹화 키 3개, 개수, 평균, 표준 편차가 들어 있습니다. 그룹화, 통계, 필터 선택을 내보낸 파일 옆에 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "14_four_group_means_not_2341_objects",
-          "narration": "Click Plot this table to send the summary to Graph Builder. Drag columnID onto X, mean onto Y and rowID onto Colour. Check the inferred column types: Automatic treats these four distinct means as categories in this example and displays a heatmap.",
+          "narration": "Plot this table을 클릭해 요약을 Graph Builder로 보내세요. columnID를 X로, mean을 Y로, rowID를 Colour로 끌어다 놓으세요. 추론된 열 유형을 확인하세요. 이 예제에서 Automatic은 서로 다른 평균 4개를 범주로 보고 히트맵을 표시합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -10152,12 +10272,12 @@
         },
         {
           "visual": "15_live_pivot_old_plot",
-          "narration": "Add a cell_area filter with a minimum of twenty-one thousand nine hundred twenty-five. The pivot updates immediately for the remaining objects. Click Plot this table again whenever you want to transfer the updated summary to the chart.",
+          "narration": "최솟값이 21,925인 cell_area 필터를 추가하세요. 피벗 표가 남은 객체에 대해 즉시 갱신됩니다. 갱신된 요약을 차트로 옮기려면 그때마다 Plot this table을 다시 클릭하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "16_plot_this_table_refreshes_summary",
-          "narration": "After clicking Plot this table, inspect the updated group means. An area-filter note can appear because the transferred summary contains mean rather than cell_area. The object filter has already been applied upstream in Tabulate.",
+          "narration": "Plot this table을 클릭한 뒤 갱신된 그룹 평균을 확인하세요. 전달된 요약에는 cell_area가 아니라 mean이 들어 있으므로 면적 필터에 관한 안내가 나올 수 있습니다. 객체 필터는 이미 앞 단계인 Tabulate에서 적용되었습니다.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10168,7 +10288,7 @@
         },
         {
           "visual": "19_replot_restores_original_summary",
-          "narration": "Click Clear all in the filter, then Plot this table again to restore the original well summary. Save filtered and unfiltered exports under different names when you need both.",
+          "narration": "필터에서 Clear all을 클릭한 뒤 Plot this table을 다시 클릭해 원래 웰 요약으로 돌아가세요. 둘 다 필요하면 필터링한 내보내기와 필터링하지 않은 내보내기를 다른 이름으로 저장하세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10179,17 +10299,17 @@
         },
         {
           "visual": "20_field_level_is_a_different_unit",
-          "narration": "For a field-level summary, drag fieldID into Rows after the well keys. Each populated row now summarizes one field within a well. Inspect the contributing counts and keep this grouping level consistent when comparing results.",
+          "narration": "시야 단위 요약을 하려면 웰 키 다음에 fieldID를 Rows로 끌어다 놓으세요. 이제 데이터가 있는 각 행이 웰 안의 시야 하나를 요약합니다. 기여 개수를 확인하고, 결과를 비교할 때는 이 그룹화 수준을 일관되게 유지하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_plot_choices",
-          "narration": "Click Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. In this example mean is now recognized as continuous. Confirm the displayed column types and axis labels.",
+          "narration": "Plot this table을 클릭하고 fieldID를 X에 두고, mean은 Y, rowID는 Colour에 그대로 둔 뒤 Plot에서 Scatter를 고르세요. 이 예제에서는 이제 mean이 연속형으로 인식됩니다. 표시된 열 유형과 축 라벨을 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "22_fifty_one_actual_field_means",
-          "narration": "The scatter plot displays fifty-one field means. Colours identify spatial rows, and repeated field labels can belong to different wells. Use the original object table when you want to select individual cells and inspect their images.",
+          "narration": "산점도에는 시야별 평균 51개가 표시됩니다. 색은 공간상의 행을 나타내며, 반복되는 시야 라벨은 서로 다른 웰에 속할 수 있습니다. 개별 세포를 고르고 이미지를 확인하려면 원래 객체 표를 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder",
@@ -10204,7 +10324,7 @@
         },
         {
           "visual": "23_field_level_statistics_complete",
-          "narration": "Export the field summary as a separate CSV. It contains fifty-two grid rows, with the empty combination left blank; the chart contains fifty-one populated groups. For Python, use pivot and PivotSpec from spacr.qt.widgets.pivot_spec, then to_csv to save the result.",
+          "narration": "시야 요약을 별도의 CSV로 내보내세요. 격자 행은 52개이며 빈 조합은 비어 있고, 차트에는 데이터가 있는 그룹 51개가 들어 있습니다. Python에서는 spacr.qt.widgets.pivot_spec의 pivot과 PivotSpec을 쓰고, to_csv로 결과를 저장하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -10215,6 +10335,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10225,18 +10385,18 @@
       "series": 5,
       "app_key": "feature_dict",
       "section": "Help",
-      "title": "Feature Dictionary: find definitions and units",
-      "description": "Search by measurement name or concept, read the definition and units, and copy useful reference text.",
+      "title": "Feature Dictionary: 정의와 단위 찾기",
+      "description": "측정 이름이나 개념으로 검색하고, 정의와 단위를 읽고, 유용한 참고 문구를 복사합니다.",
       "objectives": [
-        "Find a definition by name or concept.",
-        "Narrow the results with concept and object filters.",
-        "Read units and notes, then copy the definition."
+        "이름이나 개념으로 정의를 찾습니다.",
+        "개념 필터와 객체 필터로 결과를 좁힙니다.",
+        "단위와 메모를 읽은 뒤 정의를 복사합니다."
       ],
-      "prerequisite": "Have a measurement column name ready, or start with an idea such as size or intensity. The built-in dictionary can be opened without loading a project.",
+      "prerequisite": "측정 열 이름을 준비하거나, 크기나 강도 같은 개념에서 시작하세요. 내장 사전은 프로젝트를 불러오지 않아도 열 수 있습니다.",
       "scenes": [
         {
           "visual": "01_help_dictionary",
-          "narration": "Open Help, then Feature Dictionary. Use this window when you want to understand a measurement column in a results table or plot.",
+          "narration": "Help를 연 뒤 Feature Dictionary를 여세요. 결과 표나 그래프의 측정 열을 이해하고 싶을 때 이 창을 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -10244,7 +10404,7 @@
         },
         {
           "visual": "03_search_by_idea",
-          "narration": "Type size in the search field and select Area from the results. The definition appears on the right, and the matching list updates as you type.",
+          "narration": "검색 칸에 size를 입력하고 결과에서 Area를 고르세요. 정의가 오른쪽에 나타나고, 입력하는 동안 일치 목록이 갱신됩니다.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -10255,7 +10415,7 @@
         },
         {
           "visual": "04_actual_concept_object_filters",
-          "narration": "Choose a concept and object type to narrow the definitions. Try intensity and cell. Reset the selectors to Any concept and Any object for a broader search.",
+          "narration": "개념과 객체 유형을 골라 정의를 좁히세요. intensity와 cell을 시도해 보세요. 더 넓게 검색하려면 선택 상자를 Any concept와 Any object로 되돌리세요.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -10266,7 +10426,7 @@
         },
         {
           "visual": "05_measurement_name",
-          "narration": "Search for cell_channel_1_mean_intensity and select Mean intensity. Read the statistic and units to understand what the column describes.",
+          "narration": "cell_channel_1_mean_intensity를 검색하고 Mean intensity를 고르세요. 통계와 단위를 읽고 그 열이 무엇을 나타내는지 이해하세요.",
           "hold_after": 0.7,
           "focus": [
             1620,
@@ -10277,7 +10437,7 @@
         },
         {
           "visual": "06_computing_function",
-          "narration": "Scroll down to Channel, Module and Computed by for more detail. Use the named computing function as a starting point in the API reference.",
+          "narration": "더 자세한 내용은 아래로 스크롤해 Channel, Module, Computed by를 보세요. 표시된 계산 함수를 API 참조에서 찾아보는 출발점으로 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -10291,7 +10451,7 @@
         },
         {
           "visual": "07_conditional_area_units",
-          "narration": "Look up cell_area and read Unit. In two-dimensional measurements it represents area; in three-dimensional measurements it represents volume. Check the measurement units recorded in your project before converting values.",
+          "narration": "cell_area를 찾아 Unit을 읽으세요. 2차원 측정에서는 면적을, 3차원 측정에서는 부피를 나타냅니다. 값을 변환하기 전에 프로젝트에 기록된 측정 단위를 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             1620,
@@ -10302,7 +10462,7 @@
         },
         {
           "visual": "08_area_caveats",
-          "narration": "Read Note for qualifications such as values already expressed in physical units. For a dictionary of the columns actually present in a database, use describe_database and export_dictionary from Python.",
+          "narration": "Note에서 이미 물리 단위로 표현된 값 같은 단서를 읽으세요. 데이터베이스에 실제로 있는 열의 사전이 필요하면 Python에서 describe_database와 export_dictionary를 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             1630,
@@ -10317,7 +10477,7 @@
         },
         {
           "visual": "09_unknown_search",
-          "narration": "If no definitions match, clear the filters and try a broader term or the exact column name. Custom features may need documentation from the workflow that created them.",
+          "narration": "일치하는 정의가 없으면 필터를 지우고 더 넓은 용어나 정확한 열 이름으로 다시 시도하세요. 사용자 정의 특징은 그것을 만든 워크플로의 문서가 필요할 수 있습니다.",
           "hold_after": 0.7,
           "focus": [
             420,
@@ -10328,7 +10488,7 @@
         },
         {
           "visual": "11_actual_text_copy",
-          "narration": "Select the definition text and copy it into your notes. Use the Python export functions when you need a project-specific dictionary file, then return to your table or plot.",
+          "narration": "정의 문구를 선택해 메모에 복사하세요. 프로젝트 전용 사전 파일이 필요하면 Python 내보내기 함수를 쓰고, 표나 그래프로 돌아가세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -10339,6 +10499,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10349,18 +10549,18 @@
       "series": 5,
       "app_key": "trellis",
       "section": "Explore",
-      "title": "Small Multiples: compare groups with shared or separate axes",
-      "description": "Load measurements, arrange grouped scatter plots, choose axis scales and filters, and add a derived column.",
+      "title": "Small Multiples: 공유 축 또는 별도 축으로 그룹 비교",
+      "description": "측정값을 불러오고, 그룹별 산점도를 배치하고, 축 척도와 필터를 고르고, 파생 열을 추가합니다.",
       "objectives": [
-        "Load measurements and assign axes and facets.",
-        "Choose shared, independent or grouped axis limits.",
-        "Inspect filters and displayed groups, then add or remove a derived column."
+        "측정값을 불러와 축과 패싯을 지정합니다.",
+        "공유, 독립, 그룹별 축 범위를 고릅니다.",
+        "필터와 표시된 그룹을 확인한 뒤 파생 열을 추가하거나 제거합니다."
       ],
-      "prerequisite": "Download the measurement example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 objects across four wells. Small Multiples displays plots; use Tabulate to export grouped CSV summaries.",
+      "prerequisite": "Annotate 튜토리얼에서 측정 예제를 내려받아 measurements.db 사본으로 작업하세요. 이 안내에서는 웰 4개에 걸친 객체 2,341개가 있는 cell 표를 씁니다. Small Multiples는 그래프를 표시하며, 그룹별 CSV 요약을 내보내려면 Tabulate를 쓰세요.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
+          "narration": "Home에서 Graph Builder를 연 뒤 Small Multiples를 여세요. 이 화면에서 같은 측정값을 그룹 간에 비교합니다. 이 예제는 연결된 Annotate 튜토리얼에서 받을 수 있는 측정 데이터베이스를 씁니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -10369,12 +10569,12 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Click Load table beside the Small Multiples heading. Open a copy of measurements.db and select cell. Check the table and its two thousand three hundred forty-one objects before assigning plot channels.",
+          "narration": "Small Multiples 제목 옆의 Load table을 클릭하세요. measurements.db 사본을 열고 cell을 고르세요. 그래프 채널을 지정하기 전에 표와 객체 2,341개를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Drag cell_area onto X and cell_channel_1_mean_intensity onto Y, then choose Scatter. Put rowID on Facet down and columnID on Facet across. Search helps you find column names; each point represents a measured cell.",
+          "narration": "cell_area를 X로, cell_channel_1_mean_intensity를 Y로 끌어다 놓고 Scatter를 고르세요. rowID를 Facet down에, columnID를 Facet across에 두세요. 검색으로 열 이름을 찾을 수 있으며, 각 점은 측정된 세포 하나입니다.",
           "hold_after": 0.7,
           "focus": [
             300,
@@ -10385,37 +10585,37 @@
         },
         {
           "visual": "05_four_wells_shared_axes",
-          "narration": "Choose shared for both scales so all four panels use matching axis limits. Read the group titles and object counts. In this example the facet labels identify spatial rows and columns.",
+          "narration": "두 척도 모두 shared를 고르면 네 패널이 같은 축 범위를 씁니다. 그룹 제목과 객체 개수를 읽으세요. 이 예제에서 패싯 라벨은 공간상의 행과 열을 나타냅니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06_both_axes_free",
-          "narration": "Choose free for X scale and Y scale to give each panel its own limits. This makes within-group patterns easier to see. Compare tick labels carefully because the ranges now differ between panels.",
+          "narration": "X scale과 Y scale에서 free를 고르면 패널마다 자체 범위를 갖습니다. 그룹 안의 패턴을 보기가 쉬워집니다. 이제 패널마다 범위가 다르므로 눈금 라벨을 주의해 비교하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "07_both_axes_row",
-          "narration": "Choose per row for both scales to share limits between panels on each grid row. Different rows can have different ranges. Use this when comparisons within rows are the priority.",
+          "narration": "두 척도 모두 per row를 고르면 격자 각 행의 패널끼리 범위를 공유합니다. 행마다 범위가 다를 수 있습니다. 행 안의 비교가 가장 중요할 때 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_both_axes_col",
-          "narration": "Choose per column to share limits within each grid column. You can set X and Y independently. Restore shared on both axes when you want to compare all four wells on common scales.",
+          "narration": "per column을 고르면 격자 각 열 안에서 범위를 공유합니다. X와 Y는 따로 설정할 수 있습니다. 네 웰을 공통 척도로 비교하려면 두 축 모두 shared로 되돌리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "In Filter, add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The grid updates immediately for the remaining one thousand one hundred seventy-one objects. Check the new panel counts.",
+          "narration": "Filter에서 cell_area를 추가하고 최솟값을 21,925로 설정하세요. 격자가 남은 객체 1,171개에 대해 즉시 갱신됩니다. 패널별 새 개수를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_all_cells_restored",
-          "narration": "Click Clear all in Filter to restore the full population. Use Clear all channels on the left when you want to remove the chart assignments instead. Both operations leave the source database unchanged.",
+          "narration": "Filter에서 Clear all을 클릭하면 전체 집단으로 돌아갑니다. 차트 지정을 없애려면 왼쪽의 Clear all channels를 쓰세요. 두 작업 모두 원본 데이터베이스는 바꾸지 않습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_empty_group",
-          "narration": "Filter columnID to c two and fieldID to f twenty and f twenty-one. Put fieldID on Facet across and keep rowID on Facet down. The row-five, field-twenty panel has no objects; its empty panel represents a missing group.",
+          "narration": "columnID를 c2로, fieldID를 f20과 f21로 필터링하세요. fieldID를 Facet across에 두고 rowID는 Facet down에 그대로 두세요. 5행, 시야 20 패널에는 객체가 없으며, 이 빈 패널은 빠진 그룹을 나타냅니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "61_tabulate"
@@ -10423,17 +10623,17 @@
         },
         {
           "visual": "14_two_way_wrap_ignored",
-          "narration": "Clear the filters and restore columnID on Facet across. Set Wrap at to five. Wrapping applies to a single facet channel, so the current two-way grid stays two by two.",
+          "narration": "필터를 지우고 columnID를 다시 Facet across에 두세요. Wrap at을 5로 설정하세요. 줄바꿈은 패싯 채널 하나에만 적용되므로, 현재의 양방향 격자는 2×2로 유지됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Clear Facet down and put fieldID on Facet across. With Wrap at five, the displayed fields fill rows of up to five panels. Unused slots at the end are hidden.",
+          "narration": "Facet down을 비우고 fieldID를 Facet across에 두세요. Wrap at이 5이면 표시된 시야가 한 행에 최대 5개 패널씩 채워집니다. 끝의 빈 자리는 숨겨집니다.",
           "hold_after": 0.7
         },
         {
           "visual": "15_twelve_fields_and_three_unused_slots",
-          "narration": "Read the notice below the grid before comparing groups. This view displays twelve field levels; field twenty-one is omitted from the panels. The loaded-row count includes that field, so check which groups are actually visible.",
+          "narration": "그룹을 비교하기 전에 격자 아래 안내를 읽으세요. 이 화면은 시야 수준 12개를 표시하며, 시야 21은 패널에서 빠져 있습니다. 불러온 행 수에는 이 시야가 포함되므로 실제로 보이는 그룹을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             1000,
@@ -10444,7 +10644,7 @@
         },
         {
           "visual": "17_actual_area_formula",
-          "narration": "Turn wrapping off and restore rowID and columnID as the two facets. In Columns, name a derived column area_k and enter cell_area divided by one thousand. Check the preview, then click Add column to compute it for the full table.",
+          "narration": "줄바꿈을 끄고 rowID와 columnID를 다시 두 패싯으로 두세요. Columns에서 파생 열 이름을 area_k로 하고 cell_area를 1000으로 나누는 식을 입력하세요. 미리 보기를 확인한 뒤 Add column을 클릭해 전체 표에 대해 계산하세요.",
           "hold_after": 0.7,
           "focus": [
             3120,
@@ -10455,17 +10655,17 @@
         },
         {
           "visual": "18_rescaled_area_not_new_measurement",
-          "narration": "Drag area_k onto X to display area in thousands of the original units. The vertical coordinates and groups stay the same. This rescales numbers; physical-area conversion requires the correct image calibration.",
+          "narration": "area_k를 X로 끌어다 놓으면 원래 단위의 천 단위로 면적이 표시됩니다. 세로 좌표와 그룹은 그대로입니다. 이것은 숫자의 척도만 바꿀 뿐이며, 물리적 면적으로 변환하려면 올바른 이미지 보정이 필요합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Put cell_area back on X. Select area_k in Columns and click Remove to delete the derived column from this view. Keep a record of your variables, facets, filters and scale choices.",
+          "narration": "cell_area를 다시 X에 두세요. Columns에서 area_k를 고르고 Remove를 클릭해 이 화면에서 파생 열을 삭제하세요. 변수, 패싯, 필터, 척도 선택을 기록해 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "19_formula_removed_original_points",
-          "narration": "Use Tabulate when you need an exported CSV summary. For scripted small-multiple plots, use trellis and TrellisSpec from spacr.qt.widgets.trellis_spec with GraphSpec for the chart channels. Interpret the groups at the appropriate experimental replicate level.",
+          "narration": "내보낸 CSV 요약이 필요하면 Tabulate를 쓰세요. 스크립트로 스몰 멀티플 그래프를 만들려면 spacr.qt.widgets.trellis_spec의 trellis와 TrellisSpec을 쓰고, 차트 채널에는 GraphSpec을 쓰세요. 그룹은 알맞은 실험 반복 수준에서 해석하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -10477,6 +10677,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10487,18 +10727,18 @@
       "series": 5,
       "app_key": "gate_editor",
       "section": "Tools",
-      "title": "Gate Editor: select populations and save their membership",
-      "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
+      "title": "Gate Editor: 집단 선택과 소속 저장",
+      "description": "측정값에 게이트를 그리고, 재사용할 수 있는 경계를 저장하고, 투영을 살펴보고, 객체 소속을 데이터베이스로 내보냅니다.",
       "objectives": [
-        "Load measurements and draw named gates.",
-        "Save and reload gate strategies, figures and membership.",
-        "Explore three-dimensional views, clustering and filters."
+        "측정값을 불러와 이름 붙은 게이트를 그립니다.",
+        "게이트 전략, 그림, 소속을 저장하고 다시 불러옵니다.",
+        "3차원 보기, 군집화, 필터를 살펴봅니다."
       ],
-      "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
+      "prerequisite": "Annotate 예제를 내려받아 measurements.db 작업 사본을 만드세요. Gate Editor는 그 세포 측정값 2,341개를 쓰며, 예제를 내려받는 별도 버튼은 없습니다. Export gates는 선택한 데이터베이스에 소속을 기록합니다. 생물학적 의미가 확인될 때까지 게이트 이름은 선택한 측정값을 설명해야 합니다.",
       "scenes": [
         {
           "visual": "01b_readable_panels",
-          "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
+          "narration": "Home에서 Tools를 열고 Gate Editor를 고르세요. 그래프, 게이트 표, 옆 컨트롤이 보이도록 구분선을 조정하세요. Annotate 예제의 측정 데이터베이스를 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -10506,22 +10746,22 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
+          "narration": "Load table을 클릭하고 measurements.db 작업 사본을 연 뒤 cell을 고르세요. 이 예제에는 객체 2,341개가 있습니다. Export gates가 이 데이터베이스에 소속을 기록하므로 사본을 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_real_scatter",
-          "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
+          "narration": "X에 cell_area, Y에 cell_channel_1_mean_intensity를 고른 뒤 Rectangle을 고르세요. 각 점은 객체 하나입니다. 그리기 전에 특징 이름과 단위를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_name_drawn_gate",
-          "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
+          "narration": "산점도 위를 끌었다가 놓고, 내용을 알 수 있는 게이트 이름을 입력하세요. 게이트는 선택한 두 측정값에서의 경계를 저장합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_gate_and_counts",
-          "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
+          "narration": "게이트 이름 옆의 개수와 백분율을 읽으세요. 그림의 영역에는 객체 655개가 있습니다. 마우스 위치에 따라 경계가 달라질 수 있으니, 정확히 같은 선택을 반복하려면 전략을 저장하세요.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -10532,7 +10772,7 @@
         },
         {
           "visual": "07_gate_hidden_not_deleted",
-          "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
+          "narration": "게이트 체크를 해제하면 오버레이가 숨겨지고, 다시 체크하면 표시됩니다. Delete gate는 정의를 삭제합니다. Filter 탭은 게이트 아래에 표시되는 객체를 따로 제어합니다.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -10543,27 +10783,27 @@
         },
         {
           "visual": "09_save_strategy",
-          "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
+          "narration": "Save gates를 클릭해 JSON 전략을 저장하세요. 게이트를 삭제한 뒤 Load gates를 고르고 저장한 파일을 여세요. 특징 이름, 단위, 전처리가 같을 때 전략을 재사용하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12_strategy_restored",
-          "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
+          "narration": "불러온 전략이 저장된 경계와 집단을 복원합니다. 다른 데이터 세트로 넘어가기 전에 축, 윤곽, 개수를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12b_save_graph",
-          "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
+          "narration": "Save graph를 골라 그림을 저장하세요. 파일 형식은 그래프 환경설정을 따르며, 이 예제는 PNG와 PDF를 만듭니다. JSON 전략을 그림 옆에 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12c_exported_gate_membership",
-          "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
+          "narration": "Export gates를 골라 작업 데이터베이스의 filters 표에 소속 플래그를 기록하세요. 각 플래그는 객체의 플레이트, 웰, 시야, 라벨, 유형과 연결됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "14_second_gate_not_automatically_nested",
-          "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
+          "narration": "두 번째 게이트를 그리고 새 이름을 붙이세요. 새 도형은 선택된 게이트와 독립적이므로, 두 번째 게이트에는 첫 번째 밖의 객체도 들어갈 수 있습니다. 이 두 게이트 전략을 새 파일 이름으로 저장하세요.",
           "hold_after": 0.7,
           "focus": [
             2420,
@@ -10574,52 +10814,52 @@
         },
         {
           "visual": "16_actual_three_dimensional_view",
-          "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
+          "narration": "3D를 고르고 Z를 cell_perimeter로 설정하세요. 회전축 버튼으로 보기를 돌리세요. 원래의 면적과 강도 경계를 확인하려면 2D로 돌아가세요.",
           "hold_after": 0.7
         },
         {
           "visual": "17c_actual_volume_gate",
-          "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
+          "narration": "From view로 표시된 세 측정값이 경계를 이루는 이름 붙은 상자를 만드세요. 그 집단 개수를 확인하고 새 전략을 따로 저장하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "18_actual_projection_2d",
-          "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
+          "narration": "xD를 켜면 사용할 수 있는 측정값에서 주성분을 계산합니다. 축 라벨에 각 성분의 설명된 분산이 표시됩니다. 보기를 제어하려면 2D나 3D를 따로 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "20_projection_off_keeps_columns",
-          "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
+          "narration": "xD를 끌 때는 원래 측정값 축을 다시 고르세요. 투영 세부 정보는 따로 저장하세요. 게이트 JSON에는 적합한 투영이 남지 않으며, 따로 적합한 데이터 세트끼리는 성분 위의 경계가 다를 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "21_bounded_walk_settings",
-          "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
+          "narration": "Search를 열고 패널을 넓히세요. 임시 게이트를 저장한 뒤 제거하고, 원래 특징 두 개를 고르고, 스케일링을 켜고, 최소 이웃 20개와 Walk steps 5를 설정하세요. Run walk를 클릭하고 확인 값을 검토하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "22_walk_outcome",
-          "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
+          "narration": "결과 윤곽과 집단 개수를 확인하세요. 여기서 Walk는 약 0.167의 반지름을 골라 집단 두 개를 찾습니다. 어떤 객체가 그 영역 밖에 있는지 살펴보세요.",
           "hold_after": 0.7
         },
         {
           "visual": "25_fixed_radius_result",
-          "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
+          "narration": "Walk 전략을 저장하고, 그 게이트를 제거한 뒤 Walk를 끄세요. 반지름 0.5를 시도해 그 결과 더 커진 영역과 비교한 다음, 분석에 알맞은 전략을 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "28_live_area_filter",
-          "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
+          "narration": "저장한 두 게이트 전략을 다시 불러오세요. Filter에서 최솟값 21,925인 cell_area를 추가하세요. 이제 보기에는 객체 1,171개가 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "29_live_filter_cleared",
-          "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
+          "narration": "Clear all을 클릭해 전체 집단으로 돌아가세요. 개수를 해석하거나 소속을 내보내기 전에 활성 필터와 게이트 정의를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "31_real_console_answer",
-          "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
+          "narration": "불러온 표를 직접 확인하려면 오른쪽 콘솔을 열고 len(df)를 입력하세요. 이 예제는 2,341행을 반환합니다.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -10630,7 +10870,7 @@
         },
         {
           "visual": "32_chat_draft_not_sent",
-          "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
+          "narration": "데이터, JSON 전략, 내보낸 소속을 함께 보관하세요. Python에서는 정의에 GateSet, 소속 계산에 gate_mask_over_table, 객체 플래그 저장에 export_gate를 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             3090,
@@ -10647,6 +10887,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10657,18 +10937,18 @@
       "series": 5,
       "app_key": "feature_explorer",
       "section": "Explore",
-      "title": "Feature Explorer: compare groups and export a feature ranking",
-      "description": "Choose a grouping column, rank measurements by AUC or KS, inspect distributions and export the selected features.",
+      "title": "Feature Explorer: 그룹 비교와 특징 순위 내보내기",
+      "description": "그룹 열을 고르고, 측정값을 AUC나 KS로 순위 매기고, 분포를 확인한 뒤 선택한 특징을 내보냅니다.",
       "objectives": [
-        "Load measurements and choose the comparison groups.",
-        "Read rankings and distributions, then explore filters and computed columns.",
-        "Export the intended number of ranked features."
+        "측정값을 불러와 비교할 그룹을 고릅니다.",
+        "순위와 분포를 읽은 뒤 필터와 계산 열을 살펴봅니다.",
+        "원하는 개수의 순위 특징을 내보냅니다."
       ],
-      "prerequisite": "Download the Annotate example and open a working copy of its measurements.db. It contains 2,341 cells. This walkthrough compares rowID groups r12 and r5, which identify spatial plate rows. Choose a group column appropriate to your own experiment and account for cells sharing wells when interpreting the comparison.",
+      "prerequisite": "Annotate 예제를 내려받아 그 measurements.db 작업 사본을 여세요. 세포 2,341개가 들어 있습니다. 이 안내에서는 플레이트의 공간상 행을 나타내는 rowID 그룹 r12와 r5를 비교합니다. 자신의 실험에 맞는 그룹 열을 고르고, 비교를 해석할 때 세포가 웰을 공유한다는 점을 고려하세요.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "From Home, open Classify, then Feature Explorer. Use the measurement database from the Annotate example to compare existing features between groups.",
+          "narration": "Home에서 Classify를 연 뒤 Feature Explorer를 여세요. Annotate 예제의 측정 데이터베이스로 기존 특징을 그룹 간에 비교합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -10676,7 +10956,7 @@
         },
         {
           "visual": "04_real_row_comparison",
-          "narration": "Click Load table, choose measurements.db and select cell. Set Split by to rowID. The example groups are spatial plate rows; check that your grouping column represents the comparison you intend.",
+          "narration": "Load table을 클릭하고 measurements.db를 고른 뒤 cell을 고르세요. Split by를 rowID로 설정하세요. 예제의 그룹은 플레이트의 공간상 행이므로, 그룹 열이 의도한 비교를 나타내는지 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -10687,7 +10967,7 @@
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Choose AUC under Rank by. Separation is the absolute value of twice AUC minus one. Higher in shows the direction, and min n counts finite measurements in the smaller group.",
+          "narration": "Rank by에서 AUC를 고르세요. 분리도는 2 × AUC − 1의 절댓값입니다. Higher in은 방향을 보여 주고, min n은 더 작은 그룹의 유한한 측정값 개수입니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -10698,7 +10978,7 @@
         },
         {
           "visual": "05_four_distributions",
-          "narration": "Set Top to four to inspect four overlaid histograms. Within each feature the groups share bin edges, and bar heights show counts. Read both the distributions and the ranking score.",
+          "narration": "Top을 4로 설정하면 겹친 히스토그램 4개를 볼 수 있습니다. 각 특징 안에서 그룹은 구간 경계를 공유하며, 막대 높이는 개수를 나타냅니다. 분포와 순위 점수를 함께 읽으세요.",
           "hold_after": 0.7,
           "focus": [
             1290,
@@ -10709,12 +10989,12 @@
         },
         {
           "visual": "06_top_four_ranking_complete",
-          "narration": "Click Export ranking to save the displayed top features. With Top set to four, the export contains four feature rows. Increase Top before exporting a longer ranking.",
+          "narration": "Export ranking을 클릭하면 표시된 상위 특징이 저장됩니다. Top이 4이면 내보낸 파일에는 특징 행 4개가 들어 있습니다. 더 긴 순위를 내보내기 전에 Top을 늘리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_full_ranking_complete",
-          "narration": "Set Top to five hundred to include all two hundred sixty-one scorable features in this example. The plot shows at most eight distributions, even when the exported ranking is longer.",
+          "narration": "Top을 500으로 설정하면 이 예제에서 점수를 매길 수 있는 특징 261개가 모두 포함됩니다. 내보낸 순위가 더 길어도 그래프에는 분포가 최대 8개만 표시됩니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -10725,7 +11005,7 @@
         },
         {
           "visual": "09_ks_comparison",
-          "narration": "Switch Rank by to KS to compare the largest gap between cumulative distributions. KS can reveal spread differences missed by AUC. Return to AUC to inspect direction through Higher in.",
+          "narration": "Rank by를 KS로 바꾸면 누적 분포 사이의 가장 큰 차이로 비교합니다. KS는 AUC가 놓치는 퍼짐의 차이를 드러낼 수 있습니다. Higher in으로 방향을 보려면 AUC로 돌아가세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -10736,7 +11016,7 @@
         },
         {
           "visual": "10_live_area_filter",
-          "narration": "In Filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The population changes to one thousand one hundred seventy-one cells, and the ranking updates.",
+          "narration": "Filter에서 cell_area를 추가하고 최솟값을 21,925로 설정하세요. 집단이 세포 1,171개로 바뀌고 순위가 갱신됩니다.",
           "hold_after": 0.7,
           "focus": [
             3105,
@@ -10747,12 +11027,12 @@
         },
         {
           "visual": "11_restore_all_cells",
-          "narration": "Click Clear all to restore the full population and ranking. Recheck Split by after changing filters so you know which groups are being compared.",
+          "narration": "Clear all을 클릭해 전체 집단과 순위로 돌아가세요. 필터를 바꾼 뒤에는 어떤 그룹을 비교하는지 알 수 있도록 Split by를 다시 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12_one_row_changes_comparison",
-          "narration": "Filtering rowID to r12 removes the second group. In this build, Split by then changes automatically to another column. Check that control whenever a filter removes a group.",
+          "narration": "rowID를 r12로 필터링하면 두 번째 그룹이 사라집니다. 이 빌드에서는 그때 Split by가 자동으로 다른 열로 바뀝니다. 필터 때문에 그룹이 사라질 때마다 이 컨트롤을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -10763,7 +11043,7 @@
         },
         {
           "visual": "13_restore_two_classes",
-          "narration": "Clear the filter and explicitly restore rowID under Split by. Keep Shuffle test off for this example: cells share wells, so unrestricted cell-label shuffles do not represent independent experimental replicates.",
+          "narration": "필터를 지우고 Split by에 rowID를 명시적으로 다시 설정하세요. 이 예제에서는 Shuffle test를 꺼 두세요. 세포가 웰을 공유하므로 세포 라벨을 제한 없이 섞는 것은 독립적인 실험 반복이 되지 않습니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -10774,7 +11054,7 @@
         },
         {
           "visual": "14_scaled_area_formula",
-          "narration": "Open Columns and name a computed column area_k. Enter cell_area divided by one thousand and click Add column with replacement off. Preview displays the first two thousand rows; adding applies the formula to the whole table.",
+          "narration": "Columns를 열고 계산 열 이름을 area_k로 하세요. cell_area를 1000으로 나누는 식을 입력하고, 대체를 끈 채로 Add column을 클릭하세요. Preview는 처음 2,000행을 보여 주며, 추가하면 식이 전체 표에 적용됩니다.",
           "hold_after": 0.7,
           "focus": [
             3105,
@@ -10785,12 +11065,12 @@
         },
         {
           "visual": "16_ranking_with_derived_area_complete",
-          "narration": "The computed column joins the ranking. Positive rescaling gives it the same AUC and KS as cell_area. Remove the formula to return to the original features.",
+          "narration": "계산 열이 순위에 들어갑니다. 양의 배율로 척도를 바꾼 것이므로 AUC와 KS는 cell_area와 같습니다. 원래 특징으로 돌아가려면 식을 제거하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "17_original_features_restored",
-          "narration": "Export the ranking after checking the population, Split by and Top. For Python, use rank_features and ExplorerSpec from spacr.qt.widgets.feature_rank. Continue with Graph Builder to plot a selected feature in more detail.",
+          "narration": "집단, Split by, Top을 확인한 뒤 순위를 내보내세요. Python에서는 spacr.qt.widgets.feature_rank의 rank_features와 ExplorerSpec을 쓰세요. 선택한 특징을 더 자세히 그리려면 Graph Builder로 이어 가세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -10803,6 +11083,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -10813,18 +11133,18 @@
       "series": 5,
       "app_key": "outliers",
       "section": "Explore",
-      "title": "Outliers: flag measurements for inspection",
-      "description": "Choose features and a robust rule, inspect object and well results, and export flags with the full input table.",
+      "title": "Outliers: 검토할 측정값 표시",
+      "description": "특징과 강건한 규칙을 고르고, 객체와 웰 결과를 확인한 뒤 전체 입력 표와 함께 플래그를 내보냅니다.",
       "objectives": [
-        "Load measurements and select the features to scan.",
-        "Compare MAD, IQR and log-transformed rules.",
-        "Read scoring limitations and export rows, flags and a report."
+        "측정값을 불러와 검사할 특징을 고릅니다.",
+        "MAD, IQR, 로그 변환 규칙을 비교합니다.",
+        "점수 매기기의 한계를 읽고 행, 플래그, 보고서를 내보냅니다."
       ],
-      "prerequisite": "Use a working copy of measurements.db from the Annotate example. Flags identify observations for inspection; choose thresholds for your analysis. The example has four wells, fewer than the five needed for the across-well comparison. Keep unscored wells distinct from wells that were scored without flags.",
+      "prerequisite": "Annotate 예제의 measurements.db 작업 사본을 쓰세요. 플래그는 검토할 관측값을 가리키며, 임계값은 분석에 맞게 고르세요. 예제에는 웰이 4개 있어 웰 간 비교에 필요한 5개보다 적습니다. 점수를 매기지 않은 웰과, 점수를 매겼지만 플래그가 없는 웰을 구분하세요.",
       "scenes": [
         {
           "visual": "02_qc_host",
-          "narration": "From Home, open QC, then Outliers. Use the database from the Annotate example to flag unusual measurements for inspection.",
+          "narration": "Home에서 QC를 연 뒤 Outliers를 여세요. Annotate 예제의 데이터베이스로 특이한 측정값을 표시해 검토합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -10833,7 +11153,7 @@
         },
         {
           "visual": "04_automatic_all_features",
-          "narration": "Click Load table and choose the cell table. Loading scans the selected continuous features automatically. Review the selected features before interpreting this broad initial result.",
+          "narration": "Load table을 클릭하고 cell 표를 고르세요. 불러오면 선택된 연속형 특징이 자동으로 검사됩니다. 이 폭넓은 첫 결과를 해석하기 전에 선택된 특징을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10844,7 +11164,7 @@
         },
         {
           "visual": "05_choose_one_feature_before_scan",
-          "narration": "With the feature search empty, click None to clear all selections. Search for cell_area, tick that feature and click Scan. Changing the selection requires another scan.",
+          "narration": "특징 검색 칸이 빈 상태에서 None을 클릭해 모든 선택을 해제하세요. cell_area를 검색해 체크하고 Scan을 클릭하세요. 선택을 바꾸면 다시 검사해야 합니다.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -10855,7 +11175,7 @@
         },
         {
           "visual": "06_area_mad_3_5",
-          "narration": "Choose MAD, leave Transform at none and set k to three point five. Click Scan. The rule measures distance from the median using a robust scale and flags twenty-six objects in this example.",
+          "narration": "MAD를 고르고 Transform은 none으로 두고 k를 3.5로 설정하세요. Scan을 클릭하세요. 이 규칙은 강건한 척도로 중앙값에서의 거리를 재며, 이 예제에서는 객체 26개를 표시합니다.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10866,7 +11186,7 @@
         },
         {
           "visual": "07_four_wells_not_scored",
-          "narration": "Open Wells and read well_scored and the reason column. These four wells are unscored because the comparison needs at least five eligible wells. Flagged share summarizes object flags separately.",
+          "narration": "Wells를 열고 well_scored와 reason 열을 읽으세요. 비교에는 조건을 충족하는 웰이 5개 이상 필요하므로 이 네 웰은 점수가 매겨지지 않았습니다. Flagged share는 객체 플래그를 따로 요약합니다.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10877,7 +11197,7 @@
         },
         {
           "visual": "08_area_report",
-          "narration": "Open Report to read the rule, centre and scale. In this build, its general well-count explanation is incorrect for this example; use the specific reason in the Wells table: too few eligible wells.",
+          "narration": "Report를 열어 규칙, 중심, 척도를 읽으세요. 이 빌드에서는 웰 수에 관한 일반 설명이 이 예제에 맞지 않으므로, Wells 표의 구체적 이유인 조건을 충족하는 웰이 너무 적다는 점을 참고하세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10888,7 +11208,7 @@
         },
         {
           "visual": "10_broad_rule_not_quality_cutoff",
-          "narration": "Lower k to flag smaller departures from the centre. At zero point five, the example has one thousand four hundred seventy-nine flags. The object table displays only five hundred rows, so use the flag count rather than the visible row count.",
+          "narration": "k를 낮추면 중심에서 더 작게 벗어난 값도 표시됩니다. 0.5에서는 이 예제에 플래그가 1,479개 있습니다. 객체 표는 500행만 보여 주므로 보이는 행 수가 아니라 플래그 수를 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -10899,7 +11219,7 @@
         },
         {
           "visual": "11_all_rows_not_display_cap_complete",
-          "narration": "Choose Export and a new filename. The objects CSV retains all input rows with flags; flagged contains only flagged objects. Wells and report save the well summaries and analysis text.",
+          "narration": "Export를 고르고 새 파일 이름을 정하세요. objects CSV에는 모든 입력 행이 플래그와 함께 남고, flagged에는 표시된 객체만 들어 있습니다. Wells와 report에는 웰 요약과 분석 문구가 저장됩니다.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10910,7 +11230,7 @@
         },
         {
           "visual": "13_area_iqr",
-          "narration": "Choose IQR and set c to one point five, then Scan. This applies fences based on the interquartile range and flags fifty-five objects for raw cell area.",
+          "narration": "IQR을 고르고 c를 1.5로 설정한 뒤 Scan하세요. 사분위 범위에 기반한 경계가 적용되며, 원래 세포 면적에서 객체 55개가 표시됩니다.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10921,7 +11241,7 @@
         },
         {
           "visual": "14_iqr_report",
-          "narration": "Read the IQR report’s fences. Its displayed centre is the midpoint of the first and third quartiles, although this build labels it median. Use the source data when you need the actual median.",
+          "narration": "IQR 보고서의 경계를 읽으세요. 표시된 중심은 제1사분위수와 제3사분위수의 중간점이지만, 이 빌드에서는 median으로 표시됩니다. 실제 중앙값이 필요하면 원본 데이터를 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10932,7 +11252,7 @@
         },
         {
           "visual": "16_log_area_mad",
-          "narration": "Choose log10 and scan again. The centres, scales and distance rule now apply to log-transformed values. Try MAD at three point five to compare its result with the IQR rule.",
+          "narration": "log10을 고르고 다시 검사하세요. 이제 중심, 척도, 거리 규칙이 로그 변환된 값에 적용됩니다. IQR 규칙의 결과와 비교하려면 3.5의 MAD를 시도해 보세요.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -10943,7 +11263,7 @@
         },
         {
           "visual": "17_real_intensity_raw",
-          "narration": "Return Transform to none, clear the feature selection and choose cell_channel_0_min_intensity alone. Scan the raw values before trying a logarithmic transform.",
+          "narration": "Transform을 none으로 되돌리고 특징 선택을 지운 뒤 cell_channel_0_min_intensity만 고르세요. 로그 변환을 시도하기 전에 원래 값을 검사하세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10954,7 +11274,7 @@
         },
         {
           "visual": "18_real_zero_refusal",
-          "narration": "Choose log10 and click Scan. This feature contains a zero, so the transform is refused and export is disabled. Read the error: any old rows still visible belong to the previous result.",
+          "narration": "log10을 고르고 Scan을 클릭하세요. 이 특징에는 0이 있어 변환이 거부되고 내보내기가 비활성화됩니다. 오류를 읽으세요. 아직 보이는 예전 행은 이전 결과의 것입니다.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10965,7 +11285,7 @@
         },
         {
           "visual": "21_low_count_reasons",
-          "narration": "Restore raw cell_area, MAD and k three point five, then Scan. Increasing Min objects per well to seven hundred makes three wells ineligible. The remaining one still cannot support the five-well comparison.",
+          "narration": "원래 cell_area, MAD, k 3.5로 되돌린 뒤 Scan하세요. Min objects per well을 700으로 올리면 웰 3개가 조건을 충족하지 못합니다. 남은 웰 하나로는 여전히 5개 웰 비교를 할 수 없습니다.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10976,7 +11296,7 @@
         },
         {
           "visual": "22_objects_only",
-          "narration": "Restore Min objects per well to twenty. Turn Score wells too off and Scan to obtain object flags only. Turn it back on and scan again to include the well summaries.",
+          "narration": "Min objects per well을 20으로 되돌리세요. Score wells too를 끄고 Scan하면 객체 플래그만 얻습니다. 웰 요약도 포함하려면 다시 켜고 다시 검사하세요.",
           "hold_after": 0.7,
           "focus": [
             3295,
@@ -10987,7 +11307,7 @@
         },
         {
           "visual": "24_final_flags_and_report_complete",
-          "narration": "Export the restored rule under a separate filename. Keep the report with its twenty-six flagged rows, full object table and four well summaries so you can identify the settings used.",
+          "narration": "복원한 규칙을 별도의 파일 이름으로 내보내세요. 사용한 설정을 알 수 있도록 표시된 26행, 전체 객체 표, 웰 요약 4개와 함께 보고서를 보관하세요.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -10998,7 +11318,7 @@
         },
         {
           "visual": "method_choices_mad",
-          "narration": "For Python, use detect_outliers and OutlierSpec from spacr.qt.widgets.outlier_model. Continue with Feature Explorer to examine distributions or Annotate to inspect matching images before deciding how to handle flagged objects.",
+          "narration": "Python에서는 spacr.qt.widgets.outlier_model의 detect_outliers와 OutlierSpec을 쓰세요. 표시된 객체를 어떻게 처리할지 정하기 전에 Feature Explorer로 분포를 살펴보거나 Annotate로 해당 이미지를 확인하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -11017,6 +11337,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -11027,23 +11387,23 @@
       "series": 5,
       "app_key": "experiment_design",
       "section": "Data",
-      "title": "Experiment Design: plan a plate and export its well map",
-      "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
+      "title": "Experiment Design: 플레이트 계획과 웰 지도 내보내기",
+      "description": "조건과 반복을 정하고, 배치를 고르고, 경고를 검토한 뒤 촬영과 분석에 쓸 배정을 내보냅니다.",
       "objectives": [
-        "Enter conditions, replicate counts and control roles.",
-        "Choose a plate format, edge policy and reproducible random layout.",
-        "Export the exact well assignments for later joins to measurements."
+        "조건, 반복 수, 대조군 역할을 입력합니다.",
+        "플레이트 형식, 가장자리 규칙, 재현 가능한 무작위 배치를 고릅니다.",
+        "나중에 측정값과 결합할 정확한 웰 배정을 내보냅니다."
       ],
-      "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
+      "prerequisite": "촬영 전에 조건 이름, 대조군 역할, 계획한 웰 수를 준비하세요. 예제는 음성 대조군 웰 6개, 양성 대조군 웰 6개, 처리 웰 12개를 요청합니다. 반복은 자신의 실험에 맞게 고르세요. 플레이트 식별자는 이후의 이미지와 측정값과 일치하게 유지하세요.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
+          "narration": "Home에서 Data를 열고 Experiment Design을 고르세요. 먼저 플레이트에 놓을 조건과 대조군을 입력하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "02_named_draft",
-          "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
+          "narration": "촬영할 때 쓸 식별자로 플레이트 이름을 정하세요. 표의 Condition, Replicates, Role을 검토하세요. 필요하면 열 경계를 더블클릭해 열을 넓히세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "68_power_design"
@@ -11051,7 +11411,7 @@
         },
         {
           "visual": "03_capacity_warning",
-          "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
+          "narration": "요청한 반복을 담을 만큼 웰이 있는 플레이트 형식을 고르세요. 이 24웰 계획에 6웰을 고르면 용량 오류가 표시됩니다. 계속하려면 형식이나 요청한 개수를 바꾸세요.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -11062,7 +11422,7 @@
         },
         {
           "visual": "04_capacity_restored",
-          "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
+          "narration": "96웰을 골라 배치를 복원하세요. Add condition과 Remove selected로 조건 행을 편집한 뒤 갱신된 플레이트 지도를 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -11073,17 +11433,17 @@
         },
         {
           "visual": "05_single_replicate_warning",
-          "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
+          "narration": "반복 수를 편집하려면 해당 칸을 고르고 F2를 누르세요. 음성 대조군 웰이 하나뿐이면 경고가 나타납니다. 분석에 알맞은 독립적인 실험 반복을 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "06_block_layout_warning",
-          "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
+          "narration": "Block layout을 고르면 조건이 한데 모입니다. 위치 경고를 읽고, 조건과 위치가 교란될 가능성이 있는지 지도를 살펴보세요.",
           "hold_after": 0.7
         },
         {
           "visual": "07_random_interior_seed42",
-          "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
+          "narration": "Random layout을 고르고 Leave edge empty를 켠 뒤 Seed를 42로 설정하세요. 이 96웰 플레이트에는 안쪽 웰 60개를 쓸 수 있으며, 예제 계획은 그중 24개를 배정합니다.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -11094,7 +11454,7 @@
         },
         {
           "visual": "08_seed43",
-          "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
+          "narration": "Seed를 43으로 바꾸면 조건별 개수는 같고 배치만 다른 결과가 만들어집니다. 플레이트에서 대조군과 처리의 위치를 검토하세요.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -11105,7 +11465,7 @@
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
+          "narration": "Seed를 다시 42로 두면 이전 배치로 돌아갑니다. 시드를 형식, 가장자리 규칙, 조건 표와 함께 저장하세요.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -11116,7 +11476,7 @@
         },
         {
           "visual": "10_selected_wells_not_reassigned",
-          "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
+          "narration": "웰 B02부터 C04까지 끌어서 선택하세요. 이것은 확인용 선택이며, 배정을 바꾸려면 조건 표와 배치 컨트롤을 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -11127,12 +11487,12 @@
         },
         {
           "visual": "11_export_folder",
-          "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
+          "narration": "Export plate map을 클릭하고 폴더를 고르세요. plate_map.csv, plate_map.json, plate_map_settings.json을 함께 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
+          "narration": "CSV를 열면 배정된 웰마다 한 행이 있습니다. 이후 측정값과는 plateID, rowID, columnID를 함께 써서 결합하세요. JSON에는 설계와 경고가 남습니다.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -11143,7 +11503,7 @@
         },
         {
           "visual": "09_seed42_restored",
-          "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
+          "narration": "이 무작위 배치에서는 설정 파일의 expressible이 false로 표시됩니다. 조건 라벨에는 CSV의 정확한 웰 지도를 쓰세요. 행 전체나 열 전체 단위의 처리 설정으로는 이렇게 섞인 배정을 나타낼 수 없습니다.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -11154,7 +11514,7 @@
         },
         {
           "visual": "12_real_export_complete",
-          "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
+          "narration": "촬영 전에 최종 지도를 검토하고 실험과 함께 보관하세요. Python에서는 Condition과 PlateDesign을 쓴 다음 spacr.qt.widgets.plate_layout의 assign_wells, check_design, write_design을 쓰세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -11166,6 +11526,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -11173,24 +11573,24 @@
       "id": "68_power_design",
       "number": 68,
       "slug": "power_design",
-      "title": "Power & Design: explore simulated detection curves",
+      "title": "Power & Design: 시뮬레이션 검출 곡선 살펴보기",
       "series": 5,
       "app_key": "power",
       "section": "Design",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
-      "description": "Set library and design assumptions, run simulations and inspect detection fractions, failed fits and caveats.",
+      "description": "라이브러리와 설계 가정을 정하고, 시뮬레이션을 실행한 뒤 검출 비율, 실패한 적합, 주의 사항을 확인합니다.",
       "objectives": [
-        "Set the library, scoring unit and design assumptions.",
-        "Run cell-count and well-count scans with recorded settings.",
-        "Read detection fractions and caveats before interpreting a design."
+        "라이브러리, 점수 단위, 설계 가정을 정합니다.",
+        "설정을 기록한 채로 세포 수와 웰 수 스캔을 실행합니다.",
+        "설계를 해석하기 전에 검출 비율과 주의 사항을 읽습니다."
       ],
-      "prerequisite": "Prepare assumptions for library size, guides per gene, background, effect and prevalence. This module simulates data. The linked example uses only two replicates per point to show the controls; use enough repetitions and appropriate assumptions for planning. In this build, inspect the table rather than relying on a headline that can recommend the unchanged baseline well count.",
+      "prerequisite": "라이브러리 크기, 유전자당 가이드 수, 배경, 효과, 유병률에 대한 가정을 준비하세요. 이 모듈은 데이터를 시뮬레이션합니다. 연결된 예제는 컨트롤을 보여 주려고 점마다 반복을 2회만 쓰므로, 계획에는 충분한 반복과 알맞은 가정을 쓰세요. 이 빌드에서는 기준 웰 수를 그대로 권할 수 있는 제목에 의존하지 말고 표를 확인하세요.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Power & Design. Start with the assumptions you want to explore, then use simulated detection curves to compare the displayed cell-count and well-count choices.",
+          "narration": "Home에서 Power & Design을 여세요. 살펴보고 싶은 가정에서 시작해, 시뮬레이션 검출 곡선으로 표시된 세포 수와 웰 수 선택지를 비교하세요.",
           "related_lessons": [
             "67_experiment_design"
           ],
@@ -11198,32 +11598,32 @@
         },
         {
           "visual": "03_guide_library",
-          "narration": "Set library size and guides per gene, then choose the scoring unit. With forty genes and four guides per gene, guide scoring uses one hundred sixty units; gene scoring pools guide information.",
+          "narration": "라이브러리 크기와 유전자당 가이드 수를 정한 뒤 점수 단위를 고르세요. 유전자 40개, 유전자당 가이드 4개이면 가이드 단위 점수에는 160개 단위를 쓰며, 유전자 단위 점수는 가이드 정보를 합칩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "04_bounded_library_plate",
-          "narration": "Review the plate, background, effect and prevalence controls together. The positive-call rate is an assumed classification probability. Choose values that describe your planned analysis.",
+          "narration": "플레이트, 배경, 효과, 유병률 컨트롤을 함께 검토하세요. 양성 판정률은 가정한 분류 확률입니다. 계획한 분석을 설명하는 값을 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_unsupported_effect_warning",
-          "narration": "If an effect below one disables Run, read the unsupported-direction warning. Restore a supported value to continue; this simulator does not cover every possible effect direction.",
+          "narration": "1보다 작은 효과 때문에 Run이 비활성화되면, 지원하지 않는 방향에 관한 경고를 읽으세요. 계속하려면 지원하는 값으로 되돌리세요. 이 시뮬레이터는 모든 효과 방향을 다루지는 않습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "08_run_settings",
-          "narration": "Set repetitions, seed, backend and the detection threshold. The threshold uses area under the receiver operating characteristic curve. The example uses two replicates per point for a short run; choose more repetitions when estimating detection probability.",
+          "narration": "반복 수, 시드, 계산 백엔드, 검출 임계값을 설정하세요. 임계값은 ROC 곡선 아래 면적을 씁니다. 예제는 짧게 실행하려고 점마다 반복을 2회 쓰므로, 검출 확률을 추정할 때는 반복을 늘리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_real_simulation_running",
-          "narration": "Click Run and follow the progress. The simulator scans cell counts and well counts separately. Keep the settings with the completed results.",
+          "narration": "Run을 클릭하고 진행 상황을 지켜보세요. 시뮬레이터는 세포 수와 웰 수를 따로 스캔합니다. 설정을 완료된 결과와 함께 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "10_actual_results",
-          "narration": "Read detection counts alongside their denominators. Failed or nonconverged fits remain as non-detections. With two requested replicates, one hundred percent means only two detections out of two.",
+          "narration": "검출 개수는 분모와 함께 읽으세요. 실패했거나 수렴하지 않은 적합은 미검출로 남습니다. 요청한 반복이 2회라면 100%는 2회 중 2회 검출일 뿐입니다.",
           "hold_after": 0.7
         },
         {
@@ -11234,7 +11634,7 @@
             2380,
             460
           ],
-          "narration": "Use the results table to inspect detection fractions, mean performance among usable fits and nonconvergence. Unavailable mean values are missing results. Interpret average precision relative to the assumed prevalence.",
+          "narration": "결과 표로 검출 비율, 쓸 수 있는 적합의 평균 성능, 비수렴을 확인하세요. 얻을 수 없는 평균값은 누락된 결과입니다. 평균 정밀도는 가정한 유병률과 비교해 해석하세요.",
           "hold_after": 0.7
         },
         {
@@ -11245,17 +11645,17 @@
             2380,
             110
           ],
-          "narration": "Compare the requested design values directly. This build can recommend increasing to the same baseline well count because the two scans use different random draws. Disregard that headline and use the table and uncertainty to assess the comparison.",
+          "narration": "요청한 설계 값을 직접 비교하세요. 두 스캔이 서로 다른 무작위 추출을 쓰므로, 이 빌드는 기준과 같은 웰 수로 늘리라고 권할 수 있습니다. 그 제목은 무시하고 표와 불확실성으로 비교를 평가하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_full_caveats",
-          "narration": "Expand the caveats and inspect failed fits or clipped probabilities. Adjust assumptions when they produce outcomes inconsistent with the experiment you intend to model.",
+          "narration": "주의 사항을 펼쳐 실패한 적합이나 잘린 확률을 확인하세요. 가정이 모델링하려는 실험과 맞지 않는 결과를 내면 가정을 조정하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12_results_and_limitations",
-          "narration": "Keep the settings and replicate results together. The linked archive contains the example run for inspection. For programmatic output, use the design adapter and simulation APIs; assess assumptions and uncertainty before choosing an experimental design.",
+          "narration": "설정과 반복 결과를 함께 보관하세요. 연결된 압축 파일에는 확인용 예제 실행이 들어 있습니다. 프로그램으로 출력하려면 설계 어댑터와 시뮬레이션 API를 쓰고, 실험 설계를 고르기 전에 가정과 불확실성을 평가하세요.",
           "related_lessons": [
             "06_api"
           ],
@@ -11265,6 +11665,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -11275,21 +11715,21 @@
       "series": 5,
       "app_key": "dose_response",
       "section": "Data",
-      "title": "Dose Response: fit concentration curves and read their intervals",
-      "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
+      "title": "Dose Response: 농도 곡선 적합과 구간 읽기",
+      "description": "농도 표를 불러오고, 계열을 묶고, 로지스틱 곡선을 적합한 뒤 추정값, 구간, 적합 경고를 함께 보관합니다.",
       "objectives": [
-        "Load the synthetic example and choose concentration, response and grouping columns.",
-        "Fit curves and compare profile-likelihood and Wald intervals.",
-        "Read unbounded or refused results and save the report."
+        "합성 예제를 불러와 농도, 반응, 그룹 열을 고릅니다.",
+        "곡선을 적합하고 프로파일 가능도 구간과 Wald 구간을 비교합니다.",
+        "경계가 없거나 거부된 결과를 읽고 보고서를 저장합니다."
       ],
       "example_files": [
         "SYNTHETIC_dose_response_examples.csv"
       ],
-      "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
+      "prerequisite": "연결된 합성 용량-반응 CSV를 내려받으세요. 예시 계열 4개, 양의 농도 9개, 용량 0의 비히클이 있으며 농도마다 관측값이 3개입니다. 자신의 데이터를 불러오기 전에 원래 농도 값을 준비하고, 정규화나 단위 변환은 미리 해 두세요.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
+          "narration": "Home에서 Data를 열고 Dose Response를 고르세요. 적합할 계열마다 농도 열과 반응 열이 분명한 표를 준비하세요.",
           "hold_after": 0.7,
           "focus_modules": [
             "dose_response"
@@ -11297,12 +11737,12 @@
         },
         {
           "visual": "03_choose_disclosed_synthetic_csv",
-          "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
+          "narration": "연결된 합성 CSV를 내려받은 뒤 Load table을 클릭해 여세요. 이름 붙은 합성 계열은 컨트롤과 여러 적합 결과를 보여 줍니다.",
           "hold_after": 0.7
         },
         {
           "visual": "04_loaded_120_synthetic_rows",
-          "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
+          "narration": "표에는 계열 4개에 걸쳐 120행이 있습니다. 각 계열에는 양의 농도 9개, 용량 0의 비히클, 농도마다 관측값 3개가 있습니다.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -11313,7 +11753,7 @@
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
+          "narration": "농도 열을 concentration, 반응 열을 response, One curve per를 series로 설정하세요. 로그 값이 아니라 원래 농도를 쓰세요.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -11324,7 +11764,7 @@
         },
         {
           "visual": "05_explicit_columns_and_profile",
-          "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
+          "narration": "Unit에 농도 단위를 입력하세요. 이 예제에서는 µM을 씁니다. 이 칸은 값에 라벨만 붙이므로, 다른 단위가 필요하면 숫자를 미리 변환하세요.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -11338,7 +11778,7 @@
         },
         {
           "visual": "06_profile_results",
-          "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
+          "narration": "Profile likelihood를 고르고 Fit non-monotone data는 끈 채로 Fit을 클릭하세요. 경고가 있거나 추정값을 얻지 못한 계열까지 포함해 곡선 패널과 결과 표를 함께 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11349,7 +11789,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
+          "narration": "synthetic inhibition을 고르세요. 중간점은 1.5이고 Hill 기울기는 음수입니다. 반최대값은 적합된 두 평탄부의 정중앙에 있으며, 여기서 평탄부는 5와 95입니다.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -11360,7 +11800,7 @@
         },
         {
           "visual": "08_activation_midpoint",
-          "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
+          "narration": "synthetic activation을 고르세요. 중간점은 2이고 Hill 기울기는 양수입니다. 선택한 곡선이 강조되며, 아래 보고서는 선택한 행을 따라갑니다.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -11371,7 +11811,7 @@
         },
         {
           "visual": "09_unbounded_not_a_point_estimate",
-          "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
+          "narration": "범위를 벗어난 예제를 고르세요. 시험한 농도가 100에서 끝나므로 중간점은 뒷받침되지 않습니다. 보고된 경계를 읽으세요. 중간점과 구간 칸이 비어 있으면 추정값을 얻지 못했다는 뜻입니다.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11382,7 +11822,7 @@
         },
         {
           "visual": "10_refused_reversing_series",
-          "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
+          "narration": "반전하는 계열을 고르고 적합이 거부된 이유를 읽으세요. 단조 로지스틱 모델이 알맞은지 정하기 전에 반응의 모양과 실험 맥락을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11393,7 +11833,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
+          "narration": "inhibition으로 돌아가 관측값 개수를 읽으세요. 양의 용량 관측값 27개가 적합에 들어갑니다. 0은 로그 적합에 들어갈 수 없으므로 용량 0의 대조군 3개는 따로 요약됩니다.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11404,7 +11844,7 @@
         },
         {
           "visual": "07_inhibition_midpoint",
-          "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
+          "narration": "R²와 함께 잔차 오차와 적합 결여를 읽으세요. 불확실성을 해석할 때는 실험의 반복 구조를 고려하세요. 행이 반복된다고 해서 독립적인 실험이 되는 것은 아닙니다.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11415,7 +11855,7 @@
         },
         {
           "visual": "13_choose_wald",
-          "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
+          "narration": "Wald를 고르고 Fit을 다시 클릭해 구간 방법을 비교하세요. 선택을 바꾸면 다시 적합해야 합니다. 구간은 중간점의 로그에서 계산한 뒤 농도로 되돌립니다.",
           "hold_after": 0.7,
           "focus": [
             285,
@@ -11426,7 +11866,7 @@
         },
         {
           "visual": "14_wald_results",
-          "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
+          "narration": "범위 안에 잘 들어온 계열의 구간 끝점을 비교하세요. 여기서는 중간점 추정값이 비슷하게 유지되며, 범위를 벗어난 예제에는 여전히 뒷받침되는 중간점 추정값이 없습니다.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11437,7 +11877,7 @@
         },
         {
           "visual": "15_profile_restored",
-          "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
+          "narration": "Profile likelihood로 되돌리고 Fit을 클릭하세요. 결과를 복사하기 전에 선택한 방법과 해당 보고서를 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11448,7 +11888,7 @@
         },
         {
           "visual": "16_select_after_sorting",
-          "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
+          "narration": "적합 비교를 모두 마친 뒤에만 표를 정렬하세요. 이 빌드에서는 정렬된 표를 다시 적합하면 행이 어긋날 수 있습니다. inhibition을 고르고 보고서가 같은 계열 이름을 표시하는지 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11459,7 +11899,7 @@
         },
         {
           "visual": "17_copy_actual_report",
-          "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
+          "narration": "보고서 문구를 선택하고 평소의 키보드 단축키로 복사하세요. 경고, 구간 방법, 입력 농도를 결과와 함께 저장하세요.",
           "hold_after": 0.7,
           "focus": [
             2000,
@@ -11470,7 +11910,7 @@
         },
         {
           "visual": "15_profile_restored",
-          "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
+          "narration": "표 형식 출력에는 Python에서 fit_frame과 용량-반응 결과 표를 쓰세요. 이 화면에는 내보내기 버튼이 없습니다. 모든 입력 계열이 기록되도록 경계가 없거나 거부된 행도 출력에 남겨 두세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -11486,6 +11926,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -11493,22 +11973,22 @@
       "id": "70_explain_cv",
       "number": 70,
       "slug": "explain_cv",
-      "title": "Explain CV Model: compare predictions with measured features",
+      "title": "Explain CV Model: 예측과 측정 특징 비교",
       "series": 5,
       "app_key": "explain_cv",
       "section": "Results and quality control",
       "host_app_key": "classify_merged",
-      "description": "Load matching predictions and measurements, fit a surrogate and read fidelity before using feature explanations.",
+      "description": "일치하는 예측과 측정값을 불러오고, 대리 모델을 적합한 뒤 특징 설명을 쓰기 전에 충실도를 읽습니다.",
       "objectives": [
-        "Match the measurement database to saved classifier predictions.",
-        "Choose prediction columns, a backend and held-out groups.",
-        "Read fidelity, confusion and saved feature summaries."
+        "측정 데이터베이스를 저장된 분류기 예측과 맞춥니다.",
+        "예측 열, 계산 백엔드, 제외해 둘 그룹을 고릅니다.",
+        "충실도, 혼동 행렬, 저장된 특징 요약을 읽습니다."
       ],
-      "prerequisite": "Use measurements.db and the predictions CSV from the same Annotate/Classify example objects. Select the saved model class calls as the target. This example has limited surrogate fidelity, so its feature attributions should not be used to explain the vision model. Evaluate the original classifier separately with independent data.",
+      "prerequisite": "Annotate/Classify 예제의 같은 객체에 대한 measurements.db와 예측 CSV를 쓰세요. 목표로는 저장된 모델의 클래스 판정을 고르세요. 이 예제는 대리 모델의 충실도가 제한적이므로, 그 특징 기여도를 비전 모델 설명에 써서는 안 됩니다. 원래 분류기는 독립된 데이터로 따로 평가하세요.",
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "From Home, open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
+          "narration": "Home에서 Classify를 연 뒤 오른쪽 위의 Explain CV Model을 고르세요. 같은 잘라 낸 객체에 대한 측정 데이터베이스와 저장된 예측을 준비하세요.",
           "focus": [
             3579,
             100,
@@ -11523,12 +12003,12 @@
         },
         {
           "visual": "04_recorded_predictions_picker",
-          "narration": "Select measurements.db and the matching predictions CSV. Check the filenames and object identities before continuing. This example uses two hundred thirty-four saved predictions.",
+          "narration": "measurements.db와 그에 맞는 예측 CSV를 고르세요. 계속하기 전에 파일 이름과 객체 대응을 확인하세요. 이 예제는 저장된 예측 234개를 씁니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06_ready_existing_predictions_not_retraining",
-          "narration": "Confirm the prediction path with Enter if the column choices have not refreshed. Choose filename for the crop path and predicted_label for the model’s class calls. Select Random Forest, grouping by well and a new output folder.",
+          "narration": "열 선택지가 갱신되지 않았다면 Enter로 예측 경로를 확정하세요. 잘라 낸 이미지 경로에는 filename, 모델의 클래스 판정에는 predicted_label을 고르세요. Random Forest, 웰 단위 그룹화, 새 출력 폴더를 고르세요.",
           "focus": [
             462,
             463,
@@ -11539,7 +12019,7 @@
         },
         {
           "visual": "07_actual_fitting",
-          "narration": "Click Explain model. The surrogate uses measured features to reproduce the saved class calls. Choose the backend and grouping on this form; use the Python API for additional fitting options.",
+          "narration": "Explain model을 클릭하세요. 대리 모델은 측정 특징으로 저장된 클래스 판정을 재현합니다. 백엔드와 그룹화는 이 양식에서 고르고, 추가 적합 옵션은 Python API를 쓰세요.",
           "focus": [
             462,
             678,
@@ -11553,7 +12033,7 @@
         },
         {
           "visual": "08_result_tab_0",
-          "narration": "Read Fidelity first. Here eighty-nine rows have complete features, with sixty-eight used for fitting and twenty-one from another well held out. Compare agreement with the baseline and inspect which rows were excluded.",
+          "narration": "먼저 Fidelity를 읽으세요. 여기서는 특징이 모두 있는 행이 89개이며, 68개는 적합에 쓰이고 다른 웰의 21개는 제외해 둡니다. 일치율을 기준선과 비교하고 어떤 행이 빠졌는지 확인하세요.",
           "focus": [
             474,
             1010,
@@ -11564,7 +12044,7 @@
         },
         {
           "visual": "09_result_tab_1",
-          "narration": "Open Importance. In this example the fidelity gate withholds the ranking. Review the excluded feature names as well: a name-based leakage warning needs to be checked against what the measurement actually contains.",
+          "narration": "Importance를 여세요. 이 예제에서는 충실도 검사 때문에 순위가 표시되지 않습니다. 제외된 특징 이름도 검토하세요. 이름 기반 누출 경고는 측정값에 실제로 무엇이 담겼는지와 대조해 확인해야 합니다.",
           "focus": [
             465,
             937,
@@ -11575,7 +12055,7 @@
         },
         {
           "visual": "11_result_tab_3",
-          "narration": "Open Confusion to compare surrogate calls with the vision model’s calls. Here every held-out object is assigned class one, giving seventeen agreements and four differences. Check performance across classes rather than relying only on overall agreement.",
+          "narration": "Confusion을 열어 대리 모델의 판정과 비전 모델의 판정을 비교하세요. 여기서는 제외해 둔 객체가 모두 클래스 1로 판정되어 일치 17개, 불일치 4개가 됩니다. 전체 일치율에만 의존하지 말고 클래스별 성능을 확인하세요.",
           "focus": [
             465,
             948,
@@ -11586,7 +12066,7 @@
         },
         {
           "visual": "12_result_tab_4",
-          "narration": "Per-cell SHAP describes the fitted surrogate. When fidelity is inadequate, these values cannot explain the vision model reliably. Keep that limitation with any exported attribution table.",
+          "narration": "Per-cell SHAP은 적합된 대리 모델을 설명합니다. 충실도가 부족하면 이 값으로 비전 모델을 신뢰성 있게 설명할 수 없습니다. 내보낸 기여도 표에는 이 한계를 함께 적어 두세요.",
           "focus": [
             465,
             948,
@@ -11600,7 +12080,7 @@
         },
         {
           "visual": "14_result_tab_6",
-          "narration": "Open Correlations and Feature distributions to inspect the measurements. These GUI tables show up to one thousand rows. Use their saved CSV files to inspect the full summaries.",
+          "narration": "Correlations와 Feature distributions를 열어 측정값을 확인하세요. 이 화면의 표는 최대 1,000행까지 보여 줍니다. 전체 요약을 확인하려면 저장된 CSV 파일을 쓰세요.",
           "focus": [
             465,
             948,
@@ -11611,7 +12091,7 @@
         },
         {
           "visual": "15_result_tab_7",
-          "narration": "Open Held-out cells to see object identities and both predictions. Keep the output files, settings and fidelity report together. Continue with the Evaluation tutorial when you need to assess the original classifier.",
+          "narration": "Held-out cells를 열면 객체 대응과 두 예측을 볼 수 있습니다. 출력 파일, 설정, 충실도 보고서를 함께 보관하세요. 원래 분류기를 평가해야 하면 Evaluation 튜토리얼로 이어 가세요.",
           "focus": [
             465,
             865,
@@ -11628,6 +12108,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -11759,6 +12279,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -11766,7 +12326,7 @@
       "id": "72_volcano_explorer",
       "number": 72,
       "slug": "volcano_explorer",
-      "title": "Volcano Explorer: inspect results and save a figure",
+      "title": "Volcano Explorer: 결과 확인과 그림 저장",
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
@@ -11774,17 +12334,17 @@
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
-      "description": "Load Regression results, choose plotted values and reference lines, then save a reusable style and export the figure.",
+      "description": "Regression 결과를 불러오고, 그릴 값과 기준선을 고른 뒤 재사용할 스타일을 저장하고 그림을 내보냅니다.",
       "objectives": [
-        "Open a results family and inspect guide identities and support.",
-        "Choose adjusted values, display transforms and reference lines.",
-        "Save the style and export PDF or PNG figures."
+        "결과 패밀리를 열고 가이드의 식별자와 뒷받침을 확인합니다.",
+        "보정된 값, 표시 변환, 기준선을 고릅니다.",
+        "스타일을 저장하고 PDF 또는 PNG 그림을 내보냅니다."
       ],
-      "prerequisite": "Extract Volcano_real_guide_family.zip and use its results folder. It contains 434 guide results from the Regression example. No guide passes the original adjusted-P threshold of 0.05. Effects are standardized marginal effects. Keep the original result table and statistical thresholds with the figure.",
+      "prerequisite": "Volcano_real_guide_family.zip의 압축을 풀고 그 안의 results 폴더를 쓰세요. Regression 예제의 가이드 결과 434개가 들어 있습니다. 원래의 보정 P 임계값 0.05를 통과하는 가이드는 없습니다. 효과는 표준화된 한계 효과입니다. 원래 결과 표와 통계 임계값을 그림과 함께 보관하세요.",
       "scenes": [
         {
           "visual": "01_regression_host",
-          "narration": "From Home, open Regression, then Volcano Explorer. Extract the linked example archive before choosing the result tables you want to plot.",
+          "narration": "Home에서 Regression을 연 뒤 Volcano Explorer를 여세요. 그릴 결과 표를 고르기 전에 연결된 예제 압축 파일을 푸세요.",
           "related_lessons": [
             "13_regression"
           ],
@@ -11792,17 +12352,17 @@
         },
         {
           "visual": "03_real_guide_family_no_adjusted_hits",
-          "narration": "Click Open results and select the extracted results folder. Each point represents a guide in this family of four hundred thirty-four tests. Keep different correction families separate.",
+          "narration": "Open results를 클릭하고 압축을 푼 results 폴더를 고르세요. 각 점은 검정 434개로 이루어진 이 패밀리의 가이드 하나입니다. 보정 패밀리가 다르면 따로 다루세요.",
           "hold_after": 0.7
         },
         {
           "visual": "03a_save_rendered_baseline_style",
-          "narration": "Click Save style to save the opening figure settings, then Load style and select that file. This gives you a saved starting point with matching controls before you edit the figure.",
+          "narration": "Save style을 클릭해 처음 그림 설정을 저장한 뒤 Load style을 클릭하고 그 파일을 고르세요. 이렇게 하면 그림을 편집하기 전에 컨트롤이 일치하는 저장된 출발점이 생깁니다.",
           "hold_after": 0.7
         },
         {
           "visual": "03c_rendered_baseline_and_controls_agree",
-          "narration": "Check alpha at zero point zero five, multiplier at three and the negative-log transform enabled. Read the axis labels: this example plots standardized marginal effects.",
+          "narration": "alpha가 0.05, 배수가 3이고 음의 로그 변환이 켜져 있는지 확인하세요. 축 라벨을 읽으세요. 이 예제는 표준화된 한계 효과를 그립니다.",
           "focus": [
             2305,
             270,
@@ -11813,7 +12373,7 @@
         },
         {
           "visual": "05_selected_real_guide",
-          "narration": "Click a point to inspect its source row. Read the guide identifier, raw P, adjusted P and supporting well count together. The selected example has adjusted P around zero point three nine.",
+          "narration": "점을 클릭해 원본 행을 확인하세요. 가이드 식별자, 원래 P, 보정 P, 뒷받침하는 웰 수를 함께 읽으세요. 선택한 예제의 보정 P는 약 0.39입니다.",
           "focus": [
             305,
             1830,
@@ -11824,42 +12384,42 @@
         },
         {
           "visual": "07_raw_p_values_not_new_hits",
-          "narration": "Choose the raw permutation-P column to inspect it, then restore adjusted_p_value. Changing the plotted column keeps the underlying analysis and its saved significance flags unchanged.",
+          "narration": "원래 순열 P 열을 골라 확인한 뒤 adjusted_p_value로 되돌리세요. 그리는 열을 바꿔도 바탕 분석과 저장된 유의성 플래그는 바뀌지 않습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "10_log_transform_restored",
-          "narration": "Toggle negative log ten to compare transformed and original P values. With the transform enabled, smaller P values appear higher. Restore the transformed adjusted-P view for this figure.",
+          "narration": "−log10을 켜고 끄며 변환된 P 값과 원래 P 값을 비교하세요. 변환을 켜면 작은 P 값이 더 위에 표시됩니다. 이 그림에서는 변환된 보정 P 보기로 되돌리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_reference_line_does_not_retest",
-          "narration": "Move alpha to zero point five to see how it moves the horizontal reference line, then restore zero point zero five. Editing this line does not recompute statistical tests or their saved significance flags.",
+          "narration": "alpha를 0.5로 옮겨 수평 기준선이 어떻게 움직이는지 본 뒤 0.05로 되돌리세요. 이 선을 바꿔도 통계 검정이나 저장된 유의성 플래그는 다시 계산되지 않습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "13_explicit_effect_cut_times_multiplier",
-          "narration": "Set an explicit effect cutoff of zero point one with multiplier three. The vertical lines appear at minus and plus zero point three. Restore Auto to return to the opening effect-line choice.",
+          "narration": "효과 컷오프를 0.1로, 배수를 3으로 명시적으로 설정하세요. 세로선이 −0.3과 +0.3에 나타납니다. 처음 효과선으로 돌아가려면 Auto로 되돌리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "15_colour_by_actual_support",
-          "narration": "Choose wells_with_guide for colour to inspect support across the plotted guides. Restore the significance colours before the final export if you want the original presentation.",
+          "narration": "색에 wells_with_guide를 골라 그린 가이드의 뒷받침을 확인하세요. 원래 표현을 원하면 최종 내보내기 전에 유의성 색으로 되돌리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "17_publication_size_settings",
-          "narration": "Set figure size, font sizes and resolution. This example uses seven by five inches at one hundred fifty dots per inch. Inspect readability; tight cropping can change the saved outer dimensions.",
+          "narration": "그림 크기, 글꼴 크기, 해상도를 설정하세요. 이 예제는 150dpi에서 7 × 5인치를 씁니다. 가독성을 확인하세요. 여백을 빠듯하게 자르면 저장되는 바깥 크기가 바뀔 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "21_saved_style_restored",
-          "narration": "Save the final style as JSON. Change the marker size, then Load style to restore the saved appearance. Keep the style file beside the result table.",
+          "narration": "최종 스타일을 JSON으로 저장하세요. 마커 크기를 바꾼 뒤 Load style로 저장된 모양을 복원하세요. 스타일 파일은 결과 표 옆에 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "24_export_finished_source_preserved",
-          "narration": "Export PDF and PNG, then open the files to check labels, contrast and cropping. Keep the output with the input results and style. In Python, use VolcanoStyle and render_volcano for the same rendering workflow.",
+          "narration": "PDF와 PNG로 내보낸 뒤 파일을 열어 라벨, 대비, 자르기를 확인하세요. 출력을 입력 결과와 스타일과 함께 보관하세요. Python에서는 같은 렌더링 흐름에 VolcanoStyle과 render_volcano를 쓰세요.",
           "related_lessons": [
             "06_api",
             "13_regression"
@@ -11870,6 +12430,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -11877,22 +12477,22 @@
       "id": "73_parameter_sweep",
       "number": 73,
       "slug": "parameter_sweep",
-      "title": "Parameter Sweep: compare saved Regression trials",
+      "title": "Parameter Sweep: 저장된 Regression 시행 비교",
       "series": 5,
       "app_key": "parameter_sweep",
       "section": "Results and quality control",
       "host_app_key": "regression",
-      "description": "Specify paired inputs and trial settings, run a small sweep, then inspect each trial’s settings, figures and inference checks.",
+      "description": "짝지은 입력과 시행 설정을 지정하고, 작은 스윕을 실행한 뒤 각 시행의 설정, 그림, 추론 검사를 확인합니다.",
       "objectives": [
-        "Select paired score/count files and a sweep output folder.",
-        "Choose variable and fixed settings, estimate the trial count and run.",
-        "Inspect saved trials and their inference quality before comparison."
+        "짝지은 점수/개수 파일과 스윕 출력 폴더를 고릅니다.",
+        "바꿀 설정과 고정할 설정을 고르고, 시행 수를 추정한 뒤 실행합니다.",
+        "비교하기 전에 저장된 시행과 추론 품질을 확인합니다."
       ],
-      "prerequisite": "Download the four plate score/count pairs from the Regression tutorial. Use matching plate order and a new output folder. The two illustrated ridge trials complete but fail their inference quality checks; keep computational status separate from statistical suitability.",
+      "prerequisite": "Regression 튜토리얼에서 플레이트별 점수/개수 파일 네 쌍을 내려받으세요. 플레이트 순서를 맞추고 새 출력 폴더를 쓰세요. 그림의 ridge 시행 두 개는 완료되지만 추론 품질 검사를 통과하지 못합니다. 계산 상태와 통계적 적합성을 구분하세요.",
       "scenes": [
         {
           "visual": "01_regression_with_four_existing_pairs",
-          "narration": "From Home, open Regression, then Parameter sweep at the bottom right. Use the four example score and count pairs from the Regression tutorial.",
+          "narration": "Home에서 Regression을 연 뒤 오른쪽 아래의 Parameter sweep을 여세요. Regression 튜토리얼의 점수와 개수 예제 파일 네 쌍을 쓰세요.",
           "focus": [
             3380,
             1880,
@@ -11906,12 +12506,12 @@
         },
         {
           "visual": "03_count_file_picker",
-          "narration": "Add the four score files and four count files to the sweep’s own lists, in matching plate order. Check these lists even when the parent Regression form already contains inputs. Choose a new output folder.",
+          "narration": "점수 파일 4개와 개수 파일 4개를 플레이트 순서를 맞춰 스윕 전용 목록에 추가하세요. 상위 Regression 양식에 이미 입력이 있어도 이 목록을 확인하세요. 새 출력 폴더를 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_two_trials_one_worker_budget",
-          "narration": "Tick alpha and enter zero point zero one and zero point one. Unticked settings stay fixed. Set ridge, parametric inference, well-level mean aggregation and no transform explicitly for this example.",
+          "narration": "alpha를 체크하고 0.01과 0.1을 입력하세요. 체크하지 않은 설정은 고정됩니다. 이 예제에서는 ridge, 모수적 추론, 웰 수준 평균 집계, 변환 없음을 명시적으로 설정하세요.",
           "focus": [
             850,
             490,
@@ -11922,7 +12522,7 @@
         },
         {
           "visual": "06_actual_estimate",
-          "narration": "Choose Grid sampling, Maximum trials two and one worker, then click Estimate. Check the number of combinations and resource limits before running. Treat the time estimate as approximate.",
+          "narration": "Grid 샘플링, Maximum trials 2, 워커 하나를 고른 뒤 Estimate를 클릭하세요. 실행하기 전에 조합 수와 자원 한도를 확인하세요. 시간 추정은 대략적인 값으로 보세요.",
           "focus": [
             850,
             1190,
@@ -11933,12 +12533,12 @@
         },
         {
           "visual": "07_actual_sweep_running",
-          "narration": "Click Start sweep. Each trial writes to its own folder. With one worker, the two trials run in sequence; choose worker counts that fit your available resources.",
+          "narration": "Start sweep을 클릭하세요. 각 시행은 자기 폴더에 기록됩니다. 워커가 하나이면 두 시행이 차례로 실행되므로, 사용할 수 있는 자원에 맞게 워커 수를 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_sweep_finished",
-          "narration": "Inspect the completed rows, then open sweep_results.csv and each trial’s settings and quality-control files. Both illustrated trials finish computation but fail inference checks, so an ok execution status alone is insufficient for selecting a model.",
+          "narration": "완료된 행을 확인한 뒤 sweep_results.csv와 각 시행의 설정 및 품질 관리 파일을 여세요. 그림의 두 시행은 모두 계산을 마치지만 추론 검사를 통과하지 못하므로, 실행 상태가 ok라는 것만으로는 모델을 고르기에 충분하지 않습니다.",
           "focus": [
             1550,
             205,
@@ -11949,7 +12549,7 @@
         },
         {
           "visual": "10_saved_guide_family",
-          "narration": "Select the first row and click Show figures for selected row. Inspect the guide results and axis labels. The plot omits the intercept from the coefficient table.",
+          "narration": "첫 번째 행을 고르고 Show figures for selected row를 클릭하세요. 가이드 결과와 축 라벨을 확인하세요. 그래프에는 계수 표의 절편이 빠져 있습니다.",
           "focus": [
             1545,
             510,
@@ -11960,7 +12560,7 @@
         },
         {
           "visual": "11_saved_gene_family",
-          "narration": "Switch Level to Gene to inspect the gene family separately. Check its rows, effects and quality-control results before comparing it with the guide view.",
+          "narration": "Level을 Gene으로 바꿔 유전자 패밀리를 따로 확인하세요. 가이드 보기와 비교하기 전에 그 행, 효과, 품질 관리 결과를 확인하세요.",
           "focus": [
             1545,
             555,
@@ -11971,7 +12571,7 @@
         },
         {
           "visual": "12_saved_guide_family_restored",
-          "narration": "Switch back to Guide. Read sample support from the input and diagnostic files: the example’s rows-fitted summary counts output coefficient rows rather than wells.",
+          "narration": "Guide로 다시 바꾸세요. 표본 뒷받침은 입력 파일과 진단 파일에서 읽으세요. 예제의 적합 행 수 요약은 웰이 아니라 출력 계수 행을 셉니다.",
           "focus": [
             1545,
             555,
@@ -11982,7 +12582,7 @@
         },
         {
           "visual": "13_actual_saved_model_summary",
-          "narration": "Keep each trial’s settings, summary and quality-control files with its figures. Use Regression Diagnostics for further inspection, or SweepSpace and run_sweep from Python for a scripted comparison.",
+          "narration": "각 시행의 설정, 요약, 품질 관리 파일을 그림과 함께 보관하세요. 더 살펴보려면 Regression Diagnostics를 쓰고, 스크립트로 비교하려면 Python에서 SweepSpace와 run_sweep을 쓰세요.",
           "related_lessons": [
             "75_regression_diagnostics",
             "06_api"
@@ -11993,6 +12593,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -12000,22 +12640,22 @@
       "id": "74_import_images",
       "number": 74,
       "slug": "import_images",
-      "title": "Import Images: map image identities and create a project",
+      "title": "Import Images: 이미지 식별 정보 지정과 프로젝트 만들기",
       "series": 2,
       "app_key": "import_images",
       "host_app_key": "foreign",
       "section": "spaCR",
-      "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
+      "description": "이미지 이름과 메타데이터를 스캔하고, 제안된 웰/시야/채널 매핑을 검토한 뒤 계획을 저장하고 복사본을 프로젝트로 가져옵니다.",
       "objectives": [
-        "Scan microscope images and resolve naming questions.",
-        "Choose a destination, plate name and copy or link behavior.",
-        "Save a reusable plan and import images for Mask."
+        "현미경 이미지를 스캔하고 이름 지정 질문을 해결합니다.",
+        "대상 위치, 플레이트 이름, 복사 또는 링크 방식을 고릅니다.",
+        "재사용할 계획을 저장하고 Mask용 이미지를 가져옵니다."
       ],
-      "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
+      "prerequisite": "먼저 Mask 예제를 내려받으세요. 이 안내에서는 시야 E01/F001과 L01/F009의 복사본을 쓰며, 각각 채널이 4개입니다. 준비된 복사본은 Z 바로 앞의 불필요한 A 토큰을 빼고 웰, 시야, 채널 식별 정보는 유지합니다. 원본은 보관하고, 낯선 토큰은 촬영 기록으로 확인하세요.",
       "scenes": [
         {
           "visual": "02_import_fold",
-          "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
+          "narration": "Home에서 Data를 열고 Import를 고른 뒤 Import Images를 고르세요. 프로젝트로 정리하려는 현미경 이미지 파일에서 시작하세요.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -12026,7 +12666,7 @@
         },
         {
           "visual": "04_source_options",
-          "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
+          "narration": "이 안내에서는 Mask 예제를 쓰세요. 두 웰에서 각각 시야 하나씩의 복사본을 고르며, 시야마다 채널은 4개입니다. 원래 내려받은 파일은 바꾸지 마세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -12034,17 +12674,17 @@
         },
         {
           "visual": "04a_unresolved_acquisition_token",
-          "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
+          "narration": "Scan을 클릭하세요. 파일 이름의 토큰이 무슨 뜻인지 물으면, 지정하기 전에 촬영 기록을 확인하세요. 제안된 식별 정보가 시야와 채널을 모호함 없이 구분할 때만 계속하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_scan_proposal",
-          "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
+          "narration": "준비된 예제 복사본을 스캔하세요. 불필요한 촬영 토큰은 제거되었고 웰, 시야, 채널 토큰은 남아 있습니다. 제안에 이미지 8개, 웰 2개, 시야 번호 2개, 채널 4개가 표시되는지 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "06_check_filename",
-          "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
+          "narration": "제안을 파일 이름과 비교하세요. 파일에 들어 있는 축 메타데이터가 필요하면 Read inside each file을 켜세요. 가져올 파일을 확인할 수 있을 만큼 Sample을 크게 설정하세요.",
           "hold_after": 0.7,
           "focus": [
             350,
@@ -12055,7 +12695,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
+          "narration": "입력 폴더 밖의 대상 위치를 고르고 플레이트 이름을 입력하세요. 독립적인 복사본을 원하면 Link instead of copy를 끄세요. 링크는 디스크 공간을 아끼지만 원본 파일에 계속 접근할 수 있어야 합니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -12066,7 +12706,7 @@
         },
         {
           "visual": "07_copy_destination",
-          "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
+          "narration": "타일로 촬영한 경우 타일을 이어 붙일지, 따로 유지할지, 건너뛸지 고르세요. 측정하기 전에 결과 시야 구성을 검토하세요. 이 예제 이미지는 각각 별도의 시야이므로 이어 붙일 필요가 없습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "32_align_stitch"
@@ -12074,7 +12714,7 @@
         },
         {
           "visual": "09_saved_plan",
-          "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
+          "narration": "Save plan을 클릭해 원본 위치와 매핑 선택을 JSON으로 저장하세요. 계획은 촬영 메모와 원본 이미지와 함께 보관하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -12082,12 +12722,12 @@
         },
         {
           "visual": "11_reloaded_plan",
-          "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
+          "narration": "Load plan을 클릭하면 원본 위치와 저장된 답변을 다시 불러옵니다. 특히 원본 파일이 바뀌었다면 가져오기 전에 새 제안을 검토하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12_import_complete",
-          "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
+          "narration": "Import를 클릭하고 요약을 읽으세요. 이 예제는 건너뛴 파일 없이 이미지 복사본 8개를 만듭니다. 만들어진 프로젝트를 Mask에서 열고, 분할을 시작하기 전에 Live preview를 확인하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -12098,6 +12738,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -12105,22 +12785,22 @@
       "id": "75_regression_diagnostics",
       "number": 75,
       "slug": "regression_diagnostics",
-      "title": "Regression Diagnostics: inspect the saved analysis reports",
+      "title": "Regression Diagnostics: 저장된 분석 보고서 확인",
       "series": 2,
       "app_key": "regression_diagnostics",
       "host_app_key": "regression",
       "section": "spaCR",
-      "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
+      "description": "완료된 실행의 설계와 추론 보고서를 열고, 뒷받침 정도와 의존 관계를 확인한 뒤, 그 결과를 다음 분석을 고를 때 활용합니다.",
       "objectives": [
-        "Open the diagnostic folder for the intended Regression run.",
-        "Read design support, identifiability and inference summaries.",
-        "Keep diagnostics with their settings and rerun after changing an analysis."
+        "원하는 Regression 실행의 진단 폴더를 엽니다.",
+        "설계 뒷받침, 식별 가능성, 추론 요약을 읽습니다.",
+        "진단 결과를 설정과 함께 보관하고, 분석을 바꾼 뒤 다시 실행합니다."
       ],
-      "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
+      "prerequisite": "점수와 개수 쌍 네 개를 사용하는 Regression 예제를 완료하세요. 그림의 순열 실행은 순열 199회와 최소 웰 2개를 사용합니다. 진단 패널을 해석할 때는 설정과 결과 계열을 함께 보세요.",
       "scenes": [
         {
           "visual": "02_diagnostics_button",
-          "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
+          "narration": "Home에서 Regression을 여세요. 분석이 끝나면 Diagnostics를 클릭하세요. 폴더 경로를 확인하세요. 이 바로 가기는 프로젝트에서 찾은 가장 최근의 진단 폴더를 엽니다.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -12129,7 +12809,7 @@
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Read the diagnostic files in that folder in order: design identifiability, then design diagnostics with the collinear guide pairs, then inference diagnostics, and last the summary that pulls them together.",
+          "narration": "그 폴더의 진단 파일을 순서대로 읽으세요. 먼저 설계 식별 가능성, 다음으로 공선 가이드 쌍이 포함된 설계 진단, 이어서 추론 진단, 마지막으로 이들을 한데 모은 요약입니다.",
           "hold_after": 0.7,
           "focus": [
             535,
@@ -12140,37 +12820,37 @@
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
+          "narration": "Design identifiability부터 시작하세요. 웰 수, 매개변수 수, 설계 행렬의 계수를 비교하세요. 이 예제는 계수가 뒷받침할 수 있는 것보다 매개변수가 많아서, 가이드마다 고유한 동시 계수를 식별할 수 없습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "04_design_identifiability",
-          "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
+          "narration": "웰 전체에서 각 가이드의 뒷받침 정도를 확인하세요. 이 예제에는 웰 하나에서만 나타나는 가이드가 많습니다. 전체 설계와 실제로 검정한, 필터링된 가이드 계열을 구분하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_design_diagnostics",
-          "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
+          "narration": "Design diagnostics와 공선 쌍 표를 여세요. 효과를 따로따로 돌리기 전에, 항상 함께 나타나거나 뒷받침이 약한 예측 변수를 찾으세요.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
+          "narration": "Inference diagnostics를 여세요. P값 분포, 귀무 가설과의 비교, 보정된 임곗값별 발견 수를 확인하세요. 이 예제는 표시된 임곗값에서 발견이 없습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06_inference_diagnostics",
-          "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
+          "narration": "P값을 해석할 때는 순열 횟수를 확인하세요. 순열이 199번이면 얻을 수 있는 가장 작은 경험적 P값은 0.005입니다. 다중 검정 보정에 필요한 해상도를 미리 계획하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
+          "narration": "순열 분석은 동시 회귀 모델의 적합 잔차를 만들지 않습니다. 관측값과 적합값을 제공하는 모드를 사용할 때 잔차 패널을 찾아보세요.",
           "hold_after": 0.7
         },
         {
           "visual": "03_diagnostics_folder",
-          "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
+          "narration": "요약은 개별 패널과 함께 읽으세요. 전체 평가는 가장 나쁜 패널 평가를 반영하므로, 해당 보고서를 열어 이유를 확인하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -12178,7 +12858,7 @@
         },
         {
           "visual": "07_back_to_regression",
-          "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
+          "narration": "입력이나 분석 설정을 의도적으로 수정하려면 Regression으로 돌아가세요. 수정한 분석을 실행하고 새 진단 결과를 확인하세요. 각 보고서가 해당 설정과 연결된 채 남도록 이전 출력 폴더는 따로 보관하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
@@ -12190,6 +12870,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -12197,24 +12917,24 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings: load crops and compare channel policies",
+      "title": "Embeddings: 잘라 낸 이미지 불러오기와 채널 정책 비교",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "description": "Load image crops from Home, choose the encoder and channel policy, run Embed and inspect the feature preview.",
+      "description": "Home에서 잘라 낸 이미지를 불러오고, 인코더와 채널 정책을 고르고, Embed를 실행한 뒤 특징 미리 보기를 확인합니다.",
       "objectives": [
-        "Load a crop folder through the Embeddings screen.",
-        "Choose the backbone, batch size and channel policy.",
-        "Inspect the vector preview and save full results through the supplied Python helper."
+        "Embeddings 화면에서 잘라 낸 이미지 폴더를 불러옵니다.",
+        "백본, 배치 크기, 채널 정책을 고릅니다.",
+        "벡터 미리 보기를 확인하고, 제공된 Python 도우미로 전체 결과를 저장합니다."
       ],
       "example_files": [
         "Embeddings_API_example.zip"
       ],
-      "prerequisite": "Install spaCR with its embeddings extra. Download the Annotate example and locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For the small example shown here, copy the first sixteen PNGs in sorted filename order into a new folder. The first encoder run downloads pretrained weights if they are not cached. The optional Embeddings_API_example.zip provides a helper for saving complete matrices.",
+      "prerequisite": "spaCR을 embeddings 추가 기능과 함께 설치하세요. Annotate 예제를 내려받고 plate1/data/single_nucleus/uninfected/plate1_E02/cell_png를 찾으세요. 여기서 보여 주는 작은 예제에서는 파일 이름 순으로 처음 16개의 PNG를 새 폴더에 복사하세요. 사전 학습 가중치가 캐시에 없으면 인코더를 처음 실행할 때 내려받습니다. 선택 사항인 Embeddings_API_example.zip에는 전체 행렬을 저장하는 도우미가 들어 있습니다.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "From Home, open Embeddings in Data. You will load image crops, choose how their channels are encoded and generate one numerical feature vector per object.",
+          "narration": "Home에서 Data의 Embeddings를 여세요. 잘라 낸 이미지를 불러오고, 채널을 인코딩할 방법을 고르고, 객체마다 숫자 특징 벡터 하나를 만듭니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "embeddings"
@@ -12226,7 +12946,7 @@
         },
         {
           "visual": "01_crop_loader",
-          "narration": "Choose crop folder under Crops from. You can also use a measurements database when you want to select an object class, plate or condition. This walkthrough uses the crop folder from Annotate’s downloadable example.",
+          "narration": "Crops from에서 crop folder를 고르세요. 객체 클래스, 플레이트, 조건으로 고르고 싶을 때는 측정 데이터베이스도 쓸 수 있습니다. 이 안내에서는 내려받을 수 있는 Annotate 예제의 잘라 낸 이미지 폴더를 씁니다.",
           "hold_after": 0.7,
           "focus": [
             330,
@@ -12237,7 +12957,7 @@
         },
         {
           "visual": "02_folder_selected",
-          "narration": "Copy sixteen example PNGs into a working folder. Enter that folder’s path and press Enter, or use Browse. Set At most to sixteen, then click Load crops.",
+          "narration": "예제 PNG 16개를 작업 폴더에 복사하세요. 그 폴더 경로를 입력하고 Enter를 누르거나 Browse를 쓰세요. At most를 16으로 설정한 뒤 Load crops를 클릭하세요.",
           "hold_after": 0.7,
           "focus": [
             330,
@@ -12248,7 +12968,7 @@
         },
         {
           "visual": "03_crops_loaded",
-          "narration": "Read the loaded crop count, size and channel count. The example contains sixteen images, each two hundred twenty-four pixels square with three stored channels. Check the crop export’s channel mapping before comparing results.",
+          "narration": "불러온 이미지 수, 크기, 채널 수를 읽으세요. 예제에는 가로세로 224픽셀에 채널 3개가 저장된 이미지 16개가 있습니다. 결과를 비교하기 전에 잘라 낸 이미지를 내보낼 때의 채널 매핑을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             330,
@@ -12259,7 +12979,7 @@
         },
         {
           "visual": "04_per_channel_settings",
-          "narration": "Choose Per channel to encode each channel separately and concatenate its features. Keep resnet18 as the Backbone and set Batch to four for this small run. Smaller batches reduce memory use.",
+          "narration": "Per channel을 고르면 채널마다 따로 인코딩해 그 특징을 이어 붙입니다. Backbone은 resnet18으로 두고, 이 작은 실행에서는 Batch를 4로 설정하세요. 배치가 작을수록 메모리 사용량이 줄어듭니다.",
           "hold_after": 0.7,
           "focus": [
             330,
@@ -12270,7 +12990,7 @@
         },
         {
           "visual": "05_per_channel_result",
-          "narration": "Click Embed and wait for the preview. The example produces sixteen object vectors with one thousand five hundred thirty-six dimensions. The table shows only the first few dimensions and, for larger runs, up to fifty objects.",
+          "narration": "Embed를 클릭하고 미리 보기를 기다리세요. 예제는 1,536차원의 객체 벡터 16개를 만듭니다. 표에는 앞쪽 몇 개 차원만 표시되며, 더 큰 실행에서는 객체가 최대 50개까지 표시됩니다.",
           "hold_after": 0.7,
           "focus": [
             335,
@@ -12281,12 +13001,12 @@
         },
         {
           "visual": "04_project_settings",
-          "narration": "Select Project to three and click Embed again. This encodes the combined image instead of each channel separately. Use the same crops and backbone when comparing the two policies.",
+          "narration": "Project to three를 고르고 Embed를 다시 클릭하세요. 이번에는 채널별이 아니라 합친 이미지를 인코딩합니다. 두 정책을 비교할 때는 같은 잘라 낸 이미지와 같은 백본을 쓰세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_project_result",
-          "narration": "The projected example has five hundred twelve dimensions per object. Keep the channel policy and encoder settings with your results. Use the complete vectors for downstream analysis; individual dimensions are not biological measurements.",
+          "narration": "투영한 예제는 객체마다 512차원입니다. 채널 정책과 인코더 설정을 결과와 함께 보관하세요. 후속 분석에는 전체 벡터를 쓰세요. 개별 차원은 생물학적 측정값이 아닙니다.",
           "hold_after": 0.7,
           "focus": [
             335,
@@ -12297,7 +13017,7 @@
         },
         {
           "visual": "05_project_result",
-          "narration": "The screen currently provides a preview without an export button. To save complete matrices, download the linked Python helper and follow its README. It writes vectors, object filenames, settings and exploratory plots to a new output folder.",
+          "narration": "현재 이 화면은 내보내기 버튼 없이 미리 보기만 제공합니다. 전체 행렬을 저장하려면 연결된 Python 도우미를 내려받고 그 README를 따르세요. 벡터, 객체 파일 이름, 설정, 탐색용 그래프를 새 출력 폴더에 기록합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -12307,6 +13027,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -12314,27 +13074,27 @@
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS: from sequencing images to cell barcodes",
+      "title": "OPS: 시퀀싱 이미지에서 세포 바코드까지",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
+      "description": "OPS 테스트 데이터를 불러오고, 이미지와 디코딩 설정을 고르고, 분석을 실행한 뒤 출력 데이터베이스에서 바코드 배정을 찾습니다.",
       "objectives": [
-        "Open OPS inside Mask and load its example images and barcode library.",
-        "Choose the input and output folders and understand the main alignment and decoding settings.",
-        "Run OPS and inspect nucleus barcode assignments in the output database."
+        "Mask 안에서 OPS를 열고 예제 이미지와 바코드 라이브러리를 불러옵니다.",
+        "입력 및 출력 폴더를 고르고 주요 정렬 및 디코딩 설정을 이해합니다.",
+        "OPS를 실행하고 출력 데이터베이스에서 핵의 바코드 배정을 확인합니다."
       ],
-      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
+      "prerequisite": "spaCR을 여세요. 예제 시퀀싱 이미지와 가이드 라이브러리는 OPS 안의 Load test data로 불러옵니다. 자신의 실험에서는 촬영 파일 이름이 붙은 시퀀싱 사이클 TIFF와 이에 대응하는 바코드 라이브러리 CSV를 준비하세요.",
       "scenes": [
         {
           "visual": "01_mask_ops",
-          "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
+          "narration": "Home에서 Mask를 연 뒤 OPS를 켜세요. 이 페이지는 시퀀싱 사이클 이미지를 받아 디코딩한 바코드를 핵에 배정합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "02_load_test_data",
-          "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
+          "narration": "Load test data를 클릭하세요. 예제에는 시퀀싱 사이클 11회에 걸친 이미지 위치 두 곳과 이에 대응하는 바코드 라이브러리가 들어 있습니다. 불러오기가 끝나면 spaCR이 입력, 라이브러리, 플레이트, 출력 칸을 채웁니다.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12345,7 +13105,7 @@
         },
         {
           "visual": "03_inputs",
-          "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
+          "narration": "OPS input에서 시퀀싱 이미지 폴더와 바코드 라이브러리 CSV를 확인하세요. 결과를 저장할 위치를 고르세요. 예제는 내려받은 프로젝트 안의 ops_output 폴더에 결과를 씁니다.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12356,7 +13116,7 @@
         },
         {
           "visual": "04_phenotype",
-          "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
+          "narration": "이 예제에서는 표현형 이미지 폴더를 비워 두세요. 대응하는 표현형 촬영이 있다면 여기서 그 폴더를 선택해, 그 시야가 시퀀싱 이미지와 어떻게 정렬되는지 기록하세요.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12367,7 +13127,7 @@
         },
         {
           "visual": "05_alignment",
-          "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
+          "narration": "OPS alignment에서 핵 분할 모델을 고르세요. Diameter는 예상되는 핵 크기를 픽셀 단위로 정합니다. Raster overlap은 촬영한 인접 타일 사이의 겹침을 나타내므로 촬영 당시의 값을 쓰세요. 이번 첫 실행에서는 예제 설정을 유지하세요.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12378,7 +13138,7 @@
         },
         {
           "visual": "06_window_overlap",
-          "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
+          "narration": "Window overlap은 인접한 분할 창이 얼마나 겹칠지를 정합니다. 창 가장자리의 객체를 온전히 포함할 수 있도록 가장 큰 핵보다 크게 설정해야 합니다. 값을 늘리면 처리 시간이 길어집니다.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12389,7 +13149,7 @@
         },
         {
           "visual": "07_base_channels",
-          "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
+          "narration": "OPS decoding에서 네 염기 채널을 G, T, A, C 순서로 설정하세요. 예제는 CY3, A594, CY5, CY7을 사용합니다. 자신의 이미지에서는 이 이름을 TIFF 파일 이름에 있는 채널 이름과 맞추세요.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12400,7 +13160,7 @@
         },
         {
           "visual": "08_read_settings",
-          "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
+          "narration": "Read threshold는 점이 리드로 인정되려면 얼마나 밝아야 하는지를 정합니다. 높이면 강한 점만 선택되고, 낮추면 약한 점과 배경이 더 많이 포함됩니다. Footprint는 리드가 핵에서 얼마나 떨어져 있어도 그 핵의 바코드에 기여할 수 있는지를 정합니다.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12411,7 +13171,7 @@
         },
         {
           "visual": "09_store_reads",
-          "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+          "narration": "나중에 개별 리드를 확인하려면 Store reads를 켜세요. 추가 표가 저장되어 디스크 공간을 더 씁니다. 간단한 첫 실행에서는 꺼 두세요.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12422,7 +13182,7 @@
         },
         {
           "visual": "10_run",
-          "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+          "narration": "OPS performance를 확인한 뒤 Run을 누르세요. GPU는 사용 가능한 경우 가속을 켭니다. Workers는 동시에 디코딩할 시야 수를 정하며, 메모리가 부족하면 낮추세요. 진행 상황은 Console에서 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -12433,7 +13193,7 @@
         },
         {
           "visual": "11_output_folder",
-          "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+          "narration": "Console에 Finished가 표시되면 Help를 열고 Database Browser를 연 다음, 선택한 출력 폴더의 measurements.db를 고르세요. 그 옆에는 웰마다 폴더가 있으며, 여기서는 A1에 디코딩 요약과 경고가 담긴 OPS 보고서가 있습니다.",
           "hold_after": 0.7,
           "focus": [
             1020,
@@ -12444,7 +13204,7 @@
         },
         {
           "visual": "12_barcode_table",
-          "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+          "narration": "ops_barcodes 표는 각 핵에 바코드, 리드 지지도, 일치하는 가이드를 연결하고, ops_objects에는 같은 핵 식별자가 이미지 좌표와 함께 들어 있습니다. 이 식별자가 스크린의 나머지 부분으로 이어지는 다리입니다. 식별자를 통해 바코드를 표현형 측정값과 결합한 뒤 Regression을 위해 집계하세요. 데이터베이스, 보고서, 설정은 함께 보관하세요.",
           "hold_after": 0.7,
           "focus": [
             330,
@@ -12457,6 +13217,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -13812,57 +14612,97 @@
       "id": "82_toxoplasma",
       "number": 82,
       "slug": "toxoplasma",
-      "title": "Toxoplasma: explore the page and choose an assay",
+      "title": "Toxoplasma: 페이지 둘러보기와 분석 선택",
       "series": 3,
       "app_key": "toxoplasma",
       "section": "Organisms and assays",
-      "description": "Open the organism page, explore the cell diagram and choose an available assay.",
+      "description": "생물 페이지를 열고 세포 도식을 살펴본 뒤 사용할 수 있는 분석을 고릅니다.",
       "objectives": [
-        "Open the page from Home and find its main controls.",
-        "Identify the available inputs, actions and outputs.",
-        "Choose the next available analysis or reference."
+        "Home에서 페이지를 열고 주요 조작 요소를 찾습니다.",
+        "사용 가능한 입력, 작업, 출력을 확인합니다.",
+        "다음으로 사용할 분석이나 참고 자료를 고릅니다."
       ],
-      "prerequisite": "Open spaCR Home. The organism guide requires no input files. Each assay has its own inputs and linked walkthrough.",
+      "prerequisite": "spaCR의 Home을 여세요. 생물 가이드에는 입력 파일이 필요 없습니다. 각 분석에는 고유한 입력과 연결된 안내가 있습니다.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Every Toxoplasma experiment can start from one page. From Home, choose Toxoplasma: the organism guide, a cell diagram and the available assays sit side by side, ready to explore before you load any images.",
+          "narration": "모든 Toxoplasma 실험은 한 페이지에서 시작할 수 있습니다. Home에서 Toxoplasma를 고르면 생물 가이드, 세포 도식, 사용 가능한 분석이 나란히 표시되어 이미지를 불러오기 전에 둘러볼 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "01_organism",
-          "narration": "Begin with the introduction in the information pane. Each pane scrolls on its own, and dragging the divider gives the guide or the assay tiles more room.",
+          "narration": "먼저 정보 창의 소개부터 읽으세요. 각 창은 따로 스크롤되며, 구분선을 드래그하면 가이드나 분석 타일에 더 많은 공간을 줄 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "02_diagram",
-          "narration": "The diagram is there to explore. Hover over a cell component and its description appears. Select several to keep them highlighted, and Clear components resets the picture.",
+          "narration": "도식은 직접 살펴보라고 있는 것입니다. 세포 구성 요소에 포인터를 올리면 설명이 나타납니다. 여러 개를 선택하면 강조 표시가 유지되고, Clear components를 누르면 그림이 초기화됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "03_assays",
-          "narration": "Pick the tile that matches your question. Plaque Assay counts plaques and measures their areas; Invasion Assay asks how many parasites got inside. Recruitment measures how much marker gathers at the vacuole, Replication Assay how many parasites each vacuole holds, and Host–Pathogen ties vacuoles to their host cells. Each has its own lesson.",
+          "narration": "질문에 맞는 타일을 고르세요. Plaque Assay는 플라크를 세고 면적을 측정하며, Invasion Assay는 기생충이 몇 마리나 안으로 들어갔는지 봅니다. Recruitment는 액포에 표지자가 얼마나 모이는지, Replication Assay는 액포마다 기생충이 몇 마리 있는지 측정하고, Host–Pathogen은 액포를 숙주 세포와 연결합니다. 각각 전용 강의가 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "04_host_pathogen",
-          "narration": "Let's follow one of them. Click Host–Pathogen and its analysis screen opens. Load test data brings in the supplied microscopy example, and from there the Host–Pathogen tutorial walks you through the settings, preview and Run.",
+          "narration": "그중 하나를 따라가 봅시다. Host–Pathogen을 클릭하면 분석 화면이 열립니다. Load test data가 제공된 현미경 예제를 불러오고, 그다음부터는 Host–Pathogen 튜토리얼이 설정, 미리 보기, Run까지 안내합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "05_starplast",
-          "narration": "Back on the Toxoplasma page, Starplast opens a knowledge map in its own application; the first time, it offers installation steps to follow. The reference links, meanwhile, open organism resources in your browser.",
+          "narration": "Toxoplasma 페이지로 돌아오면 Starplast가 별도 애플리케이션에서 지식 지도를 엽니다. 처음에는 따라 할 설치 단계를 안내합니다. 참고 링크는 브라우저에서 생물 관련 자료를 엽니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06_home_return",
-          "narration": "The guide writes no analysis files, so the real work happens elsewhere. If your images still need segmenting or measuring, return Home first; once the images or tables are ready, the assay pages take over.",
+          "narration": "가이드는 분석 파일을 쓰지 않으므로 실제 작업은 다른 곳에서 이루어집니다. 이미지를 아직 분할하거나 측정해야 한다면 먼저 Home으로 돌아가세요. 이미지나 표가 준비되면 분석 페이지가 이어받습니다.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -13870,47 +14710,87 @@
       "id": "83_plasmodium",
       "number": 83,
       "slug": "plasmodium",
-      "title": "Plasmodium: explore the organism guide",
+      "title": "Plasmodium: 생물 가이드 둘러보기",
       "series": 3,
       "app_key": "plasmodium",
       "section": "Organisms and assays",
-      "description": "Browse the Plasmodium guide, explore the cell diagram and find available general image-analysis workflows.",
+      "description": "Plasmodium 가이드를 둘러보고, 세포 도식을 살펴보고, 사용할 수 있는 일반 이미지 분석 워크플로를 찾습니다.",
       "objectives": [
-        "Open the page from Home and find its main controls.",
-        "Identify the available inputs, actions and outputs.",
-        "Choose the next available analysis or reference."
+        "Home에서 페이지를 열고 주요 조작 요소를 찾습니다.",
+        "사용 가능한 입력, 작업, 출력을 확인합니다.",
+        "다음으로 사용할 분석이나 참고 자료를 고릅니다."
       ],
-      "prerequisite": "Open spaCR Home. No input files are needed for the guide. The Plasmodium-specific assay tiles currently show Coming soon.",
+      "prerequisite": "spaCR의 Home을 여세요. 가이드에는 입력 파일이 필요 없습니다. Plasmodium 전용 분석 타일에는 현재 Coming soon이 표시됩니다.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Plasmodium has a guide of its own. From Home, choose Plasmodium to browse the organism, its cell compartments and the assays planned for it.",
+          "narration": "Plasmodium에는 전용 가이드가 있습니다. Home에서 Plasmodium을 고르면 이 생물과 세포 구획, 그리고 예정된 분석을 둘러볼 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "01_organism",
-          "narration": "The information pane tells the parasite's story in sections, from the blood stage and the liver stage to motility. Drag the divider for more room beside the module tiles.",
+          "narration": "정보 창은 혈액기와 간기부터 운동성까지 기생충의 이야기를 여러 부분으로 나누어 들려줍니다. 구분선을 드래그하면 모듈 타일 옆 공간을 넓힐 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "02_diagram",
-          "narration": "On the apicomplexan diagram, hover over a compartment to read what it is. Select several to highlight them together, and Clear components brings the view back.",
+          "narration": "정단복합체문 도식에서 구획에 포인터를 올리면 그것이 무엇인지 읽을 수 있습니다. 여러 개를 선택하면 함께 강조 표시되고, Clear components를 누르면 보기가 원래대로 돌아옵니다.",
           "hold_after": 0.7
         },
         {
           "visual": "03_modules",
-          "narration": "The assay tiles are still marked Coming soon and can't be opened yet, but their descriptions show what each will measure. To analyse Plasmodium images today, go back Home and open Mask or Measure with your own images and suitable channel settings.",
+          "narration": "분석 타일은 아직 Coming soon으로 표시되어 열 수 없지만, 설명을 보면 각각 무엇을 측정할지 알 수 있습니다. 지금 Plasmodium 이미지를 분석하려면 Home으로 돌아가 자신의 이미지와 알맞은 채널 설정으로 Mask나 Measure를 여세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_references",
-          "narration": "For deeper reading, the PlasmoDB and UniProt links open organism resources in your browser. Nothing here needs a dataset or a Run, and the guide writes no files.",
+          "narration": "더 자세히 알아보려면 PlasmoDB와 UniProt 링크가 브라우저에서 생물 관련 자료를 엽니다. 여기서는 데이터셋이나 Run이 필요 없고, 가이드는 파일을 쓰지 않습니다.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -13918,47 +14798,87 @@
       "id": "84_candida",
       "number": 84,
       "slug": "candida",
-      "title": "Candida: explore the organism guide",
+      "title": "Candida: 생물 가이드 둘러보기",
       "series": 3,
       "app_key": "candida",
       "section": "Organisms and assays",
-      "description": "Browse the Candida guide, explore the yeast diagram and find available general image-analysis workflows.",
+      "description": "Candida 가이드를 둘러보고, 효모 도식을 살펴보고, 사용할 수 있는 일반 이미지 분석 워크플로를 찾습니다.",
       "objectives": [
-        "Open the page from Home and find its main controls.",
-        "Identify the available inputs, actions and outputs.",
-        "Choose the next available analysis or reference."
+        "Home에서 페이지를 열고 주요 조작 요소를 찾습니다.",
+        "사용 가능한 입력, 작업, 출력을 확인합니다.",
+        "다음으로 사용할 분석이나 참고 자료를 고릅니다."
       ],
-      "prerequisite": "Open spaCR Home. No input files are needed for the guide. The Candida-specific assay tiles currently show Coming soon.",
+      "prerequisite": "spaCR의 Home을 여세요. 가이드에는 입력 파일이 필요 없습니다. Candida 전용 분석 타일에는 현재 Coming soon이 표시됩니다.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "From Home, choose Candida. Its guide covers morphology, filamentation, biofilms and how the yeast interacts with host cells.",
+          "narration": "Home에서 Candida를 고르세요. 이 가이드는 형태, 균사 형성, 바이오필름, 그리고 효모가 숙주 세포와 상호작용하는 방식을 다룹니다.",
           "hold_after": 0.7
         },
         {
           "visual": "01_organism",
-          "narration": "Read the information pane with the module descriptions beside it, and drag the divider to widen whichever side you're reading.",
+          "narration": "옆에 모듈 설명을 둔 채로 정보 창을 읽고, 읽고 있는 쪽을 넓히려면 구분선을 드래그하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "02_diagram",
-          "narration": "The budding-yeast diagram works like the other guides. Hover over a component to read its description, select several to keep them highlighted, and Clear components resets the selection.",
+          "narration": "출아 효모 도식은 다른 가이드와 같은 방식으로 작동합니다. 구성 요소에 포인터를 올리면 설명을 읽을 수 있고, 여러 개를 선택하면 강조 표시가 유지되며, Clear components를 누르면 선택이 초기화됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "03_modules",
-          "narration": "The Candida-specific assay tiles are marked Coming soon for now, but you can still analyse your images with the general tools. Go back Home, segment them in Mask and measure them in Measure, choosing channels and masks that suit your species and experiment.",
+          "narration": "Candida 전용 분석 타일은 당분간 Coming soon으로 표시되지만, 일반 도구로도 이미지를 분석할 수 있습니다. Home으로 돌아가 Mask에서 분할하고 Measure에서 측정하되, 종과 실험에 맞는 채널과 마스크를 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_references",
-          "narration": "For gene and protein details, the Candida Genome Database and UniProt links open in your browser. The guide needs no input files and writes no outputs, so when you're ready to process images, follow a runnable module's tutorial.",
+          "narration": "유전자와 단백질의 자세한 정보는 Candida Genome Database와 UniProt 링크를 통해 브라우저에서 열립니다. 가이드는 입력 파일이 필요 없고 출력도 쓰지 않으므로, 이미지를 처리할 준비가 되면 실행 가능한 모듈의 튜토리얼을 따라가세요.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -13966,76 +14886,76 @@
       "id": "85_host_pathogen",
       "number": 85,
       "slug": "host_pathogen",
-      "title": "Host–Pathogen: link vacuole markers and parasite counts",
+      "title": "Host–Pathogen: 액포 표지자와 기생충 수 연결하기",
       "series": 3,
       "app_key": "host_pathogen",
       "section": "Organisms and assays",
-      "description": "Load the microscopy example, choose marker and count inputs, inspect the preview, and export linked vacuole, host-cell and well summaries.",
+      "description": "현미경 예제를 불러오고, 표지자와 개수 입력을 고르고, 미리 보기를 확인한 뒤, 액포, 숙주 세포, 웰의 연결된 요약을 내보냅니다.",
       "objectives": [
-        "Load the example project and identify the host and vacuole measurements.",
-        "Choose marker channels and inspect vacuole-level recruitment in Live preview.",
-        "Run the analysis and read the output tables with the correct denominators."
+        "예제 프로젝트를 불러오고 숙주와 액포 측정값을 확인합니다.",
+        "표지자 채널을 고르고 Live 미리 보기에서 액포별 집적을 확인합니다.",
+        "분석을 실행하고 올바른 분모로 출력 표를 읽습니다."
       ],
-      "prerequisite": "Use Load test data for the supplied THP-1 microscopy example, or select a measured project with host cells, vacuoles and host-reference intensities. Retain uninfected host cells during Measure when you need an infection denominator. Individual parasite counts require a linked parasite table or a measured count column.",
+      "prerequisite": "제공된 THP-1 현미경 예제는 Load test data로 불러오거나, 숙주 세포, 액포, 숙주 기준 강도가 있는 측정된 프로젝트를 선택하세요. 감염 분모가 필요하다면 Measure에서 감염되지 않은 숙주 세포도 남겨 두세요. 기생충을 개별로 세려면 연결된 기생충 표나 측정한 개수 열이 필요합니다.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Host–Pathogen ties every vacuole's markers and parasite count back to its host cell and its well. To get there, open Toxoplasma from Home, then choose Host–Pathogen.",
+          "narration": "Host–Pathogen은 각 액포의 표지자와 기생충 수를 그 숙주 세포와 웰에 연결합니다. 열려면 Home에서 Toxoplasma를 연 다음 Host–Pathogen을 선택하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "01_test_data",
-          "narration": "The easiest way in is the example. Load test data downloads a small microscopy project and fills in the settings: two fields with images, host and vacuole masks, and measurement tables. Practise here before switching to your own measured project.",
+          "narration": "가장 쉬운 시작 방법은 예제입니다. Load test data가 작은 현미경 프로젝트를 내려받고 설정을 채웁니다. 이미지, 숙주와 액포 마스크, 측정 테이블이 있는 시야 두 개입니다. 자신의 측정 프로젝트로 넘어가기 전에 여기서 연습하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "02_source",
-          "narration": "Everything the module reads comes through Source, which should point at the project holding measurements/measurements.db. It can also read a database directly, or combine several projects while keeping each one's identity separate.",
+          "narration": "모듈이 읽는 모든 것은 Source를 통해 들어오며, Source는 measurements/measurements.db가 있는 프로젝트를 가리켜야 합니다. 데이터베이스를 직접 읽을 수도 있고, 각 프로젝트의 식별 정보를 분리한 채 여러 프로젝트를 합칠 수도 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "03_compartments",
-          "narration": "Now tell it where vacuoles and hosts live in that database: the vacuole table and its intensity-column prefix, then the host-reference table and its prefix. The example uses pathogen and cytoplasm. The object links connect each vacuole to its host cell, so check they are right.",
+          "narration": "이제 그 데이터베이스에서 액포와 숙주가 어디 있는지 알려 주세요. 액포 테이블과 그 강도 열의 접두사, 이어서 숙주 기준 테이블과 그 접두사입니다. 예제는 pathogen과 cytoplasm을 사용합니다. 객체 연결이 각 액포를 숙주 세포와 이어 주므로 올바른지 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_markers",
-          "narration": "Marker channels says which intensities to compare, counted from zero. The example picks channel one, the RNF213 marker. Whatever you pick needs intensity measurements in both the vacuole and the reference compartment, because the ratio is built from the two.",
+          "narration": "Marker channels는 비교할 강도를 0부터 세어 지정합니다. 예제는 RNF213 표지자인 1번 채널을 고릅니다. 비율은 두 값으로 계산되므로, 선택한 채널에는 액포와 기준 구획 모두에 강도 측정값이 있어야 합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "05_thresholds",
-          "narration": "At first, leave Marker thresholds empty and simply look at the recruitment ratios. Once your controls show where positive begins, enter the channel number and that ratio threshold; anything at or above it counts as positive. If a reference measurement is missing or invalid, the state stays unknown rather than guessed.",
+          "narration": "처음에는 Marker thresholds를 비워 두고 집적 비율만 살펴보세요. 대조군에서 양성이 시작되는 지점을 알게 되면 채널 번호와 그 비율 임곗값을 입력하세요. 그 값 이상은 모두 양성으로 셉니다. 기준 측정값이 없거나 유효하지 않으면 상태는 추측되지 않고 알 수 없음으로 남습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06_counts",
-          "narration": "Parasite counts come from one of two places: a parasite table whose rows link to their parent vacuole, or a count column measured on each vacuole. The microscopy example has neither, so leave both empty here, and its parasite counts and replication readouts stay unknown.",
+          "narration": "기생충 수는 두 곳 중 하나에서 옵니다. 행이 소속 액포와 연결된 기생충 표, 또는 각 액포에서 측정한 개수 열입니다. 현미경 예제에는 둘 다 없으므로 여기서는 둘 다 비워 두세요. 그러면 기생충 수와 증식 결과는 알 수 없음으로 남습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "07_preview",
-          "narration": "Before running everything, try one field. Turn on Live, choose a field and click Run preview. The vacuole table appears beside the image; select a row, or click a vacuole, to see its marker measurements and any parasite count.",
+          "narration": "전체를 실행하기 전에 시야 하나로 시험해 보세요. Live를 켜고 시야를 고른 뒤 Run preview를 클릭하세요. 이미지 옆에 액포 표가 나타납니다. 행을 선택하거나 액포를 클릭하면 표지자 측정값과, 있다면 기생충 수가 표시됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "08_run",
-          "narration": "When the preview looks right, turn Live off and expand Actions if it is folded. Keep Save on and press Run. The console prints the output path when it finishes, and the results land in results/host_pathogen inside the first selected project.",
+          "narration": "미리 보기가 괜찮으면 Live를 끄고, Actions가 접혀 있다면 펼치세요. Save를 켠 채로 Run을 누르세요. 끝나면 콘솔에 출력 경로가 표시되고, 결과는 처음 선택한 프로젝트 안의 results/host_pathogen에 저장됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "09_vacuoles",
-          "narration": "The results build from small to large. vacuoles.csv has one row per vacuole: its host link, marker ratios, marker state and any parasite count. cells.csv rolls those up into host-cell infection and vacuole counts, and wells.csv summarises them per well.",
+          "narration": "결과는 작은 단위에서 큰 단위로 쌓입니다. vacuoles.csv에는 액포마다 한 행이 있으며, 숙주 연결, 표지자 비율, 표지자 상태, 그리고 있다면 기생충 수가 들어 있습니다. cells.csv는 이를 숙주 세포별 감염과 액포 수로 모으고, wells.csv는 웰별로 요약합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "10_summaries",
-          "narration": "Two more tables answer the biology. marker_states.csv shows joint marker states, and replication_distribution.csv the parasite counts per counted vacuole. Parasites without a usable parent link land in orphan_parasites.csv. Keep settings.json with them so your channel and threshold choices travel along.",
+          "narration": "표 두 개가 더 생물학적 질문에 답합니다. marker_states.csv는 표지자의 결합 상태를, replication_distribution.csv는 센 액포별 기생충 수를 보여 줍니다. 쓸 수 있는 소속 연결이 없는 기생충은 orphan_parasites.csv에 들어갑니다. 채널과 임곗값 선택이 함께 남도록 settings.json도 같이 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_denominators",
-          "narration": "One last check before comparing conditions: the denominators. Infection fractions use the measured host cells that were kept, so uninfected hosts count only if Measure retained them. Count distributions use only vacuoles with a known parasite count, and unknown never quietly becomes zero.",
+          "narration": "조건을 비교하기 전 마지막 확인은 분모입니다. 감염 비율은 남겨 둔 측정 숙주 세포를 사용하므로, 감염되지 않은 숙주는 Measure가 남겨 두었을 때만 셈에 들어갑니다. 개수 분포는 기생충 수가 알려진 액포만 사용하며, 알 수 없는 값이 조용히 0이 되는 일은 없습니다.",
           "hold_after": 0.7
         }
       ],
@@ -14043,6 +14963,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     }

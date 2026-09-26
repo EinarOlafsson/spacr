@@ -5,9 +5,9 @@
   "records": [
     {
       "label": "dated-clone-and-current-checkout-size",
-      "source_sha256": "5f3d4d1cd6b907871ff9b11d9c8197872917cac92856e85359ba88190cd55fd0",
-      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1353 MB checkout (measured 2026-09-26), excluding Git history. Download sizes and times vary with the branch.",
-      "translation": "Lors de la mesure du 2026-09-15, le clone complet a téléchargé 5,8 Go. Pour le clone limité à un commit, ``--filter=blob:none`` n’a pas réduit le téléchargement mesuré. Les fichiers suivis de nightly occupent 1353 Mo dans la copie de travail (mesure du 2026-09-26), hors historique Git. La taille et la durée du téléchargement varient selon la branche."
+      "source_sha256": "302ec165d5653c26bdbc31a2c739a409729e2c8bcb8a5d3f2add2ed2338e3f15",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 821 MB checkout (measured 2026-09-26), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "Lors de la mesure du 2026-09-15, le clone complet a téléchargé 5,8 Go. Pour le clone limité à un commit, ``--filter=blob:none`` n’a pas réduit le téléchargement mesuré. Les fichiers suivis de nightly occupent 821 Mo dans la copie de travail (mesure du 2026-09-26), hors historique Git. La taille et la durée du téléchargement varient selon la branche."
     }
   ]
 }

@@ -295,7 +295,7 @@ measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
 
 On 2026-09-15, the full clone downloaded 5.8 GB. Adding
 ``--filter=blob:none`` to the shallow clone did not reduce its measured download.
-The nightly tracked tree is a 1353 MB checkout (measured 2026-09-26),
+The nightly tracked tree is a 821 MB checkout (measured 2026-09-26),
 excluding Git history. Download sizes and times vary with the branch.
 
 
