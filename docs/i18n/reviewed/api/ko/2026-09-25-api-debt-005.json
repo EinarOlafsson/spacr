@@ -493,6 +493,14 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
+      "label": "spacr.qt.mask_engine.is_seg_bundle#2",
+      "source": "``True`` when it ends in :data:`SEG_SUFFIX`, which is how a ``seg`` queue's fields are named in the editor's file list.",
+      "source_sha256": "8d08ea4e2b9e164e23f3d06a4f198c33d284339268baf47a90b4219d07695622",
+      "context": "``True`` when it ends in :data:`SEG_SUFFIX`, which is how a ``seg`` work list's fields are named in the editor's file list.",
+      "translation": "``True`` 는 :data:`SEG_SUFFIX` 로 끝난다는 뜻이며, ``seg`` 대기열의 현미경 시야는 편집기의 파일 목록에서 이렇게 이름이 붙습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
       "label": "spacr.qt.mask_engine.legacy_filters#0",
       "source": "The four old hard-coded bounds as entries of the filter list.",
       "source_sha256": "078b2a80dad7dfd82418d413c312833a9e10e89d36e312d5b0dd50de951f3351",
@@ -522,6 +530,14 @@
       "source_sha256": "5250057c18de49e55abf1889d1667fbd8621788521f0266002a5198ccbf91ff7",
       "context": "Load an image and its accompanying mask.",
       "translation": "이미지와 그에 딸린 마스크를 로드합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#5",
+      "source": "A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is read by :func:`load_seg_bundle` instead.",
+      "source_sha256": "c824b0d9667e223cb6e974a1f77a8795593cfecbf7c02e7b88509738d441ed57",
+      "context": "A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is read by :func:`load_seg_bundle` instead.",
+      "translation": "``filename`` 이 :data:`SEG_SUFFIX` 로 끝나면 Cellpose 번들이며, 대신 :func:`load_seg_bundle` 로 읽습니다.",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -570,6 +586,30 @@
       "source_sha256": "06b914af78e20f22e3caa360b97b5af2dda14b82e41c4e932964fe78565e9842",
       "context": "``(image, mask)``, checked and converted exactly as :func:`load_image_and_mask` converts a TIFF pair.",
       "translation": "``(image, mask)`` 이며, :func:`load_image_and_mask` 가 TIFF 쌍을 변환하는 것과 똑같이 검사하고 변환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#3",
+      "source": "for a file that is not a bundle, a bundle with no image to show, or labels that do not fit the image.",
+      "source_sha256": "67b14b18f207e8af712b9f66deacd03f488cadbfd37dae6ed11ef64edd6d2a64",
+      "context": "for a file that is not a bundle, a bundle with no image to show, or labels that do not fit the image.",
+      "translation": "번들이 아닌 파일, 보여 줄 이미지가 없는 번들, 또는 이미지에 맞지 않는 레이블일 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#1",
+      "source": "intensity image, 2-D or with channels on the last axis; distances are taken over the channel values.",
+      "source_sha256": "2d59208e9b6905cb67ad993c00dcbccb9e8f30d5a56e0c728787870a9f1ca4d5",
+      "context": "intensity image, 2-D or with image data channels on the last axis; distances are taken over the image data channel values.",
+      "translation": "강도 이미지이며, 2-D 이거나 마지막 축에 채널이 있습니다. 거리는 채널 값들에 대해 계산합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#2",
+      "source": "mask with the same height and width as ``image``; it is copied, not modified.",
+      "source_sha256": "16e5dc2b659e4471c07b7f60b4b7348cacdf6ebff2897225693ac140a31a4893",
+      "context": "mask with the same height and width as ``image``; it is copied, not modified.",
+      "translation": "``image`` 와 높이와 너비가 같은 마스크입니다. 수정하지 않고 복사합니다.",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
