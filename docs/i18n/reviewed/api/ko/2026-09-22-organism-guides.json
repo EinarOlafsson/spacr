@@ -27,14 +27,18 @@
       "label": "spacr.qt.screens.organism_screen#0",
       "source": "Sourced organism guides, interactive cell diagrams and assay navigation.",
       "source_sha256": "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
-      "translation": "출처가 명시된 생물 안내, 대화형 세포 도식 및 분석 탐색."
+      "translation": "출처가 명시된 생물 안내, 대화형 세포 도식 및 분석 탐색.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The information and module panes scroll independently and share a horizontal splitter. Existing assays keep their registry keys; proposals cannot execute.",
       "label": "spacr.qt.screens.organism_screen#1",
       "source": "The information and module panes scroll independently and share a horizontal splitter. Existing assays keep their registry keys; proposals cannot run.",
       "source_sha256": "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce",
-      "translation": "정보 영역과 모듈 영역은 독립적으로 스크롤되며 수평 분할 컨트롤을 공유합니다. 기존 분석은 레지스트리 키를 유지하며 제안은 실행할 수 없습니다."
+      "translation": "정보 영역과 모듈 영역은 독립적으로 스크롤되며 수평 분할 컨트롤을 공유합니다. 기존 분석은 레지스트리 키를 유지하며 제안은 실행할 수 없습니다.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Show one organism and its existing or proposed image-analysis modules.",

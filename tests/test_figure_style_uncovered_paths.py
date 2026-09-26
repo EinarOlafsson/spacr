@@ -99,7 +99,7 @@ def test_applying_a_style_with_no_palette_never_reaches_the_palette_applier(
     import spacr.figure_style as figure_style
     from cycler import cycler
 
-    def install_marker(name):
+    def install_marker(name, mark_colouring="group"):
         restored_rc_params.rcParams["axes.prop_cycle"] = cycler(
             color=["#FF00FF"])
 

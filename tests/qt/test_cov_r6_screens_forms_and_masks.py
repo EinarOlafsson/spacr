@@ -419,7 +419,7 @@ def test_the_merged_classifier_rebuild_finds_every_group_it_names():
                 SM._family_heading("Machine Learning", "Model & Features"),
                 SM._family_heading("Machine Learning",
                                    "Plate & Batch Correction"),
-                "Evaluation & Results"]
+                "Evaluation", "Results & figures", "Runtime & Reliability"]
     assert names[:len(expected)] == expected, (
         "a group the rebuild names was not in the table it reads")
 
@@ -432,7 +432,7 @@ def test_the_merged_classifier_rebuild_finds_every_group_it_names():
     # under its unprefixed form.
     plain = SM.categories_for_app("classify", SM.get_categories())
     for name in ("Plate Sources & Workflow", "Labels & Classes",
-                 "Evaluation & Results"):
+                 "Evaluation", "Results & figures"):
         assert name in plain
 
 

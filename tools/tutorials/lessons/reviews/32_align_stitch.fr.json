@@ -1,21 +1,32 @@
 {
-  "lesson": "32_align_stitch", "language": "fr", "english_sha256": "c5ca1b87343bf3d9dc635ae146c77ffe5c57cb49886fdbcb1312ffdf69e6c5cc",
-  "review": {"kind": "Editorial translation checked against English and the actual captured Align & Stitch workflow", "native_speaker_signoff": false},
-  "title": "Align & Stitch : examiner un plan réel et vérifier la mosaïque enregistrée",
-  "description": "Utilisez l’interface actuelle d’assemblage avec des pixels réels de microscopie conservés, examinez la disposition calculée, écrivez des bandes d’image de taille limitée et vérifiez la mosaïque ainsi que ses enregistrements de coordonnées.",
-  "objectives": ["Distinguer cet exemple de recadrages à géométrie connue d’une expérience en mosaïque dont les champs ont été acquis indépendamment.", "Définir la grille, le recouvrement, l’ordre et le canal de référence dans l’interface graphique actuelle.", "Examiner le recalage avant l’écriture et distinguer le budget du tampon de bandes de l’utilisation totale de mémoire.", "Conserver ensemble l’image assemblée, les enregistrements de coordonnées et la provenance des données sources."],
-  "prerequisite": "Pour votre propre exécution, préparez des tuiles dont l’ordre et le recouvrement sont connus, avec un canal utile au recalage ; vos effectifs et vos résultats seront différents. L’enregistrement réutilise neuf recadrages exacts conservés de 800 × 800 × 4, issus d’un seul champ réel de 2 000 × 2 000 × 4, avec un pas de 600 pixels. Ils simulent une acquisition de 3 × 3, pas neuf champs acquis indépendamment. Les noms tutorial_A01 sont des coordonnées de démonstration, pas la plaque et le puits d’origine. Align & Stitch ne possède pas de bouton distinct pour télécharger un exemple.",
+  "lesson": "32_align_stitch",
+  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Align & Stitch : planifier et écrire une mosaïque d’images",
+  "description": "Choisissez des tuiles d’image, réglez leur disposition d’acquisition, examinez le plan de recalage et écrivez la mosaïque avec ses coordonnées.",
+  "objectives": [
+    "Choisir les tuiles et régler la grille, le recouvrement et le canal de recalage.",
+    "Examiner les positions prévues et la qualité du recalage.",
+    "Écrire la mosaïque et conserver sa base de données de coordonnées."
+  ],
+  "prerequisite": "Téléchargez et décompressez l’exemple à neuf tuiles ci-dessous, ou préparez des tuiles d’image dont l’ordre d’acquisition, le recouvrement et un canal utile au recalage sont connus. L’exemple utilise des découpes chevauchantes d’un seul champ de microscopie comme disposition d’entraînement.",
   "scenes": [
-    "Ouvrez Align & Stitch dans la catégorie Tools de Home. Planifier et écrire sont deux actions distinctes : vous pouvez donc examiner une disposition avant de créer sa mosaïque. Cet écran présente une disposition de tuiles et un rapport textuel ; les rectangles colorés ne sont pas un aperçu de l’image de microscopie.",
-    "Choisissez le dossier des tuiles conservées du tutoriel. Ses neuf tuiles sont des recadrages exacts d’une seule image réelle à quatre canaux, disposés délibérément pour simuler une acquisition à géométrie connue. Ce ne sont pas neuf champs indépendants, et les noms de plaque et de puits du tutoriel sont des identifiants de démonstration.",
-    "Réglez Grid sur trois par trois, Order sur row-major et Overlap sur zéro virgule deux cinq. Ces tuiles de huit cents pixels sont espacées d’un pas de six cents pixels. Pour vos propres données, utilisez l’ordre réel d’acquisition et le recouvrement nominal ; un balayage en serpentin ne doit pas être décrit comme row-major.",
-    "Réglez Ref. channel sur un, soit le deuxième plan dans cet exemple dont les indices commencent à zéro. Le recalage utilise la structure de ce plan et applique un même positionnement aux quatre canaux. Choisissez un canal pertinent pour le recalage ; cette opération n’est pas un alignement chromatique indépendant de chaque canal.",
-    "Réglez Min confidence sur zéro virgule trois, Neighbour radius sur un et Blend sur feather. Allouez huit mégaoctets au tampon de bandes avec RAM budget (MB) pour cet exemple borné. Ce réglage limite les bandes d’image utilisées à l’écriture ; il ne plafonne ni chaque allocation ni l’utilisation totale de mémoire de l’application.",
-    "Appuyez sur Plan. Les neuf tuiles de l’exemple sont recalées, sans recours aux positions nominales, et le canevas proposé mesure deux mille par deux mille pixels avec quatre canaux. Aucune image de sortie n’a encore été écrite. Examinez les nombres de tuiles recalées, placées aux positions nominales et non placées, au lieu de considérer tout plan terminé comme acceptable.",
-    "Cliquez sur la tuile centrale pour examiner ses coordonnées, sa confiance, son résidu et les paires contribuant au calcul. Ici, son origine se trouve à six cents pixels dans chaque direction, conformément à la disposition connue des recadrages. Les recouvrements parfaitement concordants de cet exemple construit ne prédisent pas la qualité du recalage sur une nouvelle acquisition.",
-    "Choisissez un nouveau dossier de sortie et une base de données de coordonnées distincte, en laissant Overwrite désactivé. Write stack ne devient disponible qu’une fois un plan établi et une destination renseignée. Gardez les tuiles sources inchangées ; attribuer un chemin de sortie ne remplace pas l’examen du recalage.",
-    "Appuyez sur Write stack. La sortie réelle contient les neuf tuiles, et chaque pixel des quatre canaux est identique au pixel correspondant du champ d’origine dans cet exemple. Le résultat indique le chemin de sortie et l’utilisation du tampon de bandes. C’est un résultat mesuré pour ces recadrages connus, pas une promesse de recalage sans perte pour des images quelconques.",
-    "La base de données de coordonnées contient neuf enregistrements. Nous vérifions chaque fichier source, la plaque et le puits de démonstration, l’identifiant du champ, la position dans le canevas et le chemin de la pile de sortie, pas seulement le nombre de lignes. Conservez ces enregistrements avec l’image et le manifeste des sources pour que les coordonnées restent interprétables en aval.",
-    "En Python, spacr.align.scan_tiles lit la disposition des tuiles et estimate_offsets construit le plan. write_stack crée la mosaïque ; save_coordinates et read_coordinates écrivent et récupèrent sa table de coordonnées. Le flux de travail distinct OPS n’est pas validé par ce petit assemblage. Examinez la géométrie réelle d’acquisition avant d’utiliser l’un ou l’autre flux de travail pour tirer des conclusions scientifiques."
+    "Dans la catégorie Tools de Home, ouvrez Align and Stitch. Choisissez les tuiles, examinez leur disposition avec Plan, puis utilisez Write stack pour créer la mosaïque.",
+    "Téléchargez et décompressez l’exemple ci-dessous, puis sélectionnez son dossier tiles. Il contient neuf découpes chevauchantes disposées en grille de trois sur trois. Pour votre propre acquisition, gardez à disposition l’ordre d’origine des tuiles et les métadonnées de la platine.",
+    "Pour cet exemple, réglez la grille sur trois par trois, l’ordre par lignes et un recouvrement de zéro virgule deux cinq. Adaptez ces valeurs à votre acquisition ; utilisez l’ordre en serpentin lorsque les lignes alternées ont été acquises dans des sens opposés.",
+    "Réglez Reference channel sur le plan d’image utilisé pour le recalage. Cet exemple utilise le canal un, c’est-à-dire le deuxième plan avec une numérotation à partir de zéro. Choisissez un canal avec des structures visibles dans les recouvrements ; le placement obtenu s’applique à tous les canaux de l’image.",
+    "Réglez Minimum confidence pour accepter un recalage et Neighbour radius pour les tuiles voisines à comparer. L’exemple utilise zéro virgule trois et un, avec un fondu progressif dans les recouvrements. Le budget du tampon de bandes contrôle la mémoire utilisée par l’écriture des images.",
+    "Appuyez sur Plan. Examinez le nombre de tuiles recalées, nominales et non placées, ainsi que la taille de canevas proposée. La disposition montre la position des tuiles. Examinez tout repli sur la position nominale ou toute tuile non placée avant d’écrire la mosaïque.",
+    "Cliquez sur une tuile pour examiner ses coordonnées, sa confiance, son résidu et les paires qui y contribuent. Servez-vous de ces détails pour étudier les positions inattendues, puis ajustez les paramètres de recalage et replanifiez si nécessaire.",
+    "Choisissez un dossier de sortie et un chemin pour la base de données de coordonnées. Laissez Overwrite désactivé pour créer un nouveau résultat. Quand le plan et la destination sont prêts, appuyez sur Write stack.",
+    "Attendez le résumé de fin et ouvrez la pile de sortie. Examinez les recouvrements et les contours des objets dans la mosaïque. Conservez avec elle la base de données de coordonnées et les tuiles sources, pour pouvoir remonter des positions ultérieures jusqu’à l’acquisition."
   ]
 }

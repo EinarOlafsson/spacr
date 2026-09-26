@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Plasmodium: skoðaðu leiðarvísi lífverunnar",
+  "description": "Flettu í leiðarvísi Plasmodium, skoðaðu frumuskýringarmyndina og finndu almenn myndgreiningarferli sem eru í boði.",
+  "objectives": [
+    "Opna síðuna frá Home og finna helstu stýringar hennar.",
+    "Greina tiltæk inntök, aðgerðir og úttök.",
+    "Velja næstu tiltæku greiningu eða heimild."
+  ],
+  "prerequisite": "Opnaðu Home í spaCR. Leiðarvísirinn þarf engar inntaksskrár. Greiningarreitir sem eru sérstakir fyrir Plasmodium sýna Coming soon eins og er.",
+  "scenes": [
+    "Plasmodium hefur eigin leiðarvísi. Frá Home velurðu Plasmodium til að skoða lífveruna, frumuhólf hennar og þær greiningar sem fyrirhugaðar eru.",
+    "Upplýsingaspjaldið segir sögu sníkjudýrsins í köflum, frá blóðstigi og lifrarstigi til hreyfanleika. Dragðu skilrúmið til að fá meira pláss við hlið einingareitanna.",
+    "Á skýringarmynd gródýrsins heldurðu bendlinum yfir hólfi til að lesa hvað það er. Veldu nokkur til að auðkenna þau saman, og Clear components færir sýnina aftur í upphaflegt horf.",
+    "Greiningarreitirnir eru enn merktir Coming soon og ekki hægt að opna þá, en lýsingar þeirra sýna hvað hver þeirra mun mæla. Til að greina Plasmodium-myndir strax í dag ferðu aftur í Home og opnar Mask eða Measure með eigin myndum og viðeigandi rásastillingum.",
+    "Til dýpri lestrar opna tenglarnir á PlasmoDB og UniProt efni um lífveruna í vafranum þínum. Ekkert hér þarf gagnasafn eða Run, og leiðarvísirinn skrifar engar skrár."
+  ]
+}

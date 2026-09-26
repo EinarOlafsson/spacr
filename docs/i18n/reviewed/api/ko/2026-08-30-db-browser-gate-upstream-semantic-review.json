@@ -579,39 +579,44 @@
       "translation": "``regression_type='mixed'``는 한 번 적합하고 하나의 항목을 반환한다, ``'gene'``: 그 모델 안에는 이미 두 수준이 모두 포함되어 있으며, 유전자는 고정 효과로, 가이드는 유전자에 중첩된 랜덤 효과로 포함된다. 그 가이드 출력은 BLUPs이므로 두 개의 검정 패밀리로 나눌 수 없다."
     },
     {
-      "label": "spacr.ml.regression_levels#6",
+      "label": "spacr.ml.regression_levels#8",
       "source": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
       "context": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
       "source_sha256": "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
-      "translation": "``'both'`` (기본값), ``'grna'`` 또는 ``'gene'``."
-    },
-    {
-      "label": "spacr.ml.regression_levels#7",
-      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
-      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
-      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
-      "translation": "처리 세션 폴더입니다. 적합이 둘 이상이면 각 수준의 FIGURES는 서로 덮어쓰지 않도록 ``<dst>/<level>/``에 저장되고, 테이블은 모든 소비자가 찾는 ``<dst>``에 남습니다."
-    },
-    {
-      "label": "spacr.ml.regression_levels#8",
-      "source": "passed straight through to :func:`regression`.",
-      "context": "passed straight through to :func:`regression`.",
-      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
-      "translation": ":func:`regression`로 바로 전달됩니다."
+      "translation": "``'both'`` (기본값), ``'grna'`` 또는 ``'gene'``.",
+      "rebound_from": "spacr.ml.regression_levels#6"
     },
     {
       "label": "spacr.ml.regression_levels#9",
-      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
-      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
-      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
-      "translation": "``dict``로, 적합 순서대로 수준을 ``(model, coef_df, regression_type)``에 매핑합니다."
+      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
+      "translation": "처리 세션 폴더입니다. 적합이 둘 이상이면 각 수준의 FIGURES는 서로 덮어쓰지 않도록 ``<dst>/<level>/``에 저장되고, 테이블은 모든 소비자가 찾는 ``<dst>``에 남습니다.",
+      "rebound_from": "spacr.ml.regression_levels#7"
     },
     {
       "label": "spacr.ml.regression_levels#10",
+      "source": "passed straight through to :func:`regression`.",
+      "context": "passed straight through to :func:`regression`.",
+      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
+      "translation": ":func:`regression`로 바로 전달됩니다.",
+      "rebound_from": "spacr.ml.regression_levels#8"
+    },
+    {
+      "label": "spacr.ml.regression_levels#11",
+      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
+      "translation": "``dict``로, 적합 순서대로 수준을 ``(model, coef_df, regression_type)``에 매핑합니다.",
+      "rebound_from": "spacr.ml.regression_levels#9"
+    },
+    {
+      "label": "spacr.ml.regression_levels#12",
       "source": "for a level that is not one of :data:`LEVEL_CHOICES`.",
       "context": "for a level that is not one of :data:`LEVEL_CHOICES`.",
       "source_sha256": "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342",
-      "translation": ":data:`LEVEL_CHOICES`에 속하지 않는 레벨의 경우."
+      "translation": ":data:`LEVEL_CHOICES`에 속하지 않는 레벨의 경우.",
+      "rebound_from": "spacr.ml.regression_levels#10"
     },
     {
       "label": "spacr.ml.resolve_auto_inference#0",
@@ -649,11 +654,12 @@
       "translation": "``inference='auto'`` 이외의 모든 것은 변경 없이 반환되므로, 명시적인 선택은 결코 무시되지 않습니다."
     },
     {
-      "label": "spacr.ml.resolve_auto_inference#5",
+      "label": "spacr.ml.resolve_auto_inference#9",
       "source": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
       "context": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
       "source_sha256": "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92",
-      "translation": "``(analysis_mode, reason)``입니다. ``reason``은 개수를 명시하며 로그와 방법 섹션에 사용할 수 있는 문장입니다."
+      "translation": "``(analysis_mode, reason)``입니다. ``reason``은 개수를 명시하며 로그와 방법 섹션에 사용할 수 있는 문장입니다.",
+      "rebound_from": "spacr.ml.resolve_auto_inference#5"
     },
     {
       "label": "spacr.ml.results_folder_kind#0",

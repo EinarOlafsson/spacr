@@ -1,33 +1,37 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "it",
-  "title": "Lineage: identità di contenimento e ritagli del genitore verificati",
-  "description": "Esaminare relazioni salvate, limite della vista e ritaglio del solo genitore, rifiutando la sostituzione errata delle immagini figlie.",
+  "title": "Lineage: esplorare gli oggetti genitore e il loro contenuto",
+  "description": "Apri le relazioni genitore-figlio salvate, seleziona una famiglia ed esamina in Annotate il ritaglio della cellula genitore corrispondente.",
   "objectives": [
-    "Aprire Lineage dentro Database Browser e costruire l’albero reale.",
-    "Distinguere conteggi completi, famiglie visibili e identità tipizzate.",
-    "Riconoscere la sostituzione errata e ispezionare il genitore verificato.",
-    "Usare lo zoom nativo e distinguere l’export Python dai controlli grafici."
+    "Caricare le misure ed espandere le relazioni genitore-figlio.",
+    "Selezionare oggetti controllando campo e tipo di oggetto.",
+    "Aprire il ritaglio della cellula genitore corrispondente e ottenere la gerarchia completa con Python."
   ],
-  "prerequisite": "Usare l’esempio scaricato di Annotate con misure e ritagli cellulari corrispondenti. L’archivio Graph Builder contiene il database esatto senza immagini; quello Lineage contiene CSV API e revisione, non un database sostitutivo. Non usare il ripiego attuale per identificare o etichettare figli senza immagine.",
+  "prerequisite": "Scarica l’esempio completo di Annotate con il database delle misure e i ritagli delle cellule corrispondenti. L’archivio di Graph Builder con il solo database non può fornire immagini. Questo esempio contiene solo ritagli di cellule: fai doppio clic su una cellula genitore per esaminare un ritaglio. L’attuale azione Open crops su una famiglia può sostituire i ritagli dei figli mancanti con ritagli di cellule non correlate; evitala con questo esempio.",
   "scenes": [
-    "Trovate Database Browser in Help e aprite il suo strumento annidato Lineage. Qui lineage indica il contenimento salvato: quali oggetti appartengono a quali cellule. Non è una storia di divisioni, un’ascendenza genetica o una nuova segmentazione. I controlli del database circostanti appartengono al modulo ospitante.",
-    "Aprite measurements punto db dell’esempio reale di Annotate e costruite l’albero. Usiamo una copia privata invariata. Allargate Object e il divisore se le etichette sono strette. I numeri si ripetono fra campi e tipi di oggetto: un numero da solo non è un’identità.",
-    "La fonte completa contiene duemilatrecentoquarantuno cellule, duemilaseicentoottantadue nuclei e duemilacentosettantotto oggetti nella tabella pathogen. L’albero mostra solo duemila famiglie: trecentoquarantuno sono escluse dalla vista, non cancellate dal database.",
-    "Il riepilogo dice che nessuna cellula è vuota perché anche un nucleo conta come figlio. Non significa che tutte contengano un oggetto della tabella pathogen: millecentosessantotto non ne hanno. Nessun figlio non associato significa che ogni genitore registrato esiste, non che la segmentazione sia biologicamente corretta.",
-    "Espandete un genitore per vedere i figli. In questo campo la cellula tre contiene il nucleo cinque e l’oggetto pathogen uno secondo i collegamenti salvati. Sono identità tipizzate, non numeri intercambiabili. Selezionare un solo figlio è diverso dal selezionare tutta la famiglia.",
-    "Select with contents pubblica genitore e figli. Selezionare insieme un genitore e un suo figlio non richiede di duplicare il figlio. Le chiavi mantengono campo e tipo, ma la loro colonna è nascosta. Pubblicare un’identità non prova che esista il ritaglio corrispondente.",
-    "Una grande famiglia merita ispezione, non un’interpretazione biologica automatica. L’esempio ne include una con trentatré oggetti totali. Il contenimento può riflettere errori di segmentazione o acquisizione. L’albero riporta relazioni salvate, senza validare numeri insoliti come scoperte.",
-    "Un clic sull’intestazione ordina le famiglie visibili senza cambiarne il contenimento. Resta il limite di duemila genitori. Abbiamo verificato ogni identità visibile, ogni relazione parentale e la gerarchia completa. Una vista riordinata o troncata non è una tabella di misure modificata.",
-    "Open crops richiede Annotate, che fornisce il visualizzatore. Il messaggio chiede di aprire prima Annotate. Un visualizzatore assente è diverso da un’immagine mancante. Caricate il progetto corrispondente prima di richiedere ritagli, non un’altra esecuzione con numeri casualmente simili.",
-    "Il progetto scaricato offre ritagli cellulari reali. L’archivio del solo database non fornisce queste immagini. Usiamo l’esempio completo corrispondente e preserviamo tutti i ritagli originali. Aprire la fonte non addestra un classificatore e non stabilisce nuove etichette.",
-    "Questa versione ha una limitazione grave. Aprire la famiglia di tre oggetti mostra la cellula tre e poi le cellule cinque e uno, non pertinenti, invece del nucleo e dell’oggetto pathogen richiesti. La fonte ha soltanto ritagli cellulari. Rifiutate la sostituzione: non etichettateli come figli mancanti. Il tutorial non ripara il difetto.",
-    "L’alternativa verificata è più limitata: tornate a Lineage e fate doppio clic sul solo genitore cellulare. A differenza di Open crops, invia soltanto il genitore, non la famiglia. Annotate mostra esattamente quel ritaglio. Abbiamo verificato identità e byte originali, senza implicare supporto alle immagini figlie.",
-    "Tenete premuto Maiusc e cliccate sulla miniatura del genitore per ingrandire l’anteprima senza assegnare una classe. Esc ripristina la griglia. Questo aiuta l’ispezione, ma non crea risoluzione aggiuntiva. Usate il gesto corretto: un normale clic sinistro annota, non esegue lo zoom mostrato.",
-    "Build tree aggiorna la vista. In Python, read_object_tables, build_forest e lineage_frame espongono la stessa struttura. Il CSV collegato contiene tutti i settemiladuecentouno nodi, comprese le famiglie escluse dalla vista. È stato scritto dall’API, non da un pulsante di export Lineage, e non è validazione biologica."
+    "Da Home, apri Database Browser e poi Lineage. Usa l’albero per vedere quali oggetti misurati sono registrati dentro ogni cellula genitore.",
+    "Con Browse vai a measurements.db dell’esempio di Annotate e fai clic su Build tree. Allarga la colonna Object e il divisore per leggere le etichette. Identifica un oggetto dal campo e dal tipo, oltre che dal numero.",
+    "Questo database contiene duemilatrecentoquarantuno cellule. L’albero mostra fino a duemila famiglie genitore. Usa l’esportazione Python illustrata più avanti in questa lezione quando ti servono tutte le famiglie.",
+    "Leggi il riepilogo sopra l’albero. Un nucleo conta come figlio, quindi una cellula con contenuto può non avere alcun oggetto patogeno. Usa i tipi di figli per interpretare ogni famiglia.",
+    "Espandi un genitore per vederne i figli. Qui la cellula tre contiene il nucleo cinque e il patogeno uno. Scegli il tipo di oggetto specifico che vuoi esaminare.",
+    "Usa Select with contents per selezionare insieme il genitore e i suoi figli. Le identità selezionate includono campo e tipo di oggetto. Seleziona un figlio da solo quando ti serve solo quell’oggetto.",
+    "Espandi una famiglia grande per esaminarne il contenuto. Questo esempio include una famiglia con trentatré oggetti. Esamina le immagini corrispondenti quando un conteggio sembra insolito.",
+    "Fai clic sull’intestazione di una colonna per ordinare le famiglie visualizzate. L’ordinamento mantiene le relazioni salvate e il limite di visualizzazione di duemila genitori.",
+    "Per vedere i ritagli, apri prima Annotate e carica il progetto di esempio corrispondente. Se compare il messaggio che chiede Annotate, aprilo prima di richiedere immagini da Lineage.",
+    "Usa il progetto scaricato completo, che include i ritagli delle cellule. Tieni insieme database e immagini della stessa esecuzione, così le identità degli oggetti corrispondono.",
+    "In questo esempio evita Open crops su un’intera famiglia. I ritagli mancanti di nuclei e patogeni possono essere sostituiti da ritagli di cellule non correlate. Torna all’albero e scegli solo la cellula genitore.",
+    "Fai doppio clic sulla cellula genitore in Lineage. Annotate apre il ritaglio della cellula corrispondente a quel genitore. È il ritaglio disponibile nell’esempio scaricato.",
+    "Fai clic con Shift sulla miniatura del genitore per ingrandirne l’anteprima, poi premi Esc per tornare. Un normale clic sinistro assegna una classe di annotazione, quindi usa Shift quando vuoi solo esaminare.",
+    "Fai clic su Build tree per aggiornare la vista. Per la gerarchia completa in Python, usa read_object_tables, build_forest e lineage_frame, poi salva la tabella come CSV. Il CSV di esempio collegato contiene tutti i settemiladuecentouno nodi."
   ]
 }

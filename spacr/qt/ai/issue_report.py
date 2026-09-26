@@ -267,13 +267,24 @@ _QUOTED_PATH_RE = re.compile(
     r"(?m)(?P<q>['\"`])" + _PATH_ROOT + r"[^'\"`\n]*(?P<end>(?P=q)|$)"
 )
 
+#: A word after the LAST component of an unquoted path that is taken as
+#: part of that component: one that starts with a digit (``plate 1``,
+#: ``Patient 042``) or a capital (``Lab Drive``, ``plate A``), or that ends
+#: in a file extension (``plate a.tif``). Prose after a path on the same
+#: line is lower case -- ``failed``, ``not found``, ``does not exist`` -- so
+#: those words stay readable.
+_PATH_TAIL_WORD = (r"(?:[0-9A-Z][^\s'\"`\\/]*"
+                   r"|[^\s'\"`\\/]*\.[A-Za-z][A-Za-z0-9]{0,4}(?![\w.]))")
+
 #: An unquoted path. A component may contain spaces when a separator
 #: follows it, which is what makes ``/Volumes/Lab Drive/x`` and
-#: ``C:\Program Files\spaCR\x`` one token rather than three.
+#: ``C:\Program Files\spaCR\x`` one token rather than three. The last
+#: component, which no separator follows, runs on over the words
+#: :data:`_PATH_TAIL_WORD` accepts.
 _BARE_PATH_RE = re.compile(
     r"(?<![\w~<])" + _PATH_ROOT + r"(?=[^\s'\"`\\/])"
     r"(?:" + _PATH_SEG + r"(?:[ \t]" + _PATH_SEG + r")*[\\/])*"
-    r"(?:" + _PATH_SEG + r")?"
+    r"(?:" + _PATH_SEG + r"(?:[ \t]" + _PATH_TAIL_WORD + r")*)?"
 )
 
 
@@ -293,10 +304,13 @@ def strip_report_paths(text: str) -> str:
     - Karolinska Institutet\\Screens`` kept the institution and the
     screen — the two operating systems whose own folders have spaces in
     them. A UNC path was not a path at all: nothing here started at
-    ``\\\\``. What is left is the tail of the LAST component of an unquoted
-    path, since only a separator can prove that a space is inside the path
-    rather than after it; a quoted path is taken whole, and the title and
-    every ``repr``-ed settings value are quoted.
+    ``\\\\``. The LAST component of an unquoted path has no separator after
+    it to prove a space is inside the path rather than after it, so it runs
+    on only over words shaped like a name -- a number, a capitalised word, a
+    file name -- and ``\\\\LAB-NAS\\screens\\plate 1`` is replaced whole while
+    ``opening /mnt/data/x.tif failed`` keeps its ``failed``. A lower-case
+    word ending such a component still survives it; a quoted path is taken
+    whole, and the title and every ``repr``-ed settings value are quoted.
 
     A slash straight after ``<`` starts a closing tag, not a path. The
     report's collapsible sections end in ``</summary>`` and ``</details>``,

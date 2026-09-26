@@ -4,8 +4,12 @@ TEST DATA FOR THE REPLICATION, INVASION AND RECRUITMENT ASSAYS
 
 Status:    in progress. All three built, published and run on their
            samples. Invasion's set is SYNTHETIC by the maintainer's decision
-           (see the last section); its masks are drawn, not segmented. Owed:
-           the nine-language catalogs, and a --segment rebuild on a free GPU.
+           (see the section below); the PUBLISHED set's masks are drawn. The
+           --segment rebuild is done (2026-09-25, GPU, 3.5 min), verified,
+           and READY TO PUBLISH at /mnt/wd4tb/spacr_testdata/assays/
+           invasion_segmented/ -- not uploaded. Owed on publish: the drawn-
+           mask wording in spacr/example_archives.py and its catalog rows.
+           The nine-language captions for the current set are done.
 
 Requested: 2026-09-21 -- the maintainer's decision, as the orchestrating
            session holds it: "Replication / Invasion / Recruitment" should get
@@ -196,3 +200,65 @@ all nine runtime locales: 18 source-bound records preserving placeholders
 and the distinction between synthetic drawing and real imaging/segmentation.
 Full de/sv/es runtime audits pass at 3824 UI sources. API translation debt
 remains with 411. No assay behavior or example data changed.
+
+2026-09-25 -- THE --segment REBUILD, ON THE GPU, READY TO PUBLISH
+--------------------------------------------------------------------------------
+BUILT. `tools/gpu_turn.sh 463-invasion ... python tools/build_invasion_
+example_dataset.py --out /mnt/wd4tb/spacr_testdata/assays/invasion_segmented
+--segment`: turn started 20:44:27, finished 20:47:53, rc 0 -- three and a
+half minutes on the RTX 3090 for what did not finish one plate row in 40
+minutes on CPU. Same seeded images; Mask (Cellpose-SAM on nucleus, cell and
+total-parasite channels) instead of the drawn discs; Measure unchanged.
+Mask's own QC: 24 of 24 fields OK for every object; median 64 cells, 64
+nuclei and 70 parasites per field; median diameters 47.9, 19.6, 13.6 px.
+
+THE BUILDER'S CARD NOW TELLS THE TRUTH EITHER WAY. It used to say "the label
+planes are the objects the generator drew" unconditionally, so a --segment
+build would have published a false card. package() and _card() take
+`segmented`; with it the card says the label planes are spaCR's own Mask
+output with a real segmentation's misses and merges, and that
+ground_truth.csv is still the generator's list. The drawn build's card is
+unchanged.
+
+WHAT IS THERE, nothing uploaded:
+  spacr-example-invasion.tar  106,885,120 bytes, SHA-256
+      135ebf64cf3b5d7c3e77e3b64f73da9cc063bb237e0a41e13c65825ef834714b
+  README.md (the card, segmented wording), dataset/ (24 merged stacks,
+  measurements.db, ground_truth.csv, settings/invasion_settings.csv), and
+  work/ (103 MB, the build's scratch; not part of the archive).
+  measurements.db: 1,700 pathogen, 1,535 cell, 1,536 nucleus rows; path_name
+  is `merged/<field>.npy`, no build path left in the file.
+
+MASKS AGAINST THE DRAWN OBJECTS (F1 at IoU 0.5, optimal matching,
+spacr.model_compare.match_objects, all 24 fields):
+  cell      1,536 drawn / 1,535 segmented  F1 0.999  mean matched IoU 0.704
+  nucleus   1,536 / 1,536                  F1 1.000  IoU 0.682
+  pathogen  1,713 / 1,700                  F1 0.764  IoU 0.577
+The parasites are 10 px discs, and the pathogen misses are boundary, not
+detection: at IoU 0.3 every one of the 1,700 segmented parasites pairs with
+a drawn one (F1 0.996; 13 drawn parasites unfound, 0 spurious), so the
+F1-at-0.5 gap is outlines a pixel or two off on objects this small.
+
+THE MODULE ON IT, analyze_invasion with the shipped settings, CPU:
+  threshold from the c1 baseline, quantile 0.99: 604.0 (drawn set 612.2) on
+  pathogen_channel_3_periphery_percentile_95, chosen by 'auto'
+
+  well          called  truth        well           called  truth
+  r1_c2 vehicle 0.775   0.788        r1_c3 inhib.   0.324   0.326
+  r2_c2         0.729   0.719        r2_c3          0.317   0.331
+  r3_c2         0.707   0.707        r3_c3          0.364   0.358
+  r4_c2         0.734   0.734        r4_c3          0.372   0.397
+
+  vehicle 0.736 +/- 0.028 (563 parasites), inhibitor 0.344 +/- 0.028 (558);
+  Mann-Whitney on per-well efficiency p = 0.029 (n = 4 wells each), no well
+  QC-flagged. Within 2.5 points of the truth in every well, and the
+  drawn-mask set's numbers (0.727 / 0.348, same p) reproduced on the same
+  script first, so the comparison is like for like.
+
+TO PUBLISH (the maintainer's or the publishing lane's step, not done here):
+upload the tar and README.md from invasion_segmented/ to
+einarolafsson/spacr-example-invasion; then change the ExampleSet summary
+and the INVASION_EXAMPLE_REPO comment in spacr/example_archives.py from
+"masks drawn by spaCR" to segmented (the summary is a translated caption,
+so its nine catalog rows move with it) and the byte count if it is pinned
+anywhere finer than 107 MB.

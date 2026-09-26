@@ -2,7 +2,12 @@
 AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
 ================================================================================
 
-Status:    SHIPPED AND RUNNING; THE CODE HALF OF WHAT WAS LEFT IS DONE AND
+Status:    2026-09-25: DONE here in code; remaining: the full-plate run of
+           wells A2, B1, B2, B3 (A1 and A3 complete in
+           /mnt/wd4tb/spacr_testdata/ops_plate_run), BLOCKED because the NAS
+           (/nas_mnt/data) does not answer and the plate's tiles exist only
+           there. Restart command in the 2026-09-25 note at the end.
+           SHIPPED AND RUNNING; THE CODE HALF OF WHAT WAS LEFT IS DONE AND
            REVIEWED, 2026-09-19. The button, `spacr-run ops`,
            validate.APP_FUNCTIONS and the OPS API link all reach
            `spacr.ops_engine.run_ops`, and `spacrops.py` is gone. Tonight
@@ -6036,3 +6041,69 @@ stand-in run_ops; they verify missing, partial, exact and zero counts, other
 plates/wells, unchanged skipped reports and a second invocation that skips
 the repaired well. Fatal Ruff passes. This is a driver regression fix, not
 a new real-plate run or a complete provenance audit of all resume settings.
+
+2026-09-25 -- FULL-PLATE RUN: STATE, AND WHY IT WAS NOT RESTARTED TODAY
+State of /mnt/wd4tb/spacr_testdata/ops_plate_run (read-only look, SQLite
+opened mode=ro):
+  results/A1.json, A3.json   complete (A3 3,942.6 s)
+  results/A2.json            complete=False, the 2-of-18-anchors phenotype
+                             error that 680438073 fixed (validated
+                             2026-09-23 on A2's real images, CPU only)
+  B1                         run.log ends "B1: started 2026-09-22T07:12:48";
+                             no result file, no process left
+  measurements.db            ops_geometry A1/A2/A3 333 each; ops_phenotype,
+                             ops_objects, ops_barcodes for A1 and A3 only
+                             (A1 458,021 and A3 442,832 barcode rows)
+tests/test_ops_plate_resume.py: 13 passed on nightly a93f937d2, so the
+driver still skips A1/A3 and reruns A2 and B1-B3 from their stitch.
+
+NOT RESTARTED: `tools/nas_guard.sh check /nas_mnt/data 20` returned 2 (did
+not answer within 20 s; the autofs mount reports "No such device"). The
+sequencing and phenotype tiles are only on the NAS; no local copy of
+20200202_6W-LaC024A exists under /mnt/wd4tb or /mnt/firecuda2. The GPU was
+free (one 298 MiB compute process), so the NAS alone is the blocker.
+
+TO RESTART once the NAS answers (about an hour per well, four wells, GPU;
+announce it to the other sessions first):
+    setsid nohup tools/nas_guard.sh run 86400 \
+      tools/gpu_turn.sh ops-plate-372 \
+      tools/run_capped.sh 64G python tools/run_ops_plate.py \
+        --plate /nas_mnt/data/ops/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A \
+        --design /mnt/wd4tb/spacr_testdata/ops_plate_run/library/pool10_design.csv \
+        --out /mnt/wd4tb/spacr_testdata/ops_plate_run \
+      >> /mnt/wd4tb/spacr_testdata/ops_plate_run/run.log 2>&1 < /dev/null &
+It writes plate_summary.json when the last well finishes; B2's lower
+exact-match rate wants `--store-reads B2` on that run.
+
+2026-09-25 20:31 EDT -- FULL-PLATE RUN RESTARTED (NAS BACK)
+The maintainer restarted the NAS; `tools/nas_guard.sh check /nas_mnt/data`
+returned 0 and the plate folder lists (sequencing/, phenotype/, ...).
+
+Launched detached (setsid nohup; nas_guard's own detached child, so it
+outlives the session that started it), from a FROZEN SOURCE SNAPSHOT so no
+checkout moving underneath can change the run:
+  source    /mnt/wd4tb/spacr_testdata/ops_plate_run/src_4819fd244
+            (git archive of spacr/ + the four tools at 4819fd244, which
+            carries the A2 anchor-window fix 680438073)
+  launcher  /mnt/wd4tb/spacr_testdata/ops_plate_run/launch_2026-09-25.sh
+            nas_guard run 86400 -> gpu_turn.sh ops-plate-372 ->
+            run_capped.sh 64G python tools/run_ops_plate.py --plate <NAS
+            plate> --design <out>/library/pool10_design.csv --out <out>
+            XDG/MPLCONFIGDIR -> <out>/xdg
+  log       /mnt/wd4tb/spacr_testdata/ops_plate_run/run.log (streams; the
+            restart is marked "=== restart 2026-09-25T20:31:08-04:00 pid
+            422946 ... ===")
+  PIDs      nas_guard 422942, launcher/gpu_turn 422946 (exec'd in place);
+            the python PID appears when gpu_turn prints START in
+            ~/.spacr/gpu/log under [ops-plate-372]
+  outer     /mnt/wd4tb/spacr_testdata/ops_plate_run/launch_2026-09-25.out
+
+At commit time it is QUEUED in the shared GPU queue (gpu_turn: 6 min idle,
+10 min gap), behind 463-invasion, 493-acc-serial, 236-amp, 358-* and
+426-train-v2-and-eval; the driver starts when its turn comes. Expected:
+"A1: complete, skipped", "A3: complete, skipped", then A2, B1, B2, B3 from
+their stitch (about an hour each), then plate_summary.json. If the python
+process dies, rerun the launcher: the driver resumes per well.
+Not done on this run: `--store-reads B2` (B2's lower exact-match rate). The
+reads table is about thirty million rows per well and 95% of /mnt/wd4tb is
+already used (186 GB free), so it was left for a deliberate, separate run.

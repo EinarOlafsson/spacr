@@ -1,7 +1,7 @@
 MEASURED DIAMETERS COME OUT IN THE WRONG ORDER: CELL 7.2, NUCLEUS 91.3, PATHOGEN 10.9
 
-Status: FIXED 2026-09-25 (worktree agent-ac4cf775a17deb8a7), awaiting merge
-to nightly and the maintainer's check in the GUI.
+Status: FIXED 2026-09-25, on nightly (23ab038e7, abf8ffbb9; checked
+2026-09-25); awaiting the maintainer's check in the GUI.
 Owner: unassigned. Related: 503/507 (Diameter 0 guesses 16 px for 44 px
 cells), the "measure diameter" action in Mask generation.
 

@@ -370,7 +370,7 @@ def test_the_model_zoo_button_opens_the_cellpose_zoo_and_selects_the_pick(
 
         monkeypatch.setattr(model_zoo_picker, "choose_model", choose)
         button.click()
-        assert opened == [(made, ("cellpose",))]
+        assert opened == [(made, ("cellpose", "cellpose3", "cellpose_dino"))]
         assert made._cp_model.currentData() == str(fetched)
         assert made._cp_model.currentText() == "toxoplasma_pv_v1"
         assert ("toxoplasma_pv_v1 (not downloaded)", None, False) not in _rows(

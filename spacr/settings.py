@@ -1846,6 +1846,7 @@ RENAMED_SETTINGS = {
     "img_size": "crop_size",
     "straightness_filter": "drop_straight_tracks",
     "zscore_thresh": "track_outlier_zscore",
+    "complevel": "comp_level",
 }
 
 #: What each SEMANTIC fold does with an old value, in the words the doctor
@@ -3894,6 +3895,7 @@ _IMAGE_SOURCES = {
     "on_demand": "stream_images",
     "stream": "stream_images",
     "stream_images": "stream_images",
+    "merged_db": "stream_images",
     "auto": "auto",
 }
 
@@ -3914,6 +3916,11 @@ def _canonical_image_source(value) -> str:
     stopped finding its own crops. Both are mapped explicitly now, and
     ``auto`` survives as itself because both readers downstream understand
     it.
+
+    ``merged_db`` (`crops.STREAM_FROM_DB`, the viewers' database stream) is
+    a STREAMING source, so it resolves to ``stream_images`` -- training has
+    no database mode, and the unrecognised branch would have answered it
+    with the opposite direction, as it once did ``on_demand``.
     """
     return _IMAGE_SOURCES.get(str(value or "").strip().lower(),
                               "load_images")
@@ -4311,7 +4318,7 @@ tooltips = {
     "merge_pathogens": "(bool) - Legacy option that merged two touching pathogen labels into one when their shared boundary exceeded 66% of the smaller object's perimeter, so a single PV split by Cellpose counted once. The current Cellpose-SAM path ignores it - use pathogen_perimeter_fraction instead. Default True.",
     "resize": "(bool or float) - Resize every image to target_height x target_width before running Cellpose, then scale the returned mask back to the original dimensions with nearest-neighbour interpolation so measurements remain in original pixels. Enable this setting to match oversized fields to the model's training scale or reduce GPU memory use. Requires target_height and target_width. Default False (True for plaque analysis).",
     "embedding_by_controls": "(bool) - Fit the reducer only on control wells - rows whose col_to_compare value equals pos or neg - and then project every object into that space. Use it when the axes should be defined by the control phenotypes so treatments are read relative to them; False fits on all objects. Default False.",
-    "cam_type": "(str) - Which attribution map is computed. 'gradcam' weights the target_layer feature maps by their pooled gradients into a coarse heatmap of the region that drove the call; 'gradcam_pp' currently computes the identical map and only changes the output folder and table name. 'saliency_image' sums the absolute input gradient into one map; 'saliency_channel' keeps it per channel so you can see which stain mattered. Default 'gradcam'.",
+    "cam_type": "(str) - Which attribution map is computed. 'gradcam' weights the target_layer feature maps by their pooled gradients into a coarse heatmap of the region that drove the call; 'gradcam_pp' currently computes the identical map and only changes the output folder and table name. 'saliency_image' sums the absolute input gradient into one map; 'saliency_channel' keeps it per channel so you can see which stain mattered. Every method in spacr.attribution is also selectable by name: 'torchcam_gradcam'/'torchcam_gradcam_pp' (torchcam's Grad-CAM and a real Grad-CAM++), 'hirescam' and 'ablation_cam' (faithful and gradient-free CAMs), 'gradient_shap'/'deeplift_shap' (SHAP values on the crop), 'saliency' (SmoothGrad via smoothgrad_samples), 'chefer' (class-specific relevance for ViT models) and the rest of the registry. Entries that do not apply to model_type are greyed with the reason, and a run refuses them. Default 'gradcam'.",
     "target_layer": "(str) - Dotted attribute path to the convolutional layer whose activations and gradients Grad-CAM hooks, e.g. 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'; utils.recommend_target_layers(model) lists valid names. Later layers give class-specific but coarse maps, earlier ones finer detail. Required for 'gradcam'/'gradcam_pp' - it is auto-filled only when model_type is exactly 'maxvit', and left None it raises. Default None.",
     "shuffle": "(bool) - Shuffle the tar dataset in the DataLoader when generating activation maps, so each batch-grid PDF contains a mixed sample rather than consecutive files from one plate or class. False preserves deterministic file order and permits direct alignment with the dataset listing. Default True.",
     "correlation": "(bool) - Correlate every input channel with every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, and 75 by default). This provides quantitative evidence of stain-specific model attention beyond visual heatmap inspection. save=True is required to write the results to the database. Default True.",

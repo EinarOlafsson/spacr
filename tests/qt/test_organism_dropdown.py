@@ -2,7 +2,7 @@
 import pytest
 
 from spacr.qt import app
-from spacr.qt.organisms import ORGANISMS
+from spacr.qt.organisms import ORGANISMS, workflow
 
 
 @pytest.fixture
@@ -27,6 +27,9 @@ def test_assays_menu_groups_children_under_the_three_organisms(window):
             assert title in action.text()
             if route:
                 assert action.property('moduleAppKey') == route
+            elif workflow(key, icon):
+                assert action.isEnabled() and 'Coming soon' not in action.text()
+                assert action.property('organismWorkflow') == workflow(key, icon)[0]
             else:
                 assert not action.isEnabled() and 'Coming soon' in action.text()
 
@@ -49,3 +52,21 @@ def test_hiding_an_organism_hides_its_menu_and_preserves_its_overview_action(win
     monkeypatch.setattr(window, '_on_nav_selected', selected.append)
     window._app_actions['toxoplasma'].trigger()
     assert selected == ['toxoplasma']
+
+
+def test_workflow_actions_open_the_shared_module_with_its_preset(window, monkeypatch):
+    from spacr.qt.screens import organism_screen
+
+    opened = []
+    monkeypatch.setattr(organism_screen, 'open_workflow',
+                        lambda host, route, fallback=None: opened.append((host, route)))
+    for key, guide in ORGANISMS.items():
+        actions = [a for a in window._organism_menus[key].actions() if not a.isSeparator()]
+        for action, (route, _title, _description, icon) in zip(actions[1:], guide['modules']):
+            if not route and workflow(key, icon):
+                action.trigger()
+    routes = [route for _host, route in opened]
+    assert all(host is window for host, _route in opened)
+    assert [route[0] for route in routes] == [
+        'motility', 'host_pathogen', 'motility', 'dose_response',
+        'invasion', 'invasion', 'host_pathogen', 'dose_response']

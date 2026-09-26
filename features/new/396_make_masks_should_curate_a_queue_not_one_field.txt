@@ -2,7 +2,13 @@
 MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
 ================================================================================
 
-Status:    BUILT, 100%, 2026-09-19, on nightly (the second and third notes
+Status:    BUILT, 100% OF THE BRIEF, 2026-09-25: the two gaps below are
+           closed (see the 2026-09-25 note at the foot) -- Make Masks has a
+           Skip control that writes `skip`, and a save with no edit leaves the
+           mask file untouched. Still not used by the maintainer on a real
+           set, and the new strings owe the nine catalogs.
+
+           WAS: BUILT, 100%, 2026-09-19, on nightly (the second and third notes
            of that date, at the foot of this file). The editor opens and
            saves all three layouts IN PLACE -- nested, sibling
            `images/`+`masks/`, and `*_seg.npy` bundles -- and
@@ -524,3 +530,48 @@ and all queue-layout save tests. Failed saves preserve existing TIFF and
 Cellpose-bundle bytes and metadata, leave no temporary file and do not
 change input masks. No output-format expansion or API signature/prose change.
 Receipt396_mask_save_label_capacity_2026-09-23.json. CPU8GiB/no swap only.
+
+2026-09-25 -- SKIP CAN BE WRITTEN FROM THE EDITOR; A NO-EDIT SAVE IS A NO-OP
+
+Both gaps the fourth note of 2026-09-19 recorded are closed, in
+`spacr/qt/screens/make_masks.py` only; `curation_queue.py` and `save_mask` are
+unchanged.
+
+SKIP. A "Skip" button sits after Save mask in the navigation row (the
+curation-queue controls; the tool row is left alone). `_on_skip` calls
+`mark_state(queue.folder, stem, "skip")`, writes no mask, moves to the next
+field through `_on_next` (one definition of next, as Keep/Discard do) and
+says on the status line which field was skipped. It is enabled only when a
+queue is open -- a folder opened from the file dialog has no record to write
+a skip to -- and `open_queue` now re-syncs the buttons after setting the
+queue, since `_open_folder` synced them before it existed. A record that
+cannot be written is shown as a warning and the field is NOT advanced past,
+because unlike a save there is nothing on disk that makes the loss small.
+The `skip_field.py` scripts put in item 370's hold-out queues are no longer
+needed; the read-modify-write race between a script and the editor that the
+earlier note warned of is gone with them, as long as they are not run beside
+it.
+
+A NO-EDIT SAVE WRITES NOTHING. The option chosen is neither of the two the
+earlier note offered (canonicalise on load, or only canonicalise on Relabel):
+both change what an EDITED save writes, and a fix landing between curation
+sessions would then change the meaning of rows already written. Instead the
+screen keeps a copy of the mask it opened with and whether that mask was read
+from the very file a save writes; when the file is still there and the canvas
+is array-equal to what was opened, `_on_save` records `done` with the object
+count of the file on disk and does not write. So "open, look, save" now means
+the seed was right, byte for byte, and the recorded count matches the file.
+A save after any edit is exactly what it was, `canonical_labels` included.
+
+WHAT IS LEFT, and why it is not this item's gap: an EDITED save still records
+the count of the canvas mask before canonicalisation, so a split label that
+survives an edit elsewhere on the field still records one fewer object than
+the file holds. That is the smaller half of the earlier note's second thing
+and is left as it was described there.
+
+Guards (tests/qt/test_the_editor_opens_on_the_queue_it_was_handed.py): skip
+is written as `skip`, writes no mask, advances, and the next `build_queue`
+leaves the field out; skip is disabled and writes nothing for a folder that is
+not a queue; a no-edit save of a seed carrying one label in two pieces leaves
+the file byte-identical and records 2 objects; an edited save still writes.
+66 passed with the resume tests; 274 passed across nine Make Masks test files.

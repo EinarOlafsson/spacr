@@ -1,6 +1,7 @@
 485 — IMAGE ZOOM FOLLOWS THE MOUSE CURSOR
 =======================================
-Status: validation in progress, 2026-09-23.
+Status: DONE 2026-09-25 (validated 2026-09-23, re-checked 2026-09-25). The feel
+on a physical wheel/trackpad is the maintainer's check in the real app.
 
 User reported Live Preview zoom drifting toward the image's bottom-right.
 Explicitly map the wheel event's viewport position to image coordinates;
@@ -17,3 +18,11 @@ VALIDATED: 66 focused preview checks and 34 additional image/orthogonal-view
 checks pass. These include cursor positions in all four quadrants, alternating
 linked view control, zooming beyond fit, exact reciprocal scale, fit reset,
 Make Masks wheel anchoring and orthogonal crosshair preservation. No GPU used.
+
+2026-09-25 — CLOSED
+The header still said "validation in progress" although the VALIDATED note
+above had landed. Re-checked on nightly a93f937d2 (offscreen):
+tests/qt/test_cursor_anchored_zoom.py, 20 passed (four quadrants, linked
+views, beyond-fit zoom, reciprocal scale, fit reset, Make Masks anchoring,
+orthogonal crosshair). Nothing buildable remains; a physical mouse wheel or
+trackpad on a real display is the maintainer's check.

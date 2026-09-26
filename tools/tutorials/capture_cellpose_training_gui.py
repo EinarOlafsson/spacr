@@ -329,15 +329,19 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         if carried != str(checkpoint):
             raise ValueError(f'Apply did not pick up the checkpoint: {carried}')
         proof['carry_note'] = panel._carry_note.text()
-        for key, value in (('src', str(apply_folder)), ('save', True)):
+        # One grayscale channel with explicit 2-99 percentile scaling (the
+        # Apply lesson's recipe); save writes masks, verbose shows figures.
+        for key, value in (('src', str(apply_folder)), ('channels', [0]), ('percentiles', [2, 99]),
+                           ('save', True), ('verbose', True)):
             if not apply._settings_model.set_value_for_key(key, value):
                 raise ValueError('The Apply form has no ' + key)
         apply_settings = apply._settings_model.collect()
         proof['apply_settings'] = apply_settings
         write_json(captures / 'apply_settings.json', apply_settings)
-        if apply_settings.get('custom_model') != str(checkpoint) or apply_settings.get('save') is not True:
+        if (apply_settings.get('custom_model') != str(checkpoint) or apply_settings.get('save') is not True
+                or apply_settings.get('channels') != [0] or apply_settings.get('percentiles') != [2, 99]):
             raise ValueError('Apply settings changed unexpectedly')
-        tour(apply, 'apply_checkpoint', '', ['src', 'custom_model', 'save'])
+        tour(apply, 'apply_checkpoint', '', ['src', 'channels', 'percentiles', 'custom_model', 'save', 'verbose'])
         tour(apply, 'apply_custom_model', 'model', ['model_name', 'custom_model'])
         tour(apply, 'apply_form', '', ['src'])
 
@@ -365,6 +369,9 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         field = live._cell_channel
         field.setFocus(); QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
         QTest.keyClicks(field, '0'); QTest.keyClick(field, Qt.Key_Tab); settle(.3)
+        for field, value in ((live._lo_pct, 2), (live._hi_pct, 99)):
+            field.setFocus(); QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
+            QTest.keyClicks(field, str(value)); QTest.keyClick(field, Qt.Key_Tab); settle(.3)
         dialog.close(); settle(.3)
         proof['preview_params'] = live.current_params()
         failures = []

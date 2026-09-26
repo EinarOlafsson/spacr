@@ -36,14 +36,16 @@ def test_organism_labels_tooltips_and_compartment_keys(
     headings = {label.text() for label in screen.findChildren(QLabel, 'OrganismSectionTitle')}
     assert {targets[title] for title, _, _ in ORGANISMS[app_key]['sections']} <= headings
     assert targets['Sources and research resources'] in headings
-    for tile, (key, title, description, _) in zip(screen._tiles, ORGANISMS[app_key]['modules'], strict=True):
+    from spacr.qt.organisms import workflow
+    for tile, (key, title, description, icon) in zip(screen._tiles, ORGANISMS[app_key]['modules'], strict=True):
+        live = bool(key or workflow(app_key, icon))
         assert tile.property('organismModuleKey') == (key or '')
         if title in targets:
             assert tile.text_label == tile.accessibleName() == targets[title]
             assert tile._name_lbl.full_text() == targets[title]
         assert targets[description] in tile.toolTip()
-        assert tile.isEnabled() == bool(key)
-        if not key:
+        assert tile.isEnabled() == live
+        if not live:
             assert tile.toolTip().startswith(targets['Coming soon'] + ' — ')
             assert tile.accessibleDescription() == tile.toolTip()
     diagram = screen._diagram

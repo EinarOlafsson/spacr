@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Database Browser: 측정값 필터링과 내보내기",
+  "description": "측정 데이터베이스를 열고, 열과 행을 고른 뒤 결과를 내보냅니다.",
+  "objectives": [
+    "측정 표를 열고 살펴봅니다.",
+    "열을 고르고 행을 필터링합니다.",
+    "조건에 맞는 레코드를 내보냅니다."
+  ],
+  "prerequisite": "spaCR measurements.db 파일이나 이를 담은 실행 폴더를 준비하세요. Measure의 예제 프로젝트는 측정 후 데이터베이스를 제공합니다.",
+  "scenes": [
+    "측정 표를 확인하고 내보내려면 Help를 연 뒤 Database Browser를 여세요.",
+    "measurements.db나 이를 담은 실행 폴더를 선택하고 데이터베이스를 여세요.",
+    "필요한 표를 선택하세요. 세포 측정값에는 cell을, 다른 객체의 특징에는 해당 객체 표를 고르세요.",
+    "전체 행 수와 열 수를 읽은 뒤 표시된 페이지를 확인하세요. 큰 표는 페이지 컨트롤로 넘겨 보세요.",
+    "열 이름을 검색해 특징을 찾으세요. 보고 내보낼 열을 선택하세요.",
+    "열, 연산자, 값을 골라 필터를 만드세요. 적용하면 전체 표에서 조건에 맞는 레코드가 선택됩니다.",
+    "필터링된 행 수를 확인하고 조건에 맞는 레코드를 살펴보세요. 선택을 바꾸려면 필터를 조정하거나 지우세요.",
+    "Export와 대상 파일을 고르세요. 내보내기에는 조건에 맞는 모든 행과 선택한 열이 들어가며, 원본 데이터베이스는 바뀌지 않습니다."
+  ]
+}

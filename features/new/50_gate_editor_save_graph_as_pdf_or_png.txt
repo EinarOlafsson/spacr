@@ -2,7 +2,7 @@
 SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
 ================================================================================
 
-Status:    done 2026-08-08
+Status:    DONE 2026-09-25 -- print style decided and built; see the closing section.
 Requested: 2026-08-08 — "for the gate editor. the user should be able to save the graph as a pdf or png."
 
 --------------------------------------------------------------------------------
@@ -148,3 +148,48 @@ opens outside spaCR should take a print restyle that the on-screen
 refinement path does not. That spans `render_figure_to_png`,
 `_export_vector_pdf` and the figure-queue pixmap swap, so it is not a
 one-line change and is left for the coordinator.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DECIDED AND BUILT: SAVED GRAPHS GET A WHITE PRINT STYLE
+--------------------------------------------------------------------------------
+
+Maintainer decision (2026-09-25): "saved graphs (PDF/PNG) get a WHITE PRINT
+STYLE (white background, dark text/axes/lines) whatever the screen theme".
+Screen rendering unchanged.
+
+WHAT WAS BUILT (spacr/qt/widgets/figure_queue.py):
+
+  * `render_figure_to_png(fig, png_path, *, for_print=False, write_pdf=None)`.
+    `for_print=True` goes through the new private helper
+    `_render_print_copy`: the figure is copied (the save-figure dialog's
+    pickle round trip, `copy_figure`), the COPY is styled with
+    `PRINT_BACKGROUND` "#ffffff" and `PRINT_INK` "#000000" for text, spines
+    and ticks, and the PNG is written opaque at the full DPI preference (no
+    display cap -- a saved file is not a screen raster). A figure that
+    cannot be pickled is styled in place, written, and then put back to the
+    screen colours in a `finally`.
+  * `_export_vector_pdf` is unchanged in behaviour: it paints the page it is
+    handed. Its docstring now says the print path hands it a white page on a
+    print-styled copy, and the gallery path still hands it the theme page.
+  * THE PIXMAP SWAP is untouched and cannot see a white page: the print
+    files are written where the user asked, never beside a gallery PNG, so
+    `FigureQueue._request_pdf_refinement` only ever rasterises the
+    theme-coloured sibling page. No flash from dark to light.
+  * `write_pdf` lets a save dialog decide the PDF from the chosen
+    extension; `None` still follows the figure-format preference.
+
+GATE EDITOR: `GateEditorScreen.save_graph` passes `for_print=True` and
+`write_pdf=(suffix == ".pdf")`, so picking PDF under a PNG preference now
+writes a PDF too (before, only the PNG appeared and was reported). The
+docstring no longer tells the user to set explicit colours as a workaround.
+
+TESTS (tests/test_figure_pdf_output.py, tests/qt/test_cov_gate_editor_screen.py,
+tests/qt/test_cov_wf_qt_screens_gate_editor.py):
+  * dark theme ("none", "#ffffff") -> saved PNG corner (255,255,255,255),
+    dark ink present, sibling PDF written;
+  * the on-screen figure's face and title colours are identical before and
+    after a print save; the uncopyable fallback restores them too;
+  * the gallery path still paints the theme page;
+  * save_graph passes for_print=True.
+  280 passed across the figure-queue and gate-editor suites.
+
