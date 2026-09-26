@@ -7361,6 +7361,7 @@ class MakeMasksScreen(QWidget):
         #: :meth:`open_queue`; what makes a save reach
         #: ``curate_status.csv``.
         self._queue = None
+        self._blind: Optional[dict] = None
         #: A copy of the mask the current field opened with, and whether it
         #: was read from the file a save would write. Together they are what
         #: lets a save that changed nothing leave that file alone.
@@ -7696,6 +7697,7 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(install_dataset_button(self))
         nav_row.addWidget(self._build_contribute_button())
         nav_row.addWidget(self._build_roi_button())
+        nav_row.addWidget(self._build_blind_toggle())
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -8180,6 +8182,192 @@ class MakeMasksScreen(QWidget):
         _apply_alpha_widgets(button)
         self._btn_rois = button
         return button
+
+    def _build_blind_toggle(self) -> QPushButton:
+        """The Blind switch: curate fields without knowing where they are from.
+
+        On, the open fields are shuffled under a blinding key
+        (:func:`spacr.run_journal.start_blinding`) and every field is named
+        on screen by its code, never by its file name or folder. Off asks
+        first, then unblinds through :func:`spacr.run_journal.unblind`,
+        which records who did it and when, and puts the fields back in
+        their own order. An alpha feature, registered as
+        ``MakeMasksBlindToggle`` in :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the checkable button.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Blind"), self)
+        button.setObjectName("MakeMasksBlindToggle")
+        button.setCheckable(True)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Curate blind: name every field by a code instead of its file "
+            "name and folder, and show the fields in a shuffled order. The "
+            "key is kept beside the run journal, outside the data folder. "
+            "Turning it off unblinds, and the journal records who unblinded "
+            "and when. Default off."))
+        button.toggled.connect(self._on_blind_toggled)
+        _apply_alpha_widgets(button)
+        self._btn_blind = button
+        return button
+
+    def _set_blind_checked(self, on: bool) -> None:
+        """Move the Blind switch without asking it to act."""
+        button = getattr(self, "_btn_blind", None)
+        if button is None:
+            return
+        button.blockSignals(True)
+        button.setChecked(bool(on))
+        button.blockSignals(False)
+
+    def _on_blind_toggled(self, checked: bool) -> None:
+        """Start blinding, or ask to unblind; undo the click if refused."""
+        if checked and self._blind is None:
+            if not self._start_blind():
+                self._set_blind_checked(False)
+        elif not checked and self._blind is not None:
+            if not self._end_blind():
+                self._set_blind_checked(True)
+
+    def _field_pairs(self) -> list:
+        """``(folder, file name)`` of every open field, in the order offered."""
+        folders = self._field_folders or [self._folder] * len(
+            self._image_files)
+        return list(zip(folders, self._image_files))
+
+    def _set_field_pairs(self, pairs) -> None:
+        """Offer ``pairs`` of ``(folder, file name)`` as the open fields."""
+        self._image_files = [name for _folder, name in pairs]
+        if self._field_folders is not None:
+            self._field_folders = [folder for folder, _name in pairs]
+
+    def _blind_label(self, path: str) -> str:
+        """How a field is named on screen: its code while blinded.
+
+        :param path: the field's image path.
+        :returns: the code, a placeholder for a field made after blinding
+            started, or the file name when not blinded.
+        """
+        if self._blind is None:
+            return os.path.basename(str(path))
+        from ..i18n import tr
+
+        code = self._blind["codes"].get(os.path.abspath(str(path)))
+        return code or tr("uncoded field")
+
+    def _start_blind(self) -> bool:
+        """Shuffle the open fields under a new blinding key.
+
+        :returns: whether blinding started; not without open fields.
+        """
+        from ..i18n import tr
+
+        if not self._image_files:
+            self._status_label.setText(tr(
+                "Open a folder of images before curating it blind."))
+            return False
+        self.finish_recrop()
+        pairs = self._field_pairs()
+        paths = [os.path.abspath(os.path.join(folder, name))
+                 for folder, name in pairs]
+        from ...run_journal import start_blinding
+
+        try:
+            src = os.path.commonpath([os.path.dirname(p) for p in paths])
+        except ValueError:
+            src = self._folder
+        key = start_blinding(paths, scope="make_masks", src=src)
+        rank = {item: index for index, item in enumerate(key["order"])}
+        order = sorted(range(len(pairs)),
+                       key=lambda i: rank.get(paths[i], len(rank)))
+        self._blind = {"key_id": key["key_id"], "codes": key["codes"],
+                       "original": paths}
+        self._set_field_pairs([pairs[i] for i in order])
+        self._current_index = 0
+        self._set_blind_checked(True)
+        self._src_label.setText(tr(
+            "Blinded: {count} fields, named by code and in a shuffled order.",
+            count=len(pairs)))
+        self._load_current()
+        self._sync_button_states()
+        return True
+
+    def _end_blind(self, *, ask=None) -> bool:
+        """Unblind, after asking; record who did it and when; restore the order.
+
+        :param ask: returns whether to go ahead; a Yes/No question when
+            omitted.
+        :returns: whether the session was unblinded.
+        """
+        if self._blind is None:
+            return True
+        from ..i18n import tr
+
+        if ask is None:
+            def ask():
+                return self._confirm(
+                    tr("Unblind?"),
+                    tr("Unblinding shows every field's file name and folder "
+                       "again, and the run journal records who unblinded and "
+                       "when. An analysis lock on this folder treats any "
+                       "later change as post-hoc. Unblind now?"))
+        if not ask():
+            return False
+        from ...run_journal import unblind
+
+        unblind(self._blind["key_id"], reason="make_masks")
+        self._restore_blind_order()
+        self._load_current()
+        return True
+
+    def _leave_blind_unopened(self, reason: str) -> None:
+        """End a blinded session without unblinding it, and log that it ended.
+
+        :param reason: why it ended, kept in the key's log.
+        """
+        if self._blind is None:
+            return
+        from ...run_journal import _close_blinding
+
+        _close_blinding(self._blind["key_id"], reason=reason)
+        self._restore_blind_order()
+
+    def _restore_blind_order(self) -> None:
+        """Put the fields back in their own order and show their names again.
+
+        A field made while blinded (a recrop) follows the field it came
+        after. The field on screen stays on screen.
+        """
+        original = {path: index for index, path
+                    in enumerate(self._blind["original"])}
+        self._blind = None
+        self._set_blind_checked(False)
+        pairs = self._field_pairs()
+        current = (pairs[self._current_index]
+                   if 0 <= self._current_index < len(pairs) else None)
+        keyed = []
+        last = -1
+        for seq, (folder, name) in enumerate(pairs):
+            at = original.get(os.path.abspath(os.path.join(folder, name)))
+            if at is not None:
+                last = at
+                keyed.append(((at, 0, seq), (folder, name)))
+            else:
+                keyed.append(((last, 1, seq), (folder, name)))
+        restored = [pair for _key, pair in sorted(keyed)]
+        self._set_field_pairs(restored)
+        if current is not None:
+            self._current_index = restored.index(current)
+        if self._queue is not None:
+            self._src_label.setText(
+                f"{self._queue.folder}  --  {len(restored)} to curate this "
+                f"session, {self._queue.order_phrase}")
+        elif self._folder:
+            self._src_label.setText(
+                f"{self._folder}  —  {len(restored)} images")
 
     def _roi_object_type(self) -> str:
         """The object type the masks of this folder are exported as.
@@ -8775,13 +8963,13 @@ class MakeMasksScreen(QWidget):
         except OSError as exc:
             LOG.warning("Could not record the curation verdict: %s", exc)
             self._warn("Verdict not recorded",
-                       f"{os.path.basename(image_path)} could not be marked: "
-                       f"{exc}")
+                       f"{self._blind_label(image_path)} could not be "
+                       f"marked: {exc}")
             self._show_curation_verdict(
                 engine.curation_verdict(self._folder, image_path))
             return None
         self._show_curation_verdict(keep)
-        self._advance_after_verdict(keep, os.path.basename(image_path))
+        self._advance_after_verdict(keep, self._blind_label(image_path))
         return written
 
     def _advance_after_verdict(self, keep: bool, judged: str) -> bool:
@@ -8812,7 +9000,8 @@ class MakeMasksScreen(QWidget):
         self._on_next()
         moved = self._current_index != was
         if moved:
-            now = os.path.basename(self._image_files[self._current_index])
+            now = self._blind_label(os.path.join(
+                self._folder or "", self._image_files[self._current_index]))
             self._status_label.setText(f"{judged} {said}  —  now on {now}")
         elif (self._image_files
                 and self._current_index >= len(self._image_files) - 1):
@@ -13372,6 +13561,7 @@ class MakeMasksScreen(QWidget):
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")
             return False
+        self._leave_blind_unopened("another folder was opened")
         self._queue = None
         self._session_notice = ""
         self._masks_dir = masks_dir
@@ -13402,7 +13592,8 @@ class MakeMasksScreen(QWidget):
             request = (self._folder, filename, token)
             if self._load_worker is not None:
                 self._pending_load = request
-                self._status_label.setText(f"Waiting to load {filename}…")
+                self._status_label.setText(
+                    f"Waiting to load {self._blind_label(image_path)}…")
                 return
             self._start_background_load(*request)
             return
@@ -13436,7 +13627,8 @@ class MakeMasksScreen(QWidget):
     ) -> None:
         """Start one retained image loader and disable edit controls."""
         self._loading = True
-        self._status_label.setText(f"Loading {filename}…")
+        self._status_label.setText(
+            f"Loading {self._blind_label(os.path.join(folder, filename))}…")
         self._sync_button_states()
         worker = _MaskLoadWorker(folder, filename, token, self,
                                  layout=self._layout_kwargs())
@@ -13486,6 +13678,16 @@ class MakeMasksScreen(QWidget):
         """
         from ..bridge import drain_thread
 
+        if self._blind is not None:
+            try:
+                from ...run_journal import _close_blinding
+
+                _close_blinding(self._blind["key_id"],
+                                reason="the screen was closed")
+            except Exception:
+                LOG.debug("could not log the end of a blinded session",
+                          exc_info=True)
+            self._blind = None
         download, self._cp_download = self._cp_download, None
         if download is not None:
             download.cancel()
@@ -13581,7 +13783,7 @@ class MakeMasksScreen(QWidget):
         if record:
             self._primary_selector.restore_source(record)
         self._status_label.setText(
-            f"{filename}  "
+            f"{self._blind_label(os.path.join(self._folder or '', filename))}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
         self.apply_object_filter(on_load=True)
@@ -13631,6 +13833,12 @@ class MakeMasksScreen(QWidget):
         :returns: Filename of the recropped field, or ``None`` if the
             selection was rejected or could not be written.
         """
+        if self._blind is not None:
+            from ..i18n import tr
+            self._status_label.setText(tr(
+                "Recrop is off while blinded, because the new fields are "
+                "named after the field they are cut from."))
+            return None
         if getattr(self._canvas, 'preserve_ids', False):
             from ..i18n import tr
 

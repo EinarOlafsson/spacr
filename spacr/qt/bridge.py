@@ -1307,6 +1307,9 @@ class PipelineWorker(QObject):
                 self.line_ready.emit(
                     f"Reproducibility manifest: {journal_run.dir}\n"
                 )
+                lock = getattr(journal_run, "_analysis_lock", None)
+                if lock:
+                    self.line_ready.emit(f"{lock.get('summary')}\n")
         except Exception as exc:
             journal_context = None
             journal_run = None

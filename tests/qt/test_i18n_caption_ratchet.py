@@ -1205,6 +1205,53 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'using the Confluency settings of the run.',
     'below the monolayer QC threshold',
     'monolayer QC passed',
+    # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
+    # Masks, their notices and questions, and the Lock analysis button and
+    # dialog (all alpha).
+    'Analysis locked: {sha} at {time}.',
+    'Blind',
+    'Blinded {count} crops under key {key}.',
+    'Blinded · {page}',
+    'Blinded: the source, plates, wells, conditions and file names are '
+    'hidden, and the crops are in a shuffled order.',
+    'Blinded: {count} fields, named by code and in a shuffled order.',
+    'Curate blind: name every field by a code instead of its file name and '
+    'folder, and show the fields in a shuffled order. The key is kept beside '
+    'the run journal, outside the data folder. Turning it off unblinds, and '
+    'the journal records who unblinded and when. Default off.',
+    'Hypotheses',
+    'Lock',
+    'Lock analysis',
+    'Lock analysis…',
+    'Locked {sha} at {time}. Runs of these settings on this source are '
+    'checked against it.',
+    'No analysis lock applies to these settings yet.',
+    'Open a folder of images before curating it blind.',
+    'Open an experiment source before scoring it blind.',
+    'Preregister the analysis: freeze these settings, your hypotheses and '
+    'thresholds, and the model and gate files they name, with a hash and a '
+    'timestamp, before the results are seen. Every later run on the same '
+    'source is checked against the lock, and a change is flagged in its '
+    'manifest, the report and the methods text, as post-hoc once the '
+    'blinding key has been opened. Default no lock.',
+    'Recrop is off while blinded, because the new fields are named after the '
+    'field they are cut from.',
+    'Score blind: hide the source, plates, wells, conditions and file names, '
+    'and show the crops in a shuffled order. The key is kept beside the run '
+    'journal, outside the data folder. Turning it off unblinds, and the '
+    'journal records who unblinded and when. Default off.',
+    'The thresholds and gates that decide a call, one per line.',
+    'Thresholds and gates',
+    'Unblind?',
+    'Unblinded key {key}; the journal recorded who and when.',
+    "Unblinding shows every field's file name and folder again, and the run "
+    "journal records who unblinded and when. An analysis lock on this folder "
+    "treats any later change as post-hoc. Unblind now?",
+    'Unblinding shows where every crop is from again, and the run journal '
+    'records who unblinded and when. An analysis lock on this folder treats '
+    'any later change as post-hoc. Unblind now?',
+    'What you expect to find, and what would count against it.',
+    'uncoded field',
 })
 
 
