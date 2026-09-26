@@ -639,6 +639,101 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     yield
 
 
+def _application_policies():
+    """The application-wide spaCR policies on the running QApplication.
+
+    :returns: ``(app, {"glass": ..., "tooltips": ..., "cursor": ...})``, or
+        ``None`` when no Qt application is running. Nothing is imported: a
+        policy whose module was never loaded cannot be on.
+    """
+    module = sys.modules.get("PySide6.QtWidgets")
+    if module is None:
+        return None
+    app = module.QApplication.instance()
+    if app is None:
+        return None
+    glass = sys.modules.get("spacr.qt.widgets.glass")
+    tips = sys.modules.get("spacr.qt.tooltip_policy")
+    return app, {
+        "glass": getattr(glass, "_INSTALLED", None),
+        "tooltips": getattr(tips, "_filter", None),
+        "cursor": getattr(app, "_spacr_cursor_policy", None),
+    }
+
+
+def _take_off_the_policies_put_on_since(before) -> None:
+    """Remove each application-wide policy that was not on at ``before``.
+
+    :param before: what :func:`_application_policies` said at setup.
+    """
+    now = _application_policies()
+    if now is None:
+        return
+    app, after = now
+    was = before[1] if before is not None else {}
+    try:
+        if after["glass"] is not None and was.get("glass") is None:
+            sys.modules["spacr.qt.widgets.glass"].uninstall_glass_everywhere(
+                app)
+        if after["tooltips"] is not None and was.get("tooltips") is None:
+            sys.modules["spacr.qt.tooltip_policy"].uninstall_tooltip_policy(
+                app)
+        policy = after["cursor"]
+        if policy is not None and was.get("cursor") is None:
+            from spacr.qt.gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(app, policy)
+            app._spacr_cursor_policy = None
+            policy.deleteLater()
+    except RuntimeError:
+        pass
+
+
+@pytest.fixture(autouse=True, scope="module")
+def _no_module_leaves_an_application_policy_on():
+    """The module-scoped half of the fixture below.
+
+    A module-scoped fixture that installs the glass sweep for a whole file
+    takes the sweep off at the end but not the cursor policy the sweep put
+    on with it, and nothing takes off the tooltip policy that applying the
+    preferences installs.
+    """
+    before = _application_policies()
+    yield
+    _take_off_the_policies_put_on_since(before)
+
+
+@pytest.fixture(autouse=True)
+def _no_test_leaves_an_application_policy_on():
+    """Take off the glass, tooltip and cursor policies a test put on.
+
+    Each is RIGHT FOR THE APPLICATION AND WRONG FOR THE NEXT TEST. The glass
+    sweep dresses every dialog on its first polish, the tooltip policy takes
+    every ``ToolTip`` event to show the tip itself after a delay, and the
+    cursor policy turns every cursor a widget sets back into the arrow. Left
+    on by one test they decide what every later test in that process sees,
+    and which test that is depends on how xdist shared out the files.
+
+    Measured on 2026-09-26 (item 43), on a CI order replayed locally, with
+    and without 284's event hub: `test_ambient_motion.py` (applying the
+    preferences) left the tooltip policy on and
+    `test_cov_w2_6_shortcuts.py::test_a_parentless_caller_gets_a_dialog_
+    rather_than_an_overlay` (the workflow diagram) left the glass sweep and
+    the cursor policy on; a native tooltip then never fired in
+    `test_setting_tooltip_footer.py` and the column headings of
+    `test_the_measurements_columns_say_what_they_control.py` came back as
+    arrows. The same three decided `test_console_ui.py`'s resize handle
+    cursor and whether `test_the_features_window_wears_spacrs_dress.py`
+    found an undressed dialog.
+
+    A policy that was already on when the test began is left alone, so a
+    module-scoped fixture that installs one for its file keeps it.
+    """
+    before = _application_policies()
+    yield
+    _take_off_the_policies_put_on_since(before)
+
+
 @pytest.fixture(autouse=True)
 def _no_provider_stream_outlives_a_test():
     """End any AI provider subprocess a test leaves being read.
