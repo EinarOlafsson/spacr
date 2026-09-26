@@ -4563,6 +4563,246 @@
       "context": "A floor with particles on it, and the particles are sand on a vibrating plate. The physics is in :mod:`spacr.qt.resonance` and is worth one paragraph here because it is what makes this theme different from a particle system with a music-shaped wobble: a plate driven at one of its resonances has lines that do not move, sand is thrown off everywhere else and comes to rest along them, and the figure IS the nodal set. So there is a right answer for where a particle goes, and the drive decides which figure it is and how hard the sand is being shaken rather than deciding the motion directly.",
       "translation": "Un suelo con partículas encima, y las partículas son arena sobre una placa vibrante. La física está en :mod:`spacr.qt.resonance` y merece un párrafo aquí porque es lo que distingue este tema de un sistema de partículas con un temblor con forma de música: una placa excitada en una de sus resonancias tiene líneas que no se mueven, la arena sale despedida de todas las demás partes y se queda quieta a lo largo de ellas, y la figura ES el conjunto nodal. Así que hay una respuesta correcta sobre adónde va una partícula, y la excitación decide qué figura es y con cuánta fuerza se agita la arena, en lugar de decidir directamente el movimiento.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#2",
+      "source": "WHAT DRIVES IT. :func:`spacr.qt.resonance.playing_moment` -- the music bed's own precomputed envelope and spectrum, read at the position the bed is at. Nothing captures the machine's audio; nothing here can hear anything spaCR is not playing. With sound off it returns silence and the plate idles on its own clock, which is the case almost everybody sees because sound is off on a fresh install.",
+      "source_sha256": "c00dbf5b3953eb6b969df38d53098c89f032487c27bba1b6a777ca58f5958071",
+      "context": "What drives it. :func:`spacr.qt.resonance.playing_moment` -- the music bed's own precomputed envelope and spectrum, read at the position the bed is at. Nothing captures the machine's audio; nothing here can hear anything spaCR is not playing. With sound off it returns silence and the plate idles on its own clock, which is the case almost everybody sees because sound is off on a fresh install.",
+      "translation": "QUÉ LO IMPULSA. :func:`spacr.qt.resonance.playing_moment` -- la envolvente y el espectro precalculados de la propia base musical, leídos en la posición en la que está la base. Nada captura el audio de la máquina; nada de aquí puede oír algo que spaCR no esté reproduciendo. Con el sonido desactivado devuelve silencio y la placa reposa con su propio reloj, que es el caso que ve casi todo el mundo porque el sonido está desactivado en una instalación nueva.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#3",
+      "source": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two threads and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING THREAD, where the failure is a picture that differs from the one the GUI thread would have drawn. So the drive is an INPUT, set on the GUI thread between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "source_sha256": "11b047c8553958c624954d39686045407f12afbf0a4259fc3703ab84b1eca99d",
+      "context": "Why the drive is read in :meth:`advance` and not WHERE it is used. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two independent execution paths and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the shading independent execution path, where the failure is a picture that differs from the one the main GUI execution path would have drawn. So the drive is an INPUT, set on the main GUI execution path between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "translation": "POR QUÉ LA EXCITACIÓN SE LEE EN :meth:`advance` Y NO DONDE (WHERE) SE USA. Todos los demás motores prometen que un fotograma es una función pura de ``(seed, clock, size)``, y dos pruebas lo garantizan: una sombrea el mismo reloj en dos hilos y compara los bytes, y otra avanza un motor doce veces y salta un segundo motor directamente al mismo reloj. Leer una señal en tiempo real dentro de :meth:`shade` rompería ambas, y las rompería en el HILO DE SOMBREADO, donde el fallo es una imagen distinta de la que habría dibujado el hilo de la GUI. Así que la excitación es una ENTRADA, establecida en el hilo de la GUI entre fotogramas bajo el bloqueo del motor exactamente como :meth:`set_palette`, y la promesa pasa a ser \"una función pura de ``(seed, clock, size, drive)``\" -- que es la misma promesa mientras no suena nada, y es entonces cuando se ejecutan las pruebas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#4",
+      "source": ":meth:`geometry` yields ``(x, y, brightness)`` per painted particle, in pixels. Start with no floor and no canvas; the first shade builds both.",
+      "source_sha256": "0c86df9cc97b20e02acfda9edb6f9c1e2c42e48626b39dc40c4514b8c9cde73e",
+      "context": ":meth:`geometry` yields ``(x, y, brightness)`` per painted particle, in pixels. Start with no floor and no canvas; the first shade builds both.",
+      "translation": ":meth:`geometry` produce ``(x, y, brightness)`` por cada partícula pintada, en píxeles. Empieza sin suelo y sin lienzo; el primer sombreado construye ambos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#0",
+      "source": "Step the clock and read what is playing.",
+      "source_sha256": "12c69edf78839f899c0e8c8c509e48215a67e6bfdb600c9e215b4238a32142d6",
+      "context": "Step the clock and read what is playing.",
+      "translation": "Avanza el reloj y lee lo que está sonando.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#1",
+      "source": "The one place a real-time signal enters this engine, and it is here because this runs on the GUI thread between frames while the shading thread is locked out -- see the class docstring. It costs a lock, an index and two array reads; measured at 6.8 us with the music bed playing, against the 41 ms a frame the cap allows.",
+      "source_sha256": "dc0a33e3a6f42419191a8b150d897d87a8957d056736c435136bf4f0edad03bc",
+      "context": "The one place a real-time signal enters this engine, and it is here because this runs on the main GUI execution path between frames while the shading independent execution path is locked out -- see the class docstring. It costs a lock, an index and two array reads; measured at 6.8 us with the music bed playing, against the 41 ms a frame the cap allows.",
+      "translation": "El único lugar por el que entra una señal en tiempo real en este motor, y está aquí porque esto se ejecuta en el hilo de la GUI entre fotogramas mientras el hilo de sombreado está bloqueado -- véase el docstring de la clase. Cuesta un bloqueo, un índice y dos lecturas de matrices; medido en 6.8 us con la base musical sonando, frente a los 41 ms por fotograma que permite el límite.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#2",
+      "source": "What is read is damped by :meth:`answering` before it is stored, so the Speed preference reaches the music-driven half of the theme as well as the clock.",
+      "source_sha256": "c05982352b0fa955e15e5a76bc8ca426e215740d2643d48070ff7f30abd8feb4",
+      "context": "What is read is damped by :meth:`answering` before it is stored, so the Speed preference reaches the music-driven half of the theme as well as the clock.",
+      "translation": "Lo que se lee se amortigua con :meth:`answering` antes de guardarse, de modo que la preferencia Speed llega a la mitad del tema impulsada por la música además de al reloj.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#0",
+      "source": "``moment`` scaled by how much of it the Speed setting lets in.",
+      "source_sha256": "b0b1f6405fce048f4468fe8a2bb0ff45bb8085c7a6c4389b00784e86c004f9d5",
+      "context": "``moment`` scaled by how much of it the Speed setting lets in.",
+      "translation": "``moment`` escalado según cuánto deje entrar el ajuste Speed.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#1",
+      "source": "THE CLOCK IS NOT THE WHOLE ANIMATION HERE, WHICH IS WHY THIS EXISTS. :meth:`AmbientEngine.advance` multiplies ``dt`` by :attr:`speed`, and that is the whole of the Speed preference for every other theme, because every other theme's motion is a function of the clock alone. Half of this one is a function of the music instead: the throw on an onset, the per-band brightness and the figure the spectrum's centre of mass asks for. At the bottom of :data:`SPEED_RANGE` the breath, the mode walk and the wander all crawl at a tenth, and a kick would still have thrown the sand :data:`RESONANCE_THROW` of the plate twice a second -- leaving the busiest movement in the theme running at full rate for somebody who set the slider to its minimum precisely to stop that.",
+      "source_sha256": "d25285229ab79054823e95f2d610a392b9f28cdb8a2248a9f6c9336764f23c5b",
+      "context": "The clock is not the whole animation here, which is why this exists. :meth:`AmbientEngine.advance` multiplies ``dt`` by :attr:`speed`, and that is the whole of the Speed preference for every other theme, because every other theme's motion is a function of the clock alone. Half of this one is a function of the music instead: the throw on an onset, the per-band brightness and the figure the spectrum's centre of mass asks for. At the bottom of :data:`SPEED_RANGE` the breath, the mode walk and the wander all crawl at a tenth, and a kick would still have thrown the sand :data:`RESONANCE_THROW` of the plate twice a second -- leaving the busiest movement in the theme running at full rate for somebody who set the slider to its minimum precisely to stop that.",
+      "translation": "EL RELOJ NO ES TODA LA ANIMACIÓN AQUÍ, Y POR ESO EXISTE ESTO. :meth:`AmbientEngine.advance` multiplica ``dt`` por :attr:`speed`, y eso es todo lo que hace la preferencia Speed en cualquier otro tema, porque el movimiento de cualquier otro tema es función solo del reloj. La mitad de este, en cambio, es función de la música: el lanzamiento en un ataque, el brillo por banda y la figura que pide el centro de masas del espectro. En el extremo inferior de :data:`SPEED_RANGE` la respiración, el recorrido de modos y el vagabundeo avanzan a una décima parte, y aun así un bombo habría lanzado la arena :data:`RESONANCE_THROW` de la placa dos veces por segundo -- dejando el movimiento más agitado del tema a plena velocidad para alguien que puso el deslizador al mínimo precisamente para detenerlo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#2",
+      "source": "So the share let in is ``min(1, speed)``: the shipped setting and anything above it hear the music in full, and turning the animation down turns the reaction down with it, until at the minimum the plate is the idle plate. Above 1.0 it is *not* scaled up, because every field of a :class:`~spacr.qt.resonance.Moment` is already 0 to 1 against the loop's own loudest: there is nothing above full to give.",
+      "source_sha256": "8319ec7778de7f5a32e93186a70cefb5306565d87eae996a367a7329de1868f4",
+      "context": "So the share let in is ``min(1, speed)``: the shipped setting and anything above it hear the music in full, and turning the animation down turns the reaction down with it, until at the minimum the laboratory microplate is the idle laboratory microplate. Above 1.0 it is *not* scaled up, because every microscope field of view of a :class:`~spacr.qt.resonance.Moment` is already 0 to 1 against the loop's own loudest: there is nothing above full to give.",
+      "translation": "Así que la parte que se deja entrar es ``min(1, speed)``: el ajuste de fábrica y cualquier valor superior oyen la música por completo, y bajar la animación baja con ella la reacción, hasta que en el mínimo la placa es la placa en reposo. Por encima de 1.0 *no* se amplifica, porque cada campo de un :class:`~spacr.qt.resonance.Moment` ya va de 0 a 1 frente al máximo del propio bucle: no hay nada por encima del máximo que dar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#3",
+      "source": "what :func:`spacr.qt.resonance.playing_moment` returned.",
+      "source_sha256": "6a595daf922db1fcc2da4c5447cb339efdbcff63a01473173ec8464abff7a0b3",
+      "context": "what :func:`spacr.qt.resonance.playing_moment` returned.",
+      "translation": "lo que devolvió :func:`spacr.qt.resonance.playing_moment`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#4",
+      "source": "the same moment at speed 1.0 or above, a damped copy below it.",
+      "source_sha256": "1daeb4783ffbd0cc6d9bbeab460a2bfb5ab5e0ea33f5629ba5fe269d821f76bd",
+      "context": "the same moment at speed 1.0 or above, a damped copy below it.",
+      "translation": "el mismo momento con velocidad 1.0 o superior, una copia amortiguada por debajo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.energy#0",
+      "source": "How hard the plate is being driven, 0 to 1.",
+      "source_sha256": "d5fcd180833bcdd43144ab9450481e5b0b9464ac975165c851ae59c32223f7dd",
+      "context": "How hard the plate is being driven, 0 to 1.",
+      "translation": "Con cuánta fuerza se excita la placa, de 0 a 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.energy#1",
+      "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
+      "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
+      "context": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
+      "translation": "El mayor entre lo que está sonando y la respiración en reposo, de modo que un pasaje tranquilo nunca deja la imagen por debajo de lo que habría dibujado el silencio. Esa es la regla que hace que \"reposa con belleza en silencio\" y \"reacciona a la música\" sean la misma ruta de código.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#0",
+      "source": "Every grain as ``(x, y, brightness)`` in pixels.",
+      "source_sha256": "b84207e0f7a99d7d924f7493673b6bbae44cc7f9ec373105197b819d488c672e",
+      "context": "Every grain as ``(x, y, brightness)`` in pixels.",
+      "translation": "Cada grano como ``(x, y, brightness)`` en píxeles.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#1",
+      "source": "canvas width in pixels.",
+      "source_sha256": "405005d19f21c4d35e655b774f3520add4e5d4dc3c8840cd6d09540fab657791",
+      "context": "canvas width in pixels.",
+      "translation": "ancho del lienzo en píxeles.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#2",
+      "source": "canvas height.",
+      "source_sha256": "db6111c9a435ab7ec9f382aae41e472eee177c73660a422dded30c7e00521d4a",
+      "context": "canvas height.",
+      "translation": "altura del lienzo.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#3",
+      "source": "one tuple per painted grain.",
+      "source_sha256": "cd4c99ef5c5fb69d26c38c98694016d42f4a6e1b928aaf84125e5bd2ce898840",
+      "context": "one tuple per painted grain.",
+      "translation": "una tupla por cada grano pintado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#0",
+      "source": "Where the sand is now, and how brightly each grain shows.",
+      "source_sha256": "b794197a63ccf59891947499777c528dd1ca5c8bb6b4f90f4107702693f4298a",
+      "context": "Where the sand is now, and how brightly each grain shows.",
+      "translation": "Dónde está ahora la arena, y con cuánto brillo se ve cada grano.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#1",
+      "source": "The whole simulation, and it is four numpy passes: wander the seeded starting points, build the lattice for the mode the drive asks for, relax onto its nodal lines, and throw the result off them by whatever the last onset was worth.",
+      "source_sha256": "a594da0f792af1475529f015d09130dcba826db157f5cc03f3e99b07a8e4edda",
+      "context": "The whole simulation, and it is four numpy passes: wander the seeded starting points, build the lattice for the mode the drive asks for, relax onto its nodal lines, and throw the result off them by whatever the last onset was worth.",
+      "translation": "Toda la simulación, y son cuatro pasadas de numpy: hacer vagar los puntos de partida con semilla, construir la rejilla para el modo que pide la excitación, relajar sobre sus líneas nodales y lanzar el resultado fuera de ellas según lo que valiera el último ataque.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#2",
+      "source": "how many grains; the density setting's own count by default.",
+      "source_sha256": "95d0e830ff6cbeb68678389b5f39d24e4d506d5f34a8f8f9bb8e0ed43d17c89b",
+      "context": "how many grains; the density setting's own count by default.",
+      "translation": "cuántos granos; de forma predeterminada, el número propio del ajuste de densidad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.animation_label#2",
+      "source": ":data:`NO_ANIMATION` or a paintable theme name; any other name raises :class:`ValueError`.",
+      "source_sha256": "cfbbd9ee9d5b8c9afcff677306500af26b720a73b5bb2867b61b442ca408600e",
+      "context": ":data:`NO_ANIMATION` or a paintable theme name; any other name raises :class:`ValueError`.",
+      "translation": ":data:`NO_ANIMATION` o un nombre de tema que se pueda pintar; cualquier otro nombre lanza :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.default_palette_for#1",
+      "source": "a paintable theme name; an unknown one raises :class:`ValueError`.",
+      "source_sha256": "059bff6a6990e1bb6dd99a84d09dc2d9c442e7d607bbb090cad94cf3381919b4",
+      "context": "a paintable theme name; an unknown one throws :class:`ValueError`.",
+      "translation": "un nombre de tema que se pueda pintar; uno desconocido lanza :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.dressed#2",
+      "source": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
+      "source_sha256": "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+      "context": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
+      "translation": "el nombre del tema solicitado; se devuelve tal cual salvo que esté activado el aspecto de spaceout. No se valida aquí.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.dressed#3",
+      "source": "the requested palette name, treated the same way.",
+      "source_sha256": "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100",
+      "context": "the requested palette name, treated the same way.",
+      "translation": "el nombre de la paleta solicitada, tratado de la misma forma.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.drift_direction_label#1",
+      "source": "one of :data:`DRIFT_DIRECTIONS`; any other value raises :class:`ValueError`.",
+      "source_sha256": "99444b56c5d77cfab0be041751ccb90b07f5d87c87009ad4d561793277492132",
+      "context": "one of :data:`DRIFT_DIRECTIONS`; any other value raises :class:`ValueError`.",
+      "translation": "uno de :data:`DRIFT_DIRECTIONS`; cualquier otro valor lanza :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_animation_choice#1",
+      "source": "the value to test, typically a stored preference.",
+      "source_sha256": "4cade2a77c543163e26ed5a0704f32ccfb4d7151fd596515902e9f87b3441e50",
+      "context": "the value to test, typically a stored preference.",
+      "translation": "el valor que se comprueba, normalmente una preferencia guardada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_drift_direction#1",
+      "source": "the value to test.",
+      "source_sha256": "704a925a72017a5cf295ce4c33ad3ba3f29de928766f18a2aea5eb7300287c70",
+      "context": "the value to test.",
+      "translation": "el valor que se comprueba.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_palette#1",
+      "source": "the theme name; an unknown theme offers nothing.",
+      "source_sha256": "c1312040fe195cfd7115baeaf2239dcc077eb3a6b9d50a89c0f09a102cfa6680",
+      "context": "the theme name; an unknown theme offers nothing.",
+      "translation": "el nombre del tema; un tema desconocido no ofrece nada.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_palette#2",
+      "source": "the palette name to look for among ``theme``'s palettes.",
+      "source_sha256": "cde3c76f6f415d0d6c12cb6c0f82e247e15811390b9e01c9b0802f5951687b11",
+      "context": "the palette name to look for among ``theme``'s palettes.",
+      "translation": "el nombre de la paleta que se busca entre las paletas de ``theme``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.palette_colors#2",
+      "source": "a palette ``theme`` offers; an unknown theme, or a palette the theme does not offer, raises :class:`ValueError`.",
+      "source_sha256": "5c919dc215a57084480b713811f75e58e4edb63251038ca4b8e96cb4b4c8da31",
+      "context": "a palette ``theme`` offers; an unknown theme, or a palette the theme does not offer, throws :class:`ValueError`.",
+      "translation": "una paleta que ofrece ``theme``; un tema desconocido, o una paleta que el tema no ofrece, lanza :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
     }
   ]
 }
