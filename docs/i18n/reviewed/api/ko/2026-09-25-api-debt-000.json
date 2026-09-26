@@ -1,0 +1,2088 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr._gc#0",
+      "source": "Explicit pipeline cleanup without destroying GUI objects on workers.",
+      "source_sha256": "c50c70b6b939f0fcd374acf0a70719e46a024c1bc6e570aa3971bded65b6bcfc",
+      "context": "Explicit workflow cleanup without destroying GUI objects on workers.",
+      "translation": "작업자에서 GUI 객체를 파괴하지 않는 명시적 워크플로 정리입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._gc.collect#0",
+      "source": "Collect now, or request a full sweep on the GUI's next timer tick.",
+      "source_sha256": "530b2b8be72798edd85ae4c841a6014f4ba37c8189d3cb1816d7737b63634ddc",
+      "context": "Collect now, or request a full sweep on the GUI's next timer tick.",
+      "translation": "지금 수집하거나, GUI 의 다음 타이머 틱에서 전체 정리를 요청합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._gc.collect#1",
+      "source": "Worker sweeps can destroy unrelated Qt widgets on the wrong thread. A running GUI therefore services worker requests through :func:`spacr.qt.gc_policy.collect_once`. Repeated requests coalesce. Headless processes and the GUI thread retain synchronous collection; checking for an application does not import Qt into headless jobs.",
+      "source_sha256": "37c13200053ca8421052abad7727c69eb8e49d366bedb467f8d83079584fea8f",
+      "context": "Worker sweeps can destroy unrelated Qt widgets on the wrong independent execution path. An executing GUI therefore services worker requests through :func:`spacr.qt.gc_policy.collect_once`. Repeated requests coalesce. Headless processes and the main GUI execution path retain synchronous collection; checking for an application does not import Qt into headless jobs.",
+      "translation": "작업자의 정리 작업은 잘못된 실행 경로에서 관련 없는 Qt 위젯을 파괴할 수 있습니다. 따라서 실행 중인 GUI 는 :func:`spacr.qt.gc_policy.collect_once` 를 통해 작업자 요청을 처리합니다. 반복된 요청은 하나로 합쳐집니다. 헤드리스 프로세스와 GUI 실행 경로는 동기식 수집을 유지하며, 애플리케이션 존재 여부를 확인할 때 헤드리스 작업에 Qt 를 가져오지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._gc.collect#2",
+      "source": "unreachable objects collected, or zero for a deferred request.",
+      "source_sha256": "e58f48524edaca9aceb23294fce8b0ebe44d39a67b777cebe616ea8dfe3b2a6f",
+      "context": "unreachable objects collected, or zero for a deferred request.",
+      "translation": "수집된 도달 불가능 객체의 수이며, 지연된 요청이면 0입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._mask_workers#0",
+      "source": "Process isolation and cooperative stop for assigned mask batches.",
+      "source_sha256": "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153",
+      "context": "Process isolation and cooperative stop for assigned mask batches.",
+      "translation": "할당된 마스크 배치에 대한 프로세스 격리와 협조적 중지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._merged_names#0",
+      "source": "Filename grouping for merged timelapse arrays, without analysis imports.",
+      "source_sha256": "29dab18b207dea34f8251c5ed435b552489f6524d86208b8d89372a424fa0282",
+      "context": "Filename grouping for merged timelapse arrays, without analysis imports.",
+      "translation": "분석 모듈을 가져오지 않는, 병합된 타임랩스 배열의 파일 이름 그룹화입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._merged_names.parse_merged_filename#0",
+      "source": "Parse a merged filename for grouping and numeric timepoint sorting.",
+      "source_sha256": "8ba3a421082d2eed67b65335fb7f9e15b109f5b947955215e743cceb7383be27",
+      "context": "Parse a merged filename for grouping and numeric timepoint sorting.",
+      "translation": "그룹화와 숫자 시점 정렬을 위해 병합된 파일 이름을 구문 분석합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._merged_names.parse_merged_filename#1",
+      "source": "These are legacy display/grouping fields, not canonical database keys. Row IDs are letters, column/time IDs are integers, and ``prcf`` uses the well rather than separate row and column keys. Use :func:`spacr.schema.parse_field_stem` for database identities.",
+      "source_sha256": "768a68ea745ab6159733cc2901fca9f460a58798942e051fcfd7a16bd68f9a69",
+      "context": "These are legacy display/grouping microscope fields of view, not canonical database structured-data names. Row IDs are letters, column/time IDs are integers, and ``prcf`` uses the microplate sample position rather than separate row and column structured-data names. Use :func:`spacr.schema.parse_field_stem` for database identities.",
+      "translation": "이 값들은 표시/그룹화용 레거시 필드이며 표준 데이터베이스 키가 아닙니다. 행 ID 는 문자, 열/시간 ID 는 정수이고, ``prcf`` 는 별도의 행 및 열 키 대신 마이크로플레이트 시료 위치를 사용합니다. 데이터베이스 식별에는 :func:`spacr.schema.parse_field_stem` 을 사용하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._merged_names.parse_merged_filename#2",
+      "source": "path or filename in ``plate_well_field_time.npy`` form.",
+      "source_sha256": "d2c15a3d145ad9011dae39ac2d50dbf5c26fcda26da314523a57cf4c00264ae4",
+      "context": "path or filename in ``plate_well_field_time.npy`` form.",
+      "translation": "``plate_well_field_time.npy`` 형식의 경로 또는 파일 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._merged_names.parse_merged_filename#3",
+      "source": "plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft and filename. Missing field/time values default to ``1``/``0``.",
+      "source_sha256": "e1519a2ffff715d099b957b28e1750fc0697acb2eb039b47c2982d1e8832041b",
+      "context": "plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft and filename. Missing field/time values default to ``1``/``0``.",
+      "translation": "plateID, wellID, rowID, columnID, fieldID, timeID, prcf, prcft 및 filename 입니다. 누락된 필드/시간 값의 기본값은 ``1``/``0`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.PYPI_PACKAGE#0",
+      "source": "Install the latest compatible stable release from the official PyPI index.",
+      "source_sha256": "24043ad21025cbd4614682bd8f4ff20c74a910f2aae11b2cb369479090f91585",
+      "context": "Install the latest compatible stable release from the official PyPI index.",
+      "translation": "공식 PyPI 인덱스에서 호환되는 최신 안정 릴리스를 설치합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.REPOSITORY#0",
+      "source": "Optional explicit source for development installations.",
+      "source_sha256": "62d2579e5a409ab73664aebf2e332a6ce0bfdf50f69543911b4654fa4c68cfce",
+      "context": "Optional explicit source for development installations.",
+      "translation": "개발용 설치를 위한 선택적 명시적 소스입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#0",
+      "source": "Compare the actual isolated installation with compatible stable PyPI releases.",
+      "source_sha256": "ac37e36f747dc794e3a8d52b633a03c6b0724a3b4fa5c59420f9ca7fb1e369ff",
+      "context": "Compare the actual isolated installation with compatible stable PyPI releases.",
+      "translation": "실제 격리된 설치를 호환되는 PyPI 안정 릴리스와 비교합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#2",
+      "source": "optional cancellation event for subprocesses.",
+      "source_sha256": "2a6038ff6c10abd2e914afb14d3270a32aed55b6bf50fbd0ab73dadcd74a5664",
+      "context": "optional cancellation event for subprocesses.",
+      "translation": "하위 프로세스용 선택적 취소 이벤트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#3",
+      "source": "optional cancellable command runner for tests.",
+      "source_sha256": "5a64a08b84c1aad78432184fb527796029fbdac075104569bedd14a3d73d89aa",
+      "context": "optional cancellable command runner for tests.",
+      "translation": "테스트용 선택적 취소 가능 명령 실행기입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#4",
+      "source": "installed/latest version strings and an ``available`` boolean.",
+      "source_sha256": "b5e5669ceb44bbc906c6bb6755d9e4e3877ccc0d81464a9ebac174dff804c363",
+      "context": "installed/latest version strings and an ``available`` boolean.",
+      "translation": "설치된 버전 및 최신 버전 문자열과 ``available`` 불리언 값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.check_starplast_update#5",
+      "source": "the installation or package index cannot be checked.",
+      "source_sha256": "f735c67c1ddfaace436e814516661ec496778fe9e1727746808578f24f5e8802",
+      "context": "the installation or package index cannot be checked.",
+      "translation": "설치 또는 패키지 인덱스를 확인할 수 없을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.default_source#0",
+      "source": "Use PyPI unless a developer explicitly overrides the installation source.",
+      "source_sha256": "f8ac08042343fa09872e85dad9cf8e4e9f1c004d6c40310cf04eb5c51252cd49",
+      "context": "Use PyPI unless a developer explicitly overrides the installation source.",
+      "translation": "개발자가 설치 소스를 명시적으로 재정의하지 않는 한 PyPI 를 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.default_source#1",
+      "source": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.",
+      "source_sha256": "eefc7385a8be3c85e49a119b1aceac9968def78e51ee4ad2396978c14fb50283",
+      "context": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.",
+      "translation": "``SPACR_STARPLAST_SOURCE`` 또는 버전이 고정되지 않은 PyPI 패키지 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.install_starplast#10",
+      "source": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL.",
+      "source_sha256": "1cd328cac94b83da34716fd85839249408b78b0541b7f7113c03b1056b789890",
+      "context": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL.",
+      "translation": "선택한 소스가 적절한 로컬 Git 작업 사본도, PyPI 패키지도, 허용된 공식 저장소 URL 도 아닐 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.install_starplast#2",
+      "source": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
+      "source_sha256": "a6dd51e96b540c9586a79238e3aa62de516e2a6035a114f5a6e5c9261aef2ccb",
+      "context": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
+      "translation": "PyPI 의 starplast, 또는 명시적인 로컬 Git 작업 사본이나 저장소 URL 이며, 그 밖의 경우에는 default_source 입니다. PyPI 는 버전 고정 없이 설치 시점에 호환되는 최신 안정 릴리스를 확인합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#0",
+      "source": "Upgrade the owned environment using pip and PyPI, then verify its data.",
+      "source_sha256": "ebff26c8b458079570815e35318891db3647d276ae314b6c4f128699cbf4b9b3",
+      "context": "Upgrade the owned environment using pip and PyPI, then verify its data.",
+      "translation": "pip 과 PyPI 를 사용해 소유한 환경을 업그레이드한 다음 데이터를 검증합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#1",
+      "source": "ignored; upgrades always use the PyPI Starplast package.",
+      "source_sha256": "97c77d0e0cf8e8afb97d775baea9fbe0d8e2729261134fd76d2f7a49c38167e3",
+      "context": "ignored; upgrades always use the PyPI Starplast package.",
+      "translation": "무시됩니다. 업그레이드는 항상 PyPI 의 Starplast 패키지를 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#3",
+      "source": "optional ``(step, total, text)`` callback.",
+      "source_sha256": "c8e11f066eaa06173ba973c531735a8a9eeca096c70ae447a172ca9ac233f1be",
+      "context": "optional ``(step, total, text)`` callback.",
+      "translation": "선택적 ``(step, total, text)`` 콜백입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#4",
+      "source": "optional subprocess cancellation event.",
+      "source_sha256": "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
+      "context": "optional subprocess cancellation event.",
+      "translation": "선택적 하위 프로세스 취소 이벤트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#5",
+      "source": "optional command runner for tests.",
+      "source_sha256": "e3f674322e836851cad0fca4abaeda3f0ca4e1510108fd7bc75f2d46605dbf17",
+      "context": "optional command runner for tests.",
+      "translation": "테스트용 선택적 명령 실행기입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#6",
+      "source": "verified environment path.",
+      "source_sha256": "19691b329b7e74e50f4e192cb57fc51c47afd7a7f33a69212ec001efbd6f85cb",
+      "context": "verified environment path.",
+      "translation": "검증된 환경 경로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast#7",
+      "source": "upgrade failed or was cancelled. Files and logs remain for diagnosis; an interrupted environment must be repaired before launch.",
+      "source_sha256": "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c",
+      "context": "upgrade failed or was cancelled. Files and logs remain for diagnosis; an interrupted environment must be repaired before launch.",
+      "translation": "업그레이드가 실패했거나 취소되었을 때 발생합니다. 진단을 위해 파일과 로그는 남아 있으며, 중단된 환경은 실행하기 전에 복구해야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.capabilities#3",
+      "source": "optional existing accelerator snapshot. Providing it avoids another resolution and any dtype-probe allocations, as required by the doctor's metadata-only check.",
+      "source_sha256": "ad800e0d4267521ed9dd9ee88a1f337b521e6dd643e17a40f8d5105dcd3711e7",
+      "context": "optional existing accelerator snapshot. Providing it avoids another resolution and any dtype-probe allocations, as required by the doctor's metadata-only check.",
+      "translation": "선택적인 기존 가속기 스냅샷입니다. 이를 제공하면 추가 확인과 모든 dtype 검사용 할당을 피할 수 있으며, doctor 의 메타데이터 전용 검사에서는 이것이 필요합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.capabilities#4",
+      "source": "task, accelerated flag and explanation for each capability.",
+      "source_sha256": "f5df687222d3686862c1f8d68106723d3d533f4e4d1e0c00499b610cfbd20540",
+      "context": "task, accelerated flag and explanation for each capability.",
+      "translation": "각 기능에 대한 작업, 가속 여부 플래그 및 설명입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_gpu#1",
+      "source": "Cellpose does its own device resolution and already knows about MPS -- ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it cannot do is guess, so it must be TOLD there is a GPU. Passing ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit device is supplied. An explicit Cellpose device takes precedence.",
+      "source_sha256": "afe087464bfad63c02c73d1ef7064c3c7a07c59dee6a07e681f52ce136361a82",
+      "context": "Cellpose does its own device resolution and already knows about MPS -- ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it cannot do is guess, so it must be TOLD there is a GPU. Passing ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit device is supplied. An explicit Cellpose device takes precedence.",
+      "translation": "Cellpose 는 자체적으로 장치를 결정하며 이미 MPS 를 알고 있습니다. Metal 컴퓨터에서 ``assign_device(gpu=True)`` 는 ``mps`` 를 반환합니다. 그러나 추측은 할 수 없으므로 GPU 가 있다고 반드시 알려 주어야 합니다. 여기에 ``torch.cuda.is_available()`` 를 전달하면 명시적 장치가 지정되지 않았을 때 Mac 이 CPU 에 고정됩니다. 명시적인 Cellpose 장치가 우선합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_kwargs#0",
+      "source": "Consistent device and weight precision for ``CellposeModel`` inference.",
+      "source_sha256": "ce02ca9048b4671a445be09ceb1c9f758321d5d68d09535dea2de42e3126da61",
+      "context": "Consistent device and weight precision for ``CellposeModel`` inference.",
+      "translation": "``CellposeModel`` 추론을 위한 일관된 장치 및 가중치 정밀도입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_kwargs#2",
+      "source": "``gpu`` -- controls Cellpose's selection when no explicit device is supplied, including callers that deliberately drop ``device`` below.",
+      "source_sha256": "7cfd07e7b613a1836695b882521af8b8ba687c879af109b5b6996fd40d0b8cdd",
+      "context": "``gpu`` -- controls Cellpose's selection when no explicit device is supplied, including callers that deliberately drop ``device`` below.",
+      "translation": "``gpu`` -- 명시적 장치가 지정되지 않았을 때 Cellpose 의 선택을 제어하며, 아래에서 의도적으로 ``device`` 를 제외하는 호출자도 포함합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_kwargs#3",
+      "source": "``device`` -- from the one resolver, so cellpose and spaCR cannot disagree about the same machine; an explicit device takes precedence.",
+      "source_sha256": "66585f86b3a5591511b8be63bbb587246267c8b479fc9694285b9055a12417f4",
+      "context": "``device`` -- from the one resolver, so cellpose and spaCR cannot disagree about the same machine; an explicit device takes precedence.",
+      "translation": "``device`` -- 단일 결정 함수에서 가져오므로 cellpose 와 spaCR 이 같은 컴퓨터에 대해 서로 다르게 판단할 수 없습니다. 명시적 장치가 우선합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.cellpose_kwargs#4",
+      "source": "``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default and Metal on torch 2.2 has no bfloat16, so the default is a ``TypeError: BFloat16 is not supported on MPS`` at construction. Measured on the reporting iMac; float32 weights work there and cost VRAM, which is the right trade for a card that otherwise sits idle. CPU inference also uses float32: bfloat16 support does not imply native arithmetic, and emulation can be substantially slower. This matches Make Masks; float32 arithmetic need not produce identical predictions to bfloat16.",
+      "source_sha256": "01e3269686bf0c8c620ad49a202b0c33f9cbb40bc7d0c0c40db10cda2bdfc42d",
+      "context": "``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default and Metal on torch 2.2 has no bfloat16, so the default is a ``TypeError: BFloat16 is not supported on MPS`` at construction. Measured on the reporting iMac; float32 weights work there and cost VRAM, which is the right trade for a card that otherwise sits idle. CPU inference also uses float32: bfloat16 support does not imply native arithmetic, and emulation can be substantially slower. This matches Make Masks; float32 arithmetic need not produce identical predictions to bfloat16.",
+      "translation": "``use_bfloat16`` -- cpsam 은 기본적으로 가중치를 bfloat16 으로 불러오는데 torch 2.2 의 Metal 에는 bfloat16 이 없으므로, 기본 설정에서는 생성 시 ``TypeError: BFloat16 is not supported on MPS`` 가 발생합니다. 보고된 iMac 에서 측정했으며, 그곳에서 float32 가중치는 동작하고 VRAM 을 더 사용하지만, 그렇지 않으면 유휴 상태로 남을 그래픽 카드에는 올바른 선택입니다. CPU 추론도 float32 를 사용합니다. bfloat16 지원이 네이티브 연산을 의미하지는 않으며, 에뮬레이션은 상당히 느릴 수 있습니다. 이는 Make Masks 와 일치하며, float32 연산이 bfloat16 과 동일한 예측을 낼 필요는 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.inspect_torch#2",
+      "source": "torch module whose availability metadata should be inspected.",
+      "source_sha256": "d01f030800874f4e31a4043311f06e82d2444e0a8b9631249b6d1ebbcbddff0a",
+      "context": "torch module whose availability metadata should be inspected.",
+      "translation": "가용성 메타데이터를 검사할 torch 모듈입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.inspect_torch#3",
+      "source": "False avoids CUDA/XPU property queries that can initialize their runtime. Availability queries still run.",
+      "source_sha256": "987c8012dc7950af266bc25c33e1483250fcc19af77fbf1ae38e55c2c693cb91",
+      "context": "False avoids CUDA/XPU property queries that can initialize their runtime. Availability queries still run.",
+      "translation": "False 이면 런타임을 초기화할 수 있는 CUDA/XPU 속성 조회를 피합니다. 가용성 조회는 여전히 실행됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.inspect_torch#4",
+      "source": "False skips CUDA/ROCm entirely, for a process whose environment deliberately hides those devices. Other backends remain eligible. This function does not allocate dtype-probe tensors.",
+      "source_sha256": "41587a71851fa5e5c3059c7d8025e4687c213f76616897cf72ea8500ebcddf11",
+      "context": "False skips CUDA/ROCm entirely, for a process whose environment deliberately hides those devices. Other backends remain eligible. This function does not allocate dtype-probe tensors.",
+      "translation": "False 이면 CUDA/ROCm 을 완전히 건너뜁니다. 환경에서 해당 장치를 의도적으로 숨기는 프로세스를 위한 것입니다. 다른 백엔드는 계속 사용할 수 있습니다. 이 함수는 dtype 검사용 텐서를 할당하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.accelerator.inspect_torch#5",
+      "source": "accelerator described by the supplied torch module.",
+      "source_sha256": "66d3841f19faa82a28101145ba864ee54ef072644335950e8a81f151b7f238f5",
+      "context": "accelerator described by the supplied torch module.",
+      "translation": "제공된 torch 모듈이 설명하는 가속기입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.active_learning.StoppingVerdict#8",
+      "source": "``'rising'``, ``'flat'``, ``'falling'`` or ``'unknown'``.",
+      "source_sha256": "00bc9bf3297762e1b8669a5b66f166eadf654e691ad11d2191c0b0a6d688ffe7",
+      "context": "``'rising'``, ``'flat'``, ``'falling'`` or ``'unknown'``.",
+      "translation": "``'rising'``, ``'flat'``, ``'falling'`` 또는 ``'unknown'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.active_learning.retrain_round#26",
+      "source": "``{crop key: rejected class}`` -- suggestions the annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In a two-class column a rejection of class 1 is an example of class 2, and it is fitted as one; a crop that has since been labelled is left to its label, and in a column with any other classes the rejection cannot be turned into a label and is counted in the notes instead. A rejection is information, not silence: without this the model that proposed the wrong class would be fitted on exactly the same evidence next round and propose it again.",
+      "source_sha256": "a1c2ae31255926042ea1c7995c687f0ca39c1662ca318fc07f82e46dc4ff5eb9",
+      "context": "``{crop key: rejected class}`` -- suggestions the annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In a two-class column a rejection of class 1 is an example of class 2, and it is fitted as one; an extracted image region that has since been labelled is left to its label, and in a column with any other classes the rejection cannot be turned into a label and is counted in the notes instead. A rejection is information, not silence: without this the model that proposed the wrong class would be fitted on exactly the same evidence next round and propose it again.",
+      "translation": "``{crop key: rejected class}`` -- 주석자가 거부한 제안입니다(:func:`spacr.suggest.rejected_suggestions`). 두 클래스 열에서 클래스 1 에 대한 거부는 클래스 2 의 예시이며 그렇게 적합됩니다. 그 후 레이블이 지정된 추출 이미지 영역은 그 레이블을 따르고, 다른 클래스가 있는 열에서는 거부를 레이블로 바꿀 수 없으므로 대신 노트에 집계됩니다. 거부는 침묵이 아니라 정보입니다. 이것이 없으면 잘못된 클래스를 제안한 모델이 다음 라운드에서 정확히 같은 증거로 적합되어 같은 클래스를 다시 제안하게 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.align.CanvasSpec.canvas_yx#1",
+      "source": "global-frame row position, in pixels; ``origin_y`` is subtracted and the result rounded to the nearest integer.",
+      "source_sha256": "1acd06309fa3f9806724c71dd440fb6758d2dbd90b3d66fc649acb24cf65171e",
+      "context": "global-frame row position, in pixels; ``origin_y`` is subtracted and the result rounded to the nearest integer.",
+      "translation": "전역 좌표계의 행 위치(픽셀 단위)이며, ``origin_y`` 를 뺀 뒤 결과를 가장 가까운 정수로 반올림합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.align.CanvasSpec.canvas_yx#2",
+      "source": "global-frame column position, in pixels; ``origin_x`` is subtracted and the result rounded to the nearest integer.",
+      "source_sha256": "abacb1dd0fc7228e735bb36b55b875f68441b1cf30460cef99050e4320ecc47b",
+      "context": "global-frame column position, in pixels; ``origin_x`` is subtracted and the result rounded to the nearest integer.",
+      "translation": "전역 좌표계의 열 위치(픽셀 단위)이며, ``origin_x`` 를 뺀 뒤 결과를 가장 가까운 정수로 반올림합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.align.format_plan#2",
+      "source": "alignment plan to summarise: its canvas shape, origin, placement and pair counts, nominal fallbacks, residuals, unplaced tiles and warnings are listed.",
+      "source_sha256": "0ec57aa3ad90e3d94063db2dfed01fb93cc6850d3a410ce3b59a10b2da646e16",
+      "context": "alignment plan to summarise: its canvas shape, origin, placement and pair counts, nominal fallbacks, residuals, unplaced microscope image fields and warnings are listed.",
+      "translation": "요약할 정렬 계획입니다. 캔버스 모양, 원점, 배치 및 쌍 개수, 공칭 대체값, 잔차, 배치되지 않은 타일과 경고가 나열됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.align.group_tiles#2",
+      "source": "tiles to split; each is grouped by its ``plate`` and ``well`` attributes and sorted by its original ``index`` within the group.",
+      "source_sha256": "105f4ad7bfdafe6820a894dfdf965d0188a1a6ebcdde8f48f6be401b1d491fa4",
+      "context": "tiles to split; each is grouped by its ``plate`` and ``well`` attributes and sorted by its original ``index`` within the group.",
+      "translation": "분할할 타일입니다. 각 타일은 ``plate`` 및 ``well`` 속성으로 그룹화되고 그룹 안에서 원래 ``index`` 순으로 정렬됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.anndata_export.export_anndata#1",
+      "source": "Everything :func:`build_anndata` accepts is accepted here and passed through; this adds the write and the artifact registration. A failed write preserves any existing destination; only a completed file replaces it and is registered as an artifact.",
+      "source_sha256": "74c0b12d18be373f05529fc4896f8d9d6a1893deda9f11e581fa17a1345ab6d0",
+      "context": "Everything :func:`build_anndata` accepts is accepted here and passed through; this adds the write and the artifact registration. A failed write preserves any existing destination; only a completed file replaces it and is registered as an artifact.",
+      "translation": ":func:`build_anndata` 가 받는 모든 인수를 여기서도 받아 그대로 전달합니다. 이 함수는 쓰기와 아티팩트 등록을 추가합니다. 쓰기가 실패하면 기존 대상 파일은 보존되며, 완료된 파일만 이를 대체하고 아티팩트로 등록됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.artifacts.Artifact#16",
+      "source": ":data:`STATUS_COMPLETE`, :data:`STATUS_PARTIAL` or :data:`STATUS_FAILED`.",
+      "source_sha256": "71d7a3ca7a2ffd6625e1f31140c6253dcad6d0abaf6b94777bfbe4fa9f1a9995",
+      "context": ":data:`STATUS_COMPLETE`, :data:`STATUS_PARTIAL` or :data:`STATUS_FAILED`.",
+      "translation": ":data:`STATUS_COMPLETE`, :data:`STATUS_PARTIAL` 또는 :data:`STATUS_FAILED` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.artifacts.Registry.downstream_of#2",
+      "source": "id or :class:`Artifact`.",
+      "source_sha256": "0e5e31f38e507c6b2f3d7f61a0dec1380b2ee4b3d2feed745e3e9d2648bde927",
+      "context": "id or :class:`Artifact`.",
+      "translation": "ID 또는 :class:`Artifact` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.attribution.Curve#1",
+      "source": "``'deletion'`` or ``'insertion'``.",
+      "source_sha256": "9a66779b7096e81c996dda331127212cbf3ff46cfe10170f488b0901e82ea408",
+      "context": "``'deletion'`` or ``'insertion'``.",
+      "translation": "``'deletion'`` 또는 ``'insertion'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.barcode_search.OrientationFinding#19",
+      "source": "``PRESENT``, ``ABSENT`` or ``INDETERMINATE``.",
+      "source_sha256": "6272b19cb663011bce661657084005a1e50445303b62d9eefd92f410df08a690",
+      "context": "``PRESENT``, ``ABSENT`` or ``INDETERMINATE``.",
+      "translation": "``PRESENT``, ``ABSENT`` 또는 ``INDETERMINATE`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.baseline.resolve#2",
+      "source": ":data:`ZERO`, :data:`CONTROLS`, :data:`NAMED` or :data:`VALUE`.",
+      "source_sha256": "76fedc84d73364108a1360793853c2d5a7dfed845bc8ee524ffbb0cbe92c80da",
+      "context": ":data:`ZERO`, :data:`CONTROLS`, :data:`NAMED` or :data:`VALUE`.",
+      "translation": ":data:`ZERO`, :data:`CONTROLS`, :data:`NAMED` 또는 :data:`VALUE` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.batch.Progress#2",
+      "source": "``'queue_started'``, ``'job_started'``, ``'job_finished'``, ``'job_skipped'``, ``'queue_stopped'`` or ``'queue_finished'``.",
+      "source_sha256": "3306c2e61052d9d04c8a75a0e2a1f3d88728c16e02a5c0ea16aa54f385ac9477",
+      "context": "``'queue_started'``, ``'job_started'``, ``'job_finished'``, ``'job_skipped'``, ``'queue_stopped'`` or ``'queue_finished'``.",
+      "translation": "``'queue_started'``, ``'job_started'``, ``'job_finished'``, ``'job_skipped'``, ``'queue_stopped'`` 또는 ``'queue_finished'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.batch.fmt_duration#2",
+      "source": "``'—'``, ``'42.1s'``, ``'7m 12s'`` or ``'7h 41m'``.",
+      "source_sha256": "30973612f79bc2cb9a33116f3ee53fe430aa8d7498017dd2b3dd94dcd5d78d8b",
+      "context": "``'—'``, ``'42.1s'``, ``'7m 12s'`` or ``'7h 41m'``.",
+      "translation": "``'—'``, ``'42.1s'``, ``'7m 12s'`` 또는 ``'7h 41m'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.batch.resolve_job_settings#1",
+      "source": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline dict) read under today's setting names, then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader, migration and coercion so a value the CLI accepts is a value the queue accepts.",
+      "source_sha256": "999932b87419b7d4b83512692055d60b43babd06daeb01c1d4d01b2bff1f883c",
+      "context": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline key-value mapping) read under today's setting names, then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader, migration and coercion so a value the CLI accepts is a value the work list accepts.",
+      "translation": "``spacr-run`` 과 정확히 같은 순서로 계층화합니다. 모듈 기본값, 그다음 현재 설정 이름으로 읽은 설정 파일(또는 인라인 사전), 그다음 ``--set`` 재정의 순이며, :mod:`spacr.cli` 자체의 로더, 마이그레이션 및 형 변환을 사용하므로 CLI 가 받아들이는 값은 대기열도 받아들입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.batch_correction.correct_from_metadata#11",
+      "source": "``\"error\"`` or ``\"skip\"``.",
+      "source_sha256": "3842bc5b8dc4b017c25c557fb8f85f94ffb0dcc4a077ba04b9a0e7061ef7ba41",
+      "context": "``\"error\"`` or ``\"skip\"``.",
+      "translation": "``\"error\"`` 또는 ``\"skip\"`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cell_montage.Coefficient#3",
+      "source": "``'gene'`` or ``'grna'``.",
+      "source_sha256": "075be2a1fb1583d7285dcbdf30e460446c2aa0cece8ed95dec7d63a9d6847165",
+      "context": "``'gene'`` or ``'grna'``.",
+      "translation": "``'gene'`` 또는 ``'grna'`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cell_montage.MontagePlan#6",
+      "source": "``'sum'`` or ``'separate'``.",
+      "source_sha256": "7b5cbadd2d90f012773f35fc5963be7b301fcf729faaae2cf68a961e9f38a2cc",
+      "context": "``'sum'`` or ``'separate'``.",
+      "translation": "``'sum'`` 또는 ``'separate'`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cell_montage.RouteRequirements#2",
+      "source": "``'png'``, ``'merged-mask'``, ``'merged-bbox'``, or ``'none'``.",
+      "source_sha256": "3dcf810f973795a305e4ab196cdba1060bf86ccd55766707258060138cc34aea",
+      "context": "``'png'``, ``'merged-mask'``, ``'merged-bbox'``, or ``'none'``.",
+      "translation": "``'png'``, ``'merged-mask'``, ``'merged-bbox'`` 또는 ``'none'`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels#0",
+      "source": "Versioned crop decoding shared by classification and its checkpoints.",
+      "source_sha256": "ab115c417e9882b335d552bb8f4fa093adac4394c949baddc89fc3a4998e49a0",
+      "context": "Versioned extracted image region decoding shared by classification and its checkpoints.",
+      "translation": "분류와 그 체크포인트가 공유하는 버전 관리된 추출 이미지 영역 디코딩입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.checkpoint_policy#0",
+      "source": "Read a checkpoint's decoder contract, preserving historical untagged models.",
+      "source_sha256": "75fe18af7c62cd58d511ca9a8a3bdbda1ab85fc63eead54beb56029a8fb6dc31",
+      "context": "Read a checkpoint's decoder contract, preserving historical untagged models.",
+      "translation": "체크포인트의 디코더 계약을 읽으며, 태그가 없는 과거 모델을 보존합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.checkpoint_policy#1",
+      "source": "artifact mapping returned by ``load_model_artifact``.",
+      "source_sha256": "3230fbed4539ac046de007c40b3874e949326bdc24e911ac656c9e3da13d5b30",
+      "context": "artifact mapping returned by ``load_model_artifact``.",
+      "translation": "``load_model_artifact`` 가 반환한 아티팩트 매핑입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.checkpoint_policy#2",
+      "source": "explain the legacy fallback when the contract is absent.",
+      "source_sha256": "df1aa5a4181a9ede060e6b0989670ce21469b088163b1dc42bb14ddef0e922f4",
+      "context": "explain the legacy fallback when the contract is absent.",
+      "translation": "계약이 없을 때 레거시 대체 동작을 설명합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.checkpoint_policy#3",
+      "source": "validated policy name. Missing metadata selects stored PIL RGB.",
+      "source_sha256": "4be7d2d2d326a55746284818ec77c429ed23a454177a12516b312f0f2c853444",
+      "context": "validated policy name. Missing metadata selects stored PIL RGB.",
+      "translation": "검증된 정책 이름입니다. 메타데이터가 없으면 저장된 PIL RGB 를 선택합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.initialization_policy#0",
+      "source": "Select decoding before training loaders are built for a resumed model.",
+      "source_sha256": "c7e6662b822a559be42fbf656d4c7ae6b9adc2624cb2f7eb812008d4e9b5780a",
+      "context": "Select decoding before training loaders are built for a resumed model.",
+      "translation": "재개된 모델의 학습 로더를 만들기 전에 디코딩 방식을 선택합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.initialization_policy#1",
+      "source": "trusted checkpoint path, or None for a new training run.",
+      "source_sha256": "84b8ee08a46447f815520e16c8c6f891b883cb74828ce70946e62697b232992b",
+      "context": "trusted checkpoint path, or None for a new training processing session.",
+      "translation": "신뢰할 수 있는 체크포인트 경로이며, 새 학습 처리 세션이면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.initialization_policy#2",
+      "source": "saved policy, legacy fallback, or declared uint8 for new training.",
+      "source_sha256": "4b0d52b29107e67246a5edca6a067d6f4aab8527afc75f869c1b965267e217a6",
+      "context": "saved policy, legacy fallback, or declared uint8 for new training.",
+      "translation": "저장된 정책, 레거시 대체값 또는 새 학습용으로 선언된 uint8 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#0",
+      "source": "Find the decoding record through loaders, subsets and combined datasets.",
+      "source_sha256": "f4571abe74609797f08bf62b1b2d26845523463fe74f34051f00010cb5fc3f0e",
+      "context": "Find the decoding record through loaders, subsets and combined datasets.",
+      "translation": "로더, 하위 집합 및 결합된 데이터셋을 거쳐 디코딩 기록을 찾습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#1",
+      "source": "Unknown external tensor datasets return None. Mixed recorded policies are refused because a single checkpoint cannot describe both transformations.",
+      "source_sha256": "b3144eed7596862d955314e1fc234e0119da5e47ed4012a648295e17028dd4fb",
+      "context": "Unknown external tensor datasets return None. Mixed recorded policies are refused because a single checkpoint cannot describe both transformations.",
+      "translation": "알 수 없는 외부 텐서 데이터셋은 None 을 반환합니다. 기록된 정책이 섞여 있으면 거부됩니다. 하나의 체크포인트로는 두 변환을 모두 기술할 수 없기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#2",
+      "source": "loader or dataset exposing ``crop_loading_policy``, ``dataset`` or ``datasets``.",
+      "source_sha256": "351d9dcb17f0c53484faf331d7fe202bfea2ee09ba373007320a3477f021ace2",
+      "context": "loader or dataset exposing ``crop_loading_policy``, ``dataset`` or ``datasets``.",
+      "translation": "``crop_loading_policy``, ``dataset`` 또는 ``datasets`` 를 노출하는 로더 또는 데이터셋입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#3",
+      "source": "a validated policy name, or None if no policy is recorded.",
+      "source_sha256": "2c5554da99859d710ffb4f8287aac97479d64699aaf576d015be3135321c99cd",
+      "context": "a validated policy name, or None if no policy is recorded.",
+      "translation": "검증된 정책 이름이며, 기록된 정책이 없으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.loader_policy#4",
+      "source": "a policy is unsupported or combined datasets disagree, including a mixture of recorded and unknown policies.",
+      "source_sha256": "0cf1095fea7650caacdc0471b3d755628396ef240d8aad19cb3a2ccb18432129",
+      "context": "a policy is unsupported or combined datasets disagree, including a mixture of recorded and unknown policies.",
+      "translation": "정책이 지원되지 않거나 결합된 데이터셋의 정책이 서로 다를 때 발생하며, 기록된 정책과 알 수 없는 정책이 섞인 경우도 포함합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#0",
+      "source": "Decode a path or archive stream using the model's recorded policy.",
+      "source_sha256": "926fb74b286104118b7b7afcfe9822cf8f383ef927864d10c7a74ebfe458f949",
+      "context": "Decode a path or archive stream using the model's recorded policy.",
+      "translation": "모델에 기록된 정책을 사용해 경로 또는 아카이브 스트림을 디코딩합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#1",
+      "source": "image path or seekable binary stream, as accepted by PIL.",
+      "source_sha256": "e315827a7cc3e2331e4e68302655197f0832eb895b262e889b981b6bfdfa688a",
+      "context": "image path or seekable binary stream, as accepted by PIL.",
+      "translation": "PIL 이 받아들이는 이미지 경로 또는 탐색 가능한 바이너리 스트림입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#2",
+      "source": "declared uint8 decoding or historical stored PIL RGB.",
+      "source_sha256": "a8302986a376f53b2286c833d69a39b75fde400f2457a9ec3364a761491dda3d",
+      "context": "declared uint8 decoding or historical stored PIL RGB.",
+      "translation": "선언된 uint8 디코딩 또는 과거 방식의 저장된 PIL RGB 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#3",
+      "source": "source format; None resolves the path's per-file crop marker. Archive callers must supply a format (1 when unmarked).",
+      "source_sha256": "5a842941ed7a38a532b09c4f35ce0d907419c895f8c9f7a41ab21b80e5d903b6",
+      "context": "source format; None resolves the path's per-file extracted image region marker. Archive callers must supply a format (1 when unmarked).",
+      "translation": "원본 형식입니다. None 이면 경로의 파일별 추출 이미지 영역 표시자로 결정합니다. 아카이브 호출자는 형식을 지정해야 합니다(표시가 없으면 1).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#4",
+      "source": "retain the labelled loader's historical EXIF handling.",
+      "source_sha256": "3c2d2c8d9b7b8c13e0d18fa4e7924f00d2784adeabbd895c402245d4f93a5f08",
+      "context": "retain the labelled loader's historical EXIF handling.",
+      "translation": "레이블 로더의 과거 EXIF 처리 방식을 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.read_classification_image#5",
+      "source": "independently owned PIL RGB image with its file handle closed.",
+      "source_sha256": "6878842e32c6cec352d6f366407b35acf92dc07170e42cbc70dc40888292779c",
+      "context": "independently owned PIL RGB image with its file handle closed.",
+      "translation": "파일 핸들이 닫힌, 독립적으로 소유된 PIL RGB 이미지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#0",
+      "source": "Record actual loader decoding and reject checkpoint or validation conflicts.",
+      "source_sha256": "617eda864840c1bb28357110ae9689a690db38c32d6f950a2a109b1b3e1026d2",
+      "context": "Record actual loader decoding and reject checkpoint or validation conflicts.",
+      "translation": "실제 로더 디코딩을 기록하고 체크포인트 또는 검증 데이터와의 충돌을 거부합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#1",
+      "source": "training loader or dataset whose decoding is inspected.",
+      "source_sha256": "887945c504d799e74dcb63e5dacb11df3e57d100d63d5e090d3f219cbb03bca6",
+      "context": "training loader or dataset whose decoding is inspected.",
+      "translation": "디코딩을 검사할 학습 로더 또는 데이터셋입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#2",
+      "source": "validation loader or dataset checked for agreement.",
+      "source_sha256": "0de7901faf01f6c167df1dd5b8e55feaf6d65ac34668f5d87a3f84befa7ba170",
+      "context": "validation loader or dataset checked for agreement.",
+      "translation": "일치 여부를 확인할 검증 로더 또는 데이터셋입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#3",
+      "source": "optional preprocessing mapping copied into the result; an explicit policy must agree with a recorded training policy.",
+      "source_sha256": "df14b9563159c7d0cc3c838087fb1edbdd3f2c055e94e2ce0d3f1c9ff4b5d6b8",
+      "context": "optional preprocessing mapping copied into the result; an explicit policy must agree with a recorded training policy.",
+      "translation": "결과에 복사되는 선택적 전처리 매핑입니다. 명시적 정책은 기록된 학습 정책과 일치해야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#4",
+      "source": "optional loaded checkpoint metadata checked against the selected policy; an untagged checkpoint uses the historical policy.",
+      "source_sha256": "9b2299bc70a30933730ee728f869c4d913e56ac74acfee57e5ee4f96702d2e1d",
+      "context": "optional loaded checkpoint metadata checked against the selected policy; an untagged checkpoint uses the historical policy.",
+      "translation": "선택한 정책과 대조해 확인하는 선택적 로드된 체크포인트 메타데이터입니다. 태그가 없는 체크포인트는 과거 정책을 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#5",
+      "source": "a new preprocessing dictionary, including the policy when known. Unknown external datasets are not assigned a decoder automatically.",
+      "source_sha256": "297eacc0d81800d96cd1965ce8c685502f9d0e4f74135c8636d0c90b7b3b24e6",
+      "context": "a new preprocessing key-value mapping, including the policy when known. Unknown external datasets are not assigned a decoder automatically.",
+      "translation": "새 전처리 사전이며, 정책을 알면 정책도 포함합니다. 알 수 없는 외부 데이터셋에는 디코더가 자동으로 지정되지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.training_preprocessing#6",
+      "source": "a supplied policy is unsupported or the recorded training, validation, preprocessing or checkpoint policies conflict.",
+      "source_sha256": "8ff01b64ead0a7afad46b4cffcba1ad31bbad0e0f37bf529baaea8fe1696c6d4",
+      "context": "a supplied policy is unsupported or the recorded training, validation, preprocessing or checkpoint policies conflict.",
+      "translation": "지정된 정책이 지원되지 않거나, 기록된 학습, 검증, 전처리 또는 체크포인트 정책이 서로 충돌할 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.validate_policy#0",
+      "source": "Accept only implemented crop decoding policies; never guess a new one.",
+      "source_sha256": "f190abb55fe18a070a0e84f0a5bc3957c630a87ddfdf1007a30478e3d67e1735",
+      "context": "Accept only implemented extracted image region decoding policies; never guess a new one.",
+      "translation": "구현된 추출 이미지 영역 디코딩 정책만 받아들이며, 새 정책을 절대 추측하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.validate_policy#1",
+      "source": "``declared_uint8_v1`` or ``stored_pil_v1``.",
+      "source_sha256": "86ddbf36e7bc1c9984ce1543d14af4c2e51c17674d9e082a03fd248fb2cc674e",
+      "context": "``declared_uint8_v1`` or ``stored_pil_v1``.",
+      "translation": "``declared_uint8_v1`` 또는 ``stored_pil_v1`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.validate_policy#2",
+      "source": "the unchanged, validated policy name.",
+      "source_sha256": "ea4047035bf68b9089f92c6a19880f06c4b8ba24b67863d068a1bc7b7eca1e34",
+      "context": "the unchanged, validated policy name.",
+      "translation": "변경되지 않은 검증된 정책 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classification_pixels.validate_policy#3",
+      "source": "the supplied policy is not implemented.",
+      "source_sha256": "8c2f032750adb5cdf203b02ca07392c7cc4c8b55f866120d6c94d245a7d87f25",
+      "context": "the supplied policy is not implemented.",
+      "translation": "지정된 정책이 구현되어 있지 않을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.augmentation_family#2",
+      "source": "crop path or file name; only its basename without the final extension is used, with trailing augmentation suffixes stripped repeatedly.",
+      "source_sha256": "4d5757e061365e6306e7dbf4bd3a71a6a07d5475666b6921c47a795dea9bb934",
+      "context": "extracted-image-region path or file name; only its basename without the final extension is used, with trailing augmentation suffixes stripped repeatedly.",
+      "translation": "추출 이미지 영역의 경로 또는 파일 이름입니다. 마지막 확장자를 제외한 기본 이름만 사용하며, 끝에 붙은 증강 접미사는 반복해서 제거됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.dataset_split_paths#1",
+      "source": "dataset folder that contains the split folders; ``~`` is expanded.",
+      "source_sha256": "1dde56a83d0ec9048681972ab41c8dc337a53de77e539e5caa9c206a0c79f695",
+      "context": "dataset folder that contains the split folders; ``~`` is expanded.",
+      "translation": "분할 폴더를 포함하는 데이터셋 폴더입니다. ``~`` 는 확장됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.dataset_split_paths#2",
+      "source": "name of the split subfolder, such as ``train`` or ``test``. A missing folder returns an empty list; files with an image or ``.npy`` suffix are collected recursively below it.",
+      "source_sha256": "6bade2577b7841e0bcf24ce4d46dd636f9c884895d643284befb71379f3047a4",
+      "context": "name of the split subfolder, such as ``train`` or ``test``. A missing folder returns an empty list; files with an image or ``.npy`` suffix are collected recursively below it.",
+      "translation": "``train`` 또는 ``test`` 와 같은 분할 하위 폴더의 이름입니다. 폴더가 없으면 빈 목록을 반환하며, 그 아래에서 이미지 또는 ``.npy`` 접미사를 가진 파일을 재귀적으로 수집합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.expected_calibration_error#1",
+      "source": "true class index per sample, aligned with the rows of ``probabilities``.",
+      "source_sha256": "f97e7ac75b8a59dd6eb491636a38fba708da7de2aff4a6a8ca95ce8644ee8e1b",
+      "context": "true class index per sample, aligned with the rows of ``probabilities``.",
+      "translation": "샘플별 실제 클래스 인덱스이며, ``probabilities`` 의 행과 정렬됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.expected_calibration_error#2",
+      "source": "predicted probabilities, either a positive-class vector or a samples-by-classes matrix; validated and row-normalised by :func:`normalize_probabilities`. Its length must equal that of ``y_true``.",
+      "source_sha256": "d9577f1121da9ba73c2bf2db9250a8ed39924daf83b9fb0c5d109706c6a7dac8",
+      "context": "predicted probabilities, either a positive-class vector or a samples-by-classes matrix; validated and row-normalised by :func:`normalize_probabilities`. Its length must equal that of ``y_true``.",
+      "translation": "예측 확률이며, 양성 클래스 벡터 또는 샘플 대 클래스 행렬입니다. :func:`normalize_probabilities` 로 검증되고 행 단위로 정규화됩니다. 길이는 ``y_true`` 와 같아야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.find_evaluation_bundles#1",
+      "source": "folder searched recursively for evaluation manifests, or a manifest file (returned alone) or any other file (its folder is searched). A missing path raises :class:`FileNotFoundError`.",
+      "source_sha256": "2ec4b86702a5e358d1305df17a45848d1291f5511b2efa9a8063c9b2f1a04635",
+      "context": "folder searched recursively for evaluation manifests, or a manifest file (returned alone) or any other file (its folder is searched). A missing path throws :class:`FileNotFoundError`.",
+      "translation": "평가 매니페스트를 재귀적으로 검색할 폴더, 또는 매니페스트 파일(그 파일만 반환됨)이나 기타 파일(해당 폴더를 검색함)입니다. 경로가 없으면 :class:`FileNotFoundError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.fit_temperature#1",
+      "source": "true class index per sample; at least two samples and two distinct classes are required.",
+      "source_sha256": "6ca1fc7bc06e7e0e4b13d89692d297a34bbbaca1a2f8b3f47a0fd8e378963d7a",
+      "context": "true class index per sample; at least two samples and two distinct classes are required.",
+      "translation": "샘플별 실제 클래스 인덱스입니다. 샘플 2개 이상과 서로 다른 클래스 2개 이상이 필요합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.fit_temperature#2",
+      "source": "uncalibrated predicted probabilities, a positive-class vector or a samples-by-classes matrix, normalised by :func:`normalize_probabilities` before the fit.",
+      "source_sha256": "0a5cbb24f01a8c0af6cff8617cd0c59db48d28d489eeb5c2c2d9ac5aadef73aa",
+      "context": "uncalibrated predicted probabilities, a positive-class vector or a samples-by-classes matrix, normalised by :func:`normalize_probabilities` before the fit.",
+      "translation": "보정되지 않은 예측 확률이며, 양성 클래스 벡터 또는 샘플 대 클래스 행렬입니다. 적합 전에 :func:`normalize_probabilities` 로 정규화됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.load_evaluation_bundle#1",
+      "source": "an evaluation manifest file, or the bundle folder that contains it; ``~`` is expanded. Tables named by the manifest that are absent load as empty frames.",
+      "source_sha256": "3605221e0adad0629c2c71fc37f72d20b83130a872650f3b6d8007470668ac23",
+      "context": "an evaluation manifest file, or the bundle folder that contains it; ``~`` is expanded. Tables named by the manifest that are absent load as empty frames.",
+      "translation": "평가 매니페스트 파일 또는 이를 포함하는 번들 폴더입니다. ``~`` 는 확장됩니다. 매니페스트에 명시되었지만 존재하지 않는 테이블은 빈 프레임으로 로드됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.normalize_probabilities#1",
+      "source": "a one-dimensional positive-class vector, a one-column matrix (both expanded to two classes), or a samples-by-classes matrix. Values must be finite and within 0 to 1, and no row may sum to zero.",
+      "source_sha256": "9f2931926be846caddb9c151a8e96742bc9cb0696ed3f6e130577cf63c4545cd",
+      "context": "a one-dimensional positive-class vector, a one-column matrix (both expanded to two classes), or a samples-by-classes matrix. Values must be finite and within 0 to 1, and no row may sum to zero.",
+      "translation": "1차원 양성 클래스 벡터, 한 열짜리 행렬(둘 다 두 클래스로 확장됨) 또는 샘플 대 클래스 행렬입니다. 값은 유한하고 0 에서 1 사이여야 하며, 합이 0 인 행이 있으면 안 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.normalize_split_level#1",
+      "source": "requested split level: ``cell``, ``field``, ``well`` or ``plate`` (exact, lower-case). ``None``, ``False``, ``'none'`` and ``'off'`` map to ``cell``; anything else raises :class:`ValueError`.",
+      "source_sha256": "e40e7fefa5de06069dbdd5174d37c2c8c86a4b728fcf76160c40a3cc26a14630",
+      "context": "requested split level: ``cell``, ``field``, ``well`` or ``plate`` (exact, lower-case). ``None``, ``False``, ``'none'`` and ``'off'`` map to ``cell``; anything else raises :class:`ValueError`.",
+      "translation": "요청된 분할 수준입니다: ``cell``, ``field``, ``well`` 또는 ``plate`` (정확히 일치, 소문자). ``None``, ``False``, ``'none'``, ``'off'`` 는 ``cell`` 로 매핑되며, 그 밖의 값은 :class:`ValueError` 를 발생시킵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.sample_identity#2",
+      "source": "crop path or file name. Augmentation suffixes are removed and the stem is split on underscores to find the plate, well and field parts.",
+      "source_sha256": "37cec808b989aaa1f35c33691d0a0cf761995f47f6b6aaf2878708997e473fac",
+      "context": "extracted-image-region path or file name. Augmentation suffixes are removed and the stem is split on underscores to find the laboratory microplate, microplate sample position and microscope field of view parts.",
+      "translation": "추출 이미지 영역의 경로 또는 파일 이름입니다. 증강 접미사를 제거하고 기본 이름을 밑줄로 분할하여 마이크로플레이트, 마이크로플레이트 시료 위치 및 현미경 시야 부분을 찾습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.split_columns_for#2",
+      "source": "split level, normalised by :func:`normalize_split_level`.",
+      "source_sha256": "883fc7e4670911cf4ab3aac64861c90c46241b41ff802590fe57ca019230a93a",
+      "context": "split level, normalised by :func:`normalize_split_level`.",
+      "translation": ":func:`normalize_split_level` 로 정규화된 분할 수준입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.split_columns_for#3",
+      "source": "column names available in the table; every identity column the level needs must be present or :class:`ValueError` is raised.",
+      "source_sha256": "6884ffaa9d98f9a70ed392191c3f1ed3d6faf3e28574f8a1024b2bda8eaa6720",
+      "context": "column names available in the table; every identity column the level needs must be present or :class:`ValueError` is raised.",
+      "translation": "테이블에서 사용할 수 있는 열 이름입니다. 해당 수준에 필요한 모든 식별 열이 있어야 하며, 없으면 :class:`ValueError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_evaluation_bundle#1",
+      "source": "folder that receives the bundle; created with its parents if needed.",
+      "source_sha256": "d9a69f7e5fe14395dcdcbe45f120b3ba92e9677093cada580a55b13b558b3acf",
+      "context": "folder that receives the bundle; created with its parents if needed.",
+      "translation": "번들을 받을 폴더이며, 필요하면 상위 폴더와 함께 생성됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_evaluation_bundle#2",
+      "source": "mapping as returned by :func:`evaluate_predictions`, with ``summary``, ``predictions``, ``confusion_counts``, ``confusion_normalized``, ``per_plate`` and ``calibration`` entries.",
+      "source_sha256": "f67cbca546f307ff60364b64e8965e0142259004cfc0ea2c420a475435e116b0",
+      "context": "mapping as returned by :func:`evaluate_predictions`, with ``summary``, ``predictions``, ``confusion_counts``, ``confusion_normalized``, ``per_plate`` and ``calibration`` entries.",
+      "translation": ":func:`evaluate_predictions` 가 반환하는 매핑이며, ``summary``, ``predictions``, ``confusion_counts``, ``confusion_normalized``, ``per_plate``, ``calibration`` 항목을 가집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_leakage_audit#1",
+      "source": "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically.",
+      "source_sha256": "748d34afa2c7a8191aaf8456dcd2803ea285bf86e5b7b74ec3740486ce2d49a1",
+      "context": "destination JSON file; ``~`` is expanded and missing parent folders are created. It is replaced atomically.",
+      "translation": "대상 JSON 파일입니다. ``~`` 는 확장되고 없는 상위 폴더는 생성됩니다. 파일은 원자적으로 교체됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classifier_evaluation.write_leakage_audit#2",
+      "source": "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping.",
+      "source_sha256": "8ad5ad8c5d4b47fed0d00a7cde539506323f13d9db7e2579a18defa4d8b7842a",
+      "context": "leakage report or audit to write: any object with a ``to_dict()`` method, or a mapping.",
+      "translation": "기록할 누출 보고서 또는 감사 결과입니다. ``to_dict()`` 메서드를 가진 모든 객체 또는 매핑을 사용할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.classify.resolve_family#3",
+      "source": "``'cv'`` or ``'ml'``.",
+      "source_sha256": "2816bfa64b4cbe138dc4db1f46b485aff612268c6d124634db44271b827f2c2e",
+      "context": "``'cv'`` or ``'ml'``.",
+      "translation": "``'cv'`` 또는 ``'ml'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.cli.resolve_settings#1",
+      "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
+      "source_sha256": "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
+      "context": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
+      "translation": "낮은 우선순위에서 높은 순으로 계층화됩니다: 모듈 자체의 기본값, 설정 파일, 그다음 ``--set`` 재정의입니다. 파일은 먼저 현재 이름으로 읽힙니다. :func:`_under_todays_names` 를 참조하십시오. 이것이 없으면 파일이 옛 이름으로 설정한 값이 새 이름 아래에 이미 있는 기본값에 밀려 사라졌습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli.resolve_settings#5",
+      "source": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",
+      "source_sha256": "71cd8a699d1f3109ac9f4f9da2a60e25c20d1190a4f8238e0ac01a0e9cd97806",
+      "context": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",
+      "translation": "마이그레이션 알림을 받을 목록으로, :func:`_under_todays_names` 에 그대로 전달됩니다. 사전 점검 보고서를 출력하는 호출자는 이를 :func:`_preflight` 에 넘겨, 병합 과정에서 소비된 키가 그 보고서에도 표시되도록 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_download#2",
+      "source": "WHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches the example sets -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. The OPS and Align & Stitch samples are fetched only when named (``spacr-download ops stitch``) or with ``all``. It does NOT fetch the published TSG101 screen, which is 33 GB. A command that spent 33 GB of somebody's quota because they typed its name with no arguments would be a bug however well documented, so the screen is opt-in, is asked for in pieces, and is confirmed before it starts. The pieces are :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about 0.5 GB and four crop folders of about 8 GB, any subset of which can be named.",
+      "source_sha256": "cbeaa646852275e319331195d9c56909734676f0283735c25d09e0d5d60defdb",
+      "context": "What it will and will not do without being asked. With no arguments it fetches the example sets -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. The OPS and Align & Stitch samples are fetched only when named (``spacr-download ops stitch``) or with ``all``. It does NOT fetch the published TSG101 screen, which is 33 GB. A command that spent 33 GB of somebody's quota because they typed its name with no arguments would be a bug however well documented, so the screen is opt-in, is asked for in pieces, and is confirmed before it starts. The pieces are :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about 0.5 GB and four extracted image region folders of about 8 GB, any subset of which can be named.",
+      "translation": "요청하지 않아도 하는 일과 하지 않는 일. 인수 없이 실행하면 예제 세트(Import, Mask, Measure, Annotate/Classify, Replication, Recruitment 및 합성 Invasion 세트)를 가져오며, 합계는 약 1.8 GB 입니다. OPS 및 Align & Stitch 샘플은 이름을 지정하거나(``spacr-download ops stitch``) ``all`` 을 사용할 때만 가져옵니다. 33 GB 인 공개 TSG101 스크리닝 데이터는 가져오지 않습니다. 인수 없이 이름만 입력했다고 누군가의 할당량을 33 GB 나 소비하는 명령은 아무리 잘 문서화되어 있어도 버그이므로, 스크리닝 데이터는 명시적으로 선택해야 하고, 부분별로 요청하며, 시작 전에 확인을 받습니다. 부분 구성은 :mod:`spacr.screen_data` 의 것을 그대로 사용합니다. 약 0.5 GB 인 측정 데이터베이스 네 개와 약 8 GB 인 추출 이미지 영역 폴더 네 개이며, 그중 어떤 부분 집합이든 이름으로 지정할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_download.example_folder#0",
+      "source": "The one plate folder the three plate example sets unpack into.",
+      "source_sha256": "354ba7e0ced3cba236accddc4c99e877c5d1b29d77582195eaf7e4954136358b",
+      "context": "The one plate folder the three plate example sets unpack into.",
+      "translation": "세 가지 플레이트 예제 세트가 압축 해제되는 하나의 마이크로플레이트 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_download.example_folder#2",
+      "source": "The assay sets are not stages of that plate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
+      "source_sha256": "a0bb4d82a9a85d2cf00b406af7df8ca8f6f07a3c225a8de35b45b1194d264280",
+      "context": "The assay sets are not stages of that laboratory microplate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
+      "translation": "분석 세트는 그 마이크로플레이트의 단계가 아니며 각각 자체 폴더에 압축 해제됩니다. :func:`spacr.example_archives.example_set_folder` 를 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_make_masks#1",
+      "source": "A curation session has to be startable from a terminal, pointed at a folder, bounded, and resumable. Curation is done over SSH and on more than one machine, and the answer until now was ``spacr/cli.py``'s flat refusal — *\"Make Masks is a manual mask editor; run it in the GUI\"*. That sentence is still true about the brush and false about the session. This module is the session",
+      "source_sha256": "0f2837e3a323ac3929fe092b5e566fa850770a24c250c2809f7cb153f5994373",
+      "context": "A curation session has to be startable from a terminal, pointed at a folder, bounded, and resumable. Curation is done over SSH and on more than one machine, and the answer until now was ``spacr/cli.py``'s flat refusal — *\"Make Masks is a manual mask editor; run it in the GUI\"*. That sentence is still true about the brush and false about the session. This module is the session",
+      "translation": "큐레이션 세션은 터미널에서 시작할 수 있고, 폴더를 지정할 수 있으며, 범위가 정해져 있고, 재개할 수 있어야 합니다. 큐레이션은 SSH 를 통해 여러 컴퓨터에서 수행되는데, 지금까지의 대답은 ``spacr/cli.py`` 의 단호한 거부, 즉 *\"Make Masks is a manual mask editor; run it in the GUI\"* 였습니다. 이 문장은 브러시에 대해서는 여전히 맞지만 세션에 대해서는 틀립니다. 이 모듈이 바로 그 세션입니다",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_make_masks#7",
+      "source": "All three layouts open the editor",
+      "source_sha256": "30c86adf14efb7a9ebbeed1ed3e0000eccea603353ffef58ffe6514ae039c6bb",
+      "context": "All three layouts open the editor",
+      "translation": "세 가지 레이아웃 모두 편집기를 엽니다",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.cli_make_masks#8",
+      "source": ":func:`spacr.curation_queue.detect_layout` reads three layouts, and the editor edits each where it lies: a ``nested`` folder's masks in ``<folder>/masks``, a ``sibling`` set's in the ``masks/`` beside its ``images/`` -- never ``images/masks``, which would orphan every draft the set already has -- and a ``seg`` folder's ``_seg.npy`` bundles written back into themselves. :mod:`spacr.qt.mask_engine` says why in place is sound and no convert step is needed.",
+      "source_sha256": "8b92ca1e3962dc13e5284e4bc8a00e4d120378666a064b40c8bd87de0feb4bbb",
+      "context": ":func:`spacr.curation_queue.detect_layout` reads three layouts, and the editor edits each where it lies: a ``nested`` folder's masks in ``<folder>/masks``, a ``sibling`` set's in the ``masks/`` beside its ``images/`` -- never ``images/masks``, which would orphan every draft the set already has -- and a ``seg`` folder's ``_seg.npy`` bundles written back into themselves. :mod:`spacr.qt.mask_engine` says why in place is sound and no convert step is needed.",
+      "translation": ":func:`spacr.curation_queue.detect_layout` 은 세 가지 레이아웃을 읽고, 편집기는 각 레이아웃을 있는 위치에서 편집합니다. ``nested`` 폴더의 마스크는 ``<folder>/masks`` 에서, ``sibling`` 세트의 마스크는 ``masks/`` (``images/`` 옆에 있는 폴더)에서 편집하며(``images/masks`` 는 절대 아님. 그러면 세트에 이미 있는 모든 초안이 고아가 됩니다), ``seg`` 폴더의 ``_seg.npy`` 번들은 자기 자신에게 다시 기록됩니다. 제자리 편집이 왜 안전하고 변환 단계가 필요 없는지는 :mod:`spacr.qt.mask_engine` 에 설명되어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.convert.Mapping.to_row#2",
+      "source": "``'converted'``, ``'existing'`` or ``'failed'``.",
+      "source_sha256": "00eb63101bd6225337ffaa4497bd822024e36567ca1583565373bfab0cfd6041",
+      "context": "``'converted'``, ``'existing'`` or ``'failed'``.",
+      "translation": "``'converted'``, ``'existing'`` 또는 ``'failed'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.plan#4",
+      "source": "**field** — 1..N per well, over the distinct field keys; or, for sources :func:`scan` read by a ``metadata_type``, the field numbers the filenames state, when every field has one and none repeats.",
+      "source_sha256": "3f3ab89675f685c50d567d9021e54db406a00eff0ec183bf7b70d5ddb35ea939",
+      "context": "**microscope field of view** — 1..N per microplate sample position, over the distinct microscope field of view structured-data names; or, for sources :func:`scan` read by a ``metadata_type``, the microscope field of view numbers the filenames state, when every microscope field of view has one and none repeats.",
+      "translation": "**현미경 시야** — 서로 다른 현미경 시야 키에 대해 마이크로플레이트 시료 위치별로 1..N 입니다. 또는 :func:`scan` 이 ``metadata_type`` 으로 읽은 소스의 경우, 모든 현미경 시야에 번호가 있고 중복이 없으면 파일 이름에 명시된 현미경 시야 번호입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.convert.plan#9",
+      "source": "``'index'`` or ``'name'``.",
+      "source_sha256": "0f2ed6e8bedefae084b8b17d926c67fefcad4e4db3671a8d0f723ee4a4318292",
+      "context": "``'index'`` or ``'name'``.",
+      "translation": "``'index'`` 또는 ``'name'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.convert.scan#11",
+      "source": "when ``src`` is not a directory, ``layout`` is not recognised, or ``metadata_type`` names no convention.",
+      "source_sha256": "52c9cda9166a7d9f9c36919c034e6f56d23e3cff5d47f48d75f2145735221307",
+      "context": "when ``src`` is not a directory, ``layout`` is not recognised, or ``metadata_type`` names no convention.",
+      "translation": "``src`` 가 디렉터리가 아니거나, ``layout`` 을 인식할 수 없거나, ``metadata_type`` 이 어떤 규칙도 가리키지 않을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.convert.scan#8",
+      "source": "a filename convention from Mask's ``metadata_type`` list (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...). When given, plate, well, field, channel, z and t are READ FROM EACH NAME by that convention's pattern, and the folders only supply what the name does not carry -- the plate for a convention with no plate group, the well for one whose \"well\" is a scene index or a literal word. A file whose name does not follow the convention is reported unreadable, with the reason, rather than guessed at. ``None``, ``''`` and ``'auto'`` keep the folder-and-token inference.",
+      "source_sha256": "e8cf8c99d55295fa4b672504bb85a79562d58dc0b7635c2beddd9e2ebe7b69b6",
+      "context": "a filename convention from Mask's ``metadata_type`` list (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...). When given, laboratory microplate, microplate sample position, microscope field of view, image data channel, z and t are read from each name by that convention's pattern, and the folders only supply what the name does not carry -- the laboratory microplate for a convention with no laboratory microplate group, the microplate sample position for one whose \"well\" is a scene index or a literal word. A file whose name does not follow the convention is reported unreadable, with the reason, rather than guessed at. ``None``, ``''`` and ``'auto'`` keep the folder-and-token inference.",
+      "translation": "Mask 의 ``metadata_type`` 목록에 있는 파일 이름 규칙입니다(``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...). 지정하면 마이크로플레이트, 마이크로플레이트 시료 위치, 현미경 시야, 이미지 데이터 채널, z, t 를 해당 규칙의 패턴으로 각 이름에서 직접 읽으며, 폴더는 이름에 없는 정보만 제공합니다. 즉, 마이크로플레이트 그룹이 없는 규칙에서는 마이크로플레이트를, \"well\" 이 장면 인덱스나 문자 그대로의 단어인 규칙에서는 마이크로플레이트 시료 위치를 제공합니다. 이름이 규칙을 따르지 않는 파일은 추측하지 않고 이유와 함께 읽을 수 없다고 보고합니다. ``None``, ``''``, ``'auto'`` 는 폴더 및 토큰 기반 추론을 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.convert.scan#9",
+      "source": "the pattern for ``metadata_type='custom'``, with named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally ``plateID``, ``timeID``, ``sliceID``).",
+      "source_sha256": "a69d1645e44ae514654008fbe1b31d7ab1819b62d70c844d67f856b73e2c50cd",
+      "context": "the pattern for ``metadata_type='custom'``, with named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally ``plateID``, ``timeID``, ``sliceID``).",
+      "translation": "``metadata_type='custom'`` 에 사용할 패턴이며, 이름 있는 그룹 ``wellID``, ``fieldID``, ``chanID`` (선택적으로 ``plateID``, ``timeID``, ``sliceID``)를 포함합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.convert.write_map#9",
+      "source": "``status`` — ``converted``, ``existing`` or ``failed``;",
+      "source_sha256": "7dbe2f32f264439c79db66376e11ca0bb82f8f3691ebe8ce61abfe28dc410066",
+      "context": "``status`` — ``converted``, ``existing`` or ``failed``;",
+      "translation": "``status`` — ``converted``, ``existing`` 또는 ``failed``;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#12",
+      "source": "``motility_analysis`` — when timelapse is enabled, analyze the completed merged frames once per plate, rebuilding measurements from the current masks rather than reusing an older assay table.",
+      "source_sha256": "2daed458812e607f041e55b4d5f2e02a55059df2ed7f124c73170578959ae7cf",
+      "context": "``motility_analysis`` — when timelapse is enabled, analyze the completed merged frames once per laboratory microplate, rebuilding measurements from the current masks rather than reusing an older assay table.",
+      "translation": "``motility_analysis`` — 타임랩스가 활성화되면 완료된 병합 프레임을 마이크로플레이트당 한 번 분석하며, 이전 분석 테이블을 재사용하지 않고 현재 마스크에서 측정값을 다시 생성합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#0",
+      "source": "Choose a set of crops, then read them a page at a time.",
+      "source_sha256": "3101c85055dffc1d4d8e57a74fee8c1d22766eec91d86896d75630d6bf5387d6",
+      "context": "Choose a set of extracted image regions, then read them a page at a time.",
+      "translation": "추출 이미지 영역 집합을 선택한 다음 한 페이지씩 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#1",
+      "source": "**WHAT IT IS FOR.** Every screen that shows objects has had its own way of finding them, and the Embeddings screen had none at all -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existed and nothing in ``spacr/`` called it, so the only route to a label-free vector was to open Python. This module is the missing half: it turns a question about a plate into a stack of pixels, and it does it in two steps so a GUI can stay answerable between them.",
+      "source_sha256": "cea439e50c1bfbd8e82ed329bde7a6d73038961b4fdd36627239e6a5a37f1b18",
+      "context": "**What it is for.** Every application view that shows objects has had its own way of finding them, and the Embeddings application view had none at all -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existed and nothing in ``spacr/`` called it, so the only route to a label-free vector was to open Python. This module is the missing half: it turns a question about a plate into a stack of pixels, and it does it in two steps so a GUI can stay answerable between them.",
+      "translation": "**용도.** 객체를 보여 주는 화면마다 객체를 찾는 고유한 방법이 있었지만 Embeddings 화면에는 그런 방법이 전혀 없었습니다. :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` 는 존재했지만 ``spacr/`` 의 어떤 코드도 이를 호출하지 않았으므로, 레이블 없는 벡터를 얻는 유일한 방법은 Python 을 여는 것이었습니다. 이 모듈이 빠져 있던 나머지 절반입니다. 마이크로플레이트에 대한 질문을 픽셀 스택으로 바꾸며, 그사이에 GUI 가 응답성을 유지할 수 있도록 두 단계로 나누어 수행합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#2",
+      "source": "**PLANNING IS NOT LOADING, and that separation is the whole design.** :func:`plan_crops` asks the database or the folder *which objects match* and reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one ``scandir``. It is milliseconds on a plate of sixty thousand crops, so a screen can run it on a click and tell the user what they asked for before committing to reading any of it. :func:`load_crops` then reads the pixels in pages, reporting after each one. A caller that runs the second half on a worker thread gets a progress number per page and a stop that takes effect within a page rather than at the end.",
+      "source_sha256": "a2b7234b8098f4c5c55bbda35e8d9803f520b4056638fcfc5dc39b98541f258e",
+      "context": "**Planning is not loading, and that separation is the whole design.** :func:`plan_crops` asks the database or the folder *which objects match* and reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one ``scandir``. It is milliseconds on a plate of sixty thousand extracted image regions, so a screen can execute it on a click and tell the user what they asked for before committing to reading any of it. :func:`load_crops` then reads the pixels in pages, reporting after each one. A caller that executes the second half on a background execution unit gets a progress number per page and a stop that takes effect within a page rather than at the end.",
+      "translation": "**계획은 로딩이 아니며, 이 분리가 설계의 전부입니다.** :func:`plan_crops` 는 데이터베이스나 폴더에 *어떤 객체가 일치하는지* 묻고 픽셀은 전혀 읽지 않습니다. 식별자에 대한 ``COUNT`` 와 ``SELECT``, 또는 ``scandir`` 한 번뿐입니다. 추출 이미지 영역이 육만 개인 마이크로플레이트에서도 몇 밀리초면 되므로, 화면은 클릭 시 이를 실행하여 데이터를 읽기 전에 사용자가 무엇을 요청했는지 알려 줄 수 있습니다. 그다음 :func:`load_crops` 가 픽셀을 페이지 단위로 읽고 각 페이지 후에 보고합니다. 두 번째 절반을 백그라운드 작업자 실행 경로에서 실행하는 호출자는 페이지마다 진행률 숫자를 받고, 중지 요청은 마지막이 아니라 한 페이지 안에서 적용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#3",
+      "source": "**WHAT IT NEEDS.** Either a ``measurements.db`` -- where the crops are chosen by object class, by plate, or by a predicate over ``png_list`` -- or a folder of crop PNGs. Nothing else: the pixels themselves come from :func:`spacr.crops.resolve_crop_source`, so this module inherits the existing answer to \"are there pre-generated crops here, or do we cut from ``merged/*.npy``\" rather than inventing a second one, and a legacy folder is corrected on load exactly as it is everywhere else.",
+      "source_sha256": "0246ed020295fb5f7fa9294f43b79e139378001612699d3898a2907e813b6e68",
+      "context": "**What it needs.** Either a ``measurements.db`` -- where the extracted image regions are chosen by object class, by plate, or by a predicate over ``png_list`` -- or a folder of extracted image region PNGs. Nothing else: the pixels themselves come from :func:`spacr.crops.resolve_crop_source`, so this module inherits the existing answer to \"are there pre-generated extracted image regions here, or do we cut from ``merged/*.npy``\" rather than inventing a second one, and a legacy folder is corrected on load exactly as it is everywhere else.",
+      "translation": "**필요한 것.** ``measurements.db`` (추출 이미지 영역을 객체 클래스, 마이크로플레이트 또는 ``png_list`` 에 대한 조건식으로 선택함) 또는 추출 이미지 영역 PNGs 폴더 중 하나입니다. 그 밖에는 없습니다. 픽셀 자체는 :func:`spacr.crops.resolve_crop_source` 에서 가져오므로, 이 모듈은 \"여기에 미리 생성된 추출 이미지 영역이 있는가, 아니면 ``merged/*.npy`` 에서 잘라 내는가\"에 대한 기존 답을 두 번째로 새로 만들지 않고 그대로 물려받으며, 레거시 폴더는 다른 모든 곳과 똑같이 로드할 때 보정됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#4",
+      "source": "**WHAT IT PRODUCES.** One ``(objects, height, width, channels)`` uint8 array, which is the layout :func:`spacr.embeddings.embed_array` documents and :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus a JSON-serialisable ``record`` of what was actually read -- how many matched, how many were taken, the crop shape, and how many crops had to be conformed to it.",
+      "source_sha256": "7cbd39f7b940b46852f5602d894db6eab98ffcde8412e68e8c6b9381c6baece2",
+      "context": "**What it produces.** One ``(objects, height, width, channels)`` uint8 array, which is the layout :func:`spacr.embeddings.embed_array` documents and :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus a JSON-serialisable ``record`` of what was actually read -- how many matched, how many were taken, the extracted image region shape, and how many extracted image regions had to be conformed to it.",
+      "translation": "**산출물.** ``(objects, height, width, channels)`` uint8 배열 하나이며, 이는 :func:`spacr.embeddings.embed_array` 가 문서화하고 :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` 가 요구하는 레이아웃입니다. 여기에 실제로 읽은 내용의 JSON 직렬화 가능한 ``record`` 가 더해집니다. 일치한 개수, 가져온 개수, 추출 이미지 영역의 모양, 그리고 그 모양에 맞추어야 했던 추출 이미지 영역의 수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#5",
+      "source": "**WHAT TO DO NEXT.** Hand the array to the Embeddings screen, or straight to :func:`spacr.embeddings.embed_array`.",
+      "source_sha256": "b10cc334b1c8590ce9def8b83370b72555d59dac5c73c0dcedc5d80791d85485",
+      "context": "**What to do next.** Hand the array to the Embeddings screen, or straight to :func:`spacr.embeddings.embed_array`.",
+      "translation": "**다음 단계.** 배열을 Embeddings 화면에 넘기거나 :func:`spacr.embeddings.embed_array` 에 직접 전달합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#6",
+      "source": "**A CAP IS PART OF THE ANSWER, NOT A FAILURE TO LOAD EVERYTHING.** Sixty thousand crops of 96x96x3 is 1.6 GB before a backbone has seen one of them, and a screen that tries it dies on a machine that could have embedded the first two thousand happily. So :attr:`CropQuery.limit` is a real default and the plan says what it left behind -- \"the first 2,000 of 61,433\" -- rather than quietly returning a subset that looks like the whole plate.",
+      "source_sha256": "f5416d81e92af3e5782b6df0c779f69b6655ac044f706b098fd1086e379a768c",
+      "context": "**A cap is part of the answer, not a failure to load everything.** Sixty thousand extracted image regions of 96x96x3 is 1.6 GB before a backbone has seen one of them, and a screen that tries it dies on a machine that could have embedded the first two thousand happily. So :attr:`CropQuery.limit` is a real default and the plan says what it left behind -- \"the first 2,000 of 61,433\" -- rather than quietly returning a subset that looks like the whole plate.",
+      "translation": "**상한은 답의 일부이지, 전부를 로드하지 못한 실패가 아닙니다.** 96x96x3 크기의 추출 이미지 영역 육만 개는 백본이 하나도 보기 전에 이미 1.6 GB 이며, 이를 시도하는 화면은 처음 이천 개라면 문제없이 임베딩할 수 있었을 컴퓨터에서 중단됩니다. 따라서 :attr:`CropQuery.limit` 은 실제 기본값이며, 마이크로플레이트 전체처럼 보이는 부분 집합을 조용히 반환하는 대신 계획이 무엇을 남겨 두었는지(\"61,433 개 중 처음 2,000 개\") 알려 줍니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#7",
+      "source": "**AND A CAP IS NOT THE ONLY THING THAT REMOVES A ROW, SO IT IS COUNTED ON ITS OWN.** The merged route drops every row it cannot cut, and reporting that as a cap is the same sentence read backwards: a complete answer dressed as a subset, telling the user to raise a limit that never bit. So :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap between the first two and :attr:`CropPlan.dropped` the gap between the last two, and they reach the panel as separate clauses.",
+      "source_sha256": "b03529a0c8a16d11a9d75ec30f7641740b14ab9c0f1ae1fa4c8e5d0cfe29ac51",
+      "context": "**And a cap is not the only thing that removes a row, so it is counted on its own.** The merged route drops every row it cannot cut, and reporting that as a cap is the same sentence read backwards: a complete answer dressed as a subset, telling the user to raise a limit that never bit. So :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap between the first two and :attr:`CropPlan.dropped` the gap between the last two, and they reach the panel as separate clauses.",
+      "translation": "**그리고 상한만이 행을 제거하는 것은 아니므로, 이는 따로 집계됩니다.** 병합 경로는 잘라 낼 수 없는 모든 행을 버리는데, 이를 상한으로 보고하는 것은 같은 문장을 거꾸로 읽는 것과 같습니다. 완전한 답을 부분 집합으로 포장해, 적용된 적도 없는 한도를 올리라고 사용자에게 말하게 됩니다. 따라서 :attr:`CropPlan.matched`, :attr:`CropPlan.selected`, :attr:`CropPlan.count` 는 세 개의 숫자이고, :attr:`CropPlan.capped` 는 앞의 두 값의 차이, :attr:`CropPlan.dropped` 는 뒤의 두 값의 차이이며, 이들은 패널에 별개의 절로 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#8",
+      "source": "**AN EMPTY RESULT IS A SENTENCE, NEVER AN EMPTY ARRAY.** A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which names the table, the class, the plate and the predicate that were asked for AND what the database does hold, because \"no crops\" on its own sends a user to look for a broken install when they have asked for plate 9 of an eight-plate screen.",
+      "source_sha256": "64d3e787e6c1589ed05899b1fa0efa9af0a8caa64964c6cb571bb56c36c90a3e",
+      "context": "**An empty result is a sentence, never an empty array.** A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which names the table, the class, the plate and the predicate that were asked for AND what the database does hold, because \"no crops\" on its own sends a user to look for a broken install when they have asked for plate 9 of an eight-plate screen.",
+      "translation": "**빈 결과는 빈 배열이 아니라 항상 문장입니다.** 아무것도 일치하지 않은 계획은 :attr:`CropPlan.empty_reason` 을 가지며, 여기에는 요청한 테이블, 클래스, 마이크로플레이트, 조건식과 함께 데이터베이스에 실제로 있는 내용도 명시됩니다. 여덟 개 마이크로플레이트로 된 스크리닝에서 9번 마이크로플레이트를 요청한 사용자에게 \"no crops\" 만 보여 주면 설치가 손상되었는지 찾아보게 만들기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader#9",
+      "source": "**THE PREDICATE IS SQL AND THE DATABASE IS OPENED READ-ONLY.** ``where`` is a fragment of the user's own query language against their own file; refusing it would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so the connection is opened with ``readonly=True`` -- SQLite's ``query_only``, which refuses every write at the engine -- and a predicate carrying a statement separator is rejected before it is sent.",
+      "source_sha256": "5344722e1829dc66e3e587f9e0d9dfd5f168597192263dd45a579f0b076fdd04",
+      "context": "**The predicate is sql and the database is opened read-only.** ``where`` is a fragment of the user's own query language against their own file; refusing it would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so the connection is opened with ``readonly=True`` -- SQLite's ``query_only``, which refuses every write at the engine -- and a predicate carrying a statement separator is rejected before it is sent.",
+      "translation": "**조건식은 SQL 이며 데이터베이스는 읽기 전용으로 열립니다.** ``where`` 는 사용자 자신의 파일에 대한 사용자 자신의 쿼리 언어 조각이며, 이를 거부하면 더 나쁜 언어를 새로 만들어야 합니다. 이 조각은 ``WHERE`` 절에 삽입되므로 연결은 ``readonly=True`` 로 열립니다. 이는 엔진 수준에서 모든 쓰기를 거부하는 SQLite 의 ``query_only`` 이며, 문 구분자가 포함된 조건식은 전송되기 전에 거부됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropLoadError#0",
+      "source": "A set of crops that cannot be loaded, and why.",
+      "source_sha256": "7ab67d66deb5395cb67e537c55c3092a0363eaf24b3d1e7194e4a7d5cc0e3983",
+      "context": "A set of extracted image regions that cannot be loaded, and why.",
+      "translation": "로드할 수 없는 추출 이미지 영역 집합과 그 이유입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropLoadError#1",
+      "source": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
+      "source_sha256": "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778",
+      "context": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
+      "translation": "상태 표시줄에 표시하기에 적합한 문장을 담습니다. 이 모듈에서 발생하는 모든 예외는 그것을 일으킨 경로, 클래스 또는 조건식을 명시합니다. 호출자는 화면이며, 실패를 설명할 유일한 방법은 이 텍스트를 그대로 보여 주는 것이기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#0",
+      "source": "What a query matched, before any pixel was read.",
+      "source_sha256": "5bce440c131c6cfb6be8836af2fce1b93c6120fa6b53ac7183ebf5cdea46a379",
+      "context": "What a query matched, before any pixel was read.",
+      "translation": "픽셀을 하나도 읽기 전에 쿼리가 일치시킨 내용입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#1",
+      "source": "the :class:`CropQuery` this answers.",
+      "source_sha256": "89c6c37c0d12ea865a9f4c0dcf76f4d72cafaf47827c738872d4d320fc6693c4",
+      "context": "the :class:`CropQuery` this answers.",
+      "translation": "이 계획이 답하는 :class:`CropQuery` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#2",
+      "source": "one opaque handle per crop, in the order they load -- a row mapping for the database source, a path string for the folder one. Never longer than ``query.limit``.",
+      "source_sha256": "bcaf4735740d4ae4ca2dcc96c6022330ebebf187e04fed5796f44946f8db923f",
+      "context": "one opaque handle per extracted image region, in the order they load -- a row mapping for the database source, a path string for the folder one. Never longer than ``query.limit``.",
+      "translation": "추출 이미지 영역마다 하나씩 있는 불투명 핸들이며, 로드되는 순서대로 나열됩니다. 데이터베이스 소스에서는 행 매핑, 폴더 소스에서는 경로 문자열입니다. 길이는 ``query.limit`` 을 넘지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#3",
+      "source": "how many crops the query matched in total, before the limit and before the merged route's join. More than ``selected`` exactly when the cap bit.",
+      "source_sha256": "6a7e3f39308cb59a47c400b32da4c3960a6784d76c2d6d13de3811411c5e2f0c",
+      "context": "how many extracted image regions the query matched in total, before the limit and before the merged route's join. More than ``selected`` exactly when the cap bit.",
+      "translation": "한도 적용 전, 그리고 병합 경로의 조인 전에 쿼리가 일치시킨 추출 이미지 영역의 총수입니다. 상한이 실제로 적용된 경우에만 ``selected`` 보다 큽니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#4",
+      "source": "how many rows the selection actually took, which is ``min(matched, limit)``. Left at ``0`` it defaults to ``len(rows)``, which is right for every plan that has no join to lose rows to.",
+      "source_sha256": "23cae9f33148dfca08572e70e8f05142ac276d07aa8b89d9069fca23cff727af",
+      "context": "how many rows the selection actually took, which is ``min(matched, limit)``. Left at ``0`` it defaults to ``len(rows)``, which is right for every plan that has no join to lose rows to.",
+      "translation": "선택이 실제로 가져온 행의 수이며, ``min(matched, limit)`` 입니다. ``0`` 으로 두면 기본값은 ``len(rows)`` 이며, 행을 잃을 조인이 없는 모든 계획에 올바른 값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#5",
+      "source": "which pixel route was chosen and why, from :meth:`spacr.crops.CropSource.describe`.",
+      "source_sha256": "22b89e20a778b08bec5f7473a2b5da0af1725c95245c77318d3c5fec1683ae93",
+      "context": "which pixel route was chosen and why, from :meth:`spacr.crops.CropSource.describe`.",
+      "translation": "선택된 픽셀 경로와 그 이유이며, :meth:`spacr.crops.CropSource.describe` 에서 가져옵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#6",
+      "source": "the sentence to show when nothing matched, naming both what was asked and what is there. Empty when something did.",
+      "source_sha256": "aec37bc44716588af36844eef4ad1abd506f7f91e22613fdc4e784c13cf50244",
+      "context": "the sentence to show when nothing matched, naming both what was asked and what is there. Empty when something did.",
+      "translation": "아무것도 일치하지 않았을 때 표시할 문장이며, 요청된 내용과 실제로 있는 내용을 모두 명시합니다. 일치한 것이 있으면 비어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan#7",
+      "source": "**THREE NUMBERS, NOT TWO, BECAUSE TWO THINGS REMOVE ROWS AND THEY ASK THE READER FOR DIFFERENT THINGS.** ``matched`` is what the query found, ``selected`` is what the limit left of it, and ``count`` is what survived the merged route's join -- which drops every row with no single object label (``'omulti'`` / ``'onone'``) or no merged array recorded. Only the first gap is a cap, and only a cap is repaired by raising 'At most'; telling a user to raise a limit that never bit hands them an action that returns the same rows and reprints the same sentence.",
+      "source_sha256": "f622fbebcfd51538703ad24eedbb583f73fca0ab0d0343fe5113afe82137173b",
+      "context": "**Three numbers, NOT TWO, because two things remove rows and they ask the reader for different things.** ``matched`` is what the query found, ``selected`` is what the limit left of it, and ``count`` is what survived the merged route's join -- which drops every row with no single object label (``'omulti'`` / ``'onone'``) or no merged array recorded. Only the first gap is a cap, and only a cap is repaired by raising 'At most'; telling a user to raise a limit that never bit hands them an action that returns the same rows and reprints the same sentence.",
+      "translation": "**숫자는 두 개가 아니라 세 개입니다. 행을 제거하는 원인이 두 가지이고, 각각 독자에게 다른 것을 요구하기 때문입니다.** ``matched`` 는 쿼리가 찾은 것, ``selected`` 는 그중 한도가 남긴 것, ``count`` 는 병합 경로의 조인을 통과한 것입니다. 조인은 단일 객체 레이블이 없거나(``'omulti'`` / ``'onone'``) 병합 배열이 기록되지 않은 모든 행을 버립니다. 첫 번째 차이만 상한이며, 'At most' 를 올려서 해결되는 것은 상한뿐입니다. 적용된 적도 없는 한도를 올리라고 말하면 사용자는 같은 행을 반환하고 같은 문장을 다시 출력하는 조치만 받게 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.__post_init__#0",
+      "source": "Default ``selected`` to the rows, for a plan built without a join.",
+      "source_sha256": "a12505a72ae193f2e9c3c153d01c45b132fcc61b2bcff8df328564bbbb9b41c6",
+      "context": "Default ``selected`` to the rows, for a plan built without a join.",
+      "translation": "조인 없이 만들어진 계획에서는 ``selected`` 의 기본값을 행 수로 둡니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.__post_init__#1",
+      "source": "A plan whose rows came straight out of the selection -- the folder route, and anything a test or a script builds by hand -- selected exactly what it carries, and should not have to say so.",
+      "source_sha256": "fe8e620fc3ec9656810451bd8419f30ae4969a5dad955c55080f4ae777be9b3c",
+      "context": "A plan whose rows came straight out of the selection -- the folder route, and anything a test or a script builds by hand -- selected exactly what it carries, and should not have to say so.",
+      "translation": "행이 선택에서 곧바로 나온 계획(폴더 경로, 그리고 테스트나 스크립트가 직접 만드는 모든 것)은 담고 있는 것을 정확히 선택한 것이며, 이를 따로 명시할 필요가 없어야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.capped#0",
+      "source": "Whether the limit kept crops out of this plan.",
+      "source_sha256": "8e737266d37b1d457ea661ef3f3b55a80ffaef0ead2163cdc415e276a2de77a3",
+      "context": "Whether the limit kept extracted image regions out of this plan.",
+      "translation": "한도 때문에 이 계획에서 제외된 추출 이미지 영역이 있는지 여부입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.capped#1",
+      "source": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- running backwards.",
+      "source_sha256": "09b5e05963b68f89371a6eeea3bddf3fc36519172c78ac20650c24398acfb140",
+      "context": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- executing backwards.",
+      "translation": ":attr:`selected` 와 비교하며, 절대 :attr:`count` 와 비교하지 않습니다. 조인으로 행을 잃은 병합 경로 로드는 한도와 전혀 무관하게 ``matched > count`` 가 되며, 이를 상한으로 보고하는 것은 상한이 답의 일부라는 이 모듈 자체의 약속을 거꾸로 실행하는 셈입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.count#0",
+      "source": "How many crops this plan will load.",
+      "source_sha256": "5783b2c4d9978bf0dab791660e1c57b4a4a10883eb720a222c0bd5a41c2bf1f6",
+      "context": "How many extracted image regions this plan will load.",
+      "translation": "이 계획이 로드할 추출 이미지 영역의 수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.describe#0",
+      "source": "One line a status bar can show the moment planning returns.",
+      "source_sha256": "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
+      "context": "One line a status bar can show the moment planning returns.",
+      "translation": "계획이 반환되는 즉시 상태 표시줄에 보여 줄 수 있는 한 줄입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.describe#1",
+      "source": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole plate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
+      "source_sha256": "187ec99c4bdf7a02d259ccd36b18da370ed11edde57bd937ac27918e91d49b07",
+      "context": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole laboratory microplate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
+      "translation": "무엇 중에서 무엇을 가져왔는지 알려 주므로, 상한이 적용된 로드는 마이크로플레이트 전체가 아니라 의도된 부분 집합으로 읽힙니다. 또한 버려진 행은 별도의 절에서 버려진 행으로 명시하므로 두 값이 하나의 숫자로 합쳐지지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.dropped#0",
+      "source": "How many selected rows could not be turned into a crop at all.",
+      "source_sha256": "d13f25d4fc33c9203e4f7d7148f1ddf40bada6e44ee4f163f1f760da5fc4f3f8",
+      "context": "How many selected rows could not be turned into an extracted image region at all.",
+      "translation": "선택된 행 중 추출 이미지 영역으로 전혀 변환할 수 없었던 행의 수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.dropped#1",
+      "source": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
+      "source_sha256": "0789aba28ec84bf8f908b0d810214b1da90dbba2101109d2bdbaba71472506a0",
+      "context": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
+      "translation": "병합 경로에서만 0 이 아니며, 상한이 적용된 답이 아니라 완전한 답입니다. 행은 잘라 낼 수 없어서 사라진 것이므로 한도를 늘려도 추가될 것이 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.is_empty#0",
+      "source": "Whether the query matched nothing at all.",
+      "source_sha256": "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7",
+      "context": "Whether the query matched nothing at all.",
+      "translation": "쿼리가 아무것도 일치시키지 못했는지 여부입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.pages#0",
+      "source": "``(start, stop)`` for each page, covering every row exactly once.",
+      "source_sha256": "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
+      "context": "``(start, stop)`` for each page, covering every row exactly once.",
+      "translation": "각 페이지의 ``(start, stop)`` 이며, 모든 행을 정확히 한 번씩 포함합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropPlan.pages#1",
+      "source": "crops per page; ``0`` takes the query's own.",
+      "source_sha256": "09b9cca425e30be907c8a04079133a410a3c83c1e993ff77a898c86f12987194",
+      "context": "extracted image regions per page; ``0`` takes the query's own.",
+      "translation": "페이지당 추출 이미지 영역 수입니다. ``0`` 이면 쿼리 자체의 값을 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#0",
+      "source": "Which crops to load, and how much of the answer to take.",
+      "source_sha256": "e780d9c102021b621038eaa6301ce0e76a26e93711cde02a74c57426b4316917",
+      "context": "Which extracted image regions to load, and how much of the answer to take.",
+      "translation": "로드할 추출 이미지 영역과 답 중 얼마만큼을 가져올지 정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#1",
+      "source": ":data:`CROP_SOURCE_DATABASE` or :data:`CROP_SOURCE_FOLDER`.",
+      "source_sha256": "09c0a9e82563e15bf96380f034ede2a0413dced3590cbd0dc7c907845cc6752d",
+      "context": ":data:`CROP_SOURCE_DATABASE` or :data:`CROP_SOURCE_FOLDER`.",
+      "translation": ":data:`CROP_SOURCE_DATABASE` 또는 :data:`CROP_SOURCE_FOLDER` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#2",
+      "source": "the ``measurements.db``, or the folder of crop PNGs.",
+      "source_sha256": "8620a4710c3804ea0816c30615597152794ce6b3e6f290690a5bb919d7a02ba6",
+      "context": "the ``measurements.db``, or the folder of extracted image region PNGs.",
+      "translation": "``measurements.db``, 또는 추출 이미지 영역 PNGs 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#3",
+      "source": "which object class the crops are of -- ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'`` or an organelle role. It picks the object-id column in ``png_list`` and the mask plane a streamed crop is cut by, so it is not cosmetic: asking for nuclei out of a cell ``png_list`` yields nothing rather than yielding cells. Ignored by the folder source, which has no classes.",
+      "source_sha256": "c5b4e2ccee27a145b5090940425d34dcb167adbb0682ba6db949d1071690c34f",
+      "context": "which object class the extracted image regions are of -- ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'`` or an organelle role. It picks the object-id column in ``png_list`` and the mask image layer a streamed extracted image region is cut by, so it is not cosmetic: asking for nuclei out of a cell ``png_list`` yields nothing rather than yielding cells. Ignored by the folder source, which has no classes.",
+      "translation": "추출 이미지 영역이 속한 객체 클래스입니다 -- ``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'cytoplasm'`` 또는 소기관 역할입니다. 이 값은 ``png_list`` 의 객체 ID 열과 스트리밍되는 추출 이미지 영역을 잘라 낼 마스크 평면을 결정하므로 겉모양만의 설정이 아닙니다. 세포용 ``png_list`` 에서 핵을 요청하면 세포가 아니라 아무것도 반환되지 않습니다. 클래스가 없는 폴더 소스에서는 무시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#4",
+      "source": "one plate, or ``''`` for every plate.",
+      "source_sha256": "8dc57b38aecdea842b0f9117ce2dc32bfc12beb497423ce507a74e423fbe4827",
+      "context": "one plate, or ``''`` for every plate.",
+      "translation": "하나의 마이크로플레이트, 또는 모든 마이크로플레이트를 뜻하는 ``''`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#5",
+      "source": "an SQL predicate over ``png_list``, or ``''``. Spliced into the ``WHERE`` clause of a read-only connection; see the module docstring for why it is accepted at all.",
+      "source_sha256": "b3df794f5e0c819696732d1374dc6cd1743b9a170b99c5b60624a8d4090d8c81",
+      "context": "an SQL predicate over ``png_list``, or ``''``. Spliced into the ``WHERE`` clause of a read-only connection; see the module docstring for why it is accepted at all.",
+      "translation": "``png_list`` 에 대한 SQL 조건식 또는 ``''`` 입니다. 읽기 전용 연결의 ``WHERE`` 절에 삽입됩니다. 애초에 이를 허용하는 이유는 모듈 docstring 을 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#6",
+      "source": "the most crops to take, ``0`` for no cap. The plan records what the cap left behind.",
+      "source_sha256": "50bf0b0e4c640726bacb650dfddc28807528858c95ec465f749dc7ce4155142a",
+      "context": "the most extracted image regions to take, ``0`` for no cap. The plan records what the cap left behind.",
+      "translation": "가져올 추출 이미지 영역의 최대 개수이며, ``0`` 이면 상한이 없습니다. 계획은 상한 때문에 남겨진 내용을 기록합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#7",
+      "source": "crops read per page by :func:`load_crops`.",
+      "source_sha256": "1583722817b7e4c447145880cc876d34271c96ef651d9db8eb817b49ced4e421",
+      "context": "extracted image regions read per page by :func:`load_crops`.",
+      "translation": ":func:`load_crops` 가 페이지마다 읽는 추출 이미지 영역 수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery#8",
+      "source": "``'png'`` to read pre-generated crops, ``'merged'`` to cut them from ``merged/*.npy``, ``''`` to let :func:`spacr.crops.resolve_crop_source` decide. Database source only.",
+      "source_sha256": "b5d2389a0809cbe3227273c3839fd3ce11b60e024a656b2e563a9e8664608505",
+      "context": "``'png'`` to read pre-generated extracted image regions, ``'merged'`` to cut them from ``merged/*.npy``, ``''`` to let :func:`spacr.crops.resolve_crop_source` decide. Database source only.",
+      "translation": "``'png'`` 는 미리 생성된 추출 이미지 영역을 읽고, ``'merged'`` 는 ``merged/*.npy`` 에서 잘라 내며, ``''`` 는 :func:`spacr.crops.resolve_crop_source` 가 결정하게 합니다. 데이터베이스 소스에만 적용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery.describe#0",
+      "source": "One line naming everything this query asked for.",
+      "source_sha256": "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
+      "context": "One line naming everything this query asked for.",
+      "translation": "이 쿼리가 요청한 모든 것을 명시하는 한 줄입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.CropQuery.describe#1",
+      "source": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
+      "source_sha256": "185b1e2bcbaaeea2e8c5c6736d191d6fde53c5741966a6b94c5df89ad1fa4413",
+      "context": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
+      "translation": "상태 표시줄과 모든 거부 메시지에 사용되므로, \"no crops\" 를 읽는 사용자가 패널을 다시 열지 않고도 그 결과를 낳은 질문을 볼 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#0",
+      "source": "Centre a crop in a ``height`` x ``width`` frame, padding or trimming.",
+      "source_sha256": "116da44772294181c3518db148bfcf3cb39788dc5de2118c3b8ea46ec9209673",
+      "context": "Centre an extracted image region in a ``height`` x ``width`` frame, padding or trimming.",
+      "translation": "추출 이미지 영역을 ``height`` x ``width`` 프레임의 중앙에 놓고 패딩하거나 잘라 냅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#1",
+      "source": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling a crop changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a field, so two crops of the same object arrive the same way whichever route cut them.",
+      "source_sha256": "60186be9400f437b29441174605c238c3cd6ffb76e03f55629de9867f45dfe9d",
+      "context": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling an extracted image region changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a microscope field of view, so two extracted image regions of the same object arrive the same way whichever route cut them.",
+      "translation": "크기 조정이 아니라 패딩이며, 결정의 전부가 여기에 있습니다. 스택은 백본에 들어가기 전에 직사각형이어야 하는데, 추출 이미지 영역의 배율을 바꾸면 그 안의 객체의 겉보기 크기가 달라지고 이는 표현형입니다. 0 채움은 배경을 바꾸며, 배경은 표현형이 아닙니다. 이는 :func:`spacr.crop_source.crop_at` 이 현미경 시야 가장자리를 벗어나는 상자에 이미 하는 처리와도 같으므로, 같은 객체의 두 추출 이미지 영역은 어느 경로로 잘라 냈든 같은 방식으로 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#3",
+      "source": "the target first axis.",
+      "source_sha256": "0c03f6d04bef062ccefe2e2d7fd96c8ab16397383d7d6ed6c78d1d916d05f217",
+      "context": "the target first axis.",
+      "translation": "목표 첫 번째 축입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#4",
+      "source": "the target second axis.",
+      "source_sha256": "f4d88723a6065e77fb3f419ca29b5f95581d2a167d0e74e8e5126ee6dde51de9",
+      "context": "the target second axis.",
+      "translation": "목표 두 번째 축입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.conform_crop#5",
+      "source": "``crop`` itself when it already fits, so the common case copies nothing.",
+      "source_sha256": "fc003355dc4c199685ae0941eb2a3a8ce9b103d54063cc5cb8e48d7e02cd388b",
+      "context": "``crop`` itself when it already fits, so the common case copies nothing.",
+      "translation": "이미 맞으면 ``crop`` 자체를 반환하므로 일반적인 경우에는 아무것도 복사하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#0",
+      "source": "Read every crop in ``plan``, a page at a time.",
+      "source_sha256": "5a96d2756f9e2cf1b136e576245a4674ca38cd6b9a5b818f706d40e195cc3f30",
+      "context": "Read every extracted image region in ``plan``, a page at a time.",
+      "translation": "``plan`` 의 모든 추출 이미지 영역을 한 페이지씩 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#1",
+      "source": "Nothing here touches a widget and nothing here is Qt: ``progress`` and ``cancelled`` are plain callables, so a screen passes a signal emit and a flag and the same function drives a script or a test.",
+      "source_sha256": "06b00d66bc4b7eb77882d60b8e40c96ea277b69e1c602a9d1f027e3c4c4daeb8",
+      "context": "Nothing here touches a widget and nothing here is Qt: ``progress`` and ``cancelled`` are plain callables, so an application view passes a signal emit and a flag and the same function drives a script or a test.",
+      "translation": "여기서는 어떤 위젯도 건드리지 않으며 Qt 를 사용하지도 않습니다. ``progress`` 와 ``cancelled`` 는 일반 호출 가능 객체이므로, 화면은 시그널 emit 과 플래그를 전달하고 같은 함수가 스크립트나 테스트도 구동합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#2",
+      "source": "from :func:`plan_crops`.",
+      "source_sha256": "65a3c4d4d80550d081ec32eb7549cb5d5aa74d2097f6f122bf847094455a5933",
+      "context": "from :func:`plan_crops`.",
+      "translation": ":func:`plan_crops` 에서 가져온 계획입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#3",
+      "source": "called ``(done, total)`` after each page, on whatever thread this runs on. A caller on a worker thread must not touch a widget from it -- emit a signal.",
+      "source_sha256": "eb0010fb5be13d6905d9b555be71e45c6dbdfc797faab28a345b701a42cc3f0d",
+      "context": "called ``(done, total)`` after each page, on whatever independent execution path this executes on. A caller on a background execution unit must not touch a widget from it -- emit a signal.",
+      "translation": "각 페이지 후에 이 함수가 실행되는 실행 경로에서 ``(done, total)`` 로 호출됩니다. 작업자 실행 경로의 호출자는 여기서 위젯을 건드리면 안 되며, 시그널을 내보내야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#4",
+      "source": "called before each page; a true answer stops the load and returns the pages already read, which is why the result can be shorter than ``plan.count``. Checked between pages, so a stop takes at most one page to take effect.",
+      "source_sha256": "ce33e95fcf93d9c9443096de1c6e97182f1738808e9dbaa88feede3989afe578",
+      "context": "called before each page; a true answer stops the load and returns the pages already read, which is why the result can be shorter than ``plan.count``. Checked between pages, so a stop takes at most one page to take effect.",
+      "translation": "각 페이지 전에 호출됩니다. 참을 반환하면 로드를 중지하고 이미 읽은 페이지를 반환하므로, 결과가 ``plan.count`` 보다 짧을 수 있습니다. 페이지 사이에 확인하므로 중지가 적용되기까지 최대 한 페이지가 걸립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#5",
+      "source": "filled in with what was read -- ``matched``, ``selected``, ``dropped``, ``loaded``, ``crop_shape``, ``conformed``, ``capped``, ``source``, ``stopped``. ``matched`` minus ``selected`` is the cap; ``selected`` minus ``loaded`` is rows that could not be cut, plus whatever a stop left unread. JSON-serialisable, so a caller can keep it beside the matrix.",
+      "source_sha256": "dc08dcbe9db7d2d1740cdb14edc9e75698d2b415b326aecb295059e2f50fab1b",
+      "context": "filled in with what was read -- ``matched``, ``selected``, ``dropped``, ``loaded``, ``crop_shape``, ``conformed``, ``capped``, ``source``, ``stopped``. ``matched`` minus ``selected`` is the cap; ``selected`` minus ``loaded`` is rows that could not be cut, plus whatever a stop left unread. JSON-serialisable, so a caller can keep it beside the matrix.",
+      "translation": "읽은 내용으로 채워집니다 -- ``matched``, ``selected``, ``dropped``, ``loaded``, ``crop_shape``, ``conformed``, ``capped``, ``source``, ``stopped``. ``matched`` 에서 ``selected`` 를 뺀 값이 상한에 의한 차이이고, ``selected`` 에서 ``loaded`` 를 뺀 값은 잘라 낼 수 없었던 행과 중지로 읽지 못한 행의 합입니다. JSON 으로 직렬화할 수 있으므로 호출자가 행렬 옆에 보관할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#6",
+      "source": "``(objects, height, width, channels)``, the layout :func:`spacr.embeddings.embed_array` documents. Every crop is padded or trimmed to the first one's frame; see :func:`conform_crop`.",
+      "source_sha256": "e3a4de7c4407da3c8f37c2ff007ee8e5e8156b0454f9fb788ef457a95a2fcdf3",
+      "context": "``(objects, height, width, channels)``, the layout :func:`spacr.embeddings.embed_array` documents. Every extracted image region is padded or trimmed to the first one's frame; see :func:`conform_crop`.",
+      "translation": "``(objects, height, width, channels)`` 이며, :func:`spacr.embeddings.embed_array` 가 문서화한 레이아웃입니다. 모든 추출 이미지 영역은 첫 번째 영역의 프레임에 맞게 패딩되거나 잘립니다. :func:`conform_crop` 을 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_crops#7",
+      "source": "the plan is empty, or a page could not be read.",
+      "source_sha256": "7bffaa505d5b39e392271761a97aae58217dbc5c1d70c9088deaa693b4ab3812",
+      "context": "the plan is empty, or a page could not be read.",
+      "translation": "계획이 비어 있거나 페이지를 읽을 수 없을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#0",
+      "source": "Read one page of ``plan``'s crops.",
+      "source_sha256": "c731df150ea03eff5ec4076ec311175d4584efa68b21d8aa19d0ccc9430cf33b",
+      "context": "Read one page of ``plan``'s extracted image regions.",
+      "translation": "``plan`` 의 추출 이미지 영역 한 페이지를 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#2",
+      "source": "first row of the page.",
+      "source_sha256": "cb658de6879f6403c51ebdbc823aef94a7df960bd147bc76740e7b88d9c59f9e",
+      "context": "first row of the page.",
+      "translation": "페이지의 첫 번째 행입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#3",
+      "source": "one past its last row.",
+      "source_sha256": "0ea4ed348f9fa7689ef2bdc566f38c8e6e6a7bb3ca7bb5ab02785f43bd236e69",
+      "context": "one past its last row.",
+      "translation": "페이지 마지막 행의 다음 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#4",
+      "source": "``(height, width, channels)`` every crop must come back as. ``None`` takes the first crop of the page as the template, which is how :func:`load_crops` fixes the stack's shape from page one.",
+      "source_sha256": "446d81e14c622446b0a95b7ddbb652f0afce108f88585d59504862afeed896ca",
+      "context": "``(height, width, channels)`` every extracted image region must come back as. ``None`` takes the first extracted image region of the page as the template, which is how :func:`load_crops` fixes the stack's shape from page one.",
+      "translation": "모든 추출 이미지 영역이 반환되어야 하는 ``(height, width, channels)`` 입니다. ``None`` 이면 페이지의 첫 번째 추출 이미지 영역을 템플릿으로 사용하며, :func:`load_crops` 는 이렇게 첫 페이지에서 스택의 모양을 정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#5",
+      "source": "``(page, conformed)`` -- the ``(n, height, width, channels)`` array, and how many of its crops had to be padded or trimmed to fit.",
+      "source_sha256": "906e7c394f5f9dfe93cd460e5ddf688ce6fc50b9499a27c59878fca43a6ba4fa",
+      "context": "``(page, conformed)`` -- the ``(n, height, width, channels)`` array, and how many of its extracted image regions had to be padded or trimmed to fit.",
+      "translation": "``(page, conformed)`` -- ``(n, height, width, channels)`` 배열과, 그중 맞추기 위해 패딩하거나 잘라야 했던 추출 이미지 영역의 수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.load_page#6",
+      "source": "a crop could not be read, or came back with a different number of channels than the page's template -- which is a real difference between two crops and is not silently padded away.",
+      "source_sha256": "c0240e4633845e204c36bcaa1b898500cb9afe33f21bf7451334e85f60f43f29",
+      "context": "an extracted image region could not be read, or came back with a different number of channels than the page's template -- which is a real difference between two extracted image regions and is not silently padded away.",
+      "translation": "추출 이미지 영역을 읽을 수 없거나, 페이지 템플릿과 채널 수가 다르게 반환되었을 때 발생합니다. 이는 두 추출 이미지 영역 사이의 실제 차이이므로 조용히 패딩으로 없애지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#0",
+      "source": "Which object classes this database actually has crops for.",
+      "source_sha256": "e7155a44166f94540889ed55468eada039382cd5d9d83e7e056e11970336e90c",
+      "context": "Which object classes this database actually has extracted image regions for.",
+      "translation": "이 데이터베이스에 실제로 추출 이미지 영역이 있는 객체 클래스입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#1",
+      "source": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
+      "source_sha256": "d93cdcaa6d1a917bb9a1223dfe5ee870266c36a8d358082f51d556eaf0034020",
+      "context": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
+      "translation": "클래스는 ID 열이 있고 그 열에 값이 하나 이상 있을 때만 제공됩니다. 일부 스키마에서는 세포용으로 기록된 ``png_list`` 에 빈 ``nucleus_id`` 열이 있으며, 이를 제공하면 패널에 항상 아무것도 반환하지 않는 선택지가 생기기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#2",
+      "source": "the ``measurements.db``.",
+      "source_sha256": "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+      "context": "the ``measurements.db``.",
+      "translation": "``measurements.db`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#3",
+      "source": "the crop table; ``'png_list'``.",
+      "source_sha256": "0f0ba0c1c3d7407963e0cf78a3b0d4477de70924487935d6cd8d01bd26cfbef2",
+      "context": "the extracted-image-region table; ``'png_list'``.",
+      "translation": "추출 이미지 영역 테이블이며, ``'png_list'`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.object_classes#4",
+      "source": "class names in :data:`spacr.png_list.PNG_LIST_ID_COLUMNS` order. Empty when the database has no crop table.",
+      "source_sha256": "686737cd5a6b1f8a8f953b25d2d1c0b33fe1ed09ff815c55392323aab1ad5665",
+      "context": "class names in :data:`spacr.png_list.PNG_LIST_ID_COLUMNS` order. Empty when the database has no extracted-image-region table.",
+      "translation": ":data:`spacr.png_list.PNG_LIST_ID_COLUMNS` 순서의 클래스 이름입니다. 데이터베이스에 추출 이미지 영역 테이블이 없으면 비어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_crops#0",
+      "source": "Answer ``query`` without reading a pixel.",
+      "source_sha256": "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
+      "context": "Answer ``query`` without reading a pixel.",
+      "translation": "픽셀을 읽지 않고 ``query`` 에 답합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_crops#1",
+      "source": "what to select.",
+      "source_sha256": "e10afc171ccd4b6a99f6ef473975336d77e96c9c1145a527be4208bf23637226",
+      "context": "what to select.",
+      "translation": "선택할 대상입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_crops#2",
+      "source": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
+      "source_sha256": "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
+      "context": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
+      "translation": ":class:`CropPlan` 입니다. 로드하기 전에 :attr:`CropPlan.is_empty` 를 확인하십시오. 빈 계획은 실패가 아니라 하나의 답이며, 스스로를 설명하는 문장을 담고 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_crops#3",
+      "source": "an unknown source, or a path that is not there.",
+      "source_sha256": "b4b9bfc5694f92f5864f2207447a673d827daead8d3973c5834b3c8f01a16d92",
+      "context": "an unknown source, or a path that is not there.",
+      "translation": "알 수 없는 소스이거나 존재하지 않는 경로일 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#0",
+      "source": "Choose crops out of a ``measurements.db``, reading no pixels.",
+      "source_sha256": "e708900911e0f41204e959544c6f2d3c53d108a547b0b1fa0834a92904162492",
+      "context": "Choose extracted image regions out of a ``measurements.db``, reading no pixels.",
+      "translation": "``measurements.db`` 에서 픽셀을 읽지 않고 추출 이미지 영역을 선택합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#1",
+      "source": "The rows come back carrying ``png_path`` -- what :class:`spacr.crops.PngCropSource` reads -- and, through :func:`spacr.png_list.crop_rows_from_png_list`, ``path_name`` and an integer ``object_label``, which is what :class:`spacr.crops.MergedCropSource` needs. So the plan is good for whichever route :func:`spacr.crops.resolve_crop_source` picks, and the route is picked here, once, rather than per crop.",
+      "source_sha256": "75a8c9c005a85cda5470627e586c7833b521f5e471cb09326d4567bf903d17d8",
+      "context": "The rows come back carrying ``png_path`` -- what :class:`spacr.crops.PngCropSource` reads -- and, through :func:`spacr.png_list.crop_rows_from_png_list`, ``path_name`` and an integer ``object_label``, which is what :class:`spacr.crops.MergedCropSource` needs. So the plan is good for whichever route :func:`spacr.crops.resolve_crop_source` picks, and the route is picked here, once, rather than per extracted image region.",
+      "translation": "반환되는 행에는 ``png_path`` (:class:`spacr.crops.PngCropSource` 가 읽는 값)와, :func:`spacr.png_list.crop_rows_from_png_list` 를 거쳐 ``path_name`` 및 정수 ``object_label`` 이 담기며, 이는 :class:`spacr.crops.MergedCropSource` 에 필요한 값입니다. 따라서 계획은 :func:`spacr.crops.resolve_crop_source` 가 어느 경로를 고르든 유효하며, 경로는 추출 이미지 영역마다가 아니라 여기서 한 번 선택됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#2",
+      "source": "what to select. ``query.source`` is not re-checked.",
+      "source_sha256": "5239f931b08b5b2701695521a9118f27800cb65f9d5e23c13b3828fcb7ecbdbe",
+      "context": "what to select. ``query.source`` is not re-checked.",
+      "translation": "선택할 대상입니다. ``query.source`` 는 다시 확인하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#3",
+      "source": "a :class:`CropPlan`, possibly an empty one carrying :attr:`CropPlan.empty_reason`.",
+      "source_sha256": "23fda222011167b529de1eacf25bade8196f0b39b67a214506f38cc772af509d",
+      "context": "a :class:`CropPlan`, possibly an empty one carrying :attr:`CropPlan.empty_reason`.",
+      "translation": ":class:`CropPlan` 이며, :attr:`CropPlan.empty_reason` 을 담은 빈 계획일 수도 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_database#4",
+      "source": "the database is missing, has no crop table, or refused the selection.",
+      "source_sha256": "720266e22fdf6e3ac86f01209ab17d03acf641a8ef534727df7bbbeecd7a471d",
+      "context": "the database is missing, has no extracted-image-region table, or refused the selection.",
+      "translation": "데이터베이스가 없거나, 추출 이미지 영역 테이블이 없거나, 선택이 거부되었을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_folder#0",
+      "source": "Choose crops out of a folder of ``*.png``, reading no pixels.",
+      "source_sha256": "c69672ecdbfb1157dc0da98e66a7b34a156c9bf7309a9556cbe0fb26558a467e",
+      "context": "Choose extracted image regions out of a folder of ``*.png``, reading no pixels.",
+      "translation": "``*.png`` 폴더에서 픽셀을 읽지 않고 추출 이미지 영역을 선택합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_folder#1",
+      "source": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
+      "source_sha256": "46d6502567fd73dd3c51c1f5e1439cfef8d5279a35f91413eddf5ddc7fd6f476",
+      "context": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
+      "translation": "선택할 대상입니다. ``path`` 와 ``limit`` 만 적용됩니다. 폴더에는 클래스도 마이크로플레이트도 기록되지 않으며, 어떤 처리 세션도 보장하지 않는 파일 이름 규칙으로 필터링하는 것보다 :attr:`CropPlan.source_label` 에 그 사실을 밝히는 편이 낫습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plan_from_folder#3",
+      "source": "no folder was chosen, or it is not a directory.",
+      "source_sha256": "de6e6a1912cee21e2fa6a73bf3f9308020a409ce4f9f0f2c4ea48d1959dc4cd3",
+      "context": "no folder was chosen, or it is not a directory.",
+      "translation": "폴더가 선택되지 않았거나 디렉터리가 아닐 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plates#0",
+      "source": "Every plate the crop table names, sorted.",
+      "source_sha256": "1e903f865a91ef21f1e1f5c89e057b3cd2feef07c0ca52e6b87415d4aa37416e",
+      "context": "Every plate the extracted-image-region table names, sorted.",
+      "translation": "추출 이미지 영역 테이블에 명시된 모든 마이크로플레이트를 정렬한 목록입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_loader.plates#3",
+      "source": "plate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before plate keys existed reads rather than an error.",
+      "source_sha256": "1d3d2b4ee16c630697b2c277204f7ea8ab39e1dbf7bdb24780522e92d571ec49",
+      "context": "laboratory microplate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before laboratory microplate structured-data names existed reads rather than an error.",
+      "translation": "문자열로 된 마이크로플레이트 식별자입니다. 테이블에 ``plateID`` 열이 없으면 비어 있으며, 마이크로플레이트 키가 생기기 전에 기록된 데이터베이스는 오류가 아니라 이렇게 읽힙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.inapplicable_settings#3",
+      "source": "the crop source whose settings stay active; any spelling in :data:`CROP_SOURCE_ALIASES`, matched case-insensitively. An unknown source raises :class:`CropSourceError`.",
+      "source_sha256": "ca3fc42db81170c6cd9ea642d11a2c1c7a1db78d150de71930943214c3c88c6b",
+      "context": "the extracted-image-region source whose settings stay active; any spelling in :data:`CROP_SOURCE_ALIASES`, matched case-insensitively. An unknown source throws :class:`CropSourceError`.",
+      "translation": "설정이 활성 상태로 유지되는 추출 이미지 영역 소스입니다. :data:`CROP_SOURCE_ALIASES` 의 어떤 표기든 대소문자 구분 없이 일치시킵니다. 알 수 없는 소스이면 :class:`CropSourceError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.mask_plane_for#2",
+      "source": "the object name (e.g. ``cell``, ``nucleus``); lower-cased and used to build the ``<name>_mask_dim`` setting key.",
+      "source_sha256": "608c9514bcd0639d1f821f734b6a837aa1440a3cb46c994136e61c59d47138e4",
+      "context": "the object name (e.g. ``cell``, ``nucleus``); lower-cased and used to build the ``<name>_mask_dim`` setting name.",
+      "translation": "객체 이름(예: ``cell``, ``nucleus``)입니다. 소문자로 바뀐 뒤 ``<name>_mask_dim`` 설정 키를 만드는 데 사용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.mask_plane_for#3",
+      "source": "the settings mapping the ``<name>_mask_dim`` plane index is read from.",
+      "source_sha256": "5631f7e9d3de7f393b00ddddf18d9d386f5d5631855bfae7873783883b107238",
+      "context": "the settings mapping the ``<name>_mask_dim`` image layer index is read from.",
+      "translation": "``<name>_mask_dim`` 평면 인덱스를 읽어 올 설정 매핑입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.matches_path#2",
+      "source": "the crop's file path, tested as a string for the ``path_string`` substring and for its extension.",
+      "source_sha256": "1a19e0d37b8b66bf944d0dc1e24e629f282e1a5b29b51ea308c19cc729538b6a",
+      "context": "the extracted image region's file path, tested as a string for the ``path_string`` substring and for its extension.",
+      "translation": "추출 이미지 영역의 파일 경로이며, 문자열로서 ``path_string`` 부분 문자열 포함 여부와 확장자를 검사합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.normalise_extension#2",
+      "source": "an extension such as ``'.TIF'``, ``'tif'`` or ``'cell_png'`` (only the part after the last underscore is kept); empty or None gives ``''``.",
+      "source_sha256": "e7327d145e5da40ae37da2aae86cc97ce5de04a767a580c3eab113e8a65ee6da",
+      "context": "an extension such as ``'.TIF'``, ``'tif'`` or ``'cell_png'`` (only the part after the last underscore is kept); empty or None gives ``''``.",
+      "translation": "``'.TIF'``, ``'tif'`` 또는 ``'cell_png'`` 와 같은 확장자입니다(마지막 밑줄 뒤의 부분만 유지). 비어 있거나 None 이면 ``''`` 가 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.object_bounds#2",
+      "source": "2-D label image holding the object.",
+      "source_sha256": "c5121309793dfad5f4322a19a35c321a8752ad1945243998651247c52a986c76",
+      "context": "2-D label image holding the object.",
+      "translation": "객체를 담고 있는 2-D 레이블 이미지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.object_bounds#3",
+      "source": "the label value of the object to bound.",
+      "source_sha256": "d908c04a19bfd316d8e039cc407d91dd8986f8c2b4eb590038172c4627f86427",
+      "context": "the label value of the object to bound.",
+      "translation": "경계를 구할 객체의 레이블 값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.resolve_source#2",
+      "source": "the settings mapping; its ``crop_source`` value is looked up in :data:`CROP_SOURCE_ALIASES`, and an empty value means ``png``.",
+      "source_sha256": "4df20642c9e499cf8905ffee7ad277a6f6b3d3c7c670362fda963ec7ecbd7568",
+      "context": "the settings mapping; its ``crop_source`` value is looked up in :data:`CROP_SOURCE_ALIASES`, and an empty value means ``png``.",
+      "translation": "설정 매핑입니다. ``crop_source`` 값은 :data:`CROP_SOURCE_ALIASES` 에서 조회하며, 빈 값은 ``png`` 를 뜻합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.select_crops#1",
+      "source": "candidate crop file paths.",
+      "source_sha256": "62a2dae1a1706731e5b876fdfbe4017718f69ccbe74f1f03a216509494aaee97",
+      "context": "candidate extracted-image-region file paths.",
+      "translation": "후보 추출 이미지 영역 파일 경로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.select_crops#2",
+      "source": "the settings mapping; ``path_string`` (or, failing that, ``png_type``) and ``file_type`` are passed to :func:`matches_path`.",
+      "source_sha256": "e9c9d1fbe911cb27e80f5e8d1a92b6fd9b32375bf01f885f3ec950399514c6f6",
+      "context": "the settings mapping; ``path_string`` (or, failing that, ``png_type``) and ``file_type`` are passed to :func:`matches_path`.",
+      "translation": "설정 매핑입니다. ``path_string`` (없으면 ``png_type``)과 ``file_type`` 이 :func:`matches_path` 에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.stream_planes#2",
+      "source": "the settings mapping; ``channel_arrays`` is read first, then ``extract_channels``.",
+      "source_sha256": "f918692ffae791c42553f2fbcc2cb16b6ceba385870f420c15bd7de0b4d6c8f0",
+      "context": "the settings mapping; ``channel_arrays`` is read first, then ``extract_channels``.",
+      "translation": "설정 매핑입니다. ``channel_arrays`` 를 먼저 읽고, 그다음 ``extract_channels`` 를 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crop_source.validate#2",
+      "source": "the training settings mapping to check: the crop source, plus ``file_type`` for ``png`` or the plane, crop-shape, coordinate and mask settings for a streamed source.",
+      "source_sha256": "868696dfa1b6d7168b53e92ca95cdac0a82a46ec70580db9b164286d0c587d77",
+      "context": "the training settings mapping to check: the extracted-image-region source, plus ``file_type`` for ``png`` or the plane, extracted image region-shape, coordinate and mask settings for a streamed source.",
+      "translation": "검사할 학습 설정 매핑입니다. 추출 이미지 영역 소스와 함께, ``file_type`` (``png`` 의 경우) 또는 평면, 추출 이미지 영역 모양, 좌표 및 마스크 설정(스트리밍 소스의 경우)을 검사합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#0",
+      "source": "Decode a PIL crop without clipping its high-bit-depth intensities.",
+      "source_sha256": "0c36361a423694c6142eca8d2ab7cabb8d9c21744114fa5edd0ef3bfadbce785",
+      "context": "Decode a PIL extracted image region without clipping its high-bit-depth intensities.",
+      "translation": "높은 비트 심도의 강도를 잘라 내지 않고 PIL 추출 이미지 영역을 디코딩합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#1",
+      "source": "open PIL image; owned and closed by the caller.",
+      "source_sha256": "8c32e2916963d1e090c944f3c7555f8a14dae95ad3ac1df3eb435c4e6babe153",
+      "context": "open PIL image; owned and closed by the caller.",
+      "translation": "열린 PIL 이미지입니다. 호출자가 소유하고 닫습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#2",
+      "source": "source crop format, including an archive member's marker.",
+      "source_sha256": "c208acfce05efdf0e5f2e018f54e4910430a6ac78b5df1f22c2803250f1f0979",
+      "context": "source image-region format, including an archive member's marker.",
+      "translation": "원본 추출 이미지 영역 형식이며, 아카이브 멤버의 표시자를 포함합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#3",
+      "source": "requested channel ordering, normally declared format 3.",
+      "source_sha256": "8607cc6fed89823bf8377ca63b148268f0941b58b12201abdc8f6d7b43c9ddbb",
+      "context": "requested channel ordering, normally declared format 3.",
+      "translation": "요청된 채널 순서이며, 보통 선언된 형식 3 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#4",
+      "source": "apply EXIF orientation before decoding, for classification.",
+      "source_sha256": "b81e211a1c15e7a7df043eed618e160623f42065ea7b9c5e714acd3120b348b1",
+      "context": "apply EXIF orientation before decoding, for classification.",
+      "translation": "분류를 위해 디코딩 전에 EXIF 방향을 적용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#5",
+      "source": "contiguous, independently owned HWC RGB uint8 array.",
+      "source_sha256": "a5f2939c63a3d7698b3561d069e96508b41e48e3626f5880de49f9142f958be3",
+      "context": "contiguous, independently owned HWC RGB uint8 array.",
+      "translation": "연속적이고 독립적으로 소유된 HWC RGB uint8 배열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.decode_crop_image#6",
+      "source": "either format is unsupported.",
+      "source_sha256": "a3e25cb6b0ac652705f409502f14478966b600bd50f2b47d2b5007c3155f2468",
+      "context": "either format is unsupported.",
+      "translation": "두 형식 중 하나라도 지원되지 않을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder#10",
+      "source": "``'rewrite'`` or ``'mark'``.",
+      "source_sha256": "2ce6fac10143da65163a30aea42d894a59b8876fe8f99d87002e2efb7c690daa",
+      "context": "``'rewrite'`` or ``'mark'``.",
+      "translation": "``'rewrite'`` 또는 ``'mark'`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.crops.quiet_crop_paths#0",
+      "source": "Silence the per-crop announcements on the CALLING THREAD only.",
+      "source_sha256": "7c28ef4f9c5cbdd75cbba7b6148883504b0cd0093da213bb96a93fa014f83455",
+      "context": "Silence the per extracted image region announcements on the calling thread only.",
+      "translation": "추출 이미지 영역별 알림을 호출한 실행 경로에서만 끕니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.quiet_crop_paths#1",
+      "source": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader running at the same time -- in the app, for whichever screen is reading crops in another thread, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing crop there reads as a silent success until the bulk read finishes and puts the flag back.",
+      "source_sha256": "2d5decfb542b4e3d350d17a66e5bd4bc662e5c6124ef53672d2901eab7f90e66",
+      "context": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader executing at the same time -- in the app, for whichever screen is reading extracted image regions in another independent execution path, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing extracted image region there reads as a silent success until the bulk read finishes and puts the flag back.",
+      "translation": ":data:`PRINT_CROP_PATHS` 는 프로세스 전체에 대한 스위치 하나이므로, 대량 읽기 작업이 자기 작업 동안 이를 끄면 동시에 실행 중인 다른 모든 읽기 작업에서도 꺼집니다. 앱에서는 다른 실행 경로에서 추출 이미지 영역을 읽고 있는 화면이 영향을 받으며, 이 플래그가 기본적으로 켜져 있는 유일한 이유인 ``<- NOT ON DISK`` 줄을 잃게 됩니다. 그러면 대량 읽기가 끝나 플래그가 복원될 때까지 그곳에서 누락된 추출 이미지 영역이 조용한 성공처럼 보입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.quiet_crop_paths#2",
+      "source": "So a reader that wants quiet asks for quiet here instead: the suppression is thread-local, the global flag is left exactly as it was, and a concurrent reader on another thread keeps its diagnostics.",
+      "source_sha256": "15f432b32190fc4e729f53637ba9a4408cd55fd63e537191d256f3d92694129c",
+      "context": "So a reader that wants quiet asks for quiet here instead: the suppression is execution-path-local, the global flag is left exactly as it was, and a concurrent reader on another independent execution path keeps its diagnostics.",
+      "translation": "따라서 출력을 끄려는 읽기 작업은 대신 여기서 요청합니다. 억제는 실행 경로별로 적용되고, 전역 플래그는 원래 상태 그대로 유지되며, 다른 실행 경로에서 동시에 동작하는 읽기 작업은 진단 출력을 계속 받습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.quiet_crop_paths#3",
+      "source": "a context manager. Restores the previous state on the way out, including when the body raises, and nests.",
+      "source_sha256": "595d3451d4d0d167df8ba35b71fd030af5876b5be3b4892f62d0d7f450bc9620",
+      "context": "a context manager. Restores the previous state on the way out, including when the body raises, and nests.",
+      "translation": "컨텍스트 관리자입니다. 빠져나갈 때 본문에서 예외가 발생한 경우에도 이전 상태를 복원하며, 중첩해서 사용할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.read_crop_png#5",
+      "source": "what ordering you want *back*. The default is the declared one. Formats 1 and 3 share this order; format 2 requests the intermediate reversed order. Classification also needs its recorded intensity-decoding policy, handled by :mod:`spacr.classification_pixels`.",
+      "source_sha256": "fc52f4b592f1add8dd9dd33257d5c51300d8493bb2d31cb54dbc9e024a474db9",
+      "context": "what ordering you want *back*. The default is the declared one. Formats 1 and 3 share this order; format 2 requests the intermediate reversed order. Classification also needs its recorded intensity-decoding policy, handled by :mod:`spacr.classification_pixels`.",
+      "translation": "*반환받을* 순서입니다. 기본값은 선언된 순서입니다. 형식 1 과 3 은 이 순서를 공유하며, 형식 2 는 중간 단계의 역순을 요청합니다. 분류에는 기록된 강도 디코딩 정책도 필요하며, 이는 :mod:`spacr.classification_pixels` 가 처리합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.read_merged_plane_layout#2",
+      "source": "a merged folder, or a ``.npy`` file inside one (its parent folder is used); the ``.spacr_plane_layout.json`` sidecar is read from that folder.",
+      "source_sha256": "549332f06bbc41cfd266b20b9a729dfe67de61eb13bb05340387abefff415b13",
+      "context": "a merged folder, or a ``.npy`` file inside one (its parent folder is used); the ``.spacr_plane_layout.json`` sidecar is read from that folder.",
+      "translation": "병합 폴더 또는 그 안의 ``.npy`` 파일(상위 폴더가 사용됨)입니다. ``.spacr_plane_layout.json`` 보조 파일을 그 폴더에서 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.reconcile_merged_mask_dims#2",
+      "source": "Every organelle slot the manifest records gets its plane, and every slot ``settings`` carries is set to the manifest's answer. A slot that neither names is left out of the copy rather than set to ``None``. The cell, nucleus and pathogen keys are always set, so a plane the manifest does not record is switched off.",
+      "source_sha256": "52deb80d95b0c20520dbe2a029ad6a4248144df9adf3bbcacc04982a4d45e546",
+      "context": "Every organelle slot the manifest records gets its image layer, and every slot ``settings`` carries is set to the manifest's answer. A slot that neither names is left out of the copy rather than set to ``None``. The cell, nucleus and pathogen structured-data names are always set, so an image layer the manifest does not record is switched off.",
+      "translation": "매니페스트가 기록한 모든 소기관 슬롯에 평면이 지정되고, ``settings`` 에 있는 모든 슬롯은 매니페스트의 값으로 설정됩니다. 어느 쪽에도 명시되지 않은 슬롯은 ``None`` 으로 설정되지 않고 복사본에서 제외됩니다. 세포, 핵, 병원체 키는 항상 설정되므로, 매니페스트가 기록하지 않은 평면은 꺼집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.reconcile_merged_mask_dims#3",
+      "source": "the run settings; its ``<role>_mask_dim`` keys are read and a copy with those keys reconciled is returned (the mapping itself is not modified).",
+      "source_sha256": "036a33790fda44bf4134e48a5e9937e6e918613a3a546386b8bc6611effe9a47",
+      "context": "the processing-session settings; its ``<role>_mask_dim`` structured-data names are read and a copy with those structured-data names reconciled is returned (the mapping itself is not modified).",
+      "translation": "처리 세션 설정입니다. ``<role>_mask_dim`` 키를 읽고, 그 키들을 조정한 복사본을 반환합니다(매핑 자체는 수정하지 않음).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.reconcile_merged_mask_dims#4",
+      "source": "the merged folder whose plane-layout manifest is applied.",
+      "source_sha256": "299376ba90c44e0ad0928a338c9a4aa37657c391dd5b380749f3ad1ee93090e0",
+      "context": "the merged folder whose image layer-layout manifest is applied.",
+      "translation": "평면 레이아웃 매니페스트를 적용할 병합 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.reconcile_merged_mask_dims#5",
+      "source": "settings keys the caller supplied explicitly; a non-``None`` value under one of these that disagrees with the manifest raises ``PlaneLayoutConflict``.",
+      "source_sha256": "5854c02f3af7e0cbe507eb14fc9535121f6761aa045cf386ee303565623bce63",
+      "context": "setting names the caller supplied explicitly; a non-``None`` value under one of these that disagrees with the manifest raises ``PlaneLayoutConflict``.",
+      "translation": "호출자가 명시적으로 지정한 설정 키입니다. 이 키 중 하나에 매니페스트와 일치하지 않는 비 ``None`` 값이 있으면 ``PlaneLayoutConflict`` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.crops.say_crop_paths#0",
+      "source": "Turn the per-crop path printing on or off, for the whole process.",
+      "source_sha256": "1b17bf3ea8c9b0ca6b6fa79ca23f79b6892f1897c127f5a6d0089362b2a66b8b",
+      "context": "Turn the per extracted image region path printing on or off, for the whole process.",
+      "translation": "추출 이미지 영역별 경로 출력을 프로세스 전체에 대해 켜거나 끕니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue#0",
+      "source": "A curation session is a queue with a memory, not one field.",
+      "source_sha256": "574adf1c2af156173cdc04cfa14dcd78263b8e69cfa829dbd0e3a8c0d54e09e8",
+      "context": "A curation session is a work list with a memory, not one field.",
+      "translation": "큐레이션 세션은 현미경 시야 하나가 아니라 기억을 가진 대기열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue#1",
+      "source": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
+      "source_sha256": "f08654017bb002c7e1b24f54ab252e691fae9f380f64007960025997e3dbf7bb",
+      "context": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
+      "translation": "Make Masks 는 더 나은 편집기이고 저장소 밖의 전용 도구는 더 나은 워크플로이지만, 둘 다를 갖춘 것은 없습니다. 이 모듈은 워크플로 쪽 절반을 spaCR 안으로 가져온 것입니다. 어떤 현미경 시야가 대기 중인지, 어떤 순서로 제시할지, 세션이 끝나기 전에 몇 개를 제시할지, 각 시야에 대해 이미 무엇이 결정되었는지를 다룹니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue#4",
+      "source": "The layout mismatch is the thing to settle first: silently assuming one layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected",
+      "source_sha256": "e3fe8dd55a40465988109da7de8da3cbecacb06fea7f81d0c28a2c562359e782",
+      "context": "The layout mismatch is the thing to settle first: silently assuming one layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected",
+      "translation": "레이아웃 불일치가 가장 먼저 해결할 문제입니다. 하나의 레이아웃을 조용히 가정하면 작업이 가득한 폴더가 빈 폴더로 로드됩니다. 따라서 세 가지를 모두 받아들이고 눈앞의 레이아웃을 감지합니다",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue#5",
+      "source": "Accepting all three is safer than picking a winner. An existing curation set opens unconverted, so nothing has to be moved before work can start -- and the EDITOR takes all three too, reading and saving each where it lies (:mod:`spacr.qt.mask_engine` says how).",
+      "source_sha256": "3ffb139150b72f77e1a1cafa84bfbc14b59887886714a32cf4fd4b164e6cc2f4",
+      "context": "Accepting all three is safer than picking a winner. An existing curation set opens unconverted, so nothing has to be moved before work can start -- and the EDITOR takes all three too, reading and saving each where it lies (:mod:`spacr.qt.mask_engine` says how).",
+      "translation": "세 가지를 모두 받아들이는 편이 하나를 고르는 것보다 안전합니다. 기존 큐레이션 세트는 변환 없이 열리므로 작업을 시작하기 전에 아무것도 옮길 필요가 없습니다. 편집기도 세 가지를 모두 받아들여 각각을 있는 위치에서 읽고 저장합니다(방법은 :mod:`spacr.qt.mask_engine` 에 설명되어 있음).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue#9",
+      "source": "The record lives at ``<folder>/curate_status.csv``, inside the queue folder rather than beside it, so it syncs with the images and a session resumes on the other machine. A row about a stem that is not in this folder is kept on rewrite for exactly that reason: the curator may be resuming somewhere the rest of the set has not arrived yet, and dropping those rows would hand back work already done. A folder with no record of its own but with the external tool's ``<parent>/<name>_status.csv`` beside it resumes from that one and writes back to it (:func:`status_path`), so a set curated half in each tool keeps one record.",
+      "source_sha256": "f0224749dc63fa4b083480f188a201087274f9c7b70b8bcdd10b1463d16bf2e8",
+      "context": "The record lives at ``<folder>/curate_status.csv``, inside the work list folder rather than beside it, so it syncs with the images and a session resumes on the other machine. A row about a stem that is not in this folder is kept on rewrite for exactly that reason: the curator may be resuming somewhere the rest of the set has not arrived yet, and dropping those rows would hand back work already done. A folder with no record of its own but with the external tool's ``<parent>/<name>_status.csv`` beside it resumes from that one and writes back to it (:func:`status_path`), so a set curated half in each tool keeps one record.",
+      "translation": "기록은 대기열 폴더 옆이 아니라 그 안의 ``<folder>/curate_status.csv`` 에 있으므로 이미지와 함께 동기화되어 다른 컴퓨터에서 세션을 재개할 수 있습니다. 바로 그 이유로, 이 폴더에 없는 stem 에 대한 행도 다시 쓸 때 유지됩니다. 큐레이터가 세트의 나머지가 아직 도착하지 않은 곳에서 재개하고 있을 수 있으며, 그 행을 버리면 이미 끝난 작업을 다시 넘겨주게 됩니다. 자체 기록은 없지만 옆에 외부 도구의 ``<parent>/<name>_status.csv`` 가 있는 폴더는 그 파일에서 재개하고 그 파일에 다시 기록하므로(:func:`status_path`), 절반씩 각 도구에서 큐레이션한 세트도 하나의 기록을 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.CurationQueue#8",
+      "source": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the queue is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
+      "source_sha256": "115cf3e21dd39328e311520f468ada15037517f4f69902310b9fe4d0adc92dee",
+      "context": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the work list is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
+      "translation": "큐레이터가 첫 번째 현미경 시야 전에 알아야 할 내용입니다 -- 점수 파일 없이 지정된 ``prob`` 또는 ``easy`` 순서, 점수 파일에 이름이 없는 현미경 시야가 있는 경우, 그리고 폴더 옆에 있는 외부 도구의 파일이 재개 기록이어서 이후 모든 저장이 그 파일에 기록되는 경우입니다. 대기열이 만들어질 때 출력되고 편집기가 대기열과 함께 표시합니다. 순서가 조용히 다른 순서로 바뀌거나, 저장이 조용히 연 폴더 밖에 기록되는 것이 이 모듈이 가장 경계하는 실패이기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.CurationQueue.order_phrase#0",
+      "source": "``sorted by <order>``, naming the order that was asked",
+      "source_sha256": "0bd1fb6521e921fda11849ace65b0be12cebe09756ff58d3dcd93915c68c8fff",
+      "context": "``sorted by <order>``, naming the order that was asked",
+      "translation": "``sorted by <order>`` 이며, 요청된 순서가",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.CurationQueue.order_phrase#1",
+      "source": "for too whenever it is not the one that was used.",
+      "source_sha256": "bb4161cd1b22e754fc9625f6c5b76a85be681bb37f4c96536fc61226c692e5d7",
+      "context": "for too whenever it is not the one that was used.",
+      "translation": "실제로 사용된 순서와 다를 때마다 그 순서도 함께 명시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.QueueLayout.status_path#0",
+      "source": "where this queue's resume record is read and written:",
+      "source_sha256": "5b998d4fb7e730a4cc7d2b17d77bd623be35e1f175ca5755270066ab3aa2e0fd",
+      "context": "where this work list's resume record is read and written:",
+      "translation": "이 대기열의 재개 기록을 읽고 쓰는 위치입니다:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.QueueLayout.status_path#1",
+      "source": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
+      "source_sha256": "b677be671969ec54c55905633ebd991a39cbfae8a4becae785cfe9f2ee5833e4",
+      "context": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
+      "translation": "``<folder>/curate_status.csv``, 또는 폴더에 있는 기록이 외부 큐레이션 도구의 것일 때는 폴더 옆의 ``<parent>/<name>_status.csv`` 입니다. :func:`status_path` 가 결정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.QueueSummary#0",
+      "source": "What is left to do in a curation session.",
+      "source_sha256": "5881e9a16c16af52f601701196ec3693966840fa16a98bc76bdec042927454ac",
+      "context": "What is left to do in a curation session.",
+      "translation": "큐레이션 세션에서 남은 작업입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.build_queue#2",
+      "source": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the queue as :attr:`CurationQueue.notices` for the editor to show.",
+      "source_sha256": "b0b8528a818d3986b5fab0bdc9cb878b44d0052fb24179a4ff6f8534e9203c93",
+      "context": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the work list as :attr:`CurationQueue.notices` for the editor to show.",
+      "translation": "확률은 이를 사용하는 순서에서만 읽으므로 ``name`` 과 ``value`` 는 점수 파일을 전혀 읽지 않습니다. ``prob`` 와 ``easy`` 에서는 점수가 없다는 사실이 결코 조용히 넘어가지 않습니다. 점수 파일이 없으면 ``value`` 로 대체하고 확인한 두 위치를 모두 명시해 알리며, 점수 파일에 점수가 없는 대기 중 현미경 시야가 있으면 그 수를 알리고, 점수의 출처를 출력합니다. 이 경고들과, 진행 상황이 폴더 옆 외부 도구의 기록에 다시 기록되고 있다는 경고는 편집기가 표시할 수 있도록 대기열에 :attr:`CurationQueue.notices` 로 보관됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.external_record#0",
+      "source": "Where the external curation tool keeps one of a queue's files.",
+      "source_sha256": "c0858e11ed71fae1d06a94c23670a4b31b4a40c4121f8040b387a513123bfab8",
+      "context": "Where the external curation tool keeps one of a work list's files.",
+      "translation": "외부 큐레이션 도구가 대기열 파일 중 하나를 보관하는 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.external_record#1",
+      "source": "the queue folder.",
+      "source_sha256": "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+      "context": "the work list folder.",
+      "translation": "대기열 폴더입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.curation_queue.external_record#2",
+      "source": ":data:`EXTERNAL_STATUS_SUFFIX` or :data:`EXTERNAL_SCORES_SUFFIX`.",
+      "source_sha256": "afd2263f9e1e9a04c1c98815c19ae8d7901cd249a445e0e5db9a3d0b935824c3",
+      "context": ":data:`EXTERNAL_STATUS_SUFFIX` or :data:`EXTERNAL_SCORES_SUFFIX`.",
+      "translation": ":data:`EXTERNAL_STATUS_SUFFIX` 또는 :data:`EXTERNAL_SCORES_SUFFIX` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.external_record#3",
+      "source": "``<parent>/<name><suffix>``, beside the queue folder rather than in it. The folder is made absolute first, without touching the disk, so ``.`` has a name to put in front of the suffix.",
+      "source_sha256": "308b928276a7a6d63062888e47e191bad6e4dfec90b33c9e021d179db9ad141e",
+      "context": "``<parent>/<name><suffix>``, beside the work list folder rather than in it. The folder is made absolute first, without touching the disk, so ``.`` has a name to put in front of the suffix.",
+      "translation": "``<parent>/<name><suffix>`` 이며, 대기열 폴더 안이 아니라 옆에 있습니다. 폴더는 디스크에 접근하지 않고 먼저 절대 경로로 바뀌므로 ``.`` 에도 접미사 앞에 붙일 이름이 생깁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.load_draft_counts#2",
+      "source": "SO AN UNREADABLE CACHE IS RECOUNTED, NEVER RAISED. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
+      "source_sha256": "5e7c3c18e4fd57b77cf6e15871d910e92d2bacb4d505f20aef6160123cb43765",
+      "context": "So an unreadable cache is recounted, never reported as an error. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
+      "translation": "따라서 읽을 수 없는 캐시는 예외를 발생시키지 않고 항상 다시 집계합니다. 쓰는 도중 충돌로 잘린 파일은 유효한 UTF-8 이 아니며, 이를 그대로 내보내면 최적화 하나 때문에 세션 전체가 중단됩니다. 초안은 디스크에 있고 그것이 진실입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.load_probabilities#0",
+      "source": "Read the queue's scores file, when there is one.",
+      "source_sha256": "d4c352596b7be35ec0f4dd33b20839402b1cfcf47496b983c9d875ace2b58cc6",
+      "context": "Read the work list's scores file, when there is one.",
+      "translation": "대기열의 점수 파일이 있으면 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.load_probabilities#2",
+      "source": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
+      "source_sha256": "9d9b86d24499b2a7c6559417a1af6ae7966cfe69cd9932ac8f1c14bfe9f3b9d2",
+      "context": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
+      "translation": "``{stem: probability}`` 이며, 점수 파일이 없으면 ``{}`` 입니다(:func:`scores_path` 참조). 이 때문에 ``prob`` 와 ``easy`` 가 명시적으로 알리며 대체됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.load_probabilities#3",
+      "source": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
+      "source_sha256": "e676006d686e08d3ef2f4ece65c95eac2152ea0a14bcbde2631a1da95dac3028",
+      "context": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
+      "translation": "``curate_scores.csv`` 가 있지만 stem 열이나 인식 가능한 확률 열이 없을 때 발생합니다. 존재하지만 사용할 수 없는 점수 파일은 멈출 가치가 있는 실수이며, 파일이 없는 것은 일반적인 상태입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.scores_path#0",
+      "source": "Where this queue's probabilities are read from, if anywhere.",
+      "source_sha256": "bd72668396ebaa479cdebfb9ad69a2c150c52f5b0d790f2595cef4fb1b459312",
+      "context": "Where this work list's probabilities are read from, if anywhere.",
+      "translation": "이 대기열의 확률을 읽어 오는 위치이며, 없을 수도 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.scores_path#1",
+      "source": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
+      "source_sha256": "20ef1f8bb91368c0ca4075a90fd17021aa4b14afdb330e05ff49c96ab81e0b34",
+      "context": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
+      "translation": "먼저 ``<folder>/curate_scores.csv`` 를 찾고, 없으면 외부 큐레이션 도구의 ``<parent>/<name>_scores.csv`` 를 사용합니다(헤더에 ``stem`` 열과 확률 열이 있는 경우). 플라크 프로젝트의 점수가 이렇게 기록됩니다. 폴더 옆에 있지만 점수처럼 보이지 않는 파일은 점수 파일이 아니므로, 세션을 중단시키지 않고 건너뜁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.scores_path#3",
+      "source": "the scores file, or ``None`` when there is none.",
+      "source_sha256": "de78a6fa2c90c41c1c3272eccd7a1a02fe075e7982c24b8d5853d4f351350163",
+      "context": "the scores file, or ``None`` when there is none.",
+      "translation": "점수 파일이며, 없으면 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.status_path#0",
+      "source": "Where this queue's resume record is read from and written to.",
+      "source_sha256": "d8d6d0dbca7c39bb59107144c0af0943ab2c9bcd7592745aa8a2f697b6ec36e1",
+      "context": "Where this work list's resume record is read from and written to.",
+      "translation": "이 대기열의 재개 기록을 읽고 쓰는 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.curation_queue.status_path#1",
+      "source": "``<folder>/curate_status.csv``, inside the queue folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every field already done or skipped as undone while the other tool went on reading the first.",
+      "source_sha256": "b3dd21bf4e574c0b58ff302f7e0ac5fa07a53c23f66a0a7f8b17e08b35c3c45c",
+      "context": "``<folder>/curate_status.csv``, inside the work list folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every microscope field of view already done or skipped as undone while the other tool went on reading the first.",
+      "translation": "``<folder>/curate_status.csv`` 이며, 세트가 컴퓨터 간에 동기화될 때 이미지와 함께 이동하도록 대기열 폴더 안에 있습니다. 단, 폴더에 이 파일이 없고 외부 큐레이션 도구의 기록인 ``<parent>/<name>_status.csv`` 가 ``stem`` 및 ``state`` 열과 함께 폴더 옆에 있는 경우는 예외입니다. 그 경우 그 기록이 유일한 기록이 되어 제자리에서 읽고 다시 기록됩니다. 그 도구로 큐레이션한 세트는 진행 상황을 그곳에 보관하고 폴더 안에는 아무것도 두지 않으므로, 두 번째 파일을 새로 만들면 다른 도구가 첫 번째 파일을 계속 읽는 동안 이미 완료했거나 건너뛴 모든 현미경 시야가 다시 미완료 상태로 열리게 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
