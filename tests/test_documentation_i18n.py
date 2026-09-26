@@ -211,7 +211,8 @@ TOOLS = ROOT / "tools"
 # b84c3441c: ten more callables (item 475, PSF/detect chain), named there.
 # 11,710 on nightly 03a02c3b8: +49 / -0, named in test_api_i18n_extractor.
 # 11,758 with item 528's twelve, named in test_api_i18n_extractor.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_758
+# 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_816
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
