@@ -40,6 +40,10 @@ OLDER_ALIASES = (
     "intensity_percentile",
 )
 PRIMARY_ROLES = ("cell", "nucleus", "pathogen", "organelle")
+#: The maintainer, 2026-09-25 (item 511): Mask's per-object area and mean
+#: bounds of the Cellpose objects are retired into object_filters rows.
+RETIRED_BOUND_ROLES = PRIMARY_ROLES[:3]
+BOUND_SUFFIXES = ("min_area", "max_area", "min_intensity", "max_intensity")
 
 
 def test_bounds_are_float_controls_with_disabled_defaults_in_declared_slots():
@@ -49,9 +53,14 @@ def test_bounds_are_float_controls_with_disabled_defaults_in_declared_slots():
     })
     bounds = {
         f"{role}_{side}_intensity": defaults[f"{role}_{side}_intensity"]
-        for role in (*PRIMARY_ROLES[:3], *ALL_ORGANELLE_ROLES[:7])
+        for role in ALL_ORGANELLE_ROLES[:7]
         for side in ("min", "max")
     }
+    for role in RETIRED_BOUND_ROLES:
+        for suffix in BOUND_SUFFIXES:
+            assert f"{role}_{suffix}" not in defaults
+            assert f"{role}_{suffix}" not in expected_types
+    assert defaults["object_filters"] == {}
     spec = convert_settings_dict_for_gui(bounds)
     for key, value in bounds.items():
         assert value == 0.0
@@ -63,7 +72,12 @@ def test_bounds_are_float_controls_with_disabled_defaults_in_declared_slots():
 def test_every_organelle_slot_has_bounds_beside_area_with_own_channel_help():
     filtration = categories["Object filtration"]
     positions = {key: index for index, key in enumerate(filtration)}
-    for role in (*PRIMARY_ROLES[:3], *ALL_ORGANELLE_ROLES):
+    assert "object_filters" in filtration
+    for role in RETIRED_BOUND_ROLES:
+        for suffix in BOUND_SUFFIXES:
+            assert f"{role}_{suffix}" not in filtration
+            assert f"{role}_{suffix}" not in tooltips
+    for role in ALL_ORGANELLE_ROLES:
         ordered = [f"{role}_{suffix}" for suffix in (
             "min_area", "max_area", "min_intensity", "max_intensity")]
         first = positions[ordered[0]]
@@ -92,7 +106,9 @@ def test_bounds_survive_a_hidden_organelle_slot_and_preserve_explicit_values():
         "organelleq_min_intensity": 20.5,
         "organelleq_max_intensity": 40.75,
     })
-    assert settings["cell_min_intensity"] == 10.25
+    assert "cell_min_intensity" not in settings
+    assert settings["object_filters"] == {"cell": [
+        {"property": "intensity_mean", "min": 10.25, "max": None}]}
     assert settings["organelleq_min_intensity"] == 20.5
     assert settings["organelleq_max_intensity"] == 40.75
     assert settings["organelle_min_intensity"] == 0.0
@@ -153,8 +169,10 @@ def test_old_csv_loads_without_repurposing_split_or_merge_values(tmp_path, heade
         assert settings[key] == value
         assert key not in expected_types
         assert surviving_setting_name(key) == ()
-    assert settings["cell_min_intensity"] == 12.5
-    assert settings["cell_max_intensity"] == 0.0
+    assert "cell_min_intensity" not in settings
+    assert "cell_max_intensity" not in settings
+    assert settings["object_filters"] == {"cell": [
+        {"property": "intensity_mean", "min": 12.5, "max": None}]}
     assert settings["organelleq_min_intensity"] == 0.0
     assert settings["organelleq_max_intensity"] == 82.75
 

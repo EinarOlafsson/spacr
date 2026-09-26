@@ -7,7 +7,8 @@ from typing import Any, Dict, Optional, Sequence
 import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QAbstractItemView, QComboBox, QFileDialog, QFormLayout, QHBoxLayout,
+    QAbstractItemView, QCheckBox, QComboBox, QFileDialog, QFormLayout,
+    QHBoxLayout,
     QHeaderView, QLabel, QLineEdit, QPlainTextEdit, QPushButton,
     QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
@@ -15,7 +16,8 @@ from PySide6.QtWidgets import (
 from ...hit_attribution import promote_hit_calls, undo_hit_promotion
 from ...hit_investigation import investigate_hit
 from ...surrogate import (MODEL_FAMILIES, available_backends,
-                          explain_classifier, write_surrogate_result)
+                          explain_classifier, importance_method_availability,
+                          write_surrogate_result)
 from ..job_runner import JobRunner
 from ..i18n import tr
 from ..linked_selection import has_object_opener, open_objects
@@ -190,14 +192,38 @@ class ExplainCvPanel(QWidget):
                     model_item.setEnabled(False)
                 self.backend.setItemData(index, info.get("reason", "Unavailable"), Qt.ToolTipRole)
         self.split = QComboBox(); self.split.addItems(["well", "plate"])
+        self.importance_boxes: Dict[str, QCheckBox] = {}
+        methods_row = QWidget()
+        methods_layout = QHBoxLayout(methods_row)
+        methods_layout.setContentsMargins(0, 0, 0, 0)
+        for key, label in (("gain", tr("Feature importance (gain)")),
+                           ("permutation", tr("Permutation importance")),
+                           ("shap", tr("SHAP"))):
+            box = QCheckBox(label)
+            box.setChecked(True)
+            self.importance_boxes[key] = box
+            methods_layout.addWidget(box)
+        methods_layout.addStretch(1)
+        self.shap_explainer = QComboBox(); self.shap_explainer.setEditable(False)
+        for key, label in (("auto", tr("Auto (TreeSHAP, else KernelSHAP)")),
+                           ("tree", tr("TreeSHAP")),
+                           ("kernel", tr("KernelSHAP"))):
+            self.shap_explainer.addItem(label, key)
+        self.backend.currentIndexChanged.connect(
+            self._refresh_importance_methods)
+        self.importance_boxes["shap"].toggled.connect(
+            self._refresh_importance_methods)
         form.addRow("Measurements database", self.database)
         form.addRow("Existing CV predictions", self.predictions)
         form.addRow("Crop path column", self.path_column)
         form.addRow("Prediction column", self.prediction_column)
         form.addRow("Surrogate model", self.backend)
         form.addRow("Held-out grouping", self.split)
+        form.addRow(tr("Importance methods"), methods_row)
+        form.addRow(tr("SHAP explainer"), self.shap_explainer)
         form.addRow("Output folder", self.output)
         outer.addLayout(form)
+        self._refresh_importance_methods()
 
         actions = QHBoxLayout()
         self.run_button = QPushButton("Explain model")
@@ -244,6 +270,47 @@ class ExplainCvPanel(QWidget):
             self.results, "Results", persist_key="explain_cv/Results")
         outer.addWidget(self.results_section, 1)
 
+    def _refresh_importance_methods(self, *_args) -> None:
+        """Grey the importance measures the chosen surrogate cannot give.
+
+        Gain needs a model with native split importance (histogram gradient
+        boosting has none); SHAP needs the optional shap package, and TreeSHAP
+        a tree ensemble. A greyed measure is unchecked and says why.
+        """
+        family = str(self.backend.currentData() or "")
+        availability = importance_method_availability(model_family=family)
+        for key, box in self.importance_boxes.items():
+            info = (availability["kernel_shap"] if key == "shap"
+                    else availability[key])
+            was_enabled = box.isEnabled()
+            box.setEnabled(bool(info["available"]))
+            if not info["available"]:
+                box.setChecked(False)
+            elif not was_enabled:
+                box.setChecked(True)
+            box.setToolTip("" if info["available"] else tr(
+                "Not applicable: {reason}", reason=info["reason"]))
+        shap_on = (self.importance_boxes["shap"].isEnabled()
+                   and self.importance_boxes["shap"].isChecked())
+        self.shap_explainer.setEnabled(shap_on)
+        items = self.shap_explainer.model()
+        for index in range(self.shap_explainer.count()):
+            key = str(self.shap_explainer.itemData(index))
+            info = availability.get(f"{key}_shap",
+                                    availability["kernel_shap"])
+            item = items.item(index) if hasattr(items, "item") else None
+            if item is not None:
+                item.setEnabled(bool(info["available"]))
+            self.shap_explainer.setItemData(
+                index, "" if info["available"] else tr(
+                    "Not applicable: {reason}", reason=info["reason"]),
+                Qt.ToolTipRole)
+
+    def importance_methods(self) -> list:
+        """The importance measures currently ticked, in table order."""
+        return [key for key, box in self.importance_boxes.items()
+                if box.isEnabled() and box.isChecked()]
+
     def _refresh_prediction_columns(self) -> None:
         """Populate column dropdowns from the selected prediction artifact."""
         path = self.predictions.text()
@@ -274,7 +341,9 @@ class ExplainCvPanel(QWidget):
     def run_analysis(self, database: str, predictions: str, *,
                      path_column: str = "path", prediction_column: str = "pred",
                      model_family: str = "random_forest", split_by: str = "well",
-                     output: str = ""):
+                     output: str = "",
+                     importance_methods: Optional[Sequence[str]] = None,
+                     shap_explainer: str = "auto"):
         """Run the surrogate explanation and render it.
 
         SEPARATE FROM :meth:`run` so the analysis can be driven without the
@@ -284,12 +353,17 @@ class ExplainCvPanel(QWidget):
         :param predictions: the model's predictions.
         :param path_column: which column joins predictions to objects.
         :param prediction_column: which column holds the prediction.
+        :param importance_methods: measures to compute; all three when None.
+        :param shap_explainer: ``'auto'``, ``'tree'`` or ``'kernel'``.
         """
         prediction_frame = pd.read_csv(predictions)
+        fit_options: Dict[str, Any] = {"shap_explainer": shap_explainer}
+        if importance_methods is not None:
+            fit_options["importance_methods"] = list(importance_methods)
         result = explain_classifier(
             database, prediction_frame, path_column=path_column,
             prediction_column=prediction_column, model_family=model_family,
-            split_by=split_by, verbose=False)
+            split_by=split_by, verbose=False, **fit_options)
         paths = write_surrogate_result(result, output) if output else {}
         return result, paths
 
@@ -312,6 +386,8 @@ class ExplainCvPanel(QWidget):
             "prediction_column": self.prediction_column.currentText(),
             "model_family": str(self.backend.currentData()),
             "split_by": self.split.currentText(), "output": self.output.text(),
+            "importance_methods": self.importance_methods(),
+            "shap_explainer": str(self.shap_explainer.currentData() or "auto"),
         }
         self._jobs.submit(lambda: self.run_analysis(**kwargs), self._loaded)
 

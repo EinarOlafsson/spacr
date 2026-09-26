@@ -230,8 +230,10 @@ DEFAULT_SPACES: Dict[str, Dict[str, List[Any]]] = {
         "dropout_rate": [0.0, 0.1, 0.3],
     },
     "activation": {
-        "cam_type": ["gradcam", "gradcam_pp", "layercam", "saliency",
-                     "integrated_gradients", "occlusion"],
+        "cam_type": ["gradcam", "gradcam_pp", "layercam", "hirescam",
+                     "ablation_cam", "saliency", "integrated_gradients",
+                     "gradient_shap", "deeplift_shap", "occlusion",
+                     "chefer"],
         "smoothgrad_samples": [0, 8],
     },
 }
@@ -2508,6 +2510,76 @@ class ActivationSearchData:
     notes: List[str] = field(default_factory=list)
 
 
+def _registry_method(cam_type: Any) -> str:
+    """The attribution-registry name a swept ``cam_type`` value stands for.
+
+    The legacy saliency spellings mean plain input-gradient saliency, and the
+    Activation form's ``torchcam_gradcam`` / ``torchcam_gradcam_pp`` aliases
+    (item 18) name the registry's ``gradcam`` / ``gradcam_pp``, which is what
+    a sweep attributes with anyway.
+
+    :param cam_type: one swept value.
+    :returns: the registry name; an unrecognised one is returned unchanged,
+        so the attribution call reports it.
+    """
+    method = str(cam_type)
+    if method in ("saliency_image", "saliency_channel"):
+        return "saliency"
+    return {"torchcam_gradcam": "gradcam",
+            "torchcam_gradcam_pp": "gradcam_pp"}.get(method, method)
+
+
+def _applicable_activation_space(space: SearchSpace,
+                                 data: "ActivationSearchData"
+                                 ) -> Tuple[SearchSpace, List[str]]:
+    """``space`` without the ``cam_type`` values the loaded model cannot use.
+
+    The default grid names every attribution family (item 18 added
+    HiRes-CAM, Ablation-CAM, GradientSHAP, DeepSHAP and Chefer), but no
+    backbone takes all of them: the CAM family has nothing to weight on a
+    pure ViT or Swin, Chefer needs a ViT's self-attention, DeepSHAP refuses a
+    ResNet's reused ReLU, and a missing optional backend rules out its
+    methods. Each such value is dropped with its reason in the notes, rather
+    than left to fail as a trial -- a failed trial looks like a bad method,
+    and this is not one.
+
+    :param space: the sweep space.
+    :param data: the loaded model and its architecture name.
+    :returns: ``(space, notes)``; the space is unchanged when every value
+        applies, when there is no ``cam_type`` to filter, or when the model
+        is not a torch module to inspect. A value the registry does not know
+        is kept, so its trial reports the unknown name.
+    :raises ValueError: when no swept ``cam_type`` applies to the model.
+    """
+    values = tuple(space.params.get("cam_type", ()))
+    if not values or not callable(getattr(data.model, "modules", None)):
+        return space, []
+    from .attribution import AttributionError, method_applicability
+
+    kept, notes = [], []
+    for value in values:
+        try:
+            applies, reason = method_applicability(
+                _registry_method(value), model=data.model,
+                model_type=data.model_type)
+        except (AttributionError, AttributeError, TypeError):
+            applies, reason = True, ""
+        if applies:
+            kept.append(value)
+        else:
+            notes.append(f"cam_type {value!r} was left out of this sweep: "
+                         f"{reason}.")
+    if not kept:
+        raise ValueError(
+            "None of the swept cam_type values applies to this model. "
+            + " ".join(notes))
+    if len(kept) == len(values):
+        return space, []
+    params = dict(space.params)
+    params["cam_type"] = kept
+    return SearchSpace(params), notes
+
+
 def _activation_params(params: Mapping[str, Any]) -> Tuple[str, Dict[str, Any],
                                                            int, float]:
     """Split one trial's configuration into method, kwargs and SmoothGrad knobs.
@@ -2522,9 +2594,7 @@ def _activation_params(params: Mapping[str, Any]) -> Tuple[str, Dict[str, Any],
     """
     p = dict(params)
     named = p.pop("method", None)
-    method = str(p.pop("cam_type", None) or named or "gradcam")
-    if method in ("saliency_image", "saliency_channel"):
-        method = "saliency"
+    method = _registry_method(p.pop("cam_type", None) or named or "gradcam")
     kw: Dict[str, Any] = {}
     if p.get("target_layer") not in (None, "", "None"):
         kw["layer"] = str(p["target_layer"])
@@ -2713,6 +2783,9 @@ def activation_search(data: ActivationSearchData,
     """
     if mode not in ("grid", "random"):
         raise ValueError(f"mode must be 'grid' or 'random', got {mode!r}.")
+    dropped: List[str] = []
+    if attribute_fn is None:
+        space, dropped = _applicable_activation_space(space, data)
     fit = activation_fit_fn(data, criterion=criterion, n_steps=n_steps,
                             baseline=baseline,
                             run_sanity_check=run_sanity_check,
@@ -2730,7 +2803,7 @@ def activation_search(data: ActivationSearchData,
         "Every criterion was computed for every trial, so you can re-rank the "
         "table by a different one and see whether the winner survives — it "
         "often does not, and that is the result.",
-    ]
+    ] + dropped
     if not run_sanity_check:
         notes.append(
             "The model-randomisation sanity check was skipped for this sweep. "

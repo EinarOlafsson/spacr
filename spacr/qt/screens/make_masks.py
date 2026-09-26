@@ -182,7 +182,7 @@ from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
 from ..theme import (SPACING, active_palette, block_surface,
                      ensure_widget_qss_applied, mark_surface,
-                     register_widget_qss)
+                     register_widget_qss, set_a_sheeted_widgets_own_rule)
 from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
@@ -3158,6 +3158,42 @@ def _cellpose3_auto_diameter_note() -> str:
         "to skip the estimate.")
 
 
+def _diameter_zero_estimates(model) -> bool:
+    """Whether Diameter 0 makes ``model`` estimate the object size first.
+
+    Decided by the route each model setting runs, not by its spelling, and
+    checked against the code on each route (2026-09-26). A named Cellpose 3
+    model -- ``cellpose3:cyto3``, ``cyto2``, ``cyto``, ``nuclei``, or a bare
+    ``cellpose3:``, which runs cyto3 -- is a ``models.Cellpose`` whose size
+    model estimates the diameter when it is 0. Every other Cellpose route
+    has no size model and no estimate: a ``cellpose3:`` checkpoint runs
+    ``CellposeModel`` at the diameter it was trained at, and
+    ``cellpose_dino:`` checkpoints and Cellpose-SAM run Cellpose 4, whose
+    ``eval`` leaves the field at its own scale when the diameter is 0.
+
+    :param model: a model setting or magnifier mode, e.g. ``"cellpose3:cyto3"``.
+    :returns: True when a whole-field run with Diameter 0 pays for the
+        estimate, so :func:`_cellpose3_auto_diameter_note` is true of it.
+    """
+    from ..._segmentation_backends import _CELLPOSE3_MODELS, _cellpose3_choice
+
+    chosen = _cellpose3_choice(model)
+    return chosen is not None and (chosen or "cyto3") in _CELLPOSE3_MODELS
+
+
+def _magnifier_route_model(values) -> str:
+    """The model a magnifier request really runs, for :func:`_diameter_zero_estimates`.
+
+    A backend mode names its model itself; the ``cellpose`` mode runs the
+    Object detection model setting, which may be a Cellpose 3 one chosen
+    from the model zoo.
+
+    :param values: the request's settings by :data:`_MODEL_SETTING_FIELDS`.
+    """
+    mode = canonical_magnifier_mode(values.get("mode"))
+    return str(values.get("model_name") or "") if mode == "cellpose" else mode
+
+
 _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
                          "cellprob_threshold", "normalize", "otsu_correction",
@@ -5173,7 +5209,7 @@ class _LiveMagnifier(QObject):
         image = self.canvas.image
         height, width = (int(v) for v in image.shape[:2])
         values = dict(zip(_MODEL_SETTING_FIELDS, key[2:]))
-        if (str(values.get("mode") or "").startswith("cellpose3")
+        if (_diameter_zero_estimates(_magnifier_route_model(values))
                 and not values.get("diameter")
                 and not self._said_diameter_note):
             self._said_diameter_note = True
@@ -7374,6 +7410,7 @@ class MakeMasksScreen(QWidget):
         #: the generic settings form and carries no registry key to be
         #: looked up by.
         self._fold_page_title = HEADER_TITLE
+        set_a_sheeted_widgets_own_rule(self, "")
         ensure_widget_qss_applied(MAKE_MASKS_QSS_NAME, root=self)
         self._build_ui()
         self._install_shortcuts()
@@ -7624,6 +7661,9 @@ class MakeMasksScreen(QWidget):
             self._settings_scroll, "Settings", mode=EDGE, stretch=1,
             extent=SETTINGS_WIDTH, fold_key="make_masks/Settings",
             hint="or drag to make the settings wider or narrower")
+        from .. import screens as _screens_package
+
+        _screens_package._breathe_while_a_window_opens()
         self._body_splitter.add_pane(self._build_view_pane(), "Masks",
                                      stretch=3, extent=900)
         self._body_stack.addWidget(self._body_splitter)
@@ -8147,14 +8187,21 @@ class MakeMasksScreen(QWidget):
         method. Actions that are not modes come in through
         :meth:`add_toolbar_action` and land in the same row.
 
-        The row ends with the Magnifier and, directly right of it, the
-        settings toggle, which is checkable because it reports a state
-        rather than firing an action: it stays lit for as long as the
-        settings are on screen. A stretch after the toggle keeps the row
-        against the left edge, above the settings it hides.
+        The Magnifier and, directly right of it, the settings toggle are
+        PINNED at the right end, outside the part that scrolls. The
+        toggle is checkable because it reports a state rather than firing
+        an action: it stays lit for as long as the settings are on
+        screen. The tools wider than the window scroll; the pair does
+        not, so the way back to the settings is never scrolled out of
+        sight (item 419, the maintainer's choice of 2026-09-25). A
+        stretch after the last tool keeps the tools against the left
+        edge, above the settings they sit over.
+
+        :returns: The strip that holds the scrolling tools and the pinned
+            pair, kept as ``self._tool_row``.
         """
         bar = QWidget()
-        bar.setObjectName("MakeMasksToolRow")
+        bar.setObjectName("MakeMasksToolTools")
         row = QHBoxLayout(bar)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
@@ -8232,8 +8279,16 @@ class MakeMasksScreen(QWidget):
             "up.")
         self._btn_settings.setChecked(True)
         self._btn_settings.toggled.connect(self._on_toggle_settings)
-        row.addWidget(self._btn_settings)
         row.addStretch(1)
+
+        pinned = QWidget()
+        pinned.setObjectName("MakeMasksToolPin")
+        pin = QHBoxLayout(pinned)
+        pin.setContentsMargins(SPACING["sm"], 0, 0, 0)
+        pin.setSpacing(SPACING["sm"])
+        pin.addWidget(self._btn_settings)
+        self._tool_pin_layout = pin
+        self._tool_pin = pinned
 
         scroller = QScrollArea()
         scroller.setObjectName("MakeMasksToolScroll")
@@ -8246,7 +8301,17 @@ class MakeMasksScreen(QWidget):
             bar.sizeHint().height()
             + scroller.horizontalScrollBar().sizeHint().height())
         scroller.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        return scroller
+        self._tool_scroll = scroller
+
+        strip = QWidget()
+        strip.setObjectName("MakeMasksToolRow")
+        line = QHBoxLayout(strip)
+        line.setContentsMargins(0, 0, 0, 0)
+        line.setSpacing(0)
+        line.addWidget(scroller, 1)
+        line.addWidget(pinned, 0, Qt.AlignTop)
+        strip.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        return strip
 
     def _on_open_features(self, _checked: bool = False):
         """Open the measurement-input window on the folder being drawn in.
@@ -8382,18 +8447,16 @@ class MakeMasksScreen(QWidget):
     def add_toolbar_action(self, button: QPushButton) -> QPushButton:
         """Insert a non-mode action into the editor toolbar.
 
-        The button is placed with the other actions, before the Magnifier and
-        the settings toggle, so that pair stays together at the end of the
-        row whatever is added after them.
+        The button is placed after the other actions in the part of the row
+        that scrolls. The Magnifier and the settings toggle are pinned
+        outside it, so nothing added here can come between them or push
+        them out of sight.
 
         :param button: Action button to insert.
         :returns: The same button.
         """
         row = self._tool_row_layout
-        anchor = getattr(self, "_btn_magnifier", None)
-        if anchor is None or row.indexOf(anchor) < 0:
-            anchor = self._btn_settings
-        row.insertWidget(row.indexOf(anchor), button)
+        row.insertWidget(row.count() - 1, button)
         return button
 
     def _sync_tool_row_visibility(self, *_args) -> None:
@@ -8904,9 +8967,13 @@ class MakeMasksScreen(QWidget):
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
 
+        from .. import screens as _screens_package
+
+        _screens_package._breathe_while_a_window_opens()
         self._methods_card = self._build_detection_card()
         col.addWidget(self._methods_card)
         self._sync_method_controls()
+        _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_enhance_card())
         col.addWidget(self._build_magnifier_card())
 
@@ -12056,7 +12123,7 @@ class MakeMasksScreen(QWidget):
                                     **self._chain_provenance()))
         self._detection_request = request
         self._btn_cellpose.setEnabled(False)
-        if str(model).startswith('cellpose3') and not parameters.get('diameter'):
+        if _diameter_zero_estimates(model) and not parameters.get('diameter'):
             self._report(_cellpose3_auto_diameter_note(), "warning")
         self._status_label.setText(tr("Object detection ({model}) running…", model=model))
         if self._detection_worker is None:
@@ -12268,8 +12335,8 @@ class MakeMasksScreen(QWidget):
             "clicked — one undo step per click. While it is on, the mouse "
             "wheel changes the box's zoom rather than the view's.")
         self._btn_magnifier.toggled.connect(self._on_toggle_magnifier)
-        row = self._tool_row_layout
-        row.insertWidget(row.indexOf(self._btn_settings), self._btn_magnifier)
+        pin = self._tool_pin_layout
+        pin.insertWidget(pin.indexOf(self._btn_settings), self._btn_magnifier)
         return card
 
     def _build_magnifier_save_mode(self, form: QFormLayout) -> None:
@@ -13335,7 +13402,10 @@ class MakeMasksScreen(QWidget):
 
         A save that changed nothing writes nothing: the field is still
         recorded as done, with the object count of the file already on disk,
-        but that file is left byte for byte as it was.
+        but that file is left byte for byte as it was. An edited save
+        records the object count of the labels as written, after
+        :func:`spacr.qt.mask_engine.canonical_labels` has split any label
+        lying in separated pieces, so the count matches the file.
         """
         if not self._image_files or self._canvas.mask is None:
             return
@@ -13350,6 +13420,7 @@ class MakeMasksScreen(QWidget):
             self._status_label.setText(
                 tr("Unchanged, nothing rewritten → {path}").format(path=path))
             return
+        preserve_ids = getattr(self._canvas, 'preserve_ids', False)
         try:
             self._validate_secondary_save()
             path = engine.save_mask(
@@ -13357,7 +13428,7 @@ class MakeMasksScreen(QWidget):
                 self._image_files[self._current_index],
                 self._canvas.mask,
                 log=self._log,
-                preserve_ids=getattr(self._canvas, 'preserve_ids', False),
+                preserve_ids=preserve_ids,
                 **self._layout_kwargs(),
             )
         except Exception as e:
@@ -13365,7 +13436,9 @@ class MakeMasksScreen(QWidget):
             return
         edits = len(self._log) if self._log is not None else 0
         note = f"  ({edits} edit(s) recorded)" if edits else ""
-        objects = int(np.count_nonzero(np.unique(self._canvas.mask)))
+        written = engine.canonical_labels(self._canvas.mask,
+                                          preserve_ids=preserve_ids)
+        objects = int(np.count_nonzero(np.unique(written)))
         self._note_curated(self._image_files[self._current_index],
                            n_objects=objects)
         self._status_label.setText(f"Saved → {path}{note}")

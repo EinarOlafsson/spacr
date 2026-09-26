@@ -1316,7 +1316,12 @@ class TestPanelSettings:
         s = p._compartment_settings()
         for comp in LP.COMPARTMENTS:
             for suffix, *_ in LP.COMPARTMENT_FIELDS:
-                assert f"{comp}_{suffix}" in s
+                key = f"{comp}_{suffix}"
+                if LP._retired_bound(key):
+                    assert key not in s
+                else:
+                    assert key in s
+        assert s["object_filters"] == {}
         assert s["adjust_cells"] is False
         assert s["remove_background_cell"] is False
 
@@ -1330,8 +1335,14 @@ class TestPanelSettings:
         for comp in LP.COMPARTMENTS:
             for suffix, *_ in LP.COMPARTMENT_FIELDS:
                 key = f"{comp}_{suffix}"
+                if LP._retired_bound(key):
+                    # Item 511, 2026-09-25: the bound is an object_filters
+                    # row, and the run's default is no row at all.
+                    assert key not in pipeline and key not in live
+                    continue
                 assert key in pipeline, f"the run does not define {key}"
                 assert live[key] == pipeline[key], f"{key} drifted"
+        assert live["object_filters"] == pipeline["object_filters"] == {}
 
     def test_default_filters_are_neutral_so_a_preview_shows_raw_masks(
             self, qtbot):
@@ -1828,7 +1839,9 @@ class TestPropagation:
         p.propagate_settings()
         assert len(seen) == 1
         assert seen[0]["model_name"] == "cpsam"
-        assert seen[0]["cell_min_area"] == 321
+        assert "cell_min_area" not in seen[0]
+        assert seen[0]["object_filters"]["cell"] == [
+            {"property": "area", "min": 321.0, "max": None}]
 
     def test_a_throwing_callback_is_swallowed(self, qtbot):
         p = _panel(qtbot)
@@ -1864,7 +1877,8 @@ class TestPropagation:
             assert seen[-1]["cell_diameter"] == pytest.approx(55.0)
 
             p._compartment_widgets["nucleus"]["min_area"].setValue(77)
-            assert seen[-1]["nucleus_min_area"] == 77
+            assert LP._bound_from_filters(
+                seen[-1], "nucleus", "min_area") == 77
 
             n = len(seen)
             dlg._propagate_btn.setChecked(False)

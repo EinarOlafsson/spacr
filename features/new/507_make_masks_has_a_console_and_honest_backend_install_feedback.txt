@@ -221,3 +221,41 @@ still in the code)
     on pristine nightly c17135a40 (11,721 / 9,696); none of the new names
     are on that surface (all private), so this change moves neither.
   * No new tr() strings.
+
+
+2026-09-26 -- THE DIAMETER-0 NOTE FOLLOWS THE ROUTE, NOT THE SPELLING
+  The ask was to make the note fire for cellpose_dino: too, and for any
+  Cellpose route without a size model where Diameter 0 triggers an
+  estimate. Checked against the code each route runs, there is no such
+  route besides Cellpose 3's named models:
+    * cellpose3:cyto3 / cyto2 / cyto / nuclei (and a bare "cellpose3:",
+      which runs cyto3) are models.Cellpose; Diameter 0 is passed as 0.0
+      and its size model estimates (the 153 s measurement).
+    * a cellpose3:<checkpoint path> is models.CellposeModel (_sized False);
+      Diameter 0 is passed as None and it runs at its trained diameter.
+    * cellpose_dino:<path> and Cellpose-SAM run Cellpose 4 (4.2.1.1 in both
+      spaCR and the Cellpose-DINO env); its CellposeModel.eval sets
+      rescale = 1.0 and only rescales when diameter > 0, so Diameter 0 is
+      native scale: no estimate, and the note's "first estimates the object
+      size and rescales the whole field" would be untrue there.
+  So instead of widening the prefix match, both sites now ask one
+  predicate, make_masks._diameter_zero_estimates(model): True exactly for
+  the named Cellpose 3 models. That also stops the note firing falsely for
+  a cellpose3: checkpoint (it did under startswith("cellpose3")). The
+  magnifier now asks it of the model its mode really runs
+  (_magnifier_route_model): the backend mode itself, or for the "cellpose"
+  mode the Object detection model setting -- so a Cellpose 3 model picked
+  from the model zoo into Object detection (mode "cellpose", model
+  "cellpose3:cyto2") now gets the note in the magnifier too, and a
+  DINOCell mode with a stale cellpose3 model setting does not.
+  If Cellpose-DINO ever gains an estimate (a Cellpose 4 release with a
+  size model), it is one line in _diameter_zero_estimates.
+  Tests (tests/qt/test_make_masks_console_and_install_feedback.py): the
+  predicate over 14 settings (every named model, bare prefix, mixed case,
+  checkpoint, cellpose_dino:, cpsam, fine-tuned path, dinocell, samcell,
+  empty, None); the magnifier route for four mode/model pairs; Object
+  detection on a loaded field with Diameter 0 says the note (as a warning)
+  for cellpose3:cyto3 and not for a cellpose3 checkpoint or cellpose_dino:,
+  and with Diameter 44 not at all. The console file passed whole in one run
+  with the 528, 396 and 529 files (77 passed).
+  No new tr() strings; no new public callables (both helpers private).

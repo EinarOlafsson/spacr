@@ -779,6 +779,44 @@ def test_reviewed_api_validation_waives_only_copied_prose_heuristics():
     )
 
 
+def test_reviewed_genus_name_may_equal_english_only_where_listed():
+    """A genus heading is its own translation in Latin-script locales.
+
+    The per-language identity list admits exactly the listed block in the
+    listed languages, for reviewed evidence only; every other exact-English
+    block, model output and non-Latin-script locale still fails.
+    """
+    import build_documentation_i18n as builder
+
+    allowed = builder.API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE
+    for genus in ("Plasmodium", "Candida", "Toxoplasma"):
+        assert builder._api_block_requires_translation(genus)
+        assert allowed[genus] == frozenset({"sv", "de", "es", "pt", "is", "fr"})
+        for language in allowed[genus]:
+            assert builder._reviewed_api_block_valid(genus, genus, language)
+            # A translated or qualified heading stays valid too.
+            assert builder._reviewed_api_block_valid(
+                genus, f"Organismus {genus}", language,
+            )
+            # Unreviewed model output echoing the English is still refused.
+            assert not builder._api_block_valid(genus, genus, language)
+        for language in ("zh_CN", "hi", "ko"):
+            assert not builder._reviewed_api_block_valid(genus, genus, language)
+    # Exact block only: a sentence naming the genus, a case change or extra
+    # whitespace is not the listed identity.
+    assert not builder._reviewed_api_block_valid(
+        "Plasmodium falciparum", "Plasmodium falciparum", "fr",
+    )
+    assert not builder._reviewed_api_block_valid("plasmodium", "plasmodium", "fr")
+    assert not builder._reviewed_api_block_valid("Plasmodium", " Plasmodium", "fr")
+    # The gate is otherwise unchanged: ordinary prose copied as English fails.
+    assert not builder._reviewed_api_block_valid("Public API", "Public API", "fr")
+    assert all(
+        isinstance(languages, frozenset) and languages <= set(builder.MODEL_SPECS)
+        for languages in allowed.values()
+    )
+
+
 def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
     tmp_path, monkeypatch,
 ):

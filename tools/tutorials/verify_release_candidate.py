@@ -44,14 +44,25 @@ def check_sentence_cues(page):
     cases = []
     for sentence in sentences:
         requested = (sentence['speech_start'] + sentence['speech_end']) / 2
-        page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking')
-        page.evaluate('(seconds) => seekTo(seconds)', requested)
-        page.wait_for_timeout(300)
-        page.evaluate('elements.video.pause()')
-        page.wait_for_timeout(150)
-        actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
-            video: elements.video.currentTime,
-            cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+        # A hosted seek can still be fetching when a fixed delay ends; the cue
+        # list then describes the previous position, and narration keeps
+        # playing while the picture loads. Pause right after the seek, as a
+        # viewer would (the player's pause handler stops both clocks), then
+        # read only once both elements have finished seeking. Repeat the seek
+        # if narration still drifted past the unchanged one-second tolerance.
+        for attempt in range(4):
+            page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking',
+                                   timeout=30000)
+            page.evaluate('(seconds) => { seekTo(seconds); elements.video.pause(); }', requested)
+            page.wait_for_function('!elements.video.seeking && !elements.audio.seeking && elements.video.readyState >= 2',
+                                   timeout=30000)
+            page.wait_for_timeout(150)
+            actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
+                video: elements.video.currentTime,
+                cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+            if abs(actual['audio'] - requested) < 1:
+                break
+        actual['seek_attempts'] = attempt + 1
         assert abs(actual['audio'] - requested) < 1, (requested, actual)
         assert sentence['text'] in actual['cues'], (sentence, actual)
         cases.append({'requested_audio_time': requested, 'text': sentence['text'], **actual})
@@ -220,11 +231,27 @@ def verify(root, *, placeholders_only=False, published=None):
                     # A cold seek may still be loading media or decoding a frame,
                     # including local files while other media jobs are active.
                     # Keep the clock tolerance unchanged while waiting for it.
-                    page.wait_for_function('''!videoClockCorrectionPending &&
-                        !elements.video.seeking && !elements.audio.seeking &&
-                        Math.abs(elements.video.currentTime -
-                            videoTimeFromAudio(elements.audio.currentTime)) < .5''',
-                        timeout=15000, polling=50)
+                    try:
+                        page.wait_for_function('''!videoClockCorrectionPending &&
+                            !elements.video.seeking && !elements.audio.seeking &&
+                            Math.abs(elements.video.currentTime -
+                                videoTimeFromAudio(elements.audio.currentTime)) < .5''',
+                            timeout=15000, polling=50)
+                    except Exception:
+                        # Keep the failure's state for diagnosis; the check still fails.
+                        state = page.evaluate('''() => ({lesson: activeLesson?.id,
+                            correctionPending: videoClockCorrectionPending,
+                            audio: {time: elements.audio.currentTime, seeking: elements.audio.seeking,
+                                    ready: elements.audio.readyState, paused: elements.audio.paused,
+                                    network: elements.audio.networkState, src: elements.audio.currentSrc},
+                            video: {time: elements.video.currentTime, seeking: elements.video.seeking,
+                                    ready: elements.video.readyState, paused: elements.video.paused,
+                                    network: elements.video.networkState, src: elements.video.currentSrc},
+                            expectedVideo: videoTimeFromAudio(elements.audio.currentTime)})''')
+                        state['seek_elapsed_seconds'] = time.monotonic() - seek_started
+                        write(output / f'clock-failure-{identity}.json', state)
+                        print(json.dumps(state), flush=True)
+                        raise
                     clocks = page.evaluate('''() => ({audio: elements.audio.currentTime,
                         video: elements.video.currentTime, expected: videoTimeFromAudio(elements.audio.currentTime),
                         width: elements.video.videoWidth, height: elements.video.videoHeight,

@@ -1,0 +1,544 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.fast_plots.VolcanoPlot.set_q_mark#3",
+      "source": "``\"none\"``, ``\"size\"`` or ``\"opacity\"``; anything else raises :class:`ValueError`.",
+      "source_sha256": "436a11c08f608597f9d76f0ebfd2efb52331e34c372daebfd85f9c8626c5f0fe",
+      "context": "``\"none\"``, ``\"size\"`` or ``\"opacity\"``; anything else raises :class:`ValueError`.",
+      "translation": "``\"none\"``、``\"size\"`` 或 ``\"opacity\"``；其他任何值都会抛出 :class:`ValueError`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_default_style#2",
+      "source": "the style dataclass instance to update in place; the default saved in preferences for its :func:`style_kind` is applied.",
+      "source_sha256": "b50eceb2a6929219e4d3764f3a0154c5865d33d2bfb32063338e017aae996600",
+      "context": "the style dataclass instance to update in place; the default saved in preferences for its :func:`style_kind` is applied.",
+      "translation": "要原地更新的样式数据类实例；会应用首选项中为其 :func:`style_kind` 保存的默认值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_style_dict#3",
+      "source": "the style dataclass instance, modified in place.",
+      "source_sha256": "f72e8ca329002e1fe6e1c83e2d2f86f09cbcd2b0f6d9bbc11aeecea1500beea2",
+      "context": "the style dataclass instance, modified in place.",
+      "translation": "样式数据类实例，会被原地修改。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.apply_style_dict#4",
+      "source": "mapping of field name to value; ``None`` applies nothing, and a list is turned into a tuple where the field currently holds a tuple.",
+      "source_sha256": "310b97bdd3589f8e788cacd74d53be5fef2c1043fcac97c33a2a6d5ee7e38bbf",
+      "context": "mapping of field name to value; ``None`` applies nothing, and a list is turned into a tuple where the field currently holds a tuple.",
+      "translation": "字段名到值的映射；为 ``None`` 时不应用任何内容，当字段当前保存的是元组时，列表会被转换为元组。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.colour_for#1",
+      "source": "category number; wraps around the length of :data:`PALETTE`.",
+      "source_sha256": "3d3e79be17739aea5681466782ff492da55716fb991cc2f9a86b8bfc3cc56f0a",
+      "context": "category number; wraps around the length of :data:`PALETTE`.",
+      "translation": "类别编号；按 :data:`PALETTE` 的长度循环。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.load_style#1",
+      "source": "the style dataclass instance to update in place.",
+      "source_sha256": "622d61f56a43afb58b33d2e0c5814e2bde37356781802027d83dd0d33c7ed2f4",
+      "context": "the style dataclass instance to update in place.",
+      "translation": "要原地更新的样式数据类实例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.load_style#2",
+      "source": "a JSON style file written by :func:`save_style`.",
+      "source_sha256": "e81823f609dca06489d9354ee73e52c9f42b2a7eeb4963e939719bee4676e2d2",
+      "context": "a JSON style file written by :func:`save_style`.",
+      "translation": "由 :func:`save_style` 写出的 JSON 样式文件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.pick_colour#3",
+      "source": "the dialog's parent widget, or ``None``.",
+      "source_sha256": "750608cc6a7c4f9b70b3329cef3e0d2279de775985ba59e1019aa657b1edb551",
+      "context": "the dialog's parent widget, or ``None``.",
+      "translation": "对话框的父控件，或 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.save_style#2",
+      "source": "the style dataclass instance to save, together with its :func:`style_kind`.",
+      "source_sha256": "f91b9b00491430673663f31e2eedaea360c2e393d41404b0224e3e3e6acb4e15",
+      "context": "the style dataclass instance to save, together with its :func:`style_kind`.",
+      "translation": "要保存的样式数据类实例，连同其 :func:`style_kind` 一起保存。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.save_style#3",
+      "source": "destination file; ``.json`` is appended when it has no suffix, and an existing file is overwritten.",
+      "source_sha256": "2e096cef0a4b8ecde85129e486ac4af025172f0e53e909db094402f08ca7f827",
+      "context": "destination file; ``.json`` is appended when it has no suffix, and an existing file is overwritten.",
+      "translation": "目标文件；没有后缀时会追加 ``.json``，已有文件会被覆盖。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_as_dict#2",
+      "source": "the style dataclass instance to convert with ``dataclasses.asdict``.",
+      "source_sha256": "e5aff92f5aca90a30f5320b25441b34bf906d0823c15023cc657253209dd2e8c",
+      "context": "the style dataclass instance to convert with ``dataclasses.asdict``.",
+      "translation": "要用 ``dataclasses.asdict`` 转换的样式数据类实例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_choices#2",
+      "source": "the style dataclass instance whose field metadata and class ``CHOICES`` are consulted.",
+      "source_sha256": "83fec54c14e4aa3dc7e0ef6bd263ada28477394b373f3d750a496136f6743d53",
+      "context": "the style dataclass instance whose field metadata and class ``CHOICES`` are consulted.",
+      "translation": "样式数据类实例，会查询其字段元数据和类的 ``CHOICES``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_choices#3",
+      "source": "the field's name.",
+      "source_sha256": "1f7b57374c1c64294e84b7a9d48772c30867a86868c0eefb806eb4f2ef7b7293",
+      "context": "the field's name.",
+      "translation": "字段的名称。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_group#1",
+      "source": "a style field name; the first group (Data, Axes, Size) with a fragment found in it, case-insensitively, wins, and anything else is ``\"Appearance\"``.",
+      "source_sha256": "11fe3ffe6fa3ef5156a0236e08e93b9f5b02bf2634dd7dfeca0b8a30160818bc",
+      "context": "a style field name; the first group (Data, Axes, Size) with a fragment found in it, case-insensitively, wins, and anything else is ``\"Appearance\"``.",
+      "translation": "样式字段名称；第一个其片段（不区分大小写）出现在该名称中的组（Data、Axes、Size）胜出，其他情况为 ``\"Appearance\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#2",
+      "source": "the field name; underscores become spaces and the first letter is capitalised.",
+      "source_sha256": "f1802f17c9de59ac7bb490c448149ce9276bbf38410e942c54ca9247db799138",
+      "context": "the field name; underscores become spaces and the first letter is capitalised.",
+      "translation": "字段名称；下划线变为空格，首字母大写。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#3",
+      "source": "the field's current value, shown after the name; ``None`` reads as \"automatic\".",
+      "source_sha256": "caf222ea2b9324bafd0a2f090f68d60abd8e269f8af1342955b0c885eba2f779",
+      "context": "the field's current value, shown after the name; ``None`` reads as \"automatic\".",
+      "translation": "字段的当前值，显示在名称之后；``None`` 显示为 \"automatic\"。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_field_label#4",
+      "source": "the editor kind from :func:`style_field_kind`; ``\"flag\"`` and ``\"unsupported\"`` show the name alone, ``\"multi\"`` lists the chosen items and ``\"pair\"`` and ``\"number\"`` format with ``:g``.",
+      "source_sha256": "1c100042be2fac01c3546e122745934518415767a1b2ae2edb70b09b41016d01",
+      "context": "the editor kind from :func:`style_field_kind`; ``\"flag\"`` and ``\"unsupported\"`` show the name alone, ``\"multi\"`` lists the chosen items and ``\"pair\"`` and ``\"number\"`` format with ``:g``.",
+      "translation": "来自 :func:`style_field_kind` 的编辑器类型；``\"flag\"`` 和 ``\"unsupported\"`` 只显示名称，``\"multi\"`` 列出所选项，``\"pair\"`` 和 ``\"number\"`` 使用 ``:g`` 格式化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.style_kind#2",
+      "source": "a style instance; its class name, less a ``Style`` suffix, is converted to snake case (``\"figure\"`` if nothing is left).",
+      "source_sha256": "11582f9f07660f81c506548826022007398bb146215d75bf2d18981f0fae8f74",
+      "context": "a style instance; its class name, less a ``Style`` suffix, is converted to snake case (``\"figure\"`` if nothing is left).",
+      "translation": "样式实例；其类名去掉 ``Style`` 后缀后转换为蛇形命名（如果什么都不剩，则为 ``\"figure\"``）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureDictionaryDialog.show_column#1",
+      "source": "the measurement column name to explain, passed to :meth:`FeatureDictionaryPanel.show_column`.",
+      "source_sha256": "5f064413133e3009360e09baac6f194e37584af1977baf9de9c1556cf8993438",
+      "context": "the measurement column name to explain, passed to :meth:`FeatureDictionaryPanel.show_column`.",
+      "translation": "要解释的测量列名，会传递给 :meth:`FeatureDictionaryPanel.show_column`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureDictionaryPanel.set_query#1",
+      "source": "the search text; ``None`` is read as empty. Any column pinned by :meth:`show_column` is released.",
+      "source_sha256": "4be11b81bb3149cb27c202097345f21aee664eba965957d6344455046073a0c1",
+      "context": "the search text; ``None`` is read as empty. Any column pinned by :meth:`show_column` is released.",
+      "translation": "搜索文本；``None`` 视为空。由 :meth:`show_column` 固定的任何列都会被释放。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureDictionaryPanel.show_column#3",
+      "source": "the measurement column name, e.g. as it appears in a table header; stripped, and ``None`` or empty is reported as not in the dictionary.",
+      "source_sha256": "d560deb6dd222dfdb33b47142e9aa1dc61a5581acb1eba639dcc9617133810e1",
+      "context": "the measurement column name, e.g. as it appears in a table header; stripped, and ``None`` or empty is reported as not in the key-value mapping.",
+      "translation": "测量列名，例如表头中显示的名称；会去除首尾空白，为 ``None`` 或空时报告为不在词典中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#0",
+      "source": "Watch the widgets this filter is installed on.",
+      "source_sha256": "1b4beaadd943ccea9a259c41141ff5d6c11aece455dc4f143cb72ed2369884ef",
+      "context": "Watch the widgets this filter is installed on.",
+      "translation": "监视安装了此过滤器的控件。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#1",
+      "source": "THE EVENT TYPE IS READ FIRST, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to run for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
+      "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
+      "context": "The event type is read first, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to execute for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
+      "translation": "“先读取事件类型”，然后才进行存活检查。此过滤器安装在 QApplication 上，因此以前两次 `_still_alive` 调用会针对进程中的每个事件运行——在一次打开 Regression 时就有 94,431 次，而一次性能分析在一次打开 Mask 时统计到这两个调用共 839,906 次。读取 C++ 部分已被销毁的对象的类型会抛出异常，而下方的 `except` 已经用同样的 `False` 处理了这种情况，因此调整顺序没有任何代价，现在只有上下文菜单才会运行这些检查。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#4",
+      "source": "True to stop the event going further.",
+      "source_sha256": "35ae9a3e190eb544530b096d46b44a16bb33a1f0d404797927edf562febd6c43",
+      "context": "True to stop the event going further.",
+      "translation": "为 True 时阻止事件继续传递。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.column_name_at#2",
+      "source": "the widget the right-click landed on: a horizontal ``QHeaderView``, an item view, or an item view's viewport. Anything else gives ``None``.",
+      "source_sha256": "5ab9caab23c1cf2f022f1438e9f6ede07e138c3cb23e8b2aee6752af1d85b74e",
+      "context": "the widget the right-click landed on: a horizontal ``QHeaderView``, an item view, or an item view's viewport. Anything else gives ``None``.",
+      "translation": "右键点击所落在的控件：水平 ``QHeaderView``、项视图或项视图的视口。其他任何控件都返回 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.column_name_at#3",
+      "source": "the click position as a ``QPoint`` in ``widget``'s own coordinates.",
+      "source_sha256": "0e86d58f187468219972197a0124278e38f4891a12dbf993d997d32268b89a68",
+      "context": "the click position as a ``QPoint`` in ``widget``'s own coordinates.",
+      "translation": "点击位置，表示为一个 ``QPoint``，使用 ``widget`` 自身的坐标。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.install_help_action#2",
+      "source": "the main window whose **Help** menu gets the action; the action is inserted before the menu's first separator, or appended when it has none.",
+      "source_sha256": "8c728d2fd3c46df43a1b2b9d972b683b34bb6993212135e783d7127122fc0202",
+      "context": "the main window whose **Help** menu gets the action; the action is inserted before the menu's first separator, or appended when it has none.",
+      "translation": "主窗口，其 **Help** 菜单会获得该动作；该动作会插入到菜单的第一个分隔符之前，没有分隔符时追加到末尾。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.install_window_hooks#2",
+      "source": "the main window; its Help menu gets the dictionary action, and the process-wide context-menu filter is installed.",
+      "source_sha256": "1649289824ff8afb4d549e985199c300bff9f2009e926f4f61e3c8ff6467d82d",
+      "context": "the main window; its Help menu gets the key-value mapping action, and the process-wide context-menu filter is installed.",
+      "translation": "主窗口；其 Help 菜单会获得词典动作，并安装进程范围的上下文菜单过滤器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary.set_menu_runner#1",
+      "source": "a callable ``runner(menu, global_pos)`` that shows the ``QMenu`` at that global position, or ``None`` for the default, which calls ``menu.exec``.",
+      "source_sha256": "eea3c994d563f731e3fc41af64883578fdda934ebd497bbe8a3c4d82e01e5d7a",
+      "context": "a callable ``runner(menu, global_pos)`` that shows the ``QMenu`` at that global position, or ``None`` for the default, which calls ``menu.exec``.",
+      "translation": "可调用对象 ``runner(menu, global_pos)``，在该全局位置显示 ``QMenu``；或为 ``None`` 使用默认实现，即调用 ``menu.exec``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.set_frame#1",
+      "source": "the object table, or ``None`` to empty the class picker. Its :func:`~spacr.qt.widgets.feature_rank.candidate_labels` are offered, keeping the previous choice when it is still there, and the ranking reruns.",
+      "source_sha256": "7e942b205b6739147d6e5dabb7cd3992e9fa53b9b82953480358fc2b31c6fc20",
+      "context": "the object table, or ``None`` to empty the class picker. Its :func:`~spacr.qt.widgets.feature_rank.candidate_labels` are offered, keeping the previous choice when it is still there, and the ranking reruns.",
+      "translation": "对象表，或为 ``None`` 以清空类别选择器。会提供其 :func:`~spacr.qt.widgets.feature_rank.candidate_labels`，如果之前的选择仍存在则保留，并重新运行排序。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_explorer.FeatureExplorerPanel.set_spec#1",
+      "source": "the :class:`~spacr.qt.widgets.feature_rank.ExplorerSpec` to adopt; its label, statistic, top count and whether a permutation null is on are shown in the controls, and the ranking reruns.",
+      "source_sha256": "9b24d4961ed0523763ead93117b3d1aa584a77a92ee4621373eecadc3c33091f",
+      "context": "the :class:`~spacr.qt.widgets.feature_rank.ExplorerSpec` to adopt; its label, statistic, top count and whether a permutation null is on are shown in the controls, and the ranking reruns.",
+      "translation": "要采用的 :class:`~spacr.qt.widgets.feature_rank.ExplorerSpec`；其标签、统计量、前几名数量以及是否开启置换零分布会显示在控件中，并重新运行排序。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#1",
+      "source": "the class name.",
+      "source_sha256": "3505af0357a59373cd42e2df07ad5c21ad92845b58705bd1d17b4cf2698c146c",
+      "context": "the class name.",
+      "translation": "类别名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#2",
+      "source": "how many objects of that class have a value; 0 makes every statistic below NaN.",
+      "source_sha256": "c361a60ca1cab68ab686fb334d7df94d8db394d931476d257a0395b76b256e0e",
+      "context": "how many objects of that class have a value; 0 makes every statistic below NaN.",
+      "translation": "该类别中有值的对象数量；为 0 时，下面的每个统计量都为 NaN。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#3",
+      "source": "median of the class's values.",
+      "source_sha256": "11100a3204708c295b5169fecc5e09b40391575c5714d22b1b151675e0f4b7f8",
+      "context": "median of the class's values.",
+      "translation": "该类别值的中位数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#4",
+      "source": "25th percentile of the class's values.",
+      "source_sha256": "b78ccbeb16e964272263baff4166a08b1ac7bbcbe2c607fa3b520590eb7f2581",
+      "context": "25th percentile of the class's values.",
+      "translation": "该类别值的第 25 百分位数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#5",
+      "source": "75th percentile of the class's values.",
+      "source_sha256": "b7e88ed40ce55ebfd8c37c723f93971f7577be2d69746ded6013b3778bbea5cb",
+      "context": "75th percentile of the class's values.",
+      "translation": "该类别值的第 75 百分位数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#6",
+      "source": "smallest value in the class.",
+      "source_sha256": "15e8f736fd38c10833db754cf61fd5e3037432ed43caee1005687cee5ce472da",
+      "context": "smallest value in the class.",
+      "translation": "该类别中的最小值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ClassSummary#7",
+      "source": "largest value in the class.",
+      "source_sha256": "bd8d5c8662a45e1bef699400ffb988a90f3cbe676f00bf73fa79e8c58405d284",
+      "context": "largest value in the class.",
+      "translation": "该类别中的最大值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult#1",
+      "source": "the :class:`ExplorerSpec` the ranking was made with.",
+      "source_sha256": "5925bc74954dcd40d989a23d0054e83bd472038b46672342b59a746979d2c8c5",
+      "context": "the :class:`ExplorerSpec` the ranking was made with.",
+      "translation": "生成该排序所用的 :class:`ExplorerSpec`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult#2",
+      "source": "the class column the features were ranked against.",
+      "source_sha256": "0d7ed40cb81df4b84335c4d302a56dc5a7d128438c05aeef1f7c445481b3a76f",
+      "context": "the class column the features were ranked against.",
+      "translation": "特征进行排序时所对照的类别列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult#3",
+      "source": "the class levels found in that column, sorted.",
+      "source_sha256": "a08cd436b73af63055fc399622b54621c3b070309a346e6f6133cc10427a279c",
+      "context": "the class levels found in that column, sorted.",
+      "translation": "在该列中找到的类别水平，已排序。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult#5",
+      "source": "number of rows in the table that was ranked, before any row was dropped.",
+      "source_sha256": "3c1307330f415fe1ba796be1bb9e565f4b9bab49ebbeb01f1307c29ce58dc592",
+      "context": "number of rows in the table that was ranked, before any row was dropped.",
+      "translation": "被排序的表中的行数，在丢弃任何行之前。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#1",
+      "source": "the column that was scored.",
+      "source_sha256": "e3dacc7be7f0717d103f8776f76c8ab0b3dcd52d115405097001b4d41432b148",
+      "context": "the column that was scored.",
+      "translation": "被评分的列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#10",
+      "source": "number of scored objects in each class level.",
+      "source_sha256": "9ff1488e1d2bf73d4652e2fe36ef9542e98c9d05dc14503390f539ba873cf909",
+      "context": "number of scored objects in each class level.",
+      "translation": "每个类别水平中被评分的对象数量。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#2",
+      "source": "the ranking statistic used, one of :data:`STATISTICS`.",
+      "source_sha256": "b62865c89c838079f47b1f98f5352502449d72f99106c752b67fbede9f71418a",
+      "context": "the ranking statistic used, one of :data:`STATISTICS`.",
+      "translation": "所用的排序统计量，为 :data:`STATISTICS` 之一。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#5",
+      "source": "Cohen's d of the comparison that separated best, positive when the compared class has the larger mean.",
+      "source_sha256": "0a23f2af19187510b2364662114736b6c3e6185bd5d0f11781953a2be0d6fb80",
+      "context": "Cohen's d of the comparison that separated best, positive when the compared class has the larger mean.",
+      "translation": "区分效果最好的那组比较的 Cohen's d，当被比较类别的均值较大时为正。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#6",
+      "source": "Kolmogorov–Smirnov distance between the two compared groups, in ``[0, 1]``.",
+      "source_sha256": "a42136e1db62601052287db8f93243c7be69204f5c3352249dc820c5dac9beb7",
+      "context": "Kolmogorov–Smirnov distance between the two compared groups, in ``[0, 1]``.",
+      "translation": "两个被比较组之间的 Kolmogorov–Smirnov 距离，位于 ``[0, 1]`` 内。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#7",
+      "source": "binned mutual information of that comparison, normalised by the class entropy, in ``[0, 1]``.",
+      "source_sha256": "069fb829ea03815e0952a46335a8d0e0072d452642385d37cf432ca84b8e265c",
+      "context": "binned mutual information of that comparison, normalised by the class entropy, in ``[0, 1]``.",
+      "translation": "该比较的分箱互信息，以类别熵归一化，位于 ``[0, 1]`` 内。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#8",
+      "source": "the side of the comparison whose values run higher: the compared class when :attr:`auc` is at least 0.5, otherwise :attr:`against`.",
+      "source_sha256": "5d61ed86d7ffd955c21a5003b6a0338133ea67d976b7a598258c109f0e405975",
+      "context": "the side of the comparison whose values run higher: the compared class when :attr:`auc` is at least 0.5, otherwise :attr:`against`.",
+      "translation": "比较中值较高的一方：当 :attr:`auc` 至少为 0.5 时为被比较的类别，否则为 :attr:`against`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.FeatureScore#9",
+      "source": "what the best-separated class was compared with: the other class when there are two, ``\"rest\"`` when there are more.",
+      "source_sha256": "521ed7a6e8458693f23232fd67c550be97af78eca7089dd2d8771455942507b0",
+      "context": "what the best-separated class was compared with: the other class when there are two, ``\"rest\"`` when there are more.",
+      "translation": "区分效果最好的类别所比较的对象：有两个类别时为另一个类别，多于两个时为 ``\"rest\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.auc_of#2",
+      "source": "1-D array of the reference group's values; an empty array gives NaN.",
+      "source_sha256": "733725f401fcd1b804b270ba2933e0afd59be26c5f30c2985772e5c576b9e7d8",
+      "context": "1-D array of the reference group's values; an empty array gives NaN.",
+      "translation": "参照组值的 1-D 数组；空数组返回 NaN。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.auc_of#3",
+      "source": "1-D array of the compared group's values; an empty array gives NaN.",
+      "source_sha256": "63dfc6b1818eb26a90264b7940c48bde87c69c649ef7a83acf00a4463f4c20da",
+      "context": "1-D array of the compared group's values; an empty array gives NaN.",
+      "translation": "被比较组值的 1-D 数组；空数组返回 NaN。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.candidate_features#4",
+      "source": "measurement table whose columns are screened.",
+      "source_sha256": "4c7583bc081cf7611a9f1e92b1240cea92f6b32551e09a120e5c17064c916b4d",
+      "context": "measurement table whose columns are screened.",
+      "translation": "要筛查其列的测量表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.cohen_d_of#1",
+      "source": "1-D array of the reference group's values.",
+      "source_sha256": "41833ac84168cc915d83c8c5d7e8f1aa1432d3ce7a9600b1d1be3efebad020fe",
+      "context": "1-D array of the reference group's values.",
+      "translation": "参照组值的 1-D 数组。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.cohen_d_of#2",
+      "source": "1-D array of the compared group's values.",
+      "source_sha256": "944f0a7885532055e6d0b3bbab5624c76af6d9aa77a35c5a4220a766c601655a",
+      "context": "1-D array of the compared group's values.",
+      "translation": "被比较组值的 1-D 数组。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.distributions#2",
+      "source": "measurement table holding both columns.",
+      "source_sha256": "329062f67350a704d0b5e8b4a49e3415143ebc31ec0abea323cce89bb6d50f9a",
+      "context": "measurement table holding both columns.",
+      "translation": "包含这两列的测量表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.distributions#3",
+      "source": "column to histogram; values that are not numeric count as missing, and an all-missing column gives empty edges and no counts.",
+      "source_sha256": "f3810d4a0a06558cc3ccb2048d7231e0f85f25604190452f020d793e0d268690",
+      "context": "column to histogram; values that are not numeric count as missing, and an all-missing column gives empty edges and no counts.",
+      "translation": "要绘制直方图的列；非数值按缺失处理，全部缺失的列返回空的分箱边界且没有计数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.distributions#4",
+      "source": "class column that splits the rows; :class:`ExplorerError` is raised when it is absent or has fewer than two classes.",
+      "source_sha256": "62ecbfe0678e81e4b337b7879248a3bade18c0d19451417ffa0688682929905c",
+      "context": "class column that splits the rows; :class:`ExplorerError` is reported as an exception when it is absent or has fewer than two classes.",
+      "translation": "拆分各行的类别列；当它不存在或类别少于两个时，会抛出 :class:`ExplorerError`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.rank_features#1",
+      "source": "measurement table, one row per object, holding the class column ``spec.label`` and the features to score.",
+      "source_sha256": "3c9158b6ec3abb5f8ffcd713b5ecfb7f63bf318a077749baee5682ab4e7989a9",
+      "context": "measurement table, one row per object, holding the class column ``spec.label`` and the features to score.",
+      "translation": "测量表，每个对象一行，包含类别列 ``spec.label`` 以及要评分的特征。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.field_fade.fades#4",
+      "source": "the widget to test; only the field types in ``FIELD_TYPES`` that have not set the opt-out property can qualify.",
+      "source_sha256": "56c76af29061eaa2a050146725b22349e05b6ef1941d5853d4d79c8994b6149f",
+      "context": "the widget to test; only the field types in ``FIELD_TYPES`` that have not set the opt-out property can qualify.",
+      "translation": "要检验的控件；只有 ``FIELD_TYPES`` 中、且未设置退出属性的字段类型才可能符合条件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.field_fade.field_fade_qss#3",
+      "source": "the theme palette passed by :func:`spacr.qt.theme.register_widget_qss`; unused.",
+      "source_sha256": "c8509ff174df02d7e16b42e3ec0d8916c4ca6ef217c232b44dce868f55362550",
+      "context": "the theme palette passed by :func:`spacr.qt.theme.register_widget_qss`; unused.",
+      "translation": "由 :func:`spacr.qt.theme.register_widget_qss` 传入的主题调色板；未使用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.eventFilter#1",
+      "source": "the watched object; only the scroll area's viewport is acted on.",
+      "source_sha256": "ccdde71baecd2ca070979d540f5c633b16b4acc0ca3860d81fe79e0fcc637b31",
+      "context": "the watched object; only the scroll area's viewport is acted on.",
+      "translation": "被监视的对象；只对滚动区域的视口进行处理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.eventFilter#2",
+      "source": "the filtered event; a ``Resize`` restarts the reflow timer, and every event is passed on to the base class.",
+      "source_sha256": "d28b99b06c8a75988feca44870c91ad3adb2b8cf7789f09065b77d8ba7046fab",
+      "context": "the filtered event; a ``Resize`` restarts the reflow timer, and every event is passed on to the base class.",
+      "translation": "被过滤的事件；``Resize`` 会重新启动重排计时器，每个事件都会传递给基类。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.figure_path#2",
+      "source": "zero-based cell index in arrival order; out of range gives ``\"\"``.",
+      "source_sha256": "bbb32af78e671c4bd9c1d2a9e406afd4916ce2936eb17a2a2ceb9d18cf8cdfa6",
+      "context": "zero-based cell index in arrival order; out of range gives ``\"\"``.",
+      "translation": "按到达顺序从零开始的单元格索引；超出范围时返回 ``\"\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.set_parameters#1",
+      "source": "the searched parameter names, in the order that decides the axes; empty lays the figures out in arrival order.",
+      "source_sha256": "54892417dadd29c3a039caec856764f4437f618750fe314fb2697cfe89691c86",
+      "context": "the searched parameter names, in the order that decides the axes; empty lays the figures out in arrival order.",
+      "translation": "被搜索的参数名称，按决定坐标轴的顺序排列；为空时按到达顺序布置图形。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.cell_caption#1",
+      "source": "parameter name to value for the figure; floats are formatted with ``:g``.",
+      "source_sha256": "dd8577a658684cc61c561b8b6c4a917b2d06f76b9e10bcfcfc5199e678d8224d",
+      "context": "parameter name to value for the figure; floats are formatted with ``:g``.",
+      "translation": "该图形的参数名到值的映射；浮点数使用 ``:g`` 格式化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.cell_caption#2",
+      "source": "the names to include, in caption order; names missing from ``coordinate`` are skipped.",
+      "source_sha256": "3832789756af4a8e7226b1aa463aa05d723425a37b0e08f3a76b9a08193cd14a",
+      "context": "the names to include, in caption order; names missing from ``coordinate`` are skipped.",
+      "translation": "要包含的名称，按标题中的顺序排列；``coordinate`` 中缺少的名称会被跳过。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

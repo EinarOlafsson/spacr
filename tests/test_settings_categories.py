@@ -180,6 +180,15 @@ KEYS_RETIRED = frozenset({
     "pathogen_intensity_threshold", "pathogen_intensity_merge", "pathogen_intensity_split",
     "organelle_minimum_area_to_split", "organelle_min_watershed_distance",
     "organelle_intensity_threshold", "organelle_intensity_merge", "organelle_intensity_split",
+    # RETIRED into `object_filters` rows on 2026-09-25, item 511: "RETIRE
+    # Mask's old per-object {obj}_min_area, _max_area, _min_intensity,
+    # _max_intensity settings from the form" (the maintainer). An old file's
+    # values become `area` / `intensity_mean` rows when it is loaded.
+    "cell_min_area", "cell_max_area", "cell_min_intensity", "cell_max_intensity",
+    "nucleus_min_area", "nucleus_max_area", "nucleus_min_intensity",
+    "nucleus_max_intensity",
+    "pathogen_min_area", "pathogen_max_area", "pathogen_min_intensity",
+    "pathogen_max_intensity",
     # RENAMED to `nontargeting_control_grnas` on 2026-09-10, instruction
     # 364, and the last of the seven. `controls` is a common word doing
     # four jobs -- a figure panel key, a sweep payload field, a dependency

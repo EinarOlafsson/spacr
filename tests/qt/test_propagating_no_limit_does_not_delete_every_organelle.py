@@ -59,17 +59,23 @@ def test_a_key_whose_reader_treats_zero_as_off_still_propagates_zero(
         qtbot, qt_theme_applied):
     """The rule is per key, not "None everywhere".
 
-    `cell_max_area` reaches `_filter_objects`, where 0 IS the way off. Turning
-    that into None would hand `None > 0` to a comparison that raises.
+    `cell_perimeter_fraction` reaches `_filter_objects`, where 0 IS the way
+    off. Turning that into None would hand `None > 0` to a comparison that
+    raises. (`cell_max_area` was the example until item 511 retired it on
+    2026-09-25: a cell's area bound is an object_filters row now, and its
+    "off" is a missing side, so no row is propagated at all.)
     """
     from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets.live_preview import _bound_from_filters
 
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
 
     propagated = screen._live_preview.settings_for_propagation()
 
-    assert propagated["cell_max_area"] == 0
+    assert propagated["cell_perimeter_fraction"] == 0
+    assert "cell_max_area" not in propagated
+    assert _bound_from_filters(propagated, "cell", "max_area") is None
 
 
 def test_the_rule_is_read_from_the_modules_own_defaults(qtbot,

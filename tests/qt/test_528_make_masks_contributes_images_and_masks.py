@@ -176,6 +176,54 @@ def test_same_folder_and_empty_masks_are_refused(qtbot, prefs, tmp_path):
     assert upload.calls == []
 
 
+def test_a_mask_of_another_size_is_refused_by_name(qtbot, prefs, tmp_path):
+    import tifffile
+
+    images, masks = _pair_folders(tmp_path)
+    small = np.zeros((30, 50), np.uint16)
+    small[5:15, 5:15] = 1
+    imageio.imwrite(masks / "b.tif", small)
+    (images / "c.png").unlink()
+    tifffile.imwrite(str(images / "c.tif"),
+                     np.zeros((2, 40, 50), np.uint16), metadata={"axes": "CYX"})
+    upload = _Upload()
+    dialog = msd.ContributeMasksDialog(images_dir=str(images),
+                                       masks_dir=str(masks), name="hela",
+                                       upload=upload, threaded=False)
+    qtbot.addWidget(dialog)
+    _agree(dialog)
+    assert dialog.upload_button.isEnabled()
+    assert dialog.upload() is False
+    text = dialog.status.text()
+    assert "not the same size" in text
+    assert "b.png: image 50 x 40, mask 50 x 30" in text
+    assert "a.png" not in text and "c.tif" not in text
+    assert upload.calls == [] and dialog.contribution_folder is None
+
+    imageio.imwrite(masks / "b.tif", np.pad(small, ((0, 10), (0, 0))))
+    assert dialog.upload() is True
+    assert len(upload.calls) == 1
+
+
+def test_the_size_check_guards_every_masks_contribution(tmp_path):
+    source = tmp_path / "field.png"
+    imageio.imwrite(source, np.zeros((40, 50), np.uint8))
+    labels = np.zeros((50, 40), np.uint16)
+    labels[1:5, 1:5] = 1
+    item = {"name": "field.png", "source": str(source), "labels": labels}
+    with pytest.raises(ValueError, match=r"field\.png: image 50 x 40, "
+                                         r"mask 40 x 50"):
+        model_share.write_contribution("community_x", [item],
+                                       tmp_path / "out", consent={})
+    assert not (tmp_path / "out").exists()
+    unknown = tmp_path / "field.xyz"
+    unknown.write_bytes(b"not an image header")
+    folder = model_share.write_contribution(
+        "community_x", [dict(item, source=str(unknown), name="field.xyz")],
+        tmp_path / "out", consent={})
+    assert (folder / "masks" / "field.tif").is_file()
+
+
 def test_the_conscience_and_the_licence_are_shown(qtbot, prefs):
     dialog = msd.ContributeMasksDialog(threaded=False)
     qtbot.addWidget(dialog)

@@ -1,31 +1,33 @@
 {
-  "language": "de",
-  "title": "Parameter-Sweep",
-  "description": "Zwei Versuche in Regression ausführen und erfolgreichen Abschluss von gültiger Inferenz unterscheiden.",
-  "objectives": [
-    "Vier geordnete Paare von Score- und Zähldateien auswählen.",
-    "Das Raster auf zwei Versuche und einen Prozess begrenzen und gespeicherte Ergebnisse prüfen.",
-    "Getrennte Koeffizientenfamilien und fehlgeschlagene Inferenzprüfungen berücksichtigen."
-  ],
-  "prerequisite": "Die vier heruntergeladenen Plattenpaare aus der Regression-Lektion und einen neuen Ausgabeordner verwenden. Beide Ridge-Versuche bestehen die Inferenzprüfung nicht; dies ist keine validierte Trefferanalyse. Nur alpha variiert: 0.01 und 0.1. Parametrische Inferenz, Mittelwerte je Well und keine Transformation sind explizit festgelegt. Weitere Elterneinstellungen werden nicht automatisch übernommen. n_rows_fitted zählt hier 1174 Koeffizienten, nicht 620 Wells oder 2955 vorbereitete Zeilen. sweep_results.csv und tatsächliche Einstellungen prüfen: Die Tabelle verschweigt alpha und QC-Urteile. API: spacr.parameter_sweep.SweepSpace und run_sweep_parallel. Kein GPU-Benchmark, externer KI-Aufruf, muttersprachliches Abnahmeurteil oder Veröffentlichung.",
-  "scenes": [
-    "Öffnen Sie Regression und danach Parameter sweep unten rechts. Dieser Workflow liegt innerhalb von Regression, nicht auf einer eigenen Home-Kachel. Die Regression-Lektion erklärt das Herunterladen der vier Score- und Zähldateipaare, die wir hier wiederverwenden.",
-    "Prüfen Sie die eigenen Eingabelisten des Sweeps. Anfangs sind sie leer, selbst wenn das Elternformular gepaarte Daten enthält. Fügen Sie vier Score-Dateien und vier Zähldateien in übereinstimmender Plattenreihenfolge hinzu. Wählen Sie einen neuen Ausgabeordner, damit keine frühere Analyse überschrieben wird.",
-    "Markieren Sie nur alpha mit null Komma null eins und null Komma eins. Nicht markierte Zeilen liefern weiterhin feste Einstellungen. Hier wählen wir ausdrücklich Ridge, parametrische Inferenz, Mittelwerte pro Well und keine Transformation. Dieses begrenzte Rezept zeigt die Bedienung; es ist keine Empfehlung für Ihr Experiment.",
-    "Wählen Sie grid, höchstens zwei Versuche und einen Arbeitsprozess, dann Estimate. Zwei gültige Kombinationen bedeutet erlaubte Einstellungen, nicht gültige statistische Schlussfolgerungen. Die Zeitschätzung nimmt eine Minute pro Versuch an und ist kein Benchmark. Lesen Sie vor dem Start die verfügbaren Ressourcengrenzen.",
-    "Klicken Sie auf Start sweep, nicht auf Run im Elternformular. Jeder Versuch schreibt in seinen eigenen Ordner. Diese zwei echten Versuche laufen nacheinander; zusätzliche Prozesse erhöhen den Ressourcenbedarf. Das Beispiel zeigt CPU-Regression, keine GPU-Beschleunigung, und benötigt keine Anfrage an spaCR AI.",
-    "Beide Zeilen melden ok, weil die Berechnung fertig ist. Entscheidend ist jedoch: Beide gespeicherten Inferenzprüfungen melden fail. Diese Urteile und das variierte alpha fehlen in der Tabelle; prüfen Sie die vollständige Ergebnisdatei und die Einstellungen jedes Versuchs. Wählen Sie kein Modell allein wegen mehr kleiner adjustierter P-Werte.",
-    "Wählen Sie die erste Zeile und Show figures for selected row. Gespeicherte Ergebnisse werden ohne erneute Modellanpassung gelesen. Die Guide-Ansicht enthält 792 Koeffizientenzeilen einschließlich einer Konstante; der Plot lässt diesen Störterm weg und zeigt 791 Guides. Die Höhe ist der negative Zehnerlogarithmus des rohen P-Werts.",
-    "Stellen Sie Level auf Gene. Nun enthält die Tabelle 382 Zeilen einschließlich ihrer Konstante; der Plot zeigt 381 Gene. Guides und Gene sind getrennte Koeffizientenfamilien. Der Ansichtswechsel macht die fehlgeschlagene Inferenz nicht gültig und erzeugt keine unabhängige Evidenz.",
-    "Wechseln Sie zurück zu Guides: Die ursprünglichen Zeilen und Punkte kehren zurück, die gespeicherten Dateien bleiben unverändert. Das Feld rows fitted ist hier irreführend: Es zählt Koeffizientenzeilen, keine Wells. Unterscheiden Sie Eingabestichprobe, Zahl der ausgegebenen Koeffizienten und dargestellte Familie im Analysebericht.",
-    "Lesen Sie gespeicherte Einstellungen, Zusammenfassung und Qualitätskontrolldateien gemeinsam. Ein Plot oder eine KI-Erklärung zertifiziert kein Studiendesign. Regression Diagnostics erläutert weitere Prüfungen, die API-Referenz dokumentiert Sweep-Ausführung. Dieses Beispiel lehrt einen reproduzierbaren Ablauf und seine Grenzen, keine validierten biologischen Treffer."
-  ],
   "lesson": "73_parameter_sweep",
-  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
   "review": {
-    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
-  }
+  },
+  "language": "de",
+  "title": "Parameter Sweep: gespeicherte Regression-Durchläufe vergleichen",
+  "description": "Legen Sie gepaarte Eingaben und Durchlaufeinstellungen fest, führen Sie einen kleinen Sweep aus und prüfen Sie dann Einstellungen, Abbildungen und Inferenzprüfungen jedes Durchlaufs.",
+  "objectives": [
+    "Gepaarte Score- und Zähldateien sowie einen Ausgabeordner für den Sweep wählen.",
+    "Variable und feste Einstellungen wählen, die Anzahl der Durchläufe schätzen und starten.",
+    "Gespeicherte Durchläufe und ihre Inferenzqualität vor dem Vergleich prüfen."
+  ],
+  "prerequisite": "Laden Sie die vier Score/Zähl-Paare je Platte aus dem Regression-Tutorial herunter. Verwenden Sie dieselbe Plattenreihenfolge und einen neuen Ausgabeordner. Die beiden gezeigten ridge-Durchläufe werden abgeschlossen, bestehen aber ihre Inferenz-Qualitätsprüfungen nicht; trennen Sie den Rechenstatus von der statistischen Eignung.",
+  "scenes": [
+    "Öffnen Sie von Home aus Regression und dann unten rechts Parameter sweep. Verwenden Sie die vier Beispielpaare aus Score- und Zähldateien aus dem Regression-Tutorial.",
+    "Fügen Sie die vier Score-Dateien und die vier Zähldateien in derselben Plattenreihenfolge zu den eigenen Listen des Sweeps hinzu. Prüfen Sie diese Listen auch dann, wenn das übergeordnete Regression-Formular bereits Eingaben enthält. Wählen Sie einen neuen Ausgabeordner.",
+    "Haken Sie alpha an und geben Sie 0,01 und 0,1 ein. Nicht angehakte Einstellungen bleiben fest. Legen Sie für dieses Beispiel ridge, parametrische Inferenz, Mittelwertaggregation auf Well-Ebene und keine Transformation ausdrücklich fest.",
+    "Wählen Sie Grid-Sampling, Maximum trials 2 und einen Worker und klicken Sie dann auf Estimate. Prüfen Sie Anzahl der Kombinationen und Ressourcenlimits vor dem Start. Betrachten Sie die Zeitschätzung als ungefähr.",
+    "Klicken Sie auf Start sweep. Jeder Durchlauf schreibt in einen eigenen Ordner. Mit einem Worker laufen die beiden Durchläufe nacheinander; wählen Sie eine Worker-Anzahl, die zu Ihren verfügbaren Ressourcen passt.",
+    "Prüfen Sie die abgeschlossenen Zeilen und öffnen Sie dann sweep_results.csv sowie die Einstellungs- und Qualitätskontrolldateien jedes Durchlaufs. Beide gezeigten Durchläufe beenden die Berechnung, bestehen aber die Inferenzprüfungen nicht; ein Ausführungsstatus ok allein reicht also nicht zur Modellwahl.",
+    "Wählen Sie die erste Zeile und klicken Sie auf Show figures for selected row. Prüfen Sie die Guide-Ergebnisse und Achsenbeschriftungen. Das Diagramm lässt den Achsenabschnitt aus der Koeffiziententabelle weg.",
+    "Stellen Sie Level auf Gene, um die Genfamilie separat zu prüfen. Prüfen Sie ihre Zeilen, Effekte und Qualitätskontrollergebnisse, bevor Sie sie mit der Guide-Ansicht vergleichen.",
+    "Wechseln Sie zurück zu Guide. Lesen Sie die Stichprobenunterstützung aus den Eingabe- und Diagnosedateien: Die Übersicht der angepassten Zeilen im Beispiel zählt ausgegebene Koeffizientenzeilen, nicht Wells.",
+    "Bewahren Sie Einstellungen, Übersicht und Qualitätskontrolldateien jedes Durchlaufs zusammen mit seinen Abbildungen auf. Verwenden Sie Regression Diagnostics zur weiteren Prüfung oder SweepSpace und run_sweep in Python für einen skriptgesteuerten Vergleich."
+  ]
 }

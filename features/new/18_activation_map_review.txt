@@ -2,7 +2,7 @@
 REVIEW: MODERN ATTRIBUTION METHODS AND MODEL COVERAGE
 ================================================================================
 
-Status:    done - 2026-08-06, answered below
+Status:    BUILT 2026-09-25 - the seven methods the maintainer chose (SHAP, HiRes/Ablation-CAM, Chefer, saliency, Grad-CAM, feature + permutation importance); see the dated note at the end. Review answered 2026-08-06.
 Requested: 2026-08-06 - "look at the activation map module and let me know if there are any more modern ways to look at activation in addition to the strategies i have implemented, and if the models covered by my current implementation could be expanded"
 
 --------------------------------------------------------------------------------
@@ -184,3 +184,194 @@ same 14 methods in the same 4 families, name for name. The SHAP family
 (FINDING 3) is still absent from the registry, with captum 0.9.0 and shap
 0.52.0 both installed -- so it is still the cheapest real win. FINDING 2's
 premise holds: Classify still defaults to model_type='maxvit_t'.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- BUILT: THE METHODS THE MAINTAINER CHOSE FOR CLASSIFY
+--------------------------------------------------------------------------------
+
+Decision (2026-09-25): "SHAP, HiRes/Ablation-CAM, Chefer (transformers),
+Salience, grad cam, feature importance, permutation importance". All seven
+are built and reachable from Classify's two explanation surfaces: the
+Activation Maps fold (settings-driven, pixel methods) and the Explain CV
+Model panel (surrogate over measured features, tabular methods). No new
+modules; code went into spacr/attribution.py, spacr/surrogate.py,
+spacr/deep_spacr.py, spacr/settings_spec.py and the two Qt screens.
+
+PIXEL METHODS (spacr/attribution.py, registered in ATTRIBUTION_METHODS :1537)
+  hirescam        cam      spacr   _hires_cam              :1085
+  ablation_cam    cam      spacr   _ablation_cam           :1107
+  gradient_shap   shap     captum  _captum_attribute branch + _shap_baselines :1163
+  deeplift_shap   shap     captum  (DeepSHAP = captum DeepLiftShap)
+  chefer          attention spacr  chefer_relevance        :1369
+  Grad-CAM        torchcam gradcam/gradcam_pp were registered but UNREACHABLE
+                  from cam_type, because 'gradcam'/'gradcam_pp' are taken by
+                  the legacy spacr.utils.GradCAMGenerator (whose gradcam_pp is
+                  identical to gradcam). New cam_type aliases
+                  'torchcam_gradcam' / 'torchcam_gradcam_pp' (CAM_TYPE_ALIASES,
+                  resolve_cam_type :1329). Legacy names are unchanged.
+  saliency        already registered; SmoothGrad via smoothgrad_samples > 1
+                  (captum NoiseTunnel) -- unchanged, verified by a test.
+  The family set is now cam / gradient / shap / perturbation / attention.
+  Chefer reads per-head nn.MultiheadAttention weights (same need_weights
+  override rollout uses) and takes the class-score gradient on the weights'
+  _base tensor, which is the one on the autograd path; CLS row of
+  R <- R + mean_h[(grad*A)+] R, or the all-token mean with no class token.
+  All pixel methods go through AttributionMapGenerator, so the batch-grid
+  overlay PDFs and per-object PNGs are the same figures Grad-CAM produced.
+
+APPLICABILITY / GREYING
+  architecture_kind, method_applicability, applicable_methods,
+  cam_type_applicability (attribution.py :1194-1365). Rules: CAM family n/a
+  on pure ViT/Swin (patch embedding runs before attention); attention family
+  (rollout, chefer) only on ViT -- MaxViT/Swin/CNN n/a with the reason;
+  deeplift/deeplift_shap n/a on ResNet-style blocks (reused ReLU); torchcam /
+  captum missing -> n/a with the pip command.
+  - Activation Maps: cam_type is now a combo (settings_spec.py:295,
+    _CAM_TYPE_CHOICES kept torch-free, a test pins it equal to
+    attribution.cam_type_choices()). settings_model.py:9686
+    _refresh_attribution_method_enablement greys entries per model_type with
+    the reason as tooltip, re-run on model_type change.
+  - generate_activation_map (deep_spacr.py:3010, :3044) resolves the alias and
+    refuses a non-applicable cam_type against the LOADED model before the
+    loop, with the reason.
+
+TABULAR METHODS (spacr/surrogate.py)
+  IMPORTANCE_METHODS = gain / permutation / shap; SHAP_EXPLAINERS =
+  auto / tree / kernel. KernelSHAP added (_kernel_shap_values :815, k-means
+  background, capped at 100 explained rows); _shap_importance :835 takes
+  explainer= (auto = TreeSHAP, falling back to KernelSHAP; the helper's own
+  default stays 'tree' so a direct caller keeps the old behaviour).
+  importance_method_availability :780 (gain n/a for histogram GB; SHAP n/a
+  without shap). fit_surrogate(importance_methods=, shap_explainer=).
+  NEW API rank_feature_importance :984: any fitted sklearn-style model ->
+  ranked table (rank column) + feature_importance.csv + ranked bar plot
+  (PDF+PNG); the bar figure is now shared with write_surrogate_result.
+  Explain CV Model panel (model_explanation.py:273): three check boxes (gain,
+  permutation, SHAP) and a SHAP explainer menu, greyed with reasons per
+  surrogate family; passed through run_analysis.
+
+NEW SETTINGS
+  cam_type is now a combo (23 entries). Explain CV: surrogate_importance_methods
+  (list, default ['gain','permutation','shap']), surrogate_shap_explainer
+  (default 'auto'), with tooltips in register_explain_cv_settings.
+
+NEW tr() STRINGS
+  "Not applicable to {model}: {reason}", "this model",
+  "Not applicable: {reason}", "Feature importance (gain)",
+  "Permutation importance", "SHAP", "Auto (TreeSHAP, else KernelSHAP)",
+  "TreeSHAP", "KernelSHAP", "Importance methods", "SHAP explainer".
+  Not added to the catalogs (i18n_catalogs are off-limits here).
+
+DEPENDENCIES
+  No new dependencies. captum (setup.py:88) and shap (setup.py:77) are
+  already install_requires; torchcam stays the 'attribution' extra. All three
+  are imported lazily, and a missing one greys the method / raises with the
+  pip command, so a trimmed environment degrades rather than crashes.
+  setup.py not touched.
+
+TESTS
+  tests/test_18_modern_attribution_methods.py -- 33 tests: every new pixel
+  method on a hand-wired corner CNN (shape, finite, peak in the planted corner,
+  >5x inside/outside contrast), both head shapes, HiRes-CAM on resnet18,
+  Chefer on a hand-wired ViT (peak on the signal patch, target 0 != target 1),
+  on torchvision vit_b_16, refused on a CNN; applicability by name, by loaded
+  model and with a missing backend; generate_activation_map with hirescam
+  (PNGs + overlay grid PDF) and refusing chefer on a ResNet; tabular ranking
+  puts the planted feature first for gain, permutation and TreeSHAP, KernelSHAP
+  on logistic regression; surrogate computes only the chosen measures; Qt:
+  the Activation menu greys chefer for resnet50 and hirescam for vit_b_16,
+  the Explain panel greys gain for histogram GB.
+  Pinned registry tests updated for the new families (test_attribution.py,
+  test_every_attribution_method_reaches_a_real_backbone.py).
+  Also regenerated Notebooks/11_activation_maps.ipynb (cam_type tooltip) and
+  24_interpret_vision_model.ipynb (two new Explain CV settings) only.
+
+  RUNS (CUDA_VISIBLE_DEVICES='', run_capped 8G, 33 test files: the attribution,
+  surrogate, explanation-screen, activation-map, settings-spec, notebook,
+  nested-docstring and i18n suites). Before, on the clean nightly tree: the
+  same 6 pre-existing failures listed below. After the change + merge of
+  nightly ab5ce88d7: 1708 passed, 14 skipped, 15 xfailed, 7 failed -- none
+  caused by this item:
+    4 x tests/qt/test_external_i18n_catalogs.py   fail identically on nightly
+    test_api_i18n_extractor public-API ratchet     fails on nightly (+33 there);
+        this item adds ~11 public names (the new functions above). Bumping it
+        means regenerating i18n catalogs, which this lane may not touch --
+        hand to the docs/i18n lane.
+    test_notebook_settings                          01/01b/02/14 stale on
+        nightly; 03 goes stale from nightly aba7564e7's category rename
+    test_settings_categories section hint 'EVALUATION & RESULTS'
+        from nightly aba7564e7, not this item.
+
+NOT DONE / FOLLOW-UPS
+  - randomization_sanity_check was not run on the new methods over a trained
+    model (the review's "what NOT to do" asks for it before trusting them);
+    they are registered, so sanity_check=True in the Activation form covers
+    them per run.
+  - hyperparam.py's cam_type sweep list (line 233) was not extended.
+  - ml_analyze already has its own feature/permutation/SHAP toggles; not
+    changed.
+
+--------------------------------------------------------------------------------
+2026-09-26 -- FOLLOW-UPS: THE SWEEP'S cam_type LIST, AND THE RANDOMISATION CHECK
+--------------------------------------------------------------------------------
+
+HYPERPARAMETER SWEEP (spacr/hyperparam.py)
+  DEFAULT_SPACES["activation"]["cam_type"] now names hirescam, ablation_cam,
+  gradient_shap, deeplift_shap and chefer beside the old six (all five
+  families: cam, gradient, shap, perturbation, attention). No backbone takes
+  all of them, so activation_search now drops each swept value that
+  method_applicability refuses for the LOADED model (_applicable_activation_
+  space), with its reason in the result's notes, instead of letting it fail
+  as a trial (a failed trial reads as a bad method). CNN: chefer dropped;
+  ResNet: + deeplift_shap (reused ReLU); ViT/Swin: every CAM dropped, chefer
+  kept; MaxViT: chefer dropped. Nothing applicable -> ValueError with the
+  reasons. Not filtered when a test replaces the attribution call, or when
+  the model is not a torch module. _activation_params also maps the form's
+  torchcam_gradcam / torchcam_gradcam_pp aliases to the registry names.
+  COST: Ablation-CAM re-scores the image once per target-layer channel; on
+  the trained MaxViT-T on CPU one attribution took ~8.5 min (512 channels
+  of conv_b). Occlusion, already in the default, is of the same order.
+  Trim the grid on a CPU-only machine.
+
+RANDOMISATION SANITY CHECK (Adebayo 2018, cascading, threshold 0.5 on the
+Spearman similarity of the fully randomised model's map; CPU,
+CUDA_VISIBLE_DEVICES='', script kept at /tmp/spacr-531-scratch/sanity18.py)
+  Models: (a) the real trained classifier on this machine,
+  /mnt/firecuda2/methods_paper/plate1/datasets/training/model/maxvit_t/rgb/
+  epochs_100/maxvit_t_epoch_99_acc_99.0_channels_rgb.pth, one real pc test
+  crop (training_all/test/pc), 224 px, max_stages=3, layer
+  base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b; (b) a tiny CNN
+  and (c) a tiny 2-block ViT (nn.MultiheadAttention, class token), both
+  trained here on a synthetic planted-signal set (class 1 = Gaussian blob in
+  channel 0, class 0 = the same blob in channel 1 as a distractor; 800
+  train / 200 held out; held-out accuracy 1.00 for both), 3 images each.
+  final = similarity after all layers randomised (pass < 0.5);
+  first = after the first (output-side) stage.
+
+  method          MaxViT-T (real)       tiny CNN (3 imgs)     tiny ViT (3 imgs)
+  hirescam        PASS 0.24 (first .08) PASS -.19..0.31       n/a (pure ViT)
+  ablation_cam    PASS 0.33 (first .43) PASS -.19..0.31       n/a (pure ViT)
+  gradient_shap   PASS -.04 (first .27) PASS 0.24..0.36       PASS 0.24..0.36
+  deeplift_shap   PASS -.18 (first .74) PASS 0.36..0.45       PASS 0.36..0.39
+  chefer          n/a (MaxViT)          n/a (no attention)    PASS 0.22..0.35
+  gradcam (tc)    PASS -.04             PASS -.19..0.31       n/a
+  gradcam_pp (tc) PASS -.01             PASS -.21..0.32       n/a
+  saliency (ref)  PASS 0.03             PASS 0.08..0.11       PASS 0.02..0.04
+  RESULT: every new crop method passes wherever it applies (5/5 new methods;
+  hirescam, ablation_cam, gradient_shap, deeplift_shap on the real MaxViT;
+  chefer on the trained ViT).
+  READ WITH CARE:
+  - The known-bad control, guided_backprop, ALSO passes on both tiny models
+    (final 0.02-0.05). On a three-conv or two-block network every weight is
+    close to the output, so the final all-layers stage is not discriminative
+    there; the tiny-model rows show the methods are not broken, not that
+    they are trustworthy. The real MaxViT is the informative row.
+  - deeplift_shap stays closest to the trained map (0.36-0.45 on the tiny
+    models, first-stage 0.74 on MaxViT): passes, but with the least margin.
+  - The CASCADE separates Chefer from rollout on the trained ViT:
+    randomising only the head leaves attention_rollout's map identical
+    (first-stage similarity 1.00, it is class-agnostic) while Chefer's
+    changes at once (0.24-0.30). That is the reason Chefer was added.
+  - The MaxViT has a single-logit head, so each map explains that logit.
+  The Activation form's sanity_check=True still runs this per run; nothing
+  in the code was changed for this check.

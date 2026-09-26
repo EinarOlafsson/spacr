@@ -1,20 +1,32 @@
 {
-  "lesson": "62_feature_dictionary", "language": "da",
-  "english_sha256": "1e20922e62908000209a58019ff7d20436c5ce4a7e846c14865c6d48df2c49d7",
-  "review": {"kind": "Parent editorial rewrite; corrected draft lookup-module, unmatched-query and control meanings; caption-only locale", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Feature Dictionary: slå betydninger, enheder og beregningsfunktioner op",
-  "description": "Brug den faktiske ordbog under Help til at finde definitioner, afgrænse dem efter begreb og objekt og skelne generel dokumentation fra målinger, der findes i et projekt.",
-  "objectives": ["Find ordbogen under Help, og søg efter en idé eller et målenavn.", "Brug de faktiske begrebs- og objektfiltre uden at ændre projektdata.", "Læs enheder, beregningsfunktioner og forbehold, herunder forskellen mellem areal og volumen.", "Kopiér definitionstekst, og skeln dette opslagspanel fra en projektspecifik eksport med Python."],
-  "prerequisite": "Intet projekt, download eller model er nødvendigt: Lektionen gennemgår indbyggede definitioner. Der udføres ingen målinger, grafer, AI-forespørgsler, GPU-opgaver eller fileksporter. Eksempelkolonnerne findes i den faktiske måledatabase fra Database Browser, men ordbogen indlæser ikke databasen her. Panelet viser i øjeblikket hundredvis af navne på organelroller; almindelig rulning viser funktionerne og noterne nedenunder. Tekst kopieres kun til udklipsholderen på optagelsens private skrivebord.",
+  "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Feature Dictionary: find definitioner og enheder",
+  "description": "Søg på målingsnavn eller begreb, læs definitionen og enhederne, og kopiér nyttig referencetekst.",
+  "objectives": [
+    "Finde en definition efter navn eller begreb.",
+    "Indsnævre resultaterne med begrebs- og objektfiltre.",
+    "Læse enheder og noter og derefter kopiere definitionen."
+  ],
+  "prerequisite": "Hav et målekolonnenavn klar, eller begynd med en idé som størrelse eller intensitet. Den indbyggede ordbog kan åbnes uden at indlæse et projekt.",
   "scenes": [
-    "Åbn Help og derefter Feature Dictionary. Vinduet slår indbyggede måledefinitioner op; det er hverken en selvstændig arbejdsgang på Home eller en analyse, der skal køres. Ingen datasæt eller modeller skal downloades.",
-    "Skriv en idé som size. Resultaterne opdateres, mens du skriver, og Area viser sin definition. Antallet angiver matchende definitioner, ikke målte celler eller kolonner, hvis tilstedeværelse i projektet er bekræftet.",
-    "De faktiske rullemenuer filtrerer efter begreb og objekttype. Her giver intensity og cell tretten definitioner. Filtrene afgrænser ordbogen, ikke billeddata eller analyseindstillinger. Vælg Any concept og Any object igen før næste opslag.",
-    "Søg efter den gennemsnitlige intensitet i cellens kanal et med det præcise kolonnenavn på skærmen. Posten Mean intensity forklarer pixelstatistikken og dens enheder. En navnesøgning henter dokumentation; den undersøger ikke kolonnens værdier og beviser ikke, at kolonnen findes i det aktuelle projekt.",
-    "Rul ned til Channel, Module og Computed by. Henvisningen identificerer målingens implementering, herunder funktionen for udvidede regionsegenskaber. Ordbogen slår definitionen op; den beregner ikke målingen igen. Python-API’erne til opslag findes i modulet feature_dict.",
-    "Slå nu cell_area op. Læs betingelserne under Unit: En todimensionel analyse angiver et pixelareal, mens samme navn repræsenterer et volumen i tre dimensioner. Feltet measurement_units i rækken afgør, om volumen er i kubiske billedpixelenheder eller kubikmikrometer. Udled ikke fysiske enheder alene ud fra kolonnenavnet.",
-    "Læs også Note, ikke kun hoveddefinitionen. En tredimensionel værdi, der allerede er i fysiske enheder, må ikke omregnes igen. Til projektspecifik dokumentation undersøger Python-funktionerne describe_database og export_dictionary databasen og fortolker dens registrerede måleenheder; de er ikke knapper i dette panel.",
-    "En søgning uden match viser ingen definition. Det betyder, at ordbogen ikke fandt et match, ikke at data ikke kan indeholde en brugerdefineret egenskab. Prøv et kendt navn eller en bredere idé; manglende dokumentation er ikke et videnskabeligt resultat.",
-    "Vend tilbage til Area, markér detaljeteksten og kopiér den. Optagelsen kontrollerer den faktisk kopierede markering. Brugerfladen har ingen Run- eller Export-handling: At kopiere tekst er ikke det samme som at oprette en projektspecifik ordbogsfil med Python. Luk vinduet, når du er færdig; ingen analyse er ændret."
+    "Åbn Help og derefter Feature Dictionary. Brug vinduet, når du vil forstå en målekolonne i en resultattabel eller et diagram.",
+    "Skriv size i søgefeltet, og vælg Area blandt resultaterne. Definitionen vises til højre, og listen over match opdateres, mens du skriver.",
+    "Vælg et begreb og en objekttype for at indsnævre definitionerne. Prøv intensity og cell. Sæt vælgerne tilbage til Any concept og Any object for en bredere søgning.",
+    "Søg efter cell_channel_1_mean_intensity, og vælg Mean intensity. Læs statistikken og enhederne for at forstå, hvad kolonnen beskriver.",
+    "Rul ned til Channel, Module og Computed by for flere detaljer. Brug den angivne beregningsfunktion som udgangspunkt i API-referencen.",
+    "Slå cell_area op, og læs Unit. I todimensionelle målinger angiver den et areal, i tredimensionelle et volumen. Kontrollér de måleenheder, der er registreret i dit projekt, før du omregner værdier.",
+    "Læs Note for forbehold, fx værdier, der allerede er angivet i fysiske enheder. Til en ordbog over de kolonner, der faktisk findes i en database, bruger du describe_database og export_dictionary fra Python.",
+    "Hvis ingen definition passer, rydder du filtrene og prøver et bredere ord eller det nøjagtige kolonnenavn. Egne egenskaber kan kræve dokumentation fra den arbejdsgang, der lavede dem.",
+    "Markér definitionsteksten, og kopiér den til dine noter. Brug Pythons eksportfunktioner, når du har brug for en projektspecifik ordbogsfil, og vend derefter tilbage til din tabel eller dit diagram."
   ]
 }

@@ -544,6 +544,7 @@ def _field():
 def _run_v2(stacks, settings, **over):
     from spacr import pipeline_v2 as PV
     from spacr.object import _eval_diameter
+    from spacr.qt.mask_engine import object_filter_area_floor
 
     PV.stream_masks_from_stack(
         stacks, model_name=settings["cell_model_name"],
@@ -551,7 +552,7 @@ def _run_v2(stacks, settings, **over):
         diameter=_eval_diameter(settings.get("cell_diameter"), "cell"),
         cellprob_threshold=float(settings["cell_cellprob_threshold"]),
         flow_threshold=float(settings["cell_flow_threshold"]),
-        min_size=int(settings["cell_min_area"]),
+        min_size=object_filter_area_floor(settings, "cell"),
         postprocess_settings=dict(settings, **over), object_type="cell")
 
 

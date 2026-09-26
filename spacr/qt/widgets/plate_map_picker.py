@@ -22,7 +22,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Optional, Set, Tuple
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt, QTimer
 from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QGridLayout,
                                QHBoxLayout, QInputDialog, QLabel,
                                QPushButton, QScrollArea, QVBoxLayout, QWidget)
@@ -46,6 +46,15 @@ WELL_SIDE = 22
 
 #: The rim drawn around a well, in pixels per side.
 WELL_RIM = 1
+
+#: How often, in milliseconds, a drag held at the edge of the plate's scroll
+#: area scrolls it one step further.
+AUTOSCROLL_INTERVAL_MS = 30
+
+#: The fastest a held drag scrolls, in pixels per step. The speed grows with
+#: how far into the edge band -- or past the edge -- the pointer is, so a
+#: pointer just inside the band creeps and one flung past the edge races.
+AUTOSCROLL_MAX_STEP = 40
 
 
 def well_side() -> int:
@@ -274,6 +283,11 @@ class PlateMapPicker(QDialog):
         self._before: Set[Tuple[int, int]] = set()
         self._adding = False
         self._dragged = False
+        self._drag_point: Optional[QPoint] = None
+        self._scroll_step = (0, 0)
+        self._autoscroll = QTimer(self)
+        self._autoscroll.setInterval(AUTOSCROLL_INTERVAL_MS)
+        self._autoscroll.timeout.connect(self._autoscroll_tick)
 
         outer = QVBoxLayout(self)
         self._caption = QLabel("", self)
@@ -287,6 +301,7 @@ class PlateMapPicker(QDialog):
         area.setWidgetResizable(True)
         area.setWidget(self._holder)
         outer.addWidget(area, 1)
+        self._area = area
 
         row = QHBoxLayout()
         row.addStretch(1)
@@ -428,7 +443,14 @@ class PlateMapPicker(QDialog):
         """
         if self._anchor is None:
             return
-        cell = self.well_at(position)
+        self._drag_point = QPoint(position)
+        self._scroll_step = self._edge_step(position)
+        if self._scroll_step != (0, 0):
+            if not self._autoscroll.isActive():
+                self._autoscroll.start()
+        else:
+            self._autoscroll.stop()
+        cell = self._well_nearest(self._within_view(position), position)
         if cell is None or cell == getattr(self, "_last_cell", None):
             return
         if cell == self._anchor and not self._dragged:
@@ -449,9 +471,121 @@ class PlateMapPicker(QDialog):
         self._anchor = None
         self._last_cell = None
         self._dragged = False
+        self._autoscroll.stop()
+        self._drag_point = None
+        self._scroll_step = (0, 0)
         if dragged:
             self._say()
         return dragged
+
+    def _view_rect_global(self):
+        """The scroll area's viewport in global coordinates, or ``None``.
+
+        ``None`` while the dialog is not on screen: an unshown viewport has
+        a placeholder geometry, and clamping to it would move the pointer.
+        """
+        viewport = self._area.viewport()
+        if not viewport.isVisible():
+            return None
+        rect = viewport.rect()
+        return rect.translated(viewport.mapToGlobal(QPoint(0, 0)))
+
+    def _within_view(self, position) -> QPoint:
+        """``position`` pulled back inside the visible part of the plate.
+
+        PAST THE EDGE THE POINTER IS OVER A WELL NOBODY CAN SEE. The grid
+        still has geometry out there, clipped by the viewport, so an
+        unclamped lookup would stretch the rectangle to a well that is not
+        on screen; clamped, the rectangle ends on the edge well and grows
+        as the autoscroll brings the next one into view.
+
+        :param position: the pointer in global coordinates.
+        """
+        rect = self._view_rect_global()
+        point = QPoint(position)
+        if rect is None or rect.isEmpty():
+            return point
+        point.setX(min(max(point.x(), rect.left() + 1), rect.right() - 1))
+        point.setY(min(max(point.y(), rect.top() + 1), rect.bottom() - 1))
+        return point
+
+    def _well_nearest(self, clamped, position) -> Optional[Tuple[int, int]]:
+        """The well under ``clamped``, stepping inward over a gap.
+
+        A pointer pulled back to the edge can land in the spacing between
+        two wells, which is over no well at all; a pointer that was never
+        pulled back is answered exactly as :meth:`well_at` answers it.
+
+        :param clamped: the pointer after :meth:`_within_view`.
+        :param position: the pointer as it was.
+        """
+        cell = self.well_at(clamped)
+        if cell is not None or clamped == QPoint(position):
+            return cell
+        dx = (clamped.x() > position.x()) - (clamped.x() < position.x())
+        dy = (clamped.y() > position.y()) - (clamped.y() < position.y())
+        for step in range(1, well_side() + 4):
+            cell = self.well_at(clamped + QPoint(dx * step, dy * step))
+            if cell is not None:
+                return cell
+        return None
+
+    def _edge_step(self, position) -> Tuple[int, int]:
+        """How far to scroll per tick for a drag at ``position``.
+
+        A DRAG THAT REACHES THE EDGE SCROLLS THE PLATE. On a 1536-well map
+        in a narrow window the rectangle could otherwise only span the wells
+        already in view. The band is one well wide inside each edge of the
+        viewport; the step grows with depth into the band and keeps growing
+        past the edge, up to :data:`AUTOSCROLL_MAX_STEP`.
+
+        :param position: the pointer in global coordinates.
+        :returns: ``(dx, dy)`` in pixels; ``(0, 0)`` away from every edge,
+            or when there is nothing to scroll in that direction.
+        """
+        rect = self._view_rect_global()
+        if rect is None or rect.isEmpty():
+            return (0, 0)
+        band = max(8, well_side())
+
+        def _axis(value, low, high, bar):
+            if bar.maximum() <= bar.minimum():
+                return 0
+            depth = 0
+            if value < low + band:
+                depth = -(low + band - value)
+            elif value > high - band:
+                depth = value - (high - band)
+            if depth == 0:
+                return 0
+            step = min(AUTOSCROLL_MAX_STEP, 2 + abs(depth) // 2)
+            return step if depth > 0 else -step
+
+        return (_axis(position.x(), rect.left(), rect.right(),
+                      self._area.horizontalScrollBar()),
+                _axis(position.y(), rect.top(), rect.bottom(),
+                      self._area.verticalScrollBar()))
+
+    def _autoscroll_tick(self) -> None:
+        """Scroll one step toward the held edge and extend the rectangle.
+
+        The pointer has not moved -- no move event arrives while it is held
+        still -- but the plate has moved under it, so the well at the edge
+        is a new one and the rectangle is redrawn to reach it.
+        """
+        if self._anchor is None or self._drag_point is None:
+            self._autoscroll.stop()
+            return
+        dx, dy = self._scroll_step
+        horizontal = self._area.horizontalScrollBar()
+        vertical = self._area.verticalScrollBar()
+        before = (horizontal.value(), vertical.value())
+        horizontal.setValue(horizontal.value() + dx)
+        vertical.setValue(vertical.value() + dy)
+        if (horizontal.value(), vertical.value()) == before:
+            self._autoscroll.stop()
+            return
+        self.drag_to(self._drag_point)
 
     def select_region(self, start: Tuple[int, int], end: Tuple[int, int],
                       choosing: Optional[bool] = None) -> None:

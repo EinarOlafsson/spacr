@@ -246,6 +246,77 @@ COMPARTMENT_FIELDS = (
     ("remove_border_objects",      "Remove border objects", "bool",  None),
 )
 
+BOUND_ROWS = {
+    "min_area": ("area", "min"),
+    "max_area": ("area", "max"),
+    "min_intensity": ("intensity_mean", "min"),
+    "max_intensity": ("intensity_mean", "max"),
+}
+"""Where each bound control of a Cellpose compartment lives in
+``object_filters``. Mask's ``{object}_min_area`` family was retired on
+2026-09-25 (item 511); for cell, nucleus and pathogen these four controls
+read and write the object's ``area`` and ``intensity_mean`` rows instead.
+The organelle slots keep their own settings."""
+
+
+def _retired_bound(key: str) -> bool:
+    """Whether ``key`` is one of Mask's retired per-object bounds."""
+    from spacr.settings import RETIRED_OBJECT_BOUNDS
+
+    return key in RETIRED_OBJECT_BOUNDS
+
+
+def _bound_from_filters(settings, obj: str, suffix: str):
+    """The value of one bound control, read from ``object_filters``.
+
+    :returns: the first matching row's side, or ``None`` when no row sets it
+        or the setting cannot be read.
+    """
+    from spacr.qt.mask_engine import settings_filters
+
+    prop, side = BOUND_ROWS[suffix]
+    try:
+        rows = settings_filters(settings, obj)
+    except (ValueError, SyntaxError):
+        return None
+    for row in rows:
+        if row["property"] == prop and row[side] is not None:
+            return row[side]
+    return None
+
+
+def _bounds_into_filters(existing, bounds: Dict[str, Dict[str, Any]]) -> dict:
+    """``object_filters`` with each object's area and intensity rows replaced.
+
+    :param existing: the ``object_filters`` value the settings hold.
+    :param bounds: object type to ``{suffix: value}`` of the bound controls.
+    :returns: the new mapping; other objects and other properties are kept.
+    """
+    from spacr.qt.mask_engine import (legacy_filters, normalise_filters,
+                                      parse_object_filters)
+
+    try:
+        table = dict(parse_object_filters(existing))
+    except (ValueError, SyntaxError):
+        table = {}
+    for obj, values in bounds.items():
+        try:
+            kept = [row for row in normalise_filters(table.get(obj),
+                                                     strict=False)
+                    if row["property"] not in ("area", "intensity_mean")]
+        except ValueError:
+            kept = []
+        try:
+            rows = legacy_filters(**values)
+        except (TypeError, ValueError):
+            rows = []
+        if kept or rows:
+            table[obj] = kept + rows
+        else:
+            table.pop(obj, None)
+    return table
+
+
 OUTLINE_CHOICES = ("auto", "color (random)", "green", "magenta",
                    "yellow", "cyan", "white", "red")
 
@@ -3471,10 +3542,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         abort the whole copy through the shared ``except``, so one junk
         diameter also cost the flow threshold, the channels and the model.
 
+        A retired ``{object}_min_area``-family bound in ``settings`` is
+        folded into ``object_filters`` first, as a Mask run folds it, so the
+        preview judges what the run judges.
+
         :param settings: the module's settings dict (``None`` is treated as
             empty); a copy is kept for the Pre and Post routes.
         """
-        settings = dict(settings or {})
+        from spacr.settings import _fold_object_bounds
+
+        settings = _fold_object_bounds(dict(settings or {}), quiet=True)
         try:
             self._rebuild_object_choices(organelle_count(settings))
         except Exception:                                    # noqa: BLE001
@@ -3959,7 +4036,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         role = self._active_organelle_role if comp == "organelle" else comp
         for suffix, widget in self._compartment_widgets[comp].items():
             default = self._compartment_defaults[comp][suffix]
-            wanted = self._settings.get(f"{role}_{suffix}", default)
+            if _retired_bound(f"{role}_{suffix}"):
+                wanted = _bound_from_filters(self._settings, role, suffix)
+            else:
+                wanted = self._settings.get(f"{role}_{suffix}", default)
             if wanted is None:
                 wanted = default
             if comp == "organelle" and suffix == "remove_border_objects":
@@ -4054,15 +4134,24 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         return value
 
     def _compartment_settings(self) -> dict:
-        """Map every compartment + common tuning widget to its setting key."""
+        """Map every compartment + common tuning widget to its setting key.
+
+        The area and intensity bounds of cell, nucleus and pathogen are
+        written as those objects' ``area`` and ``intensity_mean`` rows of
+        ``object_filters``, the setting a Mask run reads for them.
+        """
         out: dict = {}
+        bounds: Dict[str, Dict[str, Any]] = {}
         for comp, group in self._compartment_widgets.items():
             prefix = (self._active_organelle_role
                       if comp == "organelle" else comp)
             for suffix, w in group.items():
                 key = f"{prefix}_{suffix}"
-                out[key] = self._off_as_the_run_spells_it(
-                    key, self._unclamped(w, self._widget_value(w)))
+                value = self._unclamped(w, self._widget_value(w))
+                if _retired_bound(key):
+                    bounds.setdefault(prefix, {})[suffix] = value
+                    continue
+                out[key] = self._off_as_the_run_spells_it(key, value)
             if comp == "organelle":
                 out[f"{prefix}_remove_border"] = out[
                     f"{prefix}_remove_border_objects"]
@@ -4074,6 +4163,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             out[f"{obj}_background"] = self._widget_value(
                 self._common_widgets["background"])
         out["adjust_cells"] = self._widget_value(self._adjust_cells)
+        if bounds:
+            out["object_filters"] = _bounds_into_filters(
+                self._settings.get("object_filters"), bounds)
         if self._primary_object().startswith("organelle"):
             out.update(self._organelle_settings())
         return out

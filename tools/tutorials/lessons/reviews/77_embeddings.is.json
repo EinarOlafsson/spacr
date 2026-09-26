@@ -1,29 +1,32 @@
 {
-  "title": "Embeddings: núverandi skjár og raunverulegt Python-dæmi",
-  "description": "Skoðaðu nýju eininguna og kóðaðu raunmyndir með API án þess að halda fram lagfærðu myndviðmóti eða líffræðilegri staðfestingu.",
-  "objectives": [
-    "Greina á milli núverandi myndviðmóts og virks API.",
-    "Bera rásastefnur saman á sextán myndum.",
-    "Varðveita auðkenni og túlka myndrit með varúð."
-  ],
-  "prerequisite": "spaCR 1.5.0.7 með embeddings-viðbót; upptakan notar timm 1.0.29 og forþjálfað ResNet18 á örgjörva. Sæktu Annotate-dæmið og tengdu ZIP-skrána. Notaðu cell_png-möppuna í README og nýjar úttaksmöppur. Skráarnöfn eru ekki staðfestir gagnagrunnslyklar. Skjárinn hefur ekki myndahleðslu; árangursrík vinnsla fer fram með API. Ekki er fullyrt um líffræðilega staðfestingu, yfirferð móðurmálshafa eða GPU-keyrslu.",
-  "scenes": [
-    "Embeddings er ný eining á Home-síðu spaCR. Hún breytir myndútskurðum í talnavigra án þess að þjálfa á merkingunum þínum. Kennslan sýnir núverandi skjá og virkt Python-dæmi með raunverulegum niðurhöluðum myndum.",
-    "Í útgáfu eitt punktur fimm punktur núll punktur sjö hefur þessi skjár enga stýringu til að hlaða myndútskurðum og Embed er óvirkt. Við líkjum ekki eftir árangursríkri myndviðmótskeyrslu. Raunverulega kóðunin sem kemur næst er framkvæmd með studdu Python-API.",
-    "Per channel kóðar hverja vistaða rás sérstaklega og tengir vigurna saman. Project to three kóðar samsettu myndina í staðinn. Þetta breytir framsetningunni, ekki aðeins hraðanum. Rásasæti í PNG auðkennir ekki sjálfkrafa staðfesta litun.",
-    "Settu valkvæðu embeddings-viðbótina upp í spaCR-umhverfinu. Sjálfgefna ResNet átján notar ImageNet-vogir úr stýrðu námi, ekki sjálfstýrt líkan þjálfað á frumum. Þetta litla dæmi notar örgjörvann; hvorki GPU né ytri gervigreindarþjónusta er nauðsynleg.",
-    "Notaðu niðurhalanlega Annotate-dæmið og útskurðamöppuna í leiðbeiningunum. Tengda skriftan velur sextán fyrirliggjandi myndir í röð eftir skráarnafni. Hver mynd er tvö hundruð tuttugu og fjórir pixlar á hvorn veg með þremur vistuðum rásum. Hvorki stærðarbreyting né ný hlutun fer fram.",
-    "Keyrðu skriftuna með nýrri úttaksmöppu. Hún kallar á embed_array með raunverulegum forþjálfuðum kóðara og fjögurra mynda lotum. Kóðun eftir rás gefur sextán raðir og eitt þúsund fimm hundruð þrjátíu og sex víddir. Vistaða fylkið er opnað aftur og hvert gildi athugað.",
-    "Veldu nú project og aðra úttaksmöppu. Sömu myndir gefa sextán raðir og fimm hundruð tólf víddir. Þessir dálkar með samsettum rásum koma ekki í stað fyrri rásaskiptu dálkanna. Berðu stefnurnar saman af ásettu ráði og geymdu stillingar hverrar keyrslu.",
-    "Skoðaðu yfirlitið yfir raunverulegu inntaksmyndirnar í myndskoðaranum. Númerin fylgja röð úttaksraðanna. Athugaðu gæði útskurða og rásavörpun útflutningsins áður en vigur er túlkaður. Skráarnöfn auðkenna dæmið; staðfestu hlutalykla fyrir samtengingu við mæligagnagrunn.",
-    "Þetta vistaða myndrit varpar rásaskiptu vigrunum á tvo aðalþætti. Númeruðu punktarnir vísa til sömu útskurða. Þetta er könnunarmynd af mjög litlu úrtaki, ekki sönnun fyrir ólíkum svipgerðum. Ein vídd í vigri er ekki líffræðileg mæling.",
-    "Vigrarnir með samsettum rásum hafa sína eigin vörpun. Ekki bera ásahnit þessara aðskildu myndrita saman eins og þau notuðu sömu aðlöguðu umbreytingu. Hvorugt myndrit mælir endurheimtarnákvæmni eða sýnir að vigrar séu betri en safn mældra eiginleika.",
-    "Geymdu vigra, auðkenni upprunamynda, gátsummu voganna, stillingar og útgáfur hugbúnaðarpakka. Skriftan athugar að upprunamyndir séu óbreyttar og hafnar fyrirliggjandi úttaksstöðum. Samræmdu útskurði, stöðlun og rásavörpun við samanburð. Fylgdu tengdu leiðbeiningunum til að endurtaka API-dæmið."
-  ],
   "lesson": "77_embeddings",
+  "english_sha256": "fa2d38e241cdc746d2971e944f97e9f10198b0c9615f3fd3ea439452efa44871",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "is",
-  "english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false
+  "title": "Embeddings: hlaða inn úrklippum og bera saman rásastefnur",
+  "description": "Hlaða inn myndúrklippum frá Home, velja kóðara og rásastefnu, keyra Embed og skoða forskoðun eiginleika.",
+  "objectives": [
+    "Hlaða inn úrklippumöppu í gegnum Embeddings-skjáinn.",
+    "Velja grunnnet, stærð skammts og rásastefnu.",
+    "Skoða forskoðun vigra og vista allar niðurstöður með meðfylgjandi Python-hjálparskriftu."
+  ],
+  "prerequisite": "Settu upp spaCR með embeddings-viðbótinni. Sæktu Annotate-dæmið og finndu plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Fyrir litla dæmið sem hér er sýnt afritarðu fyrstu 16 PNG-skrárnar í raðaðri röð skráarheita í nýja möppu. Fyrsta keyrsla kóðarans sækir forþjálfuð vægi ef þau eru ekki í skyndiminni. Valfrjálsa skráin Embeddings_API_example.zip inniheldur hjálparskriftu til að vista heil fylki.",
+  "scenes": [
+    "Frá Home opnarðu Embeddings undir Data. Þú hleður inn myndúrklippum, velur hvernig rásir þeirra eru kóðaðar og býrð til einn tölulegan eiginleikavigur fyrir hvern hlut.",
+    "Veldu crop folder undir Crops from. Þú getur líka notað mælingagagnagrunn þegar þú vilt velja flokk hluta, plötu eða skilyrði. Yfirferðin notar úrklippumöppuna úr niðurhalanlegu Annotate-dæmi.",
+    "Afritaðu 16 dæma-PNG í vinnumöppu. Sláðu inn slóð möppunnar og ýttu á Enter, eða notaðu Browse. Stilltu At most á 16 og smelltu svo á Load crops.",
+    "Lestu fjölda innhlaðinna úrklippa, stærð þeirra og fjölda rása. Dæmið inniheldur 16 myndir, hver 224 × 224 dílar með þremur vistuðum rásum. Athugaðu rásatengingu úrklippuútflutningsins áður en þú berð saman niðurstöður.",
+    "Veldu Per channel til að kóða hverja rás sérstaklega og skeyta eiginleikum hennar saman. Haltu resnet18 sem Backbone og stilltu Batch á 4 fyrir þessa litlu keyrslu. Minni skammtar draga úr minnisnotkun.",
+    "Smelltu á Embed og bíddu eftir forskoðuninni. Dæmið gefur 16 hlutavigra með 1.536 víddum. Taflan sýnir aðeins fyrstu víddirnar og, í stærri keyrslum, allt að 50 hluti.",
+    "Veldu Project to three og smelltu aftur á Embed. Þá er samsetta myndin kóðuð í stað hverrar rásar fyrir sig. Notaðu sömu úrklippur og sama grunnnet þegar þú berð stefnurnar tvær saman.",
+    "Varpaða dæmið hefur 512 víddir á hvern hlut. Geymdu rásastefnuna og stillingar kóðarans með niðurstöðunum. Notaðu heila vigra í frekari greiningu; einstakar víddir eru ekki líffræðilegar mælingar.",
+    "Skjárinn býður sem stendur upp á forskoðun án útflutningshnapps. Til að vista heil fylki sækirðu tengdu Python-hjálparskriftuna og fylgir README-skrá hennar. Hún skrifar vigra, skráarheiti hluta, stillingar og könnunargröf í nýja úttaksmöppu."
+  ]
 }

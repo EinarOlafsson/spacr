@@ -458,26 +458,26 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home-skjermen og navigering",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Åpne en modul fra Home, finn tilhørende verktøy og eksempeldata, og velg deretter en pipeline å følge.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Velge en startmodul for bilder, målinger eller sekvenseringslesninger.",
+        "Finne tilhørende verktøy og organismespesifikke analyser.",
+        "Laste inn et eksempel, finne hjelp og åpne en pipelineoversikt."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "Installer spaCR og åpne skrivebordsprogrammet.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home er utgangspunktet ditt. Klikk på en flis for å åpne en modul, eller bruk sidefeltet til venstre. Klikk på Home i sidefeltet for å komme tilbake hit. Fanene Core, Data, Tools og Assays hjelper deg å finne oppgaven du vil utføre.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "For mikroskopbilder begynner du med Mask for å avgrense objekter, og deretter Measure for å hente ut egenskapene og utsnittene deres. Med Annotate merker du eksempelobjekter, og Classify lærer av merkene for å gi flere objekter en poengsum. Map Barcodes leser sekvenseringsdata. Regression kombinerer de resulterende fenotypepoengene med guide-tellingene for å finne sammenhenger.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -498,7 +498,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "I Data kommer filer inn og resultater kontrolleres. Hvis du allerede har bilder, masker eller måletabeller, tar Import dem inn i et prosjekt som de andre modulene kan lese. Før et eksperiment planlegger Experiment Design platene dine; etterpå viser QC de registrerte kvalitetskontrollene, og Run Compare setter to kjøringer side om side.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -518,7 +518,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools samler de praktiske redigeringsverktøyene og utforskerne. I Make Masks retter du masker, og derfra åpnes også Cellpose Workbench. Align and Stitch setter sammen overlappende bildefliser til ett bilde. Når du har målinger, kan du utforske og plotte dem med Image UMAP, Gate Editor og Graph Builder. Verktøylinjen i hver modul åpner de tilhørende verktøyene.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -537,7 +537,7 @@
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Åpne Assays og velg organismen din: Toxoplasma, Plasmodium eller Candida. Velg deretter en analyse i menyen for den organismen. Åpne for eksempel Toxoplasma for plakkanalyse eller målinger av vert og patogen. Følg veiledningen for den valgte analysen for å forberede bildene, maskene og måleinndataene.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -553,7 +553,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Åpne Classify og velg inndata med Classifier family. Velg Computer Vision for objektbilder eller Tabular Machine Learning for kolonner med målte egenskaper. De lenkede veiledningene tar deg gjennom trening, evaluering og poengsetting for hver familie.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -563,7 +563,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "Når en modell er trent, hjelper verktøylinjen i Classify deg med å granske den. Classifier Evaluation viser hvordan den gjorde det på tilbakeholdte data, Explain CV Model og Activation viser hva som styrer avgjørelsene, Training Runs sammenligner treningshistorikk, og Feature Explorer rangerer egenskapene som skiller gruppene dine. Hold pekeren over et ikon for å se navnet.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -576,7 +576,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "For å prøve en modul klikker du på Load test data når det finnes. Vent til nedlastingen er ferdig, og gå deretter gjennom de utfylte inndataene og innstillingene. I Mask klikker du på Live for å undersøke et synsfelt før du trykker på Run. Slå på Time for en tidsserie eller 3D for et volumbilde.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -585,17 +585,17 @@
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "narration": "Skriv navnet på en modul, en innstilling eller en funksjon i søkefeltet ved siden av Help. Her finner et søk etter Performance den tilsvarende siden i Preferences. Klikk på et resultat for å åpne målet. API-resultater åpner dokumentasjonen for den valgte funksjonen.",
           "hold_after": 0.7
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "narration": "I Preferences velger du en Performance-profil for datamaskinen din. Laptop bruker færre ressurser; de høyere profilene tillater mer mellomlagring og bakgrunnsarbeid. Begynn med en moderat profil hvis minnet er begrenset. Analyseinnstillingene dine forblir under din kontroll i hver modul.",
           "hold_after": 0.7
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Gå tilbake til Home og klikk på Pipeline overviews for å velge en arbeidsflyt. Begynn med spaCR screens for en samlet bildebasert screening, eller velg en vei for bildeanalyse eller sekvensering for dataene dine. De neste veiledningene viser hvordan modulene henger sammen, og modulleksjonene går deretter gjennom hver oppgave.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -613,6 +613,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1623,22 +1663,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: rediger merkelapper og forbered treningsbilder",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Åpne bilde- og maskepar, undersøk og rediger objekter, lagre målinger og lag parede treningsutsnitt.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Åpne bilder med tilhørende instansmasker og undersøke objekter i forstørrelsesglasset.",
+        "Måle parede synsfelt og lagre en database med objektegenskaper.",
+        "Rette merkelapper med Undo, tegning, deling og størrelsesfiltre.",
+        "Lagre kuraterte masker og lage bilde- og maskeutsnitt for trening."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "Klargjør en mappe med todimensjonale bilder og tilhørende TIFF-filer med instansmerkelapper i en undermappe kalt masks. Hver maske bruker filnavnstammen til bildet. Arbeid på en kopi når du øver på redigering og ny beskjæring. Eksemplet bruker ER-bilder og cellemasker fra det nedlastbare mikroskopiprosjektet i Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Fra Home åpner du Make Masks under Tools. Velg denne redigereren for å undersøke og rette masker for enkeltbilder. Åpne mappen med parede bilder og merkelapper før du velger et redigeringsverktøy.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1646,7 +1686,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Velg bildemappen. I dette eksemplet bruker du ER-intensitetsbildene og de tilhørende cellemaskene fra Measure-eksemplet. Hold bilde- og maskedimensjonene like og filnavnene paret.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1654,17 +1694,17 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "narration": "Redigereren laster inn bildet og den tilhørende masken fra undermappen masks. Fargede merkelapper identifiserer enkeltobjekter. Kontroller at omrissene følger grensene i bildet. Hvis en tilhørende maske mangler, begynner du med en tom maske og tegner objektene du trenger.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Åpne Magnifier settings. Velg Otsu og Region under the mouse for å forhåndsvise terskelbaserte objekter rundt pekeren. Velg en modellbasert modus når terskling ikke skiller objektene dine godt.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Slå på Magnifier og hold pekeren over et objekt for å forstørre forhåndsvisningen. Beveg deg over flere objekter for å undersøke de foreslåtte omrissene. Klikk for å legge til de avgrensede objektene når de ser riktige ut, eller slå av Magnifier for å fortsette redigeringen.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -1675,7 +1715,7 @@
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Klikk på Features for å måle bilde- og maskepar. Legg til en rad for hvert synsfelt, og velg intensitetsbildene og de tilhørende objektmaskene. Kontroller de manuelle tilordningene hvis den automatiske filnavnmatchingen lar filer stå uten tilordning.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1689,7 +1729,7 @@
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "For hver rad velger du ER-intensitetsbildet i Channel 1 og det tilhørende merkelappbildet i Cell mask. Gjenta for det andre synsfeltet. Bruk de opprinnelige intensitetsbildene til å måle fluorescens.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1703,7 +1743,7 @@
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "Gå gjennom begge radene, og velg deretter måleinnstillingene. Dette eksemplet bruker én arbeidsprosess, en minste cellestørrelse på én piksel og ingen lagrede PNG-utsnitt. Øk størrelsesgrensen for å utelate små objekter når det passer eksperimentet ditt. Klikk på Measure.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1717,7 +1757,7 @@
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "Når målingen er ferdig, åpner du utdatamappen. Mappen measurements inneholder measurements.db med objektegenskapene for begge synsfeltene. Behold databasen sammen med kildebildene, maskene og innstillingene, og lukk deretter Features for å gå tilbake til redigeringen.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1731,7 +1771,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "Velg verktøyet som passer rettelsen. Brush legger til piksler, Erase fjerner piksler og Erase object fjerner en hel merkelapp. Draw legger til et avgrenset objekt; Divide deler et. Zoom hjelper deg å undersøke grensene før du gjør endringer.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1742,42 +1782,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "narration": "Velg Erase object og klikk inne i objektet du vil fjerne. Kontroller det oppdaterte omrisset og antallet objekter. Bruk dette for en uønsket merkelapp, for eksempel rusk eller et objekt utenfor analysekriteriene dine.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "narration": "Klikk på Undo for å gjenopprette slettingen. Redo bruker den på nytt. Bruk disse historikkontrollene til å sammenligne en endring med den forrige masken, og gå deretter tilbake til versjonen du vil beholde.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "narration": "Velg Draw og tegn en lukket grense rundt et manglende objekt. Redigereren fyller det med en ny merkelapp. I dette øvingstrinnet ligger omrisset i bakgrunnen, så angre det før du lagrer. For treningsdata tegner du objektets faktiske grense.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "narration": "Bruk Divide når to objekter som berører hverandre, deler én merkelapp. Tegn et snitt tvers over hele det sammenhengende området, og undersøk de adskilte merkelappene. Angre delingen hvis den skjærer gjennom ett objekt eller etterlater en feil grense.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "narration": "Juster Display percentiles for å gjøre svake strukturer lettere å undersøke. Disse kontrollene endrer bare visningen og bevarer de rå intensitetsverdiene og merkelappene. Gå tilbake til en ensartet visning når du sammenligner synsfelt.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "Angi minste og største objektareal, og trykk deretter på Filter for å fjerne merkelapper utenfor grensene. Velg grenser som passer objektene dine, og undersøk hva som ble fjernet. Filteret endrer masken, så bruk Undo hvis grensen fjerner nyttige objekter.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "Når du har gått gjennom endringene, klikker du på Save mask. Tilbakestill størrelsesgrensene til null for å slå dem av før du går videre til et annet synsfelt, om nødvendig. Ta vare på kildebildene, og behold den lagrede kurasjonsposten sammen med de redigerte maskene.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "Toppfeltet rommer resten av maskeverktøyene. Når du velger vekter, finner Model Zoo dem, og Model Compare setter to maskesett side om side. Når flere eksempler må rettes, tar Curate og Open in napari deg tilbake til redigeringen.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1787,7 +1827,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "Toppfeltet åpner også Model Compare, Model Zoo, Curate og Open in napari. Bruk Model Compare til å undersøke masker side om side, Model Zoo til å velge vekter og kurasjonsverktøyene til å gå gjennom eller redigere flere eksempler.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1799,12 +1839,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "narration": "Velg Recrop og dra en boks rundt objektene du vil ha i et mindre treningsfelt. Dette skriver et nytt bilde og en tilhørende maske. Objekter som kuttes av kanten, forkastes, så la det være plass rundt hele objekter og undersøk utsnittet.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Klikk på Next for å åpne det nye utsnittet. Det opprinnelige bildet og masken beholdes i recropped_originals for gjenoppretting. Gå gjennom utsnittet og merkelappene før du legger det til i treningsdatasettet ditt.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1812,32 +1852,32 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "For å finne objekter i det gjeldende synsfeltet velger du Cellpose-modellen og går gjennom innstillingene. Dette eksemplet bruker cpsam, normalisering slått på, en terskel for cellesannsynlighet på 0 og en flytterskel på 0,4. Kontroller om deteksjonene skal erstatte eksisterende merkelapper eller legges til dem.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Klikk på Object detection og sammenlign de resulterende omrissene med bildet. Her velger modellen det delvise objektet øverst til venstre i stedet for cellen i midten. Angre erstatningen og juster modellinnstillingene før du prøver igjen.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "narration": "Åpne Cell probability for å undersøke poengkartet for forgrunnen. Bruk det til å se hvilke områder modellen støtter. Endre forgrunnsterskelen når det er nyttig, og kjør deteksjonen på nytt for å få et nytt resultat.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "narration": "Åpne Flows for å undersøke retningsvisningen. Terskelen for flytkonsistens styrer hvilke oppdagede objekter som beholdes: lavere verdier er strengere, og 0 slår av kontrollen. Sammenlign de endelige maskene etter hver endring av innstillingene.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo gjenoppretter merkelappene fra før deteksjonen. Behold masken som følger bildet best, og lagre den. Fortsett gjennom de gjenværende synsfeltene, og undersøk hvert resultat før du tar det med i treningen.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "Hold kuraterte bilder og masker med samme navnestamme samlet. Bruk Train Cellpose for å lære av parene, eller gå tilbake til Features eller Measure for å hente ut målinger. De tilhørende veiledningene viser hvert neste trinn.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1848,6 +1888,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -2062,20 +2142,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "Koble objekter gjennom en tidsserie, undersøk sporene deres og forbered de sporede bildene for måling.",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Laste inn eksempelbildene og -maskene i Track preview.",
+        "Justere overlappingen og undersøke objektidentiteter mellom bilderammer.",
+        "Sette opp en Mask-kjøring for tidsserier og finne de sporede utdataene."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "Last ned og pakk ut SYNTHETIC_timelapse_preview.zip. Undervisningseksemplet inneholder åtte bilderammer med cellebilder og tilhørende merkelappbilder. For en fullstendig Mask-kjøring på egne data klargjør du tidsordnede mikroskopibilder og noterer opptaksintervallet.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "Fra Home åpner du Mask og klikker på Timelapse-ikonet øverst til høyre for å slå på sporing. Bruk Timelapse til å koble objekter mellom påfølgende bilder. Først prøver vi det lenkede eksemplet i Track preview, og deretter går vi gjennom innstillingene for å behandle din egen bildesekvens.",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -2090,7 +2170,7 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "Last ned og pakk ut eksempelarkivet nedenfor, og klikk deretter på Track preview til høyre for overskriften Actions. Arkivet inneholder en bildesekvens og en tilhørende maskesekvens med åtte bilderammer. Hold begge mappene samlet, slik at du kan velge bilder og merkelapper som hører sammen.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -2101,17 +2181,17 @@
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "narration": "Velg image_sequences og deretter field_A01 som bildemappe. Velg kanal 0: hvert eksempelbilde inneholder én kanal for celleintensitet. Sett Frames previewed til 8 og Fields til 1.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "narration": "Klikk på Masks og velg label_sequences og deretter field_A01. Hver merkelapp identifiserer et objekt i det tilsvarende bildet. La Keep only full-length tracks være av i begynnelsen, slik at du kan undersøke spor som begynner eller slutter inne i sekvensen.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "Sett overlappingsterskelen til 0,1 og klikk på Run preview. Terskelen styrer hvor mye nabomasker må overlappe for å kobles. Undersøk de fargede objektidentitetene og sammendraget av sporlengder. Eksemplet gir seksten spor som strekker seg over alle åtte bilderammene.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2122,7 +2202,7 @@
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "Juster overlappingsterskelen hvis objekter deles opp i korte spor eller kobles til feil naboer. En høyere terskel krever mer overlapping. Når du har endret den, venter du til forhåndsvisningen er ferdig, og klikker på Re-link for å undersøke den endelige verdien. Bla gjennom flere bilderammer før du godtar resultatet.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2133,7 +2213,7 @@
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "Bruk bilderammeglidebryteren til å følge det samme objektet gjennom sekvensen. Play endrer hvor raskt du ser bilderammene. Noter det faktiske opptaksintervallet separat for senere hastighetsmålinger.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2149,7 +2229,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "For en fullstendig kjøring på egne bilder angir du Source og intensitetskanalene i Mask. Dette opptaket importerer innstillingene for en liten syntetisk sekvens med åtte bilderammer. Hold tidspunktene for hvert synsfelt i rekkefølge. Bilderammegrenser bruker en start og en utelukket slutt: 0 til 8 velger de første åtte bilderammene.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2160,7 +2240,7 @@
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "Velg objektet som skal spores, og sporingsmodusen. Overlappingsmodusen iou kobler objekter ved hjelp av maskene deres i nabobilderammer. Undersøk først en kort sekvens, og velg en modus som passer til hvor langt objektene dine flytter seg mellom bilderammene.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2171,7 +2251,7 @@
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "Slå på Keep original images for å beholde inndatabildene under oppryddingen i pipelinen. Angi segmenteringsmodell og kanaler for dataene dine, og kontroller forhåndsvisningen før du behandler hele sekvensen.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2182,7 +2262,7 @@
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "Slå på Plot for å undersøke figurene som lages, og klikk deretter på Run. Følg fremdriften i konsollen, og vent til kjøringen er ferdig. Begynn med en kort sekvens, slik at du kan kontrollere maskene og sporidentitetene før du behandler et større eksperiment.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2193,7 +2273,7 @@
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "Undersøk intensitets- og merkelapplagene i utdatafigurene. Kjøringen lagrer de sporede matrisene i merged og sportabellene i tracks i prosjektmappen. Fortsett til Measure og deretter Motility for å beregne objektegenskaper og bevegelse ut fra disse sporene.",
           "hold_after": 0.7,
           "focus": [
             366,
@@ -2206,6 +2286,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3184,21 +3304,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay: poengsett ytre farging og totalfarging",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "Koble to fargingskanaler, velg grunnlinjen for farging, kjør analysen og undersøk invasjonsvurderinger og terskelfølsomhet.",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "Velge måledatabasen og koble ytre farging og totalfarging.",
+        "Angi grunnlinjebrønner og terskelinnstillinger og deretter kjøre analysen.",
+        "Undersøke fordelinger, nevnere per brønn og lagrede resultattabeller."
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "Pakk ut det lenkede syntetiske Invasion Assay-eksemplet og bruk innstillingsreferansen. Databasen inneholder 1 800 syntetiske parasittmålinger; navnene på betingelsene og resultatene er bare illustrasjoner. For din egen analyse bruker du et validert tofarget fargingsoppsett med ytre farging før permeabilisering og totalfarging etterpå, og går gjennom representative bilder.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Fra Home åpner du Toxoplasma og velger deretter Invasion Assay. Begynn med en måledatabase som inneholder parasittintensiteter for den ytre fargingen og totalfargingen. Bruk den lenkede syntetiske prøven til å øve på kanalkobling, terskelvalg og gjennomgang av resultater.",
           "focus": [
             346,
             50,
@@ -3212,7 +3332,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "Pakk ut prøven og sett Source til mappen invasion, som inneholder measurements/measurements.db. Legg inn den medfølgende innstillingsreferansen og erstatt plassholderen for Source. Prøven inneholder grunnlinjebrønner og to analysebetingelser.",
           "focus": [
             346,
             170,
@@ -3223,7 +3343,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Sett Outside channel til 1 og Total channel til 0. Den ytre fargingen påføres før permeabiliseringen og totalfargingen etterpå. Parasitter som er positive for ytre farging, klassifiseres som festet, og de som ligger på eller under den ytre terskelen, som invadert. Kontroller rekkefølgen på opptakskanalene når du bruker egne målinger.",
           "focus": [
             346,
             170,
@@ -3234,7 +3354,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "Velg mean under Intensity statistic slik at det samsvarer med kolonnene i eksempeldatabasen. For din egen analyse velger du en tilgjengelig statistikk som passer fargingen, og undersøker representative objekter. Behold Minimum total intensity på 100 for denne prøven.",
           "focus": [
             346,
             170,
@@ -3245,7 +3365,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "Sett Stain baseline wells til kolonne 1 med c1. Disse målingene uten farging fastsetter grenseverdien og utelates fra nevnerne i analysen. Under Pathogen plate metadata kobler du vehicle til kolonne 2 og inhibitor til kolonne 3.",
           "focus": [
             346,
             170,
@@ -3256,7 +3376,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Sett Control quantile til 0,99 og la den faste Outside threshold stå tom. Da bestemmer grunnlinjemålingene grenseverdien, omtrent 22,8 i dette eksemplet. Kontroller den anvendte terskelen i utdataene før du tolker klassifiseringene.",
           "focus": [
             346,
             170,
@@ -3267,7 +3387,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Sett Threshold sensitivity til 0,25. Da vurderes også grenseverdier 25 prosent under og over den valgte terskelen. Sammenlign det resulterende området for invasjonseffektivitet for å se hvor mye resultatet avhenger av terskelvalget.",
           "focus": [
             346,
             170,
@@ -3278,7 +3398,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "Sett Extracellular class til classify for prøven. For objekter uten kobling til en vertscelle bruker classify fargingen, attached regner dem som festet, og exclude fjerner dem fra den poengsatte populasjonen. Velg denne innstillingen med tanke på kvaliteten på vertscelletilordningene dine.",
           "focus": [
             346,
             170,
@@ -3289,7 +3409,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "La Save være på og klikk på Run. Åpne terskelfiguren når behandlingen er ferdig. Den viser fordelinger per brønn og den anvendte grenseverdien. I et eksperiment sammenligner du disse fordelingene med representative fargede bilder og undersøker svak ytre farging.",
           "focus": [
             1685,
             260,
@@ -3300,7 +3420,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "Hvis en tegnforklaring går utenfor figuren, åpner du Figure settings. I fanen axes setter du Legend position til best og bekrefter. Kontroller at etikettene er synlige både i figuren på skjermen og i den eksporterte figuren.",
           "focus": [
             1420,
             330,
@@ -3314,7 +3434,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "Åpne figuren per brønn. Hver stolpe viser andelene festede og invaderte parasitter, med antallet poengsatte parasitter over. Grunnlinjebrønner er utelatt. Les antallene sammen med andelene når du sammenligner brønner.",
           "focus": [
             1685,
             260,
@@ -3325,7 +3445,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "Åpne sammendraget per betingelse. Sammenlign den samlede invasjonsandelen med gjennomsnittet over brønnene, siden de vektes ulikt. Kontroller variasjonen i resultatene per brønn før du sammenligner betingelser.",
           "focus": [
             1685,
             260,
@@ -3336,7 +3456,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "Alt havner i results/analyze_invasion inne i Source. parasite_calls.csv inneholder vurderingen av hver parasitt, field_thresholds.csv grenseverdiene bak dem, well_invasion.csv andelene per brønn og condition_summary.csv den samlede sammenligningen. Oppbevar figurer og innstillinger sammen med dem, og sammenlign betingelser på tvers av uavhengige replikater.",
           "focus": [
             1510,
             1200,
@@ -3356,6 +3476,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3363,21 +3523,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay: tell parasitter per vakuole",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "Last inn parasittmålinger, velg vakuoleidentitet, kjør analysen og undersøk tellingsfordelinger og eksporter.",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "Velge en måledatabase og vakuoleidentifikatoren.",
+        "Angi filtre for vertscelletilordning og størrelse, og deretter kjøre analysen.",
+        "Lese fordelingene per brønn og finne de lagrede resultattabellene."
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "Pakk ut det lenkede syntetiske Replication Assay-eksemplet. Det inneholder en måledatabase og en innstillingsreferanse, med 1 992 parasittrader i 480 vakuoler fordelt på tolv brønner. Navnene på betingelsene og målingene er undervisningsdata. For din egen analyse bruker du målte parasitter med gjennomgåtte vakuoletilordninger og uavhengige eksperimentelle replikater.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Fra Home åpner du Toxoplasma og velger deretter Replication Assay. Begynn med en måledatabase som inneholder parasittrader og vakuoletilordningene deres. Med det lenkede syntetiske eksemplet kan du øve på innstillingene og lese de resulterende tellingsfordelingene.",
           "focus": [
             346,
             50,
@@ -3391,7 +3551,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "Pakk ut prøven og sett Source til mappen replication. Databasen ligger i measurements. Legg inn den medfølgende innstillingsreferansen, og erstatt plassholderen for Source med den utpakkede mappen. La Save være på, slik at resultatene skrives.",
           "focus": [
             346,
             170,
@@ -3402,7 +3562,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Sett Vacuole key til vacuole_id. Dette grupperer parasittene etter vakuolen de tilhører. Prøven inneholder to vakuoler per vertscellegruppe, så bruk vakuoleidentifikatoren for å holde tellingene adskilt.",
           "focus": [
             346,
             170,
@@ -3413,7 +3573,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Slå på Require host cell for bare å ta med parasitter som er koblet til en vertscelle. Gå gjennom objekter uten tilordning når du bruker egne data. For denne prøven setter du Minimum parasite area til 200 og Maximum parasite area til 800.",
           "focus": [
             346,
             170,
@@ -3424,7 +3584,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Sett Maximum parasites per vacuole til 16. Dette angir den største navngitte kategorien blant toerpotensene. Større toerpotenser havner i en overflytkategori, mens antall som 3 blir i den separate kategorien for verdier som ikke er toerpotenser.",
           "focus": [
             346,
             170,
@@ -3435,7 +3595,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "Skriv inn vehicle og inhibitor som de to Pathogen types, og koble dem til kolonne 1 og kolonne 2 i Pathogen plate metadata. Hver gruppe inneholder seks øvingsbrønner. For eksperimentet ditt skriver du inn navnene på betingelsene og brønntilordningene fra plateoppsettet.",
           "focus": [
             346,
             170,
@@ -3446,7 +3606,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Kontroller Source, Vacuole key, filtrene og Save, og klikk deretter på Run. Følg konsollen til behandlingen er ferdig. Området Figures viser fordelinger per brønn og per betingelse.",
           "focus": [
             1510,
             170,
@@ -3457,7 +3617,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "Åpne figuren per brønn. Hver stablet stolpe viser andelen vakuoler i hver kategori for parasittantall. Les fargene ved hjelp av tegnforklaringen. I denne prøven inneholder hver brønn 40 vakuoler, og 5 prosent havner i kategorien for verdier som ikke er toerpotenser.",
           "focus": [
             1510,
             170,
@@ -3468,7 +3628,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "Åpne Figure settings for å justere tegnforklaringen. I fanen axes velger du en Legend position inne i figuren hvis etikettene går utenfor den. Dette endrer bare presentasjonen; de beregnede tellingene beholdes.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3479,7 +3639,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "Åpne figuren per betingelse for å sammenligne de samlede tellingsfordelingene. Gå gjennom resultatene per brønn sammen med dette sammendraget. Når du analyserer et eksperiment, bruker du uavhengige biologiske replikater og en egnet eksperimentell enhet for statistiske sammenligninger.",
           "focus": [
             1510,
             170,
@@ -3490,7 +3650,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "Les eventuelle eksportadvarsler i konsollen. Kontroller de lagrede figurene i tillegg til visningen på skjermen, og velg farger som er lesbare mot bakgrunnen i eksporten.",
           "focus": [
             1510,
             1190,
@@ -3501,7 +3661,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Resultatene i results/analyze_replication inne i Source bygger på hverandre. vacuole_counts.csv teller hver vakuole, well_distribution.csv gjør tellingene om til fordelingen for hver brønn, og sammendragene og figurene per betingelse slår sammen brønnene. Oppbevar dem sammen med innstillingene og kildedatabasen, slik at du kan spore ethvert tall tilbake.",
           "focus": [
             346,
             170,
@@ -3521,6 +3681,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

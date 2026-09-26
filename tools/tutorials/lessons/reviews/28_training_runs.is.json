@@ -28,7 +28,7 @@
     "Smelltu á Overlay selected. Þjálfunarferlar eru strikaðir og prófunarferlar heildregnir. Lestu hverja keyrslu og hverja gagnaskiptingu úr skýringunum. Hver ferill endar á sinni síðustu skráðu lotu.",
     "Skoðaðu samanburð stillinga fyrir neðan grafið. Hann dregur fram mun eins og stærð runu, fjölda lotna og námshraða. Notaðu hann til að sjá hvað breyttist milli keyrslna áður en þú túlkar ferlana.",
     "Umhverfislínan greinir keyrslustillingar, eins og fjölda vinnsluferla, frá þjálfunarstillingunum. Lestu hana samhliða mun á stillingum þegar þú berð saman keyrslur sem voru gerðar á ólíkum tölvum.",
-    "Smelltu á prófunarferil til að sjá síðustu og bestu skráðu gildi hans og lotur. Notaðu sömu valreglu þegar þú berð saman keyrslur. Metðu valinn vistunarpunkt á óháðum gögnum til að meta frammistöðu hans.",
+    "Smelltu á prófunarferil til að sjá síðustu og bestu skráðu gildi hans og lotur. Notaðu sömu valreglu þegar þú berð saman keyrslur. Mettu valinn vistunarpunkt á óháðum gögnum til að meta frammistöðu hans.",
     "Veldu loss undir Metric til að uppfæra lóðrétta ásinn og samsettu myndina. Berðu saman feril þjálfunar og prófunar, þar á meðal stefnu þeirra undir lok þjálfunar.",
     "Veldu tuned og cross_validated, veldu accuracy og smelltu svo á Overlay selected. Opnaðu Folds og veldu hvort sýna eigi einstök brot, meðaltal þeirra og staðalfrávik, eða hvort tveggja.",
     "Veldu meðaltal plús eða mínus staðalfrávik til að taka saman ferla brotanna. Hvert band sýnir eitt staðalfrávik úrtaks yfir tiltæk brot í þeirri lotu. Lestu bandið sem breytileika milli brota.",

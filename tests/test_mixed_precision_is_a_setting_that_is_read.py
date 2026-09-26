@@ -206,3 +206,55 @@ class TestTheLoopUsesIt:
         source = inspect.getsource(deep_spacr.train_model)
         assert source.count("scaler.step(optimizer)") == 2
         assert "optimizer.step()" not in source
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(),
+                    reason="AMP is CUDA-only; run via tools/gpu_turn.sh")
+def test_a_real_cuda_training_run_uses_half_precision(tmp_path, capsys,
+                                                      monkeypatch):
+    """Instruction 236: the AMP path, driven on a GPU rather than reasoned.
+
+    A real resnet18 from spaCR's own ``choose_model``, trained two epochs on
+    random crops with ``mixed_precision=True``. The training forward pass
+    must come out in float16 (autocast took effect), the weights must stay
+    float32 and finite (the scaler stepped them), and a checkpoint must be
+    written. Every other torch test runs on CPU, where this path is refused.
+    """
+    import os
+
+    from spacr import deep_spacr, utils
+
+    dtypes = []
+    original = utils.choose_model
+
+    def recording(*args, **kwargs):
+        model = original(*args, **kwargs)
+        model.register_forward_hook(
+            lambda _m, _i, out: dtypes.append(
+                out.dtype if torch.is_tensor(out) else None))
+        return model
+
+    monkeypatch.setattr("spacr.utils.choose_model", recording)
+    generator = torch.Generator().manual_seed(0)
+    batches = [(torch.rand(8, 3, 64, 64, generator=generator),
+                torch.tensor([0, 1] * 4),
+                [f"b{b}_f{i}.png" for i in range(8)]) for b in range(3)]
+    src = tmp_path / "data"
+    src.mkdir()
+    dst = tmp_path / "model"
+    dst.mkdir()
+
+    model, path = deep_spacr.train_model(
+        str(src), str(dst), "resnet18", batches, epochs=2,
+        init_weights=False, num_classes=2, image_size=64, schedule=None,
+        settings={"mixed_precision": True}, tensorboard=False,
+        write_card=False)
+
+    out = capsys.readouterr().out
+    assert "amp=True: the forward pass" in out
+    assert torch.float16 in dtypes
+    params = list(model.parameters())
+    assert params and all(p.dtype == torch.float32 for p in params)
+    assert all(bool(torch.isfinite(p).all()) for p in params)
+    assert next(iter(params)).device.type == "cuda"
+    assert os.path.exists(path)

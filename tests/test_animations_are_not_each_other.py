@@ -21,6 +21,11 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 KINDS = ("cell", "nucleus", "pathogen", "organelle")
+#: The kinds that still have a maximum-area and two mean-bound animations.
+#: The maintainer retired cell, nucleus and pathogen's on 2026-09-25 (item
+#: 511) into object_filters rows, so their animations went with the keys;
+#: :func:`test_the_retired_object_bound_animations_are_gone` holds that.
+BOUND_KINDS = ("organelle",)
 
 #: The bug measured 0.9-2.0%. Anything this close is one picture with a
 #: decoration on it, not two illustrations.
@@ -73,7 +78,7 @@ def paths():
     return {animation.slug: animation.path for animation in setting_animations()}
 
 
-@pytest.mark.parametrize("kind", KINDS)
+@pytest.mark.parametrize("kind", BOUND_KINDS)
 @pytest.mark.parametrize("bound", ("min", "max"))
 def test_area_and_mean_intensity_are_different_pictures(kind, bound, paths):
     got = _ink_difference(
@@ -84,7 +89,7 @@ def test_area_and_mean_intensity_are_different_pictures(kind, bound, paths):
     )
 
 
-@pytest.mark.parametrize("kind", KINDS)
+@pytest.mark.parametrize("kind", BOUND_KINDS)
 def test_lower_and_upper_mean_bounds_remove_different_objects(kind, paths):
     got = _ink_difference(
         paths[f"{kind}_min_intensity"], paths[f"{kind}_max_intensity"])
@@ -186,7 +191,7 @@ class TestAbsoluteMeanIntensityScenes:
             gen._mean_intensity_scene(Recorder(), spec, action)
         return outlines, labels
 
-    @pytest.mark.parametrize("kind", KINDS)
+    @pytest.mark.parametrize("kind", BOUND_KINDS)
     @pytest.mark.parametrize("bound", ("min", "max"))
     def test_equal_sizes_vary_mean_brightness_not_area(self, kind, bound, monkeypatch):
         outlines, labels = self._record(kind, bound, 0, monkeypatch)
@@ -196,7 +201,7 @@ class TestAbsoluteMeanIntensityScenes:
         assert [label[1] for label in labels[1:]] == ["μ=20", "μ=40", "μ=60", "μ=80"]
         assert labels[0][1] == "0"
 
-    @pytest.mark.parametrize("kind", KINDS)
+    @pytest.mark.parametrize("kind", BOUND_KINDS)
     @pytest.mark.parametrize("bound,expected,caption", [
         ("min", [0, 0, 0.85, 1.0], "≥ 60"),
         ("max", [0.55, 0.7, 0, 0], "≤ 40"),
@@ -207,7 +212,7 @@ class TestAbsoluteMeanIntensityScenes:
         assert [o[3] for o in outlines] == pytest.approx(expected)
         assert labels[0][1] == caption
 
-    @pytest.mark.parametrize("kind", KINDS)
+    @pytest.mark.parametrize("kind", BOUND_KINDS)
     @pytest.mark.parametrize("bound", ("min", "max"))
     def test_zero_is_off_even_at_the_filtered_endpoint(self, kind, bound, monkeypatch):
         outlines, labels = self._record(kind, bound, 1, monkeypatch, bound=0)
@@ -222,8 +227,29 @@ class TestAbsoluteMeanIntensityScenes:
     ])
     def test_absolute_cutoffs_can_keep_all_or_none_not_a_fixed_quota(
             self, bound, means, expected, monkeypatch):
-        outlines, _ = self._record("nucleus", bound, 1, monkeypatch, means=means)
+        outlines, _ = self._record("organelle", bound, 1, monkeypatch, means=means)
         assert [o[3] for o in outlines] == pytest.approx(expected)
+
+
+def test_the_retired_object_bound_animations_are_gone():
+    """Asserted gone rather than quietly dropped from the parametrisation."""
+    gen = pytest.importorskip("generate_setting_animations")
+    from spacr.settings import RETIRED_OBJECT_BOUNDS
+
+    retired = set(RETIRED_OBJECT_BOUNDS)
+    gone = {f"{kind}_{name}" for kind in ("cell", "nucleus", "pathogen")
+            for name in ("max_area", "min_intensity", "max_intensity")}
+    specs = gen._specs()
+    assert not retired & {key for spec in specs for key in spec.settings}
+    assert not gone & {spec.slug for spec in specs}
+    assert not retired & {key for item in setting_animations()
+                          for key in item.settings}
+    assets = TOOLS.parent / "spacr" / "resources" / "setting_animations" / "gifs"
+    assert not [slug for slug in sorted(gone)
+                if (assets / f"{slug}.gif").exists()]
+    kept = {spec.slug: spec.settings for spec in specs}
+    assert kept["cell_min_area"] == ("cell_min_size", "object_filters")
+    assert kept["nucleus_min_area"] == ("nucleus_min_size",)
 
 
 def test_the_five_retired_control_families_have_no_specs_or_routes():

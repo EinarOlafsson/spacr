@@ -5708,12 +5708,23 @@ def _report_exchangeability(data, outcome_column, settings, destination):
     A COURTESY, NOT A PRECONDITION -- the same rule the montage pre-flight
     follows. It must never be the reason a run that produced results fails
     to report them, so every step is inside the guard.
+
+    :param data: the merged per-well table.
+    :param outcome_column: one phenotype column name.
+    :param settings: the run's settings.
+    :param destination: the run's results folder. When given, the report and
+        a residual-by-position figure per block are written to its
+        ``regression_qc`` folder, as a parametric run's QC is; the report's
+        ``'qc'`` key holds what was written.
+    :returns: the :func:`spacr.permutation_qc.block_residual_report`, or
+        ``None`` when the check could not run.
     """
     try:
         from .guide_permutation import (_nuisance_design, _residualize,
                                         prepare_long_guide_data)
         from .permutation_qc import (block_residual_report,
-                                     exchangeability_verdict)
+                                     exchangeability_verdict,
+                                     write_permutation_qc)
 
         block = str(settings.get('guide_permutation_block', 'plateID'))
         nuisance = _usable_nuisance_columns(data, settings)
@@ -5734,6 +5745,18 @@ def _report_exchangeability(data, outcome_column, settings, destination):
         report = block_residual_report(
             residuals, outcomes[block], positions)
         verdict = exchangeability_verdict(report)
+
+        if destination:
+            try:
+                report['qc'] = write_permutation_qc(
+                    destination, outcome_column, residuals,
+                    outcomes[block], positions, report, verdict,
+                    removed=[c for c in nuisance if c != block])
+                if report['qc'].get('figure'):
+                    print(f"Permutation QC written to {report['qc']['dir']}")
+            except Exception as error:                   # noqa: BLE001
+                print(f"Permutation QC could not be written: "
+                      f"{type(error).__name__}: {error}")
 
         if verdict['ok']:
             print(f"Exchangeability: nothing found. Durbin-Watson "
@@ -5867,7 +5890,8 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         batch_size=int(settings.get('guide_permutation_batch_size', 500)),
         statistic=str(settings.get('grna_statistic', 'pearson')),
     )
-    _report_exchangeability(data, outcomes, settings, destination)
+    for outcome_column in outcomes:
+        _report_exchangeability(data, outcome_column, settings, destination)
     results = results.copy()
     results['grna'] = results['guide']
     results['feature'] = (

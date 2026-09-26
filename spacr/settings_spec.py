@@ -130,6 +130,36 @@ def _metadata_type_choices():
     return choices
 
 
+#: ``cam_type`` menu when :mod:`spacr.attribution` is not imported yet, in
+#: the order :func:`spacr.attribution.cam_type_choices` gives. Kept here so
+#: building a settings panel does not import torch; a test holds the two
+#: equal.
+_CAM_TYPE_CHOICES = (
+    'gradcam', 'gradcam_pp', 'saliency_image', 'saliency_channel',
+    'torchcam_gradcam', 'torchcam_gradcam_pp', 'ablation_cam',
+    'attention_rollout', 'chefer', 'deeplift', 'deeplift_shap', 'eigencam',
+    'feature_ablation', 'gradient_shap', 'guided_backprop', 'hirescam',
+    'input_x_gradient', 'integrated_gradients', 'layercam', 'occlusion',
+    'saliency', 'scorecam', 'xgradcam',
+)
+
+
+def _cam_type_choices():
+    """Every ``cam_type`` the Activation Maps form offers.
+
+    Read from :func:`spacr.attribution.cam_type_choices` when that module is
+    already loaded, and from :data:`_CAM_TYPE_CHOICES` otherwise, so the
+    panel never pays for importing torch.
+    """
+    module = sys.modules.get("spacr.attribution")
+    if module is not None:
+        try:
+            return list(module.cam_type_choices())
+        except Exception:
+            pass
+    return list(_CAM_TYPE_CHOICES)
+
+
 def _torchvision_model_names():
     """Return model names for the combo WITHOUT importing torchvision. If
     torchvision is already loaded (e.g. after a training run) use its full zoo;
@@ -262,6 +292,7 @@ def convert_settings_dict_for_gui(settings):
                                'statsmodels (CPU)'),
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'model_type': ('combo', torchvision_models, 'resnet50'),
+        'cam_type': ('combo', _cam_type_choices(), 'gradcam'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
         'model_type_ml': ('combo', ['xgboost', 'lightgbm', 'catboost', 'random_forest', 'extra_trees', 'gradient_boosting', 'logistic_regression', 'svm', 'mlp'], 'xgboost'),
         'optimizer_type': ('combo', ['adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta', 'asgd'], 'adamw'),

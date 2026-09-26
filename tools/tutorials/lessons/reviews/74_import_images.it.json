@@ -1,21 +1,33 @@
 {
-  "lesson": "74_import_images", "language": "it",
-  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
-  "review": {"kind": "Editorial translation checked against English and the recorded operation", "native_speaker_signoff": false, "corrections": ["Retain the explicitly prepared-copy limitation, acquisition identity and all operational caveats."]},
-  "title": "Import Images: controllare il piano prima di importare",
-  "description": "Apri Import Images dentro Import, controlla un sottoinsieme reale di immagini prima di scrivere i file e salva un piano riutilizzabile. L’esempio distingue i nomi originali non supportati dalle copie preparate.",
-  "objectives": ["Trovare Import Images dentro Import e distinguerlo dall’importazione di misure e maschere esistenti.", "Controllare l’identità delle immagini e le parti dei nomi non risolte prima di scrivere il progetto.", "Scegliere copie o collegamenti, salvare e ricaricare un piano e verificare l’importazione."],
-  "prerequisite": "Scarica prima l’esempio reale di Mask. Il video usa copie dei campi E01/F001 e L01/F009, ciascuno con quattro canali C. Nelle copie preparate viene omessa solo la parte A subito prima di Z; gli originali non cambiano. È un esempio verificato, non un invito generale a eliminare metadati sconosciuti.",
+  "lesson": "74_import_images",
+  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Import Images: associare le identità delle immagini e creare un progetto",
+  "description": "Analizza nomi e metadati delle immagini, controlla l’associazione proposta tra pozzetto, campo e canale, salva un piano e importa copie in un progetto.",
+  "objectives": [
+    "Analizzare immagini di microscopio e risolvere i dubbi sui nomi.",
+    "Scegliere una destinazione, un nome di piastra e se copiare o collegare.",
+    "Salvare un piano riutilizzabile e importare immagini per Mask."
+  ],
+  "prerequisite": "Scarica prima l’esempio di Mask. Questa guida usa copie dei campi E01/F001 e L01/F009, con quattro canali ciascuno. Le copie preparate omettono l’elemento A ridondante subito prima di Z e conservano l’identità di pozzetto, campo e canale. Conserva gli originali e usa i registri di acquisizione per interpretare elementi non familiari.",
   "scenes": [
-    "Apri Import nella categoria Data di Home, poi scegli Import Images. Questo strumento integrato prepara i file delle immagini grezze. Import Project, Format Converter ed External Masks sono procedure collegate con tutorial dedicati.",
-    "Le nostre otto immagini sono dati reali di microscopia dell’esempio scaricabile di Mask: un campo per ciascuno di due pozzetti, con quattro canali per campo. Lavoriamo su copie separate senza modificare gli originali scaricati.",
-    "Scan rileva una parte del nome relativa all’acquisizione che non riesce a interpretare. Import resta disabilitato e non viene scritto nulla. Non indovinare la corrispondenza dei canali: due canali diversi condividono questo valore di acquisizione, quindi quella risposta ne altererebbe l’identità.",
-    "Per questo esempio verificato, le copie preparate omettono solo la parte ridondante relativa all’acquisizione. Conservano i nomi di pozzetto, campo e canale. Scan mostra ora otto righe, due pozzetti, due numeri di campo e quattro canali. Non significa che i nomi originali siano stati accettati.",
-    "Confronta la proposta con i nomi dei file prima di importare. Read inside each file controlla anche i metadati degli assi interni. Sample limita i file esaminati: verifica che la proposta includa le immagini da importare. Risolvi i dubbi consultando i registri di acquisizione, non tirando a indovinare.",
-    "Scegli una destinazione esterna alla cartella di ingresso e imposta il nome della piastra. Disattiviamo Link instead of copy per creare un progetto indipendente. I collegamenti risparmiano spazio, ma gli originali devono restare accessibili nelle posizioni attuali.",
-    "Questi file non sono tessere di un mosaico. Per acquisizioni a tessere, controlla Tiles: l’unione ricostruisce i campi, mantenere le tessere separate cambia il significato di campo e ignorarle perde quelle immagini. Esamina il rapporto e le giunzioni non verificate prima di misurare.",
-    "Save plan scrive un file JSON con la sorgente e le risposte di mappatura, non un backup delle immagini. Conservalo con le note di acquisizione. Lo stesso piano può essere letto dall’API Python di importazione delle immagini.",
-    "Load plan legge nuovamente la cartella sorgente e riutilizza le risposte salvate. Controlla la nuova proposta prima di importare: un piano salvato non garantisce che un’acquisizione modificata sia corretta. Qui ripristina le stesse otto identità verificate.",
-    "Premi Import e leggi il riepilogo. Questa esecuzione ha scritto otto copie indipendenti senza saltare file; il contenuto coincide con le sorgenti. Seleziona poi il progetto in Mask e controlla l’anteprima dal vivo prima della segmentazione. La sola importazione non genera maschere o misure."
+    "Da Home, apri Data, scegli Import e poi Import Images. Parti dai file di immagini di microscopio che vuoi organizzare in un progetto.",
+    "Per questa guida usa l’esempio di Mask. Seleziona copie di un campo per ciascuno di due pozzetti, con quattro canali per campo. Non modificare il download originale.",
+    "Fai clic su Scan. Se ti chiede che cosa significa un elemento del nome del file, controlla i registri di acquisizione prima di assegnarlo. Prosegui solo quando le identità proposte distinguono campi e canali senza ambiguità.",
+    "Analizza le copie d’esempio preparate. L’elemento di acquisizione ridondante è stato rimosso, mentre restano quelli di pozzetto, campo e canale. Verifica che la proposta elenchi otto immagini, due pozzetti, due numeri di campo e quattro canali.",
+    "Confronta la proposta con i nomi dei file. Attiva Read inside each file quando ti servono i metadati degli assi incorporati. Imposta Sample abbastanza alto da esaminare i file che intendi importare.",
+    "Scegli una destinazione fuori dalla cartella di input e inserisci il nome della piastra. Disattiva Link instead of copy per avere copie indipendenti. I collegamenti risparmiano spazio su disco, ma richiedono che i file originali restino accessibili.",
+    "Per le acquisizioni a mosaico, scegli se unire i riquadri, tenerli separati o saltarli. Esamina l’organizzazione dei campi risultante prima di misurare. Queste immagini d’esempio sono campi separati, quindi non serve unirle.",
+    "Fai clic su Save plan per conservare in JSON l’origine e le scelte di associazione. Tieni il piano insieme alle note di acquisizione e alle immagini originali.",
+    "Fai clic su Load plan per ricaricare l’origine e le risposte salvate. Esamina la nuova proposta prima di importare, soprattutto se i file di origine sono cambiati.",
+    "Fai clic su Import e leggi il riepilogo. Questo esempio produce otto copie di immagini senza file saltati. Apri il progetto risultante in Mask ed esamina Live preview prima di avviare la segmentazione."
   ]
 }

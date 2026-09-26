@@ -458,26 +458,26 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home-Bildschirm und Navigation",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Öffnen Sie ein Modul über Home, finden Sie die zugehörigen Werkzeuge und Beispieldaten und wählen Sie dann eine Pipeline aus.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Ein Startmodul für Bilder, Messwerte oder Sequenzier-Reads wählen.",
+        "Zugehörige Werkzeuge und organismusspezifische Assays finden.",
+        "Ein Beispiel laden, Hilfe finden und eine Pipeline-Übersicht öffnen."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home ist Ihr Ausgangspunkt. Klicken Sie auf eine Kachel, um ein Modul zu öffnen, oder verwenden Sie die Seitenleiste links. Mit Home in der Seitenleiste kehren Sie hierher zurück. Die Registerkarten Core, Data, Tools und Assays helfen Ihnen, die gewünschte Aufgabe zu finden.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "Beginnen Sie bei Mikroskopbildern mit Mask, um Objekte zu umranden, und extrahieren Sie dann mit Measure deren Merkmale und Ausschnitte. Mit Annotate beschriften Sie Beispielobjekte, und Classify lernt aus diesen Labels, um weitere Objekte zu bewerten. Map Barcodes liest Sequenzierdaten. Regression kombiniert die entstandenen Phänotyp-Scores mit den Guide-Zählungen, um Zusammenhänge zu finden.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -498,7 +498,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "In Data kommen Dateien herein und Ergebnisse werden geprüft. Wenn Sie bereits Bilder, Masken oder Messtabellen haben, bringt Import sie in ein Projekt, das die anderen Module lesen können. Vor einem Experiment plant Experiment Design Ihre Platten; danach zeigt QC die aufgezeichneten Qualitätsprüfungen, und Run Compare stellt zwei Läufe nebeneinander.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -518,7 +518,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools enthält die praktischen Editoren und Explorer. In Make Masks korrigieren Sie Masken, und von dort öffnet sich auch die Cellpose Workbench. Align and Stitch fügt überlappende Bildkacheln zu einem Bild zusammen. Sobald Sie Messwerte haben, können Sie sie mit Image UMAP, Gate Editor und Graph Builder erkunden und darstellen. Die Werkzeugleiste jedes Moduls öffnet dessen zugehörige Werkzeuge.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -537,7 +537,7 @@
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Öffnen Sie Assays und wählen Sie Ihren Organismus: Toxoplasma, Plasmodium oder Candida. Wählen Sie dann einen Assay im Menü dieses Organismus. Öffnen Sie zum Beispiel Toxoplasma für die Plaque-Analyse oder für Wirt-Pathogen-Messungen. Folgen Sie dem Tutorial des gewählten Assays, um dessen Bilder, Masken und Messeingaben vorzubereiten.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -553,7 +553,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Öffnen Sie Classify und wählen Sie über Classifier family Ihre Eingabe. Wählen Sie Computer Vision für Objektbilder oder Tabular Machine Learning für gemessene Merkmalsspalten. Die verlinkten Tutorials führen Sie für jede Familie durch Training, Bewertung und Scoring.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -563,7 +563,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "Ist ein Modell trainiert, hilft Ihnen die Werkzeugleiste von Classify, es zu hinterfragen. Classifier Evaluation zeigt seine Leistung auf zurückgehaltenen Daten, Explain CV Model und Activation zeigen, was seine Entscheidungen bestimmt, Training Runs vergleicht Trainingsverläufe, und Feature Explorer ordnet die Merkmale, die Ihre Gruppen trennen. Fahren Sie mit der Maus über ein Symbol, um seinen Namen zu sehen.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -576,7 +576,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "Um ein Modul auszuprobieren, klicken Sie auf Load test data, sofern vorhanden. Warten Sie, bis der Download abgeschlossen ist, und prüfen Sie dann die ausgefüllten Eingaben und Einstellungen. Klicken Sie in Mask auf Live, um ein Bildfeld zu prüfen, bevor Sie Run drücken. Schalten Sie Time für eine Zeitreihe oder 3D für ein Volumenbild ein.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -585,17 +585,17 @@
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "narration": "Geben Sie den Namen eines Moduls, einer Einstellung oder einer Funktion in das Suchfeld neben Help ein. Hier findet die Suche nach Performance die passende Seite in Preferences. Klicken Sie auf ein Ergebnis, um das Ziel zu öffnen. API-Ergebnisse öffnen die Dokumentation der ausgewählten Funktion.",
           "hold_after": 0.7
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "narration": "Wählen Sie in Preferences ein Performance-Profil für Ihren Computer. Laptop verbraucht weniger Ressourcen; die höheren Profile erlauben mehr Caching und Hintergrundarbeit. Beginnen Sie mit einem bescheidenen Profil, wenn der Arbeitsspeicher begrenzt ist. Ihre Analyseeinstellungen bleiben in jedem Modul unter Ihrer Kontrolle.",
           "hold_after": 0.7
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Kehren Sie zu Home zurück und klicken Sie auf Pipeline overviews, um einen Workflow zu wählen. Beginnen Sie mit spaCR screens für einen gepoolten bildbasierten Screen, oder wählen Sie einen Bildanalyse- oder Sequenzierpfad für Ihre Daten. Die nächsten Tutorials zeigen, wie diese Module zusammenhängen, und die Modul-Lektionen führen anschließend durch jede Aufgabe.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -613,6 +613,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1623,22 +1663,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: Labels bearbeiten und Trainingsbilder vorbereiten",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Öffnen Sie Bild-Masken-Paare, prüfen und bearbeiten Sie Objekte, speichern Sie Messwerte und erstellen Sie gepaarte Trainingsausschnitte.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Bilder mit passenden Instanzmasken öffnen und Objekte in der Lupe prüfen.",
+        "Gepaarte Bildfelder messen und eine Datenbank mit Objektmerkmalen speichern.",
+        "Labels mit Undo, Zeichnen, Teilen und Größenfiltern korrigieren.",
+        "Kuratierte Masken speichern und Bild-Masken-Ausschnitte für das Training erstellen."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "Bereiten Sie einen Ordner mit zweidimensionalen Bildern und passenden Instanz-Label-TIFFs in einem Unterordner masks vor. Jede Maske trägt den Dateinamenstamm des Bildes. Arbeiten Sie beim Üben von Bearbeitungen und Neuzuschnitten mit einer Kopie. Das Beispiel verwendet ER-Bilder und Zellmasken aus dem herunterladbaren Mikroskopieprojekt von Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Öffnen Sie von Home aus Make Masks unter Tools. Wählen Sie diesen Editor, um einzelne Bildmasken zu prüfen und zu korrigieren. Öffnen Sie den Ordner mit gepaarten Bildern und Labels, bevor Sie ein Bearbeitungswerkzeug wählen.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1646,7 +1686,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Wählen Sie den Bildordner. Verwenden Sie für dieses Beispiel die ER-Intensitätsbilder und die zugehörigen Zellmasken aus dem Measure-Beispiel. Halten Sie Bild- und Maskenmaße gleich und die Dateinamen gepaart.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1654,17 +1694,17 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "narration": "Der Editor lädt das Bild und die passende Maske aus dem Unterordner masks. Farbige Labels kennzeichnen einzelne Objekte. Prüfen Sie, ob die Umrisse den Grenzen im Bild folgen. Fehlt eine zugehörige Maske, beginnen Sie mit einer leeren Maske und zeichnen Sie die benötigten Objekte.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Öffnen Sie Magnifier settings. Wählen Sie Otsu und Region under the mouse, um schwellenwertbasierte Objekte rund um den Mauszeiger in der Vorschau zu sehen. Wählen Sie einen modellbasierten Modus, wenn der Schwellenwert Ihre Objekte nicht gut trennt.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Schalten Sie Magnifier ein und fahren Sie über ein Objekt, um seine Vorschau zu vergrößern. Bewegen Sie den Zeiger über mehrere Objekte, um die vorgeschlagenen Umrisse zu prüfen. Klicken Sie, um die umrandeten Objekte hinzuzufügen, wenn sie korrekt aussehen, oder schalten Sie Magnifier aus, um weiter zu bearbeiten.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -1675,7 +1715,7 @@
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Klicken Sie auf Features, um Bild-Masken-Paare zu messen. Fügen Sie für jedes Bildfeld eine Zeile hinzu und wählen Sie die Intensitätsbilder und die zugehörigen Objektmasken. Prüfen Sie die manuellen Zuordnungen, wenn der automatische Dateinamenabgleich Dateien unzugeordnet lässt.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1689,7 +1729,7 @@
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "Wählen Sie in jeder Zeile das ER-Intensitätsbild unter Channel 1 und das passende Label-Bild unter Cell mask. Wiederholen Sie dies für das zweite Bildfeld. Verwenden Sie zur Fluoreszenzmessung die ursprünglichen Intensitätsbilder.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1703,7 +1743,7 @@
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "Prüfen Sie beide Zeilen und wählen Sie dann die Messeinstellungen. Dieses Beispiel verwendet einen Worker, eine minimale Zellgröße von einem Pixel und keine gespeicherten PNG-Ausschnitte. Erhöhen Sie den Größengrenzwert, um kleine Objekte auszuschließen, wenn das zu Ihrem Experiment passt. Klicken Sie auf Measure.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1717,7 +1757,7 @@
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "Öffnen Sie nach Abschluss der Messung den Ausgabeordner. Der Ordner measurements enthält measurements.db mit den Objektmerkmalen beider Bildfelder. Bewahren Sie die Datenbank zusammen mit ihren Quellbildern, Masken und Einstellungen auf und schließen Sie dann Features, um zur Bearbeitung zurückzukehren.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1731,7 +1771,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "Wählen Sie das Werkzeug, das zur Korrektur passt. Brush fügt Pixel hinzu, Erase entfernt Pixel und Erase object entfernt ein ganzes Label. Draw fügt ein umrandetes Objekt hinzu; Divide teilt eines. Mit Zoom prüfen Sie Grenzen, bevor Sie etwas ändern.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1742,42 +1782,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "narration": "Wählen Sie Erase object und klicken Sie in das Objekt, das Sie entfernen möchten. Prüfen Sie den aktualisierten Umriss und die Objektanzahl. Verwenden Sie dies für ein unerwünschtes Label, etwa Zelltrümmer oder ein Objekt außerhalb Ihrer Analysekriterien.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "narration": "Klicken Sie auf Undo, um das Löschen rückgängig zu machen. Redo wendet es erneut an. Vergleichen Sie mit diesen Verlaufsfunktionen eine Bearbeitung mit der vorherigen Maske und kehren Sie dann zu der Version zurück, die Sie behalten möchten.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "narration": "Wählen Sie Draw und zeichnen Sie eine geschlossene Grenze um ein fehlendes Objekt. Der Editor füllt es mit einem neuen Label. In diesem Übungsschritt liegt der Umriss im Hintergrund; machen Sie ihn daher vor dem Speichern rückgängig. Zeichnen Sie für Trainingsdaten die tatsächliche Objektgrenze nach.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "narration": "Verwenden Sie Divide, wenn sich zwei berührende Objekte ein Label teilen. Ziehen Sie einen Schnitt quer durch die gesamte verbundene Region und prüfen Sie die getrennten Labels. Machen Sie die Teilung rückgängig, wenn sie ein einzelnes Objekt durchschneidet oder eine falsche Grenze hinterlässt.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "narration": "Passen Sie Display percentiles an, damit schwache Strukturen leichter zu prüfen sind. Diese Regler ändern nur die Bildanzeige; die Rohintensitäten und Labels bleiben erhalten. Stellen Sie beim Vergleichen von Bildfeldern wieder eine einheitliche Anzeige ein.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "Legen Sie die minimale und maximale Objektfläche fest und drücken Sie Filter, um Labels außerhalb dieser Grenzen zu entfernen. Wählen Sie Grenzen, die zu Ihren Objekten passen, und prüfen Sie, was entfernt wurde. Der Filter verändert die Maske; verwenden Sie Undo, wenn der Grenzwert nützliche Objekte entfernt.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "Klicken Sie nach dem Prüfen der Änderungen auf Save mask. Setzen Sie die Größengrenzen bei Bedarf auf null zurück, um sie vor dem Wechsel zu einem anderen Bildfeld zu deaktivieren. Bewahren Sie die Quellbilder auf und halten Sie das gespeicherte Kurationsprotokoll bei den bearbeiteten Masken.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "Die Kopfzeile enthält die übrigen Maskenwerkzeuge. Wenn Sie Gewichte auswählen, findet Model Zoo sie, und Model Compare stellt zwei Maskensätze nebeneinander. Wenn weitere Beispiele korrigiert werden müssen, führen Curate und Open in napari Sie zurück zur Bearbeitung.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1787,7 +1827,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "Die Kopfzeile öffnet auch Model Compare, Model Zoo, Curate und Open in napari. Verwenden Sie Model Compare, um Masken nebeneinander zu prüfen, Model Zoo, um Gewichte zu wählen, und die Kurationswerkzeuge, um weitere Beispiele zu prüfen oder zu bearbeiten.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1799,12 +1839,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "narration": "Wählen Sie Recrop und ziehen Sie einen Rahmen um die Objekte, die Sie in einem kleineren Trainingsfeld haben möchten. Dabei werden ein neues Bild und die passende Maske geschrieben. Vom Rand angeschnittene Objekte werden verworfen; lassen Sie daher Platz um vollständige Objekte und prüfen Sie den Ausschnitt.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Klicken Sie auf Next, um den neuen Ausschnitt zu öffnen. Das ursprüngliche Bild und die Maske bleiben zur Wiederherstellung in recropped_originals erhalten. Prüfen Sie den Ausschnitt und seine Labels, bevor Sie ihn Ihrem Trainingsdatensatz hinzufügen.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1812,32 +1852,32 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "Um Objekte im aktuellen Bildfeld zu erkennen, wählen Sie das Cellpose-Modell und prüfen Sie seine Einstellungen. Dieses Beispiel verwendet cpsam, eingeschaltete Normalisierung, einen Zellwahrscheinlichkeits-Schwellenwert von 0 und einen Flow-Schwellenwert von 0,4. Prüfen Sie, ob die Erkennungen bestehende Labels ersetzen oder ergänzen.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Klicken Sie auf Object detection und vergleichen Sie die entstandenen Umrisse mit dem Bild. Hier wählt das Modell das angeschnittene Objekt oben links statt der mittleren Zelle. Machen Sie diese Ersetzung rückgängig und passen Sie die Modelleinstellungen an, bevor Sie es erneut versuchen.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "narration": "Öffnen Sie Cell probability, um die Vordergrund-Score-Karte zu prüfen. So sehen Sie, welche Regionen das Modell stützt. Ändern Sie bei Bedarf den Vordergrund-Schwellenwert und führen Sie die Erkennung erneut aus, um ein neues Ergebnis zu erhalten.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "narration": "Öffnen Sie Flows, um die Richtungsansicht zu prüfen. Der Flow-Konsistenz-Schwellenwert bestimmt, welche erkannten Objekte erhalten bleiben: Niedrigere Werte sind strenger, und 0 schaltet diese Prüfung ab. Vergleichen Sie nach jeder Einstellungsänderung die endgültigen Masken.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo stellt die Labels von vor der Erkennung wieder her. Behalten Sie die Maske, die dem Bild am besten folgt, und speichern Sie sie. Arbeiten Sie die übrigen Bildfelder durch und prüfen Sie jedes Ergebnis, bevor Sie es ins Training aufnehmen.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "Halten Sie kuratierte Bilder und Masken mit demselben Namensstamm zusammen. Verwenden Sie Train Cellpose, um aus diesen Paaren zu lernen, oder kehren Sie zu Features oder Measure zurück, um Messwerte zu extrahieren. Die verwandten Tutorials zeigen jeden nächsten Schritt.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1848,6 +1888,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -2062,20 +2142,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "Verknüpfen Sie Objekte über eine Zeitreihe, prüfen Sie ihre Tracks und bereiten Sie die verfolgten Bilder für die Messung vor.",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Die Beispielbilder und -masken in Track preview laden.",
+        "Die Überlappung anpassen und Objektidentitäten über Frames hinweg prüfen.",
+        "Einen Mask-Lauf für Zeitreihen einrichten und seine Tracking-Ausgaben finden."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "Laden Sie SYNTHETIC_timelapse_preview.zip herunter und entpacken Sie es. Das Lehrbeispiel enthält acht Zellbild-Frames und passende Label-Bilder. Für einen vollständigen Mask-Lauf mit eigenen Daten bereiten Sie zeitlich geordnete Mikroskopiebilder vor und notieren das Aufnahmeintervall.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "Öffnen Sie von Home aus Mask und klicken Sie oben rechts auf das Timelapse-Symbol, um das Tracking einzuschalten. Mit Timelapse verknüpfen Sie Objekte über aufeinanderfolgende Bilder. Zuerst probieren wir das verlinkte Beispiel in Track preview aus und sehen uns dann die Einstellungen für Ihre eigene Bildsequenz an.",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -2090,7 +2170,7 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "Laden Sie das Beispielarchiv unten herunter, entpacken Sie es und klicken Sie dann auf Track preview rechts neben der Überschrift Actions. Das Archiv enthält eine Bildsequenz und eine passende Maskensequenz mit acht Frames. Halten Sie beide Ordner zusammen, damit Sie die zusammengehörigen Bilder und Labels auswählen können.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -2101,17 +2181,17 @@
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "narration": "Wählen Sie image_sequences und dann field_A01 als Bildordner. Wählen Sie Kanal 0: Jedes Beispielbild enthält einen einzigen Zellintensitätskanal. Setzen Sie Frames previewed auf 8 und Fields auf 1.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "narration": "Klicken Sie auf Masks und wählen Sie label_sequences und dann field_A01. Jedes Label kennzeichnet ein Objekt im entsprechenden Bild. Lassen Sie Keep only full-length tracks zunächst ausgeschaltet, damit Sie Tracks prüfen können, die innerhalb der Sequenz beginnen oder enden.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "Setzen Sie den Überlappungs-Schwellenwert auf 0,1 und klicken Sie auf Run preview. Dieser Schwellenwert legt fest, wie stark sich benachbarte Masken überlappen müssen, um verknüpft zu werden. Prüfen Sie die farbigen Objektidentitäten und die Übersicht der Track-Längen. Das Beispiel ergibt sechzehn Tracks über alle acht Frames.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2122,7 +2202,7 @@
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "Passen Sie den Überlappungs-Schwellenwert an, wenn Objekte in kurze Tracks zerfallen oder mit falschen Nachbarn verknüpft werden. Ein höherer Schwellenwert verlangt mehr Überlappung. Warten Sie nach der Änderung, bis die Vorschau fertig ist, und klicken Sie auf Re-link, um den endgültigen Wert zu prüfen. Blättern Sie durch mehrere Frames, bevor Sie das Ergebnis übernehmen.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2133,7 +2213,7 @@
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "Folgen Sie mit dem Frame-Schieberegler demselben Objekt durch die Sequenz. Play ändert, wie schnell Sie die Frames sehen. Notieren Sie das tatsächliche Aufnahmeintervall separat für spätere Geschwindigkeitsmessungen.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2149,7 +2229,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "Für einen vollständigen Lauf mit Ihren eigenen Bildern legen Sie in Mask Source und die Intensitätskanäle fest. Diese Aufnahme importiert die Einstellungen einer kleinen synthetischen Sequenz mit acht Frames. Halten Sie die Zeitpunkte jedes Bildfelds in der richtigen Reihenfolge. Frame-Grenzen bestehen aus einem Start und einem ausgeschlossenen Ende: 0 bis 8 wählt die ersten acht Frames.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2160,7 +2240,7 @@
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "Wählen Sie das zu verfolgende Objekt und den Tracking-Modus. Der Überlappungsmodus iou verknüpft Objekte anhand ihrer Masken in benachbarten Frames. Prüfen Sie zuerst eine kurze Sequenz und wählen Sie einen Modus, der dazu passt, wie weit sich Ihre Objekte zwischen Frames bewegen.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2171,7 +2251,7 @@
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "Schalten Sie Keep original images ein, um die Eingabebilder bei der Bereinigung der Pipeline zu behalten. Legen Sie Segmentierungsmodell und Kanäle für Ihre Daten fest und prüfen Sie die Vorschau, bevor Sie die gesamte Sequenz verarbeiten.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2182,7 +2262,7 @@
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "Schalten Sie Plot ein, um die erzeugten Abbildungen zu prüfen, und klicken Sie dann auf Run. Verfolgen Sie den Fortschritt in der Konsole und warten Sie auf den Abschluss. Beginnen Sie mit einer kurzen Sequenz, damit Sie Masken und Track-Identitäten prüfen können, bevor Sie ein größeres Experiment verarbeiten.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2193,7 +2273,7 @@
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "Prüfen Sie die Intensitäts- und Label-Ebenen in den Ausgabeabbildungen. Der Lauf speichert die verfolgten Arrays in merged und die Track-Tabellen in tracks im Projektordner. Fahren Sie mit Measure und dann Motility fort, um aus diesen Tracks Objektmerkmale und Bewegung zu berechnen.",
           "hold_after": 0.7,
           "focus": [
             366,
@@ -2206,6 +2286,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3184,21 +3304,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay: Außen- und Gesamtfärbung auswerten",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "Ordnen Sie zwei Färbekanäle zu, wählen Sie die Färbe-Baseline, führen Sie die Analyse aus und prüfen Sie Invasionszuordnungen und Schwellenwertempfindlichkeit.",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "Die Messdatenbank wählen und Außen- und Gesamtfärbung zuordnen.",
+        "Baseline-Wells und Schwellenwerteinstellungen festlegen und dann die Analyse ausführen.",
+        "Verteilungen, Nenner pro Well und gespeicherte Ergebnistabellen prüfen."
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "Entpacken Sie das verlinkte synthetische Invasion-Assay-Beispiel und verwenden Sie dessen Einstellungsreferenz. Die Datenbank enthält 1.800 synthetische Parasitenmessungen; Bedingungsnamen und Ergebnisse dienen nur der Veranschaulichung. Verwenden Sie für Ihren eigenen Assay ein validiertes Zweifarben-Färbedesign mit Außenfärbung vor der Permeabilisierung und Gesamtfärbung danach, und prüfen Sie repräsentative Bilder.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Öffnen Sie von Home aus Toxoplasma und wählen Sie dann Invasion Assay. Beginnen Sie mit einer Messdatenbank, die Parasitenintensitäten für die Außen- und die Gesamtfärbung enthält. Üben Sie mit der verlinkten synthetischen Probe Kanalzuordnung, Schwellenwertwahl und Ergebnisprüfung.",
           "focus": [
             346,
             50,
@@ -3212,7 +3332,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "Entpacken Sie die Probe und setzen Sie Source auf deren Ordner invasion, der measurements/measurements.db enthält. Geben Sie die beiliegende Einstellungsreferenz ein und ersetzen Sie deren Platzhalter für Source. Die Probe enthält Baseline-Wells und zwei Assay-Bedingungen.",
           "focus": [
             346,
             170,
@@ -3223,7 +3343,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Setzen Sie Outside channel auf 1 und Total channel auf 0. Die Außenfärbung wird vor der Permeabilisierung aufgetragen, die Gesamtfärbung danach. Außen-positive Parasiten werden als anhaftend eingestuft, solche auf oder unter dem Außenschwellenwert als eingedrungen. Prüfen Sie bei eigenen Messungen die Reihenfolge Ihrer Aufnahmekanäle.",
           "focus": [
             346,
             170,
@@ -3234,7 +3354,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "Wählen Sie unter Intensity statistic mean, passend zu den Spalten der Beispieldatenbank. Wählen Sie für Ihren eigenen Assay eine verfügbare Statistik, die zur Färbung passt, und prüfen Sie repräsentative Objekte. Belassen Sie Minimum total intensity für diese Probe bei 100.",
           "focus": [
             346,
             170,
@@ -3245,7 +3365,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "Setzen Sie Stain baseline wells mit c1 auf Spalte 1. Diese Messungen ohne Färbung legen den Grenzwert fest und werden aus den Nennern des Assays ausgeschlossen. Ordnen Sie unter Pathogen plate metadata vehicle der Spalte 2 und inhibitor der Spalte 3 zu.",
           "focus": [
             346,
             170,
@@ -3256,7 +3376,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Setzen Sie Control quantile auf 0,99 und lassen Sie den festen Outside threshold leer. Dann bestimmen die Baseline-Messungen den Grenzwert, in diesem Beispiel etwa 22,8. Prüfen Sie den angewendeten Schwellenwert in der Ausgabe, bevor Sie die Einstufungen interpretieren.",
           "focus": [
             346,
             170,
@@ -3267,7 +3387,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Setzen Sie Threshold sensitivity auf 0,25. Damit werden auch Grenzwerte 25 Prozent unter und über dem gewählten Schwellenwert ausgewertet. Vergleichen Sie den resultierenden Bereich der Invasionseffizienz, um zu sehen, wie stark Ihr Ergebnis von der Schwellenwertwahl abhängt.",
           "focus": [
             346,
             170,
@@ -3278,7 +3398,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "Setzen Sie Extracellular class für die Probe auf classify. Für Objekte ohne Wirtszell-Verknüpfung verwendet classify die Färbung, attached stuft sie als anhaftend ein, und exclude entfernt sie aus der bewerteten Population. Wählen Sie diese Einstellung mit Blick auf die Qualität Ihrer Wirtszellzuordnungen.",
           "focus": [
             346,
             170,
@@ -3289,7 +3409,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Lassen Sie Save aktiviert und klicken Sie auf Run. Öffnen Sie nach Abschluss der Verarbeitung die Schwellenwertabbildung. Sie zeigt die Verteilungen pro Well und den angewendeten Grenzwert. Vergleichen Sie bei einem Experiment diese Verteilungen mit repräsentativen gefärbten Bildern und untersuchen Sie schwache Außenfärbung.",
           "focus": [
             1685,
             260,
@@ -3300,7 +3420,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "Wenn eine Legende über die Abbildung hinausragt, öffnen Sie Figure settings. Setzen Sie im Tab axes Legend position auf best und bestätigen Sie. Prüfen Sie, dass die Beschriftungen sowohl in der Bildschirmansicht als auch in der exportierten Abbildung sichtbar bleiben.",
           "focus": [
             1420,
             330,
@@ -3314,7 +3434,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "Öffnen Sie die Abbildung pro Well. Jeder Balken zeigt die Anteile anhaftender und eingedrungener Parasiten, darüber die Zahl der bewerteten Parasiten. Baseline-Wells sind ausgeschlossen. Lesen Sie beim Vergleich von Wells die Anzahlen zusammen mit den Anteilen.",
           "focus": [
             1685,
             260,
@@ -3325,7 +3445,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "Öffnen Sie die Zusammenfassung nach Bedingung. Vergleichen Sie den gepoolten Invasionsanteil mit dem Mittelwert über die Wells, da beide unterschiedlich gewichten. Prüfen Sie die Streuung der Ergebnisse pro Well, bevor Sie Bedingungen vergleichen.",
           "focus": [
             1685,
             260,
@@ -3336,7 +3456,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "Alles landet in results/analyze_invasion innerhalb von Source. parasite_calls.csv enthält die Einstufung jedes Parasiten, field_thresholds.csv die zugrunde liegenden Grenzwerte, well_invasion.csv die Anteile pro Well und condition_summary.csv den gepoolten Vergleich. Bewahren Sie Abbildungen und Einstellungen dazu auf und vergleichen Sie Bedingungen über unabhängige Replikate hinweg.",
           "focus": [
             1510,
             1200,
@@ -3356,6 +3476,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3363,21 +3523,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay: Parasiten pro Vakuole zählen",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "Laden Sie Parasitenmessungen, wählen Sie die Vakuolen-Identität, führen Sie die Analyse aus und prüfen Sie Zählverteilungen und Exporte.",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "Eine Messdatenbank und ihre Vakuolen-Kennung wählen.",
+        "Wirtszuordnungs- und Größenfilter festlegen und dann die Analyse ausführen.",
+        "Verteilungen pro Well lesen und die gespeicherten Ergebnistabellen finden."
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "Entpacken Sie das verlinkte synthetische Replication-Assay-Beispiel. Es enthält eine Messdatenbank und eine Einstellungsreferenz mit 1.992 Parasitenzeilen in 480 Vakuolen über zwölf Wells. Bedingungsnamen und Messwerte sind Lehrdaten. Verwenden Sie für Ihren eigenen Assay gemessene Parasiten mit geprüften Vakuolenzuordnungen und unabhängige experimentelle Replikate.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Öffnen Sie von Home aus Toxoplasma und wählen Sie dann Replication Assay. Beginnen Sie mit einer Messdatenbank, die Parasitenzeilen und deren Vakuolenzuordnungen enthält. Mit dem verlinkten synthetischen Beispiel üben Sie die Einstellungen und lesen die entstehenden Zählverteilungen.",
           "focus": [
             346,
             50,
@@ -3391,7 +3551,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "Entpacken Sie die Probe und setzen Sie Source auf deren Ordner replication. Die Datenbank liegt in measurements. Geben Sie die beiliegende Einstellungsreferenz ein und ersetzen Sie den Platzhalter für Source durch Ihren entpackten Ordner. Lassen Sie Save aktiviert, damit die Ergebnisse geschrieben werden.",
           "focus": [
             346,
             170,
@@ -3402,7 +3562,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Setzen Sie Vacuole key auf vacuole_id. Damit werden Parasiten nach der Vakuole gruppiert, zu der sie gehören. Die Probe enthält zwei Vakuolen pro Wirtszellgruppe; verwenden Sie daher die Vakuolen-Kennung, um diese Zählungen getrennt zu halten.",
           "focus": [
             346,
             170,
@@ -3413,7 +3573,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Aktivieren Sie Require host cell, um nur Parasiten einzuschließen, die mit einer Wirtszelle verknüpft sind. Prüfen Sie bei eigenen Daten die nicht zugeordneten Objekte. Setzen Sie für diese Probe Minimum parasite area auf 200 und Maximum parasite area auf 800.",
           "focus": [
             346,
             170,
@@ -3424,7 +3584,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Setzen Sie Maximum parasites per vacuole auf 16. Das legt die größte benannte Kategorie für Zweierpotenzen fest. Größere Zweierpotenzen kommen in eine Überlaufkategorie, während Zählungen wie 3 in der eigenen Kategorie für Nicht-Zweierpotenzen bleiben.",
           "focus": [
             346,
             170,
@@ -3435,7 +3595,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "Geben Sie vehicle und inhibitor als die beiden Pathogen types ein und ordnen Sie sie in Pathogen plate metadata Spalte 1 und Spalte 2 zu. Jede Gruppe enthält sechs Übungs-Wells. Geben Sie für Ihr Experiment die Bedingungsnamen und Well-Zuordnungen aus Ihrem Plattendesign ein.",
           "focus": [
             346,
             170,
@@ -3446,7 +3606,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Prüfen Sie Source, Vacuole key, die Filter und Save und klicken Sie dann auf Run. Verfolgen Sie die Konsole, bis die Verarbeitung abgeschlossen ist. Der Bereich Figures zeigt die Verteilungen pro Well und pro Bedingung.",
           "focus": [
             1510,
             170,
@@ -3457,7 +3617,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "Öffnen Sie die Abbildung pro Well. Jeder gestapelte Balken zeigt den Anteil der Vakuolen in jeder Kategorie der Parasitenzahl. Lesen Sie die Farben anhand der Legende. In dieser Probe enthält jedes Well 40 Vakuolen, und 5 Prozent fallen in die Kategorie der Nicht-Zweierpotenzen.",
           "focus": [
             1510,
             170,
@@ -3468,7 +3628,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "Öffnen Sie Figure settings, um die Legende anzupassen. Wählen Sie im Tab axes eine Legend position innerhalb der Abbildung, wenn die Beschriftungen darüber hinausragen. Das ändert nur die Darstellung; die berechneten Zählungen bleiben erhalten.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3479,7 +3639,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "Öffnen Sie die Abbildung nach Bedingung, um die gepoolten Zählverteilungen zu vergleichen. Prüfen Sie die Ergebnisse pro Well zusammen mit dieser Zusammenfassung. Verwenden Sie bei der Analyse eines Experiments unabhängige biologische Replikate und eine geeignete experimentelle Einheit für statistische Vergleiche.",
           "focus": [
             1510,
             170,
@@ -3490,7 +3650,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "Lesen Sie etwaige Exportwarnungen in der Konsole. Prüfen Sie neben der Bildschirmansicht auch die gespeicherten Abbildungen, und wählen Sie Farben, die vor dem Exporthintergrund lesbar bleiben.",
           "focus": [
             1510,
             1190,
@@ -3501,7 +3661,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Die Ergebnisse in results/analyze_replication innerhalb von Source bauen aufeinander auf. vacuole_counts.csv zählt jede Vakuole, well_distribution.csv macht daraus die Verteilung jedes Wells, und die Zusammenfassungen und Abbildungen nach Bedingung fassen die Wells zusammen. Bewahren Sie sie mit den Einstellungen und der Quelldatenbank auf, damit Sie jede Zahl zurückverfolgen können.",
           "focus": [
             346,
             170,
@@ -3521,6 +3681,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

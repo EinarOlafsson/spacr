@@ -431,3 +431,115 @@ def test_the_bar_stays_out_of_the_way_without_suggestions(
     screen = _open(qtbot, src)
     assert not screen._judge_bar.isVisibleTo(screen)
     _stop(screen)
+
+
+# ---------------------------------------------------------------------------
+# The maintainer, 2026-09-25: "a crop the user REJECTED is not suggested again
+# in later Suggest rounds (it still trains as a negative example)."
+# ---------------------------------------------------------------------------
+
+def _scored_plate(tmp_path):
+    """Sixty crops, forty labelled 1/2 by a latent signal, twenty open."""
+    from spacr.suggest import ensure_verdict_column
+
+    db = tmp_path / "measurements" / "measurements.db"
+    db.parent.mkdir(parents=True)
+    rng = np.random.default_rng(0)
+    rows, feats = [], []
+    i = 0
+    for plate in ("p1", "p2"):
+        for row_id in ("r1", "r2"):
+            for column in ("c1", "c2", "c3"):
+                for _ in range(5):
+                    latent = 1 if i % 2 == 0 else 2
+                    path = f"/crops/cell_{i:04d}.png"
+                    rows.append((path, plate, row_id, column, "f1", None))
+                    feats.append({"png_path": path,
+                                  "signal": latent + rng.normal(0, 0.25),
+                                  "noise": rng.normal(0, 1.0)})
+                    i += 1
+    with sqlite3.connect(db) as conn:
+        conn.execute('CREATE TABLE png_list (png_path TEXT, plateID TEXT, '
+                     'rowID TEXT, columnID TEXT, fieldID TEXT, '
+                     'annotate INTEGER)')
+        conn.executemany('INSERT INTO png_list VALUES (?,?,?,?,?,?)', rows)
+        conn.executemany('UPDATE png_list SET annotate=? WHERE png_path=?',
+                         [(1 if k % 2 == 0 else 2, rows[k][0])
+                          for k in range(40)])
+    ensure_verdict_column(str(db), "annotate")
+    open_paths = [rows[k][0] for k in range(40, 60)]
+    rejected = {path: (1 if k % 2 == 0 else 2)
+                for k, path in enumerate(open_paths[:6])}
+    with sqlite3.connect(db) as conn:
+        conn.executemany(
+            'UPDATE png_list SET annotate_verdict=? WHERE png_path=?',
+            [(-cls, path) for path, cls in rejected.items()])
+    features = pd.DataFrame(feats).set_index("png_path")
+    return db, open_paths, rejected, features
+
+
+def test_a_rejected_crop_is_not_suggested_again_and_still_trains(
+        tmp_path, monkeypatch):
+    """A whole Suggest round, with the real fit and the real database."""
+    import spacr.active_learning as al
+    from spacr.qt.screens import annotate as mod
+    from spacr.suggest import suggest_from_scores
+
+    db, open_paths, rejected, features = _scored_plate(tmp_path)
+    real_round = al.retrain_round
+    handed = {}
+
+    def spy(db_path, column, **options):
+        handed.update(options.get("rejections") or {})
+        return real_round(db_path, column, **options)
+
+    monkeypatch.setattr(al, "retrain_round", spy)
+    emitted = []
+    worker = mod._SuggestWorker(
+        str(db), "annotate", {"features": features, "seed": 0,
+                              "save_model": False, "write_card": False})
+    worker.done.connect(emitted.append)
+    worker.failed.connect(lambda message: pytest.fail(message))
+    worker.run()
+
+    assert handed == rejected, "the rejections still train the round"
+    proposal, written, sent = emitted[0]
+    assert sent == len(rejected)
+    suggested = set(proposal.frame["png_path"])
+    assert suggested and not suggested & set(rejected), (
+        "a rejected crop was suggested again")
+    assert written == len(open_paths) - len(rejected)
+    with sqlite3.connect(db) as conn:
+        stored = dict(conn.execute(
+            'SELECT png_path, annotate FROM png_list WHERE png_path IN '
+            f'({",".join("?" * len(open_paths))})', open_paths).fetchall())
+        verdicts = dict(conn.execute(
+            'SELECT png_path, annotate_verdict FROM png_list '
+            'WHERE annotate_verdict IS NOT NULL').fetchall())
+    for path in rejected:
+        assert stored[path] is None, f"{path} was written a suggestion"
+    for path in set(open_paths) - set(rejected):
+        assert stored[path] >= SUGGESTION_OFFSET
+    assert verdicts == {path: -cls for path, cls in rejected.items()}, (
+        "the rejection itself is kept")
+
+    # It is the rule that withholds them: the scores are there.
+    everything = suggest_from_scores(str(db), "annotate",
+                                     withhold_rejected=False)
+    assert set(rejected) <= set(everything.frame["png_path"])
+
+
+def test_a_round_with_only_rejected_crops_left_says_why(tmp_path):
+    import spacr.active_learning as al
+    from spacr.suggest import suggest_from_scores
+
+    db, open_paths, rejected, features = _scored_plate(tmp_path)
+    al.retrain_round(str(db), "annotate", features=features, seed=0,
+                     save_model=False, write_card=False, rejections=rejected)
+    with sqlite3.connect(db) as conn:
+        conn.executemany(
+            'UPDATE png_list SET annotate=1 WHERE png_path=?',
+            [(path,) for path in open_paths if path not in rejected])
+    proposal = suggest_from_scores(str(db), "annotate")
+    assert proposal.frame.empty
+    assert "rejected" in proposal.note
