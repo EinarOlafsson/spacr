@@ -4433,6 +4433,25 @@ class AppScreen(QWidget):
         self._gpu_progress.setVisible(
             _is_alpha_visible("widgets", self._gpu_progress.objectName()))
 
+    def _show_watch_progress(self, chunk: str) -> None:
+        """Show how many fields a folder watch has analysed, awaits and lost.
+
+        :param chunk: worker output; text without a folder-watch count line
+            leaves the label unchanged.
+        """
+        from ..bridge import _watch_folder_progress
+        from ..i18n import tr
+
+        report = _watch_folder_progress(chunk)
+        if report is None:
+            return
+        self._watch_progress.setText(tr(
+            "Watching: {done} analysed, {waiting} waiting, {failed} failed"
+        ).format(**report))
+        from ..preferences import _is_alpha_visible
+        self._watch_progress.setVisible(
+            _is_alpha_visible("widgets", self._watch_progress.objectName()))
+
     def _lay_out_setting_row(self, section, label, widget) -> None:
         """Put one setting on ``section``'s form: its label, then its field.
 
@@ -4774,9 +4793,12 @@ class AppScreen(QWidget):
         screens load the checkpoint with spaCR's own Cellpose 4, in spaCR's
         own process, and a Cellpose 3 name would fail there. The same holds
         for ``cellpose_dino`` (item 525): a Cellpose-DINO checkpoint runs in
-        its own backend, which Mask generation's model fields reach.
+        its own backend, which Mask generation's model fields reach. And for
+        StarDist's, InstanSeg's and Omnipose's models (items 551-553).
         """
-        return (("cellpose", "cellpose3", "cellpose_dino")
+        from ... import model_zoo
+
+        return (model_zoo._mask_model_kinds()
                 if str(key).endswith("_model_name") else ("cellpose",))
 
     def _choose_a_model_for(self, field, key: str = "") -> None:
@@ -7510,6 +7532,10 @@ class AppScreen(QWidget):
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
         buttons.addWidget(self._btn_import)
+        buttons.addWidget(self._build_analysis_lock_button())
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._btn_analysis_lock)
 
         self._btn_remote = QPushButton("Submit remote…")
         self._btn_remote.setObjectName("PrimaryButton")
@@ -7589,6 +7615,10 @@ class AppScreen(QWidget):
         self._gpu_progress.setObjectName("MaskGpuProgress")
         self._gpu_progress.setVisible(False)
         row.addWidget(self._gpu_progress)
+        self._watch_progress = QLabel()
+        self._watch_progress.setObjectName("WatchFolderProgress")
+        self._watch_progress.setVisible(False)
+        row.addWidget(self._watch_progress)
 
         from ..widgets import AiToggleLabel
 
@@ -8354,6 +8384,8 @@ class AppScreen(QWidget):
         self._progress.setVisible(True)
         self._gpu_progress.clear()
         self._gpu_progress.setVisible(False)
+        self._watch_progress.clear()
+        self._watch_progress.setVisible(False)
 
         import time as _time
         self._run_started_at = _time.time()
@@ -8381,6 +8413,7 @@ class AppScreen(QWidget):
         self._worker = worker
         worker.line_ready.connect(self._console.append_stdout)
         worker.line_ready.connect(self._show_mask_gpu_progress)
+        worker.line_ready.connect(self._show_watch_progress)
         worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
         worker.result_ready.connect(self._on_pipeline_result)
@@ -11015,6 +11048,128 @@ class AppScreen(QWidget):
                 "\nStopped waiting. The step would not interrupt -- it is "
                 "still finishing in the background and may keep writing for "
                 "a while. The window is yours again.\n")
+
+    def _build_analysis_lock_button(self) -> QPushButton:
+        """The Lock analysis button: preregister these settings before results.
+
+        Opens :meth:`_analysis_lock_dialog`. An alpha feature, registered as
+        ``AnalysisLockButton`` in :data:`spacr.settings.ALPHA_FEATURES`;
+        the caller applies the gate once the button is in its row.
+
+        :returns: the button.
+        """
+        button = QPushButton(tr("Lock analysis…"))
+        button.setObjectName("AnalysisLockButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Preregister the analysis: freeze these settings, your hypotheses "
+            "and thresholds, and the model and gate files they name, with a "
+            "hash and a timestamp, before the results are seen. Every later "
+            "run on the same source is checked against the lock, and a "
+            "change is flagged in its manifest, the report and the methods "
+            "text, as post-hoc once the blinding key has been opened. "
+            "Default no lock."))
+        button.clicked.connect(self._on_analysis_lock)
+        self._btn_analysis_lock = button
+        return button
+
+    def _on_analysis_lock(self) -> None:
+        """Show the analysis lock dialog for the settings on the form."""
+        dialog = self._analysis_lock_dialog()
+        if dialog is not None:
+            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+            dialog.open()
+
+    def _analysis_lock_dialog(self):
+        """Build the dialog that shows the lock on these settings and makes one.
+
+        It states how the settings on the form stand against the newest lock
+        on this module and source (:func:`spacr.run_journal.check_analysis_lock`),
+        takes the hypotheses, the thresholds and gates, and a note, and its
+        Lock button freezes them with the settings through
+        :meth:`_lock_analysis_now`.
+
+        :returns: the dialog, not yet shown, or ``None`` when the settings
+            on the form cannot be read.
+        """
+        from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QFormLayout,
+                                       QLineEdit, QPlainTextEdit)
+
+        from ...run_journal import check_analysis_lock
+
+        try:
+            settings = dict(self._settings_model.collect())
+        except Exception as exc:
+            QMessageBox.warning(self, tr("Bad settings"), str(exc))
+            return None
+        dialog = QDialog(self)
+        dialog.setObjectName("AnalysisLockDialog")
+        dialog.setWindowTitle(tr("Lock analysis"))
+        layout = QVBoxLayout(dialog)
+        status = QLabel(dialog)
+        status.setWordWrap(True)
+        status.setProperty("i18nSkipText", True)
+        result = check_analysis_lock(settings, app_key=self.app_key)
+        status.setText(result["summary"] if result["status"] != "unlocked"
+                       else tr("No analysis lock applies to these settings "
+                               "yet."))
+        layout.addWidget(status)
+        form = QFormLayout()
+        hypotheses = QPlainTextEdit(dialog)
+        hypotheses.setPlaceholderText(tr(
+            "What you expect to find, and what would count against it."))
+        thresholds = QPlainTextEdit(dialog)
+        thresholds.setPlaceholderText(tr(
+            "The thresholds and gates that decide a call, one per line."))
+        note = QLineEdit(dialog)
+        form.addRow(tr("Hypotheses"), hypotheses)
+        form.addRow(tr("Thresholds and gates"), thresholds)
+        form.addRow(tr("Note"), note)
+        layout.addLayout(form)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, dialog)
+        lock = buttons.addButton(tr("Lock"), QDialogButtonBox.ActionRole)
+        lock.setObjectName("AnalysisLockConfirm")
+        buttons.rejected.connect(dialog.reject)
+
+        def _lock():
+            record = self._lock_analysis_now(
+                settings, hypotheses.toPlainText(), thresholds.toPlainText(),
+                note.text())
+            status.setText(tr(
+                "Locked {sha} at {time}. Runs of these settings on this "
+                "source are checked against it.",
+                sha=record["sha256"][:16], time=record["locked_utc"]))
+            lock.setEnabled(False)
+
+        lock.clicked.connect(_lock)
+        layout.addWidget(buttons)
+        dialog._spacr_lock_parts = {
+            "status": status, "hypotheses": hypotheses,
+            "thresholds": thresholds, "note": note, "lock": lock}
+        return dialog
+
+    def _lock_analysis_now(self, settings, hypotheses: str = "",
+                           thresholds: str = "", note: str = "") -> dict:
+        """Freeze ``settings`` and the plan, and say so in the console.
+
+        :param settings: the settings to lock.
+        :param hypotheses: the hypotheses, in words.
+        :param thresholds: the thresholds and gates, in words.
+        :param note: anything else to keep with the plan.
+        :returns: the lock :func:`spacr.run_journal.lock_analysis` wrote.
+        """
+        from ...run_journal import lock_analysis
+
+        record = lock_analysis(settings, app_key=self.app_key,
+                               hypotheses=hypotheses, thresholds=thresholds,
+                               note=note)
+        try:
+            self._console.append_notice(
+                "Analysis locked: {sha} at {time}.\n",
+                sha=record["sha256"][:16], time=record["locked_utc"])
+        except Exception:
+            LOG.debug("could not report the analysis lock", exc_info=True)
+        return record
 
     def _on_import_settings(self):
         """Load a settings CSV into the form and report what was applied.

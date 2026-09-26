@@ -1585,7 +1585,10 @@ def _is_a_real_model_name(value: str) -> bool:
     naming a Cellpose 3 model or a checkpoint on disk, which the pass
     segments in the Cellpose 3 backend (item 503); and a ``cellpose_dino:``
     value naming a checkpoint on disk, which the pass segments in the
-    Cellpose-DINO backend (item 525).
+    Cellpose-DINO backend (item 525); and a ``stardist:``, ``instanseg:``
+    or ``omnipose:`` value naming one of that backend's own models, a
+    model on disk, or nothing (its default model), segmented in that
+    backend (items 551-553).
 
     A name that is neither is a typo, and putting it in the combo would let
     the preview run against a model that does not exist.
@@ -1605,6 +1608,11 @@ def _is_a_real_model_name(value: str) -> bool:
         chosen = _cellpose_dino_choice(name)
         if chosen is not None:
             return bool(chosen) and os.path.isfile(os.path.expanduser(chosen))
+        from ..._segmentation_backends import _prefixed_model_ok
+
+        prefixed = _prefixed_model_ok(name)
+        if prefixed is not None:
+            return prefixed
     except Exception:
         pass
     try:
@@ -1789,7 +1797,9 @@ def _checkpoint_is_missing(model_name: Any) -> bool:
     counts as a path: a separator in it, or a checkpoint suffix. A
     ``cellpose3:`` value is tested on what follows the prefix. So is a
     ``cellpose_dino:`` value, which always names a file: one naming nothing,
-    or a file that is not there, is missing.
+    or a file that is not there, is missing. A ``stardist:``,
+    ``instanseg:`` or ``omnipose:`` value is missing when it names neither
+    one of its backend's models nor a path that exists.
 
     :param model_name: the model name or path the user picked.
     :returns: True when it names a file that is not there.
@@ -1797,12 +1807,16 @@ def _checkpoint_is_missing(model_name: Any) -> bool:
     text = str(model_name or "").strip()
     try:
         from ..._segmentation_backends import (_cellpose3_choice,
-                                               _cellpose_dino_choice)
+                                               _cellpose_dino_choice,
+                                               _prefixed_model_ok)
 
         chosen = _cellpose3_choice(text)
         dino = _cellpose_dino_choice(text)
+        prefixed = _prefixed_model_ok(text)
     except Exception:
-        chosen = dino = None
+        chosen = dino = prefixed = None
+    if prefixed is not None:
+        return not prefixed
     if dino is not None:
         return not (dino and os.path.isfile(os.path.expanduser(dino)))
     if chosen is not None:
@@ -3511,12 +3525,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         ``cellpose3`` row comes back as ``cellpose3:<name or path>`` and the
         pass segments it in the Cellpose 3 backend, as the run would; a
         ``cellpose_dino`` row comes back as ``cellpose_dino:<path>`` and goes
-        to the Cellpose-DINO backend the same way.
+        to the Cellpose-DINO backend the same way, and a StarDist, InstanSeg
+        or Omnipose row as ``<prefix><model>`` to its own backend.
         """
+        from ... import model_zoo
         from .model_zoo_picker import choose_model
 
-        path = choose_model(self,
-                            kinds=("cellpose", "cellpose3", "cellpose_dino"))
+        path = choose_model(self, kinds=model_zoo._mask_model_kinds())
         if not path:
             return
         index = self._model_box.findText(str(path))

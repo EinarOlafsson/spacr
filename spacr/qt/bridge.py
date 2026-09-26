@@ -464,6 +464,23 @@ _MASK_GPU_RE = re.compile(
     r"\[mask GPUs\] (\w+) Progress: (\d+)/(\d+) archives, failed (\d+)"
     r"((?: \| GPU \S+ \w+ \d+/\d+)*)")
 _MASK_GPU_WORKER_RE = re.compile(r"GPU (\S+) (\w+) (\d+)/(\d+)")
+_WATCH_FOLDER_RE = re.compile(
+    r"watch_folder: (\d+) analysed, (\d+) waiting, (\d+) failed")
+
+
+def _watch_folder_progress(text: str) -> Optional[dict]:
+    """Read the newest folder-watch count line in ``text``, if any.
+
+    The folder watch of Make Masks prints the line whenever a count changes.
+
+    :param text: worker output.
+    :returns: ``{'done', 'waiting', 'failed'}`` counts, or None.
+    """
+    matches = list(_WATCH_FOLDER_RE.finditer(text or ""))
+    if not matches:
+        return None
+    done, waiting, failed = (int(value) for value in matches[-1].groups())
+    return {"done": done, "waiting": waiting, "failed": failed}
 
 
 def _mask_gpu_progress(text: str) -> Optional[dict]:
@@ -1307,6 +1324,9 @@ class PipelineWorker(QObject):
                 self.line_ready.emit(
                     f"Reproducibility manifest: {journal_run.dir}\n"
                 )
+                lock = getattr(journal_run, "_analysis_lock", None)
+                if lock:
+                    self.line_ready.emit(f"{lock.get('summary')}\n")
         except Exception as exc:
             journal_context = None
             journal_run = None

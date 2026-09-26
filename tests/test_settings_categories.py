@@ -778,6 +778,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "cell_cycle_gates", "cell_cycle_mitotic_ratio",
     "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
     "cell_cycle_epochs",
+    # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
+    # `src` and analyse each field as it arrives (`watch_folder`), with the
+    # pipeline, Measure settings file, settle time, poll interval and idle
+    # stop beside it in Mask's Workflow & Test Run group.
+    "watch_folder", "watch_pipeline", "watch_measure_settings",
+    "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

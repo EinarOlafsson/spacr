@@ -1,6 +1,9 @@
 PRE-REGISTERED ANALYSIS LOCK: HASH SETTINGS AND GATES BEFORE UNBLINDING
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). Lock,
+re-run verification and post-hoc flags in the manifest, report and methods
+text are built; gates are covered as settings and files, not Gate Editor
+objects.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -18,3 +21,88 @@ WHAT TO BUILD
 DONE WHEN
     A locked analysis re-run unchanged verifies against its hash; a post-hoc
     change is flagged in the report.
+
+NOTE 2026-09-26 -- BUILT, AS AN ALPHA FEATURE (with item 544)
+
+What was built
+    API, in the existing spacr/run_journal.py (no new module):
+      lock_analysis(settings, app_key=, hypotheses=, thresholds=, files=,
+          note=)   writes ~/.spacr/analysis_locks/<lock id>.json: the
+          settings (without "_"-prefixed run-only keys and hash_inputs),
+          the plan (hypotheses, thresholds and gates, note), the full
+          SHA-256 of every file that a setting whose key names a model,
+          gate, checkpoint, weights or threshold points at (plus files=),
+          who, when (UTC, microseconds), and any unblinding already
+          recorded on the folder; then a SHA-256 over all of it ("sha256").
+      check_analysis_lock(settings, app_key=, lock=)   finds the newest
+          lock for the pipeline and src, re-hashes the lock itself (an
+          edited lock is "tampered"), compares every setting (values_equal,
+          so "[0, 1]" == [0, 1]) and re-hashes every locked file. Status:
+          verified; deviation (changed, no unblinding since the lock);
+          post_hoc (changed, and a blinding key on the folder, or on a
+          folder inside or around it, was unblinded after the lock --
+          item 544's record); not_preregistered (unchanged, but locked after
+          an unblinding); tampered; or unlocked. With the changed keys
+          (locked and current values) and a one-line summary.
+    Later runs: open_run checks every journalled run (GUI, CLI and
+      spacr repro all go through it). When a lock applies, manifest.json
+      carries "analysis_lock" (the verdict); anything but verified is also
+      appended to provenance_warnings. A run with no lock writes exactly
+      the manifest it wrote before. The GUI console prints the verdict
+      under "Reproducibility manifest:", and the CLI logs it (a warning
+      unless verified).
+    Reports and exports: spacr.report lists each run's verdict under
+      Provenance and states every non-verified one at the top of the report
+      (the run status section). The methods export (spacr.methods_export)
+      carries the verdict into the digest's run and adds a caveat the
+      methods text may not leave out ("run exactly as preregistered" /
+      "the changes to X are post-hoc" / "X changed after the lock" / "not
+      preregistered" / "lock no longer matches its hash").
+    GUI: a "Lock analysis..." button (AnalysisLockButton) beside "Import
+      settings..." on every settings screen. Its dialog states how the
+      settings on the form stand against the newest lock, takes the
+      hypotheses, the thresholds and gates, and a note, and Lock freezes
+      them (the console says "Analysis locked: <hash> at <time>").
+
+DONE WHEN, checked
+    A locked analysis re-run unchanged verifies against its hash:
+    test_an_unchanged_rerun_verifies_against_the_lock, and a journalled run
+    carries "verified" in its manifest. A post-hoc change is flagged in the
+    report: test_the_report_and_the_methods_text_flag_a_post_hoc_change
+    (the report's top note and its Provenance line say POST-HOC; the
+    methods caveat names the changed key).
+
+Tests
+    tests/test_544_573_blind_key_and_analysis_lock.py (lock contents and
+    hash, verification, deviation against post-hoc around an unblinding,
+    not_preregistered, a changed model file, an edited lock file, the
+    manifest, the report and the methods caveat).
+    tests/qt/test_544_573_blind_scoring_and_lock_on_screen.py (the dialog
+    locks and the reopened dialog says verified; the button follows the
+    alpha switch).
+
+Not done
+    Gates drawn in the Gate Editor are locked only when the settings name
+    their file (a key containing "gate"); gate objects kept elsewhere are
+    not collected. Models are covered the same way (setting keys naming a
+    model, checkpoint or weights file), not through Run.record_model,
+    which runs after the check.
+    A lock covers one pipeline on one src; a plan spanning several
+    pipelines needs one lock per pipeline. Locking again supersedes (the
+    newest lock wins) and the older lock stays on disk.
+    A change counts as post-hoc when the RUN comes after an unblinding;
+    when the setting itself was edited is not known.
+    Run History and Run compare do not show the verdict yet (it is in the
+    manifest they read). The HTML report was checked through
+    collect_report and render_text, not opened in a browser.
+    The English API manifest (docs/source/_static/i18n/api/en.json) and the
+    UI catalogs were not regenerated in this lane; the new captions are in
+    tests/qt/test_i18n_caption_ratchet.py's _AWAITING_CATALOG_REBUILD.
+
+ALPHA: widgets AnalysisLockButton (the "Lock analysis..." button on every
+settings screen, and with it its dialog); no settings keys, choices, apps or
+models. Registered as ALPHA_FEATURES[573]['widgets'] in spacr/settings.py
+(item 569's gate), applied when the button is placed and live by the app
+when the preference changes. The journal check itself is not gated: it acts
+only when a lock exists, and hiding is a display decision (headless and CLI
+runs never consult the registry).

@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-505 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
+506 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -773,3 +773,4 @@ NEW FEATURES
   533  THE DIAMETER ESTIMATE MOVES INTO THE MODEL ZOO POPUP
   569  A "SHOW ALPHA FEATURES" PREFERENCE, OFF BY DEFAULT, HIDES EVERYTHING BUILT FROM THE FUTURE LIST
   588  FILLING HOLES MERGES TOUCHING CELLS, AND APPLY'S DEFAULT CHANNELS/PERCENTILES FAIL
+  589  THE PUBLIC SLIDE DECK IS FLAWLESS AND HIGH RESOLUTION

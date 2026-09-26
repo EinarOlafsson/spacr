@@ -135,6 +135,10 @@ ABSENT_FROM_EXPECTED_TYPES = {
         "surrogate_model", "surrogate_n_estimators",
         "surrogate_n_repeats", "surrogate_random_seed",
         "surrogate_shap_max_samples", "surrogate_split_by",
+        # 2026-09-26 (item 18): Explain CV's importance-method and SHAP
+        # explainer settings, typed by spacr.surrogate's register_defaults
+        # at module import, like the other surrogate_* keys here.
+        "surrogate_importance_methods", "surrogate_shap_explainer",
         "surrogate_test_size", "sweep_points", "sweep_span",
         "target_gene", "target_grnas_per_well", "target_guides",
         "target_statistic", "z_handling",
@@ -172,14 +176,11 @@ ABSENT_FROM_EXPECTED_TYPES = {
     # below, which is what "a reason each" meant. ``umap.reduction_method``
     # left on 2026-09-19 with its row: dotted catalog keys are app-qualified
     # tooltip identities and ``setting_keys`` no longer reads them.
+    # 2026-09-26 (item 511): the twelve retired cell/nucleus/pathogen
+    # min/max area and intensity bounds left, because setting_api_targets.py
+    # dropped their rows; nothing pins what has no row.
     "catalog_only": (
         "barcode_qc",
-        "cell_min_area", "cell_max_area",
-        "cell_min_intensity", "cell_max_intensity",
-        "nucleus_min_area", "nucleus_max_area",
-        "nucleus_min_intensity", "nucleus_max_intensity",
-        "pathogen_min_area", "pathogen_max_area",
-        "pathogen_min_intensity", "pathogen_max_intensity",
     ),
 }
 
@@ -201,23 +202,7 @@ ABSENCE_CAUSES = {
 
 #: The unexplained remainder, each with its reason, so the next audit
 #: subtracts a SET with a story rather than a number.
-_RETIRED_BOUND_NOTE = (
-    "RETIRED 2026-09-25 (item 511, the maintainer's decision): Mask's"
-    " per-object area and mean-intensity bounds of cell, nucleus and"
-    " pathogen became rows of `object_filters`, and"
-    " `spacr.settings._fold_object_bounds` moves an old file's value into"
-    " them when it loads. The row survives for two reasons, neither a live"
-    " setting: the EN catalog still carries the key's caption and tooltip"
-    " (the translation lane's to drop), and the role-generic f-string reads"
-    " `{object_type}_min_area` and friends in spacr/object.py,"
-    " spacr/pipeline_v2.py and the Live preview's filter, which the organelle"
-    " slots still use, expand to these names. No literal read is left.")
-
 CATALOG_ONLY_NOTES = {
-    **{f"{obj}_{bound}": _RETIRED_BOUND_NOTE
-       for obj in ("cell", "nucleus", "pathogen")
-       for bound in ("min_area", "max_area", "min_intensity",
-                     "max_intensity")},
     "barcode_qc":
         "A live flag -- `spacr/sequencing.py` reads settings.get('barcode_qc')"
         " to decide whether to run QC after mapping -- AND the APP_KEY of"
@@ -237,15 +222,9 @@ CATALOG_ONLY_NOTES = {
 #: is what tells a search that finds everything from a search that finds
 #: nothing: ``barcode_qc`` must be found. Empty since 2026-09-19, when its
 #: one member, ``umap.reduction_method``, left the vocabulary with its row;
-#: the twelve retired Mask bounds joined it on 2026-09-25 (item 511).
-CATALOG_ONLY_UNREAD = (
-    "cell_min_area", "cell_max_area",
-    "cell_min_intensity", "cell_max_intensity",
-    "nucleus_min_area", "nucleus_max_area",
-    "nucleus_min_intensity", "nucleus_max_intensity",
-    "pathogen_min_area", "pathogen_max_area",
-    "pathogen_min_intensity", "pathogen_max_intensity",
-)
+#: the twelve retired Mask bounds joined it on 2026-09-25 (item 511) and left
+#: again on 2026-09-26 (item 511) when their rows were dropped.
+CATALOG_ONLY_UNREAD = ()
 
 
 def pinned_absences() -> dict:
