@@ -1,33 +1,37 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "is",
-  "title": "Lineage: innihaldstengsl og staðfestir myndbútar foreldrafrumna",
-  "description": "Skoða vistuð tengsl, takmörk birtingar og rétta mynd af foreldrafrumu án þess að samþykkja rangar staðgengilsmyndir fyrir undirhluti.",
+  "title": "Lineage: flettu í foreldrahlutum og innihaldi þeirra",
+  "description": "Opnaðu vistuð tengsl foreldra og afkvæma, veldu fjölskyldu og skoðaðu samsvarandi úrklipp foreldrafrumu í Annotate.",
   "objectives": [
-    "Opna Lineage innan Database Browser og byggja raunverulega tréð.",
-    "Greina heildarfjölda, sýndar fjölskyldur og auðkenni með hlutategund.",
-    "Þekkja ranga staðgengla og skoða aðeins staðfesta foreldrafrumu.",
-    "Nota innbyggðan aðdrátt og greina Python-útflutning frá skjástýringum."
+    "Hlaða inn mælingum og opna tengsl foreldra og afkvæma.",
+    "Velja hluti og athuga um leið sjónsvið og tegund hlutar.",
+    "Opna samsvarandi úrklipp foreldrafrumu og fá allt stigveldið með Python."
   ],
-  "prerequisite": "Notaðu niðurhalaða Annotate-dæmið með samsvarandi mælingum og frumumyndum. Graph Builder-safnið hefur sama gagnagrunn án mynda; Lineage-safnið inniheldur staðfesta API-CSV-skrá og yfirferð, ekki annan gagnagrunn. Ekki nota ranga staðgengilshegðun til að auðkenna eða merkja hluti sem vantar myndir af.",
+  "prerequisite": "Sæktu allt Annotate-dæmið með mælingagagnagrunni þess og samsvarandi frumuúrklippum. Gagnagrunnssafnið eitt úr Graph Builder getur ekki lagt til myndir. Þetta dæmi inniheldur aðeins frumuúrklipp: tvísmelltu á foreldrafrumu til að skoða úrklipp. Núverandi fjölskylduaðgerðin Open crops getur sett úrklipp ótengdra frumna í stað afkvæmaúrklippa sem vantar; forðastu hana með þessu dæmi.",
   "scenes": [
-    "Finndu Database Browser undir Help og opnaðu undireininguna Lineage. Hér merkir lineage vistuð tengsl um hvað er inni í hverju. Þetta er ekki saga frumuskiptinga, erfðafræðilegur uppruni eða ný myndskipting. Gagnagrunnsstýringar utan um sýnina tilheyra hýsileiningunni.",
-    "Veldu measurements.db úr raunverulega Annotate-dæminu og byggðu tréð. Við notum óbreytt einkaafrit. Breikkaðu Object og skilrúmið ef textinn er þröngur. Númer endurtaka sig milli myndsviða og hlutategunda; tala ein og sér er ekki auðkenni.",
-    "Heildargögnin hafa 2.341 frumu, 2.682 kjarna og 2.178 hluti í töflunni pathogen. Aðeins 2.000 foreldrafjölskyldur birtast í trénu. 341 er sleppt úr birtingu, ekki eytt úr gagnagrunninum.",
-    "Samantektin segir enga frumu tóma, því kjarni telst líka undirhlutur. Það merkir ekki að allar frumur hafi pathogen-hlut: 1.168 hafa hann ekki. Engir ótengdir undirhlutir merkir að skráðir foreldrar séu til, ekki að myndskiptingin sé líffræðilega rétt.",
-    "Opnaðu foreldri til að sjá undirhlutina. Á þessu myndsviði inniheldur fruma þrjú kjarna fimm og pathogen einn samkvæmt vistuðum tengslum. Þetta eru auðkenni með tegund, ekki skiptanlegar tölur. Að velja einn undirhlut er annað en að velja alla fjölskylduna.",
-    "Select with contents miðlar lyklum foreldris og undirhluta. Að velja foreldri ásamt undirhlut þess krefst ekki tvítekinna eintaka af undirhlutnum. Lyklarnir varðveita myndsvið og tegund, en lykildálkurinn er falinn. Miðlað auðkenni sannar ekki að samsvarandi myndbútur sé til.",
-    "Stórar fjölskyldur þurfa skoðun, ekki sjálfvirka líffræðilega túlkun. Dæmið hefur eina fjölskyldu með 33 hlutum alls. Tengsl geta endurspeglað myndskiptingar- eða upptökuvillur. Tréð sýnir vistuð tengsl en staðfestir ekki óvenjulegan fjölda sem uppgötvun.",
-    "Smellur á dálkhaus raðar sýndum fjölskyldum án þess að breyta tengslum. Takmörkin, 2.000 foreldrar, gilda áfram. Við athuguðum öll sýnd auðkenni, foreldratengsl og allt stigveldið. Röðuð eða stytt sýn er ekki breytt mælitafla.",
-    "Open crops þarfnast Annotate sem myndskoðara. Raunveruleg skilaboð biðja um að opna Annotate fyrst. Myndskoðari sem vantar er annað en mynd sem vantar. Hladdu samsvarandi verkefni áður en þú biður um myndbúta, ekki annarri keyrslu með svipuðum númerum fyrir tilviljun.",
-    "Niðurhalaða verkefnið gefur raunverulega frumumyndbúta. Safnið með aðeins gagnagrunninum inniheldur ekki þessar myndir. Við notum allt samsvarandi dæmið og varðveitum alla frumritsmyndbúta. Að opna upprunann þjálfar ekki flokkara og skilgreinir ekki nýjar merkingar.",
-    "Þessi útgáfa hefur alvarlega takmörkun. Þriggja hluta fjölskyldan sýnir frumu þrjú og síðan ótengdar frumur fimm og eitt í stað umbeðins kjarna og pathogen-hlutar. Uppruninn hefur aðeins frumumyndir. Hafnaðu staðgenglunum og ekki merkja þá sem undirhlutina sem vantar. Kennsluefnið lagar ekki villuna.",
-    "Staðfesti valkosturinn er þrengri: farðu aftur í Lineage og tvísmelltu aðeins á foreldrafrumuna. Ólíkt Open crops sendir það aðeins foreldrið, ekki fjölskylduna. Annotate sýnir nákvæmlega umbeðinn myndbút. Auðkenni og upprunaleg bæti voru staðfest; það felur ekki í sér stuðning við myndir undirhluta.",
-    "Haltu Shift og smelltu á smámynd foreldris til að stækka fyrirliggjandi forskoðun án flokkamerkingar. Escape endurheimtir grindina. Það hjálpar skoðun en býr ekki til meiri upplausn. Venjulegur vinstri smellur er merkingaraðgerð, ekki aðdrátturinn sem hér er sýndur.",
-    "Build tree endurnýjar sýnina. Í Python gefa read_object_tables, build_forest og lineage_frame sömu byggingu. Tengda CSV-skráin hefur alla 7.201 hnútana, líka fjölskyldur utan birtingar. Hún var skrifuð með API, ekki Lineage-útflutningshnappi, og er ekki líffræðileg staðfesting."
+    "Frá Home opnarðu Database Browser og svo Lineage. Notaðu tréð til að sjá hvaða mældir hlutir eru vistaðir innan hverrar foreldrafrumu.",
+    "Flettu að measurements.db úr Annotate-dæminu og smelltu á Build tree. Breikkaðu dálkinn Object og skilrúmið til að lesa merkin. Auðkenndu hlut eftir sjónsviði og tegund jafnt sem númeri.",
+    "Þessi gagnagrunnur inniheldur 2.341 frumu. Tréð sýnir allt að 2.000 foreldrafjölskyldur. Notaðu Python-útflutninginn sem sýndur er síðar í kennslustundinni þegar þú þarft allar fjölskyldurnar.",
+    "Lestu samantektina fyrir ofan tréð. Kjarni telst afkvæmi, svo fruma með innihald getur samt verið án sýklahlutar. Notaðu tegundir afkvæma til að túlka hverja fjölskyldu.",
+    "Opnaðu foreldri til að sjá afkvæmi þess. Hér inniheldur fruma 3 kjarna 5 og sýkil 1. Veldu þá tilteknu tegund hlutar sem þú vilt skoða.",
+    "Notaðu Select with contents til að velja foreldrið og afkvæmi þess saman. Völdu auðkennin innihalda sjónsvið og tegund hlutar. Veldu afkvæmi eitt og sér þegar þú þarft aðeins þann hlut.",
+    "Opnaðu stóra fjölskyldu til að skoða innihald hennar. Dæmið inniheldur eina fjölskyldu með 33 hlutum. Skoðaðu samsvarandi myndir þegar fjöldi virðist óvenjulegur.",
+    "Smelltu á dálkfyrirsögn til að raða birtu fjölskyldunum. Röðunin heldur vistuðu tengslunum og birtingarmörkunum 2.000 foreldra.",
+    "Til að sjá úrklipp opnarðu fyrst Annotate og hleður inn samsvarandi dæmaverkefni. Ef þú sérð skilaboðin sem biðja um Annotate opnarðu það áður en þú biður um myndir úr Lineage.",
+    "Notaðu allt niðurhalaða verkefnið, sem inniheldur frumuúrklippin. Haltu gagnagrunni og myndum úr sömu keyrslu saman svo auðkenni hluta passi.",
+    "Forðastu Open crops fyrir heila fjölskyldu í þessu dæmi. Úrklippum kjarna og sýkla sem vantar getur verið skipt út fyrir úrklipp ótengdra frumna. Farðu aftur í tréð og veldu aðeins foreldrafrumuna.",
+    "Tvísmelltu á foreldrafrumuna í Lineage. Annotate opnar samsvarandi frumuúrklipp þess foreldris. Þetta er úrklippið sem er tiltækt í niðurhalaða dæminu.",
+    "Smelltu með Shift á smámynd foreldrisins til að stækka forskoðunina og ýttu svo á Esc til að fara til baka. Venjulegur vinstrismellur setur merkingarflokk, svo notaðu Shift þegar þú vilt aðeins skoða.",
+    "Smelltu á Build tree til að endurnýja sýnina. Fyrir allt stigveldið í Python notarðu read_object_tables, build_forest og lineage_frame og vistar töfluna sem CSV. Tengda dæma-CSV-skráin inniheldur alla 7.201 hnúta."
   ]
 }

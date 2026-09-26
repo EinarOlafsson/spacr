@@ -1,32 +1,35 @@
 {
   "lesson": "55_image_scatter",
-  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "nb",
-  "title": "Image Scatter: virkelige målinger og bildeutsnittet bak hvert punkt",
-  "description": "Utforsk undermodulen Image Scatter i Image UMAP med nedlastede cellemålinger, kontrollerte forhåndsvisninger ved peking og overføring av nøyaktig én celle til Annotate.",
+  "title": "Image Scatter: undersøk målinger og utsnittene deres",
+  "description": "Plott to målekolonner, forhåndsvis objektutsnitt og send et valgt objekt til Annotate.",
   "objectives": [
-    "Finn Image Scatter i Image UMAP og last inn riktig celletabell.",
-    "Undersøk par av råmålinger og forstå manglende eller konstante koordinater.",
-    "Koble en plottet celle til dens virkelige bildeutsnitt uten å endre etiketter eller kildedata."
+    "Laste inn målinger og velge akser.",
+    "Undersøke utsnittet bak et punkt.",
+    "Sende et valgt objekt til Annotate."
   ],
-  "prerequisite": "Gjenbruk det nedlastbare Annotate-eksempelet, inkludert målingsdatabasen, celleutsnittene og markørene for utsnittenes bildeformat. Leksjonen bruker en privat, byteidentisk kopi av 2 341 celler og alle de 2 341 opprinnelige PNG-filene. Uavhengige SQLite-kontroller omfatter hver kildeverdi, celleidentiteten med full feltinformasjon og stien til utsnittet; viste koordinater og RGB-piksler i miniatyrbildene kontrolleres også. Bare koblinger til celleutsnitt er kontrollert, ikke koblinger til kjerne- eller patogenutsnitt. Et uvanlig punkt er ikke bevis for fenotype, infeksjon, behandling eller korrekt segmentering. Vi utfører ingen UMAP-tilpasning, trening, GPU-beregning, fileksport eller endring av etiketter i kilden. Image Scatter har ingen egen nedlaster, velger for bildekolonne, farge- eller grupperingskontroller, aksetransformasjon, eksportkontroll eller AI-konsoll. Plot laster den valgte tabellen; aksevalg tegner den på nytt. Innlastingen er begrenset til 200 000 rader, noe som verken er tilfeldig utvalg eller bevis for at større tabeller ikke mister informasjon. Leksjonen dokumenterer ikke delt filtrering. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame og ScatterCanvas.point_position.",
+  "prerequisite": "Bruk en spaCR-måledatabase med tilhørende objektutsnitt og utsnittsformatfiler. Det nedlastbare Annotate-eksemplet inneholder disse inndataene.",
   "scenes": [
-    "Åpne Image UMAP fra Home, og velg deretter Image Scatter. Denne nestede visningen plotter to eksisterende målinger; den tilpasser ikke en UMAP-innbygging. Vi gjenbruker det virkelige, nedlastbare Annotate-eksempelet og beholder målingsdatabasen og celleutsnittene sammen. Annotate-leksjonen viser hvor du henter det.",
-    "Velg Browse og åpne den kopierte målingsdatabasen. Behold data-mappen og formatmarkørene for utsnittene når du flytter et prosjekt, fordi en tabell alene ikke inneholder bildene. Eksempelet som vises, bruker private kopier; de opprinnelige målingene og bildepikslene forblir uendret.",
-    "Velg cell i tabellvelgeren og deretter Plot. Plot leser denne tabellen; det er ikke en segmenterings- eller treningsjobb. Eksempelet vårt har 2 341 celler med tilhørende celleutsnitt. Når du velger en annen tabell, må du trykke Plot igjen; det å endre velgeren laster ikke inn radene.",
-    "Sett x til cell_area og y til cell_channel_1_mean_intensity. Endringer av aksene tegner de innlastede radene på nytt med en gang. Dette er råmålinger, ikke transformerte innbyggingskoordinater. Punktene beskriver enkeltceller, ikke uavhengige forsøksreplikater, og et mønster i bildet er ikke en statistisk test.",
-    "Hold pekeren over cellen lengst til høyre. Utsnittet vises ved siden av punktdiagrammet sammen med full identitet for plate, rad, kolonne, bildefelt og celle. Miniatyrbildet er et lagret utsnitt, ikke hele mikroskopfeltet eller en ny segmentering. Et uvanlig utseende fastslår ikke i seg selv en fenotype.",
-    "Flytt pekeren bort fra tegneflaten: den midlertidige forhåndsvisningen tømmes. Gå tilbake til samme punkt, så vises det mellomlagrede utsnittet igjen uten ny dekoding. Peking gir midlertidig bildeinspeksjon, ikke en annotering eller et varig utvalg. Ingen etiketter i kilden endres.",
-    "Bytt om på de to målingene på x- og y-aksen. Den samme cellen beholder identiteten og utsnittet selv om plasseringen på skjermen endres. Velg meningsfulle akser i stedet for automatisk å godta de første tallkolonnene; velgerne tilbyr også numeriske identifikatorer og metadata fra bildeopptaket.",
-    "Sett x tilbake til cell_area og velg cell_channel_0_homogeneity_distance_32 på y. Sju celler mangler denne målingen, så bare 2 334 koordinatpar kan tegnes. Antallet innlastede rader viser fortsatt 2 341. Manglende verdier er ikke nuller, og skjulte koordinater endrer ikke nummereringen av objektidentiteter.",
-    "Velg measurement_ndim på y. Alle radene har verdien to, så punktene ligger på en vannrett linje. Dette er en konstant metadatakolonne, ikke biologisk samsvar. Sett y tilbake til cell_channel_1_mean_intensity før du undersøker en annen celle.",
-    "For å undersøke et klikket utsnitt i Annotate åpner du først Annotate og laster inn det samme kopierte prosjektet. Gå tilbake via Home, Image UMAP og den eksisterende Image Scatter-fanen. Annoteringssiden må kjenne riktig prosjekt; et plott og et åpent datasett uten tilknytning er ikke en gyldig overføring.",
-    "Klikk på selve punktet, og bytt deretter til Annotate. Å holde pekeren over punktet viser bare en forhåndsvisning. Klikket sender den nøyaktige cellenøkkelen sammen med de to aksenavnene til annoteringsvisningen. Det bytter ikke side automatisk, tilordner ingen etikett og beviser ikke at objektet er en uteligger.",
-    "Annotate viser nå nøyaktig den klikkede cellen med det samme lagrede utsnittet. Undersøk bildet før du bestemmer deg for å annotere det; denne demonstrasjonen lar alle etiketter være uendret. Image Scatter har ingen egen eksport av plott eller utvalg. Bruk Database Browser til tabelleksport, eller PCA-leksjonen for komponentanalyse og de dokumenterte CSV-resultatene."
+    "Åpne Image UMAP og deretter Image Scatter for å plotte to eksisterende målinger. Øv med databasen fra Annotate-eksemplet og de tilhørende celleutsnittene.",
+    "Klikk på Browse og åpne measurements.db. Hold prosjektets mappe data og utsnittsformatfilene sammen med databasen, slik at miniatyrbildene kan finnes.",
+    "Velg cell i tabellvelgeren og klikk på Plot. Når du bytter til en annen tabell, klikker du på Plot igjen for å laste inn radene.",
+    "Sett x til celleareal og y til cellens gjennomsnittlige intensitet i kanal 1. Valg av akser tegner de innlastede radene på nytt med en gang.",
+    "Hold pekeren over et punkt for å se det lagrede utsnittet og hele objektidentiteten. Bruk bildet til å forstå målingen bak punktet.",
+    "Flytt pekeren bort for å fjerne den midlertidige forhåndsvisningen, og hold den deretter over et annet punkt for å undersøke det.",
+    "Bytt om x- og y-målingene for å utforske sammenhengen fra en annen vinkel. Velg meningsfulle egenskaper og kontroller enhetene.",
+    "Velg en annen måling, for eksempel homogenitetsegenskapen. Rader uten koordinater utelates fra plottet, så antall plottede punkter kan avvike fra antall innlastede rader.",
+    "En konstant kolonne, som måledimensjonen i dette eksemplet, legger punktene på en linje. Gå tilbake til en egenskap med nyttig variasjon for å undersøke objekter.",
+    "For å undersøke et valgt utsnitt i Annotate åpner du først Annotate og laster inn det samme prosjektet. Gå deretter tilbake til den eksisterende Image Scatter-visningen.",
+    "Klikk på selve punktet for å sende objektidentiteten til Annotate, og bytt deretter til den siden. Å holde pekeren over viser bare en forhåndsvisning av utsnittet.",
+    "Undersøk det valgte objektet i Annotate før du setter en merkelapp. Bruk Database Browser til tabelleksport, eller PCA til komponentanalyse."
   ]
 }

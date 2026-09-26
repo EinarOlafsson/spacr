@@ -1,22 +1,35 @@
 {
-  "lesson": "54_qc_dashboard", "language": "it", "english_sha256": "6d392cd91316120b850599122e922009dda2919f8085ccbc9908a473d69f377d",
-  "review": {"kind": "Editorial translation checked against English and actual read-only QC results", "native_speaker_signoff": false},
-  "title": "QC: leggere le evidenze, non soltanto il riepilogo",
-  "description": "Leggi veri rapporti di qualità scaricati e calcolati, distingui controlli mancanti, avvisi ed esiti negativi e trova i tre strumenti annidati di QC.",
-  "objectives": ["Trovare QC e i suoi strumenti annidati.", "Scegliere la cartella esatta del progetto o dell’esecuzione limitata ed esaminare tutte e cinque le categorie di evidenze.", "Distinguere esiti mancanti, avvisi ed esiti negativi senza presumere che il pannello convalidi tutta l’analisi.", "Aggiornare le evidenze esistenti senza ricalcolare né cambiare i file sorgente."],
-  "prerequisite": "Scarica prima gli esempi Annotate e Mask. La registrazione riutilizza il database di misure di Annotate, i rapporti originali dell’esempio Mask e la vera esecuzione del tutorial Mask su due campi e Measure su un campo, in plate1/test. QC non scarica nulla e non calcola nuovi punteggi. La cartella principale e test rappresentano ambiti diversi, non un esperimento di miglioramento prima/dopo.",
+  "lesson": "54_qc_dashboard",
+  "english_sha256": "8d73de741cc8b5d38c497eac960c0dfe562312ed73b07d6f02e536ba8ec4c174",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "QC: esaminare i report di qualità di un progetto",
+  "description": "Scegli un progetto, leggi i report di qualità disponibili, indaga sugli avvisi e aggiorna il pannello.",
+  "objectives": [
+    "Scegliere il progetto o l’esecuzione da esaminare.",
+    "Leggere i report disponibili, mancanti e non aggiornati.",
+    "Indagare sui risultati e aggiornare la vista."
+  ],
+  "prerequisite": "Usa un progetto con report di qualità salvati. Gli esempi scaricati di Mask e Annotate forniscono insiemi di report diversi; scegli il progetto o la cartella di esecuzione specifica che vuoi esaminare.",
   "scenes": [
-    "Apri QC nella categoria Data di Home. Questo pannello legge rapporti di qualità già presenti sul disco. Non genera maschere, misura immagini o addestra classificatori. Il riepilogo sintetizza le evidenze disponibili: non certifica che l’intera analisi sia corretta.",
-    "L’intestazione raggruppa Layer Viewer, Control Charts e Outliers sotto QC. Le lezioni specialistiche rimangono in Submodules, sotto questo modulo principale. Usa questi strumenti per esaminare un’osservazione, non per sostituire evidenze mancanti con un colore rassicurante.",
-    "Usa Browse per scegliere la cartella effettiva del progetto. Apriamo prima l’esempio scaricato di Annotate, che contiene misure ma non rapporti di segmentazione in questa cartella. QC non ha un download di esempio separato: riutilizza il progetto reale del flusso precedente.",
-    "Missing significa che il lettore non dispone di un rapporto utilizzabile per quel controllo. Non è un esito positivo né dimostra un fallimento. Un calcolo eseguito in un’altra vista potrebbe non aver salvato un rapporto leggibile qui. Verifica sempre l’origine indicata e l’ambito.",
-    "Ora scegli la sottocartella test contenente le vere uscite delle nostre esecuzioni limitate di Mask e Measure. Scegliere la cartella principale non è equivalente. Popolazioni e file sono diversi: i loro esiti non costituiscono un confronto controllato prima/dopo.",
-    "Il sottoinsieme segnala un avviso di segmentazione: un campo cellulare presenta una distribuzione eterogenea delle dimensioni. Leggi le indicazioni e osserva le immagini. Una segnalazione basata sulle dimensioni non dimostra due tipi cellulari biologici né che ogni contorno sia sbagliato.",
-    "La scheda delle unità segnala coerenza interna in quattro tabelle di misure. È una verifica più limitata della convalida indipendente della calibrazione o di ogni caratteristica. Mancano ancora rapporti su contaminazione tra addestramento e test, effetti di piastra e accordo tra annotatori: la scheda verde non fa superare quei controlli.",
-    "Leggi tutte e cinque le categorie, comprese le indicazioni sotto le schede mancanti. Conserva i rapporti originali e indaga il flusso pertinente. Un esito sulla contaminazione dipende in particolare da identità e raggruppamenti corretti dei campioni: un esito positivo del software non dimostra da solo indipendenza biologica.",
-    "I rapporti scaricati dell’intera piastra mostrano esiti negativi oltre agli avvisi. Il riepilogo indica un campo di patogeni con pochi oggetti e i dettagli elencano altre segnalazioni. Sono rapporti preesistenti dell’esempio più ampio, non nuovi punteggi calcolati aprendo QC né prove che la nostra piccola esecuzione abbia migliorato la piastra.",
-    "Premi Refresh dopo aver controllato l’origine. Qui lo stato dice che nulla sul disco è cambiato: vengono riutilizzate le evidenze esistenti. Refresh non è Run: non ha ricalcolato i punteggi delle maschere né corretto un avviso. Le impronte di database e rapporti restano identiche.",
-    "Un’etichetta di risultato non aggiornato, quando presente, richiede attenzione al rapporto e ai suoi dati di ingresso. Il pannello è consultivo e non blocca l’esecuzione. Le schede sono testo esplicativo, non pulsanti che aprono o riparano automaticamente ogni analisi non riuscita.",
-    "Per una lettura tramite script, spacr.qt.widgets.qc_summary offre read_dashboard e format_dashboard. Raccolgono evidenze esistenti anziché eseguire nuovi controlli. Conserva i rapporti sorgente con il progetto e torna all’analisi o alla lezione specialistica pertinente per l’indagine."
+    "Apri QC dalla categoria Data di Home per esaminare i report di qualità salvati con un progetto.",
+    "L’intestazione apre Layer Viewer, Control Charts e Outliers. Usa i loro tutorial quando un risultato del pannello richiede ulteriori indagini.",
+    "Fai clic su Browse e scegli la cartella del progetto. Seleziona la cartella che contiene i report dell’esecuzione da valutare.",
+    "Interpreta Missing come un report non disponibile per quel controllo. Segui le indicazioni per ottenere il report necessario prima di trarre conclusioni.",
+    "Scegli una sottocartella di esecuzione quando i suoi output sono separati dal progetto principale. Controlla che l’ambito mostrato corrisponda ai dati che vuoi esaminare.",
+    "Leggi gli avvisi di segmentazione ed esamina i campi corrispondenti. Per un avviso sulla distribuzione delle dimensioni, confronta immagini e contorni degli oggetti per capirne la causa.",
+    "Esamina la scheda delle unità insieme alle altre categorie. Un report delle unità coerente soddisfa quel controllo; i report mancanti richiedono comunque attenzione.",
+    "Leggi tutte e cinque le categorie e le relative indicazioni. Per la fuga di dati, controlla che le identità dei campioni e il raggruppamento riflettano le unità di validazione indipendenti previste.",
+    "Apri i dettagli di errori o avvisi per individuare i campi interessati e i report di origine. Usa lo strumento di analisi pertinente per indagare.",
+    "Fai clic su Refresh quando i report cambiano sul disco. Il pannello rilegge le evidenze disponibili; genera report aggiornati con l’analisi che li produce.",
+    "Indaga su un report non aggiornato confrontandolo con i dati di input e le impostazioni. Mantieni visibili i risultati non risolti nella revisione del progetto.",
+    "Conserva i report di qualità con il progetto. Prosegui negli strumenti specialistici collegati o nel tutorial del modulo pertinente per affrontare ogni risultato."
   ]
 }
