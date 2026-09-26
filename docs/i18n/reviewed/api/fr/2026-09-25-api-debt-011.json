@@ -5,6 +5,22 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr.qt.screens.organism_screen#4",
+      "source": "Plasmodium",
+      "source_sha256": "8843da7eb78c64330b37365265b1adf8e7e176ae2bec0d9d68b4f16add016584",
+      "context": "Plasmodium",
+      "translation": "Plasmodium",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#6",
+      "source": "Candida",
+      "source_sha256": "693e86c368aece52b6b8d6464ca2eb70b2e81f54788003647a11d4cd2faf0a4f",
+      "context": "Candida",
+      "translation": "Candida",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
       "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.load_array_async#2",
       "source": "merged ``.npy`` file, run folder or ``merged/`` folder, as :func:`load_merged_array` accepts; an empty value submits nothing.",
       "source_sha256": "d3113f36cec5b0fb75709c1d324cd19b85464a9335b1040a2bdd7e7736cc1d13",
