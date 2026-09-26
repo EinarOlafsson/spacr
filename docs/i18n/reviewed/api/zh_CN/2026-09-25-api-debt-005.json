@@ -1,0 +1,384 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.preview_scale#1",
+      "source": "The whole-GUI scale (:mod:`spacr.qt.gui_scale`) is fixed at startup and applies everywhere. A preview wants its own: a Mask preview on a laptop may need to shrink its controls to give the images room, while the settings beside it stay readable. Every preview -- Mask, Measure, Plaque, Timelapse, Motility and the image-UMAP views -- installs the same control through :func:`install_preview_scale`, so there is one implementation of it.",
+      "source_sha256": "e23224975232a890315c270eea2de964d75d2c20ec93b1e5c777bbba43d0561f",
+      "context": "The whole-GUI scale (:mod:`spacr.qt.gui_scale`) is fixed at startup and applies everywhere. A preview wants its own: a Mask preview on a laptop may need to shrink its controls to give the images room, while the settings beside it stay readable. Every preview -- Mask, Measure, Plaque, Timelapse, Motility and the image-UMAP views -- installs the same control through :func:`install_preview_scale`, so there is one implementation of it.",
+      "translation": "整个 GUI 的缩放（:mod:`spacr.qt.gui_scale`）在启动时固定并作用于所有地方。而预览需要自己的缩放：笔记本电脑上的 Mask 预览可能需要缩小其控件，为图像腾出空间，同时让旁边的设置保持可读。每个预览——Mask、Measure、Plaque、Timelapse、Motility 以及各 image-UMAP 视图——都通过 :func:`install_preview_scale` 安装同一个控件，因此它只有一种实现。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#10",
+      "source": "A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "source_sha256": "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
+      "context": "A window opened from the preview is not the preview (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "translation": "“从预览中打开的窗口不属于预览”（第 522 项）。以面板为父对象的对话框本身是一个独立窗口，但 Qt 会把面板的缩放样式表级联到其中，而遍历也会在面板的子对象中找到它：在 150 % 时，某个设置对话框的按钮高 59 px，而不是其他所有对话框的 40 px。这样的窗口及其中的所有内容都保持在 100 %，并且该窗口自身的样式表会在 100 % 下重新声明原本会以缩放形式继承的尺寸——在其 polish 时设置，因此在首次布局之前生效。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#11",
+      "source": "Each preview remembers its own scale, under ``prefs/preview_scale/<name>``.",
+      "source_sha256": "803bbf383bc6feadca770f52b1307e48647a5e8226e7c759bb478beb8077b1df",
+      "context": "Each preview remembers its own scale, under ``prefs/preview_scale/<name>``.",
+      "translation": "每个预览都在 ``prefs/preview_scale/<name>`` 下记住自己的缩放比例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#2",
+      "source": "WHAT IT SCALES, LIVE, WITHOUT A RESTART. Everything inside the preview that spaCR sized in pixels:",
+      "source_sha256": "505294fbae7c9bda8a18a586e3e566ad0b9ce95ae9f03bdd48ced95d0c28935e",
+      "context": "What it scales, LIVE, without a restart. Everything inside the preview that spaCR sized in pixels:",
+      "translation": "“它能实时缩放什么，无需重启。”预览中所有由 spaCR 以像素指定尺寸的内容：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#3",
+      "source": "style-sheet sizes -- font sizes, paddings, margins, minimum and maximum widths and heights, radii -- both the ones the preview inherits from the application sheet and the ones its widgets set on themselves. Border widths are left alone, so a 1 px rule stays a rule;",
+      "source_sha256": "214246d1819ba9d1b9fa1169fffc195436bf0e2a11c7922124151735a1569baa",
+      "context": "style-sheet sizes -- font sizes, paddings, margins, minimum and maximum widths and heights, radii -- both the ones the preview inherits from the application sheet and the ones its widgets set on themselves. Border widths are left alone, so a 1 px rule stays a rule;",
+      "translation": "样式表尺寸（字体大小、内边距、外边距、最小和最大宽度与高度、圆角半径），既包括预览从应用程序样式表继承的尺寸，也包括其控件自身设置的尺寸。边框宽度保持不变，因此 1 px 的分隔线仍然是分隔线；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#4",
+      "source": "minimum, maximum and fixed widget sizes set in code;",
+      "source_sha256": "3500bb6dacf281067d16517571562ecd55a58aff4f8344ec0b57ad57766e5b6b",
+      "context": "minimum, maximum and fixed widget sizes set in code;",
+      "translation": "在代码中设置的最小、最大和固定控件尺寸；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#5",
+      "source": "layout margins and spacing;",
+      "source_sha256": "254b7b020e247ced41b54bac7f7df1b9db376971f386660312cf11ce9f72a234",
+      "context": "layout margins and spacing;",
+      "translation": "布局的边距和间距；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#6",
+      "source": "button icon sizes;",
+      "source_sha256": "6635282f8e735ccf4162b6fc5a4b2a6e3e77c3415c3a52695fc173c1835d44ce",
+      "context": "button icon sizes;",
+      "translation": "按钮图标尺寸；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#7",
+      "source": "and, through :meth:`PreviewScaler.add_hook`, what only the panel knows how to redraw: Measure's crop thumbnails, a matplotlib figure's dots and labels (:func:`scale_figure_canvas`).",
+      "source_sha256": "9da3fa8e95a8b790538695d77053dd2e37cdfc9eaa485fb888ac227f05362907",
+      "context": "and, through :meth:`PreviewScaler.add_hook`, what only the panel knows how to redraw: Measure's extracted image region thumbnails, a matplotlib figure's dots and labels (:func:`scale_figure_canvas`).",
+      "translation": "以及通过 :meth:`PreviewScaler.add_hook` 处理只有面板自己知道如何重绘的内容：Measure 的裁剪图缩略图、matplotlib 图形的点和标签（:func:`scale_figure_canvas`）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#8",
+      "source": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
+      "source_sha256": "486ee91ca372d7c6eb3d76e29b516c8d246805b79f1b12d8d160abf65710d9fb",
+      "context": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
+      "translation": "每个值自身的基准值都记录在控件上，因此缩放总是基于代码所请求的尺寸，永远不会累积。代码之后再次设置的尺寸会成为新的基准值。在 100 % 时完全不做任何改动（没有样式表、没有尺寸、没有属性），因此默认缩放下的预览与本模块出现之前完全相同。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#9",
+      "source": "The slider itself is exempt: at 10 % the thing that brings the preview back must still be there to grab, and double-clicking its value returns to 100 %. ``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).",
+      "source_sha256": "0a345bc3529dcf336309c0cc6de81d3f9b7913e581f5a22427b705d51713cb6e",
+      "context": "The slider itself is exempt: at 10 % the thing that brings the preview back must still be there to grab, and double-clicking its value returns to 100 %. ``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).",
+      "translation": "滑块本身不受缩放影响：在 10 % 时，用来恢复预览的控件仍必须能被抓住，双击其数值即可恢复到 100 %。``Ctrl+Alt+0`` 会重置所有预览（:func:`reset_all_preview_scales`）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl#0",
+      "source": "The slider and its percentage: compact, and exempt from its own scale.",
+      "source_sha256": "84d87f75b3c78c2e880baea3988501ce9cd64d8971df5c3a0ec1125d7f29a192",
+      "context": "The slider and its percentage: compact, and exempt from its own scale.",
+      "translation": "滑块及其百分比：紧凑，且不受其自身缩放影响。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl#1",
+      "source": "the preview's scaler.",
+      "source_sha256": "a614d8db0dff5c96d049be6a52cb98f44adc3a0f692e4c9adc5ea4bd6d8d2e99",
+      "context": "the preview's scaler.",
+      "translation": "该预览的缩放器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl#2",
+      "source": "owning widget.",
+      "source_sha256": "6e48e348623bb4f66da15bd5781edb2c32c5158b244b7ba13f77ce9469be7c38",
+      "context": "owning widget.",
+      "translation": "所属控件。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl#3",
+      "source": "Build the slider at the preview's saved scale.",
+      "source_sha256": "1bb42db8a3edf2793a20c06d0d9ea1ea3a8dd91404e10765eee6f7224e3409b3",
+      "context": "Build the slider at the preview's saved scale.",
+      "translation": "按预览已保存的缩放比例构建滑块。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.eventFilter#0",
+      "source": "Double-clicking the percentage goes back to 100 %.",
+      "source_sha256": "abc70db3ac29042564a4790fef8ef351e2e5f8635652406167f383db82d5afdb",
+      "context": "Double-clicking the percentage goes back to 100 %.",
+      "translation": "双击百分比会恢复到 100 %。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.eventFilter#1",
+      "source": "the widget the event is for.",
+      "source_sha256": "d3eaec174ec06f21766591bc16fd47a8493b212d471aed44c3fd457f78145665",
+      "context": "the widget the event is for.",
+      "translation": "事件所针对的控件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.eventFilter#2",
+      "source": "the event; a double-click on the value is consumed.",
+      "source_sha256": "7feb50e81bd0a232f178e6154e75318b37a0b444bfa3811ad01fdc6bb6d0ccf3",
+      "context": "the event; a double-click on the value is consumed.",
+      "translation": "事件；对数值的双击会被消耗。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.set_percent#0",
+      "source": "Move the slider (and so the preview) to ``percent``.",
+      "source_sha256": "feb1c309f5e3273857c5fbc3b73d5c1b55fdb8a6845f4af6aadcfa59f4ca8146",
+      "context": "Move the slider (and so the preview) to ``percent``.",
+      "translation": "将滑块（从而将预览）移动到 ``percent``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.set_percent#1",
+      "source": "the scale in percent, 10 to 200.",
+      "source_sha256": "0fbfdad1323971bab42df7c968cd190320c679d21ac691e0189be253df1e1774",
+      "context": "the scale in percent, 10 to 200.",
+      "translation": "以百分比表示的缩放比例，10 到 200。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler#0",
+      "source": "Scales one preview's subtree, and keeps it scaled as it grows.",
+      "source_sha256": "17be4f8ba3cd4425cbee9a2605428fadad78a9ec802f58e05d4046389e07be4c",
+      "context": "Scales one preview's subtree, and keeps it scaled as it grows.",
+      "translation": "缩放一个预览的控件子树，并在其增长时保持缩放。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler#2",
+      "source": "the key its scale is saved under.",
+      "source_sha256": "4791ea9eeeb5d22e63ac714c9db4ab12a23159574601e3ecf0013ca861bd6019",
+      "context": "the key its scale is saved under.",
+      "translation": "保存其缩放比例所用的键。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler#3",
+      "source": "the starting scale; the saved one by default.",
+      "source_sha256": "0545874eceea6148ed3b68249518d407b590424afe1d96e5aa109a9a54bc51ab",
+      "context": "the starting scale; the saved one by default.",
+      "translation": "起始缩放比例；默认为已保存的比例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler#4",
+      "source": "Remember the preview and apply its saved scale once it is built.",
+      "source_sha256": "c67758b6a1f5ab929c718d318d7d210f1fa53e18fd0e5e556f1680070874c069",
+      "context": "Remember the preview and apply its saved scale once it is built.",
+      "translation": "记住该预览，并在其构建完成后应用已保存的缩放比例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.add_hook#0",
+      "source": "Call ``hook(scale)`` after every change, and once now if scaled.",
+      "source_sha256": "f559916bef459be4c848d397297ce18ade745b7e1151c6e0716a0791a39c52bf",
+      "context": "Call ``hook(scale)`` after every change, and once now if scaled.",
+      "translation": "每次更改后调用 ``hook(scale)``；如果当前已缩放，则立即调用一次。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.add_hook#1",
+      "source": "For what a panel draws itself -- a thumbnail size, a figure's dpi -- which no style sheet or size constraint reaches.",
+      "source_sha256": "7baed2c03644d5557ce1720e2e605b12a5e8e38d8f22791dbc37c675e3a1b597",
+      "context": "For what a panel draws itself -- a thumbnail size, a figure's dpi -- which no style sheet or size constraint reaches.",
+      "translation": "用于面板自行绘制的内容（缩略图尺寸、图形的 dpi），这些内容不受任何样式表或尺寸约束的影响。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.add_hook#2",
+      "source": "called with the new scale; an exception it raises is logged, never passed on.",
+      "source_sha256": "ab398cef092dd574ea7a426dcedccf4e60d90ecab63e9dd5c4cce6b7169daa1b",
+      "context": "called with the new scale; an exception it raises is logged, never passed on.",
+      "translation": "以新的缩放比例调用；它抛出的异常会被记录，绝不会继续传播。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.apply#0",
+      "source": "Put the current scale on every widget of the preview.",
+      "source_sha256": "ddc35192de55943c9213968627e07bee8bbd732e4d01ff72d6c5a1a6c0144b7a",
+      "context": "Put the current scale on every widget of the preview.",
+      "translation": "将当前缩放比例应用到预览的每个控件上。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.eventFilter#0",
+      "source": "Scale what joins the preview later, and sheets set on it later.",
+      "source_sha256": "0a5baa85dfa0c9107150f4e5274b8e419364e1cc814d6e1ef5adf2144908ade0",
+      "context": "Scale what joins the preview later, and sheets set on it later.",
+      "translation": "缩放之后加入预览的内容，以及之后在其上设置的样式表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.eventFilter#1",
+      "source": "Read through ``getattr``: a garbage collection that breaks a cycle through this object clears its attributes while Qt still delivers it events, and a filter that raised then would put an error in the event loop for a preview that is already going away.",
+      "source_sha256": "6565016249dfa804975d8309e3120f120c44dba1ba85cec698151ca8871e6e57",
+      "context": "Read through ``getattr``: a garbage collection that breaks a cycle through this object clears its attributes while Qt still delivers it events, and a filter that raised then would put an error in the event loop for a preview that is already going away.",
+      "translation": "通过 ``getattr`` 读取：当垃圾回收打破经过此对象的循环引用时，会清除其属性，而 Qt 仍在向它投递事件；此时如果过滤器抛出异常，就会为一个即将消失的预览在事件循环中产生错误。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.eventFilter#3",
+      "source": "the event; never consumed.",
+      "source_sha256": "53b472cf807768c3567287c7c6f0940b462ee0fac48054b72b4ac194c6f2e211",
+      "context": "the event; never consumed.",
+      "translation": "事件；绝不会被消耗。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.name#0",
+      "source": "The key this preview's scale is saved under.",
+      "source_sha256": "8d6534ab41bf8268bddbd18b16dbce110636a4f5111aa8a6d2e4dbe7c4b1ac5e",
+      "context": "The key this preview's scale is saved under.",
+      "translation": "保存此预览缩放比例所用的键。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.refresh#0",
+      "source": "Rebuild after the application sheet changed (Zoom, theme).",
+      "source_sha256": "c0fcfb2f26d189297bcfd99f6873ecd13307b4ea29335dc4ee4dc239b4695f1d",
+      "context": "Rebuild after the application sheet changed (Zoom, theme).",
+      "translation": "在应用程序样式表改变（缩放、主题）后重建。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.scale#0",
+      "source": "The preview's current scale.",
+      "source_sha256": "7c968373ae85a721dc5296b42a21e0e9609e558417d6f9b74da52228f29ab3ee",
+      "context": "The preview's current scale.",
+      "translation": "该预览的当前缩放比例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.set_scale#0",
+      "source": "Scale the preview to ``scale`` now, and remember it.",
+      "source_sha256": "fbe25b91643751f399dc9b78e0391b79d27470535c4ddcaebcf61b2c7452c461",
+      "context": "Scale the preview to ``scale`` now, and remember it.",
+      "translation": "立即将预览缩放到 ``scale``，并记住它。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.set_scale#1",
+      "source": "the factor, 1.0 = 100 %.",
+      "source_sha256": "42637bacbd2437fc33c5962970a8f3fb00c3fa95b39bedf8ff42c55f56e3203a",
+      "context": "the factor, 1.0 = 100 %.",
+      "translation": "缩放因子，1.0 = 100 %。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.set_scale#2",
+      "source": "save it for this preview's next opening.",
+      "source_sha256": "8dca9042fb42b7a22bc98191bb9ea8f2a1f6b793ca4927ef3aed6fd5f4e80cb8",
+      "context": "save it for this preview's next opening.",
+      "translation": "将其保存，供此预览下次打开时使用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.set_scale#3",
+      "source": "the scale applied, after clamping.",
+      "source_sha256": "30be6a5a43221445a4230a63af18e5ec62a703516adda60f4d61cb191ae9e836",
+      "context": "the scale applied, after clamping.",
+      "translation": "经过限制后实际应用的缩放比例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.clamp_preview_scale#0",
+      "source": "``value`` as a float inside the slider's bounds (1.0 if unreadable).",
+      "source_sha256": "2635e14d74fb4a3bb92a4ccdab1395e12eeed61ed852b29478a8d074047cdf13",
+      "context": "``value`` as a float inside the slider's bounds (1.0 if unreadable).",
+      "translation": "限制在滑块范围内的浮点数 ``value``（无法读取时为 1.0）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.clamp_preview_scale#1",
+      "source": "anything a stored preference may hold.",
+      "source_sha256": "5b272ee48cb043b9fa2e9e64e054989541229ae7d7ea01eda69efe69fdfc836d",
+      "context": "anything a stored preference may hold.",
+      "translation": "已存储的首选项可能保存的任何值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.get_preview_scale#0",
+      "source": "The saved scale of the preview called ``name``.",
+      "source_sha256": "facb1c24e81a991bdbe0d92f9c9cd55501ada5d34e0656e5b6709a3d5fb89047",
+      "context": "The saved scale of the preview called ``name``.",
+      "translation": "名为 ``name`` 的预览已保存的缩放比例。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.get_preview_scale#1",
+      "source": "the preview's key, e.g. ``\"mask\"``.",
+      "source_sha256": "c229f2c7a0333b7f309e179fefde7c2b5035e619b3fe9a2d6b0abc32c391eb99",
+      "context": "the preview's key, e.g. ``\"mask\"``.",
+      "translation": "该预览的键，例如 ``\"mask\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.install_preview_scale#0",
+      "source": "Give ``panel`` its own scale slider, saved under ``name``.",
+      "source_sha256": "9f816bd84fda3dd0288c32c34cf79d48730faac102ff86a5ceb71a5ef9bb7574",
+      "context": "Give ``panel`` its own scale slider, saved under ``name``.",
+      "translation": "为 ``panel`` 提供其自己的缩放滑块，保存在 ``name`` 下。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.install_preview_scale#1",
+      "source": "the preview panel whose contents the slider scales.",
+      "source_sha256": "037ef72edb30acd745137356d8bb12e60fb69dbd6c80cae88e8597d797bde0c1",
+      "context": "the preview panel whose contents the slider scales.",
+      "translation": "滑块缩放其内容的预览面板。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.install_preview_scale#2",
+      "source": "the key its scale is saved under, e.g. ``\"mask\"``.",
+      "source_sha256": "4beacf34524cebee9e0cd7c0ab4248306e9062a1757999b23e6dacfb0f902730",
+      "context": "the key its scale is saved under, e.g. ``\"mask\"``.",
+      "translation": "保存其缩放比例所用的键，例如 ``\"mask\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.install_preview_scale#3",
+      "source": "the row to put the slider in when the panel is not in a preview card; ``None`` leaves it to the caller.",
+      "source_sha256": "d9d5aa647d027ea26961644cf979c181a170349c27a2b34850a19c0df73d6bbb",
+      "context": "the row to put the slider in when the panel is not in a preview card; ``None`` leaves it to the caller.",
+      "translation": "当面板不在预览卡片中时用于放置滑块的行；为 ``None`` 时交由调用方处理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.set_preview_scale#0",
+      "source": "Remember ``scale`` for the preview called ``name``.",
+      "source_sha256": "4525ce39813e6f3d0fe7464a64c2008f26c67c0b6fd4e0df5ae839e0d93fcaf3",
+      "context": "Remember ``scale`` for the preview called ``name``.",
+      "translation": "记住 ``scale``，作为名为 ``name`` 的预览的缩放比例。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
