@@ -91,6 +91,14 @@ Tests
     alpha gate, field round trip with undo, every-field export/import).
     Both run offscreen with CUDA_VISIBLE_DEVICES=''; with pycocotools on
     the path the pycocotools test runs, otherwise it skips.
+    2026-09-26, later: the RoiSet test compared roifile's own re-encoded
+    bytes, which differ between roifile releases (it failed in the main
+    checkout). It now compares what roifile reads back (names, types,
+    bounds, coordinates, props) and passes with roifile 2024.5.24 and
+    2026.7.30. roifile 2024.5.24 reads the props text short (the end of the
+    last line is cut); a RoiSet it writes is read in full by 2026.7.30, and
+    the import does not depend on the props because the "<type>-<id>" ROI
+    name carries the type and the id (round trips pass on both versions).
 
 Not done
     The files were not opened in the QuPath or Fiji GUI on this machine;

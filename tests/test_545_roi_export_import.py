@@ -185,6 +185,13 @@ def test_a_qupath_export_without_spacr_properties_imports_by_class():
 
 
 def test_the_roiset_is_what_roifile_reads(tmp_path):
+    """Compared by what roifile reads back, never by bytes: two roifile
+    releases encode the same ROI differently. roifile 2024.5.24 also reads
+    the props text short (the end of its last line is cut, fixed in later
+    releases; a file it writes is read in full by 2026.7.30) and cuts it
+    again on each re-encoding, so only the first props line is compared
+    after re-encoding. The round trip does not depend on the props: the
+    ``<type>-<id>`` name carries the type and the id."""
     roifile = pytest.importorskip("roifile")
     mask = _awkward_mask()
     path = mask_io.masks_to_roiset(mask, tmp_path / "RoiSet.zip",
@@ -202,7 +209,17 @@ def test_the_roiset_is_what_roifile_reads(tmp_path):
     assert coords.min(axis=0).tolist() == [30, 5]
     assert coords.max(axis=0).tolist() == [45, 25]
     for roi in rois.values():
-        assert roi.tobytes() == roifile.ImagejRoi.frombytes(roi.tobytes()).tobytes()
+        again = roifile.ImagejRoi.frombytes(roi.tobytes())
+        assert (again.name, again.roitype, again.composite) == (
+            roi.name, roi.roitype, roi.composite)
+        assert (again.left, again.top, again.right, again.bottom) == (
+            roi.left, roi.top, roi.right, roi.bottom)
+        assert again.props.splitlines()[0] == roi.props.splitlines()[0]
+        before = roi.coordinates(multi=True)
+        after = again.coordinates(multi=True)
+        assert len(before) == len(after)
+        for ring, read in zip(before, after):
+            assert np.array_equal(np.asarray(ring, float), np.asarray(read, float))
 
 
 def test_a_fiji_roiset_without_properties_imports_by_name(tmp_path):
