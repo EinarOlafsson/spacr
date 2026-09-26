@@ -1,0 +1,392 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.gui_scale.installed#0",
+      "source": "Whether :func:`install_scaling_layer` has run in this process.",
+      "source_sha256": "e5fdf9dbe236e39c151c82755c490c2a378a2e469c3f5b4abee2f3b401d0a9ec",
+      "context": "Whether :func:`install_scaling_layer` has run in this process.",
+      "translation": "Indique si :func:`install_scaling_layer` s’est exécutée dans ce processus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#0",
+      "source": "A new :class:`KeepOrRevertDialog` (see :func:`_dialog_classes`).",
+      "source_sha256": "6d4d49723df86259e0efd8a4d1a2b017134b8b815cf77cd1b34c86455bae5a15",
+      "context": "A new :class:`KeepOrRevertDialog` (see :func:`_dialog_classes`).",
+      "translation": "Un nouveau :class:`KeepOrRevertDialog` (voir :func:`_dialog_classes`).",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#1",
+      "source": "the window it is centred on.",
+      "source_sha256": "e6e9d2a97e07d1f010d7aeca762ad5eec593be91972012d4ba1a24fce3e53532",
+      "context": "the window it is centred on.",
+      "translation": "la fenêtre sur laquelle elle est centrée.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#2",
+      "source": "how long before it reverts by itself.",
+      "source_sha256": "dfdb1236b9305ed495b79aff733331d3c8fbd087f951ae1461e8325694095ccd",
+      "context": "how long before it reverts by itself.",
+      "translation": "délai avant l’annulation automatique.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#3",
+      "source": "the line naming what changed.",
+      "source_sha256": "31a03e4ea92bcae4096a9b9d4a342d00f213571508e3c06fb4d3407e7add5398",
+      "context": "the line naming what changed.",
+      "translation": "la ligne qui nomme ce qui a changé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.mend_matplotlib_icons#0",
+      "source": "Keep matplotlib's toolbar icons full size below a device ratio of 1.",
+      "source_sha256": "86c6d8858d6c6526b60d9d5495f7cedacd816413a0d15c785c4c922407d402f2",
+      "context": "Keep matplotlib's toolbar icons full size below a device ratio of 1.",
+      "translation": "Conserve les icônes de la barre d’outils de matplotlib en taille réelle lorsque le rapport de l’appareil est inférieur à 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.mend_matplotlib_icons#1",
+      "source": "Matplotlib's toolbar icon engine multiplies the size Qt asks for by the device pixel ratio, and Qt has already done so; above 1 the two cancel, below 1 (a user's ``QT_SCALE_FACTOR`` under 1) they compound. Measured offscreen at a ratio of 0.5: the icons drew 3 px tall instead of 11. Holding the engine's ratio at 1 or more draws them 11 px tall and changes nothing at a ratio of 1 or 2. Idempotent.",
+      "source_sha256": "b0bc37950be6c1d7fbb417e3f4b3db6d04bedf809bb37eebf0dac27c87108af9",
+      "context": "Matplotlib's toolbar icon engine multiplies the size Qt asks for by the device pixel ratio, and Qt has already done so; above 1 the two cancel, below 1 (a user's ``QT_SCALE_FACTOR`` under 1) they compound. Measured offscreen at a ratio of 0.5: the icons drew 3 px tall instead of 11. Holding the engine's ratio at 1 or more draws them 11 px tall and changes nothing at a ratio of 1 or 2. Idempotent.",
+      "translation": "Le moteur d’icônes de la barre d’outils de Matplotlib multiplie la taille demandée par Qt par le rapport de pixels de l’appareil, alors que Qt l’a déjà fait ; au-dessus de 1, les deux s’annulent, en dessous de 1 (un ``QT_SCALE_FACTOR`` utilisateur inférieur à 1), ils se cumulent. Mesuré hors écran avec un rapport de 0.5 : les icônes étaient dessinées sur 3 px de haut au lieu de 11. Maintenir le rapport du moteur à 1 ou plus les dessine sur 11 px de haut et ne change rien pour un rapport de 1 ou 2. Idempotente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.mend_matplotlib_icons#2",
+      "source": "``True`` if the mend is in place.",
+      "source_sha256": "eb27d3da71f4563b40df38c7ee9d4eb2d7e23930601ac1ca52189b52a76544b6",
+      "context": "``True`` if the mend is in place.",
+      "translation": "``True`` si le correctif est en place.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.refresh_the_windows#0",
+      "source": "Rebuild what a style sheet cannot reach: icons, tiles, window chrome.",
+      "source_sha256": "2d35c434b914c2f4c621715dacc22c34087a620f78b19d06beed562415d38a3a",
+      "context": "Rebuild what a style sheet cannot reach: icons, tiles, window chrome.",
+      "translation": "Reconstruit ce qu’une feuille de style ne peut pas atteindre : icônes, tuiles, décorations de fenêtre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.refresh_the_windows#1",
+      "source": "The same step the Z + wheel gesture ends with. ``MainWindow.refresh_theme`` repaints the marks in the window corner and the Home tiles, which paint their own pixmaps at a size they compute -- and a pixmap is not a size the scaling layer ever sees.",
+      "source_sha256": "5ce6d0bf829af3a24832824d4816594ca84c67562afacbc035466131be2e9c63",
+      "context": "The same step the Z + wheel gesture ends with. ``MainWindow.refresh_theme`` repaints the marks in the window corner and the Home tiles, which paint their own pixmaps at a size they compute -- and a pixmap is not a size the scaling layer ever sees.",
+      "translation": "L’étape par laquelle se termine le geste Z + molette. ``MainWindow.refresh_theme`` repeint les marques dans le coin de la fenêtre et les tuiles Home, qui peignent leurs propres pixmaps à une taille qu’elles calculent -- et un pixmap n’est pas une taille que la couche de mise à l’échelle voit jamais.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.refresh_the_windows#2",
+      "source": "how many windows rebuilt.",
+      "source_sha256": "3d5a0d34105aceef0fdacd462394c13084a2940c422dd356c43e992bc185997f",
+      "context": "how many windows rebuilt.",
+      "translation": "nombre de fenêtres reconstruites.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.reset_every_scale#0",
+      "source": "Put GUI scale, font scale and every preview scale back to 100 %, now.",
+      "source_sha256": "6c27587902b47746fa537ed5d61592d0197a4342781c2d90807c6a32dc6e2506",
+      "context": "Put GUI scale, font scale and every preview scale back to 100 %, now.",
+      "translation": "Remet immédiatement l’échelle de la GUI, l’échelle de police et chaque échelle d’aperçu à 100 %.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.reset_every_scale#1",
+      "source": "The backup way out of a scale too small to read: ``Ctrl+Alt+0``. It needs no reading and no answer.",
+      "source_sha256": "cdeccfbe4cab749db8559121f189bedff2b0472f400c3ac60a70e1e884a7b754",
+      "context": "The backup way out of a scale too small to read: ``Ctrl+Alt+0``. It needs no reading and no answer.",
+      "translation": "L’échappatoire de secours face à une échelle trop petite pour être lue : ``Ctrl+Alt+0``. Elle ne demande ni lecture ni réponse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.reset_every_scale#2",
+      "source": "unused; kept so a shortcut can pass its window.",
+      "source_sha256": "b0adccda3d8cb3f26956c31193eafbccf0401376f8c0e516da1153068821f2d8",
+      "context": "unused; kept so a shortcut can pass its window.",
+      "translation": "inutilisé ; conservé pour qu’un raccourci puisse transmettre sa fenêtre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_int#0",
+      "source": "``value`` at ``factor``, keeping 0, negatives and Qt's maximum as they are.",
+      "source_sha256": "3633f6d48ad0c058767024be9f6ee779fde65fcb6a16cf9e1f24cd1606e0b627",
+      "context": "``value`` at ``factor``, keeping 0, negatives and Qt's maximum as they are.",
+      "translation": "``value`` à l’échelle ``factor``, en laissant tels quels 0, les valeurs négatives et le maximum de Qt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_int#1",
+      "source": "a size in 100 % pixels.",
+      "source_sha256": "c23a21d5a6ab894bf4c90395d69f7f1d9b095cb6fd7ae36d74900e7b1dea338a",
+      "context": "a size in 100 % pixels.",
+      "translation": "une taille en pixels à 100 %.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_int#2",
+      "source": "the scale; the current one by default.",
+      "source_sha256": "fca91ff0a77003a9c08f128ba3a52898cc98ffa00bdaf6db72ab5d98dfd0d655",
+      "context": "the scale; the current one by default.",
+      "translation": "l’échelle ; par défaut, l’échelle courante.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_qss_text#0",
+      "source": "Scale the sizes in a style sheet, leaving every other byte as it was.",
+      "source_sha256": "c6ddef6c0aa1dc0067778abccef892850c627c2dbbff0128d49014163e8e265b",
+      "context": "Scale the sizes in a style sheet, leaving every other byte as it was.",
+      "translation": "Met à l’échelle les tailles d’une feuille de style, en laissant tous les autres octets tels quels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_qss_text#1",
+      "source": "Only the values of size properties (font sizes, paddings, margins, min/max sizes, widths, heights, spacing, radii) change; selectors, colours, borders and ``url(...)`` data are untouched.",
+      "source_sha256": "bbaec48619efc3f0227c0637c20ecd6f5282c8bf17dd75daea5d44209bac2409",
+      "context": "Only the values of size properties (font sizes, paddings, margins, min/max sizes, widths, heights, spacing, radii) change; selectors, colours, borders and ``url(...)`` data are untouched.",
+      "translation": "Seules changent les valeurs des propriétés de taille (tailles de police, rembourrages, marges, tailles min/max, largeurs, hauteurs, espacements, rayons) ; les sélecteurs, les couleurs, les bordures et les données ``url(...)`` ne sont pas modifiés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.scale_qss_text#2",
+      "source": "the style sheet.",
+      "source_sha256": "d938d34c454a02a7157bad3f6315e9e5481e0ff80aff6f28c95ecc8ec40bede2",
+      "context": "the style sheet.",
+      "translation": "la feuille de style.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.set_gui_scale_live#0",
+      "source": "Draw spaCR at ``scale`` now: every live widget, and every one built later.",
+      "source_sha256": "c6c772779e9627fa38598fa13817ea707aea2a32ddd8f051037be68396256761",
+      "context": "Draw spaCR at ``scale`` now: every live widget, and every one built later.",
+      "translation": "Dessine spaCR à l’échelle ``scale`` dès maintenant : chaque widget vivant, et chaque widget construit plus tard.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.set_gui_scale_live#1",
+      "source": "Does not save the preference; see :func:`spacr.qt.preferences.set_gui_scale`.",
+      "source_sha256": "5a19d068c9d172410f2ddbca044245516fc3ac3ec8cbf5de4d274a0adb3ec389",
+      "context": "Does not save the preference; see :func:`spacr.qt.preferences.set_gui_scale`.",
+      "translation": "N’enregistre pas la préférence ; voir :func:`spacr.qt.preferences.set_gui_scale`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.set_gui_scale_live#2",
+      "source": "the factor, 1.0 = 100 %; clamped to 10-200 %.",
+      "source_sha256": "ec856302466ddb5328108ef68f55d577e4235bf0c0eb062af3d63979e5c6b5f5",
+      "context": "the factor, 1.0 = 100 %; clamped to 10-200 %.",
+      "translation": "le facteur, 1.0 = 100 % ; borné à 10-200 %.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.gui_scale.set_gui_scale_live#3",
+      "source": "the scale applied.",
+      "source_sha256": "fbf60c0a2350b791a7ec19bb29665f5ebb447b9e07b22daacdca0e9ce81c6768",
+      "context": "the scale applied.",
+      "translation": "l’échelle appliquée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_api_index#0",
+      "source": "What the Help search field matches on. Generated -- do not edit.",
+      "source_sha256": "ff11b31e0ccc5f3288a643e29c53870bc9c5faa0870a0860b7926424f0d47d79",
+      "context": "What the Help search field matches on. Generated -- do not edit.",
+      "translation": "Ce sur quoi porte la recherche du champ de l’Aide. Fichier généré -- ne pas modifier.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_api_index#1",
+      "source": "Written by ``tools/build_help_search_index.py`` from the API manifest, the setting consumer map and the source of the preferences dialog. See ``docs/notes/spacr/qt/help_api_index.md`` for why none of it is typed by hand.",
+      "source_sha256": "4e4a4ea01adc24fc9284b97dcb8e0b2220343b30c03188b1eee51e066a1390c2",
+      "context": "Written by ``tools/build_help_search_index.py`` from the API manifest, the setting consumer map and the source of the preferences dialog. See ``docs/notes/spacr/qt/help_api_index.md`` for why none of it is typed by hand.",
+      "translation": "Écrit par ``tools/build_help_search_index.py`` à partir du manifeste de l’API, de la carte des consommateurs de réglages et du code source de la boîte de dialogue des préférences. Voir ``docs/notes/spacr/qt/help_api_index.md`` pour savoir pourquoi rien n’y est saisi à la main.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#0",
+      "source": "Everything in spaCR that is addressable by name, and how to rank it.",
+      "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
+      "context": "Everything in spaCR that is addressable by name, and how to rank it.",
+      "translation": "Tout ce qui, dans spaCR, est adressable par son nom, et la façon de le classer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#1",
+      "source": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
+      "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
+      "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
+      "translation": "Le champ de recherche à côté du menu Aide ne vaut que ce que vaut ceci : un utilisateur qui sait comment une chose S’APPELLE doit pouvoir l’atteindre sans savoir quel module la possède, ni sous quelle rubrique repliée elle a été classée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#10",
+      "source": "ADDING A KIND IS REGISTERING A PROVIDER, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
+      "source_sha256": "c1752a04b729ad11dc31364bb0613cf40639a5e6d949525823263e09bd6a3aee",
+      "context": "Adding a kind is registering a provider, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
+      "translation": "AJOUTER UN TYPE, C’EST ENREGISTRER UN FOURNISSEUR, et non modifier un aiguillage. Un fournisseur est ``() -> Iterable[HelpEntry]`` ; :func:`register_provider` en ajoute un et :func:`build_index` appelle chacun d’eux derrière sa propre protection, si bien qu’un fournisseur qui lève une exception ne coûte que ses propres lignes, et rien d’autre. Ce que FAIT un résultat lorsqu’il est ouvert est enregistré de la même façon, dans :mod:`spacr.qt.help_search`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index#11",
+      "source": "IMPORTING THIS COSTS NOTHING; BUILDING THE INDEX COSTS A SECOND. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the GUI thread -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
+      "source_sha256": "3adc1919bf67507e81691ffe20f6780b575a65e36a075720f40e6e64005d5349",
+      "context": "Importing this costs nothing; building the index costs a second. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the main GUI execution path -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
+      "translation": "IMPORTER CE MODULE NE COÛTE RIEN ; CONSTRUIRE L’INDEX COÛTE UNE SECONDE. Chaque registre est importé à l’intérieur du fournisseur qui le lit, de sorte que le module lui-même n’importe ni Qt ni ``spacr.settings``. Sa construction a pris 1.1 s pour 13,000 lignes sur cette arborescence, ce qui est bien trop pour le fil d’exécution de la GUI -- :mod:`spacr.qt.help_search` exécute :func:`build_index` dans un worker, et ce module reste testable sans affichage.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#2",
+      "source": "THE INDEX IS NEVER A HAND LIST. Every row here is derived from something that already decides the answer:",
+      "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
+      "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
+      "translation": "L’INDEX N’EST JAMAIS UNE LISTE ÉCRITE À LA MAIN. Chaque ligne ici est dérivée de quelque chose qui détermine déjà la réponse :",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#3",
+      "source": "kind",
+      "source_sha256": "0b27c158feb36ab18a10ff687909ec730ece6280581dd407e2672359be7725dd",
+      "context": "kind",
+      "translation": "type",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#4",
+      "source": "where the rows come from",
+      "source_sha256": "ae856f5397ddc1eadcc133c6b5be28a071618c807119cd5be91680e8ea451a25",
+      "context": "where the rows come from",
+      "translation": "provenance des lignes",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#5",
+      "source": ":data:`spacr.qt.app.APPS`, the live app registry",
+      "source_sha256": "38c089372d9b635f0578e8d42969b171c02752f4f0fc1820eb4b0bf0bd433bc9",
+      "context": ":data:`spacr.qt.app.APPS`, the live app registry",
+      "translation": ":data:`spacr.qt.app.APPS`, le registre vivant des applications",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#6",
+      "source": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` and :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "source_sha256": "4224be5ec808175fe7cb890b5673844999be3a7736b54139eef0f47c822c184e",
+      "context": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` and :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "translation": ":func:`~spacr.qt.screens.settings_model.resolve_default_settings` et :func:`~spacr.qt.screens.settings_model.categori per module, described by :func:`~spacr.qt.screens.settings_model.get_tooltips",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#7",
+      "source": "``API_ENTRIES`` in :mod:`spacr.qt.help_api_index`, generated from the published API manifest",
+      "source_sha256": "35ab93bede425cb2b63b9709aae01400b7b2057e5fc5892293e6334b6aea19c7",
+      "context": "``API_ENTRIES`` in :mod:`spacr.qt.help_api_index`, generated from the published API manifest",
+      "translation": "``API_ENTRIES`` dans :mod:`spacr.qt.help_api_index`, généré à partir du manifeste publié de l’API",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#8",
+      "source": "``PREFERENCE_ENTRIES``, walked out of the source of the preferences dialog",
+      "source_sha256": "3cb1d5ccd785dcfd79ba65df3df337eb43fcbd7421087b76d51f99f76ff19a7c",
+      "context": "``PREFERENCE_ENTRIES``, walked out of the source of the preferences dialog",
+      "translation": "``PREFERENCE_ENTRIES``, extrait en parcourant le code source de la boîte de dialogue des préférences",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index#9",
+      "source": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
+      "source_sha256": "9493a94b5d36037593b5216649265a1ad8e8d941e5b266d2bf0b6277cc792afe",
+      "context": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
+      "translation": "Un réglage introuvable est alors un fait concernant un générateur, et non la question de savoir si quelqu’un a pensé à ajouter une ligne ; c’est tout l’argument de la consigne.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#0",
+      "source": "One addressable thing, and what it takes to get back to it.",
+      "source_sha256": "759ac46b75cb1c60a51607e85a59ccb4aefbb1e184ba57bb9fc4e2787992eb97",
+      "context": "One addressable thing, and what it takes to get back to it.",
+      "translation": "Une chose adressable, et ce qu’il faut pour y revenir.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#1",
+      "source": "which provider produced it; also which opener knows what to do with it. One of :data:`KIND_ORDER`, or a kind a caller registered.",
+      "source_sha256": "6a115a79c3b0875314bb1f5dc33c81c4d8c9971891ffde265b29385e32e7704e",
+      "context": "which provider produced it; also which opener knows what to do with it. One of :data:`KIND_ORDER`, or a kind a caller registered.",
+      "translation": "le fournisseur qui l’a produite ; également l’ouvreur qui sait quoi en faire. L’un des :data:`KIND_ORDER`, ou un type enregistré par un appelant.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#10",
+      "source": "WHY A TEMPLATE AND NOT THE FINISHED STRING. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
+      "source_sha256": "160936f13dc63126e120ac6bad4bf5ba6bde38eb9a0fb49f861d05cf0a65a08e",
+      "context": "Why a template and not the finished string. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
+      "translation": "POURQUOI UN MODÈLE ET NON LA CHAÎNE FINALE. ``subtitle`` et ``description`` sont ce sur quoi porte la RECHERCHE ; ils restent donc en anglais : la requête et le corpus doivent être dans la même langue, et l’index est construit une fois par session alors que la langue de l’interface peut changer ensuite. Ce que l’utilisateur LIT est rendu à partir du modèle au moment où une ligne est dessinée, par :func:`rendered_subtitle` et :func:`rendered_description`, auxquelles est transmise :func:`spacr.qt.i18n.tr` -- un changement de langue est donc pris en compte dès la frappe suivante, et ce module n’importe toujours ni Qt ni catalogue. \"API reference\" est le sous-titre de dix mille lignes ; une chaîne anglaise finale ici donnerait une liste de résultats entièrement en anglais à tout lecteur qui ne travaille pas en anglais.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#2",
+      "source": "the identifier a user would type -- a setting key, a module name, a dotted API symbol, a preference label.",
+      "source_sha256": "be70bea1793d009d9eafd2998fb66b371783370ff8c6c2b727c7d1e08b29e30f",
+      "context": "the identifier a user would type -- a setting name, a module name, a dotted API symbol, a preference label.",
+      "translation": "l’identifiant qu’un utilisateur saisirait -- une clé de réglage, un nom de module, un symbole d’API pointé, un libellé de préférence.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#3",
+      "source": "where it lives. \"in Mask ▸ Cell Segmentation\" for a setting, \"Preferences ▸ Animation\" for a preference.",
+      "source_sha256": "eeed2c452f509826fe965d09843c51bc899b61908809fb8bb8a493469dae1f57",
+      "context": "where it lives. \"in Mask ▸ Cell Segmentation\" for a setting, \"Preferences ▸ Animation\" for a preference.",
+      "translation": "son emplacement. \"in Mask ▸ Cell Segmentation\" pour un réglage, \"Preferences ▸ Animation\" pour une préférence.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#4",
+      "source": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
+      "source_sha256": "4bae203d75769918522607f1371e020bca05f06dffe38cdb8c560ee592c04996",
+      "context": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
+      "translation": "ce qu’elle fait, dans les termes auxquels pense l’utilisateur. La recherche porte dessus ; c’est ce qui permet à \"touching\" de trouver ``merge_edge_pathogen_cells``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#5",
+      "source": "what the opener needs and nothing more -- an app key, a setting key, a dotted symbol, a tab object name.",
+      "source_sha256": "9b5a861c1dd35584b38a0c84f9cc9c5fd776489d96ebdcfc87247c9eeade1c97",
+      "context": "what the opener needs and nothing more -- an app structured-data name, a setting name, a dotted symbol, a tab object name.",
+      "translation": "ce dont l’ouvreur a besoin, et rien de plus -- une clé d’application, une clé de réglage, un symbole pointé, un nom d’objet d’onglet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#6",
+      "source": "the English TEMPLATE ``subtitle`` was rendered from, when the words in it are this module's own rather than a name taken from a registry. ``\"\"`` when there is nothing to translate.",
+      "source_sha256": "3f8e544c6d351b5e05d2deed805b140e61f3c7fd6a39f6df4ae6e32acaf4e8c1",
+      "context": "the English TEMPLATE ``subtitle`` was rendered from, when the words in it are this module's own rather than a name taken from a registry. ``\"\"`` when there is nothing to translate.",
+      "translation": "le MODÈLE anglais à partir duquel ``subtitle`` a été rendu, lorsque les mots qu’il contient sont propres à ce module plutôt qu’un nom tiré d’un registre. ``\"\"`` lorsqu’il n’y a rien à traduire.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#7",
+      "source": "what to substitute into that template, as ``(name, value)`` pairs -- a tuple, because the entry is frozen and hashable and a dict would be neither.",
+      "source_sha256": "ca90e22808a5044737febce94b1eca26396781ff5a8bbc1e4d76565c08001467",
+      "context": "what to substitute into that template, as ``(name, value)`` pairs -- a tuple, because the entry is frozen and hashable and a key-value mapping would be neither.",
+      "translation": "ce qu’il faut substituer dans ce modèle, sous forme de paires ``(name, value)`` -- un tuple, car l’entrée est figée et hachable, ce que ne serait pas un dictionnaire.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.HelpEntry#8",
+      "source": "the same for :attr:`description`.",
+      "source_sha256": "f9d4674cd23796923997e1a89df2df94d74862c282f003582e524ae5a9c324b6",
+      "context": "the same for :attr:`description`.",
+      "translation": "la même chose pour :attr:`description`.",
+      "review_basis": "MT draft kept after AI review"
+    }
+  ]
+}
