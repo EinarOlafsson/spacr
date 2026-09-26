@@ -1,33 +1,37 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "fr",
-  "title": "Lineage : relations d’inclusion et images vérifiées des cellules parentes",
-  "description": "Examiner les relations enregistrées, la limite d’affichage et le recadrage du parent seul, sans approuver le remplacement erroné des enfants manquants.",
+  "title": "Lineage : parcourir les objets parents et leur contenu",
+  "description": "Ouvrez les relations parent-enfant enregistrées, sélectionnez une famille et examinez dans Annotate la vignette de la cellule parente correspondante.",
   "objectives": [
-    "Ouvrir Lineage dans Database Browser et construire l’arbre réel.",
-    "Distinguer comptes complets, familles affichées et identités typées.",
-    "Reconnaître le remplacement incorrect des images enfants et inspecter le parent vérifié.",
-    "Utiliser le zoom natif et distinguer l’export Python des contrôles de l’interface."
+    "Charger des mesures et déplier les relations parent-enfant.",
+    "Sélectionner des objets en vérifiant le champ et le type d’objet.",
+    "Ouvrir la vignette de la cellule parente correspondante et obtenir la hiérarchie complète avec Python."
   ],
-  "prerequisite": "Utilisez l’exemple téléchargé d’Annotate avec mesures et images cellulaires correspondantes. L’archive Graph Builder fournit la base exacte sans images ; l’archive Lineage contient le CSV API vérifié et l’analyse, pas une base de remplacement. N’utilisez pas le remplacement actuel des images familiales pour identifier ou annoter des enfants manquants.",
+  "prerequisite": "Téléchargez l’exemple complet d’Annotate avec sa base de données de mesures et les vignettes de cellules correspondantes. L’archive de Graph Builder, qui ne contient que la base de données, ne peut pas fournir d’images. Cet exemple ne contient que des vignettes de cellules : double-cliquez sur une cellule parente pour examiner une vignette. L’action actuelle Open crops sur une famille peut remplacer les vignettes enfants manquantes par des vignettes de cellules sans rapport ; évitez-la avec cet exemple.",
   "scenes": [
-    "Trouvez Database Browser dans Help, puis ouvrez son outil intégré Lineage. Ici, lineage désigne la contenance enregistrée : quels objets appartiennent à quelles cellules. Ce n’est ni une histoire de divisions, ni une ascendance génétique, ni une nouvelle segmentation. Les contrôles de base autour de la vue appartiennent au module hôte.",
-    "Ouvrez measurements point db de l’exemple réel d’Annotate et construisez l’arbre. Nous utilisons une copie privée inchangée. Élargissez la colonne Object et le séparateur si nécessaire. Les numéros se répètent entre champs et types d’objets ; un numéro seul n’est donc pas une identité.",
-    "La source complète contient deux mille trois cent quarante et une cellules, deux mille six cent quatre-vingt-deux noyaux et deux mille cent soixante-dix-huit objets de la table pathogen. Seules deux mille familles parentales apparaissent dans l’arbre : trois cent quarante et une sont absentes de l’affichage, pas supprimées de la base.",
-    "Le résumé indique qu’aucune cellule n’est vide, car un noyau compte aussi comme enfant. Cela ne signifie pas que chaque cellule contient un objet de la table pathogen : mille cent soixante-huit n’en contiennent pas. Aucun enfant non rattaché signifie que chaque parent enregistré existe, pas que la segmentation est biologiquement correcte.",
-    "Développez un parent pour voir ses enfants. Dans ce champ, la cellule trois contient le noyau cinq et l’objet pathogen un selon les liens enregistrés. Ce sont des identités typées, pas trois numéros interchangeables. Sélectionner un enfant seul diffère de sélectionner toute la famille.",
-    "Select with contents publie le parent et ses enfants. Sélectionner le parent et un enfant ensemble n’exige pas de dupliquer cet enfant. Les clés publiées conservent champ et type d’objet, mais leur colonne est cachée ici. Publier une identité ne prouve pas qu’une image correspondante existe.",
-    "Une grande famille mérite une inspection, pas une interprétation biologique automatique. Cet exemple contient une famille de trente-trois objets au total. La contenance peut refléter des erreurs de segmentation ou d’acquisition. L’arbre rapporte des relations sauvegardées ; il ne transforme pas des nombres inhabituels en découverte.",
-    "Cliquer sur un en-tête trie les familles affichées sans changer leur contenance. La limite de deux mille parents reste appliquée. Nous avons vérifié chaque identité affichée, chaque lien parental et la hiérarchie complète. Une vue triée ou tronquée n’est pas une table de mesures modifiée.",
-    "Open crops nécessite Annotate, qui fournit le visualiseur d’images. Le message demande réellement d’ouvrir Annotate d’abord. Un visualiseur absent n’est pas une image manquante. Chargez le projet correspondant avant toute demande, pas une autre exécution dont les numéros se ressemblent.",
-    "Le projet téléchargé fournit de vraies images cellulaires recadrées. L’archive contenant seulement la base ne peut pas les fournir. Nous utilisons l’exemple complet correspondant et préservons chaque image originale. Ouvrir la source n’entraîne pas de classifieur et n’établit pas de nouvelles étiquettes.",
-    "Cette version a une limite sérieuse. Ouvrir la famille de trois objets affiche la cellule trois, puis les cellules cinq et un, sans rapport, au lieu du noyau et de l’objet pathogen demandés. La source n’a que des images cellulaires. Rejetez cette substitution : ne les annotez pas comme enfants manquants. Le tutoriel ne répare pas ce défaut.",
-    "L’alternative vérifiée est plus étroite : revenez à Lineage et double-cliquez uniquement sur le parent cellulaire. Contrairement à Open crops, cette action envoie seulement le parent, pas sa famille. Annotate montre exactement son image. Nous avons vérifié identité et octets originaux, sans prétendre prendre en charge les images enfants.",
-    "Maintenez Maj et cliquez sur la miniature parentale pour agrandir son aperçu sans attribuer de classe. Échap rétablit la grille. Cela aide l’inspection, sans créer de résolution supplémentaire. Utilisez le bon geste : un simple clic gauche annote, ce n’est pas le zoom montré ici.",
-    "Build tree actualise la vue. En Python, read_object_tables, build_forest et lineage_frame exposent la même structure. Le CSV lié contient les sept mille deux cent un nœuds, familles masquées comprises. Il a été écrit par l’API, pas par un bouton d’export Lineage, et ne constitue pas une validation biologique."
+    "Depuis Home, ouvrez Database Browser, puis Lineage. Utilisez l’arbre pour voir quels objets mesurés sont enregistrés dans chaque cellule parente.",
+    "Allez avec Browse jusqu’à measurements.db de l’exemple Annotate et cliquez sur Build tree. Élargissez la colonne Object et le séparateur pour lire les étiquettes. Identifiez un objet par son champ et son type, en plus de son numéro.",
+    "Cette base de données contient deux mille trois cent quarante et une cellules. L’arbre affiche jusqu’à deux mille familles parentes. Utilisez l’export Python présenté plus loin dans cette leçon lorsque vous avez besoin de toutes les familles.",
+    "Lisez le résumé au-dessus de l’arbre. Un noyau compte comme un enfant ; une cellule avec du contenu peut donc n’avoir aucun objet pathogène. Utilisez les types d’enfants pour interpréter chaque famille.",
+    "Dépliez un parent pour voir ses enfants. Ici, la cellule trois contient le noyau cinq et le pathogène un. Choisissez le type d’objet précis que vous voulez examiner.",
+    "Utilisez Select with contents pour sélectionner ensemble le parent et ses enfants. Les identités sélectionnées incluent leur champ et leur type d’objet. Sélectionnez un enfant seul lorsque vous n’avez besoin que de cet objet.",
+    "Dépliez une grande famille pour examiner son contenu. Cet exemple comprend une famille de trente-trois objets. Examinez les images correspondantes lorsqu’un effectif paraît inhabituel.",
+    "Cliquez sur un en-tête de colonne pour trier les familles affichées. Le tri conserve les relations enregistrées et la limite d’affichage de deux mille parents.",
+    "Pour voir des vignettes, ouvrez d’abord Annotate et chargez le projet d’exemple correspondant. Si le message demandant Annotate apparaît, ouvrez-le avant de demander des images depuis Lineage.",
+    "Utilisez le projet téléchargé complet, qui contient les vignettes de cellules. Gardez ensemble la base de données et les images d’une même exécution pour que les identités des objets correspondent.",
+    "Évitez Open crops sur une famille entière dans cet exemple. Des vignettes de noyaux et de pathogènes manquantes peuvent être remplacées par des vignettes de cellules sans rapport. Revenez à l’arbre et choisissez uniquement la cellule parente.",
+    "Double-cliquez sur la cellule parente dans Lineage. Annotate ouvre la vignette de cellule correspondant à ce parent. C’est la vignette disponible dans l’exemple téléchargé.",
+    "Cliquez avec Maj sur la miniature du parent pour agrandir son aperçu, puis appuyez sur Échap pour revenir. Un clic gauche ordinaire attribue une classe d’annotation ; utilisez donc Maj lorsque vous voulez seulement examiner.",
+    "Cliquez sur Build tree pour actualiser l’affichage. Pour la hiérarchie complète en Python, utilisez read_object_tables, build_forest et lineage_frame, puis enregistrez la table en CSV. Le CSV d’exemple associé contient les sept mille deux cent un nœuds."
   ]
 }

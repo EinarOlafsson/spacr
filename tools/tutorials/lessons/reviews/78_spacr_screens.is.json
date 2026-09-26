@@ -1,35 +1,36 @@
 {
   "language": "is",
-  "title": "Skimanir með spaCR",
-  "section": "Verkferlar",
-  "description": "Fylgdu myndbyggðri skimun á sameinuðu safni frá Home, í gegnum myndmælingar, svipgerðarflokkun og talningu strikamerkja, að aðhvarfsgreiningu.",
-  "objectives": [
-    "Velja upphafseiningu út frá þeim gögnum sem þegar eru tiltæk.",
-    "Átta sig á hvaða gögn hver eining les og skrifar.",
-    "Nota tengdar kennslustundir eininganna og API-lýsingar fyrir næsta skref."
-  ],
-  "prerequisite": "Settu upp spaCR og opnaðu Home. Þessi kennslustund útskýrir leiðsögn og afhendingu gagna milli eininga; tengdar kennslustundir eininganna sýna útfærð dæmi með gögnum. Inntök og úttök fela í sér skilyrta valkosti sem eru útskýrðir fyrir hverja einingu.",
-  "scenes": [
-    "Byrjaðu á Home með það efni sem þú hefur þegar. Myndbyggð skimun á sameinuðu safni hefur tvær gagnagreinar: myndir lýsa svipgerðinni en raðgreining auðkennir þær truflanir sem eru til staðar í hverjum brunni. Mask, Measure, Annotate og Classify mynda myndgreinina. Map Barcodes myndar raðgreiningargreinina. Regression sameinar samhæf skor og talningar leiðsöguraða. Þetta eru tengdar gagnaafurðir, ekki sex hnappar sem alltaf þarf að keyra í fastri röð.",
-    "Opnaðu Mask frá Home. Veldu rásir og líkön, skoðaðu forskoðun og keyrðu síðan Mask. Measure notar sameinuðu fylkin; talningagagnagrunnurinn er enn ekki tafla með mælieiginleikum. Inntaksgögn: smásjármyndir; vistuð staða aðgreiningarlíkans. Úttaksgögn: myndir og merkjagrímur; merkjagrímur; fjöldi hluta. Frá Mask til Measure: notaðu sama verkefni og rétta rásarvísa fyrir myndir og grímur.",
-    "Opnaðu Measure frá Home. Measure les myndir og merkjaplön saman. Virkjaðu vistun útskurða ef þú þarft PNG-skrár; haltu gagnagrunninum og upprunaverkefninu saman fyrir útskurði sem eru lesnir eftir þörfum. Inntaksgögn: myndir og merkjagrímur; merkjagrímur. Úttaksgögn: mældir hlutir; útskurðir af hlutum. Frá Mask til Measure: notaðu sama verkefni og rétta rásarvísa fyrir myndir og grímur. Frá Measure til Annotate: vistaðu eða lestu útskurði eftir þörfum með stöðugum auðkennum hluta. Frá Measure til Classify: veldu myndafjölskylduna eða töflugagnafjölskylduna eftir inntakinu.",
-    "Opnaðu Annotate frá Home. Merktu dæmigerða hluti í png_list fyrir stýrt nám. Notaðu aðskildar merkingar fyrir ólíkar spurningar og haltu þjálfunar- og matshópum óháðum. Inntaksgögn: mældir hlutir; útskurðir af hlutum; endurnýtanleg valsvæði. Úttaksgögn: þjálfunarmerkingar. Frá Measure til Annotate: vistaðu eða lestu útskurði eftir þörfum með stöðugum auðkennum hluta. Frá Annotate til Classify: haltu merktum þjálfunar- og matshópum aðskildum.",
-    "Opnaðu Classify frá Home. Veldu Computer Vision fyrir útskurði eða myndir af hlutum sem eru lesnar eftir þörfum, eða Tabular Machine Learning fyrir dálka með mældum eiginleikum. Fjölskyldurnar tvær nota ólík inntök. Inntaksgögn: mældir hlutir; útskurðir af hlutum; þjálfunarmerkingar. Úttaksgögn: flokkunarskor hluta; þjálfað myndflokkunarlíkan; aðlagað flokkunarlíkan fyrir eiginleika; matsgagnapakki fyrir flokkunarlíkan. Frá Measure til Classify: veldu myndafjölskylduna eða töflugagnafjölskylduna eftir inntakinu. Frá Annotate til Classify: haltu merktum þjálfunar- og matshópum aðskildum. Frá Classify til Regression: veldu viðeigandi CV- eða ML-skordálk og varðveittu auðkenni platna og brunna.",
-    "Opnaðu Map Barcodes frá Home. Leggðu fram viðmiðunarraðirnar sem kóða tilraunina þína. Skoðaðu talningar úthlutaðra raða og gæðaeftirlit strikamerkja áður en þú parar talningar leiðsöguraða í hverjum brunni við svipgerðarskor. Inntaksgögn: raðgreiningarlestrar. Úttaksgögn: talningar leiðsöguraða í hverjum brunni. Frá Map Barcodes til Regression: paraðu talningar leiðsöguraða við svipgerðarskor með samræmdum lyklum fyrir plötur og brunna.",
-    "Opnaðu Regression frá Home. Láttu auðkenni platna og brunna samsvara milli svipgerðargagna og talninga leiðsöguraða, veldu svarbreytu og viðmið og skoðaðu greiningarprófanir áður en þú túlkar jákvæðar niðurstöður. Beint mæld svör eru einnig studd. Inntaksgögn: flokkunarskor hluta; talningar leiðsöguraða í hverjum brunni; úthlutanir ljósrænna strikamerkja; mældir hlutir. Úttaksgögn: niðurstöður aðhvarfsgreiningar og jákvæðar niðurstöður. Frá Classify til Regression: veldu viðeigandi CV- eða ML-skordálk og varðveittu auðkenni platna og brunna. Frá Map Barcodes til Regression: paraðu talningar leiðsöguraða við svipgerðarskor með samræmdum lyklum fyrir plötur og brunna. Frá OPS til Regression: tengdu eða safnaðu sérstaklega saman afkóðuðum hlutum í svipgerðar- og leiðsöguinntök fyrir Regression; þetta er ekki bein afhending CSV-skrár.",
-    "Athugaðu fyrir Regression að myndskor, raðgreiningartalningar og tilraunaskipan noti samsvarandi auðkenni platna og brunna. Varðveittu auðkenni hluta, merkingardálk, stillingar flokkunarlíkans og viðmiðunarraðir strikamerkja með keyrslunni. Notaðu tengdar kennslustundir eininganna til að sjá útfært dæmi um hvert skref; veldu leiðsögnina fyrir skimun á sameinuðu safni ef þú vilt að Home leiði þig um viðmótið."
-  ],
   "lesson": "78_spacr_screens",
-  "english_sha256": "71761f378ef9aa3750a1ca9d13c9a8b930509fa818c4cd284e876c68d041b3ae",
+  "english_sha256": "9c69d3bd6bce92b72feef865100a92f462356235781349735280c3f6dbacb4f5",
+  "title": "spaCR screens",
+  "section": "Workflows",
+  "description": "Fylgdu samsafnaðri myndgreiningarskimun frá Home í gegnum myndmælingar, svipgerðarflokkun og talningu strikamerkja alla leið að aðhvarfsgreiningu.",
+  "objectives": [
+    "Velja upphafseiningu út frá gögnunum sem þú ert þegar með.",
+    "Greina hvað hver eining les og skrifar.",
+    "Fylgja tengdu einingakennslunum og API-samningunum fyrir næsta skref."
+  ],
+  "prerequisite": "Settu upp spaCR og opnaðu Home. Veldu upphafsgögn verkferlisins og fylgdu svo tengdu einingakennslunum fyrir stýringar og sýnigögn.",
+  "scenes": [
+    "Samsöfnuð skimun segir sögu sína tvisvar, einu sinni í myndum og einu sinni í raðgreiningarlestrum, og spaCR sameinar þær í lokin. Myndamegin breyta Mask og Measure sjónsviðunum í mældar frumur og Annotate og Classify breyta frumunum í svipgerðarstig. Raðgreiningarmegin breytir Map Barcodes lestrum í fjölda leiðsagnar-RNA. Regression tengir hvort tveggja saman eftir plötu og brunni. Komdu inn þar sem niðurstöðurnar þínar byrja.",
+    "Allt byrjar á smásjármyndunum þínum. Opnaðu Mask frá Home, veldu rásirnar og aðgreiningarlíkan og athugaðu forskoðunina áður en þú keyrir. Mask finnur hlutina í hverju sjónsviði og vistar hvert sjónsvið sem sameinað fylki, þar sem myndrásunum er staflað með merkingagrímunum. Þessi sameinuðu fylki eru það sem Measure opnar næst. Litli talningagagnagrunnurinn sem Mask skilur eftir er aðeins talning, ekki enn eiginleikatafla.",
+    "Opnaðu næst Measure frá Home og beindu því að sama verkefni, með rásavísa myndar og grímu rétt stillta. Measure les hvert sameinað fylki, myndir og merkingalög saman, og skrifar hverja frumu, kjarna eða sníkjudýr sem línu í measurements.db. Kveiktu á vistun úrklippa og það sker líka út litla PNG-mynd í kringum hvern hlut, skráða í png_list. Héðan greinist sagan. Annotate sýnir úrklippin svo þú getir merkt dæmi, og Classify lærir annaðhvort af úrklippunum eða mældu eiginleikunum, svo haltu auðkennum hlutanna stöðugum.",
+    "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst.",
+    "Opnaðu Classify frá Home, og hér verða merkingarnar að stigum. Classify hefur tvær fjölskyldur og gögnin þín ráða hvor er notuð. Computer Vision lærir af úrklippum hlutanna sjálfum en Tabular Machine Learning af mældu eiginleikadálkunum. Í báðum tilvikum þjálfar það á merkingunum sem þú bjóst til í Annotate, prófar sig á hlutunum sem þú hélst til hliðar og vistar þjálfaða líkanið, matspakka og stigin, sem CSV-skrár og, þegar þau eru sameinuð, í png_list. Veldu CV- eða ML-stigadálkinn sem þú vilt prófa, haltu auðkenni plötu og brunns óskertu og farðu með hann í Regression.",
+    "Á meðan myndirnar fara eina leið fara raðgreiningarlestrarnir aðra. Opnaðu Map Barcodes frá Home, gefðu því FASTQ-skrárnar og strikamerkjatilvísanirnar sem kóða skimunina, og það telur hvaða leiðsagnar-RNA birtust í hverjum brunni. Athugaðu vörpuðu talningarnar og QC strikamerkjanna áður en þú treystir þeim. Skráin unique_combinations.csv sem það skrifar er talningartafla leiðsagnar-RNA sem Regression parar við svipgerðarstigin þín, brunn fyrir brunn.",
+    "Hér mætast tveir helmingar skimunarinnar. Opnaðu Regression frá Home og gefðu því hvort tveggja: svipgerðarstigin úr Classify og fjölda leiðsagnar-RNA úr Map Barcodes. Regression parar þau eftir plötu og brunni, svo þessir lyklar verða að passa í báðum skrám. Veldu svardálkinn og viðmiðin, keyrðu aðlögunina og opnaðu greiningarniðurstöðurnar áður en þú trúir nokkrum smelli. Ef strikamerkin voru lesin sjónrænt með OPS skaltu fyrst tengja og safna saman afkóðuðu hlutunum við svipgerðar- og leiðsagnargögnin; OPS afhendir ekki tilbúna talningartöflu. Regression getur líka líkanað beint mælt svar. Það skrifar niðurstöðumöppu með stuðlum, smellatöflum, stillingum og greiningarmyndum.",
+    "Samsöfnuð skimun gengur því sem tveir straumar sem mætast í Regression. Áður en þú opnar það skaltu athuga að auðkenni platna og brunna passi saman milli stiga, fjölda leiðsagnar-RNA og plötuuppsetningar, og geyma merkingadálkinn, stillingar flokkarans og strikamerkjatilvísanirnar með keyrslunni. Tengdu einingakennslurnar fara í gegnum hvert skref, eða þú getur valið yfirferð samsafnaðrar skimunar á Home."
+  ],
   "review": {
-    "kind": "AI-assisted source/target and shared workflow-map review. Module names match the English GUI recording.",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+    "phrase_bank_sha256": "ee188ce13bef88c26dd73239ee25c634a4fa46c8bbf79624fcb87e9077cf0f5e",
     "corrections": [
-      "Retain the two independent image and sequencing branches and their per-well join.",
-      "Distinguish merged images/labels from counts, saved versus streamed crops, and CV versus tabular inputs.",
-      "Preserve separate training/evaluation groups, stable identities, direct measured responses, and the explicit OPS join/aggregation requirement.",
-      "Navigation overview only; no claim that the recording executed an experiment."
-    ]
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ],
+    "independent_peer_review": false,
+    "listening_review": false
   }
 }

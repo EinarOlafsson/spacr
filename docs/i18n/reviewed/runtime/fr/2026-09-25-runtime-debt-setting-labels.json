@@ -1,0 +1,288 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "channel_axis",
+      "source": "Channel axis",
+      "source_sha256": "7e29d12010ed67d35e997a933188ef909aeffbc89bc9ec60d180dc6a39b2e10f",
+      "translation": "Axe des canaux"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_count_column",
+      "source": "Hp count column",
+      "source_sha256": "dc7822138c081d4c03578189036e54b967f750a7b880987c2c62e9d4e4d3e6b2",
+      "translation": "Colonne de comptage"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_marker_channels",
+      "source": "Hp marker channels",
+      "source_sha256": "08e630497a28628221b0c356809d6a16bc769d55220836ed1f72238e19f8ec77",
+      "translation": "Canaux des marqueurs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_marker_thresholds",
+      "source": "Hp marker thresholds",
+      "source_sha256": "9aaa19d1b1867d9d9a886ba50a38841cc4eaf1fd0b49974efe3ece67aac63463",
+      "translation": "Seuils des marqueurs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_parasite_parent",
+      "source": "Hp parasite parent",
+      "source_sha256": "e6ddd739337ae8ba62096140b62f8997fefa668d8e6bcddc4427174c8370dd00",
+      "translation": "Vacuole parente des parasites"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_parasite_table",
+      "source": "Hp parasite table",
+      "source_sha256": "c9bd5fa39ef7e4216afb393cf13e8db514c9a75c7b8b0c038d9bc8a4356fbf90",
+      "translation": "Table des parasites"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_reference_prefix",
+      "source": "Hp reference prefix",
+      "source_sha256": "32b6f7d74f3a64adaff6437963bd3bfce105c1d62527441455eb397846e64a8b",
+      "translation": "Préfixe de référence"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_reference_table",
+      "source": "Hp reference table",
+      "source_sha256": "da910a795e9015d3552986f24d32ea24d91d323263320198ca94dc2f2933813b",
+      "translation": "Table de référence"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_vacuole_prefix",
+      "source": "Hp vacuole prefix",
+      "source_sha256": "349a195c6c4119bb159c3b2147c3525b77b8bed52f1d2250dcf99649e03b1c39",
+      "translation": "Préfixe des vacuoles"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hp_vacuole_table",
+      "source": "Hp vacuole table",
+      "source_sha256": "73df9d51122aca2f93291f2eb3e60c22daea9845f78f948ab36114cfbee968e0",
+      "translation": "Table des vacuoles"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_channels",
+      "source": "Image QC channels",
+      "source_sha256": "245e9a6bf8c7c00ffe5696b0b0a2f6a9d501db990da729496a54324951619ad1",
+      "translation": "Canaux QC des images"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_max_nonfinite",
+      "source": "Image QC max nonfinite",
+      "source_sha256": "e0d3848317621b661a4acd952b60419ff9909856dbbc0b609bf2c808d30f9f79",
+      "translation": "Pixels non finis max. (QC images)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_max_saturation",
+      "source": "Image QC max saturation",
+      "source_sha256": "8585c1cf31893d1431807560487d2298069543978e6f377b0da332e4aeac1bde",
+      "translation": "Saturation max. (QC images)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_min_focus",
+      "source": "Image QC min focus",
+      "source_sha256": "e67ac27fb23cd5d5e38c8388eef631dc2552087a1579fb9752c51842c8cc852c",
+      "translation": "Netteté min. QC des images"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_mode",
+      "source": "Image QC mode",
+      "source_sha256": "4b0bf81c39d8f92ead2b877dadfeb3d41a70306f4441f856149435b3f5fed841",
+      "translation": "Mode QC des images"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_saturation_level",
+      "source": "Image QC saturation level",
+      "source_sha256": "a4f5d69844ae9ff6ab2af028b2e756652bb7cca5f9e3b33be328515fb425c289",
+      "translation": "Niveau de saturation (QC images)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mask_src",
+      "source": "Mask src",
+      "source_sha256": "470fe998e912c876bb918a9328e00b69bfaf4f36f29f2da391bf691c1b553375",
+      "translation": "Dossier des masques"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_train_images",
+      "source": "Max train images",
+      "source_sha256": "76e3a6933d321d2211b3400e4ce1438c28798e0eb3f97bb7c0f323d100a21a3b",
+      "translation": "Images d’entraînement max."
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_train_masks",
+      "source": "Min train masks",
+      "source_sha256": "491a39e9150214baf05addd1166b4b5b32680500d7377325273be215835e281c",
+      "translation": "Masques min. d’entraînement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nimg_per_epoch",
+      "source": "Nimg per epoch",
+      "source_sha256": "88a8d663b02d2933e5fdbb565c70f1e3f6519b100091639ecfb4f748a314453a",
+      "translation": "Images par époque"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nimg_test_per_epoch",
+      "source": "Nimg test per epoch",
+      "source_sha256": "56444320324a8d763179d26f8479315b06258240b333a41a3cd879c083318496",
+      "translation": "Images de validation par époque"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_estimate_growth",
+      "source": "Plaque estimate growth",
+      "source_sha256": "77b8b6a8df5d042ee03d81b28e55e5355af0a90629f40b673506581792e7b38b",
+      "translation": "Estimer la croissance des plages"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_formation_hours",
+      "source": "Plaque formation hours",
+      "source_sha256": "5a1632569427051e58c4e350b3157d440d04b0ab580fd09af56fa369fef56889",
+      "translation": "Heures de formation des plages"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_growth_reference_hours",
+      "source": "Plaque growth reference hours",
+      "source_sha256": "145cd930210d8c0ae0134d4912070a4bda4fe46dac3d1cfa157d13b8e072f883",
+      "translation": "Référence de croissance des plages (heures)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_growth_reference_um",
+      "source": "Plaque growth reference um",
+      "source_sha256": "0d38a15a499ee7f5b4adb776517b623bec748d4eacab2a25c4566f21899e5037",
+      "translation": "Référence de croissance des plages (um)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_pixels_per_um",
+      "source": "Plaque pixels per um",
+      "source_sha256": "4156e4d1f92a1aa7275c875fafc943ad86b43535a5bda671982f692378fc8a5a",
+      "translation": "Pixels par um (plages de lyse)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "replication_method",
+      "source": "Replication method",
+      "source_sha256": "ee37835b58977452dc68f7957486717f38ba901ff88576b51737134487c2a748",
+      "translation": "Méthode de réplication"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_each",
+      "source": "Save each",
+      "source_sha256": "e70102d457a84fccabd4e520ee773c2baab6ca1e7eda96ca9d354041bf0ad87e",
+      "translation": "Enregistrer chaque époque"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_every",
+      "source": "Save every",
+      "source_sha256": "3a9c7f6a3c2514a9e1f39f7bb93bbcd92c6c117bbd179e6f7e454a99376e9edd",
+      "translation": "Intervalle d’enregistrement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "save_path",
+      "source": "Save path",
+      "source_sha256": "c331fe6b1923b088895240b779d7711a00b037b285a85c99b51597338e6f4284",
+      "translation": "Chemin d’enregistrement"
+    },
+    {
+      "table": "setting_labels",
+      "key": "scale_range",
+      "source": "Scale range",
+      "source_sha256": "e7e1b3ad44ba29534d232eed1c79a459cb384eb892795bf467a18fa0bdac0bcc",
+      "translation": "Plage d’échelle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_mask_src",
+      "source": "Test mask src",
+      "source_sha256": "ca2edf662a9ecf86101aa25a31d2d5333e077e443deefb6b7376ba2aef3b36f5",
+      "translation": "Masques de validation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_src",
+      "source": "Test src",
+      "source_sha256": "2b8bd7c885f09af7c4039a37b369f1476ce4f37b09fe31ac73b1410e144e6b2c",
+      "translation": "Images de validation"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tta_aggregation",
+      "source": "Tta aggregation",
+      "source_sha256": "f6c8e181bbe61e82ca3851d7f4fd3057c6440ecb32eea9fedbce0d36a018ddd6",
+      "translation": "Agrégation TTA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tta_enabled",
+      "source": "Tta enabled",
+      "source_sha256": "d01d17ebb829e4547094e0f739bb6e3ebcc717328db7edf8969924cb95ed5af0",
+      "translation": "TTA activée"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tta_horizontal_flip",
+      "source": "Tta horizontal flip",
+      "source_sha256": "4269242dd34a92b22af01e3c6158c3114d2c1bed33a60c4587611cf7d0f20ad5",
+      "translation": "Retournement horizontal TTA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tta_max_std",
+      "source": "Tta max std",
+      "source_sha256": "4655add9f1053858737e3d946392f7b3734f839ad109f8ef3d906d3e1404b1b9",
+      "translation": "Écart-type max. TTA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tta_min_agreement",
+      "source": "Tta min agreement",
+      "source_sha256": "be7765344db72764e7109c0e132b220d5caca3065da95ff269177d222ec7cabf",
+      "translation": "Accord min. TTA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tta_rotations",
+      "source": "Tta rotations",
+      "source_sha256": "a2e8cc411d0afb29e5b6c1c5de025a31e6f04019a5f8a81ac6466b41ffe8e06e",
+      "translation": "Rotations TTA"
+    },
+    {
+      "table": "setting_labels",
+      "key": "tta_vertical_flip",
+      "source": "Tta vertical flip",
+      "source_sha256": "c1386d5c49767a5bc197bd80c0b865e5fe2e243312dc072ad31f1f3bc5ed0283",
+      "translation": "Retournement vertical TTA"
+    }
+  ]
+}

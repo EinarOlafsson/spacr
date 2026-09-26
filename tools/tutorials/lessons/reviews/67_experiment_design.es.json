@@ -1,24 +1,37 @@
 {
-  "lesson": "67_experiment_design", "language": "es", "english_sha256": "fff27aa35c1e4dd012aae5f4240143f8a33cb0e1125da2dc7959d7d4688d9ed2",
-  "review": {"kind": "Editorial translation checked against English and the actual planning/export workflow", "native_speaker_signoff": false},
-  "title": "Experiment Design: un plan de placa reproducible y una exportación exacta",
-  "description": "Edita una distribución propuesta con los controles reales, revisa avisos de capacidad y replicación, reproduce asignaciones aleatorias y exporta el mapa exacto de pocillos.",
-  "objectives": ["Planificar condiciones y funciones de los controles antes de adquirir imágenes.", "Demostrar avisos y recuperaciones sin confundir comprobaciones de distribución con validación biológica.", "Reproducir una distribución aleatoria y distinguir pocillos seleccionados de condiciones asignadas.", "Exportar y conservar la tabla exacta cuando los ajustes por fila o columna no pueden representar el diseño."],
-  "prerequisite": "Este módulo de planificación no necesita imágenes adquiridas ni datos descargados. La grabación usa el borrador real de la aplicación: seis pocillos de control negativo, seis de positivo y doce de tratamiento, llamado tutorial_plan. Estos números ilustran la interfaz; no son un cálculo de potencia ni resultados experimentales adquiridos.",
+  "lesson": "67_experiment_design",
+  "english_sha256": "dcdd47c45e3948d1277938465185a3ca85f2a743d264d0ce8492f8b7a01477c8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Experiment Design: planificar una placa y exportar su mapa de pozos",
+  "description": "Define condiciones y réplicas, elige una distribución, revisa los avisos y exporta las asignaciones para la adquisición y el análisis.",
+  "objectives": [
+    "Introducir condiciones, número de réplicas y funciones de control.",
+    "Elegir un formato de placa, una política de bordes y una distribución aleatoria reproducible.",
+    "Exportar las asignaciones exactas de pozos para unirlas después a las mediciones."
+  ],
+  "prerequisite": "Prepara los nombres de las condiciones, las funciones de los controles y el número de pozos previsto antes de la adquisición. El ejemplo pide seis pozos de control negativo, seis de control positivo y doce de tratamiento; elige la replicación para tu propio experimento. Mantén el identificador de la placa coherente con las imágenes y mediciones posteriores.",
   "scenes": [
-    "Abre Experiment Design en la categoría Data de Home antes de la adquisición. Este módulo crea una distribución propuesta, no resultados biológicos medidos. Nuestros nombres negativo, positivo y tratamiento son provisionales; elige nombres y controles adecuados para tu experimento.",
-    "Nombra la placa para que su identificador coincida después con las imágenes y mediciones. Si una columna es estrecha, haz doble clic en el borde de su cabecera para ajustarla al contenido. Revisa Condition, Replicates y Role juntos. Los seis, seis y doce pocillos ilustran la interfaz, no un tamaño muestral justificado.",
-    "Elegir seis pocillos mientras se solicitan veinticuatro produce un error de capacidad. El mapa no descarta silenciosamente las réplicas sobrantes. Lee el mensaje y cambia el formato o el plan experimental; no consideres un mapa vacío una asignación válida.",
-    "Volver a noventa y seis pocillos restaura las veinticuatro asignaciones. El mapa se actualiza desde la tabla actual. Add condition y Remove selected gestionan filas de condiciones; los pocillos cuadrados de abajo son una superficie de selección distinta, no esas filas.",
-    "Selecciona una celda de réplicas y pulsa F dos para editarla. Reducir el control negativo a un pocillo genera un aviso; volver a seis lo elimina. Muchas células dentro de un único pocillo no sustituyen réplicas experimentales independientes.",
-    "La distribución Block agrupa las condiciones y genera avisos de confusión con la posición. Son motivos para revisar el diseño, no conclusiones biológicas automáticas. La corrección de iluminación óptica no corrige evaporación ni temperatura; la disposición experimental y el sombreado de imagen son problemas distintos.",
-    "Elige random, deja vacíos los pocillos del borde y fija la semilla en cuarenta y dos. Excluir el anillo exterior deja sesenta pocillos utilizables de noventa y seis; nuestro plan asigna veinticuatro. Evitar el borde reduce capacidad y no garantiza eliminar todos los efectos espaciales.",
-    "Cambiar la semilla a cuarenta y tres cambia las asignaciones reales conservando los recuentos por condición. La aleatorización reduce el sesgo sistemático de ubicación, pero cada distribución requiere revisión. No elijas una semilla para favorecer un resultado deseado.",
-    "Volver a cuarenta y dos restaura exactamente la misma correspondencia entre pocillos y condiciones. Registra la semilla junto al formato, la política del borde y la tabla de condiciones. La semilla sola no define el diseño si cambian esas otras entradas.",
-    "Arrastra desde B cero dos hasta C cero cuatro para seleccionar seis pocillos. Cambia el contorno de selección, no sus condiciones: el gesto selecciona pocillos y no asigna tratamientos. Revisa la tabla y el mapa mostrado cuando modifiques una asignación.",
-    "Usa Export plate map y elige una carpeta dedicada. La exportación real escribe plate_map punto CSV, plate_map punto JSON y plate_map_settings punto JSON. Conserva los tres archivos juntos; elegir un destino no equivale a realizar el experimento planeado.",
-    "El CSV tiene una fila por pocillo asignado: veinticuatro aquí, con todas las condiciones y funciones idénticas a las mostradas. Se une a las mediciones usando conjuntamente plate I D, row I D y column I D. El JSON registra semilla, diseño y observaciones, incluidas las advertencias en lugar de ocultarlas.",
-    "Esta distribución aleatoria no se puede representar con los ajustes de tratamiento por fila o columna. El archivo indica explícitamente expressible como false; no es una configuración completa de análisis. Usa la tabla exacta y una unión explícita, sin aproximar pocillos mezclados mediante etiquetas de filas completas.",
-    "La interfaz Python está en spacr.qt.widgets.plate_layout: Condition y PlateDesign describen el plan; assign_wells, check_design y write_design lo asignan, revisan y guardan. Las comprobaciones de distribución no establecen potencia estadística ni validez biológica. Revisa el diseño antes de la adquisición y conserva su mapa exacto para el análisis posterior."
+    "Desde Home, abre Data y elige Experiment Design. Empieza introduciendo las condiciones y los controles que quieres colocar en la placa.",
+    "Pon a la placa el identificador que usarás durante la adquisición. Revisa Condition, Replicates y Role en la tabla. Haz doble clic en el borde de una columna para ensancharla si hace falta.",
+    "Elige un formato de placa con suficientes pozos para las réplicas pedidas. Si seleccionas seis pozos para este plan de veinticuatro, aparece un error de capacidad. Cambia el formato o los recuentos pedidos para continuar.",
+    "Selecciona noventa y seis pozos para recuperar la distribución. Usa Add condition y Remove selected para editar las filas de condiciones, y luego revisa el mapa de la placa actualizado.",
+    "Para editar un número de réplicas, selecciona su celda y pulsa F dos. Un único pozo de control negativo provoca un aviso. Elige una replicación experimental independiente adecuada para tu análisis.",
+    "Elige Block layout para agrupar las condiciones. Lee los avisos de posición y revisa el mapa por si la condición y la posición pudieran estar confundidas.",
+    "Elige Random layout, activa Leave edge empty y pon Seed en cuarenta y dos. Esta placa de noventa y seis pozos tiene sesenta pozos interiores disponibles, y el plan de ejemplo asigna veinticuatro.",
+    "Cambia Seed a cuarenta y tres para generar otra disposición con los mismos recuentos por condición. Revisa dónde quedan los controles y los tratamientos en la placa.",
+    "Vuelve a poner Seed en cuarenta y dos para recuperar la disposición anterior. Guarda la semilla junto con el formato, la política de bordes y la tabla de condiciones.",
+    "Arrastra sobre los pozos de B cero dos a C cero cuatro para seleccionarlos. Esto selecciona pozos para revisarlos; usa la tabla de condiciones y los controles de distribución para cambiar las asignaciones.",
+    "Haz clic en Export plate map y elige una carpeta. Guarda juntos plate_map.csv, plate_map.json y plate_map_settings.json.",
+    "Abre el CSV para ver una fila por cada pozo asignado. Únelo a las mediciones posteriores usando plateID, rowID y columnID a la vez. El JSON conserva el diseño y sus avisos.",
+    "Para esta distribución aleatoria, el archivo de configuración indica expressible como false. Usa el mapa de pozos exacto del CSV para las etiquetas de condición: los ajustes de tratamiento por fila o por columna completa no pueden representar estas asignaciones mezcladas.",
+    "Revisa el mapa final antes de la adquisición y guárdalo con el experimento. En Python, usa Condition y PlateDesign, seguidos de assign_wells, check_design y write_design de spacr.qt.widgets.plate_layout."
   ]
 }

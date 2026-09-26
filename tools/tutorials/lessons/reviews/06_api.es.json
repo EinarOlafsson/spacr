@@ -1,19 +1,29 @@
 {
-  "lesson": "06_api", "language": "es",
-  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
-  "review": {"kind": "Editorial translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
-  "title": "API de Python y flujos actuales sin interfaz gráfica",
-  "description": "Descubre las rutas por lotes instaladas, distingue las herramientas interactivas de las funciones de Python e inspecciona la simulación de un ejemplo real sin afirmar que se ejecutó un análisis.",
-  "objectives": ["Confirmar la versión del paquete en el entorno activo de Python.", "Descubrir las claves actuales de los comandos y las funciones que realmente llaman.", "Distinguir un flujo interactivo, una función de Python y un comando por lotes.", "Leer las opciones, el código de salida y las limitaciones de una simulación antes de ejecutar tareas sin supervisión."],
-  "prerequisite": "Completa primero una lección de instalación. Para la comprobación mostrada, usa los datos emparejados descargados y las opciones guardadas de la lección Regression; sustituye las rutas de esta máquina por las tuyas. En esta grabación no se genera ningún análisis ni informe.",
+  "lesson": "06_api",
+  "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "API de Python y comandos por lotes",
+  "description": "Encuentra una función de análisis, carga ajustes guardados, comprueba las entradas y ejecuta spaCR desde una terminal.",
+  "objectives": [
+    "Encontrar los comandos por lotes instalados y sus funciones de Python.",
+    "Revisar la firma de una función y su referencia de la API.",
+    "Comprobar los ajustes guardados antes de ejecutar un análisis."
+  ],
+  "prerequisite": "Instala spaCR y activa su entorno de Python. Sigue el tutorial de Regression para preparar tablas emparejadas de puntuaciones y recuentos y guardar los ajustes del análisis. Usa tus propias rutas de archivo en los comandos.",
   "scenes": [
-    "En el entorno donde instalaste spaCR, importa el paquete e imprime su versión. Este terminal real indica la versión uno punto cinco punto cero punto cuatro. Confirma tu propia versión antes de seguir los comandos: un entorno antiguo puede ofrecer funciones y opciones diferentes.",
-    "Ejecuta spacr-run con la opción list. Su sección por lotes muestra las claves exactas de los comandos y los puntos de entrada de Python, incluidos mask, measure y classify_merged. Los nombres de Home y los botones anidados no son automáticamente comandos por lotes. Usa la lista instalada, sin adivinar una clave a partir del título de un tutorial.",
-    "Usa describe con regression para ver la función perform_regression de spacr.ml, su proveedor de valores predeterminados y sus requisitos de entrada. Esto relaciona el comando con la función que realiza el análisis. Las opciones guardadas de datos emparejados proceden del ejemplo Regression enlazado, no de una carpeta de mediciones inventada.",
-    "Annotate es un flujo interactivo. Ejecutar spacr-run annotate devuelve realmente el código de salida dos y explica que no existe un equivalente por lotes. Usa Annotate en la aplicación de escritorio para etiquetar recortes. Este rechazo esperado no demuestra que la instalación esté dañada.",
-    "Otras capacidades tienen una API de Python sin una clave por lotes correspondiente. Aquí importamos build_report de spacr.report e inspeccionamos su firma real. No la llamamos ni generamos un informe. Consulta la documentación y los argumentos de la función en lugar de suponer que existe spacr-run report.",
-    "Pasa a regression el archivo de opciones guardadas y añade la opción dry-run. El comando real resuelve las opciones y ejecuta las comprobaciones previas; después indica explícitamente que no se llamó a perform_regression. Lee el código de salida y los mensajes: esta grabación no inició otra regresión ni escribió sus resultados analíticos.",
-    "Una comprobación previa sin errores no demuestra que el análisis completo ni sus conclusiones científicas vayan a ser válidos. El plan genérico de esta versión menciona una base de datos de mediciones, aunque nuestra regresión utiliza tablas emparejadas. Inspecciona las entradas reales del módulo y prueba una ejecución acotada antes de confiar en un proceso sin supervisión.",
-    "Quita dry-run solo cuando quieras ejecutar el análisis. Conserva las opciones exactas, los identificadores de entrada, la versión del paquete y el registro de consola junto con los resultados. Sigue la lección enlazada del módulo para ver una ejecución demostrada y consulta su referencia API actual al escribir scripts de Python."
+    "Activa el entorno de Python donde instalaste spaCR. Importa spacr e imprime su versión con el comando que se muestra. Guarda la versión con tus notas de análisis para poder reproducir la misma ejecución más adelante.",
+    "Ejecuta spacr-run con guion guion list para encontrar los comandos por lotes disponibles. La lista muestra la clave de cada comando y su función de Python. Elige el comando para tu tarea, como mask, measure o regression. Usa la aplicación de escritorio para tareas interactivas, como etiquetar imágenes en Annotate.",
+    "Ejecuta spacr-run con guion guion describe seguido de regression. Lee las entradas obligatorias, los valores predeterminados y el nombre de la función. Aquí, el comando por lotes llama a perform_regression de spacr.ml. Abre esa función en la referencia de la API para leer sus parámetros y los resultados que devuelve.",
+    "En Python, importa la función que necesitas y revisa su firma. Este ejemplo importa build_report de spacr.report. Busca el mismo nombre en la referencia de la API, prepara los argumentos obligatorios y llama a la función desde tu script o cuaderno.",
+    "Guarda los ajustes de tu flujo de trabajo del módulo y pasa el archivo con guion guion settings. Añade guion guion dry-run para comprobar la configuración y las rutas de entrada. En este ejemplo de Regression, los ajustes emparejan las puntuaciones de fenotipo con los recuentos de guías de cada placa. Lee los mensajes y corrige las entradas que falten antes de continuar.",
+    "Para ejecutar el análisis, ejecuta el mismo comando sin guion guion dry-run. Sigue la consola hasta que termine el comando y revisa después las salidas descritas en el tutorial y en la página de la API de ese módulo. Guarda el archivo de ajustes, las tablas de entrada, la versión del paquete y el registro de la consola con los resultados."
   ]
 }

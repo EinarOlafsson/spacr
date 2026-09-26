@@ -142,7 +142,7 @@
     },
     "investigate_hit": {
       "lesson": "71_investigate_hit",
-      "title": "Investigate Hit"
+      "title": "Investigate Hit: trace a Regression gene back to measured cells"
     },
     "layer_viewer": {
       "lesson": "57_layer_viewer",
@@ -194,7 +194,7 @@
     },
     "ops": {
       "lesson": "76_ops",
-      "title": "OPS: current screen and four-tile image alignment"
+      "title": "OPS: from sequencing images to cell barcodes"
     },
     "outliers": {
       "lesson": "66_outliers",

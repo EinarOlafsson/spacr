@@ -1,7 +1,10 @@
 EVERY ENHANCEMENT AND DECONVOLUTION OPTION REACHES MASK GENERATION
 
-Status: BUILT 2026-09-25 on branch worktree-agent-a3910aee4312c5567; awaiting
-        merge, docs lane and catalog rows (see the trailing note).
+Status: BUILT 2026-09-25, on nightly (5c207ad71 .. 2ca9d9a60, checked
+        2026-09-25); measured on real fields the same day (last note: a
+        sensible chain moves pooled F1 by -0.04 to +0.01 on four Toxo PV
+        fields -- plumbing proven, no default change earned). Owed: docs
+        lane and catalog rows (see TESTS / FOR THE DOCS).
 Owner: Claude (item 508 session). Related: 473 (the chain), 479, 489, 490 (PSF).
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
@@ -113,4 +116,51 @@ TESTS
 NOT DONE
   Deep restoration is not a Mask setting. Make Masks does not persist its card
   values across sessions (unchanged). No real-field measurement of enhanced
-  plate-run masks yet.
+  plate-run masks yet. (Measured 2026-09-25 -- see below.)
+
+2026-09-25 -- ENHANCED PLATE-RUN MASKS ON REAL FIELDS, MEASURED
+--------------------------------------------------------------------------------
+WHAT WAS RUN. spaCR's own Mask generation (spacr.core.preprocess_generate_
+masks, V1, unedited) over four real Toxo PV fields from the Make Masks test
+set (~/.cache/spacr/example_data/make_masks_toxo_pv: plate1_A02_12,
+plate2_N04_5, plate4_C01_6, plate6_D16_24; 1994-2000 px, single channel,
+279 curated vacuoles), each staged as a cellvoyager-named file with the
+vacuole channel as pathogen_channel 0. Model cpsam, pathogen_diameter 37.0
+px (median equivalent diameter of the ground truth), everything else Mask's
+defaults. Three runs, identical but for the chain:
+  off         no enhance_* key set
+  bg_clahe    enhance_background rolling_ball, radius 100, + enhance_clahe
+              (tile 64, clip 0.01)
+  clip_gauss  enhance_percentile_clip (1, 99) + enhance_denoise gaussian,
+              sigma 1.0
+Scored on the pathogen plane of merged/ against ground_truth_masks/ with
+spacr.model_compare.match_objects at IoU 0.5 (optimal assignment). GPU turn
+`508-enhanced-masks` via tools/gpu_turn.sh, 2 min. The two enhanced runs
+wrote psf/segmentation_application.json with exactly those steps; the off
+run wrote none. Script: /tmp/spacr-waveZ-scratch/m508/measure_508.py
+(scratch, not committed; a 384 px CPU probe checked the plumbing first).
+
+  F1 at IoU 0.5                  off     bg_clahe  clip_gauss
+  plate1_A02_12   (33 vacuoles)  0.656   0.623     0.694
+  plate2_N04_5   (109)           0.521   0.521     0.591
+  plate4_C01_6    (92)           0.899   0.874     0.888
+  plate6_D16_24   (45)           0.867   0.747     0.800
+  pooled (279)                   0.733   0.697     0.745
+    TP / FP / FN                 181/34/98 163/26/116 196/51/83
+  seconds (4 fields, GPU)        27      56        27
+
+READING. The chain reaches the plate run and changes its masks, which is
+what this item promised; it does not by itself make Cellpose-SAM better on
+these fields. Background + CLAHE lowers pooled F1 by 0.036: it finds fewer
+vacuoles (189 vs 215 predicted) and loses most on the sparse field
+plate6_D16_24. Clip + Gaussian raises it by 0.012 -- 15 more true positives
+bought with 17 more false ones -- and helps the two hardest fields
+(plate2_N04_5 +0.07, plate1_A02_12 +0.04) while costing the easiest two.
+Four fields is too few to call a +0.012 difference; neither chain earns a
+default. Caveats: these ten images are the vacuole model's TRAINING data
+(their README says not to score that model on them), which is why the
+general cpsam model was used; and the dominant error with every chain is
+missed vacuoles on plate2_N04_5 (57-66 of 109), a model/diameter question
+the chain does not answer.
+
+Status updated above; nothing in spacr/ changed in this pass.

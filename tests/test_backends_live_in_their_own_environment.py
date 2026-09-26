@@ -486,6 +486,7 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
     exempt = {"torch", "numpy"}
     sources = {
         "cellpose3": (SB._Cellpose3Adapter,),
+        "cellpose_dino": (SB._CellposeDinoAdapter,),
         "dinocell": (SB._import_dinocell, SB._DinoCellBackend),
         "samcell": (SB._import_samcell, SB._SamCellBackend,
                     SB._samcell_weights_path),

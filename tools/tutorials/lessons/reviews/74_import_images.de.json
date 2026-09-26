@@ -1,21 +1,33 @@
 {
-  "lesson": "74_import_images", "language": "de",
-  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
-  "review": {"kind": "Editorial caption translation checked against English and recorded operations", "native_speaker_signoff": false, "corrections": ["Preserve prepared-copy disclosure and all acquisition, sampling, link and tile limitations."]},
-  "title": "Import Images: den Plan vor dem Import prüfen",
-  "description": "Öffnen Sie Import Images innerhalb von Import, prüfen Sie einen kleinen echten Mikroskopiedatensatz vor dem Schreiben und speichern Sie einen wiederverwendbaren Plan. Das Beispiel unterscheidet nicht unterstützte Originalnamen von vorbereiteten Kopien.",
-  "objectives": ["Import Images in Import finden und vom Import vorhandener Messwerte und Masken unterscheiden.", "Bildidentitäten und ungeklärte Namensbestandteile vor dem Schreiben prüfen.", "Kopien oder Verknüpfungen wählen, einen Plan speichern und laden und den Import überprüfen."],
-  "prerequisite": "Laden Sie zuerst das echte Mask-Beispiel herunter. Die Aufnahme verwendet Kopien der Bildfelder E01/F001 und L01/F009 mit jeweils vier C-Kanälen. Nur der A-Bestandteil direkt vor Z wird in den vorbereiteten Kopien weggelassen; die Originale bleiben unverändert. Das ist ein geprüftes Einzelbeispiel, keine allgemeine Aufforderung zum Löschen unbekannter Metadaten.",
+  "lesson": "74_import_images",
+  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Import Images: Bildidentitäten zuordnen und ein Projekt anlegen",
+  "description": "Scannen Sie Bildnamen und Metadaten, prüfen Sie die vorgeschlagene Zuordnung von Well, Bildfeld und Kanal, speichern Sie einen Plan und importieren Sie Kopien in ein Projekt.",
+  "objectives": [
+    "Mikroskopbilder scannen und Fragen zur Benennung klären.",
+    "Ziel, Plattenname und Kopier- oder Verknüpfungsverhalten wählen.",
+    "Einen wiederverwendbaren Plan speichern und Bilder für Mask importieren."
+  ],
+  "prerequisite": "Laden Sie zuerst das Mask-Beispiel herunter. Diese Anleitung verwendet Kopien der Bildfelder E01/F001 und L01/F009 mit je vier Kanälen. Die vorbereiteten Kopien lassen das überflüssige Token A direkt vor Z weg und erhalten die Identitäten von Well, Bildfeld und Kanal. Bewahren Sie die Originale auf und klären Sie unbekannte Tokens anhand der Aufnahmeprotokolle.",
   "scenes": [
-    "Öffnen Sie Import in der Kategorie Data von Home und wählen Sie Import Images. Dieses untergeordnete Werkzeug bereitet rohe Bilddateien vor. Import Project, Format Converter und External Masks sind verwandte Abläufe mit eigenen Tutorials.",
-    "Die acht Bilder sind echte Mikroskopiedaten aus dem herunterladbaren Mask-Beispiel: je ein Bildfeld aus zwei Wells mit vier Kanälen pro Bildfeld. Wir arbeiten mit separaten Kopien und lassen die heruntergeladenen Originale unverändert.",
-    "Scan zeigt einen ungeklärten Aufnahmebestandteil in den Originalnamen. Import bleibt deaktiviert und nichts wird geschrieben. Raten Sie keine Kanalzuordnung: Zwei verschiedene Kanäle teilen diesen Aufnahmewert; eine solche Zuordnung würde ihre Identität verfälschen.",
-    "Für dieses geprüfte Beispiel lassen die vorbereiteten Kopien nur den redundanten Aufnahmebestandteil weg. Well-, Bildfeld- und Kanalnamen bleiben erhalten. Scan zeigt nun acht Zeilen, zwei Wells, zwei Bildfeldnummern und vier Kanäle. Das bedeutet nicht, dass die Originalnamen akzeptiert wurden.",
-    "Vergleichen Sie den Vorschlag vor dem Import mit den Dateinamen. Read inside each file prüft zusätzlich die eingebetteten Achsenmetadaten. Sample begrenzt die untersuchten Dateien; prüfen Sie, ob der Vorschlag die gewünschten Bilder umfasst. Klären Sie Fragen anhand der Aufnahmeprotokolle statt durch Vermutungen.",
-    "Wählen Sie ein Ziel außerhalb des Eingabeordners und setzen Sie den Plattennamen. Für ein unabhängiges Projekt schalten wir Link instead of copy aus. Verknüpfungen sparen Speicherplatz, benötigen aber dauerhaft erreichbare Originale an ihren bisherigen Speicherorten.",
-    "Diese Beispieldateien sind keine Mosaikkacheln. Lesen Sie bei gekachelten Aufnahmen die Auswahl Tiles genau: Zusammenfügen rekonstruiert Bildfelder, getrennte Kacheln verändern die Bedeutung eines Bildfelds und Überspringen verliert diese Bilder. Prüfen Sie Bericht und unbestätigte Übergänge vor der Messung.",
-    "Save plan schreibt Quelle und Zuordnungsantworten in eine JSON-Datei, nicht in eine Sicherung der Bilder. Bewahren Sie sie mit dem Aufnahmeprotokoll auf. Derselbe Plan lässt sich über die Python-API für den Bildimport lesen.",
-    "Load plan liest den Quellordner erneut und verwendet die gespeicherten Antworten wieder. Prüfen Sie den neuen Vorschlag vor dem Import: Ein gespeicherter Plan garantiert nicht, dass eine veränderte Aufnahme korrekt ist. Hier werden dieselben acht geprüften Bildidentitäten wiederhergestellt.",
-    "Drücken Sie Import und lesen Sie die Zusammenfassung. Dieser Lauf schrieb acht unabhängige Bildkopien ohne ausgelassene Dateien; ihr Inhalt entspricht den Quellen. Wählen Sie das Projekt anschließend in Mask und prüfen Sie die Live-Vorschau vor der Segmentierung. Der Import allein erzeugt weder Masken noch Messwerte."
+    "Öffnen Sie von Home aus Data, wählen Sie Import und dann Import Images. Beginnen Sie mit den Mikroskopbilddateien, die Sie in einem Projekt ordnen möchten.",
+    "Verwenden Sie für diese Anleitung das Mask-Beispiel. Wählen Sie Kopien je eines Bildfelds aus zwei Wells mit vier Kanälen pro Bildfeld. Lassen Sie den ursprünglichen Download unverändert.",
+    "Klicken Sie auf Scan. Wenn gefragt wird, was ein Token im Dateinamen bedeutet, prüfen Sie die Aufnahmeprotokolle, bevor Sie es zuordnen. Fahren Sie erst fort, wenn die vorgeschlagenen Identitäten Bildfelder und Kanäle eindeutig unterscheiden.",
+    "Scannen Sie die vorbereiteten Beispielkopien. Ihr überflüssiges Aufnahme-Token wurde entfernt, die Tokens für Well, Bildfeld und Kanal bleiben erhalten. Prüfen Sie, dass der Vorschlag acht Bilder, zwei Wells, zwei Bildfeldnummern und vier Kanäle aufführt.",
+    "Vergleichen Sie den Vorschlag mit den Dateinamen. Aktivieren Sie Read inside each file, wenn Sie eingebettete Achsenmetadaten benötigen. Setzen Sie Sample groß genug, um die zu importierenden Dateien zu prüfen.",
+    "Wählen Sie ein Ziel außerhalb des Eingabeordners und geben Sie den Plattennamen ein. Schalten Sie Link instead of copy aus, um unabhängige Kopien zu erhalten. Verknüpfungen sparen Speicherplatz, setzen aber voraus, dass die Originaldateien erreichbar bleiben.",
+    "Wählen Sie bei gekachelten Aufnahmen, ob Kacheln zusammengesetzt, getrennt behalten oder übersprungen werden. Prüfen Sie die resultierende Bildfeldorganisation vor dem Messen. Diese Beispielbilder sind getrennte Bildfelder und müssen nicht zusammengesetzt werden.",
+    "Klicken Sie auf Save plan, um Quelle und Zuordnungsentscheidungen als JSON zu sichern. Bewahren Sie den Plan zusammen mit Aufnahmenotizen und Originalbildern auf.",
+    "Klicken Sie auf Load plan, um Quelle und gespeicherte Antworten neu zu laden. Prüfen Sie den neuen Vorschlag vor dem Import, besonders wenn sich die Quelldateien geändert haben.",
+    "Klicken Sie auf Import und lesen Sie die Zusammenfassung. Dieses Beispiel erzeugt acht Bildkopien ohne übersprungene Dateien. Öffnen Sie das entstandene Projekt in Mask und prüfen Sie Live preview, bevor Sie die Segmentierung starten."
   ]
 }

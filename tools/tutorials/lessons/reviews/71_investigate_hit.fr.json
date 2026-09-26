@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Investigate Hit : remonter d’un gène de Regression aux cellules mesurées",
+  "description": "Envoyez un gène de Hit List vers Investigate Hit, ajoutez la base de données de mesures, les prédictions par cellule et les fractions de guides, puis lisez les éléments de preuve au niveau des puits.",
+  "objectives": [
+    "Ouvrir une exécution Regression dans Hit List, vérifier les valeurs q et envoyer un gène vers Investigate Hit.",
+    "Choisir la base de données de mesures, les prédictions par cellule, les fractions de guides et la colonne de score.",
+    "Lire les onglets des éléments de preuve, des puits, des guides et du seuil, et trouver les tables enregistrées."
+  ],
+  "prerequisite": "Extrayez Investigate_Hit_real_screen_example.zip. Tout son contenu provient d’un même criblage réel : l’exécution Regression sur les données de test de Regression (les paramètres du tutoriel Regression), les prédictions CV par cellule correspondantes et une base de données de mesures contenant les vraies mesures de forme, de taille et d’intensité de ces mêmes cellules. Pour limiter la taille du téléchargement, la base contient 52 puits : tous les puits analysés portant un guide du gène 225160 et, pour chacun, trois puits sans ce guide provenant de la même plaque. Aucun gène de cette exécution Regression rapide ne vérifie q ≤ 0,05. Considérez l’investigation comme un exemple d’application, pas comme un hit confirmé.",
+  "scenes": [
+    "Depuis Home, ouvrez Regression. Investigate Hit part d’une exécution Regression terminée. Il demande si les cellules mesurées dans les puits associés à un gène diffèrent des cellules des puits sans ce gène.",
+    "Choisissez Hits pour ouvrir Hit List. Extrayez d’abord l’archive d’exemple. Elle contient une exécution Regression sur les données de test, les prédictions CV par cellule correspondantes et une base de données de mesures pour ces mêmes cellules. Les trois proviennent d’un même criblage réel.",
+    "Cliquez sur Browse et sélectionnez le dossier guide_permutation dans regression_run, results. C’est la sortie de l’exécution sur données de test du tutoriel Regression.",
+    "Hit List classe trois cent vingt-cinq gènes. Lisez ensemble l’effet, la valeur P et la valeur q de chaque ligne, ainsi que le nombre de guides et combien d’entre eux concordent.",
+    "Réglez Max q sur zéro virgule zéro cinq. Le tableau se vide, car aucun gène de cette exécution n’a une valeur q inférieure ou égale à zéro virgule zéro cinq. Avec cent quatre-vingt-dix-neuf permutations, la plus petite valeur P possible est zéro virgule zéro zéro cinq, et la plus petite valeur q est d’environ zéro virgule vingt-sept. La suite examine donc un candidat classé, pas un hit confirmé.",
+    "Remettez Max q sur un, recherchez deux deux cinq un six zéro et sélectionnez sa ligne. Il a un effet de zéro virgule trente-quatre, une valeur q de zéro virgule vingt-sept et trois guides qui vont tous dans le même sens.",
+    "Cliquez sur Investigate selected. Investigate Hit s’ouvre avec le dossier de résultats, le gène, ses trois guides et un sens d’effet positif déjà remplis à partir de cette ligne.",
+    "À côté de Measurements database, cliquez sur Browse et choisissez measurements.db dans l’exemple. Il contient la forme, la taille et l’intensité moyenne par canal de huit mille neuf cent quinze cellules dans cinquante-deux puits.",
+    "Pour Existing CV predictions, choisissez cv_predictions.csv. Chaque ligne est le score CV enregistré d’une cellule, rattaché au même objet mesuré. Cliquez sur le chemin et appuyez sur Entrée pour que les colonnes de score soient lues, puis gardez pred comme colonne de score du phénotype.",
+    "Pour Well/guide fractions, choisissez regression_data.csv dans le même dossier de résultats. C’est Regression qui a écrit cette table. Elle donne la fraction de chaque guide dans chaque puits analysé.",
+    "Laissez Independent morphology features vide. Le module utilise alors les treize mesures cellulaires numériques de la base et écarte les identifiants, les fractions de guides et le score CV, afin que cette vérification ne réutilise pas le score. Pour votre propre base, n’indiquez que des colonnes de mesures sans valeurs manquantes.",
+    "Cliquez sur Investigate hit. Le modèle est ajusté en laissant de côté une plaque à la fois, de sorte qu’aucune cellule n’est évaluée par un modèle entraîné sur sa propre plaque. La fraction de guide d’un puits ne fixe que l’attente de départ pour ses cellules. Elle n’indique jamais qu’une cellule porte le guide. Cet exemple prend quelques minutes.",
+    "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Les cellules ne soutiennent pas ce candidat.",
+    "Wells indique pour chaque puits la fraction de guide, la probabilité moyenne de type hit, la prévalence et le nombre de cellules. Chaque puits compte comme une unité indépendante ; la comparaison utilise donc treize puits cibles et trente-neuf puits témoins, et non des cellules individuelles.",
+    "Guides montre chaque guide cible séparément. Leurs réponses à la dose vont dans des directions différentes, une raison de plus de ne pas traiter ce gène comme un hit.",
+    "Threshold sensitivity répète la comparaison avec des seuils de probabilité allant de zéro virgule cinq à zéro virgule neuf. À chaque seuil, la différence reste proche de zéro virgule zéro un ; la conclusion ne dépend donc pas du seuil.",
+    "Candidate cells classe les cellules par probabilité de type hit, avec le score d’origine et le pli qui a évalué chaque cellule. Ces probabilités décrivent une morphologie de type hit, pas le guide que portait une cellule. Ne transférez des classifications vers l’annotation que si les éléments au niveau des puits sont convaincants. Undo annule un transfert.",
+    "Les tables sont enregistrées dans le dossier de résultats, sous hit_investigation, puis deux deux cinq un six zéro. Elles comprennent cette représentation et un manifeste, et chaque exécution est aussi conservée comme nouvelle version dans la base de données. L’exemple ne contient pas d’images de vignettes, la galerie de revue reste donc vide. Ensuite, examinez un gène qui passe votre seuil dans une exécution Regression avec davantage de permutations."
+  ]
+}

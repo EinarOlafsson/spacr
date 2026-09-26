@@ -1,5 +1,5 @@
 {
-  "player_sha256": "5f478150a1e2ff8bc2094c2d9b39aea35d4a7b8f52e47d1a772bd975bcd711b7",
+  "player_sha256": "1fe78f05a7f727d87404cfebb3799fe3308818834eeea5db89cc87c8980acb01",
   "mutations": [
     {
       "guard": "availability guard",
@@ -12,7 +12,8 @@
   ],
   "baseline_before_and_after_passed": true,
   "source_files_modified": false,
-  "tested_placeholder": "71_investigate_hit",
+  "tested_placeholder": "85_host_pathogen",
+  "placeholder_source": "in-memory probe; the candidate has no unavailable lesson",
   "passed": true,
   "published": false
 }

@@ -45,6 +45,9 @@ held to one of these lines, and no candidate is allowed to wander across::
                         diagonal.  The three are never the same picture.
     hit_list            a RANKED LIST.  Sorted rows, a volcano with its top
                         corners starred, a filtered and flagged shortlist.
+    embeddings          not a concept search: one candidate, the shipped
+                        ``vector-square`` redrawn in outline at W_MAIN so it
+                        stops out-weighing its Home neighbours (item 527).
 
 48 px is the real constraint, so every design is a handful of large,
 high-contrast elements.  Well grids are 4x3 or 5x3 and never a literal 8x12;
@@ -1267,6 +1270,25 @@ def hit_list_10(c):
             c.polyline(pen, w=W_MAIN, close=True)
 
 
+def embeddings_01(c):
+    """Font Awesome's ``vector-square`` redrawn at the house stroke weight.
+
+    The shipped icon was that glyph rendered solid, which put ~112 px of ink
+    on a 1024 canvas where every neighbour on Home carries ``W_MAIN`` (22).
+    Same picture -- a frame with a handle on each corner -- drawn in outline:
+    each handle a rounded square with a solid dot, the edges running between
+    them.  Item 527.
+    """
+    lo, hi, s = 0.15, 0.85, 0.09
+    for cx in (lo, hi):
+        for cy in (lo, hi):
+            c.rect(cx - s, cy - s, 2 * s, 2 * s, w=W_MAIN, r=0.03)
+            c.rect(cx - 0.028, cy - 0.028, 0.056, 0.056, filled=True, r=0.01)
+    for a in (lo, hi):
+        c.line(lo + s, a, hi - s, a, W_MAIN)
+        c.line(a, lo + s, a, hi - s, W_MAIN)
+
+
 # =====================================================================
 # manifest
 # =====================================================================
@@ -1456,6 +1478,10 @@ GROUPS = {
          hit_list_08),
         ("The ranking column being sorted, top to bottom.", hit_list_09),
         ("A shortlist flagged out of the ranking, hit by hit.", hit_list_10),
+    ]),
+    "embeddings": ("embeddings -- vector-square at the house stroke weight", [
+        ("A frame with a handle on each corner, in outline (item 527).",
+         embeddings_01),
     ]),
 }
 

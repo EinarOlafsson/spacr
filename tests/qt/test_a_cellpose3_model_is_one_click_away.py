@@ -113,10 +113,10 @@ def test_the_per_object_model_cell_asks_for_the_cellpose3_kind():
 
 
 @pytest.mark.parametrize("key,expected", [
-    ("cell_model_name", ("cellpose", "cellpose3")),
-    ("nucleus_model_name", ("cellpose", "cellpose3")),
-    ("pathogen_model_name", ("cellpose", "cellpose3")),
-    ("organelleb_model_name", ("cellpose", "cellpose3")),
+    ("cell_model_name", ("cellpose", "cellpose3", "cellpose_dino")),
+    ("nucleus_model_name", ("cellpose", "cellpose3", "cellpose_dino")),
+    ("pathogen_model_name", ("cellpose", "cellpose3", "cellpose_dino")),
+    ("organelleb_model_name", ("cellpose", "cellpose3", "cellpose_dino")),
     ("plaque_model", ("cellpose",)),
     ("custom_model", ("cellpose",)),
     ("pathogen_model", ("cellpose",)),
@@ -280,7 +280,7 @@ def test_the_mask_panels_model_zoo_button_writes_cyto2(
 
     value = field.text() if hasattr(field, "text") else field.get_value()
     assert value == "cellpose3:cyto2"
-    assert seen["kinds"] == ("cellpose", "cellpose3")
+    assert seen["kinds"] == ("cellpose", "cellpose3", "cellpose_dino")
     assert screen._settings_model.collect()["cell_model_name"] == "cellpose3:cyto2"
 
 

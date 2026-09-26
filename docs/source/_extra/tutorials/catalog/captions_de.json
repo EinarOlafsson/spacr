@@ -81,56 +81,67 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation mit Conda",
+      "title": "spaCR mit Conda installieren",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installieren Sie das offizielle conda-forge-Paket in einer eigenen Umgebung, prüfen Sie die tatsächliche Kanalversion und erkennen Sie Abweichungen von den aktuellen Modul-Tutorials.",
+      "description": "Erstellen Sie eine Conda-Umgebung, installieren Sie spaCR aus conda-forge und starten Sie die Anwendung.",
       "objectives": [
         "Eine eigene Conda-Umgebung erstellen und aktivieren.",
-        "Das installierte Kanalpaket, Qt und die Diagnoseergebnisse prüfen.",
-        "Bei veralteter Kanaloberfläche den neueren pip- oder Desktop-Installer verwenden."
+        "spaCR aus conda-forge installieren.",
+        "spaCR öffnen und bei Bedarf dieselbe Umgebung aktualisieren."
       ],
-      "prerequisite": "Ein Conda-kompatibler Paketmanager muss bereits installiert sein. Diese Aufnahme überprüft am 10. September 2026 unter Linux spaCR 1.5.0.4 aus conda-forge mit Python 3.12.14 und Qt 6.11.2. Die Neuinstallation verwendet einen neuen privaten Präfix, ausschließlich conda-forge und die festgelegte Kanalversion; die Befehlskarten erläutern das entsprechende Vorgehen mit benannter Umgebung und stellen keine Installationsausgabe nach. Die tatsächliche Oberfläche hat noch Home (63), nicht die neue verschachtelte Struktur von PyPI/Installer 1.5.0.5. spacr-doctor hat seinen kleinen CUDA-Speicherallokationstest bestanden, warnt aber vor fehlender optionaler CZI-Unterstützung; das ist weder ein Geschwindigkeitsvergleich noch die Prüfung aller Analysen oder Formate. Die native Aufnahme verwendet ein privates dunkles Profil mit Schriftfaktor 1.5, bereits geschlossener Einführung und unveränderten Vorladevorgaben, ohne das nicht unterstützte Flag --no-setup. Andere Plattformen wurden nicht getestet. Ursprünglicher und veröffentlichter Sprechertext unterscheiden sich; unveränderte Audioübernahme wird nicht behauptet.",
+      "prerequisite": "Installieren Sie Conda oder Miniforge und öffnen Sie ein Terminal, in dem der Befehl conda verfügbar ist.",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "Verwenden Sie für spaCR eine eigene Conda-Umgebung und prüfen Sie, welche Version der Kanal tatsächlich anbietet. Zum Aufnahmezeitpunkt installiert conda-forge Version eins Punkt fünf Punkt null Punkt vier. PyPI und der Desktop-Installer bieten bereits eins Punkt fünf Punkt null Punkt fünf; diese Versionsangaben sind nicht austauschbar.",
+          "narration": "Öffnen Sie ein Terminal mit Conda. Sie erstellen eine Umgebung für spaCR, installieren das conda-forge-Paket und starten die Anwendung aus dieser Umgebung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "Erstellen Sie mit dem angezeigten Befehl eine Umgebung namens spacr-conda mit Python 3.12 und spaCR aus conda-forge. Wählen Sie einen anderen Namen, wenn Sie diesen bereits für eine andere Umgebung verwenden.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_conda",
-          "narration": "Öffnen Sie eine für Conda eingerichtete Shell und erstellen Sie eine neue Umgebung mit Python drei Punkt zwölf. Die Befehlskarte verwendet den Namen spacr-conda. Falls er schon existiert, wählen Sie einen anderen unbenutzten Namen und trennen Sie diese Umgebung von laufenden Analysen.",
+          "narration": "Conda löst die Umgebung auf und listet den Paketplan auf. Prüfen Sie ihn, geben Sie y ein, um zuzustimmen, und warten Sie, bis Download und Installation abgeschlossen sind.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_conda",
-          "narration": "Aktivieren Sie die Umgebung und geben Sie sys Punkt prefix aus, um die Herkunft von Python zu bestätigen. Die tatsächliche Prüfung verwendet statt des kurzen Beispielnamens einen längeren privaten Präfix. Die Eingabeaufforderung allein beweist nicht, dass der gewünschte Interpreter verwendet wird.",
+          "narration": "Aktivieren Sie spacr-conda. Führen Sie den angezeigten Python-Befehl aus, um den Pfad der Umgebung zu sehen, und prüfen Sie, dass es die soeben erstellte Umgebung ist.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_conda",
-          "narration": "Installieren Sie das Paket mit ausdrücklicher Angabe von conda-forge und prüfen Sie Version und Kanal anschließend mit conda list spacr. Unsere aufgezeichnete Installation verwendete ausschließlich conda-forge und eine festgelegte Kanalversion. Sie war vor den Prüfbildern abgeschlossen; die Karten sind Anweisungen, keine erfundene Terminalausgabe.",
+          "narration": "Führen Sie conda list spacr aus, um die installierte Version zu sehen und zu bestätigen, dass sie aus conda-forge stammt. Werden Python und spaCR mit einem Befehl installiert, kann Conda alle Pakete gemeinsam auflösen – das geht viel schneller, als spaCR zu einer bestehenden Umgebung hinzuzufügen.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Prüfen Sie spaCR-Version, Qt-Version und Paketpfad in der installierten Umgebung. Hier ist das Paket in Version eins Punkt fünf Punkt null Punkt vier aktiv und Qt lässt sich importieren. Das identifiziert das aktive Paket, bestätigt aber nicht jeden wissenschaftlichen Ablauf oder jedes optionale Format.",
+          "narration": "Prüfen Sie die installierte spaCR-Version und den Speicherort des Pakets. Notieren Sie diese Version bei Ihren Analysenotizen, damit Sie später zur selben Umgebung zurückkehren können.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus und lesen Sie auch die Warnungen. Hier gelingt der kleine GPU-Speicherallokationstest, während für die optionale CZI-Unterstützung eine Abhängigkeit fehlt. Übersprungene Prüfungen sind keine bestandenen Prüfungen. Der Reparaturvorschlag betrifft diese Funktion; beurteilen Sie Änderungen an der Umgebung vorab, besonders beim Mischen von Paketmanagern.",
+          "narration": "Führen Sie spacr-doctor aus, um die Installation zu prüfen. Hier meldet es, dass vispy, eine Kernabhängigkeit, fehlt, und zeigt den Befehl an, der es installiert. Führen Sie diesen Befehl aus und starten Sie spacr-doctor dann erneut. Folgen Sie weiteren vorgeschlagenen Schritten nur für die Dateiformate oder Funktionen, die Sie benötigen.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Das installierte Conda-Paket öffnet und schließt normal, zeigt aber seine ältere Home mit dreiundsechzig Kacheln. Die neue verschachtelte Modulstruktur fehlt. Eine erfolgreiche Installation bedeutet nicht automatisch, dass jeder Bildschirm den Tutorials einer neueren Version entspricht.",
-          "hold_after": 0.7
+          "narration": "Geben Sie spacr ein, um die Anwendung zu starten. Treffen Sie die Auswahl beim ersten Start und fahren Sie dann mit dem Home-Tutorial fort, um Module und ihre Beispieldaten zu finden.",
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "Für die neuere verschachtelte Oberfläche der überarbeiteten Modul-Tutorials verwenden Sie die aktuelle Lektion zu pip oder Platform installers in einer separaten Umgebung. Benötigen Sie den Conda-Kanal, dokumentieren Sie seine tatsächliche Version und prüfen Sie erneut auf Aktualisierungen. Bewahren Sie die für eine laufende Analyse verwendete Version.",
+          "narration": "Um später zu aktualisieren, schließen Sie spaCR, aktivieren diese Umgebung und aktualisieren das conda-forge-Paket. Gibt es in conda-forge keinen neueren Build, meldet Conda, dass alle angeforderten Pakete bereits installiert sind. Prüfen Sie anschließend die installierte Version; die Lektionen zu pip und zum Installer behandeln die anderen Installationswege.",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
@@ -138,7 +149,52 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -148,145 +204,202 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Eine isolierte Python-Umgebung anlegen, das öffentliche Paket installieren, Abhängigkeiten prüfen und die installierte Qt-Anwendung starten.",
+      "description": "Erstellen Sie eine isolierte Python-Umgebung, installieren Sie das öffentliche Paket, prüfen Sie seine Abhängigkeiten und starten Sie die installierte Qt-Anwendung.",
       "objectives": [
-        "Die Abhängigkeiten von spaCR in einer eigenen Python-Umgebung halten.",
-        "Installiertes Paket, Qt und Warnungen zu optionalen Funktionen prüfen.",
-        "Home öffnen und gezielt die richtige Umgebung aktualisieren."
+        "Eine virtuelle Python-Umgebung erstellen und aktivieren.",
+        "spaCR installieren und seine Abhängigkeiten prüfen.",
+        "Die Anwendung starten und die vorgesehene Umgebung aktualisieren."
       ],
-      "prerequisite": "Diese Lektion prüft spaCR 1.5.0.5 von PyPI unter Linux mit Python 3.12.13, keine editierbare Installation eines Checkouts. Die Befehlskarten sind Anleitungen, keine aufgezeichneten Terminalausgaben; Windows- und macOS-Befehle wurden hier nicht ausgeführt. Die Neuinstallation war vor den aufgezeichneten Prüfungen abgeschlossen. Die aktuellen Basisabhängigkeiten enthalten Qt. Doctor meldet eine optionale CZI-Warnung; die GPU-Speicherbelegungsprobe wird ausdrücklich ausgelassen. Die GUI-Aufnahme verwendet --no-setup, ein privates dunkles Profil mit Schriftfaktor 1.5 und eine bereits geschlossene Tour. Sie belegt normales Öffnen und Schließen von Home, nicht sämtliche Module, optionalen Formate, GPU-Berechnungen oder andere Plattformen.",
+      "prerequisite": "Installieren Sie Python 3.12 und öffnen Sie ein Terminal. Verwenden Sie den Aktivierungsbefehl für Ihr Betriebssystem und Ihre Shell.",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "Installieren Sie spaCR in einer eigenen Python-Umgebung. Diese Demonstration verwendet Python 3.12 unter Linux und die öffentliche PyPI-Version, keinen Quellcode-Checkout. Prüfen Sie python --version, bevor Sie den Interpreter für Ihre Umgebung auswählen.",
+          "narration": "Öffnen Sie ein Terminal und prüfen Sie Ihre Python-Version. Diese Anleitung verwendet Python 3.12. Halten Sie spaCR in einer eigenen virtuellen Umgebung, damit sich seine Pakete leicht verwalten lassen.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_environment",
-          "narration": "Erstellen Sie mit dem Befehl für Ihre Plattform eine neue virtuelle Umgebung. Hier ist .venv ein neuer Ordner im Arbeitsverzeichnis. Python 3.12 muss bereits installiert sein: Der Befehl erstellt eine Umgebung, installiert aber nicht Python selbst.",
+          "narration": "Erstellen Sie mit dem Befehl für Ihr Betriebssystem eine virtuelle Umgebung namens .venv. Dadurch entsteht ein Ordner mit der Python-Umgebung, die Sie für spaCR verwenden.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_environment",
-          "narration": "Aktivieren Sie die Umgebung mit dem Befehl für Ihre Shell. PowerShell, Command Prompt, bash und zsh benötigen unterschiedliche Aktivierungsbefehle. Blockiert PowerShell das Skript, verwenden Sie Command Prompt oder rufen Sie Python aus der Umgebung direkt auf; schwächen Sie nicht die Sicherheitsregeln des gesamten Rechners.",
+          "narration": "Aktivieren Sie .venv mit dem Befehl für Ihre Shell. Windows PowerShell und die Eingabeaufforderung haben unterschiedliche Aktivierungsbefehle; macOS und Linux verwenden meist den hier gezeigten Shell-Befehl.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pip_environment",
-          "narration": "Führen Sie python -m pip --version aus. Der angegebene Speicherort sollte innerhalb der gewählten Umgebung liegen. Dieses echte Terminal zeigt den längeren privaten Aufnahmepfad. Mit python -m pip ist die Paketinstallation an diesen Interpreter gebunden.",
+          "narration": "Führen Sie python -m pip --version aus. Prüfen Sie, dass der angezeigte Pfad zu .venv gehört. Verwenden Sie python -m pip für die Installationsbefehle, damit pip diesen Interpreter nutzt.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_package",
-          "narration": "Aktualisieren Sie pip und installieren Sie spacr. Mit der Festlegung auf 1.5.0.5 erhalten Sie die Version dieser Lektion. Die Neuinstallation war vor diesen aufgezeichneten Prüfungen abgeschlossen. Planen Sie Zeit und Speicherplatz für wissenschaftliche Abhängigkeiten ein; die aktuellen Basisabhängigkeiten enthalten bereits die Qt-Desktop-Komponenten.",
+          "narration": "Aktualisieren Sie pip und installieren Sie dann spacr. Warten Sie, bis die wissenschaftlichen Pakete heruntergeladen und installiert sind. Das aktuelle Paket enthält die Desktop-Komponenten, die zum Öffnen der Anwendung nötig sind.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Prüfen Sie die installierte spaCR-Version, die Qt-Version und den Paketpfad. Hier stammen alle drei aus der neuen Umgebung. Ein erfolgreicher Import beweist weder, dass jedes optionale Format oder jede Analyse funktioniert, noch dass sich das Fenster öffnen lässt.",
+          "narration": "Prüfen Sie mit dem angezeigten Befehl die installierte spaCR-Version und den Speicherort des Pakets. Speichern Sie die Version bei Ihren Analysenotizen.",
           "hold_after": 0.7
         },
         {
           "visual": "04_dependency_check",
-          "narration": "Führen Sie python -m pip check aus. No broken requirements bedeutet, dass die deklarierten Abhängigkeiten der installierten Pakete zusammenpassen. Beheben Sie gemeldete Konflikte vor dem Fortfahren. Eine erfolgreiche Prüfung ist keine wissenschaftliche Validierung einer Analyse.",
+          "narration": "Führen Sie python -m pip check aus. Meldet es widersprüchliche Anforderungen, lösen Sie diese Konflikte, bevor Sie die Umgebung verwenden.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus und lesen Sie auch die Warnungen. Diese Installation meldet eine optionale CZI-Warnung samt Reparaturbefehl. Für die Aufnahme wird --no-gpu-probe verwendet: Das Gerät wird erkannt, aber keine GPU-Speicherbelegung erprobt. Übersprungene Prüfungen sind keine bestandenen Prüfungen.",
+          "narration": "Führen Sie spacr-doctor aus, um die Installation zu prüfen und fehlende optionale Funktionen zu sehen. Folgen Sie der vorgeschlagenen Reparatur nur für die Formate oder Fähigkeiten, die Sie benötigen.",
           "hold_after": 0.7
         },
         {
           "visual": "10_launch_commands",
-          "narration": "Starten Sie spacr aus derselben aktivierten Umgebung. Beim normalen ersten Start können Einrichtungsfragen erscheinen. Diese begrenzte Überprüfung nutzt ausdrücklich --no-setup und ein vorbereitetes Aufnahmeprofil; sie zeigt nicht die Beantwortung dieser Fragen.",
+          "narration": "Starten Sie spacr aus der aktivierten Umgebung. Folgen Sie beim ersten Start den Einrichtungsaufforderungen und wählen Sie Ihre Einstellungen.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Dies ist das echte Home-Fenster des installierten Wheels mit sechs Kernmodulen und den Gruppen Data, Tools und Assays. Es wurde ohne Analyse normal geöffnet und geschlossen. Fahren Sie mit Home fort, um Navigation, verschachtelte Werkzeuge und die Modultutorials kennenzulernen.",
+          "narration": "Home öffnet sich mit den Kategorien Core, Data, Tools und Assays. Fahren Sie mit dem Home-Tutorial fort, um ein Modul zu finden, Beispieldaten zu laden und eine Pipeline-Übersicht zu öffnen.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "Schließen Sie spaCR vor einem Update und aktivieren Sie die Umgebung, die Sie ändern möchten. Aktualisieren Sie das Paket, wiederholen Sie pip check und spacr-doctor und dokumentieren Sie die neue Version zusammen mit Ihrer Analyse. Updates können Abhängigkeiten und Verhalten ändern; verändern Sie eine für laufende Arbeiten verwendete Umgebung nicht stillschweigend.",
+          "narration": "Zum Aktualisieren schließen Sie spaCR und aktivieren diese Umgebung. Aktualisieren Sie das Paket und prüfen Sie dann Version und Abhängigkeiten erneut. Behalten Sie die vorherige Umgebung, wenn Sie sie für eine laufende Analyse brauchen.",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Installationsprogramme nach Plattform",
+      "title": "spaCR mit einem Desktop-Installer installieren",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Wählen Sie einen offiziellen Installer, verstehen Sie die automatische Beschleunigerauswahl und freiwilligen Datenschutzoptionen und prüfen Sie die tatsächlich installierte Linux-Laufzeitumgebung.",
+      "description": "Laden Sie den Installer für Ihr Betriebssystem herunter, schließen Sie die Einrichtung ab und öffnen Sie spaCR.",
       "objectives": [
-        "Den offiziellen Installer für das Betriebssystem auswählen.",
-        "Automatische Beschleunigung von der ausdrücklichen CPU-only-Wahl unterscheiden.",
-        "Datenschutzoptionen, installierte Versionen und Diagnosewarnungen lesen."
+        "Den Installer für Ihr Betriebssystem herunterladen und ausführen.",
+        "Eine Beschleunigungsoption und die Einstellungen für den ersten Start wählen.",
+        "spaCR öffnen und Installationsprotokolle finden, wenn die Einrichtung Aufmerksamkeit braucht."
       ],
-      "prerequisite": "Diese Aufnahme überprüft am 10. September 2026 den mit seiner Prüfsumme abgeglichenen öffentlichen Linux-x86-64-Online-Installer für spaCR 1.5.0.5 mit Python 3.12.13, Qt 6.11.2 und Torch 2.14.0+cu132. Die echte Installation war vor diesen Prüfbildern abgeschlossen. Sie verwendete neue private Laufzeit- und Starterverzeichnisse, vorhandene grafische Systembibliotheken, --skip-system-deps und --no-launch; bestehende Umgebungen oder Systemabhängigkeiten wurden nicht verändert. Vier Referenzkarten sind Anweisungen, keine aufgezeichneten Windows/macOS-Installationen oder erfundenen Terminalausgaben. Windows/macOS-Hinweise wurden nur anhand des aktuellen Installer-Quellcodes geprüft. Die GUI-Aufnahme verwendet ein privates dunkles Profil mit Schriftfaktor 1.5, bereits geschlossener Einführung, Vorladen bei Bedarf und --no-setup; dieses Flag umgeht die separate Datenschutzfrage nicht. Mit der echten Escape-Taste wird der Dialog abgelehnt und alles Freiwillige bleibt aus; die privaten Einstellungen wurden anschließend ausgelesen. Doctor lief mit --no-gpu-probe; Speicherallokation, Geschwindigkeit, Analysen und andere Plattformen werden nicht als geprüft bezeichnet. Fehlgeschlagene Aufnahmeversuche bleiben erhalten und gelten nicht als Anwendungsfehler.",
+      "prerequisite": "Laden Sie den offiziellen Installer für Ihr Betriebssystem herunter und planen Sie Speicherplatz für die Anwendung und ihre wissenschaftlichen Abhängigkeiten ein.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Verwenden Sie die offizielle spaCR-Veröffentlichung auf GitHub und wählen Sie den Installer für Ihr Betriebssystem. Die Online-Installer laden eine private Python-Laufzeit und wissenschaftliche Abhängigkeiten herunter; eine vorhandene Conda-Umgebung ist nicht nötig. In diesem Linux-Beispiel haben wir die heruntergeladene Datei vor dem Start mit der veröffentlichten Prüfsumme abgeglichen.",
+          "narration": "Öffnen Sie das offizielle spaCR-Release auf GitHub und laden Sie unter Assets den Installer für Ihr Betriebssystem herunter. Diese Online-Installer laden während der Einrichtung die Python-Laufzeit und die wissenschaftlichen Pakete herunter. Bewahren Sie SHA256SUMS.txt aus demselben Release auf, wenn Sie den Download prüfen möchten.",
           "hold_after": 0.7
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "Wählen Sie unter Windows die ausführbare Online-Setup-Datei. Der aktuelle Installer-Quellcode wählt automatische Beschleunigung vor; für reinen CPU-Betrieb lässt sich diese optionale Komponente abwählen. Die Karte erklärt diese Wahl, ist aber weder eine Windows-Installationsaufnahme noch ein Kompatibilitätstest auf Ihrem Computer.",
+          "narration": "Führen Sie unter Windows das Setup-Programm aus und folgen Sie den Anweisungen. Lassen Sie die automatische Beschleunigung ausgewählt, um die auf Ihrem Computer erkannte unterstützte Hardware zu nutzen, oder wählen Sie den reinen CPU-Betrieb, wenn Sie diesen benötigen.",
           "hold_after": 0.7
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "Wählen Sie unter macOS das universelle Online-Paket für Intel und Apple silicon. Fehlt die Laufzeit, startet der App-Starter die Einrichtung für den jeweiligen Benutzer. Prüfen Sie vor dem Bestätigen von Sicherheitsmeldungen die offizielle Quelle und planen Sie Zeit für Downloads ein. Dies sind anhand des Quellcodes geprüfte Hinweise, keine ausgeführte macOS-Installation.",
+          "narration": "Öffnen Sie unter macOS das Universal-Paket und folgen Sie dem Installer. Starten Sie spaCR über den Programmstarter und lassen Sie die Downloads beim ersten Start abschließen. Lesen Sie jede Sicherheitsabfrage und prüfen Sie, dass das Paket aus dem offiziellen Release stammt.",
           "hold_after": 0.7
         },
         {
           "visual": "11_linux_commands",
-          "narration": "Machen Sie unter Linux die geprüfte Datei ausführbar und starten Sie sie aus ihrem Ordner. Die automatische Beschleunigerauswahl ist jetzt Standard; fordern Sie bei Bedarf ausdrücklich CPU an. Unser isolierter Lauf nutzte vorhandene Systembibliotheken und private Pfade und demonstriert daher nicht die Installation von Systemabhängigkeiten.",
+          "narration": "Machen Sie unter Linux den heruntergeladenen Installer ausführbar und starten Sie ihn in einem Terminal. Die automatische Beschleunigung wählt ein unterstütztes Backend. Die Hilfe nennt --torch-backend cpu für den reinen CPU-Betrieb und --skip-system-deps für Computer, auf denen die Qt-Grafikbibliotheken bereits vorhanden sind.",
           "hold_after": 0.7
         },
         {
           "visual": "02_installer_backend",
-          "narration": "Lesen Sie das tatsächliche Installationsprofil, statt aus einem erfolgreichen Start auf das Backend zu schließen. Hier wurde auto angefordert und CUDA auf NVIDIA-Hardware ausgewählt. Der installierte Torch-Build verwendet CUDA dreizehn Punkt zwei. Das identifiziert die Auswahl, ist aber kein GPU-Geschwindigkeitstest.",
+          "narration": "Nach der Einrichtung hält das Installationsprofil das gewählte Backend fest. Sehen Sie dort nach, wenn Sie prüfen möchten, ob die Laufzeit die CPU oder einen unterstützten Beschleuniger verwendet.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Prüfen Sie Paketversion, Qt-Import und Paketpfad. Diese private Laufzeit enthält spaCR eins Punkt fünf Punkt null Punkt fünf. Die Dateien stammen aus der Installation, nicht aus einem bearbeitbaren Quellcode-Checkout. Erfolgreiche Importe validieren nicht jede Analyse oder jedes optionale Dateiformat.",
+          "narration": "Prüfen Sie die installierte spaCR-Version. Notieren Sie sie bei Ihren Analysenotizen, besonders wenn Sie die Anwendung später aktualisieren.",
           "hold_after": 0.7
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "Der echte erste Start fragt nach freiwilligem Diagnoseteilen, öffentlichen Fehlermeldungen und Kontoeinrichtung. Meldungen wären öffentlich; lesen Sie die Erklärung. Die Aufnahme lehnt den Dialog mit Escape ab, entsprechend Skip, keep all off. Es werden keine Konten verbunden, und die ausgelesenen privaten Einstellungen bestätigen, dass Teilen und Meldeaktionen ausgeschaltet bleiben.",
+          "narration": "Die Einrichtung fragt nach dem optionalen Teilen von Diagnosedaten und der Einrichtung eines Kontos. Antworten Sie nur bei den gewünschten Optionen mit y; n, die Voreinstellung, lässt jede Option ausgeschaltet. Der Windows-Installer zeigt dieselben Auswahlmöglichkeiten als Kontrollkästchen.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Nach dieser Wahl öffnet die installierte Anwendung ihre aktuelle Home mit einundzwanzig Kacheln und sechs Kernmodulen. Das Fenster schließt auch normal. Lernen Sie die verschachtelten Abläufe und Beispieldaten in der Home-Lektion kennen; Home allein zu öffnen ist kein Analysetest.",
+          "narration": "Wenn Home geöffnet ist, fahren Sie mit dem Home-Tutorial fort. Es zeigt, wie Sie ein Modul öffnen, Testdaten finden und eine Pipeline für Ihr Experiment wählen.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus der installierten Laufzeit aus und lesen Sie Warnungen ebenso wie bestandene Prüfungen. Hier bestätigt es das Installer-Backend, warnt aber vor einer fehlenden optionalen CZI-Abhängigkeit. GPU-Allokation, Datenbank und Einstellungen wurden nicht geprüft. Übersprungen heißt nicht bestanden; bewerten Sie die vorgeschlagene Reparatur vor einer Umgebungsänderung.",
+          "narration": "Wenn der Start oder ein Dateiformat Probleme macht, führen Sie spacr-doctor aus der installierten Laufzeit aus. Es listet jede Prüfung mit einer vorgeschlagenen Lösung auf. Bei dieser reinen CPU-Installation schlägt die GPU-Prüfung erwartungsgemäß fehl, und die PATH-Prüfung markiert den eigenen spacr-Starter des Installers, der dieselbe Laufzeit startet; hier muss also keines von beiden geändert werden.",
           "hold_after": 0.7
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "Bewahren Sie install Punkt log und install-profile Punkt json aus dem gewählten Installationsverzeichnis zur Fehlersuche auf. Prüfen Sie Protokolle vor dem Teilen auf private Informationen. Dokumentieren Sie die Version jeder Analyse und aktualisieren Sie bewusst. Die Lektionen zu pip und Conda erläutern die anderen Installationswege mit getrennten Umgebungen.",
+          "narration": "Bei Installationsproblemen finden Sie install.log und install-profile.json im Installationsverzeichnis. Prüfen Sie die Protokolle, bevor Sie sie mit einer Supportanfrage teilen. Geben Sie Ihr Betriebssystem und Ihre spaCR-Version an, damit sich das Problem leichter diagnostizieren lässt.",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
@@ -294,32 +407,77 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home-Bildschirm und Navigation",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Öffnen Sie ein Modul über Home, finden Sie die zugehörigen Werkzeuge und Beispieldaten und wählen Sie dann eine Pipeline aus.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Ein Startmodul für Bilder, Messwerte oder Sequenzier-Reads wählen.",
+        "Zugehörige Werkzeuge und organismusspezifische Assays finden.",
+        "Ein Beispiel laden, Hilfe finden und eine Pipeline-Übersicht öffnen."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home ist Ihr Ausgangspunkt. Klicken Sie auf eine Kachel, um ein Modul zu öffnen, oder verwenden Sie die Seitenleiste links. Mit Home in der Seitenleiste kehren Sie hierher zurück. Die Registerkarten Core, Data, Tools und Assays helfen Ihnen, die gewünschte Aufgabe zu finden.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "Beginnen Sie bei Mikroskopbildern mit Mask, um Objekte zu umranden, und extrahieren Sie dann mit Measure deren Merkmale und Ausschnitte. Mit Annotate beschriften Sie Beispielobjekte, und Classify lernt aus diesen Labels, um weitere Objekte zu bewerten. Map Barcodes liest Sequenzierdaten. Regression kombiniert die entstandenen Phänotyp-Scores mit den Guide-Zählungen, um Zusammenhänge zu finden.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -340,7 +498,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "In Data kommen Dateien herein und Ergebnisse werden geprüft. Wenn Sie bereits Bilder, Masken oder Messtabellen haben, bringt Import sie in ein Projekt, das die anderen Module lesen können. Vor einem Experiment plant Experiment Design Ihre Platten; danach zeigt QC die aufgezeichneten Qualitätsprüfungen, und Run Compare stellt zwei Läufe nebeneinander.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -360,7 +518,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools enthält die praktischen Editoren und Explorer. In Make Masks korrigieren Sie Masken, und von dort öffnet sich auch die Cellpose Workbench. Align and Stitch fügt überlappende Bildkacheln zu einem Bild zusammen. Sobald Sie Messwerte haben, können Sie sie mit Image UMAP, Gate Editor und Graph Builder erkunden und darstellen. Die Werkzeugleiste jedes Moduls öffnet dessen zugehörige Werkzeuge.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -379,7 +537,7 @@
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Öffnen Sie Assays und wählen Sie Ihren Organismus: Toxoplasma, Plasmodium oder Candida. Wählen Sie dann einen Assay im Menü dieses Organismus. Öffnen Sie zum Beispiel Toxoplasma für die Plaque-Analyse oder für Wirt-Pathogen-Messungen. Folgen Sie dem Tutorial des gewählten Assays, um dessen Bilder, Masken und Messeingaben vorzubereiten.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -395,7 +553,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Öffnen Sie Classify und wählen Sie über Classifier family Ihre Eingabe. Wählen Sie Computer Vision für Objektbilder oder Tabular Machine Learning für gemessene Merkmalsspalten. Die verlinkten Tutorials führen Sie für jede Familie durch Training, Bewertung und Scoring.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -405,7 +563,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "Ist ein Modell trainiert, hilft Ihnen die Werkzeugleiste von Classify, es zu hinterfragen. Classifier Evaluation zeigt seine Leistung auf zurückgehaltenen Daten, Explain CV Model und Activation zeigen, was seine Entscheidungen bestimmt, Training Runs vergleicht Trainingsverläufe, und Feature Explorer ordnet die Merkmale, die Ihre Gruppen trennen. Fahren Sie mit der Maus über ein Symbol, um seinen Namen zu sehen.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -418,7 +576,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "Um ein Modul auszuprobieren, klicken Sie auf Load test data, sofern vorhanden. Warten Sie, bis der Download abgeschlossen ist, und prüfen Sie dann die ausgefüllten Eingaben und Einstellungen. Klicken Sie in Mask auf Live, um ein Bildfeld zu prüfen, bevor Sie Run drücken. Schalten Sie Time für eine Zeitreihe oder 3D für ein Volumenbild ein.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -427,17 +585,17 @@
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "narration": "Geben Sie den Namen eines Moduls, einer Einstellung oder einer Funktion in das Suchfeld neben Help ein. Hier findet die Suche nach Performance die passende Seite in Preferences. Klicken Sie auf ein Ergebnis, um das Ziel zu öffnen. API-Ergebnisse öffnen die Dokumentation der ausgewählten Funktion.",
           "hold_after": 0.7
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "narration": "Wählen Sie in Preferences ein Performance-Profil für Ihren Computer. Laptop verbraucht weniger Ressourcen; die höheren Profile erlauben mehr Caching und Hintergrundarbeit. Beginnen Sie mit einem bescheidenen Profil, wenn der Arbeitsspeicher begrenzt ist. Ihre Analyseeinstellungen bleiben in jedem Modul unter Ihrer Kontrolle.",
           "hold_after": 0.7
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Kehren Sie zu Home zurück und klicken Sie auf Pipeline overviews, um einen Workflow zu wählen. Beginnen Sie mit spaCR screens für einen gepoolten bildbasierten Screen, oder wählen Sie einen Bildanalyse- oder Sequenzierpfad für Ihre Daten. Die nächsten Tutorials zeigen, wie diese Module zusammenhängen, und die Modul-Lektionen führen anschließend durch jede Aufgabe.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -455,6 +613,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1465,22 +1663,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: Labels bearbeiten und Trainingsbilder vorbereiten",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Öffnen Sie Bild-Masken-Paare, prüfen und bearbeiten Sie Objekte, speichern Sie Messwerte und erstellen Sie gepaarte Trainingsausschnitte.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Bilder mit passenden Instanzmasken öffnen und Objekte in der Lupe prüfen.",
+        "Gepaarte Bildfelder messen und eine Datenbank mit Objektmerkmalen speichern.",
+        "Labels mit Undo, Zeichnen, Teilen und Größenfiltern korrigieren.",
+        "Kuratierte Masken speichern und Bild-Masken-Ausschnitte für das Training erstellen."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "Bereiten Sie einen Ordner mit zweidimensionalen Bildern und passenden Instanz-Label-TIFFs in einem Unterordner masks vor. Jede Maske trägt den Dateinamenstamm des Bildes. Arbeiten Sie beim Üben von Bearbeitungen und Neuzuschnitten mit einer Kopie. Das Beispiel verwendet ER-Bilder und Zellmasken aus dem herunterladbaren Mikroskopieprojekt von Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Öffnen Sie von Home aus Make Masks unter Tools. Wählen Sie diesen Editor, um einzelne Bildmasken zu prüfen und zu korrigieren. Öffnen Sie den Ordner mit gepaarten Bildern und Labels, bevor Sie ein Bearbeitungswerkzeug wählen.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1488,7 +1686,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Wählen Sie den Bildordner. Verwenden Sie für dieses Beispiel die ER-Intensitätsbilder und die zugehörigen Zellmasken aus dem Measure-Beispiel. Halten Sie Bild- und Maskenmaße gleich und die Dateinamen gepaart.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1496,17 +1694,17 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "narration": "Der Editor lädt das Bild und die passende Maske aus dem Unterordner masks. Farbige Labels kennzeichnen einzelne Objekte. Prüfen Sie, ob die Umrisse den Grenzen im Bild folgen. Fehlt eine zugehörige Maske, beginnen Sie mit einer leeren Maske und zeichnen Sie die benötigten Objekte.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Öffnen Sie Magnifier settings. Wählen Sie Otsu und Region under the mouse, um schwellenwertbasierte Objekte rund um den Mauszeiger in der Vorschau zu sehen. Wählen Sie einen modellbasierten Modus, wenn der Schwellenwert Ihre Objekte nicht gut trennt.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Schalten Sie Magnifier ein und fahren Sie über ein Objekt, um seine Vorschau zu vergrößern. Bewegen Sie den Zeiger über mehrere Objekte, um die vorgeschlagenen Umrisse zu prüfen. Klicken Sie, um die umrandeten Objekte hinzuzufügen, wenn sie korrekt aussehen, oder schalten Sie Magnifier aus, um weiter zu bearbeiten.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -1517,7 +1715,7 @@
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Klicken Sie auf Features, um Bild-Masken-Paare zu messen. Fügen Sie für jedes Bildfeld eine Zeile hinzu und wählen Sie die Intensitätsbilder und die zugehörigen Objektmasken. Prüfen Sie die manuellen Zuordnungen, wenn der automatische Dateinamenabgleich Dateien unzugeordnet lässt.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1531,7 +1729,7 @@
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "Wählen Sie in jeder Zeile das ER-Intensitätsbild unter Channel 1 und das passende Label-Bild unter Cell mask. Wiederholen Sie dies für das zweite Bildfeld. Verwenden Sie zur Fluoreszenzmessung die ursprünglichen Intensitätsbilder.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1545,7 +1743,7 @@
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "Prüfen Sie beide Zeilen und wählen Sie dann die Messeinstellungen. Dieses Beispiel verwendet einen Worker, eine minimale Zellgröße von einem Pixel und keine gespeicherten PNG-Ausschnitte. Erhöhen Sie den Größengrenzwert, um kleine Objekte auszuschließen, wenn das zu Ihrem Experiment passt. Klicken Sie auf Measure.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1559,7 +1757,7 @@
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "Öffnen Sie nach Abschluss der Messung den Ausgabeordner. Der Ordner measurements enthält measurements.db mit den Objektmerkmalen beider Bildfelder. Bewahren Sie die Datenbank zusammen mit ihren Quellbildern, Masken und Einstellungen auf und schließen Sie dann Features, um zur Bearbeitung zurückzukehren.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1573,7 +1771,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "Wählen Sie das Werkzeug, das zur Korrektur passt. Brush fügt Pixel hinzu, Erase entfernt Pixel und Erase object entfernt ein ganzes Label. Draw fügt ein umrandetes Objekt hinzu; Divide teilt eines. Mit Zoom prüfen Sie Grenzen, bevor Sie etwas ändern.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1584,42 +1782,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "narration": "Wählen Sie Erase object und klicken Sie in das Objekt, das Sie entfernen möchten. Prüfen Sie den aktualisierten Umriss und die Objektanzahl. Verwenden Sie dies für ein unerwünschtes Label, etwa Zelltrümmer oder ein Objekt außerhalb Ihrer Analysekriterien.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "narration": "Klicken Sie auf Undo, um das Löschen rückgängig zu machen. Redo wendet es erneut an. Vergleichen Sie mit diesen Verlaufsfunktionen eine Bearbeitung mit der vorherigen Maske und kehren Sie dann zu der Version zurück, die Sie behalten möchten.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "narration": "Wählen Sie Draw und zeichnen Sie eine geschlossene Grenze um ein fehlendes Objekt. Der Editor füllt es mit einem neuen Label. In diesem Übungsschritt liegt der Umriss im Hintergrund; machen Sie ihn daher vor dem Speichern rückgängig. Zeichnen Sie für Trainingsdaten die tatsächliche Objektgrenze nach.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "narration": "Verwenden Sie Divide, wenn sich zwei berührende Objekte ein Label teilen. Ziehen Sie einen Schnitt quer durch die gesamte verbundene Region und prüfen Sie die getrennten Labels. Machen Sie die Teilung rückgängig, wenn sie ein einzelnes Objekt durchschneidet oder eine falsche Grenze hinterlässt.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "narration": "Passen Sie Display percentiles an, damit schwache Strukturen leichter zu prüfen sind. Diese Regler ändern nur die Bildanzeige; die Rohintensitäten und Labels bleiben erhalten. Stellen Sie beim Vergleichen von Bildfeldern wieder eine einheitliche Anzeige ein.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "Legen Sie die minimale und maximale Objektfläche fest und drücken Sie Filter, um Labels außerhalb dieser Grenzen zu entfernen. Wählen Sie Grenzen, die zu Ihren Objekten passen, und prüfen Sie, was entfernt wurde. Der Filter verändert die Maske; verwenden Sie Undo, wenn der Grenzwert nützliche Objekte entfernt.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "Klicken Sie nach dem Prüfen der Änderungen auf Save mask. Setzen Sie die Größengrenzen bei Bedarf auf null zurück, um sie vor dem Wechsel zu einem anderen Bildfeld zu deaktivieren. Bewahren Sie die Quellbilder auf und halten Sie das gespeicherte Kurationsprotokoll bei den bearbeiteten Masken.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "Die Kopfzeile enthält die übrigen Maskenwerkzeuge. Wenn Sie Gewichte auswählen, findet Model Zoo sie, und Model Compare stellt zwei Maskensätze nebeneinander. Wenn weitere Beispiele korrigiert werden müssen, führen Curate und Open in napari Sie zurück zur Bearbeitung.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1629,7 +1827,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "Die Kopfzeile öffnet auch Model Compare, Model Zoo, Curate und Open in napari. Verwenden Sie Model Compare, um Masken nebeneinander zu prüfen, Model Zoo, um Gewichte zu wählen, und die Kurationswerkzeuge, um weitere Beispiele zu prüfen oder zu bearbeiten.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1641,12 +1839,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "narration": "Wählen Sie Recrop und ziehen Sie einen Rahmen um die Objekte, die Sie in einem kleineren Trainingsfeld haben möchten. Dabei werden ein neues Bild und die passende Maske geschrieben. Vom Rand angeschnittene Objekte werden verworfen; lassen Sie daher Platz um vollständige Objekte und prüfen Sie den Ausschnitt.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Klicken Sie auf Next, um den neuen Ausschnitt zu öffnen. Das ursprüngliche Bild und die Maske bleiben zur Wiederherstellung in recropped_originals erhalten. Prüfen Sie den Ausschnitt und seine Labels, bevor Sie ihn Ihrem Trainingsdatensatz hinzufügen.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1654,32 +1852,32 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "Um Objekte im aktuellen Bildfeld zu erkennen, wählen Sie das Cellpose-Modell und prüfen Sie seine Einstellungen. Dieses Beispiel verwendet cpsam, eingeschaltete Normalisierung, einen Zellwahrscheinlichkeits-Schwellenwert von 0 und einen Flow-Schwellenwert von 0,4. Prüfen Sie, ob die Erkennungen bestehende Labels ersetzen oder ergänzen.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Klicken Sie auf Object detection und vergleichen Sie die entstandenen Umrisse mit dem Bild. Hier wählt das Modell das angeschnittene Objekt oben links statt der mittleren Zelle. Machen Sie diese Ersetzung rückgängig und passen Sie die Modelleinstellungen an, bevor Sie es erneut versuchen.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "narration": "Öffnen Sie Cell probability, um die Vordergrund-Score-Karte zu prüfen. So sehen Sie, welche Regionen das Modell stützt. Ändern Sie bei Bedarf den Vordergrund-Schwellenwert und führen Sie die Erkennung erneut aus, um ein neues Ergebnis zu erhalten.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "narration": "Öffnen Sie Flows, um die Richtungsansicht zu prüfen. Der Flow-Konsistenz-Schwellenwert bestimmt, welche erkannten Objekte erhalten bleiben: Niedrigere Werte sind strenger, und 0 schaltet diese Prüfung ab. Vergleichen Sie nach jeder Einstellungsänderung die endgültigen Masken.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo stellt die Labels von vor der Erkennung wieder her. Behalten Sie die Maske, die dem Bild am besten folgt, und speichern Sie sie. Arbeiten Sie die übrigen Bildfelder durch und prüfen Sie jedes Ergebnis, bevor Sie es ins Training aufnehmen.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "Halten Sie kuratierte Bilder und Masken mit demselben Namensstamm zusammen. Verwenden Sie Train Cellpose, um aus diesen Paaren zu lernen, oder kehren Sie zu Features oder Measure zurück, um Messwerte zu extrahieren. Die verwandten Tutorials zeigen jeden nächsten Schritt.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1690,6 +1888,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1899,31 +2137,31 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "Zeitreihen-Tracking",
+      "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Acht synthetische Bilder im eingebetteten Mask-Ablauf verarbeiten und echte Maskenverknüpfungen in Track preview vergleichen.",
+      "description": "Verknüpfen Sie Objekte über eine Zeitreihe, prüfen Sie ihre Tracks und bereiten Sie die verfolgten Bilder für die Messung vor.",
       "objectives": [
-        "Timelapse in Mask finden und Zeitachse sowie Originalbilder erhalten.",
-        "Anfängliche, fragmentierte und wiederhergestellte Spuren mit denselben Masken vergleichen.",
-        "Tracking-Indikatoren, Wiedergabe, Inferenz und gemessene biologische Bewegung unterscheiden."
+        "Die Beispielbilder und -masken in Track preview laden.",
+        "Die Überlappung anpassen und Objektidentitäten über Frames hinweg prüfen.",
+        "Einen Mask-Lauf für Zeitreihen einrichten und seine Tracking-Ausgaben finden."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Help > Demos > Timelapse demo in einem neuen Ordner verwenden: acht synthetische Zeitpunkte mit 256 × 256 Pixeln, Kernkanal 0, Zellkanal 1. Plot und Keep original images einschalten; alle sechzehn TIFFs bleiben erhalten. Das ZIP enthält die tatsächlichen Zellbild- und Maskenebenen dieses Laufs, keine aufgenommenen Versuchsdaten oder Referenzmasken. image_sequences/field_A01 und label_sequences/field_A01 getrennt wählen: Vorschaukanal 0, acht Bilder, ein Feld. Schwelle 0.1 ergibt sechzehn vollständige Spuren; 1.0 ergibt 128 Einzelbildspuren. Nach Rückkehr zu 0.1 warten und ausdrücklich Re-link klicken; Tippen kann einen Zwischenwert starten. Propagate settings nicht klicken: Die IoU-Schwelle wird nicht übertragen. Warnungen zu Flussschwelle, Beziehungstabelle und Einstellungsstatus werden offengelegt. Keine biologische Validierung oder physikalische Geschwindigkeitsmessung. API: spacr.core.preprocess_generate_masks und spacr.timelapse. AI bleibt aus.",
+      "prerequisite": "Laden Sie SYNTHETIC_timelapse_preview.zip herunter und entpacken Sie es. Das Lehrbeispiel enthält acht Zellbild-Frames und passende Label-Bilder. Für einen vollständigen Mask-Lauf mit eigenen Daten bereiten Sie zeitlich geordnete Mikroskopiebilder vor und notieren das Aufnahmeintervall.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Öffnen Sie Mask und aktivieren Sie den Schalter Time. Timelapse ist jetzt in Mask eingebettet und keine eigene Home-Kachel mehr. Es ergänzt den Segmentierungsablauf um Zeitachsen- und Tracking-Einstellungen. Motilitätsmessungen gehören zu Measure und folgen später.",
+          "narration": "Öffnen Sie von Home aus Mask und klicken Sie oben rechts auf das Timelapse-Symbol, um das Tracking einzuschalten. Mit Timelapse verknüpfen Sie Objekte über aufeinanderfolgende Bilder. Zuerst probieren wir das verlinkte Beispiel in Track preview aus und sehen uns dann die Einstellungen für Ihre eigene Bildsequenz an.",
           "hold_after": 0.7,
           "focus": [
-            3535,
-            1905,
-            280,
-            85
+            3708,
+            33,
+            126,
+            116
           ],
           "related_lessons": [
             "07_mask",
@@ -1931,164 +2169,165 @@
           ]
         },
         {
-          "visual": "03_actual_demo_menu",
-          "narration": "Wählen Sie Help, Demos, dann Timelapse demo und einen neuen Ordner. Dadurch entstehen acht synthetische Bilder mit bewegten Objekten; ihre Einstellungen werden geladen. Das sind Lehrbilder, kein biologisches Experiment und kein Nachweis der Segmentierungsgenauigkeit.",
-          "hold_after": 0.7,
-          "focus": [
-            70,
-            20,
-            535,
-            230
-          ]
-        },
-        {
-          "visual": "05_demo_loaded",
-          "narration": "Prüfen Sie die eingetragene Quelle und die Kanäle. Im Beispiel liegt Kernintensität in Kanal null und Zellintensität in Kanal eins, ohne Erregerkanal. Die Dateinamen kodieren Zeit getrennt von Feld und Kanal. Ersetzen Sie eine Zeitreihe nicht durch die gewöhnliche statische Testplatte.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            175,
-            1185,
-            470
-          ]
-        },
-        {
-          "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Frame limits verwendet bei null beginnende Schnittgrenzen: Null bis acht umfasst alle acht Bilder, die Endgrenze ist ausgeschlossen. Halten Sie die Zeitpunkte eines Feldes zusammen. Eine Wiedergaberate liefert kein fehlendes Aufnahmeintervall; dieses Beispiel bestimmt keine Geschwindigkeiten in physikalischen Einheiten.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1225,
-            1185,
-            300
-          ]
-        },
-        {
-          "visual": "05_setting_timelapse_mode",
-          "narration": "Verfolgen Sie Zellen mit dem überlappungsbasierten Modus iou. Er verknüpft Masken über Schnittmenge geteilt durch Vereinigungsmenge benachbarter Bilder. Andere Backends haben andere Annahmen und optionale Abhängigkeiten. Eine Verschiebung ist keine Überlappungsschwelle; verwenden Sie Einstellungen, die das gewählte Backend tatsächlich liest.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1500,
-            1185,
-            490
-          ]
-        },
-        {
-          "visual": "05_setting_keep_original_images",
-          "narration": "Schalten Sie Keep original images vor Run ein. Andernfalls kann die Bereinigung Ordner mit Zwischen- und Originalbildern entfernen. Diese Aufnahme erhält alle sechzehn erzeugten TIFFs unverändert und berührt die älteren Tutorialdaten nicht. Halten Sie von aufgenommenen Experimenten stets eine separate Sicherung bereit.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1140,
-            1185,
-            300
-          ]
-        },
-        {
-          "visual": "05_setting_plot",
-          "narration": "Schalten Sie Plot ein und starten Sie dieses kleine Beispiel. Die aktuelle Pipeline verarbeitet die gesamte Acht-Bilder-Sequenz gemeinsam, auch wenn eine kleinere Stapelgröße angefordert wird. Beobachten Sie Konsole und Ressourcenanzeige: Mehr Bilder, höhere Auflösung und zusätzliche Objekte können erheblich mehr Arbeitsspeicher benötigen.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1070,
-            1185,
-            230
-          ]
-        },
-        {
-          "visual": "08_actual_figure_04",
-          "narration": "Der Lauf erzeugt fünf Abbildungen und acht zusammengeführte Arrays. In dieser normalisierten Darstellung sind die ersten beiden Ebenen Intensitäten; die letzten beiden sind Zell- und Kernlabels, keine zusätzlichen Aufnahmekanäle. Die gespeicherte Zelltabelle enthält sechzehn Spuren mit jeweils acht Bildern.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            140,
-            2370,
-            355
-          ]
-        },
-        {
-          "visual": "07_actual_finished",
-          "narration": "Lesen Sie neben Finished auch die Warnungen. Dieser Build meldet übernommene Flussschwellen, eine nicht verfügbare Beziehungstabelle und einen Einstellungsstatus-Hinweis. Gespeicherte Masken und Spuren wurden separat geprüft; dies ist weder ein fehlerfreier Freigabetest noch ein Ersatz für Measure.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            500,
-            2370,
-            1260
-          ]
-        },
-        {
           "visual": "09_actual_track_preview",
-          "narration": "Öffnen Sie Track preview. Laden Sie für die reproduzierbare Verknüpfungsübung das unten verlinkte synthetische Vorschauarchiv herunter und entpacken Sie es. Es enthält exakt die Zellbild- und Maskenebenen des aufgenommenen Laufs. Diese Masken testen Verknüpfungen ohne erneuten Segmentierungsmodell-Lauf.",
+          "narration": "Laden Sie das Beispielarchiv unten herunter, entpacken Sie es und klicken Sie dann auf Track preview rechts neben der Überschrift Actions. Das Archiv enthält eine Bildsequenz und eine passende Maskensequenz mit acht Frames. Halten Sie beide Ordner zusammen, damit Sie die zusammengehörigen Bilder und Labels auswählen können.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            360,
+            230,
+            3480,
+            1900
           ]
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Wählen Sie den Bildsequenzordner für Feld A null eins. Die exportierten Bilder enthalten nur die ursprüngliche Zellintensitätsebene; wählen Sie hier daher Kanal null. Speichern Sie Bild- und Labelsequenzen unter getrennten übergeordneten Ordnern. Setzen Sie Frames previewed auf acht und Fields auf eins.",
+          "narration": "Wählen Sie image_sequences und dann field_A01 als Bildordner. Wählen Sie Kanal 0: Jedes Beispielbild enthält einen einzigen Zellintensitätskanal. Setzen Sie Frames previewed auf 8 und Fields auf 1.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Wählen Sie mit Masks den passenden Labelsequenzordner. Das sind berechnete Masken, keine Referenzwahrheit. Lassen Sie Keep only full-length tracks aus und klicken Sie nicht auf Propagate settings. Beim Lesen einer vorhandenen Maskensequenz erzeugen die Modellregler keine neuen Masken.",
+          "narration": "Klicken Sie auf Masks und wählen Sie label_sequences und dann field_A01. Jedes Label kennzeichnet ein Objekt im entsprechenden Bild. Lassen Sie Keep only full-length tracks zunächst ausgeschaltet, damit Sie Tracks prüfen können, die innerhalb der Sequenz beginnen oder enden.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Starten Sie die Vorschau mit der Überlappungsschwelle null Komma eins. Sie meldet sechzehn Spuren mit acht Bildern und hier keine kurzen Spuren. Fragmentierung und Sprünge sind ohne Referenzwahrheit berechnete Indikatoren; kleine Werte beweisen allein keine biologisch korrekte Identität.",
+          "narration": "Setzen Sie den Überlappungs-Schwellenwert auf 0,1 und klicken Sie auf Run preview. Dieser Schwellenwert legt fest, wie stark sich benachbarte Masken überlappen müssen, um verknüpft zu werden. Prüfen Sie die farbigen Objektidentitäten und die Übersicht der Track-Längen. Das Beispiel ergibt sechzehn Tracks über alle acht Frames.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ]
-        },
-        {
-          "visual": "13_actual_strict_overlap",
-          "narration": "Erhöhen Sie die Überlappungsschwelle auf eins. Die Forderung nach exakter Überlappung zerlegt das bewegte Beispiel in hundertachtundzwanzig Einzelbildspuren. Bilder und Masken bleiben gleich; nur die Verknüpfungen ändern sich. Der absichtlich überhöhte Wert demonstriert Fragmentierung und ist keine empfohlene Analyseeinstellung.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            755,
-            2370,
-            800
+            379,
+            307,
+            3432,
+            958
           ]
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Stellen Sie null Komma eins wieder her, warten Sie auf das Ende der laufenden Vorschau und klicken Sie Re-link. Tippen kann einen Durchlauf mit einem Zwischenwert starten; bestätigen Sie daher den endgültigen Durchlauf ausdrücklich. Die sechzehn vollständigen Spuren kehren zurück. Propagate settings überträgt die Schwelle nicht ins Stapelformular; klicken Sie es nicht.",
+          "narration": "Passen Sie den Überlappungs-Schwellenwert an, wenn Objekte in kurze Tracks zerfallen oder mit falschen Nachbarn verknüpft werden. Ein höherer Schwellenwert verlangt mehr Überlappung. Warten Sie nach der Änderung, bis die Vorschau fertig ist, und klicken Sie auf Re-link, um den endgültigen Wert zu prüfen. Blättern Sie durch mehrere Frames, bevor Sie das Ergebnis übernehmen.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            379,
+            307,
+            3432,
+            958
           ]
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Bewegen Sie den Schieber zu Bild acht, um die verknüpften Objekte zu prüfen. Wiedergabegeschwindigkeit verändert nur die Anzeige, nicht die Aufnahmezeit. Fahren Sie in Measure und Motility mit geprüftem Intervall und Maßstab fort. API und spaCR AI erklären Einstellungen, ersetzen aber nicht die Kontrolle von Bildern, Spuren und Warnungen.",
+          "narration": "Folgen Sie mit dem Frame-Schieberegler demselben Objekt durch die Sequenz. Play ändert, wie schnell Sie die Frames sehen. Notieren Sie das tatsächliche Aufnahmeintervall separat für spätere Geschwindigkeitsmessungen.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            1250,
-            2370,
-            320
+            379,
+            860,
+            3432,
+            1100
           ],
           "related_lessons": [
             "08_measure",
             "18_motility",
             "06_api"
           ]
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "narration": "Für einen vollständigen Lauf mit Ihren eigenen Bildern legen Sie in Mask Source und die Intensitätskanäle fest. Diese Aufnahme importiert die Einstellungen einer kleinen synthetischen Sequenz mit acht Frames. Halten Sie die Zeitpunkte jedes Bildfelds in der richtigen Reihenfolge. Frame-Grenzen bestehen aus einem Start und einem ausgeschlossenen Ende: 0 bis 8 wählt die ersten acht Frames.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            230,
+            1160,
+            1900
+          ]
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "narration": "Wählen Sie das zu verfolgende Objekt und den Tracking-Modus. Der Überlappungsmodus iou verknüpft Objekte anhand ihrer Masken in benachbarten Frames. Prüfen Sie zuerst eine kurze Sequenz und wählen Sie einen Modus, der dazu passt, wie weit sich Ihre Objekte zwischen Frames bewegen.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1480,
+            1160,
+            640
+          ]
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "narration": "Schalten Sie Keep original images ein, um die Eingabebilder bei der Bereinigung der Pipeline zu behalten. Legen Sie Segmentierungsmodell und Kanäle für Ihre Daten fest und prüfen Sie die Vorschau, bevor Sie die gesamte Sequenz verarbeiten.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1260,
+            1160,
+            160
+          ]
+        },
+        {
+          "visual": "05_setting_plot",
+          "narration": "Schalten Sie Plot ein, um die erzeugten Abbildungen zu prüfen, und klicken Sie dann auf Run. Verfolgen Sie den Fortschritt in der Konsole und warten Sie auf den Abschluss. Beginnen Sie mit einer kurzen Sequenz, damit Sie Masken und Track-Identitäten prüfen können, bevor Sie ein größeres Experiment verarbeiten.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1100,
+            1160,
+            140
+          ]
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "narration": "Prüfen Sie die Intensitäts- und Label-Ebenen in den Ausgabeabbildungen. Der Lauf speichert die verfolgten Arrays in merged und die Track-Tabellen in tracks im Projektordner. Fahren Sie mit Measure und dann Motility fort, um aus diesen Tracks Objektmerkmale und Bewegung zu berechnen.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            171,
+            3458,
+            1797
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "18_motility",
@@ -3065,21 +3304,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay: Außen- und Gesamtfärbung auswerten",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "Ordnen Sie zwei Färbekanäle zu, wählen Sie die Färbe-Baseline, führen Sie die Analyse aus und prüfen Sie Invasionszuordnungen und Schwellenwertempfindlichkeit.",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "Die Messdatenbank wählen und Außen- und Gesamtfärbung zuordnen.",
+        "Baseline-Wells und Schwellenwerteinstellungen festlegen und dann die Analyse ausführen.",
+        "Verteilungen, Nenner pro Well und gespeicherte Ergebnistabellen prüfen."
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "Entpacken Sie das verlinkte synthetische Invasion-Assay-Beispiel und verwenden Sie dessen Einstellungsreferenz. Die Datenbank enthält 1.800 synthetische Parasitenmessungen; Bedingungsnamen und Ergebnisse dienen nur der Veranschaulichung. Verwenden Sie für Ihren eigenen Assay ein validiertes Zweifarben-Färbedesign mit Außenfärbung vor der Permeabilisierung und Gesamtfärbung danach, und prüfen Sie repräsentative Bilder.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Öffnen Sie von Home aus Toxoplasma und wählen Sie dann Invasion Assay. Beginnen Sie mit einer Messdatenbank, die Parasitenintensitäten für die Außen- und die Gesamtfärbung enthält. Üben Sie mit der verlinkten synthetischen Probe Kanalzuordnung, Schwellenwertwahl und Ergebnisprüfung.",
           "focus": [
             346,
             50,
@@ -3093,7 +3332,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "Entpacken Sie die Probe und setzen Sie Source auf deren Ordner invasion, der measurements/measurements.db enthält. Geben Sie die beiliegende Einstellungsreferenz ein und ersetzen Sie deren Platzhalter für Source. Die Probe enthält Baseline-Wells und zwei Assay-Bedingungen.",
           "focus": [
             346,
             170,
@@ -3104,7 +3343,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Setzen Sie Outside channel auf 1 und Total channel auf 0. Die Außenfärbung wird vor der Permeabilisierung aufgetragen, die Gesamtfärbung danach. Außen-positive Parasiten werden als anhaftend eingestuft, solche auf oder unter dem Außenschwellenwert als eingedrungen. Prüfen Sie bei eigenen Messungen die Reihenfolge Ihrer Aufnahmekanäle.",
           "focus": [
             346,
             170,
@@ -3115,7 +3354,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "Wählen Sie unter Intensity statistic mean, passend zu den Spalten der Beispieldatenbank. Wählen Sie für Ihren eigenen Assay eine verfügbare Statistik, die zur Färbung passt, und prüfen Sie repräsentative Objekte. Belassen Sie Minimum total intensity für diese Probe bei 100.",
           "focus": [
             346,
             170,
@@ -3126,7 +3365,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "Setzen Sie Stain baseline wells mit c1 auf Spalte 1. Diese Messungen ohne Färbung legen den Grenzwert fest und werden aus den Nennern des Assays ausgeschlossen. Ordnen Sie unter Pathogen plate metadata vehicle der Spalte 2 und inhibitor der Spalte 3 zu.",
           "focus": [
             346,
             170,
@@ -3137,7 +3376,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Setzen Sie Control quantile auf 0,99 und lassen Sie den festen Outside threshold leer. Dann bestimmen die Baseline-Messungen den Grenzwert, in diesem Beispiel etwa 22,8. Prüfen Sie den angewendeten Schwellenwert in der Ausgabe, bevor Sie die Einstufungen interpretieren.",
           "focus": [
             346,
             170,
@@ -3148,7 +3387,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Setzen Sie Threshold sensitivity auf 0,25. Damit werden auch Grenzwerte 25 Prozent unter und über dem gewählten Schwellenwert ausgewertet. Vergleichen Sie den resultierenden Bereich der Invasionseffizienz, um zu sehen, wie stark Ihr Ergebnis von der Schwellenwertwahl abhängt.",
           "focus": [
             346,
             170,
@@ -3159,7 +3398,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "Setzen Sie Extracellular class für die Probe auf classify. Für Objekte ohne Wirtszell-Verknüpfung verwendet classify die Färbung, attached stuft sie als anhaftend ein, und exclude entfernt sie aus der bewerteten Population. Wählen Sie diese Einstellung mit Blick auf die Qualität Ihrer Wirtszellzuordnungen.",
           "focus": [
             346,
             170,
@@ -3170,7 +3409,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Lassen Sie Save aktiviert und klicken Sie auf Run. Öffnen Sie nach Abschluss der Verarbeitung die Schwellenwertabbildung. Sie zeigt die Verteilungen pro Well und den angewendeten Grenzwert. Vergleichen Sie bei einem Experiment diese Verteilungen mit repräsentativen gefärbten Bildern und untersuchen Sie schwache Außenfärbung.",
           "focus": [
             1685,
             260,
@@ -3181,7 +3420,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "Wenn eine Legende über die Abbildung hinausragt, öffnen Sie Figure settings. Setzen Sie im Tab axes Legend position auf best und bestätigen Sie. Prüfen Sie, dass die Beschriftungen sowohl in der Bildschirmansicht als auch in der exportierten Abbildung sichtbar bleiben.",
           "focus": [
             1420,
             330,
@@ -3195,7 +3434,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "Öffnen Sie die Abbildung pro Well. Jeder Balken zeigt die Anteile anhaftender und eingedrungener Parasiten, darüber die Zahl der bewerteten Parasiten. Baseline-Wells sind ausgeschlossen. Lesen Sie beim Vergleich von Wells die Anzahlen zusammen mit den Anteilen.",
           "focus": [
             1685,
             260,
@@ -3206,7 +3445,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "Öffnen Sie die Zusammenfassung nach Bedingung. Vergleichen Sie den gepoolten Invasionsanteil mit dem Mittelwert über die Wells, da beide unterschiedlich gewichten. Prüfen Sie die Streuung der Ergebnisse pro Well, bevor Sie Bedingungen vergleichen.",
           "focus": [
             1685,
             260,
@@ -3217,7 +3456,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "Alles landet in results/analyze_invasion innerhalb von Source. parasite_calls.csv enthält die Einstufung jedes Parasiten, field_thresholds.csv die zugrunde liegenden Grenzwerte, well_invasion.csv die Anteile pro Well und condition_summary.csv den gepoolten Vergleich. Bewahren Sie Abbildungen und Einstellungen dazu auf und vergleichen Sie Bedingungen über unabhängige Replikate hinweg.",
           "focus": [
             1510,
             1200,
@@ -3237,6 +3476,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3244,21 +3523,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay: Parasiten pro Vakuole zählen",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "Laden Sie Parasitenmessungen, wählen Sie die Vakuolen-Identität, führen Sie die Analyse aus und prüfen Sie Zählverteilungen und Exporte.",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "Eine Messdatenbank und ihre Vakuolen-Kennung wählen.",
+        "Wirtszuordnungs- und Größenfilter festlegen und dann die Analyse ausführen.",
+        "Verteilungen pro Well lesen und die gespeicherten Ergebnistabellen finden."
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "Entpacken Sie das verlinkte synthetische Replication-Assay-Beispiel. Es enthält eine Messdatenbank und eine Einstellungsreferenz mit 1.992 Parasitenzeilen in 480 Vakuolen über zwölf Wells. Bedingungsnamen und Messwerte sind Lehrdaten. Verwenden Sie für Ihren eigenen Assay gemessene Parasiten mit geprüften Vakuolenzuordnungen und unabhängige experimentelle Replikate.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Öffnen Sie von Home aus Toxoplasma und wählen Sie dann Replication Assay. Beginnen Sie mit einer Messdatenbank, die Parasitenzeilen und deren Vakuolenzuordnungen enthält. Mit dem verlinkten synthetischen Beispiel üben Sie die Einstellungen und lesen die entstehenden Zählverteilungen.",
           "focus": [
             346,
             50,
@@ -3272,7 +3551,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "Entpacken Sie die Probe und setzen Sie Source auf deren Ordner replication. Die Datenbank liegt in measurements. Geben Sie die beiliegende Einstellungsreferenz ein und ersetzen Sie den Platzhalter für Source durch Ihren entpackten Ordner. Lassen Sie Save aktiviert, damit die Ergebnisse geschrieben werden.",
           "focus": [
             346,
             170,
@@ -3283,7 +3562,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Setzen Sie Vacuole key auf vacuole_id. Damit werden Parasiten nach der Vakuole gruppiert, zu der sie gehören. Die Probe enthält zwei Vakuolen pro Wirtszellgruppe; verwenden Sie daher die Vakuolen-Kennung, um diese Zählungen getrennt zu halten.",
           "focus": [
             346,
             170,
@@ -3294,7 +3573,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Aktivieren Sie Require host cell, um nur Parasiten einzuschließen, die mit einer Wirtszelle verknüpft sind. Prüfen Sie bei eigenen Daten die nicht zugeordneten Objekte. Setzen Sie für diese Probe Minimum parasite area auf 200 und Maximum parasite area auf 800.",
           "focus": [
             346,
             170,
@@ -3305,7 +3584,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Setzen Sie Maximum parasites per vacuole auf 16. Das legt die größte benannte Kategorie für Zweierpotenzen fest. Größere Zweierpotenzen kommen in eine Überlaufkategorie, während Zählungen wie 3 in der eigenen Kategorie für Nicht-Zweierpotenzen bleiben.",
           "focus": [
             346,
             170,
@@ -3316,7 +3595,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "Geben Sie vehicle und inhibitor als die beiden Pathogen types ein und ordnen Sie sie in Pathogen plate metadata Spalte 1 und Spalte 2 zu. Jede Gruppe enthält sechs Übungs-Wells. Geben Sie für Ihr Experiment die Bedingungsnamen und Well-Zuordnungen aus Ihrem Plattendesign ein.",
           "focus": [
             346,
             170,
@@ -3327,7 +3606,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Prüfen Sie Source, Vacuole key, die Filter und Save und klicken Sie dann auf Run. Verfolgen Sie die Konsole, bis die Verarbeitung abgeschlossen ist. Der Bereich Figures zeigt die Verteilungen pro Well und pro Bedingung.",
           "focus": [
             1510,
             170,
@@ -3338,7 +3617,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "Öffnen Sie die Abbildung pro Well. Jeder gestapelte Balken zeigt den Anteil der Vakuolen in jeder Kategorie der Parasitenzahl. Lesen Sie die Farben anhand der Legende. In dieser Probe enthält jedes Well 40 Vakuolen, und 5 Prozent fallen in die Kategorie der Nicht-Zweierpotenzen.",
           "focus": [
             1510,
             170,
@@ -3349,7 +3628,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "Öffnen Sie Figure settings, um die Legende anzupassen. Wählen Sie im Tab axes eine Legend position innerhalb der Abbildung, wenn die Beschriftungen darüber hinausragen. Das ändert nur die Darstellung; die berechneten Zählungen bleiben erhalten.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3360,7 +3639,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "Öffnen Sie die Abbildung nach Bedingung, um die gepoolten Zählverteilungen zu vergleichen. Prüfen Sie die Ergebnisse pro Well zusammen mit dieser Zusammenfassung. Verwenden Sie bei der Analyse eines Experiments unabhängige biologische Replikate und eine geeignete experimentelle Einheit für statistische Vergleiche.",
           "focus": [
             1510,
             170,
@@ -3371,7 +3650,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "Lesen Sie etwaige Exportwarnungen in der Konsole. Prüfen Sie neben der Bildschirmansicht auch die gespeicherten Abbildungen, und wählen Sie Farben, die vor dem Exporthintergrund lesbar bleiben.",
           "focus": [
             1510,
             1190,
@@ -3382,7 +3661,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Die Ergebnisse in results/analyze_replication innerhalb von Source bauen aufeinander auf. vacuole_counts.csv zählt jede Vakuole, well_distribution.csv macht daraus die Verteilung jedes Wells, und die Zusammenfassungen und Abbildungen nach Bedingung fassen die Wells zusammen. Bewahren Sie sie mit den Einstellungen und der Quelldatenbank auf, damit Sie jede Zahl zurückverfolgen können.",
           "focus": [
             346,
             170,
@@ -3402,6 +3681,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9436,18 +9755,134 @@
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 71,
-      "app_key": "investigate_hit",
-      "series": 5,
       "slug": "investigate_hit",
-      "section": "Results and quality control",
-      "host_app_key": "regression"
+      "title": "Investigate Hit: ein Regression-Gen bis zu den gemessenen Zellen zurückverfolgen",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Senden Sie ein Gen aus Hit List an Investigate Hit, fügen Sie Messdatenbank, Zellvorhersagen und Guide-Anteile hinzu und lesen Sie dann die Belege auf Well-Ebene.",
+      "objectives": [
+        "Einen Regression-Lauf in Hit List öffnen, q-Werte prüfen und ein Gen an Investigate Hit senden.",
+        "Messdatenbank, Zellvorhersagen, Guide-Anteile und Score-Spalte wählen.",
+        "Die Tabs für Belege, Wells, Guides und Schwellenwerte lesen und die gespeicherten Tabellen finden."
+      ],
+      "prerequisite": "Entpacken Sie Investigate_Hit_real_screen_example.zip. Alles darin stammt aus einem einzigen echten Screen: dem Regression-Lauf auf den Testdaten von Regression (die Einstellungen aus dem Regression-Tutorial), den passenden CV-Vorhersagen pro Zelle und einer Messdatenbank mit den echten Form-, Größen- und Intensitätsmessungen derselben Zellen. Damit der Download klein bleibt, enthält die Datenbank 52 Wells: alle analysierten Wells mit einem Guide für Gen 225160 und zu jedem drei Wells ohne ihn von derselben Platte. Kein Gen in diesem schnellen Regression-Lauf erfüllt q ≤ 0,05. Behandeln Sie die Untersuchung als durchgerechnetes Beispiel, nicht als bestätigten Hit.",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "Öffnen Sie von Home aus Regression. Investigate Hit beginnt mit einem abgeschlossenen Regression-Lauf. Es fragt, ob die gemessenen Zellen in den Wells hinter einem Gen anders aussehen als Zellen in Wells ohne dieses Gen.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Wählen Sie Hits, um Hit List zu öffnen. Entpacken Sie zuerst das Beispielarchiv. Es enthält einen Regression-Lauf auf den Testdaten, die passenden CV-Vorhersagen pro Zelle und eine Messdatenbank für dieselben Zellen. Alle drei stammen aus einem einzigen echten Screen.",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Klicken Sie auf Browse und wählen Sie den Ordner guide_permutation in regression_run, results. Das ist die Ausgabe des Testdatenlaufs aus dem Regression-Tutorial.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List ordnet 325 Gene. Lesen Sie Effekt, P-Wert und q-Wert jeder Zeile zusammen, dazu die Anzahl der Guides und wie viele davon übereinstimmen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Setzen Sie Max q auf 0,05. Die Tabelle leert sich, weil in diesem Lauf kein Gen einen q-Wert von höchstens 0,05 erreicht. Mit 199 Permutationen ist der kleinstmögliche P-Wert 0,005, und der niedrigste q-Wert liegt bei etwa 0,27. Was folgt, prüft daher einen gerankten Kandidaten, keinen bestätigten Hit.",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Setzen Sie Max q wieder auf 1, suchen Sie nach 225160 und wählen Sie seine Zeile. Es hat einen Effekt von 0,34, einen q-Wert von 0,27 und drei Guides, die alle in dieselbe Richtung zeigen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Klicken Sie auf Investigate selected. Investigate Hit öffnet sich mit dem Ergebnisordner, dem Gen, seinen drei Guides und einer positiven Effektrichtung, die bereits aus dieser Zeile übernommen sind.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "Klicken Sie neben Measurements database auf Browse und wählen Sie measurements.db aus dem Beispiel. Sie enthält Form, Größe und mittlere Kanalintensität für 8.915 Zellen in 52 Wells.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "Wählen Sie für Existing CV predictions cv_predictions.csv. Jede Zeile ist der gespeicherte CV-Score einer Zelle, verknüpft mit demselben gemessenen Objekt. Klicken Sie auf den Pfad und drücken Sie Enter, damit die Score-Spalten eingelesen werden, und behalten Sie pred als Phänotyp-Score-Spalte.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "Wählen Sie für Well/guide fractions regression_data.csv im selben Ergebnisordner. Diese Tabelle hat Regression geschrieben. Sie gibt den Anteil jedes Guides in jedem analysierten Well an.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Lassen Sie Independent morphology features leer. Das Modul verwendet dann die 13 numerischen Zellmessungen der Datenbank und lässt Kennungen, Guide-Anteile und den CV-Score weg, sodass diese Prüfung den Score nicht wiederverwendet. Geben Sie für Ihre eigene Datenbank nur Messspalten ohne fehlende Werte an.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_running",
+          "narration": "Klicken Sie auf Investigate hit. Das Modell wird angepasst, während jeweils eine Platte zurückgehalten wird, sodass keine Zelle von einem Modell bewertet wird, das auf ihrer eigenen Platte trainiert wurde. Der Guide-Anteil eines Wells legt nur die Ausgangserwartung für dessen Zellen fest. Er kennzeichnet nie eine Zelle als Trägerin des Guides. Dieses Beispiel dauert einige Minuten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence zeigt das Ergebnis. Ziel-Wells haben eine hit-ähnliche Prävalenz, die nur 0,01 über der von Kontroll-Wells liegt. Das Well-Bootstrap-Intervall reicht von minus 0,04 bis plus 0,06, und der P-Wert der blockierten Permutation liegt bei etwa 0,63. Die Zellen stützen diesen Kandidaten nicht.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells listet für jedes Well Guide-Anteil, mittlere hit-ähnliche Wahrscheinlichkeit, Prävalenz und Zellzahl auf. Jedes Well zählt als eine unabhängige Einheit; der Vergleich verwendet also 13 Ziel-Wells und 39 Kontroll-Wells, nicht einzelne Zellen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides zeigt jeden Ziel-Guide einzeln. Ihre Dosis-Wirkungs-Verläufe zeigen in verschiedene Richtungen – ein weiterer Grund, dieses Gen nicht als Hit zu behandeln.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity wiederholt den Vergleich bei Wahrscheinlichkeitsgrenzen von 0,5 bis 0,9. Bei jeder Grenze bleibt der Unterschied nahe 0,01; die Schlussfolgerung hängt also nicht von der Grenze ab.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells ordnet die Zellen nach hit-ähnlicher Wahrscheinlichkeit, mit dem ursprünglichen Score und dem Fold, der jede Zelle bewertet hat. Diese Wahrscheinlichkeiten beschreiben hit-ähnliche Morphologie, nicht, welchen Guide eine Zelle trug. Übernehmen Sie Zuordnungen nur dann in die Annotation, wenn die Belege auf Well-Ebene überzeugen. Undo macht eine Übernahme rückgängig.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "Die Tabellen werden im Ergebnisordner unter hit_investigation und dann 225160 gespeichert. Sie enthalten diese Einbettung und ein Manifest, und jeder Lauf wird außerdem als neue Version in der Datenbank abgelegt. Das Beispiel hat keine Ausschnittbilder, daher bleibt die Prüfgalerie leer. Untersuchen Sie als Nächstes ein Gen, das in einem Regression-Lauf mit mehr Permutationen Ihre Schwelle erreicht.",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",
@@ -10001,117 +10436,151 @@
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS: aktuelle Oberfläche und Ausrichtung von vier Bildkacheln",
+      "title": "OPS: from sequencing images to cell barcodes",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "description": "Öffnen Sie OPS innerhalb von Mask und verfolgen Sie ein geprüftes Beispiel zur Ausrichtung und Zusammensetzung von vier echten Bildkacheln. Kein vollständiger Platten-, Segmentierungs- oder Dekodierungsablauf.",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
       "objectives": [
-        "Die verschachtelte OPS-Seite und die Grenzen des Beispiels kennenlernen.",
-        "Vier benachbarte Bildkacheln mit ihren ursprünglichen Aufnahmekoordinaten ausrichten.",
-        "Überlappungen, Abdeckung und gespeicherte Herkunftsnachweise prüfen."
+        "Open OPS inside Mask and load its example images and barcode library.",
+        "Choose the input and output folders and understand the main alignment and decoding settings.",
+        "Run OPS and inspect nucleus barcode assignments in the output database."
       ],
-      "prerequisite": "Aufnahme mit den Python-APIs ops_layout, ops_stitch und ops_compose aus spaCR 1.5.0.7 nightly auf der CPU. Run in der GUI verwendet eine andere ältere Engine und wird hier nicht gestartet. Private NAS-Quelle: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, Positionen 0, 1, 10 und 11. Autorisierter Zugriff ist nötig; kein öffentlicher Testdownload und keine Erlaubnis zur Weiterverteilung. Jede uint16-TIFF enthält fünf Ebenen mit 1480 × 1480 Pixeln; DAPI liegt auf Ebene null. Das ursprüngliche Layout mit 333 Positionen bleibt erhalten. Layout, Überlappung und Grenzwerte nicht ungeprüft auf andere Aufnahmen übertragen. Einen neuen Ausgabeordner außerhalb der Originaldaten wählen. Ganzes Well, Segmentierung, zyklusübergreifende Ausrichtung, Dekodierung und biologische Analyse werden nicht demonstriert.",
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Optisches gepooltes Screening beginnt mit Bildern aus benachbarten Feldern und wiederholten Aufnahmezyklen. Öffnen Sie in spaCR Mask, um die darin verschachtelte OPS-Seite zu finden. Diese Lektion zeigt ihren Ort und ein kleines, geprüftes Beispiel zur Bildausrichtung.",
-          "focus_modules": [
-            "mask"
-          ],
-          "related_lessons": [
-            "05_home",
-            "07_mask"
-          ],
+          "visual": "01_mask_ops",
+          "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
           "hold_after": 0.7
         },
         {
-          "visual": "gui_01_mask_host",
-          "narration": "Verwenden Sie den OPS-Schalter in der Aktionszeile von Mask. Er öffnet eine eigene Seite innerhalb des übergeordneten Moduls. OPS ist keine zweite Home-Kachel und nicht der Map-Barcodes-Ablauf für Dateien mit Sequenzierungsreads.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_ops_settings",
-          "narration": "Die aktuelle OPS-Seite bietet Einstellungen für Eingabe, Bildzusammenfügung, Mosaik, Ausrichtung und Qualitätskontrolle. Ihr Run-Knopf verwendet eine andere ältere Engine. Wir starten sie nicht und behaupten keine Validierung eines vollständigen Screening-Ablaufs. Die nächsten Schritte nutzen direkt die Geometrie-APIs.",
+          "visual": "02_load_test_data",
+          "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
+          "hold_after": 0.7,
           "focus": [
-            340,
-            170,
-            1210,
-            1310
-          ],
-          "hold_after": 0.7
+            360,
+            480,
+            1150,
+            270
+          ]
         },
         {
-          "visual": "api_00_scope",
-          "narration": "Dieses CPU-Beispiel richtet vier echte Bildkacheln einer vorhandenen Aufnahme aus und setzt sie zusammen. Es segmentiert keine Zellen, dekodiert keine Barcodes und verarbeitet keine ganze Platte. Die Originalaufnahme ist kein mitgelieferter Testdownload; für eine genaue Wiederholung ist autorisierter Zugriff auf die Dateien nötig.",
+          "visual": "03_inputs",
+          "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            800
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
+            360,
+            530,
+            1150,
+            210
+          ]
         },
         {
-          "visual": "api_01_inputs",
-          "narration": "Wählen Sie die Positionen null, eins, zehn und elf aus dem ersten Aufnahmezyklus. Jede Originaldatei enthält fünf Ebenen; Ebene null zeigt die Kernfärbung. Behalten Sie das ursprüngliche Layout mit dreihundertdreiunddreißig Positionen und deren Nummern bei. Vier ausgewählte Kacheln ergeben kein neues Well-Layout mit nur vier Kacheln.",
+          "visual": "04_phenotype",
+          "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            360,
+            625,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_02_geometry",
-          "narration": "Das Hilfsskript ruft stitch_well auf, prüft alle vier benachbarten Überlappungen und ruft dann compose_window auf. Alle vier Kacheln werden platziert. Der zusammengesetzte Ausschnitt hat eine Seitenlänge von zweitausendsiebenhundertsechsundfünfzig Pixeln. Hier schließt die geometrische Schleife auf einen Viertelpixel genau; das ist keine allgemeine Genauigkeitsgarantie.",
+          "visual": "05_alignment",
+          "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            900
-          ],
-          "hold_after": 0.7
+            360,
+            795,
+            1150,
+            180
+          ]
         },
         {
-          "visual": "api_03_independent_checks",
-          "narration": "Vertrauen Sie nicht allein der Platzierung. Vergleichen Sie die tatsächlich überlappenden Pixel unabhängig vom Registrierungswert. Die Korrelationen nach Ausrichtung sind hier deutlich höher als nach einer absichtlichen Verschiebung einer Achse um siebzehn Pixel. Solche Fehlversatzkontrollen helfen, plausibel wirkende, aber falsche Platzierungen zu erkennen.",
+          "visual": "06_window_overlap",
+          "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
-          "hold_after": 0.7
+            360,
+            945,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_05_geometry_figure",
-          "narration": "Prüfen Sie das tatsächlich gespeicherte Bild und die Abdeckungskarte. Links steht das zusammengesetzte Kernbild, rechts die Anzahl beitragender Kacheln. Null Abdeckung bedeutet fehlende Aufnahmepixel, nicht biologischen Hintergrund. Hier werden räumliche Nachbarn innerhalb einer Ebene kombiniert, niemals verschiedene Sequenzierungszyklen.",
+          "visual": "07_base_channels",
+          "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
+          "hold_after": 0.7,
           "focus": [
-            600,
-            390,
-            2630,
-            1400
-          ],
-          "hold_after": 0.7
+            360,
+            1070,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_04_provenance",
-          "narration": "Bewahren Sie Array, Abdeckung, Positionen, Prüfsummen der Quelldateien und Laufbericht zusammen auf. Das Skript öffnet die Ausgaben erneut und bestätigt, dass alle vier Originale unverändert sind. Dies ist ein reproduzierbarer Geometrie-Prüfschritt. Ein vollständiges optisches Screening-Tutorial benötigt weiterhin getrennt validierte Folgeschritte.",
+          "visual": "08_read_settings",
+          "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
+          "hold_after": 0.7,
           "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
-          "hold_after": 0.7
+            360,
+            1115,
+            1150,
+            135
+          ]
+        },
+        {
+          "visual": "09_store_reads",
+          "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1220,
+            1150,
+            60
+          ]
+        },
+        {
+          "visual": "10_run",
+          "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1380,
+            1300,
+            520
+          ]
+        },
+        {
+          "visual": "11_output_folder",
+          "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+          "hold_after": 0.7,
+          "focus": [
+            1020,
+            480,
+            1800,
+            1200
+          ]
+        },
+        {
+          "visual": "12_barcode_table",
+          "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            280,
+            2100,
+            1700
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "78_spacr_screens",

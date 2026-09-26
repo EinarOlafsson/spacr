@@ -1,7 +1,9 @@
 CELLPOSE 3 MODELS ARE USABLE AFTER THE BACKEND IS INSTALLED
 
-Status: BUILT 2026-09-25, ~90%. Built, tested, real CPU run and Measure done;
-the GPU run is queued behind other sessions (see the trailing note).
+Status: BUILT 2026-09-25, ~98%. Built, tested, real CPU and GPU runs and
+Measure done; pipeline_style 'v2' and the Live preview run cellpose3: models
+too (see the last note). On nightly (2c63b3695 .. 147eb1a73, checked
+2026-09-25). Owed: i18n catalogs for the new strings (docs lane).
 Owner: Claude (503 worktree). Related: 423 (backends in the zoo), 446 (Cellpose 3 and
 Cellpose-SAM take different settings), 473 (detection methods).
 
@@ -182,3 +184,63 @@ NOT DONE.
   * Adding six defaults changes the material-settings hash, so resuming a
     pre-503 Mask run counts as a settings change (as every new setting does).
   * The i18n catalogs for the new strings and tooltips (docs lane).
+
+
+2026-09-25 (second pass) -- V2, THE LIVE PREVIEW AND THE GPU RUN
+
+ONE ROUTE. spacr.object._prefixed_model_route(model_name, settings) is a
+table of (backend, prefix reader, masks function); cellpose3: -- or
+segmentation_backend=cellpose3 -- answers ('cellpose3', _cellpose3_masks).
+A second prefix (525's cellpose_dino:) is one more row. V1's own dispatch
+is unchanged. _cellpose3_masks gained probabilities=False, which also
+returns each image's cell probability (flows[2]).
+
+(a) PIPELINE_STYLE 'v2'. stream_masks_from_stack asks the table; a routed
+model is loaded with _load_backend and segmented by _cellpose3_masks with
+the run's settings (postprocess_settings, with this pass's diameter and
+thresholds winning) and the object's magnification diameter as default,
+batch_size max(8, n) -- all as V1. Cellpose-SAM models take the old code.
+Real CPU run, same two fields and settings as the V1 CPU run above
+(cell = cellpose3:cyto3, diameter 44): v2's appended mask plane is
+PIXEL-IDENTICAL to V1's saved mask on both fields (57 and 23 objects, same
+arrays), cyto3 37.8 s for both fields, whole v2 run 42.0 s. v2 segments
+the cell object only, as it always has.
+
+(b) THE LIVE PREVIEW. _segment_multi asks the same table; a cellpose3:
+model goes through _backend_preview_pass -> _cellpose3_masks in the
+backend (the worker is pooled, so a second pass does not restart it). A
+cell gets [cell, nucleus] planes, both through the same PSF/enhancement
+preparation; the preview's diameter and thresholds stand in for the
+object's. Its RGB flow and cell probability land in 505's Flows and Cell
+probability views. The model box: _is_a_real_model_name accepts
+cellpose3:<cyto|cyto2|cyto3|nuclei>, a bare cellpose3: and cellpose3:<file
+on disk>; _checkpoint_is_missing tests the path after the prefix (a missing
+file falls back to cpsam and says so, as before); the zoo button offers
+cellpose3 rows too. The timelapse preview shares those box rules, so its
+segment_frame routes the same way.
+
+(c) THE GPU RUN (tools/gpu_turn.sh, label 503-cellpose3-real) did run,
+same fields and settings as the CPU run, device cuda:
+
+  field          model   objects  GT  matched  F1     CPU F1
+  plate1_A02_12  cyto3      57    33    30     0.667  0.667
+  plate2_E08_13  cyto3      23    23     6     0.261  0.261
+  plate1_A02_12  nuclei      6    33     4     0.205  0.158
+  plate2_E08_13  nuclei      4    23     0     0.000  0.000
+  cyto3 12.9 s both fields (CPU 94.0 s), nuclei 3.7 s (CPU 37.2 s),
+  whole Mask run 23.1 s (CPU 139.2 s). cyto3 gives the same counts on
+  both devices; nuclei finds one more object on the GPU.
+
+TESTS. New: tests/test_cellpose_3_models_are_usable.py +9 (the table;
+segmentation_backend routing; v2 vs V1 with the backend faked -- same
+backend call, same images, same keywords, same uint16 mask array; v2's own
+diameter/thresholds; v2 on cpsam never loads a backend),
+tests/qt/test_cellpose_3_models_are_selectable.py +4 (Live preview routes
+cellpose3: to the backend with [cell, nucleus] and shows its flows and
+cell probability; nucleus is one plane; the box rules; the timelapse
+frame). The cellpose3, live_preview, pipeline_v2, segmentation-backend
+and cellpose-API-contract selection: 694 passed / 2 skipped before, 706
+passed / 2 skipped after, and again after merging nightly e49d86073.
+test_docstring_correctness (2), test_nested_functions_are_documented (1)
+and test_i18n_caption_ratchet (2) fail identically on a clean nightly
+copy.

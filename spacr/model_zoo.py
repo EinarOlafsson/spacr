@@ -155,6 +155,7 @@ from typing import (
 import numpy as np
 
 from ._segmentation_backends import _SPECS as _BACKEND_SPECS
+from ._segmentation_backends import _BACKEND_NAMES as _SEGMENTATION_BACKEND_NAMES
 
 LOG = logging.getLogger(__name__)
 
@@ -234,8 +235,12 @@ UNKNOWN = "unknown"
 #: cyto3, cyto2, cyto and nuclei models, and Cellpose-format checkpoints from
 #: bioimage.io. It is a kind of its own because spaCR's Cellpose 4 loads such
 #: a checkpoint without complaint and then segments nonsense with it.
+#:
+#: ``cellpose_dino`` is a Cellpose-DINO checkpoint, which runs through the
+#: Cellpose-DINO backend (item 525): spaCR's own Cellpose 4 has no DINOv3,
+#: and without it Cellpose 4 cannot build the network the weights are for.
 KINDS = ("cellpose", "classifier", "detector", "encoder", "backend",
-         "cellpose3")
+         "cellpose3", "cellpose_dino")
 #: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
 #: lists so a user learns it exists and can install it from inside spaCR.
 
@@ -2056,8 +2061,9 @@ BIOIMAGEIO_COLLECTION = ("https://hypha.aicell.io/bioimage-io/artifacts/"
 BIOIMAGEIO_COMPATIBLE = ("cellpose sam", "cpsam", "cellposedino",
                          "cellpose dino", "cpdino")
 
-#: The words that make a Cellpose 4 model a Cellpose-DINO one, which the
-#: Cellpose spaCR installs loads only when the ``dinov3`` package is there.
+#: The words that make a Cellpose 4 model a Cellpose-DINO one, which runs
+#: through the Cellpose-DINO backend: the Cellpose spaCR installs builds a
+#: DINO network only when the ``dinov3`` package is there, and it is not.
 _BIOIMAGEIO_DINO = ("cellposedino", "cellpose dino", "cpdino")
 
 #: How long a fetched collection is trusted before it is fetched again.
@@ -2091,10 +2097,17 @@ _CELLPOSE3_USE = (
     "press Use this model, which puts cellpose3:<its path> in the object's "
     "model setting")
 
-#: What a Cellpose-SAM or Cellpose-DINO row says about how to use it.
+#: What a Cellpose-SAM row says about how to use it.
 _CELLPOSE4_USE = (
     "runs through spaCR's own Cellpose 4: download it and press Use this "
     "model, which puts its path in the object's model setting")
+
+#: What a Cellpose-DINO row says about how to use it.
+_CELLPOSE_DINO_USE = (
+    "runs through the Cellpose-DINO backend, Cellpose 4 with DINOv3 in an "
+    "environment of its own: install that backend from this list, download "
+    "this model, and press Use this model, which puts cellpose_dino:<its "
+    "path> in the object's model setting")
 
 
 def _bioimageio_text(manifest: Mapping[str, Any]) -> str:
@@ -2122,20 +2135,6 @@ def _looks_like_cellpose_dino(manifest: Mapping[str, Any]) -> bool:
     """Whether a Cellpose 4 manifest is a Cellpose-DINO model."""
     text = _bioimageio_text(manifest)
     return any(key in text for key in _BIOIMAGEIO_DINO)
-
-
-def _dinov3_available() -> bool:
-    """Whether Cellpose 4 here can build a DINO backbone.
-
-    ``cellpose.vit`` imports ``CPDINO`` only when ``dinov3`` imports, and
-    otherwise logs a warning and loads nothing DINO.
-    """
-    try:
-        import importlib.util
-
-        return importlib.util.find_spec("dinov3") is not None
-    except Exception:
-        return False
 
 
 def _bioimageio_cache(name: str) -> Path:
@@ -2340,11 +2339,6 @@ def _bioimageio_refusal(manifest: Mapping[str, Any], row: "ModelEntry",
         return (f"its package runs a network of its own ({called}), neither "
                 f"Cellpose 3's nor Cellpose-SAM's, and those are the two "
                 f"Cellpose networks spaCR runs.")
-    if row.kind == "cellpose" and _looks_like_cellpose_dino(manifest) \
-            and not _dinov3_available():
-        return ("it is a Cellpose-DINO model, and the Cellpose 4 installed "
-                "with spaCR builds a DINO backbone only when the dinov3 "
-                "package is installed, which it is not here.")
     if not row.uri:
         return "its package names no weights file to download."
     if 0 < size < _BIOIMAGEIO_MIN_WEIGHTS:
@@ -2481,21 +2475,25 @@ def _cellpose4_download_entry(alias: str, slug: str, title: str,
                               manifest: Mapping[str, Any],
                               authors: str) -> "ModelEntry":
     """A bioimage.io Cellpose-SAM or Cellpose-DINO model as a row that
-    downloads it, for spaCR's own Cellpose 4 to load from its path."""
+    downloads it: a Cellpose-SAM one for spaCR's own Cellpose 4 to load from
+    its path, a Cellpose-DINO one (kind ``cellpose_dino``) for the
+    Cellpose-DINO backend."""
     weights = manifest.get("weights")
     state = weights.get("pytorch_state_dict") if isinstance(weights, Mapping) else None
     state = state if isinstance(state, Mapping) else {}
     source = str(state.get("source") or "").strip()
     suffix = Path(source).suffix if Path(source).suffix in (".pth", ".pt") else ""
+    dino = _looks_like_cellpose_dino(manifest)
     return ModelEntry(
         key=f"bioimageio_{slug}", name=f"{slug}{suffix}", path="",
-        kind="cellpose", source="bioimage.io",
+        kind="cellpose_dino" if dino else "cellpose", source="bioimage.io",
         uri=_bioimageio_uri(alias, source),
         sha256=str(state.get("sha256") or "").strip().lower(),
         trained_on=_bioimageio_trained_on(title, manifest),
         trained_by=authors or "bioimage.io",
         licence=str(manifest.get("license") or ""),
-        notes=(f"bioimage.io model {alias}; {_CELLPOSE4_USE}",)
+        notes=(f"bioimage.io model {alias}; "
+               f"{_CELLPOSE_DINO_USE if dino else _CELLPOSE4_USE}",)
         + _bioimageio_run_settings(manifest))
 
 
@@ -2539,23 +2537,28 @@ def _backend_for(entry: Any) -> str:
     """The optional segmentation backend a zoo row needs, or ``''``.
 
     A backend row names itself in its ``backend:<name>`` uri; every
-    ``cellpose3`` model needs the Cellpose 3 backend.
+    ``cellpose3`` model needs the Cellpose 3 backend, and every
+    ``cellpose_dino`` model the Cellpose-DINO one.
     """
     uri = str(getattr(entry, "uri", "") or "")
     if uri.startswith("backend:"):
         return uri.split(":", 1)[1]
-    if getattr(entry, "kind", "") == "cellpose3":
-        return "cellpose3"
+    kind = getattr(entry, "kind", "")
+    if kind in ("cellpose3", "cellpose_dino"):
+        return kind
     return ""
 
 
 #: ``name -> (label, install uri, import name, what it is)`` for every
-#: optional segmentation backend. These are PACKAGES, not checkpoints: the zoo
-#: lists them so a user learns they exist, and each installs into an
-#: environment of its own, never into spaCR's.
+#: optional ``segmentation_backend``. These are PACKAGES, not checkpoints: the
+#: zoo lists them so a user learns they exist, and each installs into an
+#: environment of its own, never into spaCR's. Cellpose-DINO segments but is
+#: no ``segmentation_backend`` value -- a model setting chooses it -- so the
+#: backend box that reads this does not offer it.
 INSTALLABLE_BACKENDS = {
     _name: (_spec.label, f"backend:{_name}", _spec.module, _spec.blurb)
-    for _name, _spec in _BACKEND_SPECS.items() if _spec.segments
+    for _name, _spec in _BACKEND_SPECS.items()
+    if _spec.segments and _name in _SEGMENTATION_BACKEND_NAMES
 }
 
 
@@ -3153,7 +3156,7 @@ def fetch(entry: ModelEntry, dest: Any,
                 f"{entry.uri} returned no data for {entry.name} — nothing was "
                 f"written to {folder}")
         if (entry.source == "bioimage.io"
-                and entry.kind in ("cellpose", "cellpose3")
+                and entry.kind in ("cellpose", "cellpose3", "cellpose_dino")
                 and done < _BIOIMAGEIO_MIN_WEIGHTS):
             raise ModelZooError(
                 f"{entry.name} from {entry.uri} is {done} bytes, too small to "

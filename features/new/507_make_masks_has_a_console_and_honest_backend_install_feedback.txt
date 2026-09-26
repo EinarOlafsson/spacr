@@ -183,3 +183,79 @@ still in the code)
     ConsolePanel.__init__ (follow_log, chat), BackendInstallDialog (class
     docstring and four signals), install_backend (watch).
 
+
+2026-09-25 -- OPEN END CLOSED: worker progress and install output stream live
+  * A backend worker's stderr now reaches Make Masks' console as it is
+    printed. _WorkerProcess._said hands every raw line (its \r kept) to the
+    listeners registered through _segmentation_backends._listen_to_workers
+    (held weakly, dropped when they fail or their widget is destroyed); the
+    worker's reader thread never waits on them. The error tail is
+    unchanged.
+  * _MasksConsole.stream(line, source) is thread-safe and never blocks: a
+    bare-\r redraw (tqdm in Cellpose 3 restoration/segmentation, a
+    torch.hub download) becomes the newest state of the ONE progress line,
+    prefixed with the backend's name; a single-shot 100 ms timer draws the
+    newest state (<= 10 draws/s, states in between dropped). The bar's
+    finished line (the \n after its redraws) goes into the scrollback once
+    and the progress line hides. Plain worker chatter stays in the log.
+  * Install: the Cellpose 3 install button now says its install's own lines
+    (the dialog's job_progressed, pip's Collecting/Downloading/Installing
+    included) as kind "stream"; say(text, "stream") goes through the same
+    throttle, and the corner keeps "Installing Cellpose 3…" instead of
+    flashing pip lines. The ending line ("… is installed", failure, cancel)
+    supersedes any state not yet drawn and lands in the scrollback once.
+    pip's own bar stays off (--progress-bar off in _install_plan); its
+    per-line output is what streams.
+  * Tests (tests/qt/test_make_masks_console_and_install_feedback.py): a
+    real subprocess printing a 200-step tqdm-style bar through _raw_lines
+    and _said updates the progress line in place (monotonic, throttled:
+    gaps >= 80 ms, draws <= 10/s + 3), ends hidden, and the scrollback holds
+    the final 100% line exactly once and no redraw; a fake install emitting
+    151 pip lines through the button does the same with one "Cellpose 3 is
+    installed"; a deleted console stops listening. The existing button test
+    now expects kind "stream" for the dialog's lines.
+  * Results: 507 console + backend + install + restoration + window files:
+    280 passed / 2 skipped / 9 xfailed before; 319 passed / 2 skipped /
+    9 xfailed after merging nightly b9b6c75e7. test_docstring_correctness
+    and test_api_i18n_extractor surface pins (11,710 / 9,692) already fail
+    on pristine nightly c17135a40 (11,721 / 9,696); none of the new names
+    are on that surface (all private), so this change moves neither.
+  * No new tr() strings.
+
+
+2026-09-26 -- THE DIAMETER-0 NOTE FOLLOWS THE ROUTE, NOT THE SPELLING
+  The ask was to make the note fire for cellpose_dino: too, and for any
+  Cellpose route without a size model where Diameter 0 triggers an
+  estimate. Checked against the code each route runs, there is no such
+  route besides Cellpose 3's named models:
+    * cellpose3:cyto3 / cyto2 / cyto / nuclei (and a bare "cellpose3:",
+      which runs cyto3) are models.Cellpose; Diameter 0 is passed as 0.0
+      and its size model estimates (the 153 s measurement).
+    * a cellpose3:<checkpoint path> is models.CellposeModel (_sized False);
+      Diameter 0 is passed as None and it runs at its trained diameter.
+    * cellpose_dino:<path> and Cellpose-SAM run Cellpose 4 (4.2.1.1 in both
+      spaCR and the Cellpose-DINO env); its CellposeModel.eval sets
+      rescale = 1.0 and only rescales when diameter > 0, so Diameter 0 is
+      native scale: no estimate, and the note's "first estimates the object
+      size and rescales the whole field" would be untrue there.
+  So instead of widening the prefix match, both sites now ask one
+  predicate, make_masks._diameter_zero_estimates(model): True exactly for
+  the named Cellpose 3 models. That also stops the note firing falsely for
+  a cellpose3: checkpoint (it did under startswith("cellpose3")). The
+  magnifier now asks it of the model its mode really runs
+  (_magnifier_route_model): the backend mode itself, or for the "cellpose"
+  mode the Object detection model setting -- so a Cellpose 3 model picked
+  from the model zoo into Object detection (mode "cellpose", model
+  "cellpose3:cyto2") now gets the note in the magnifier too, and a
+  DINOCell mode with a stale cellpose3 model setting does not.
+  If Cellpose-DINO ever gains an estimate (a Cellpose 4 release with a
+  size model), it is one line in _diameter_zero_estimates.
+  Tests (tests/qt/test_make_masks_console_and_install_feedback.py): the
+  predicate over 14 settings (every named model, bare prefix, mixed case,
+  checkpoint, cellpose_dino:, cpsam, fine-tuned path, dinocell, samcell,
+  empty, None); the magnifier route for four mode/model pairs; Object
+  detection on a loaded field with Diameter 0 says the note (as a warning)
+  for cellpose3:cyto3 and not for a cellpose3 checkpoint or cellpose_dino:,
+  and with Diameter 44 not at all. The console file passed whole in one run
+  with the 528, 396 and 529 files (77 passed).
+  No new tr() strings; no new public callables (both helpers private).

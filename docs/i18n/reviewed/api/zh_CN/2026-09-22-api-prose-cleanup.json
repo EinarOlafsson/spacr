@@ -50,14 +50,17 @@
       "label": "spacr.qt.detect_chain#6",
       "source": "The Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch` applies rolling ball then CLAHE to organelle batches using ``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` instead apply per-channel intensity floors. This Make Masks chain configures neither route.",
       "source_sha256": "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
-      "translation": "Mask 流程使用独立的预处理。:func:`spacr.object._preprocess_batch` 通过 ``organelle_rolling_ball`` 和 ``organelle_clahe`` 对细胞器图像批次先应用滚球算法，再应用 CLAHE。Mask 设置 ``remove_background``、``background`` 和 ``signal_to_noise`` 则按通道应用强度下限。此 Make Masks 处理链不配置这两种流程。"
+      "translation": "Mask 流程使用独立的预处理。:func:`spacr.object._preprocess_batch` 通过 ``organelle_rolling_ball`` 和 ``organelle_clahe`` 对细胞器图像批次先应用滚球算法，再应用 CLAHE。Mask 设置 ``remove_background``、``background`` 和 ``signal_to_noise`` 则按通道应用强度下限。此 Make Masks 处理链不配置这两种流程。",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference workflow.",
-      "label": "spacr.qt.detect_chain#7",
+      "label": "spacr.qt.detect_chain#9",
       "source": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference pipeline.",
       "source_sha256": "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87",
-      "translation": "图像增强会改变供人工审核的候选对象。使用增强图像训练的模型在推理时需要匹配的预处理；此模块不配置训练或推理流程。"
+      "translation": "图像增强会改变供人工审核的候选对象。使用增强图像训练的模型在推理时需要匹配的预处理；此模块不配置训练或推理流程。",
+      "rebound_from": "spacr.qt.detect_chain#7"
     },
     {
       "context": "The slowly varying background under ``image``, at ``image``'s size.",

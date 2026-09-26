@@ -246,6 +246,77 @@ COMPARTMENT_FIELDS = (
     ("remove_border_objects",      "Remove border objects", "bool",  None),
 )
 
+BOUND_ROWS = {
+    "min_area": ("area", "min"),
+    "max_area": ("area", "max"),
+    "min_intensity": ("intensity_mean", "min"),
+    "max_intensity": ("intensity_mean", "max"),
+}
+"""Where each bound control of a Cellpose compartment lives in
+``object_filters``. Mask's ``{object}_min_area`` family was retired on
+2026-09-25 (item 511); for cell, nucleus and pathogen these four controls
+read and write the object's ``area`` and ``intensity_mean`` rows instead.
+The organelle slots keep their own settings."""
+
+
+def _retired_bound(key: str) -> bool:
+    """Whether ``key`` is one of Mask's retired per-object bounds."""
+    from spacr.settings import RETIRED_OBJECT_BOUNDS
+
+    return key in RETIRED_OBJECT_BOUNDS
+
+
+def _bound_from_filters(settings, obj: str, suffix: str):
+    """The value of one bound control, read from ``object_filters``.
+
+    :returns: the first matching row's side, or ``None`` when no row sets it
+        or the setting cannot be read.
+    """
+    from spacr.qt.mask_engine import settings_filters
+
+    prop, side = BOUND_ROWS[suffix]
+    try:
+        rows = settings_filters(settings, obj)
+    except (ValueError, SyntaxError):
+        return None
+    for row in rows:
+        if row["property"] == prop and row[side] is not None:
+            return row[side]
+    return None
+
+
+def _bounds_into_filters(existing, bounds: Dict[str, Dict[str, Any]]) -> dict:
+    """``object_filters`` with each object's area and intensity rows replaced.
+
+    :param existing: the ``object_filters`` value the settings hold.
+    :param bounds: object type to ``{suffix: value}`` of the bound controls.
+    :returns: the new mapping; other objects and other properties are kept.
+    """
+    from spacr.qt.mask_engine import (legacy_filters, normalise_filters,
+                                      parse_object_filters)
+
+    try:
+        table = dict(parse_object_filters(existing))
+    except (ValueError, SyntaxError):
+        table = {}
+    for obj, values in bounds.items():
+        try:
+            kept = [row for row in normalise_filters(table.get(obj),
+                                                     strict=False)
+                    if row["property"] not in ("area", "intensity_mean")]
+        except ValueError:
+            kept = []
+        try:
+            rows = legacy_filters(**values)
+        except (TypeError, ValueError):
+            rows = []
+        if kept or rows:
+            table[obj] = kept + rows
+        else:
+            table.pop(obj, None)
+    return table
+
+
 OUTLINE_CHOICES = ("auto", "color (random)", "green", "magenta",
                    "yellow", "cyan", "white", "red")
 
@@ -763,6 +834,9 @@ class PreviewRequest:
 
     :param image: the field to segment, an array of shape (H, W) or
         (H, W, C); each object type's channel index selects its plane.
+    :param source_path: the file the field was loaded from, read for pixel
+        size and objective metadata when the PSF calibration is left unset;
+        empty falls back to the settings' ``src`` and then to the defaults.
     """
     image:               np.ndarray
     model:               str = "cpsam"
@@ -778,6 +852,7 @@ class PreviewRequest:
     provenance:         Dict[str, Any] = field(default_factory=dict)
     cellprob_maps:      Dict[str, np.ndarray] = field(default_factory=dict,
                                                   repr=False)
+    source_path:        str = ""
 
 
 class _PreviewWorker(QThread):
@@ -899,18 +974,30 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     selected channel goes through :func:`spacr.psf_pipeline.apply_chain`,
     the PSF folded in at the chain's own stage; with none on, the PSF path
     is exactly what it was, kernel or no kernel.
+
+    An unset Gaussian PSF calibration is inferred first, as the plate run
+    infers it (:func:`spacr.point_spread.fill_psf_settings`), from the
+    preview field's file and then the defaults, so a PSF switched on with
+    its default values previews instead of failing. Values already set are
+    kept, and an invalid one still fails before the model loads.
     """
+    from ...point_spread import describe_optics, fill_psf_settings
     from ...psf_pipeline import apply_chain, prepare_chain, prepare_psf
     from ..detect_chain import provenance as chain_provenance
 
     _check_preview_cancel(req)
+    inferred = fill_psf_settings(req.preprocess_settings,
+                                 req.source_path or None)
     plan = prepare_psf(req.preprocess_settings)
     chain = prepare_chain(req.preprocess_settings, plan)
     _check_preview_cancel(req)
     model = None
+    route = None
     processed = {}
     req.provenance = {
         'processing': plan.provenance() if plan else {'operation': 'none'},
+        'psf_calibration': (describe_optics(inferred) if inferred is not None
+                            else 'as set'),
         'enhancement': (chain_provenance(chain)['enhancement']
                         if chain is not None else 'none'),
         'stage': 'loaded preview field, before background and model normalization',
@@ -928,13 +1015,8 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         'cellprob_threshold': float(req.cellprob),
     }
 
-    out: Dict[str, np.ndarray] = {}
-    flows_out: Dict[str, np.ndarray] = {}
-    for obj in req.object_types:
-        _check_preview_cancel(req)
-        ch_idx = int(req.channels.get(obj, 0))
-        ch_idx = ch_idx % req.image.shape[-1] if req.image.ndim == 3 else 0
-        req.provenance['channels'][obj] = ch_idx
+    def _prepared(ch_idx: int) -> np.ndarray:
+        """One channel's plane after the PSF or enhancement chain, once."""
         if ch_idx not in processed:
             plane = _select_channel(req.image, ch_idx)
             if chain is not None:
@@ -943,7 +1025,16 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             else:
                 processed[ch_idx] = (plan.apply(plane[..., None], cancel=req.cancel)[..., 0]
                                      if plan else plane)
-        image_2d = processed[ch_idx].copy()
+        return processed[ch_idx]
+
+    out: Dict[str, np.ndarray] = {}
+    flows_out: Dict[str, np.ndarray] = {}
+    for obj in req.object_types:
+        _check_preview_cancel(req)
+        ch_idx = int(req.channels.get(obj, 0))
+        ch_idx = ch_idx % req.image.shape[-1] if req.image.ndim == 3 else 0
+        req.provenance['channels'][obj] = ch_idx
+        image_2d = _prepared(ch_idx).copy()
 
         if req.preprocess_settings.get(f"remove_background_{obj}"):
             bg = float(req.preprocess_settings.get(
@@ -964,6 +1055,18 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             continue
 
         _check_preview_cancel(req)
+        if route is None:
+            from ...object import _prefixed_model_route
+            route = _prefixed_model_route(req.model) or ()
+        if route:
+            masks_of = _backend_preview_pass(req, obj, image_2d, route,
+                                             _prepared)
+            out[obj], flow_rgb, probability = masks_of
+            if flow_rgb is not None:
+                flows_out[obj] = flow_rgb
+            if probability is not None:
+                req.cellprob_maps[obj] = probability
+            continue
         if model is None:
             model = preview_cellpose_model(req.model)
         _check_preview_cancel(req)
@@ -994,6 +1097,60 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         out[obj] = mask
     _check_preview_cancel(req)
     return out, flows_out
+
+
+def _backend_preview_pass(req: PreviewRequest, obj: str,
+                          image_2d: np.ndarray, route: Tuple[str, Any],
+                          prepared):
+    """Segment one object with a model whose setting names its backend.
+
+    A ``cellpose3:...`` model is segmented by the run's own function,
+    :func:`spacr.object._cellpose3_masks`, in the Cellpose 3 backend's
+    environment -- so the preview answers with what the run would, and its
+    Cellpose 3 settings and ``[cyto, nucleus]`` input apply here as well. A
+    ``cellpose_dino:<path>`` model goes the same way to
+    :func:`spacr.object._cellpose_dino_masks` in the Cellpose-DINO backend,
+    whose flows and cell probability fill the same two views.
+    The preview's diameter and thresholds stand in for the object's own.
+
+    :param req: the pass; its ``model`` names the backend and model.
+    :param obj: the object being segmented.
+    :param image_2d: the object's own plane, prepared as for Cellpose-SAM.
+    :param route: ``(backend, masks function)`` from
+        :func:`spacr.object._prefixed_model_route`.
+    :param prepared: a channel index's plane, prepared the way
+        ``image_2d`` was; a cell is given its nucleus plane from it when the
+        request has a nucleus channel.
+    :returns: ``(mask, RGB flow or None, cell probability or None)``.
+    """
+    from ... import _segmentation_backends
+
+    backend, masks_of = route
+    settings = dict(req.preprocess_settings)
+    settings[f"{obj}_diameter"] = float(req.diameter) or None
+    settings[f"{obj}_flow_threshold"] = float(req.flow_threshold)
+    settings[f"{obj}_cellprob_threshold"] = float(req.cellprob)
+    image = image_2d
+    nucleus = req.channels.get("nucleus")
+    if (obj == "cell" and nucleus is not None and req.image.ndim == 3
+            and req.image.shape[-1] > 1):
+        index = int(nucleus) % req.image.shape[-1]
+        image = np.stack([image_2d, prepared(index)], axis=-1)
+    model = _segmentation_backends._load_backend(
+        backend, model_name=req.model, object_type=obj)
+    _check_preview_cancel(req)
+    masks, flows, probabilities = masks_of(
+        model, [image], settings, obj, min_size=15,
+        default_diameter=float(req.diameter) or 30.0, probabilities=True)
+    mask = np.asarray(masks[0]).astype(np.int32)
+    flow_rgb = flows[0] if flows else None
+    probability = probabilities[0] if probabilities else None
+    if probability is not None:
+        probability = np.asarray(probability, dtype=np.float32)
+        if probability.ndim != 2:
+            probability = None
+    return (mask, None if flow_rgb is None else np.asarray(flow_rgb),
+            probability)
 
 
 def _cellprob_of(result) -> Optional[np.ndarray]:
@@ -1422,9 +1579,13 @@ _FALLBACK_MODELS = ("cpsam", "cyto3", "cyto2", "nuclei")
 def _is_a_real_model_name(value: str) -> bool:
     """Whether ``value`` names a model spaCR can actually load.
 
-    Two things qualify and nothing else: a retired pre-SAM spelling, which
+    Four things qualify and nothing else: a retired pre-SAM spelling, which
     Cellpose still resolves to cpsam and which a settings file written years
-    ago may hold; and a checkpoint that exists on disk.
+    ago may hold; a checkpoint that exists on disk; a ``cellpose3:`` value
+    naming a Cellpose 3 model or a checkpoint on disk, which the pass
+    segments in the Cellpose 3 backend (item 503); and a ``cellpose_dino:``
+    value naming a checkpoint on disk, which the pass segments in the
+    Cellpose-DINO backend (item 525).
 
     A name that is neither is a typo, and putting it in the combo would let
     the preview run against a model that does not exist.
@@ -1433,8 +1594,20 @@ def _is_a_real_model_name(value: str) -> bool:
     if not name:
         return False
     try:
-        import os
+        from ..._segmentation_backends import (_CELLPOSE3_MODELS,
+                                               _cellpose3_choice,
+                                               _cellpose_dino_choice)
 
+        chosen = _cellpose3_choice(name)
+        if chosen is not None:
+            return (chosen in _CELLPOSE3_MODELS or not chosen
+                    or os.path.isfile(os.path.expanduser(chosen)))
+        chosen = _cellpose_dino_choice(name)
+        if chosen is not None:
+            return bool(chosen) and os.path.isfile(os.path.expanduser(chosen))
+    except Exception:
+        pass
+    try:
         if os.path.isfile(name):
             return True
     except Exception:                                        # noqa: BLE001
@@ -1613,12 +1786,27 @@ def _checkpoint_is_missing(model_name: Any) -> bool:
     this panel was fixed for wearing a different hat.
 
     The test is the run's own, so the two cannot come to disagree about what
-    counts as a path: a separator in it, or a checkpoint suffix.
+    counts as a path: a separator in it, or a checkpoint suffix. A
+    ``cellpose3:`` value is tested on what follows the prefix. So is a
+    ``cellpose_dino:`` value, which always names a file: one naming nothing,
+    or a file that is not there, is missing.
 
     :param model_name: the model name or path the user picked.
     :returns: True when it names a file that is not there.
     """
     text = str(model_name or "").strip()
+    try:
+        from ..._segmentation_backends import (_cellpose3_choice,
+                                               _cellpose_dino_choice)
+
+        chosen = _cellpose3_choice(text)
+        dino = _cellpose_dino_choice(text)
+    except Exception:
+        chosen = dino = None
+    if dino is not None:
+        return not (dino and os.path.isfile(os.path.expanduser(dino)))
+    if chosen is not None:
+        text = os.path.expanduser(chosen)
     if not text or os.path.isfile(text):
         return False
     return os.sep in text or text.endswith((".pth", ".pt"))
@@ -2469,7 +2657,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 arr = projected
         self.cancel_preview()
         self._src_view.ruler.clear()
-        self._src_view.ruler.set_spacing()
+        self._src_view.ruler.calibrate_from_file(path, getattr(arr, "shape", None))
         self._image = arr
         self._image_path = Path(path)
         self._masks = {}
@@ -3319,11 +3507,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         ``kinds`` is a rule rather than a parameter -- the zoo also carries
         the YOLO well detector, and CellposeModel cannot load it, so offering
-        it here would produce a preview that fails on selection.
+        it here would produce a preview that fails on selection. A
+        ``cellpose3`` row comes back as ``cellpose3:<name or path>`` and the
+        pass segments it in the Cellpose 3 backend, as the run would; a
+        ``cellpose_dino`` row comes back as ``cellpose_dino:<path>`` and goes
+        to the Cellpose-DINO backend the same way.
         """
         from .model_zoo_picker import choose_model
 
-        path = choose_model(self, kinds=("cellpose",))
+        path = choose_model(self,
+                            kinds=("cellpose", "cellpose3", "cellpose_dino"))
         if not path:
             return
         index = self._model_box.findText(str(path))
@@ -3349,10 +3542,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         abort the whole copy through the shared ``except``, so one junk
         diameter also cost the flow threshold, the channels and the model.
 
+        A retired ``{object}_min_area``-family bound in ``settings`` is
+        folded into ``object_filters`` first, as a Mask run folds it, so the
+        preview judges what the run judges.
+
         :param settings: the module's settings dict (``None`` is treated as
             empty); a copy is kept for the Pre and Post routes.
         """
-        settings = dict(settings or {})
+        from spacr.settings import _fold_object_bounds
+
+        settings = _fold_object_bounds(dict(settings or {}), quiet=True)
         try:
             self._rebuild_object_choices(organelle_count(settings))
         except Exception:                                    # noqa: BLE001
@@ -3837,7 +4036,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         role = self._active_organelle_role if comp == "organelle" else comp
         for suffix, widget in self._compartment_widgets[comp].items():
             default = self._compartment_defaults[comp][suffix]
-            wanted = self._settings.get(f"{role}_{suffix}", default)
+            if _retired_bound(f"{role}_{suffix}"):
+                wanted = _bound_from_filters(self._settings, role, suffix)
+            else:
+                wanted = self._settings.get(f"{role}_{suffix}", default)
             if wanted is None:
                 wanted = default
             if comp == "organelle" and suffix == "remove_border_objects":
@@ -3932,15 +4134,24 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         return value
 
     def _compartment_settings(self) -> dict:
-        """Map every compartment + common tuning widget to its setting key."""
+        """Map every compartment + common tuning widget to its setting key.
+
+        The area and intensity bounds of cell, nucleus and pathogen are
+        written as those objects' ``area`` and ``intensity_mean`` rows of
+        ``object_filters``, the setting a Mask run reads for them.
+        """
         out: dict = {}
+        bounds: Dict[str, Dict[str, Any]] = {}
         for comp, group in self._compartment_widgets.items():
             prefix = (self._active_organelle_role
                       if comp == "organelle" else comp)
             for suffix, w in group.items():
                 key = f"{prefix}_{suffix}"
-                out[key] = self._off_as_the_run_spells_it(
-                    key, self._unclamped(w, self._widget_value(w)))
+                value = self._unclamped(w, self._widget_value(w))
+                if _retired_bound(key):
+                    bounds.setdefault(prefix, {})[suffix] = value
+                    continue
+                out[key] = self._off_as_the_run_spells_it(key, value)
             if comp == "organelle":
                 out[f"{prefix}_remove_border"] = out[
                     f"{prefix}_remove_border_objects"]
@@ -3952,6 +4163,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             out[f"{obj}_background"] = self._widget_value(
                 self._common_widgets["background"])
         out["adjust_cells"] = self._widget_value(self._adjust_cells)
+        if bounds:
+            out["object_filters"] = _bounds_into_filters(
+                self._settings.get("object_filters"), bounds)
         if self._primary_object().startswith("organelle"):
             out.update(self._organelle_settings())
         return out
@@ -4463,6 +4677,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             object_types=obj_types,
             preprocess_settings=pre,
             postprocess_settings=post,
+            source_path=self._path_full,
         )
 
     #: Fixed colours the outline-colour combo offers by name.

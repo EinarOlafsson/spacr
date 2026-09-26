@@ -185,3 +185,45 @@ shortcut map; no catalog rows added)
    press N to reject it.\n"
   shortcut map (compact layer, needs _ROWS + ratchet bump): "Confirm the
    suggested label", "Reject the suggested label".
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DECISION APPLIED: A REJECTED CROP IS NOT SUGGESTED AGAIN
+--------------------------------------------------------------------------------
+
+The maintainer, 2026-09-25: "a crop the user REJECTED is not suggested again
+in later Suggest rounds (it still trains as a negative example)."
+
+This answers the first NOT DONE point above, the other way from how it was
+built.
+
+WHAT CHANGED, spacr/suggest.py suggest_from_scores: a new keyword
+withhold_rejected (default True) drops every unlabelled crop whose
+"<column>_verdict" is negative before the proposal is made, so
+write_suggestions never writes to it. Nothing about training changed:
+_SuggestWorker still reads rejected_suggestions and hands them to
+retrain_round(rejections=...), where a rejected 1 is fitted as a 2. When
+every open crop is a rejected one, the empty proposal's note says so ("every
+crop left without a value is one whose suggestion was rejected, and a
+rejected crop is not suggested again"), and the screen's existing "No
+suggestions written -- {why}" line shows it. The rejection itself stays in
+the verdict column (its red cross badge and the counts are unchanged); a
+crop the user later labels is an ordinary label. No new UI string: the
+console notice "{n} rejected suggestions were handed to this round's fit"
+already has catalog rows and was left as it was.
+
+TESTS, tests/qt/test_a_suggestion_can_be_judged.py:
+  * test_a_rejected_crop_is_not_suggested_again_and_still_trains -- a
+    whole Suggest round with the REAL retrain_round and database (60 crops,
+    40 labelled, 6 of the 20 open ones rejected): retrain_round is handed
+    exactly the six rejections; the proposal and the column hold a
+    suggestion for the 14 others and none for the six; the six verdicts are
+    still -class; with withhold_rejected=False the six are scored and would
+    be proposed, so it is the rule doing it.
+  * test_a_round_with_only_rejected_crops_left_says_why.
+  Both fail with the default flipped to False (checked) and pass with it.
+
+MEASURED, one capped offscreen CPU process, every tests/qt file matching
+annotat|suggest plus tests/ files for suggest, active_learning and
+agreement (55 files): before 1158 passed / 0 failed; after 1160 passed /
+0 failed.

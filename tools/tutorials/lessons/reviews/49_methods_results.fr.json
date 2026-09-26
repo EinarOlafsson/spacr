@@ -1,28 +1,32 @@
 {
   "lesson": "49_methods_results",
-  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "fr",
-  "title": "Methods & Results : construire, vérifier et exporter un brouillon",
-  "description": "Ouvrez l’outil intégré, utilisez l’exécution réelle de Regression, repérez trois problèmes de vérification et conservez un Markdown explicitement non validé.",
+  "title": "Methods & Results : rédiger et exporter un rapport d’exécution",
+  "description": "Sélectionnez une exécution terminée, construisez son rapport, examinez les paramètres et résultats enregistrés et exportez en Markdown.",
   "objectives": [
-    "Trouver l’outil dans Regression et choisir les sources d’une exécution terminée.",
-    "Distinguer faits enregistrés, valeurs par défaut déduites et formulation des candidats.",
-    "Copier et exporter le brouillon intact avec son registre structuré.",
-    "Distinguer export réussi et contrôle numérique d’une validation scientifique."
+    "Sélectionner le projet, le journal d’exécution et le dossier de résultats correspondant.",
+    "Construire un condensé et examiner les onglets Methods, Results et Caveats.",
+    "Copier le texte du rapport ou exporter en Markdown avec le condensé d’exécution."
   ],
-  "prerequisite": "Terminez d’abord l’exemple téléchargé de Regression ; conservez projet, journal et résultats guide_permutation originaux. Cette leçon vérifie et exporte, sans approuver un manuscrit ni réparer l’application. Le journal déclare guide_permutation_seed=0, pas de graine globale ; le brouillon résout séparément seed=42. Ces générateurs ne sont pas interchangeables ; la graine globale appliquée n’est pas vérifiée. L’analyse indique spaCR 1.5.0.4, le brouillon l’exportateur 1.5.0.5. Les 325 valeurs BH ont été vérifiées indépendamment : aucun q<0.05, minimum 0.2708333333333333. Les effets/p/q de dix candidats correspondent, sans certifier tous les nombres de guides ni les hypothèses scientifiques. Copy sections et Export Markdown préservent texte et registre exacts dans UNREVIEWED_methods_results.md. Entrées inchangées ; aucun fournisseur contacté, nouvelle régression, approbation ou publication. API : spacr.methods_export.build_digest, render_methods, render_results. Le précédent blocage pour exactitude scientifique reste conservé.",
+  "prerequisite": "Terminez d’abord l’exemple Regression. Gardez ensemble son dossier de projet, son journal d’exécution et les résultats guide_permutation. Vérifiez les paramètres déduits, les versions d’analyse et les seuils statistiques avant d’utiliser le texte généré dans un rapport.",
   "scenes": [
-    "Ouvrez Regression depuis Home, puis son outil intégré Methods and Results. Cette leçon se trouve sous Regression dans les sous-modules. Elle utilise l’exemple réel terminé de la leçon Regression, pas des résultats inventés. Le but est de construire, examiner et conserver un brouillon, non d’approuver automatiquement un manuscrit.",
-    "Choisissez le dossier du projet, le journal de l’exécution précise et son dossier de résultats de régression. Laissez Classifier vide : nous décrivons une régression, pas un checkpoint de classificateur. Gardez les originaux intacts. Des noms semblables ne suffisent pas : vérifiez que journal et résultats concernent la même exécution terminée.",
-    "Cliquez sur Build digest. Methods, Results, Caveats et Run digest sont produits sans contacter de fournisseur d’intelligence artificielle. Ils constituent un point de départ pour la vérification. Ici, le texte nomme la version de l’exportateur, tandis que le journal original indique une autre version d’analyse. Rapportez la version ayant réellement produit l’analyse.",
-    "Lisez les réserves : une construction réussie ne vaut pas validation. Ici, la phrase générique sur la graine indique quarante-deux. Le journal original déclare explicitement zéro pour les permutations, mais aucune graine globale. Ne remplacez pas tous les quarante-deux par zéro : distinguez d’abord les générateurs et leur provenance enregistrée.",
-    "L’onglet Run digest permet d’examiner ces données structurées. Comparez paramètres déclarés et environnement enregistré au texte. Une valeur par défaut déduite lors de l’export ne prouve pas l’exécution historique. Conservez avertissements et questions ouvertes, dont les informations de contrôle qualité manquantes ; l’absence de rapport ne prouve pas la réussite du contrôle.",
-    "La table de gènes enregistrée contient trois cent vingt-cinq tests ; aucun n’est significatif au seuil de q de zéro virgule zéro cinq. Le plus petit q est d’environ zéro virgule vingt-sept. Le titre strongest hits est donc trompeur : ce sont des candidats classés, pas des découvertes. Vérifiez toute la famille corrigée, pas seulement les premières lignes séduisantes.",
-    "Copy sections copie ensemble les Methods et Results affichés. Cela ne corrige pas leur formulation, ne certifie pas leurs chiffres et n’inclut pas l’annexe structurée. Conservez une copie intacte avant des révisions documentées séparément. Résolvez les questions de graine, de version et de formulation des candidats avec les sources avant d’utiliser ce texte dans un rapport.",
-    "Export Markdown enregistre les deux sections avec le registre d’exécution en annexe. Choisissez un nouveau nom, ici explicitement marqué non vérifié. L’action réelle Save crée le fichier ; notre contrôle confirme que texte et registre correspondent à l’écran. Un export réussi ne constitue pas une validation scientifique.",
-    "Draft with AI est facultatif et n’est pas utilisé ici. Il envoie le registre au fournisseur configuré : examinez d’abord son contenu et la confidentialité. Un contrôle numérique ne décide pas si une phrase a le bon sens. Python propose build_digest, render_methods et render_results pour le même travail, avec la même nécessité de vérification."
+    "Depuis Home, ouvrez Regression, puis Methods and Results. Cet outil permet de rédiger un rapport à partir d’une analyse terminée. Cette démonstration reprend l’exécution enregistrée de l’exemple Regression.",
+    "Choisissez le dossier du projet, le journal d’exécution et le dossier de résultats de régression correspondant. Laissez Classifier vide pour cet exemple de régression. Vérifiez que tous les fichiers sélectionnés appartiennent à l’exécution que vous voulez décrire.",
+    "Cliquez sur Build digest, puis lisez les onglets Methods et Results. Comparez la version d’analyse avec l’environnement d’exécution enregistré ; la version de l’exportateur peut différer de celle qui a réalisé l’analyse.",
+    "Lisez Caveats et comparez par leur nom les entrées de graines avec les paramètres enregistrés. Une graine de permutation et une graine globale désignent des générateurs différents. Laissez inconnue une graine historique non enregistrée lorsque vous modifiez le rapport.",
+    "Ouvrez Run digest pour examiner les paramètres structurés et les enregistrements sources. Comparez-les au texte et examinez les avertissements sur les rapports manquants ou les valeurs par défaut déduites avant de partager le brouillon.",
+    "Dans Results, examinez ensemble les tailles d’effet et les valeurs q corrigées. Cet exemple n’a aucun gène sous un seuil de valeur q de zéro virgule zéro cinq. Décrivez les lignes listées comme des candidats classés lorsque vous modifiez un titre qui les appelle hits.",
+    "Cliquez sur Copy sections pour copier les Methods et Results affichés. Comparez le texte copié aux enregistrements sources. Utilisez Export Markdown lorsque vous avez aussi besoin du condensé structuré de l’exécution.",
+    "Cliquez sur Export Markdown et choisissez un nouveau nom de fichier. Le fichier contient les deux sections du rapport et le condensé d’exécution en annexe. Gardez un brouillon d’origine et enregistrez séparément vos révisions.",
+    "Draft with AI est facultatif et envoie le condensé à votre fournisseur configuré. Examinez son contenu avant d’utiliser cette option, puis vérifiez tout texte généré au regard de l’analyse enregistrée. Vous pouvez aussi utiliser build_digest, render_methods et render_results depuis Python."
   ]
 }

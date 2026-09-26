@@ -1,0 +1,161 @@
+COMMUNITY IMAGES AND MASKS UPLOAD FROM MAKE MASKS
+
+Status: IMPLEMENTED 2026-09-25 (awaiting the maintainer's check; nothing
+real was uploaded, see the note at the end). Filed 2026-09-25. Builds on 523 (community plaque
+training data uploads to Hugging Face): reuse its upload plumbing, consent
+step and conscience text rather than a second copy.
+Owner: 528 agent.
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "the community data should be possible to uploade to through make masks.
+    the tooltip shoudl be something like. "If you do not have the ability to
+    train your own model, uploade your images and masks here and we will
+    train it for you." and so on. the user should be able to easily uploade
+    their image+ mask during curation or navigate to a folder with images
+    then a folder with masks (this window should have 2 paths to fill) when
+    both are filled and the same number of files with the same names are
+    present in both then the image and mask files are uploaded as whatwever
+    the user specifies to a new community foldr."
+
+WHAT TO BUILD
+  1. A "Contribute images and masks…" button in Make Masks, with the tooltip
+     in the maintainer's spirit: "If you can't train a model yourself, upload
+     your images and masks here and we'll train one for you. ..." (plus what
+     happens next, the licence and the care note from 523).
+  2. TWO WAYS IN:
+       * During curation: the field on screen and its current mask, one click
+         (and the whole curated queue, if the user wants).
+       * A dialog with TWO path fields: an images folder and a masks folder.
+         Upload is enabled only when both are filled and every image has a
+         mask with the same name (and the counts match); mismatches are
+         listed by name.
+  3. THE USER SAYS WHAT IT IS: a name for the dataset (e.g. organism, object
+     type, stain/modality) that becomes the community folder the files go to
+     (community_<name>, created if new), plus short free-text notes.
+  4. No mask, no upload; the 523 consent and conscience text apply.
+
+DONE WHEN
+An offscreen test drives both routes (upload faked): matched folders upload
+to community_<name>; a name mismatch or a missing mask blocks the upload
+and names the files; curation's one-click route sends the on-screen image
+and its mask.
+
+
+IMPLEMENTATION NOTE (2026-09-25)
+
+Where it is
+  Make Masks, bottom row, right after "Training datasets…" (away from the
+  tool row and the curation Skip control other agents are changing): a
+  "Contribute images and masks…" button. Tooltip (tr()):
+    "If you can't train a model yourself, upload your images and masks here
+    and we'll train one for you. Send the image on screen with its mask,
+    every image you have curated here, or an images folder with a masks
+    folder holding masks of the same names. Say what they show (organism,
+    object type, stain) and they go to their own community dataset on
+    Hugging Face as a pull request, which the maintainer reviews before any
+    model is trained on it. They are shared under CC BY 4.0, so send only
+    images you have the right to share. A careful mask makes a good model:
+    every object, hugging its edge."
+  The same text heads the dialog; 523's MASK_CONSCIENCE sits beside Upload.
+
+How it works
+  One click opens ContributeMasksDialog with the sources on offer as radio
+  buttons:
+    * "The image on screen and its mask: <file>" (default while a field is
+      open): the original file plus the mask being edited (canvas, saved
+      or not; what you see is what is sent).
+    * "Every curated image here with its saved mask (n)": every field of
+      the open folder/queue whose mask file exists (engine.mask_save_path,
+      so sibling/nested layouts and multi-folder drops work), the on-screen
+      one with its on-screen mask. Cellpose _seg.npy bundles are left out
+      (no image file of their own).
+    * "An images folder and a masks folder": two path fields with Browse….
+      Matching is by name without extension (a.png pairs with a.tif; masks
+      may be .tif/.png/.npy/...). Upload stays disabled until both folders
+      are filled, differ, every image has exactly one same-named mask and
+      the counts match; the dialog lists "No mask with the same name for:",
+      "No image with the same name for:" and duplicate names.
+  "What is it?" (organism, object type, stain) -> masks_dataset_target()
+  -> always community_<slug> (so "plaques"/"figures" can never fall into
+  Plaque Assay's repos) -> einarolafsson/community_<slug>, shown live as
+  "Goes to huggingface.co/datasets/...". Notes go into contribution.json
+  ("notes"); each image's meta records the typed dataset name and the mask
+  file name. The last name used is remembered.
+  Upload: 523's ask_community_consent (asked once, shared with Plaque
+  Assay), write_contribution (masks layout; refuses any empty mask and
+  names the image), then upload_with_own_login -> contribute ->
+  ensure_community_repo + PR. No mask, no upload at every step.
+
+Code
+  spacr/qt/widgets/model_share.py: masks_dataset_target,
+    pair_images_and_masks, pairs_match, read_label_mask;
+    write_contribution(..., notes="") (new keyword, recorded only when given).
+  spacr/qt/widgets/model_share_dialog.py: contribute_masks_tooltip,
+    ContributeMasksDialog (use/source/target/upload), LAST_MASKS_DATASET_KEY.
+  spacr/qt/screens/make_masks.py: MakeMasksScreen._build_contribute_button,
+    _contribution_sources, contribute_images_and_masks (one line in the nav
+    row).
+  tests/qt/test_528_make_masks_contributes_images_and_masks.py
+  API pin: public callables 9,721 -> 9,732 (tests/test_docstring_correctness.py).
+
+Tests (offscreen, upload faked, CUDA hidden)
+  test_528: 12 passed (name -> community_<name>, never Plaque Assay's
+  repos; matched folders upload to einarolafsson/community_<name> with
+  original images, uint16 masks, notes and per-image meta; a missing mask
+  and a misnamed mask each block Upload and name the files (c.png, x.tif);
+  same folder twice blocked, an empty mask refused at upload naming the
+  image; conscience + licence shown; refused licence sends nothing; the
+  Make Masks button and its tooltip; curation one-click sends the
+  on-screen image and exactly its on-screen mask; the curated-queue choice
+  sends the on-screen field plus every saved mask; no mask on screen, no
+  upload).
+  Before (on nightly dd431f036): 523 + Make Masks curation set (test_523,
+  test_curation_tool, test_make_masks, the two queue-editor tests,
+  test_make_masks_toolbar, test_make_masks_is_a_tool...): 116 passed.
+  After merging nightly d2772a8e4: that set + test_528: 131 passed; the
+  comment/help-index/runtime-i18n guards passed before the merge.
+  Not from 528: nightly d2772a8e4 itself is +32 callables beyond its own
+  pins (9,764 vs 9,732 with 528; docs 11,790 vs 11,758), rows of other
+  items, left for their owners as 523 did; test_documentation_i18n
+  ...inventory_and_hashes_are_current[en] (docs lane regenerates the
+  catalogs); test_user_facing_docstrings flags "maintainer" in
+  tooltip_policy.py, eliding.py and picture_export.py (pre-existing).
+
+For the maintainer to decide
+  * A new name needs a new dataset repo, and only the owner's token can
+    create one (523's ensure_community_repo); anyone else is told to ask the
+    maintainer. Accepting contributions through the central upload Space
+    would let first uploads to a new name go through.
+  * Image/mask shape agreement is not checked before upload (only the
+    masks' names and emptiness are); a reviewer sees it in the PR.
+
+
+2026-09-26 -- LEFTOVER CLOSED: an image and its mask must be the same size
+
+  write_contribution (masks layout) now refuses, before it writes anything,
+  every item whose mask is not its image's size, in one ValueError naming
+  each one with both sizes:
+    "these images and their masks are not the same size (width x height,
+    in pixels), so the masks would not lie on the images: b.png: image
+    50 x 40, mask 50 x 30"
+  The dialogs already show a write_contribution ValueError as tr("Not
+  sent: {why}"), and it is the one path every route takes (image on
+  screen, curated queue, two folders, and Plaque Assay's mask pages), so
+  the check sits there once.
+  * The image's size is read from its header only
+    (model_share._image_size): a TIFF through its series axes, so a
+    channel or z axis in front of Y and X is not taken for the size (a
+    2 x 40 x 50 CYX TIFF is 50 x 40); anything else through PIL. A format
+    neither can read (a reader plug-in's, say) returns None and is not
+    refused, as before; the reviewer still sees it.
+  * Why at upload and not in the folder check: the folder check reads only
+    listings; the size check opens every header, and Upload is where the
+    user expects the files to be read.
+  Tests (tests/qt/test_528_...): a 50 x 30 mask for a 50 x 40 image blocks
+  the upload, names b.png with both sizes and not a.png or the CYX TIFF,
+  writes and sends nothing; fixing the mask lets the same dialog upload;
+  write_contribution refuses a transposed mask and leaves no folder, and
+  an unreadable image format is still written. test_528: 14 passed
+  (with 396/507/529 files in the same run: 77 passed).
+  No new tr() strings (the refusal is model_share's, which holds no Qt,
+  like the empty-mask refusal beside it). No new public callables.

@@ -102,72 +102,129 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "使用Conda安装",
+      "title": "使用Conda安装spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "在独立环境中安装官方conda-forge软件包，核实渠道的实际版本，并识别它与当前模块教程之间的差异。",
+      "description": "创建Conda环境，从conda-forge安装spaCR并启动应用程序。",
       "objectives": [
-        "创建并激活专用Conda环境。",
-        "验证渠道软件包、Qt和诊断结果。",
-        "当渠道仍提供旧界面时，选择较新的pip或桌面安装器途径。"
+        "创建并激活专用的Conda环境。",
+        "从conda-forge安装spaCR。",
+        "打开spaCR，并在需要时更新同一环境。"
       ],
-      "prerequisite": "需要预先安装兼容Conda的环境管理器。本录制于2026年9月10日在Linux、Python 3.12.14和Qt 6.11.2上验证conda-forge的spaCR 1.5.0.4。全新安装使用新的私有路径，仅使用conda-forge并固定渠道版本；命令卡片说明对应的命名环境流程，不是安装输出回放。实际GUI仍是Home (63)，而非PyPI/安装器1.5.0.5的新嵌套布局。默认spacr-doctor的小型CUDA内存分配检查成功，但报告可选CZI支持警告；这不是速度测试，也没有验证所有分析或格式。录制使用字体缩放1.5的私有深色配置、已关闭的导览和未改动的预加载默认值，没有使用不受支持的--no-setup。其他平台未测试。制作文件与发布版旁白不同，因此不声称原样复用了音频。",
+      "prerequisite": "安装Conda或Miniforge，然后打开可以使用conda命令的终端。",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "为spaCR使用专用Conda环境，并核实渠道实际提供哪个版本。录制时conda-forge安装的是一点五点零点四。PyPI和桌面安装器已经提供一点五点零点五；这些版本标签不能互换。",
+          "narration": "打开已启用Conda的终端。您将为spaCR创建一个环境，安装conda-forge软件包，并从该环境启动应用程序。",
           "hold_after": 0.7,
-          "speech_text": "为斯佩克尔使用专用Conda环境，并核实渠道实际提供哪个版本。录制时conda-forge安装的是一点五点零点四。派普和桌面安装器已经提供一点五点零点五；这些版本标签不能互换。"
+          "speech_text": "打开已启用Conda的终端。您将为斯佩克尔创建一个环境，安装conda-forge软件包，并从该环境启动应用程序。"
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "使用显示的命令，创建名为spacr-conda的环境，其中包含Python三点十二和来自conda-forge的spaCR。如果这个名称已被其他环境使用，请另选一个名称。",
+          "hold_after": 0.7,
+          "speech_text": "使用显示的命令，创建名为斯佩克尔-conda的环境，其中包含Python三点十二和来自conda-forge的斯佩克尔。如果这个名称已被其他环境使用，请另选一个名称。"
         },
         {
           "visual": "07_create_conda",
-          "narration": "打开支持Conda的命令行，使用Python三点十二创建新环境。卡片使用spacr-conda这个名称。如果它已经存在，请选择另一个未使用的名称，并将这个环境与进行中的分析分开。",
+          "narration": "Conda会求解环境并列出软件包计划。检查后输入字母y接受，然后等待下载和安装完成。",
           "hold_after": 0.7,
-          "speech_text": "打开支持Conda的命令行，使用Python三点十二创建新环境。卡片使用斯佩克尔-conda这个名称。如果它已经存在，请选择另一个未使用的名称，并将这个环境与进行中的分析分开。"
+          "speech_text": "Conda会求解环境并列出软件包计划。检查后输入字母y接受，然后等待下载和安装完成。"
         },
         {
           "visual": "08_activate_conda",
-          "narration": "激活环境并输出sys点prefix，确认Python属于哪个环境。实际验证使用较长的私有路径，而不是示例中的短名称。仅看终端提示符，不能证明正在使用预期的解释器。",
+          "narration": "激活spacr-conda。运行显示的Python命令查看环境路径，并确认它就是您刚创建的环境。",
           "hold_after": 0.7,
-          "speech_text": "激活环境并输出sys点prefix，确认Python属于哪个环境。实际验证使用较长的私有路径，而不是示例中的短名称。仅看终端提示符，不能证明正在使用预期的解释器。"
+          "speech_text": "激活斯佩克尔-conda。运行显示的Python命令查看环境路径，并确认它就是您刚创建的环境。"
         },
         {
           "visual": "09_install_conda",
-          "narration": "安装明确指定conda-forge渠道的软件包，再用conda list spacr检查版本与渠道。验证中的安装仅使用conda-forge，并固定了渠道发布版本。安装在录制验证画面前已完成；这些卡片是操作说明，不是伪造的终端输出。",
+          "narration": "运行conda list spacr查看已安装的版本，并确认它来自conda-forge。用一条命令同时安装Python和spaCR，可以让Conda一起求解所有软件包，这比向现有环境添加spaCR快得多。",
           "hold_after": 0.7,
-          "speech_text": "安装明确指定conda-forge渠道的软件包，再用conda list 斯佩克尔检查版本与渠道。验证中的安装仅使用conda-forge，并固定了渠道发布版本。安装在录制验证画面前已完成；这些卡片是操作说明，不是伪造的终端输出。"
+          "speech_text": "运行conda list 斯佩克尔查看已安装的版本，并确认它来自conda-forge。用一条命令同时安装Python和斯佩克尔，可以让Conda一起求解所有软件包，这比向现有环境添加斯佩克尔快得多。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "检查已安装环境中的spaCR版本、Qt版本和软件包位置。这里的软件包为一点五点零点四，Qt导入成功。这确认了正在使用哪个包，不代表已经验证每一种科学分析流程或可选格式。",
+          "narration": "检查已安装的spaCR版本和软件包位置。把这个版本记在分析笔记中，以便以后回到同一环境。",
           "hold_after": 0.7,
-          "speech_text": "检查已安装环境中的斯佩克尔版本、Qt版本和软件包位置。这里的软件包为一点五点零点四，Qt导入成功。这确认了正在使用哪个包，不代表已经验证每一种科学分析流程或可选格式。"
+          "speech_text": "检查已安装的斯佩克尔版本和软件包位置。把这个版本记在分析笔记中，以便以后回到同一环境。"
         },
         {
           "visual": "05_doctor",
-          "narration": "运行spacr-doctor，也要阅读警告。此处的小型GPU内存分配检查成功，但可选CZI支持缺少一个依赖。跳过的检查不等于通过。建议的修复针对该功能；应用之前请评估环境变化，尤其是在混用软件包管理器时。",
+          "narration": "运行spacr-doctor检查安装情况。这里它报告缺少核心依赖vispy，并显示安装它的命令。运行该命令，然后再次运行spacr-doctor。其他建议步骤只需针对您需要的文件格式或功能执行。",
           "hold_after": 0.7,
-          "speech_text": "运行斯佩克尔-doctor，也要阅读警告。此处的小型GPU内存分配检查成功，但可选CZI支持缺少一个依赖。跳过的检查不等于通过。建议的修复针对该功能；应用之前请评估环境变化，尤其是在混用软件包管理器时。"
+          "speech_text": "运行斯佩克尔-doctor检查安装情况。这里它报告缺少核心依赖vispy，并显示安装它的命令。运行该命令，然后再次运行斯佩克尔-doctor。其他建议步骤只需针对您需要的文件格式或功能执行。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "安装的Conda软件包能够正常打开和关闭，但这是有六十三个入口的旧Home。它没有新的模块嵌套布局。不要认为安装成功就意味着所有界面都与较新版本的教程一致。",
+          "narration": "输入spacr启动应用程序。完成首次启动时的选项，然后继续学习Home教程，查找模块及其示例数据。",
           "hold_after": 0.7,
-          "speech_text": "安装的Conda软件包能够正常打开和关闭，但这是有六十三个入口的旧主页。它没有新的模块嵌套布局。不要认为安装成功就意味着所有界面都与较新版本的教程一致。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "输入斯佩克尔启动应用程序。完成首次启动时的选项，然后继续学习主页教程，查找模块及其示例数据。"
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "要使用更新后模块教程中的新嵌套界面，请在独立环境中按照当前pip或Platform installers课程操作。如果需要Conda渠道，请记录实际版本，并再次检查更新。保留进行中分析所用的版本。",
+          "narration": "以后要更新时，关闭spaCR，激活此环境并更新conda-forge软件包。如果conda-forge没有更新的构建，Conda会报告所有请求的软件包都已安装。之后检查已安装的版本；pip和安装程序课程介绍了其他安装方式。",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "要使用更新后模块教程中的新嵌套界面，请在独立环境中按照当前pip或Platform installers课程操作。如果需要Conda渠道，请记录实际版本，并再次检查更新。保留进行中分析所用的版本。"
+          "speech_text": "以后要更新时，关闭斯佩克尔，激活此环境并更新conda-forge软件包。如果conda-forge没有更新的构建，Conda会报告所有请求的软件包都已安装。之后检查已安装的版本；pip和安装程序课程介绍了其他安装方式。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -177,199 +234,302 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "创建独立的Python环境，安装公开发布的软件包，验证依赖关系，并启动已安装的Qt应用。",
+      "description": "创建独立的Python环境，安装公开软件包，检查其依赖项，并启动已安装的Qt应用程序。",
       "objectives": [
-        "将spaCR的依赖保留在专用Python环境中。",
-        "检查已安装的软件包、Qt和可选功能警告。",
-        "打开Home，并有意识地更新正确的环境。"
+        "创建并激活Python虚拟环境。",
+        "安装spaCR并检查其依赖项。",
+        "启动应用程序并更新目标环境。"
       ],
-      "prerequisite": "本课在Linux和Python 3.12.13上验证公开PyPI版spaCR 1.5.0.5，而非源码的可编辑安装。命令卡片是操作说明，不是录制的终端输出；此处未执行Windows和macOS命令。全新安装在录制验证过程前已经完成。当前基础依赖包含Qt。Doctor报告可选CZI功能警告；GPU内存分配探测被明确跳过。GUI录制使用--no-setup、字体缩放1.5的私有深色配置，以及已经关闭的导览。它证明Home能够正常打开和关闭，不代表所有模块、可选格式、GPU计算或其他平台均已验证。",
+      "prerequisite": "安装Python 3.12并打开终端。使用适合您的操作系统和shell的激活命令。",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "将spaCR安装在独立的Python环境中。本演示使用Linux上的Python三点十二，以及PyPI公开发布版，而不是源码检出版本。在为环境选择解释器前，请检查python、两个短横线、version。",
+          "narration": "打开终端并检查Python版本。本演示使用Python三点十二。请把spaCR放在专用的虚拟环境中，便于管理它的软件包。",
           "hold_after": 0.7,
-          "speech_text": "将斯佩克尔安装在独立的Python环境中。本演示使用Linux上的Python三点十二，以及派普公开发布版，而不是源码检出版本。在为环境选择解释器前，请检查python、两个短横线、version。"
+          "speech_text": "打开终端并检查Python版本。本演示使用Python三点十二。请把斯佩克尔放在专用的虚拟环境中，便于管理它的软件包。"
         },
         {
           "visual": "07_create_environment",
-          "narration": "使用适合平台的命令创建新的虚拟环境。这里的点venv是工作目录中的新文件夹。Python三点十二需要预先安装；这个命令创建环境，不会安装Python本身。",
+          "narration": "使用适合您操作系统的命令，创建名为点venv的虚拟环境。这会创建一个文件夹，其中包含您将用于spaCR的Python环境。",
           "hold_after": 0.7,
-          "speech_text": "使用适合平台的命令创建新的虚拟环境。这里的点venv是工作目录中的新文件夹。Python三点十二需要预先安装；这个命令创建环境，不会安装Python本身。"
+          "speech_text": "使用适合您操作系统的命令，创建名为点venv的虚拟环境。这会创建一个文件夹，其中包含您将用于斯佩克尔的Python环境。"
         },
         {
           "visual": "08_activate_environment",
-          "narration": "用当前命令行环境对应的命令激活它。PowerShell、Command Prompt、bash和zsh使用不同的激活命令。如果PowerShell阻止脚本，请使用Command Prompt或直接调用环境中的Python，不要降低整台计算机的安全设置。",
+          "narration": "使用适合您shell的命令激活点venv。Windows PowerShell和命令提示符的激活命令不同；macOS和Linux通常使用这里显示的shell命令。",
           "hold_after": 0.7,
-          "speech_text": "用当前命令行环境对应的命令激活它。PowerShell、Command Prompt、bash和zsh使用不同的激活命令。如果PowerShell阻止脚本，请使用Command Prompt或直接调用环境中的Python，不要降低整台计算机的安全设置。"
+          "speech_text": "使用适合您shell的命令激活点venv。Windows PowerShell和命令提示符的激活命令不同；macOS和Linux通常使用这里显示的shell命令。"
         },
         {
           "visual": "02_pip_environment",
-          "narration": "运行python、短横线m、pip、两个短横线、version。显示的位置应当在选定的环境内。这是真实终端，其中较长的私有路径用于录制。使用python、短横线m、pip，会把软件包安装与该解释器关联起来。",
+          "narration": "运行python 横杠 m pip 横杠横杠 version。确认显示的路径属于点venv。安装命令请使用python 横杠 m pip，让pip使用这个解释器。",
           "hold_after": 0.7,
-          "speech_text": "运行python、短横线m、pip、两个短横线、version。显示的位置应当在选定的环境内。这是真实终端，其中较长的私有路径用于录制。使用python、短横线m、pip，会把软件包安装与该解释器关联起来。"
+          "speech_text": "运行python 横杠 m pip 横杠横杠 version。确认显示的路径属于点venv。安装命令请使用python 横杠 m pip，让pip使用这个解释器。"
         },
         {
           "visual": "09_install_package",
-          "narration": "先升级pip，再安装spacr。固定为一点五点零点五，可以使用本课验证的同一发布版本。全新安装在这些验证画面录制前已经完成。请为科学计算依赖预留时间和磁盘空间；当前基础依赖已经包含Qt桌面组件。",
+          "narration": "升级pip，然后安装spacr。等待科学计算软件包下载并安装完成。当前软件包包含打开应用程序所需的桌面组件。",
           "hold_after": 0.7,
-          "speech_text": "先升级pip，再安装斯佩克尔。固定为一点五点零点五，可以使用本课验证的同一发布版本。全新安装在这些验证画面录制前已经完成。请为科学计算依赖预留时间和磁盘空间；当前基础依赖已经包含Qt桌面组件。"
+          "speech_text": "升级pip，然后安装斯佩克尔。等待科学计算软件包下载并安装完成。当前软件包包含打开应用程序所需的桌面组件。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "检查安装的spaCR版本、Qt版本和软件包路径。这里三者都来自新环境。仅仅导入成功，不能证明每一种可选格式或分析都能运行，也不能证明窗口一定能打开。",
+          "narration": "使用显示的命令检查已安装的spaCR版本和软件包位置。把版本号与分析笔记一起保存。",
           "hold_after": 0.7,
-          "speech_text": "检查安装的斯佩克尔版本、Qt版本和软件包路径。这里三者都来自新环境。仅仅导入成功，不能证明每一种可选格式或分析都能运行，也不能证明窗口一定能打开。"
+          "speech_text": "使用显示的命令检查已安装的斯佩克尔版本和软件包位置。把版本号与分析笔记一起保存。"
         },
         {
           "visual": "04_dependency_check",
-          "narration": "运行python、短横线m、pip check。No broken requirements表示已安装依赖的声明相互一致。如果报告冲突，请先解决再继续；检查成功不等于对分析进行了科学验证。",
+          "narration": "运行python 横杠 m pip check。如果它报告依赖要求冲突，请在使用该环境之前解决这些冲突。",
           "hold_after": 0.7,
-          "speech_text": "运行python、短横线m、pip check。No broken requirements表示已安装依赖的声明相互一致。如果报告冲突，请先解决再继续；检查成功不等于对分析进行了科学验证。"
+          "speech_text": "运行python 横杠 m pip check。如果它报告依赖要求冲突，请在使用该环境之前解决这些冲突。"
         },
         {
           "visual": "05_doctor",
-          "narration": "运行spacr-doctor，除了通过项，也要阅读警告。此环境有一条可选CZI功能警告，并显示修复命令。录制时使用两个短横线的no gpu probe，因此会检测设备，但不测试GPU内存分配。跳过的检查不等于通过。",
+          "narration": "运行spacr-doctor检查安装情况，并查看缺少哪些可选功能。只针对您需要的格式或功能执行建议的修复。",
           "hold_after": 0.7,
-          "speech_text": "运行斯佩克尔-doctor，除了通过项，也要阅读警告。此环境有一条可选CZI功能警告，并显示修复命令。录制时使用两个短横线的no gpu probe，因此会检测设备，但不测试GPU内存分配。跳过的检查不等于通过。"
+          "speech_text": "运行斯佩克尔-doctor检查安装情况，并查看缺少哪些可选功能。只针对您需要的格式或功能执行建议的修复。"
         },
         {
           "visual": "10_launch_commands",
-          "narration": "从同一个已激活环境启动spacr。正常首次启动可能显示设置问题。本次有限验证明确使用两个短横线的no setup，以及为录制准备的配置，因此没有演示如何回答这些问题。",
+          "narration": "从已激活的环境启动spacr。首次启动时，按照设置提示选择您的偏好。",
           "hold_after": 0.7,
-          "speech_text": "从同一个已激活环境启动斯佩克尔。正常首次启动可能显示设置问题。本次有限验证明确使用两个短横线的no setup，以及为录制准备的配置，因此没有演示如何回答这些问题。"
+          "speech_text": "从已激活的环境启动斯佩克尔。首次启动时，按照设置提示选择您的偏好。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "这是从已安装wheel打开的真实Home窗口，包含六个核心模块以及Data、Tools和Assays分组。它在没有启动分析的情况下正常打开并关闭。关于导航、嵌套工具和模块教程，请继续学习Home课程。",
+          "narration": "Home打开后显示Core、Data、Tools和Assays类别。继续学习Home教程，查找模块、加载示例数据并打开流程概览。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "这是从已安装wheel打开的真实主页窗口，包含六个核心模块以及Data、Tools和Assays分组。它在没有启动分析的情况下正常打开并关闭。关于导航、嵌套工具和模块教程，请继续学习主页课程。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "主页打开后显示Core、Data、Tools和Assays类别。继续学习主页教程，查找模块、加载示例数据并打开流程概览。"
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "更新时先关闭spaCR，再激活打算修改的环境。升级软件包，重新运行pip check和spacr-doctor，并随分析记录更新后的版本。更新可能改变依赖和行为；不要悄悄更改正在支持进行中工作的环境。",
+          "narration": "要更新时，关闭spaCR并激活此环境。升级软件包，然后再次检查版本和依赖项。如果进行中的分析还需要之前的环境，请保留它。",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "更新时先关闭斯佩克尔，再激活打算修改的环境。升级软件包，重新运行pip check和斯佩克尔-doctor，并随分析记录更新后的版本。更新可能改变依赖和行为；不要悄悄更改正在支持进行中工作的环境。"
+          "speech_text": "要更新时，关闭斯佩克尔并激活此环境。升级软件包，然后再次检查版本和依赖项。如果进行中的分析还需要之前的环境，请保留它。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "各平台安装程序",
+      "title": "使用桌面安装程序安装spaCR",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "选择官方桌面安装程序，理解加速器自动选择和可选隐私设置，并检查实际安装的Linux运行环境。",
+      "description": "下载适合您操作系统的安装程序，完成设置并打开spaCR。",
       "objectives": [
-        "选择与操作系统对应的官方安装程序。",
-        "区分自动加速与明确指定仅用CPU。",
-        "查看隐私选项、已安装版本和诊断警告。"
+        "下载并运行适合您操作系统的安装程序。",
+        "选择加速选项和首次启动偏好。",
+        "打开spaCR，并在设置出现问题时找到安装日志。"
       ],
-      "prerequisite": "本录像于2026年9月10日验证了通过校验和比对的spaCR 1.5.0.5公开Linux x86-64在线安装程序，使用Python 3.12.13、Qt 6.11.2和Torch 2.14.0+cu132。真实安装在这些验证画面录制前已经完成。安装使用新建的专用运行环境和启动器目录、已有系统图形库、--skip-system-deps及--no-launch，没有修改现有环境或系统依赖。四张参考卡是操作说明，不是Windows/macOS安装录像，也不是虚构的终端输出。Windows/macOS指导仅依据当前安装程序源代码核对。GUI录像使用专用深色配置、1.5倍字体、已关闭的导览、按需预加载以及--no-setup，但该参数不会跳过单独的隐私提示。通过真实Escape按键拒绝提示，所有可选项保持关闭，并读回专用配置确认。Doctor使用--no-gpu-probe；不宣称完成内存分配、速度、分析或其他平台验证。失败的录制尝试予以保留，不计作应用缺陷。",
+      "prerequisite": "下载适合您操作系统的官方安装程序，并为应用程序及其科学计算依赖项预留空间。",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "使用spaCR的官方GitHub发布页，选择与操作系统匹配的安装程序。在线安装程序会下载专用Python运行环境和科学计算依赖，不需要已有Conda环境。在这个Linux示例中，我们先将下载文件与发布校验和比对，再运行安装程序。",
+          "narration": "在GitHub上打开spaCR的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。如果要验证下载，请保留同一发布中的SHA256SUMS点txt文件。",
           "hold_after": 0.7,
-          "speech_text": "使用斯佩克尔的官方GitHub发布页，选择与操作系统匹配的安装程序。在线安装程序会下载专用Python运行环境和科学计算依赖，不需要已有Conda环境。在这个Linux示例中，我们先将下载文件与发布校验和比对，再运行安装程序。"
+          "speech_text": "在GitHub上打开斯佩克尔的官方发布页，在Assets下下载适合您操作系统的安装程序。这些在线安装程序会在设置过程中下载Python运行时和科学计算软件包。如果要验证下载，请保留同一发布中的SHA256SUMS点txt文件。"
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "在Windows上选择在线安装可执行文件。当前安装程序源代码默认勾选自动加速；取消该可选组件的勾选即可仅使用CPU。这张卡说明选项，但不是Windows安装录像，也不是您电脑的兼容性测试。",
+          "narration": "在Windows上，运行安装程序并按照提示操作。保持选中自动加速，以使用在您电脑上检测到的受支持硬件；如果您需要，也可以选择仅使用CPU运行。",
           "hold_after": 0.7,
-          "speech_text": "在Windows上选择在线安装可执行文件。当前安装程序源代码默认勾选自动加速；取消该可选组件的勾选即可仅使用CPU。这张卡说明选项，但不是Windows安装录像，也不是您电脑的兼容性测试。"
+          "speech_text": "在Windows上，运行安装程序并按照提示操作。保持选中自动加速，以使用在您电脑上检测到的受支持硬件；如果您需要，也可以选择仅使用CPU运行。"
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "在macOS上选择适用于Intel和Apple silicon的通用在线安装包。如果运行环境缺失，应用启动器会启动当前用户的安装配置。在批准安全提示之前确认官方来源，并预留下载时间。这是经过源代码核对的指导，不是在macOS上实际执行的安装。",
+          "narration": "在macOS上，打开通用安装包并按照安装程序操作。从应用程序启动器启动spaCR，并等待首次运行的下载完成。阅读任何安全提示，并确认安装包来自官方发布。",
           "hold_after": 0.7,
-          "speech_text": "在macOS上选择适用于Intel和Apple silicon的通用在线安装包。如果运行环境缺失，应用启动器会启动当前用户的安装配置。在批准安全提示之前确认官方来源，并预留下载时间。这是经过源代码核对的指导，不是在macOS上实际执行的安装。"
+          "speech_text": "在macOS上，打开通用安装包并按照安装程序操作。从应用程序启动器启动斯佩克尔，并等待首次运行的下载完成。阅读任何安全提示，并确认安装包来自官方发布。"
         },
         {
           "visual": "11_linux_commands",
-          "narration": "在Linux上给验证后的下载文件添加执行权限，并从所在文件夹运行。现在默认自动选择加速器；如果需要CPU，请明确指定。我们的隔离运行使用已有系统库和专用路径，因此没有演示安装系统依赖。",
+          "narration": "在Linux上，先为下载的安装程序添加可执行权限，然后在终端中运行它。自动加速会选择受支持的后端。帮助中列出了用于仅CPU运行的横杠横杠 torch-backend cpu，以及适用于已安装Qt图形库的电脑的横杠横杠 skip-system-deps。",
           "hold_after": 0.7,
-          "speech_text": "在Linux上给验证后的下载文件添加执行权限，并从所在文件夹运行。现在默认自动选择加速器；如果需要CPU，请明确指定。我们的隔离运行使用已有系统库和专用路径，因此没有演示安装系统依赖。"
+          "speech_text": "在Linux上，先为下载的安装程序添加可执行权限，然后在终端中运行它。自动加速会选择受支持的后端。帮助中列出了用于仅CPU运行的横杠横杠 torch-backend cpu，以及适用于已安装Qt图形库的电脑的横杠横杠 skip-system-deps。"
         },
         {
           "visual": "02_installer_backend",
-          "narration": "读取真实安装配置，不要仅凭启动成功推断后端。这里请求的是auto，选中的后端是在NVIDIA硬件上运行的CUDA。安装的Torch构建使用CUDA十三点二。这只是确认了后端选择，不是GPU速度基准测试。",
+          "narration": "设置完成后，安装配置文件会记录所选的后端。当您想确认运行时使用的是CPU还是受支持的加速器时，请查看它。",
           "hold_after": 0.7,
-          "speech_text": "读取真实安装配置，不要仅凭启动成功推断后端。这里请求的是auto，选中的后端是在NVIDIA硬件上运行的CUDA。安装的Torch构建使用CUDA十三点二。这只是确认了后端选择，不是GPU速度基准测试。"
+          "speech_text": "设置完成后，安装配置文件会记录所选的后端。当您想确认运行时使用的是CPU还是受支持的加速器时，请查看它。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "检查安装包版本、Qt导入和包路径。这个专用运行环境包含spaCR一点五点零点五。文件来自安装结果，而不是可编辑的源码检出目录。成功导入不代表所有分析或可选文件格式均已验证。",
+          "narration": "检查已安装的spaCR版本。把它记在分析笔记中，尤其是在以后更新应用程序时。",
           "hold_after": 0.7,
-          "speech_text": "检查安装包版本、Qt导入和包路径。这个专用运行环境包含斯佩克尔一点五点零点五。文件来自安装结果，而不是可编辑的源码检出目录。成功导入不代表所有分析或可选文件格式均已验证。"
+          "speech_text": "检查已安装的斯佩克尔版本。把它记在分析笔记中，尤其是在以后更新应用程序时。"
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "真实首次启动会询问是否共享诊断信息、提交公开问题报告以及配置账号，这些都是可选项。报告会公开，请阅读说明。本录像用Escape拒绝对话框，与Skip, keep all off作用相同。没有连接账号，读回专用设置也确认共享及问题报告操作保持关闭。",
+          "narration": "设置过程会询问是否可选地共享诊断信息以及是否设置账户。只对您想要的选项回答y；默认的n会让每一项保持关闭。Windows安装程序以复选框形式显示同样的选项。",
           "hold_after": 0.7,
-          "speech_text": "真实首次启动会询问是否共享诊断信息、提交公开问题报告以及配置账号，这些都是可选项。报告会公开，请阅读说明。本录像用Escape拒绝对话框，与Skip, keep all off作用相同。没有连接账号，读回专用设置也确认共享及问题报告操作保持关闭。"
+          "speech_text": "设置过程会询问是否可选地共享诊断信息以及是否设置账户。只对您想要的选项回答y；默认的n会让每一项保持关闭。Windows安装程序以复选框形式显示同样的选项。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "完成选择后，已安装应用打开当前Home，其中有二十一个图块和六个核心模块。窗口也正常关闭。接着学习Home课程，了解嵌套工作流程及示例数据；仅打开Home不算分析测试。",
+          "narration": "Home打开后，继续学习Home教程。它介绍如何打开模块、查找测试数据，以及为您的实验选择流程。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "完成选择后，已安装应用打开当前主页，其中有二十一个图块和六个核心模块。窗口也正常关闭。接着学习主页课程，了解嵌套工作流程及示例数据；仅打开主页不算分析测试。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "主页打开后，继续学习主页教程。它介绍如何打开模块、查找测试数据，以及为您的实验选择流程。"
         },
         {
           "visual": "05_doctor",
-          "narration": "从已安装运行环境运行spacr-doctor，既看通过项，也看警告。这里确认了安装程序后端，但提示缺少可选CZI依赖。本次跳过了GPU内存分配、数据库和设置检查。跳过不等于通过；修改环境之前先评估建议的修复。",
+          "narration": "如果启动或某种文件格式出现问题，请从已安装的运行时运行spacr-doctor。它会列出每项检查及建议的修复方法。在这个仅CPU的安装中，GPU检查按预期失败；PATH检查标记了安装程序自带的spacr启动器，它启动的正是同一个运行时，因此这里两者都无需更改。",
           "hold_after": 0.7,
-          "speech_text": "从已安装运行环境运行斯佩克尔-doctor，既看通过项，也看警告。这里确认了安装程序后端，但提示缺少可选CZI依赖。本次跳过了GPU内存分配、数据库和设置检查。跳过不等于通过；修改环境之前先评估建议的修复。"
+          "speech_text": "如果启动或某种文件格式出现问题，请从已安装的运行时运行斯佩克尔-doctor。它会列出每项检查及建议的修复方法。在这个仅CPU的安装中，GPU检查按预期失败；PATH检查标记了安装程序自带的斯佩克尔启动器，它启动的正是同一个运行时，因此这里两者都无需更改。"
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "排查问题时，保留所选安装目录中的install点log和install-profile点json。共享日志前检查是否含有私人信息。记录每次分析使用的版本，有计划地更新。pip和Conda课程介绍基于独立环境的其他安装方式。",
+          "narration": "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和spaCR版本，以便更容易诊断问题。",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
             "03_pip_install"
           ],
           "hold_after": 0.7,
-          "speech_text": "排查问题时，保留所选安装目录中的install点log和install-profile点json。共享日志前检查是否含有私人信息。记录每次分析使用的版本，有计划地更新。pip和Conda课程介绍基于独立环境的其他安装方式。"
+          "speech_text": "遇到安装问题时，请在安装目录中找到install点log和install-profile点json。在提交支持请求并共享日志之前，请先检查日志内容。请注明您的操作系统和斯佩克尔版本，以便更容易诊断问题。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home界面与导航",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "从Home打开模块，找到相关工具和示例数据，然后选择要遵循的流程。",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "为图像、测量数据或测序读段选择起始模块。",
+        "找到相关工具和特定生物的检测。",
+        "加载示例、查找帮助并打开流程概览。"
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "安装spaCR并打开桌面应用程序。",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
-          "hold_after": 0.7
+          "narration": "Home是您的起点。点击一个磁贴打开模块，或使用左侧的侧边栏。点击侧边栏中的Home即可回到这里。Core、Data、Tools和Assays选项卡帮助您找到想要完成的任务。",
+          "hold_after": 0.7,
+          "speech_text": "主页是您的起点。点击一个磁贴打开模块，或使用左侧的侧边栏。点击侧边栏中的主页即可回到这里。Core、Data、Tools和Assays选项卡帮助您找到想要完成的任务。"
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -386,11 +546,12 @@
             "41_classify",
             "12_map_barcodes",
             "13_regression"
-          ]
+          ],
+          "speech_text": "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。"
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -406,11 +567,12 @@
             "35_converter",
             "31_external_masks",
             "77_embeddings"
-          ]
+          ],
+          "speech_text": "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。"
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开Cellpose Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image UMAP、Gate Editor和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -425,11 +587,12 @@
             "15_image_umap",
             "64_gate_editor",
             "58_graph_builder"
-          ]
+          ],
+          "speech_text": "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开塞尔波斯 Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image 优麦普、门控编辑器和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。"
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "打开Assays并选择您的生物：Toxoplasma、Plasmodium或Candida。然后从该生物的菜单中选择一种检测。例如，打开Toxoplasma进行噬斑分析或宿主与病原体测量。按照所选检测的教程准备图像、掩膜和测量输入。",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -441,21 +604,23 @@
             "25_recruitment",
             "26_invasion",
             "27_replication"
-          ]
+          ],
+          "speech_text": "打开Assays并选择您的生物：Toxoplasma、Plasmodium或Candida。然后从该生物的菜单中选择一种检测。例如，打开Toxoplasma进行噬斑分析或宿主与病原体测量。按照所选检测的教程准备图像、掩膜和测量输入。"
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "speech_text": "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。"
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -464,30 +629,34 @@
             "16_activation",
             "28_training_runs",
             "65_feature_explorer"
-          ]
+          ],
+          "speech_text": "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。"
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开3D。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "17_timelapse"
-          ]
+          ],
+          "speech_text": "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开三维。"
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
-          "hold_after": 0.7
+          "narration": "在Help旁边的搜索框中输入模块、设置或函数的名称。这里搜索Performance会找到对应的Preferences页面。点击结果即可打开相应位置。API结果会打开所选函数的文档。",
+          "hold_after": 0.7,
+          "speech_text": "在Help旁边的搜索框中输入模块、设置或函数的名称。这里搜索Performance会找到对应的Preferences页面。点击结果即可打开相应位置。API结果会打开所选函数的文档。"
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
-          "hold_after": 0.7
+          "narration": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
+          "hold_after": 0.7,
+          "speech_text": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。"
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "回到Home，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从spaCR screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -499,12 +668,53 @@
             180,
             499,
             96
-          ]
+          ],
+          "speech_text": "回到主页，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从斯佩克尔 screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1515,59 +1725,64 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks：编辑标签并准备训练图像",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "打开图像与掩膜对，检查并编辑对象，保存测量数据，并创建成对的训练裁剪图。",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "打开带有对应实例掩膜的图像，并在放大镜中检查对象。",
+        "测量成对的视野，并保存对象特征数据库。",
+        "用Undo、绘制、分割和大小过滤修正标签。",
+        "保存整理好的掩膜，并创建用于训练的图像与掩膜裁剪图。"
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "准备一个二维图像文件夹，并在masks子文件夹中放入对应的实例标签TIFF。每个掩膜使用图像文件的基本名。练习编辑和重新裁剪时请使用副本。示例使用Measure可下载显微项目中的ER图像和细胞掩膜。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "从Home打开Tools中的Make Masks。选择这个编辑器来检查和修正单张图像的掩膜。在选择编辑工具之前，先打开包含成对图像和标签的文件夹。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ]
+          ],
+          "speech_text": "从主页打开Tools中的Make Masks。选择这个编辑器来检查和修正单张图像的掩膜。在选择编辑工具之前，先打开包含成对图像和标签的文件夹。"
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "选择图像文件夹。本例使用Measure示例中的ER强度图像及对应的细胞掩膜。保持图像与掩膜尺寸一致，文件名一一对应。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "选择图像文件夹。本例使用Measure示例中的ER强度图像及对应的细胞掩膜。保持图像与掩膜尺寸一致，文件名一一对应。"
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
-          "hold_after": 0.7
+          "narration": "编辑器从masks子文件夹加载图像及其对应的掩膜。彩色标签表示各个对象。检查轮廓是否贴合图像中的边界。如果缺少配套的掩膜，就从空白掩膜开始，绘制您需要的对象。",
+          "hold_after": 0.7,
+          "speech_text": "编辑器从masks子文件夹加载图像及其对应的掩膜。彩色标签表示各个对象。检查轮廓是否贴合图像中的边界。如果缺少配套的掩膜，就从空白掩膜开始，绘制您需要的对象。"
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
-          "hold_after": 0.7
+          "narration": "打开Magnifier settings。选择Otsu和Region under the mouse，即可预览指针周围基于阈值得到的对象。如果阈值无法很好地分开您的对象，请选择基于模型的模式。",
+          "hold_after": 0.7,
+          "speech_text": "打开Magnifier settings。选择Otsu和Region under the mouse，即可预览指针周围基于阈值得到的对象。如果阈值无法很好地分开您的对象，请选择基于模型的模式。"
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "打开Magnifier，把指针悬停在对象上即可放大预览。在多个对象上移动，检查建议的轮廓。轮廓看起来正确时，点击即可添加这些对象；要继续编辑，请关闭Magnifier。",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
+          ],
+          "speech_text": "打开Magnifier，把指针悬停在对象上即可放大预览。在多个对象上移动，检查建议的轮廓。轮廓看起来正确时，点击即可添加这些对象；要继续编辑，请关闭Magnifier。"
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "点击Features测量图像与掩膜对。为每个视野添加一行，并选择强度图像和对应的对象掩膜。如果按文件名自动匹配后仍有文件未分配，请检查手动分配。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1577,11 +1792,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "点击Features测量图像与掩膜对。为每个视野添加一行，并选择强度图像和对应的对象掩膜。如果按文件名自动匹配后仍有文件未分配，请检查手动分配。"
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "在每一行中，于Channel 1选择ER强度图像，于Cell mask选择对应的标签图像。对第二个视野重复同样操作。测量荧光时请使用原始强度图像。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1591,11 +1807,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "在每一行中，于Channel 1选择ER强度图像，于Cell mask选择对应的标签图像。对第二个视野重复同样操作。测量荧光时请使用原始强度图像。"
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "检查两行后，选择测量设置。本例使用一个工作进程、一像素的最小细胞大小，并且不保存PNG裁剪图。如果适合您的实验，可以提高大小下限以排除小对象。点击Measure。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1605,11 +1822,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "检查两行后，选择测量设置。本例使用一个工作进程、一像素的最小细胞大小，并且不保存PNG裁剪图。如果适合您的实验，可以提高大小下限以排除小对象。点击Measure。"
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "测量完成后，打开输出文件夹。measurements文件夹中有measurements.db，其中包含两个视野的对象特征。把数据库与其源图像、掩膜和设置放在一起，然后关闭Features返回编辑。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1619,67 +1837,77 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "测量完成后，打开输出文件夹。measurements文件夹中有测量数据库文件，其中包含两个视野的对象特征。把数据库与其源图像、掩膜和设置放在一起，然后关闭Features返回编辑。"
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "根据要做的修正选择工具。Brush添加像素，Erase删除像素，Erase object删除整个标签。Draw添加一个勾勒出的对象；Divide把一个对象分开。修改之前，可以用Zoom检查边界。",
           "hold_after": 0.7,
           "focus": [
             345,
             195,
             2500,
             65
-          ]
+          ],
+          "speech_text": "根据要做的修正选择工具。Brush添加像素，Erase删除像素，Erase object删除整个标签。Draw添加一个勾勒出的对象；Divide把一个对象分开。修改之前，可以用Zoom检查边界。"
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
-          "hold_after": 0.7
+          "narration": "选择Erase object，然后在要删除的对象内部点击。检查更新后的轮廓和对象数量。这适用于不需要的标签，例如碎片或不符合分析标准的对象。",
+          "hold_after": 0.7,
+          "speech_text": "选择Erase object，然后在要删除的对象内部点击。检查更新后的轮廓和对象数量。这适用于不需要的标签，例如碎片或不符合分析标准的对象。"
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
-          "hold_after": 0.7
+          "narration": "点击Undo恢复被删除的对象。Redo会再次执行删除。使用这些历史控件比较编辑前后的掩膜，然后回到您想保留的版本。",
+          "hold_after": 0.7,
+          "speech_text": "点击Undo恢复被删除的对象。Redo会再次执行删除。使用这些历史控件比较编辑前后的掩膜，然后回到您想保留的版本。"
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
-          "hold_after": 0.7
+          "narration": "选择Draw，围绕一个遗漏的对象画出闭合边界。编辑器会用新标签填充它。在这个练习步骤中，轮廓画在背景上，所以保存前请撤销它。制作训练数据时，请沿对象的真实边界描画。",
+          "hold_after": 0.7,
+          "speech_text": "选择Draw，围绕一个遗漏的对象画出闭合边界。编辑器会用新标签填充它。在这个练习步骤中，轮廓画在背景上，所以保存前请撤销它。制作训练数据时，请沿对象的真实边界描画。"
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
-          "hold_after": 0.7
+          "narration": "当两个相互接触的对象共用一个标签时，使用Divide。画一条穿过整个相连区域的切线，然后检查分开后的标签。如果切线穿过了单个对象或留下错误的边界，请撤销这次分割。",
+          "hold_after": 0.7,
+          "speech_text": "当两个相互接触的对象共用一个标签时，使用Divide。画一条穿过整个相连区域的切线，然后检查分开后的标签。如果切线穿过了单个对象或留下错误的边界，请撤销这次分割。"
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
-          "hold_after": 0.7
+          "narration": "调整Display percentiles，让暗淡的结构更容易检查。这些控件只改变显示，原始强度值和标签保持不变。比较不同视野时，请恢复一致的显示设置。",
+          "hold_after": 0.7,
+          "speech_text": "调整Display percentiles，让暗淡的结构更容易检查。这些控件只改变显示，原始强度值和标签保持不变。比较不同视野时，请恢复一致的显示设置。"
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
-          "hold_after": 0.7
+          "narration": "设置对象的最小和最大面积，然后按Filter删除超出范围的标签。选择适合您对象的范围，并检查删除了哪些对象。过滤会修改掩膜，如果阈值删掉了有用的对象，请使用Undo。",
+          "hold_after": 0.7,
+          "speech_text": "设置对象的最小和最大面积，然后按Filter删除超出范围的标签。选择适合您对象的范围，并检查删除了哪些对象。过滤会修改掩膜，如果阈值删掉了有用的对象，请使用Undo。"
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
-          "hold_after": 0.7
+          "narration": "检查完编辑后，点击Save mask。如有需要，在切换到其他视野之前，把大小范围重设为零以禁用它们。保留源图像，并把保存的整理记录与编辑后的掩膜放在一起。",
+          "hold_after": 0.7,
+          "speech_text": "检查完编辑后，点击Save mask。如有需要，在切换到其他视野之前，把大小范围重设为零以禁用它们。保留源图像，并把保存的整理记录与编辑后的掩膜放在一起。"
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "标题栏中还有其余的掩膜工具。选择权重时，Model Zoo帮您找到权重，Model Compare把两组掩膜并排比较。还有更多示例需要修正时，Curate和Open in napari会带您回到编辑。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ]
+          ],
+          "speech_text": "标题栏中还有其余的掩膜工具。选择权重时，Model Zoo帮您找到权重，Model Compare把两组掩膜并排比较。还有更多示例需要修正时，Curate和Open in napari会带您回到编辑。"
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "标题栏还可以打开Model Compare、Model Zoo、Curate和Open in napari。用Model Compare并排检查掩膜，用Model Zoo选择权重，用整理工具审阅或编辑更多示例。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1687,59 +1915,108 @@
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ]
+          ],
+          "speech_text": "标题栏还可以打开Model Compare、Model Zoo、Curate和Open in napari。用Model Compare并排检查掩膜，用Model Zoo选择权重，用整理工具审阅或编辑更多示例。"
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
-          "hold_after": 0.7
+          "narration": "选择Recrop，拖出一个方框，框住您想放进较小训练视野中的对象。这会写出一张新图像和对应的掩膜。被边界切到的对象会被丢弃，所以请在完整对象周围留出空间，并检查裁剪结果。",
+          "hold_after": 0.7,
+          "speech_text": "选择Recrop，拖出一个方框，框住您想放进较小训练视野中的对象。这会写出一张新图像和对应的掩膜。被边界切到的对象会被丢弃，所以请在完整对象周围留出空间，并检查裁剪结果。"
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "点击Next打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "点击Next打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。"
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
-          "hold_after": 0.7
+          "narration": "要在当前视野中检测对象，请选择Cellpose模型并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。",
+          "hold_after": 0.7,
+          "speech_text": "要在当前视野中检测对象，请选择塞尔波斯模型并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。"
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
-          "hold_after": 0.7
+          "narration": "点击Object detection，把得到的轮廓与图像进行比较。这里模型选中了左上角的不完整对象，而不是中央的细胞。撤销这次替换，调整模型设置后再试一次。",
+          "hold_after": 0.7,
+          "speech_text": "点击Object detection，把得到的轮廓与图像进行比较。这里模型选中了左上角的不完整对象，而不是中央的细胞。撤销这次替换，调整模型设置后再试一次。"
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
-          "hold_after": 0.7
+          "narration": "打开Cell probability检查前景得分图。可以借此看出模型支持哪些区域。必要时调整前景阈值，然后再次运行检测以得到新结果。",
+          "hold_after": 0.7,
+          "speech_text": "打开Cell probability检查前景得分图。可以借此看出模型支持哪些区域。必要时调整前景阈值，然后再次运行检测以得到新结果。"
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
-          "hold_after": 0.7
+          "narration": "打开Flows检查方向视图。流一致性阈值决定保留哪些检测到的对象：数值越低越严格，设为零则关闭此项检查。每次更改设置后，都要比较最终的掩膜。",
+          "hold_after": 0.7,
+          "speech_text": "打开Flows检查方向视图。流一致性阈值决定保留哪些检测到的对象：数值越低越严格，设为零则关闭此项检查。每次更改设置后，都要比较最终的掩膜。"
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
-          "hold_after": 0.7
+          "narration": "Undo会恢复检测之前的标签。保留最贴合图像的掩膜，然后保存。继续处理其余视野，在纳入训练之前检查每个结果。",
+          "hold_after": 0.7,
+          "speech_text": "Undo会恢复检测之前的标签。保留最贴合图像的掩膜，然后保存。继续处理其余视野，在纳入训练之前检查每个结果。"
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "把整理好的图像和同名掩膜放在一起。使用Train Cellpose从这些图像对中学习，或者回到Features或Measure提取测量数据。相关教程会介绍每个后续步骤。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
-          ]
+          ],
+          "speech_text": "把整理好的图像和同名掩膜放在一起。使用Train 塞尔波斯从这些图像对中学习，或者回到Features或Measure提取测量数据。相关教程会介绍每个后续步骤。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1949,212 +2226,209 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "时间序列追踪",
+      "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
-      "section": "核心模块",
+      "section": "Core",
       "host_app_key": "mask",
-      "description": "从 Mask 内嵌流程运行八帧合成示例，并在 Track preview 中比较实际掩膜的连接。",
+      "description": "在时间序列中关联对象，检查它们的轨迹，并为测量准备已跟踪的图像。",
       "objectives": [
-        "在 Mask 中找到 Timelapse，保留时间轴和原始图像。",
-        "在相同掩膜上比较初始、碎片化和恢复后的轨迹。",
-        "区分追踪指标、播放速度、模型推理与实测生物运动。"
+        "在Track preview中加载示例图像和掩膜。",
+        "调整重叠并检查各帧之间的对象身份。",
+        "配置用于时间序列的Mask运行，并找到其跟踪输出。"
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "在新文件夹中使用 Help > Demos > Timelapse demo：八个合成时间点，每帧256×256像素，细胞核通道0、细胞通道1。打开 Plot 和 Keep original images，保留全部16个TIFF。ZIP只含这次运行的实际细胞图像与标签平面，不是采集数据或真实标注。分别选择 image_sequences/field_A01 和 label_sequences/field_A01，预览通道0、八帧、一个视野。阈值0.1得到16条完整轨迹，1.0得到128条单帧轨迹。恢复0.1后等待空闲，明确点击 Re-link；输入中间值可能触发计算。不要点击 Propagate settings，它不传递IoU阈值。保留并说明流阈值、关系表和设置状态警告。不声称生物学准确性或物理速度已验证。API：spacr.core.preprocess_generate_masks 和 spacr.timelapse。AI保持关闭。",
+      "prerequisite": "下载并解压SYNTHETIC_timelapse_preview.zip。这个教学示例包含八帧细胞图像及对应的标签图像。若要对自己的数据完整运行Mask，请准备按时间顺序排列的显微图像，并记录采集间隔。",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "打开 Mask，启用 Time 开关。Timelapse 现在嵌套在 Mask 中，不再是 Home 上的独立模块卡片。它为分割流程添加时间轴和追踪设置。运动性测量属于 Measure，是后续步骤。",
+          "narration": "从Home打开Mask，点击右上角的Timelapse图标开启跟踪。Timelapse用于在连续图像之间关联对象。我们先在Track preview中试用链接的示例，然后再查看处理您自己的图像序列所需的设置。",
           "hold_after": 0.7,
           "focus": [
-            3535,
-            1905,
-            280,
-            85
+            3708,
+            33,
+            126,
+            116
           ],
           "related_lessons": [
             "07_mask",
             "18_motility"
           ],
-          "speech_text": "打开 Mask，启用 Time 开关。Timelapse 现在嵌套在 Mask 中，不再是 主页 上的独立模块卡片。它为分割流程添加时间轴和追踪设置。运动性测量属于 Measure，是后续步骤。"
-        },
-        {
-          "visual": "03_actual_demo_menu",
-          "narration": "依次选择 Help、Demos 和 Timelapse demo，再选一个新文件夹。程序生成八帧含移动物体的合成图像，并加载相应设置。这些是教学图像，不是生物实验，也不是分割准确性的证据。",
-          "hold_after": 0.7,
-          "focus": [
-            70,
-            20,
-            535,
-            230
-          ],
-          "speech_text": "依次选择 Help、Demos 和 Timelapse demo，再选一个新文件夹。程序生成八帧含移动物体的合成图像，并加载相应设置。这些是教学图像，不是生物实验，也不是分割准确性的证据。"
-        },
-        {
-          "visual": "05_demo_loaded",
-          "narration": "检查自动填入的数据源和通道。这个示例的细胞核强度位于通道零，细胞强度位于通道一，没有病原体通道。文件名将时间与视野、通道分别编码。不要用普通静态测试板代替时间序列。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            175,
-            1185,
-            470
-          ],
-          "speech_text": "检查自动填入的数据源和通道。这个示例的细胞核强度位于通道零，细胞强度位于通道一，没有病原体通道。文件名将时间与视野、通道分别编码。不要用普通静态测试板代替时间序列。"
-        },
-        {
-          "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Frame limits 使用从零开始的切片边界：零到八包含全部八帧，但不包含终点。将同一视野的所有时间点保留在一起。播放帧率无法补上缺失的采集间隔，本示例也没有建立物理单位的速度。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1225,
-            1185,
-            300
-          ],
-          "speech_text": "Frame limits 使用从零开始的切片边界：零到八包含全部八帧，但不包含终点。将同一视野的所有时间点保留在一起。播放帧率无法补上缺失的采集间隔，本示例也没有建立物理单位的速度。"
-        },
-        {
-          "visual": "05_setting_timelapse_mode",
-          "narration": "使用名为 iou 的重叠模式追踪细胞。它根据相邻帧掩膜的交集与并集之比建立连接。其他后端有不同假设和可选依赖。位移设置不是重叠阈值；请使用所选后端实际读取的控制项。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1500,
-            1185,
-            490
-          ],
-          "speech_text": "使用名为 iou 的重叠模式追踪细胞。它根据相邻帧掩膜的交集与并集之比建立连接。其他后端有不同假设和可选依赖。位移设置不是重叠阈值；请使用所选后端实际读取的控制项。"
-        },
-        {
-          "visual": "05_setting_keep_original_images",
-          "narration": "点击 Run 前打开 Keep original images。否则清理过程可能删除中间图像和原始图像文件夹。本次录制完整保留十六个新生成的 TIFF，也不修改旧教程数据。实际采集的实验始终应另有独立备份。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1140,
-            1185,
-            300
-          ],
-          "speech_text": "点击 Run 前打开 Keep original images。否则清理过程可能删除中间图像和原始图像文件夹。本次录制完整保留十六个新生成的 TIFF，也不修改旧教程数据。实际采集的实验始终应另有独立备份。"
-        },
-        {
-          "visual": "05_setting_plot",
-          "narration": "打开 Plot，运行这个小示例。即使请求更小的批量，当前流程也会一起处理完整的八帧序列。观察控制台和资源监视器；更多帧、更大图像和更多物体可能需要高得多的内存。",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1070,
-            1185,
-            230
-          ],
-          "speech_text": "打开 Plot，运行这个小示例。即使请求更小的批量，当前流程也会一起处理完整的八帧序列。观察控制台和资源监视器；更多帧、更大图像和更多物体可能需要高得多的内存。"
-        },
-        {
-          "visual": "08_actual_figure_04",
-          "narration": "运行生成五幅图和八个合并数组。在这个归一化显示中，前两个平面是强度，后两个是细胞和细胞核标签，并非额外采集通道。保存的细胞表包含十六条轨迹，每条覆盖八帧。",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            140,
-            2370,
-            355
-          ],
-          "speech_text": "运行生成五幅图和八个合并数组。在这个归一化显示中，前两个平面是强度，后两个是细胞和细胞核标签，并非额外采集通道。保存的细胞表包含十六条轨迹，每条覆盖八帧。"
-        },
-        {
-          "visual": "07_actual_finished",
-          "narration": "除了 Finished，也要阅读警告。此版本会提示继承的流阈值、不可用的关系表以及设置状态问题。我们单独验证了保存的掩膜和轨迹；这不代表版本测试完全无异常，也不能代替运行 Measure。",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            500,
-            2370,
-            1260
-          ],
-          "speech_text": "除了 Finished，也要阅读警告。此版本会提示继承的流阈值、不可用的关系表以及设置状态问题。我们单独验证了保存的掩膜和轨迹；这不代表版本测试完全无异常，也不能代替运行 Measure。"
+          "speech_text": "从主页打开Mask，点击右上角的Timelapse图标开启跟踪。Timelapse用于在连续图像之间关联对象。我们先在Track preview中试用链接的示例，然后再查看处理您自己的图像序列所需的设置。"
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "打开 Track preview。为复现连接练习，请下载并解压下方链接的合成预览压缩包。它含有这次录制批次的精确细胞图像与掩膜平面。加载已有掩膜可以测试连接，而不再运行分割模型。",
+          "narration": "下载并解压下方的示例压缩包，然后点击Actions标题右侧的Track preview。压缩包包含一个八帧的图像序列和对应的掩膜序列。请把两个文件夹放在一起，以便选择相互对应的图像和标签。",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            360,
+            230,
+            3480,
+            1900
           ],
-          "speech_text": "打开 Track preview。为复现连接练习，请下载并解压下方链接的合成预览压缩包。它含有这次录制批次的精确细胞图像与掩膜平面。加载已有掩膜可以测试连接，而不再运行分割模型。"
+          "speech_text": "下载并解压下方的示例压缩包，然后点击Actions标题右侧的Track preview。压缩包包含一个八帧的图像序列和对应的掩膜序列。请把两个文件夹放在一起，以便选择相互对应的图像和标签。"
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "选择视野 A 零一的图像序列文件夹。导出的图像仅含原始细胞强度平面，因此这里选择通道零。将图像序列与标签序列放在不同父文件夹中，并把 Frames previewed 设为八，Fields 设为一。",
+          "narration": "选择image_sequences，再选择field_A01作为图像文件夹。选择通道零：每张示例图像只包含一个细胞强度通道。把Frames previewed设为八，Fields设为一。",
           "hold_after": 0.7,
-          "speech_text": "选择视野 A 零一的图像序列文件夹。导出的图像仅含原始细胞强度平面，因此这里选择通道零。将图像序列与标签序列放在不同父文件夹中，并把 Frames previewed 设为八，Fields 设为一。"
+          "speech_text": "选择image_sequences，再选择field_A01作为图像文件夹。选择通道零：每张示例图像只包含一个细胞强度通道。把Frames previewed设为八，Fields设为一。"
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "通过 Masks 选择对应的标签序列文件夹。这些是计算得到的掩膜，不是真实标注。保持 Keep only full-length tracks 关闭，不要点击 Propagate settings。读取已有掩膜序列时，模型控制项不会创建新掩膜。",
+          "narration": "点击Masks，选择label_sequences，再选择field_A01。每个标签标识对应图像中的一个对象。一开始请保持Keep only full-length tracks关闭，以便检查在序列中途开始或结束的轨迹。",
           "hold_after": 0.7,
-          "speech_text": "通过 Masks 选择对应的标签序列文件夹。这些是计算得到的掩膜，不是真实标注。保持 Keep only full-length tracks 关闭，不要点击 Propagate settings。读取已有掩膜序列时，模型控制项不会创建新掩膜。"
+          "speech_text": "点击Masks，选择label_sequences，再选择field_A01。每个标签标识对应图像中的一个对象。一开始请保持Keep only full-length tracks关闭，以便检查在序列中途开始或结束的轨迹。"
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "将重叠阈值设为零点一并运行预览。示例显示十六条八帧轨迹，没有短轨迹。碎片化和跳跃数是在没有真实标注的情况下计算的指标；数值小本身并不能证明生物学身份正确。",
+          "narration": "把重叠阈值设为零点一，然后点击Run preview。这个阈值控制相邻掩膜需要重叠多少才会被关联。检查彩色的对象身份和轨迹长度汇总。这个示例产生十六条轨迹，覆盖全部八帧。",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            800
+            379,
+            307,
+            3432,
+            958
           ],
-          "speech_text": "将重叠阈值设为零点一并运行预览。示例显示十六条八帧轨迹，没有短轨迹。碎片化和跳跃数是在没有真实标注的情况下计算的指标；数值小本身并不能证明生物学身份正确。"
-        },
-        {
-          "visual": "13_actual_strict_overlap",
-          "narration": "把重叠阈值提高到一。要求完全重叠，会将这个移动示例拆成一百二十八条单帧轨迹。图像和掩膜都没有改变，只有连接发生变化。这个刻意过高的值用于演示碎片化，不是推荐的分析设置。",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ],
-          "speech_text": "把重叠阈值提高到一。要求完全重叠，会将这个移动示例拆成一百二十八条单帧轨迹。图像和掩膜都没有改变，只有连接发生变化。这个刻意过高的值用于演示碎片化，不是推荐的分析设置。"
+          "speech_text": "把重叠阈值设为零点一，然后点击Run preview。这个阈值控制相邻掩膜需要重叠多少才会被关联。检查彩色的对象身份和轨迹长度汇总。这个示例产生十六条轨迹，覆盖全部八帧。"
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "恢复零点一，等待当前预览完成，然后点击 Re-link。输入过程可能先用中间值启动计算，因此要明确确认最终计算。十六条完整轨迹会恢复。不要点击 Propagate settings，因为重叠阈值不会传到批处理表单。",
+          "narration": "如果对象被拆成短轨迹，或关联到了错误的邻近对象，请调整重叠阈值。阈值越高，要求的重叠越多。修改后，等待预览完成，再点击Re-link检查最终数值。接受结果之前，请来回查看几帧。",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            379,
+            307,
+            3432,
+            958
           ],
-          "speech_text": "恢复零点一，等待当前预览完成，然后点击 Re-link。输入过程可能先用中间值启动计算，因此要明确确认最终计算。十六条完整轨迹会恢复。不要点击 Propagate settings，因为重叠阈值不会传到批处理表单。"
+          "speech_text": "如果对象被拆成短轨迹，或关联到了错误的邻近对象，请调整重叠阈值。阈值越高，要求的重叠越多。修改后，等待预览完成，再点击Re-link检查最终数值。接受结果之前，请来回查看几帧。"
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "把滑块移到第八帧，检查已连接物体。播放速度只改变观看速度，不改变采集时间。随后在 Measure 和 Motility 中使用经过验证的间隔与尺度进行测量。API 和 spaCR AI 可以解释设置，但不能代替检查图像、轨迹和警告。",
+          "narration": "使用帧滑块在整个序列中跟随同一个对象。Play改变浏览帧的速度。请另外记录实际的采集间隔，以便之后测量速度。",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            1250,
-            2370,
-            320
+            379,
+            860,
+            3432,
+            1100
           ],
           "related_lessons": [
             "08_measure",
             "18_motility",
             "06_api"
           ],
-          "speech_text": "把滑块移到第八帧，检查已连接物体。播放速度只改变观看速度，不改变采集时间。随后在 Measure 和 Motility 中使用经过验证的间隔与尺度进行测量。API 和 斯佩克尔 AI 可以解释设置，但不能代替检查图像、轨迹和警告。"
+          "speech_text": "使用帧滑块在整个序列中跟随同一个对象。Play改变浏览帧的速度。请另外记录实际的采集间隔，以便之后测量速度。"
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "narration": "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这段录制导入了一个八帧小型合成序列的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            230,
+            1160,
+            1900
+          ],
+          "speech_text": "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这段录制导入了一个八帧小型合成序列的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。"
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "narration": "选择要跟踪的对象和跟踪模式。重叠模式iou利用相邻帧中的掩膜关联对象。先检查一段短序列，再根据对象在帧与帧之间移动的距离选择合适的模式。",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1480,
+            1160,
+            640
+          ],
+          "speech_text": "选择要跟踪的对象和跟踪模式。重叠模式iou利用相邻帧中的掩膜关联对象。先检查一段短序列，再根据对象在帧与帧之间移动的距离选择合适的模式。"
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "narration": "打开Keep original images，以便在流程清理期间保留输入图像。为您的数据设置分割模型和通道，并在处理完整序列之前检查预览。",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1260,
+            1160,
+            160
+          ],
+          "speech_text": "打开Keep original images，以便在流程清理期间保留输入图像。为您的数据设置分割模型和通道，并在处理完整序列之前检查预览。"
+        },
+        {
+          "visual": "05_setting_plot",
+          "narration": "打开Plot以便检查生成的图，然后点击Run。在控制台中查看进度并等待完成。先从短序列开始，这样可以在处理更大的实验之前检查掩膜和轨迹身份。",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1100,
+            1160,
+            140
+          ],
+          "speech_text": "打开Plot以便检查生成的图，然后点击Run。在控制台中查看进度并等待完成。先从短序列开始，这样可以在处理更大的实验之前检查掩膜和轨迹身份。"
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "narration": "在输出图中检查强度层和标签层。运行结果会保存在项目文件夹中：已跟踪的数组在merged中，轨迹表在tracks中。继续使用Measure，然后使用Motility，从这些轨迹中计算对象特征和运动。",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            171,
+            3458,
+            1797
+          ],
+          "speech_text": "在输出图中检查强度层和标签层。运行结果会保存在项目文件夹中：已跟踪的数组在merged中，轨迹表在tracks中。继续使用Measure，然后使用Motility，从这些轨迹中计算对象特征和运动。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "18_motility",
@@ -3142,21 +3416,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay：对外部染色和总染色打分",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "映射两个染色通道，选择染色基线，运行分析，并检查入侵判定和阈值敏感性。",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "选择测量数据库，并映射外部染色和总染色。",
+        "设置基线孔和阈值控制，然后运行分析。",
+        "检查分布、每孔分母以及保存的结果表。"
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "解压链接的合成Invasion Assay示例，并使用其设置参考。数据库包含1,800条合成的寄生虫测量数据；条件名称和结果仅作示意。对于您自己的检测，请使用经过验证的双色染色设计：通透化之前做外部染色，之后做总染色，并检查有代表性的图像。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "从Home打开Toxoplasma，然后选择Invasion Assay。先准备一个测量数据库，其中包含寄生虫在外部染色和总染色下的强度。使用链接的合成样本练习通道映射、阈值选择和结果检查。",
           "focus": [
             346,
             50,
@@ -3166,99 +3440,108 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Toxoplasma，然后选择Invasion Assay。先准备一个测量数据库，其中包含寄生虫在外部染色和总染色下的强度。使用链接的合成样本练习通道映射、阈值选择和结果检查。"
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "解压样本，把Source设为其中的invasion文件夹，该文件夹包含measurements/measurements.db。输入随附的设置参考，并替换其中Source的占位值。样本包含基线孔和两种检测条件。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "解压样本，把Source设为其中的invasion文件夹，该文件夹包含measurements/测量数据库文件。输入随附的设置参考，并替换其中Source的占位值。样本包含基线孔和两种检测条件。"
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "把Outside channel设为一，Total channel设为零。外部染色在通透化之前进行，总染色在之后进行。外部染色阳性的寄生虫被归为附着，处于外部阈值或低于该阈值的被归为已入侵。使用您自己的测量数据时，请检查采集通道的顺序。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Outside channel设为一，Total channel设为零。外部染色在通透化之前进行，总染色在之后进行。外部染色阳性的寄生虫被归为附着，处于外部阈值或低于该阈值的被归为已入侵。使用您自己的测量数据时，请检查采集通道的顺序。"
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "在Intensity statistic中选择mean，以匹配示例数据库中的列。对于您自己的检测，请选择适合该染色的可用统计量，并检查有代表性的对象。本样本请将Minimum total intensity保持为一百。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "在Intensity statistic中选择mean，以匹配示例数据库中的列。对于您自己的检测，请选择适合该染色的可用统计量，并检查有代表性的对象。本样本请将Minimum total intensity保持为一百。"
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "使用c1，把Stain baseline wells设为第一列。这些阴性染色的测量值用来确定阈值，并从检测的分母中排除。在Pathogen plate metadata中，把vehicle映射到第二列，把inhibitor映射到第三列。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "使用c1，把Stain baseline wells设为第一列。这些阴性染色的测量值用来确定阈值，并从检测的分母中排除。在Pathogen plate metadata中，把vehicle映射到第二列，把inhibitor映射到第三列。"
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "把Control quantile设为零点九九，固定的Outside threshold保持不设。这样由基线测量值决定阈值，本例中约为二十二点八。解释分类结果之前，请在输出中检查实际应用的阈值。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Control quantile设为零点九九，固定的Outside threshold保持不设。这样由基线测量值决定阈值，本例中约为二十二点八。解释分类结果之前，请在输出中检查实际应用的阈值。"
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "把Threshold sensitivity设为零点二五。这样还会评估比所选阈值低和高百分之二十五的阈值。比较得到的入侵效率范围，看看结果在多大程度上取决于阈值的选择。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Threshold sensitivity设为零点二五。这样还会评估比所选阈值低和高百分之二十五的阈值。比较得到的入侵效率范围，看看结果在多大程度上取决于阈值的选择。"
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "对于本样本，把Extracellular class设为classify。对于没有关联宿主细胞的对象，classify依据染色判断，attached把它们归为附着，exclude则把它们从打分群体中移除。请结合宿主细胞分配的质量来选择这项设置。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "对于本样本，把Extracellular class设为classify。对于没有关联宿主细胞的对象，classify依据染色判断，attached把它们归为附着，exclude则把它们从打分群体中移除。请结合宿主细胞分配的质量来选择这项设置。"
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "保持Save开启，然后点击Run。处理完成后，打开阈值图。它显示各孔的分布和实际应用的阈值。在实际实验中，请把这些分布与有代表性的染色图像进行比较，并排查外部染色较弱的情况。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "保持Save开启，然后点击Run。处理完成后，打开阈值图。它显示各孔的分布和实际应用的阈值。在实际实验中，请把这些分布与有代表性的染色图像进行比较，并排查外部染色较弱的情况。"
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "如果图例超出了图的范围，请打开Figure settings。在axes选项卡中，把Legend position设为best，然后确认。检查标签在屏幕上的图和导出的图中都清晰可见。",
           "focus": [
             1420,
             330,
@@ -3268,33 +3551,36 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "如果图例超出了图的范围，请打开Figure settings。在axes选项卡中，把Legend position设为best，然后确认。检查标签在屏幕上的图和导出的图中都清晰可见。"
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "打开每孔图。每根柱子显示附着和已入侵的比例，上方标有已打分的寄生虫数量。基线孔不包括在内。比较各孔时，请同时查看数量和比例。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开每孔图。每根柱子显示附着和已入侵的比例，上方标有已打分的寄生虫数量。基线孔不包括在内。比较各孔时，请同时查看数量和比例。"
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "打开条件汇总。把合并计算的入侵比例与各孔的平均值进行比较，因为两者的加权方式不同。在比较不同条件之前，请检查每孔结果的变异。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开条件汇总。把合并计算的入侵比例与各孔的平均值进行比较，因为两者的加权方式不同。在比较不同条件之前，请检查每孔结果的变异。"
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "所有结果都保存在Source中的results/analyze_invasion里。parasite_calls.csv记录每个寄生虫的判定，field_thresholds.csv记录判定所依据的阈值，well_invasion.csv记录每孔的比例，condition_summary.csv记录合并后的比较。请把图和设置与它们一起保存，并在独立的重复实验之间比较各条件。",
           "focus": [
             1510,
             1200,
@@ -3305,7 +3591,8 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "所有结果都保存在Source中的results/analyze_invasion里。parasite_calls.csv记录每个寄生虫的判定，field_thresholds.csv记录判定所依据的阈值，well_invasion.csv记录每孔的比例，condition_summary.csv记录合并后的比较。请把图和设置与它们一起保存，并在独立的重复实验之间比较各条件。"
         }
       ],
       "example_files": [
@@ -3314,6 +3601,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3321,21 +3648,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay：统计每个液泡中的寄生虫数",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "加载寄生虫测量数据，选择液泡标识，运行分析，并检查计数分布和导出结果。",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "选择测量数据库及其液泡标识符。",
+        "设置宿主分配和大小过滤条件，然后运行分析。",
+        "阅读每孔分布，并找到保存的结果表。"
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "解压链接的合成Replication Assay示例。其中包含一个测量数据库和一份设置参考，共有分布在十二个孔、480个液泡中的1,992行寄生虫数据。条件名称和测量值是教学数据。对于您自己的检测，请使用已检查液泡分配的寄生虫测量数据，并安排独立的实验重复。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "从Home打开Toxoplasma，然后选择Replication Assay。先准备一个包含寄生虫行及其液泡分配的测量数据库。链接的合成示例可以让您练习这些设置，并阅读得到的计数分布。",
           "focus": [
             346,
             50,
@@ -3345,121 +3672,132 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "从主页打开Toxoplasma，然后选择Replication Assay。先准备一个包含寄生虫行及其液泡分配的测量数据库。链接的合成示例可以让您练习这些设置，并阅读得到的计数分布。"
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "解压样本，把Source设为其中的replication文件夹。数据库位于measurements中。输入随附的设置参考，把其中Source的占位值替换为您解压后的文件夹。保持Save开启以写出结果。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "解压样本，把Source设为其中的replication文件夹。数据库位于measurements中。输入随附的设置参考，把其中Source的占位值替换为您解压后的文件夹。保持Save开启以写出结果。"
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "把Vacuole key设为vacuole_id。这样会按照寄生虫所属的液泡进行分组。样本中每个宿主细胞组有两个液泡，所以请使用液泡标识符把这些计数分开。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Vacuole key设为vacuole_id。这样会按照寄生虫所属的液泡进行分组。样本中每个宿主细胞组有两个液泡，所以请使用液泡标识符把这些计数分开。"
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "开启Require host cell，只纳入与宿主细胞关联的寄生虫。使用自己的数据时，请检查未分配的对象。对于本样本，把Minimum parasite area设为二百，把Maximum parasite area设为八百。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "开启Require host cell，只纳入与宿主细胞关联的寄生虫。使用自己的数据时，请检查未分配的对象。对于本样本，把Minimum parasite area设为二百，把Maximum parasite area设为八百。"
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "把Maximum parasites per vacuole设为十六。这设定了按二的幂命名的最大类别。更大的二的幂计数会归入溢出类别，而像三这样的计数则留在单独的非二的幂类别中。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Maximum parasites per vacuole设为十六。这设定了按二的幂命名的最大类别。更大的二的幂计数会归入溢出类别，而像三这样的计数则留在单独的非二的幂类别中。"
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "输入vehicle和inhibitor作为两个Pathogen types，并在Pathogen plate metadata中把它们分别映射到第一列和第二列。每组包含六个练习孔。对于您的实验，请根据板布局输入条件名称和孔的分配。",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "输入vehicle和inhibitor作为两个Pathogen types，并在Pathogen plate metadata中把它们分别映射到第一列和第二列。每组包含六个练习孔。对于您的实验，请根据板布局输入条件名称和孔的分配。"
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "检查Source、Vacuole key、过滤条件和Save，然后点击Run。在控制台中跟踪进度，直到处理完成。Figures区域将显示按孔和按条件的分布。",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "检查Source、Vacuole key、过滤条件和Save，然后点击Run。在控制台中跟踪进度，直到处理完成。Figures区域将显示按孔和按条件的分布。"
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "打开每孔图。每根堆叠柱显示各寄生虫计数类别中液泡所占的比例。请对照图例阅读颜色。在本样本中，每孔有四十个液泡，其中百分之五属于非二的幂类别。",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开每孔图。每根堆叠柱显示各寄生虫计数类别中液泡所占的比例。请对照图例阅读颜色。在本样本中，每孔有四十个液泡，其中百分之五属于非二的幂类别。"
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "打开Figure settings调整图例。如果标签超出了图的范围，请在axes选项卡中选择位于图内的Legend position。这只改变呈现方式，计算出的计数保持不变。",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ]
+          ],
+          "speech_text": "打开Figure settings调整图例。如果标签超出了图的范围，请在axes选项卡中选择位于图内的Legend position。这只改变呈现方式，计算出的计数保持不变。"
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "打开按条件的图，比较合并后的计数分布。查看这个汇总的同时，也请检查每孔的结果。分析实验时，请使用独立的生物学重复，并选择合适的实验单位进行统计比较。",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开按条件的图，比较合并后的计数分布。查看这个汇总的同时，也请检查每孔的结果。分析实验时，请使用独立的生物学重复，并选择合适的实验单位进行统计比较。"
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "阅读控制台中的任何导出警告。除了屏幕上的显示，也要检查保存的图，并选择在导出背景上仍然清晰可读的颜色。",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "阅读控制台中的任何导出警告。除了屏幕上的显示，也要检查保存的图，并选择在导出背景上仍然清晰可读的颜色。"
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Source中results/analyze_replication里的结果是逐层构建的。vacuole_counts.csv统计每个液泡，well_distribution.csv把这些计数转换为每个孔的分布，而按条件的汇总和图则把各孔合并起来。请把它们与设置和源数据库放在一起，以便追溯任何一个数字。",
           "focus": [
             346,
             170,
@@ -3470,7 +3808,8 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ]
+          ],
+          "speech_text": "Source中results/analyze_replication里的结果是逐层构建的。vacuole_counts.csv统计每个液泡，well_distribution.csv把这些计数转换为每个孔的分布，而按条件的汇总和图则把各孔合并起来。请把它们与设置和源数据库放在一起，以便追溯任何一个数字。"
         }
       ],
       "example_files": [
@@ -3479,6 +3818,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9515,17 +9894,150 @@
       "id": "71_investigate_hit",
       "number": 71,
       "slug": "investigate_hit",
-      "title": "调查命中",
+      "title": "Investigate Hit：从Regression的基因追溯到测量的细胞",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "结果与质量控制",
-      "description": "本教程尚未上线。请先浏览其他教程。",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "即将推出",
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "从Hit List把一个基因发送到Investigate Hit，添加测量数据库、单细胞预测和向导比例，然后阅读孔水平的证据。",
+      "objectives": [
+        "在Hit List中打开一次Regression运行，检查q值，并把一个基因发送到Investigate Hit。",
+        "选择测量数据库、细胞预测、向导比例和分数列。",
+        "阅读证据、孔、向导和阈值选项卡，并找到保存的表格。"
+      ],
+      "prerequisite": "解压Investigate_Hit_real_screen_example.zip。其中所有内容都来自同一次真实筛选：在Regression测试数据上的Regression运行（使用Regression教程中的设置）、对应的单细胞CV预测，以及包含这些细胞真实形状、大小和强度测量值的测量数据库。为了让下载更小，数据库包含52个孔：所有带有基因225160向导的已分析孔，以及每个孔对应的三个来自同一块板、不含该向导的孔。在这次快速Regression运行中，没有基因满足q ≤ 0.05。请把这次调查当作实例演示，而不是已确认的命中。",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "从Home打开Regression。Investigate Hit从一次已完成的Regression运行开始。它要回答的是：与某个基因相关的孔中所测量的细胞，看起来是否不同于不含该基因的孔中的细胞。",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Regression。Investigate Hit从一次已完成的Regression运行开始。它要回答的是：与某个基因相关的孔中所测量的细胞，看起来是否不同于不含该基因的孔中的细胞。"
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "选择Hits打开Hit List。先解压示例压缩包。其中包含一次在测试数据上的Regression运行、对应的单细胞CV预测，以及这些细胞的测量数据库。这三者都来自同一次真实筛选。",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "选择Hits打开Hit List。先解压示例压缩包。其中包含一次在测试数据上的Regression运行、对应的单细胞CV预测，以及这些细胞的测量数据库。这三者都来自同一次真实筛选。"
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "点击Browse，选择regression_run的results中的guide_permutation文件夹。这是Regression教程中测试数据运行的输出。",
+          "hold_after": 0.7,
+          "speech_text": "点击Browse，选择regression_run的results中的guide_permutation文件夹。这是Regression教程中测试数据运行的输出。"
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List对三百二十五个基因进行排序。请把每一行的效应、P值和q值放在一起阅读，同时查看向导数量以及其中有多少方向一致。",
+          "hold_after": 0.7,
+          "speech_text": "Hit List对三百二十五个基因进行排序。请把每一行的效应、P值和q值放在一起阅读，同时查看向导数量以及其中有多少方向一致。"
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "把Max q设为零点零五。表格会变空，因为这次运行中没有基因的q值小于或等于零点零五。在一百九十九次置换下，可能的最小P值是零点零零五，最低的q值约为零点二七。因此接下来检查的是一个排名靠前的候选，而不是已确认的命中。",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "把Max q设为零点零五。表格会变空，因为这次运行中没有基因的q值小于或等于零点零五。在一百九十九次置换下，可能的最小P值是零点零零五，最低的q值约为零点二七。因此接下来检查的是一个排名靠前的候选，而不是已确认的命中。"
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "把Max q改回一，搜索二二五一六零，然后选中它所在的行。它的效应为零点三四，q值为零点二七，三个向导的方向全部一致。",
+          "hold_after": 0.7,
+          "speech_text": "把Max q改回一，搜索二二五一六零，然后选中它所在的行。它的效应为零点三四，q值为零点二七，三个向导的方向全部一致。"
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "点击Investigate selected。Investigate Hit打开时，已根据这一行填好了结果文件夹、基因、它的三个向导和正向的效应方向。",
+          "hold_after": 0.7,
+          "speech_text": "点击Investigate selected。Investigate Hit打开时，已根据这一行填好了结果文件夹、基因、它的三个向导和正向的效应方向。"
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "在Measurements database旁点击Browse，选择示例中的measurements.db。它包含五十二个孔中八千九百一十五个细胞的形状、大小和各通道平均强度。",
+          "hold_after": 0.7,
+          "speech_text": "在Measurements database旁点击Browse，选择示例中的测量数据库文件。它包含五十二个孔中八千九百一十五个细胞的形状、大小和各通道平均强度。"
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "在Existing CV predictions中选择cv_predictions.csv。每一行是一个细胞保存的CV分数，对应同一个已测量对象。点击路径并按Enter，以读取分数列，然后保留pred作为表型分数列。",
+          "hold_after": 0.7,
+          "speech_text": "在Existing CV predictions中选择cv_predictions.csv。每一行是一个细胞保存的CV分数，对应同一个已测量对象。点击路径并按Enter，以读取分数列，然后保留pred作为表型分数列。"
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "在Well/guide fractions中，选择同一结果文件夹中的regression_data.csv。这张表由Regression写出，给出每个向导在每个已分析孔中的比例。",
+          "hold_after": 0.7,
+          "speech_text": "在Well/guide fractions中，选择同一结果文件夹中的regression_data.csv。这张表由Regression写出，给出每个向导在每个已分析孔中的比例。"
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Independent morphology features保持为空。这样模块会使用数据库中的十三项数值型细胞测量值，并排除标识符、向导比例和CV分数，因此这项检查不会重复使用该分数。对于您自己的数据库，请只列出没有缺失值的测量列。",
+          "hold_after": 0.7,
+          "speech_text": "Independent morphology features保持为空。这样模块会使用数据库中的十三项数值型细胞测量值，并排除标识符、向导比例和CV分数，因此这项检查不会重复使用该分数。对于您自己的数据库，请只列出没有缺失值的测量列。"
+        },
+        {
+          "visual": "12_running",
+          "narration": "点击Investigate hit。模型每次留出一块板进行拟合，因此任何细胞都不会被在其自身所在板上训练的模型打分。孔的向导比例只设定该孔细胞的初始预期，绝不会把某个细胞标记为携带该向导。这个示例需要几分钟。",
+          "hold_after": 0.7,
+          "speech_text": "点击Investigate hit。模型每次留出一块板进行拟合，因此任何细胞都不会被在其自身所在板上训练的模型打分。孔的向导比例只设定该孔细胞的初始预期，绝不会把某个细胞标记为携带该向导。这个示例需要几分钟。"
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。这些细胞不支持这个候选。",
+          "hold_after": 0.7,
+          "speech_text": "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。这些细胞不支持这个候选。"
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells列出每个孔的向导比例、平均类命中概率、流行率和细胞数量。每个孔算作一个独立单位，因此比较使用的是十三个目标孔和三十九个对照孔，而不是单个细胞。",
+          "hold_after": 0.7,
+          "speech_text": "Wells列出每个孔的向导比例、平均类命中概率、流行率和细胞数量。每个孔算作一个独立单位，因此比较使用的是十三个目标孔和三十九个对照孔，而不是单个细胞。"
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides分别显示每个目标向导。它们的剂量反应方向各不相同，这又是一个不把该基因当作命中的理由。",
+          "hold_after": 0.7,
+          "speech_text": "Guides分别显示每个目标向导。它们的剂量反应方向各不相同，这又是一个不把该基因当作命中的理由。"
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity在零点五到零点九的概率阈值下重复比较。在每个阈值下，差异都保持在零点零一左右，因此结论不取决于阈值。",
+          "hold_after": 0.7,
+          "speech_text": "Threshold sensitivity在零点五到零点九的概率阈值下重复比较。在每个阈值下，差异都保持在零点零一左右，因此结论不取决于阈值。"
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells按类命中概率对细胞排序，并显示原始分数以及为每个细胞打分的折。这些概率描述的是类似命中的形态，而不是细胞携带了哪个向导。只有当孔水平的证据令人信服时，才把判定提升到注释中。Undo可以撤销提升。",
+          "hold_after": 0.7,
+          "speech_text": "Candidate cells按类命中概率对细胞排序，并显示原始分数以及为每个细胞打分的折。这些概率描述的是类似命中的形态，而不是细胞携带了哪个向导。只有当孔水平的证据令人信服时，才把判定提升到注释中。Undo可以撤销提升。"
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "表格保存在结果文件夹中的hit_investigation下，再进入二二五一六零。其中包括这个嵌入和一份清单，每次运行也会作为新版本保存在数据库中。本示例没有裁剪图像，所以审阅图库是空的。接下来，请在置换次数更多的Regression运行中，调查一个通过您阈值的基因。",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "表格保存在结果文件夹中的hit_investigation下，再进入二二五一六零。其中包括这个嵌入和一份清单，每次运行也会作为新版本保存在数据库中。本示例没有裁剪图像，所以审阅图库是空的。接下来，请在置换次数更多的Regression运行中，调查一个通过您阈值的基因。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",
@@ -10079,126 +10591,151 @@
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS：当前界面与四幅图像的配准",
+      "title": "OPS: from sequencing images to cell barcodes",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "分割模型",
-      "description": "在Mask中找到OPS，随后查看基于四幅真实图像验证的配准与合成示例。这不是完成整板处理、细胞分割或条形码解码的工作流。",
+      "section": "Segmentation models",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
       "objectives": [
-        "找到OPS嵌套界面并理解示例的范围。",
-        "保留原始采集坐标，对四幅相邻图像进行配准。",
-        "检查重叠区域、覆盖图及保存的来源记录。"
+        "Open OPS inside Mask and load its example images and barcode library.",
+        "Choose the input and output folders and understand the main alignment and decoding settings.",
+        "Run OPS and inspect nucleus barcode assignments in the output database."
       ],
-      "prerequisite": "录像使用spaCR 1.5.0.7 nightly中的ops_layout、ops_stitch和ops_compose API，在CPU上运行。GUI的Run调用另一套旧引擎，本例不运行它。私有NAS来源：screenA/20200202_6W-LaC024A，sequencing/images/input/c1，站点0、1、10、11。需要合法授权访问；这不是公开测试下载，也不授予数据再分发权限。每个uint16 TIFF包含5个1480×1480像素的平面，DAPI位于第0平面。保留原始333站点布局。不要未经测量就把相同布局、重叠或阈值用于其他采集。请在原始数据目录之外选择新的输出目录。整孔处理、分割、跨周期配准、解码与生物学分析均不在本例验证范围内。",
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "光学混池筛选从相邻视野和重复成像周期中采集的图像开始。在spaCR中打开Mask，即可找到嵌套的OPS界面。本课展示它的位置，以及一个经过验证的小型图像配准示例。",
-          "focus_modules": [
-            "mask"
-          ],
-          "related_lessons": [
-            "05_home",
-            "07_mask"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "光学混池筛选从相邻视野和重复成像周期中采集的图像开始。在斯佩克尔中打开Mask，即可找到嵌套的OPS界面。本课展示它的位置，以及一个经过验证的小型图像配准示例。"
+          "visual": "01_mask_ops",
+          "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
+          "hold_after": 0.7
         },
         {
-          "visual": "gui_01_mask_host",
-          "narration": "使用Mask操作栏中的OPS开关。它会在主模块内部打开一个独立页面。OPS不是Home上的另一个入口卡片，也不同于处理测序读段文件的Map Barcodes工作流。",
+          "visual": "02_load_test_data",
+          "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
           "hold_after": 0.7,
-          "speech_text": "使用Mask操作栏中的OPS开关。它会在主模块内部打开一个独立页面。OPS不是主页上的另一个入口卡片，也不同于处理测序读段文件的Map Barcodes工作流。"
-        },
-        {
-          "visual": "gui_02_ops_settings",
-          "narration": "当前OPS页面提供输入、拼接、镶嵌图、配准和质量控制设置。Run按钮使用另一套旧引擎。这里不启动它，也不声称已经验证了完整筛选流程。接下来的步骤直接使用几何处理API。",
           "focus": [
-            340,
-            170,
-            1210,
-            1310
-          ],
-          "hold_after": 0.7,
-          "speech_text": "当前OPS页面提供输入、拼接、镶嵌图、配准和质量控制设置。Run按钮使用另一套旧引擎。这里不启动它，也不声称已经验证了完整筛选流程。接下来的步骤直接使用几何处理API。"
+            360,
+            480,
+            1150,
+            270
+          ]
         },
         {
-          "visual": "api_00_scope",
-          "narration": "这个CPU示例对现有采集中的四幅真实图像进行配准和合成。它不分割细胞、不解码条形码，也不处理整块板。原始采集不是随附的测试下载；精确复现需要获得这些文件的授权访问权限。",
-          "focus": [
-            200,
-            100,
-            3440,
-            800
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
+          "visual": "03_inputs",
+          "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
           "hold_after": 0.7,
-          "speech_text": "这个CPU示例对现有采集中的四幅真实图像进行配准和合成。它不分割细胞、不解码条形码，也不处理整块板。原始采集不是随附的测试下载；精确复现需要获得这些文件的授权访问权限。"
+          "focus": [
+            360,
+            530,
+            1150,
+            210
+          ]
         },
         {
-          "visual": "api_01_inputs",
-          "narration": "从第一个成像周期选择站点零、一、十和十一。每个原始文件有五个平面；第零平面是细胞核染色。保留原始三百三十三站点布局和站点编号。选出四幅图像，并不意味着创建了一个新的四视野孔布局。",
-          "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
+          "visual": "04_phenotype",
+          "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
           "hold_after": 0.7,
-          "speech_text": "从第一个成像周期选择站点零、一、十和十一。每个原始文件有五个平面；第零平面是细胞核染色。保留原始三百三十三站点布局和站点编号。选出四幅图像，并不意味着创建了一个新的四视野孔布局。"
+          "focus": [
+            360,
+            625,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_02_geometry",
-          "narration": "辅助脚本调用stitch_well，检查四个相邻重叠区域，然后调用compose_window。四幅图像均已放置，合成区域每边为两千七百五十六像素。本次采集的几何闭环误差不超过四分之一像素，但这不是对所有数据的精度保证。",
-          "focus": [
-            200,
-            100,
-            3440,
-            900
-          ],
+          "visual": "05_alignment",
+          "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
           "hold_after": 0.7,
-          "speech_text": "辅助脚本调用stitch_well，检查四个相邻重叠区域，然后调用compose_window。四幅图像均已放置，合成区域每边为两千七百五十六像素。本次采集的几何闭环误差不超过四分之一像素，但这不是对所有数据的精度保证。"
+          "focus": [
+            360,
+            795,
+            1150,
+            180
+          ]
         },
         {
-          "visual": "api_03_independent_checks",
-          "narration": "不要只相信放置结果。应独立于配准分数，比较真实重叠像素。这里正确配准后的相关性，明显高于把任一轴故意移动十七像素后的相关性。这些错误偏移对照有助于发现看似合理但实际上错误的放置。",
-          "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
+          "visual": "06_window_overlap",
+          "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
           "hold_after": 0.7,
-          "speech_text": "不要只相信放置结果。应独立于配准分数，比较真实重叠像素。这里正确配准后的相关性，明显高于把任一轴故意移动十七像素后的相关性。这些错误偏移对照有助于发现看似合理但实际上错误的放置。"
+          "focus": [
+            360,
+            945,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_05_geometry_figure",
-          "narration": "检查实际保存的图像和覆盖图。左侧显示合成的细胞核图像，右侧统计贡献图块的数量。零覆盖表示没有采集像素，而不是生物学背景。这里合并的是同一平面内的空间邻居，绝不混合不同测序周期。",
-          "focus": [
-            600,
-            390,
-            2630,
-            1400
-          ],
+          "visual": "07_base_channels",
+          "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
           "hold_after": 0.7,
-          "speech_text": "检查实际保存的图像和覆盖图。左侧显示合成的细胞核图像，右侧统计贡献图块的数量。零覆盖表示没有采集像素，而不是生物学背景。这里合并的是同一平面内的空间邻居，绝不混合不同测序周期。"
+          "focus": [
+            360,
+            1070,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_04_provenance",
-          "narration": "把数组、覆盖图、放置坐标、源文件校验和及运行报告一起保存。脚本重新读取输出，并确认四个原始文件都未改变。请把它视为可复现的几何处理检查点。完整的光学筛选教程仍需要分别验证后续阶段。",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
+          "visual": "08_read_settings",
+          "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
           "hold_after": 0.7,
-          "speech_text": "把数组、覆盖图、放置坐标、源文件校验和及运行报告一起保存。脚本重新读取输出，并确认四个原始文件都未改变。请把它视为可复现的几何处理检查点。完整的光学筛选教程仍需要分别验证后续阶段。"
+          "focus": [
+            360,
+            1115,
+            1150,
+            135
+          ]
+        },
+        {
+          "visual": "09_store_reads",
+          "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1220,
+            1150,
+            60
+          ]
+        },
+        {
+          "visual": "10_run",
+          "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1380,
+            1300,
+            520
+          ]
+        },
+        {
+          "visual": "11_output_folder",
+          "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+          "hold_after": 0.7,
+          "focus": [
+            1020,
+            480,
+            1800,
+            1200
+          ]
+        },
+        {
+          "visual": "12_barcode_table",
+          "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            280,
+            2100,
+            1700
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "78_spacr_screens",

@@ -1,32 +1,36 @@
 {
   "lesson": "72_volcano_explorer",
-  "english_sha256": "5f627353196b1e89c1f3953c924df4914b8aff572e09d847b8dab82d8556ebcd",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "973d0e47bf1648e4e05e8f2d5d91f1f5f7a03c7be083695151927f4a71b5648a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "de",
-  "title": "Volcano Explorer: vorhandene Ergebnisse prüfen und Figuren exportieren",
-  "description": "Das echte Regression-Beispiel untersuchen, Steuerelemente synchronisieren, Darstellungsschwellen von Tests trennen und Stile sowie Exporte sichern.",
+  "title": "Volcano Explorer: Ergebnisse prüfen und eine Abbildung speichern",
+  "description": "Laden Sie Regression-Ergebnisse, wählen Sie dargestellte Werte und Referenzlinien, speichern Sie dann einen wiederverwendbaren Stil und exportieren Sie die Abbildung.",
   "objectives": [
-    "Das verschachtelte Werkzeug mit einer einzigen Guide-Familie öffnen.",
-    "Anfangswerte durch Save style und Load style synchronisieren.",
-    "Identitäten, Achsen, Farben und Linien ohne erfundene neue Treffer lesen.",
-    "Einen Stil wiederherstellen und PDF sowie PNG prüfen."
+    "Eine Ergebnisfamilie öffnen und Guide-Identitäten und Unterstützung prüfen.",
+    "Adjustierte Werte, Darstellungstransformationen und Referenzlinien wählen.",
+    "Den Stil speichern und Abbildungen als PDF oder PNG exportieren."
   ],
-  "prerequisite": "Volcano_real_guide_family.zip entpacken, results öffnen. Unveränderte Ausgaben des Regression-Downloadbeispiels, keine neue Analyse oder vollständiges Archiv. Eine Familie: 434 Guides, log_pred, minimum_wells_threshold=2, Plus-eins-Permutations-P und BH-Korrektur. Kleinstes rohes P=.005, korrigiertes P=.39454545454545453; null signifikant bei ursprünglichem alpha=.05. Standardisierte marginale Effekte sind keine simultan geschätzten Koeffizienten oder log2-Änderungen. Anfangsfehler bleibt: Kontrollen 1e-6/0/False gegenüber Darstellung .05/3/True. Vor Bearbeitung Stil speichern und dieselbe Datei laden; später werden alle 67 Felder wiederhergestellt. Alpha .5 bringt 19 Werte unter die Schwelle, ändert aber keine Signifikanzkennzeichen. .05 und adjusted_p_value vor Export wiederherstellen. Effektschwelle .1 mal 3 ergibt Linien bei +/-0.3. Identitäten, Punkte, Farben und Quellen geprüft. Nominell 7×5 Zoll und 150 DPI, nach engem Beschnitt PDF 492.536×348.485 Punkte, PNG 1026×726 Pixel. Eingebettete Schriften, keine Rasterbilder im PDF, Lesbarkeit erneut geprüft. Einige GUI-Beschriftungen bleiben abgeschnitten; Warnung vor weißen Markerrändern auf hellem Papier. Annotationsverknüpfungen, Achsenbrüche und MAD-Regeln sind nicht geprüft. Aufnahme spaCR 1.5.0.4; drei relevante Quelldateien sind unverändert. Kein neuer Test, GPU, KI, App-Umbau, biologische Validierung oder Veröffentlichung. API: spacr.volcano_style.VolcanoStyle und render_volcano.",
+  "prerequisite": "Entpacken Sie Volcano_real_guide_family.zip und verwenden Sie den Ordner results. Er enthält 434 Guide-Ergebnisse aus dem Regression-Beispiel. Kein Guide unterschreitet die ursprüngliche Schwelle für adjustiertes P von 0,05. Die Effekte sind standardisierte marginale Effekte. Bewahren Sie die ursprüngliche Ergebnistabelle und die statistischen Schwellen zusammen mit der Abbildung auf.",
   "scenes": [
-    "Öffnen Sie Regression und den verschachtelten Volcano Explorer. Diese Lektion gehört zu den Regression-Untermodulen. Der Explorer liest fertige Ergebnisse und wiederholt die Analyse nicht. Wir verwenden das echte Downloadbeispiel; das Begleitarchiv enthält die exakten Ergebnistabellen und aufgezeichneten Figurenstile.",
-    "Wählen Sie Open results und den entpackten results-Ordner. Jeder Punkt ist ein Guide aus einer einzigen Familie von 434 Tests mit gleicher Zielgröße und Mindest-Well-Regel. Vermischen Sie keine Korrekturfamilien. Kein Guide ist bei der ursprünglichen korrigierten P-Schwelle 0,05 signifikant.",
-    "Vor jeder Einstellungsänderung speichern Sie mit Save style den tatsächlich gerenderten Stil und laden genau diese Datei mit Load style. Anfangs stimmen Kontrollen und Figur in dieser Version nicht überein; sofortiges Bearbeiten kann falsche Vorgaben übernehmen. Dieser normale Speicher-Lade-Umweg synchronisiert sie, behebt aber nicht den App-Fehler.",
-    "Prüfen Sie danach Alpha 0,05, Multiplikator drei und die negative Logarithmustransformation. Einige Beschriftungen sind abgeschnitten; kontrollieren Sie Werte und JSON. Die horizontale Achse zeigt den standardisierten marginalen Effekt, keine log2-fache Änderung und keinen Koeffizienten eines simultan angepassten multivariablen Modells.",
-    "Klicken Sie einen vorhandenen Punkt an, um die Quellzeile zu sehen. Der gewählte Guide hat rohes P=0,005, aber korrigiertes P ungefähr 0,39. Ein großer marginaler Effekt und vier unterstützende Wells machen ihn nicht signifikant. Verwenden Sie Identität und Quellfelder, statt nur die Punktlage zu deuten.",
-    "Der Wechsel der vertikalen Spalte zum rohen Permutations-P ändert die dargestellte Größe, nicht die Analyse. Kleine rohe Werte ersetzen keine familienkorrigierten Werte. Stellen Sie danach korrigiertes P wieder her. Die ursprünglichen Signifikanzkennzeichen bleiben gleich: Der Explorer liest und gestaltet, er führt keinen neuen Test aus.",
-    "Der Schalter für den negativen Zehnerlogarithmus ändert die P-Darstellung. Aktiviert erscheinen kleine P höher; deaktiviert werden die ursprünglichen Werte gezeigt. Hier stellen wir transformiertes korrigiertes P wieder her. Lesen Sie die Achse und verwechseln Sie diese Transformation nicht mit einer anderen Mehrfachtestkorrektur.",
-    "Zur Demonstration verschiebt Alpha 0,5 die Referenzlinie. Neunzehn korrigierte Werte liegen unter dieser neuen P-Schwelle, aber keiner erhält ein neues Signifikanzkennzeichen. Das sind keine neunzehn Entdeckungen. Stellen Sie vor Export oder Interpretation die ursprünglichen 0,05 wieder her.",
-    "Eine explizite Effektschwelle 0,1 mit Multiplikator drei setzt vertikale Linien bei minus und plus 0,3. Prüfen Sie den Multiplikator, nicht nur das Schwellenfeld. Eine Effektgrenze ersetzt keine statistische Korrektur. Stellen Sie Auto wieder her; keine Werte der Ergebnistabelle werden überschrieben.",
-    "Färbung nach wells with guide zeigt die echte Unterstützung aus der Tabelle. Sie ist weder Vertrauenswert noch Genauigkeitsbeleg. Kehren Sie vor dem Export zu den ursprünglichen Signifikanzfarben zurück. Optionale Annotationsverknüpfungen und andere Layouts benötigen eigene Prüfungen und liegen außerhalb dieses Beispiels.",
-    "Stellen Sie Figurengröße, Schriftgrößen und Auflösung ein und prüfen Sie das Ergebnis. Hier werden nominell sieben mal fünf Zoll bei 150 Punkten pro Zoll gewählt. Enger Beschnitt verändert die Endmaße. Ein lesbarer Export beweist nicht, dass alle nativen Einstellungsbeschriftungen in dieses Fenster passen.",
-    "Speichern Sie den endgültigen Stil als JSON. Nach einer vorübergehenden Markergrößenänderung stellt Load style jedes Feld wieder her. Bewahren Sie ihn zusammen mit der Originaltabelle auf, um das Aussehen zu reproduzieren. Stile beschreiben Präsentation, nicht die Ausführung einer anderen Regression oder eines neuen Tests.",
-    "Export PDF und PNG rendern neu, statt den Bildschirm aufzunehmen. Unser PDF enthält Vektormarken und eingebettete Schriften; prüfen Sie Beschriftungen, Kontrast und die Warnung vor weißen Markerrändern auf hellem Papier. Originaldaten bleiben unverändert. Python bietet VolcanoStyle und render_volcano für dieselbe Darstellung ohne GPU oder KI-Anbieter."
+    "Öffnen Sie von Home aus Regression und dann Volcano Explorer. Entpacken Sie das verlinkte Beispielarchiv, bevor Sie die darzustellenden Ergebnistabellen wählen.",
+    "Klicken Sie auf Open results und wählen Sie den entpackten Ordner results. Jeder Punkt steht für einen Guide in dieser Familie von 434 Tests. Halten Sie verschiedene Korrekturfamilien getrennt.",
+    "Klicken Sie auf Save style, um die anfänglichen Abbildungseinstellungen zu speichern, dann auf Load style und wählen Sie diese Datei. So haben Sie einen gespeicherten Ausgangspunkt mit passenden Steuerelementen, bevor Sie die Abbildung bearbeiten.",
+    "Prüfen Sie alpha bei 0,05, den Multiplikator bei 3 und die aktivierte negative Log-Transformation. Lesen Sie die Achsenbeschriftungen: Dieses Beispiel stellt standardisierte marginale Effekte dar.",
+    "Klicken Sie auf einen Punkt, um seine Quellzeile zu prüfen. Lesen Sie Guide-ID, rohes P, adjustiertes P und Anzahl unterstützender Wells zusammen. Das ausgewählte Beispiel hat ein adjustiertes P von etwa 0,39.",
+    "Wählen Sie die Spalte mit dem rohen Permutations-P zur Prüfung und stellen Sie dann adjusted_p_value wieder ein. Ein Wechsel der dargestellten Spalte ändert weder die zugrunde liegende Analyse noch ihre gespeicherten Signifikanz-Flags.",
+    "Schalten Sie −log10 ein und aus, um transformierte und ursprüngliche P-Werte zu vergleichen. Mit Transformation erscheinen kleinere P-Werte weiter oben. Stellen Sie für diese Abbildung die transformierte Ansicht des adjustierten P wieder her.",
+    "Setzen Sie alpha auf 0,5, um zu sehen, wie sich die horizontale Referenzlinie verschiebt, und stellen Sie dann 0,05 wieder ein. Das Bearbeiten dieser Linie berechnet weder statistische Tests noch ihre gespeicherten Signifikanz-Flags neu.",
+    "Legen Sie einen expliziten Effekt-Cutoff von 0,1 mit Multiplikator 3 fest. Die vertikalen Linien erscheinen bei −0,3 und +0,3. Stellen Sie Auto wieder ein, um zur anfänglichen Effektlinie zurückzukehren.",
+    "Wählen Sie wells_with_guide als Farbe, um die Unterstützung der dargestellten Guides zu prüfen. Stellen Sie vor dem endgültigen Export die Signifikanzfarben wieder her, wenn Sie die ursprüngliche Darstellung möchten.",
+    "Legen Sie Abbildungsgröße, Schriftgrößen und Auflösung fest. Dieses Beispiel verwendet 7 × 5 Zoll bei 150 dpi. Prüfen Sie die Lesbarkeit; enger Zuschnitt kann die gespeicherten Außenmaße verändern.",
+    "Speichern Sie den endgültigen Stil als JSON. Ändern Sie die Markergröße und stellen Sie dann mit Load style das gespeicherte Erscheinungsbild wieder her. Bewahren Sie die Stildatei neben der Ergebnistabelle auf.",
+    "Exportieren Sie PDF und PNG und öffnen Sie die Dateien, um Beschriftungen, Kontrast und Zuschnitt zu prüfen. Bewahren Sie die Ausgabe mit den Eingabeergebnissen und dem Stil auf. Verwenden Sie in Python VolcanoStyle und render_volcano für denselben Darstellungsablauf."
   ]
 }

@@ -102,72 +102,129 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation avec Conda",
+      "title": "Installer spaCR avec Conda",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installez le paquet officiel conda-forge dans un environnement séparé, vérifiez la version du canal et identifiez ses différences avec les tutoriels actuels des modules.",
+      "description": "Créez un environnement Conda, installez spaCR depuis conda-forge et lancez l’application.",
       "objectives": [
         "Créer et activer un environnement Conda dédié.",
-        "Vérifier le paquet du canal, Qt et les diagnostics.",
-        "Choisir pip ou l’installateur de bureau plus récent lorsque le canal conserve l’ancienne interface."
+        "Installer spaCR depuis conda-forge.",
+        "Ouvrir spaCR et mettre à jour le même environnement si nécessaire."
       ],
-      "prerequisite": "Un gestionnaire compatible Conda doit être installé. Cet enregistrement vérifie spaCR 1.5.0.4 de conda-forge sous Linux, avec Python 3.12.14 et Qt 6.11.2, le 10 septembre 2026. L’installation propre utilise un nouveau préfixe privé, uniquement conda-forge et la version du canal fixée ; les fiches illustrent la procédure équivalente avec un environnement nommé, sans rejouer des sorties d’installation. La véritable interface conserve Home (63), pas la disposition imbriquée de PyPI/installateur 1.5.0.5. spacr-doctor réussit son petit test d’allocation CUDA mais avertit d’un problème de prise en charge CZI optionnelle ; ce n’est ni un test de vitesse ni une validation de toutes les analyses ou de tous les formats. La capture utilise un profil sombre privé avec une échelle de police de 1.5, une visite déjà fermée et le préchargement par défaut, sans l’option --no-setup non prise en charge. Les autres plateformes ne sont pas testées. Les narrations d’origine et publiée diffèrent ; aucune réutilisation audio à l’identique n’est revendiquée.",
+      "prerequisite": "Installez Conda ou Miniforge, puis ouvrez un terminal où la commande conda est disponible.",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "Utilisez un environnement Conda dédié à spaCR et vérifiez la version réellement proposée par le canal. À cet enregistrement, conda-forge installe un point cinq point zéro point quatre. PyPI et l’installateur de bureau proposent déjà un point cinq point zéro point cinq ; ces versions ne sont pas interchangeables.",
+          "narration": "Ouvrez un terminal configuré pour Conda. Vous allez créer un environnement pour spaCR, installer le paquet conda-forge et lancer l’application depuis cet environnement.",
           "hold_after": 0.7,
-          "speech_text": "Utilisez un environnement Conda dédié à spakeur et vérifiez la version réellement proposée par le canal. À cet enregistrement, Conda Forge installe un point cinq point zéro point quatre. païpe et l’installateur de bureau proposent déjà un point cinq point zéro point cinq ; ces versions ne sont pas interchangeables."
+          "speech_text": "Ouvrez un terminal configuré pour Conda. Vous allez créer un environnement pour spakeur, installer le paquet Conda Forge et lancer l’application depuis cet environnement."
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "Créez un environnement nommé spacr-conda avec Python trois point douze et spaCR depuis conda-forge, à l’aide de la commande affichée. Choisissez un autre nom si vous utilisez déjà ce nom pour un autre environnement.",
+          "hold_after": 0.7,
+          "speech_text": "Créez un environnement nommé spakeur-conda avec Python trois point douze et spakeur depuis Conda Forge, à l’aide de la commande affichée. Choisissez un autre nom si vous utilisez déjà ce nom pour un autre environnement."
         },
         {
           "visual": "07_create_conda",
-          "narration": "Ouvrez un terminal configuré pour Conda et créez un nouvel environnement avec Python trois point douze. La fiche utilise le nom spacr-conda. S’il existe déjà, choisissez un autre nom inutilisé et séparez cet environnement des analyses en cours.",
+          "narration": "Conda résout l’environnement et affiche son plan de paquets. Vérifiez-le, tapez la lettre y pour accepter, puis attendez la fin du téléchargement et de l’installation.",
           "hold_after": 0.7,
-          "speech_text": "Ouvrez un terminal configuré pour Conda et créez un nouvel environnement avec Python trois point douze. La fiche utilise le nom spakeur-conda. S’il existe déjà, choisissez un autre nom inutilisé et séparez cet environnement des analyses en cours."
+          "speech_text": "Conda résout l’environnement et affiche son plan de paquets. Vérifiez-le, tapez la lettre y pour accepter, puis attendez la fin du téléchargement et de l’installation."
         },
         {
           "visual": "08_activate_conda",
-          "narration": "Activez l’environnement et affichez sys point prefix pour confirmer l’emplacement de Python. La véritable vérification utilise un préfixe privé plus long plutôt que le nom court de l’exemple. L’invite du terminal ne suffit pas à prouver que le bon interpréteur est utilisé.",
+          "narration": "Activez spacr-conda. Exécutez la commande Python affichée pour voir le chemin de l’environnement, et vérifiez qu’il s’agit bien de celui que vous venez de créer.",
           "hold_after": 0.7,
-          "speech_text": "Activez l’environnement et affichez sys point prefix pour confirmer l’emplacement de Python. La véritable vérification utilise un préfixe privé plus long plutôt que le nom court de l’exemple. L’invite du terminal ne suffit pas à prouver que le bon interpréteur est utilisé."
+          "speech_text": "Activez spakeur-conda. Exécutez la commande Python affichée pour voir le chemin de l’environnement, et vérifiez qu’il s’agit bien de celui que vous venez de créer."
         },
         {
           "visual": "09_install_conda",
-          "narration": "Installez le paquet en précisant conda-forge, puis utilisez conda list spacr pour examiner la version et le canal. L’installation vérifiée utilisait uniquement conda-forge et fixait la version du canal. Elle était terminée avant les images de vérification ; ces fiches sont des instructions, pas des sorties de terminal fabriquées.",
+          "narration": "Exécutez conda list spacr pour voir la version installée et confirmer qu’elle provient de conda-forge. Installer Python et spaCR en une seule commande permet à Conda de résoudre tous les paquets ensemble, ce qui est bien plus rapide que d’ajouter spaCR à un environnement existant.",
           "hold_after": 0.7,
-          "speech_text": "Installez le paquet en précisant Conda Forge, puis utilisez conda list spakeur pour examiner la version et le canal. L’installation vérifiée utilisait uniquement Conda Forge et fixait la version du canal. Elle était terminée avant les images de vérification ; ces fiches sont des instructions, pas des sorties de terminal fabriquées."
+          "speech_text": "Exécutez conda list spakeur pour voir la version installée et confirmer qu’elle provient de Conda Forge. Installer Python et spakeur en une seule commande permet à Conda de résoudre tous les paquets ensemble, ce qui est bien plus rapide que d’ajouter spakeur à un environnement existant."
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Vérifiez les versions de spaCR et de Qt ainsi que l’emplacement du paquet dans l’environnement installé. Ici, le paquet est en version un point cinq point zéro point quatre et Qt s’importe correctement. Cela identifie le paquet actif, sans valider toutes les analyses scientifiques ni tous les formats optionnels.",
+          "narration": "Vérifiez la version installée de spaCR et l’emplacement du paquet. Conservez cette version avec vos notes d’analyse pour pouvoir revenir plus tard au même environnement.",
           "hold_after": 0.7,
-          "speech_text": "Vérifiez les versions de spakeur et de ku té ainsi que l’emplacement du paquet dans l’environnement installé. Ici, le paquet est en version un point cinq point zéro point quatre et ku té s’importe correctement. Cela identifie le paquet actif, sans valider toutes les analyses scientifiques ni tous les formats optionnels."
+          "speech_text": "Vérifiez la version installée de spakeur et l’emplacement du paquet. Conservez cette version avec vos notes d’analyse pour pouvoir revenir plus tard au même environnement."
         },
         {
           "visual": "05_doctor",
-          "narration": "Exécutez spacr-doctor et lisez aussi les avertissements. Son petit test d’allocation GPU réussit ici, mais il manque une dépendance au support CZI optionnel. Les contrôles omis ne sont pas réussis. La correction suggérée concerne cette fonction ; évaluez les changements d’environnement avant de l’appliquer, surtout en mélangeant des gestionnaires de paquets.",
+          "narration": "Exécutez spacr-doctor pour vérifier l’installation. Ici, il signale que vispy, une dépendance essentielle, est absente, et affiche la commande qui l’installe. Exécutez cette commande, puis relancez spacr-doctor. Ne suivez les autres étapes suggérées que pour les formats de fichier ou les fonctions dont vous avez besoin.",
           "hold_after": 0.7,
-          "speech_text": "Exécutez spakeur-doctor et lisez aussi les avertissements. Son petit test d’allocation GPU réussit ici, mais il manque une dépendance au support CZI optionnel. Les contrôles omis ne sont pas réussis. La correction suggérée concerne cette fonction ; évaluez les changements d’environnement avant de l’appliquer, surtout en mélangeant des gestionnaires de paquets."
+          "speech_text": "Exécutez spakeur-doctor pour vérifier l’installation. Ici, il signale que vispy, une dépendance essentielle, est absente, et affiche la commande qui l’installe. Exécutez cette commande, puis relancez spakeur-doctor. Ne suivez les autres étapes suggérées que pour les formats de fichier ou les fonctions dont vous avez besoin."
         },
         {
           "visual": "06_installed_home",
-          "narration": "Le paquet Conda installé s’ouvre et se ferme normalement, mais il s’agit de son ancienne Home à soixante-trois tuiles. Il n’a pas la nouvelle disposition des modules imbriqués. Une installation réussie ne signifie pas que tous les écrans correspondent aux tutoriels d’une version plus récente.",
+          "narration": "Saisissez spacr pour lancer l’application. Faites les choix du premier lancement, puis poursuivez avec le tutoriel Home pour trouver les modules et leurs données d’exemple.",
           "hold_after": 0.7,
-          "speech_text": "Le paquet Conda installé s’ouvre et se ferme normalement, mais il s’agit de son ancienne Home à soixante-trois tuiles. Il n’a pas la nouvelle disposition des modules imbriqués. Une installation réussie ne signifie pas que tous les écrans correspondent aux tutoriels d’une version plus récente."
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "Saisissez spakeur pour lancer l’application. Faites les choix du premier lancement, puis poursuivez avec le tutoriel Home pour trouver les modules et leurs données d’exemple."
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "Pour l’interface imbriquée des tutoriels actualisés, suivez la leçon actuelle sur pip ou Platform installers dans un environnement séparé. Si vous avez besoin du canal Conda, consignez sa version réelle et vérifiez à nouveau les mises à jour. Préservez la version utilisée pour une analyse en cours.",
+          "narration": "Pour mettre à jour plus tard, fermez spaCR, activez cet environnement et mettez à jour le paquet conda-forge. Si conda-forge ne propose pas de version plus récente, Conda indique que tous les paquets demandés sont déjà installés. Vérifiez ensuite la version installée ; les leçons pip et installateur présentent les autres méthodes d’installation.",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "Pour l’interface imbriquée des tutoriels actualisés, suivez la leçon actuelle sur pip ou Platform installers dans un environnement séparé. Si vous avez besoin du canal Conda, consignez sa version réelle et vérifiez à nouveau les mises à jour. Préservez la version utilisée pour une analyse en cours."
+          "speech_text": "Pour mettre à jour plus tard, fermez spakeur, activez cet environnement et mettez à jour le paquet Conda Forge. Si Conda Forge ne propose pas de version plus récente, Conda indique que tous les paquets demandés sont déjà installés. Vérifiez ensuite la version installée ; les leçons pip et installateur présentent les autres méthodes d’installation."
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -177,199 +234,302 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Créez un environnement Python isolé, installez le paquet public, vérifiez ses dépendances et ouvrez l’application Qt installée.",
+      "description": "Créez un environnement Python isolé, installez le paquet public, vérifiez ses dépendances et lancez l’application Qt installée.",
       "objectives": [
-        "Conserver les dépendances de spaCR dans un environnement Python dédié.",
-        "Vérifier le paquet installé, Qt et les avertissements concernant les fonctions optionnelles.",
-        "Ouvrir Home et mettre à jour délibérément le bon environnement."
+        "Créer et activer un environnement virtuel Python.",
+        "Installer spaCR et vérifier ses dépendances.",
+        "Lancer l’application et mettre à jour l’environnement prévu."
       ],
-      "prerequisite": "Cette leçon vérifie spaCR 1.5.0.5 publié sur PyPI, sous Linux avec Python 3.12.13, sans installation éditable du dépôt. Les fiches de commandes sont des instructions, pas des sorties de terminal enregistrées ; les commandes Windows et macOS n’ont pas été exécutées ici. L’installation propre était terminée avant les vérifications filmées. Les dépendances de base actuelles comprennent Qt. Doctor signale un avertissement CZI optionnel ; le test d’allocation GPU est explicitement omis. La capture utilise --no-setup, un profil sombre privé avec une échelle de police de 1.5 et une visite déjà écartée. Elle démontre une ouverture et une fermeture normales de Home, pas le fonctionnement de tous les modules, formats, calculs GPU ou autres plateformes.",
+      "prerequisite": "Installez Python 3.12 et ouvrez un terminal. Utilisez la commande d’activation adaptée à votre système d’exploitation et à votre shell.",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "Installez spaCR dans son propre environnement Python. Cette démonstration utilise Python trois point douze sous Linux et la version publique de PyPI, pas une copie du dépôt source. Vérifiez python, deux tirets, version avant de choisir l’interpréteur de votre environnement.",
+          "narration": "Ouvrez un terminal et vérifiez votre version de Python. Ce parcours utilise Python trois point douze. Gardez spaCR dans un environnement virtuel dédié afin que ses paquets restent faciles à gérer.",
           "hold_after": 0.7,
-          "speech_text": "Installez spakeur dans son propre environnement Python. Cette démonstration utilise Python trois point douze sous Linux et la version publique de païpe, pas une copie du dépôt source. Vérifiez python, deux tirets, version avant de choisir l’interpréteur de votre environnement."
+          "speech_text": "Ouvrez un terminal et vérifiez votre version de Python. Ce parcours utilise Python trois point douze. Gardez spakeur dans un environnement virtuel dédié afin que ses paquets restent faciles à gérer."
         },
         {
           "visual": "07_create_environment",
-          "narration": "Créez un nouvel environnement virtuel avec la commande correspondant à votre plateforme. Ici, point venv est un nouveau dossier du répertoire de travail. Python trois point douze doit déjà être installé ; cette commande crée un environnement, elle n’installe pas Python.",
+          "narration": "Créez un environnement virtuel nommé point venv avec la commande de votre système d’exploitation. Cela crée un dossier contenant l’environnement Python que vous utiliserez pour spaCR.",
           "hold_after": 0.7,
-          "speech_text": "Créez un nouvel environnement virtuel avec la commande correspondant à votre plateforme. Ici, point venv est un nouveau dossier du répertoire de travail. Python trois point douze doit déjà être installé ; cette commande crée un environnement, elle n’installe pas Python."
+          "speech_text": "Créez un environnement virtuel nommé point venv avec la commande de votre système d’exploitation. Cela crée un dossier contenant l’environnement Python que vous utiliserez pour spakeur."
         },
         {
           "visual": "08_activate_environment",
-          "narration": "Activez cet environnement avec la commande de votre interpréteur de commandes. PowerShell, Command Prompt, bash et zsh utilisent des commandes d’activation différentes. Si PowerShell bloque le script, utilisez Command Prompt ou appelez directement le Python de l’environnement ; n’affaiblissez pas la sécurité de toute la machine.",
+          "narration": "Activez point venv avec la commande de votre shell. PowerShell et l’invite de commandes de Windows ont des commandes d’activation différentes ; macOS et Linux utilisent généralement la commande shell affichée ici.",
           "hold_after": 0.7,
-          "speech_text": "Activez cet environnement avec la commande de votre interpréteur de commandes. PowerShell, Command Prompt, bash et zsh utilisent des commandes d’activation différentes. Si PowerShell bloque le script, utilisez Command Prompt ou appelez directement le Python de l’environnement ; n’affaiblissez pas la sécurité de toute la machine."
+          "speech_text": "Activez point venv avec la commande de votre shell. PowerShell et l’invite de commandes de Windows ont des commandes d’activation différentes ; macOS et Linux utilisent généralement la commande shell affichée ici."
         },
         {
           "visual": "02_pip_environment",
-          "narration": "Exécutez python, tiret m, pip, deux tirets, version. Son emplacement doit se trouver dans l’environnement choisi. Ce véritable terminal affiche le chemin privé plus long utilisé pour l’enregistrement. Python, tiret m, pip rattache l’installation des paquets à cet interpréteur.",
+          "narration": "Exécutez python tiret m pip tiret tiret version. Vérifiez que le chemin affiché appartient à point venv. Utilisez python tiret m pip pour les commandes d’installation afin que pip utilise cet interpréteur.",
           "hold_after": 0.7,
-          "speech_text": "Exécutez python, tiret m, pip, deux tirets, version. Son emplacement doit se trouver dans l’environnement choisi. Ce véritable terminal affiche le chemin privé plus long utilisé pour l’enregistrement. Python, tiret m, pip rattache l’installation des paquets à cet interpréteur."
+          "speech_text": "Exécutez python tiret m pip tiret tiret version. Vérifiez que le chemin affiché appartient à point venv. Utilisez python tiret m pip pour les commandes d’installation afin que pip utilise cet interpréteur."
         },
         {
           "visual": "09_install_package",
-          "narration": "Mettez pip à jour, puis installez spacr. Fixer la version un point cinq point zéro point cinq reproduit la version de cette leçon. L’installation propre était terminée avant ces vérifications enregistrées. Prévoyez du temps et de l’espace disque pour les dépendances scientifiques ; les dépendances de base actuelles comprennent déjà les composants graphiques Qt.",
+          "narration": "Mettez pip à jour, puis installez spacr. Attendez la fin du téléchargement et de l’installation des paquets scientifiques. Le paquet actuel inclut les composants de bureau nécessaires pour ouvrir l’application.",
           "hold_after": 0.7,
-          "speech_text": "Mettez pip à jour, puis installez spakeur. Fixer la version un point cinq point zéro point cinq reproduit la version de cette leçon. L’installation propre était terminée avant ces vérifications enregistrées. Prévoyez du temps et de l’espace disque pour les dépendances scientifiques ; les dépendances de base actuelles comprennent déjà les composants graphiques ku té."
+          "speech_text": "Mettez pip à jour, puis installez spakeur. Attendez la fin du téléchargement et de l’installation des paquets scientifiques. Le paquet actuel inclut les composants de bureau nécessaires pour ouvrir l’application."
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Vérifiez la version installée de spaCR, celle de Qt et le chemin du paquet. Ici, les trois proviennent du nouvel environnement. Un import réussi ne prouve ni le fonctionnement de tous les formats ou analyses optionnels, ni l’ouverture de la fenêtre.",
+          "narration": "Vérifiez la version installée de spaCR et l’emplacement du paquet avec la commande affichée. Conservez la version avec vos notes d’analyse.",
           "hold_after": 0.7,
-          "speech_text": "Vérifiez la version installée de spakeur, celle de ku té et le chemin du paquet. Ici, les trois proviennent du nouvel environnement. Un import réussi ne prouve ni le fonctionnement de tous les formats ou analyses optionnels, ni l’ouverture de la fenêtre."
+          "speech_text": "Vérifiez la version installée de spakeur et l’emplacement du paquet avec la commande affichée. Conservez la version avec vos notes d’analyse."
         },
         {
           "visual": "04_dependency_check",
-          "narration": "Exécutez python, tiret m, pip check. No broken requirements signifie que les déclarations des dépendances installées sont cohérentes. En cas de conflit, résolvez-le avant de continuer ; cette vérification n’est pas une validation scientifique de l’analyse.",
+          "narration": "Exécutez python tiret m pip check. S’il signale des dépendances en conflit, résolvez ces conflits avant d’utiliser l’environnement.",
           "hold_after": 0.7,
-          "speech_text": "Exécutez python, tiret m, pip check. No broken requirements signifie que les déclarations des dépendances installées sont cohérentes. En cas de conflit, résolvez-le avant de continuer ; cette vérification n’est pas une validation scientifique de l’analyse."
+          "speech_text": "Exécutez python tiret m pip check. S’il signale des dépendances en conflit, résolvez ces conflits avant d’utiliser l’environnement."
         },
         {
           "visual": "05_doctor",
-          "narration": "Exécutez spacr-doctor et lisez les avertissements autant que les réussites. Cette installation présente un avertissement CZI optionnel, avec sa commande de correction. L’enregistrement utilise no gpu probe, précédé de deux tirets : le périphérique est détecté, mais l’allocation GPU n’est pas testée. Un test omis n’est pas un test réussi.",
+          "narration": "Exécutez spacr-doctor pour inspecter l’installation et repérer les fonctions optionnelles manquantes. N’appliquez la réparation suggérée que pour les formats ou les capacités dont vous avez besoin.",
           "hold_after": 0.7,
-          "speech_text": "Exécutez spakeur-doctor et lisez les avertissements autant que les réussites. Cette installation présente un avertissement CZI optionnel, avec sa commande de correction. L’enregistrement utilise no gpu probe, précédé de deux tirets : le périphérique est détecté, mais l’allocation GPU n’est pas testée. Un test omis n’est pas un test réussi."
+          "speech_text": "Exécutez spakeur-doctor pour inspecter l’installation et repérer les fonctions optionnelles manquantes. N’appliquez la réparation suggérée que pour les formats ou les capacités dont vous avez besoin."
         },
         {
           "visual": "10_launch_commands",
-          "narration": "Lancez spacr depuis le même environnement activé. Un premier lancement normal peut poser des questions de configuration. Cette vérification limitée utilise explicitement no setup, précédé de deux tirets, et un profil préparé pour l’enregistrement ; elle ne montre pas les réponses à ces questions.",
+          "narration": "Lancez spacr depuis l’environnement activé. Au premier lancement, suivez les invites de configuration et choisissez vos préférences.",
           "hold_after": 0.7,
-          "speech_text": "Lancez spakeur depuis le même environnement activé. Un premier lancement normal peut poser des questions de configuration. Cette vérification limitée utilise explicitement no setup, précédé de deux tirets, et un profil préparé pour l’enregistrement ; elle ne montre pas les réponses à ces questions."
+          "speech_text": "Lancez spakeur depuis l’environnement activé. Au premier lancement, suivez les invites de configuration et choisissez vos préférences."
         },
         {
           "visual": "06_installed_home",
-          "narration": "Voici la véritable fenêtre Home du paquet wheel installé, avec les six modules principaux et les groupes Data, Tools et Assays. Elle s’est ouverte et fermée normalement sans lancer d’analyse. Poursuivez avec Home pour la navigation, les outils imbriqués et les tutoriels des modules.",
+          "narration": "Home s’ouvre avec les catégories Core, Data, Tools et Assays. Poursuivez avec le tutoriel Home pour trouver un module, charger des données d’exemple et ouvrir une vue d’ensemble d’un pipeline.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Voici la véritable fenêtre Home du paquet wheel installé, avec les six modules principaux et les groupes Data, Tools et Assays. Elle s’est ouverte et fermée normalement sans lancer d’analyse. Poursuivez avec Home pour la navigation, les outils imbriqués et les tutoriels des modules."
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "Home s’ouvre avec les catégories Core, Data, Tools et Assays. Poursuivez avec le tutoriel Home pour trouver un module, charger des données d’exemple et ouvrir une vue d’ensemble d’un pipeline."
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "Pour une mise à jour, fermez spaCR et activez l’environnement à modifier. Mettez le paquet à jour, répétez pip check et spacr-doctor, puis consignez la version obtenue avec votre analyse. Les mises à jour peuvent modifier les dépendances et le comportement ; ne changez pas discrètement un environnement utilisé pour un travail en cours.",
+          "narration": "Pour mettre à jour, fermez spaCR et activez cet environnement. Mettez le paquet à jour, puis vérifiez de nouveau sa version et ses dépendances. Conservez l’environnement précédent si vous en avez besoin pour une analyse en cours.",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "Pour une mise à jour, fermez spakeur et activez l’environnement à modifier. Mettez le paquet à jour, répétez pip check et spakeur-doctor, puis consignez la version obtenue avec votre analyse. Les mises à jour peuvent modifier les dépendances et le comportement ; ne changez pas discrètement un environnement utilisé pour un travail en cours."
+          "speech_text": "Pour mettre à jour, fermez spakeur et activez cet environnement. Mettez le paquet à jour, puis vérifiez de nouveau sa version et ses dépendances. Conservez l’environnement précédent si vous en avez besoin pour une analyse en cours."
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Installateurs par plateforme",
+      "title": "Installer spaCR avec un installateur de bureau",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Choisissez un installateur officiel, comprenez la sélection automatique de l’accélérateur et les options de confidentialité, puis vérifiez le véritable environnement Linux installé.",
+      "description": "Téléchargez l’installateur pour votre système d’exploitation, terminez la configuration et ouvrez spaCR.",
       "objectives": [
-        "Choisir l’installateur officiel du système d’exploitation.",
-        "Distinguer l’accélération automatique du choix explicite du CPU seul.",
-        "Lire les choix de confidentialité, les versions installées et les avertissements de diagnostic."
+        "Télécharger et exécuter l’installateur pour votre système d’exploitation.",
+        "Choisir une option d’accélération et les préférences du premier lancement.",
+        "Ouvrir spaCR et trouver les journaux d’installation si la configuration demande une intervention."
       ],
-      "prerequisite": "Cet enregistrement vérifie l’installateur public en ligne Linux x86-64 de spaCR 1.5.0.5, dont la somme de contrôle a été comparée le 10 septembre 2026, avec Python 3.12.13, Qt 6.11.2 et Torch 2.14.0+cu132. La véritable installation était terminée avant ces images de vérification. Elle utilisait de nouveaux dossiers privés pour l’environnement et le lanceur, les bibliothèques graphiques système existantes, --skip-system-deps et --no-launch ; aucun environnement ni dépendance système existants n’a été modifié. Les quatre fiches sont des instructions, pas des installations Windows/macOS enregistrées ni des sorties de terminal inventées. Les indications Windows/macOS ont été contrôlées uniquement dans le code actuel des installateurs. La capture utilise un profil sombre privé, une échelle de police de 1.5, une visite déjà fermée, le préchargement à la demande et --no-setup, qui ne contourne pas la question de confidentialité distincte. Échap rejette ce dialogue en laissant toutes les options désactivées ; les préférences privées ont été relues pour le confirmer. Doctor utilise --no-gpu-probe ; aucune validation d’allocation, de vitesse, d’analyse ou d’autres plateformes n’est revendiquée. Les prises ratées du dispositif d’enregistrement sont conservées, sans être comptées comme défauts de l’application.",
+      "prerequisite": "Téléchargez l’installateur officiel pour votre système d’exploitation et prévoyez de l’espace pour l’application et ses dépendances scientifiques.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Utilisez la publication officielle de spaCR sur GitHub et choisissez l’installateur de votre système. Les installateurs en ligne téléchargent un environnement Python privé et les dépendances scientifiques ; un environnement Conda préalable n’est pas nécessaire. Dans cet exemple Linux, nous avons comparé le fichier téléchargé à la somme de contrôle publiée avant de l’exécuter.",
+          "narration": "Ouvrez la version officielle de spaCR sur GitHub et, sous Assets, téléchargez l’installateur pour votre système d’exploitation. Ces installateurs en ligne téléchargent l’environnement d’exécution Python et les paquets scientifiques pendant la configuration. Conservez SHA256SUMS point txt de la même version si vous voulez vérifier le téléchargement.",
           "hold_after": 0.7,
-          "speech_text": "Utilisez la publication officielle de spakeur sur GitHub et choisissez l’installateur de votre système. Les installateurs en ligne téléchargent un environnement Python privé et les dépendances scientifiques ; un environnement Conda préalable n’est pas nécessaire. Dans cet exemple Linux, nous avons comparé le fichier téléchargé à la somme de contrôle publiée avant de l’exécuter."
+          "speech_text": "Ouvrez la version officielle de spakeur sur GitHub et, sous Assets, téléchargez l’installateur pour votre système d’exploitation. Ces installateurs en ligne téléchargent l’environnement d’exécution Python et les paquets scientifiques pendant la configuration. Conservez SHA256SUMS point txt de la même version si vous voulez vérifier le téléchargement."
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "Sous Windows, choisissez l’exécutable d’installation en ligne. Le code actuel de l’installateur présélectionne l’accélération automatique ; décochez ce composant facultatif pour utiliser uniquement le CPU. Cette fiche explique le choix, mais ce n’est ni une installation Windows enregistrée ni un test de compatibilité de votre ordinateur.",
+          "narration": "Sous Windows, exécutez le programme d’installation et suivez ses instructions. Laissez l’accélération automatique sélectionnée pour utiliser le matériel compatible détecté sur votre ordinateur, ou choisissez un fonctionnement CPU seul si c’est ce qu’il vous faut.",
           "hold_after": 0.7,
-          "speech_text": "Sous Windows, choisissez l’exécutable d’installation en ligne. Le code actuel de l’installateur présélectionne l’accélération automatique ; décochez ce composant facultatif pour utiliser uniquement le CPU. Cette fiche explique le choix, mais ce n’est ni une installation Windows enregistrée ni un test de compatibilité de votre ordinateur."
+          "speech_text": "Sous Windows, exécutez le programme d’installation et suivez ses instructions. Laissez l’accélération automatique sélectionnée pour utiliser le matériel compatible détecté sur votre ordinateur, ou choisissez un fonctionnement CPU seul si c’est ce qu’il vous faut."
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "Sous macOS, choisissez le paquet universel en ligne pour Intel et Apple silicon. Le lanceur démarre la configuration propre à l’utilisateur si son environnement manque. Vérifiez la source officielle avant d’approuver les alertes de sécurité et prévoyez le temps de téléchargement. Ces indications sont vérifiées dans le code, pas par une installation macOS exécutée.",
+          "narration": "Sous macOS, ouvrez le paquet universel et suivez l’installateur. Démarrez spaCR depuis son lanceur d’application et laissez les téléchargements du premier lancement se terminer. Lisez tout avertissement de sécurité et vérifiez que le paquet provient de la version officielle.",
           "hold_after": 0.7,
-          "speech_text": "Sous macOS, choisissez le paquet universel en ligne pour Intel et Apple silicon. Le lanceur démarre la configuration propre à l’utilisateur si son environnement manque. Vérifiez la source officielle avant d’approuver les alertes de sécurité et prévoyez le temps de téléchargement. Ces indications sont vérifiées dans le code, pas par une installation macOS exécutée."
+          "speech_text": "Sous macOS, ouvrez le paquet universel et suivez l’installateur. Démarrez spakeur depuis son lanceur d’application et laissez les téléchargements du premier lancement se terminer. Lisez tout avertissement de sécurité et vérifiez que le paquet provient de la version officielle."
         },
         {
           "visual": "11_linux_commands",
-          "narration": "Sous Linux, rendez le téléchargement vérifié exécutable et lancez-le depuis son dossier. La sélection automatique de l’accélérateur est désormais le choix par défaut ; demandez explicitement le CPU si nécessaire. Notre exécution isolée réutilisait les bibliothèques système et des chemins privés ; elle ne démontre donc pas l’installation des dépendances système.",
+          "narration": "Sous Linux, rendez l’installateur téléchargé exécutable, puis lancez-le depuis un terminal. L’accélération automatique sélectionne un backend compatible. L’aide indique tiret tiret torch-backend cpu pour un fonctionnement CPU seul, et tiret tiret skip-system-deps pour les ordinateurs qui disposent déjà des bibliothèques graphiques de Qt.",
           "hold_after": 0.7,
-          "speech_text": "Sous Linux, rendez le téléchargement vérifié exécutable et lancez-le depuis son dossier. La sélection automatique de l’accélérateur est désormais le choix par défaut ; demandez explicitement le CPU si nécessaire. Notre exécution isolée réutilisait les bibliothèques système et des chemins privés ; elle ne démontre donc pas l’installation des dépendances système."
+          "speech_text": "Sous Linux, rendez l’installateur téléchargé exécutable, puis lancez-le depuis un terminal. L’accélération automatique sélectionne un backend compatible. L’aide indique tiret tiret torch-backend cpu pour un fonctionnement CPU seul, et tiret tiret skip-system-deps pour les ordinateurs qui disposent déjà des bibliothèques graphiques de ku té."
         },
         {
           "visual": "02_installer_backend",
-          "narration": "Lisez le véritable profil d’installation plutôt que de déduire le moteur d’un lancement réussi. Ici, la demande était auto et le moteur choisi est CUDA sur du matériel NVIDIA. La compilation Torch installée utilise CUDA treize point deux. Cela identifie la sélection ; ce n’est pas un test de vitesse GPU.",
+          "narration": "Après la configuration, le profil d’installation enregistre le backend sélectionné. Consultez-le lorsque vous voulez savoir si l’environnement d’exécution utilise le CPU ou un accélérateur compatible.",
           "hold_after": 0.7,
-          "speech_text": "Lisez le véritable profil d’installation plutôt que de déduire le moteur d’un lancement réussi. Ici, la demande était auto et le moteur choisi est CUDA sur du matériel NVIDIA. La compilation Torch installée utilise CUDA treize point deux. Cela identifie la sélection ; ce n’est pas un test de vitesse GPU."
+          "speech_text": "Après la configuration, le profil d’installation enregistre le backend sélectionné. Consultez-le lorsque vous voulez savoir si l’environnement d’exécution utilise le CPU ou un accélérateur compatible."
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Vérifiez la version installée, l’importation de Qt et le chemin du paquet. Cet environnement privé contient spaCR un point cinq point zéro point cinq. Les fichiers proviennent de l’installation, pas d’une copie éditable du code. Des importations réussies ne valident pas toutes les analyses ni tous les formats facultatifs.",
+          "narration": "Vérifiez la version installée de spaCR. Conservez-la avec vos notes d’analyse, surtout lorsque vous mettrez l’application à jour plus tard.",
           "hold_after": 0.7,
-          "speech_text": "Vérifiez la version installée, l’importation de ku té et le chemin du paquet. Cet environnement privé contient spakeur un point cinq point zéro point cinq. Les fichiers proviennent de l’installation, pas d’une copie éditable du code. Des importations réussies ne valident pas toutes les analyses ni tous les formats facultatifs."
+          "speech_text": "Vérifiez la version installée de spakeur. Conservez-la avec vos notes d’analyse, surtout lorsque vous mettrez l’application à jour plus tard."
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "Le véritable premier lancement demande les choix facultatifs de partage des diagnostics, de signalement public et de configuration des comptes. Les signalements seraient publics : lisez l’explication. L’enregistrement rejette le dialogue avec Échap, comme Skip, keep all off. Aucun compte n’est connecté et les préférences privées confirment que le partage et les actions de signalement restent désactivés.",
+          "narration": "La configuration propose le partage facultatif de diagnostics et la création d’un compte. Répondez y uniquement pour les options souhaitées ; n, la valeur par défaut, laisse chacune désactivée. L’installateur Windows présente les mêmes choix sous forme de cases à cocher.",
           "hold_after": 0.7,
-          "speech_text": "Le véritable premier lancement demande les choix facultatifs de partage des diagnostics, de signalement public et de configuration des comptes. Les signalements seraient publics : lisez l’explication. L’enregistrement rejette le dialogue avec Échap, comme Skip, keep all off. Aucun compte n’est connecté et les préférences privées confirment que le partage et les actions de signalement restent désactivés."
+          "speech_text": "La configuration propose le partage facultatif de diagnostics et la création d’un compte. Répondez y uniquement pour les options souhaitées ; n, la valeur par défaut, laisse chacune désactivée. L’installateur Windows présente les mêmes choix sous forme de cases à cocher."
         },
         {
           "visual": "06_installed_home",
-          "narration": "Après ce choix, l’application installée ouvre sa Home actuelle avec vingt et une tuiles et six modules principaux. La fenêtre se ferme aussi normalement. Poursuivez avec la leçon Home pour découvrir les fonctions imbriquées et leurs données d’exemple ; ouvrir Home seul n’est pas un test d’analyse.",
+          "narration": "Lorsque Home s’ouvre, poursuivez avec le tutoriel Home. Il montre comment ouvrir un module, trouver des données de test et choisir un pipeline pour votre expérience.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Après ce choix, l’application installée ouvre sa Home actuelle avec vingt et une tuiles et six modules principaux. La fenêtre se ferme aussi normalement. Poursuivez avec la leçon Home pour découvrir les fonctions imbriquées et leurs données d’exemple ; ouvrir Home seul n’est pas un test d’analyse."
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "Lorsque Home s’ouvre, poursuivez avec le tutoriel Home. Il montre comment ouvrir un module, trouver des données de test et choisir un pipeline pour votre expérience."
         },
         {
           "visual": "05_doctor",
-          "narration": "Exécutez spacr-doctor depuis l’environnement installé et lisez les avertissements autant que les réussites. Ici, il confirme le moteur de l’installateur, mais signale une dépendance CZI facultative manquante. Cette exécution omet l’allocation GPU, la base de données et les réglages. Un contrôle omis n’est pas réussi ; évaluez la réparation proposée avant de modifier l’environnement.",
+          "narration": "Si le démarrage ou un format de fichier pose problème, exécutez spacr-doctor depuis l’environnement installé. Il liste chaque vérification avec une correction suggérée. Sur cette installation CPU seul, la vérification GPU échoue comme prévu, et la vérification du PATH signale le lanceur spacr propre à l’installateur, qui démarre ce même environnement ; aucune des deux ne demande de changement ici.",
           "hold_after": 0.7,
-          "speech_text": "Exécutez spakeur-doctor depuis l’environnement installé et lisez les avertissements autant que les réussites. Ici, il confirme le moteur de l’installateur, mais signale une dépendance CZI facultative manquante. Cette exécution omet l’allocation GPU, la base de données et les réglages. Un contrôle omis n’est pas réussi ; évaluez la réparation proposée avant de modifier l’environnement."
+          "speech_text": "Si le démarrage ou un format de fichier pose problème, exécutez spakeur-doctor depuis l’environnement installé. Il liste chaque vérification avec une correction suggérée. Sur cette installation CPU seul, la vérification GPU échoue comme prévu, et la vérification du PATH signale le lanceur spakeur propre à l’installateur, qui démarre ce même environnement ; aucune des deux ne demande de changement ici."
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "Conservez install point log et install-profile point json du dossier d’installation choisi pour diagnostiquer un problème. Vérifiez les informations privées des journaux avant de les partager. Notez la version de chaque analyse et mettez à jour délibérément. Les leçons pip et Conda présentent les autres voies d’installation dans des environnements séparés.",
+          "narration": "En cas de problème d’installation, cherchez install point log et install-profile point json dans le dossier d’installation. Relisez les journaux avant de les joindre à une demande d’assistance. Indiquez votre système d’exploitation et votre version de spaCR pour faciliter le diagnostic.",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
             "03_pip_install"
           ],
           "hold_after": 0.7,
-          "speech_text": "Conservez install point log et install-profile point json du dossier d’installation choisi pour diagnostiquer un problème. Vérifiez les informations privées des journaux avant de les partager. Notez la version de chaque analyse et mettez à jour délibérément. Les leçons pip et Conda présentent les autres voies d’installation dans des environnements séparés."
+          "speech_text": "En cas de problème d’installation, cherchez install point log et install-profile point json dans le dossier d’installation. Relisez les journaux avant de les joindre à une demande d’assistance. Indiquez votre système d’exploitation et votre version de spakeur pour faciliter le diagnostic."
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Écran Home et navigation",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Ouvrez un module depuis Home, trouvez ses outils associés et ses données d’exemple, puis choisissez un pipeline à suivre.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Choisir un module de départ pour des images, des mesures ou des lectures de séquençage.",
+        "Trouver les outils associés et les essais propres à chaque organisme.",
+        "Charger un exemple, trouver de l’aide et ouvrir une vue d’ensemble de pipeline."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "Installez spaCR et ouvrez l’application de bureau.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
-          "hold_after": 0.7
+          "narration": "Home est votre point de départ. Cliquez sur une tuile pour ouvrir un module, ou utilisez la barre latérale à gauche. Cliquez sur Home dans la barre latérale pour revenir ici. Les onglets Core, Data, Tools et Assays vous aident à trouver la tâche que vous voulez accomplir.",
+          "hold_after": 0.7,
+          "speech_text": "Home est votre point de départ. Cliquez sur une tuile pour ouvrir un module, ou utilisez la barre latérale à gauche. Cliquez sur Home dans la barre latérale pour revenir ici. Les onglets Core, Data, Tools et Assays vous aident à trouver la tâche que vous voulez accomplir."
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "Pour des images de microscopie, commencez par Mask pour délimiter les objets, puis Measure pour extraire leurs caractéristiques et leurs vignettes. Annotate vous permet d’étiqueter des objets d’exemple, et Classify apprend de ces étiquettes pour attribuer un score à davantage d’objets. Map Barcodes lit les données de séquençage. Regression combine les scores de phénotype obtenus et les comptages de guides pour trouver des associations.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -386,11 +546,12 @@
             "41_classify",
             "12_map_barcodes",
             "13_regression"
-          ]
+          ],
+          "speech_text": "Pour des images de microscopie, commencez par Mask pour délimiter les objets, puis Measure pour extraire leurs caractéristiques et leurs vignettes. Annotate vous permet d’étiqueter des objets d’exemple, et Classify apprend de ces étiquettes pour attribuer un score à davantage d’objets. Map Barcodes lit les données de séquençage. Regression combine les scores de phénotype obtenus et les comptages de guides pour trouver des associations."
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Data est l’endroit où les fichiers arrivent et où les résultats sont vérifiés. Si vous avez déjà des images, des masques ou des tables de mesures, Import les intègre à un projet que les autres modules peuvent lire. Avant une expérience, Experiment Design organise vos plaques ; ensuite, QC affiche les contrôles de qualité enregistrés et Run Compare place deux exécutions côte à côte.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -406,11 +567,12 @@
             "35_converter",
             "31_external_masks",
             "77_embeddings"
-          ]
+          ],
+          "speech_text": "Data est l’endroit où les fichiers arrivent et où les résultats sont vérifiés. Si vous avez déjà des images, des masques ou des tables de mesures, Import les intègre à un projet que les autres modules peuvent lire. Avant une expérience, Experiment Design organise vos plaques ; ensuite, QC affiche les contrôles de qualité enregistrés et Run Compare place deux exécutions côte à côte."
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools regroupe les éditeurs et explorateurs interactifs. Make Masks sert à corriger les masques et ouvre aussi Cellpose Workbench. Align and Stitch assemble des tuiles d’image qui se chevauchent en une seule image. Une fois vos mesures obtenues, Image UMAP, Gate Editor et Graph Builder vous permettent de les explorer et de les représenter. La barre d’outils de chaque module ouvre ses outils associés.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -425,11 +587,12 @@
             "15_image_umap",
             "64_gate_editor",
             "58_graph_builder"
-          ]
+          ],
+          "speech_text": "Tools regroupe les éditeurs et explorateurs interactifs. Make Masks sert à corriger les masques et ouvre aussi celle pose Workbench. Align and Stitch assemble des tuiles d’image qui se chevauchent en une seule image. Une fois vos mesures obtenues, Image you map, guéïte éditeur et Graph Builder vous permettent de les explorer et de les représenter. La barre d’outils de chaque module ouvre ses outils associés."
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Ouvrez Assays et choisissez votre organisme : Toxoplasma, Plasmodium ou Candida. Choisissez ensuite un essai dans le menu de cet organisme. Par exemple, ouvrez Toxoplasma pour l’analyse des plages de lyse ou les mesures hôte-pathogène. Suivez le tutoriel de l’essai choisi pour préparer ses images, ses masques et ses mesures d’entrée.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -441,21 +604,23 @@
             "25_recruitment",
             "26_invasion",
             "27_replication"
-          ]
+          ],
+          "speech_text": "Ouvrez Assays et choisissez votre organisme : Toxoplasma, Plasmodium ou Candida. Choisissez ensuite un essai dans le menu de cet organisme. Par exemple, ouvrez Toxoplasma pour l’analyse des plages de lyse ou les mesures hôte-pathogène. Suivez le tutoriel de l’essai choisi pour préparer ses images, ses masques et ses mesures d’entrée."
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Ouvrez Classify et utilisez Classifier family pour choisir votre entrée. Sélectionnez Computer Vision pour des images d’objets, ou Tabular Machine Learning pour des colonnes de caractéristiques mesurées. Les tutoriels liés vous guident dans l’entraînement, l’évaluation et le calcul des scores pour chaque famille.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "speech_text": "Ouvrez Classify et utilisez Classifier family pour choisir votre entrée. Sélectionnez Computer Vision pour des images d’objets, ou Tabular Machine Learning pour des colonnes de caractéristiques mesurées. Les tutoriels liés vous guident dans l’entraînement, l’évaluation et le calcul des scores pour chaque famille."
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "Une fois un modèle entraîné, la barre d’outils de Classify vous aide à l’examiner. Classifier Evaluation montre ses performances sur des données mises de côté, Explain CV Model et Activation montrent ce qui guide ses décisions, Training Runs compare les historiques d’entraînement, et Feature Explorer classe les caractéristiques qui séparent vos groupes. Survolez une icône pour voir son nom.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -464,30 +629,34 @@
             "16_activation",
             "28_training_runs",
             "65_feature_explorer"
-          ]
+          ],
+          "speech_text": "Une fois un modèle entraîné, la barre d’outils de Classify vous aide à l’examiner. Classifier Evaluation montre ses performances sur des données mises de côté, Explain CV Model et Activation montrent ce qui guide ses décisions, Training Runs compare les historiques d’entraînement, et Feature Explorer classe les caractéristiques qui séparent vos groupes. Survolez une icône pour voir son nom."
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "Pour essayer un module, cliquez sur Load test data lorsqu’il est disponible. Attendez la fin du téléchargement, puis vérifiez les entrées et les paramètres remplis. Dans Mask, cliquez sur Live pour inspecter un champ avant d’appuyer sur Run. Activez Time pour une série temporelle ou 3D pour une image volumique.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "17_timelapse"
-          ]
+          ],
+          "speech_text": "Pour essayer un module, cliquez sur Load test data lorsqu’il est disponible. Attendez la fin du téléchargement, puis vérifiez les entrées et les paramètres remplis. Dans Mask, cliquez sur Live pour inspecter un champ avant d’appuyer sur Run. Activez Time pour une série temporelle ou trois dé pour une image volumique."
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
-          "hold_after": 0.7
+          "narration": "Tapez le nom d’un module, d’un paramètre ou d’une fonction dans le champ de recherche à côté de Help. Ici, la recherche de Performance trouve la page correspondante de Preferences. Cliquez sur un résultat pour ouvrir sa destination. Les résultats API ouvrent la documentation de la fonction sélectionnée.",
+          "hold_after": 0.7,
+          "speech_text": "Tapez le nom d’un module, d’un paramètre ou d’une fonction dans le champ de recherche à côté de Help. Ici, la recherche de Performance trouve la page correspondante de Preferences. Cliquez sur un résultat pour ouvrir sa destination. Les résultats API ouvrent la documentation de la fonction sélectionnée."
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
-          "hold_after": 0.7
+          "narration": "Dans Preferences, choisissez un profil Performance adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils plus élevés permettent davantage de cache et de travail en arrière-plan. Commencez par un profil modeste si la mémoire est limitée. Les paramètres de vos analyses restent sous votre contrôle dans chaque module.",
+          "hold_after": 0.7,
+          "speech_text": "Dans Preferences, choisissez un profil Performance adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils plus élevés permettent davantage de cache et de travail en arrière-plan. Commencez par un profil modeste si la mémoire est limitée. Les paramètres de vos analyses restent sous votre contrôle dans chaque module."
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Revenez à Home et cliquez sur Pipeline overviews pour choisir un flux de travail. Commencez par spaCR screens pour un criblage groupé basé sur l’image, ou choisissez un parcours d’analyse d’images ou de séquençage adapté à vos données. Les tutoriels suivants montrent comment ces modules s’enchaînent, puis les leçons de chaque module détaillent chaque tâche.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -499,12 +668,53 @@
             180,
             499,
             96
-          ]
+          ],
+          "speech_text": "Revenez à Home et cliquez sur Pipeline overviews pour choisir un flux de travail. Commencez par spakeur screens pour un criblage groupé basé sur l’image, ou choisissez un parcours d’analyse d’images ou de séquençage adapté à vos données. Les tutoriels suivants montrent comment ces modules s’enchaînent, puis les leçons de chaque module détaillent chaque tâche."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1515,59 +1725,64 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks : modifier les étiquettes et préparer des images d’entraînement",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Ouvrez des paires image-masque, inspectez et modifiez les objets, enregistrez des mesures et créez des vignettes appariées pour l’entraînement.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Ouvrir des images avec leurs masques d’instances et inspecter les objets à la loupe.",
+        "Mesurer des champs appariés et enregistrer une base de données de caractéristiques d’objets.",
+        "Corriger les étiquettes avec Undo, le dessin, la division et les filtres de taille.",
+        "Enregistrer les masques revus et créer des vignettes image-masque pour l’entraînement."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "Préparez un dossier d’images bidimensionnelles avec les TIFF d’étiquettes d’instances correspondants dans un sous-dossier masks. Chaque masque reprend le nom de base du fichier image. Travaillez sur une copie lorsque vous vous entraînez aux modifications et aux recadrages. L’exemple utilise des images d’ER et des masques de cellules du projet de microscopie téléchargeable de Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Depuis Home, ouvrez Make Masks dans Tools. Choisissez cet éditeur pour inspecter et corriger les masques d’images individuelles. Ouvrez le dossier d’images et d’étiquettes appariées avant de choisir un outil de modification.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ]
+          ],
+          "speech_text": "Depuis Home, ouvrez Make Masks dans Tools. Choisissez cet éditeur pour inspecter et corriger les masques d’images individuelles. Ouvrez le dossier d’images et d’étiquettes appariées avant de choisir un outil de modification."
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Sélectionnez le dossier d’images. Pour cet exemple, utilisez les images d’intensité de l’ER et les masques de cellules correspondants de l’échantillon de Measure. Gardez les mêmes dimensions pour l’image et le masque, et des noms de fichiers appariés.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Sélectionnez le dossier d’images. Pour cet exemple, utilisez les images d’intensité de l’ER et les masques de cellules correspondants de l’échantillon de Measure. Gardez les mêmes dimensions pour l’image et le masque, et des noms de fichiers appariés."
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
-          "hold_after": 0.7
+          "narration": "L’éditeur charge l’image et son masque correspondant depuis le sous-dossier masks. Les étiquettes colorées identifient chaque objet. Vérifiez que les contours suivent les limites de l’image. S’il manque un masque associé, partez d’un masque vide et dessinez les objets nécessaires.",
+          "hold_after": 0.7,
+          "speech_text": "L’éditeur charge l’image et son masque correspondant depuis le sous-dossier masks. Les étiquettes colorées identifient chaque objet. Vérifiez que les contours suivent les limites de l’image. S’il manque un masque associé, partez d’un masque vide et dessinez les objets nécessaires."
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
-          "hold_after": 0.7
+          "narration": "Ouvrez Magnifier settings. Sélectionnez Otsu et Region under the mouse pour prévisualiser les objets obtenus par seuillage autour du pointeur. Choisissez un mode fondé sur un modèle lorsque le seuillage ne sépare pas bien vos objets.",
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez Magnifier settings. Sélectionnez Otsu et Region under the mouse pour prévisualiser les objets obtenus par seuillage autour du pointeur. Choisissez un mode fondé sur un modèle lorsque le seuillage ne sépare pas bien vos objets."
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Activez Magnifier et survolez un objet pour agrandir son aperçu. Passez sur plusieurs objets pour inspecter les contours proposés. Cliquez pour ajouter les objets délimités lorsqu’ils semblent corrects, ou désactivez Magnifier pour continuer la modification.",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
+          ],
+          "speech_text": "Activez Magnifier et survolez un objet pour agrandir son aperçu. Passez sur plusieurs objets pour inspecter les contours proposés. Cliquez pour ajouter les objets délimités lorsqu’ils semblent corrects, ou désactivez Magnifier pour continuer la modification."
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Cliquez sur Features pour mesurer des paires image-masque. Ajoutez une ligne par champ et choisissez les images d’intensité et les masques d’objets correspondants. Vérifiez les attributions manuelles si l’appariement automatique des noms de fichiers laisse des fichiers non attribués.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1577,11 +1792,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Cliquez sur Features pour mesurer des paires image-masque. Ajoutez une ligne par champ et choisissez les images d’intensité et les masques d’objets correspondants. Vérifiez les attributions manuelles si l’appariement automatique des noms de fichiers laisse des fichiers non attribués."
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "Pour chaque ligne, sélectionnez l’image d’intensité de l’ER dans Channel 1 et son image d’étiquettes correspondante dans Cell mask. Répétez pour le deuxième champ. Utilisez les images d’intensité d’origine pour mesurer la fluorescence.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1591,11 +1807,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Pour chaque ligne, sélectionnez l’image d’intensité de l’ER dans Channel 1 et son image d’étiquettes correspondante dans Cell mask. Répétez pour le deuxième champ. Utilisez les images d’intensité d’origine pour mesurer la fluorescence."
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "Vérifiez les deux lignes, puis choisissez les paramètres de mesure. Cet exemple utilise un seul processus, une taille minimale de cellule d’un pixel et aucune vignette PNG enregistrée. Augmentez le seuil de taille pour exclure les petits objets lorsque votre expérience le justifie. Cliquez sur Measure.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1605,11 +1822,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Vérifiez les deux lignes, puis choisissez les paramètres de mesure. Cet exemple utilise un seul processus, une taille minimale de cellule d’un pixel et aucune vignette PNG enregistrée. Augmentez le seuil de taille pour exclure les petits objets lorsque votre expérience le justifie. Cliquez sur Measure."
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "Une fois la mesure terminée, ouvrez le dossier de sortie. Le dossier measurements contient measurements.db avec les caractéristiques des objets des deux champs. Conservez la base de données avec ses images, masques et paramètres d’origine, puis fermez Features pour revenir à la modification.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1619,67 +1837,77 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Une fois la mesure terminée, ouvrez le dossier de sortie. Le dossier measurements contient measurements point dé bé avec les caractéristiques des objets des deux champs. Conservez la base de données avec ses images, masques et paramètres d’origine, puis fermez Features pour revenir à la modification."
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "Choisissez l’outil adapté à la correction. Brush ajoute des pixels, Erase en retire et Erase object supprime une étiquette entière. Draw ajoute un objet délimité ; Divide en scinde un. Zoom vous aide à examiner les contours avant toute modification.",
           "hold_after": 0.7,
           "focus": [
             345,
             195,
             2500,
             65
-          ]
+          ],
+          "speech_text": "Choisissez l’outil adapté à la correction. Brush ajoute des pixels, Erase en retire et Erase object supprime une étiquette entière. Draw ajoute un objet délimité ; Divide en scinde un. Zoom vous aide à examiner les contours avant toute modification."
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
-          "hold_after": 0.7
+          "narration": "Choisissez Erase object et cliquez à l’intérieur de l’objet à supprimer. Vérifiez le contour mis à jour et le nombre d’objets. Utilisez cet outil pour une étiquette indésirable, comme des débris ou un objet hors de vos critères d’analyse.",
+          "hold_after": 0.7,
+          "speech_text": "Choisissez Erase object et cliquez à l’intérieur de l’objet à supprimer. Vérifiez le contour mis à jour et le nombre d’objets. Utilisez cet outil pour une étiquette indésirable, comme des débris ou un objet hors de vos critères d’analyse."
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
-          "hold_after": 0.7
+          "narration": "Cliquez sur Undo pour annuler la suppression. Redo la rétablit. Utilisez ces commandes d’historique pour comparer une modification au masque précédent, puis revenez à la version que vous voulez garder.",
+          "hold_after": 0.7,
+          "speech_text": "Cliquez sur Undo pour annuler la suppression. Redo la rétablit. Utilisez ces commandes d’historique pour comparer une modification au masque précédent, puis revenez à la version que vous voulez garder."
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
-          "hold_after": 0.7
+          "narration": "Sélectionnez Draw et tracez un contour fermé autour d’un objet manquant. L’éditeur le remplit avec une nouvelle étiquette. Dans cet exercice, le contour est tracé dans le fond ; annulez-le donc avant d’enregistrer. Pour des données d’entraînement, tracez le contour réel de l’objet.",
+          "hold_after": 0.7,
+          "speech_text": "Sélectionnez Draw et tracez un contour fermé autour d’un objet manquant. L’éditeur le remplit avec une nouvelle étiquette. Dans cet exercice, le contour est tracé dans le fond ; annulez-le donc avant d’enregistrer. Pour des données d’entraînement, tracez le contour réel de l’objet."
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
-          "hold_after": 0.7
+          "narration": "Utilisez Divide lorsque deux objets qui se touchent partagent une étiquette. Tracez une coupe à travers toute la région fusionnée et inspectez les étiquettes séparées. Annulez la division si elle coupe un seul objet ou laisse un contour incorrect.",
+          "hold_after": 0.7,
+          "speech_text": "Utilisez Divide lorsque deux objets qui se touchent partagent une étiquette. Tracez une coupe à travers toute la région fusionnée et inspectez les étiquettes séparées. Annulez la division si elle coupe un seul objet ou laisse un contour incorrect."
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
-          "hold_after": 0.7
+          "narration": "Réglez Display percentiles pour rendre les structures faibles plus faciles à inspecter. Ces réglages modifient l’affichage tout en conservant les valeurs d’intensité brutes et les étiquettes. Revenez à un affichage cohérent pour comparer des champs.",
+          "hold_after": 0.7,
+          "speech_text": "Réglez Display percentiles pour rendre les structures faibles plus faciles à inspecter. Ces réglages modifient l’affichage tout en conservant les valeurs d’intensité brutes et les étiquettes. Revenez à un affichage cohérent pour comparer des champs."
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
-          "hold_after": 0.7
+          "narration": "Définissez les aires minimale et maximale des objets, puis appuyez sur Filter pour supprimer les étiquettes hors de ces limites. Choisissez des limites adaptées à vos objets et vérifiez ce qui a été supprimé. Le filtre modifie le masque ; utilisez Undo si le seuil retire des objets utiles.",
+          "hold_after": 0.7,
+          "speech_text": "Définissez les aires minimale et maximale des objets, puis appuyez sur Filter pour supprimer les étiquettes hors de ces limites. Choisissez des limites adaptées à vos objets et vérifiez ce qui a été supprimé. Le filtre modifie le masque ; utilisez Undo si le seuil retire des objets utiles."
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
-          "hold_after": 0.7
+          "narration": "Après avoir revu les modifications, cliquez sur Save mask. Si nécessaire, remettez les limites de taille à zéro pour les désactiver avant de passer à un autre champ. Conservez les images d’origine et gardez l’enregistrement de révision avec les masques modifiés.",
+          "hold_after": 0.7,
+          "speech_text": "Après avoir revu les modifications, cliquez sur Save mask. Si nécessaire, remettez les limites de taille à zéro pour les désactiver avant de passer à un autre champ. Conservez les images d’origine et gardez l’enregistrement de révision avec les masques modifiés."
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "L’en-tête regroupe le reste des outils de masques. Pour choisir des poids, Model Zoo les trouve et Model Compare place deux jeux de masques côte à côte. Lorsque d’autres exemples doivent être corrigés, Curate et Open in napari vous ramènent à la modification.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ]
+          ],
+          "speech_text": "L’en-tête regroupe le reste des outils de masques. Pour choisir des poids, Model Zoo les trouve et Model Compare place deux jeux de masques côte à côte. Lorsque d’autres exemples doivent être corrigés, Curate et Open in napari vous ramènent à la modification."
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "L’en-tête ouvre aussi Model Compare, Model Zoo, Curate et Open in napari. Utilisez Model Compare pour examiner des masques côte à côte, Model Zoo pour choisir des poids, et les outils de révision pour revoir ou modifier d’autres exemples.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1687,59 +1915,108 @@
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ]
+          ],
+          "speech_text": "L’en-tête ouvre aussi Model Compare, Model Zoo, Curate et Open in napari. Utilisez Model Compare pour examiner des masques côte à côte, Model Zoo pour choisir des poids, et les outils de révision pour revoir ou modifier d’autres exemples."
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
-          "hold_after": 0.7
+          "narration": "Choisissez Recrop et tracez un cadre autour des objets que vous voulez dans un champ d’entraînement plus petit. Cela écrit une nouvelle image et son masque correspondant. Les objets coupés par le bord sont écartés ; laissez donc de l’espace autour des objets complets et inspectez la vignette.",
+          "hold_after": 0.7,
+          "speech_text": "Choisissez Recrop et tracez un cadre autour des objets que vous voulez dans un champ d’entraînement plus petit. Cela écrit une nouvelle image et son masque correspondant. Les objets coupés par le bord sont écartés ; laissez donc de l’espace autour des objets complets et inspectez la vignette."
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Cliquez sur Next pour ouvrir la nouvelle vignette. L’image et le masque d’origine sont conservés dans recropped_originals pour pouvoir les récupérer. Vérifiez la vignette et ses étiquettes avant de l’ajouter à votre jeu d’entraînement.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Cliquez sur Next pour ouvrir la nouvelle vignette. L’image et le masque d’origine sont conservés dans recropped_originals pour pouvoir les récupérer. Vérifiez la vignette et ses étiquettes avant de l’ajouter à votre jeu d’entraînement."
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
-          "hold_after": 0.7
+          "narration": "Pour détecter des objets dans le champ actuel, sélectionnez le modèle Cellpose et vérifiez ses paramètres. Cet exemple utilise cpsam, la normalisation activée, un seuil de probabilité cellulaire de zéro et un seuil de flux de zéro virgule quatre. Vérifiez si les détections remplaceront les étiquettes existantes ou s’y ajouteront.",
+          "hold_after": 0.7,
+          "speech_text": "Pour détecter des objets dans le champ actuel, sélectionnez le modèle celle pose et vérifiez ses paramètres. Cet exemple utilise cpsam, la normalisation activée, un seuil de probabilité cellulaire de zéro et un seuil de flux de zéro virgule quatre. Vérifiez si les détections remplaceront les étiquettes existantes ou s’y ajouteront."
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
-          "hold_after": 0.7
+          "narration": "Cliquez sur Object detection et comparez les contours obtenus avec l’image. Ici, le modèle sélectionne l’objet partiel en haut à gauche au lieu de la cellule centrale. Annulez ce remplacement et ajustez les paramètres du modèle avant de réessayer.",
+          "hold_after": 0.7,
+          "speech_text": "Cliquez sur Object detection et comparez les contours obtenus avec l’image. Ici, le modèle sélectionne l’objet partiel en haut à gauche au lieu de la cellule centrale. Annulez ce remplacement et ajustez les paramètres du modèle avant de réessayer."
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
-          "hold_after": 0.7
+          "narration": "Ouvrez Cell probability pour inspecter la carte des scores de premier plan. Elle montre les régions que le modèle retient. Modifiez le seuil de premier plan si c’est utile, puis relancez la détection pour obtenir un nouveau résultat.",
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez Cell probability pour inspecter la carte des scores de premier plan. Elle montre les régions que le modèle retient. Modifiez le seuil de premier plan si c’est utile, puis relancez la détection pour obtenir un nouveau résultat."
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
-          "hold_after": 0.7
+          "narration": "Ouvrez Flows pour inspecter la vue directionnelle. Le seuil de cohérence des flux détermine quels objets détectés sont conservés : des valeurs plus basses sont plus strictes, et zéro désactive cette vérification. Comparez les masques finaux après chaque changement de réglage.",
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez Flows pour inspecter la vue directionnelle. Le seuil de cohérence des flux détermine quels objets détectés sont conservés : des valeurs plus basses sont plus strictes, et zéro désactive cette vérification. Comparez les masques finaux après chaque changement de réglage."
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
-          "hold_after": 0.7
+          "narration": "Undo rétablit les étiquettes d’avant la détection. Gardez le masque qui suit le mieux l’image, puis enregistrez-le. Poursuivez avec les champs restants et inspectez chaque résultat avant de l’inclure dans l’entraînement.",
+          "hold_after": 0.7,
+          "speech_text": "Undo rétablit les étiquettes d’avant la détection. Gardez le masque qui suit le mieux l’image, puis enregistrez-le. Poursuivez avec les champs restants et inspectez chaque résultat avant de l’inclure dans l’entraînement."
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "Gardez ensemble les images revues et les masques portant le même nom de base. Utilisez Train Cellpose pour apprendre de ces paires, ou revenez à Features ou à Measure pour extraire des mesures. Les tutoriels associés présentent chaque étape suivante.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
-          ]
+          ],
+          "speech_text": "Gardez ensemble les images revues et les masques portant le même nom de base. Utilisez Train celle pose pour apprendre de ces paires, ou revenez à Features ou à Measure pour extraire des mesures. Les tutoriels associés présentent chaque étape suivante."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1949,212 +2226,209 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "Suivi temporel",
+      "title": "Timelapse",
       "series": 2,
       "app_key": "timelapse",
-      "section": "Modules principaux",
+      "section": "Core",
       "host_app_key": "mask",
-      "description": "Utiliser le flux imbriqué dans Mask, exécuter huit images synthétiques et comparer les liens de masques dans Track preview.",
+      "description": "Reliez des objets au fil d’une série temporelle, inspectez leurs trajectoires et préparez les images suivies pour la mesure.",
       "objectives": [
-        "Trouver Timelapse dans Mask et préserver le temps et les images originales.",
-        "Comparer les trajectoires initiales, fragmentées et restaurées sur les mêmes masques.",
-        "Distinguer indicateurs, lecture vidéo, inférence et mouvement biologique mesuré."
+        "Charger les images et masques d’exemple dans Track preview.",
+        "Régler le chevauchement et inspecter l’identité des objets d’une image à l’autre.",
+        "Configurer une exécution Mask sur une série temporelle et trouver ses sorties de suivi."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Dans un nouveau dossier, choisissez Help > Demos > Timelapse demo : huit instants synthétiques de 256 par 256 pixels, noyau au canal 0 et cellule au canal 1. Activez Plot et Keep original images pour conserver les seize TIFF. Le ZIP contient les plans cellulaires exacts de cette exécution, pas des données acquises ni une vérité terrain. Sélectionnez séparément image_sequences/field_A01 et label_sequences/field_A01 : canal 0, huit images, un champ. Le seuil 0.1 donne seize trajectoires complètes ; 1.0 en donne 128 d'une image. Après avoir rétabli 0.1, attendez puis cliquez sur Re-link : la saisie peut déclencher une valeur intermédiaire. Ne cliquez pas sur Propagate settings, qui ne transmet pas le seuil IoU. Les avertissements de seuil de flux, de relations et d'état des paramètres restent signalés. Aucune validation biologique ou vitesse physique. API : spacr.core.preprocess_generate_masks et spacr.timelapse. AI reste désactivé.",
+      "prerequisite": "Téléchargez et extrayez SYNTHETIC_timelapse_preview.zip. L’exemple pédagogique contient huit images de cellules et les images d’étiquettes correspondantes. Pour une exécution Mask complète sur vos propres données, préparez des images de microscopie ordonnées dans le temps et notez l’intervalle d’acquisition.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Ouvrez Mask et activez son interrupteur Time. Timelapse est désormais intégré à Mask, et non proposé comme une tuile séparée sur Home. Il ajoute les paramètres temporels et de suivi au flux de segmentation. Les mesures de motilité relèvent de Measure, une étape ultérieure.",
+          "narration": "Depuis Home, ouvrez Mask et cliquez sur l’icône Timelapse en haut à droite pour activer le suivi. Timelapse relie les objets entre images consécutives. Nous allons d’abord essayer l’exemple lié dans Track preview, puis revoir les paramètres pour traiter votre propre séquence d’images.",
           "hold_after": 0.7,
           "focus": [
-            3535,
-            1905,
-            280,
-            85
+            3708,
+            33,
+            126,
+            116
           ],
           "related_lessons": [
             "07_mask",
             "18_motility"
           ],
-          "speech_text": "Ouvrez Mask et activez son interrupteur Time. Timelapse est désormais intégré à Mask, et non proposé comme une tuile séparée sur Home. Il ajoute les paramètres temporels et de suivi au flux de segmentation. Les mesures de motilité relèvent de Measure, une étape ultérieure."
-        },
-        {
-          "visual": "03_actual_demo_menu",
-          "narration": "Choisissez Help, Demos, puis Timelapse demo, et sélectionnez un nouveau dossier. Huit images synthétiques d'objets en déplacement sont créées et leurs paramètres sont chargés. Ce sont des images pédagogiques, pas une expérience biologique ni une preuve de précision de segmentation.",
-          "hold_after": 0.7,
-          "focus": [
-            70,
-            20,
-            535,
-            230
-          ],
-          "speech_text": "Choisissez Help, Demos, puis Timelapse demo, et sélectionnez un nouveau dossier. Huit images synthétiques d'objets en déplacement sont créées et leurs paramètres sont chargés. Ce sont des images pédagogiques, pas une expérience biologique ni une preuve de précision de segmentation."
-        },
-        {
-          "visual": "05_demo_loaded",
-          "narration": "Vérifiez la source et les canaux renseignés. Cette démonstration place l'intensité nucléaire dans le canal zéro et l'intensité cellulaire dans le canal un, sans canal pathogène. Les noms de fichiers encodent séparément le temps, le champ et le canal. Ne remplacez pas une série temporelle par la plaque statique habituelle.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            175,
-            1185,
-            470
-          ],
-          "speech_text": "Vérifiez la source et les canaux renseignés. Cette démonstration place l'intensité nucléaire dans le canal zéro et l'intensité cellulaire dans le canal un, sans canal pathogène. Les noms de fichiers encodent séparément le temps, le champ et le canal. Ne remplacez pas une série temporelle par la plaque statique habituelle."
-        },
-        {
-          "visual": "05_setting_timelapse_frame_limits",
-          "narration": "Frame limits définit une tranche indexée à partir de zéro : zéro à huit inclut les huit images, avec une borne finale exclue. Gardez ensemble les temps d'un même champ. Une fréquence de lecture ne fournit pas un intervalle d'acquisition manquant ; cette démonstration n'établit aucune vitesse physique.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1225,
-            1185,
-            300
-          ],
-          "speech_text": "Frame limits définit une tranche indexée à partir de zéro : zéro à huit inclut les huit images, avec une borne finale exclue. Gardez ensemble les temps d'un même champ. Une fréquence de lecture ne fournit pas un intervalle d'acquisition manquant ; cette démonstration n'établit aucune vitesse physique."
-        },
-        {
-          "visual": "05_setting_timelapse_mode",
-          "narration": "Suivez les cellules avec le mode de recouvrement nommé iou. Il relie les masques par leur intersection divisée par leur union entre images consécutives. Les autres moteurs ont des hypothèses et dépendances facultatives différentes. Un déplacement n'est pas un seuil de recouvrement ; utilisez les paramètres réellement lus par le moteur choisi.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1500,
-            1185,
-            490
-          ],
-          "speech_text": "Suivez les cellules avec le mode de recouvrement nommé iou. Il relie les masques par leur intersection divisée par leur union entre images consécutives. Les autres moteurs ont des hypothèses et dépendances facultatives différentes. Un déplacement n'est pas un seuil de recouvrement ; utilisez les paramètres réellement lus par le moteur choisi."
-        },
-        {
-          "visual": "05_setting_keep_original_images",
-          "narration": "Activez Keep original images avant Run. Sinon, le nettoyage peut supprimer les dossiers d'images intermédiaires et originales. Cet enregistrement conserve les seize TIFF générés à l'identique et ne touche jamais aux anciens fichiers pédagogiques. Gardez toujours une sauvegarde séparée d'une expérience acquise.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1140,
-            1185,
-            300
-          ],
-          "speech_text": "Activez Keep original images avant Run. Sinon, le nettoyage peut supprimer les dossiers d'images intermédiaires et originales. Cet enregistrement conserve les seize TIFF générés à l'identique et ne touche jamais aux anciens fichiers pédagogiques. Gardez toujours une sauvegarde séparée d'une expérience acquise."
-        },
-        {
-          "visual": "05_setting_plot",
-          "narration": "Activez Plot et lancez ce petit exemple. Le traitement actuel regroupe les huit images, même si la taille de lot demandée est inférieure. Surveillez la console et les ressources : davantage d'images, une résolution supérieure et plus d'objets peuvent exiger beaucoup plus de mémoire.",
-          "hold_after": 0.7,
-          "focus": [
-            235,
-            1070,
-            1185,
-            230
-          ],
-          "speech_text": "Activez Plot et lancez ce petit exemple. Le traitement actuel regroupe les huit images, même si la taille de lot demandée est inférieure. Surveillez la console et les ressources : davantage d'images, une résolution supérieure et plus d'objets peuvent exiger beaucoup plus de mémoire."
-        },
-        {
-          "visual": "08_actual_figure_04",
-          "narration": "L'exécution produit cinq figures et huit tableaux combinés. Dans cet affichage normalisé, les deux premiers plans représentent les intensités ; les deux derniers sont les étiquettes des cellules et des noyaux, pas des canaux d'acquisition supplémentaires. La table cellulaire enregistrée contient seize trajectoires de huit images chacune.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            140,
-            2370,
-            355
-          ],
-          "speech_text": "L'exécution produit cinq figures et huit tableaux combinés. Dans cet affichage normalisé, les deux premiers plans représentent les intensités ; les deux derniers sont les étiquettes des cellules et des noyaux, pas des canaux d'acquisition supplémentaires. La table cellulaire enregistrée contient seize trajectoires de huit images chacune."
-        },
-        {
-          "visual": "07_actual_finished",
-          "narration": "Lisez les avertissements, pas seulement Finished. Cette version signale des seuils de flux hérités, une table de relations indisponible et un avertissement d'état des paramètres. Nous avons vérifié séparément les masques et trajectoires enregistrés ; ce n'est ni une validation sans réserve de la version ni un remplacement de Measure.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            500,
-            2370,
-            1260
-          ],
-          "speech_text": "Lisez les avertissements, pas seulement Finished. Cette version signale des seuils de flux hérités, une table de relations indisponible et un avertissement d'état des paramètres. Nous avons vérifié séparément les masques et trajectoires enregistrés ; ce n'est ni une validation sans réserve de la version ni un remplacement de Measure."
+          "speech_text": "Depuis Home, ouvrez Mask et cliquez sur l’icône Timelapse en haut à droite pour activer le suivi. Timelapse relie les objets entre images consécutives. Nous allons d’abord essayer l’exemple lié dans Track preview, puis revoir les paramètres pour traiter votre propre séquence d’images."
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Ouvrez Track preview. Pour reproduire l'exercice de liaison, téléchargez et extrayez l'archive synthétique proposée ci-dessous. Elle contient exactement les plans d'image et de masque cellulaires du lot enregistré. Charger ces masques permet de tester les liens sans exécuter un autre modèle de segmentation.",
+          "narration": "Téléchargez et extrayez l’archive d’exemple ci-dessous, puis cliquez sur Track preview à droite de l’en-tête Actions. L’archive contient une séquence d’images et la séquence de masques correspondante, sur huit images. Gardez les deux dossiers ensemble pour pouvoir sélectionner les images et étiquettes qui se correspondent.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            360,
+            230,
+            3480,
+            1900
           ],
-          "speech_text": "Ouvrez Track preview. Pour reproduire l'exercice de liaison, téléchargez et extrayez l'archive synthétique proposée ci-dessous. Elle contient exactement les plans d'image et de masque cellulaires du lot enregistré. Charger ces masques permet de tester les liens sans exécuter un autre modèle de segmentation."
+          "speech_text": "Téléchargez et extrayez l’archive d’exemple ci-dessous, puis cliquez sur Track preview à droite de l’en-tête Actions. L’archive contient une séquence d’images et la séquence de masques correspondante, sur huit images. Gardez les deux dossiers ensemble pour pouvoir sélectionner les images et étiquettes qui se correspondent."
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choisissez le dossier de la séquence d'images du champ A zéro un. Ces images exportées contiennent uniquement le plan d'intensité cellulaire original : choisissez donc ici le canal zéro. Séparez les dossiers parents des images et des étiquettes ; réglez Frames previewed sur huit et Fields sur un.",
+          "narration": "Choisissez image_sequences, puis field_A01, comme dossier d’images. Sélectionnez le canal zéro : chaque image d’exemple contient un seul canal d’intensité cellulaire. Réglez Frames previewed sur huit et Fields sur un.",
           "hold_after": 0.7,
-          "speech_text": "Choisissez le dossier de la séquence d'images du champ A zéro un. Ces images exportées contiennent uniquement le plan d'intensité cellulaire original : choisissez donc ici le canal zéro. Séparez les dossiers parents des images et des étiquettes ; réglez Frames previewed sur huit et Fields sur un."
+          "speech_text": "Choisissez image_sequences, puis field_A01, comme dossier d’images. Sélectionnez le canal zéro : chaque image d’exemple contient un seul canal d’intensité cellulaire. Réglez Frames previewed sur huit et Fields sur un."
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Choisissez le dossier des étiquettes correspondant avec Masks. Ce sont des masques calculés, pas une vérité terrain. Laissez Keep only full-length tracks désactivé et ne cliquez pas sur Propagate settings. Les réglages du modèle ne créent pas de nouveaux masques lorsqu'une séquence existante est lue.",
+          "narration": "Cliquez sur Masks et sélectionnez label_sequences, puis field_A01. Chaque étiquette identifie un objet dans l’image correspondante. Laissez d’abord Keep only full-length tracks désactivé afin d’inspecter les trajectoires qui commencent ou se terminent au cours de la séquence.",
           "hold_after": 0.7,
-          "speech_text": "Choisissez le dossier des étiquettes correspondant avec Masks. Ce sont des masques calculés, pas une vérité terrain. Laissez Keep only full-length tracks désactivé et ne cliquez pas sur Propagate settings. Les réglages du modèle ne créent pas de nouveaux masques lorsqu'une séquence existante est lue."
+          "speech_text": "Cliquez sur Masks et sélectionnez label_sequences, puis field_A01. Chaque étiquette identifie un objet dans l’image correspondante. Laissez d’abord Keep only full-length tracks désactivé afin d’inspecter les trajectoires qui commencent ou se terminent au cours de la séquence."
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Lancez la prévisualisation avec un seuil de recouvrement de zéro virgule un. Elle indique seize trajectoires de huit images, sans trajectoire courte ici. Fragmentation et sauts sont des indicateurs calculés sans vérité terrain ; de faibles valeurs ne prouvent pas à elles seules que les identités sont biologiquement correctes.",
+          "narration": "Réglez le seuil de chevauchement sur zéro virgule un et cliquez sur Run preview. Ce seuil détermine à quel point des masques voisins doivent se chevaucher pour être reliés. Inspectez les identités d’objets colorées et le résumé des longueurs de trajectoire. L’exemple produit seize trajectoires qui couvrent les huit images.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            800
+            379,
+            307,
+            3432,
+            958
           ],
-          "speech_text": "Lancez la prévisualisation avec un seuil de recouvrement de zéro virgule un. Elle indique seize trajectoires de huit images, sans trajectoire courte ici. Fragmentation et sauts sont des indicateurs calculés sans vérité terrain ; de faibles valeurs ne prouvent pas à elles seules que les identités sont biologiquement correctes."
-        },
-        {
-          "visual": "13_actual_strict_overlap",
-          "narration": "Portez le seuil de recouvrement à un. Exiger un recouvrement exact fragmente cet exemple mobile en cent vingt-huit trajectoires d'une image. Images et masques restent identiques ; seuls les liens changent. Cette valeur volontairement excessive illustre la fragmentation, ce n'est pas un réglage conseillé.",
-          "hold_after": 0.7,
-          "focus": [
-            1440,
-            755,
-            2370,
-            800
-          ],
-          "speech_text": "Portez le seuil de recouvrement à un. Exiger un recouvrement exact fragmente cet exemple mobile en cent vingt-huit trajectoires d'une image. Images et masques restent identiques ; seuls les liens changent. Cette valeur volontairement excessive illustre la fragmentation, ce n'est pas un réglage conseillé."
+          "speech_text": "Réglez le seuil de chevauchement sur zéro virgule un et cliquez sur Run preview. Ce seuil détermine à quel point des masques voisins doivent se chevaucher pour être reliés. Inspectez les identités d’objets colorées et le résumé des longueurs de trajectoire. L’exemple produit seize trajectoires qui couvrent les huit images."
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Rétablissez zéro virgule un, attendez la fin du calcul en cours, puis cliquez sur Re-link. La saisie peut lancer un calcul sur une valeur intermédiaire ; confirmez explicitement le calcul final. Les seize trajectoires complètes reviennent. Ne cliquez pas sur Propagate settings : le seuil n'est pas transféré au formulaire du lot.",
+          "narration": "Ajustez le seuil de chevauchement si les objets se fragmentent en trajectoires courtes ou se relient aux mauvais voisins. Un seuil plus élevé exige davantage de chevauchement. Après l’avoir modifié, attendez la fin de l’aperçu et cliquez sur Re-link pour inspecter la valeur finale. Parcourez plusieurs images avant d’accepter le résultat.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            755,
-            2370,
-            1150
+            379,
+            307,
+            3432,
+            958
           ],
-          "speech_text": "Rétablissez zéro virgule un, attendez la fin du calcul en cours, puis cliquez sur Re-link. La saisie peut lancer un calcul sur une valeur intermédiaire ; confirmez explicitement le calcul final. Les seize trajectoires complètes reviennent. Ne cliquez pas sur Propagate settings : le seuil n'est pas transféré au formulaire du lot."
+          "speech_text": "Ajustez le seuil de chevauchement si les objets se fragmentent en trajectoires courtes ou se relient aux mauvais voisins. Un seuil plus élevé exige davantage de chevauchement. Après l’avoir modifié, attendez la fin de l’aperçu et cliquez sur Re-link pour inspecter la valeur finale. Parcourez plusieurs images avant d’accepter le résultat."
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Déplacez le curseur jusqu'à l'image huit pour inspecter les objets reliés. La vitesse de lecture ne change que l'affichage, pas le temps d'acquisition. Poursuivez dans Measure et Motility avec un intervalle et une échelle validés. L'API et spaCR AI expliquent les paramètres, mais ne remplacent pas la vérification des images, trajectoires et avertissements.",
+          "narration": "Utilisez le curseur des images pour suivre le même objet tout au long de la séquence. Play modifie la vitesse de défilement des images. Notez à part l’intervalle d’acquisition réel pour les mesures de vitesse ultérieures.",
           "hold_after": 0.7,
           "focus": [
-            1440,
-            1250,
-            2370,
-            320
+            379,
+            860,
+            3432,
+            1100
           ],
           "related_lessons": [
             "08_measure",
             "18_motility",
             "06_api"
           ],
-          "speech_text": "Déplacez le curseur jusqu'à l'image huit pour inspecter les objets reliés. La vitesse de lecture ne change que l'affichage, pas le temps d'acquisition. Poursuivez dans Measure et Motility avec un intervalle et une échelle validés. L'API et spakeur AI expliquent les paramètres, mais ne remplacent pas la vérification des images, trajectoires et avertissements."
+          "speech_text": "Utilisez le curseur des images pour suivre le même objet tout au long de la séquence. Play modifie la vitesse de défilement des images. Notez à part l’intervalle d’acquisition réel pour les mesures de vitesse ultérieures."
+        },
+        {
+          "visual": "05_setting_timelapse_frame_limits",
+          "narration": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Cet enregistrement importe les paramètres d’une petite séquence synthétique de huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            230,
+            1160,
+            1900
+          ],
+          "speech_text": "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Cet enregistrement importe les paramètres d’une petite séquence synthétique de huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images."
+        },
+        {
+          "visual": "05_setting_timelapse_mode",
+          "narration": "Choisissez l’objet à suivre et le mode de suivi. Le mode de chevauchement, iou, relie les objets à partir de leurs masques dans des images voisines. Inspectez d’abord une courte séquence et choisissez un mode adapté à la distance parcourue par vos objets entre deux images.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1480,
+            1160,
+            640
+          ],
+          "speech_text": "Choisissez l’objet à suivre et le mode de suivi. Le mode de chevauchement, iou, relie les objets à partir de leurs masques dans des images voisines. Inspectez d’abord une courte séquence et choisissez un mode adapté à la distance parcourue par vos objets entre deux images."
+        },
+        {
+          "visual": "05_setting_keep_original_images",
+          "narration": "Activez Keep original images pour conserver les images d’entrée lors du nettoyage du pipeline. Réglez le modèle de segmentation et les canaux pour vos données, et vérifiez l’aperçu avant de traiter la séquence complète.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1260,
+            1160,
+            160
+          ],
+          "speech_text": "Activez Keep original images pour conserver les images d’entrée lors du nettoyage du pipeline. Réglez le modèle de segmentation et les canaux pour vos données, et vérifiez l’aperçu avant de traiter la séquence complète."
+        },
+        {
+          "visual": "05_setting_plot",
+          "narration": "Activez Plot pour inspecter les figures générées, puis cliquez sur Run. Suivez la progression dans la console et attendez la fin. Commencez par une courte séquence afin de vérifier les masques et les identités des trajectoires avant de traiter une expérience plus grande.",
+          "hold_after": 0.7,
+          "focus": [
+            340,
+            1100,
+            1160,
+            140
+          ],
+          "speech_text": "Activez Plot pour inspecter les figures générées, puis cliquez sur Run. Suivez la progression dans la console et attendez la fin. Commencez par une courte séquence afin de vérifier les masques et les identités des trajectoires avant de traiter une expérience plus grande."
+        },
+        {
+          "visual": "08_actual_figure_04",
+          "narration": "Inspectez les plans d’intensité et d’étiquettes dans les figures de sortie. L’exécution enregistre les tableaux suivis dans merged et les tables de trajectoires dans tracks, dans le dossier du projet. Poursuivez avec Measure, puis Motility, pour calculer les caractéristiques des objets et leurs déplacements à partir de ces trajectoires.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            171,
+            3458,
+            1797
+          ],
+          "speech_text": "Inspectez les plans d’intensité et d’étiquettes dans les figures de sortie. L’exécution enregistre les tableaux suivis dans merged et les tables de trajectoires dans tracks, dans le dossier du projet. Poursuivez avec Measure, puis Motility, pour calculer les caractéristiques des objets et leurs déplacements à partir de ces trajectoires."
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "18_motility",
@@ -3142,21 +3416,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay : évaluer la coloration externe et totale",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "Associez deux canaux de coloration, choisissez la référence de coloration, lancez l’analyse et inspectez les classifications d’invasion et la sensibilité au seuil.",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "Choisir la base de données de mesures et associer les colorations externe et totale.",
+        "Définir les puits de référence et les réglages du seuil, puis lancer l’analyse.",
+        "Inspecter les distributions, les dénominateurs par puits et les tables de résultats enregistrées."
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "Extrayez l’exemple synthétique Invasion Assay lié et utilisez sa référence de paramètres. La base de données contient 1 800 mesures synthétiques de parasites ; les noms des conditions et les résultats sont illustratifs. Pour votre propre essai, utilisez un protocole de coloration bicolore validé, avec une coloration externe avant la perméabilisation et une coloration totale après, et examinez des images représentatives.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Depuis Home, ouvrez Toxoplasma, puis choisissez Invasion Assay. Partez d’une base de données de mesures contenant les intensités des parasites pour les colorations externe et totale. Utilisez l’échantillon synthétique lié pour vous exercer à l’association des canaux, au choix du seuil et à l’inspection des résultats.",
           "focus": [
             346,
             50,
@@ -3166,99 +3440,108 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Depuis Home, ouvrez Toxoplasma, puis choisissez Invasion Assay. Partez d’une base de données de mesures contenant les intensités des parasites pour les colorations externe et totale. Utilisez l’échantillon synthétique lié pour vous exercer à l’association des canaux, au choix du seuil et à l’inspection des résultats."
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "Extrayez l’échantillon et réglez Source sur son dossier invasion, qui contient measurements/measurements.db. Saisissez la référence de paramètres fournie et remplacez son espace réservé Source. L’échantillon contient des puits de référence et deux conditions d’essai.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Extrayez l’échantillon et réglez Source sur son dossier invasion, qui contient measurements/measurements point dé bé. Saisissez la référence de paramètres fournie et remplacez son espace réservé Source. L’échantillon contient des puits de référence et deux conditions d’essai."
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Réglez Outside channel sur un et Total channel sur zéro. La coloration externe est appliquée avant la perméabilisation ; la coloration totale, après. Les parasites positifs pour la coloration externe sont classés comme attachés, et ceux au niveau du seuil externe ou en dessous, comme envahisseurs. Vérifiez l’ordre de vos canaux d’acquisition lorsque vous utilisez vos propres mesures.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Réglez Outside channel sur un et Total channel sur zéro. La coloration externe est appliquée avant la perméabilisation ; la coloration totale, après. Les parasites positifs pour la coloration externe sont classés comme attachés, et ceux au niveau du seuil externe ou en dessous, comme envahisseurs. Vérifiez l’ordre de vos canaux d’acquisition lorsque vous utilisez vos propres mesures."
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "Sélectionnez mean dans Intensity statistic pour correspondre aux colonnes de la base de données d’exemple. Pour votre propre essai, choisissez une statistique disponible adaptée à la coloration et inspectez des objets représentatifs. Laissez Minimum total intensity à cent pour cet échantillon.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Sélectionnez mean dans Intensity statistic pour correspondre aux colonnes de la base de données d’exemple. Pour votre propre essai, choisissez une statistique disponible adaptée à la coloration et inspectez des objets représentatifs. Laissez Minimum total intensity à cent pour cet échantillon."
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "Réglez Stain baseline wells sur la colonne un, avec c1. Ces mesures de coloration négative fixent le seuil et sont exclues des dénominateurs de l’essai. Dans Pathogen plate metadata, associez vehicle à la colonne deux et inhibitor à la colonne trois.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Réglez Stain baseline wells sur la colonne un, avec c1. Ces mesures de coloration négative fixent le seuil et sont exclues des dénominateurs de l’essai. Dans Pathogen plate metadata, associez vehicle à la colonne deux et inhibitor à la colonne trois."
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Réglez Control quantile sur zéro virgule quatre-vingt-dix-neuf et laissez le Outside threshold fixe vide. Les mesures de référence déterminent alors le seuil, d’environ vingt-deux virgule huit dans cet exemple. Vérifiez le seuil appliqué dans la sortie avant d’interpréter les classifications.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Réglez Control quantile sur zéro virgule quatre-vingt-dix-neuf et laissez le Outside threshold fixe vide. Les mesures de référence déterminent alors le seuil, d’environ vingt-deux virgule huit dans cet exemple. Vérifiez le seuil appliqué dans la sortie avant d’interpréter les classifications."
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Réglez Threshold sensitivity sur zéro virgule vingt-cinq. Cela évalue aussi des seuils inférieurs et supérieurs de vingt-cinq pour cent au seuil choisi. Comparez la plage d’efficacité d’invasion obtenue pour voir à quel point votre résultat dépend du choix du seuil.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Réglez Threshold sensitivity sur zéro virgule vingt-cinq. Cela évalue aussi des seuils inférieurs et supérieurs de vingt-cinq pour cent au seuil choisi. Comparez la plage d’efficacité d’invasion obtenue pour voir à quel point votre résultat dépend du choix du seuil."
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "Réglez Extracellular class sur classify pour l’échantillon. Pour les objets sans lien avec une cellule hôte, classify utilise la coloration, attached les classe comme attachés et exclude les retire de la population évaluée. Choisissez ce réglage en tenant compte de la qualité de vos attributions aux cellules hôtes.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Réglez Extracellular class sur classify pour l’échantillon. Pour les objets sans lien avec une cellule hôte, classify utilise la coloration, attached les classe comme attachés et exclude les retire de la population évaluée. Choisissez ce réglage en tenant compte de la qualité de vos attributions aux cellules hôtes."
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Laissez Save activé et cliquez sur Run. Ouvrez la figure du seuil une fois le traitement terminé. Elle montre les distributions par puits et le seuil appliqué. Pour une expérience, comparez ces distributions à des images colorées représentatives et examinez les colorations externes faibles.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Laissez Save activé et cliquez sur Run. Ouvrez la figure du seuil une fois le traitement terminé. Elle montre les distributions par puits et le seuil appliqué. Pour une expérience, comparez ces distributions à des images colorées représentatives et examinez les colorations externes faibles."
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "Si une légende dépasse de la figure, ouvrez Figure settings. Dans l’onglet axes, réglez Legend position sur best, puis confirmez. Vérifiez que les étiquettes restent visibles à l’écran comme dans la figure exportée.",
           "focus": [
             1420,
             330,
@@ -3268,33 +3551,36 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Si une légende dépasse de la figure, ouvrez Figure settings. Dans l’onglet axes, réglez Legend position sur best, puis confirmez. Vérifiez que les étiquettes restent visibles à l’écran comme dans la figure exportée."
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "Ouvrez la figure par puits. Chaque barre montre les fractions attachées et envahissantes, avec au-dessus le nombre de parasites évalués. Les puits de référence sont exclus. Lisez les effectifs en même temps que les fractions lorsque vous comparez des puits.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez la figure par puits. Chaque barre montre les fractions attachées et envahissantes, avec au-dessus le nombre de parasites évalués. Les puits de référence sont exclus. Lisez les effectifs en même temps que les fractions lorsque vous comparez des puits."
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "Ouvrez le résumé par condition. Comparez la fraction d’invasion regroupée à la moyenne des puits, car elles n’utilisent pas la même pondération. Vérifiez la variation des résultats par puits avant de comparer des conditions.",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez le résumé par condition. Comparez la fraction d’invasion regroupée à la moyenne des puits, car elles n’utilisent pas la même pondération. Vérifiez la variation des résultats par puits avant de comparer des conditions."
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "Tout est enregistré dans results/analyze_invasion à l’intérieur de Source. parasite_calls.csv contient la classification de chaque parasite, field_thresholds.csv les seuils correspondants, well_invasion.csv les fractions par puits et condition_summary.csv la comparaison regroupée. Conservez avec eux les figures et les paramètres, et comparez les conditions sur des réplicats indépendants.",
           "focus": [
             1510,
             1200,
@@ -3305,7 +3591,8 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Tout est enregistré dans results/analyze_invasion à l’intérieur de Source. parasite_calls.csv contient la classification de chaque parasite, field_thresholds.csv les seuils correspondants, well_invasion.csv les fractions par puits et condition_summary.csv la comparaison regroupée. Conservez avec eux les figures et les paramètres, et comparez les conditions sur des réplicats indépendants."
         }
       ],
       "example_files": [
@@ -3314,6 +3601,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3321,21 +3648,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay : compter les parasites par vacuole",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "Chargez des mesures de parasites, choisissez l’identité des vacuoles, lancez l’analyse et inspectez les distributions de comptages et les exports.",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "Choisir une base de données de mesures et son identifiant de vacuole.",
+        "Définir les filtres d’attribution à la cellule hôte et de taille, puis lancer l’analyse.",
+        "Lire les distributions par puits et trouver les tables de résultats enregistrées."
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "Extrayez l’exemple synthétique Replication Assay lié. Il contient une base de données de mesures et une référence de paramètres, avec 1 992 lignes de parasites dans 480 vacuoles réparties sur douze puits. Les noms des conditions et les mesures sont des données pédagogiques. Pour votre propre essai, utilisez des parasites mesurés avec des attributions aux vacuoles vérifiées et des réplicats expérimentaux indépendants.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Depuis Home, ouvrez Toxoplasma, puis choisissez Replication Assay. Partez d’une base de données de mesures contenant des lignes de parasites et leurs attributions aux vacuoles. L’exemple synthétique lié vous permet de vous exercer aux paramètres et de lire les distributions de comptages obtenues.",
           "focus": [
             346,
             50,
@@ -3345,121 +3672,132 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Depuis Home, ouvrez Toxoplasma, puis choisissez Replication Assay. Partez d’une base de données de mesures contenant des lignes de parasites et leurs attributions aux vacuoles. L’exemple synthétique lié vous permet de vous exercer aux paramètres et de lire les distributions de comptages obtenues."
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "Extrayez l’échantillon et réglez Source sur son dossier replication. La base de données se trouve dans measurements. Saisissez la référence de paramètres fournie en remplaçant son espace réservé Source par votre dossier extrait. Laissez Save activé pour écrire les résultats.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Extrayez l’échantillon et réglez Source sur son dossier replication. La base de données se trouve dans measurements. Saisissez la référence de paramètres fournie en remplaçant son espace réservé Source par votre dossier extrait. Laissez Save activé pour écrire les résultats."
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Réglez Vacuole key sur vacuole_id. Les parasites sont ainsi regroupés selon la vacuole à laquelle ils appartiennent. L’échantillon contient deux vacuoles par groupe de cellules hôtes ; utilisez donc l’identifiant de vacuole pour garder ces comptages séparés.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Réglez Vacuole key sur vacuole_id. Les parasites sont ainsi regroupés selon la vacuole à laquelle ils appartiennent. L’échantillon contient deux vacuoles par groupe de cellules hôtes ; utilisez donc l’identifiant de vacuole pour garder ces comptages séparés."
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Activez Require host cell pour n’inclure que les parasites liés à une cellule hôte. Examinez les objets non attribués lorsque vous utilisez vos propres données. Pour cet échantillon, réglez Minimum parasite area sur deux cents et Maximum parasite area sur huit cents.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Activez Require host cell pour n’inclure que les parasites liés à une cellule hôte. Examinez les objets non attribués lorsque vous utilisez vos propres données. Pour cet échantillon, réglez Minimum parasite area sur deux cents et Maximum parasite area sur huit cents."
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Réglez Maximum parasites per vacuole sur seize. Cela fixe la plus grande catégorie nommée parmi les puissances de deux. Les comptages plus grands qui sont des puissances de deux vont dans une catégorie de débordement, tandis que des comptages comme trois restent dans la catégorie distincte des valeurs qui ne sont pas des puissances de deux.",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Réglez Maximum parasites per vacuole sur seize. Cela fixe la plus grande catégorie nommée parmi les puissances de deux. Les comptages plus grands qui sont des puissances de deux vont dans une catégorie de débordement, tandis que des comptages comme trois restent dans la catégorie distincte des valeurs qui ne sont pas des puissances de deux."
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "Saisissez vehicle et inhibitor comme les deux Pathogen types, et associez-les à la colonne un et à la colonne deux dans Pathogen plate metadata. Chaque groupe contient six puits d’exercice. Pour votre expérience, saisissez les noms des conditions et les attributions de puits de votre plan de plaque.",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Saisissez vehicle et inhibitor comme les deux Pathogen types, et associez-les à la colonne un et à la colonne deux dans Pathogen plate metadata. Chaque groupe contient six puits d’exercice. Pour votre expérience, saisissez les noms des conditions et les attributions de puits de votre plan de plaque."
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Vérifiez Source, Vacuole key, les filtres et Save, puis cliquez sur Run. Suivez la console jusqu’à la fin du traitement. La zone Figures affichera les distributions par puits et par condition.",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Vérifiez Source, Vacuole key, les filtres et Save, puis cliquez sur Run. Suivez la console jusqu’à la fin du traitement. La zone Figures affichera les distributions par puits et par condition."
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "Ouvrez la figure par puits. Chaque barre empilée montre la fraction de vacuoles dans chaque catégorie de nombre de parasites. Lisez les couleurs à l’aide de la légende. Dans cet échantillon, chaque puits contient quarante vacuoles et cinq pour cent se trouvent dans la catégorie des valeurs qui ne sont pas des puissances de deux.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez la figure par puits. Chaque barre empilée montre la fraction de vacuoles dans chaque catégorie de nombre de parasites. Lisez les couleurs à l’aide de la légende. Dans cet échantillon, chaque puits contient quarante vacuoles et cinq pour cent se trouvent dans la catégorie des valeurs qui ne sont pas des puissances de deux."
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "Ouvrez Figure settings pour ajuster la légende. Dans l’onglet axes, choisissez une Legend position intérieure si les étiquettes dépassent de la figure. Cela modifie la présentation sans changer les comptages calculés.",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ]
+          ],
+          "speech_text": "Ouvrez Figure settings pour ajuster la légende. Dans l’onglet axes, choisissez une Legend position intérieure si les étiquettes dépassent de la figure. Cela modifie la présentation sans changer les comptages calculés."
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "Ouvrez la figure par condition pour comparer les distributions de comptages regroupées. Examinez les résultats par puits en parallèle de ce résumé. Pour analyser une expérience, utilisez des réplicats biologiques indépendants et une unité expérimentale appropriée pour les comparaisons statistiques.",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez la figure par condition pour comparer les distributions de comptages regroupées. Examinez les résultats par puits en parallèle de ce résumé. Pour analyser une expérience, utilisez des réplicats biologiques indépendants et une unité expérimentale appropriée pour les comparaisons statistiques."
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "Lisez les éventuels avertissements d’export dans la console. Vérifiez les figures enregistrées autant que la vue à l’écran, et choisissez des couleurs qui restent lisibles sur le fond de l’export.",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Lisez les éventuels avertissements d’export dans la console. Vérifiez les figures enregistrées autant que la vue à l’écran, et choisissez des couleurs qui restent lisibles sur le fond de l’export."
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Les résultats de results/analyze_replication, dans Source, s’appuient les uns sur les autres. vacuole_counts.csv compte chaque vacuole, well_distribution.csv transforme ces comptages en distribution pour chaque puits, et les résumés et figures par condition regroupent les puits. Conservez-les avec les paramètres et la base de données source afin de pouvoir retracer chaque nombre.",
           "focus": [
             346,
             170,
@@ -3470,7 +3808,8 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ]
+          ],
+          "speech_text": "Les résultats de results/analyze_replication, dans Source, s’appuient les uns sur les autres. vacuole_counts.csv compte chaque vacuole, well_distribution.csv transforme ces comptages en distribution pour chaque puits, et les résumés et figures par condition regroupent les puits. Conservez-les avec les paramètres et la base de données source afin de pouvoir retracer chaque nombre."
         }
       ],
       "example_files": [
@@ -3479,6 +3818,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9515,17 +9894,150 @@
       "id": "71_investigate_hit",
       "number": 71,
       "slug": "investigate_hit",
-      "title": "Examiner le résultat",
+      "title": "Investigate Hit : remonter d’un gène de Regression aux cellules mesurées",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Résultats et contrôle qualité",
-      "description": "Ce tutoriel n’est pas encore disponible. En attendant, découvrez les autres tutoriels.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Bientôt disponible",
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Envoyez un gène de Hit List vers Investigate Hit, ajoutez la base de données de mesures, les prédictions par cellule et les fractions de guides, puis lisez les éléments de preuve au niveau des puits.",
+      "objectives": [
+        "Ouvrir une exécution Regression dans Hit List, vérifier les valeurs q et envoyer un gène vers Investigate Hit.",
+        "Choisir la base de données de mesures, les prédictions par cellule, les fractions de guides et la colonne de score.",
+        "Lire les onglets des éléments de preuve, des puits, des guides et du seuil, et trouver les tables enregistrées."
+      ],
+      "prerequisite": "Extrayez Investigate_Hit_real_screen_example.zip. Tout son contenu provient d’un même criblage réel : l’exécution Regression sur les données de test de Regression (les paramètres du tutoriel Regression), les prédictions CV par cellule correspondantes et une base de données de mesures contenant les vraies mesures de forme, de taille et d’intensité de ces mêmes cellules. Pour limiter la taille du téléchargement, la base contient 52 puits : tous les puits analysés portant un guide du gène 225160 et, pour chacun, trois puits sans ce guide provenant de la même plaque. Aucun gène de cette exécution Regression rapide ne vérifie q ≤ 0,05. Considérez l’investigation comme un exemple d’application, pas comme un hit confirmé.",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "Depuis Home, ouvrez Regression. Investigate Hit part d’une exécution Regression terminée. Il demande si les cellules mesurées dans les puits associés à un gène diffèrent des cellules des puits sans ce gène.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Depuis Home, ouvrez Regression. Investigate Hit part d’une exécution Regression terminée. Il demande si les cellules mesurées dans les puits associés à un gène diffèrent des cellules des puits sans ce gène."
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Choisissez Hits pour ouvrir Hit List. Extrayez d’abord l’archive d’exemple. Elle contient une exécution Regression sur les données de test, les prédictions CV par cellule correspondantes et une base de données de mesures pour ces mêmes cellules. Les trois proviennent d’un même criblage réel.",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Choisissez Hits pour ouvrir Hit List. Extrayez d’abord l’archive d’exemple. Elle contient une exécution Regression sur les données de test, les prédictions CV par cellule correspondantes et une base de données de mesures pour ces mêmes cellules. Les trois proviennent d’un même criblage réel."
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Cliquez sur Browse et sélectionnez le dossier guide_permutation dans regression_run, results. C’est la sortie de l’exécution sur données de test du tutoriel Regression.",
+          "hold_after": 0.7,
+          "speech_text": "Cliquez sur Browse et sélectionnez le dossier guide_permutation dans regression_run, results. C’est la sortie de l’exécution sur données de test du tutoriel Regression."
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List classe trois cent vingt-cinq gènes. Lisez ensemble l’effet, la valeur P et la valeur q de chaque ligne, ainsi que le nombre de guides et combien d’entre eux concordent.",
+          "hold_after": 0.7,
+          "speech_text": "Hit List classe trois cent vingt-cinq gènes. Lisez ensemble l’effet, la valeur P et la valeur q de chaque ligne, ainsi que le nombre de guides et combien d’entre eux concordent."
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Réglez Max q sur zéro virgule zéro cinq. Le tableau se vide, car aucun gène de cette exécution n’a une valeur q inférieure ou égale à zéro virgule zéro cinq. Avec cent quatre-vingt-dix-neuf permutations, la plus petite valeur P possible est zéro virgule zéro zéro cinq, et la plus petite valeur q est d’environ zéro virgule vingt-sept. La suite examine donc un candidat classé, pas un hit confirmé.",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Réglez Max q sur zéro virgule zéro cinq. Le tableau se vide, car aucun gène de cette exécution n’a une valeur q inférieure ou égale à zéro virgule zéro cinq. Avec cent quatre-vingt-dix-neuf permutations, la plus petite valeur P possible est zéro virgule zéro zéro cinq, et la plus petite valeur q est d’environ zéro virgule vingt-sept. La suite examine donc un candidat classé, pas un hit confirmé."
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Remettez Max q sur un, recherchez deux deux cinq un six zéro et sélectionnez sa ligne. Il a un effet de zéro virgule trente-quatre, une valeur q de zéro virgule vingt-sept et trois guides qui vont tous dans le même sens.",
+          "hold_after": 0.7,
+          "speech_text": "Remettez Max q sur un, recherchez deux deux cinq un six zéro et sélectionnez sa ligne. Il a un effet de zéro virgule trente-quatre, une valeur q de zéro virgule vingt-sept et trois guides qui vont tous dans le même sens."
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Cliquez sur Investigate selected. Investigate Hit s’ouvre avec le dossier de résultats, le gène, ses trois guides et un sens d’effet positif déjà remplis à partir de cette ligne.",
+          "hold_after": 0.7,
+          "speech_text": "Cliquez sur Investigate selected. Investigate Hit s’ouvre avec le dossier de résultats, le gène, ses trois guides et un sens d’effet positif déjà remplis à partir de cette ligne."
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "À côté de Measurements database, cliquez sur Browse et choisissez measurements.db dans l’exemple. Il contient la forme, la taille et l’intensité moyenne par canal de huit mille neuf cent quinze cellules dans cinquante-deux puits.",
+          "hold_after": 0.7,
+          "speech_text": "À côté de Measurements database, cliquez sur Browse et choisissez measurements point dé bé dans l’exemple. Il contient la forme, la taille et l’intensité moyenne par canal de huit mille neuf cent quinze cellules dans cinquante-deux puits."
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "Pour Existing CV predictions, choisissez cv_predictions.csv. Chaque ligne est le score CV enregistré d’une cellule, rattaché au même objet mesuré. Cliquez sur le chemin et appuyez sur Entrée pour que les colonnes de score soient lues, puis gardez pred comme colonne de score du phénotype.",
+          "hold_after": 0.7,
+          "speech_text": "Pour Existing CV predictions, choisissez cv_predictions.csv. Chaque ligne est le score CV enregistré d’une cellule, rattaché au même objet mesuré. Cliquez sur le chemin et appuyez sur Entrée pour que les colonnes de score soient lues, puis gardez pred comme colonne de score du phénotype."
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "Pour Well/guide fractions, choisissez regression_data.csv dans le même dossier de résultats. C’est Regression qui a écrit cette table. Elle donne la fraction de chaque guide dans chaque puits analysé.",
+          "hold_after": 0.7,
+          "speech_text": "Pour Well/guide fractions, choisissez regression_data.csv dans le même dossier de résultats. C’est Regression qui a écrit cette table. Elle donne la fraction de chaque guide dans chaque puits analysé."
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Laissez Independent morphology features vide. Le module utilise alors les treize mesures cellulaires numériques de la base et écarte les identifiants, les fractions de guides et le score CV, afin que cette vérification ne réutilise pas le score. Pour votre propre base, n’indiquez que des colonnes de mesures sans valeurs manquantes.",
+          "hold_after": 0.7,
+          "speech_text": "Laissez Independent morphology features vide. Le module utilise alors les treize mesures cellulaires numériques de la base et écarte les identifiants, les fractions de guides et le score CV, afin que cette vérification ne réutilise pas le score. Pour votre propre base, n’indiquez que des colonnes de mesures sans valeurs manquantes."
+        },
+        {
+          "visual": "12_running",
+          "narration": "Cliquez sur Investigate hit. Le modèle est ajusté en laissant de côté une plaque à la fois, de sorte qu’aucune cellule n’est évaluée par un modèle entraîné sur sa propre plaque. La fraction de guide d’un puits ne fixe que l’attente de départ pour ses cellules. Elle n’indique jamais qu’une cellule porte le guide. Cet exemple prend quelques minutes.",
+          "hold_after": 0.7,
+          "speech_text": "Cliquez sur Investigate hit. Le modèle est ajusté en laissant de côté une plaque à la fois, de sorte qu’aucune cellule n’est évaluée par un modèle entraîné sur sa propre plaque. La fraction de guide d’un puits ne fixe que l’attente de départ pour ses cellules. Elle n’indique jamais qu’une cellule porte le guide. Cet exemple prend quelques minutes."
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Les cellules ne soutiennent pas ce candidat.",
+          "hold_after": 0.7,
+          "speech_text": "Evidence donne le résultat. Les puits cibles ont une prévalence de type hit supérieure de seulement zéro virgule zéro un à celle des puits témoins. L’intervalle bootstrap par puits va de moins zéro virgule zéro quatre à plus zéro virgule zéro six, et la valeur P de la permutation par blocs est d’environ zéro virgule soixante-trois. Les cellules ne soutiennent pas ce candidat."
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells indique pour chaque puits la fraction de guide, la probabilité moyenne de type hit, la prévalence et le nombre de cellules. Chaque puits compte comme une unité indépendante ; la comparaison utilise donc treize puits cibles et trente-neuf puits témoins, et non des cellules individuelles.",
+          "hold_after": 0.7,
+          "speech_text": "Wells indique pour chaque puits la fraction de guide, la probabilité moyenne de type hit, la prévalence et le nombre de cellules. Chaque puits compte comme une unité indépendante ; la comparaison utilise donc treize puits cibles et trente-neuf puits témoins, et non des cellules individuelles."
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides montre chaque guide cible séparément. Leurs réponses à la dose vont dans des directions différentes, une raison de plus de ne pas traiter ce gène comme un hit.",
+          "hold_after": 0.7,
+          "speech_text": "Guides montre chaque guide cible séparément. Leurs réponses à la dose vont dans des directions différentes, une raison de plus de ne pas traiter ce gène comme un hit."
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity répète la comparaison avec des seuils de probabilité allant de zéro virgule cinq à zéro virgule neuf. À chaque seuil, la différence reste proche de zéro virgule zéro un ; la conclusion ne dépend donc pas du seuil.",
+          "hold_after": 0.7,
+          "speech_text": "Threshold sensitivity répète la comparaison avec des seuils de probabilité allant de zéro virgule cinq à zéro virgule neuf. À chaque seuil, la différence reste proche de zéro virgule zéro un ; la conclusion ne dépend donc pas du seuil."
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells classe les cellules par probabilité de type hit, avec le score d’origine et le pli qui a évalué chaque cellule. Ces probabilités décrivent une morphologie de type hit, pas le guide que portait une cellule. Ne transférez des classifications vers l’annotation que si les éléments au niveau des puits sont convaincants. Undo annule un transfert.",
+          "hold_after": 0.7,
+          "speech_text": "Candidate cells classe les cellules par probabilité de type hit, avec le score d’origine et le pli qui a évalué chaque cellule. Ces probabilités décrivent une morphologie de type hit, pas le guide que portait une cellule. Ne transférez des classifications vers l’annotation que si les éléments au niveau des puits sont convaincants. Undo annule un transfert."
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "Les tables sont enregistrées dans le dossier de résultats, sous hit_investigation, puis deux deux cinq un six zéro. Elles comprennent cette représentation et un manifeste, et chaque exécution est aussi conservée comme nouvelle version dans la base de données. L’exemple ne contient pas d’images de vignettes, la galerie de revue reste donc vide. Ensuite, examinez un gène qui passe votre seuil dans une exécution Regression avec davantage de permutations.",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Les tables sont enregistrées dans le dossier de résultats, sous hit_investigation, puis deux deux cinq un six zéro. Elles comprennent cette représentation et un manifeste, et chaque exécution est aussi conservée comme nouvelle version dans la base de données. L’exemple ne contient pas d’images de vignettes, la galerie de revue reste donc vide. Ensuite, examinez un gène qui passe votre seuil dans une exécution Regression avec davantage de permutations."
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",
@@ -10079,126 +10591,151 @@
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS : écran actuel et alignement de quatre champs d’image",
+      "title": "OPS: from sequencing images to cell barcodes",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "Modèles de segmentation",
-      "description": "Retrouvez OPS dans Mask, puis suivez un exemple vérifié de géométrie et de composition sur quatre champs réels. Ce n’est pas un traitement complet de plaque, de segmentation ou de décodage.",
+      "section": "Segmentation models",
+      "description": "Load the OPS test data, choose the image and decoding settings, run the analysis and find the barcode assignments in the output database.",
       "objectives": [
-        "Trouver l’écran imbriqué d’OPS et comprendre les limites de la démonstration.",
-        "Aligner quatre champs voisins en conservant les coordonnées d’acquisition.",
-        "Examiner les recouvrements, la couverture et la provenance enregistrée."
+        "Open OPS inside Mask and load its example images and barcode library.",
+        "Choose the input and output folders and understand the main alignment and decoding settings.",
+        "Run OPS and inspect nucleus barcode assignments in the output database."
       ],
-      "prerequisite": "Enregistrement avec les API ops_layout, ops_stitch et ops_compose de spaCR 1.5.0.7 nightly sur CPU. Le bouton Run utilise un autre moteur historique, non lancé ici. Source NAS privée : screenA/20200202_6W-LaC024A, sequencing/images/input/c1, sites 0, 1, 10 et 11. Un accès autorisé est nécessaire ; ce n’est pas un téléchargement public et aucun droit de redistribution n’est accordé. Chaque TIFF uint16 contient cinq plans de 1480 par 1480 pixels, avec DAPI au plan zéro. Le plan d’acquisition original de 333 sites est conservé. Ne réutilisez pas cette géométrie, ce recouvrement ou ces seuils sans mesurer votre acquisition. Choisissez une nouvelle sortie hors des originaux. Le puits complet, la segmentation, l’alignement entre cycles, le décodage et l’analyse biologique ne sont pas démontrés.",
+      "prerequisite": "Open spaCR. Use Load test data inside OPS for the example sequencing images and guide library. For your own experiment, prepare sequencing-cycle TIFFs with their acquisition filenames and a matching barcode-library CSV.",
       "scenes": [
         {
-          "visual": "gui_00_home",
-          "narration": "Le criblage optique en pool commence par des images acquises dans des champs voisins au cours de cycles d’imagerie répétés. Dans spaCR, ouvrez Mask pour trouver l’écran imbriqué d’OPS. Cette leçon montre son emplacement et un petit exemple vérifié d’alignement d’images.",
-          "focus_modules": [
-            "mask"
-          ],
-          "related_lessons": [
-            "05_home",
-            "07_mask"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Le criblage optique en pool commence par des images acquises dans des champs voisins au cours de cycles d’imagerie répétés. Dans spakeur, ouvrez Mask pour trouver l’écran imbriqué d’OPS. Cette leçon montre son emplacement et un petit exemple vérifié d’alignement d’images."
+          "visual": "01_mask_ops",
+          "narration": "From Home, open Mask, then turn on OPS. This page takes sequencing-cycle images and assigns decoded barcodes to nuclei.",
+          "hold_after": 0.7
         },
         {
-          "visual": "gui_01_mask_host",
-          "narration": "Utilisez le commutateur OPS dans la rangée d’actions de Mask. Il ouvre une page distincte dans le module hôte. OPS n’est pas une deuxième tuile Home, ni le flux Map Barcodes destiné aux fichiers de lectures de séquençage.",
+          "visual": "02_load_test_data",
+          "narration": "Click Load test data. The example includes two image sites across eleven sequencing cycles and a matching barcode library. When loading finishes, spaCR fills the input, library, plate and output fields.",
           "hold_after": 0.7,
-          "speech_text": "Utilisez le commutateur OPS dans la rangée d’actions de Mask. Il ouvre une page distincte dans le module hôte. OPS n’est pas une deuxième tuile Home, ni le flux Map Barcodes destiné aux fichiers de lectures de séquençage."
-        },
-        {
-          "visual": "gui_02_ops_settings",
-          "narration": "La page OPS actuelle propose des réglages d’entrée, d’assemblage, de mosaïque, d’alignement et de contrôle qualité. Son bouton Run utilise un autre moteur historique. Nous ne le lançons pas et ne prétendons pas avoir validé un flux de criblage complet. Les étapes suivantes utilisent directement les API de géométrie.",
           "focus": [
-            340,
-            170,
-            1210,
-            1310
-          ],
-          "hold_after": 0.7,
-          "speech_text": "La page OPS actuelle propose des réglages d’entrée, d’assemblage, de mosaïque, d’alignement et de contrôle qualité. Son bouton Run utilise un autre moteur historique. Nous ne le lançons pas et ne prétendons pas avoir validé un flux de criblage complet. Les étapes suivantes utilisent directement les API de géométrie."
+            360,
+            480,
+            1150,
+            270
+          ]
         },
         {
-          "visual": "api_00_scope",
-          "narration": "Cette démonstration sur CPU aligne et compose quatre champs réels d’une acquisition existante. Elle ne segmente pas les cellules, ne décode pas les codes-barres et ne traite pas une plaque entière. Les originaux ne sont pas fournis comme téléchargement de test ; une reproduction exacte exige un accès autorisé aux fichiers.",
-          "focus": [
-            200,
-            100,
-            3440,
-            800
-          ],
-          "related_lessons": [
-            "06_api"
-          ],
+          "visual": "03_inputs",
+          "narration": "In OPS input, check the sequencing image folder and the barcode-library CSV. Choose a destination for the results. The example writes to the ops_output folder inside its downloaded project.",
           "hold_after": 0.7,
-          "speech_text": "Cette démonstration sur CPU aligne et compose quatre champs réels d’une acquisition existante. Elle ne segmente pas les cellules, ne décode pas les codes-barres et ne traite pas une plaque entière. Les originaux ne sont pas fournis comme téléchargement de test ; une reproduction exacte exige un accès autorisé aux fichiers."
+          "focus": [
+            360,
+            530,
+            1150,
+            210
+          ]
         },
         {
-          "visual": "api_01_inputs",
-          "narration": "Sélectionnez les sites zéro, un, dix et onze du premier cycle d’imagerie. Chaque fichier original comporte cinq plans ; le plan zéro contient le marquage nucléaire. Conservez le plan original de trois cent trente-trois sites et leur numérotation. Quatre champs sélectionnés ne définissent pas un nouveau puits à quatre champs.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
+          "visual": "04_phenotype",
+          "narration": "Leave the phenotype image folder empty for this example. When you have a matching phenotype acquisition, select its folder here to record how its fields align with the sequencing images.",
           "hold_after": 0.7,
-          "speech_text": "Sélectionnez les sites zéro, un, dix et onze du premier cycle d’imagerie. Chaque fichier original comporte cinq plans ; le plan zéro contient le marquage nucléaire. Conservez le plan original de trois cent trente-trois sites et leur numérotation. Quatre champs sélectionnés ne définissent pas un nouveau puits à quatre champs."
+          "focus": [
+            360,
+            625,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_02_geometry",
-          "narration": "Le script appelle stitch_well, vérifie les quatre recouvrements voisins, puis appelle compose_window. Les quatre champs sont placés. La région composée mesure deux mille sept cent cinquante-six pixels de côté. Dans cette acquisition, la boucle géométrique se ferme à un quart de pixel près ; ce n’est pas une garantie universelle de précision.",
-          "focus": [
-            200,
-            100,
-            3440,
-            900
-          ],
+          "visual": "05_alignment",
+          "narration": "Under OPS alignment, choose the nucleus segmentation model. Diameter sets the expected nucleus size in pixels. Raster overlap describes the overlap between neighboring acquired tiles; use the value from your acquisition. Keep the example settings for this first run.",
           "hold_after": 0.7,
-          "speech_text": "Le script appelle stitch_well, vérifie les quatre recouvrements voisins, puis appelle compose_window. Les quatre champs sont placés. La région composée mesure deux mille sept cent cinquante-six pixels de côté. Dans cette acquisition, la boucle géométrique se ferme à un quart de pixel près ; ce n’est pas une garantie universelle de précision."
+          "focus": [
+            360,
+            795,
+            1150,
+            180
+          ]
         },
         {
-          "visual": "api_03_independent_checks",
-          "narration": "Ne vous fiez pas au seul placement. Comparez les pixels réellement superposés indépendamment du score d’alignement. Ici, les corrélations après alignement dépassent largement celles obtenues en décalant volontairement l’un ou l’autre axe de dix-sept pixels. Ces contrôles aident à détecter un placement plausible mais erroné.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1000
-          ],
+          "visual": "06_window_overlap",
+          "narration": "Window overlap controls how much neighboring segmentation windows share. It should be larger than the largest nucleus so objects at window edges can be included whole. Increasing it adds processing time.",
           "hold_after": 0.7,
-          "speech_text": "Ne vous fiez pas au seul placement. Comparez les pixels réellement superposés indépendamment du score d’alignement. Ici, les corrélations après alignement dépassent largement celles obtenues en décalant volontairement l’un ou l’autre axe de dix-sept pixels. Ces contrôles aident à détecter un placement plausible mais erroné."
+          "focus": [
+            360,
+            945,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_05_geometry_figure",
-          "narration": "Examinez l’image et la carte de couverture effectivement enregistrées. À gauche figure l’image nucléaire composée ; à droite, le nombre de champs contributeurs. Une couverture nulle signifie qu’aucun pixel n’a été acquis, et non un fond biologique. On combine des voisins spatiaux dans un seul plan, jamais des cycles de séquençage différents.",
-          "focus": [
-            600,
-            390,
-            2630,
-            1400
-          ],
+          "visual": "07_base_channels",
+          "narration": "Under OPS decoding, set the four base channels in G, T, A, C order. The example uses CY3, A594, CY5 and CY7. For your own images, match these names to the channel names in the TIFF filenames.",
           "hold_after": 0.7,
-          "speech_text": "Examinez l’image et la carte de couverture effectivement enregistrées. À gauche figure l’image nucléaire composée ; à droite, le nombre de champs contributeurs. Une couverture nulle signifie qu’aucun pixel n’a été acquis, et non un fond biologique. On combine des voisins spatiaux dans un seul plan, jamais des cycles de séquençage différents."
+          "focus": [
+            360,
+            1070,
+            1150,
+            80
+          ]
         },
         {
-          "visual": "api_04_provenance",
-          "narration": "Conservez ensemble le tableau, la couverture, les positions, les empreintes des originaux et le rapport. Le script rouvre les résultats et confirme que les quatre fichiers sources sont inchangés. Il s’agit d’une étape géométrique reproductible. Un tutoriel optique complet exige encore une validation distincte des étapes suivantes.",
-          "focus": [
-            200,
-            100,
-            3440,
-            1100
-          ],
+          "visual": "08_read_settings",
+          "narration": "Read threshold controls how bright a spot must be to count as a read. Raising it selects stronger spots; lowering it includes fainter spots and more background. Footprint controls how far beyond a nucleus a read can lie and still contribute to its barcode.",
           "hold_after": 0.7,
-          "speech_text": "Conservez ensemble le tableau, la couverture, les positions, les empreintes des originaux et le rapport. Le script rouvre les résultats et confirme que les quatre fichiers sources sont inchangés. Il s’agit d’une étape géométrique reproductible. Un tutoriel optique complet exige encore une validation distincte des étapes suivantes."
+          "focus": [
+            360,
+            1115,
+            1150,
+            135
+          ]
+        },
+        {
+          "visual": "09_store_reads",
+          "narration": "Turn on Store reads if you want to inspect the individual read calls later. This saves an additional table and uses more disk space. Leave it off for a compact first run.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1220,
+            1150,
+            60
+          ]
+        },
+        {
+          "visual": "10_run",
+          "narration": "Check OPS performance, then press Run. GPU enables acceleration where available. Workers controls how many fields are decoded at once; lower it if memory is limited. Follow the progress in Console.",
+          "hold_after": 0.7,
+          "focus": [
+            360,
+            1380,
+            1300,
+            520
+          ]
+        },
+        {
+          "visual": "11_output_folder",
+          "narration": "When Console shows Finished, open Help, then Database Browser, and choose measurements.db in the selected output folder. Beside it, each well has a folder, here A1, holding its OPS report with the decoding summary and any warnings.",
+          "hold_after": 0.7,
+          "focus": [
+            1020,
+            480,
+            1800,
+            1200
+          ]
+        },
+        {
+          "visual": "12_barcode_table",
+          "narration": "The ops_barcodes table gives each nucleus its barcode, read support and matched guide; ops_objects holds the same nucleus identifiers with their image coordinates. Those identifiers are the bridge to the rest of your screen: join the barcodes to your phenotype measurements through them, then aggregate for Regression. Keep the database, reports and settings together.",
+          "hold_after": 0.7,
+          "focus": [
+            330,
+            280,
+            2100,
+            1700
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "78_spacr_screens",

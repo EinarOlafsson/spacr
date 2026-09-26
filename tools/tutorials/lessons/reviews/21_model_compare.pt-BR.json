@@ -1,18 +1,29 @@
 {
-  "lesson": "21_model_compare", "language": "pt-BR", "english_sha256": "225fa51401501fa7e2f3ccdd9491fbdb3cc9b3ca5592ec794df79f955df6d5be",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "Model Compare: tela atual e concordância entre máscaras reais",
-  "description": "Abra a comparação dentro de Make Masks, carregue campos reais e compare segmentações salvas pela API. Concordância não demonstra acurácia nem significa que a inferência da interface foi corrigida.",
-  "objectives": ["Encontrar Model Compare e carregar os campos de exemplo.", "Distinguir a incompatibilidade atual do Cellpose da API funcional de comparação de máscaras.", "Interpretar contagens, correspondências e sobreposições sem declarar um resultado correto."],
-  "prerequisite": "spaCR 1.5.0.7 nightly e Cellpose 4.2.1.1. A interface passa invert, não aceito; carregamos imagens sem executar inferência, inserir resultados ou alterar o aplicativo. spacr.model_compare.compare_masks compara duas saídas reais de cell_pair_02.tif do tutorial Apply Cellpose: processamento em lote e prévia, com os mesmos pesos cpsam e pré-processamentos diferentes. Nenhuma máscara é referência anotada por especialistas; nenhum modelo é executado aqui. Preserve identidade do campo, geometria, pré-processamento e hashes dos arquivos: dimensões iguais não comprovam a mesma origem. O script e as evidências registradas identificam os originais. Use uma nova pasta de saída. A concordância não estabelece acurácia, classificação de modelos, validade biológica ou desempenho em imagens independentes.",
+  "lesson": "21_model_compare",
+  "english_sha256": "2e2af2044db01642db76b3e444c2b4d0c162c8d05b4fb245e8af6def09705a54",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Model Compare: comparar máscaras de segmentação salvas",
+  "description": "Carregue duas máscaras da mesma imagem, execute o script de comparação para download e inspecione as pontuações de sobreposição e as sobreposições visuais.",
+  "objectives": [
+    "Escolher máscaras do mesmo campo com a mesma geometria de pixels.",
+    "Executar o exemplo de comparação de máscaras salvas.",
+    "Ler a tabela de concordância e inspecionar as diferenças de contorno."
+  ],
+  "prerequisite": "Baixe e extraia o exemplo do Model Compare indicado. Ele traz uma imagem, duas máscaras salvas e um script auxiliar em Python. Use um ambiente com o spaCR instalado e escolha uma pasta de saída nova fora das entradas extraídas. O exemplo compara duas opções de pré-processamento com os mesmos pesos cpsam; avaliar a acurácia exige rótulos de referência revisados.",
   "scenes": [
-    "Model Compare fica dentro de Make Masks e compara segmentações dos mesmos campos. Esta aula mostra a tela atual e depois demonstra a API funcional de comparação de máscaras com duas saídas realmente salvas.",
-    "A tela separa as configurações de Model A e Model B. Registre os pesos exatos e o pré-processamento de cada comparação. Nomes diferentes ou mais objetos não demonstram um resultado melhor. As tabelas de parâmetros e resultados ficam vazias antes de executar uma comparação.",
-    "Informe a pasta real do exemplo e pressione Load. Aqui, três campos originais carregam corretamente e Compare fica disponível. Carregar imagens não equivale a executar os modelos com sucesso. Não criamos máscaras nem preenchemos a tabela de comparação nesta tela.",
-    "A versão instalada do Cellpose rejeita o argumento invert que este mecanismo da interface ainda passa. Esta verificação real da assinatura mostra a incompatibilidade sem iniciar inferência. Não a escondemos. O próximo exemplo usa compare_masks diretamente em imagens de rótulos existentes.",
-    "As duas máscaras pertencem à mesma imagem real do tutorial Apply Cellpose. Uma é a saída salva em lote; a outra, a saída salva da prévia. Usam o mesmo modelo com pré-processamentos diferentes, não dois conjuntos de pesos concorrentes. Nenhuma é uma referência correta conhecida.",
-    "A API informa noventa e quatro objetos em A e noventa e cinco em B, com noventa e um pares correspondentes. A sobreposição média dos pares é cerca de zero vírgula noventa e seis. O índice de Rand ajustado é cerca de zero vírgula nove seis um. Esses números descrevem concordância, não acurácia nem um vencedor.",
-    "Examine as sobreposições realmente salvas. O painel direito marca os pixels cuja classificação como primeiro plano difere. Não mostra toda divergência entre rótulos de instâncias. Contagens semelhantes podem esconder limites diferentes, divisões ou fusões; examine também as imagens.",
-    "O script verifica independentemente cada sobreposição usando os pixels originais e confere o controle com máscaras idênticas. Guarde juntos CSV, figura, identidade dos originais e pré-processamento. Use anotações independentes revisadas e imagens reservadas para avaliação antes de afirmar acurácia ou selecionar um modelo."
+    "Na tela Home, abra Make Masks e escolha Model Compare. Use este fluxo para inspecionar diferenças de segmentação na mesma imagem. Este passo a passo usa o exemplo indicado de máscaras salvas e o script auxiliar em Python dele.",
+    "Guarde os pesos do modelo e as configurações de pré-processamento junto com cada conjunto de máscaras. Ao preparar sua própria comparação, use os mesmos campos e a mesma geometria de pixels, para que as sobreposições de objetos se refiram a posições correspondentes da imagem.",
+    "Extraia o exemplo indicado. As entradas são image.tif, batch.tif e preview.npy. As duas máscaras descrevem o mesmo campo; foram geradas com o mesmo modelo e com configurações de pré-processamento diferentes. Mantenha os nomes de arquivo originais para o script fornecido.",
+    "Execute o script fornecido no seu ambiente Python com o spaCR. Defina a origem como a pasta de entrada do exemplo e a saída como uma pasta de resultados nova. O resumo impresso mostra a contagem de objetos, os objetos pareados, a sobreposição média dos pareados e o índice de Rand ajustado. Uma concordância maior significa que as máscaras são mais parecidas; isso sozinho não mostra qual máscara está correta.",
+    "Abra comparison.png. Compare as duas sobreposições de máscara com a imagem e inspecione divisões, fusões e deslocamentos de contorno. O painel direito destaca os pixels em que a pertença ao primeiro plano é diferente. Confira também, nas sobreposições, os contornos entre objetos que se tocam.",
+    "Abra comparison.csv para ver os resultados numéricos e guarde-o junto com comparison.png, as entradas e as configurações registradas. Use máscaras de referência revisadas e campos representativos ao comparar a acurácia da segmentação ou escolher um modelo para o seu experimento."
   ]
 }

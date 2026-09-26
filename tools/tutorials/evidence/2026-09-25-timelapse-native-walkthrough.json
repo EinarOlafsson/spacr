@@ -65,12 +65,12 @@
   },
   "app_notes": [
     "Help > Demos was removed; the full-run sequence comes from the package generator and the narration discloses it as synthetic.",
-    "After Plot figures appear, Mask collapses Settings, Console, System and Actions; the recorder reopens them through their own headings/handle to reach the Track preview switch.",
     "The Time dimension switch only shows/hides time settings; tracking is enabled by the Timelapse fold icon at the top right, so scene 1 now says so."
   ],
   "narration_changes": [
     "scene 1: Timelapse icon instead of Time",
-    "scene 8: discloses the synthetic eight-frame sequence"
+    "scene 8: discloses the synthetic eight-frame sequence",
+    "scene 2: Track preview is at the right of the Actions heading"
   ],
   "media": {
     "master_sha256": "7eebe078c7772786b6afa60535ad1481468f50bd2f2f8eb643caca3b8fcc78e6",
@@ -83,5 +83,42 @@
     "verify_staged_lesson --sentence-cues passed",
     "verify_staged_lesson --web-rendition passed (2560x1440)"
   ],
-  "published": false
+  "published": false,
+  "media_status": "Accepted immutable media (item 520 re-render); Pages source prepared; live deployment requires separate verification.",
+  "publication": {
+    "candidate": "release-candidate-append-1rjwna77",
+    "commit": "d2db0911ea22c47dbb4f913bf62a8f173232021b",
+    "tag": "tutorials-item520-20260925-1rjwna77",
+    "readback_files": 650,
+    "web_copy_hosted_on_media_revision": true,
+    "narration": "English af_heart only; other voices fall back to English",
+    "all_ready_local_and_hosted_playback": true
+  },
+  "item_520_update": {
+    "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/timelapse_walkthrough_520",
+    "commit": "a6868d6096bde0d3addbf5660156feb057310e8a",
+    "note": "Full re-record on item-520 code: the Track preview switch now sits at the right of the Actions heading and stays visible after figures; scene 2 narration names that location.",
+    "media": {
+      "master_sha256": "4ff69ebb4fb5c2d70542c27a76f80bc87685a6b8fccaf2226d4a644de9560ba7",
+      "web_sha256": "9f5df94cedc7527f113234ad77ba902f6f7a49f69a676bc1cb246ea000f27318",
+      "web_bytes": 7322576,
+      "audio_sha256": "c87e4bd4f064b51674cee387c611db6699c33ee903d371659a69dfbc9da82186"
+    },
+    "checks": [
+      "check_current_english_tracks passed",
+      "verify_staged_lesson --sentence-cues passed",
+      "verify_staged_lesson --web-rendition passed"
+    ]
+  },
+  "superseded_publications": [
+    {
+      "candidate": "release-candidate-append-31kkmyz_",
+      "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+      "tag": "tutorials-hosted-20260925-31kkmyz_",
+      "readback_files": 650,
+      "web_copy_hosted_on_media_revision": true,
+      "narration": "English af_heart only; other voices fall back to English",
+      "all_ready_local_and_hosted_playback": true
+    }
+  ]
 }

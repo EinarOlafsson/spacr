@@ -1,7 +1,7 @@
 494 — RETIRE DEMOS IN FAVOR OF TEST DATA AND WALKTHROUGHS
 =======================================================
-Status: runtime menu/banner/first-run changes IMPLEMENTED2026-09-23;
-remaining tutorial/docs/translation references coordinated with their owner.
+Status: DONE for the runtime 2026-09-25 (built 2026-09-23, re-checked). The
+leftover Demos references are all in the docs lane's files (see the last note).
 
 User requests removal of Demos from Help and all references to that navigation
 destination. Modules now offer Load test data; Home offers Pipeline overviews
@@ -34,3 +34,19 @@ registration, language-error handling and menu checks remain covered:
 check passes separately (177passes combined);327retained coverage tests collect.
 Documentation lane owns the remaining published tutorial/media/API/catalog
 references, explicitly handed off with the list of removed methods.
+
+2026-09-25 — RUNTIME CLOSED; WHAT THE DOCS LANE STILL HOLDS
+Re-checked on nightly a93f937d2 (offscreen): tests/qt/test_demo_menu.py and
+the Demos cases of tests/qt/test_walkthrough.py, 30 passed, including
+test_the_removed_demos_menu_is_not_offered_by_the_walkthrough. No
+user-facing string, menu or prompt in spacr/ reaches a Demos menu. What is
+left is inert and belongs to the docs lane (tutorials, API notes,
+translations), so it is listed rather than edited here:
+  * spacr/qt/tutorial/scripts.py -- the "Demos" special cases in _find_menu
+    and _menu_target and the unused _open_demos_menu (no tutorial step
+    calls it; tests/qt/test_cov_r4_tutorial_scripts.py and
+    tests/test_cov_10_tutorial_scripts.py cover them and go with them);
+  * the "Demos", "Demos menu" and "Open Demos menu" rows in
+    spacr/qt/i18n.py and the translation-correctness exemption for "Demos";
+  * docs/notes/spacr/qt/{tutorial/scripts,app,screens/app_screen,
+    synthetic}.md and the reviewed API translation JSONs that still name it.

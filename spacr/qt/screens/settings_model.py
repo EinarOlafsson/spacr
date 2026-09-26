@@ -788,6 +788,35 @@ def _image_source_the_panel_offers(value) -> str:
     return resolved if resolved in offered else offered[0]
 
 
+def _image_source_seeded_from_crop_source(values):
+    """``values`` with the ``image_source`` a file that predates it means.
+
+    MIRRORS THE HEADLESS SEED. `settings.deep_spacr_defaults` runs
+    ``setdefault('image_source', settings.get('crop_source') ...)``, so a
+    settings file written before ``image_source`` existed -- ``crop_source``
+    alone -- streams when it says ``'on_demand'``. ``crop_source`` is hidden
+    on the training panel, so without this the same file opened the combo on
+    LOAD IMAGES and the panel and the run disagreed about what it meant.
+
+    THE NEWER KEY WINS, as it does headlessly: a file carrying
+    ``image_source`` is left as it is, and so is one whose ``crop_source`` is
+    empty. The seeded value is resolved to the mode the panel offers, so a
+    retired spelling selects its mode rather than matching no item.
+
+    :param values: a settings mapping from a file or another screen; not
+        modified.
+    :returns: ``values`` itself when there is nothing to seed, else a copy
+        with ``image_source`` set.
+    """
+    if not values or "image_source" in values \
+            or not values.get("crop_source"):
+        return values
+    seeded = dict(values)
+    seeded["image_source"] = _image_source_the_panel_offers(
+        values["crop_source"])
+    return seeded
+
+
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "umap": {
         "reduction_method": ["umap", "tsne", "pca", "isomap", "spectral"],
@@ -2181,17 +2210,22 @@ def categories_for_app(
             "Test-time augmentation": ['tta_enabled', 'tta_rotations', 'tta_horizontal_flip',
                                        'tta_vertical_flip', 'tta_aggregation', 'tta_min_agreement', 'tta_max_std'],
 
-            "Evaluation & Results": [
+            "Evaluation": [
                 "cross_validation_enabled", "cross_validation_folds",
                 "cv_group_by", "holdout_plate", "nested_cv_inner_folds",
                 "score_threshold",
                 "classifier_evaluation", "evaluation_calibration",
                 "evaluation_bins", "evaluation_fail_on_leakage",
                 "leakage_audit_train_test", "leakage_hash_content",
-                "leakage_require_identity", "n_top_examples",
-                "plot", "tensorboard", "intermedeate_save", "pin_memory",
-                "random_seed", "n_jobs", "verbose", "strict_errors",
-                "max_failure_rate"],
+                "leakage_require_identity"],
+
+            "Results & figures": [
+                "n_top_examples", "plot", "tensorboard",
+                "intermedeate_save"],
+
+            "Runtime & Reliability": [
+                "random_seed", "n_jobs", "pin_memory", "verbose",
+                "strict_errors", "max_failure_rate"],
         }
         if app_key == "classify_merged":
             ordered["Model & Regularization"] = [
@@ -2214,8 +2248,8 @@ def categories_for_app(
                     "remove_low_variance_features", "min_cells_per_well",
                     "prune_features", "top_features", "n_repeats"],
             })
-            ordered["Evaluation & Results"] = (
-                ordered["Evaluation & Results"]
+            ordered["Results & figures"] = (
+                ordered["Results & figures"]
                 + ["cmap", "heatmap_feature", "grouping", "min_max"])
 
         if app_key == "classify_merged":
@@ -2225,7 +2259,8 @@ def categories_for_app(
                          "Training & Loss", "Test-time augmentation")
             ml_groups = ("Model & Features", "Plate & Batch Correction")
             shared_first = ("Plate Sources & Workflow", "Labels & Classes")
-            shared_last = ("Evaluation & Results",)
+            shared_last = ("Evaluation", "Results & figures",
+                           "Runtime & Reliability")
 
             rebuilt = {"Classifier": ["classifier_family"]}
             for name in shared_first:
@@ -2525,10 +2560,18 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "decides which measured features survive. Open it when the model "
         "overfits, or when thousands of correlated features are drowning the "
         "few that matter.",
-    "EVALUATION & RESULTS":
-        "How the fitted model is judged and how the result is shown — "
-        "cross-validation, calibration, the leakage audit, the heatmap, and "
-        "where the scores are written. Shared by both classifier families.",
+    "EVALUATION":
+        "How the fitted model is judged: cross-validation and the held-out "
+        "plate, the evaluation report with its calibration curve and bins, "
+        "the score threshold that turns a score into a call, and the leakage "
+        "audit that checks train and test share no object. Shared by both "
+        "classifier families.",
+    "RESULTS & FIGURES":
+        "What the run writes and draws once the model is fitted: the plots, "
+        "the top-scoring example crops, TensorBoard logs, intermediate "
+        "checkpoints and, for the tabular model, the heatmap. Change these "
+        "for what you want to look at afterwards; none of them changes the "
+        "model.",
     "EMBEDDING & CLUSTERING":
         "How the feature table is reduced to two dimensions and clustered "
         "on top of that — neighbourhood size, distance metric, and the "
@@ -3154,6 +3197,20 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
 #: Per-module overrides for headings that mean different things per module.
 #: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
 CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
+    "classify": {
+        "RUNTIME & RELIABILITY":
+            "The random seed that fixes the split and the initialisation, "
+            "how many workers load the crops and whether they pin memory, "
+            "how much the run prints, and how many failed items it "
+            "tolerates. Fix the seed when two runs have to be compared.",
+    },
+    "classify_merged": {
+        "RUNTIME & RELIABILITY":
+            "The random seed that fixes the split and the initialisation, "
+            "how many workers load the crops and whether they pin memory, "
+            "how much the run prints, and how many failed items it "
+            "tolerates. Fix the seed when two runs have to be compared.",
+    },
     "measure": {
         "POINT SPREAD FUNCTION": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
     },
@@ -8307,6 +8364,9 @@ class SettingsWidgets:
 
         shipped = resolve_default_settings(app_key)
         current_values = {str(k): v for k, v in (current or {}).items()}
+        if "image_source" in shipped:
+            current_values = _image_source_seeded_from_crop_source(
+                current_values)
         deciding = dict(shipped)
         deciding.update(current_values)
         from spacr.organelle_types import (NUMBER_OF_ORGANELLES,
@@ -8499,6 +8559,13 @@ class SettingsWidgets:
         if self.app_key == "umap" and isinstance(affinity_widget, QComboBox):
             affinity_widget.currentTextChanged.connect(
                 self._on_umap_reducer_changed)
+        architecture_widget = self._widgets.get("model_type")
+        if self.app_key == "activation" and architecture_widget is not None:
+            for signal_name in ("currentTextChanged", "textChanged"):
+                signal = getattr(architecture_widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._refresh_attribution_method_enablement)
+                    break
 
         self._connect_setting_dependency_signals()
 
@@ -8507,6 +8574,7 @@ class SettingsWidgets:
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
         self._refresh_mask_gpu_enablement()
+        self._refresh_attribution_method_enablement()
         self._refresh_analysis_unit_lock()
         self._refresh_regression_backend()
         self._state_passes_ready = True
@@ -8791,12 +8859,92 @@ class SettingsWidgets:
         from spacr.settings import organelle_slots_beyond_the_count
 
         shipped = resolve_default_settings(self.app_key)
-        self._defaults = organelle_slots_beyond_the_count(shipped, wanted)
-        self._slots_the_panel_added = {
-            key: value for key, value in self._defaults.items()
-            if key not in shipped}
+        fresh = organelle_slots_beyond_the_count(shipped, wanted)
+        added = getattr(self, "_slots_the_panel_added", None)
+        added = {} if added is None else added
+        for key, value in fresh.items():
+            if key in self._defaults:
+                continue
+            self._defaults[key] = value
+            if key not in shipped:
+                added[key] = value
+        self._slots_the_panel_added = added
         self._slots_built_for = wanted
         return wanted
+
+    def organelle_keys_to_spawn(self, count) -> List[str]:
+        """The settings :meth:`spawn_organelle_slots` would build, unbuilt.
+
+        Asked first so the screen can check it has a heading for every one
+        of them before anything is built.
+
+        :param count: the new ``number_of_organelles``.
+        :returns: the keys of the slots past those already built, in the
+            order the defaults declare them; empty when there are none.
+        """
+        from spacr.organelle_types import organelle_role_of
+        from spacr.settings import organelle_slots_beyond_the_count
+
+        try:
+            wanted = min(max(0, int(count or 0)), PANEL_ORGANELLE_SLOTS)
+        except (TypeError, ValueError):
+            return []
+        before = int(getattr(self, "_slots_built_for", 0) or 0)
+        if wanted <= before:
+            return []
+        roles = set(ALL_ORGANELLE_ROLES[before:wanted])
+        fresh = organelle_slots_beyond_the_count(
+            resolve_default_settings(self.app_key), wanted)
+        hidden = set(_APP_HIDDEN_KEYS.get(self.app_key, frozenset()))
+        keys = dict.fromkeys(list(self._defaults) + list(fresh))
+        return [key for key in keys
+                if organelle_role_of(key) in roles
+                and key not in self._widgets and key not in hidden]
+
+    def spawn_organelle_slots(self, count) -> List[str]:
+        """Build the controls a raised ``number_of_organelles`` asks for.
+
+        Instruction 356, case 2: raising the count used to rebuild the whole
+        screen, because a slot's controls do not exist until the count says
+        so. This builds ONLY the new slots' controls, on the panel already
+        on screen; every control that existed keeps its identity and
+        whatever the user typed into it. The caller lays the new controls
+        out.
+
+        EXISTING VALUES WIN. A slot above the count that a settings file
+        carried is already in ``_defaults`` (see :meth:`set_hidden_value`),
+        and its control is built holding that value rather than the one the
+        panel would invent.
+
+        :param count: the new ``number_of_organelles``.
+        :returns: the new settings keys with a control, in the order the
+            panel declares them; empty when the count asks for nothing new.
+        """
+        from spacr.settings_spec import convert_settings_dict_for_gui
+
+        before = int(getattr(self, "_slots_built_for", 0) or 0)
+        wanted = self.organelle_keys_to_spawn(count)
+        after = self.grow_to_fit_the_organelle_count(count)
+        if after <= before or not wanted:
+            return []
+        roles = set(ALL_ORGANELLE_ROLES[before:after])
+        self._skip_keys = frozenset(self._skip_keys) - frozenset(wanted)
+        variables = convert_settings_dict_for_gui(
+            {key: self._defaults[key] for key in wanted
+             if key in self._defaults})
+        spawned: List[str] = []
+        for key, (kind, options, default) in variables.items():
+            widget = self._widget_for(kind, options, default, key)
+            if widget is None:
+                continue
+            attach_api_tooltip(widget, self.app_key, key,
+                               _descriptions=self._tooltips)
+            self._widgets[key] = widget
+            spawned.append(key)
+        for role in sorted(roles):
+            self._connect_the_signals_of_role(role)
+        self._slot_heading_cache = None
+        return spawned
 
     def tooltip_for(self, key: str) -> str:
         """Return the HTML-formatted tooltip for a given setting key.
@@ -9664,6 +9812,47 @@ class SettingsWidgets:
                 "Used only when mask_parallel is on. {count} GPUs found."
             ).format(count=count))
 
+    def _refresh_attribution_method_enablement(self, *_args) -> None:
+        """Grey the ``cam_type`` entries that do not apply to ``model_type``.
+
+        Asked of :func:`spacr.attribution.cam_type_applicability`, the same
+        rule ``generate_activation_map`` refuses a run by, so the menu and the
+        run cannot disagree. A greyed entry keeps its place and carries the
+        reason as its tooltip -- Chefer relevance on a ResNet, a CAM on a
+        pure ViT, DeepSHAP on a model that reuses its ReLU modules.
+        """
+        if self.app_key != "activation":
+            return
+        combo = self._built_control("cam_type")
+        if not isinstance(combo, QComboBox):
+            return
+        try:
+            from ...attribution import cam_type_applicability
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("attribution rules unavailable", exc_info=True)
+            return
+        from ..i18n import tr
+
+        architecture = self._widgets.get("model_type")
+        model_type = str(self._read_widget(architecture) or "").strip() \
+            if architecture is not None else ""
+        items = combo.model()
+        for index in range(combo.count()):
+            name = str(combo.itemData(index) or combo.itemText(index))
+            try:
+                applies, reason = cam_type_applicability(
+                    name, model_type=model_type or None)
+            except Exception:                                # noqa: BLE001
+                applies, reason = True, ""
+            item = items.item(index) if hasattr(items, "item") else None
+            if item is not None:
+                item.setEnabled(applies)
+            combo.setItemData(
+                index, "" if applies else tr(
+                    "Not applicable to {model}: {reason}",
+                    model=model_type or tr("this model"), reason=reason),
+                Qt.ToolTipRole)
+
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""
         if self.app_key != "umap":
@@ -10514,49 +10703,65 @@ class SettingsWidgets:
         if getattr(self, "_object_visibility_signals_connected", False):
             return
         self._object_visibility_signals_connected = True
+        roles = {object_of_setting(key) for key in self._widgets}
+        roles = {role for role in roles
+                 if role is not None and role not in CHANNELLED_OBJECTS}
+        for role in roles:
+            self._connect_the_signals_of_role(role)
+
+    def _connect_the_signals_of_role(self, role: str) -> None:
+        """Follow one object role's type, diameter and preset targets.
+
+        Once per role: :meth:`spawn_organelle_slots` calls it for a slot
+        built after the panel, and a second connection would run every
+        handler twice.
+
+        :param role: the object role, e.g. ``"organelleb"``.
+        """
+        connected = getattr(self, "_roles_followed", None)
+        if connected is None:
+            connected = self._roles_followed = set()
+        if role in connected:
+            return
+        connected.add(role)
         from ...organelle_types import ORGANELLE_TYPES, slot_setting
 
         primary_targets = {"organelle_morphology", "organelle_method"}
         for preset in ORGANELLE_TYPES.values():
             primary_targets.update(preset.params)
+        recommended = self._organelle_recommendations(role)
+        owned = self._organelle_preset_owned.setdefault(role, {})
+        for key, value in recommended.items():
+            if self._setting_value_equals(key, value):
+                owned[key] = value
 
-        roles = {object_of_setting(key) for key in self._widgets}
-        roles = {role for role in roles
-                 if role is not None and role not in CHANNELLED_OBJECTS}
-        for role in roles:
-            recommended = self._organelle_recommendations(role)
-            owned = self._organelle_preset_owned.setdefault(role, {})
-            for key, value in recommended.items():
-                if self._setting_value_equals(key, value):
-                    owned[key] = value
+        type_widget = self._widgets.get(f"{role}_type")
+        if type_widget is not None:
+            _connect_value_changed(
+                type_widget,
+                partial(self._on_organelle_type_changed, role))
 
-            type_widget = self._widgets.get(f"{role}_type")
-            if type_widget is not None:
-                _connect_value_changed(
-                    type_widget,
-                    partial(self._on_organelle_type_changed, role))
-
-            diameter = self._widgets.get(f"{role}_diameter")
-            if diameter is not None:
-                changed = partial(self._on_organelle_diameter_changed, role)
-                committed = getattr(diameter, "editingFinished", None)
-                if committed is not None:
-                    try:
-                        committed.connect(changed)
-                    except Exception:                        # noqa: BLE001
-                        _connect_value_changed(diameter, changed)
-                else:
+        diameter = self._widgets.get(f"{role}_diameter")
+        if diameter is not None:
+            changed = partial(self._on_organelle_diameter_changed, role)
+            committed = getattr(diameter, "editingFinished", None)
+            if committed is not None:
+                try:
+                    committed.connect(changed)
+                except Exception:                        # noqa: BLE001
                     _connect_value_changed(diameter, changed)
+            else:
+                _connect_value_changed(diameter, changed)
 
-            for primary in primary_targets:
-                key = slot_setting(primary, role)
-                widget = self._widgets.get(key)
-                if widget is None:
-                    continue
-                _connect_value_changed(
-                    widget,
-                    partial(self._on_organelle_preset_target_changed,
-                            role, key))
+        for primary in primary_targets:
+            key = slot_setting(primary, role)
+            widget = self._widgets.get(key)
+            if widget is None:
+                continue
+            _connect_value_changed(
+                widget,
+                partial(self._on_organelle_preset_target_changed,
+                        role, key))
 
     def _on_object_switch_changed(self, *_args) -> None:
         """Refresh rows after one slot-narrowing value is committed."""

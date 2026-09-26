@@ -1,31 +1,34 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "it",
-  "title": "Train Cellpose: coppie verificate e procedura esplicita tramite API",
-  "description": "Trova Train nel Cellpose Workbench, riconosci il difetto di importazione della sorgente e segui un vero addestramento Python di due epoche su sei coppie scaricabili immagine/maschera cellulare.",
+  "title": "Addestrare un modello Cellpose",
+  "description": "Prepara coppie immagine-maschera, perfeziona un modello di segmentazione in Cellpose Workbench e applica il checkpoint salvato.",
   "objectives": [
-    "Trovare Train e Apply dentro Make Masks, non come tessere Home separate.",
-    "Verificare nomi abbinati e distinguere etichette esistenti da riferimenti revisionati.",
-    "Riconoscere l’importazione parziale e separare API e GUI difettosa.",
-    "Esaminare input, riscaldamento, pesi modificati e percorso verificato.",
-    "Distinguere perdita, valori di test segnaposto e lettura dei pesi dall’accuratezza indipendente."
+    "Caricare immagini e le corrispondenti maschere di etichette degli oggetti.",
+    "Scegliere il modello di partenza, le impostazioni di addestramento e la cartella di output.",
+    "Avviare l’addestramento, trovare il checkpoint e provarlo su immagini separate."
   ],
-  "prerequisite": "Usa sei coppie, script registrato e manifesto collegati. I ritagli conservano intensità cellulare canale 1 e maschera cellulare piano 4 da campi reali; piano 6 significa patogeno. Etichette e oggetti tagliati NON sono riferimenti revisionati indipendentemente. Train perde ancora src e mantiene model_name=new_model pur importando i numeri; nessun training GUI parte. La chiamata spacr.submodules.train_cellpose usa destinazione nuova, due epoche, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512, senza aumento extra spaCR. normalize=False disattiva i percentili spaCR, non la divisione per il massimo né la normalizzazione Cellpose. Cellpose ruota/ridimensiona e usa patch interne di 256. Seed 19 iniziale, casualità interna conservata. CUDA al 65% su RTX 3090 e guardia RAM 100 GiB adatta soltanto a questa macchina. Verificati 3,145,728 valori e dodici pannelli; tutte le sei coppie restano nel training. Tassi 0 e 1.1111111111111112e-6; 345 di 347 tensori addestrabili modificati. Perdita salita da 1.496740683913231 a 1.5215517828861873. Nessun test, quindi gli zeri sono segnaposto. Checkpoint sotto models/cellpose_model/models letto con weights_only=True; il riepilogo omette il secondo models. Leggere non significa inferenza o accuratezza. Figura reale in visualizzatore esterno, mai inserita nella GUI. Originali, tentativi falliti e blocco GUI conservati. Nessuna richiesta AI, risposta, approvazione scientifica o pubblicazione.",
+  "prerequisite": "Scarica ed estrai l’esempio collegato con sei coppie, oppure prepara le tue immagini e le corrispondenti maschere di etichette intere. Esamina e correggi le maschere in Make Masks prima dell’addestramento.",
   "scenes": [
-    "Apri Make Masks e poi il Cellpose Workbench integrato. Train e Apply sono schede interne, non tessere Home separate. Questa lezione mostra il percorso attuale, un problema di importazione e una procedura Python esplicita. La lezione Make Masks collegata spiega ispezione e modifica delle maschere prima dell’addestramento.",
-    "In Train controlla punto di partenza e programma di addestramento. Non copiare epoche o tasso iniziali come raccomandazione. Servono immagini e maschere di istanze abbinate, cartella sorgente e nome di output. Vedere un modulo non significa che tutti questi requisiti siano soddisfatti.",
-    "Il vero selettore Import settings apre un CSV con parametri limitati. Dopo l’importazione compaiono due epoche, minibatch uno e un tasso piccolo. Ma la sorgente obbligatoria viene scartata e il nome richiesto resta new model. È un’importazione parziale, non una configurazione pronta: non premere Run.",
-    "Il percorso Python seguente è separato dal difetto GUI. Non imposta di nascosto una sorgente né ripara il modulo. Usa il pacchetto collegato in una cartella nuova. Lo script rifiuta destinazioni esistenti, conserva le coppie originali e registra esattamente implementazione API e input impiegati.",
-    "Ci sono sei coppie reali di immagini e maschere da cinquecentododici pixel, con nomi corrispondenti. I parametri originari identificano intensità cellulare nel canale uno e maschere nel piano quattro; il sei è patogeno. Le etichette non sono riferimenti revisionati indipendentemente. Controlla bordi e oggetti tagliati prima dell’addestramento di produzione.",
-    "Questa è la vera figura delle sei coppie salvata dall’API e aperta in un visualizzatore esterno, non inserita in spaCR. Ogni immagine superiore corrisponde alla maschera sottostante. Abbiamo verificato tutti i valori di input e i dodici array mostrati rispetto alle sorgenti. Si verifica la corrispondenza, non la qualità delle annotazioni.",
-    "Esegui lo script con la sorgente e una destinazione nuova. L’esempio CUDA limitato usa sei coppie, due epoche e minibatch uno. Il target di input è cinquecentododici pixel; Cellpose usa internamente patch da duecentocinquantasei. Disattivare gli aumenti extra di spaCR non disattiva normalizzazione, rotazione e ridimensionamento interni di Cellpose.",
-    "La prima epoca di riscaldamento ha tasso zero. La seconda usa un piccolo tasso positivo e consente aggiornamenti reali. Confrontando il checkpoint con i pesi iniziali, sono cambiati trecentoquarantacinque tensori addestrabili su trecentoquarantasette. Cambiare soltanto il diametro non supererebbe la verifica. Pesi diversi non dimostrano comunque un buon modello.",
-    "La perdita di training è salita leggermente, da circa uno virgola quattro nove sette a uno virgola cinque due due. Non è stato fornito un insieme di test. Le caselle di perdita zero sono segnaposto, non prestazioni perfette. È una dimostrazione meccanica, non convergenza, segmentazione migliore o accuratezza indipendente. Separa valutazione e addestramento.",
-    "Usa il percorso del checkpoint nel file verificato. Include una seconda directory models omessa dal riepilogo generico. Conserva checkpoint, parametri, manifesto e verifiche insieme. Caricare i tensori in sicurezza verifica un file leggibile, non un’inferenza; il pacchetto contiene coppie e script, non un modello certificato.",
-    "Apply ha sorgente separata, campo per modello personalizzato e anteprima dal vivo. Aprire la scheda non seleziona il nostro checkpoint esterno né avvia inferenza. Segui la lezione collegata e valida su immagini indipendenti. spaCR AI qui non viene usato: nessuna domanda o risposta sostituisce l’ispezione delle prove reali."
+    "Da Home, apri Tools e poi Make Masks. Apri Cellpose Workbench dalla sua barra degli strumenti e scegli la scheda Train. Addestrerai a partire dalle immagini e dalle loro maschere di etichette degli oggetti, poi userai il modello salvato in Apply.",
+    "Estrai l’esempio collegato e imposta Source sulla sua cartella di addestramento. La cartella contiene sei immagini e una sottocartella masks. Lascia vuoto mask source per usare quella sottocartella, oppure scegli una cartella separata con le tue maschere.",
+    "Ogni immagine ha bisogno di una maschera corrispondente con la stessa altezza e larghezza. I valori della maschera identificano gli oggetti: zero è lo sfondo e ogni oggetto ha il proprio intero positivo. Esamina i contorni in Make Masks e correggi le etichette prima di usarle per l’addestramento.",
+    "Per questo esempio in scala di grigi, lascia vuota la selezione dei canali. Per un’immagine multicanale, seleziona fino a tre indici di canale che partono da zero, per esempio zero e due per il primo e il terzo canale. Imposta channel axis se il rilevamento automatico non individua la dimensione dei canali.",
+    "Scegli un modello di base. Quello predefinito, cpsam, parte da Cellpose-SAM; il percorso di un checkpoint continua l’addestramento di un modello esistente. Inserisci un nome per il modello e scegli Save path per l’output, oppure lascialo vuoto per salvare all’interno del progetto.",
+    "Imposta il numero di epoche e la dimensione del lotto. Per una prima prova rapida, usa due epoche e dimensione del lotto uno. Più epoche danno al modello più aggiornamenti, e lotti più grandi usano più memoria. Il tasso di apprendimento controlla l’entità degli aggiornamenti; parti dal valore predefinito mostrato.",
+    "Lascia attiva la normalizzazione con il primo e il novantanovesimo percentile come punto di partenza. Questi valori controllano l’intervallo di intensità usato per ogni canale. Scale range controlla la variazione della dimensione delle immagini durante l’addestramento. Minimum training masks esclude le immagini con troppo pochi oggetti etichettati.",
+    "Per seguire la perdita di validazione, scegli una cartella separata di immagini di validazione e le relative maschere. Tieni questi campi separati dagli input di addestramento. Lascia vuote le cartelle di validazione se non hai un insieme separato.",
+    "Controlla le cartelle di input, il nome del modello e la posizione di output, poi premi Run. Segui l’avanzamento dell’addestramento nella console. Al termine, la console indica il percorso del checkpoint da usare per la segmentazione.",
+    "Se hai indicato un Save path, guarda nella sua sottocartella models. Con la posizione predefinita, il checkpoint si trova nella cartella di origine, in models, cellpose_model, models. Conserva il checkpoint insieme alle impostazioni di addestramento.",
+    "Apri Apply e scegli una cartella di immagini separata. Verifica che Custom model punti al checkpoint desiderato, poi esamina un’anteprima prima di elaborare tutta la cartella. Apply scrive le maschere accanto a quelle immagini, in una sottocartella masks. Usa campi etichettati separati per valutare i risultati."
   ]
 }

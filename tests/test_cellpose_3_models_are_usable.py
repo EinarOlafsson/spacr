@@ -447,3 +447,201 @@ def test_a_named_models_keywords_are_checked_against_the_inner_model():
                                "batch_size": 4})
     assert taken == {"augment": True, "batch_size": 4}
     assert adapter.ignored == {"net_avg"}
+
+
+# ===========================================================================
+# 7. pipeline_style 'v2' takes the same route (503, second pass)
+# ===========================================================================
+
+def _InputDependentCellpose3():
+    """A stand-in for ``_RemoteBackend`` whose masks follow its input.
+
+    The masks are the connected components of each image's first plane
+    above its median, so two callers agree on the masks only when they
+    hand over the same images. Every call keeps its keywords and a hash of
+    each image, and the images themselves are kept. Its flows carry a cell
+    probability, as Cellpose 3's do.
+    """
+    from skimage.measure import label
+
+    calls, images_seen = [], []
+
+    def _eval(x, **kwargs):
+        images = [np.ascontiguousarray(np.asarray(i)) for i in x]
+        images_seen.append(images)
+        calls.append(dict(
+            kwargs, shapes=[i.shape for i in images],
+            dtypes=[str(i.dtype) for i in images],
+            hashes=[hashlib.sha256(i).hexdigest() for i in images]))
+        masks, flows = [], []
+        for image in images:
+            plane = image[..., 0] if image.ndim == 3 else image
+            masks.append(label(plane > np.median(plane)).astype(np.uint16))
+            flows.append([np.full(plane.shape + (3,), 7, np.uint8),
+                          np.zeros((2,) + plane.shape, np.float32),
+                          (plane - np.median(plane)).astype(np.float32),
+                          None])
+        return masks, flows, None
+
+    return types.SimpleNamespace(calls=calls, images=images_seen,
+                                 eval=_eval)
+
+
+def _v2_stack(root, field):
+    from spacr import pipeline_v2 as PV
+
+    merged = root / "merged"
+    merged.mkdir(parents=True)
+    path = merged / "stack_A01_F001.npy"
+    np.save(path, field)
+    return [PV.StackFile("A01_F001", path, field.shape, ["cell", "nucleus"])]
+
+
+@pytest.mark.parametrize("value, route", [
+    ("cellpose3:cyto3", "cellpose3"),
+    ("cellpose3:/models/w.pth", "cellpose3"),
+    ("cpsam", None),
+    ("cyto3", None),
+])
+def test_one_table_routes_a_prefixed_model(value, route):
+    answer = O._prefixed_model_route(value)
+    if route is None:
+        assert answer is None
+    else:
+        assert answer == (route, O._cellpose3_masks)
+
+
+def test_segmentation_backend_cellpose3_routes_a_bare_name_too():
+    assert O._prefixed_model_route(
+        "cyto2", {"segmentation_backend": "cellpose3"})[0] == "cellpose3"
+
+
+def _spy_on_both_pipelines(monkeypatch):
+    import cellpose.models
+
+    seen = []
+    model = _InputDependentCellpose3()
+
+    def _load(name, **kwargs):
+        seen.append(dict(kwargs, name=name))
+        return model
+
+    monkeypatch.setattr(SB, "_load_backend", _load)
+    monkeypatch.setattr(O, "cp_models",
+                        types.SimpleNamespace(CellposeModel=_no_cellpose))
+    monkeypatch.setattr(cellpose.models, "CellposeModel", _no_cellpose)
+    return seen, model
+
+
+def _field():
+    rng = np.random.default_rng(3)
+    field = rng.integers(100, 4000, size=(32, 32, 2)).astype(np.uint16)
+    field[4:12, 4:12, 0] += 3000
+    field[18:28, 16:30, 0] += 2500
+    return field
+
+
+def _run_v2(stacks, settings, **over):
+    from spacr import pipeline_v2 as PV
+    from spacr.object import _eval_diameter
+    from spacr.qt.mask_engine import object_filter_area_floor
+
+    PV.stream_masks_from_stack(
+        stacks, model_name=settings["cell_model_name"],
+        channels_for_cellpose=(0, 1),
+        diameter=_eval_diameter(settings.get("cell_diameter"), "cell"),
+        cellprob_threshold=float(settings["cell_cellprob_threshold"]),
+        flow_threshold=float(settings["cell_flow_threshold"]),
+        min_size=object_filter_area_floor(settings, "cell"),
+        postprocess_settings=dict(settings, **over), object_type="cell")
+
+
+def test_v2_segments_a_cellpose3_model_exactly_as_v1_does(tmp_path,
+                                                         monkeypatch):
+    """The same field, the same model: V1's saved mask and v2's appended
+    mask plane are the same array, from the same images and keywords.
+
+    v2 normalizes its raw field on the way to the model; V1's npz already
+    holds the normalized field, which is what V1's preprocessing leaves
+    there. So V1's npz is what v2 handed the model, laid out in V1's role
+    order (nucleus before cell, see ``dense_mask_channel_positions``), and
+    everything from there on -- the model, its call, the settings, the
+    masks -- must agree.
+    """
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+
+    seen, model = _spy_on_both_pipelines(monkeypatch)
+    v1_src = tmp_path / "v1" / "masks"
+    settings = set_default_settings_preprocess_generate_masks(
+        _base_settings(v1_src, cell_model_name="cellpose3:cyto3"))
+
+    stacks = _v2_stack(tmp_path / "v2", _field())
+    _run_v2(stacks, settings)
+    [v2_call] = model.calls
+    v2_saved = np.load(stacks[0].path)
+    assert v2_saved.shape == (32, 32, 3)
+
+    v1_src.mkdir(parents=True)
+    handed = model.images[0][0]
+    v1_stack = np.stack([handed[..., 1], handed[..., 0]], axis=-1)
+    np.savez(v1_src / "batch1.npz", data=v1_stack[None],
+             filenames=np.array(["plate1_A01_1.npy"]))
+    O.generate_cellpose_masks_sam(str(v1_src), dict(settings), "cell")
+    v1_call = model.calls[1]
+
+    assert [s["name"] for s in seen] == ["cellpose3", "cellpose3"]
+    assert [s["model_name"] for s in seen] == ["cellpose3:cyto3"] * 2
+    assert v1_call == v2_call
+    assert v2_call["shapes"] == [(32, 32, 2)]
+    assert v2_call["diameter"] == 2 * 20 + 80
+    assert v2_call["normalize"] == {"normalize": True,
+                                    "percentile": [1.0, 99.0]}
+    v1_mask = np.load(v1_src / "cell_mask_stack" / "plate1_A01_1.npy")
+    assert v1_mask.dtype == v2_saved.dtype == np.uint16
+    np.testing.assert_array_equal(v1_mask, v2_saved[..., -1])
+    assert v1_mask.max() >= 2
+
+
+def test_v2_passes_its_own_diameter_and_thresholds_to_cellpose3(
+        tmp_path, monkeypatch):
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+
+    seen, model = _spy_on_both_pipelines(monkeypatch)
+    settings = set_default_settings_preprocess_generate_masks(
+        _base_settings(tmp_path, cell_model_name="cellpose3:cyto2",
+                       cell_diameter=55, cell_flow_threshold=0.7,
+                       cell_cellprob_threshold=-1.5,
+                       cellpose3_add_nucleus_channel=False))
+    _run_v2(_v2_stack(tmp_path / "v2", _field()), settings)
+    [call] = model.calls
+    assert seen[0]["model_name"] == "cellpose3:cyto2"
+    assert call["diameter"] == 55.0
+    assert call["flow_threshold"] == 0.7
+    assert call["cellprob_threshold"] == -1.5
+    assert call["shapes"] == [(32, 32)]
+
+
+def test_v2_on_cellpose_sam_never_loads_a_backend(tmp_path, monkeypatch):
+    import cellpose.models
+
+    from spacr import accelerator
+
+    def _no_backend(*args, **kwargs):
+        raise AssertionError("a backend was loaded for a Cellpose-SAM model")
+
+    built = []
+
+    def _sam(**kwargs):
+        built.append(kwargs)
+        return types.SimpleNamespace(eval=lambda x, **k: (
+            [np.zeros(np.shape(i)[:2], np.uint16) for i in x], [], None))
+
+    monkeypatch.setattr(SB, "_load_backend", _no_backend)
+    monkeypatch.setattr(cellpose.models, "CellposeModel", _sam)
+    monkeypatch.setattr(accelerator, "_CACHED", accelerator._CPU)
+    from spacr import pipeline_v2 as PV
+
+    PV.stream_masks_from_stack(_v2_stack(tmp_path, _field()),
+                               model_name="cpsam",
+                               channels_for_cellpose=(0, 1))
+    assert len(built) == 1

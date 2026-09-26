@@ -23,6 +23,10 @@ const AUDIO_ROOT = document.documentElement.dataset.audioRoot || PRODUCTION_ROOT
 // arbitrary playback rate to match the selected narration.
 // Empty means no 4K is available and the quality control stays hidden.
 const VIDEO_4K_ROOT = document.documentElement.dataset.video4kRoot || "";
+// Web copies that live on the same immutable media revision instead of the
+// Pages tree. Only a lesson whose catalog entry names its hosted copy
+// (lesson.web) uses it; every other lesson keeps its local copy.
+const WEB_VIDEO_ROOT = document.documentElement.dataset.webRoot || "";
 const STORAGE_KEY = "spacr-tutorial-progress-v2";
 const WATCH_KEY = "spacr-tutorial-watch-v2";
 const LANGUAGE_KEY = "spacr-tutorial-language-v2";
@@ -139,6 +143,12 @@ let videoParkedForNarration = false;
 let narratedPlaybackCompleted = false;
 let programmaticVideoPlayPending = false;
 let programmaticVideoPausePending = false;
+// Narration waits for the picture. While the video is seeking or has too
+// little data to advance, the narration clock is held (paused) without
+// touching the viewer's play state, and both resume together once the
+// picture can play. Otherwise speech runs on over a frozen frame and the
+// clock correction chases a moving target on a slow media host.
+let narrationHeldForVideo = false;
 let captionUrl = "";
 let captionTrackLoading = false;
 let toastTimer = null;
@@ -628,6 +638,9 @@ function videoSource(lesson = activeLesson) {
   if (!isPlayable(lesson)) return "";
   if (fourKAvailable() && elements.quality?.value === "4k") {
     return `${VIDEO_4K_ROOT}/${lesson.silent}`;
+  }
+  if (WEB_VIDEO_ROOT && lesson.web) {
+    return `${WEB_VIDEO_ROOT}/${lesson.web}`;
   }
   return `${PRODUCTION_ROOT}/${lesson.silent}`;
 }
@@ -1342,6 +1355,34 @@ function seekNarrationToVideo() {
   updateSceneSyncRate(target);
 }
 
+function videoIsLoading() {
+  return elements.video.seeking ||
+    elements.video.readyState < HTMLMediaElement.HAVE_FUTURE_DATA;
+}
+
+function narrationHoldApplies() {
+  return narrationAudioAvailable && elements.voice.value !== "silent" &&
+    !elements.video.paused && !elements.video.ended &&
+    !videoParkedForNarration && !narratedPlaybackCompleted;
+}
+
+function updateNarrationHold() {
+  if (narrationHoldApplies() && videoIsLoading()) {
+    if (!narrationHeldForVideo) {
+      narrationHeldForVideo = true;
+      if (!elements.audio.paused) elements.audio.pause();
+    }
+    return;
+  }
+  if (!narrationHeldForVideo) return;
+  narrationHeldForVideo = false;
+  // Resume only what was held: a paused or finished lesson stays as it is.
+  if (narrationHoldApplies() && elements.audio.paused && !elements.audio.ended) {
+    elements.audio.play()
+      .catch(() => showToast("Select play again to start narration."));
+  }
+}
+
 function setVideoTimeFromNarration(target) {
   if (videoParkedForNarration || !elements.video.duration ||
       videoClockCorrectionPending) return;
@@ -1866,6 +1907,7 @@ elements.video.addEventListener("play", () => {
   }
   if (action === "resume") {
     elements.audio.play()
+      .then(updateNarrationHold)
       .catch(() => showToast("Select play again to start narration."));
     return;
   }
@@ -1873,7 +1915,10 @@ elements.video.addEventListener("play", () => {
   seekNarrationToVideo();
   if (narrationAudioAvailable) {
     elements.audio.play()
-      .then(() => syncVideoToNarration(true))
+      .then(() => {
+        syncVideoToNarration(true);
+        updateNarrationHold();
+      })
       .catch(() => showToast("Select play again to start narration."));
   }
 });
@@ -1903,10 +1948,19 @@ elements.video.addEventListener("seeking", () => {
 elements.video.addEventListener("seeked", () => {
   if (videoClockCorrectionPending) {
     videoClockCorrectionPending = false;
+    // One correction per settled seek. A chapter jump made while it was in
+    // flight is applied now; held narration cannot have moved meanwhile.
+    syncVideoToNarration(false);
     return;
   }
   seekNarrationToVideo();
 });
+// Registered after the handlers above so a finished correction or a viewer
+// seek has updated both clocks before narration is held or released.
+for (const type of ["waiting", "stalled", "seeking", "seeked", "loadeddata",
+                    "canplay", "canplaythrough", "playing", "pause", "emptied"]) {
+  elements.video.addEventListener(type, updateNarrationHold);
+}
 elements.video.addEventListener("emptied", () => {
   // Replacing/removing src cancels an in-flight seek without a seeked event.
   // Its guard belongs to the discarded resource, not the next lesson.

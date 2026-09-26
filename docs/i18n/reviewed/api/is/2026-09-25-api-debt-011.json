@@ -1,0 +1,2048 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.closeEvent#0",
+      "source": "Cancel pending work when the panel closes.",
+      "source_sha256": "0acaf89f44d7093f9a8ca5aa9bcae33356e80399efe6a0a0c2d996f97366a928",
+      "context": "Cancel pending work when the panel closes.",
+      "translation": "Hætta við bíðandi vinnu þegar spjaldið lokast.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.closeEvent#1",
+      "source": "Qt close event forwarded to the parent implementation.",
+      "source_sha256": "b0ae3d28cad71842fa61073d2aaa22a2c08d102e738db1736380a27c307b7f5a",
+      "context": "Qt close event forwarded to the parent implementation.",
+      "translation": "Qt-lokunaratburður sendur áfram til foreldraútfærslunnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async#0",
+      "source": "Refresh the field list and preview from the current form and source.",
+      "source_sha256": "c8e2e4367fff023db26cf6addb6778105e57bd1b1bf20e6ddd39199e15eba77e",
+      "context": "Refresh the field list and preview from the current form and source.",
+      "translation": "Endurnýja sjónsviðalistann og forsýnina út frá núverandi formi og uppsprettu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async#1",
+      "source": "project or database source used for the refreshed preview.",
+      "source_sha256": "981ddd0d8e178fe8f47ed37411b117209ef878bedf3d1eea537ab243307dc5a7",
+      "context": "project or database source used for the refreshed preview.",
+      "translation": "verkefna- eða gagnagrunnsuppspretta sem notuð er fyrir endurnýjuðu forsýnina.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async#2",
+      "source": "whether a preview was started or queued.",
+      "source_sha256": "88401d7d6b3e1bd2f61d06b94746d66635d44883f548ed879cd231196156f6d2",
+      "context": "whether a preview was started or queued.",
+      "translation": "hvort forsýn var hafin eða sett í biðröð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.preview_running#0",
+      "source": "Whether the preview runner still owns work whose result is current.",
+      "source_sha256": "d92ca1a00a953cad6f0af17d0b2a97f1e4ff665a8f6249cf4482f5adaeb91386",
+      "context": "Whether the preview runner still owns work whose result is current.",
+      "translation": "Hvort forsýnarkeyrarinn á enn vinnu þar sem niðurstaðan er gild.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview#0",
+      "source": "Read a bounded field and calculate the same ratios/counts as Run.",
+      "source_sha256": "846854a868477f23ea7b008ae451d547c19179c26171431d16ad2acca2b14c7d",
+      "context": "Read a bounded field and calculate the same ratios/counts as Run.",
+      "translation": "Lesa afmarkað sjónsvið og reikna sömu hlutföll/talningar og Run.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.shutdown#0",
+      "source": "Retire background reads before the preview's widgets disappear.",
+      "source_sha256": "52fb917b54bfabaa4f843a6923053c21edf041b50ba1a81d48a66a8dadd84c3a",
+      "context": "Retire background reads before the preview's widgets disappear.",
+      "translation": "Leggja bakgrunnslestra til hliðar áður en græjur forsýnarinnar hverfa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card#0",
+      "source": "Declare a lazily built preview using the shared Live toggle/card.",
+      "source_sha256": "7dc7af7f44f2cd9f228a690b927bb830731a417803d835c172b78372a294e1c4",
+      "context": "Declare a lazily built preview using the shared Live toggle/card.",
+      "translation": "Tilgreina forsýn sem er byggð eftir þörfum og notar sameiginlega Live-rofann/spjaldið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card#1",
+      "source": "application screen providing the current settings model.",
+      "source_sha256": "858eafc78aa62ceff38c1517c4f568f9751dbffdd73fded3e189140914ce39ab",
+      "context": "application application view providing the current settings model.",
+      "translation": "skjámynd forritsins sem leggur til núverandi stillingalíkan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card#2",
+      "source": "defer panel creation when true.",
+      "source_sha256": "d22ccafdcea9c7eb52704938f8a222a059e379c5bc86cd1c37e18db6475c6eb3",
+      "context": "defer panel creation when true.",
+      "translation": "fresta gerð spjaldsins þegar satt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card#3",
+      "source": "optional preview panel and its containing card.",
+      "source_sha256": "e7c5bf10ff63bffb2ff16fcbe32f33c6beacff0c3248d0abd716693b5373788b",
+      "context": "optional preview panel and its containing card.",
+      "translation": "valfrjálst forsýnarspjald og spjaldið sem inniheldur það.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.fill_host_pathogen_preview_card#0",
+      "source": "Connect the preview to the form so Run preview uses current settings.",
+      "source_sha256": "f8b138c8c42e0dba22c6694d72d78ae1e4b43df754a8ddfa84bd40e324e763c8",
+      "context": "Connect the preview to the form so Run preview uses current settings.",
+      "translation": "Tengja forsýnina við formið svo Run preview noti núverandi stillingar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.fill_host_pathogen_preview_card#2",
+      "source": "card whose body receives the new preview panel.",
+      "source_sha256": "be60e0afa1ea3d4e099746ae1de63c86b25ae669a367790d8cad020e3fe6db70",
+      "context": "card whose body receives the new preview panel.",
+      "translation": "spjaldið þar sem meginhlutinn tekur við nýja forsýnarspjaldinu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.fill_host_pathogen_preview_card#3",
+      "source": "the attached preview panel.",
+      "source_sha256": "ebffb570dbc46545b0647a493c94650a1787cab32bdea41e1c66e0d8e0f4b39a",
+      "context": "the attached preview panel.",
+      "translation": "tengda forsýnarspjaldið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.enterEvent#1",
+      "source": "the enter event; passed to the base class and otherwise not read.",
+      "source_sha256": "826cb14d47cd5699c89db7f9fc4bc35a52fc169bc3e5f5c5790428904ea93071",
+      "context": "the enter event; passed to the base class and otherwise not read.",
+      "translation": "innkomuatburðurinn; sendur til grunnklasans og annars ekki lesinn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.hideEvent#2",
+      "source": "the hide event; passed to the base class after the animation stops.",
+      "source_sha256": "a96cc23690cfcf23d1966f7275743fd41c0cfd5c842867dea3d080a26ca4f458",
+      "context": "the hide event; passed to the base class after the animation stops.",
+      "translation": "földunaratburðurinn; sendur til grunnklasans eftir að hreyfimyndin stöðvast.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#2",
+      "source": "the leave event; passed to the base class and otherwise not read.",
+      "source_sha256": "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56",
+      "context": "the leave event; passed to the base class and otherwise not read.",
+      "translation": "brottfararatburðurinn; sendur til grunnklasans og annars ekki lesinn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.hover_tooltip.split_api_link#3",
+      "source": "the tooltip body as rich text; the last ``<a href>`` anchor is removed only when nothing but whitespace follows it, along with the line breaks before it.",
+      "source_sha256": "273d2193897712c217bb06048b2a5d51ba3d1ebf8b964c0b7b50b166f91c4625",
+      "context": "the tooltip body as rich text; the last ``<a href>`` anchor is removed only when nothing but whitespace follows it, along with the line breaks before it.",
+      "translation": "meginmál verkfæraábendingarinnar sem sniðinn texti; síðasta ``<a href>`` akkerið er aðeins fjarlægt þegar ekkert nema hvítbil fylgir því, ásamt línuskilunum á undan því.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.import_workbench.ImportWorkbench.add_files#4",
+      "source": "files and folders from a drop or the file picker; each is converted to ``str``, folders are walked recursively on the worker, and an empty sequence or ``None`` does nothing.",
+      "source_sha256": "f0e28447dd9abfc8be170ed835831f9bc2f4fb9b08d12e462991e8220f2fa356",
+      "context": "files and folders from a drop or the file picker; each is converted to ``str``, folders are walked recursively on the worker, and an empty sequence or ``None`` does nothing.",
+      "translation": "skrár og möppur úr sleppingu eða skráavalinu; hverju er umbreytt í ``str``, farið er endurkvæmt í gegnum möppur á vinnsluþræðinum, og tóm runa eða ``None`` gerir ekkert.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.import_workbench.ImportWorkbenchDialog.done#2",
+      "source": "the dialog result code (``QDialog.Accepted`` or ``QDialog.Rejected``), passed on to ``QDialog.done`` after the workbench's worker is shut down.",
+      "source_sha256": "e45a2089daa01373657e76166e675012d6fd43b3ab9e98137ae77205b814c634",
+      "context": "the dialog result code (``QDialog.Accepted`` or ``QDialog.Rejected``), passed on to ``QDialog.done`` after the workbench's worker is shut down.",
+      "translation": "niðurstöðukóði gluggans (``QDialog.Accepted`` eða ``QDialog.Rejected``), sendur áfram til ``QDialog.done`` eftir að vinnsluþræði vinnubekksins hefur verið lokað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.info_link.InfoLink.set_url#1",
+      "source": "the address opened in the desktop browser on click; converted with ``str``.",
+      "source_sha256": "c7e4cebbac89a502e1b913d624bdf1da3ba95535af5c8b9011f58e47f4bed489",
+      "context": "the address opened in the desktop browser on click; converted with ``str``.",
+      "translation": "slóðin sem er opnuð í vafra skjáborðsins við smell; umbreytt með ``str``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3",
+      "source": "the module's settings dict (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
+      "source_sha256": "96135371fed57deda24a9362d148af2f2570a1b1dfd6da9138a9e4502a0a3e7d",
+      "context": "the module's settings key-value mapping (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
+      "translation": "stillingaorðabók einingarinnar (``None`` er meðhöndlað sem tómt); afrit er geymt fyrir Pre- og Post-leiðirnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview#0",
+      "source": "Cancel PSF work cooperatively and discard any native inference result.",
+      "source_sha256": "37dba81d21b3b0d094e243b187f1bc71fb46da9d8550f5af464e81278eb721c8",
+      "context": "Cancel PSF work cooperatively and discard any native inference result.",
+      "translation": "Hætta við PSF-vinnu í samvinnu og henda hverri innbyggðri ályktunarniðurstöðu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.comparable_masks#0",
+      "source": "The session's masks that fit the field on screen, oldest first.",
+      "source_sha256": "1d0a2c37989611f15f1a6be1b1f65c47c6fe78861e4b4161fd9e40269ab5b9e0",
+      "context": "The session's masks that fit the microscope field of view on application view, oldest first.",
+      "translation": "Grímur lotunnar sem passa við sjónsviðið á skjánum, elstu fyrst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.comparison_layers#0",
+      "source": "What the comparison popup lists, top of the stack first.",
+      "source_sha256": "fbb1fc0255b6ff6741a524e68acae2b9e8a94f83bb1dd4022000f675fad525ab",
+      "context": "What the comparison popup lists, top of the stack first.",
+      "translation": "Það sem samanburðarsprettiglugginn telur upp, efst í staflanum fyrst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.comparison_layers#1",
+      "source": "The masks, newest on top at half opacity, then the field as it is shown at full opacity underneath, then each channel on its own, unticked, for a mask that is better judged against one plane.",
+      "source_sha256": "3ebc0b568910fd4555828c4c3edce25b13bf05d01a9843302926d48da1637f7d",
+      "context": "The masks, newest on top at half opacity, then the microscope field of view as it is shown at full opacity underneath, then each image data channel on its own, unticked, for a mask that is better judged against one image layer.",
+      "translation": "Grímurnar, nýjustu efst með hálfu ógagnsæi, síðan sjónsviðið eins og það er sýnt með fullu ógagnsæi undir, síðan hver rás fyrir sig, án haks, fyrir grímu sem betra er að meta á móti einu lagi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.dragEnterEvent#1",
+      "source": "the drag-enter event; its MIME data is checked for a local file URL with a supported image extension.",
+      "source_sha256": "ce5ad74532318bb07534a92336f69b767c146216e71a1074e0e552c326eb3a75",
+      "context": "the drag-enter event; its MIME data is checked for a local file URL with a supported image extension.",
+      "translation": "dráttarinnkomuatburðurinn; MIME-gögn hans eru athuguð fyrir staðbundna skráarslóð með studdri myndendingu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.dropEvent#1",
+      "source": "the drop event; the first local file URL with a supported image extension is loaded asynchronously, and the drop is ignored when there is none.",
+      "source_sha256": "98313d0be1a8e8b96e0e79250e435f69bbf5563dae3f643634a3d00cdc37d1b7",
+      "context": "the drop event; the first local file URL with a supported image extension is loaded asynchronously, and the drop is ignored when there is none.",
+      "translation": "sleppingaratburðurinn; fyrsta staðbundna skráarslóðin með studdri myndendingu er hlaðin ósamstillt, og sleppingin er hunsuð þegar engin slík er til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.load_image#2",
+      "source": "the image file to show; with MIP on, its field's stack is max-projected instead. A failure is reported in the status line and gives ``False``.",
+      "source_sha256": "ac604e9752a9cd6fb535a12896d6ea0dbe0303b8d95eccd3abb0ce4692e39451",
+      "context": "the image file to show; with MIP on, its microscope field of view's stack is max-projected instead. A failure is reported in the status line and gives ``False``.",
+      "translation": "myndskráin sem á að sýna; með MIP virkt er stafli sjónsviðs hennar hámarksvarpaður í staðinn. Bilun er tilkynnt í stöðulínunni og gefur ``False``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.load_source_async#4",
+      "source": "channel plane selected by the table, if any.",
+      "source_sha256": "6a45bdb2880e787a3ee16ca4672571b7732343e212ee6f91bae9156aeb623ff5",
+      "context": "image data channel image layer selected by the table, if any.",
+      "translation": "rásarlag sem taflan valdi, ef eitthvert.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.open_mask_comparison#0",
+      "source": "Ask what to compare, then draw it in the third panel.",
+      "source_sha256": "f5d515652ff170b85b725c026b64471a39622ac71b4fdc59a5b67efb9fa06bd8",
+      "context": "Ask what to compare, then draw it in the third panel.",
+      "translation": "Spyrja hvað á að bera saman, og teikna það síðan í þriðja spjaldinu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.open_mask_comparison#1",
+      "source": "whether a comparison was drawn.",
+      "source_sha256": "568bd8769174054b8e2b3be968f0fd1b149fbda2189a74d4bdb5e974eecb6b55",
+      "context": "whether a comparison was drawn.",
+      "translation": "hvort samanburður var teiknaður.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.regroup_the_folder#0",
+      "source": "Group the loaded folder again, by the naming the form names now.",
+      "source_sha256": "78fe380a98ffa6867bf14441a93b71a3acb5cbfb4489876830190fd1cf5ffb23",
+      "context": "Group the loaded folder again, by the naming the form names now.",
+      "translation": "Flokka hlöðnu möppuna aftur, eftir nafnavenjunni sem formið nefnir nú.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.regroup_the_folder#1",
+      "source": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The screen calls this when either setting changes. The folder's file names are read off the GUI thread, and nothing is decoded.",
+      "source_sha256": "ba35ba6afb40c27af59767dfe437c665f3c50ef78d7c29d0e1a9a3715c269301",
+      "context": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The application view calls this when either setting changes. The folder's file names are read off the main GUI execution path, and nothing is decoded.",
+      "translation": "Taflan er flokkuð þegar mappa er hlaðin, með ``metadata_type`` og ``custom_regex`` sem Mask-formið geymdi á því augnabliki. Að hlaða fyrst og velja nafnavenjuna síðan skildi hverja skrá eftir undir einum dálki þar til eitthvað annað hlóð möppuna aftur. Skjámyndin kallar á þetta þegar önnur hvor stillingin breytist. Skráarheiti möppunnar eru lesin utan GUI-þráðarins, og ekkert er afkóðað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.regroup_the_folder#2",
+      "source": "``True`` when a regrouping was started, ``False`` when no image is loaded.",
+      "source_sha256": "1521badb167f142aa27a46f79ef3ec4c0d56f886ea45465bf4742da81de69f8d",
+      "context": "``True`` when a regrouping was started, ``False`` when no image is loaded.",
+      "translation": "``True`` þegar endurflokkun hófst, ``False`` þegar engin mynd er hlaðin.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.retranslate_dynamic_content#2",
+      "source": "The view dropdown is re-rendered here as well. The generic pass only rewrites a caption whose translation differs from its source or that has a hand-written row, so \"Cell probability\", translated from the generated catalog, would otherwise stay Swedish after a switch back to English.",
+      "source_sha256": "e965248f866c140639b1ba5b5d3308f64f42c7707f68055fad25e6b5032311a1",
+      "context": "The view dropdown is re-rendered here as well. The generic pass only rewrites a caption whose translation differs from its source or that has a hand-written row, so \"Cell probability\", translated from the generated catalog, would otherwise stay Swedish after a switch back to English.",
+      "translation": "Skoðunarfellilistinn er einnig birtur aftur hér. Almenna umferðin endurskrifar aðeins yfirskrift þar sem þýðingin er ólík upprunanum eða sem hefur handskrifaða röð, svo \"Cell probability\", þýtt úr myndaðri þýðingaskrá, yrði annars áfram á sænsku eftir að skipt er aftur yfir í ensku.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.set_propagate_callback#1",
+      "source": "callable given a dict of setting key to value when the tuned settings are propagated, or ``None``.",
+      "source_sha256": "20bbcdd4bd48e8f8d481e38dc86d64c27ea9a5e5c6f7ed920abfb7c7eb7f12ae",
+      "context": "callable given a key-value mapping of setting name to value when the tuned settings are propagated, or ``None``.",
+      "translation": "köllunarhæft fall sem fær orðabók frá stillingalykli á gildi þegar stilltu stillingarnar eru sendar áfram, eða ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.show_comparison#0",
+      "source": "Draw ``layers`` (bottom first) in the third panel.",
+      "source_sha256": "261e8eb938598d94fb8a5cd74c2fa891e3ab499411fc78d102f88491bf8471cf",
+      "context": "Draw ``layers`` (bottom first) in the third panel.",
+      "translation": "Teikna ``layers`` (neðst fyrst) í þriðja spjaldinu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.show_comparison#1",
+      "source": "Nothing ticked puts the panel away again.",
+      "source_sha256": "5cc5300993a359a8a40f278ccc4315ab5132556078a30fa52e00650fdf269620",
+      "context": "Nothing ticked puts the panel away again.",
+      "translation": "Ekkert hakað leggur spjaldið frá aftur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.show_comparison#2",
+      "source": "the :class:`~spacr.qt.widgets.mask_comparison.Layer` stack, bottom first, as :func:`~spacr.qt.widgets.mask_comparison.composite` takes it.",
+      "source_sha256": "60bb2a7bfde4b88ae622f2b062041e79d832159db0f2c299adf170c96216bf79",
+      "context": "the :class:`~spacr.qt.widgets.mask_comparison.Layer` stack, bottom first, as :func:`~spacr.qt.widgets.mask_comparison.composite` takes it.",
+      "translation": ":class:`~spacr.qt.widgets.mask_comparison.Layer` staflinn, neðst fyrst, eins og :func:`~spacr.qt.widgets.mask_comparison.composite` tekur hann.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.show_comparison#3",
+      "source": "whether a picture was drawn.",
+      "source_sha256": "cd6002185b110ac97e5c05a7de358447b496b83d6e0c8cba4627ad0fd5153bf8",
+      "context": "whether a picture was drawn.",
+      "translation": "hvort mynd var teiknuð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent#5",
+      "source": "the close event; passed to the base class once every borrowed control has been handed back.",
+      "source_sha256": "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc",
+      "context": "the close event; passed to the base class once every borrowed control has been handed back.",
+      "translation": "lokunaratburðurinn; sendur til grunnklasans þegar hverri lánaðri stýringu hefur verið skilað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.PreviewRequest#2",
+      "source": "the field to segment, an array of shape (H, W) or (H, W, C); each object type's channel index selects its plane.",
+      "source_sha256": "a43b07291bf97f3bbdf76d42ae6dcf658bba75708bc465b5a09fd8f69d907ec0",
+      "context": "the microscope field of view to segment, an array of shape (H, W) or (H, W, C); each object type's image data channel index selects its image layer.",
+      "translation": "sjónsviðið sem á að hluta, fylki af lögun (H, W) eða (H, W, C); rásavísir hverrar hlutagerðar velur lag hennar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT#0",
+      "source": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
+      "source_sha256": "e5e5585868edd9f7f7c680740e5b2da9572a78e09072f7e669d1564f93caf35c",
+      "context": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
+      "translation": "Hversu margar grímur þessarar lotu samanburðarspjaldið getur lagt hverja yfir aðra: síðustu átta, elstu fyrst sleppt. Hver er merkjafylki í fullri stærð, og spjald sem héldi hverri keyrslu síðdegisins myndi geyma þær allar í minni fyrir sprettiglugga sem telur þægilega upp átta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.first_supported_image#1",
+      "source": "Direct image files are returned unchanged. Directory traversal stops as soon as the first sorted match is found instead of materialising and sorting every image in a potentially enormous plate. Files whose names start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes on exFAT and network volumes, sorts before every image and holds none.",
+      "source_sha256": "65e9bac8795920273cd7c2dc9059f9c985122cd4550aa8e82dcd6cd5ad3bb501",
+      "context": "Direct image files are returned unchanged. Directory traversal stops as soon as the first sorted match is found instead of materialising and sorting every image in a potentially enormous plate. Files whose names start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes on exFAT and network volumes, sorts before every image and holds none.",
+      "translation": "Myndskrám er skilað óbreyttum. Yfirferð mappa stöðvast um leið og fyrsta samsvörun í röðun finnst í stað þess að safna og raða hverri mynd í hugsanlega risastórri plötu. Skrám þar sem heitið byrjar á punkti er sleppt: ``._<name>.tif``, fylgiskráin sem macOS skrifar á exFAT og netdrif, raðast á undan hverri mynd og geymir enga.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#2",
+      "source": "image file path (``str`` or :class:`~pathlib.Path`); a ``.tif``/``.tiff`` suffix, in any case, selects tifffile.",
+      "source_sha256": "81c043589e3eb68967bf9f8a25ba51a3a9669875a15561f44b3e93c7a92a66a3",
+      "context": "image file path (``str`` or :class:`~pathlib.Path`); a ``.tif``/``.tiff`` suffix, in any case, selects tifffile.",
+      "translation": "slóð myndskrár (``str`` eða :class:`~pathlib.Path`); ``.tif``/``.tiff`` ending, óháð hástöfum, velur tifffile.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_mip#2",
+      "source": "Planes are folded one at a time rather than stacked: a 60-plane field at 2048x2048 uint16 is 500 MB as one array and 8 MB folded.",
+      "source_sha256": "c9776d9918fb054a5b08af8cc2e4b75cf863c5a39361f664344222d1f20a7dc9",
+      "context": "Image layers are folded one at a time rather than stacked: a 60-image-layer microscope field of view at 2048x2048 uint16 is 500 MB as one array and 8 MB folded.",
+      "translation": "Lög eru felld saman eitt í einu frekar en staflað: sjónsvið með 60 lögum við 2048x2048 uint16 er 500 MB sem eitt fylki en 8 MB samanfellt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_source_payload#2",
+      "source": "The enumeration reads **file names only**. Decoding reads the selected image, plus its channel's z-planes when projection is requested.",
+      "source_sha256": "bf2e5994b850e392e3fcf4acff969cc57fbc11645b50309030b69f3d7978a234",
+      "context": "The enumeration reads **file names only**. Decoding reads the selected image, plus its image data channel's z-image layers when projection is requested.",
+      "translation": "Upptalningin les **eingöngu skráarheiti**. Afkóðun les valdu myndina, auk z-laga rásar hennar þegar beðið er um vörpun.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_source_payload#6",
+      "source": "project the selected channel's z-stack on this worker.",
+      "source_sha256": "368c3e7da5caf168a8d6af57b79e5994ab49d1fcfee4cb1d0a0a349d76fae076",
+      "context": "project the selected channel's z-stack on this worker.",
+      "translation": "varpa z-stafla valdrar rásar á þessum vinnsluþræði.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_source_payload#7",
+      "source": "cached image sets used when enumeration is skipped.",
+      "source_sha256": "6e945ff0bccc6eda7211c739e4726b621daff1ad3b45b35263658de474940f80",
+      "context": "cached image sets used when enumeration is skipped.",
+      "translation": "myndasöfn í skyndiminni sem notuð eru þegar upptalningu er sleppt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.numpy_to_qpixmap#2",
+      "source": "image array of shape (H, W) or (H, W, C); a non-uint8 array is scaled to 8 bits first, by percentile when ``normalise`` is true.",
+      "source_sha256": "2a00b330817366d5616ac05dd2c1605c0672134acfc2fa7cb5e057cf475d69bc",
+      "context": "image array of shape (H, W) or (H, W, C); a non-uint8 array is scaled to 8 bits first, by percentile when ``normalise`` is true.",
+      "translation": "myndfylki af lögun (H, W) eða (H, W, C); fylki sem er ekki uint8 er fyrst kvarðað í 8 bita, eftir hundraðshlutamörkum þegar ``normalise`` er satt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.object_role#2",
+      "source": "an object-dropdown caption such as ``\"cell\"``, ``\"organelle\"`` or ``\"organelle 2\"``; anything not starting with ``organelle`` is returned unchanged.",
+      "source_sha256": "2ea664b4e9d94365e60cd9532aeb35d97a7ac5e1e6c451a2882cd26d64a8b7c0",
+      "context": "an object-dropdown caption such as ``\"cell\"``, ``\"organelle\"`` or ``\"organelle 2\"``; anything not starting with ``organelle`` is returned unchanged.",
+      "translation": "yfirskrift í hlutafellilista eins og ``\"cell\"``, ``\"organelle\"`` eða ``\"organelle 2\"``; hverju sem byrjar ekki á ``organelle`` er skilað óbreyttu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.organelle_label#2",
+      "source": "the organelle slot, counting from 1; converted to ``int``.",
+      "source_sha256": "6bfd31bcd25db4ced4644bdd1557079d71e39762d0913dd5c1107a6f66837ff0",
+      "context": "the organelle slot, counting from 1; converted to ``int``.",
+      "translation": "frumulíffærahólfið, talið frá 1; umbreytt í ``int``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.overlay_mask#1",
+      "source": "source image of shape (H, W) or (H, W, C).",
+      "source_sha256": "59a10b86b917025e0e82b7efab2a0a0533b4cb93ad77b8591d28b6f81f8bd9a3",
+      "context": "source image of shape (H, W) or (H, W, C).",
+      "translation": "upprunamynd af lögun (H, W) eða (H, W, C).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.overlay_mask#2",
+      "source": "label image the same height and width as ``image``; its object boundaries are drawn in the cell outline colour.",
+      "source_sha256": "8896c2570db7e5411526c9879955f983ef67b2b2941de0b572d622836f4a8a63",
+      "context": "label image the same height and width as ``image``; its object boundaries are drawn in the cell outline colour.",
+      "translation": "merkjamynd með sömu hæð og breidd og ``image``; mörk hluta hennar eru teiknuð í útlínulit frumunnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.set_total#1",
+      "source": "number of steps the progress counts towards; converted to ``int`` and floored at 0, which means unknown and makes :meth:`fraction` report 0.0.",
+      "source_sha256": "8373f836a20241ead86c353c5ad5b41b9f94c4d44c3deae327dbb404a3d6f29f",
+      "context": "number of steps the progress counts towards; converted to ``int`` and floored at 0, which means unknown and makes :meth:`fraction` report 0.0.",
+      "translation": "fjöldi skrefa sem framvindan telur upp í; umbreytt í ``int`` og með gólf við 0, sem þýðir óþekkt og lætur :meth:`fraction` tilkynna 0.0.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.make_masks_help#0",
+      "source": "Bind Make Masks' custom controls to linked help and matching animations.",
+      "source_sha256": "beca03e7a8d00db1ff4536d9e962e781e18f3fbdddefa543672c8b07d43250b2",
+      "context": "Bind Make Masks' custom controls to linked help and matching animations.",
+      "translation": "Binda sérsniðnar stýringar Make Masks við tengda hjálp og samsvarandi hreyfimyndir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.make_masks_help.ANIMATIONS#0",
+      "source": "Exact concept matches; unrelated controls do not borrow an illustration.",
+      "source_sha256": "ad955ef454ea23d271b6bc2543321172fb56048d8ff18f2ccccf0f9d9b6ebc9a",
+      "context": "Exact concept matches; unrelated controls do not borrow an illustration.",
+      "translation": "Nákvæmar samsvaranir hugtaka; óskyldar stýringar fá ekki lánaða skýringarmynd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.make_masks_help.install_make_masks_help#0",
+      "source": "Attach persistent API help and available animations to custom controls.",
+      "source_sha256": "a9eb030dba39218f095a7e79ddacb86b8c3a3c86e842919da2e3b9599418f21c",
+      "context": "Attach persistent API help and available animations to custom controls.",
+      "translation": "Tengja varanlega API-hjálp og tiltækar hreyfimyndir við sérsniðnar stýringar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.make_masks_help.install_make_masks_help#1",
+      "source": "constructed MakeMasksScreen, before tooltip retargeting.",
+      "source_sha256": "d559414b94a4f01b4dec5df5674b5cc3cf02efe9b2e3d0b75f7f31525bc62520",
+      "context": "constructed MakeMasksScreen, before tooltip retargeting.",
+      "translation": "smíðuð MakeMasksScreen, áður en verkfæraábendingum er beint annað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.make_masks_help.install_make_masks_help#2",
+      "source": "number of controls receiving linked help. Labels receive the same metadata through the standard settings retargeting function. Existing prose is retained instead of using another module's help.",
+      "source_sha256": "fbc77593135e50914f63a198c19841cd2c0e3387e04c61db767ac8b433262db0",
+      "context": "number of controls receiving linked help. Labels receive the same metadata through the standard settings retargeting function. Existing prose is retained instead of using another module's help.",
+      "translation": "fjöldi stýringa sem fá tengda hjálp. Merki fá sömu lýsigögn í gegnum staðlaða fallið sem beinir stillingum annað. Fyrirliggjandi texta er haldið í stað þess að nota hjálp annarrar einingar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison#0",
+      "source": "Lay several masks and images over one another, in a panel of their own.",
+      "source_sha256": "e14c0abafde8cf7ba93fb525347bfb66f5e57597b6bcf08115bed952e4ef3260",
+      "context": "Lay several masks and images over one another, in a panel of their own.",
+      "translation": "Leggja nokkrar grímur og myndir hverja yfir aðra, í eigin spjaldi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison#1",
+      "source": "Once a preview session has made more than one mask, the masks and the field can be ticked, given an opacity and put in a stacking order, and the composite is drawn in a panel beside the preview's other views.",
+      "source_sha256": "a9bd98a67b6df7c888a2b73f0b80e28bc94f7b4291fe8fd9f6168079309ee877",
+      "context": "Once a preview session has made more than one mask, the masks and the microscope field of view can be ticked, given an opacity and put in a stacking order, and the composite is drawn in a panel beside the preview's other views.",
+      "translation": "Þegar forsýnarlota hefur búið til fleiri en eina grímu er hægt að haka við grímurnar og sjónsviðið, gefa þeim ógagnsæi og setja í staflaröð, og samsetningin er teiknuð í spjaldi við hlið annarra sýna forsýnarinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison#2",
+      "source": "TWO HALVES. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its field, and draws the answer.",
+      "source_sha256": "5e6a4bd9dede1be7f833f2b0c7dc1b3ecff48da39d4ec0c8de4e080d9463c093",
+      "context": "Two halves. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its microscope field of view, and draws the answer.",
+      "translation": "TVEIR HELMINGAR. :func:`composite` er reikningurinn, á einföldum fylkjum, svo hægt er að athuga myndina sem notandi sér pixil fyrir pixil á móti handreikningi. :class:`MaskComparisonDialog` er sprettiglugginn sem velur hvað fer í hana. Hvorugt veit af Mask-einingunni; lifandi forsýnin afhendir grímur lotu sinnar og sjónsvið sitt, og teiknar svarið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison#3",
+      "source": "THE ARITHMETIC IS \"OVER\", LAYER BY LAYER, FROM THE BOTTOM. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
+      "source_sha256": "c3a684d93217b9a8bdc51ea11f6020da2c46a2d803e8dcec666dc35769ab475f",
+      "context": "The arithmetic is \"OVER\", layer by layer, from the bottom. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
+      "translation": "REIKNINGURINN ER \"OVER\", LAG FYRIR LAG, NEÐAN FRÁ. Striginn byrjar svartur. Hvert hakað lag, neðsta fyrst, er lagt á með ógagnsæi sínu ``a``: þar sem það hylur, ``out = out * (1 - a) + colour * a``; þar sem það hylur ekki, er ``out`` látið vera. Mynd hylur hvern pixil; gríma hylur aðeins hluti sína, svo bakgrunnur grímu deyfir aldrei það sem er undir. Niðurstaðan er námunduð að næsta heila grástigi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison#4",
+      "source": "THE STACKING ORDER READS LIKE A LAYER LIST. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
+      "source_sha256": "c70b490aeb3a412244c1ea00715da87239a8b9fc3e90abcf63c19fff5e865406",
+      "context": "The stacking order reads like a layer list. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
+      "translation": "STAFLARÖÐIN LESIST EINS OG LAGALISTI. Sprettiglugginn telur efst í staflanum fyrst, eins og hvert teikniforrit gerir, og :meth:`chosen` skilar lögunum neðst fyrst, í þeirri röð sem :func:`composite` leggur þau á.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.Layer#0",
+      "source": "One thing the comparison can draw.",
+      "source_sha256": "8b10db45b5ab81a8c1b7b041abff97deb5467dbc2c09b109f256beb7dbe18c8b",
+      "context": "One thing the comparison can draw.",
+      "translation": "Eitt sem samanburðurinn getur teiknað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.Layer#1",
+      "source": "what the popup calls it.",
+      "source_sha256": "413adaf667daee3d2c91d88f5888075f1b51e6da4faeebe742955dd43d85ef32",
+      "context": "what the popup calls it.",
+      "translation": "það sem sprettiglugginn kallar það.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.Layer#2",
+      "source": ":data:`MASK` or :data:`IMAGE`.",
+      "source_sha256": "cc6abafc29b8757e4ef26ee1eddd8bec8e37c1018237da09013d49119c40db26",
+      "context": ":data:`MASK` or :data:`IMAGE`.",
+      "translation": ":data:`MASK` eða :data:`IMAGE`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.Layer#3",
+      "source": "an ``H x W`` label mask, or an ``H x W`` or ``H x W x 3`` ``uint8`` picture.",
+      "source_sha256": "7ea5ad060b80d2059981ef08f32b2accf0ea82d159283e5364a9fb975b0b4995",
+      "context": "an ``H x W`` label mask, or an ``H x W`` or ``H x W x 3`` ``uint8`` picture.",
+      "translation": "``H x W`` merkjagríma, eða ``H x W`` eða ``H x W x 3`` ``uint8`` mynd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.Layer#4",
+      "source": "the colour a mask's objects are filled with.",
+      "source_sha256": "f44005792fdfaf20bfef19f931edcf4b53684bd6ac04e7b6186cff437681432f",
+      "context": "the colour a mask's objects are filled with.",
+      "translation": "liturinn sem hlutir grímu eru fylltir með.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.Layer#5",
+      "source": "whether it is drawn.",
+      "source_sha256": "d1296fdb47de3f71ae9a8ea004c4dc7e22a8ff9fd3482ac5ba929f8d9bae6572",
+      "context": "whether it is drawn.",
+      "translation": "hvort það er teiknað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#0",
+      "source": "Tick, opacity and stacking order for each mask and image.",
+      "source_sha256": "74d1a66fe663264457ba98e206f66bbebf364f40676e4480bf30ac29523f22f1",
+      "context": "Tick, opacity and stacking order for each mask and image.",
+      "translation": "Hak, ógagnsæi og staflaröð fyrir hverja grímu og mynd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#1",
+      "source": "Rows are listed top of the stack first. The dialog is a plain ``QDialog``, so spaCR's card and rim reach it the way they reach every other popup.",
+      "source_sha256": "eaaee5264369eb0b7e2526f746c3942cbdeaaab4a7f651894fcb553639885f86",
+      "context": "Rows are listed top of the stack first. The dialog is a plain ``QDialog``, so spaCR's card and rim reach it the way they reach every other popup.",
+      "translation": "Raðir eru taldar upp efst í staflanum fyrst. Glugginn er venjulegur ``QDialog``, svo spjald og brún spaCR ná til hans eins og þau ná til hvers annars sprettiglugga.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#2",
+      "source": "the choices, TOP OF THE STACK FIRST.",
+      "source_sha256": "84d7c1979b96259903c3090f1a56ccb8062c45a0cc21bb64f4d53145370eb578",
+      "context": "the choices, top of the stack first.",
+      "translation": "valkostirnir, EFST Í STAFLANUM FYRST.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#3",
+      "source": "parent widget; ownership only.",
+      "source_sha256": "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+      "context": "parent widget; ownership only.",
+      "translation": "foreldragræja; aðeins eignarhald.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#4",
+      "source": "Build one row per layer, and OK and Cancel.",
+      "source_sha256": "fcb967013ce09afa85f6494fc7bf7edcba5b537e994c16490ff510b5c2f502e9",
+      "context": "Build one row per layer, and OK and Cancel.",
+      "translation": "Byggja eina röð fyrir hvert lag, og OK og Cancel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.chosen#0",
+      "source": "The ticked layers, BOTTOM FIRST, ready for :func:`composite`.",
+      "source_sha256": "5a6caa36ebf3359ca3bf711437e6c710c380e1a87ddbc470b01822ebd38fcf11",
+      "context": "The ticked layers, bottom first, ready for :func:`composite`.",
+      "translation": "Hökuðu lögin, NEÐST FYRST, tilbúin fyrir :func:`composite`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.listed#0",
+      "source": "Every layer as the popup has it now, top of the stack first.",
+      "source_sha256": "6d1c5e41ca878b3bc5b8ac3eb5d7c05232e9f739aa89cde885d7cf03d5be7988",
+      "context": "Every layer as the popup has it now, top of the stack first.",
+      "translation": "Hvert lag eins og sprettiglugginn hefur það nú, efst í staflanum fyrst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.move#0",
+      "source": "Move row ``index`` by ``step`` places; ``-1`` is up the stack.",
+      "source_sha256": "cf0a87da99962c7ecd94e59b0a815359da341715349641b327739cb948cde5f8",
+      "context": "Move row ``index`` by ``step`` places; ``-1`` is up the stack.",
+      "translation": "Færa röð ``index`` um ``step`` sæti; ``-1`` er upp staflann.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.move#1",
+      "source": "A move that would leave the stack does nothing.",
+      "source_sha256": "5978391b0648d6b6d5b6076dfeccf305dcd88a91fe4149779f4301668bc9e50d",
+      "context": "A move that would leave the stack does nothing.",
+      "translation": "Færsla sem myndi fara út fyrir staflann gerir ekkert.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.move#2",
+      "source": "the row to move, top of the stack first.",
+      "source_sha256": "c11c282f9274d2a7c4403938a4358c4de6a94dfab4d2ab5d5e7c427f3eb8ba2b",
+      "context": "the row to move, top of the stack first.",
+      "translation": "röðin sem á að færa, efst í staflanum fyrst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.move#3",
+      "source": "how many places to move it; negative is up.",
+      "source_sha256": "a2f2ad2b4b3ed04bdaa360fc4511ec40b82915a8dabdebadd83da59700199056",
+      "context": "how many places to move it; negative is up.",
+      "translation": "hversu mörg sæti á að færa hana; neikvætt er upp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.rows#0",
+      "source": "Each row's tick and opacity slider, top of the stack first.",
+      "source_sha256": "97d27e5f14c1389507b03dff68d5cdee6e2a6dbe4064d6642f60976fb8553e7a",
+      "context": "Each row's tick and opacity slider, top of the stack first.",
+      "translation": "Hak og ógagnsæissleði hverrar raðar, efst í staflanum fyrst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.composite#0",
+      "source": "Lay the ticked ``layers`` over a black canvas, bottom first.",
+      "source_sha256": "b9ef1762b55f0f3e3c24d656de96af2b4cd515b7aaf4f6862542e56d9e720811",
+      "context": "Lay the ticked ``layers`` over a black canvas, bottom first.",
+      "translation": "Leggja hökuðu ``layers`` yfir svartan striga, neðst fyrst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.composite#1",
+      "source": "bottom of the stack first. Unticked layers and layers of another size than the first are skipped.",
+      "source_sha256": "46cc6bd5f6d298649d28d6accca0666c4dfbb55da621d4d04591d917a7b81a77",
+      "context": "bottom of the stack first. Unticked layers and layers of another size than the first are skipped.",
+      "translation": "neðst í staflanum fyrst. Lögum án haks og lögum af annarri stærð en það fyrsta er sleppt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.composite#2",
+      "source": "the canvas size; the first ticked layer's when omitted.",
+      "source_sha256": "71d89881f866eb8154cf48e7d3307fdc8c4260054ff947770277b4dd441d62fb",
+      "context": "the canvas size; the first ticked layer's when omitted.",
+      "translation": "stærð strigans; stærð fyrsta hakaða lagsins þegar henni er sleppt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.composite#3",
+      "source": "``H x W x 3`` ``uint8``, or ``None`` when nothing is ticked.",
+      "source_sha256": "629e9080721ab9c8464ddbbc030e7c4e8d2f6819b9b172c3a003d4f353afc1f3",
+      "context": "``H x W x 3`` ``uint8``, or ``None`` when nothing is ticked.",
+      "translation": "``H x W x 3`` ``uint8``, eða ``None`` þegar ekkert er hakað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.layer_rgb#0",
+      "source": "A layer's colour and the pixels it covers.",
+      "source_sha256": "2989511191d5f2fb130e997ce76a15eb25103a0b666d27e89911c69c9c296fb8",
+      "context": "A layer's colour and the pixels it covers.",
+      "translation": "Litur lags og pixlarnir sem það hylur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.mask_comparison.layer_rgb#1",
+      "source": "a mask layer covers its non-zero pixels in its own colour; an image layer covers every pixel with its own values.",
+      "source_sha256": "6992e78e38c43de1184c7e66fca156ea13ca5086360535b275a16c913a7ba18d",
+      "context": "a mask layer covers its non-zero pixels in its own colour; an image layer covers every pixel with its own values.",
+      "translation": "grímulag hylur pixla sína sem eru ekki núll í eigin lit; myndlag hylur hvern pixil með eigin gildum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table#0",
+      "source": "The FEATURES table: rows are fields, columns are channels and mask types.",
+      "source_sha256": "bdd9d569fab9125fec7566aa6b737de45a202c8ef38af4229891adc815665bd7",
+      "context": "The FEATURES table: rows are microscope fields of view, columns are image data channels and mask types.",
+      "translation": "FEATURES-taflan: raðir eru sjónsvið, dálkar eru rásir og grímutegundir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table#1",
+      "source": "The one control the Measure module has no equivalent of. Measure reads a ``merged/`` folder a pipeline already built, and everything about which file is which channel was decided by the plate's naming convention long before Measure saw it. A user who drew masks with a mouse has no naming convention and no pipeline, so the question has to be asked, and this is where it is asked: one row per field, one column per channel and per mask type, and three ways to fill a cell -- drop files on it, click it and browse, or write one regex that fills the whole table at once.",
+      "source_sha256": "d4ceb1cb6e5897a51e3668bdf1879612e2d505647913fa3eb1e9e930dd432f0e",
+      "context": "The one control the Measure module has no equivalent of. Measure reads a ``merged/`` folder a workflow already built, and everything about which file is which image data channel was decided by the laboratory microplate's naming convention long before Measure saw it. A user who drew masks with a mouse has no naming convention and no workflow, so the question has to be asked, and this is where it is asked: one row per microscope field of view, one column per image data channel and per mask type, and three ways to fill a cell -- drop files on it, click it and browse, or write one regex that fills the whole table at once.",
+      "translation": "Eina stýringin sem Measure-einingin á enga hliðstæðu við. Measure les ``merged/`` möppu sem vinnsluferli hefur þegar byggt, og allt um það hvaða skrá er hvaða rás var ákveðið af nafnavenju plötunnar löngu áður en Measure sá hana. Notandi sem teiknaði grímur með mús hefur enga nafnavenju og ekkert vinnsluferli, svo spurningin þarf að vera spurð, og hér er hún spurð: ein röð fyrir hvert sjónsvið, einn dálkur fyrir hverja rás og hverja grímutegund, og þrjár leiðir til að fylla reit -- sleppa skrám á hann, smella á hann og fletta, eða skrifa eina reglulega segð sem fyllir alla töfluna í einu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table#2",
+      "source": "The model behind it is :class:`spacr.measure.FieldTable`, which is Qt-free and is what :func:`spacr.measure.measure_from_field_table` consumes. This module holds no measurement knowledge of its own: it edits that table and shows what it says.",
+      "source_sha256": "89af41b96fb3b8605b929ad26aa585a88814f4f171e9cc0bc06f489efcd7928e",
+      "context": "The model behind it is :class:`spacr.measure.FieldTable`, which is Qt-free and is what :func:`spacr.measure.measure_from_field_table` consumes. This module holds no measurement knowledge of its own: it edits that table and shows what it says.",
+      "translation": "Líkanið á bak við hana er :class:`spacr.measure.FieldTable`, sem er laust við Qt og er það sem :func:`spacr.measure.measure_from_field_table` notar. Þessi eining geymir enga eigin þekkingu á mælingum: hún breytir þeirri töflu og sýnir hvað hún segir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable#0",
+      "source": "Edit a :class:`spacr.measure.FieldTable` by dropping, browsing or regex.",
+      "source_sha256": "5474f4bd13c3961e3303e11597849679b30ba9316de793668e31f581e6edbd75",
+      "context": "Edit a :class:`spacr.measure.FieldTable` by dropping, browsing or regex.",
+      "translation": "Breyta :class:`spacr.measure.FieldTable` með sleppingu, flettingu eða reglulegri segð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable#2",
+      "source": "emitted whenever the table or its problems change, so the window around it can refresh the derived settings and the Run button together.",
+      "source_sha256": "6dd81e02ce61f74a7b0d3b1105d9452d1d90ab4b82053d008be3264cf15e4da1",
+      "context": "emitted whenever the table or its problems change, so the window around it can refresh the derived settings and the processing session button together.",
+      "translation": "sent hvenær sem taflan eða vandamál hennar breytast, svo glugginn í kringum hana geti endurnýjað afleiddu stillingarnar og Run-hnappinn saman.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable#3",
+      "source": "Build the table, its column controls and its regex box.",
+      "source_sha256": "8ed7c3a24e7a6fee3c0410a589a51368af8e3772cf586d7c014c5e0f5df49528",
+      "context": "Build the table, its column controls and its regex box.",
+      "translation": "Byggja töfluna, dálkastýringar hennar og reit reglulegu segðarinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable#5",
+      "source": "run the walk over dropped folders on a worker. ``False`` runs it inline, so a test can drop a folder and read the table on the next line.",
+      "source_sha256": "a58915aa7ae790cb9ecd8a39cf52f7a64888f0d4ddda6983d829f4f41be12fe5",
+      "context": "run the walk over dropped folders on a worker. ``False`` runs it inline, so a test can drop a folder and read the table on the next line.",
+      "translation": "keyra yfirferðina um möppur sem var sleppt á vinnsluþræði. ``False`` keyrir hana beint, svo próf geti sleppt möppu og lesið töfluna á næstu línu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#0",
+      "source": "Add every file under ``paths``, once a worker has expanded them.",
+      "source_sha256": "556badfa80c77b4c8cfead21beab1f964840022729f23f890337681c68aacbec",
+      "context": "Add every file under ``paths``, once a worker has expanded them.",
+      "translation": "Bæta við hverri skrá undir ``paths``, þegar vinnsluþráður hefur útvíkkað þær.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#1",
+      "source": "SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the thread that paints.",
+      "source_sha256": "8f2724a512a342fc22df05aa565306f1d1de890f3e5b131a1a2243c38384f6d0",
+      "context": "Split from :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the independent execution path that paints.",
+      "translation": "AÐSKILIÐ FRÁ :meth:`add_paths`, og aðskilnaðurinn er lagfæringin á frosnu forriti. Allt hér er listi af strengjum; ``isdir`` og ``listdir`` sem breyta möppu sem var sleppt í skrár keyra á eigin vinnsluþræði þessarar græju (:func:`files_under`), því slepping er slóð sem notandinn valdi og á smásjárbúnaði er það sameignardrifið sem myndirnar eru á -- eitt stat undir sofandi ``autofs`` tengingu mældist yfir tuttugu sekúndur, á þræðinum sem teiknar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#2",
+      "source": "NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
+      "source_sha256": "8e2d6707e93529a83427142114012cdaad3857344b99280d82aa07e43e507622",
+      "context": "Nothing is added by the time this returns, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
+      "translation": "EKKERT HEFUR VERIÐ BÆTT VIÐ ÞEGAR ÞETTA SKILAR, sem er einmitt tilgangurinn. Lestu töfluna úr :attr:`table_changed`, ekki úr línunni á eftir þessari.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#3",
+      "source": "files and folders from a drop or a file dialog.",
+      "source_sha256": "1ce417240c360ca3bce05a0bc55547290a7d44c368f8f2497f1e7dd381eadee0",
+      "context": "files and folders from a drop or a file dialog.",
+      "translation": "skrár og möppur úr sleppingu eða skráaglugga.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#4",
+      "source": "``None``. The count does not exist yet.",
+      "source_sha256": "6b4405dbe0f56a49dc49804a48afdecbe291aab623a2462400981b0cbfed91bf",
+      "context": "``None``. The count does not exist yet.",
+      "translation": "``None``. Fjöldinn er ekki enn til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_field#0",
+      "source": "Add one empty row, numbered after the last one.",
+      "source_sha256": "50aa67babd8862b02a1388697c9ae81bf37cbe415df997ce2b5985e538f0c0c5",
+      "context": "Add one empty row, numbered after the last one.",
+      "translation": "Bæta við einni tómri röð, tölusettri á eftir þeirri síðustu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_paths#0",
+      "source": "Sort ``paths`` into the table with the current regex.",
+      "source_sha256": "da4b24f8f93e2bebae01de8419e828570b88b94fab690414a1600193d8fea5d0",
+      "context": "Sort ``paths`` into the table with the current regex.",
+      "translation": "Raða ``paths`` inn í töfluna með núverandi reglulegri segð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_paths#1",
+      "source": "Synchronous, and safe to be: the regex is matched against each path's BASENAME, so sorting files into cells is string work that touches no filesystem. Anything that might be a FOLDER must come through :meth:`add_dropped` instead, which expands it on a worker first.",
+      "source_sha256": "0af2f0e769017737f234cd08d05d4b7b5045d0100a9c343ff8342af7eedb568c",
+      "context": "Synchronous, and safe to be: the regex is matched against each path's BASENAME, so sorting files into cells is string work that touches no filesystem. Anything that might be a FOLDER must come through :meth:`add_dropped` instead, which expands it on a worker first.",
+      "translation": "Samstillt, og óhætt að vera það: reglulega segðin er borin saman við GRUNNHEITI hverrar slóðar, svo að raða skrám í reiti er strengjavinna sem snertir ekkert skráakerfi. Allt sem gæti verið MAPPA verður í staðinn að koma í gegnum :meth:`add_dropped`, sem útvíkkar það fyrst á vinnsluþræði.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_paths#2",
+      "source": "file paths, as strings or anything ``str`` accepts.",
+      "source_sha256": "8b37560c2250f54a844597095115df430d7a9176aca388514672302db2b317bc",
+      "context": "file paths, as strings or anything ``str`` accepts.",
+      "translation": "skráarslóðir, sem strengir eða hvaðeina sem ``str`` samþykkir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_paths#3",
+      "source": "how many of them landed in a cell.",
+      "source_sha256": "2d6e66e5b2e7e79887ed97f81c088b930ddba2feec825448ebb26ecbe48aec1c",
+      "context": "how many of them landed in a cell.",
+      "translation": "hversu margar þeirra lentu í reit.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.assign_file#0",
+      "source": "Put one file in one cell, as double-clicking and browsing does.",
+      "source_sha256": "57bf002e15630041d2d07e125566c90ca50799834a6286b2adfb65e0bc8486ec",
+      "context": "Put one file in one cell, as double-clicking and browsing does.",
+      "translation": "Setja eina skrá í einn reit, eins og tvísmellur og fletting gera.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.assign_file#1",
+      "source": "the row's position in the table.",
+      "source_sha256": "8845cc73be343bf969df6e976759e9cd08a89c3e0a458ebbcce56593b7dc1294",
+      "context": "the row's position in the table.",
+      "translation": "staða raðarinnar í töflunni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.assign_file#2",
+      "source": "``'channel:<index>'`` counting from zero, or a mask role name.",
+      "source_sha256": "a316e13cc3e31758160723225750a8f5e5bcaa5a948d4468b898a4b8caf323f8",
+      "context": "``'channel:<index>'`` counting from zero, or a mask role name.",
+      "translation": "``'channel:<index>'`` talið frá núlli, eða heiti grímuhlutverks.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.assign_file#3",
+      "source": "the file to put there.",
+      "source_sha256": "781a46a71eda29a4537e9b604c9c335506a4c11a7ac7ef5130aa414b98e11c4c",
+      "context": "the file to put there.",
+      "translation": "skráin sem á að setja þar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.assign_file#4",
+      "source": "whether the cell existed and took it.",
+      "source_sha256": "d1d3f56c882b205a2f2fd6bc7b6478f7964a07db041a4239ce3a1a798dc4aaae",
+      "context": "whether the cell existed and took it.",
+      "translation": "hvort reiturinn var til og tók við henni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.clear#0",
+      "source": "Forget every row and every file that was ever dropped.",
+      "source_sha256": "29464053672d4731a0f8c497d57e3e4b8be25a99934924f72d655c820295d262",
+      "context": "Forget every row and every file that was ever dropped.",
+      "translation": "Gleyma hverri röð og hverri skrá sem nokkurn tíma var sleppt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.clear#1",
+      "source": "The channel-token memory goes with them: an empty table's columns mean nothing yet, and keeping the old ranking would let a token the user has cleared decide where the next drop's files land.",
+      "source_sha256": "0be5a315a7ca0ff3f92e8787ed6eca5dbd002bdaddc50c750b942cc17fbf8c73",
+      "context": "The channel-token memory goes with them: an empty table's columns mean nothing yet, and keeping the old ranking would let a token the user has cleared decide where the next drop's files land.",
+      "translation": "Minni rásatáknanna fer með þeim: dálkar tómrar töflu merkja ekkert enn, og að halda gömlu röðuninni myndi leyfa tákni sem notandinn hefur hreinsað að ákveða hvar skrár næstu sleppingar lenda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.dragEnterEvent#0",
+      "source": "Accept a drag that carries local files.",
+      "source_sha256": "fd149223d89a1833f8f03ae6df40075458ce6c1d21e2c2d40d75f80175ff8511",
+      "context": "Accept a drag that carries local files.",
+      "translation": "Samþykkja drátt sem ber staðbundnar skrár.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.dragEnterEvent#1",
+      "source": "Decided from the mime data alone. Asking the filesystem whether the drag is worth accepting would run a stat on the GUI thread for every drag-move event the pointer produces.",
+      "source_sha256": "e63e54c38aadc5128a32f340bc46e4d0ddd104af7ba40fd9763a5eff0cbeb9fd",
+      "context": "Decided from the mime data alone. Asking the filesystem whether the drag is worth accepting would run a stat on the main GUI execution path for every drag-move event the pointer produces.",
+      "translation": "Ákveðið út frá MIME-gögnunum einum. Að spyrja skráakerfið hvort drátturinn sé þess virði að samþykkja myndi keyra stat á GUI-þræðinum fyrir hvern dráttarhreyfingaratburð sem bendillinn framleiðir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.dragEnterEvent#2",
+      "source": "the Qt drag event.",
+      "source_sha256": "15575c6909400eb7899833ac566c381a843a5f11d33fa56c77b246b3a1b7bac9",
+      "context": "the Qt drag event.",
+      "translation": "Qt-dráttaratburðurinn.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.dragMoveEvent#0",
+      "source": "Keep accepting while local files stay over the table.",
+      "source_sha256": "24a661a0313cee69b9b8b2fa5c49dc6e85b0ee95026daee0014fc798ac5c2e73",
+      "context": "Keep accepting while local files stay over the table.",
+      "translation": "Halda áfram að samþykkja á meðan staðbundnar skrár haldast yfir töflunni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.dropEvent#0",
+      "source": "Sort the dropped files into rows and columns.",
+      "source_sha256": "b76d0e20744957be980baa5d41921592755167bc0a7ab694bd5bbc01bd3cc46a",
+      "context": "Sort the dropped files into rows and columns.",
+      "translation": "Raða skránum sem var sleppt í raðir og dálka.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.dropEvent#1",
+      "source": "Returns before anything is assigned when a folder was dropped: the folder is expanded on a worker. Read the table from :attr:`table_changed`, not from the line after this one.",
+      "source_sha256": "304479128aba34833073c84675f97296e496becf72b5c56569587e317ca407f4",
+      "context": "Returns before anything is assigned when a folder was dropped: the folder is expanded on a worker. Read the table from :attr:`table_changed`, not from the line after this one.",
+      "translation": "Skilar áður en nokkru er úthlutað þegar möppu var sleppt: mappan er útvíkkuð á vinnsluþræði. Lestu töfluna úr :attr:`table_changed`, ekki úr línunni á eftir þessari.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.dropEvent#2",
+      "source": "the Qt drop event.",
+      "source_sha256": "8b59f27a976905c11e1560dc4875fc94d66600e8add250f18ccc1b8089d0b6d7",
+      "context": "the Qt drop event.",
+      "translation": "Qt-sleppingaratburðurinn.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.is_scanning#0",
+      "source": "True while a walk started by :meth:`add_dropped` is still running.",
+      "source_sha256": "bfda07c1b496ab3f4f20e6ac1579c6ef9e01330e6ee82269e3b7e65e709af1bc",
+      "context": "True while a walk started by :meth:`add_dropped` is still running.",
+      "translation": "True á meðan yfirferð sem :meth:`add_dropped` hóf er enn í keyrslu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.problems#0",
+      "source": "Everything stopping this table being measured, as sentences.",
+      "source_sha256": "be4a570c4b69af9184c69eb8debf07f12884430c1379659978f52b4fbc63f4c1",
+      "context": "Everything stopping this table being measured, as sentences.",
+      "translation": "Allt sem kemur í veg fyrir að þessi tafla sé mæld, sem setningar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.reapply_regex#0",
+      "source": "Sort every file this table has ever been given, again.",
+      "source_sha256": "34c24d741d1681f3c528e876d1b372da87ff680874b3351070d8c7fd82e1421f",
+      "context": "Sort every file this table has ever been given, again.",
+      "translation": "Raða aftur hverri skrá sem þessi tafla hefur nokkurn tíma fengið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.reapply_regex#1",
+      "source": "The cells are emptied first, so a corrected regex REPLACES the previous assignment instead of adding a second one beside it.",
+      "source_sha256": "8edcd5c7a61c1ac417874af891c95ff961785ce6d275d158090370a436eb117a",
+      "context": "The cells are emptied first, so a corrected regex REPLACES the previous assignment instead of adding a second one beside it.",
+      "translation": "Reitirnir eru tæmdir fyrst, svo leiðrétt regluleg segð KEMUR Í STAÐ fyrri úthlutunar í stað þess að bæta annarri við.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.reapply_regex#2",
+      "source": "how many files landed in a cell.",
+      "source_sha256": "a640b9a7e1058e5e63038589e7ed6b21d5e78c88e9fe4e98125ea9380d952e1a",
+      "context": "how many files landed in a cell.",
+      "translation": "hversu margar skrár lentu í reit.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.regex#0",
+      "source": "The pattern in the regex box.",
+      "source_sha256": "0899c41600d2bcd3319fde4f6385d02d1ebd5512c4f15a031da51a7e00de308f",
+      "context": "The pattern in the regex box.",
+      "translation": "Mynstrið í reit reglulegu segðarinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.remove_selected#0",
+      "source": "Remove every selected row. Returns how many went.",
+      "source_sha256": "9159c029d52254308c6da1a0a2e87d0ada35404f7e8b5d1c225237847d4f07f2",
+      "context": "Remove every selected row. Returns how many went.",
+      "translation": "Fjarlægja hverja valda röð. Skilar hversu margar fóru.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.set_file_picker#0",
+      "source": "Replace the modal file chooser with ``picker(caption) -> path``.",
+      "source_sha256": "c76bf6948ba7264b741d6a2a5991f00603ea85f55c43e5bd57000b9c80e3d849",
+      "context": "Replace the modal file chooser with ``picker(caption) -> path``.",
+      "translation": "Skipta háttbundna skráavalinu út fyrir ``picker(caption) -> path``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.set_file_picker#1",
+      "source": "Headless Qt refuses a static modal -- it runs its event loop in C++ and hangs the run -- so a test drives the browse path through this rather than through :class:`QFileDialog`.",
+      "source_sha256": "4877109f8a71826bc4dccfa2550b1ef924b87cb987f3d0114dd055bfc5e7b53a",
+      "context": "Headless Qt refuses a static modal -- it runs its event loop in C++ and hangs the run -- so a test drives the browse path through this rather than through :class:`QFileDialog`.",
+      "translation": "Qt án viðmóts hafnar kyrrstæðum háttbundnum glugga -- hann keyrir atburðalykkju sína í C++ og frystir keyrsluna -- svo próf knýr flettileiðina í gegnum þetta frekar en í gegnum :class:`QFileDialog`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.set_file_picker#2",
+      "source": "callable given the dialog caption and returning the chosen path, or an empty value for no choice; ``None`` restores the file dialog.",
+      "source_sha256": "c093ed104c8a0135ce2d9820fffc9571538f349d5158bbda81063837b2b8f6a3",
+      "context": "callable given the dialog caption and returning the chosen path, or an empty value for no choice; ``None`` restores the file dialog.",
+      "translation": "köllunarhæft fall sem fær yfirskrift gluggans og skilar valinni slóð, eða tómu gildi fyrir ekkert val; ``None`` endurheimtir skráagluggann.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.set_regex#0",
+      "source": "Put ``pattern`` in the regex box and sort the known files again.",
+      "source_sha256": "a25c1749540c43a65a7a493f31a21f2db9266f0485f10326a0ccc75278b9c4b3",
+      "context": "Put ``pattern`` in the regex box and sort the known files again.",
+      "translation": "Setja ``pattern`` í reit reglulegu segðarinnar og raða þekktu skránum aftur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.set_regex#1",
+      "source": "regular expression matched against each file's basename; its named groups (such as ``field``, ``channel`` and ``mask``) decide the cell a file lands in. The cells are emptied and every known file re-sorted.",
+      "source_sha256": "3e90054c514d0f3d8c071cacb95d8a381515c809e94a83950db7847577d75502",
+      "context": "regular expression matched against each file's basename; its named groups (such as ``field``, ``channel`` and ``mask``) decide the cell a file lands in. The cells are emptied and every known file re-sorted.",
+      "translation": "regluleg segð sem borin er saman við grunnheiti hverrar skráar; nefndir hópar hennar (eins og ``field``, ``channel`` og ``mask``) ráða reitnum sem skrá lendir í. Reitirnir eru tæmdir og hverri þekktri skrá raðað aftur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.table#0",
+      "source": "The model this widget edits. Live, not a copy.",
+      "source_sha256": "1f3cf72aee7279879fd9405ee4290e3af2438fd8c65955af0504fa21a832849f",
+      "context": "The model this widget edits. Live, not a copy.",
+      "translation": "Líkanið sem þessi græja breytir. Lifandi, ekki afrit.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.unassigned#0",
+      "source": "``(path, reason)`` for every dropped file that landed nowhere.",
+      "source_sha256": "3eb40042d246d440967b46bd414d3ab016a73b4d340cea09c300f3371a11206e",
+      "context": "``(path, reason)`` for every dropped file that landed nowhere.",
+      "translation": "``(path, reason)`` fyrir hverja skrá sem var sleppt og lenti hvergi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.files_under#0",
+      "source": "Every file among ``paths``, with any folder expanded one level.",
+      "source_sha256": "5470ad2717383b155765e0926ae9c2553e418486318b49a0bb91007a8240f60d",
+      "context": "Every file among ``paths``, with any folder expanded one level.",
+      "translation": "Hver skrá meðal ``paths``, þar sem hver mappa er útvíkkuð um eitt stig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.files_under#1",
+      "source": "A user who drew masks for six fields drops the folder, not the files, so a drop that refused a directory would refuse the ordinary case.",
+      "source_sha256": "814d723cd387b3142981ea52b55082588723a0fa10a8727318c8ef7cc3d0ec43",
+      "context": "A user who drew masks for six microscope fields of view drops the folder, not the files, so a drop that refused a directory would refuse the ordinary case.",
+      "translation": "Notandi sem teiknaði grímur fyrir sex sjónsvið sleppir möppunni, ekki skránum, svo slepping sem hafnaði möppu myndi hafna venjulega tilvikinu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.files_under#2",
+      "source": "NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it runs this on a worker. Looked up through the module global so a test can replace it and see which thread it ran on.",
+      "source_sha256": "f36bfc3c1a31cb756f70b118386083e32bffffcc67e99586f5b44c22d22d446c",
+      "context": "Not for the main GUI execution path. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it executes this on a worker. Looked up through the module global so a test can replace it and see which independent execution path it ran on.",
+      "translation": "EKKI FYRIR GUI-ÞRÁÐINN. Hver slóð hér er ein sem notandinn valdi, sem á smásjárbúnaði þýðir netsameignardrif, og ``isdir`` er það sem vekur sjálfvirku tenginguna. :meth:`MeasureInputTable.add_dropped` er eini kallandinn og keyrir þetta á vinnsluþræði. Flett upp í gegnum altæka breytu einingarinnar svo próf geti skipt því út og séð á hvaða þræði það keyrði.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.files_under#3",
+      "source": "what was dropped or chosen.",
+      "source_sha256": "9f8cb33f245106f54132343af17d6d3c81cbedf3002c2cfa39a01fd904cec2fb",
+      "context": "what was dropped or chosen.",
+      "translation": "það sem var sleppt eða valið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.files_under#4",
+      "source": "the files, folders expanded, in a stable order.",
+      "source_sha256": "e8e3f00cae2c7dfc371a1fa4a35c0e39653377651c36586c7c7e28d88a649208",
+      "context": "the files, folders expanded, in a stable order.",
+      "translation": "skrárnar, möppur útvíkkaðar, í stöðugri röð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.role_caption#0",
+      "source": "What a mask column is called on screen.",
+      "source_sha256": "563d4debdc8fd409e8c7a08882c827c3074f8d169adbbd49da5e51bf721e0211",
+      "context": "What a mask column is called on application view.",
+      "translation": "Hvað grímudálkur heitir á skjánum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.role_caption#1",
+      "source": "An organelle slot reads as a number -- ``Organelle 2`` -- never as the lettered role it is stored under, the same caption the settings forms and the Import Project screen give it.",
+      "source_sha256": "e6677f4f4eba0cffc04eedb912403619a07cddc88c64149e90356b1e0eb73a99",
+      "context": "An organelle slot reads as a number -- ``Organelle 2`` -- never as the lettered role it is stored under, the same caption the settings forms and the Import Project screen give it.",
+      "translation": "Frumulíffærahólf lesist sem tala -- ``Organelle 2`` -- aldrei sem bókstafshlutverkið sem það er vistað undir, sama yfirskrift og stillingaformin og Import Project-skjámyndin gefa því.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.role_caption#2",
+      "source": "a role from :data:`spacr.crops.MASK_PLANE_ORDER`.",
+      "source_sha256": "2a6874b9935f5fa1515061c4aeb7fc16abe2493f3b7e015d194f084665d38081",
+      "context": "a role from :data:`spacr.crops.MASK_PLANE_ORDER`.",
+      "translation": "hlutverk úr :data:`spacr.crops.MASK_PLANE_ORDER`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_input_table.role_caption#3",
+      "source": "the column heading.",
+      "source_sha256": "8a8dc363eb0e3e5542d0c3a213eee520e81dcf0324d3fe15ccc3c3d928181459",
+      "context": "the column heading.",
+      "translation": "fyrirsögn dálksins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.apply_settings#3",
+      "source": "the Measure settings dict, or ``None``; keys that are absent or ``None`` leave their controls unchanged, and a value that cannot be applied is skipped.",
+      "source_sha256": "2cf32d963bab1f63d461bf7660f2dc8b8e7c368fbdb53742bd7e751722bb2564",
+      "context": "the Measure settings key-value mapping, or ``None``; structured-data names that are absent or ``None`` leave their controls unchanged, and a value that cannot be applied is skipped.",
+      "translation": "Measure-stillingaorðabókin, eða ``None``; lyklar sem vantar eða eru ``None`` láta stýringar sínar óbreyttar, og gildi sem ekki er hægt að beita er sleppt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.load_array#2",
+      "source": "merged ``.npy`` file, run folder or ``merged/`` folder, as :func:`load_merged_array` accepts; a read error is shown in the status line and returns ``False``.",
+      "source_sha256": "ba9e8364562b2802a95c4c10ef2b40f07a45e0e1e044f0c5dedc416c2f33b1d0",
+      "context": "merged ``.npy`` file, processing-session folder or ``merged/`` folder, as :func:`load_merged_array` accepts; a read error is shown in the status line and returns ``False``.",
+      "translation": "sameinuð ``.npy`` skrá, keyrslumappa eða ``merged/`` mappa, eins og :func:`load_merged_array` samþykkir; lestrarvilla er sýnd í stöðulínunni og skilar ``False``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.load_array_async#2",
+      "source": "merged ``.npy`` file, run folder or ``merged/`` folder, as :func:`load_merged_array` accepts; an empty value submits nothing.",
+      "source_sha256": "d3113f36cec5b0fb75709c1d324cd19b85464a9335b1040a2bdd7e7736cc1d13",
+      "context": "merged ``.npy`` file, processing-session folder or ``merged/`` folder, as :func:`load_merged_array` accepts; an empty value submits nothing.",
+      "translation": "sameinuð ``.npy`` skrá, keyrslumappa eða ``merged/`` mappa, eins og :func:`load_merged_array` samþykkir; tómt gildi sendir ekkert inn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_organelle_count#3",
+      "source": "number of organelle slots, clamped to 0-``MAX_ORGANELLES``; a value ``int()`` rejects is ignored.",
+      "source_sha256": "77564fff36f4719b1e954a5418468cba04b02f1d7662a6c0e3063d81b8c730a1",
+      "context": "number of organelle slots, clamped to 0-``MAX_ORGANELLES``; a value ``int()`` rejects is ignored.",
+      "translation": "fjöldi frumulíffærahólfa, klemmdur við 0-``MAX_ORGANELLES``; gildi sem ``int()`` hafnar er hunsað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.annotate_crops#2",
+      "source": "crop dicts from :func:`spacr.measure.crop_objects_from_array`, each with a ``label``; updated in place with ``category``, ``included`` and, for cells, ``phenotype``.",
+      "source_sha256": "cc060a92ab683194ee2b3f562da1a65cf50e9dc0f69e0ad964361907304c2ea7",
+      "context": "extracted image region key-value mappings from :func:`spacr.measure.crop_objects_from_array`, each with a ``label``; updated in place with ``category``, ``included`` and, for cells, ``phenotype``.",
+      "translation": "myndskurðaorðabækur frá :func:`spacr.measure.crop_objects_from_array`, hver með ``label``; uppfærðar á staðnum með ``category``, ``included`` og, fyrir frumur, ``phenotype``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.annotate_crops#3",
+      "source": "the merged ``(H, W, C)`` array the crops came from, or ``None``, in which case every crop is simply included.",
+      "source_sha256": "f7654d427682061222e5a475092460d0ecf0bcb97e476eaae78735e736b9d3f5",
+      "context": "the merged ``(H, W, C)`` array the extracted image regions came from, or ``None``, in which case every extracted image region is simply included.",
+      "translation": "sameinaða ``(H, W, C)`` fylkið sem myndskurðirnir komu úr, eða ``None``, og þá er hver myndskurður einfaldlega tekinn með.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.annotate_crops#4",
+      "source": "widget snapshot with ``object``, ``cell_dim``, ``dims``, ``minima`` and ``uninfected``; only ``object == \"cell\"`` is categorised by phenotype.",
+      "source_sha256": "399fc028f69d5f29d022aa3b3789e4e445222e1d7f63ac46163e24e6b6a9018c",
+      "context": "widget snapshot with ``object``, ``cell_dim``, ``dims``, ``minima`` and ``uninfected``; only ``object == \"cell\"`` is categorised by phenotype.",
+      "translation": "skyndimynd af græjunni með ``object``, ``cell_dim``, ``dims``, ``minima`` og ``uninfected``; aðeins ``object == \"cell\"`` er flokkað eftir svipgerð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.compute_crops#2",
+      "source": "merged ``(H, W, C)`` array of image channels then mask slices.",
+      "source_sha256": "acfdfd38e08b01d8ff51e4c52dc12329d0399405cf0930275a36e91a77dcf44b",
+      "context": "merged ``(H, W, C)`` array of image data channels then mask slices.",
+      "translation": "sameinað ``(H, W, C)`` fylki af myndrásum og síðan grímusneiðum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.compute_crops#3",
+      "source": "keyword arguments for :func:`spacr.measure.crop_objects_from_array`, e.g. ``mask_dim``; a crop failure is returned as ``error`` rather than raised.",
+      "source_sha256": "47ef0a2e1c1ee0f88a4b207393084ce05c89b70c620df564bd1fa7ca1cb08e59",
+      "context": "keyword arguments for :func:`spacr.measure.crop_objects_from_array`, e.g. ``mask_dim``; an extracted image region failure is returned as ``error`` without producing an error.",
+      "translation": "lykilorðaviðföng fyrir :func:`spacr.measure.crop_objects_from_array`, t.d. ``mask_dim``; bilun í myndskurði er skilað sem ``error`` frekar en kastað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.compute_crops#4",
+      "source": "widget snapshot passed to :func:`annotate_crops`.",
+      "source_sha256": "d3eefa732dc7ceec9d48683ed67dd4bff49ae1ecdda941ed9fb6754f1710c1e1",
+      "context": "widget snapshot passed to :func:`annotate_crops`.",
+      "translation": "skyndimynd af græjunni send til :func:`annotate_crops`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.closeEvent#1",
+      "source": "the close event, passed on to the base class after the join worker is asked to shut down.",
+      "source_sha256": "2c309dd9c04ea6f87cd3e988862564593f8e538b05194d70733a3a668938ad05",
+      "context": "the close event, passed on to the base class after the join worker is asked to shut down.",
+      "translation": "lokunaratburðurinn, sendur áfram til grunnklasans eftir að samskeytingarvinnsluþræðinum hefur verið sagt að loka.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.set_data#1",
+      "source": "the object rows for the montage and the contrasts; its numeric measurement columns fill the measurement menu, and the previous choice is kept when still offered.",
+      "source_sha256": "85c3ee0c3b409ffaf3859785bd9c6d4a3291b8015cf791c44711eb5a94db6133",
+      "context": "the object rows for the montage and the contrasts; its numeric measurement columns fill the measurement menu, and the previous choice is kept when still offered.",
+      "translation": "hlutaraðirnar fyrir myndasamsetninguna og samanburðina; tölulegir mælidálkar hennar fylla mælingavalmyndina, og fyrra vali er haldið þegar það er enn í boði.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.set_data#2",
+      "source": "selected group names mapped to object-index values; copied.",
+      "source_sha256": "d76a173c9dd628e38f0637c4bf03e70e5a66a423e7c7b5839507317c0998cd30",
+      "context": "selected group names mapped to object-index values; copied.",
+      "translation": "valin hópaheiti vörpuð á gildi hlutavísa; afrituð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.set_selected_guides#1",
+      "source": "the selected guides, stored as strings (``None`` for none); any explicit well subset is cleared so wells are derived from them.",
+      "source_sha256": "7c04e7583f8a1cde6f821b23c59b39e197b3f161cf7615650453bbe02d5c40a6",
+      "context": "the selected guides, stored as strings (``None`` for none); any explicit well subset is cleared so microplate sample positions are derived from them.",
+      "translation": "valin leiðsagnar-RNA, vistuð sem strengir (``None`` fyrir ekkert); hvert sérstaklega tilgreint brunnahlutmengi er hreinsað svo brunnar séu leiddir út frá þeim.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.set_selected_wells#1",
+      "source": "an explicit well subset, stored as strings, or ``None`` to derive the wells from the selected guides.",
+      "source_sha256": "a15201da1f776b88994f990443ccb4d15481a32ede28e6657cb700206d8f5ee4",
+      "context": "an explicit well subset, stored as strings, or ``None`` to derive the microplate sample positions from the selected guides.",
+      "translation": "sérstaklega tilgreint brunnahlutmengi, vistað sem strengir, eða ``None`` til að leiða brunnana út frá völdum leiðsagnar-RNA.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.ColumnRegressionPanel.closeEvent#1",
+      "source": "the close event; it is passed on to the base class after the worker queue is stopped.",
+      "source_sha256": "4400d8318b38409862811e9353608f5013befebcac2de7a8fec3989681743341",
+      "context": "the close event; it is passed on to the base class after the worker-event list is stopped.",
+      "translation": "lokunaratburðurinn; hann er sendur áfram til grunnklasans eftir að biðröð vinnsluþráða er stöðvuð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.ColumnRegressionPanel.set_selected_columns#1",
+      "source": "column names to select, compared as strings; every other listed column is deselected, and ``None`` selects none.",
+      "source_sha256": "aeb3c66d91c8967fee7b85460fb2a315376eddcf30efce0cf9f9142463880e7d",
+      "context": "column names to select, compared as strings; every other listed column is deselected, and ``None`` selects none.",
+      "translation": "heiti dálka sem á að velja, borin saman sem strengir; val er tekið af hverjum öðrum dálki á listanum, og ``None`` velur enga.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.closeEvent#1",
+      "source": "the close event; it is passed on to the base class after the workers and path probes are stopped.",
+      "source_sha256": "e53ffd6f375ef316abe19707a3e9446c74fd86af10c8dcd2da3ab6c3ffbeae8c",
+      "context": "the close event; it is passed on to the base class after the workers and path probes are stopped.",
+      "translation": "lokunaratburðurinn; hann er sendur áfram til grunnklasans eftir að vinnsluþræðirnir og slóðakannanirnar eru stöðvuð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_anchor#1",
+      "source": "name of the table to anchor on, set as the anchor box's current text; a name not offered there leaves the choice unchanged.",
+      "source_sha256": "dbc86001fc4ae4e143f56082007f7efb16c3b59d6790d4d8f55108e701f80c65",
+      "context": "name of the table to anchor on, set as the anchor box's current text; a name not offered there leaves the choice unchanged.",
+      "translation": "heiti töflunnar sem á að festa á, stillt sem núverandi texti festureitsins; heiti sem er ekki í boði þar lætur valið óbreytt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_database_provider#1",
+      "source": "zero-argument callable returning the input table's rows (see :func:`attached_databases` for the accepted shapes); it is called on every refresh, starting immediately.",
+      "source_sha256": "556a7d13103b1e600b2c2cf5396e0f8e568fc99609ce94c41aad0ec6a29823e3",
+      "context": "zero-argument callable returning the input table's rows (see :func:`attached_databases` for the accepted shapes); it is called on every refresh, starting immediately.",
+      "translation": "köllunarhæft fall án viðfanga sem skilar röðum inntakstöflunnar (sjá :func:`attached_databases` um samþykkt form); kallað er á það við hverja endurnýjun, frá og með núna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_selected_tables#1",
+      "source": "table names to tick, compared as strings; every other listed table is unticked.",
+      "source_sha256": "f045d6cb4bc57c6a0992d5dffe1b8ba3376eee67fa48e2928bd5b47c48e98168",
+      "context": "table names to tick, compared as strings; every other listed table is unticked.",
+      "translation": "heiti taflna sem á að haka við, borin saman sem strengir; hak er tekið af hverri annarri töflu á listanum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.add_section#2",
+      "source": "the widget to add as a foldable section; ``None`` does nothing.",
+      "source_sha256": "fcb5254ac6ace6275f0862f27c0578a0e09566c1f10df093831e67f9c4f5c5f3",
+      "context": "the widget to add as a foldable section; ``None`` does nothing.",
+      "translation": "græjan sem á að bæta við sem samanbrjótanlegum hluta; ``None`` gerir ekkert.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.scan#1",
+      "source": "the measurement frame passed to :func:`spacr.measurement_scan.scan_measurements` together with ``kwargs``.",
+      "source_sha256": "d0dcf2577c4338a43386a63ae4b478a7794b36599d5cc4aa7f5597cfa2207b75",
+      "context": "the measurement frame passed to :func:`spacr.measurement_scan.scan_measurements` together with ``kwargs``.",
+      "translation": "mælitaflan sem send er til :func:`spacr.measurement_scan.scan_measurements` ásamt ``kwargs``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.section_is_shown#2",
+      "source": "the section's title; an unknown title returns ``False``.",
+      "source_sha256": "24c5edefc65fe194d7f068207feac07210865ae22dc6d04a0843ae2a430ac831",
+      "context": "the section's title; an unknown title returns ``False``.",
+      "translation": "titill hlutans; óþekktur titill skilar ``False``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_database_provider#2",
+      "source": "zero-argument callable returning the input table's rows (see :func:`attached_databases` for the accepted shapes); it is called on every refresh by the databases section.",
+      "source_sha256": "b2256c85f6af1e05ab05af506145644654c48de16b4ae9aa33c9c21d735dbfb8",
+      "context": "zero-argument callable returning the input table's rows (see :func:`attached_databases` for the accepted shapes); it is called on every refresh by the databases section.",
+      "translation": "köllunarhæft fall án viðfanga sem skilar röðum inntakstöflunnar (sjá :func:`attached_databases` um samþykkt form); gagnagrunnahlutinn kallar á það við hverja endurnýjun.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_frame_provider#1",
+      "source": "zero-argument callable returning the frame the scan runs on, called each time the frame is needed.",
+      "source_sha256": "779edab7f2b1980228fc36581425ee2bf92295dc1c50307a3c8703818ae48406",
+      "context": "zero-argument callable returning the frame the scan runs on, called each time the frame is needed.",
+      "translation": "köllunarhæft fall án viðfanga sem skilar töflunni sem skönnunin keyrir á, kallað í hvert sinn sem töfluna þarf.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_result#1",
+      "source": "the :class:`~spacr.measurement_scan.ScanResult` to show; its ``frame()`` and ``rows`` fill the table, with a verdict per row.",
+      "source_sha256": "5700a63c2aa9b2a408b2e01110997d3fc593a382cb5031376461a0d4ed38f479",
+      "context": "the :class:`~spacr.measurement_scan.ScanResult` to show; its ``frame()`` and ``rows`` fill the table, with a verdict per row.",
+      "translation": ":class:`~spacr.measurement_scan.ScanResult` sem á að sýna; ``frame()`` þess og ``rows`` fylla töfluna, með niðurstöðu fyrir hverja röð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_section_expanded#1",
+      "source": "the section's title; an unknown title is ignored.",
+      "source_sha256": "6066708a7cc532a87de73ecd705467981256824dbbc40d440bf1ec32db681169",
+      "context": "the section's title; an unknown title is ignored.",
+      "translation": "titill hlutans; óþekktur titill er hunsaður.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_section_expanded#2",
+      "source": "``True`` to open the section, ``False`` to fold it; coerced with ``bool()``.",
+      "source_sha256": "0faaac7169aa729cc05ce971ab97f21e008576471ca344ac2c5e5d7bf251dbd6",
+      "context": "``True`` to open the section, ``False`` to fold it; coerced with ``bool()``.",
+      "translation": "``True`` til að opna hlutann, ``False`` til að brjóta hann saman; þvingað með ``bool()``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.WorkflowSteps.set_box_heights#2",
+      "source": "mapping of box key to height in pixels at 100 % font scale, as :meth:`box_heights` returns; unknown keys are ignored and ``None`` changes nothing.",
+      "source_sha256": "2a57255bf35fa0e6e3852c5d2f416678e6a8ae92488fc3005effe3ad54cd1ed6",
+      "context": "mapping of box structured-data name to height in pixels at 100 % font scale, as :meth:`box_heights` returns; unknown structured-data names are ignored and ``None`` changes nothing.",
+      "translation": "vörpun frá lykli reits á hæð í pixlum við 100 % leturkvarða, eins og :meth:`box_heights` skilar; óþekktir lyklar eru hunsaðir og ``None`` breytir engu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.WorkflowSteps.set_step_folds#2",
+      "source": "mapping of step number to ``True`` (open) or ``False`` (folded), as :meth:`step_folds` returns; unknown numbers are ignored and ``None`` changes nothing.",
+      "source_sha256": "866b554569a6d18257fc35dbb73626dd0a606bb0902cb0682cba8f6f1e32d9e8",
+      "context": "mapping of step number to ``True`` (open) or ``False`` (folded), as :meth:`step_folds` returns; unknown numbers are ignored and ``None`` changes nothing.",
+      "translation": "vörpun frá skrefnúmeri á ``True`` (opið) eða ``False`` (samanbrotið), eins og :meth:`step_folds` skilar; óþekkt númer eru hunsuð og ``None`` breytir engu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.anchor_tables#2",
+      "source": "measurement table names; those holding one row per cell are kept, in their given order.",
+      "source_sha256": "0d0b5468ae8433eeb01f58fcf026505655c16a93c6001295256a8f6fc2e8b25c",
+      "context": "measurement table names; those holding one row per cell are kept, in their given order.",
+      "translation": "heiti mælitaflna; þeim sem geyma eina röð fyrir hverja frumu er haldið, í gefinni röð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap#2",
+      "source": "how the first frame is named in the sentence, such as ``'merged measurements'``.",
+      "source_sha256": "9f66a5ac869cbf93c867f09375fed85f85203163b66feb792b8b31a1212db6cb",
+      "context": "how the first frame is named in the sentence, such as ``'merged measurements'``.",
+      "translation": "hvernig fyrri taflan er nefnd í setningunni, t.d. ``'merged measurements'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap#3",
+      "source": "the first frame; its well keys come from :func:`well_keys`.",
+      "source_sha256": "d7d3ded5cec9bcd97c01d955bd745d5433012222fd13c8e3e7f0cd08875cd155",
+      "context": "the first frame; its well keys come from :func:`well_keys`.",
+      "translation": "fyrri taflan; brunnalyklar hennar koma frá :func:`well_keys`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap#4",
+      "source": "how the second frame is named in the sentence.",
+      "source_sha256": "4e5665737e68366071a9cf61ee580af148cc0d6ba844553dcc83ec7f02c21d50",
+      "context": "how the second frame is named in the sentence.",
+      "translation": "hvernig seinni taflan er nefnd í setningunni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap#5",
+      "source": "the second frame; its well keys come from :func:`well_keys`.",
+      "source_sha256": "df171410cb4ae54a7b24e17ea1ccc3834d50a92132fe0544c77a3a2f606fec8b",
+      "context": "the second frame; its well keys come from :func:`well_keys`.",
+      "translation": "seinni taflan; brunnalyklar hennar koma frá :func:`well_keys`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.displayed_plates#1",
+      "source": "plate ids, each passed through ``canonical_plate_id``.",
+      "source_sha256": "8150daec34a19c0e15fad28b8f8e0eda548ea35ec01f52546d5c6bef304aa7e2",
+      "context": "plate ids, each passed through ``canonical_plate_id``.",
+      "translation": "plötuauðkenni, hvert sent í gegnum ``canonical_plate_id``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.merge_evidence#2",
+      "source": "the merged frame; the ``default_aggregation``, ``identifier_columns`` and ``dropped_columns`` entries of its ``attrs`` are listed.",
+      "source_sha256": "ba9b3e7f22af36e37c6b4c39219d1c1d90140ba6e346ab99495f4017b39f0d9e",
+      "context": "the merged frame; the ``default_aggregation``, ``identifier_columns`` and ``dropped_columns`` entries of its ``attrs`` are listed.",
+      "translation": "sameinaða taflan; ``default_aggregation``, ``identifier_columns`` og ``dropped_columns`` færslur ``attrs`` hennar eru taldar upp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.merge_report#2",
+      "source": "the merged frame, passed to :func:`merge_summary` and :func:`merge_evidence`.",
+      "source_sha256": "7d93de0128e695077754e02230128e8f7ce65f43e693194ae5ba869abedadc05",
+      "context": "the merged frame, passed to :func:`merge_summary` and :func:`merge_evidence`.",
+      "translation": "sameinaða taflan, send til :func:`merge_summary` og :func:`merge_evidence`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.ordered_columns#2",
+      "source": "the frame whose columns are ordered; ``None`` returns an empty list.",
+      "source_sha256": "c5e18580877312434fef2419bb894ca044008e02c72b1e719f32ab98adeeb6e4",
+      "context": "the frame whose columns are ordered; ``None`` returns an empty list.",
+      "translation": "taflan þar sem dálkunum er raðað; ``None`` skilar tómum lista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.verdict_for#1",
+      "source": "one scan row; its ``survives_across_scan`` and ``survives_within_run`` attributes are read, and missing ones count as false.",
+      "source_sha256": "eecc824e8256cff6c9b055dd7921d246bac2faffc4b7f8a3c52b83e6d5f08e37",
+      "context": "one scan row; its ``survives_across_scan`` and ``survives_within_run`` attributes are read, and missing ones count as false.",
+      "translation": "ein skönnunarröð; ``survives_across_scan`` og ``survives_within_run`` eigindir hennar eru lesnar, og þær sem vantar teljast ósannar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.well_keys#2",
+      "source": "the frame to read; its ``prc`` column is used when present, else ``plateID``, ``rowID`` and ``columnID`` joined with underscores. ``None`` or a frame without columns gives ``(\"\", ())``.",
+      "source_sha256": "2c4a39540e298bf403ec93567ee8ec1cb3b3905802820108aad0441bc9500bc9",
+      "context": "the frame to read; its ``prc`` column is used when present, else ``plateID``, ``rowID`` and ``columnID`` joined with underscores. ``None`` or a frame without columns gives ``(\"\", ())``.",
+      "translation": "taflan sem á að lesa; ``prc`` dálkur hennar er notaður þegar hann er til staðar, annars ``plateID``, ``rowID`` og ``columnID`` tengd með undirstrikum. ``None`` eða tafla án dálka gefur ``(\"\", ())``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example#0",
+      "source": "One \"Load test data…\" button for every screen that reads a measurements DB.",
+      "source_sha256": "d1a72a11a027c9d89f63887b3dd79b6f76b8cf4b656773f85d78ed1d600969e4",
+      "context": "One \"Load test data…\" button for every screen that reads a measurements DB.",
+      "translation": "Einn \"Load test data…\" hnappur fyrir hverja skjámynd sem les mæligagnagrunn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example#1",
+      "source": "The Annotate example (``einarolafsson/spacr-example-annotate``) is a real plate: ``measurements/measurements.db`` with its cell, cytoplasm, nucleus and pathogen tables, and the 2,341 crops under ``data/`` it indexes. Annotate and Classify already fetch it into the shared example plate folder (:func:`spacr.example_archives.example_plate_folder`). Every other screen that opens a measurements database can be shown working on the same plate, so this module fetches it once and hands it to whichever screen asked.",
+      "source_sha256": "f350ab15190913cb5a93bf9dd3d402c1c6c225ae4be6af6c9419242af2786b6e",
+      "context": "The Annotate example (``einarolafsson/spacr-example-annotate``) is a real plate: ``measurements/measurements.db`` with its cell, cytoplasm, nucleus and pathogen tables, and the 2,341 extracted image regions under ``data/`` it indexes. Annotate and Classify already fetch it into the shared example plate folder (:func:`spacr.example_archives.example_plate_folder`). Every other application view that opens a measurements database can be shown working on the same plate, so this module fetches it once and hands it to whichever application view asked.",
+      "translation": "Annotate-dæmið (``einarolafsson/spacr-example-annotate``) er raunveruleg plata: ``measurements/measurements.db`` með frumu-, umfrymis-, kjarna- og sýklatöflum sínum, og þeir 2,341 myndskurðir undir ``data/`` sem hann vísar í. Annotate og Classify sækja það nú þegar í sameiginlegu dæmaplötumöppuna (:func:`spacr.example_archives.example_plate_folder`). Hver önnur skjámynd sem opnar mæligagnagrunn getur sýnt sig virka á sömu plötu, svo þessi eining sækir hana einu sinni og afhendir hana þeirri skjámynd sem bað um.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example#2",
+      "source": "ONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
+      "source_sha256": "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
+      "context": "One helper, not one copy per screen. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
+      "translation": "EITT HJÁLPARFALL, EKKI EITT AFRIT FYRIR HVERJA SKJÁMYND. Ákvörðunin um skyndiminni eða niðurhal, upptekna ástand hnappsins og villuskilaboðin eru eins fyrir Plate Viewer, Tabulate, Graph Builder og hinar; það sem er ólíkt er aðeins hvaða reitur er fylltur og hvaða aðferð opnar hann. Skjámynd sendir því þennan eina mun sem afturkallsfall og ekkert annað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example#3",
+      "source": "THE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
+      "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
+      "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
+      "translation": "NIÐURHALIÐ ER ÞAÐ SEM ÞEGAR ER TIL. Ekkert nýtt er birt: skjalasafnið, vinnsluþráðurinn og framvinduglugginn eru :func:`spacr.qt.hf_download.download_annotate_example`, sama kallið og hnappur Classify gerir, og plata sem einhver þeirra hefur þegar afþjappað er endurnýtt án þess að snerta netið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.example_measurements_db#0",
+      "source": "The example plate's ``measurements/measurements.db``, present or not.",
+      "source_sha256": "d6349afaeb8e4c7b6a3f5c0700f94120cd25d5d3363587432cafb282533f5e86",
+      "context": "The example plate's ``measurements/measurements.db``, present or not.",
+      "translation": "``measurements/measurements.db`` dæmaplötunnar, hvort sem hann er til eða ekki.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.example_measurements_folder#0",
+      "source": "The shared example plate folder the Annotate example unpacks into.",
+      "source_sha256": "490735e017fc577495ae4652c476018771ea4f4546cc63d0e5f479371a996eef",
+      "context": "The shared example plate folder the Annotate example unpacks into.",
+      "translation": "Sameiginlega dæmaplötumappan sem Annotate-dæmið er afþjappað í.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#0",
+      "source": "Add the \"Load test data…\" button to ``layout`` and wire it to ``apply``.",
+      "source_sha256": "35a741fc62ff7f06a37d0f0c5766dfa3e92774f853345fdce1cb60d2f549be1a",
+      "context": "Add the \"Load test data…\" button to ``layout`` and wire it to ``apply``.",
+      "translation": "Bæta \"Load test data…\" hnappnum við ``layout`` og tengja hann við ``apply``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#1",
+      "source": "the screen the button belongs to. The button, the callback and the reporter are kept on it, so :func:`load_test_data` can be called with the screen alone -- which is what a test does.",
+      "source_sha256": "2e073d047dfbeb01d706a118d259cdb554066a9bf706740bae9caf1be730fa30",
+      "context": "the screen the button belongs to. The button, the callback and the reporter are kept on it, so :func:`load_test_data` can be called with the screen alone -- which is what a test does.",
+      "translation": "skjámyndin sem hnappurinn tilheyrir. Hnappurinn, afturkallsfallið og tilkynnandinn eru geymd á henni, svo hægt er að kalla á :func:`load_test_data` með skjámyndina eina -- sem er það sem próf gerir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#2",
+      "source": "the box layout the button goes into, normally the row that holds the screen's own source field.",
+      "source_sha256": "69cc8ac4df27a3a0113a64d5a2efab09c4a157933fd6720899e6c8becc751062",
+      "context": "the box layout the button goes into, normally the row that holds the screen's own source field.",
+      "translation": "kassauppsetningin sem hnappurinn fer í, venjulega röðin sem geymir eigin upprunareit skjámyndarinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#3",
+      "source": "called as ``apply(folder, database)`` once the example is on disk: the plate folder and its ``measurements/measurements.db``. It fills the screen's source field and opens it.",
+      "source_sha256": "ca51f54516b6b8512d9dc7fbc9773826653e3bade2da373aa160b05d4f4756cb",
+      "context": "called as ``apply(folder, database)`` once the example is on disk: the laboratory microplate folder and its ``measurements/measurements.db``. It fills the screen's source microscope field of view and opens it.",
+      "translation": "kallað sem ``apply(folder, database)`` þegar dæmið er komið á disk: plötumappan og ``measurements/measurements.db`` hennar. Það fyllir upprunareit skjámyndarinnar og opnar hann.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#4",
+      "source": "where a failed download is reported, usually the screen's status label's ``setText``. Logged when omitted.",
+      "source_sha256": "bd8bac43d72807d78ce466e8ff523bbd9ae3690ab47f4d893b9be25c9b752b33",
+      "context": "where a failed download is reported, usually the screen's status label's ``setText``. Logged when omitted.",
+      "translation": "hvar misheppnað niðurhal er tilkynnt, venjulega ``setText`` stöðumerkis skjámyndarinnar. Skráð í annál þegar því er sleppt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.install_test_data_button#5",
+      "source": "position in ``layout``; appended when omitted.",
+      "source_sha256": "9915c3dd95db5235b1f48663627cf8f88eaf63e4c82945e9f20768d95b73f714",
+      "context": "position in ``layout``; appended when omitted.",
+      "translation": "staða í ``layout``; bætt aftast þegar því er sleppt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data#0",
+      "source": "Reuse or fetch the example plate, then hand it to the screen.",
+      "source_sha256": "6e47707c240501614be06eb4375d416e54145669cf575ec4954f23f39f438710",
+      "context": "Reuse or fetch the example plate, then hand it to the screen.",
+      "translation": "Endurnýta eða sækja dæmaplötuna, og afhenda hana síðan skjámyndinni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data#1",
+      "source": "a screen :func:`install_test_data_button` was called on.",
+      "source_sha256": "95a6fb2e3d1ce9422ba44f6190b9b42315d979f6038e4304bfc23152552297c3",
+      "context": "a screen :func:`install_test_data_button` was called on.",
+      "translation": "skjámynd sem kallað var á :func:`install_test_data_button` fyrir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data#2",
+      "source": "replaces :func:`spacr.qt.hf_download.download_annotate_example`, with the same ``(parent, destination, on_done)`` signature. For tests.",
+      "source_sha256": "24326216821b1e5dd766d13001f92943c6e1ff30a8e4c5c7da01908b6ea85c0c",
+      "context": "replaces :func:`spacr.qt.hf_download.download_annotate_example`, with the same ``(parent, destination, on_done)`` signature. For tests.",
+      "translation": "kemur í stað :func:`spacr.qt.hf_download.download_annotate_example`, með sömu ``(parent, destination, on_done)`` undirskrift. Fyrir prófanir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data#3",
+      "source": "``{\"folder\": ..., \"db\": ...}`` when the plate was handed over before returning -- always, when it was already cached -- and an empty mapping while a download is still running or after it failed.",
+      "source_sha256": "6f462c3336f041de4f2b4049b33d34e57afab7e5dd5ee8b78345f24e89d9304d",
+      "context": "``{\"folder\": ..., \"db\": ...}`` when the plate was handed over before returning -- always, when it was already cached -- and an empty mapping while a download is still executing or after it failed.",
+      "translation": "``{\"folder\": ..., \"db\": ...}`` þegar platan var afhent áður en skilað var -- alltaf, þegar hún var þegar í skyndiminni -- og tóm vörpun á meðan niðurhal er enn í gangi eða eftir að það mistókst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_mapper.resolve_metadata_with_dialog#1",
+      "source": "source metadata frame, passed to :func:`spacr.metadata_resolution.resolve_metadata_columns`.",
+      "source_sha256": "a3cddb25fd32cf99354233d5fdc0ff81c1c174d4c43e1c9746089b6dbcb58c23",
+      "context": "source metadata frame, passed to :func:`spacr.metadata_resolution.resolve_metadata_columns`.",
+      "translation": "upprunaleg lýsigagnatafla, send til :func:`spacr.metadata_resolution.resolve_metadata_columns`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_mapper.resolve_metadata_with_dialog#2",
+      "source": "canonical columns that must be present in the result; a dialog asks for the mapping of each one that cannot be resolved, and cancelling it raises :class:`MetadataResolutionRequired`.",
+      "source_sha256": "eefbc134515a14a27abceca61b75aaa3b761134c16d7592175bc2e8dc5ea0bab",
+      "context": "canonical columns that must be present in the result; a dialog asks for the mapping of each one that cannot be resolved, and cancelling it raises :class:`MetadataResolutionRequired`.",
+      "translation": "staðlaðir dálkar sem verða að vera í niðurstöðunni; gluggi spyr um vörpun hvers þeirra sem ekki er hægt að leysa, og að hætta við hann kastar :class:`MetadataResolutionRequired`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_table.MetadataTablePanel.set_rows#1",
+      "source": "one dict per row, keyed by column; missing keys show blank.",
+      "source_sha256": "5b1a4e43738da1ceaba78483bbba48577a0c73c288d6abae15ccf958e3ebd6bd",
+      "context": "one key-value mapping per row, keyed by column; missing structured-data names show blank.",
+      "translation": "ein orðabók fyrir hverja röð, lykluð eftir dálki; lyklar sem vantar birtast auðir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_table.MetadataTablePanel.write_filename_map#1",
+      "source": "path of the CSV to write, converted to :class:`~pathlib.Path`; its parent folders are created.",
+      "source_sha256": "68de095a089b186d9bedc19e98c606f5e6541a12eda2fabcdca113a505533d1e",
+      "context": "path of the CSV to write, converted to :class:`~pathlib.Path`; its parent folders are created.",
+      "translation": "slóð CSV-skrárinnar sem á að skrifa, umbreytt í :class:`~pathlib.Path`; yfirmöppur hennar eru búnar til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share#0",
+      "source": "Add a local model to the zoo, and optionally share it on Hugging Face.",
+      "source_sha256": "ae68f7d5151aa234f03b42a2ff7b8b6f219556f341a8e4557d14334b4f1b5a96",
+      "context": "Add a local model to the zoo, and optionally share it on Hugging Face.",
+      "translation": "Bæta staðbundnu líkani við líkanasafnið, og deila því valfrjálst á Hugging Face.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share#1",
+      "source": "WHY THERE IS NO BUILT-IN TOKEN. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is running it:",
+      "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
+      "context": "Why there is no built-in token. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is executing it:",
+      "translation": "HVERS VEGNA ÞAÐ ER ENGINN INNBYGGÐUR TÓKI. Upphleðsla á einn aðgang frá vél hvers notanda myndi þýða að senda skrifaðgangstóka innan í spaCR. Skrifaðgangstóki er ekki upphleðsluleyfi: hann getur líka endurskrifað og EYTT hverju líkani á þeim aðgangi, og hver sem setur upp spaCR getur lesið hann úr pakkanum. Upphleðslan notar því tóka þess sem keyrir hana:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share#2",
+      "source": "`huggingface-cli login`, or the HF_TOKEN / HUGGING_FACE_HUB_TOKEN environment variable.",
+      "source_sha256": "aadc2854b00ed8ade7a04e15c32f181033ac0f1a4c823341a2e80bfaaa46abdc",
+      "context": "`huggingface-cli login`, or the HF_TOKEN / HUGGING_FACE_HUB_TOKEN environment variable.",
+      "translation": "`huggingface-cli login`, eða umhverfisbreytan HF_TOKEN / HUGGING_FACE_HUB_TOKEN.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share#3",
+      "source": "It publishes to :data:`SHARE_REPO` when that token may write there -- the owner can grant that per person in the repository's settings -- and otherwise to the uploader's own namespace, which always works and is never destructive to somebody else. Either way the model card carries the same table, so a shared model is readable in the same terms as a bundled one.",
+      "source_sha256": "886adc1042dc6a03134fc30538ffe305522c01cbfeb705bfc4cafa384f03c366",
+      "context": "It publishes to :data:`SHARE_REPO` when that token may write there -- the owner can grant that per person in the repository's settings -- and otherwise to the uploader's own namespace, which always works and is never destructive to somebody else. Either way the model card carries the same table, so a shared model is readable in the same terms as a bundled one.",
+      "translation": "Hún birtir á :data:`SHARE_REPO` þegar sá tóki má skrifa þangað -- eigandinn getur veitt það hverjum og einum í stillingum kóðasafnsins -- og annars í eigið nafnarými þess sem hleður upp, sem virkar alltaf og eyðileggur aldrei neitt fyrir öðrum. Hvort heldur sem er ber líkanskortið sömu töflu, svo deilt líkan er læsilegt á sömu forsendum og meðfylgjandi líkan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#0",
+      "source": "The model card, carrying the same table every spaCR model card uses.",
+      "source_sha256": "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f",
+      "context": "The model card, carrying the same table every spaCR model card uses.",
+      "translation": "Líkanskortið, sem ber sömu töflu og hvert líkanskort spaCR notar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#1",
+      "source": "the share form's values: ``display_name``, ``kind``, ``trained_on``, ``notes`` and the metrics (``f1``, ``aji``, ``dice``, ``train_loss``, ``val_loss`` and the rest); a missing value is shown as unstated.",
+      "source_sha256": "c613f840ed581f7bfb72a28a6bd487212a919fc3a498391e5b993bcca78b3561",
+      "context": "the share form's values: ``display_name``, ``kind``, ``trained_on``, ``notes`` and the metrics (``f1``, ``aji``, ``dice``, ``train_loss``, ``val_loss`` and the rest); a missing value is shown as unstated.",
+      "translation": "gildi deilingarformsins: ``display_name``, ``kind``, ``trained_on``, ``notes`` og mælikvarðarnir (``f1``, ``aji``, ``dice``, ``train_loss``, ``val_loss`` og hinir); gildi sem vantar er sýnt sem ótilgreint.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#2",
+      "source": "file name of the checkpoint; also the heading when no ``display_name`` is given.",
+      "source_sha256": "665cebb2e57183db3edc3ce6b95639af84c5dcbbf451079485825119fc6c341d",
+      "context": "file name of the checkpoint; also the heading when no ``display_name`` is given.",
+      "translation": "skráarheiti vistunarpunktsins; einnig fyrirsögnin þegar ekkert ``display_name`` er gefið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#3",
+      "source": "hex SHA-256 digest of the checkpoint, printed on the card.",
+      "source_sha256": "425d0447a75a61ac17cedebcdb4fba7e9449c0f6d78fa8185a8f1226d30ac486",
+      "context": "hex SHA-256 digest of the checkpoint, printed on the card.",
+      "translation": "SHA-256 samantekt vistunarpunktsins í sextándakerfi, prentuð á kortið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#4",
+      "source": "Hugging Face repository the model is published to; accepted but not written into the card.",
+      "source_sha256": "472376c2bb8913166a008eb0385169c00f3f6a40c2a7c5fe162bd57424d320b9",
+      "context": "Hugging Face repository the model is published to; accepted but not written into the card.",
+      "translation": "Hugging Face-kóðasafnið sem líkanið er birt í; samþykkt en ekki skrifað inn á kortið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.card#5",
+      "source": "folder inside the repository that holds the checkpoint.",
+      "source_sha256": "6714d20ca5de1b3c6c72ebe2980b2cd87db917c1539048f83748fc60f5c56962",
+      "context": "folder inside the repository that holds the checkpoint.",
+      "translation": "mappa innan kóðasafnsins sem geymir vistunarpunktinn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.central_upload#0",
+      "source": "Publish through the central endpoint. Returns its reply.",
+      "source_sha256": "3b3c7fc5665fe5c5a01571b55fa31f8abcc0add55bf86e314f06660bf342c7f1",
+      "context": "Publish through the central endpoint. Returns its reply.",
+      "translation": "Birta í gegnum miðlæga endapunktinn. Skilar svari hans.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.central_upload#1",
+      "source": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
+      "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
+      "context": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
+      "translation": "Talar Gradio HTTP API beint með urllib frekar en í gegnum gradio_client, því spaCR er ekki háð þeim pakka: þegar hann vantaði kastaði þetta villu, kallandinn féll aftur á eigin tóka þess sem hlóð upp, og líkanið fór eitthvert sem enginn var að leita að því. Birtingarleið sem er háð valfrjálsum innflutningi er birtingarleið sem gerir hljóðlaust eitthvað annað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.central_upload#2",
+      "source": "local checkpoint file to upload.",
+      "source_sha256": "d664ac3b81a27114b8d1d6bda5f91489a4d5a195b1c47485e6e6d6d154c101ed",
+      "context": "local checkpoint file to upload.",
+      "translation": "staðbundin skrá vistunarpunkts sem á að hlaða upp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.central_upload#3",
+      "source": "the share form's values; ``display_name``, ``kind``, ``trained_on`` and ``contact`` are sent as their own arguments, the whole mapping as JSON, and a non-empty ``train_data_dir`` is packed with :func:`pack_training_data` and uploaded too.",
+      "source_sha256": "9502f1d44ceb407712c5c31cc183f7ab977a832179f57a79221ea444c4a74d45",
+      "context": "the share form's values; ``display_name``, ``kind``, ``trained_on`` and ``contact`` are sent as their own arguments, the whole mapping as JSON, and a non-empty ``train_data_dir`` is packed with :func:`pack_training_data` and uploaded too.",
+      "translation": "gildi deilingarformsins; ``display_name``, ``kind``, ``trained_on`` og ``contact`` eru send sem eigin viðföng, öll vörpunin sem JSON, og ``train_data_dir`` sem er ekki tómt er pakkað með :func:`pack_training_data` og því hlaðið upp líka.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.find_token#0",
+      "source": "The uploader's own Hugging Face token, or ``None``.",
+      "source_sha256": "b688695597f69f7ddb29215d8b87aed0fcd25dc8f07555c0d3f7119c9af7ccee",
+      "context": "The uploader's own Hugging Face token, or ``None``.",
+      "translation": "Eigin Hugging Face-tóki þess sem hleður upp, eða ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.pack_training_data#0",
+      "source": "Pack a training-data folder into ONE uncompressed tar. Returns its path.",
+      "source_sha256": "61f9284152df4f473d6170f8d3e0fddd2ae6673881ad103a67cedd307ea76ece",
+      "context": "Pack a training-data folder into ONE uncompressed tar. Returns its path.",
+      "translation": "Pakka möppu með þjálfunargögnum í EINA óþjappaða tar-skrá. Skilar slóð hennar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.pack_training_data#1",
+      "source": "Uncompressed on purpose: microscopy TIFFs are already poorly compressible and gzipping tens of gigabytes costs far more time than it saves bytes. Raises if the result would be larger than the endpoint accepts, BEFORE the upload is attempted, so a user does not wait out a transfer that was never going to be accepted.",
+      "source_sha256": "35d3f5c6f2b786ec0efc23428814dbc8bf1f8bb065cfde96df0c0222bca90a6d",
+      "context": "Uncompressed on purpose: microscopy TIFFs are already poorly compressible and gzipping tens of gigabytes costs far more time than it saves bytes. Raises if the result would be larger than the endpoint accepts, BEFORE the upload is attempted, so a user does not wait out a transfer that was never going to be accepted.",
+      "translation": "Óþjappað viljandi: TIFF-skrár úr smásjá þjappast þegar illa og að gzip-þjappa tugi gígabæta kostar miklu meiri tíma en það sparar bæti. Kastar villu ef niðurstaðan yrði stærri en endapunkturinn tekur við, ÁÐUR en upphleðsla er reynd, svo notandi bíði ekki út flutning sem aldrei yrði samþykktur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.pack_training_data#2",
+      "source": "training-data folder to pack; it must exist, and its files must total no more than ``MAX_TRAIN_BYTES``.",
+      "source_sha256": "1b39417d2768b8b694aec567f44f9f777a283c2cd9279cc88058973dcb9f9d45",
+      "context": "training-data folder to pack; it must exist, and its files must total no more than ``MAX_TRAIN_BYTES``.",
+      "translation": "mappa þjálfunargagna sem á að pakka; hún verður að vera til, og skrár hennar mega samtals ekki vera meira en ``MAX_TRAIN_BYTES``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.share#0",
+      "source": "Upload a checkpoint and its card. Returns the model page URL.",
+      "source_sha256": "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6",
+      "context": "Upload a checkpoint and its card. Returns the model page URL.",
+      "translation": "Hlaða upp vistunarpunkti og korti hans. Skilar slóð líkanssíðunnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.share#2",
+      "source": "the share form's values; ``display_name`` names the staging folder and the whole mapping fills the model card.",
+      "source_sha256": "6e1cd653ad02b285414a03dbf634f75055d9883a33a7f58376d0e3cbe95316c9",
+      "context": "the share form's values; ``display_name`` names the staging folder and the whole mapping fills the model card.",
+      "translation": "gildi deilingarformsins; ``display_name`` nefnir sviðsetningarmöppuna og öll vörpunin fyllir líkanskortið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.share#3",
+      "source": "Hugging Face access token used for every call.",
+      "source_sha256": "6bfbbf00c9f858682bd7d68af2bc3799c7c506d8ba6163ca849836e8dfc38ce7",
+      "context": "Hugging Face access token used for every call.",
+      "translation": "Hugging Face-aðgangstóki sem notaður er fyrir hvert kall.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.slugify#0",
+      "source": "A repository-safe folder name.",
+      "source_sha256": "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2",
+      "context": "A repository-safe folder name.",
+      "translation": "Möppuheiti sem er öruggt fyrir kóðasafn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.slugify#1",
+      "source": "display name or file name to convert; it is lower-cased and every run of characters other than ``a-z`` and ``0-9`` becomes one hyphen. An empty result becomes ``\"model\"``.",
+      "source_sha256": "f66851d0354cf6353e8b0e89c6e960b294fae90ca87aee346995b53f6bfd98fb",
+      "context": "display name or file name to convert; it is lower-cased and every run of characters other than ``a-z`` and ``0-9`` becomes one hyphen. An empty result becomes ``\"model\"``.",
+      "translation": "birtingar- eða skráarheiti sem á að umbreyta; það er sett í lágstafi og hverri runu annarra stafa en ``a-z`` og ``0-9`` er breytt í eitt bandstrik. Tóm niðurstaða verður ``\"model\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.target_repo#0",
+      "source": "Where this token may publish: the shared repo, or its own namespace.",
+      "source_sha256": "ef702b78f58bfe6d734105745312038cf671874a2f47322c7781bb64749b3189",
+      "context": "Where this token may publish: the shared repo, or its own namespace.",
+      "translation": "Hvert þessi tóki má birta: sameiginlega kóðasafnið, eða eigið nafnarými sitt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share.target_repo#1",
+      "source": "Hugging Face access token; it decides whether the shared repository is reachable and, if not, whose namespace is used.",
+      "source_sha256": "57116a5d4b249db3eff043d06db4b553fd3879d8b7cf906008a2eaefc230ae0c",
+      "context": "Hugging Face access token; it decides whether the shared repository is reachable and, if not, whose namespace is used.",
+      "translation": "Hugging Face-aðgangstóki; hann ræður hvort hægt er að ná í sameiginlega kóðasafnið og, ef ekki, hvers nafnarými er notað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog#0",
+      "source": "The form that collects a shared model's scorecard before it is uploaded.",
+      "source_sha256": "1c8edfe59a1cec2fd8c113d362f8f3ecc83e63179403d3cffa1088ed38ab14eb",
+      "context": "The form that collects a shared model's scorecard before it is uploaded.",
+      "translation": "Formið sem safnar einkunnaspjaldi deilds líkans áður en því er hlaðið upp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#0",
+      "source": "One line per scorecard column, in the order the card prints them.",
+      "source_sha256": "61390605499dc3518998d0ccc3668f8a29376b8c066b606a532ae07072b2efd0",
+      "context": "One line per scorecard column, in the order the card prints them.",
+      "translation": "Ein lína fyrir hvern dálk einkunnaspjaldsins, í þeirri röð sem kortið prentar þá.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#1",
+      "source": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
+      "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
+      "context": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
+      "translation": "Autt er leyft alls staðar: kort sem segir \"not recorded\" er heiðarlegt, og formi sem neitaði að senda inn án tölu yrði svarað með uppspunninni tölu. Byggja formið til að deila ``filename``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#2",
+      "source": "the checkpoint being shared, named in the title.",
+      "source_sha256": "1776997906ae52022105ae68f34d68135b94bc7a098d299293340cd70cedcb1b",
+      "context": "the checkpoint being shared, named in the title.",
+      "translation": "vistunarpunkturinn sem verið er að deila, nefndur í titlinum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#3",
+      "source": "the dialog's parent widget.",
+      "source_sha256": "d290cc134d925a4c56732638b109d8e0316229951380e84b8c980821bafd3b67",
+      "context": "the dialog's parent widget.",
+      "translation": "foreldragræja gluggans.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog.train_data_dir#0",
+      "source": "The chosen training-data folder, or an empty string.",
+      "source_sha256": "d1b14ff4ed5df35b0b66b1642ed76592c3c5c629b567315dc236e09a8bc8d4bc",
+      "context": "The chosen training-data folder, or an empty string.",
+      "translation": "Valin mappa þjálfunargagna, eða tómur strengur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_share_dialog.ShareDialog.values#0",
+      "source": "What the user typed, by field key.",
+      "source_sha256": "ee3567a1c9be16f4ab269f93ec7244ef437c36e730871d9d9a756b03dac3c8d0",
+      "context": "What the user typed, by field structured-data name.",
+      "translation": "Það sem notandinn sló inn, eftir lykli reits.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker#4",
+      "source": "WHY THE LIST HAS FIVE HEADINGS RATHER THAN A BOOLEAN. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on screen and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
+      "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
+      "context": "Why the list has five headings rather than a boolean. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on application view and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
+      "translation": "HVERS VEGNA LISTINN HEFUR FIMM FYRIRSAGNIR FREKAR EN SANNLEIKSGILDI. Hann var áður einn listi með \"show unvetted community uploads\" við hliðina -- stýring sem gat brotið saman nákvæmlega einn af fimm uppruna skrárinnar. Með tíu líkönum þjálfuðum hér, fjórum stöðluðum Cellpose-SAM grunnnetum, safni bioimage.io, eigin fjórum líkönum Cellpose 3-bakendans og sameiginlegri skrá, hafði notandi sem vildi tíu en ekki restina enga leið til að segja það. :class:`SourceStrip` eru upprunarnir fimm sem fimm smellanleg heiti, hvert blátt þegar raðir þess eru á skjánum og dempað þegar þær eru samanbrotnar, munað milli opnana. Viðvörunin sem sannleiksgildið bar er óbreytt og berst enn á undan fyrstu óyfirförnu röðinni -- sjá :meth:`ModelZooPicker._may_show_source`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#0",
+      "source": "Install, or uninstall, one segmentation backend, with progress and Cancel.",
+      "source_sha256": "08fdc22c56380ceb93f6ad8b4a42a0af5aea2c0eb380cdaca82420f4adc02945",
+      "context": "Install, or uninstall, one segmentation backend, with progress and Cancel.",
+      "translation": "Setja upp, eða fjarlægja, einn hlutunarbakenda, með framvindu og Hætta við.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#1",
+      "source": "WHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
+      "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
+      "context": "What it changes, said before it changes it. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
+      "translation": "HVAÐ ÞAÐ BREYTIR, SAGT ÁÐUR EN ÞAÐ BREYTIR ÞVÍ. Bakendi er settur upp í eigið umhverfi undir ``~/.spacr/backends``; eigið umhverfi spaCR er aldrei snert, svo ekkert hér getur komið í veg fyrir að spaCR ræsist. Glugginn segir hvert hann fer, hvað hann sækir, hversu stór hann er og undir hvaða leyfi áður en ýtt er á Install.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#10",
+      "source": "THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it runs and a console can say why it failed after the dialog has gone.",
+      "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
+      "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
+      "translation": "SKJÁMYNDIN Á BAK VIÐ GETUR FYLGT HONUM. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` og :attr:`job_cancelled` segja græjunni sem opnaði gluggann hvað uppsetningin er að gera, svo hnappur geti sagt \"installing\" á meðan hún keyrir og skipanagluggi geti sagt hvers vegna hún mistókst eftir að glugginn er farinn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
+      "source": "IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED (item 521). A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "source_sha256": "4d965f83a69236a3d60c8c66352ad7279f1bfc764d773b28727d3369e0af3ae3",
+      "context": "It belongs to the window, not the widget that asked (item 521). A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
+      "translation": "HANN TILHEYRIR GLUGGANUM, EKKI GRÆJUNNI SEM BAÐ UM HANN (liður 521). Gluggi erfir stílblað hverrar græju fyrir ofan sig, og Plaque Assay biður um hann úr forsýn sinni, þar sem eigin kvarðasleði setur stílblað forritsins aftur fram við kvarða forsýnarinnar: við 150 % voru Install og Cancel 59 px á hæð, ekki 40 px eins og hver annar hnappur. Með ``parent.window()`` sem foreldri fær hann þema eins og hver annar gluggi og er samt miðjaður á, og háttbundinn gagnvart, glugganum sem opnaði hann.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#12",
+      "source": "THE BAR SITS ON THE BUTTONS. The progress line is the last thing above the buttons and the status keeps four lines' room while a job runs, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
+      "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
+      "context": "The bar sits on the buttons. The progress line is the last thing above the buttons and the status keeps four lines' room while a job executes, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
+      "translation": "STIKAN SITUR Á HNÖPPUNUM. Framvindulínan er það síðasta fyrir ofan hnappana og staðan heldur rými fyrir fjórar línur á meðan verk keyrir, svo stikan hreyfist ekki þegar stöðulínan vex og minnkar. Lýsa bakendanum og bíða eftir hnappnum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#2",
+      "source": "THE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for minutes -- runs on a worker thread; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
+      "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
+      "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
+      "translation": "GLUGGINN SVARAR ÁFRAM. Uppsetningin -- venv, síðan pip, oft í mínútur -- keyrir á vinnsluþræði; glugginn sýnir á hvaða skrefi hún er og nýjustu línu pip, og Hætta við stöðvar pip og allt sem það ræsti og fjarlægir hálfbyggða umhverfið. Bilun sýnir eigið úttak skipunarinnar sem brást, orðrétt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#3",
+      "source": "the backend, e.g. ``'cellpose3'``.",
+      "source_sha256": "7e497fb4a045681bcad0a2c40a3f6fe64d3734559befc759922b4bb7bd1fed0d",
+      "context": "the backend, e.g. ``'cellpose3'``.",
+      "translation": "bakendinn, t.d. ``'cellpose3'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#4",
+      "source": "the widget that opened it; the dialog's parent is its window.",
+      "source_sha256": "06f76c2871d7276b76b0fd66b292bc993652967480ab4c5189adbc67394ece5c",
+      "context": "the widget that opened it; the dialog's parent is its window.",
+      "translation": "græjan sem opnaði hann; foreldri gluggans er gluggi hennar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#5",
+      "source": "remove the backend's environment instead.",
+      "source_sha256": "4748e5681b75f8096bd2b854f4c28f0a7b9e3eaa2498cccf7460a2016afeb6a7",
+      "context": "remove the backend's environment instead.",
+      "translation": "fjarlægja umhverfi bakendans í staðinn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#6",
+      "source": "``job(progress=..., cancel=...)``; the real install or uninstall when None. Tests pass their own.",
+      "source_sha256": "a303f21de2d25d8bcb3241ceeb7f1114b217ae23699962d0e98ebc1143a84e64",
+      "context": "``job(progress=..., cancel=...)``; the real install or uninstall when None. Tests pass their own.",
+      "translation": "``job(progress=..., cancel=...)``; raunveruleg uppsetning eða fjarlæging þegar None. Próf senda sín eigin.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#7",
+      "source": "build an installed backend's environment again (item 518), for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "source_sha256": "8054ed9d398f84daab6408594ba11a1b03259e10eec6cf57ef5cdcbdfcda489c",
+      "context": "build an installed backend's environment again (item 518), for a backend installed before a package it now needs was pinned; the dialog says so and its button says Reinstall.",
+      "translation": "byggja aftur umhverfi uppsetts bakenda (liður 518), fyrir bakenda sem var settur upp áður en pakki sem hann þarf nú var festur; glugginn segir það og hnappur hans segir Reinstall.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#8",
+      "source": "a sentence saying why the install is offered, shown first in the description.",
+      "source_sha256": "3c7f63bb04ca00246d6aef443d705bdface19dcc3cbbf38096630615a010a3f4",
+      "context": "a sentence saying why the install is offered, shown first in the description.",
+      "translation": "setning sem segir hvers vegna uppsetningin er boðin, sýnd fyrst í lýsingunni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#9",
+      "source": "the last failure's message, verbatim; empty until one.",
+      "source_sha256": "610563a430fc675b42d9c6ea62808d59f690a579b0bdc13da97d3a3502b9c922",
+      "context": "the last failure's message, verbatim; empty until one.",
+      "translation": "skilaboð síðustu bilunar, orðrétt; tóm þar til ein verður.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.closeEvent#0",
+      "source": "Closing the window is Cancel; it never leaves a thread behind.",
+      "source_sha256": "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8",
+      "context": "Closing the window is Cancel; it never leaves a thread behind.",
+      "translation": "Að loka glugganum er Hætta við; það skilur aldrei eftir þráð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.closeEvent#1",
+      "source": "the close event; while a job is running it is ignored and :meth:`reject` is called instead, otherwise it is passed on to the base class.",
+      "source_sha256": "5cef9c494381c0373985087e659299cd9e3fba470876fba52807bdb200a1c4a4",
+      "context": "the close event; while a job is executing it is ignored and :meth:`reject` is called instead, otherwise it is passed on to the base class.",
+      "translation": "lokunaratburðurinn; á meðan verk er í keyrslu er hann hunsaður og kallað er á :meth:`reject` í staðinn, annars er hann sendur áfram til grunnklasans.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

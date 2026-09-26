@@ -262,3 +262,114 @@ def test_a_record_that_cannot_be_written_does_not_lose_the_mask(screen, nested,
     # ...and the record really did fail, so the assertions above are about the
     # swallow path rather than the ordinary one.
     assert not (nested / STATUS_FILENAME).exists()
+
+
+def test_skip_is_recorded_as_skip_and_the_field_is_not_offered_again(screen,
+                                                                     nested):
+    """ITEM 396: the reader had three reviewed states and the editor wrote one.
+
+    Skip records "this field cannot be curated". It writes no mask, moves on,
+    and the next session leaves the field out rather than offering the same
+    unusable field again.
+    """
+    queue = build_queue(nested, order="name")
+    assert screen.open_queue(queue) is True
+    assert screen._btn_skip.isEnabled()
+    screen._current_index = screen._image_files.index("f_02.tif")
+    screen._load_current()
+
+    screen._btn_skip.click()
+
+    rows = read_status(nested)
+    assert rows["f_02"].state == "skip"
+    assert not (nested / "masks" / "f_02.tif").exists(), (
+        "a skipped field must not grow a mask")
+    assert screen._image_files[screen._current_index] == "f_03.tif"
+    assert "f_02.tif skipped" in screen._status_label.text()
+    assert [item.stem for item in build_queue(nested, order="name").items] == [
+        "f_00", "f_01", "f_03"]
+
+
+def test_skip_is_not_offered_for_a_folder_that_is_not_a_queue(screen, nested):
+    """Only a queue has a record to write a skip to."""
+    assert screen._open_folder(str(nested)) is True
+    assert not screen._btn_skip.isEnabled()
+
+    screen._on_skip()
+
+    assert not (nested / STATUS_FILENAME).exists()
+
+
+def _split_seed(folder: Path) -> Path:
+    """A seed whose label 1 lies in two separated pieces, as cellpose leaves."""
+    labels = np.zeros((24, 24), dtype=np.uint16)
+    labels[2:8, 2:8] = 1
+    labels[20, 20] = 1
+    labels[12:18, 12:18] = 2
+    path = folder / "masks" / "f_01.tif"
+    imageio.imwrite(path, labels)
+    return path
+
+
+def test_a_save_with_no_edit_leaves_the_mask_file_untouched(screen, nested):
+    """ITEM 396: "open it, look, save" must mean the seed was right.
+
+    Every save went through `canonical_labels`, which splits a label lying in
+    two separated pieces, so a no-edit save of such a seed added an object
+    and recorded a count the file on disk did not have.
+    """
+    seed = _split_seed(nested)
+    before = seed.read_bytes()
+    queue = build_queue(nested, order="name")
+    assert screen.open_queue(queue) is True
+    screen._current_index = screen._image_files.index("f_01.tif")
+    screen._load_current()
+
+    screen._on_save()
+
+    assert seed.read_bytes() == before, "a save that changed nothing rewrote"
+    rows = read_status(nested)
+    assert rows["f_01"].state == "done"
+    assert rows["f_01"].n_objects == 2
+    assert "Unchanged" in screen._status_label.text()
+
+
+def test_a_save_after_an_edit_still_writes(screen, nested):
+    """The no-op is for no edit only; a changed mask is written as before."""
+    seed = _split_seed(nested)
+    queue = build_queue(nested, order="name")
+    assert screen.open_queue(queue) is True
+    screen._current_index = screen._image_files.index("f_01.tif")
+    screen._load_current()
+
+    edited = screen._canvas.mask.copy()
+    edited[12:18, 12:18] = 0
+    screen._canvas.mask = edited
+    screen._on_save()
+
+    written = imageio.imread(seed)
+    assert not np.any(written[12:18, 12:18]), "the edit did not reach disk"
+    assert "Saved" in screen._status_label.text()
+
+
+def test_an_edited_save_records_the_count_the_file_holds(screen, nested):
+    """ITEM 396: the count is taken after `canonical_labels`, not before.
+
+    The seed's label 1 lies in two pieces; an edit elsewhere on the field
+    keeps it that way, the save splits it, and the file holds three
+    objects. The record said two, the canvas's count before the split.
+    """
+    seed = _split_seed(nested)
+    queue = build_queue(nested, order="name")
+    assert screen.open_queue(queue) is True
+    screen._current_index = screen._image_files.index("f_01.tif")
+    screen._load_current()
+
+    edited = screen._canvas.mask.copy()
+    edited[12:14, 12:18] = 0
+    screen._canvas.mask = edited
+    screen._on_save()
+
+    on_disk = imageio.imread(seed)
+    assert int(np.count_nonzero(np.unique(on_disk))) == 3
+    assert read_status(nested)["f_01"].n_objects == 3

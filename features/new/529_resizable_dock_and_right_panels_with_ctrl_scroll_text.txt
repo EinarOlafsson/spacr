@@ -1,0 +1,152 @@
+THE DOCK AND THE RIGHT-HAND PANELS CAN BE RESIZED, AND CTRL+SCROLL SIZES THEIR TEXT
+
+Status: DONE 2026-09-25 (worktree agent; notes at the end), awaiting the
+        maintainer's look on his display. Filed 2026-09-25.
+Owner: worktree agent (529). Related: 471 (whole-GUI scale, collapsible splitter),
+378 (hold Z and scroll to resize the interface), 376 (the dock).
+
+REQUEST (the maintainer, 2026-09-25, verbatim)
+    "the user should be able to modify the width of the dock when not hidden
+    and the width of the pannels to the right (not individually but one
+    together.)for the pannels to the right holding ctrl and scrolling should
+    increase or decrease the font size."
+
+WHAT TO BUILD
+  1. DOCK WIDTH: while the dock is shown, its edge can be dragged to make it
+     wider or narrower (sensible minimum and maximum), and the width is
+     remembered between sessions. Hiding and showing it keeps the width.
+  2. RIGHT-HAND PANELS AS ONE: the column of panels on the right of a module
+     screen (console, System, Actions and the rest) is resized by dragging
+     its one left edge; they all change width together, not one by one. The
+     width is remembered per module or globally, whichever the existing
+     preferences pattern does for similar widths.
+  3. CTRL + SCROLL over those right-hand panels makes their text larger or
+     smaller (their font size only, not the whole GUI scale of 471), with
+     limits, remembered between sessions, and a way back to the default
+     (e.g. Ctrl+0 while hovering, matching 471's reset shortcut style).
+
+DONE WHEN
+Offscreen tests: dragging the dock edge changes and persists its width;
+dragging the right column's edge changes every right panel's width together
+and persists; Ctrl+wheel over the right column changes its font size within
+limits and persists, and the reset returns it; nothing else on screen
+changes font size.
+
+--------------------------------------------------------------------------------
+2026-09-25 — DONE (worktree agent)
+--------------------------------------------------------------------------------
+
+1. DOCK WIDTH. spacr/qt/widgets/dock.py:619 DockEdge, a 6 px strip beside
+   the dock slot (added at spacr/qt/app.py:2574, shown/hidden with the dock
+   at app.py:4303). Drag widens/narrows the dock between DRAG_MIN 150 and
+   DRAG_MAX 520 px (dock.py:196, both x font scale; narrower than the old
+   220 auto minimum is allowed, names elide). Release stores the width,
+   double-click forgets it and the dock fits its names again. Dock.column_width
+   (dock.py:470) is what refresh_visibility and apply_dock_mode now apply,
+   so the width survives hide/show, category toggles and restarts.
+   Setting: prefs/dock_width (preferences.py:185, get/set_dock_width at
+   :3911; 0 = fitting width).
+
+2. RIGHT COLUMN AS ONE. Already true: the right column is the "Runtime" pane
+   of the body CollapsibleSplitter (471 slice B); its left handle moves the
+   whole column (figures, previews, console, System, Actions and the hint
+   together) and the sizes persist per module under "<module>::body" via
+   set_pane_extents (the existing pattern). Now tested. LIMIT: the Settings
+   column cannot go below its SettingsSearchBar's minimum (390 px at
+   1440x900 with the dock shown), so on a laptop-size window the right
+   column can be made narrower but hardly wider unless Settings is collapsed
+   (click the handle). Lowering that bar's minimum was left alone.
+
+3. CTRL + SCROLL. spacr/qt/live_zoom.py:542 ColumnTextScale, an application
+   event filter (the console and scroll areas accept the wheel first, so a
+   parent filter would never see it), registered for each AppScreen's
+   _runtime_wrap at spacr/qt/screens/app_screen.py:1911. One notch = 10 %,
+   range 60-200 %, one global value: prefs/runtime_text_scale
+   (preferences.py:3885), written 400 ms after the wheel stops.
+   HOW: a style sheet on the column that re-declares every inherited
+   font-size multiplied (scaled_font_sheet, live_zoom.py:520); a parent's
+   sheet beats the window sheet whatever the specificity, so the size
+   hierarchy stays and lazily built panels follow. setFont was rejected: a
+   repolish undoes it (measured). The console's entries carry their own pt
+   size, so ConsolePanel.apply_column_text_scale (console_panel.py:1234)
+   multiplies Zoom by it. Nothing outside the column changes (tested).
+   YIELDS TO: Z+wheel while Z is held (378); any widget between pointer and
+   column with a Python wheelEvent (plaque/live-preview canvases zoom on
+   Ctrl+wheel, figure canvases) -- live_zoom.py:748; Shift/Alt/Meta.
+   RESET: Ctrl+0 with the pointer over the column (or focus in it) while the
+   size is not 100 % resets it and swallows the key; at 100 % Ctrl+0 stays
+   Go home (it is Go home in shortcuts.py, so a plain override would have
+   taken it away). live_zoom.py:822. 471's Ctrl+Alt+0 is untouched.
+   Filter cost: 1.4 us/event vs 0.3 us bare (event kinds looked up once,
+   live_zoom.py:498). Measure column restyle ~50-100 ms per applied step,
+   coalesced to one per event-loop turn. The Actions pane is refit after a
+   size change; at 140 % in a 900 px window the column simply runs out of
+   height (console shrinks, the wrapped buttons' third line is cut).
+   Not scaled: the AI/Live/3D/Time AiToggleLabels (own per-widget sheet).
+
+TESTS. tests/qt/test_529_the_dock_and_right_column_resize.py, 11 pass: dock
+drag + persistence in a new MainWindow, hide/show, bounds, double-click
+reset, Ctrl+0 resets before going home; right column drag moves every panel
+by the same px and persists into a rebuilt screen; Ctrl+wheel on the
+console viewport grows titles/buttons/console pt, settings and header fonts
+unchanged, persisted, Ctrl+0 back to exact baseline; limits 0.6/2.0; no Ctrl
+/ outside column / canvas / Z held leave the wheel alone; sheet scaling.
+Before and after merging nightly: dock, gui_scale, live_zoom (Z), shell
+collapse, bottom panels, 515 headings, collapsible splitter, navigation
+tests 254 pass (265 with the new file after merge). Wider set (console,
+zoom, theme, preferences, i18n/docstring): all pass except
+test_docstring_correctness (2) and test_api_i18n_extractor pinned public
+surface counts (+32 over nightly's 11746, all from this item's public
+functions/methods -- the pin lane moves them and regenerates catalogs) and
+test_perf_guard_qt ambient frame timing, which fails on a different backdrop
+each run under load average ~60 and does not touch this code.
+Screenshots: /tmp/spacr-529-scratch/{before_measure,after_measure,
+after_measure_resized}.png.
+
+NEW tr() STRINGS for the catalog lane: "Dock width", "Drag to make the dock
+wider or narrower. Double-click to fit it to the names again."
+NEW SETTINGS: prefs/dock_width (int px, 0 = fit), prefs/runtime_text_scale
+(float, 0.6-2.0, default 1.0).
+
+--------------------------------------------------------------------------------
+2026-09-26 — LEFTOVER CLOSED: the Settings column gives way to the right one
+--------------------------------------------------------------------------------
+
+The LIMIT above: the Settings column could not go below its search strip's
+one-line minimum. Measured on this checkout (theme applied, dock locked,
+Mask screen): the strip needed 375 px on one line (box 38, Modified 54,
+switch 67, Essentials 97, Recipes 95, spacing), so the right column could
+be dragged out to only 795 px at 1440 x 900 and 721 px at 1366 x 768.
+
+Fix, spacr/qt/settings_search.py only (no theme or screen-construction
+change): SettingsSearchBar moves its controls (Modified + switch,
+Essentials/All, and every add_trailing_widget control such as Recipes and
+the preview switch) onto a wrapping line UNDER the search box when the row
+no longer fits (a FlowLayout host already used by other panels), and back
+beside the box when it does. Its minimumSizeHint is then the widest single
+control -- or the Modified caption + switch, which never wrap apart -- not
+the whole row: 97 px. The strip's height follows the wrapped lines
+(sizeHint uses the layout's height-for-width), so nothing overlaps the
+count line. The box keeps QLineEdit's own small minimum (38 px); Qt
+already elides a placeholder that does not fit, so no text holds it open.
+At the default split nothing moves: the strip is still one line.
+After: at the narrowest Settings column (97 px) the right column is
+1073 px at 1440 x 900 and 999 px at 1366 x 768 (was 795 / 721).
+
+Tests (tests/qt/test_529_...::TestTheSettingsColumnGivesWay, both window
+sizes): the strip's and the Settings pane's minimum are under 200 px; at
+the pane's minimum the column stays open (not collapsed), the right column
+is > 100 px wider than before, the controls sit below the box, and every
+part lies inside the strip without overlap; at half the width the controls
+are back on the box's line; a long placeholder does not raise the minimum.
+test_529: 15 passed. Wider search-strip set (settings_search,
+uncovered paths, recipes, preview_registry, shell collapse, help search
+field, hidden rows, closed categories, widget QSS, page-never-black,
+app_screen cov, caption ratchet, settings column panel): 480 passed,
+21 failed. 20 of the 21 fail identically on nightly's settings_search.py
+(test_settings_column_panel opacity probes, test_settings_search's
+cellpose3_* rows and explain_cv group -- measured by swapping the file
+back); the 21st is test_i18n_caption_ratchet's catalog-hash list, which
+already fails on nightly with 528's strings (catalog lane).
+No new tr() strings; no new public callables (_fit and _one_line_width
+are private, minimumSizeHint/sizeHint/resizeEvent are Qt overrides).

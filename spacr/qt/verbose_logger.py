@@ -67,6 +67,13 @@ _console_ref: "Optional[weakref.ReferenceType[Any]]" = None
 _handler: "Optional[_ConsoleForwarder]" = None
 _relay: "Optional[_ConsoleRelay]" = None
 _file_handler: "Optional[RotatingFileHandler]" = None
+
+#: The verbose preference as last applied by :func:`apply_verbose_logging`.
+#: :func:`is_verbose` reads THIS, not a handler level: the per-level console
+#: switches set the forwarder to DEBUG in every session so that their filter
+#: decides, and a check that read the handler reported verbose on whether
+#: the user had turned it on or not.
+_verbose = False
 _SINK_LOGGER = "spacr"
 _ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
                         "spacr.qt.plate_queue", "spacr.qt.hf_download",
@@ -455,6 +462,8 @@ def apply_verbose_logging(on: bool) -> None:
         spaCR loggers to DEBUG (and ``cellpose`` to INFO); ``False`` sets them
         to INFO (and ``cellpose`` to WARNING).
     """
+    global _verbose
+    _verbose = bool(on)
     handler = _ensure_handler()
     file_handler = _ensure_file_handler()
     level = logging.DEBUG if on else logging.INFO
@@ -470,8 +479,13 @@ def apply_verbose_logging(on: bool) -> None:
 
 def is_verbose() -> bool:
     """Cheap runtime check — decorated functions call this on entry so
-    they emit NOTHING when verbose mode is off."""
-    return _handler is not None and _handler.level == logging.DEBUG
+    they emit NOTHING when verbose mode is off.
+
+    It reads the verbose PREFERENCE as :func:`apply_verbose_logging` last
+    applied it, not the console forwarder's level, which
+    :func:`apply_console_levels` holds at DEBUG in every session.
+    """
+    return _verbose
 
 
 def log_call(fn: Callable) -> Callable:

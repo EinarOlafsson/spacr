@@ -1,31 +1,33 @@
 {
-  "language": "es",
-  "title": "Barrido de parámetros",
-  "description": "Ejecute dos ensayos dentro de Regression y distinga el éxito de ejecución de una inferencia válida.",
-  "objectives": [
-    "Seleccionar cuatro pares ordenados de archivos de puntuaciones y recuentos.",
-    "Limitar la cuadrícula a dos ensayos y un proceso, e inspeccionar resultados guardados.",
-    "Mantener visibles los fallos de calidad y las familias separadas de coeficientes."
-  ],
-  "prerequisite": "Use los cuatro pares de placas descargados en la lección Regression y una carpeta de salida nueva. Ambos ensayos ridge fallan las comprobaciones de inferencia: no son un análisis validado de hallazgos. Solo varía alpha, 0.01 y 0.1; inferencia paramétrica, medias por pocillo y ninguna transformación quedan fijadas. No se heredan automáticamente todos los ajustes del formulario padre. n_rows_fitted cuenta 1174 coeficientes, no 620 pocillos ni 2955 filas preparadas. Revise sweep_results.csv y los ajustes reales: la tabla omite alpha y los dictámenes de calidad. API: spacr.parameter_sweep.SweepSpace y run_sweep_parallel. Sin prueba de rendimiento GPU, solicitud externa a IA, aprobación de hablante nativo ni publicación.",
-  "scenes": [
-    "Abra Regression y después Parameter sweep, abajo a la derecha. Este flujo está dentro de Regression, no en un mosaico independiente de Home. La lección Regression explica cómo descargar los cuatro pares de archivos de puntuaciones y recuentos que reutilizamos aquí.",
-    "Revise las listas de entrada del propio barrido. Inicialmente están vacías aunque el formulario padre contenga datos emparejados. Añada los cuatro archivos de puntuaciones y los cuatro de recuentos en el mismo orden de placas. Elija una carpeta de salida nueva para no sobrescribir análisis anteriores.",
-    "Marque solo alpha, con valores cero coma cero uno y cero coma uno. Las filas sin marcar siguen aportando ajustes fijos. Aquí elegimos explícitamente ridge, inferencia paramétrica, medias por pocillo y ninguna transformación. Esta receta limitada demuestra el funcionamiento; no es una recomendación para su experimento.",
-    "Seleccione grid, un máximo de dos ensayos y un proceso de trabajo; pulse Estimate. Dos combinaciones válidas significa que los ajustes están permitidos, no que las conclusiones estadísticas sean válidas. La estimación supone un minuto por ensayo; no es una prueba de rendimiento. Lea los límites de recursos antes de empezar.",
-    "Pulse Start sweep, no el botón Run del formulario padre. Cada ensayo escribe en su propia carpeta. Estos dos ensayos reales se ejecutan secuencialmente; añadir procesos aumenta la demanda de recursos. El ejemplo usa regresión en CPU, no aceleración GPU, y no necesita ninguna solicitud a spaCR AI.",
-    "Ambas filas indican ok porque terminó el cálculo. Sin embargo, las dos comprobaciones de calidad de inferencia guardadas indican fail. La tabla omite esos dictámenes y el alpha variable: revise el archivo completo de resultados del barrido y los ajustes de cada ensayo. No elija un modelo solo porque produce más valores P ajustados pequeños.",
-    "Seleccione la primera fila y pulse Show figures for selected row. Esto lee resultados guardados sin volver a ajustar el modelo. La vista de guías contiene setecientas noventa y dos filas de coeficientes, incluido un intercepto; la gráfica lo excluye y muestra setecientas noventa y una guías. La altura representa el logaritmo decimal negativo del valor P sin ajustar.",
-    "Cambie Level a Gene. La tabla contiene ahora trescientas ochenta y dos filas, incluido su intercepto, y la gráfica muestra trescientos ochenta y un genes. Guías y genes son familias de coeficientes separadas. Cambiar la vista no valida la inferencia fallida ni crea evidencia independiente.",
-    "Vuelva a guías: reaparecen las filas y puntos originales, sin cambiar los archivos guardados. El campo rows fitted del resumen es engañoso aquí: cuenta filas de coeficientes, no pocillos. Distinga el número de muestras de entrada, los coeficientes de salida y la familia representada al informar del análisis.",
-    "Consulte conjuntamente los ajustes, el resumen y los archivos de control de calidad guardados. Una gráfica o explicación de IA no certifica un diseño experimental. Regression Diagnostics explica otras comprobaciones; la referencia API documenta el barrido. Este ejemplo enseña un flujo reproducible y sus límites, no hallazgos biológicos validados."
-  ],
   "lesson": "73_parameter_sweep",
-  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
   "review": {
-    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
-  }
+  },
+  "language": "es",
+  "title": "Parameter Sweep: comparar ensayos de Regression guardados",
+  "description": "Indica las entradas emparejadas y la configuración de los ensayos, ejecuta un barrido pequeño y revisa la configuración, las figuras y las comprobaciones de inferencia de cada ensayo.",
+  "objectives": [
+    "Seleccionar archivos emparejados de puntuaciones y recuentos y una carpeta de salida para el barrido.",
+    "Elegir los ajustes variables y fijos, estimar el número de ensayos y ejecutar.",
+    "Revisar los ensayos guardados y la calidad de su inferencia antes de compararlos."
+  ],
+  "prerequisite": "Descarga los cuatro pares de puntuaciones y recuentos por placa del tutorial de Regression. Usa el mismo orden de placas y una carpeta de salida nueva. Los dos ensayos ridge mostrados terminan, pero no superan sus comprobaciones de calidad de inferencia; distingue el estado del cálculo de la idoneidad estadística.",
+  "scenes": [
+    "Desde Home, abre Regression y luego Parameter sweep, abajo a la derecha. Usa los cuatro pares de ejemplo de puntuaciones y recuentos del tutorial de Regression.",
+    "Añade los cuatro archivos de puntuaciones y los cuatro de recuentos a las listas propias del barrido, en el mismo orden de placas. Revisa estas listas aunque el formulario principal de Regression ya tenga entradas. Elige una carpeta de salida nueva.",
+    "Marca alpha e introduce cero coma cero uno y cero coma uno. Los ajustes sin marcar se mantienen fijos. Para este ejemplo, indica explícitamente ridge, inferencia paramétrica, agregación por media a nivel de pozo y sin transformación.",
+    "Elige el muestreo Grid, Maximum trials en dos y un proceso de trabajo, y luego haz clic en Estimate. Comprueba el número de combinaciones y los límites de recursos antes de ejecutar. Toma la estimación de tiempo como aproximada.",
+    "Haz clic en Start sweep. Cada ensayo escribe en su propia carpeta. Con un solo proceso de trabajo, los dos ensayos se ejecutan uno tras otro; elige un número de procesos adecuado a los recursos disponibles.",
+    "Revisa las filas completadas y luego abre sweep_results.csv y los archivos de configuración y de control de calidad de cada ensayo. Los dos ensayos mostrados terminan el cálculo pero no superan las comprobaciones de inferencia, así que un estado de ejecución ok no basta para elegir un modelo.",
+    "Selecciona la primera fila y haz clic en Show figures for selected row. Revisa los resultados por guía y las etiquetas de los ejes. El gráfico omite el intercepto de la tabla de coeficientes.",
+    "Cambia Level a Gene para revisar la familia de genes por separado. Comprueba sus filas, efectos y resultados de control de calidad antes de compararla con la vista por guía.",
+    "Vuelve a Guide. Lee el respaldo muestral en los archivos de entrada y de diagnóstico: en el ejemplo, el resumen de filas ajustadas cuenta filas de coeficientes de salida, no pozos.",
+    "Guarda la configuración, el resumen y los archivos de control de calidad de cada ensayo junto con sus figuras. Usa Regression Diagnostics para una revisión más a fondo, o SweepSpace y run_sweep desde Python para una comparación con código."
+  ]
 }

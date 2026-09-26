@@ -129,3 +129,35 @@ def test_the_panel_hands_the_run_something_the_run_accepts(qtbot):
     # And through the resolver the run itself uses.
     collected["regression_type"] = "lasso"
     assert defaults(collected)["alpha"] == "auto"
+
+
+# -- the penalty that won reaches the run summary (part B) -----------------
+
+@pytest.mark.parametrize("family", PENALISED_REGRESSION_TYPES)
+def test_the_cross_validated_alpha_is_written_into_the_run_summary(
+        family, tmp_path):
+    """A real CV fit, the real summary writer, the file a reader opens.
+
+    The penalty is chosen by cross-validation, so the only place a reader can
+    learn which one the coefficients were fitted at is the summary beside
+    them. The number written must be the estimator's own ``alpha_``.
+    """
+    import numpy as np
+    import pandas as pd
+
+    from spacr.ml import regression_model
+    from spacr.regression_summary import write_run_summary
+
+    rng = np.random.default_rng(0)
+    X = pd.DataFrame(rng.normal(size=(120, 4)), columns=list("abcd"))
+    y = 0.8 * X["a"] - 0.5 * X["b"] + rng.normal(scale=0.3, size=120)
+    settings = defaults({"regression_type": family, "alpha": 1,
+                         "inference": "parametric"})
+    assert settings["alpha"] == "auto"
+    model = regression_model(X, y, regression_type=family,
+                             alpha=settings["alpha"])
+    path = write_run_summary(str(tmp_path), model=model, settings=settings,
+                             regression_type=family)
+    text = open(path, encoding="utf-8").read()
+    assert f"alpha={float(model.alpha_):.6g} (cross-validated, not given)" \
+        in text

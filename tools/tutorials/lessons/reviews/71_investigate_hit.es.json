@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Investigate Hit: rastrear un gen de Regression hasta las células medidas",
+  "description": "Envía un gen de Hit List a Investigate Hit, añade la base de datos de mediciones, las predicciones por célula y las fracciones de guías, y lee la evidencia a nivel de pocillo.",
+  "objectives": [
+    "Abrir una ejecución de Regression en Hit List, revisar los valores q y enviar un gen a Investigate Hit.",
+    "Elegir la base de datos de mediciones, las predicciones por célula, las fracciones de guías y la columna de puntuación.",
+    "Leer las pestañas de evidencia, pocillos, guías y umbral, y encontrar las tablas guardadas."
+  ],
+  "prerequisite": "Extrae Investigate_Hit_real_screen_example.zip. Todo su contenido procede de un mismo cribado real: la ejecución de Regression con los datos de prueba de Regression (los ajustes del tutorial de Regression), las predicciones CV por célula correspondientes y una base de datos de mediciones con las medidas reales de forma, tamaño e intensidad de esas mismas células. Para que la descarga sea pequeña, la base de datos contiene 52 pocillos: todos los pocillos analizados con una guía del gen 225160 y, por cada uno, tres pocillos de la misma placa sin ella. Ningún gen de esta ejecución rápida de Regression cumple q ≤ 0,05. Trata la investigación como un ejemplo práctico, no como un hit confirmado.",
+  "scenes": [
+    "Desde Home, abre Regression. Investigate Hit parte de una ejecución de Regression terminada. Se pregunta si las células medidas en los pocillos asociados a un gen se ven diferentes de las células de pocillos sin ese gen.",
+    "Elige Hits para abrir Hit List. Primero extrae el archivo de ejemplo. Contiene una ejecución de Regression con los datos de prueba, las predicciones CV por célula correspondientes y una base de datos de mediciones de esas mismas células. Las tres cosas proceden de un mismo cribado real.",
+    "Haz clic en Browse y selecciona la carpeta guide_permutation dentro de regression_run, results. Es la salida de la ejecución con datos de prueba del tutorial de Regression.",
+    "Hit List ordena trescientos veinticinco genes. Lee juntos el efecto, el valor P y el valor q de cada fila, además del número de guías y cuántas de ellas coinciden.",
+    "Pon Max q en cero coma cero cinco. La tabla se vacía porque en esta ejecución ningún gen tiene un valor q igual o inferior a cero coma cero cinco. Con ciento noventa y nueve permutaciones, el menor valor P posible es cero coma cero cero cinco, y el menor valor q es de aproximadamente cero coma veintisiete. Por eso, lo que sigue examina un candidato clasificado, no un hit confirmado.",
+    "Vuelve a poner Max q en uno, busca dos dos cinco uno seis cero y selecciona su fila. Tiene un efecto de cero coma treinta y cuatro, un valor q de cero coma veintisiete y tres guías que coinciden en la dirección.",
+    "Haz clic en Investigate selected. Investigate Hit se abre con la carpeta de resultados, el gen, sus tres guías y una dirección de efecto positiva ya rellenados a partir de esa fila.",
+    "Junto a Measurements database, haz clic en Browse y elige measurements.db del ejemplo. Contiene la forma, el tamaño y la intensidad media por canal de ocho mil novecientas quince células en cincuenta y dos pocillos.",
+    "En Existing CV predictions, elige cv_predictions.csv. Cada fila es la puntuación CV guardada de una célula, vinculada al mismo objeto medido. Haz clic en la ruta y pulsa Enter para que se lean las columnas de puntuación, y mantén pred como columna de puntuación del fenotipo.",
+    "En Well/guide fractions, elige regression_data.csv en la misma carpeta de resultados. Esta tabla la escribió Regression. Indica la fracción de cada guía en cada pocillo analizado.",
+    "Deja vacío Independent morphology features. Así el módulo usa las trece mediciones celulares numéricas de la base de datos y excluye los identificadores, las fracciones de guías y la puntuación CV, de modo que esta comprobación no reutiliza la puntuación. Para tu propia base de datos, indica solo columnas de mediciones que no tengan valores ausentes.",
+    "Haz clic en Investigate hit. El modelo se ajusta dejando fuera una placa cada vez, así que ninguna célula se puntúa con un modelo entrenado con su propia placa. La fracción de guía de un pocillo solo fija la expectativa inicial para sus células. Nunca marca una célula como portadora de la guía. Este ejemplo tarda unos minutos.",
+    "Evidence da el resultado. Los pocillos diana tienen una prevalencia de tipo hit solo cero coma cero uno mayor que los pocillos control. El intervalo bootstrap por pocillos va de menos cero coma cero cuatro a más cero coma cero seis, y el valor P de la permutación por bloques es de aproximadamente cero coma sesenta y tres. Las células no respaldan a este candidato.",
+    "Wells muestra, para cada pocillo, la fracción de guía, la probabilidad media de tipo hit, la prevalencia y el número de células. Cada pocillo cuenta como una unidad independiente, así que la comparación usa trece pocillos diana y treinta y nueve pocillos control, no células individuales.",
+    "Guides muestra cada guía diana por separado. Sus respuestas a la dosis apuntan en direcciones distintas, otra razón más para no tratar este gen como un hit.",
+    "Threshold sensitivity repite la comparación con umbrales de probabilidad de cero coma cinco a cero coma nueve. Con todos los umbrales la diferencia se mantiene cerca de cero coma cero uno, así que la conclusión no depende del umbral.",
+    "Candidate cells ordena las células por probabilidad de tipo hit, con la puntuación original y el pliegue que puntuó cada célula. Estas probabilidades describen una morfología de tipo hit, no qué guía llevaba una célula. Pasa clasificaciones a la anotación solo cuando la evidencia a nivel de pocillo sea convincente. Undo revierte una promoción.",
+    "Las tablas se guardan en la carpeta de resultados, en hit_investigation y después en dos dos cinco uno seis cero. Incluyen esta representación y un manifiesto, y cada ejecución se guarda además como una versión nueva en la base de datos. El ejemplo no tiene imágenes de recortes, así que la galería de revisión queda vacía. A continuación, investiga un gen que supere tu umbral en una ejecución de Regression con más permutaciones."
+  ]
+}

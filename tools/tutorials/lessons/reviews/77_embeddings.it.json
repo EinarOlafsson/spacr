@@ -1,29 +1,32 @@
 {
-  "title": "Embeddings: schermata attuale ed esempio Python reale",
-  "description": "Esamina il modulo e codifica immagini reali con l’API, distinguendo i limiti dell’interfaccia dalla validazione biologica.",
-  "objectives": [
-    "Distinguere interfaccia e API funzionante.",
-    "Confrontare le politiche dei canali su sedici immagini.",
-    "Preservare le identità e interpretare i grafici con cautela."
-  ],
-  "prerequisite": "spaCR 1.5.0.7 con l’extra embeddings; registrazione con timm 1.0.29 e ResNet18 preaddestrato su CPU. Scarica l’esempio di Annotate e lo ZIP collegato. Usa la cartella cell_png indicata nel README e nuove cartelle di output. I nomi dei file non sono chiavi del database verificate. La schermata non ha un selettore di immagini: il percorso funzionante usa l’API. Non si dichiara validazione biologica, revisione madrelingua o esecuzione GPU.",
-  "scenes": [
-    "Embeddings è un nuovo modulo nella Home di spaCR. Trasforma ritagli di immagini in vettori numerici senza addestrarsi sulle tue annotazioni. Questa lezione mostra la schermata attuale e un esempio Python funzionante con immagini reali scaricate.",
-    "Nella versione uno punto cinque punto zero punto sette, questa schermata non ha un controllo per caricare ritagli ed Embed resta disabilitato. Non simuleremo un’esecuzione grafica riuscita. L’API Python esegue la vera codifica mostrata di seguito.",
-    "Per channel codifica separatamente ogni canale memorizzato e concatena i vettori. Project to three codifica invece l’immagine combinata. Cambia la rappresentazione, non solo la velocità. Una posizione di canale PNG non identifica automaticamente una colorazione verificata.",
-    "Installa l’extra opzionale embeddings nell’ambiente spaCR. Il ResNet diciotto predefinito usa pesi supervisionati ImageNet, non un modello autosupervisionato addestrato sulle cellule. Questo piccolo esempio usa la CPU; non richiede GPU né un servizio remoto di intelligenza artificiale.",
-    "Usa l’esempio scaricabile di Annotate e la cartella di ritagli indicata nelle istruzioni. Lo script collegato seleziona sedici immagini esistenti in ordine di nome. Ognuna misura duecentoventiquattro pixel per lato con tre canali memorizzati. Non viene ridimensionata né segmentata di nuovo.",
-    "Esegui lo script con una nuova cartella di output. Chiama embed_array con il vero codificatore preaddestrato e lotti di quattro. La codifica per canale produce sedici righe e millecinquecentotrentasei dimensioni. La matrice salvata viene riaperta e controllata valore per valore.",
-    "Ora scegli project e un’altra cartella di output. Le stesse immagini producono sedici righe e cinquecentododici dimensioni. Queste colonne a canali combinati non sono intercambiabili con le precedenti. Confronta consapevolmente le politiche e conserva le impostazioni di ogni esecuzione.",
-    "Esamina il mosaico delle vere immagini di ingresso nel visualizzatore. I numeri seguono l’ordine delle righe di output. Controlla qualità dei ritagli e corrispondenza dei canali esportati prima di interpretare i vettori. I nomi identificano questo esempio; verifica le chiavi prima di unire un database di misure.",
-    "Questo grafico salvato proietta i vettori per canale su due componenti principali. I punti numerati corrispondono agli stessi ritagli. È una visualizzazione esplorativa di un campione minuscolo, non una prova di fenotipi distinti. Una dimensione di un vettore non è una misura biologica.",
-    "I vettori a canali combinati hanno una propria proiezione. Non confrontare le coordinate fra questi grafici come se condividessero una trasformazione stimata. Nessuno misura l’accuratezza di recupero o dimostra che i vettori superino il pannello di caratteristiche misurate.",
-    "Conserva vettori, identità, checksum dei pesi, impostazioni e versioni. Lo script controlla che le immagini originali restino invariate e rifiuta destinazioni esistenti. Mantieni coerenti ritagli, normalizzazione e mappatura dei canali nei confronti. Usa le istruzioni collegate per riprodurre l’esempio API."
-  ],
   "lesson": "77_embeddings",
+  "english_sha256": "fa2d38e241cdc746d2971e944f97e9f10198b0c9615f3fd3ea439452efa44871",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "it",
-  "english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false
+  "title": "Embeddings: caricare ritagli e confrontare le politiche dei canali",
+  "description": "Carica ritagli di immagini da Home, scegli il codificatore e la politica dei canali, esegui Embed ed esamina l’anteprima delle caratteristiche.",
+  "objectives": [
+    "Caricare una cartella di ritagli dalla schermata Embeddings.",
+    "Scegliere la rete di base, la dimensione del lotto e la politica dei canali.",
+    "Esaminare l’anteprima dei vettori e salvare i risultati completi con lo script Python fornito."
+  ],
+  "prerequisite": "Installa spaCR con il suo extra embeddings. Scarica l’esempio di Annotate e individua plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Per il piccolo esempio mostrato qui, copia i primi sedici PNG, in ordine di nome file, in una nuova cartella. La prima esecuzione del codificatore scarica i pesi preaddestrati se non sono in cache. L’archivio facoltativo Embeddings_API_example.zip fornisce uno script di supporto per salvare le matrici complete.",
+  "scenes": [
+    "Da Home, apri Embeddings in Data. Caricherai ritagli di immagini, sceglierai come codificarne i canali e genererai un vettore numerico di caratteristiche per ogni oggetto.",
+    "Scegli crop folder in Crops from. Puoi anche usare un database di misure quando vuoi selezionare una classe di oggetti, una piastra o una condizione. Questa guida usa la cartella dei ritagli dell’esempio scaricabile di Annotate.",
+    "Copia sedici PNG d’esempio in una cartella di lavoro. Inserisci il percorso di quella cartella e premi Invio, oppure usa Browse. Imposta At most su sedici, poi fai clic su Load crops.",
+    "Leggi il numero di ritagli caricati, la loro dimensione e il numero di canali. L’esempio contiene sedici immagini di duecentoventiquattro pixel per lato, con tre canali salvati. Controlla la corrispondenza dei canali dell’esportazione dei ritagli prima di confrontare i risultati.",
+    "Scegli Per channel per codificare ogni canale separatamente e concatenarne le caratteristiche. Lascia resnet18 come Backbone e imposta Batch su quattro per questa piccola esecuzione. Lotti più piccoli riducono l’uso di memoria.",
+    "Fai clic su Embed e attendi l’anteprima. L’esempio produce sedici vettori di oggetti con millecinquecentotrentasei dimensioni. La tabella mostra solo le prime dimensioni e, per esecuzioni più grandi, fino a cinquanta oggetti.",
+    "Seleziona Project to three e fai di nuovo clic su Embed. In questo modo si codifica l’immagine combinata invece di ciascun canale separatamente. Usa gli stessi ritagli e la stessa rete di base quando confronti le due politiche.",
+    "L’esempio proiettato ha cinquecentododici dimensioni per oggetto. Conserva la politica dei canali e le impostazioni del codificatore insieme ai risultati. Usa i vettori completi per l’analisi successiva; le singole dimensioni non sono misure biologiche.",
+    "Al momento la schermata offre un’anteprima senza pulsante di esportazione. Per salvare le matrici complete, scarica lo script di supporto Python collegato e segui il suo README. Scrive vettori, nomi dei file degli oggetti, impostazioni e grafici esplorativi in una nuova cartella di output."
+  ]
 }

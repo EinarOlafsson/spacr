@@ -1,31 +1,33 @@
 {
   "lesson": "51_control_charts",
-  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "english_sha256": "71794c3c8f4747dd0bada9c613b11e057020b5adc0892760865854a902df4f0e",
   "review": {
-    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "sv",
-  "title": "Control Charts: granska en försöksserie med tydliga kontroller och gränser",
-  "description": "Öppna verktyget i QC, läs in en tydligt syntetisk serie med trettio plattor, kontrollera vald kontroll och referensperiod och exportera oberoende verifierade punkter.",
+  "title": "Control Charts: övervaka kontroller över plattor",
+  "description": "Läs in en kampanjtabell, välj kontroller och baslinjegränser, granska larm och exportera de ritade punkterna.",
   "objectives": [
-    "Hitta Control Charts i QC och läs in den medföljande syntetiska CSV-filen.",
-    "Skilj brunnsvisa indatarader från plattmedelvärden och välj exakt en kontroll.",
-    "Jämför regler, ändra och återställ kontroll och referensperiod och läs varningarna.",
-    "Exportera den faktiska punkttabellen utan att påstå bildexport eller biologisk validering."
+    "Välja mätvärde och kontrollpopulation.",
+    "Ställa in baslinje och larmregler.",
+    "Granska larm och exportera diagrampunkter."
   ],
-  "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv är helt syntetisk och anpassad från ett apptest med fast slumptalsfrö: trettio fiktiva plattor, tre brunnar per kontrolltyp och platta samt en programmerad uppåtgående drift efter platta tjugo. Datumen är exempel på ordningsetiketter, inte insamlingsprotokoll. Specialpanelen har för närvarande ingen Load test data-knapp; ingen mikroskopinedladdning, modell, GPU-analys eller AI-förfrågan används. Den gamla inspelningen med två plattor förkastades eftersom appen vägrade uppskatta gränser. Den smala inställningskolumnen klipper långa stängda alternativ; öppna menyer visar fullständiga namn. Z-prime och omskattning används inte här.",
+  "prerequisite": "Hämta den syntetiska kampanj-CSV-filen nedan, eller förbered en tabell på brunnsnivå med plattidentitet, körordning, ett mätvärde och kontrolletiketter. Exemplet visar trettio plattor med programmerad drift.",
   "scenes": [
-    "Öppna QC och sedan knappen Control Charts. Detta specialverktyg visar upprepade kontroller genom en försöksserie. Vår medföljande CSV är uttryckligen syntetisk, inklusive driften. Den demonstrerar programvaran, inte ett faktiskt uppmätt experiment eller en validerad analysmetod.",
-    "Välj Load table och öppna exempel-CSV-filen. Den innehåller tvåhundrasjuttio rader på brunnsnivå: trettio plattor med tre negativa kontrollbrunnar, tre positiva kontrollbrunnar och tre provbrunnar vardera. Diagrammet visar ett medelvärde för den valda kontrollen per platta, inte en punkt per cell.",
-    "Kontrollera Plate, Run order, Measurement och Control column mot namnen som visas. Välj endast neg i Control is. Listan tillåter flera val; om ingen nivå väljs används alla rader. Anta aldrig att filinläsningen redan har valt den kontroll du avser.",
-    "Öppna Sigma from för att läsa alla alternativ. Auto väljer undergruppsskattaren här eftersom varje platta har tre valda brunnar. Gränserna använder variationen inom referensperiodens plattor, justerad för medelvärdets stickprovsstorlek, inte standardavvikelsen för hela den driftande serien.",
-    "Rules erbjuder de vanliga fyra reglerna, alla åtta eller Limits only. Fler regler ger också fler tillfällen till falsklarm. Vi väljer Limits only för att isolera tresigmaregeln. Ett nytt menyval räknar om diagrammet utan en separat Run-knapp.",
-    "Baseline plates är tjugo: P noll ett till P tjugo bestämmer gränserna som används på resterande plattor. Nio punkter, P tjugotvå till P trettio, överskrider den övre gränsen. Rapporten och regeltabellen identifierar dem; dessa programmerade signaler är inte biologiska upptäckter.",
-    "Avmarkera neg och välj endast pos. Diagrammet visar nu den andra kontrollens medelvärden och egna referensgränser, utan brott mot regel ett i detta exempel. Ett lugnt diagram bevisar inte ensamt att en analysmetod är giltig. Återställ neg innan du fortsätter.",
-    "Ändra Baseline plates till tolv, se hur centrum och gränser ändras och återställ sedan tjugo. Appen kräver minst åtta referensplattor, men minimikravet är ingen rekommendation. Planera och motivera referensperioden; justera den inte bara för att ta bort oönskade varningar.",
-    "När ursprunglig kontroll och tjugo referensplattor återställts väljer du Export points och sparar en separat CSV. De trettio raderna innehåller plattidentitet, ordning, medelvärde, undergruppsstorlek och spridning, gränser, standardiserat avstånd, referenstillhörighet och utlösta regler. Det är ingen diagrambild eller fullständig konfigurationsexport.",
-    "Varje exporterad identitet och numeriskt fält kontrollerades mot käll-CSV-filen, inklusive markeringarna för regel ett. Ursprungliga indata är oförändrade. För skript erbjuder kontrollkortets widgetmodul ControlChartSpec och control_chart; resultatet har points_frame. Behåll indata, inställningar och insamlingsanteckningar tillsammans när du utreder verkliga varningar."
+    "Öppna QC och sedan Control Charts för att övervaka upprepade kontroller under en kampanj. Övnings-CSV-filen använder syntetiska plattor och en programmerad drift.",
+    "Hämta exempel-CSV-filen nedan, klicka på Load table och välj den. Den innehåller trettio plattor, var och en med tre brunnar för varje kontrolltyp och tre provbrunnar.",
+    "Matcha Plate, Run order, Measurement och Control column mot tabellen. Under Control is väljer du neg för de negativa kontrollerna. Ett tomt val tar med alla rader.",
+    "Välj Sigma from för att styra variationsskattningen. Auto använder här undergruppsskattningen, eftersom varje platta innehåller tre valda kontrollbrunnar.",
+    "Välj i Rules de larm du vill granska. Exemplet använder Limits only för att fokusera på punkter utanför tresigmagränserna. När du ändrar en inställning ritas diagrammet om.",
+    "Ställ Baseline plates på 20. De första tjugo plattorna fastställer seriens gränser. Läs rapporten och regeltabellen för att hitta flaggade senare plattor.",
+    "För att granska positiva kontroller avmarkerar du neg och väljer pos. Granska deras medelvärden och gränser separat och gå sedan tillbaka till neg för att fortsätta exemplet.",
+    "Justera Baseline plates när din planerade referensperiod är en annan. Verktyget kräver minst åtta plattor; välj en stabil baslinje som passar analysen.",
+    "Klicka på Export points och välj ett CSV-mål. Filen sparar plattidentiteter, medelvärden, undergruppsstorlekar, gränser, baslinjetillhörighet och utlösta regler.",
+    "Behåll indata-CSV-filen, de valda kontrollerna och baslinjeinställningarna tillsammans med de exporterade punkterna. Använd de flaggade plattornas identiteter för att undersöka förändringar i förvärv eller analys."
   ]
 }

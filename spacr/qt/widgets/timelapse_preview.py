@@ -427,14 +427,38 @@ def segment_frame(image: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
     :param params: segmentation settings; ``model``, ``channel``,
         ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``,
         ``flow_threshold`` and ``cellprob`` are read, each with a default.
+        A ``cellpose3:...`` model is segmented in the Cellpose 3 backend by
+        :func:`spacr.object._cellpose3_masks`, as the run segments it, and a
+        ``cellpose_dino:<path>`` model in the Cellpose-DINO backend by
+        :func:`spacr.object._cellpose_dino_masks`.
     """
-    model = preview_cellpose_model(str(params.get("model", "cpsam")))
+    from ...object import _prefixed_model_route
+
+    name = str(params.get("model", "cpsam"))
+    route = _prefixed_model_route(name)
+    model = None if route else preview_cellpose_model(name)
 
     plane = frame_channel(image, int(params.get("channel", 0)))
     if params.get("normalise", True):
         plane = _to_uint8(plane, normalise=True,
                           lo_pct=float(params.get("lo_pct", 2.0)),
                           hi_pct=float(params.get("hi_pct", 98.0)))
+    if route:
+        from ... import _segmentation_backends
+
+        backend, masks_of = route
+        diameter = float(params.get("diameter", 30.0))
+        settings = {
+            "cell_diameter": diameter or None,
+            "cell_flow_threshold": float(params.get("flow_threshold", 0.4)),
+            "cell_cellprob_threshold": float(params.get("cellprob", 0.0)),
+        }
+        masks, _flows = masks_of(
+            _segmentation_backends._load_backend(
+                backend, model_name=name, object_type="cell"),
+            [plane], settings, "cell", min_size=15,
+            default_diameter=diameter or 30.0)
+        return np.asarray(masks[0]).astype(np.int32)
     result = model.eval(
         plane,
         diameter=float(params.get("diameter", 30.0)) or None,

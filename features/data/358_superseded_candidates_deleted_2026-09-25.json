@@ -1,0 +1,145 @@
+{
+  "date": "2026-09-25",
+  "approved_by": "maintainer (via the orchestrator)",
+  "rule": "Delete only release-candidate folders superseded by a newer accepted candidate whose media revision tag resolves on Hugging Face to the recorded, read-back commit; keep the current baseline, the two latest accepted candidates, all captures and all production media.",
+  "kept": [
+    "release-candidate-append-1rjwna77 (current baseline)",
+    "release-candidate-append-31kkmyz_",
+    "release-candidate-append-nzin8z6h"
+  ],
+  "not_deleted_without_hosted_revision": [
+    "release-candidate-append-abtci2ec",
+    "release-candidate-append-f67vb26c",
+    "release-candidate-append-vmgr56ld",
+    "release-candidate-append-vdh82tx0"
+  ],
+  "deleted": [
+    {
+      "folder": "release-candidate-append-rw8t2jvh",
+      "commit": "f277201cc05187ab2b571cc2a7750697628906de",
+      "tag": "tutorials-20260923-walkthroughs-rw8t2jvh",
+      "tag_resolves_to_commit": true,
+      "bytes": 7549647067
+    },
+    {
+      "folder": "release-candidate-append-835305u0",
+      "commit": "ccac7493544b910443461b989737b0e80b05b75b",
+      "tag": "tutorials-20260923-corewalkthroughs-835305u0",
+      "tag_resolves_to_commit": true,
+      "bytes": 7065984026
+    },
+    {
+      "folder": "release-candidate-append-y9yqqjva",
+      "commit": "4ebd132f3b98fd4e34922d2760243d1d3d8296a8",
+      "tag": "tutorials-20260923-editor-api-y9yqqjva",
+      "tag_resolves_to_commit": true,
+      "bytes": 6541779726
+    },
+    {
+      "folder": "release-candidate-append-xw4j5buw",
+      "commit": "4ab45a993e549a98dbe18a22e029b6a58f95787e",
+      "tag": "tutorials-20260924-assays-xw4j5buw",
+      "tag_resolves_to_commit": true,
+      "bytes": 6317566265
+    },
+    {
+      "folder": "release-candidate-append-_h__k19q",
+      "commit": "931a7e95feac3730cde47f02d6a76f805aa59038",
+      "tag": "tutorials-organisms-20260924-hk19q",
+      "tag_resolves_to_commit": true,
+      "bytes": 5764610245
+    },
+    {
+      "folder": "release-candidate-append-8vaimbg8",
+      "commit": "948fd55c6d13ee107b8bce22c26957178e7415dd",
+      "tag": "tutorials-data-tools-20260924-8vaimbg8",
+      "tag_resolves_to_commit": true,
+      "bytes": 4284525386
+    },
+    {
+      "folder": "release-candidate-append-6kuath0f",
+      "commit": "3295e3d747743e67517bd0a13a1a80fef74a5619",
+      "tag": "tutorials-practical-guides-20260924-6kuath0f",
+      "tag_resolves_to_commit": true,
+      "bytes": 3957843123
+    },
+    {
+      "folder": "release-candidate-append-hpih30qn",
+      "commit": "077895c4c53658d9af5a0b08cc38d814775c25f4",
+      "tag": "tutorials-table-guides-20260924-hpih30qn",
+      "tag_resolves_to_commit": true,
+      "bytes": 3536964520
+    },
+    {
+      "folder": "release-candidate-append-l1r815zg",
+      "commit": "5fef816b732a14df2654c5eda9610baa071a080c",
+      "tag": "tutorials-exploration-20260924-l1r815zg",
+      "tag_resolves_to_commit": true,
+      "bytes": 2749620093
+    },
+    {
+      "folder": "release-candidate-append-ui5y3r18",
+      "commit": "f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65",
+      "tag": "tutorials-native-20260924-ui5y3r18",
+      "tag_resolves_to_commit": true,
+      "bytes": 2363860835
+    },
+    {
+      "folder": "release-candidate-append-12208ne8",
+      "commit": "2a2933b1333166d6ba1947fac6be3a5c345482a8",
+      "tag": "tutorials-plate-20260925-12208ne8",
+      "tag_resolves_to_commit": true,
+      "bytes": 2357478479
+    },
+    {
+      "folder": "release-candidate-append-vfhvip5x",
+      "commit": "675c17b4654edc77b988ac0a047e81b71954e512",
+      "tag": "tutorials-narrative-20260925-vfhvip5x",
+      "tag_resolves_to_commit": true,
+      "bytes": 2386958407
+    }
+  ],
+  "filesystem_bytes_freed": 54999879680,
+  "later_rounds": [
+    {
+      "date": "2026-09-26",
+      "kept": [
+        "release-candidate-append-vdq3zb7x (current baseline)",
+        "release-candidate-append-1dgypni8",
+        "release-candidate-append-iij8lm0r"
+      ],
+      "deleted": [
+        {
+          "folder": "release-candidate-append-nzin8z6h",
+          "commit": "b2225b919d11c150963c419c9810a4063482a9b2",
+          "tag": "tutorials-recapture-20260925-nzin8z6h",
+          "tag_resolves_to_commit": true,
+          "bytes": 2241048512
+        },
+        {
+          "folder": "release-candidate-append-31kkmyz_",
+          "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+          "tag": "tutorials-hosted-20260925-31kkmyz_",
+          "tag_resolves_to_commit": true,
+          "bytes": 2091861088
+        },
+        {
+          "folder": "release-candidate-append-1rjwna77",
+          "commit": "d2db0911ea22c47dbb4f913bf62a8f173232021b",
+          "tag": "tutorials-item520-20260925-1rjwna77",
+          "tag_resolves_to_commit": true,
+          "bytes": 2091331529
+        },
+        {
+          "folder": "release-candidate-append-ii3rwunc",
+          "commit": "84b3dea3da6dd37490bb19e67dac7b8da04ce126",
+          "tag": "tutorials-voices-b3-20260925-ii3rwunc",
+          "tag_resolves_to_commit": true,
+          "bytes": 2237073956
+        }
+      ],
+      "filesystem_bytes_freed": 8678105088,
+      "note": "ii3rwunc was never recorded: its media equal vdq3zb7x except the player, which lives on Pages."
+    }
+  ]
+}

@@ -3830,6 +3830,40 @@ def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
         pass
 
 
+def _add_to_a_windows_own_rules(window, rule: str) -> bool:
+    """Append ``rule`` to what ``window`` owns, in the same styling pass.
+
+    FOR A FILTER THAT DECORATES A DIALOG AS IT IS POLISHED. Setting the
+    dialog's stylesheet directly there made Qt restyle the whole dialog for
+    the one rule, and the window sheet then restyled it all again: two full
+    passes over every widget in Preferences, measured as about a fifth of
+    its opening freeze. Recorded as the dialog's own rule, the rule is put
+    on with the window sheet in one pass (or on its own when no window
+    sheet is in force, as before).
+
+    The rules the window wears now are read as its own first, and the
+    window is told they have been read: otherwise a window whose sheet was
+    replaced since it was last sheeted would have that text re-read as its
+    own rules when the sheet goes on, and ``rule`` would be lost.
+
+    :param window: the dialog or window whose own rules gain ``rule``.
+    :param rule: the QSS to append.
+    :returns: ``True`` when the rule was added, ``False`` when the window
+        already had it or could not be read.
+    """
+    rule = str(rule or "")
+    try:
+        own = _the_windows_own_stylesheet(window)
+        if not rule or rule in own:
+            return False
+        window.setProperty(_WINDOW_SHEET_DIGEST,
+                           _sheet_digest(window.styleSheet()))
+    except (AttributeError, RuntimeError):
+        return False
+    set_a_sheeted_widgets_own_rule(window, f"{own}\n{rule}".strip())
+    return True
+
+
 def _sheet_digest(text):
     """A cheap fingerprint of a stylesheet, for "is this still ours".
 

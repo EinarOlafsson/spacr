@@ -182,6 +182,8 @@ _KEY_LOG_FILE_LEVELS = "prefs/log_file_levels"
 _KEY_LOG_CONSOLE_LEVELS = "prefs/log_console_levels"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 _KEY_DOCK_MODE   = "prefs/dock_mode"
+_KEY_DOCK_WIDTH  = "prefs/dock_width"
+_KEY_RUNTIME_TEXT_SCALE = "prefs/runtime_text_scale"
 _KEY_PANE_OPACITY = "prefs/pane_opacity"
 _KEY_FIELD_FADE = "prefs/field_fade"
 _KEY_SHOW_ALPHA = "prefs/show_alpha"
@@ -3872,6 +3874,64 @@ def set_font_scale(scale: float) -> None:
     _settings().setValue(_KEY_FONT_SCALE, scale)
 
 
+#: The text size of a module screen's right-hand column (item 529), as a
+#: multiple of the size the rest of the interface has. Ctrl + wheel over the
+#: column moves it; nothing outside the column follows it.
+RUNTIME_TEXT_SCALE_MIN = 0.60
+RUNTIME_TEXT_SCALE_MAX = 2.00
+DEFAULT_RUNTIME_TEXT_SCALE = 1.0
+
+
+def get_runtime_text_scale() -> float:
+    """The right-hand column's text size, clamped to its bounds.
+
+    One value for every module screen, so the console reads the same size
+    wherever the user goes; see :mod:`spacr.qt.live_zoom`.
+    """
+    try:
+        raw = float(_settings().value(_KEY_RUNTIME_TEXT_SCALE,
+                                      DEFAULT_RUNTIME_TEXT_SCALE))
+    except (TypeError, ValueError):
+        raw = DEFAULT_RUNTIME_TEXT_SCALE
+    return max(RUNTIME_TEXT_SCALE_MIN, min(RUNTIME_TEXT_SCALE_MAX, raw))
+
+
+def set_runtime_text_scale(scale: float) -> float:
+    """Persist the right-hand column's text size, clamped to its bounds.
+
+    :param scale: 1.0 for the size the rest of the interface has.
+    :returns: the value stored.
+    """
+    scale = round(max(RUNTIME_TEXT_SCALE_MIN,
+                      min(RUNTIME_TEXT_SCALE_MAX, float(scale))), 4)
+    _settings().setValue(_KEY_RUNTIME_TEXT_SCALE, scale)
+    return scale
+
+
+def get_dock_width() -> int:
+    """The width the user dragged the dock to, or 0 for its fitting width.
+
+    Item 529. Stored in logical pixels; the dock clamps it to its drag
+    bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.
+    """
+    try:
+        return max(0, int(float(_settings().value(_KEY_DOCK_WIDTH, 0) or 0)))
+    except (TypeError, ValueError):
+        return 0
+
+
+def set_dock_width(width: int) -> None:
+    """Persist the dock's dragged width; 0 goes back to the fitting width.
+
+    :param width: logical pixels.
+    """
+    try:
+        width = max(0, int(width))
+    except (TypeError, ValueError):
+        width = 0
+    _settings().setValue(_KEY_DOCK_WIDTH, width)
+
+
 def get_gui_scale() -> float:
     """Return the saved whole-GUI scale, clamped to supported bounds.
 
@@ -5520,11 +5580,11 @@ class PreferencesDialog:
             _sync_console_enabled(_level)
 
         _debug_file_toggle = log_level_toggles[logging.DEBUG][0]
-        _debug_file_toggle.setToolTip(
+        _debug_file_toggle.setToolTip(tr(
             "While verbose logging is on (Modules tab), DEBUG is always "
             "written to the log files, so this switch stays on. Turn "
             "verbose logging off to choose it yourself. Your own choice "
-            "is kept for when you do.")
+            "is kept for when you do."))
         _chosen_debug = [logging.DEBUG in _chosen_log_file_levels()]
 
         def _remember_the_debug_choice(checked) -> None:
@@ -6172,7 +6232,7 @@ class PreferencesDialog:
         form.addRow(tr("Colour-blind mode"), cb_combo)
 
         verbose_check = Toggle(tr("Enable verbose logging"))
-        verbose_check.setToolTip(
+        verbose_check.setToolTip(tr(
             "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. "
             "It also lets cellpose report which model it loaded, and it "
             "records which buttons you pressed. That trail is what makes a "
@@ -6189,7 +6249,7 @@ class PreferencesDialog:
             "does not trace every function call. "
             "That tracer is a separate tool for developers, and nothing "
             "here turns it on."
-        )
+        ))
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
 
@@ -7097,6 +7157,16 @@ class PreferencesDialog:
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
+                _chosen_debug[0] = logging.DEBUG in _chosen_log_file_levels()
+                default_file_levels = set(get_log_file_levels())
+                default_console_levels = set(get_log_console_levels())
+                for level, (file_toggle, _c) in log_level_toggles.items():
+                    file_toggle.setChecked(level in default_file_levels)
+                for level, (_f, console_toggle) in log_level_toggles.items():
+                    _sync_console_enabled(level)
+                    console_toggle.setChecked(
+                        console_toggle.isEnabled()
+                        and level in default_console_levels)
                 _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
@@ -7231,6 +7301,14 @@ class PreferencesDialog:
                     restart_the_dive()
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not restart the dive", exc_info=True)
+                try:
+                    from .widgets.ambient import (
+                        rebuild_the_spaceout_backdrops)
+
+                    rebuild_the_spaceout_backdrops()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not rebuild the backdrop",
+                              exc_info=True)
                 if complaints:
                     from PySide6.QtWidgets import QMessageBox
 

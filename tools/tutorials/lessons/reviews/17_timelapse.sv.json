@@ -1,37 +1,35 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
   "review": {
-    "kind": "Parent editorial caption translation of frozen English; exact synthetic tracking comparison and limitations retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "sv",
-  "title": "Tidsseriespårning",
-  "description": "Kör åtta syntetiska bilder i Masks inbyggda arbetsflöde och jämför faktiska masklänkar i Track preview.",
+  "title": "Timelapse",
+  "description": "Länka objekt genom en tidsserie, granska deras spår och förbered de spårade bilderna för mätning.",
   "objectives": [
-    "Hitta Timelapse i Mask och bevara tidsaxel och originalbilder.",
-    "Jämför ursprungliga, fragmenterade och återställda spår på samma masker.",
-    "Skilj mellan spårningsindikatorer, uppspelning, inferens och uppmätt biologisk rörelse."
+    "Läsa in exempelbilderna och maskerna i Track preview.",
+    "Justera överlappet och granska objektens identiteter mellan bildrutor.",
+    "Konfigurera en Mask-körning för tidsserier och hitta dess spårade utdata."
   ],
-  "prerequisite": "Använd Help > Demos > Timelapse demo i en ny mapp: åtta syntetiska tidpunkter med 256 × 256 pixlar, kärnkanal 0 och cellkanal 1. Aktivera Plot och Keep original images; alla sexton TIFF-filer bevaras. ZIP-filen innehåller faktiska cellbilds- och maskplan från körningen, inte insamlade försöksdata eller facitmasker. Välj image_sequences/field_A01 och label_sequences/field_A01 separat: förhandsvisningskanal 0, åtta bilder och ett fält. Tröskel 0.1 ger sexton hela spår; 1.0 ger 128 enbildsspår. Återställ 0.1, vänta och klicka uttryckligen på Re-link; inmatning kan starta ett mellanvärde. Klicka inte på Propagate settings, som inte överför IoU-tröskeln. Varningar om flödeströskel, relationstabell och inställningsstatus redovisas. Ingen biologisk validering eller fysisk hastighetsmätning. API: spacr.core.preprocess_generate_masks och spacr.timelapse. AI är av.",
+  "prerequisite": "Ladda ned och packa upp SYNTHETIC_timelapse_preview.zip. Undervisningsexemplet innehåller åtta bildrutor med cellbilder och matchande etikettbilder. För en fullständig Mask-körning på egna data förbereder du tidsordnade mikroskopibilder och noterar tidsintervallet mellan bilderna.",
   "scenes": [
-    "Öppna Mask och slå på Time. Timelapse finns nu inne i Mask, inte som en separat ruta på Home. Det lägger till tidsaxel- och spårningsinställningar i segmenteringsflödet. Motilitetsmätningar hör till Measure, som är ett senare steg.",
-    "Välj Help, Demos och sedan Timelapse demo, och välj en ny mapp. Då skapas åtta syntetiska bilder med rörliga objekt och deras inställningar läses in. Det är undervisningsbilder, inte ett biologiskt experiment eller bevis på segmenteringens noggrannhet.",
-    "Kontrollera den ifyllda källan och kanalerna. Demonstrationen har kärnintensitet i kanal noll och cellintensitet i kanal ett, utan patogenkanal. Filnamnen kodar tid separat från fält och kanal. Ersätt inte en tidsserie med den vanliga statiska testplattan.",
-    "Frame limits använder snittgränser med index från noll: noll till åtta omfattar alla åtta bilder, men slutgränsen ingår inte. Håll ett fälts tidpunkter tillsammans. Uppspelningsfrekvensen ger inget saknat bildtagningsintervall, och demonstrationen fastställer inte hastigheter i fysiska enheter.",
-    "Spåra celler med det överlappningsbaserade läget iou. Det länkar masker genom skärningsarea dividerad med unionsarea mellan intilliggande bilder. Andra motorer har andra antaganden och valfria beroenden. Förskjutning är inte en överlappningströskel; använd inställningarna som den valda motorn faktiskt läser.",
-    "Slå på Keep original images före Run. Annars kan rensningen ta bort mappar för mellanresultat och originalbilder. Den här inspelningen bevarar alla sexton genererade TIFF-filer oförändrade och rör aldrig äldre tutorialdata. Ha alltid en separat säkerhetskopia av insamlade experiment.",
-    "Slå på Plot och kör detta lilla exempel. Den nuvarande pipelinen behandlar hela åttabildssekvensen tillsammans även om den begärda satsstorleken är mindre. Följ konsolen och resursvisningen: Fler bilder, större bilder och fler objekt kan kräva betydligt mer minne.",
-    "Körningen ger fem figurer och åtta sammanslagna matriser. I denna normaliserade visning är de första två planen intensiteter; de sista två är cell- och kärnetiketter, inte extra bildtagningskanaler. Den sparade celltabellen innehåller sexton spår som vart och ett sträcker sig över åtta bilder.",
-    "Läs varningarna utöver Finished. Den här versionen varnar om ärvda flödeströsklar, en otillgänglig relationstabell och inställningsstatus. Vi kontrollerade sparade masker och spår separat; detta är inte ett felfritt releasetest eller en ersättning för att köra Measure.",
-    "Öppna Track preview. Hämta och packa upp det syntetiska förhandsvisningsarkivet nedan för att upprepa länkningsövningen. Det innehåller exakt cellbilds- och maskplanen från den inspelade körningen. Genom att läsa in maskerna testar du länkar utan att köra en ny segmenteringsmodell.",
-    "Välj bildsekvensmappen för fält A noll ett. Exportbilderna innehåller bara det ursprungliga cellintensitetsplanet, så välj kanal noll här. Håll bild- och etikettsekvenser under separata överordnade mappar; sätt Frames previewed till åtta och Fields till ett.",
-    "Välj motsvarande etikettsekvensmapp med Masks. Detta är beräknade masker, inte facit. Låt Keep only full-length tracks vara av och klicka inte på Propagate settings. Modellinställningarna skapar inga nya masker när en befintlig masksekvens läses.",
-    "Kör förhandsvisningen med överlappningströskeln noll komma ett. Den visar sexton spår på åtta bilder och inga korta spår i exemplet. Fragmentering och hopp är indikatorer beräknade utan facit; små värden bevisar inte i sig att identiteterna är biologiskt korrekta.",
-    "Höj överlappningströskeln till ett. Kravet på exakt överlappning delar detta rörliga exempel i hundratjugoåtta spår på en bild vardera. Bilder och masker är oförändrade; bara länkarna ändras. Det avsiktligt för höga värdet visar fragmentering, inte en rekommenderad analysinställning.",
-    "Återställ noll komma ett, vänta tills den aktuella förhandsvisningen är klar och klicka Re-link. Inmatning kan starta en körning med ett mellanvärde, så bekräfta den slutliga körningen uttryckligen. De sexton fullständiga spåren återkommer. Klicka inte på Propagate settings: Överlappningströskeln överförs inte till satsformuläret.",
-    "Flytta reglaget till bild åtta för att granska länkade objekt. Uppspelningshastigheten ändrar bara visningen, inte bildtagningstiden. Fortsätt i Measure och Motility med validerat intervall och skala. API och spaCR AI kan förklara inställningar men ersätter inte kontroll av bilder, spår och varningar."
+    "Från Home öppnar du Mask och klickar på Timelapse-ikonen uppe till höger för att slå på spårningen. Använd Timelapse för att länka objekt mellan på varandra följande bilder. Först provar vi det länkade exemplet i Track preview och går sedan igenom inställningarna för att bearbeta din egen bildsekvens.",
+    "Ladda ned och packa upp exempelarkivet nedan och klicka sedan på Track preview till höger om rubriken Actions. Arkivet innehåller en bildsekvens och en matchande masksekvens med åtta bildrutor. Håll ihop båda mapparna så att du kan välja motsvarande bilder och etiketter.",
+    "Välj image_sequences och sedan field_A01 som bildmapp. Välj kanal 0: varje exempelbild innehåller en enda kanal med cellintensitet. Ställ Frames previewed på 8 och Fields på 1.",
+    "Klicka på Masks och välj label_sequences och sedan field_A01. Varje etikett identifierar ett objekt i motsvarande bild. Låt Keep only full-length tracks vara avstängt i början så att du kan granska spår som börjar eller slutar inom sekvensen.",
+    "Ställ överlappströskeln på 0,1 och klicka på Run preview. Tröskeln styr hur mycket intilliggande masker måste överlappa för att länkas. Granska de färgade objektidentiteterna och sammanfattningen av spårlängder. Exemplet ger sexton spår som sträcker sig över alla åtta bildrutor.",
+    "Justera överlappströskeln om objekt delas upp i korta spår eller länkas till fel grannar. En högre tröskel kräver mer överlapp. När du har ändrat den väntar du tills förhandsvisningen är klar och klickar på Re-link för att granska det slutliga värdet. Bläddra igenom flera bildrutor innan du godtar resultatet.",
+    "Använd bildrutereglaget för att följa samma objekt genom sekvensen. Play ändrar hur snabbt du ser bildrutorna. Notera det faktiska tidsintervallet separat för senare hastighetsmätningar.",
+    "För en fullständig körning på dina egna bilder anger du Source och intensitetskanalerna i Mask. Den här inspelningen importerar inställningarna för en liten syntetisk sekvens med åtta bildrutor. Håll varje synfälts tidpunkter i ordning. Bildrutegränser använder en start och ett uteslutet slut: 0 till 8 väljer de första åtta bildrutorna.",
+    "Välj objektet som ska spåras och spårningsläget. Överlappsläget iou länkar objekt med hjälp av deras masker i intilliggande bildrutor. Granska först en kort sekvens och välj ett läge som passar hur långt dina objekt rör sig mellan bildrutorna.",
+    "Slå på Keep original images för att behålla indatabilderna när pipelinen städar upp. Ange segmenteringsmodell och kanaler för dina data och kontrollera förhandsvisningen innan du bearbetar hela sekvensen.",
+    "Slå på Plot för att granska de genererade figurerna och klicka sedan på Run. Följ förloppet i konsolen och vänta tills körningen är klar. Börja med en kort sekvens så att du kan kontrollera maskerna och spåridentiteterna innan du bearbetar ett större experiment.",
+    "Granska intensitets- och etikettplanen i utdatafigurerna. Körningen sparar de spårade matriserna i merged och spårtabellerna i tracks i projektmappen. Fortsätt till Measure och sedan Motility för att beräkna objektegenskaper och rörelse från spåren."
   ]
 }

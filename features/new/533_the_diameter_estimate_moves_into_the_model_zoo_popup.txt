@@ -1,0 +1,25 @@
+THE DIAMETER ESTIMATE MOVES INTO THE MODEL ZOO POPUP
+
+Status: OPEN, filed 2026-09-26. Not started.
+Owner: unassigned. Related: 516 (the diameter estimate itself), 503/504/525
+(the model zoo picker in Mask generation).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "in mask generation the, diamiter calculation should be a button in the
+    model zoo button popup window not on the main screen. pressing the button
+    should bring another pupup with all the information in the current
+    container."
+
+WHAT TO BUILD
+  * Remove the diameter-estimate panel (DiameterPanel) from Mask generation's
+    main screen.
+  * Add a "Measure diameters…" button inside the Model zoo popup opened from
+    Mask generation.
+  * Pressing it opens its own popup (spaCR dialog dress) holding everything
+    the current panel shows: the per-object estimates, notes and the actions
+    that apply them to the settings.
+
+DONE WHEN
+The main screen no longer shows the diameter panel; the Model zoo popup has
+the button; the new popup shows the same information and still applies the
+estimates to the settings (offscreen tests for each).

@@ -1,34 +1,36 @@
 {
   "lesson": "26_invasion",
-  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
   "review": {
-    "kind": "Parent editorial translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "pt-BR",
-  "title": "Ensaio de invasão",
-  "description": "Configure o ensaio atual de duas cores, separe os poços de referência da marcação das condições experimentais e examine limiares, gráficos e arquivos reais. O banco demonstrativo é explicitamente sintético.",
+  "title": "Invasion Assay: pontuar a coloração externa e total",
+  "description": "Mapeie dois canais de coloração, escolha a referência de coloração, execute a análise e inspecione as classificações de invasão e a sensibilidade ao limiar.",
   "objectives": [
-    "Associar as marcações externa e total às colunas corretas.",
-    "Usar o controle renomeado da referência de marcação e verificar a sensibilidade ao limiar.",
-    "Interpretar figuras e denominadores por poço sem atribuir efeitos biológicos a padrões sintéticos."
+    "Escolher o banco de dados de medições e mapear as colorações externa e total.",
+    "Definir os poços de referência e os controles do limiar e executar a análise.",
+    "Inspecionar as distribuições, os denominadores por poço e as tabelas de resultados salvas."
   ],
-  "prerequisite": "O banco sintético existente é preservado; a interface atual usa uma nova cópia idêntica. As 1.800 medidas inventadas incluem 360 objetos de referência e 1.440 objetos do ensaio em doze poços artificiais. Não há imagens adquiridas com duas marcações, e a placa geral para download não estabelece o desenho de marcação antes e depois da permeabilização. Vehicle e inhibitor são rótulos didáticos, não tratamentos testados. A média é usada porque essas colunas estão disponíveis, não por ser a melhor estatística geral para uma marcação superficial. Cálculos independentes verificam classificações, limiares, contagens, resumos e geometria, sem validar imagens, eficácia ou inferência estatística. Os bancos original e copiado permanecem inalterados. O controle atual é stain_baseline_wells, antes control_wells; o limite de bimodalidade de seis casas decimais é registrado exatamente.",
+  "prerequisite": "Extraia o exemplo sintético de Invasion Assay vinculado e use a referência de configurações dele. O banco de dados contém 1.800 medições sintéticas de parasitas; os nomes das condições e os resultados são ilustrativos. No seu próprio ensaio, use um desenho de coloração em duas cores validado, com coloração externa antes da permeabilização e coloração total depois, e revise imagens representativas.",
   "scenes": [
-    "Abra Invasion Assay na seção Assays de Home. O módulo classifica parasitas já medidos; ele não segmenta imagens aqui. Nosso banco é explicitamente sintético. As figuras ensinam configurações e cálculos, não uma invasão observada nem um efeito de tratamento.",
-    "Escolha a pasta do experimento que contém measurements, barra, measurements ponto db. Esta nova cópia privada tem mil e oitocentos parasitas inventados: trezentos e sessenta objetos de referência da marcação e mil quatrocentos e quarenta nos poços do ensaio. A placa comum para download não substitui um experimento validado de marcação em duas cores.",
-    "Outside channel é a marcação aplicada antes da permeabilização, aqui o canal um. Total channel é a marcação posterior, aqui o canal zero. Um parasita positivo na marcação externa é classificado como attached; com intensidade igual ou abaixo do limiar, como invaded. Uma marcação externa fraca pode gerar classificações invaded falsas.",
-    "Selecionamos mean porque o banco didático contém colunas de intensidade média. Isso não é uma recomendação geral para marcação superficial. Em dados reais, examine quais medidas de borda ou percentil estão disponíveis e são adequadas. Um anel de fundo local também é diferente do próprio canal de marcação externa.",
-    "Defina Stain baseline wells como a coluna um. Esse nome substitui o antigo control wells e identifica a referência artificial de marcação negativa, não a condição veículo. Esses objetos definem o limiar e são excluídos dos denominadores do ensaio. Vehicle e inhibitor continuam nas colunas dois e três.",
-    "Control quantile é zero vírgula noventa e nove. Os trezentos e sessenta objetos de referência resultam em um limiar de aproximadamente vinte e dois vírgula oito unidades de intensidade. Deixamos Outside threshold vazio para usar o limiar da referência. O método automático não fornece o limiar aplicado nesta execução.",
-    "Threshold sensitivity é zero vírgula vinte e cinco: o limiar é avaliado vinte e cinco por cento abaixo e acima. Aumentá-lo pode classificar mais parasitas como invaded. Examine o intervalo de eficiência e os indicadores de qualidade antes de interpretar diferenças; uma execução bem-sucedida não prova que a marcação é confiável.",
-    "Extracellular class decide como tratar objetos sem vínculo com uma célula hospedeira. Aqui usamos classify, deixando a decisão para a marcação; todas as linhas didáticas já têm vínculo com uma hospedeira. Em dados reais, escolha conscientemente entre attached, exclude e classify após verificar a segmentação da hospedeira.",
-    "Run produz três figuras reais. A página de limiares mostra uma distribuição por poço, não por parasita. Aqui a linha aplicada vem da referência e todos os doze poços estão visíveis. Verifique se o limiar separa populações plausíveis; essas distribuições inventadas não substituem a inspeção de imagens representativas da marcação.",
-    "Se uma legenda sair da área da figura, abra Figure settings e selecione best em Legend position na aba dos eixos. Confirme para manter os rótulos visíveis. É apenas um ajuste de apresentação: verificamos que os valores desenhados e as tabelas salvas permanecem inalterados.",
-    "As barras por poço mostram as frações attached e invaded, com cento e vinte parasitas classificados acima de cada barra. Os poços de referência não aparecem. Mantenha o denominador junto à proporção: uma fração alta baseada em poucos objetos não equivale à mesma fração em um poço bem amostrado.",
-    "As duas condições inventadas contêm setecentos e vinte parasitas classificados cada. Suas frações invaded são aproximadamente trinta e nove vírgula sete e sessenta e oito vírgula nove por cento. O resumo também informa a média entre poços, que geralmente não é igual a agrupar todos os objetos. Nem esses rótulos nem um valor p demonstram um efeito biológico aqui.",
-    "Revise a console e a pasta de resultados: classificações, limiares por campo, eficiências por poço, resumos e comparações. Para inferência, use poços experimentais independentes, não parasitas individuais como réplicas intercambiáveis. spaCR AI é opcional e não foi usado nesta análise local. Valide a marcação e as imagens antes de tirar conclusões biológicas."
+    "Na tela Home, abra Toxoplasma e escolha Invasion Assay. Comece com um banco de dados de medições que contenha as intensidades dos parasitas para as colorações externa e total. Use a amostra sintética vinculada para praticar o mapeamento de canais, a escolha do limiar e a inspeção dos resultados.",
+    "Extraia a amostra e defina Source como a pasta invasion dela, que contém measurements/measurements.db. Informe a referência de configurações que a acompanha e substitua o marcador de Source. A amostra contém poços de referência e duas condições do ensaio.",
+    "Defina Outside channel como um e Total channel como zero. A coloração externa é aplicada antes da permeabilização; a total, depois. Parasitas positivos para a coloração externa são classificados como aderidos, e os que ficam no limiar externo ou abaixo dele, como invadidos. Confira a ordem dos canais de aquisição ao usar suas próprias medições.",
+    "Selecione mean em Intensity statistic para corresponder às colunas do banco de dados de exemplo. No seu próprio ensaio, escolha uma estatística disponível adequada à coloração e inspecione objetos representativos. Mantenha Minimum total intensity em cem para esta amostra.",
+    "Defina Stain baseline wells como a coluna um, usando c1. Essas medições de coloração negativa estabelecem o corte e são excluídas dos denominadores do ensaio. Em Pathogen plate metadata, mapeie vehicle para a coluna dois e inhibitor para a coluna três.",
+    "Defina Control quantile como zero vírgula noventa e nove e deixe o Outside threshold fixo sem valor. Assim, as medições de referência determinam o corte, cerca de vinte e dois vírgula oito neste exemplo. Confira o limiar aplicado na saída antes de interpretar as classificações.",
+    "Defina Threshold sensitivity como zero vírgula vinte e cinco. Isso também avalia cortes vinte e cinco por cento abaixo e acima do limiar escolhido. Compare a faixa de eficiência de invasão resultante para ver o quanto o resultado depende da escolha do limiar.",
+    "Defina Extracellular class como classify para a amostra. Para objetos sem vínculo com uma célula hospedeira, classify usa a coloração, attached os atribui aos aderidos e exclude os remove da população pontuada. Escolha essa configuração considerando a qualidade das suas atribuições a células hospedeiras.",
+    "Mantenha Save ativado e clique em Run. Quando o processamento terminar, abra a figura do limiar. Ela mostra as distribuições por poço e o corte aplicado. Em um experimento, compare essas distribuições com imagens coradas representativas e investigue colorações externas fracas.",
+    "Se uma legenda ultrapassar a figura, abra Figure settings. Na aba axes, defina Legend position como best e confirme. Verifique se os rótulos continuam visíveis tanto na figura na tela quanto na exportada.",
+    "Abra a figura por poço. Cada barra mostra as frações de aderidos e invadidos, com o número de parasitas pontuados acima. Os poços de referência são excluídos. Leia as contagens junto com as frações ao comparar poços.",
+    "Abra o resumo por condição. Compare a fração de invasão agrupada com a média entre poços, já que elas usam ponderações diferentes. Verifique a variação nos resultados por poço antes de comparar condições.",
+    "Tudo é salvo em results/analyze_invasion dentro de Source. parasite_calls.csv traz a classificação de cada parasita, field_thresholds.csv os cortes por trás delas, well_invasion.csv as frações por poço e condition_summary.csv a comparação agrupada. Guarde as figuras e as configurações junto com eles e compare as condições entre réplicas independentes."
   ]
 }

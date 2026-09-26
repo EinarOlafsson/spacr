@@ -17,10 +17,13 @@ Status:    done 2026-09-19, landed on nightly (4e533737f, efa9dabb6): an AI
            longer sits empty and no longer repeats, "[AI error]" carries the
            provider's sentence rather than "ProviderFailed:", and the two
            stale browser-flow docstrings turned out to have been rewritten
-           by the autofile change already. Open: the translations the notes
-           list, and the two measured limits under LEFT there (the tail of
-           an unquoted spaced path, and filing not waiting for the AI's
-           answer).
+           by the autofile change already. 2026-09-25 (last note): the two
+           measured limits are closed -- filing waits for spaCR AI's answer
+           (at most 60 s), and an unquoted path's last component takes the
+           name-shaped words after it. Open: the translations the notes list
+           (plus one new notice), and whether the installer should default
+           to 'always' too, which is the maintainer's call and is left as
+           it is.
 Requested: GitHub #117, second half, opened 2026-09-17 by jak18015 (Apple
            M4, macOS 26.7, spaCR 1.5.0.8): "when running test mode, the mask
            generation failed and did not automatically submit a github issue
@@ -732,3 +735,63 @@ is different.
 LEFT, unchanged: everything under LEFT in the two notes above except the
 four nits, namely the translations, the tail of the last component of an
 unquoted spaced path, and filing not waiting for spaCR AI's answer.
+
+2026-09-25 -- FILING WAITS FOR THE AI; AN UNQUOTED PATH KEEPS NO TAIL
+
+The two measured limits the notes above left are fixed. The installer's
+default is not touched: it is the maintainer's call.
+
+1. FILING WAITS FOR SPACR AI'S ANSWER (spacr/qt/screens/app_screen.py).
+   `_file_the_report_automatically` still does its two checks first (filed
+   before; in flight). Then, when the console is streaming an answer to THIS
+   traceback and has none kept yet (`_the_ai_is_still_explaining`: a live
+   `_ai_worker`, `_ai_error_traceback` equal to it, `ai_explanation_of`
+   empty), it does not file. `_wait_for_the_ai_then_file` marks the
+   fingerprint in flight, says "[issue] Waiting up to 60 s for spaCR AI's
+   answer, so the report carries it…", and files on whichever comes first:
+   the console's `ai_stream_finished`, or AI_ANSWER_WAIT_SECONDS (60). It
+   files once per wait, and disconnects. The posting itself moved, unchanged,
+   into `_post_the_report`. With no AI answering this error it files at once,
+   as before.
+
+   WHY 60 S. The wait holds the fingerprint in `_REPORTS_BEING_FILED`, whose
+   entries expire after REPORT_IN_FLIGHT_SECONDS (120). 60 s of waiting plus
+   the posting's own worst case (`gh auth token` 8 s, API calls 20 s each)
+   stays inside it, so a second failure with the same crash during the wait
+   is told "being reported already" rather than filing twice. A provider
+   that is still going after a minute is not one worth holding a crash
+   report for.
+
+   console_panel.py is not edited (it is another lane's this week): the
+   check reads the console's existing attributes.
+
+2. AN UNQUOTED PATH'S LAST COMPONENT (spacr/qt/ai/issue_report.py).
+   `_BARE_PATH_RE` now lets the last component, which no separator follows,
+   run on over words shaped like part of a name (`_PATH_TAIL_WORD`): one
+   starting with a digit (`plate 1`, `Patient 042`), one starting with a
+   capital (`Lab Drive`, `plate A`), or one ending in a file extension
+   (`plate a.tif`). Measured:
+
+     \\LAB-NAS\screens\plate 1          -> <PATH>            (was '<PATH> 1')
+     mask /Volumes/Lab Drive failed      -> mask <PATH> failed
+     wrote /mnt/lab share/Patient 042 and stopped -> wrote <PATH> and stopped
+     opening /mnt/data/x.tif failed      -> opening <PATH> failed (unchanged)
+
+   Prose after a path on the same line is lower case, which is what keeps
+   the readability the earlier note chose. WHAT IS STILL LEFT: a last
+   component whose trailing word is lower case and has no extension
+   (`/mnt/data/old plates`) still publishes that word; a capitalised word
+   of prose straight after a path (`/mnt/x Failed`) is now redacted with it.
+   The first is the smaller leak and the second a cost in readability, and
+   the terms' "best efforts" still applies.
+
+Guards (tests/qt/test_the_report_files_itself.py): the report filed after
+the answer lands carries it and nothing was posted before; an AI that never
+answers does not hold the report past the wait, and one wait files once; a
+second failure during the wait is not filed twice; no wait when the AI is not
+answering this error; four spaced-path cases. 79 passed in the two report
+files; 395 passed across the thirteen other issue-report/app-screen/annotate
+files.
+
+Owed: the new "[issue] Waiting up to {seconds} s…" notice in the nine
+catalogs.

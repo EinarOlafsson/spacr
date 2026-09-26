@@ -18,6 +18,13 @@ Status:    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09; THE THEME
            per Regression open from 139,963 to 92,829. Areas 1, 2 and 5 stand
            where 2026-09-09 to 2026-09-11 left them; "on all platforms" is
            still unanswered -- every number in this file is Linux, offscreen.
+           2026-09-25, AREA 3 AGAIN: a module open breathes between its
+           steps, Make Masks is styled once instead of three times and
+           Preferences once instead of twice; over-ceiling stall across the
+           sweep 38.7-48.4 s -> 14.0-16.8 s at load 37-53 (284's note has
+           the table). Opens paint frames while they build, so several take
+           longer at that load; still OPEN on the ceiling. xvfb numbers now
+           exist; macOS/Windows and a real compositor still do not.
 Requested: 2026-09-07, verbatim -- "do an in depth performance sweep to check
            and fix any performance defects in starting spacr, running the
            themes, or starting the moduals and handelling the widgets and
@@ -2138,3 +2145,24 @@ QtAwesome import is separately measured and remains. Full Home->Classify
 results are noisy: final six-pair median 1606.60 -> 1578.44 ms, with only
 three paired improvements. No reliable whole-navigation gain is claimed.
 The 500 ms ceiling and other-platform validation remain OPEN.
+
+2026-09-25 — MODULE OPENS BREATHE; MAKE MASKS AND PREFERENCES STYLED ONCE
+See 284's dated note and features/data/284_open_breaths_2026-09-25.json for
+the method (a GUI-thread stack sampler bounded by the worst heartbeat gap)
+and the per-module table. Area 3 (starting the modules): the open's steps
+are separated by event-loop breaths taken only after 150 ms of work; icons
+are re-inked on a worker after launch; the first-visit walkthrough waits for
+the switch; the language is read once per open. Area 5 (widgets/settings):
+Make Masks' root sheet waits for the show (was: sheeted empty, polished per
+card, repolished on reparent, sheeted again), and the glass card rule joins
+a dialog's window sheet (was: a second full Preferences repolish).
+Offscreen, four alternating pairs at load 37.5-52.8: intervals over 500 ms
+35-42 -> 19-23 of 51; over-500 total 38.7-48.4 s -> 14.0-16.8 s; Make Masks
+4,254 -> 916 ms, Regression 2,454 -> 735, Preferences 2,869 -> 1,972. Under
+xvfb-run (real xcb windows) the same shape. THE TRADE, for the "speed" half
+of this item: a breath is a painted frame, so several opens are 0.1-0.7 s
+longer at that load; that is the frame stream 284 requires, kept small by
+the 150 ms threshold. The remaining floor is each screen's first
+setStyleSheet (one Qt call, 360-590 ms CPU on the heavy screens at load
+70-80): a widget-count or sheet-size question for this item's theme area.
+380 REMAINS OPEN; no other-platform or quiet-machine evidence was possible.

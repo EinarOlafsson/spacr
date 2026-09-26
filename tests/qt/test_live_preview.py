@@ -434,7 +434,9 @@ class TestSettingsFlowIntoRequest:
         panel.load_image(sample_tif)
         panel.run_preview()
         qtbot.waitUntil(lambda: "post" in captured, timeout=3000)
-        assert captured["post"].get("cell_min_area") == 50
+        assert "cell_min_area" not in captured["post"]
+        assert live_preview._bound_from_filters(
+            captured["post"], "cell", "min_area") == 50
 
 
 # ---------------------------------------------------------------------------

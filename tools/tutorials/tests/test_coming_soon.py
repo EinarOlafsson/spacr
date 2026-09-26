@@ -142,3 +142,24 @@ def test_ops_catalog_metadata_alone_is_never_a_recording(catalog):
                               'host_app_key': 'mask', 'scenes': [{'narration': 'A promise.'}]})
     with pytest.raises(ValueError, match='requires verified recording and final media'):
         release_catalog(catalog, 'en')
+
+
+def test_placeholder_probe_changes_one_ready_lesson_in_memory_only():
+    from coming_soon import placeholder_probe
+    lessons = [{'id': '70_ready', 'scenes': [{'narration': 'A'}], 'silent': 'x', 'poster': 'y', 'web': 'z',
+                'objectives': ['o'], 'prerequisite': 'p'},
+               {'id': '71_ready', 'scenes': [{'narration': 'B'}]}]
+    probe = placeholder_probe(lessons, '70_ready', 'de')
+    assert probe[0]['status'] == 'coming_soon' and probe[0]['scenes'] == []
+    assert (probe[0]['availability_title'], probe[0]['description']) == COPY['de']
+    assert not {'silent', 'poster', 'web'} & probe[0].keys()
+    assert probe[1] == lessons[1] and 'status' not in lessons[0]
+    for identity in ('99_missing',):
+        with pytest.raises(ValueError):
+            placeholder_probe(lessons, identity)
+    with pytest.raises(ValueError):
+        placeholder_probe(probe, '70_ready')
+
+
+def test_investigate_hit_is_no_longer_held():
+    assert '71_investigate_hit' not in HELD and '71_investigate_hit' not in PLACEHOLDERS

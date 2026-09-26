@@ -1,38 +1,40 @@
 {
   "lesson": "66_outliers",
-  "english_sha256": "383105db52f8c3c60eb7e6f36308b747810c66e32b082d2c43edf96bfc9ed644",
+  "english_sha256": "11fc8373bff222df7688c809af9a0f13ee7ffe05927b59ef7fbdf36f1c883ca7",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently verified real GUI; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "pt-BR",
-  "title": "Outliers: examinar sinalizações reais sem excluir observações",
-  "description": "Abra Outliers dentro de QC, compare regras robustas em medidas celulares reais, diferencie poços não avaliados de poços sem problemas, veja uma recusa real da transformação logarítmica e exporte todas as linhas com seus indicadores.",
+  "title": "Outliers: sinalizar medições para inspeção",
+  "description": "Escolha características e uma regra robusta, inspecione os resultados por objeto e por poço e exporte as sinalizações com a tabela de entrada completa.",
   "objectives": [
-    "Encontrar o submódulo de QC e escolher deliberadamente as variáveis antes de Scan.",
-    "Comparar MAD, IQR e transformações logarítmicas explícitas sem tratar sinalizações como erros confirmados.",
-    "Distinguir contagens de objetos, linhas exibidas e comparações de poços não avaliadas.",
-    "Exportar as medidas originais com indicadores e recuperar uma regra válida após uma transformação inválida."
+    "Carregar medições e selecionar as características a analisar.",
+    "Comparar as regras MAD, IQR e com transformação logarítmica.",
+    "Ler as limitações da pontuação e exportar linhas, sinalizações e um relatório."
   ],
-  "prerequisite": "Use o exemplo disponível para download no Annotate em uma cópia privada idêntica byte a byte. Suas 2.341 células ocupam quatro poços registrados; não são experimentos independentes nem objetos com defeitos conhecidos. As medidas originais nunca são editadas ou excluídas. A aula verifica independentemente MAD e IQR de uma variável finita não degenerada, as posições sinalizadas, medianas e contagens por poço e a recusa explícita de comparar menos de cinco poços. Não valida a análise automática de todas as variáveis, alternativas para escala zero, inferência MCD multivariada ou qualidade biológica. Analisa-se uma tabela existente, sem nova segmentação, cálculo GPU ou treinamento. Esta tela não tem prévia de imagens, botão Plot, download próprio ou console de IA; Objects, Wells e Report são suas saídas reais.",
+  "prerequisite": "Use uma cópia de trabalho de measurements.db do exemplo do Annotate. As sinalizações identificam observações para inspeção; escolha os limiares de acordo com sua análise. O exemplo tem quatro poços, menos que os cinco necessários para a comparação entre poços. Distinga os poços sem pontuação dos poços pontuados sem sinalizações.",
   "scenes": [
-    "Abra QC na Home e depois o botão Outliers. O painel de QC lê verificações salvas, enquanto esta ferramenta aninhada calcula indicadores em uma tabela de medidas. Usamos o exemplo real disponível no Annotate em uma cópia privada do banco. Siga aquela aula para obtê-lo e preserve a fonte experimental.",
-    "Escolha Load table e a tabela cell do banco. O carregamento analisa automaticamente todas as variáveis contínuas selecionadas: aqui são duzentas e cinquenta e cinco, sobre duas mil trezentas e quarenta e uma células. Esse padrão amplo sinaliza dois mil trezentos e trinta e oito objetos. Não prova que quase todas as células estejam ruins. Carregar a tabela larga pode demorar.",
-    "Com a busca de variáveis vazia, escolha None para desmarcar tudo. Busque cell_area, marque apenas essa variável exata e pressione Scan. A busca restringe nomes de variáveis, não linhas celulares. Mudar a seleção não refaz automaticamente a análise: o resultado antigo pode continuar visível até executar a nova regra.",
-    "Para MAD, mantenha a transformação em none e k em três vírgula cinco. A regra divide a distância absoluta à mediana por aproximadamente um vírgula quatro oito dois seis vezes o desvio absoluto mediano. Sinaliza vinte e seis células. São candidatas à inspeção, não erros de segmentação confirmados; nenhuma linha foi removida.",
-    "Abra Wells. Os quatro poços têm mais de quinhentos objetos, mas nenhum é avaliado: a comparação exige pelo menos cinco poços elegíveis. Leia well_scored e o motivo específico, não apenas Wells zero. Flagged share resume sinalizações de objetos; não é um escore do poço nem prova de que esteja sem problemas.",
-    "Report fornece a regra, o centro medido, a escala e as ressalvas. Uma ressalva desta versão diz incorretamente que os quatro poços tinham menos de vinte objetos. Suas contagens reais vão de quinhentos e um a setecentos; o motivo é haver poucos poços. Use a razão específica na tabela e não repita a explicação errada das contagens.",
-    "Exigir uma distância maior sinaliza menos objetos. Baixar k para dois produziu cento e quarenta e duas sinalizações; em zero vírgula cinco, produz mil quatrocentas e setenta e nove. Esse último ajuste é propositalmente amplo para demonstração, não um corte de qualidade recomendado. A tabela exibe só quinhentas linhas, então isso não é o total de objetos sinalizados.",
-    "Escolha Export e um novo nome. O CSV objects mantém as duas mil trezentas e quarenta e uma linhas e acrescenta indicadores; flagged contém as mil quatrocentas e setenta e nove linhas sinalizadas. Wells tem quatro resumos, e report é um arquivo de texto. Cada medida e indicador exportado foi verificado. Exportar não exclui dados nem se limita às quinhentas linhas visíveis.",
-    "Restaure a regra original e escolha IQR. O limiar agora significa c vezes o intervalo interquartil, não desvios-padrão robustos. Com c em um vírgula cinco, a área celular bruta gera cinquenta e cinco sinalizações. Verificamos independentemente os dois limites e cada posição sinalizada. Uma cauda de distribuição assimétrica pode ser marcada mesmo quando as medidas são válidas.",
-    "Há outro erro de texto. Esse relatório IQR chama vinte e dois mil seiscentos e sessenta e três de mediana, mas esse número é o ponto médio entre o primeiro e o terceiro quartil. A mediana real é vinte e um mil novecentos e vinte e cinco. Os limites verificados estão corretos; não cite esse centro exibido como mediana.",
-    "Escolha log10 explicitamente e analise de novo. Nessas áreas positivas, IQR gera setenta e nove sinalizações, enquanto voltar a MAD com três vírgula cinco gera trinta e seis. O logaritmo muda as distâncias e a pergunta; não garante menos sinalizações nem correção biológica. Centros e escalas do relatório agora estão em unidades log10.",
-    "Para uma recusa real, volte a não transformar e selecione apenas cell_channel_0_min_intensity. Scan funciona e sinaliza sessenta e oito objetos. Um valor medido é realmente zero. Esse exemplo positivo importa: tabela e variável funcionam antes de pedirmos uma transformação cujo domínio exclui esse valor.",
-    "Agora selecione log10 e pressione Scan. O erro real identifica o único valor zero ou negativo e sua variável. Não se inventa pseudocontagem nem se exclui objeto algum; Export fica desativado. As linhas e a contagem antigas podem continuar visíveis após a falha, mas não são um novo resultado válido. Leia o erro e restaure uma regra válida.",
-    "Volte a cell_area bruto e MAD três vírgula cinco; analise para recuperar as vinte e seis sinalizações. Subir Min objects per well para setecentos muda a elegibilidade: só um poço atinge essa contagem, e os outros três mantêm motivos explícitos de contagem baixa. Reduzir o mínimo não cria o quinto poço ausente. Não avaliado nunca significa aprovado.",
-    "Restaure o mínimo para vinte, desligue Score wells too e analise. As sinalizações de objetos continuam vinte e seis e não se solicita comparação de poços. Ligue novamente e analise para restaurar os quatro resumos não avaliados. Esse ajuste muda o nível da análise; não filtra nem exclui células ou poços do banco.",
-    "Exporte a regra restaurada com outro nome. Os arquivos finais contêm duas mil trezentas e quarenta e uma linhas de objetos, vinte e seis linhas sinalizadas, quatro resumos de poços e o relatório. Os bancos original e privado permanecem intactos. Guarde regra e relatório junto aos indicadores para não confundir outro limiar com a mesma análise.",
-    "O menu também oferece Mahalanobis multivariado robusto, que não executamos nesta aula. Seu alfa depende de pressupostos sobre a distribuição e não garante uma taxa de erro. O cálculo em Python usa detect_outliers com OutlierSpec em spacr.qt.widgets.outlier_model. Para distribuições ou imagens, continue com Feature Explorer ou Annotate; não houve prévia de imagens nem solicitação à IA aqui."
+    "Na tela Home, abra QC e depois Outliers. Use o banco de dados do exemplo do Annotate para sinalizar medições incomuns para inspeção.",
+    "Clique em Load table e escolha a tabela cell. Ao carregar, as características contínuas selecionadas são analisadas automaticamente. Revise as características selecionadas antes de interpretar esse primeiro resultado amplo.",
+    "Com a busca de características vazia, clique em None para limpar todas as seleções. Pesquise cell_area, marque essa característica e clique em Scan. Mudar a seleção exige uma nova análise.",
+    "Escolha MAD, deixe Transform em none e defina k como três vírgula cinco. Clique em Scan. A regra mede a distância até a mediana com uma escala robusta e, neste exemplo, sinaliza vinte e seis objetos.",
+    "Abra Wells e leia well_scored e a coluna reason. Esses quatro poços não são pontuados porque a comparação precisa de pelo menos cinco poços elegíveis. Flagged share resume separadamente as sinalizações dos objetos.",
+    "Abra Report para ler a regra, o centro e a escala. Nesta versão, a explicação geral sobre o número de poços está incorreta para este exemplo; use o motivo específico da tabela Wells: poucos poços elegíveis.",
+    "Diminua k para sinalizar desvios menores em relação ao centro. Com zero vírgula cinco, o exemplo tem mil quatrocentas e setenta e nove sinalizações. A tabela de objetos mostra só quinhentas linhas, então use a contagem de sinalizações, e não a de linhas visíveis.",
+    "Escolha Export e um nome de arquivo novo. O CSV objects mantém todas as linhas de entrada com as sinalizações; flagged contém só os objetos sinalizados. Wells e report salvam os resumos por poço e o texto da análise.",
+    "Escolha IQR, defina c como um vírgula cinco e clique em Scan. Isso aplica limites baseados no intervalo interquartil e sinaliza cinquenta e cinco objetos para a área celular bruta.",
+    "Leia os limites do relatório de IQR. O centro exibido é o ponto médio entre o primeiro e o terceiro quartis, embora esta versão o rotule como median. Use os dados de origem quando precisar da mediana real.",
+    "Escolha log dez e analise de novo. Os centros, as escalas e a regra de distância agora se aplicam aos valores com transformação logarítmica. Experimente MAD com três vírgula cinco para comparar o resultado com a regra IQR.",
+    "Volte Transform para none, limpe a seleção de características e escolha apenas cell_channel_0_min_intensity. Analise os valores brutos antes de tentar uma transformação logarítmica.",
+    "Escolha log dez e clique em Scan. Essa característica contém um zero, então a transformação é recusada e a exportação fica desativada. Leia o erro: as linhas antigas que ainda aparecem pertencem ao resultado anterior.",
+    "Volte para cell_area bruta, MAD e k de três vírgula cinco e clique em Scan. Aumentar Min objects per well para setecentos torna três poços inelegíveis. O poço restante ainda não permite a comparação de cinco poços.",
+    "Volte Min objects per well para vinte. Desative Score wells too e clique em Scan para obter só as sinalizações dos objetos. Ative de novo e analise outra vez para incluir os resumos por poço.",
+    "Exporte a regra restaurada com um nome de arquivo separado. Guarde o relatório com as vinte e seis linhas sinalizadas, a tabela completa de objetos e os quatro resumos por poço, para poder identificar as configurações usadas.",
+    "No Python, use detect_outliers e OutlierSpec de spacr.qt.widgets.outlier_model. Continue no Feature Explorer para examinar as distribuições, ou no Annotate para inspecionar as imagens correspondentes, antes de decidir o que fazer com os objetos sinalizados."
   ]
 }

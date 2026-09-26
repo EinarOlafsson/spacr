@@ -1,24 +1,36 @@
 {
-  "lesson": "40_run_history", "language": "fr",
-  "english_sha256": "95f7f8f67ce2fea87e24e2b3d1a69d607a49eb12df62bf662ca2fd0eb0b9e4d4",
-  "review": {"kind": "Parent editorial correction against frozen English and actual GUI; keep visible controls and API identifiers", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Run History : examiner les journaux réels et restaurer les paramètres disponibles",
-  "description": "Retrouvez les tâches enregistrées dans Help, examinez paramètres, inventaires, avertissements et erreurs, puis rouvrez une configuration réelle de Recruitment sans exécution ni suppression.",
-  "objectives": ["Trouver Run history dans Help et combiner les filtres de module, d'état et de texte.", "Distinguer inventaires et réussite de l'exécution de la validation scientifique.", "Lire paramètres, environnement, avertissements et trace d'une erreur réelle.", "Copier le chemin du journal et restaurer les commandes de Recruitment sans analyse."],
-  "prerequisite": "Utilisez les journaux de vos propres exemples terminés. L'enregistrement lit une copie isolée de ~/.spacr/runs contenant de vraies tâches, pas des résultats inventés. Batch Runner et Recruitment expliquent les données de test acquises ; Regression fournit les avertissements et un ancien essai de Model Zoo fournit l'échec. Run History n'a ni téléchargement de données, ni aperçu en direct, ni graphiques, ni panneau AI dédiés. Nous ne lançons ni analyse, ni suppression, ni gestionnaire de fichiers externe. Les 496 fichiers restent identiques octet par octet. Les 27 paramètres exposés de Recruitment sont restaurés ; hash_inputs n'est pas représenté dans ce formulaire. Les empreintes décrivent l'exécution passée et ne revérifient pas les fichiers actuels.",
+  "lesson": "40_run_history",
+  "english_sha256": "b272778adcc85d26352dd32509c864bb7e2b5e22ab558e2ee1603b35453eb41c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Run History : examiner les tâches passées et restaurer des paramètres",
+  "description": "Trouvez des exécutions enregistrées, examinez leurs paramètres et journaux, et chargez une configuration précédente dans son module.",
+  "objectives": [
+    "Trouver des exécutions avec des filtres et la recherche.",
+    "Examiner les paramètres enregistrés, les fichiers et les problèmes.",
+    "Restaurer des paramètres pour une nouvelle exécution."
+  ],
+  "prerequisite": "Terminez une tâche spaCR pour créer un enregistrement d’exécution local. L’exemple parcourt des enregistrements d’exécutions de conversion, de Recruitment et de Regression.",
   "scenes": [
-    "Ouvrez Help, puis Run history. Cet outil partagé lit le journal local des exécutions, pas tous les dossiers de projets de l'ordinateur. Nous utilisons les véritables enregistrements des autres tutoriels. Il n'est pas nécessaire de relancer ces analyses pour consulter leur historique.",
-    "Refresh charge les enregistrements disponibles. Le tableau indique module, état, durée, temps CPU, nombres et tailles des fichiers enregistrés. Déplacez le séparateur pour agrandir les détails. Ce sont des mesures d'exécution sauvegardées, pas une surveillance en direct ni une évaluation indépendante de la qualité scientifique.",
-    "Choisissez convert et Success, puis recherchez le nom du dossier commun de l'exemple. Trois vraies tâches de Batch Runner restent affichées. Les filtres de module, d'état et de texte se combinent ; le texte recherche paramètres, chemins, versions ou problèmes enregistrés. Aucun filtre distinct de date ou de ressources n'est proposé.",
-    "Files and models est vide pour ces conversions réussies, car leur journal n'a pas calculé les empreintes des fichiers. Cela ne signifie pas qu'aucune image n'a été produite. Le tutoriel Batch Runner a vérifié séparément les douze sorties. L'absence d'inventaire est une absence de preuve, pas une preuve d'absence de données.",
-    "Une recherche sans correspondance vide le tableau et les détails, et désactive les actions sur l'exécution sélectionnée. Rétablir la recherche précédente ramène les trois mêmes enregistrements. Vérifiez les filtres avant de conclure qu'une exécution a disparu ; rechercher ne supprime pas les fichiers du journal.",
-    "Sélectionnez la véritable exécution de Recruitment. Overview affiche environ dix-huit secondes écoulées et quarante-cinq secondes de temps CPU du processus : ce sont des mesures différentes. Six fichiers d'entrée et six de sortie sont répertoriés. Ces nombres ne comptent pas les cellules et ne garantissent pas un inventaire complet.",
-    "Settings présente la configuration enregistrée : source, canaux, filtres d'objets et Plot activé. Faites défiler pour tout lire. La source est le projet privé du tutoriel. Ces valeurs historiques ne changent pas automatiquement lorsque vous modifiez ensuite le projet ou les paramètres actuels du module.",
-    "Files and models répertorie chemins, tailles et empreintes disponibles. Examinez entrées et sorties ; une même base de données peut avoir des empreintes différentes avant et après. Consulter l'historique lit les données enregistrées, sans recalculer l'empreinte de chaque fichier actuel ni valider le résultat biologique.",
-    "Environment contient les versions logicielles, les informations sur les graines aléatoires et les empreintes des instantanés. Elles aident à expliquer les différences entre exécutions sans garantir seules la reproductibilité. Copy path copie le chemin du dossier de ce journal dans le presse-papiers. Conservez paramètres et manifeste avec les entrées et résultats séparés du projet.",
-    "Une exécution réussie de Regression peut encore signaler un faible contraste des figures et des fichiers de provenance manquants. Warnings and failure sépare ces avertissements d'une trace d'erreur. Success signifie que l'exécution est terminée, pas que les figures sont lisibles, la provenance complète ou le plan statistique valide. Consultez le tutoriel Regression pour ces vérifications.",
-    "Le filtre Failed révèle un véritable essai antérieur de Model Zoo. La trace se termine par un argument invert non accepté par Cellpose : un problème de compatibilité, pas un résultat de segmentation. Nous consultons l'échec sans le reproduire. Joignez versions et détails pertinents de l'erreur à votre signalement.",
-    "Revenez à Recruitment et choisissez Load settings in module. Les vingt-sept commandes disponibles correspondent aux valeurs sauvegardées et aucune analyse ne démarre. Le journal contient aussi hash inputs, absent de ce formulaire. Vérifiez paramètres restaurés et entrées actuelles avant d'exécuter : une reproduction exacte n'est pas garantie.",
-    "Clear all supprime les journaux d'exécution ; ce n'est pas une réinitialisation des filtres. Nous n'utilisons ni ce bouton ni la suppression du menu des lignes, et tous les fichiers restent inchangés. Pour une recherche par programme, utilisez search_runs dans spacr.run_journal. Pour un rapport de projet, consultez le tutoriel Report."
+    "Ouvrez Help, puis Run history pour parcourir les enregistrements d’exécution sauvegardés sur cet ordinateur.",
+    "Cliquez sur Refresh pour charger les enregistrements disponibles. Sélectionnez une exécution pour en examiner les détails, et faites glisser le séparateur si vous avez besoin de plus de place.",
+    "Choisissez un module et un état, puis saisissez un terme de recherche pour restreindre la liste. Par exemple, sélectionnez convert et Success pour trouver les conversions terminées.",
+    "Ouvrez Files and models pour les détails enregistrés des entrées et des sorties. Les exécutions qui ont sauté le calcul des empreintes de fichiers peuvent avoir un inventaire vide ; utilisez alors les chemins de sortie des paramètres ou des journaux pour trouver leurs résultats.",
+    "Effacez ou ajustez les filtres si la table est vide. Les termes de recherche et la sélection d’état se combinent.",
+    "Sélectionnez une exécution Recruitment et lisez Overview pour sa durée et le nombre de fichiers enregistrés. Ces valeurs résument cette exécution sauvegardée.",
+    "Ouvrez Settings pour examiner son dossier source, ses canaux et ses filtres d’objets. Parcourez la configuration enregistrée avant de décider de la réutiliser.",
+    "Ouvrez Files and models pour examiner les chemins, les tailles et les empreintes enregistrés. Gardez disponibles les fichiers de projet référencés lorsque vous devez revenir sur l’analyse.",
+    "Ouvrez Environment pour les versions logicielles et les graines enregistrées. Utilisez Copy path pour localiser le dossier du journal de l’exécution.",
+    "Ouvrez Warnings and failure pour lire les avertissements associés à une exécution terminée. Étudiez les avertissements pertinents avant d’utiliser ses résultats.",
+    "Choisissez Failed pour trouver les tâches qui ont échoué. Lisez la trace d’erreur et les versions logicielles pour diagnostiquer un problème ou préparer un rapport de bogue.",
+    "Revenez à l’exécution voulue et choisissez Load settings in module. Vérifiez les contrôles restaurés et les chemins d’entrée actuels avant d’appuyer sur Run.",
+    "Conservez les journaux utiles avec les archives de votre projet. N’utilisez Clear all que si vous voulez supprimer des enregistrements d’exécution. Ouvrez Report pour créer un résumé du projet."
   ]
 }

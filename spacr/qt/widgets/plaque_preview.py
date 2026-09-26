@@ -98,6 +98,8 @@ __all__ = [
     "load_overlay_style",
     "store_overlay_style",
     "session_style",
+    "ContributeDialog",
+    "seed_well_boxes",
     "OVERLAY_OUTLINES",
     "OVERLAY_FILL",
     "RANDOM_COLOUR",
@@ -306,21 +308,26 @@ def parse_sizes(value: Any) -> Tuple[int, ...]:
     return tuple(out) or DEFAULT_SIZES
 
 
-def images_in(src: Any) -> List[Path]:
+def images_in(src: Any, papers: bool = False) -> List[Path]:
     """The images directly inside ``src``, as the run lists them.
 
     :param src: a folder, or one image file.
-    :returns: image paths sorted by name; empty when there are none.
+    :param papers: list a folder of paper folders paper by paper, as Figure
+        mode's run reads it (:func:`spacr.plaque_papers.figure_folders`).
+    :returns: image paths sorted by name, folder by folder; empty when there
+        are none.
     """
-    from ...plaque_papers import IMAGE_SUFFIXES
+    from ...plaque_papers import IMAGE_SUFFIXES, figure_folders
 
     path = Path(str(src or "")).expanduser()
     if path.is_file():
         return [path] if path.suffix.lower() in IMAGE_SUFFIXES else []
     if not path.is_dir():
         return []
-    return sorted(p for p in path.iterdir()
-                  if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES)
+    folders = figure_folders(path) if papers else [path]
+    return [image for folder in folders for image in sorted(
+        p for p in folder.iterdir()
+        if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES)]
 
 
 def _to_uint8(array: np.ndarray) -> np.ndarray:
@@ -2240,6 +2247,845 @@ class _ImageView(QLabel):
         self.update()
 
 
+class _BoxEditor(QWidget):
+    """A figure page with its well boxes, to correct by hand.
+
+    Drag on empty page to draw a box; drag inside a box to move it; drag a
+    corner to resize it; right-click a box, or select it and press Delete,
+    to remove it. Boxes spaCR proposed are drawn orange until touched, a
+    box the contributor drew or moved is drawn green, so what still needs a
+    look is visible at a glance.
+
+    :param rgb: the page, ``H x W x 3`` ``uint8``.
+    :param boxes: the proposed ``(x0, y0, x1, y1)`` boxes.
+    :param parent: the owning widget.
+    """
+
+    changed = Signal()
+
+    def __init__(self, rgb: np.ndarray, boxes: Sequence[Any] = (),
+                 parent: Optional[QWidget] = None):
+        """Show ``rgb`` with ``boxes`` on it.
+
+        :param rgb: the page.
+        :param boxes: the proposed boxes, in page pixels.
+        :param parent: the owning widget.
+        """
+        super().__init__(parent)
+        self.setObjectName("ContributeBoxEditor")
+        self.setMinimumSize(320, 240)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setMouseTracking(True)
+        self._rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
+        height, width = self._rgb.shape[:2]
+        self._pixmap = QPixmap.fromImage(QImage(
+            self._rgb.data, width, height, 3 * width,
+            QImage.Format_RGB888).copy())
+        self._boxes: List[Dict[str, Any]] = [
+            {"box": [float(v) for v in box], "seed": index, "moved": False}
+            for index, box in enumerate(boxes)]
+        self._seeded = len(self._boxes)
+        self._deleted: List[int] = []
+        self._selected: Optional[int] = None
+        self._drag: Optional[Tuple[str, int, float, float, List[float]]] = None
+
+    def boxes(self) -> List[Tuple[int, int, int, int]]:
+        """The boxes as they stand, in page pixels."""
+        return [tuple(int(round(v)) for v in entry["box"])
+                for entry in self._boxes]
+
+    def provenance(self) -> Dict[str, Any]:
+        """Which proposed boxes were kept, moved or deleted, and how many were added."""
+        return {"proposed": self._seeded,
+                "kept": [e["seed"] for e in self._boxes
+                         if e["seed"] is not None and not e["moved"]],
+                "moved": [e["seed"] for e in self._boxes
+                          if e["seed"] is not None and e["moved"]],
+                "deleted": sorted(self._deleted),
+                "added": sum(1 for e in self._boxes if e["seed"] is None)}
+
+    def add_box(self, x0: float, y0: float, x1: float, y1: float) -> int:
+        """Add a box the contributor drew. Returns its index.
+
+        :param x0: one corner's x, in page pixels.
+        :param y0: that corner's y.
+        :param x1: the opposite corner's x.
+        :param y1: the opposite corner's y.
+        """
+        self._boxes.append({"box": self._ordered([x0, y0, x1, y1]),
+                            "seed": None, "moved": False})
+        self._selected = len(self._boxes) - 1
+        self._changed()
+        return self._selected
+
+    def set_box(self, index: int, x0: float, y0: float, x1: float,
+                y1: float) -> None:
+        """Move or resize box ``index``.
+
+        :param index: which box.
+        :param x0: one corner's x, in page pixels.
+        :param y0: that corner's y.
+        :param x1: the opposite corner's x.
+        :param y1: the opposite corner's y.
+        """
+        entry = self._boxes[index]
+        box = self._ordered([x0, y0, x1, y1])
+        if box != entry["box"]:
+            entry["box"] = box
+            entry["moved"] = True
+            self._changed()
+
+    def delete_box(self, index: int) -> None:
+        """Remove box ``index``.
+
+        :param index: which box.
+        """
+        entry = self._boxes.pop(index)
+        if entry["seed"] is not None:
+            self._deleted.append(entry["seed"])
+        self._selected = None
+        self._changed()
+
+    def _changed(self) -> None:
+        """Repaint and tell the dialog."""
+        self.update()
+        self.changed.emit()
+
+    def _ordered(self, box: List[float]) -> List[float]:
+        """A box with its corners sorted and clipped to the page."""
+        height, width = self._rgb.shape[:2]
+        x0, x1 = sorted(min(max(float(v), 0.0), width) for v in (box[0], box[2]))
+        y0, y1 = sorted(min(max(float(v), 0.0), height) for v in (box[1], box[3]))
+        return [x0, y0, x1, y1]
+
+    def _geometry(self) -> Tuple[float, float, float]:
+        """``(scale, left, top)`` of the page inside the widget."""
+        height, width = self._rgb.shape[:2]
+        scale = min(self.width() / max(width, 1), self.height() / max(height, 1))
+        scale = scale if scale > 0 else 1.0
+        return (scale, (self.width() - width * scale) / 2,
+                (self.height() - height * scale) / 2)
+
+    def _to_page(self, point: Any) -> Tuple[float, float]:
+        """A widget point in page pixels."""
+        scale, left, top = self._geometry()
+        return ((point.x() - left) / scale, (point.y() - top) / scale)
+
+    def _hit(self, x: float, y: float) -> Tuple[str, Optional[int]]:
+        """What is under a page point: a corner, a box's inside, or nothing."""
+        scale = self._geometry()[0]
+        grab = 8 / scale
+        order = ([self._selected] if self._selected is not None else []) + \
+            list(range(len(self._boxes) - 1, -1, -1))
+        for index in order:
+            x0, y0, x1, y1 = self._boxes[index]["box"]
+            for name, cx, cy in (("tl", x0, y0), ("tr", x1, y0),
+                                 ("bl", x0, y1), ("br", x1, y1)):
+                if abs(x - cx) <= grab and abs(y - cy) <= grab:
+                    return name, index
+        for index in order:
+            x0, y0, x1, y1 = self._boxes[index]["box"]
+            if x0 <= x <= x1 and y0 <= y <= y1:
+                return "move", index
+        return "", None
+
+    def paintEvent(self, event):
+        """The page, scaled to fit, with every box over it."""
+        painter = QPainter(self)
+        scale, left, top = self._geometry()
+        height, width = self._rgb.shape[:2]
+        painter.drawPixmap(QRectF(left, top, width * scale, height * scale),
+                           self._pixmap, QRectF(0, 0, width, height))
+        for index, entry in enumerate(self._boxes):
+            x0, y0, x1, y1 = entry["box"]
+            touched = entry["seed"] is None or entry["moved"]
+            colour = BOX_SELECTED if index == self._selected else (
+                BOX_OK if touched else BOX_WAITING)
+            painter.setPen(QPen(colour, 3 if index == self._selected else 2))
+            painter.drawRect(QRectF(left + x0 * scale, top + y0 * scale,
+                                    (x1 - x0) * scale, (y1 - y0) * scale))
+        painter.end()
+
+    def mousePressEvent(self, event):
+        """Start drawing, moving or resizing; right-click deletes."""
+        x, y = self._to_page(event.position())
+        kind, index = self._hit(x, y)
+        if event.button() == Qt.RightButton:
+            if index is not None:
+                self.delete_box(index)
+            return
+        if event.button() != Qt.LeftButton:
+            return
+        self.setFocus()
+        if index is None:
+            self._boxes.append({"box": [x, y, x, y], "seed": None,
+                                "moved": False})
+            index, kind = len(self._boxes) - 1, "br"
+            self._drag = ("new", index, x, y, [x, y, x, y])
+        else:
+            self._drag = (kind, index, x, y, list(self._boxes[index]["box"]))
+        self._selected = index
+        self.update()
+
+    def mouseMoveEvent(self, event):
+        """Follow the drag."""
+        if self._drag is None:
+            kind, _index = self._hit(*self._to_page(event.position()))
+            self.setCursor(Qt.SizeAllCursor if kind == "move" else (
+                Qt.SizeFDiagCursor if kind else Qt.CrossCursor))
+            return
+        kind, index, x_start, y_start, box = self._drag
+        x, y = self._to_page(event.position())
+        x0, y0, x1, y1 = box
+        if kind == "move":
+            dx, dy = x - x_start, y - y_start
+            new = [x0 + dx, y0 + dy, x1 + dx, y1 + dy]
+        elif kind == "new":
+            new = [x_start, y_start, x, y]
+        else:
+            new = [x if "l" in kind else x0, y if "t" in kind else y0,
+                   x if "r" in kind else x1, y if "b" in kind else y1]
+        self._boxes[index]["box"] = new
+        self.update()
+
+    def mouseReleaseEvent(self, event):
+        """Finish the drag; a box too small to be a well is dropped."""
+        if self._drag is None:
+            return
+        kind, index, _x, _y, before = self._drag
+        self._drag = None
+        entry = self._boxes[index]
+        entry["box"] = self._ordered(entry["box"])
+        x0, y0, x1, y1 = entry["box"]
+        if kind == "new" and (x1 - x0 < 3 or y1 - y0 < 3):
+            self._boxes.pop(index)
+            self._selected = None
+            self.update()
+            return
+        if kind != "new" and entry["box"] != self._ordered(before):
+            entry["moved"] = True
+        self._changed()
+
+    def keyPressEvent(self, event):
+        """Delete or Backspace removes the selected box."""
+        if event.key() in (Qt.Key_Delete, Qt.Key_Backspace) \
+                and self._selected is not None:
+            self.delete_box(self._selected)
+            return
+        super().keyPressEvent(event)
+
+
+class _DeleteObjectTool:
+    """A canvas tool: a click removes the whole object under the pointer.
+
+    Duck-typed as a :class:`~spacr.qt.layer_viewer.CanvasTool` so this
+    module does not import the canvas until a mask page is built. The delete
+    goes through :meth:`spacr.curation.MaskCuration.delete_object`, so it is
+    one undoable stroke and one ``delete`` line in the ledger.
+
+    :param page: the mask page whose session and record the delete goes to.
+    """
+
+    cursor = Qt.PointingHandCursor
+
+    def __init__(self, page: "_MaskPage"):
+        """Bind the tool to one mask page.
+
+        :param page: the page it deletes from.
+        """
+        self._page = page
+
+    def press(self, view: Any, world: Dict[str, float], event: Any) -> bool:
+        """Delete the object under a left or right click.
+
+        :param view: the canvas; not used.
+        :param world: the clicked world point.
+        :param event: the mouse event; only its button is read.
+        """
+        button = event.button() if hasattr(event, "button") else Qt.LeftButton
+        if button not in (Qt.LeftButton, Qt.RightButton):
+            return False
+        self._page.delete_at(world)
+        return True
+
+    def move(self, view: Any, world: Dict[str, float], event: Any) -> bool:
+        """Leave hovering to the canvas."""
+        return False
+
+    def release(self, view: Any, world: Dict[str, float], event: Any) -> bool:
+        """Swallow the release that ends a delete click."""
+        return True
+
+    def double_click(self, view: Any, world: Dict[str, float],
+                     event: Any) -> bool:
+        """A double click deletes nothing beyond its presses."""
+        return True
+
+    def key(self, view: Any, event: Any) -> bool:
+        """Backspace or Delete undo the last stroke or delete, as the brush does.
+
+        :param view: the canvas; not used.
+        :param event: the key event.
+        """
+        if event.key() in (Qt.Key_Backspace, Qt.Key_Delete):
+            self._page.brush.undo()
+            return True
+        return False
+
+    def detach(self) -> None:
+        """Nothing is ever half-done between events."""
+
+
+class _MaskPage(QWidget):
+    """One plaque image with its label mask, painted with Make Masks' brush.
+
+    The canvas and the brush panel are the curation tool's own
+    (:class:`~spacr.qt.curation_tool.BrushPanel`): left-drag paints the
+    active plaque, right-drag erases, ``[`` and ``]`` resize, New starts a
+    plaque that does not exist yet, Backspace undoes a stroke. "Delete
+    object" arms a click that removes a whole plaque; each one is recorded
+    (:meth:`deleted_objects`) and goes into the image's meta file.
+
+    :param rgb: the image, ``H x W x 3`` ``uint8``.
+    :param seed: spaCR's proposed label mask, or None.
+    :param parent: the owning widget.
+    """
+
+    changed = Signal()
+
+    def __init__(self, rgb: np.ndarray, seed: Optional[np.ndarray],
+                 parent: Optional[QWidget] = None):
+        """Build the canvas over ``rgb`` with ``seed`` as the editable mask.
+
+        :param rgb: the image.
+        :param seed: the proposed mask, or None to start empty.
+        :param parent: the owning widget.
+        """
+        from ...layers import LayerStack, Spacing
+        from ..curation_tool import BrushPanel
+        from ..layer_viewer import LayerCanvas
+
+        super().__init__(parent)
+        self.setObjectName("ContributeMaskPage")
+        shape = rgb.shape[:2]
+        self.seed = None if seed is None else _match_shape(
+            np.asarray(seed), shape).astype(np.int64)
+        stack = LayerStack()
+        spacing = Spacing.isotropic(2, 1.0, units="px")
+        stack.add_image(np.asarray(rgb, dtype=np.float32).mean(axis=-1)
+                        .astype(np.uint8), name="image", spacing=spacing)
+        self.layer = stack.add_labels(
+            self.seed.copy() if self.seed is not None
+            else np.zeros(shape, np.int64), name="plaques", spacing=spacing)
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        self.canvas = LayerCanvas(stack, self)
+        self.canvas.setMinimumSize(320, 240)
+        row.addWidget(self.canvas, 3)
+        side = QVBoxLayout()
+        side.setContentsMargins(0, 0, 0, 0)
+        self.brush = BrushPanel(self.canvas, self, layer=self.layer,
+                                artifact="community-plaques")
+        self.brush.save_button.hide()
+        self.brush.save_mask_button.hide()
+        self.brush.use_next_label()
+        self.brush.session.subscribe(lambda _edit: self.changed.emit())
+        self.delete_button = QPushButton(tr("Delete object"), self)
+        self.delete_button.setObjectName("ContributeDeleteObject")
+        self.delete_button.setCheckable(True)
+        self.delete_button.setToolTip(tr(
+            "Click an object to remove it whole. Backspace undoes the last "
+            "delete. Press Brush to paint again."))
+        self.delete_button.toggled.connect(self._on_delete_toggled)
+        self.brush.paint_button.toggled.connect(self._on_brush_toggled)
+        self._delete_tool = _DeleteObjectTool(self)
+        side.addWidget(self.delete_button)
+        side.addWidget(self.brush, 1)
+        row.addLayout(side, 1)
+        self.brush.paint_button.setChecked(True)
+
+    def _on_delete_toggled(self, checked: bool) -> None:
+        """Arm or disarm click-to-delete; the brush and it take turns.
+
+        :param checked: True to delete on click.
+        """
+        if checked:
+            self.brush.paint_button.setChecked(False)
+            self.canvas.set_tool(self._delete_tool)
+        elif self.canvas.tool is self._delete_tool:
+            self.canvas.set_tool(None)
+
+    def _on_brush_toggled(self, checked: bool) -> None:
+        """Painting again puts the delete tool down.
+
+        :param checked: whether the brush was armed.
+        """
+        if checked and self.delete_button.isChecked():
+            self.delete_button.blockSignals(True)
+            self.delete_button.setChecked(False)
+            self.delete_button.blockSignals(False)
+
+    def delete_at(self, world: Dict[str, float]) -> int:
+        """Remove the whole object under a world point.
+
+        :param world: the point, as the canvas resolves a click.
+        :returns: the deleted object's label, or 0 when the point is on
+            background.
+        """
+        label = int(self.layer.label_at_world(world))
+        if not label or self.brush.session.delete_object(label) is None:
+            return 0
+        return label
+
+    def deleted_objects(self) -> List[Dict[str, Any]]:
+        """Every object removed with a click and still gone from the mask.
+
+        Read from the session's ledger, so a delete that was undone is not
+        reported: ``{"label", "pixels", "seeded"}``, where ``seeded`` says
+        the object was one of spaCR's proposed plaques.
+        """
+        present = {int(v) for v in np.unique(np.asarray(self.layer.data))}
+        seeded = (set() if self.seed is None
+                  else {int(v) for v in np.unique(self.seed) if v})
+        out: List[Dict[str, Any]] = []
+        seen: set = set()
+        for edit in self.brush.session.log.edits:
+            if edit.kind != "delete":
+                continue
+            label = int(edit.target)
+            if label in present or label in seen:
+                continue
+            seen.add(label)
+            out.append({"label": label, "pixels": int(edit.n_changed),
+                        "seeded": label in seeded})
+        return out
+
+    def labels(self) -> np.ndarray:
+        """The mask as it stands."""
+        return np.asarray(self.layer.data).copy()
+
+
+class ContributeDialog(QDialog):
+    """Annotate images for spaCR's community training data, then send them.
+
+    Figure mode draws a box around every well on each page (YOLO labels for
+    the well detector); Plaque mode paints every plaque as a mask (for the
+    next plaque model). Each image starts from what spaCR itself finds, so
+    the contributor corrects rather than starts from nothing. Upload stays
+    off until every image in the list carries at least one box or plaque.
+
+    :param mode: ``'figure'`` or ``'plaque'``.
+    :param paths: the images to annotate.
+    :param seeder: ``fn(path) -> boxes`` (figure) or ``fn(path) -> labels``
+        (plaque): spaCR's own proposal, run off the GUI thread.
+    :param known: proposals already on screen, by path, so they are not
+        computed twice.
+    :param paper: the source paper's ``doi``, ``title``, ``pmcid``, when the
+        folder records one.
+    :param upload: ``fn(folder, target) -> url``; the contributor's own
+        Hugging Face login
+        (:func:`~spacr.qt.widgets.model_share_dialog.upload_with_own_login`)
+        when None.
+    :param threaded: run the proposal and the upload off the GUI thread.
+    :param parent: the owning widget.
+    :param target: the community collection
+        (:func:`~spacr.qt.widgets.model_share.community_repo`): ``"figures"``
+        in Figure mode, ``"plaques"`` in Plaque mode when None. Any other
+        name sends the masks to ``einarolafsson/community_<name>``.
+    """
+
+    uploaded = Signal(str)
+
+    def __init__(self, mode: str, paths: Sequence[Any], *,
+                 seeder: Optional[Callable[[Path], Any]] = None,
+                 known: Optional[Dict[str, Any]] = None,
+                 paper: Optional[Dict[str, Any]] = None,
+                 upload: Optional[Callable[[Path, str], str]] = None,
+                 threaded: bool = True, parent: Optional[QWidget] = None,
+                 target: Optional[str] = None):
+        """Build the list, the editor area, the conscience and Upload.
+
+        :param mode: see the class docstring.
+        :param paths: see the class docstring.
+        :param seeder: see the class docstring.
+        :param known: see the class docstring.
+        :param paper: see the class docstring.
+        :param upload: see the class docstring.
+        :param threaded: see the class docstring.
+        :param parent: see the class docstring.
+        :param target: see the class docstring.
+        """
+        from PySide6.QtWidgets import QListWidget, QStackedWidget
+
+        from .model_share import (FIGURES_KIND, PLAQUES_KIND, community_repo,
+                                  conscience_for)
+        from .model_share_dialog import upload_with_own_login
+
+        super().__init__(parent)
+        self.setObjectName("ContributeDialog")
+        self.mode = normalise_mode(mode)
+        self.target = target or (FIGURES_KIND if self.mode == FIGURE_MODE
+                                 else PLAQUES_KIND)
+        self.setWindowTitle(tr("Contribute training data"))
+        self._seeder = seeder
+        self._known = {str(k): v for k, v in (known or {}).items()}
+        self._upload = upload or upload_with_own_login
+        self.ask_consent: Optional[Callable[[], bool]] = None
+        self._paths: List[Path] = []
+        self._pages: Dict[str, QWidget] = {}
+        self._images: Dict[str, np.ndarray] = {}
+        self._pending: set = set()
+        self._uploading = False
+        self._jobs = JobRunner(self, threaded=threaded,
+                               app_key="plaque contribution", user_visible=False)
+        self._jobs.job_failed.connect(self._on_failed)
+
+        outer = QVBoxLayout(self)
+        figure = self.mode == FIGURE_MODE
+        intro = QLabel(tr(
+            "Draw a box around every well on each page: drag on the page to "
+            "add one, drag a box or its corner to fix it, right-click or "
+            "Delete to remove it. Orange boxes are spaCR's guesses you have "
+            "not touched yet.") if figure else tr(
+            "Paint every plaque on each image: left-drag paints the plaque "
+            "in Label, right-drag erases, New starts another plaque, [ and ] "
+            "change the brush size. spaCR's own plaques are already painted "
+            "for you to correct."))
+        intro.setWordWrap(True)
+        outer.addWidget(intro)
+        middle = QHBoxLayout()
+        side = QVBoxLayout()
+        self.image_list = QListWidget(self)
+        self.image_list.setObjectName("ContributeImages")
+        self.image_list.currentRowChanged.connect(self._on_row)
+        side.addWidget(self.image_list, 1)
+        self._add_btn = QPushButton(tr("Add images…"))
+        self._add_btn.clicked.connect(self._choose_images)
+        self._remove_btn = QPushButton(tr("Leave this image out"))
+        self._remove_btn.clicked.connect(self.remove_current)
+        side.addWidget(self._add_btn)
+        side.addWidget(self._remove_btn)
+        middle.addLayout(side, 1)
+        self.editors = QStackedWidget(self)
+        self.editors.setObjectName("ContributeEditors")
+        self._empty = QLabel(tr("Add an image to annotate."))
+        self._empty.setAlignment(Qt.AlignCenter)
+        self._empty.setWordWrap(True)
+        self.editors.addWidget(self._empty)
+        middle.addWidget(self.editors, 4)
+        outer.addLayout(middle, 1)
+
+        self.paper_edit = QLineEdit(self)
+        self.paper_edit.setObjectName("ContributePaper")
+        self.paper_edit.setPlaceholderText(tr(
+            "DOI or citation of the paper these figures come from"))
+        self._paper = dict(paper or {})
+        self.paper_edit.setText(str(self._paper.get("doi")
+                                    or self._paper.get("title") or ""))
+        paper_row = QHBoxLayout()
+        self._paper_label = QLabel(tr("Source paper"))
+        paper_row.addWidget(self._paper_label)
+        paper_row.addWidget(self.paper_edit, 1)
+        outer.addLayout(paper_row)
+        for widget in (self._paper_label, self.paper_edit):
+            widget.setVisible(figure)
+
+        bottom = QHBoxLayout()
+        self.conscience = QLabel(tr(conscience_for(self.target)))
+        self.conscience.setObjectName("ContributeConscience")
+        self.conscience.setWordWrap(True)
+        self.conscience.setFrameShape(QFrame.StyledPanel)
+        self.conscience.setStyleSheet(
+            "QLabel#ContributeConscience { padding: 6px; "
+            "border-left: 4px solid rgb(255, 150, 40); }")
+        bottom.addWidget(self.conscience, 1)
+        self.upload_button = QPushButton(tr("Upload"))
+        self.upload_button.setObjectName("ContributeUpload")
+        self.upload_button.setToolTip(tr(
+            "Send the images and your annotations to {repo} on Hugging Face, "
+            "as a contribution the maintainer reviews.",
+            repo=community_repo(self.target)))
+        self.upload_button.clicked.connect(self.upload)
+        bottom.addWidget(self.upload_button, 0, Qt.AlignBottom)
+        outer.addLayout(bottom)
+        self.status = QLabel("")
+        self.status.setObjectName("ContributeStatus")
+        self.status.setWordWrap(True)
+        self.status.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        self.status.setOpenExternalLinks(True)
+        outer.addWidget(self.status)
+        self.resize(1100, 760)
+        for path in paths:
+            self.add_image(path)
+        self._refresh()
+
+    def add_image(self, path: Any) -> None:
+        """Put one image in the list and start spaCR's proposal for it.
+
+        :param path: the image.
+        """
+        path = Path(path)
+        if path in self._paths:
+            return
+        self._paths.append(path)
+        self.image_list.addItem(path.name)
+        key = str(path)
+        if key in self._known:
+            self._build_page(path, self._known[key])
+        elif self._seeder is None:
+            self._build_page(path, None)
+        else:
+            self._pending.add(key)
+            seeder = self._seeder
+
+            def work(p: Path = path) -> Any:
+                """spaCR's proposal for one image, or the reason there is none."""
+                try:
+                    return ("ok", seeder(p))
+                except Exception as exc:
+                    return ("error", str(exc))
+
+            self._jobs.submit(work, lambda result, p=path: self._on_seed(p, result))
+        if self.image_list.currentRow() < 0:
+            self.image_list.setCurrentRow(0)
+        self._refresh()
+
+    def _on_seed(self, path: Path, result: Any) -> None:
+        """A proposal arrived: build the image's editor from it."""
+        self._pending.discard(str(path))
+        if path not in self._paths:
+            return
+        status, value = result if isinstance(result, tuple) else ("ok", result)
+        if status != "ok":
+            self.status.setText(tr(
+                "spaCR could not make a first guess for {name} ({why}); "
+                "annotate it from scratch.", name=path.name, why=value))
+            value = None
+        self._build_page(path, value)
+        self._refresh()
+
+    def _on_failed(self, message: str) -> None:
+        """A worker raised."""
+        self._uploading = False
+        self.status.setText(tr("Upload failed: {why}", why=message))
+        self._refresh()
+
+    def _build_page(self, path: Path, seed: Any) -> None:
+        """Make the editor for one image."""
+        from ...plaque_papers import _load_image
+
+        if self.mode == FIGURE_MODE:
+            rgb = _load_image(path)
+            boxes = []
+            for box in seed or ():
+                boxes.append(tuple(getattr(box, name) for name in
+                                   ("x0", "y0", "x1", "y1"))
+                             if hasattr(box, "x0") else tuple(box))
+            page = _BoxEditor(rgb, boxes, self)
+        else:
+            rgb = load_display_image(path)
+            page = _MaskPage(rgb, None if seed is None else np.asarray(seed),
+                             self)
+        page.changed.connect(self._refresh)
+        self._images[str(path)] = rgb
+        self._pages[str(path)] = page
+        self.editors.addWidget(page)
+        if self._current_path() == path:
+            self.editors.setCurrentWidget(page)
+
+    def _current_path(self) -> Optional[Path]:
+        """The image being edited."""
+        row = self.image_list.currentRow()
+        return self._paths[row] if 0 <= row < len(self._paths) else None
+
+    def editor(self, path: Any = None) -> Optional[QWidget]:
+        """The editor of ``path`` (the current image when None).
+
+        :param path: the image.
+        """
+        path = self._current_path() if path is None else Path(path)
+        return None if path is None else self._pages.get(str(path))
+
+    def _on_row(self, _row: int) -> None:
+        """Show the chosen image's editor."""
+        page = self.editor()
+        self.editors.setCurrentWidget(page if page is not None else self._empty)
+
+    def _choose_images(self) -> None:
+        """Pick more images to annotate."""
+        from ...plaque_papers import IMAGE_SUFFIXES
+
+        start = str(self._paths[-1].parent) if self._paths else ""
+        patterns = " ".join(f"*{s}" for s in sorted(IMAGE_SUFFIXES))
+        chosen, _ = QFileDialog.getOpenFileNames(
+            self, tr("Images to annotate"), start,
+            tr("Images ({patterns})", patterns=patterns))
+        for path in chosen:
+            self.add_image(path)
+
+    def remove_current(self) -> None:
+        """Take the current image out of the contribution."""
+        row = self.image_list.currentRow()
+        if row < 0:
+            return
+        path = self._paths.pop(row)
+        self.image_list.takeItem(row)
+        page = self._pages.pop(str(path), None)
+        self._images.pop(str(path), None)
+        self._pending.discard(str(path))
+        if page is not None:
+            self.editors.removeWidget(page)
+            page.deleteLater()
+        self._on_row(self.image_list.currentRow())
+        self._refresh()
+
+    def count(self, path: Any) -> int:
+        """How many boxes or plaques ``path`` carries now.
+
+        :param path: the image.
+        """
+        page = self._pages.get(str(Path(path)))
+        if page is None:
+            return 0
+        if isinstance(page, _BoxEditor):
+            return len(page.boxes())
+        return int(len([v for v in np.unique(page.labels()) if v]))
+
+    def _missing(self) -> List[Path]:
+        """Images that cannot be sent yet: not annotated, or still waiting."""
+        return [p for p in self._paths
+                if str(p) in self._pending or self.count(p) == 0]
+
+    def _refresh(self) -> None:
+        """Label each row with its count, and gate Upload."""
+        figure = self.mode == FIGURE_MODE
+        for row, path in enumerate(self._paths):
+            item = self.image_list.item(row)
+            n = self.count(path)
+            if str(path) in self._pending:
+                text = tr("{name}: finding a first guess…", name=path.name)
+            elif not n:
+                text = tr("{name}: not annotated yet", name=path.name)
+            elif figure:
+                text = tr("{name}: {count} boxes", name=path.name, count=n)
+            else:
+                text = tr("{name}: {count} plaques", name=path.name, count=n)
+            if item is not None:
+                item.setText(text)
+        ready = bool(self._paths) and not self._missing() and not self._uploading
+        self.upload_button.setEnabled(ready)
+        self._remove_btn.setEnabled(self._current_path() is not None)
+
+    def _items(self) -> List[Dict[str, Any]]:
+        """The contribution as :func:`~spacr.qt.widgets.model_share.write_contribution` takes it."""
+        out: List[Dict[str, Any]] = []
+        paper = self._paper_record()
+        for path in self._paths:
+            page = self._pages.get(str(path))
+            item: Dict[str, Any] = {"name": path.name, "source": str(path)}
+            if isinstance(page, _BoxEditor):
+                item.update(image=self._images[str(path)], boxes=page.boxes(),
+                            provenance=page.provenance(), paper=paper)
+            elif isinstance(page, _MaskPage):
+                item.update(labels=page.labels(), seed=page.seed,
+                            extra={"deleted_objects": page.deleted_objects()})
+            else:
+                item.update(image=np.zeros((1, 1, 3), np.uint8), boxes=[],
+                            labels=None)
+            out.append(item)
+        return out
+
+    def _paper_record(self) -> Dict[str, Any]:
+        """The source paper as typed, with the DOI split out when it is one."""
+        text = self.paper_edit.text().strip()
+        record = {k: v for k, v in self._paper.items()
+                  if k in ("doi", "pmcid", "pmid", "title", "licence") and v}
+        if text:
+            record["citation"] = text
+            lowered = text.lower()
+            for prefix in ("https://doi.org/", "http://doi.org/", "doi:"):
+                if lowered.startswith(prefix):
+                    text = text[len(prefix):].strip()
+                    lowered = text.lower()
+            if lowered.startswith("10."):
+                record["doi"] = text
+        return record
+
+    def upload(self, *_args: Any) -> bool:
+        """Check, ask for consent once, write the contribution and send it.
+
+        :returns: True when an upload was started.
+        """
+        import tempfile
+
+        from .model_share import COMMUNITY_LICENCE, write_contribution
+        from .model_share_dialog import ask_community_consent
+
+        missing = self._missing()
+        if not self._paths or missing:
+            names = ", ".join(p.name for p in missing) or tr("nothing")
+            self.status.setText(tr(
+                "Not sent. Every image needs at least one annotation, and "
+                "these have none: {names}. Annotate them or leave them out.",
+                names=names))
+            self._refresh()
+            return False
+        if not ask_community_consent(self, ask=self.ask_consent):
+            self.status.setText(tr("Not sent: the licence was not agreed to."))
+            return False
+        consent = {"rights_to_share": True, "licence": COMMUNITY_LICENCE}
+        try:
+            folder = write_contribution(
+                self.target, self._items(),
+                tempfile.mkdtemp(prefix="spacr-contribution-"),
+                consent=consent)
+        except ValueError as exc:
+            self.status.setText(tr("Not sent: {why}", why=str(exc)))
+            return False
+        self.contribution_folder = folder
+        self._uploading = True
+        self._refresh()
+        self.status.setText(tr("Uploading…"))
+        upload = self._upload
+        target = self.target
+        self._jobs.submit(lambda: upload(folder, target), self._on_uploaded)
+        return True
+
+    def _on_uploaded(self, url: Any) -> None:
+        """The upload finished."""
+        self._uploading = False
+        url = str(url or "")
+        self.status.setText(tr(
+            "Thank you. Your contribution is waiting for review: "
+            "<a href=\"{url}\">{url}</a>", url=url))
+        self._refresh()
+        self.uploaded.emit(url)
+
+
+def seed_well_boxes(path: Any, settings: Dict[str, Any], *,
+                    detect: Optional[Callable] = None) -> List[Any]:
+    """The wells spaCR's own detector finds on one page, to start the boxes from.
+
+    :param path: the figure page.
+    :param settings: the module's settings (detector, sizes, confidence).
+    :param detect: replaces the detector (tests).
+    :returns: the regions, with ``x0, y0, x1, y1``.
+    """
+    from ...plaque_papers import _load_image, find_plaque_regions
+
+    weights = "fake"
+    if detect is None:
+        weights, why, _entry = resolve_detector(
+            settings.get("figure_detector"), settings.get("src"))
+        if not weights:
+            raise RuntimeError(why)
+    return list(find_plaque_regions(
+        _load_image(Path(path)), weights,
+        imgsz=parse_sizes(settings.get("figure_imgsz")),
+        confidence=float(settings.get("figure_confidence") or 0.25),
+        detect=detect))
+
+
 class PlaquePreviewPanel(QWidget, LivePreviewContract):
     """Plaque Assay's live preview, in Plaque mode or Figure mode.
 
@@ -2307,6 +3153,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._overlay_dialog: Optional[PlaqueOverlayDialog] = None
         self._menu_view: Optional["_ImageView"] = None
         self._plaque_result: Optional[Dict[str, Any]] = None
+        self._threaded = bool(threaded)
+        self._contribute_dialog: Optional[ContributeDialog] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key="plaque preview")
         self._load_jobs = JobRunner(self, threaded=threaded,
                                     app_key="plaque preview image",
@@ -2456,6 +3304,15 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._use_btn.setToolTip(tr("Write the values tuned here into the "
                                     "settings the run reads."))
         self._use_btn.clicked.connect(self.propagate)
+        self._contribute_btn = QPushButton(tr("Contribute training data…"))
+        self._contribute_btn.setObjectName("PlaqueContribute")
+        self._contribute_btn.setToolTip(tr(
+            "Annotate this image for spaCR's community training data and "
+            "send it to Hugging Face. Figure mode: box every well, for the "
+            "well detector. Plaque mode: paint every plaque, for the next "
+            "plaque model."))
+        self._contribute_btn.clicked.connect(
+            lambda: self.contribute_training_data())
         self._settings_btn = QPushButton(tr("Settings…"))
         self._settings_btn.setObjectName("PlaquePreviewSettings")
         self._settings_btn.setToolTip(tr(
@@ -2483,7 +3340,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paper_btn.clicked.connect(self._ask_for_paper)
         for widget in (self._paper_btn, self._settings_btn,
                        self._run_btn, self._well_btn, self._all_btn,
-                       self._cancel_btn, self._use_btn):
+                       self._cancel_btn, self._use_btn,
+                       self._contribute_btn):
             buttons.addWidget(widget)
         buttons.addStretch(1)
         from .preview_scale import install_preview_scale
@@ -2952,7 +3810,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._load_token += 1
         token = self._load_token
         self.set_preview_status(tr("Loading preview from {path}…", path=text))
-        self._load_jobs.submit(lambda: images_in(text),
+        papers = self.mode() == FIGURE_MODE
+        self._load_jobs.submit(lambda: images_in(text, papers),
                                lambda paths, t=token: self._on_listing(t, paths))
         return True
 
@@ -2968,8 +3827,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paths = paths
         self._picker.blockSignals(True)
         self._picker.clear()
+        several = len({path.parent for path in self._paths}) > 1
         for path in self._paths:
-            self._picker.addItem(path.name, str(path))
+            self._picker.addItem(f"{path.parent.name}/{path.name}" if several
+                                 else path.name, str(path))
         self._picker.blockSignals(False)
         if not self._paths:
             self._clear_figure()
@@ -3896,6 +4757,69 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             return None
         return None if not value else 1.0 / float(value)
 
+    def contribute_training_data(self, *, paths: Optional[Sequence[Any]] = None,
+                                 detect: Optional[Callable] = None,
+                                 segment: Optional[Callable] = None,
+                                 upload: Optional[Callable] = None
+                                 ) -> Optional[ContributeDialog]:
+        """Open the annotate-then-upload window for this mode (item 523).
+
+        Figure mode boxes every well for the YOLO well detector; Plaque mode
+        paints every plaque for the next plaque model. What the preview has
+        already found for the current image is the starting point; other
+        images are proposed by the same detector or model.
+
+        :param paths: the images to start with; the current image when None.
+        :param detect: replaces the well detector (tests).
+        :param segment: replaces the plaque model (tests).
+        :param upload: replaces the Hugging Face upload (tests).
+        :returns: the dialog, or None when there is no image to annotate.
+        """
+        chosen = [Path(p) for p in paths] if paths is not None else (
+            [self.current_path()] if self.current_path() is not None else [])
+        if not chosen:
+            self.set_preview_status(tr(self.PREVIEW_SOURCE_HINT))
+            return None
+        settings = self.current_settings()
+        known: Dict[str, Any] = {}
+        paper: Dict[str, Any] = {}
+        if self.mode() == FIGURE_MODE:
+            figure = self._figure or {}
+            if figure.get("path") and figure.get("regions") is not None:
+                known[str(Path(figure["path"]))] = list(figure["regions"])
+
+            def seeder(path: Path) -> Any:
+                """spaCR's well boxes on one page."""
+                return seed_well_boxes(path, settings, detect=detect)
+
+            folder = self._folder()
+            if folder is not None:
+                from ...plaque_papers import _folder_paper
+
+                record = _folder_paper(folder)
+                if record.source != "folder":
+                    paper = {k: getattr(record, k) for k in
+                             ("doi", "pmcid", "pmid", "title", "licence")
+                             if getattr(record, k, None)}
+        else:
+            result = self._plaque_result or {}
+            if result.get("path") and result.get("labels") is not None:
+                known[str(Path(result["path"]))] = result["labels"]
+
+            def seeder(path: Path) -> Any:
+                """spaCR's plaque mask of one image."""
+                found = plaque_pass(path, settings, segment=segment)
+                if found.get("error"):
+                    raise RuntimeError(found["error"])
+                return found["labels"]
+
+        dialog = ContributeDialog(
+            self.mode(), chosen, seeder=seeder, known=known, paper=paper,
+            upload=upload, threaded=self._threaded, parent=self)
+        self._contribute_dialog = dialog
+        dialog.show()
+        return dialog
+
     def _refresh_ruler_spacing(self) -> None:
         """Calibrate the rulers from what is known now, and say what that is."""
         spacing = self.ruler_microns_per_pixel()
@@ -4539,6 +5463,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _on_paper_failed(self, message: str) -> None:
         """Say why a fetch failed."""
+        batch = getattr(self, "_paper_batch", None)
+        if batch is not None:
+            self._on_batch_paper(batch.get("current", ""), {"error": message})
+            return
         self._paper_idle()
         self.set_preview_status(tr("Could not fetch the paper: {why}",
                                    why=message))
@@ -4564,6 +5492,126 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             m=result.get("with_legend", 0), licence=licence, path=folder))
         self._paper_note.show()
         if not folder:
+            return
+        if self._propagate_cb is not None:
+            try:
+                self._propagate_cb({"src": folder})
+            except Exception:
+                LOG.debug("could not write src", exc_info=True)
+        self.load_source_async(folder)
+
+    def fetch_papers(self, pdfs: Sequence[Any], parent: Any = None, *,
+                     fetch: Optional[Callable] = None,
+                     offer_install: bool = True) -> bool:
+        """Read several PDFs, one after another, off the GUI thread (item 526).
+
+        Each paper's figures go into a folder of its own, ``parent/<paper>``,
+        and when the last is read ``src`` is pointed at ``parent``, which
+        Figure mode's preview and run read paper by paper. The status line
+        says which paper of how many is being read; a PDF that cannot be
+        read is reported by name and the others are read all the same.
+
+        :param pdfs: the PDF paths, in reading order.
+        :param parent: the folder the papers' folders are made in; the first
+            PDF's folder when None.
+        :param fetch: replaces ``fetch_paper_to_folder`` (tests).
+        :param offer_install: offer the figure reader's install first when
+            it is needed.
+        :returns: True when the reading was started, or answered with the
+            reader's install offer.
+        """
+        pdfs = [Path(str(pdf)).expanduser() for pdf in pdfs
+                if str(pdf or "").strip()]
+        if not pdfs:
+            return False
+        if len(pdfs) == 1:
+            return self.fetch_paper(str(pdfs[0]), str(parent or pdfs[0].parent),
+                                    fetch=fetch, offer_install=offer_install)
+        if self._paper_jobs.is_busy() or getattr(self, "_paper_batch", None):
+            self.set_preview_status(tr("A paper is already being fetched."))
+            return False
+        if offer_install and fetch is None:
+            from ...plaque_papers import reader_problem
+
+            kind, why = reader_problem(pdf=True)
+            if kind and not self._offer_install(reinstall=kind == "reinstall",
+                                                why=why):
+                return True
+        folder = Path(str(parent)).expanduser() if parent else pdfs[0].parent
+        taken: set = set()
+        todo = []
+        for index, pdf in enumerate(pdfs):
+            name = paper_folder_name(pdf)
+            for label in (name, f"{paper_folder_name(pdf.parent.name)}_{name}",
+                          f"{index + 1:03d}_{name}"):
+                if label.lower() not in taken:
+                    break
+            taken.add(label.lower())
+            todo.append((pdf, folder / label))
+        self._paper_batch = {"todo": todo, "n": len(todo), "read": [],
+                             "failed": [], "folder": folder, "fetch": fetch,
+                             "current": ""}
+        self._paper_btn.setEnabled(False)
+        self._paper_btn.setText(tr("Fetching…"))
+        self._next_paper()
+        return True
+
+    def _next_paper(self) -> None:
+        """Start reading the next PDF of the batch, or finish it."""
+        batch = self._paper_batch
+        if not batch["todo"]:
+            self._papers_read()
+            return
+        pdf, dest = batch["todo"].pop(0)
+        batch["current"] = pdf.name
+        self.set_preview_status(tr(
+            "Reading paper {k} of {n}: {name}…",
+            k=batch["n"] - len(batch["todo"]), n=batch["n"], name=pdf.name))
+        fetch = batch["fetch"]
+        if fetch is None:
+            from ...plaque_papers import fetch_paper_to_folder as fetch
+
+        def job() -> Dict[str, Any]:
+            """Read one PDF, turning its failure into an answer."""
+            try:
+                return {"result": fetch(str(pdf), dest)}
+            except Exception as exc:
+                return {"error": str(exc) or type(exc).__name__}
+
+        self._paper_jobs.submit(
+            job, lambda answer, name=pdf.name: self._on_batch_paper(name, answer))
+
+    def _on_batch_paper(self, name: str, answer: Dict[str, Any]) -> None:
+        """Note how one PDF of the batch went, then read the next."""
+        batch = getattr(self, "_paper_batch", None)
+        if batch is None:
+            return
+        if answer.get("error") or not isinstance(answer.get("result"), dict):
+            batch["failed"].append((name, str(answer.get("error") or "")))
+        else:
+            batch["read"].append(answer["result"])
+        self._next_paper()
+
+    def _papers_read(self) -> None:
+        """Report the batch, naming each PDF that could not be read, and show
+        the papers that were."""
+        batch, self._paper_batch = self._paper_batch, None
+        self._paper_idle()
+        read, failed = batch["read"], batch["failed"]
+        folder = str(batch["folder"])
+        lines = [tr("Read {k} of {n} papers into {path}: {figures} figures, "
+                    "{m} with legends.", k=len(read), n=batch["n"], path=folder,
+                    figures=sum(int(r.get("figures") or 0) for r in read),
+                    m=sum(int(r.get("with_legend") or 0) for r in read))]
+        lines += [tr("Could not read {name}: {why}", name=name, why=why)
+                  for name, why in failed]
+        self._paper_note.setText("\n".join(lines))
+        self._paper_note.show()
+        self.set_preview_status(tr(
+            "Could not read {n} of the papers: {names}.", n=len(failed),
+            names=", ".join(name for name, _why in failed))
+            if failed else lines[0])
+        if not read:
             return
         if self._propagate_cb is not None:
             try:
@@ -4891,8 +5939,8 @@ def check_the_src(screen: Any, source: str) -> Optional[str]:
 
     Asked once per source and mode, and only while the screen is on
     screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode
-    -- already, or after the answer switched to it -- has its first PDF
-    read the way a dropped one is, so the preview and the run get the
+    -- already, or after the answer switched to it -- has every PDF read
+    the way dropped ones are (item 526), so the preview and the run get the
     paper's figure folder rather than a PDF they cannot open.
 
     :param screen: the Plaque Assay screen.

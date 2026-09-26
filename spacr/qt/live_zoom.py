@@ -56,12 +56,13 @@ live half.
 from __future__ import annotations
 
 import logging
+import re
 from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QFont
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
 
 LOG = logging.getLogger(__name__)
 
@@ -475,3 +476,393 @@ def install_live_zoom(app=None) -> Optional[LiveZoomFilter]:
     app.installEventFilter(live_zoom)
     setattr(app, _FILTER_ATTRIBUTE, live_zoom)
     return live_zoom
+
+
+#: One Ctrl + wheel notch over a right-hand column, as a fraction of 100 %.
+#: Twice the Z gesture's step: this one moves a column, not the interface,
+#: and a console the user is squinting at should get there in a few notches.
+COLUMN_TEXT_STEP = 0.10
+
+#: How long the wheel is still before the size is written down, in ms.
+_COLUMN_SAVE_MS = 400
+
+_COLUMN_FILTER_ATTRIBUTE = "_spacr_column_text_filter"
+
+#: The event kinds the column filter looks at, looked up once: the filter
+#: sees every event in the process. Measured per event: 0.3 us with no
+#: filter, 3.3 us with the enum members looked up inside the filter, 1.4 us
+#: with them looked up here.
+_WHEEL = QEvent.Wheel
+_KEYS = frozenset((QEvent.ShortcutOverride, QEvent.KeyPress))
+_RESTYLE_ON = frozenset((QEvent.StyleChange, QEvent.Show))
+_COLUMN_KINDS = frozenset((_WHEEL,)) | _KEYS | _RESTYLE_ON
+
+_COMMENT = re.compile(r"/\*.*?\*/", re.S)
+_RULE = re.compile(r"([^{}]+)\{([^{}]*)\}")
+_FONT_SIZE = re.compile(r"font-size\s*:\s*([0-9]*\.?[0-9]+)\s*(px|pt)", re.I)
+
+
+def font_size_rules(sheet: str) -> list:
+    """Every ``(selector, size, unit)`` in ``sheet`` that sets a font size.
+
+    :param sheet: Qt style sheet text.
+    """
+    rules = []
+    for selector, body in _RULE.findall(_COMMENT.sub("", str(sheet or ""))):
+        found = _FONT_SIZE.search(body)
+        selector = selector.strip()
+        if found and selector:
+            rules.append((selector, float(found.group(1)),
+                          found.group(2).lower()))
+    return rules
+
+
+def scaled_font_sheet(sheet: str, ratio: float) -> str:
+    """The font sizes of ``sheet``, and nothing else, multiplied by ``ratio``.
+
+    Set on a container, this re-declares every size the window's sheet gives
+    the widgets inside it: a container's sheet beats an ancestor's whatever
+    the specificity, so the whole hierarchy of sizes -- a 15 px card title
+    over 12 px captions -- moves together and stays in proportion, and
+    widgets built later inside the container follow without being visited.
+
+    :param sheet: the sheet the container inherits.
+    :param ratio: the multiplier; 1.0 gives the same sizes back.
+    """
+    lines = []
+    for selector, size, unit in font_size_rules(sheet):
+        if unit == "px":
+            value = f"{max(_MIN_PX, int(round(size * ratio)))}px"
+        else:
+            value = f"{max(_MIN_PT, round(size * ratio, 2))}pt"
+        lines.append(f"{selector} {{ font-size: {value}; }}")
+    return "\n".join(lines)
+
+
+class ColumnTextScale(QObject):
+    """Ctrl + wheel over a module screen's right-hand column sizes its text.
+
+    Item 529. The maintainer: "for the pannels to the right holding ctrl and
+    scrolling should increase or decrease the font size."
+
+    ONE SIZE FOR EVERY COLUMN, persisted in
+    :func:`spacr.qt.preferences.get_runtime_text_scale`. It multiplies the
+    size the rest of the interface has, so the whole-GUI scale (471) and the
+    Z gesture (378) still move the column with everything else.
+
+    A STYLE SHEET ON THE COLUMN, NOT ``setFont``. The Z gesture's
+    ``setFont`` is undone by the next repolish (measured: a label set to
+    20 px is back at its sheet's 13 px after ``unpolish``/``polish``), and
+    the column's widgets repolish every time a card folds or a run starts.
+    :func:`scaled_font_sheet` re-declares the inherited sizes on the column
+    itself, which only its descendants see. A widget that sizes its own text
+    from Python and so outranks any sheet -- the console's entries -- takes
+    the size through an ``apply_column_text_scale(scale)`` method instead.
+
+    AN APPLICATION FILTER, because the console and every scroll area in the
+    column accept the wheel before a parent could see it. It yields to:
+
+    * the Z gesture while Z is held -- Z + wheel is 378's;
+    * any widget between the pointer and the column that handles the wheel
+      in Python -- the plaque and live-preview canvases zoom on Ctrl + wheel
+      and a figure canvas has its own scroll -- which keeps the gesture to
+      the text panels;
+    * everything outside a registered column.
+
+    Ctrl+0 with the pointer over a column whose text is not at 100 % puts it
+    back; at 100 % the key is left to Go home, which it otherwise is.
+    """
+
+    def __init__(self, parent: Optional[QObject] = None) -> None:
+        """Create the filter with the stored size and no columns yet."""
+        super().__init__(parent)
+        self._roots: list = []
+        self._digests: dict = {}
+        self._own: dict = {}
+        self._swallow_key = False
+        try:
+            from .preferences import get_runtime_text_scale
+
+            self._scale = float(get_runtime_text_scale())
+        except Exception:                                    # noqa: BLE001
+            self._scale = 1.0
+        self._restyle_timer = QTimer(self)
+        self._restyle_timer.setSingleShot(True)
+        self._restyle_timer.setInterval(0)
+        self._restyle_timer.timeout.connect(self.restyle_all)
+        self._save_timer = QTimer(self)
+        self._save_timer.setSingleShot(True)
+        self._save_timer.setInterval(_COLUMN_SAVE_MS)
+        self._save_timer.timeout.connect(self._save)
+
+    def scale(self) -> float:
+        """The columns' text size, 1.0 for the interface's own."""
+        return self._scale
+
+    def roots(self) -> list:
+        """The registered columns that are still alive."""
+        self._roots = [r for r in self._roots if _alive(r)]
+        return list(self._roots)
+
+    def register(self, root) -> None:
+        """Make ``root`` a column whose text Ctrl + wheel sizes.
+
+        :param root: the container; everything inside it follows.
+        """
+        if root is None or any(root is r for r in self.roots()):
+            return
+        self._roots.append(root)
+        self._own[id(root)] = str(root.styleSheet() or "")
+        self.restyle(root)
+
+    def set_scale(self, scale: float, *, remember: bool = True) -> float:
+        """Give every column the text size ``scale``, within its bounds.
+
+        :param scale: 1.0 for the interface's own size.
+        :param remember: store it, once the wheel is still.
+        :returns: the size applied.
+        """
+        from .preferences import (RUNTIME_TEXT_SCALE_MAX,
+                                  RUNTIME_TEXT_SCALE_MIN)
+
+        scale = round(max(RUNTIME_TEXT_SCALE_MIN,
+                          min(RUNTIME_TEXT_SCALE_MAX, float(scale))), 4)
+        if scale != self._scale:
+            self._scale = scale
+            self._restyle_timer.start()
+        if remember:
+            self._save_timer.start()
+        return scale
+
+    def reset(self) -> float:
+        """Put the columns' text back to the interface's size, now."""
+        self.set_scale(1.0, remember=False)
+        self._save()
+        self.restyle_all()
+        return self._scale
+
+    def _save(self) -> None:
+        """Write the size down."""
+        self._save_timer.stop()
+        try:
+            from .preferences import set_runtime_text_scale
+
+            set_runtime_text_scale(self._scale)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not store the column text size", exc_info=True)
+
+    @staticmethod
+    def _inherited_sheet(root) -> str:
+        """The sheets ``root`` inherits, farthest first."""
+        sheets = []
+        widget = root.parentWidget()
+        while widget is not None:
+            text = widget.styleSheet()
+            if text:
+                sheets.append(str(text))
+            widget = widget.parentWidget()
+        app = QApplication.instance()
+        if app is not None and app.styleSheet():
+            sheets.append(str(app.styleSheet()))
+        return "\n".join(reversed(sheets))
+
+    def restyle(self, root) -> bool:
+        """Re-declare ``root``'s inherited sizes at the present scale.
+
+        Idempotent: nothing is set unless the scale or an inherited sheet
+        changed since the last time, which is what lets this run on every
+        ``StyleChange`` the column receives -- setting the column's own sheet
+        sends it one. A column never scaled wears no sheet of its own; one
+        that was scaled keeps declaring its sizes at 100 %, because taking a
+        font rule away does not give Qt's widgets their old font back
+        (measured: 23 of the Measure column's 58 widgets kept the larger
+        size when the sheet was emptied).
+
+        :param root: a registered column.
+        :returns: whether the column's sheet was replaced.
+        """
+        if not _alive(root):
+            return False
+        key = id(root)
+        declare = self._scale != 1.0 or key in self._digests
+        inherited = self._inherited_sheet(root) if declare else ""
+        digest = (self._scale, hash(inherited))
+        if self._digests.get(key, digest if not declare else None) == digest:
+            return False
+        self._digests[key] = digest
+        own = self._own.get(key, "")
+        sheet = f"{own}\n{scaled_font_sheet(inherited, self._scale)}"
+        if str(root.styleSheet() or "") != sheet:
+            root.setStyleSheet(sheet)
+        for widget in root.findChildren(QWidget):
+            hook = getattr(widget, "apply_column_text_scale", None)
+            if callable(hook):
+                try:
+                    hook(self._scale)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("a column widget refused its text size",
+                              exc_info=True)
+        QTimer.singleShot(0, lambda: self._refit(root))
+        return True
+
+    @staticmethod
+    def _refit(root) -> None:
+        """Let the column's splitters re-measure the panes the text resized.
+
+        A row of buttons that wraps needs another line when its captions
+        grow, and a splitter keeps a fixed pane at the height it had until
+        told to look again.
+        """
+        if not _alive(root):
+            return
+        for splitter in root.findChildren(QWidget):
+            rebalance = getattr(splitter, "rebalance", None)
+            if (callable(rebalance) and hasattr(splitter, "pane")
+                    and getattr(splitter, "_laid_out", False)):
+                try:
+                    rebalance(refit=True)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("a column splitter would not refit",
+                              exc_info=True)
+
+    def restyle_all(self) -> int:
+        """Restyle every column; returns how many sheets were replaced."""
+        self._restyle_timer.stop()
+        return sum(1 for root in self.roots() if self.restyle(root))
+
+    def root_of(self, widget):
+        """The registered column ``widget`` is inside, or None.
+
+        :param widget: any object; only a widget can be inside a column.
+        """
+        if not self._roots or not isinstance(widget, QWidget):
+            return None
+        while widget is not None:
+            for root in self._roots:
+                if widget is root:
+                    return root
+            widget = widget.parentWidget()
+        return None
+
+    @staticmethod
+    def _handles_its_own_wheel(widget, root) -> bool:
+        """Whether something between ``widget`` and ``root`` owns the wheel.
+
+        A class that defines ``wheelEvent`` in Python (a canvas that zooms,
+        a matplotlib figure) is doing something of its own with it; Qt's
+        own scroll areas and text views are not, and are what the column's
+        text lives in.
+        """
+        while widget is not None and widget is not root:
+            for klass in type(widget).__mro__:
+                if "wheelEvent" in vars(klass):
+                    if not str(klass.__module__).startswith(
+                            ("PySide6", "shiboken6")):
+                        return True
+                    break
+            widget = widget.parentWidget()
+        return False
+
+    @staticmethod
+    def _z_is_held() -> bool:
+        """Whether the Z gesture has the wheel."""
+        app = QApplication.instance()
+        live = getattr(app, _FILTER_ATTRIBUTE, None) if app else None
+        return bool(getattr(live, "_held", False))
+
+    def _column_under_pointer(self, watched):
+        """The column under the pointer, else the one ``watched`` is in."""
+        from PySide6.QtGui import QCursor
+
+        try:
+            root = self.root_of(QApplication.widgetAt(QCursor.pos()))
+        except Exception:                                    # noqa: BLE001
+            root = None
+        return root or self.root_of(watched)
+
+    def eventFilter(self, watched, event):    # noqa: N802 - Qt naming
+        """Take Ctrl + wheel and Ctrl+0 over a column; restyle on a change.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: True when the event was the gesture's.
+        """
+        kind = event.type()
+        if kind not in _COLUMN_KINDS or not self._roots:
+            return False
+        if kind == _WHEEL:
+            if event.modifiers() & Qt.ControlModifier:
+                return self._wheeled(watched, event)
+            return False
+        if kind in _KEYS:
+            if event.key() == Qt.Key_0:
+                return self._keyed(watched, event, kind)
+            return False
+        if kind in _RESTYLE_ON:
+            for root in self._roots:
+                if watched is root:
+                    self._restyle_timer.start()
+                    break
+        return False
+
+    def _wheeled(self, watched, event) -> bool:
+        """One Ctrl + wheel event; consumed when it sized a column."""
+        blocking = Qt.AltModifier | Qt.MetaModifier | Qt.ShiftModifier
+        if event.modifiers() & blocking or self._z_is_held():
+            return False
+        root = self.root_of(watched)
+        if root is None or self._handles_its_own_wheel(watched, root):
+            return False
+        delta = event.angleDelta().y() or event.pixelDelta().y()
+        event.accept()
+        if delta:
+            self.set_scale(self._scale + COLUMN_TEXT_STEP * delta / _NOTCH)
+        return True
+
+    def _keyed(self, watched, event, kind) -> bool:
+        """Ctrl+0 over a column with its text resized puts it back."""
+        if event.modifiers() != Qt.ControlModifier:
+            return False
+        if kind == QEvent.KeyPress:
+            swallow, self._swallow_key = self._swallow_key, False
+            if swallow:
+                event.accept()
+                return True
+        if self._scale == 1.0:
+            return False
+        if self._column_under_pointer(watched) is None:
+            return False
+        self.reset()
+        event.accept()
+        self._swallow_key = kind == QEvent.ShortcutOverride
+        return True
+
+
+def install_column_text_scale(app=None) -> Optional[ColumnTextScale]:
+    """Install the Ctrl + wheel column gesture on the application, once.
+
+    :param app: optional QApplication; falls back to the running instance.
+    :returns: the filter, or None when there is no application to hold it.
+    """
+    app = app or QApplication.instance()
+    if app is None:
+        return None
+    existing = getattr(app, _COLUMN_FILTER_ATTRIBUTE, None)
+    if existing is not None:
+        return existing
+    column_text = ColumnTextScale(app if isinstance(app, QObject) else None)
+    app.installEventFilter(column_text)
+    setattr(app, _COLUMN_FILTER_ATTRIBUTE, column_text)
+    return column_text
+
+
+def register_text_column(root) -> Optional[ColumnTextScale]:
+    """Let Ctrl + wheel over ``root`` size the text inside it (item 529).
+
+    :param root: a module screen's right-hand column.
+    :returns: the filter, or None without an application.
+    """
+    column_text = install_column_text_scale()
+    if column_text is not None:
+        column_text.register(root)
+    return column_text

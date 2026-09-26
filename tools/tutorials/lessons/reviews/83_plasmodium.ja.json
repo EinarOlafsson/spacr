@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Plasmodium：生物種ガイドを見て回る",
+  "description": "Plasmodiumのガイドを見て、細胞の図を調べ、利用できる一般的な画像解析のワークフローを見つけます。",
+  "objectives": [
+    "Homeからページを開き、主な操作部分を見つける。",
+    "利用できる入力、操作、出力を確認する。",
+    "次に使える解析や参考資料を選ぶ。"
+  ],
+  "prerequisite": "spaCRのHomeを開いてください。ガイドには入力ファイルは必要ありません。Plasmodium専用のアッセイのタイルには、現在Coming soonと表示されています。",
+  "scenes": [
+    "Plasmodiumには専用のガイドがあります。HomeからPlasmodiumを選ぶと、この生物、その細胞内の区画、予定されているアッセイを見て回れます。",
+    "情報パネルでは、血液期や肝臓期から運動性まで、寄生虫の姿がセクションごとに説明されています。区切り線をドラッグすると、モジュールのタイルの横に広い場所を取れます。",
+    "アピコンプレックス類の図で、区画にポインターを合わせると、それが何かを読めます。いくつか選ぶとまとめて強調表示され、Clear componentsで表示が元に戻ります。",
+    "アッセイのタイルにはまだComing soonと表示され、開くことはできませんが、説明を読めばそれぞれが何を測るかがわかります。今すぐPlasmodiumの画像を解析するには、Homeに戻り、自分の画像と適切なチャネル設定でMaskかMeasureを開きます。",
+    "さらに詳しく調べるには、PlasmoDBとUniProtのリンクで生物種の資料がブラウザーに開きます。ここではデータセットもRunも必要なく、ガイドはファイルを書き出しません。"
+  ]
+}

@@ -1,37 +1,35 @@
 {
   "lesson": "17_timelapse",
-  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "english_sha256": "eba06970f15715a5138ab197702d9cea31088ea530bef914bc72a6738f3dc553",
   "review": {
-    "kind": "Parent editorial translation of frozen English; synthetic data, cached-mask comparison, explicit final Re-link and warning limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "it",
-  "title": "Tracciamento temporale",
-  "description": "Esegui otto fotogrammi sintetici dal flusso annidato in Mask e confronta i collegamenti delle maschere in Track preview.",
+  "title": "Timelapse",
+  "description": "Collega gli oggetti lungo una serie temporale, esamina le loro tracce e prepara le immagini tracciate per la misura.",
   "objectives": [
-    "Trovare Timelapse in Mask e conservare asse temporale e immagini originali.",
-    "Confrontare tracce iniziali, frammentate e ripristinate sulle stesse maschere.",
-    "Distinguere indicatori, riproduzione, inferenza e movimento biologico misurato."
+    "Caricare le immagini e le maschere di esempio in Track preview.",
+    "Regolare la sovrapposizione ed esaminare l’identità degli oggetti tra i fotogrammi.",
+    "Configurare un’esecuzione di Mask per serie temporali e trovarne gli output tracciati."
   ],
-  "prerequisite": "Scegli Help > Demos > Timelapse demo in una nuova cartella: otto tempi sintetici di 256 per 256 pixel, nucleo nel canale 0 e cellula nel canale 1. Attiva Plot e Keep original images; i sedici TIFF restano invariati. Lo ZIP contiene piani cellulari esatti di questa esecuzione, non dati acquisiti né verità di riferimento. Seleziona separatamente image_sequences/field_A01 e label_sequences/field_A01, canale 0, otto fotogrammi e un campo. La soglia 0.1 dà sedici tracce complete; 1.0 ne dà 128 da un fotogramma. Ripristina 0.1, attendi e premi Re-link: la digitazione può avviare un valore intermedio. Non premere Propagate settings, che non trasferisce la soglia IoU. Sono dichiarati gli avvisi su flow threshold, tabella delle relazioni e stato delle impostazioni. Nessuna validazione biologica o velocità fisica. API: spacr.core.preprocess_generate_masks e spacr.timelapse. AI rimane disattivato.",
+  "prerequisite": "Scarica ed estrai SYNTHETIC_timelapse_preview.zip. L’esempio didattico contiene otto fotogrammi di immagini cellulari e le immagini di etichette corrispondenti. Per un’esecuzione completa di Mask sui tuoi dati, prepara immagini di microscopia ordinate nel tempo e annota l’intervallo di acquisizione.",
   "scenes": [
-    "Apri Mask e attiva l'interruttore Time. Timelapse ora è annidato in Mask, non è una scheda separata in Home. Aggiunge impostazioni dell'asse temporale e del tracciamento al flusso di segmentazione. Le misure di motilità appartengono a Measure, un passaggio successivo.",
-    "Scegli Help, Demos, poi Timelapse demo e seleziona una nuova cartella. Verranno creati otto fotogrammi sintetici con oggetti in movimento e caricate le relative impostazioni. Sono immagini didattiche, non un esperimento biologico né una prova dell'accuratezza della segmentazione.",
-    "Controlla la sorgente e i canali caricati. Questa demo ha intensità nucleare nel canale zero e cellulare nel canale uno, senza canale del patogeno. I nomi dei file codificano il tempo separatamente da campo e canale. Non sostituire una serie temporale con la normale piastra statica di prova.",
-    "Frame limits usa estremi di intervallo indicizzati da zero: da zero a otto include tutti gli otto fotogrammi, escludendo l'estremo finale. Mantieni insieme i tempi di un singolo campo. La frequenza di riproduzione non fornisce un intervallo di acquisizione mancante; qui non si stabiliscono velocità fisiche.",
-    "Traccia le cellule con la modalità basata sulla sovrapposizione, chiamata iou. Collega le maschere tramite il rapporto tra intersezione e unione nei fotogrammi adiacenti. Gli altri motori hanno ipotesi e dipendenze facoltative diverse. Lo spostamento non è una soglia di sovrapposizione: usa i controlli effettivamente letti dal motore scelto.",
-    "Attiva Keep original images prima di Run. Altrimenti la pulizia può eliminare le cartelle delle immagini intermedie e originali. Questa registrazione conserva invariati tutti i sedici TIFF generati e non tocca i dati dei vecchi tutorial. Mantieni sempre una copia di sicurezza separata degli esperimenti acquisiti.",
-    "Attiva Plot ed esegui questo piccolo esempio. La pipeline attuale elabora insieme tutti gli otto fotogrammi anche se richiedi un lotto più piccolo. Osserva console e monitor delle risorse: più fotogrammi, immagini più grandi e oggetti aggiuntivi possono richiedere molta più memoria.",
-    "L'esecuzione produce cinque figure e otto array combinati. In questa visualizzazione normalizzata, i primi due piani sono intensità; gli ultimi due sono etichette di cellule e nuclei, non altri canali di acquisizione. La tabella cellulare salvata contiene sedici tracce, ciascuna lunga otto fotogrammi.",
-    "Leggi gli avvisi oltre a Finished. Questa versione segnala valori ereditati della soglia di flusso, una tabella delle relazioni non disponibile e un avviso sullo stato delle impostazioni. Abbiamo verificato separatamente maschere e tracce salvate: non è una validazione completa della versione né un sostituto di Measure.",
-    "Apri Track preview. Per riprodurre l'esercizio di collegamento, scarica ed estrai l'archivio sintetico collegato sotto. Contiene gli esatti piani di immagine e maschera cellulare del lotto registrato. Caricare quelle maschere consente di provare i collegamenti senza eseguire un altro modello di segmentazione.",
-    "Scegli la cartella della sequenza di immagini del campo A zero uno. Le immagini esportate contengono solo il piano di intensità cellulare originale: qui scegli quindi il canale zero. Conserva immagini ed etichette sotto cartelle principali separate; imposta Frames previewed a otto e Fields a uno.",
-    "Scegli la cartella delle etichette corrispondente con Masks. Sono maschere calcolate, non una verità di riferimento. Lascia Keep only full-length tracks disattivato e non premere Propagate settings. I controlli del modello non creano nuove maschere quando viene letta una sequenza di maschere esistente.",
-    "Avvia l'anteprima con la soglia di sovrapposizione a zero virgola uno. Riporta sedici tracce di otto fotogrammi, senza tracce brevi in questo esempio. Frammentazione e salti sono indicatori calcolati senza verità di riferimento: valori bassi da soli non provano che le identità siano biologicamente corrette.",
-    "Porta la soglia di sovrapposizione a uno. Richiedere sovrapposizione esatta frammenta questo esempio in movimento in centoventotto tracce di un solo fotogramma. Immagini e maschere restano identiche; cambiano solo i collegamenti. Il valore volutamente eccessivo mostra la frammentazione, non è un'impostazione consigliata.",
-    "Ripristina zero virgola uno, attendi che finisca l'anteprima corrente e premi Re-link. La digitazione può avviare un calcolo con un valore intermedio: conferma esplicitamente quello finale. Tornano le sedici tracce complete. Non premere Propagate settings: la soglia non viene trasferita al modulo di elaborazione del lotto.",
-    "Sposta il cursore al fotogramma otto per ispezionare gli oggetti collegati. La velocità di riproduzione cambia soltanto la visione, non il tempo di acquisizione. Prosegui con Measure e Motility usando intervallo e scala validati. API e spaCR AI aiutano a spiegare le impostazioni, ma non sostituiscono il controllo di immagini, tracce e avvisi."
+    "Da Home, apri Mask e fai clic sull’icona Timelapse in alto a destra per attivare il tracciamento. Usa Timelapse per collegare gli oggetti tra immagini consecutive. Prima proveremo l’esempio collegato in Track preview, poi esamineremo le impostazioni per elaborare la tua sequenza di immagini.",
+    "Scarica ed estrai l’archivio di esempio qui sotto, poi fai clic su Track preview a destra dell’intestazione Actions. L’archivio contiene una sequenza di immagini e la corrispondente sequenza di maschere per otto fotogrammi. Tieni insieme le due cartelle per poter selezionare immagini ed etichette corrispondenti.",
+    "Scegli image_sequences, poi field_A01, come cartella delle immagini. Seleziona il canale zero: ogni immagine di esempio contiene un solo canale di intensità cellulare. Imposta Frames previewed su otto e Fields su uno.",
+    "Fai clic su Masks e seleziona label_sequences, poi field_A01. Ogni etichetta identifica un oggetto nell’immagine corrispondente. All’inizio lascia disattivato Keep only full-length tracks, così puoi esaminare le tracce che iniziano o finiscono all’interno della sequenza.",
+    "Imposta la soglia di sovrapposizione a zero virgola uno e fai clic su Run preview. Questa soglia stabilisce quanto devono sovrapporsi maschere adiacenti per essere collegate. Esamina le identità degli oggetti colorate e il riepilogo delle lunghezze delle tracce. L’esempio produce sedici tracce che coprono tutti gli otto fotogrammi.",
+    "Regola la soglia di sovrapposizione se gli oggetti si spezzano in tracce brevi o si collegano ai vicini sbagliati. Una soglia più alta richiede più sovrapposizione. Dopo averla cambiata, attendi la fine dell’anteprima e fai clic su Re-link per esaminare il valore finale. Scorri diversi fotogrammi prima di accettare il risultato.",
+    "Usa il cursore dei fotogrammi per seguire lo stesso oggetto lungo la sequenza. Play cambia la velocità con cui vedi i fotogrammi. Annota a parte l’intervallo di acquisizione reale per le successive misure di velocità.",
+    "Per un’esecuzione completa sulle tue immagini, imposta Source e i canali di intensità in Mask. Questa registrazione importa le impostazioni di una piccola sequenza sintetica di otto fotogrammi. Mantieni in ordine i punti temporali di ogni campo. I limiti dei fotogrammi usano un inizio e una fine esclusa: da zero a otto seleziona i primi otto fotogrammi.",
+    "Scegli l’oggetto da tracciare e la modalità di tracciamento. La modalità di sovrapposizione, iou, collega gli oggetti usando le loro maschere in fotogrammi adiacenti. Esamina prima una sequenza breve e scegli una modalità adatta a quanto si spostano i tuoi oggetti tra un fotogramma e l’altro.",
+    "Attiva Keep original images per conservare le immagini di input durante la pulizia della pipeline. Imposta il modello di segmentazione e i canali per i tuoi dati, e controlla l’anteprima prima di elaborare l’intera sequenza.",
+    "Attiva Plot per esaminare le figure generate, poi fai clic su Run. Segui l’avanzamento nella console e attendi il completamento. Inizia con una sequenza breve, così puoi controllare maschere e identità delle tracce prima di elaborare un esperimento più grande.",
+    "Esamina i piani di intensità e di etichette nelle figure di output. L’esecuzione salva gli array tracciati in merged e le tabelle delle tracce in tracks, nella cartella del progetto. Prosegui con Measure e poi con Motility per calcolare caratteristiche e movimento degli oggetti a partire da quelle tracce."
   ]
 }

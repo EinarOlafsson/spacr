@@ -1,31 +1,34 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "sv",
-  "title": "Train Cellpose: kontrollerade par och en uttrycklig API-omväg",
-  "description": "Hitta Train i Cellpose Workbench, känn igen det aktuella källimportfelet och följ riktig Python-träning i två epoker med sex nedladdningsbara cellbild-/maskpar.",
+  "title": "Träna en Cellpose-modell",
+  "description": "Förbered par av bilder och masker, finjustera en segmenteringsmodell i Cellpose Workbench och tillämpa den sparade kontrollpunkten.",
   "objectives": [
-    "Hitta Train och Apply i Make Masks, inte egna Home-rutor.",
-    "Kontrollera parade filnamn och skilj befintliga etiketter från granskad referens.",
-    "Känn igen delvis import och skilj API-omvägen från den felande GUI:n.",
-    "Granska indata, uppvärmningshastigheter, ändrade vikter och verifierad sökväg.",
-    "Skilj träningsförlust, testplatshållare och viktinläsning från oberoende noggrannhet."
+    "Läsa in bilder och motsvarande objektetikettmasker.",
+    "Välja startmodell, träningsinställningar och utdatamapp.",
+    "Köra träningen, hitta kontrollpunkten och prova den på separata bilder."
   ],
-  "prerequisite": "Använd sexparspaketet med inspelad hjälpare och källmanifest. Verkliga bildfält bevarar cellintensitet kanal 1 och cellmask plan 4; plan 6 är patogen. Befintliga etiketter och kantklippta objekt är INTE oberoende granskad referens. Train tappar fortfarande src och behåller model_name=new_model trots sifferimport; ingen GUI-träning startar. spacr.submodules.train_cellpose använder nytt mål, två epoker, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512, utan extra spaCR-augmentering. normalize=False stänger spaCR-percentiler, inte maximumskalning eller Cellposes normalisering. Cellpose roterar/skalar fortfarande med interna 256-pixelutsnitt. Startfrö 19; intern slumpning kvarstår. CUDA begränsat till 65% på RTX 3090; RAM-vakt 100 GiB gäller bara denna arbetsstation. 3,145,728 indatavärden och tolv figurarrayer kontrollerades; alla sex par kvarstod i träningen. Hastigheter 0 och 1.1111111111111112e-6; 345 av 347 träningsbara parametertensorer ändrades. Förlust steg från 1.496740683913231 till 1.5215517828861873. Inga testdata: nollorna är platshållare. Checkpoint under models/cellpose_model/models lästes med weights_only=True; konsolsammanfattningen saknar andra models. Läsning är inte inferens eller noggrannhet. Verklig figur i extern visare, inte infogad i GUI. Original, misslyckade inspelningar och tidigare GUI-stopp bevaras. Ingen AI-förfrågan, leverantörssvar, vetenskaplig godkännandeprocess eller publicering.",
+  "prerequisite": "Hämta och packa upp det länkade exemplet med sex par, eller förbered egna bilder och motsvarande masker med heltalsetiketter. Granska och rätta maskerna i Make Masks före träningen.",
   "scenes": [
-    "Öppna Make Masks och dess inbyggda Cellpose Workbench. Train och Apply är flikar där, inte separata Home-rutor. Lektionen visar dagens väg, ett importproblem och en uttrycklig Python-omväg. Den länkade Make Masks-lektionen handlar om att granska och redigera masker före träning.",
-    "Granska utgångspunkt och träningsschema i Train. Kopiera inte ursprungligt epokantal eller inlärningshastighet som rekommendation. Träning kräver parade bilder och instansmasker, en källmapp och ett utdatanamn. Ett synligt formulär betyder inte att kraven är uppfyllda.",
-    "Den verkliga Import settings-dialogen öppnar en CSV med begränsade exempelvärden. Efter import visas två epoker, minibatch ett och liten inlärningshastighet. Men nödvändig källa tappas och modellnamnet förblir new model. Det är delvis import, inte en färdig konfiguration; tryck inte Run.",
-    "Python-vägen nedan är skild från GUI-felet. Den anger ingen dold källa och reparerar inte formuläret. Använd det länkade paketet i en ny mapp. Hjälparen avvisar befintliga mål, bevarar originalparen och registrerar den faktiska API-implementationen och dess indata.",
-    "Det finns sex verkliga 512-pixel bild-/maskpar med matchande namn. Ursprungliga inställningar anger cellintensitet kanal ett och cellmasker plan fyra; plan sex är patogen. Befintliga etiketter är ingen oberoende granskad referens. Kontrollera gränser och kantklippta objekt före produktionsträning.",
-    "Det här är den riktiga sexparsfiguren sparad av API-körningen och öppnad i extern visare, inte infogad i spaCR. Varje övre bild hör till masken nedanför. Alla indatavärden och tolv visade arrayer jämfördes med källparen. Det bekräftar motsvarighet, inte annoteringskvalitet.",
-    "Kör hjälparen med datakälla och nytt mål. Det begränsade CUDA-exemplet använder sex par, två epoker och minibatch ett. Indatamålet är 512 pixlar; Cellpose tränar internt på 256-pixelutsnitt. Avstängd extra spaCR-augmentering stänger inte av Cellposes normalisering, rotation och storleksändring.",
-    "Första uppvärmningsepoken har inlärningshastighet noll. Nästa har en liten positiv hastighet som möjliggör viktändringar. Checkpointen jämfördes med initiala träningsbara vikter: 345 av 347 parametertensorer ändrades. Enbart ändrad diameter skulle inte klara kontrollen. Ändrade vikter bevisar ändå ingen bra modell.",
-    "Träningsförlusten steg lite från cirka 1,497 till 1,522. Inget testset skickades in. Nollfälten för testförlust är platshållare, inte perfekt testprestanda. Detta demonstrerar mekaniken, inte konvergens, bättre segmentering eller oberoende noggrannhet. Håll oberoende utvärdering åtskild från träning.",
-    "Använd checkpointens sökväg i den verifierade kontrollfilen. Den innehåller ytterligare en models-mapp som den generiska konsolsammanfattningen utelämnar. Bevara checkpoint, inställningar, manifest och kontroller tillsammans. Säker tensorinläsning bekräftar läsbarhet, inte inferens; paketet innehåller par och hjälpare, ingen certifierad modell.",
-    "Apply har egen källmapp, eget modellfält och liveförhandsvisning. Att öppna fliken väljer inte vår externa checkpoint eller startar inferens. Följ länkad lektion och validera med oberoende bilder. Valfri spaCR AI används inte här; frågor eller leverantörssvar ersätter inte granskning av verkliga belägg."
+    "Från Home öppnar du Tools och sedan Make Masks. Öppna Cellpose Workbench från dess verktygsfält och välj fliken Train. Du tränar från bilder och deras objektetikettmasker och använder sedan den sparade modellen i Apply.",
+    "Packa upp det länkade exemplet och ställ Source på dess träningsmapp. Mappen innehåller sex bilder och en undermapp masks. Lämna mask source tomt för att använda undermappen, eller välj en separat mapp med dina masker.",
+    "Varje bild behöver en motsvarande mask med samma höjd och bredd. Maskvärdena anger objekt: 0 är bakgrund och varje objekt har ett eget positivt heltal. Granska konturerna i Make Masks och rätta etiketter innan du använder dem för träning.",
+    "Lämna kanalvalet tomt för det här gråskaleexemplet. För en flerkanalsbild väljer du upp till tre nollbaserade kanalindex, till exempel 0 och 2 för första och tredje kanalen. Ange channel axis om den automatiska identifieringen inte hittar kanaldimensionen.",
+    "Välj en basmodell. Standardmodellen cpsam utgår från Cellpose-SAM; en sökväg till en kontrollpunkt fortsätter träningen av en befintlig modell. Ange ett modellnamn och välj Save path för utdata, eller lämna det tomt för att spara i projektet.",
+    "Ange antal epoker och batchstorlek. För en snabb första körning använder du 2 epoker och batchstorlek 1. Fler epoker ger modellen fler träningsuppdateringar, och större batcher använder mer minne. Inlärningstakten styr uppdateringarnas storlek; börja med det visade standardvärdet.",
+    "Behåll normaliseringen påslagen med 1:a och 99:e percentilen som utgångspunkt. De styr intensitetsintervallet för varje kanal. Scale range styr variationen i bildstorlek under träningen. Minimum training masks utesluter bilder med för få märkta objekt.",
+    "För att följa valideringsförlusten väljer du en separat mapp med valideringsbilder och motsvarande masker. Håll fälten åtskilda från träningsindata. Lämna valideringsmapparna tomma när du inte har en separat uppsättning.",
+    "Granska indatamappar, modellnamn och utdataplats och tryck sedan på Run. Följ träningsförloppet i konsolen. När körningen är klar anger konsolen sökvägen till kontrollpunkten som ska användas för segmentering.",
+    "Med en uttrycklig Save path tittar du i dess undermapp models. Med standardplatsen ligger kontrollpunkten i källmappen under models/cellpose_model/models. Behåll kontrollpunkten tillsammans med dina träningsinställningar.",
+    "Öppna Apply och välj en separat bildmapp. Kontrollera att Custom model pekar på rätt kontrollpunkt och granska en förhandsvisning innan du kör hela mappen. Apply skriver masker bredvid bilderna i en undermapp masks. Använd separata märkta synfält för att utvärdera resultaten."
   ]
 }

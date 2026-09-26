@@ -20,8 +20,13 @@
       "hold_after": 0.7
     },
     {
+      "visual": "07_create_conda_command",
+      "narration": "Create an environment named spacr-conda with Python three point twelve and spaCR from conda-forge, using the displayed command. Choose another name if you already use that name for a different environment.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "07_create_conda",
-      "narration": "Create an environment named spacr-conda with Python three point twelve. Choose another name if you already use that name for a different environment. Wait for Conda to finish creating it.",
+      "narration": "Conda solves the environment and lists its package plan. Review it, type y to accept, then wait for the download and installation to finish.",
       "hold_after": 0.7
     },
     {
@@ -31,7 +36,7 @@
     },
     {
       "visual": "09_install_conda",
-      "narration": "Install spaCR from conda-forge using the displayed command. Review and accept Conda’s package plan, then let the download and installation finish. Run conda list spacr to see the installed version.",
+      "narration": "Run conda list spacr to see the installed version and confirm that it comes from conda-forge. Installing Python and spaCR in one command lets Conda resolve every package together, which is much faster than adding spaCR to an existing environment.",
       "hold_after": 0.7
     },
     {
@@ -41,17 +46,23 @@
     },
     {
       "visual": "05_doctor",
-      "narration": "Run spacr-doctor if you want to check the installation. Read any warnings and follow the suggested steps for the file formats or features you need.",
+      "narration": "Run spacr-doctor to check the installation. Here it reports that vispy, a core dependency, is missing, and shows the command that installs it. Run that command, then run spacr-doctor again. Follow other suggested steps only for the file formats or features you need.",
       "hold_after": 0.7
     },
     {
       "visual": "06_installed_home",
       "narration": "Enter spacr to launch the application. Complete any first-launch choices, then continue with the Home tutorial to find modules and their example data.",
-      "hold_after": 0.7
+      "hold_after": 0.7,
+      "focus": [
+        48,
+        318,
+        2712,
+        1332
+      ]
     },
     {
       "visual": "10_current_release_choice",
-      "narration": "To update later, close spaCR, activate this environment and update the conda-forge package. Check the installed version afterwards. The pip and installer lessons cover the other installation routes.",
+      "narration": "To update later, close spaCR, activate this environment and update the conda-forge package. When conda-forge has no newer build, Conda reports that all requested packages are already installed. Check the installed version afterwards; the pip and installer lessons cover the other installation routes.",
       "related_lessons": [
         "01_pypi_github",
         "03_pip_install",

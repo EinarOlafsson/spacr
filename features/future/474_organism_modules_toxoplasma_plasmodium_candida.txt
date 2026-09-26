@@ -3,8 +3,9 @@ ONE MODULE PER ORGANISM: TOXOPLASMA, PLASMODIUM AND CANDIDA, EACH A PAGE OF ITS
 OWN WITH THE ASSAYS INSIDE IT
 ================================================================================
 
-Status:    OPEN. Organism pages implemented 2026-09-22; translations, API/
-           tutorial integration and proposal review remain.
+Status:    OPEN. Organism pages implemented 2026-09-22; proposals decided and
+           built 2026-09-25 (8 live, 12 Coming soon); translations of the
+           rewritten prose and API/tutorial integration remain.
 Owner:     implementation lane; API/tutorial/translation lane for catalogs.
 Requested: 2026-09-22, by the maintainer, in these words:
 
@@ -312,3 +313,86 @@ no broken requirements. Installed footprint is about1.2GB on this Linux system;
 no optional GPU extra installed and no GPU or native GUI run claimed.
 37 focused installer/launcher tests pass, including unpinned PyPI resolution,
 explicit official index, isolation, cancellation and same-name-folder handling.
+
+2026-09-25 — "BUILD AS PROPOSED": TWENTY TILES, EIGHT LIVE, TWELVE COMING SOON
+--------------------------------------------------------------------------------
+Maintainer decision 2026-09-25: "Build as proposed" - build the organism pages
+and the assay tiles as listed in the item; tiles for assays that don't exist
+yet show "Coming soon".
+
+All twenty proposed tiles stay on their pages with the item's names and icons.
+A proposal whose readout an existing spaCR module already measures now opens
+that module; the rest stay dimmed, disabled and say "Coming soon - <name>"
+with what they will do on hover, as before. The item specified no settings
+presets; the two motility tiles get one (infection_intensity_qc_scope =
+"none", because extracellular parasites have no host cell to infect).
+
+LIVE (8)                    opens
+  Toxoplasma  Gliding motility       Motility Assay (preset above)
+  Plasmodium  Parasitaemia           Host-Pathogen Analysis (infection fraction
+                                     per well with red cells as hosts)
+  Plasmodium  Sporozoite motility    Motility Assay (preset above)
+  Plasmodium  Drug response imaging  Dose-Response (4PL / EC50)
+  Candida     Adhesion               Invasion Assay (attached + invaded)
+  Candida     Epithelial invasion    Invasion Assay (two-colour staining)
+  Candida     Phagocytosis           Host-Pathogen Analysis (killing not measured)
+  Candida     Antifungal response    Dose-Response
+COMING SOON (12)
+  Toxoplasma  Egress, Bradyzoite conversion, Host cell damage
+  Plasmodium  Blood-stage staging, Merozoite invasion, Liver-stage growth,
+              Cell traversal, Gametocyte maturity
+  Candida     Filamentation, Germ tube formation, Biofilm, Morphology
+Each live tile's tooltip says how to use the general module for that readout
+(what to measure as host and pathogen objects, what is not measured).
+
+Where:
+* spacr/qt/organisms.py:95, :182, :277 - per-organism "workflows" (tile icon
+  key -> app key, preset, usage note); :314 workflow() lookup. Section prose
+  now names which tiles are live; section links include live proposals.
+* spacr/qt/screens/organism_screen.py:251 live-proposal tiles; :200
+  OrganismScreen.open_workflow; :300 open_workflow(window, route) opens via
+  MainWindow.open_module and applies the preset with apply_settings_dict
+  (fallback: emits module_requested when no window hosts the page).
+* spacr/qt/app.py:3102 spaCR menu: live proposals enabled, :3728
+  _open_organism_workflow; Coming soon entries unchanged.
+Navigation: Home -> organism -> tile -> module, and back via the organism
+entry or Home (MainWindow test below).
+
+Tests (offscreen, CPU, after merging nightly d2772a8e4):
+* tests/qt/test_organism_pages.py, test_organism_dropdown.py,
+  test_organism_caption_translations.py (9 languages x 3 pages),
+  test_organism_diagram_interaction.py, host_pathogen_registration,
+  starplast_launcher, external_caption_inventories, test_runtime_i18n_syntax,
+  test_i18n_literal_boundaries, test_docstring_correctness,
+  test_external_i18n_catalogs: 279 passed, 15 xfailed, 6 failed.
+  New: test_twenty_proposals_split_into_live_workflows_and_coming_soon,
+  test_each_page_shows_its_tiles_and_live_proposals_are_enabled (x3),
+  test_live_proposals_without_a_window_request_their_module (x3),
+  test_main_window_opens_a_live_proposal_with_its_preset_and_returns (real
+  MainWindow: Plasmodium -> Sporozoite motility -> Motility with scope
+  "none"; Candida -> Epithelial invasion -> Invasion; Biofilm does not
+  navigate; Home), test_workflow_actions_open_the_shared_module_with_its_preset.
+* The 6 failures are not from this change: 4 in test_external_i18n_catalogs
+  (enhance_* / detector inventory, transient dialogs) and the 2 docstring
+  ratchets fail identically on nightly d2772a8e4 itself (9,753 vs 9,721
+  callables: +32 unpinned by other lanes). This item's own +3 callables
+  (+2 function, +1 method, +6 parameters, +5 required) are pinned; the
+  ratchets need the other lanes' +32 on top.
+Screenshots (dark theme, 1500x900): /tmp/spacr-474-scratch/{toxoplasma,
+plasmodium,candida}.png, reviewed.
+
+For the docs/translation lane:
+* Retired as stale (source rewritten): the eight organism paragraphs'
+  records in docs/i18n/reviewed/runtime/*/2026-09-25-runtime-debt-messages.json
+  (8 x 9 languages); test_runtime_i18n_syntax sv/fr cohort 720 -> 712.
+* New tr() strings: the eight rewritten section paragraphs in organisms.py
+  (Toxoplasma "Movement, exit and persistent stages"; Plasmodium all four;
+  Candida "Surface attachment...", "Interactions with host cells",
+  "Antifungal response and interpretation") and the eight usage notes in the
+  "workflows" tables (each starting "Opens ..."). No new short UI captions.
+* API docstrings changed: organism_screen module docstring (Toxoplasma,
+  Plasmodium, Candida sections) and the organisms.ORGANISMS attribute
+  docstring; new public workflow(), open_workflow(),
+  OrganismScreen.open_workflow(). Reviewed API records in
+  docs/i18n/reviewed/api/*/2026-09-22-organism-guides.json and
+  -starplast-and-diagram.json are stale for those docstrings (report-only).

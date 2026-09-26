@@ -1,38 +1,40 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently checked genuine scatter groups, limits, live filters and capped wrapping; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "ko",
-  "title": "Small Multiples: 실제 그룹, 실시간 필터, 정확한 축 범위",
-  "description": "Graph Builder 안의 Small Multiples에서 내려받은 실제 측정값을 공통 또는 독립 축으로 비교하고, 빈 그룹과 분할 수준 제한을 확인하며 되돌릴 수 있는 파생 열을 만듭니다.",
+  "title": "Small Multiples: 공유 축 또는 별도 축으로 그룹 비교",
+  "description": "측정값을 불러오고, 그룹별 산점도를 배치하고, 축 척도와 필터를 고르고, 파생 열을 추가합니다.",
   "objectives": [
-    "현재 하위 모듈 경로를 찾아 실제 측정 개체로 산점도 격자를 구성합니다.",
-    "공유·개별·행별·열별 축을 비교하고 축척 변화와 데이터 변화를 구분합니다.",
-    "실시간 필터를 적용하고 빈 그룹과 미사용 배치 공간을 구분하며 제외된 수준을 셉니다.",
-    "메모리 내 수치 재조정 열을 추가·삭제하고 원본과 재현 가능한 차트 설정을 보존합니다."
+    "측정값을 불러와 축과 패싯을 지정합니다.",
+    "공유, 독립, 그룹별 축 범위를 고릅니다.",
+    "필터와 표시된 그룹을 확인한 뒤 파생 열을 추가하거나 제거합니다."
   ],
-  "prerequisite": "Annotate 다운로드 예제의 measurements.db와 바이트 단위로 동일한 개인 복사본을 사용합니다. 개체 2,341개, 웰 4개, 시야 라벨 13개, 실제 웰·시야 조합 51개가 있습니다. 개체 수는 독립 실험 반복 수가 아니며 공간 라벨도 확인된 처리 조건이 아닙니다. 시연한 모든 연속 산점 좌표, 정확한 그룹 구성, 축 범위, 제목, 패널 표시 여부는 원본 행을 기준으로 독립 검증했습니다. 검증 범위는 부분추출하지 않은 이 데이터의 유한하고 퇴화하지 않은 연속 축이며, 임의 차트·뷰 간 선택·생물학적 효과·물리 단위 보정을 보장하지 않습니다. Small Multiples는 Graph Builder의 표 전용 하위 모듈로, 전용 다운로드·이미지 미리 보기·GPU 파이프라인·AI 콘솔·실행 단위 Plot 스위치·내보내기 버튼이 없습니다. Annotate 데이터를 재사용하고 하위 모듈 자체의 Load table을 사용하세요.",
+  "prerequisite": "Annotate 튜토리얼에서 측정 예제를 내려받아 measurements.db 사본으로 작업하세요. 이 안내에서는 웰 4개에 걸친 객체 2,341개가 있는 cell 표를 씁니다. Small Multiples는 그래프를 표시하며, 그룹별 CSV 요약을 내보내려면 Tabulate를 쓰세요.",
   "scenes": [
-    "Home에서 Graph Builder를 열고 그 안에 있는 Small Multiples 버튼을 선택합니다. 이것이 현재 하위 모듈의 진입 경로이며 별도의 Home 타일이 아닙니다. Annotate에서 내려받을 수 있는 실제 측정 데이터의 개인 복사본을 재사용합니다. 예제를 얻는 방법은 Annotate 튜토리얼에 나옵니다.",
-    "Small Multiples 안의 Load table로 측정 데이터베이스의 개인 복사본을 고른 뒤 cell을 선택합니다. 웰 4개에서 측정한 개체 2,341개가 있습니다. 상위 Graph Builder에도 별도의 Load table 버튼이 있습니다. 여기서는 Small Multiples 제목 옆의 버튼을 사용합니다.",
-    "cell_area를 검색해 X로 끌고 cell_channel_1_mean_intensity를 Y에 놓습니다. Plot에서 Scatter를 선택합니다. rowID는 아래 방향 Facet에, columnID는 오른쪽 방향 Facet에 놓습니다. 검색은 열 목록만 좁히며 세포 집단을 걸러내지 않습니다. 각 점은 이미 측정된 개체 하나입니다.",
-    "두 축이 shared이면 패널 4개의 가로·세로 범위가 같습니다. 제목에는 개체 수 615, 525, 700, 501이 표시됩니다. 행·열 라벨은 위치를 나타내며 검증된 처리 조건이 아닙니다. 이 세포들은 독립적인 실험 반복이 아닙니다.",
-    "X scale과 Y scale을 모두 free로 바꿉니다. 각 패널이 자체 범위를 사용합니다. 그룹 내부의 형태를 보기 쉽지만, 폭이 같은 점 구름이 같은 측정값 범위를 뜻하지는 않습니다. 비교 전에 축 눈금을 읽으세요. 축척을 바꿔도 원본 측정값은 바뀌지 않습니다.",
-    "두 축에서 per row를 선택합니다. 같은 격자 행의 패널끼리는 범위를 공유하고 서로 다른 행은 다른 범위를 쓸 수 있습니다. 이것은 배치에 따른 축 그룹화이지 통계 보정이 아닙니다. 여기서는 각 행의 두 열을 일치하는 축으로 비교할 수 있습니다.",
-    "두 축에서 per column을 선택합니다. 같은 격자 열의 패널들이 범위를 공유합니다. X와 Y를 따로 설정할 수도 있지만 여기서는 함께 바꿉니다. 모든 웰을 비교하기 전에 두 축을 shared로 복원합니다. 공유는 현재 격자 안에서 공통이라는 뜻이지 이후 모든 필터에서도 고정된다는 뜻은 아닙니다.",
-    "Filter 탭에서 cell_area를 추가하고 하한을 21,925로 설정합니다. 실제 격자가 즉시 개체 1,171개로 갱신됩니다. 패널의 개체 수와 점들이 함께 바뀝니다. 이는 측정값의 실시간 필터이지 이미지 분할이나 새 분석 실행이 아닙니다.",
-    "Filter 탭에서 Clear all을 선택합니다. 개체 2,341개가 원래의 점 위치와 공유 축 범위로 돌아옵니다. 이 버튼은 필터를 지우지만 왼쪽의 Clear all channels는 차트에 배정한 열을 지웁니다. 어느 쪽도 데이터베이스 행을 삭제하지 않습니다.",
-    "실제로 없는 그룹을 확인하려면 columnID는 c2만, fieldID는 f20과 f21만 남기고 필요하면 범주 목록을 스크롤합니다. 오른쪽 Facet을 fieldID로 바꾸고 아래 Facet은 rowID로 둡니다. 세포 174개가 남습니다. 행 라벨 5, 시야 20의 패널은 n = 0입니다. 원본 개체가 없는 것이며 강도가 0으로 측정되었다는 뜻이 아닙니다.",
-    "필터를 지우고 오른쪽 Facet을 columnID로 되돌립니다. 두 분할 채널에 열이 배정된 상태에서 Wrap at을 5로 설정합니다. 격자는 여전히 2 × 2이고 안내문에는 줄바꿈이 무시되었다고 나옵니다. Wrap은 한 분할 채널만 사용할 때 적용되며 양방향 격자를 재배열하지 않습니다.",
-    "아래 Facet을 비우고 오른쪽에 fieldID를 놓은 뒤 Wrap at은 5로 유지합니다. 표시 대상 시야가 행당 다섯 자리씩 세 행으로 배치됩니다. 원본에는 13개 수준이 있지만 12개만 그립니다. 사용하지 않는 세 자리는 숨겨진 배치 공간으로, n = 0이라고 표시되는 실제 그룹과 다릅니다.",
-    "격자 아래의 안내문을 읽습니다. 시야 21이 표시된 12개 수준에서 제외되어 원본 개체 264개가 패널에 포함되지 않습니다. 실제 그려지는 점은 2,077개이지만 불러온 표에는 여전히 2,341행이 있습니다. 불러온 행 수가 모든 행의 표시를 보장하지는 않습니다.",
-    "Wrap을 끄고 두 Facet을 rowID와 columnID로 복원합니다. Columns에서 이름을 area_k로, 수식을 cell_area를 1,000으로 나누는 식으로 화면과 똑같이 입력합니다. 미리 보기는 처음 2,000행을 검사합니다. Add column을 선택하면 전체 표의 파생값을 계산하지만 데이터베이스를 다시 쓰지 않습니다.",
-    "area_k를 X로 끕니다. 모든 가로 좌표가 원래 세포 면적을 1,000으로 나눈 값이 되고 Y값과 그룹 구성은 그대로입니다. 이는 수치 재조정이지 제곱마이크로미터 보정, 새로운 측정, 생물학적 효과의 증거가 아닙니다. 파생값 2,341개를 모두 검증했습니다.",
-    "X를 cell_area로 먼저 복원한 뒤 Columns에서 area_k를 선택하고 Remove를 누릅니다. 원래의 네 패널 차트가 돌아오고 파생 열은 사라집니다. 개인 데이터베이스와 원래 내려받은 데이터 모두 바뀌지 않습니다. 다른 사람이 뷰를 재현하도록 변수, 그룹, 필터, 축척을 기록하세요.",
-    "코드에서는 spaCR의 Qt trellis_spec 모듈에 있는 trellis와 TrellisSpec이 그룹, 축척, Wrap을 정의하고 GraphSpec이 차트 채널을 정의합니다. 이 화면에는 전용 내보내기 버튼이나 자체 다운로드 데이터가 없습니다. 검증한 요약 CSV를 내보내려면 Tabulate를 사용하세요. 이미지 미리 보기, GPU 파이프라인, spaCR AI는 해당 분석 튜토리얼의 내용이지 이 표 전용 뷰의 기능이 아닙니다."
+    "Home에서 Graph Builder를 연 뒤 Small Multiples를 여세요. 이 화면에서 같은 측정값을 그룹 간에 비교합니다. 이 예제는 연결된 Annotate 튜토리얼에서 받을 수 있는 측정 데이터베이스를 씁니다.",
+    "Small Multiples 제목 옆의 Load table을 클릭하세요. measurements.db 사본을 열고 cell을 고르세요. 그래프 채널을 지정하기 전에 표와 객체 2,341개를 확인하세요.",
+    "cell_area를 X로, cell_channel_1_mean_intensity를 Y로 끌어다 놓고 Scatter를 고르세요. rowID를 Facet down에, columnID를 Facet across에 두세요. 검색으로 열 이름을 찾을 수 있으며, 각 점은 측정된 세포 하나입니다.",
+    "두 척도 모두 shared를 고르면 네 패널이 같은 축 범위를 씁니다. 그룹 제목과 객체 개수를 읽으세요. 이 예제에서 패싯 라벨은 공간상의 행과 열을 나타냅니다.",
+    "X scale과 Y scale에서 free를 고르면 패널마다 자체 범위를 갖습니다. 그룹 안의 패턴을 보기가 쉬워집니다. 이제 패널마다 범위가 다르므로 눈금 라벨을 주의해 비교하세요.",
+    "두 척도 모두 per row를 고르면 격자 각 행의 패널끼리 범위를 공유합니다. 행마다 범위가 다를 수 있습니다. 행 안의 비교가 가장 중요할 때 쓰세요.",
+    "per column을 고르면 격자 각 열 안에서 범위를 공유합니다. X와 Y는 따로 설정할 수 있습니다. 네 웰을 공통 척도로 비교하려면 두 축 모두 shared로 되돌리세요.",
+    "Filter에서 cell_area를 추가하고 최솟값을 21,925로 설정하세요. 격자가 남은 객체 1,171개에 대해 즉시 갱신됩니다. 패널별 새 개수를 확인하세요.",
+    "Filter에서 Clear all을 클릭하면 전체 집단으로 돌아갑니다. 차트 지정을 없애려면 왼쪽의 Clear all channels를 쓰세요. 두 작업 모두 원본 데이터베이스는 바꾸지 않습니다.",
+    "columnID를 c2로, fieldID를 f20과 f21로 필터링하세요. fieldID를 Facet across에 두고 rowID는 Facet down에 그대로 두세요. 5행, 시야 20 패널에는 객체가 없으며, 이 빈 패널은 빠진 그룹을 나타냅니다.",
+    "필터를 지우고 columnID를 다시 Facet across에 두세요. Wrap at을 5로 설정하세요. 줄바꿈은 패싯 채널 하나에만 적용되므로, 현재의 양방향 격자는 2×2로 유지됩니다.",
+    "Facet down을 비우고 fieldID를 Facet across에 두세요. Wrap at이 5이면 표시된 시야가 한 행에 최대 5개 패널씩 채워집니다. 끝의 빈 자리는 숨겨집니다.",
+    "그룹을 비교하기 전에 격자 아래 안내를 읽으세요. 이 화면은 시야 수준 12개를 표시하며, 시야 21은 패널에서 빠져 있습니다. 불러온 행 수에는 이 시야가 포함되므로 실제로 보이는 그룹을 확인하세요.",
+    "줄바꿈을 끄고 rowID와 columnID를 다시 두 패싯으로 두세요. Columns에서 파생 열 이름을 area_k로 하고 cell_area를 1000으로 나누는 식을 입력하세요. 미리 보기를 확인한 뒤 Add column을 클릭해 전체 표에 대해 계산하세요.",
+    "area_k를 X로 끌어다 놓으면 원래 단위의 천 단위로 면적이 표시됩니다. 세로 좌표와 그룹은 그대로입니다. 이것은 숫자의 척도만 바꿀 뿐이며, 물리적 면적으로 변환하려면 올바른 이미지 보정이 필요합니다.",
+    "cell_area를 다시 X에 두세요. Columns에서 area_k를 고르고 Remove를 클릭해 이 화면에서 파생 열을 삭제하세요. 변수, 패싯, 필터, 척도 선택을 기록해 두세요.",
+    "내보낸 CSV 요약이 필요하면 Tabulate를 쓰세요. 스크립트로 스몰 멀티플 그래프를 만들려면 spacr.qt.widgets.trellis_spec의 trellis와 TrellisSpec을 쓰고, 차트 채널에는 GraphSpec을 쓰세요. 그룹은 알맞은 실험 반복 수준에서 해석하세요."
   ]
 }

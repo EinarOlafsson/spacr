@@ -118,7 +118,7 @@ def _cellpose3_eval_settings(settings, object_type, default_diameter):
 
 
 def _cellpose3_masks(model, images, settings, object_type, *, min_size,
-                     default_diameter, batch_size=8):
+                     default_diameter, batch_size=8, probabilities=False):
     """Segment a batch with a Cellpose 3 model; return what Cellpose-SAM does.
 
     Mask generation's own function for Cellpose 3 (item 503). What differs
@@ -148,8 +148,12 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
     :param min_size: smallest object Cellpose 3 keeps, in pixels.
     :param default_diameter: the object's magnification-derived diameter.
     :param batch_size: tiles per network pass.
+    :param probabilities: also return each image's cell probability, for
+        the Live preview's cell probability view.
     :returns: ``(masks, flows)``: one 2-D label image per input, and
-        per-image flows in :func:`parse_cellpose4_output`'s layout.
+        per-image flows in :func:`parse_cellpose4_output`'s layout; with
+        ``probabilities``, ``(masks, flows, cell probabilities)``, one
+        ``H x W`` array (or None) per image.
     """
     from .spacr_cellpose import parse_cellpose4_output
 
@@ -166,8 +170,100 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
             shaped.append(image)
     output = model.eval(x=shaped, batch_size=int(batch_size),
                         channel_axis=-1, min_size=min_size, **keywords)
-    masks, flows, _, _, _ = parse_cellpose4_output(output)
+    masks, flows, _, probability, _ = parse_cellpose4_output(output)
+    if probabilities:
+        return list(masks), flows, list(probability)
     return list(masks), flows
+
+
+def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
+                         default_diameter, batch_size=8,
+                         probabilities=False):
+    """Segment a batch with a Cellpose-DINO model, as V1 does (item 525).
+
+    The Cellpose-DINO backend answers the very ``eval`` call a Cellpose-SAM
+    model takes, so this makes V1's Cellpose-SAM call and nothing else:
+    ``normalize=False`` and ``channel_axis=-1`` on the prepared images,
+    the object's own diameter (blank lets the model keep its scale, which
+    is what V1 sends), its flow and cell probability thresholds, and
+    ``resample`` as :func:`spacr.settings._get_object_settings` sets it --
+    off for a pathogen, on for the rest. A 2-D image is given a channel
+    axis of one, so the preview's single planes read as V1's images do.
+
+    :param model: what ``_load_backend('cellpose_dino', ...)`` returned.
+    :param images: ``(H, W, C)`` or ``(H, W)`` arrays.
+    :param settings: the run's settings.
+    :param object_type: the object being segmented.
+    :param min_size: smallest object kept, in pixels.
+    :param default_diameter: taken for the route table's shared signature;
+        V1's Cellpose-SAM call does not read the magnification diameter.
+    :param batch_size: taken for the same reason; V1 and v2 send
+        Cellpose-SAM one batch of all the images, and so does this.
+    :param probabilities: also return each image's cell probability, for
+        the Live preview's cell probability view.
+    :returns: ``(masks, flows)``, or ``(masks, flows, cell probabilities)``
+        with ``probabilities``, as :func:`_cellpose3_masks` returns them.
+    """
+    from .spacr_cellpose import parse_cellpose4_output
+
+    shaped = []
+    for image in images:
+        image = np.asarray(image)
+        shaped.append(image[..., np.newaxis] if image.ndim == 2 else image)
+    output = model.eval(
+        x=shaped,
+        batch_size=len(shaped),
+        normalize=False,
+        channel_axis=-1,
+        min_size=min_size,
+        progress=True,
+        diameter=_eval_diameter(settings.get(f'{object_type}_diameter'),
+                                object_type),
+        flow_threshold=settings.get(f'{object_type}_flow_threshold', 0.4),
+        cellprob_threshold=settings.get(
+            f'{object_type}_cellprob_threshold', 0.0),
+        resample=object_type != 'pathogen')
+    masks, flows, _, probability, _ = parse_cellpose4_output(output)
+    if probabilities:
+        return list(masks), flows, list(probability)
+    return list(masks), flows
+
+
+def _prefixed_model_route(model_name, settings=None):
+    """Where a model setting that names its backend by prefix is segmented.
+
+    One table for every caller -- Mask generation's ``pipeline_style``
+    'v2', the Live preview and the Timelapse preview -- so a model value is
+    read the same way everywhere. Each row is ``(backend, reads the prefix,
+    masks function)``; the masks function takes :func:`_cellpose3_masks`'
+    arguments and returns what it returns. ``cellpose3:`` goes to Cellpose
+    3 (item 503), ``cellpose_dino:`` to Cellpose-DINO (item 525).
+
+    A prefix wins over ``segmentation_backend``, as it does in V1: a
+    ``cellpose_dino:`` object in a run whose backend is ``cellpose3`` is
+    still segmented by Cellpose-DINO.
+
+    :param model_name: an object's model setting, e.g. ``'cellpose3:cyto3'``.
+    :param settings: the run's settings; ``segmentation_backend`` naming a
+        row's backend routes there as well, as it does in V1.
+    :returns: ``(backend name, masks function)``, or None for a model
+        Cellpose-SAM segments.
+    """
+    from ._segmentation_backends import (_CELLPOSE3, _CELLPOSE_DINO,
+                                         _cellpose3_choice,
+                                         _cellpose_dino_choice)
+
+    backend = str((settings or {}).get('segmentation_backend')
+                  or '').strip().lower()
+    routes = ((_CELLPOSE3, _cellpose3_choice, _cellpose3_masks),
+              (_CELLPOSE_DINO, _cellpose_dino_choice, _cellpose_dino_masks))
+    for name, choice, masks in routes:
+        if choice(model_name) is not None:
+            return name, masks
+    for name, _choice, masks in routes:
+        if backend == name:
+            return name, masks
+    return None
 
 
 def _remove_objects_smaller_than(binary, min_size):
@@ -826,6 +922,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own
     environment; what it returns enters the same lines as a Cellpose-SAM
     result, so the saved masks and the database rows are written the same.
+    One whose model setting reads ``cellpose_dino:<checkpoint path>`` is
+    segmented by the Cellpose-DINO backend's worker, which takes the very
+    ``eval`` call a Cellpose-SAM model takes and returns its shapes (item
+    525).
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.
     :param settings: Pipeline settings dict; canonicalized via
@@ -932,11 +1032,14 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     # Items 404/405: DINOCell and SAMCell answer the same model.eval call and
     # return Cellpose's (masks, flows, styles), so this is the only dispatch.
     from ._segmentation_backends import (_backend_name, _load_backend,
-                                         _cellpose3_choice, _CELLPOSE3)
+                                         _cellpose3_choice, _CELLPOSE3,
+                                         _cellpose_dino_choice, _CELLPOSE_DINO)
     segmentation_backend = _backend_name(
         settings.get('segmentation_backend', 'cellpose'))
     if _cellpose3_choice(model_name) is not None:
         segmentation_backend = _CELLPOSE3
+    elif _cellpose_dino_choice(model_name) is not None:
+        segmentation_backend = _CELLPOSE_DINO
     if segmentation_backend == 'cellpose':
         pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
         model = cp_models.CellposeModel(
@@ -1131,11 +1234,13 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                 )
                 if filter_by_raw_intensity or object_filters:
                     from .utils import _filter_objects
+                    planes = (filter_images if filter_images is not None
+                              else [None] * len(masks))
                     masks = [_filter_objects(
                         np.asarray(mask).copy(), plane,
                         min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1],
                         filters=object_filters)
-                        for mask, plane in zip(masks, filter_images)]
+                        for mask, plane in zip(masks, planes)]
             
             if timelapse:
                 if settings['plot']:

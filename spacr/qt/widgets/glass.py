@@ -549,13 +549,18 @@ def _paint_nothing_behind_the_card(dialog: QDialog) -> bool:
     must not replace it. Appended, so it wins over an earlier `QDialog`
     rule in the same sheet, and the application-wide sheet loses to a
     widget sheet by Qt's own precedence.
+
+    AS ONE OF THE DIALOG'S OWN RULES, through
+    :func:`spacr.qt.theme._add_to_a_windows_own_rules`, so it joins the
+    window sheet's styling pass instead of costing a second one.
     """
     try:
         existing = dialog.styleSheet() or ""
         if NO_BACKGROUND in existing:
             return False
-        dialog.setStyleSheet(f"{existing}\n{NO_BACKGROUND}".strip())
-        return True
+        from ..theme import _add_to_a_windows_own_rules
+
+        return _add_to_a_windows_own_rules(dialog, NO_BACKGROUND)
     except Exception:                                        # noqa: BLE001
         LOG.debug("a dialog would not drop its background", exc_info=True)
         return False

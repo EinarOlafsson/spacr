@@ -1,0 +1,536 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.regression_panels.write_panel_package#10",
+      "source": "``(min, max)`` vertical axis limits, also recorded in the stats CSV.",
+      "source_sha256": "bd15eebff3fc20958bd977d51cbd453503cf76a7ded24d3c978ffd0c689aa540",
+      "context": "``(min, max)`` vertical axis limits, also recorded in the stats CSV.",
+      "translation": "``(min, max)`` Grenzen der vertikalen Achse, auch in der Statistik-CSV festgehalten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#11",
+      "source": "y value of the dashed horizontal threshold line; points with a label that lie above it and to the right of ``effect_threshold`` get their label drawn.",
+      "source_sha256": "bc13b95182185acf2d070767c3bae1a2a8f4833a7ceab9a9c4bb5c17ac0f51e6",
+      "context": "y value of the dashed horizontal threshold line; points with a label that lie above it and to the right of ``effect_threshold`` get their label drawn.",
+      "translation": "y-Wert der gestrichelten horizontalen Schwellenlinie; bei Punkten mit einer Beschriftung, die oberhalb davon und rechts von ``effect_threshold`` liegen, wird die Beschriftung gezeichnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#12",
+      "source": "what the dashed horizontal line represents, quoted in the legend text and stats CSV.",
+      "source_sha256": "4c9c1aac97ff69e7c4cbab26ec218f2d0ebe0f34a5b3e7b2cc081b4e2498f495",
+      "context": "what the dashed horizontal line represents, quoted in the legend text and stats CSV.",
+      "translation": "was die gestrichelte horizontale Linie darstellt, zitiert im Legendentext und in der Statistik-CSV.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#13",
+      "source": "x value of the dotted vertical effect-threshold line.",
+      "source_sha256": "27159a1664c4aed73909dbfa6b1889f035ff678082b2dde46b4d467352bc4fec",
+      "context": "x value of the dotted vertical effect-threshold line.",
+      "translation": "x-Wert der gepunkteten vertikalen Effekt-Schwellenlinie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#14",
+      "source": "what the dotted vertical line represents, quoted in the legend text and stats CSV.",
+      "source_sha256": "46405c88524e4c1a58e6ad7a536e5786645b2d4ee4da3106643a74bbd9733633",
+      "context": "what the dotted vertical line represents, quoted in the legend text and stats CSV.",
+      "translation": "was die gepunktete vertikale Linie darstellt, zitiert im Legendentext und in der Statistik-CSV.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.regression_panels.write_panel_package#9",
+      "source": "``(min, max)`` horizontal axis limits, also recorded in the stats CSV.",
+      "source_sha256": "848d9a67773256e53fd800c6c02c841384de62b3860d0e31fb0cc45becd68af1",
+      "context": "``(min, max)`` horizontal axis limits, also recorded in the stats CSV.",
+      "translation": "``(min, max)`` Grenzen der horizontalen Achse, auch in der Statistik-CSV festgehalten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.report.Section#8",
+      "source": ":data:`STATUS_OK`, :data:`STATUS_MISSING`, or :data:`STATUS_PROBLEM`.",
+      "source_sha256": "51a9ca13677c776c9faa5b9e5203f954c21879991efc906b7fd47446bd5db101",
+      "context": ":data:`STATUS_OK`, :data:`STATUS_MISSING`, or :data:`STATUS_PROBLEM`.",
+      "translation": ":data:`STATUS_OK`, :data:`STATUS_MISSING` oder :data:`STATUS_PROBLEM`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.resource_log#5",
+      "source": "WHY IT IS NOT VERBOSE LOGGING. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon thread that is never the GUI thread, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
+      "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
+      "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
+      "translation": "WARUM ES KEINE AUSFÜHRLICHE PROTOKOLLIERUNG IST. Ausführliche Protokollierung entscheidet nur, welche Protokolleinträge behalten werden, daher kann sie keine Auskunft über den Speicher geben. Der Funktions-Tracer, den sie früher installierte, wurde bei jedem Aufruf und jeder Rückkehr ausgelöst und kostete das Zwanzigfache der Startzeit. Eine über einen Tracer gewonnene Aufstellung würde das verfolgte Programm beschreiben statt des echten, und genau dieses Programm will niemand gemessen haben. Daher wird stattdessen gesampelt: ein psutil-Lesevorgang pro Sekunde, in einem Daemon-Thread, der nie der GUI-Thread ist, bei einem ansonsten ungestörten Lauf. Drei Zustände statt eines Kontrollkästchens, weil der nützliche Standard nicht \"off\" ist -- die wertvollsten Ressourcendaten stammen aus Läufen, bei denen niemand mit einem Fehlschlag gerechnet hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.resume.completed_fields_in_merged#5",
+      "source": "restrict the scan to these stems. Defaults to every ``.npy`` in ``src`` whose name does not start with a dot: a macOS ``._`` sidecar ends in ``.npy`` too and is not a field.",
+      "source_sha256": "7b47b76533e52b4138dfbadea00ed0141d4c4e64d381da49ca3bfddbe5c90d5e",
+      "context": "restrict the scan to these stems. Defaults to every ``.npy`` in ``src`` whose name does not start with a dot: a macOS ``._`` sidecar ends in ``.npy`` too and is not a field.",
+      "translation": "beschränkt die Suche auf diese Stämme. Standardmäßig jede ``.npy`` in ``src``, deren Name nicht mit einem Punkt beginnt: Eine macOS-``._``-Begleitdatei endet ebenfalls auf ``.npy`` und ist kein Sichtfeld.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.rra.rank_aggregate#4",
+      "source": "``\"neg\"``, ``\"pos\"`` or ``\"both\"``.",
+      "source_sha256": "4c2b257de9edc448e04ce2a6f515a5d7875d51b5d93d00dac7f2851a1d4901a6",
+      "context": "``\"neg\"``, ``\"pos\"`` or ``\"both\"``.",
+      "translation": "``\"neg\"``, ``\"pos\"`` oder ``\"both\"``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.run_compare.Finding#2",
+      "source": ":data:`BLOCKING` or :data:`WARNING`.",
+      "source_sha256": "5c72e5d48679dc67ed076617e293b5952ac6fb56c060fd50e3be8a47cbfba267",
+      "context": ":data:`BLOCKING` or :data:`WARNING`.",
+      "translation": ":data:`BLOCKING` oder :data:`WARNING`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.run_compare.HitChange#2",
+      "source": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` or ``\"held\"``.",
+      "source_sha256": "0baf3aec5c8bf8e5a5f4738f2ea29aa447aceea7a28893168d76b0a5bc753a84",
+      "context": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` or ``\"held\"``.",
+      "translation": "``\"appeared\"``, ``\"vanished\"``, ``\"moved\"`` oder ``\"held\"``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#0",
+      "source": "Describe object types once, collapsing organelle slots into a regex.",
+      "source_sha256": "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
+      "context": "Describe object types once, collapsing organelle slots into a regex.",
+      "translation": "Beschreibt Objekttypen einmalig und fasst Organellen-Slots zu einem regulären Ausdruck zusammen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#1",
+      "source": "internal object identifiers, in display order.",
+      "source_sha256": "760e45115cd2aa3ddc62378e0bc0413289019e46c298796d26471281ba17ffb5",
+      "context": "internal object identifiers, in display order.",
+      "translation": "interne Objektkennungen, in Anzeigereihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.schema.object_type_summary#2",
+      "source": "comma-separated types. Organelle identifiers are represented by one exact pattern, such as ``organelle(?:[b-z]|[a-z]{2})?`` for all slots. This changes presentation only, never stored identifiers or parsing.",
+      "source_sha256": "171071046f8826b4bb3a934ac411a3caf70775979028ff5d2196f6b8b35619ff",
+      "context": "comma-separated types. Organelle identifiers are represented by one exact pattern, such as ``organelle(?:[b-z]|[a-z]{2})?`` for all slots. This changes presentation only, never stored identifiers or parsing.",
+      "translation": "kommagetrennte Typen. Organellenkennungen werden durch ein einziges exaktes Muster dargestellt, etwa ``organelle(?:[b-z]|[a-z]{2})?`` für alle Slots. Dies ändert nur die Darstellung, nie gespeicherte Kennungen oder das Parsen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.schema.parse_prcf#6",
+      "source": "e.g. ``'plate1_r1_c1_f2'`` or ``'plate1_r1_c1_f2_t3'``.",
+      "source_sha256": "4cdac837d8e8ce51e7bab6b3fa48169145c7c97a1419d54d50749a47296dffbe",
+      "context": "e.g. ``'plate1_r1_c1_f2'`` or ``'plate1_r1_c1_f2_t3'``.",
+      "translation": "z. B. ``'plate1_r1_c1_f2'`` oder ``'plate1_r1_c1_f2_t3'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.schema.parse_prcfo#3",
+      "source": "e.g. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` or ``'plate1_r1_c1_f2_nucleus7'``.",
+      "source_sha256": "34f72d16518586e8b5f0fba00ce214b10e4448ca27115ec38606e729ba28e464",
+      "context": "e.g. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` or ``'plate1_r1_c1_f2_nucleus7'``.",
+      "translation": "z. B. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` oder ``'plate1_r1_c1_f2_nucleus7'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.average_precision#1",
+      "source": "the ground-truth label image, 0 for background and one integer id per object.",
+      "source_sha256": "ee4ab18db1a34cacd4ba3a926332eadcc8abd55aa2f48f10e7eeeefdb7b13bfe",
+      "context": "the ground-truth label image, 0 for background and one integer id per object.",
+      "translation": "das Ground-Truth-Labelbild, 0 für den Hintergrund und eine ganzzahlige ID pro Objekt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.average_precision#2",
+      "source": "the predicted label image, the same shape as ``truth``.",
+      "source_sha256": "7cef880b60762f3c35c0c8537e9f376c361728a95f42da6a9546f2ed67d7822e",
+      "context": "the predicted label image, the same shape as ``truth``.",
+      "translation": "das vorhergesagte Labelbild, in derselben Form wie ``truth``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.compare_against_baseline#2",
+      "source": "the finetuned model's label image for the same field.",
+      "source_sha256": "6eaa6ee6e980d77b84c9dc942b68ef883ee79aa5e1fee1aa6e1045ba2b2f4ad5",
+      "context": "the finetuned model's label image for the same microscope field of view.",
+      "translation": "das Labelbild des feinabgestimmten Modells für dasselbe Sichtfeld.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.compare_against_baseline#3",
+      "source": "the vanilla model's label image for the same field.",
+      "source_sha256": "ce139cd740d52100af4a4a5259cf472987d80c6c10b75d3196b59d5266562490",
+      "context": "the vanilla model's label image for the same microscope field of view.",
+      "translation": "das Labelbild des unveränderten Ausgangsmodells für dasselbe Sichtfeld.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#2",
+      "source": "ground truth per object, 0 or 1.",
+      "source_sha256": "5f8d086a44b2740fdaa1488ec1146cfd07599cb12a4ad656f520d008b06c3e00",
+      "context": "ground truth per object, 0 or 1.",
+      "translation": "Ground Truth pro Objekt, 0 oder 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#3",
+      "source": "the finetuned classifier's predicted probability of the positive class, one per label.",
+      "source_sha256": "f1aed30813817a6ff4bafaf38f57f7c035b77949d596b140fc963ec08857dc01",
+      "context": "the finetuned machine-learning classification model's predicted probability of the positive class, one per label.",
+      "translation": "die vom feinabgestimmten Klassifikator vorhergesagte Wahrscheinlichkeit der positiven Klasse, eine pro Label.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.compare_classifier_against_baseline#4",
+      "source": "the vanilla classifier's predicted probability of the positive class, one per label.",
+      "source_sha256": "e6d38dd6f33139f9964e5c26091cfc41b9d933a0f79e60b2875cab4a98e46f0b",
+      "context": "the vanilla machine-learning classification model's predicted probability of the positive class, one per label.",
+      "translation": "die vom unveränderten Ausgangsklassifikator vorhergesagte Wahrscheinlichkeit der positiven Klasse, eine pro Label.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.load_holdout#1",
+      "source": "path to the hold-out manifest JSON, which must declare ``name``, ``version`` and ``fields``.",
+      "source_sha256": "ddb881556d528af38b614cc2b711627fb657dcb9f155a369a080dc21307199cd",
+      "context": "path to the hold-out manifest JSON, which must declare ``name``, ``version`` and ``fields``.",
+      "translation": "Pfad zum Hold-out-Manifest (JSON), das ``name``, ``version`` und ``fields`` angeben muss.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.score_holdout#2",
+      "source": "the held-out set's name, carried into the result.",
+      "source_sha256": "e03ba97193609d2e0b2f9d479f331ed4dc7d69e14b36dced33b1124a98c73ceb",
+      "context": "the held-out set's name, carried into the result.",
+      "translation": "der Name des zurückgehaltenen Satzes, der in das Ergebnis übernommen wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.score_holdout#3",
+      "source": "the held-out set's version, carried into the result.",
+      "source_sha256": "85bb415aab3c4fabdd3d73fa773f1736e8ce52c68231cd9518cf0a8db459d61f",
+      "context": "the held-out set's version, carried into the result.",
+      "translation": "die Version des zurückgehaltenen Satzes, die in das Ergebnis übernommen wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.score_model_on_holdout#1",
+      "source": "the hold-out set whose fields' images are predicted and whose truth masks are read.",
+      "source_sha256": "6700e0ac8fa8ea7fda7fc6f64c942d56ad978cc94541412759c8e75cc4de55d8",
+      "context": "the hold-out set whose microscope fields of view' images are predicted and whose truth masks are read.",
+      "translation": "der Hold-out-Satz, für dessen Sichtfelder Bilder vorhergesagt und dessen Wahrheitsmasken gelesen werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_csv#1",
+      "source": "the table rows, as from :func:`scorecard_rows`; the first row's keys are the CSV columns, and no rows gives ``\"\"``.",
+      "source_sha256": "58364729364ace6703a2c638e6dfe1ad86e2bbdfbf3baa6189176e44885784df",
+      "context": "the table rows, as from :func:`scorecard_rows`; the first row's structured-data names are the CSV columns, and no rows gives ``\"\"``.",
+      "translation": "die Tabellenzeilen, wie von :func:`scorecard_rows`; die Schlüssel der ersten Zeile sind die CSV-Spalten, und keine Zeilen ergeben ``\"\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_rows#2",
+      "source": "the finetuned model's score.",
+      "source_sha256": "9a4ddad6df58a7795b1d0c33f22b70d4f17cbdae89b6d07981f9ab5d185796a2",
+      "context": "the finetuned model's score.",
+      "translation": "der Score des feinabgestimmten Modells.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.scorecard_rows#3",
+      "source": "the vanilla model's score, on the same set name and version.",
+      "source_sha256": "dd7aaf34d08113390ed86637ab14357bddff9960d083d8e957083c9bdd3ef54e",
+      "context": "the vanilla model's score, on the same set name and version.",
+      "translation": "der Score des unveränderten Ausgangsmodells, auf demselben Satznamen und derselben Version.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.scorecard.verify_holdout#1",
+      "source": "the hold-out set whose truth masks are checked on disk.",
+      "source_sha256": "2a9c5d8ac80e740041e87b2aa22a7957592cfd7cae2e140aac5293b2eaed77e8",
+      "context": "the hold-out set whose truth masks are checked on disk.",
+      "translation": "der Hold-out-Satz, dessen Wahrheitsmasken auf der Festplatte geprüft werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc#10",
+      "source": "``% border-touching objects`` Objects that touch the field edge are truncated, so their crops are cut off and their areas understate the truth. For objects of diameter *d* on a *W*-wide field the geometric expectation is about ``2*d/W`` — 8% for 60 px cells on a 1400 px field. ``seg_qc_border_fraction`` defaults to 0.30: a configurable review threshold, not a universal geometric limit.",
+      "source_sha256": "35993bb7adf1146609e384165c4fda0d181fe179fee3a32cbae36d78dbc81b9d",
+      "context": "``% border-touching objects`` Objects that touch the microscope field of view edge are truncated, so their extracted image regions are cut off and their areas understate the truth. For objects of diameter *d* on a *W*-wide microscope field of view the geometric expectation is about ``2*d/W`` — 8% for 60 px cells on a 1400 px microscope field of view. ``seg_qc_border_fraction`` defaults to 0.30: a configurable review threshold, not a universal geometric limit.",
+      "translation": "``% border-touching objects`` Objekte, die den Rand des Sichtfelds berühren, sind abgeschnitten, daher sind ihre Bildausschnitte beschnitten, und ihre Flächen unterschätzen den wahren Wert. Für Objekte mit Durchmesser *d* in einem *W* breiten Sichtfeld liegt die geometrische Erwartung bei etwa ``2*d/W`` — 8% für Zellen von 60 px in einem Sichtfeld von 1400 px. ``seg_qc_border_fraction`` ist standardmäßig 0.30: ein konfigurierbarer Prüfschwellenwert, keine universelle geometrische Grenze.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc#11",
+      "source": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
+      "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
+      "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
+      "translation": "``size outliers`` Der Anteil der Objekte, deren äquivalenter Durchmesser außerhalb von ``median ± seg_qc_outlier_mad * 1.4826 * MAD`` liegt. Median und MAD, nicht Mittelwert und Standardabweichung: Fünf Trümmerstücke blähen eine Standardabweichung auf, bis nichts mehr ein Ausreißer ist, und genau diesen Fall soll diese Prüfung erkennen (``tests/test_seg_qc.py`` stellt beides gegenüber). *k* = 5 ist bewusst großzügig — reale Größenverteilungen sind lognormal und haben schwerere Ränder als eine Gauß-Verteilung, daher markiert 3 Sigma einige Prozent eines völlig einwandfreien Feldes. Das Flag wird ausgelöst, wenn mehr als ``seg_qc_outlier_fraction`` (0.15) der Objekte dort draußen liegen. Schwere Ränder, gemischte Populationen und Segmentierungsfehler können es alle auslösen; das Flag gibt nicht an, was davon vorliegt. Randobjekte sind von jeder Größenstatistik ausgeschlossen, genau wie ``diameter._region_diameters`` sie ausschließt, denn die Fläche eines abgeschnittenen Objekts ist eine Lüge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc#17",
+      "source": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` Every flag in :data:`FLAGS` in plain language: what it means for the measurements, possible explanations, and what to inspect. Where uneven illumination is one possible cause, the entry says so and points at :mod:`spacr.illumination`, which estimates the lamp profile from the plate's own fields and divides it out. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → plate ``plate1``, well ``E07``, row ``E``, column 7. Naming the plate and the wells is the difference between \"3 plates failed\" and something a user can go and look at. ``diagnose(field_qcs)`` → ``[Finding]`` Per-plate, per-flag findings that name the plate and the wells, plus the positional ones no single field can see: a plate whose object count or object size steps between one half of the rows (or columns) and the other. These patterns warrant checking illumination, experimental layout, treatment and biology; they do not establish a cause. ``read_digest(src)`` → ``QCDigest`` The cheap path: locate ``qc/segmentation_qc_*.csv`` under a project, parse it, roll it up, diagnose it, and compare each card's mtime against its mask stack so a card written before the last re-mask is reported as out of date rather than believed. Scores nothing. ``score_digest(src)`` → ``QCDigest`` The expensive path, for the user who asks for it explicitly: score the mask stacks under a project, write the cards, return the same digest. ``format_digest(digest)`` The printable version.",
+      "source_sha256": "4e5ab2039531bb8fa1017de18ec328e6368ff0e4cf8eef752ebb7759f4d80d40",
+      "context": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` Every flag in :data:`FLAGS` in plain language: what it means for the measurements, possible explanations, and what to inspect. Where uneven illumination is one possible cause, the entry says so and points at :mod:`spacr.illumination`, which estimates the lamp profile from the laboratory microplate's own microscope fields of view and divides it out. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → laboratory microplate ``plate1``, microplate sample position ``E07``, row ``E``, column 7. Naming the laboratory microplate and the microplate sample positions is the difference between \"3 laboratory microplates failed\" and something a user can go and look at. ``diagnose(field_qcs)`` → ``[Finding]`` Per-laboratory microplate, per-flag findings that name the laboratory microplate and the microplate sample positions, plus the positional ones no single microscope field of view can see: a laboratory microplate whose object count or object size steps between one half of the rows (or columns) and the other. These patterns warrant checking illumination, experimental layout, treatment and biology; they do not establish a cause. ``read_digest(src)`` → ``QCDigest`` The cheap path: locate ``qc/segmentation_qc_*.csv`` under a project, parse it, roll it up, diagnose it, and compare each card's mtime against its mask stack so a card written before the last re-mask is reported as out of date rather than believed. Scores nothing. ``score_digest(src)`` → ``QCDigest`` The expensive path, for the user who asks for it explicitly: score the mask stacks under a project, write the cards, return the same digest. ``format_digest(digest)`` The printable version.",
+      "translation": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` Jedes Flag in :data:`FLAGS` in einfacher Sprache: was es für die Messungen bedeutet, mögliche Erklärungen und was zu prüfen ist. Wo ungleichmäßige Beleuchtung eine mögliche Ursache ist, sagt der Eintrag das und verweist auf :mod:`spacr.illumination`, das das Lampenprofil aus den eigenen Sichtfeldern der Platte schätzt und herausdividiert. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → Platte ``plate1``, Well ``E07``, Zeile ``E``, Spalte 7. Die Platte und die Wells zu benennen, ist der Unterschied zwischen \"3 Platten fehlgeschlagen\" und etwas, das sich ein Benutzer ansehen kann. ``diagnose(field_qcs)`` → ``[Finding]`` Befunde pro Platte und pro Flag, die die Platte und die Wells benennen, plus die positionsbezogenen, die kein einzelnes Sichtfeld erkennen kann: eine Platte, deren Objektanzahl oder Objektgröße zwischen der einen Hälfte der Zeilen (oder Spalten) und der anderen springt. Diese Muster rechtfertigen eine Prüfung von Beleuchtung, Versuchslayout, Behandlung und Biologie; sie belegen keine Ursache. ``read_digest(src)`` → ``QCDigest`` Der günstige Weg: ``qc/segmentation_qc_*.csv`` unter einem Projekt finden, parsen, zusammenfassen, diagnostizieren und die mtime jeder Karte mit ihrem Maskenstapel vergleichen, sodass eine Karte, die vor der letzten Neumaskierung geschrieben wurde, als veraltet gemeldet wird, statt ihr zu glauben. Bewertet nichts. ``score_digest(src)`` → ``QCDigest`` Der teure Weg, für den Benutzer, der ihn ausdrücklich anfordert: die Maskenstapel unter einem Projekt bewerten, die Karten schreiben, denselben Digest zurückgeben. ``format_digest(digest)`` Die druckbare Version.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc#2",
+      "source": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every channel, computes hundreds of features per object and writes them to SQLite. On a full plate that is hours. A plate whose segmentation collapsed — a channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious fields, but cannot establish their cause or validate biological interpretation.",
+      "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
+      "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
+      "translation": "``measure_crop`` ist der teure Schritt in spaCR: Er öffnet jede Maske, schneidet jedes Objekt aus jedem Kanal aus, berechnet Hunderte von Merkmalen pro Objekt und schreibt sie in SQLite. Bei einer vollen Platte sind das Stunden. Eine Platte, deren Segmentierung zusammengebrochen ist — ein Kanal außerhalb des Fokus, ein um das Zweifache falscher Durchmesser, ein konfluenter Monolayer, der zu Platten verschmolzen ist —, kostet genau dieselben Stunden und erzeugt dann eine Messtabelle, die weggeworfen werden muss. Der Fehler ist allein aus den Masken offensichtlich; niemand schaut hin, weil Hinschauen bedeutet, tausend ``.npy``-Dateien von Hand zu öffnen. Maskenstatistiken können verdächtige Sichtfelder hervorheben, aber weder ihre Ursache feststellen noch eine biologische Interpretation validieren.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc#3",
+      "source": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every field against a handful of robust statistics, and prints a scorecard naming fields that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop fields. Deciding which fields to keep is the user's call and it needs the evidence, not a filter.",
+      "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
+      "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
+      "translation": "Also schaut dieses Modul hin. Es liest die Labelmasken, die :mod:`spacr.object` gerade geschrieben hat, bewertet jedes Sichtfeld anhand einer Handvoll robuster Statistiken und gibt eine Scorecard aus, die Sichtfelder benennt, die konfigurierte Schwellenwerte überschreiten. Es ändert nichts: ``seg_qc='report'`` (der Standard) macht die Flags sichtbar, es verwirft nicht stillschweigend Sichtfelder. Die Entscheidung, welche Sichtfelder behalten werden, trifft der Benutzer, und dafür braucht er die Belege, keinen Filter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc#7",
+      "source": "``object count`` and its deviation from the plate median ``count_ratio`` is ``n_objects / plate_median``; outside ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 to 4-fold) the field is flagged. Such a difference may reflect treatment, infection, seeding, acquisition or segmentation. Inspect the experimental layout and images; the count ratio alone cannot distinguish those explanations.",
+      "source_sha256": "a9652be9b277bfce5d3276905441f03e164e6e17d9644021028483dfab9f4519",
+      "context": "``object count`` and its deviation from the laboratory microplate median ``count_ratio`` is ``n_objects / plate_median``; outside ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 to 4-fold) the microscope field of view is flagged. Such a difference may reflect treatment, infection, seeding, acquisition or segmentation. Inspect the experimental layout and images; the count ratio alone cannot distinguish those explanations.",
+      "translation": "``object count`` und seine Abweichung vom Median der Platte: ``count_ratio`` ist ``n_objects / plate_median``; außerhalb von ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25- bis 4-fach) wird das Sichtfeld markiert. Ein solcher Unterschied kann Behandlung, Infektion, Aussaat, Aufnahme oder Segmentierung widerspiegeln. Prüfen Sie das Versuchslayout und die Bilder; das Zählverhältnis allein kann diese Erklärungen nicht unterscheiden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc#8",
+      "source": "``under-segmentation`` (fused objects) Detected the way :mod:`spacr.diameter` detects it, and for the same reason: **both halves of the signature are required**. The field must be dense enough for fusion to be the explanation (foreground at or above ``seg_qc_foreground_fraction``, default 0.35 — the same number ``diameter.estimate_diameters(fused_fraction=...)`` uses, because it is the same question), *and* the mask must under-count what the pixels support: either one label covers more than ``seg_qc_max_object_fraction`` of the field (0.25, again diameter.py's number), or the Euclidean distance transform of the foreground resolves at least ``seg_qc_split_ratio`` (2.0) inscribed-circle maxima per mask object. Requiring both matters in each direction: a dense but correctly separated field reaches 35% foreground and is fine, while an elongated or hollow object shatters the distance transform into several maxima and is also fine. diameter.py demands a 5-fold seed excess because it compares against raw Otsu components, where a confluent monolayer is one blob; here the comparison is against a Cellpose mask that already separates most objects, and the smallest fusion worth catching — every object being a welded pair — is exactly 2. Large, irregular or confluent biological objects can also trigger the heuristic; confirm boundaries against the raw images.",
+      "source_sha256": "3e1f6a4f6d40e15088b91fc4636e817a5ec433bce3518835f9feb7096d8f4458",
+      "context": "``under-segmentation`` (fused objects) Detected the way :mod:`spacr.diameter` detects it, and for the same reason: **both halves of the signature are required**. The microscope field of view must be dense enough for fusion to be the explanation (foreground at or above ``seg_qc_foreground_fraction``, default 0.35 — the same number ``diameter.estimate_diameters(fused_fraction=...)`` uses, because it is the same question), *and* the mask must under-count what the pixels support: either one label covers more than ``seg_qc_max_object_fraction`` of the microscope field of view (0.25, again diameter.py's number), or the Euclidean distance transform of the foreground resolves at least ``seg_qc_split_ratio`` (2.0) inscribed-circle maxima per mask object. Requiring both matters in each direction: a dense but correctly separated microscope field of view reaches 35% foreground and is fine, while an elongated or hollow object shatters the distance transform into several maxima and is also fine. diameter.py demands a 5-fold seed excess because it compares against raw Otsu components, where a confluent monolayer is one blob; here the comparison is against a Cellpose mask that already separates most objects, and the smallest fusion worth catching — every object being a welded pair — is exactly 2. Large, irregular or confluent biological objects can also trigger the heuristic; confirm boundaries against the raw images.",
+      "translation": "``under-segmentation`` (verschmolzene Objekte) Erkannt auf dieselbe Weise, wie :mod:`spacr.diameter` sie erkennt, und aus demselben Grund: **beide Hälften der Signatur sind erforderlich**. Das Sichtfeld muss dicht genug sein, dass Verschmelzung die Erklärung sein kann (Vordergrund bei oder über ``seg_qc_foreground_fraction``, Standard 0.35 — dieselbe Zahl, die ``diameter.estimate_diameters(fused_fraction=...)`` verwendet, weil es dieselbe Frage ist), *und* die Maske muss weniger zählen, als die Pixel hergeben: Entweder deckt ein Label mehr als ``seg_qc_max_object_fraction`` des Sichtfelds ab (0.25, wieder die Zahl aus diameter.py), oder die euklidische Distanztransformation des Vordergrunds löst mindestens ``seg_qc_split_ratio`` (2.0) Maxima eingeschriebener Kreise pro Maskenobjekt auf. Beides zu verlangen, zählt in beide Richtungen: Ein dichtes, aber korrekt getrenntes Sichtfeld erreicht 35% Vordergrund und ist in Ordnung, während ein längliches oder hohles Objekt die Distanztransformation in mehrere Maxima zerlegt und ebenfalls in Ordnung ist. diameter.py verlangt einen 5-fachen Überschuss an Startpunkten, weil es mit rohen Otsu-Komponenten vergleicht, bei denen ein konfluenter Monolayer ein einziger Blob ist; hier wird mit einer Cellpose-Maske verglichen, die die meisten Objekte bereits trennt, und die kleinste Verschmelzung, die es zu erkennen lohnt — jedes Objekt ein verschweißtes Paar —, ist genau 2. Große, unregelmäßige oder konfluente biologische Objekte können die Heuristik ebenfalls auslösen; überprüfen Sie die Grenzen anhand der Rohbilder.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc#9",
+      "source": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the field's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, but these defaults must be adapted for genuinely small objects. Relative to the plate: the field holds ``seg_qc_size_ratio``-fold more objects than the plate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
+      "source_sha256": "de3d9d7254732ef378abd9d523f001bae639400112d2f01dc6efbe7935097c4d",
+      "context": "``over-segmentation`` (shattered objects) Two signatures. Absolutely: at least ``seg_qc_tiny_fraction`` (0.30) of the microscope field of view's objects are under ``seg_qc_min_diameter`` (5 px) across — spaCR's diameter estimator already discards components below 4 px as debris, but these defaults must be adapted for genuinely small objects. Relative to the laboratory microplate: the microscope field of view holds ``seg_qc_size_ratio``-fold more objects than the laboratory microplate median at ``1/seg_qc_size_ratio`` of its median diameter. That knob defaults to 1.4 = sqrt(2) on purpose — two objects welded into one have sqrt(2) times the equivalent diameter of one, and one object split in two has 1/sqrt(2) of it, so 1.4 is the fused-pair / split-in-half signature itself rather than an arbitrary tolerance.",
+      "translation": "``over-segmentation`` (zersplitterte Objekte) Zwei Signaturen. Absolut: Mindestens ``seg_qc_tiny_fraction`` (0.30) der Objekte des Sichtfelds sind im Durchmesser kleiner als ``seg_qc_min_diameter`` (5 px) — der Durchmesserschätzer von spaCR verwirft Komponenten unter 4 px bereits als Trümmer, aber diese Standardwerte müssen für tatsächlich kleine Objekte angepasst werden. Relativ zur Platte: Das Sichtfeld enthält ``seg_qc_size_ratio``-mal mehr Objekte als der Median der Platte, bei ``1/seg_qc_size_ratio`` ihres medianen Durchmessers. Dieser Regler steht absichtlich standardmäßig auf 1.4 = sqrt(2) — zwei zu einem verschweißte Objekte haben das sqrt(2)-fache des äquivalenten Durchmessers eines einzelnen, und ein in zwei geteiltes Objekt hat 1/sqrt(2) davon, daher ist 1.4 die Signatur des verschmolzenen Paars bzw. der halbierten Teilung selbst und keine willkürliche Toleranz.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest#7",
+      "source": "what :func:`diagnose` made of current, readable cards.",
+      "source_sha256": "6e98f705276d32622323c653b2722fc6661e65b1bc063bc8239436a3c5a594a2",
+      "context": "what :func:`diagnose` made of current, readable cards.",
+      "translation": "was :func:`diagnose` aus aktuellen, lesbaren Karten gemacht hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest.failing_fields#0",
+      "source": "Fields scored ``'fail'`` in current, readable cards.",
+      "source_sha256": "087d7330441efb6c419490e8a975b28c7bc7db27633f9fc64fccc8f0a5b9312b",
+      "context": "Fields scored ``'fail'`` in current, readable cards.",
+      "translation": "Sichtfelder, die in aktuellen, lesbaren Karten als ``'fail'`` bewertet wurden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc.QCDigest.n_fields#0",
+      "source": "Fields scored in current, readable cards; stale rows are excluded.",
+      "source_sha256": "341744fd4236fe20769f498595a56c8f3a9d8f6dd1422b752fceaf2aa065082d",
+      "context": "Fields scored in current, readable cards; stale rows are excluded.",
+      "translation": "Sichtfelder, die in aktuellen, lesbaren Karten bewertet wurden; veraltete Zeilen sind ausgeschlossen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.seg_qc.Scorecard.verdict#0",
+      "source": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
+      "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
+      "context": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
+      "translation": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` oder ``'error'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.seg_qc.qc_mode#3",
+      "source": "``'off'``, ``'report'`` or ``'flag'``.",
+      "source_sha256": "9c8b90ba958d182c320912edf49e3ab25ac67465618c5022a82bc61485180d53",
+      "context": "``'off'``, ``'report'`` or ``'flag'``.",
+      "translation": "``'off'``, ``'report'`` oder ``'flag'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.sequencing.generate_barecode_mapping#6",
+      "source": "``mode`` — ``'paired'`` or ``'single'``.",
+      "source_sha256": "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
+      "context": "``mode`` — ``'paired'`` or ``'single'``.",
+      "translation": "``mode`` — ``'paired'`` oder ``'single'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.settings.bundled_barcode_path#1",
+      "source": "``'column'``, ``'grna'`` or ``'row'``.",
+      "source_sha256": "dc25f1240dab29bdeafb2943a2b547afbd2fe81c9a8a386d8155324c764dca45",
+      "context": "``'column'``, ``'grna'`` or ``'row'``.",
+      "translation": "``'column'``, ``'grna'`` oder ``'row'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.settings.set_annotate_default_settings#1",
+      "source": "``crop_size`` was called ``img_size`` until 2026-09-19. A dict that still says ``img_size`` has its value moved across before any default lands, so an older settings file keeps the size it chose.",
+      "source_sha256": "5a647356370395929f44fc2af2bc8ce457ec228fe17a6d48272b02a8b3603852",
+      "context": "``crop_size`` was called ``img_size`` until 2026-09-19. A key-value mapping that still says ``img_size`` has its value moved across before any default lands, so an older settings file keeps the size it chose.",
+      "translation": "``crop_size`` hieß bis 2026-09-19 ``img_size``. Bei einem Dict, das noch ``img_size`` enthält, wird der Wert übertragen, bevor irgendein Standardwert gesetzt wird, sodass eine ältere Einstellungsdatei die von ihr gewählte Größe behält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.sra.estimated_bytes#2",
+      "source": "the run files to download.",
+      "source_sha256": "3c153032c4e64108482710ab44f31f016e9c393ec52f696a0a7cf1178e165b2f",
+      "context": "the run files to download.",
+      "translation": "die herunterzuladenden Run-Dateien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.sra.estimated_bytes#3",
+      "source": "reads to take from each file, or None for whole files; each file's share is ``max_reads / read_count``, capped at 1.",
+      "source_sha256": "7e829f37c6d4aae9f0325434a35a73a62bbea5e6fba22a6d92b427b6200b9f86",
+      "context": "reads to take from each file, or None for whole files; each file's share is ``max_reads / read_count``, capped at 1.",
+      "translation": "Reads, die aus jeder Datei genommen werden, oder None für ganze Dateien; der Anteil jeder Datei ist ``max_reads / read_count``, begrenzt auf 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#3",
+      "source": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
+      "source_sha256": "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
+      "context": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
+      "translation": "die zu streamende Archivdatei; ihre ``url`` wird gelesen, und ihr ``filename`` benennt die Ausgabe.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.sra.fetch_reads#4",
+      "source": "folder the ``.fastq.gz`` file is written into; created if missing.",
+      "source_sha256": "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
+      "context": "folder the ``.fastq.gz`` file is written into; created if missing.",
+      "translation": "Ordner, in den die ``.fastq.gz``-Datei geschrieben wird; wird angelegt, falls er fehlt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.sra.total_bytes#1",
+      "source": "the run files; their ``size_bytes`` are summed, so a file of unknown size adds zero.",
+      "source_sha256": "d122d2e1d5b46e1b4fbce99891734f5d25730f91dd65df52bee024da8c41670e",
+      "context": "the run files; their ``size_bytes`` are summed, so a file of unknown size adds zero.",
+      "translation": "die Run-Dateien; ihre ``size_bytes`` werden summiert, sodass eine Datei unbekannter Größe null beiträgt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.stream_dataset.build_selection#3",
+      "source": "dst : str Output folder; created if missing, and ``stream_selection.csv`` is written into it.",
+      "source_sha256": "0d8632b46d8f161667495ca5561542895e300c0df6bdf3a24bb62275ecc857bf",
+      "context": "dst : str Output folder; created if missing, and ``stream_selection.csv`` is written into it.",
+      "translation": "dst : str Ausgabeordner; wird angelegt, falls er fehlt, und ``stream_selection.csv`` wird hineingeschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.stream_dataset.crop_name#3",
+      "source": "field_stem : str File stem of the image field the object comes from; escaped, it begins the crop name. object_id : int Label id of the object; it follows the stem in the name.",
+      "source_sha256": "263316f92516d05be28dd2a480b8a7eafa7d6805f9a531b6a65a7a42798b37f5",
+      "context": "field_stem : str File stem of the microscope image field of view the object comes from; escaped, it begins the extracted image region name. object_id : int Label id of the object; it follows the stem in the name.",
+      "translation": "field_stem : str Dateistamm des Bildfelds, aus dem das Objekt stammt; maskiert bildet er den Anfang des Namens des Bildausschnitts. object_id : int Label-ID des Objekts; sie folgt im Namen auf den Stamm.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.stream_dataset.settings_for_method#2",
+      "source": "method : str Selection method name (``'column'`` or ``'array'``), matched case-insensitively after stripping whitespace.",
+      "source_sha256": "16931865a08e319119f125b5cb0113b41d75041676cd16d913e39367870eecf7",
+      "context": "method : str Selection method name (``'column'`` or ``'array'``), matched case-insensitively after stripping whitespace.",
+      "translation": "method : str Name der Auswahlmethode (``'column'`` oder ``'array'``), ohne Beachtung der Groß-/Kleinschreibung nach Entfernen von Leerzeichen abgeglichen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.stream_dataset.stream#1",
+      "source": "Each merged field is loaded once and all selected objects from that field are extracted before advancing. Missing or ambiguous field matches are reported as missing crops; a different field is never used as a fallback.",
+      "source_sha256": "9b6fc7664f0614f6a9150230560849ff5474c766405334d110a6edc55424cf22",
+      "context": "Each merged microscope field of view is loaded once and all selected objects from that microscope field of view are extracted before advancing. Missing or ambiguous microscope field of view matches are reported as missing extracted image regions; a different microscope field of view is never used as a fallback.",
+      "translation": "Jedes zusammengeführte Sichtfeld wird einmal geladen, und alle ausgewählten Objekte aus diesem Sichtfeld werden extrahiert, bevor es weitergeht. Fehlende oder mehrdeutige Sichtfeld-Zuordnungen werden als fehlende Bildausschnitte gemeldet; ein anderes Sichtfeld wird nie als Ersatz verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#5",
+      "source": "``diameter``, ``flow_threshold`` and ``CP_prob``, read by :func:`spacr.plaque.segment_plaque_image`, the call the Plaque preview makes too.",
+      "source_sha256": "6c6e649957d0b9c583c81c447713b9b3b3db4949a7b6bc6afbe768633e9fd6e3",
+      "context": "``diameter``, ``flow_threshold`` and ``CP_prob``, read by :func:`spacr.plaque.segment_plaque_image`, the call the Plaque preview makes too.",
+      "translation": "``diameter``, ``flow_threshold`` und ``CP_prob``, gelesen von :func:`spacr.plaque.segment_plaque_image`, dem Aufruf, den auch die Plaque-Vorschau ausführt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_plaques#6",
+      "source": "``plaque_mode`` -- ``'figure'`` hands the folder to :func:`spacr.plaque_papers.measure_figure_folder` instead.",
+      "source_sha256": "42198a3abf9a706c48ef47734cb8536dda97a3ae52285ac4ffd2ba8f4888ddff",
+      "context": "``plaque_mode`` -- ``'figure'`` hands the folder to :func:`spacr.plaque_papers.measure_figure_folder` instead.",
+      "translation": "``plaque_mode`` -- ``'figure'`` übergibt den Ordner stattdessen an :func:`spacr.plaque_papers.measure_figure_folder`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#0",
+      "source": "Measure marker recruitment with host-cell and per-well summaries.",
+      "source_sha256": "e8dce620bb42d900fe4ffcff575b8b74cc2c218642da91103eb51332b87c5044",
+      "context": "Measure marker recruitment with host-cell and per-microplate sample position summaries.",
+      "translation": "Misst die Marker-Rekrutierung mit Zusammenfassungen pro Wirtszelle und pro Well.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#1",
+      "source": "Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from a spacr ``measurements.db``, annotates each row with cell type / pathogen / treatment based on plate metadata, filters objects by size and intensity, computes the pathogen-to-cytoplasm mean-intensity ratio for ``channel_of_interest``, groups by well and writes both ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.",
+      "source_sha256": "a29f43922aa0cb30f176d04778b1fdd408509368b812cb139973604ece725c8b",
+      "context": "Reads the merged cell/nucleus/pathogen/cytoplasm feature tables from a spacr ``measurements.db``, annotates each row with cell type / pathogen / treatment based on laboratory microplate metadata, filters objects by size and intensity, computes the pathogen-to-cytoplasm mean-intensity ratio for ``channel_of_interest``, groups by well and writes both ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.",
+      "translation": "Liest die zusammengeführten Merkmalstabellen für Zelle/Zellkern/Pathogen/Zytoplasma aus einer spacr-``measurements.db``, versieht jede Zeile anhand der Plattenmetadaten mit Zelltyp / Pathogen / Behandlung, filtert Objekte nach Größe und Intensität, berechnet das Verhältnis der mittleren Intensität von Pathogen zu Zytoplasma für ``channel_of_interest``, gruppiert nach Well und schreibt sowohl ``results/cells.csv`` als auch ``results/wells.csv`` zusammen mit Rekrutierungsdiagrammen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#10",
+      "source": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim`` — recorded object-channel mapping used by image overlays and intensity filtering.",
+      "source_sha256": "cb6d273d8f2360ea8ec4bef8ba6f62a667ebc6ecc72eac903fb617f1f6bd3721",
+      "context": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim`` — recorded object-image data channel mapping used by image overlays and intensity filtering.",
+      "translation": "``cell_chann_dim`` / ``nucleus_chann_dim`` / ``pathogen_chann_dim`` — aufgezeichnete Zuordnung von Objekten zu Kanälen, die von Bild-Overlays und der Intensitätsfilterung verwendet wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#15",
+      "source": "List ``[cells, wells]`` — the host-cell and per-well recruitment DataFrames, also written to CSV under ``src/results``.",
+      "source_sha256": "a361b3555fcb6119b2af0e473de644e51360e86efcabf19fd118ecc10bff870c",
+      "context": "List ``[cells, wells]`` — the host-cell and per-microplate sample position recruitment DataFrames, also written to CSV under ``src/results``.",
+      "translation": "Liste ``[cells, wells]`` — die Rekrutierungs-DataFrames pro Wirtszelle und pro Well, zusätzlich als CSV unter ``src/results`` geschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#2",
+      "source": "Each cell row combines the pathogen measurements assigned to that host cell. Pathogen mean intensities are averaged across its associated objects; these rows represent host cells rather than independently measured vacuoles. The main recruitment ratio divides that aggregate pathogen mean by the cell's cytoplasm mean. Each well averages its retained cell ratios.",
+      "source_sha256": "92758f0c3daf51c7599fc7762df2cd5c50a2acc4f27e3c75df90b7b6df3cc203",
+      "context": "Each cell row combines the pathogen measurements assigned to that host cell. Pathogen mean intensities are averaged across its associated objects; these rows represent host cells rather than independently measured vacuoles. The main recruitment ratio divides that aggregate pathogen mean by the cell's cytoplasm mean. Each microplate sample position averages its retained cell ratios.",
+      "translation": "Jede Zellzeile fasst die Pathogenmessungen zusammen, die dieser Wirtszelle zugeordnet sind. Die mittleren Pathogenintensitäten werden über die zugehörigen Objekte gemittelt; diese Zeilen stehen für Wirtszellen, nicht für unabhängig gemessene Vakuolen. Das Haupt-Rekrutierungsverhältnis teilt diesen aggregierten Pathogenmittelwert durch den Zytoplasmamittelwert der Zelle. Jedes Well mittelt die Verhältnisse seiner beibehaltenen Zellen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#3",
+      "source": "In the GUI, open Home > Toxoplasma > Recruitment. Select a measured project, map its channels and plate conditions, review the object filters, and Run. Inspect the retained counts and ratio columns before comparing conditions. Condition plots show between-well standard deviations. For measurements linked to individual vacuoles, use :mod:`spacr.host_pathogen`.",
+      "source_sha256": "fc79e36854da76e195f32ef1e797cc60fba0119db86589d27aca7d7ae8047840",
+      "context": "In the GUI, open Home > Toxoplasma > Recruitment. Select a measured project, map its channels and laboratory microplate conditions, review the object filters, and Run. Inspect the retained counts and ratio columns before comparing conditions. Condition plots show between-well standard deviations. For measurements linked to individual vacuoles, use :mod:`spacr.host_pathogen`.",
+      "translation": "Öffnen Sie in der GUI Home > Toxoplasma > Recruitment. Wählen Sie ein gemessenes Projekt, ordnen Sie seine Kanäle und Plattenbedingungen zu, prüfen Sie die Objektfilter und starten Sie mit Run. Prüfen Sie die beibehaltenen Zählungen und Verhältnisspalten, bevor Sie Bedingungen vergleichen. Die Bedingungsdiagramme zeigen Standardabweichungen zwischen Wells. Für Messungen, die einzelnen Vakuolen zugeordnet sind, verwenden Sie :mod:`spacr.host_pathogen`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#5",
+      "source": "``src`` — folder containing ``measurements/measurements.db`` and optional ``merged`` images for overlays. A database path is also accepted; a database outside a measurements folder may be moved into one, so use a project copy when reorganizing existing data.",
+      "source_sha256": "28d0a82095526582605eff4a5f53a1d538458fa91379f2695bbf50254e04a0f5",
+      "context": "``src`` — folder containing ``measurements/measurements.db`` and optional ``merged`` images for overlays. A database path is also accepted; a database outside a measurements folder may be moved into one, so use a project copy when reorganizing existing data.",
+      "translation": "``src`` — Ordner mit ``measurements/measurements.db`` und optionalen ``merged``-Bildern für Overlays. Ein Datenbankpfad wird ebenfalls akzeptiert; eine Datenbank außerhalb eines Messordners kann in einen solchen verschoben werden, verwenden Sie daher eine Projektkopie, wenn Sie vorhandene Daten neu organisieren.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
