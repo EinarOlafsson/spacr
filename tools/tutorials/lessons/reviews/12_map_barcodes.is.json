@@ -1,0 +1,35 @@
+{
+  "lesson": "12_map_barcodes",
+  "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Map Barcodes: frá raðgreiningarlestrum til talninga",
+  "description": "Hlaðu inn pöruðum lestrum og tilvísunum safnsins, finndu stöður strikamerkja, beittu stillingunum og vistaðu talningar leiðaraða.",
+  "objectives": [
+    "Sækja lítið dæmi um paraða lestra og velja samsvarandi tilvísunartöflur.",
+    "Skoða stöður og stefnu strikamerkja áður en tillögu er beitt.",
+    "Keyra vörpunina og skoða talningar og úttak gæðaeftirlits."
+  ],
+  "prerequisite": "Veldu Load test data í Map Barcodes. Dæmið notar lestrana SRR33531217, samsvarandi dálka- og raðatöflur primers_3 og tilvísanir leiðaraða. Notaðu tilvísunartöflur sem passa við þitt eigið safn þegar þú vinnur úr öðrum lestrum.",
+  "scenes": [
+    "Frá Home opnarðu Map Barcodes. Inntakið eru raðgreiningarlestrar og tilvísunartöflur sem nefna strikamerkin í safninu þínu. Úttakið telur hverja samsetningu sem sést, tilbúið fyrir gæðaeftirlit raðgreiningar og frekari greiningu.",
+    "Smelltu á Load test data og veldu báða lestra parsins úr fyrstu keyrslu safnsins. Takmarkaðu hverja skrá við 10.000 lestra í þessu dæmi og bíddu svo þar til paraða sýnið hefur verið sótt.",
+    "Veldu samsvarandi tilvísunartöflur fyrir dálka, raðir og leiðaraðir. Hver tafla tengir nöfn strikamerkja við raðir. Haltu nöfnunum í samræmi við uppsetningu plötunnar og auðkenni leiðaraða sem notuð eru í restinni af greiningunni.",
+    "Opnaðu Find barcodes og hefðu leitina. Forskoðunin tekur sýni úr báðum lestrum parsins og athugar stöður og stefnur strikamerkjanna. Bíddu eftir niðurstöðunum áður en þú breytir aðaleyðublaðinu.",
+    "Berðu Observed saman við By chance og skoðaðu svo tillögu að stefnu, hliðrun og úrskurði fyrir hvert strikamerki. Veldu frekar stöður sem margir lestrar styðja og sem hafa vel aðgreindar væntar tilvísanir. Opnaðu skýringu úrskurðarins ef niðurstaðan er óviss.",
+    "Skoðaðu niðurstöður leiðaraðarinnar fyrir báða lestra parsins. Í þessu dæmi styður lestur 1 öfugt fyllda leiðaröð og lestur 2 vistaða stefnu. Byggðu val á stefnu á niðurstöðunum fyrir þitt safn og þitt lestrarpar.",
+    "Athugaðu líka raðastrikamerkið. Hér styður lestur 1 öfuga fyllingu þess og lestur 2 vistuðu röðina. Farðu yfir dálk, leiðaröð og röð saman svo að heildarsamsetningin auðkenni réttan brunn og rétta leiðaröð.",
+    "Opnaðu lestrarskoðarann til að skoða einstaka lestra. Notaðu litaskýringuna til að finna hluta fyrir dálk, leiðaröð, röð og akkeri. Athugaðu að tillögðu stöðurnar samræmist væntanlegri uppbyggingu safnsins.",
+    "Farðu yfir tillögðu útdráttarstillingarnar og smelltu svo á Apply these settings til að afrita þær í eyðublaðið. Dæmið notar útdráttarglugga upp á 89 basa. Athugaðu uppfærðu reitina áður en þú hefur keyrsluna.",
+    "Fylgdu athugasemdunum um stefnu þegar þú velur endanlegar tilvísunarskrár. Í þessu dæmi velurðu öfugt fyllt afrit af tilvísunum raða og leiðaraða og heldur dálkatilvísuninni eins og hún er vistuð. Haltu öllum nöfnum strikamerkja þegar þú útbýrð afritin.",
+    "Veldu sótta lestrarparið, tvö vinnsluferli og búta með 1.000 lestrum. Virkjaðu vistun merktra lestra ef þú vilt skoða einstakar úthlutanir. Smelltu á Run; þetta vörpunarferli notar CPU.",
+    "Þegar vörpuninni lýkur skoðarðu unique_combinations.csv og úttak gæðaeftirlitsins. Talningataflan tengir nöfn dálka, raða og leiðaraða við fjölda lestra. Farðu yfir ósamsvarandi og tvíræðar úthlutanir í Barcode QC og paraðu svo þessar talningar við svipgerðarstig í Regression."
+  ]
+}
