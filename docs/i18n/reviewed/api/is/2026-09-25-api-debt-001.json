@@ -1,0 +1,464 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.measure.spatial_column_names#3",
+      "source": "list of five column names.",
+      "source_sha256": "8c4f73062509b7bacbdb00f21ac46589fba9718b6cec73f74a9b6f4a3bff6eae",
+      "context": "list of five column names.",
+      "translation": "listi með fimm dálkaheitum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#0",
+      "source": "Write the table out as the folders the Mask module leaves behind.",
+      "source_sha256": "1bc0f9f16cdf085ffcdbb5fa13f1ccc50e61bd2a585788b6d941de69beb45611",
+      "context": "Write the table out as the folders the Mask module leaves behind.",
+      "translation": "Skrifa töfluna út sem möppurnar sem Mask-einingin skilur eftir sig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#1",
+      "source": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the plane-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
+      "source_sha256": "9e2408d10fc55d9d3733ae711b7e57e09051ee0a9cfaa3170139ec21f81592e7",
+      "context": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the image layer-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
+      "translation": "Þetta er allt sem FEATURES-hnappurinn bætir við Measure: hann breytir töflu af handvöldum skrám í ``stack/``, ``masks/`` og ``merged/`` nákvæmlega eins og :func:`spacr.core.preprocess_generate_masks` hefði skilið þær eftir, allt niður í yfirlitsskrá lagauppsetningar, svo keyrslan sem fylgir er VENJULEG mælingakeyrsla en ekki önnur kóðaleið sem þarf að halda í takt við þessa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#2",
+      "source": "a :class:`FieldTable` whose :meth:`FieldTable.problems` is empty.",
+      "source_sha256": "3797f94f44aad1b0305816bdc07b217251cd3585a52d7e3305c07877cf683c3f",
+      "context": "a :class:`FieldTable` whose :meth:`FieldTable.problems` is empty.",
+      "translation": ":class:`FieldTable` þar sem :meth:`FieldTable.problems` er tómt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#3",
+      "source": "the project root to write. It is created if it does not exist.",
+      "source_sha256": "1292f84af2a80b4fe5b9ff9cbc6d750ed6a9b1d7db1365a877db2efb6e23a744",
+      "context": "the project root to write. It is created if it does not exist.",
+      "translation": "rót verkefnisins sem á að skrifa. Hún er búin til ef hún er ekki til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#5",
+      "source": "if the table is incomplete, or if any file breaks the uint16 array contract ``measure_crop`` reads. Nothing is written past the field that failed.",
+      "source_sha256": "9293ba95bb1d0fafee02c1c7d238c46c8b82be9fac0f7781b553f3d69b02beca",
+      "context": "if the table is incomplete, or if any file breaks the uint16 array contract ``measure_crop`` reads. Nothing is written past the field that failed.",
+      "translation": "ef taflan er ófullkomin, eða ef einhver skrá brýtur uint16-fylkjasamninginn sem ``measure_crop`` les. Ekkert er skrifað eftir sjónsviðið sem brást.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.QuasiBinomial.variance#1",
+      "source": "fitted mean probabilities, scalar or array; the binomial variance of ``mu`` is multiplied by ``dispersion``.",
+      "source_sha256": "47307fb934b234d81b2a3a16a0ddf2d4af1a4e1b795d6f837ab14ed191de229f",
+      "context": "fitted mean probabilities, scalar or array; the binomial variance of ``mu`` is multiplied by ``dispersion``.",
+      "translation": "aðlagaðar meðallíkur, stigstærð eða fylki; tvíliðudreifni ``mu`` er margfölduð með ``dispersion``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.apply_transformation#3",
+      "source": "A ``FunctionTransformer`` or ``None``.",
+      "source_sha256": "967db48946a14f635a8238a12bb6b1c3cdb5834ddd82032afd76bc74eb7963fa",
+      "context": "A ``FunctionTransformer`` or ``None``.",
+      "translation": "``FunctionTransformer`` eða ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.beta_logit#3",
+      "source": "proportions in ``[0, 1]``, array-like; converted to a float array. Non-finite entries pass through unchanged. When any finite value is at or beyond 0 or 1 the finite values are squeezed with ``(y * (n - 1) + 0.5) / n`` before the logit.",
+      "source_sha256": "e055b4f05194b613e13386adef535ae4c3b7a3f6d3dd4b0f7987d95b384948a9",
+      "context": "proportions in ``[0, 1]``, array-like; converted to a float array. Non-finite entries pass through unchanged. When any finite value is at or beyond 0 or 1 the finite values are squeezed with ``(y * (n - 1) + 0.5) / n`` before the logit.",
+      "translation": "hlutföll á ``[0, 1]``, fylkislík; umbreytt í fleytitölufylki. Óendanlegar færslur fara óbreyttar í gegn. Þegar eitthvert endanlegt gildi er á eða út fyrir 0 eða 1 eru endanlegu gildin þjöppuð með ``(y * (n - 1) + 0.5) / n`` fyrir logit.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.check_normality#1",
+      "source": "numeric values, array-like; non-finite values are dropped and fewer than 3 remaining values returns ``False`` without testing.",
+      "source_sha256": "a7e988178febe32039b982e44eff8db393ab3b4244eeb454287d78809ca15dcc",
+      "context": "numeric values, array-like; non-finite values are dropped and fewer than 3 remaining values returns ``False`` without testing.",
+      "translation": "töluleg gildi, fylkislík; óendanlegum gildum er sleppt og ef færri en 3 gildi eru eftir er ``False`` skilað án prófunar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.check_normality#2",
+      "source": "name printed in the verbose messages only.",
+      "source_sha256": "52fcde956c83a1cfab5b906d1ce7619bccdfc631bf258ae107eecb7c6a00d695",
+      "context": "name printed in the verbose messages only.",
+      "translation": "heiti sem aðeins er prentað í margorðu skilaboðunum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.check_normality#3",
+      "source": "print the test statistic, P value and verdict.",
+      "source_sha256": "d4f9a8dc5d8a2ec0c75dc6d1144bcf161e170847f53df615494547e4ca9e88eb",
+      "context": "print the test statistic, P value and verdict.",
+      "translation": "prenta prófstærðina, P-gildið og niðurstöðuna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.check_normality#4",
+      "source": "``True`` when the Shapiro-Wilk P value exceeds 0.05.",
+      "source_sha256": "4a3f6b4bda5bde68bed6a90e475f98ba803bccd02a87136cd1152e1a5c6f5afd",
+      "context": "``True`` when the Shapiro-Wilk P value exceeds 0.05.",
+      "translation": "``True`` þegar P-gildi Shapiro-Wilk er hærra en 0.05.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs#2",
+      "source": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
+      "source_sha256": "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821",
+      "context": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
+      "translation": "runa af vörpunum með töfluslóðum ``'score'`` og ``'count'`` (hvor sem er má vera tóm), eins og :func:`normalize_regression_input_pairs` skilar þeim. ``'plate'`` hverrar vörpunar er yfirskrifað með leystu plötumerki.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.ml_analysis#15",
+      "source": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` or ``'xgboost'``.",
+      "source_sha256": "22fc522f1c2ac3d487d20188309dc89014b2f817f104e90c75c2afb60f47fa79",
+      "context": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` or ``'xgboost'``.",
+      "translation": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` eða ``'xgboost'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#2",
+      "source": "regression settings dictionary. ``paired_data`` is read when present, otherwise the legacy ``score_data`` and ``count_data`` lists; the dictionary is updated in place with the normalised ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.",
+      "source_sha256": "ea4caf4fe78a7f31987e94d1ce87ac096c07961b570fb75f72922c83f17499a1",
+      "context": "regression settings key-value mapping. ``paired_data`` is read when present, otherwise the legacy ``score_data`` and ``count_data`` lists; the key-value mapping is updated in place with the normalised ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.",
+      "translation": "orðabók aðhvarfsstillinga. ``paired_data`` er lesið þegar það er til staðar, annars eldri ``score_data`` og ``count_data`` listarnir; orðabókinni er breytt á staðnum með stöðluðu ``paired_data`` og ``score_data``/``count_data`` listum án tvítekninga.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#3",
+      "source": "``(pairs, migrated)``, where ``migrated`` is ``True`` when the rows came from the legacy lists.",
+      "source_sha256": "399983aa21b9c52ad243eaac474fe8e555ad56ac932bfcb79719b19a092c159f",
+      "context": "``(pairs, migrated)``, where ``migrated`` is ``True`` when the rows came from the legacy lists.",
+      "translation": "``(pairs, migrated)``, þar sem ``migrated`` er ``True`` þegar raðirnar komu úr eldri listunum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#4",
+      "source": "when ``paired_data`` is malformed or there is not at least one score path and one count path.",
+      "source_sha256": "2cc092022d5830df41736fda3a8bf041c76d92843b2ec28135c1e285634c1f2e",
+      "context": "when ``paired_data`` is malformed or there is not at least one score path and one count path.",
+      "translation": "þegar ``paired_data`` er gallað eða það er ekki að minnsta kosti ein stigaslóð og ein talningarslóð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.process_scores#6",
+      "source": "``'mean'``, ``'median'``, ``'quantile'`` or None.",
+      "source_sha256": "044324eba9c2c880950f0bd95c606449547aadfcb17a96e0211b4719e6af0a01",
+      "context": "``'mean'``, ``'median'``, ``'quantile'`` or None.",
+      "translation": "``'mean'``, ``'median'``, ``'quantile'`` eða None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.regression_levels#6",
+      "source": "long-format DataFrame of gRNA/gene fractions and the dependent variable, passed to :func:`regression` for every level.",
+      "source_sha256": "639b0a04146c2d6e1946c980de18b03bd1077f65dc8528fe58046e49d1a964a3",
+      "context": "long-format DataFrame of gRNA/gene fractions and the dependent variable, passed to :func:`regression` for every level.",
+      "translation": "DataFrame á löngu sniði með hlutföllum gRNA/gena og háðu breytunni, sent til :func:`regression` fyrir hvert stig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.regression_levels#7",
+      "source": "path passed to :func:`regression`, which derives the volcano-plot filename from it.",
+      "source_sha256": "1f21690043b56df7a9e4f31d90e98e28836284ff53d8ceb4fcebcda20c4a0b21",
+      "context": "path passed to :func:`regression`, which derives the volcano-plot filename from it.",
+      "translation": "slóð send til :func:`regression`, sem leiðir skráarheiti eldfjallarits út frá henni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#5",
+      "source": "the analysis table (a DataFrame); its distinct well and guide counts, and the permutation block column when present, size the design.",
+      "source_sha256": "2dfe2442a63303585fb09dae9268bef7550ebddb95d44233838bb02af0fd4545",
+      "context": "the analysis table (a DataFrame); its distinct well and guide counts, and the permutation block column when present, size the design.",
+      "translation": "greiningartaflan (DataFrame); fjöldi ólíkra brunna og leiðsagnar-RNA, og umröðunarblokkadálkurinn þegar hann er til staðar, ákvarða stærð hönnunarinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#6",
+      "source": "run settings; ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` and ``guide_permutation_block`` are read. It is not modified.",
+      "source_sha256": "532fa4cf5719f72f3716568e4b1d5c0186d70d955a7d8132cac3570a58111513",
+      "context": "processing-session settings; ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` and ``guide_permutation_block`` are read. It is not modified.",
+      "translation": "keyrslustillingar; ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` og ``guide_permutation_block`` eru lesin. Henni er ekki breytt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#7",
+      "source": "column whose distinct values count the wells.",
+      "source_sha256": "7af55eade1e926647ceba08e1b000ca1cec55282cda1e0c4ee820a2344bcd91f",
+      "context": "column whose distinct values count the microplate sample positions.",
+      "translation": "dálkur þar sem ólík gildi telja brunnana.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#8",
+      "source": "column whose distinct values count the guides.",
+      "source_sha256": "696091efd44adb3766450e54782f6ce0d0ed963e04b2af5893730550aedd3d73",
+      "context": "column whose distinct values count the guides.",
+      "translation": "dálkur þar sem ólík gildi telja leiðsagnar-RNA.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#3",
+      "source": "run settings mapping, or ``None`` (treated as empty); only ``analysis_mode`` and ``regression_type`` are read.",
+      "source_sha256": "0645f4952e135eec7abd130057a80e8035b248abcfc1a74dda67e72df2991e40",
+      "context": "processing-session settings mapping, or ``None`` (treated as empty); only ``analysis_mode`` and ``regression_type`` are read.",
+      "translation": "vörpun keyrslustillinga, eða ``None`` (meðhöndlað sem tómt); aðeins ``analysis_mode`` og ``regression_type`` eru lesin.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#4",
+      "source": "``'guide_permutation'``, ``'auto'`` when no regression type is set, or the regression type as a string.",
+      "source_sha256": "4888abbe38d96a9fb8918b6efae7f4eb235e8b4fa20c4a3b86124592c2ef2239",
+      "context": "``'guide_permutation'``, ``'auto'`` when no regression type is set, or the regression type as a string.",
+      "translation": "``'guide_permutation'``, ``'auto'`` þegar engin aðhvarfsgerð er stillt, eða aðhvarfsgerðin sem strengur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#3",
+      "source": "the design DataFrame, or ``None`` (returns ``False``); its ``screenID`` column is compared as strings.",
+      "source_sha256": "a3909c7de7af8a9ce5890c1fa56221df63486b3a5201af9991a97c9c68f6eb24",
+      "context": "the design DataFrame, or ``None`` (returns ``False``); its ``screenID`` column is compared as strings.",
+      "translation": "DataFrame hönnunarinnar, eða ``None`` (skilar ``False``); ``screenID`` dálkur hennar er borinn saman sem strengir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.write_plot#3",
+      "source": "a ``FastPlot``, or None.",
+      "source_sha256": "f985d07300e5a01ca1da09e8ed203786b3a41a1d523364f540d31c0d4903a0d0",
+      "context": "a ``FastPlot``, or None.",
+      "translation": "``FastPlot``, eða None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_compare.segment_with_cellpose#2",
+      "source": "Model and device dependencies are loaded on demand for this call. Cellpose versions without a separate ``invert`` argument receive that setting in the normalization dictionary. Inversion requires normalization on those versions; other normalization options are retained.",
+      "source_sha256": "d16913d52b4af0f77301c908519ad3cbfefa3f1acea4694caec16f22ed618688",
+      "context": "Model and device dependencies are loaded on demand for this call. Cellpose versions without a separate ``invert`` argument receive that setting in the normalization key-value mapping. Inversion requires normalization on those versions; other normalization options are retained.",
+      "translation": "Líkans- og tækjaháð söfn eru hlaðin eftir þörfum fyrir þetta kall. Cellpose-útgáfur án sérstaks ``invert`` viðfangs fá þá stillingu í stöðlunarorðabókinni. Umhverfing krefst stöðlunar í þeim útgáfum; öðrum stöðlunarvalkostum er haldið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry#17",
+      "source": "the licence the model or package is published under, as its publisher states it (an SPDX identifier where there is one), or ``''`` when none is recorded.",
+      "source_sha256": "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+      "context": "the licence the model or package is published under, as its publisher states it (an SPDX identifier where there is one), or ``''`` when none is recorded.",
+      "translation": "leyfið sem líkanið eða pakkinn er gefinn út undir, eins og útgefandinn tilgreinir það (SPDX-auðkenni þar sem það er til), eða ``''`` þegar ekkert er skráð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry.model_card_url#0",
+      "source": "The Hugging Face page for this model, derived from its download uri.",
+      "source_sha256": "3cecf04f719ddfc2894e372b74cc978c2264dcddb6c149372c60d6e46db3414c",
+      "context": "The Hugging Face page for this model, derived from its download uri.",
+      "translation": "Hugging Face-síða þessa líkans, leidd út frá niðurhalsslóð þess.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry.model_card_url#1",
+      "source": "A checksum and a metrics table are not enough on their own: the reader wants the page that says what the model was trained on and shows its training curves. Derived rather than declared, so every Hugging Face entry has one without a per-entry field to forget.",
+      "source_sha256": "cabe6d97969a6fa83dd75838579883f11780a8d8c923fb962fa650d672ac26da",
+      "context": "A checksum and a metrics table are not enough on their own: the reader wants the page that says what the model was trained on and shows its training curves. Derived rather than declared, so every Hugging Face entry has one without a per-entry field to forget.",
+      "translation": "Gátsumma og tafla yfir mælikvarða nægja ekki ein og sér: lesandinn vill síðuna sem segir á hverju líkanið var þjálfað og sýnir þjálfunarferla þess. Leidd út frekar en tilgreind, svo hver Hugging Face-færsla hefur hana án sérstaks reits fyrir hverja færslu sem hægt er að gleyma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#0",
+      "source": "Every Cellpose model bioimage.io publishes, as zoo rows.",
+      "source_sha256": "40bbc828ca6bb9422a56265a37e26bdf500feddeac22c8bd2b5290ff6a8d723b",
+      "context": "Every Cellpose model bioimage.io publishes, as zoo rows.",
+      "translation": "Öll Cellpose-líkön sem bioimage.io birtir, sem raðir í líkanasafninu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#1",
+      "source": "Read from bioimage.io's own collection, so the category cannot go stale the way a typed list would. Three kinds of row:",
+      "source_sha256": "5512c0857eebb4920d977c9ac7f780bec6c86ae21a4a735c571e8b3397e2189e",
+      "context": "Read from bioimage.io's own collection, so the category cannot go stale the way a typed list would. Three kinds of row:",
+      "translation": "Lesið úr eigin safni bioimage.io, svo flokkurinn getur ekki úrelst eins og innsleginn listi gæti. Þrjár gerðir raða:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#2",
+      "source": "a Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4 loads: a ``cellpose`` row that downloads its weights;",
+      "source_sha256": "e64c97c9f820cc0e082b915628fd57745f8f4c2762d267301976001ca2d11507",
+      "context": "a Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4 loads: a ``cellpose`` row that downloads its weights;",
+      "translation": "Cellpose-SAM eða Cellpose-DINO líkan, sem eigið Cellpose 4 í spaCR hleður: ``cellpose`` röð sem sækir vigtir sínar;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#3",
+      "source": "a Cellpose 3-format checkpoint: a ``cellpose3`` row that downloads its weights for the Cellpose 3 backend, which runs it as it runs cyto3;",
+      "source_sha256": "c52e22ab1bbcac6ad22f94ec2574844c5dced32dbe04d1b01f57dc84ca61444b",
+      "context": "a Cellpose 3-format checkpoint: a ``cellpose3`` row that downloads its weights for the Cellpose 3 backend, which runs it as it runs cyto3;",
+      "translation": "vistunarpunktur á Cellpose 3-sniði: ``cellpose3`` röð sem sækir vigtir sínar fyrir Cellpose 3-bakendann, sem keyrir hann eins og hann keyrir cyto3;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#4",
+      "source": "one of either that spaCR cannot run, which says why in its first note (:func:`_bioimageio_cannot_run`) and offers nothing to download.",
+      "source_sha256": "ad50dca06055bfc8e0d41c5b9f1df4ef5a0fdee4114d02821dd8ff7db0eab28f",
+      "context": "one of either that spaCR cannot run, which says why in its first note (:func:`_bioimageio_cannot_run`) and offers nothing to download.",
+      "translation": "annaðhvort þeirra sem spaCR getur ekki keyrt, sem segir hvers vegna í fyrstu athugasemd sinni (:func:`_bioimageio_cannot_run`) og býður ekkert til niðurhals.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#5",
+      "source": "Each weights file is checked against the SHA-256 its manifest publishes, and carries the licence the uploader chose and what it was trained on.",
+      "source_sha256": "cc4ca3efe1d33fd2ba80ce3273fe7e0fb639e37f0d7bb312c7fd9e8039afbfa4",
+      "context": "Each weights file is checked against the SHA-256 its manifest publishes, and carries the licence the uploader chose and what it was trained on.",
+      "translation": "Hver vigtaskrá er borin saman við SHA-256 sem yfirlitsskrá hennar birtir, og ber leyfið sem sá sem hlóð henni upp valdi og á hverju hún var þjálfuð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#6",
+      "source": "Best effort and never raises: no network, a slow mirror or a changed schema all mean fewer rows, never a zoo that fails to open. With ``allow_network`` the collection is refreshed once it is a day old, and the weights files are measured, so a stand-in file is refused before anyone downloads it.",
+      "source_sha256": "41f60abad1c8eeb69f037f50a679e580ebcd044eff7749c7e09987e92f61f71f",
+      "context": "Best effort and never throws: no network, a slow mirror or a changed schema all mean fewer rows, never a zoo that fails to open. With ``allow_network`` the collection is refreshed once it is a day old, and the weights files are measured, so a stand-in file is refused before anyone downloads it.",
+      "translation": "Besta viðleitni og kastar aldrei: ekkert net, hægur spegill eða breytt skema þýða allt færri raðir, aldrei líkanasafn sem opnast ekki. Með ``allow_network`` er safnið endurnýjað þegar það er orðið dagsgamalt, og vigtaskrárnar eru mældar, svo staðgengilsskrá er hafnað áður en nokkur sækir hana.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.classify_kind#4",
+      "source": "``'cellpose'``, ``'classifier'`` or None.",
+      "source_sha256": "cb72f7ebc1358d815574c8bd7a319721fc3a646d261fb4267c012515b47100a9",
+      "context": "``'cellpose'``, ``'classifier'`` or None.",
+      "translation": "``'cellpose'``, ``'classifier'`` eða None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.community_entries#0",
+      "source": "Unvetted models uploaded by spaCR users, or an empty list.",
+      "source_sha256": "3f8d93eb9b2d2460875a1858e8632b77035401139aadd552fe264a1ef580465a",
+      "context": "Unvetted models uploaded by spaCR users, or an empty list.",
+      "translation": "Óyfirfarin líkön sem notendur spaCR hafa hlaðið upp, eða tómur listi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.community_entries#1",
+      "source": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
+      "source_sha256": "d39c9c27d783d1465ee8471afbd90ca487c1a59c4f04ba350dade9fe77ac2ee1",
+      "context": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
+      "translation": "Þau eru aðeins sýnd þegar notandinn biður um þau, því óyfirfarinn vistunarpunktur við hlið mælds líkans býður lesandanum að meðhöndla þau eins. Hver röð ber :data:`COMMUNITY_WARNING`, og gátsumman kemur úr eigin innsendingarfærslu þess sem hlóð upp -- hún sannar að skráin hafi ekki breyst síðan henni var hlaðið upp, EKKI að hún sé góð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.community_entries#2",
+      "source": "Cache-first for the same reason as the bioimage.io listing: catalogue() must not reach the network.",
+      "source_sha256": "5552cf72c97edff934644d246b39decae0bb18e86a602f20f67a6a35ca62aebb",
+      "context": "Cache-first for the same reason as the bioimage.io listing: catalogue() must not reach the network.",
+      "translation": "Skyndiminni fyrst af sömu ástæðu og bioimage.io-listinn: catalogue() má ekki fara á netið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.entries_from_sources#0",
+      "source": "The rows belonging to the headings that are on, in the given order.",
+      "source_sha256": "ce40c7898b5b6cd32f4dc53651316e0be8842d53de9464c6a259bec17c1ca6c2",
+      "context": "The rows belonging to the headings that are on, in the given order.",
+      "translation": "Raðirnar sem tilheyra fyrirsögnunum sem eru virkar, í gefinni röð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.entries_from_sources#1",
+      "source": "the rows to filter.",
+      "source_sha256": "29f568dba5dc31fd2dd9b087e532f78a64618ba2aeebff414aab94c06ea09f56",
+      "context": "the rows to filter.",
+      "translation": "raðirnar sem á að sía.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.entries_from_sources#2",
+      "source": "the headings currently on.",
+      "source_sha256": "f75c82e8b4b886a8c6eb2210377f0fbdbf1f4293031e3f4cd028a239e70b7305",
+      "context": "the headings currently on.",
+      "translation": "fyrirsagnirnar sem eru virkar núna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.entry_from_file#4",
+      "source": "``'local'`` or ``'bundled'``.",
+      "source_sha256": "818372e82f4d5f3467d4ecbe209f9a46ef06d344a3e08aff0648856f7b9ffaaa",
+      "context": "``'local'`` or ``'bundled'``.",
+      "translation": "``'local'`` eða ``'bundled'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.group_by_source#0",
+      "source": "Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.",
+      "source_sha256": "9343baba1544caf7e62ccc464d512618e0de13c12345c503ecd7272d6a151612",
+      "context": "Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.",
+      "translation": "Skipta lista í :data:`ZOO_SOURCES` og halda röð hverrar uppsprettu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.group_by_source#1",
+      "source": "Every heading is present even when it has no rows, so a caller drawing the strip does not have to know which of the five happened to be empty this time.",
+      "source_sha256": "569af7bf4247981e75f97f270201cec4c5df3af9eba75d6b7d7dd73afd03fac8",
+      "context": "Every heading is present even when it has no rows, so a caller drawing the strip does not have to know which of the five happened to be empty this time.",
+      "translation": "Hver fyrirsögn er til staðar jafnvel þegar hún hefur engar raðir, svo kallandi sem teiknar ræmuna þarf ekki að vita hver af fimm var tóm í þetta sinn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.group_by_source#2",
+      "source": "the rows to split.",
+      "source_sha256": "5ee4bb21be85bd2ad0528716e555609fba10b60d0bef011bea17665dfe3e2e11",
+      "context": "the rows to split.",
+      "translation": "raðirnar sem á að skipta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.group_by_source#3",
+      "source": "heading -> rows, in :data:`ZOO_SOURCES` order.",
+      "source_sha256": "a3ff8d8f50ee67901cd178b71115655e6ff19666ea14d8ae1ecb6757e6742d69",
+      "context": "heading -> rows, in :data:`ZOO_SOURCES` order.",
+      "translation": "fyrirsögn -> raðir, í röð :data:`ZOO_SOURCES`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.installable_backend_entries#0",
+      "source": "Every optional segmentation backend, in whatever state it is here.",
+      "source_sha256": "2dad6e2a409441275a53d9a859b204ce6ef9619484fea6495717c2d1380a4883",
+      "context": "Every optional segmentation backend, in whatever state it is here.",
+      "translation": "Allir valfrjálsir hlutunarbakendar, í hvaða ástandi sem þeir eru hér.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.installable_backend_entries#1",
+      "source": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
+      "source_sha256": "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84",
+      "context": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
+      "translation": "Bakendi sem er ekki í líkanasafninu kennir engum að hann sé til, svo hver og einn er talinn upp, og ``source`` hans segir hvar hann stendur -- ``installed``, ``installable``, ``installing`` eða ``not installable here`` -- með ástæðuna sem fyrstu athugasemd og leyfi sitt á röðinni. Uppsetning eins byggir honum eigið umhverfi undir ``~/.spacr/backends`` og lætur eigið umhverfi spaCR í friði.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#0",
+      "source": "The model's scorecard as an HTML table, for a tooltip.",
+      "source_sha256": "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
+      "context": "The model's scorecard as an HTML table, for a tooltip.",
+      "translation": "Einkunnaspjald líkansins sem HTML-tafla, fyrir verkfæraábendingu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#1",
+      "source": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
+      "source_sha256": "3127ce8df40eaf57f7cd93dea6f22d66c9c47921b1a66a4b3c1af979325c79f5",
+      "context": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
+      "translation": "Efnisgrein í lausu máli var það sem verkfæraábending sýndi áður, og lesandi sem bar saman tvö líkön þurfti að þátta tvær efnisgreinar til að finna tvær tölur. Sama taflan og líkanskortið prentar svarar því í fljótu bragði. Fellur aftur á lausa málið þegar færsla birtir enga mælikvarða, því tóm tafla er verri en setning.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "Mælikvarðar sem innihalda enga af lyklum einkunnaspjaldsins -- frjáls athugasemd, þjálfunartap undir eigin heiti -- eru heldur ekki einkunnaspjald, og skila líka engu: tafla með ellefu \"not recorded\" röðum kæmi í stað tveggja lína athugasemdar sem sagði eitthvað.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
