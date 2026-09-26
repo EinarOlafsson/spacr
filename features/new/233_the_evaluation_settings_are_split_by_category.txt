@@ -2,7 +2,7 @@
 THE EVALUATION SETTINGS ARE SPLIT BY CATEGORY, AND BY ML VS CV
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-09-25 -- split on the Classify panel (decision); see the closing section.
 Requested: 2026-08-21 -- "the evaluation section of classify has too many
            setting please devide them on category and machine learning vs
            computer vision and ther subcategories ther, best is if these
@@ -121,3 +121,61 @@ random_seed, n_jobs, verbose, strict_errors, max_failure_rate, and the two
 family exclusives) have no heading on this panel to go to, so any split
 invents at least one more. "The number of NEW headings is small" is a
 judgement this re-audit is not the place to make.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DECIDED AND BUILT: "EVALUATION" AND "RESULTS & FIGURES"
+--------------------------------------------------------------------------------
+
+Maintainer decision (2026-09-25): split Classify's "Evaluation & Results"
+settings heading into "Evaluation" (metrics, validation, thresholds) and
+"Results & figures" (outputs, plots, exports) -- categories_for_app /
+settings category map, with category blurbs.
+
+BUILT IN THE TABLE THE PANEL READS, which is the one the 2026-08-26 re-audit
+found unsplit: `settings_model.categories_for_app` for `classify` and
+`classify_merged`.
+
+  Evaluation (13)          cross_validation_enabled, cross_validation_folds,
+                           cv_group_by, holdout_plate, nested_cv_inner_folds,
+                           score_threshold, classifier_evaluation,
+                           evaluation_calibration, evaluation_bins, and the
+                           four leakage-audit keys
+  Results & figures (4/8)  n_top_examples, plot, tensorboard,
+                           intermedeate_save; classify_merged adds cmap,
+                           heatmap_feature, grouping, min_max
+  Runtime & Reliability    random_seed, n_jobs, pin_memory, verbose,
+                           strict_errors, max_failure_rate
+
+THE SIX RUN KNOBS were the re-audit's "eleven with no heading" minus the
+five that now have one. They are neither evaluation nor results, and
+leaving them to the "Additional Settings" catch-all is the failure
+test_classifier_evaluation_screen names ("curated by nobody"). They go to
+"Runtime & Reliability", an EXISTING spaCR heading (shared blurb and catalog
+rows in all nine languages already), so the decision's two headings are the
+only new ones.
+
+classify_merged: the shared tail is now ("Evaluation", "Results & figures",
+"Runtime & Reliability"), unprefixed, after both families.
+
+BLURBS: CATEGORY_TOOLTIPS gains "EVALUATION" and "RESULTS & FIGURES";
+CATEGORY_TOOLTIPS_BY_APP gains a classify / classify_merged
+"RUNTIME & RELIABILITY" override that names the seed and the loader
+workers. The old "EVALUATION & RESULTS" blurb is kept for any saved layout
+still naming it.
+
+spacr/settings.py `categories` (Model Evaluation / Evaluation Reports /
+Leakage Audit) is unchanged: it is the notebook-side map with its own tested
+split (tests/test_the_evaluation_settings_are_split.py), and the panel does
+not read it for Classify.
+
+TRANSLATION FOLLOW-UP (not done here; the i18n catalogs are another lane):
+"Evaluation" and "Results & figures" have no catalog rows yet, so the
+headings show in English under another UI language until the catalogs are
+regenerated. "Runtime & Reliability" is already translated.
+
+Tests: tests/qt/test_cov_r9_settings_model_group_order.py (split present in
+both apps, exact Evaluation keys, Results & figures follows Evaluation, no key
+twice, run knobs curated rather than left over, a written blurb for each
+heading), tests/qt/test_cov_r6_screens_forms_and_masks.py and
+tests/qt/test_classifier_evaluation_screen.py updated to the new names.

@@ -2,7 +2,8 @@
 THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21; the last inert control, mark_colouring,
+           wired 2026-09-25 (see the closing note).
 Requested: 2026-08-21 -- "when i right click and press Figure settings i get
            figure settings but i get some settings i dont want and lack some
            settings i want."
@@ -317,3 +318,50 @@ grouped renderers to read it, not another line in `rc_params`.
 
 Tests: `tests/test_the_frame_the_mark_and_the_page_reach_a_figure.py`, 11
 passing; 7 of them fail without the emission.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- MARK_COLOURING IS NO LONGER INERT.
+--------------------------------------------------------------------------------
+
+It reaches a drawn figure by the two routes a colour can take:
+
+1. THE COLOUR CYCLE, for every renderer that names no colour of its own.
+   `figure_style._marks_coloured_by(palette, rule)` shapes the palette before
+   `rc_params` writes `axes.prop_cycle`:
+     group    the palette in its order (unchanged, the default);
+     uniform  the palette's first colour only -- every group one ink;
+     random   the palette reordered by a FIXED seed (`RANDOM_MARK_SEED`), so
+              neighbouring groups stop taking adjacent colours and a redraw
+              gives the same colours.
+   Because the rule changes the cycle, `user_overrides`' rcParam diff now
+   carries it, which is the only path a preference has to a figure.
+   `figure_style.apply` re-set the full palette AFTER `rc_params` and would
+   have undone the rule on the one path that writes the global rcParams;
+   `_apply_palette` now takes the rule too.
+
+2. THE GROUPED RENDERERS THAT NAME THEIR OWN COLOURS, which the cycle never
+   reaches: `spacrGraph._plot_palette` and `create_grouped_plot` in
+   `spacr/plot.py`. Both ask `spacr.figures.style._group_colours(count,
+   palette)`, which reads the user's `mark_colouring` for the `jitter_bar`
+   kind (general layer plus per-graph override):
+     group    returns None and the house rule stands -- one grey for a
+              single data column, the palette where colour separates series;
+     uniform  the data ink (`ROLES['data']`) for every group;
+     random   the renderer's palette through the same seeded reorder.
+   An explicit `colors=` from the caller still wins over all three.
+
+A NOTE ON WHAT `uniform` CHANGES. For a single-column grouped plot the
+house rule is already one grey, so `group` and `uniform` draw the same; the
+two differ where several series share an axis, which is where `uniform`
+takes the colour away on purpose.
+
+NOT REACHED, and said rather than implied: the pyqtgraph live views
+(`qt/widgets/fast_plots.colour_for`) take their category colours from a fixed
+`PALETTE` and read neither `palette` nor `mark_colouring`. They are not
+Matplotlib figures and the figure settings dialog does not configure them.
+
+Tests: tests/test_the_frame_the_mark_and_the_page_reach_a_figure.py, all
+passing (9 new: the cycle for each rule, the override diff, `apply` not
+undoing it, `_group_colours` for each rule, and `spacrGraph._plot_palette`
+reading it). tests/test_figure_style_uncovered_paths.py's stand-in for
+`_apply_palette` now accepts the rule argument.

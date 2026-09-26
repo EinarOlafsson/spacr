@@ -1,34 +1,36 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
   "review": {
-    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "nb",
-  "title": "Belysningskorrigering",
-  "description": "Estimer et belysningsfelt fra nedlastede bilder via Illumination i Measure, undersøk eksportert kvalitetskontroll og skill numerisk forbedring fra biologisk validering.",
+  "title": "Illumination: anslå og undersøk en korreksjonsmodell",
+  "description": "Velg bildekanaler, anslå et belysningsfelt, undersøk QC-figuren og gjenbruk den lagrede modellen.",
   "objectives": [
-    "Åpne den integrerte siden og velge intensitetskanaler i sammenslåtte bilder.",
-    "Sammenligne avslått og påslått korrigering og undersøke modell og kvalitetskontroll.",
-    "Gjenbruke en vurdert modell uten å forveksle diagnostikk på tilpasningsdata med uavhengig validering."
+    "Velge representative synsfelt og intensitetskanaler.",
+    "Anslå og undersøke en belysningsmodell.",
+    "Gjenbruke modellen i Mask eller Measure."
   ],
-  "prerequisite": "Eksemplet bruker uendrede kopier av seksten nedlastede plate1-felt, 1994 × 1994 piksler med sju lagrede plan. Kanal null er en intensitetsindeks, ikke en fargingsidentitet; etikettplan er ikke intensiteter. Originaler og kopier bevares. Etter GUI-kjøringen kontrollerer en uavhengig formel 7 952 072 korrigerte piksler via det offentlige API-et, uten å erstatte GUI-resultater. Modell og kvalitetskontroll bruker de samme seksten feltene, ikke uavhengige optiske eller biologiske referansedata. Mørkeoffset null er ingen målt kalibrering. Figures forblir tomt; den faktiske PNG-filen åpnes i en separat bildeviser. Ingen programkode eller originalbilder endres. Den gamle simuleringen med fem scener erstattes.",
+  "prerequisite": "Bruk en mappe med sammenslåtte bilder med representative synsfelt fra hver opptaksgruppe. Eksemplet bruker de seksten synsfeltene fra plateeksemplet som ble lastet ned i Measure. Vit hvilke lagrede plan som inneholder intensiteter, og hvilke som inneholder etiketter.",
   "scenes": [
-    "Åpne Measure og deretter Illumination-knappen. Denne integrerte siden estimerer en korrigeringsmodell før en større analyse. Det er annerledes enn bare å aktivere korrigering i en målekjøring, og gjør ikke hele applikasjonsøkten automatisk korrigert.",
-    "Sett Source til merged-mappen med bildearrayene, ikke måledatabasen. Vi bruker nye kopier av alle seksten feltene fra plateeksemplet som kan lastes ned. Originalene forblir uendret, og belysningsmodellen lagres ved siden av merged-mappen.",
-    "Innstillingen Channels angir posisjoner i den lagrede intensitetsarrayen. Her velger vi kanal null. Kontroller din egen opptakstilordning i stedet for å anta at null alltid betyr samme farging. Velg aldri et etikettmaskeplan som om det var fluorescensintensitet.",
-    "Først er korrigering avslått. Run avsluttes, men konsollen sier uttrykkelig at ingen belysningsprofil ble estimert. Vi kontrollerte at ingen modell ble opprettet. En melding om vellykket fullføring beviser derfor ikke alene at korrigering skjedde.",
-    "Slå på Illumination correction. Eksemplet bruker polynomial-estimatoren med grad fire og lar Illumination model stå tomt for å estimere et nytt felt. Mer fleksibilitet er ikke automatisk bedre: En korrigering som følger celler eller behandlingsmønstre, kan fjerne biologien du ønsket å måle.",
-    "Hold opptaksgrupper atskilt med Illumination per plate. Her bruker vi alle seksten tilgjengelige felt. Representativ dekning er viktigere enn å øke et tall blindt; en modell tilpasset bare ett tettbefolket hjørne kan forveksle biologisk struktur med ujevn belysning.",
-    "Illumination dark er en additiv kameraoffset i rå telleenheter, ikke en innlært biologisk bakgrunn. Null er innstillingen i demonstrasjonen, ikke et kalibreringsresultat. Velg offset fra egnede opptakskontroller i stedet for å justere den til en fenotype forsvinner.",
-    "Behold Illumination QC aktivert og kontroller regelen for manglende modell. Vi bruker error slik at en utilgjengelig platekorrigering stopper operasjonen, i stedet for å blande korrigerte og ukorrigerte felt uten beskjed. Disse kontrollene erstatter ikke undersøkelse av det estimerte feltet.",
-    "Kjør på nytt med korrigering aktivert. Konsollen viser nå det tilpassede feltet, diagnostiske stigningstall og banen til den lagrede modellen. Dette selvstendige trinnet lar bildefilene være uendret; det har verken kjørt segmentering på nytt eller laget nye cellemålinger.",
-    "I denne versjonen lagres QC-bildet, men vises ikke i det innebygde Figures-panelet. Åpne illumination_qc_plate1.png fra illumination-mappen i bildeviseren din. Dette er den faktiske eksporterte figuren i en separat viser, ikke et simulert spaCR-panel.",
-    "Venstre panel viser det estimerte belysningsfeltet med gjennomsnitt én. Korrigeringen trekker fra kameraoffset og deler på dette feltet. Selv om tittelen kaller det gain, skal du ikke multiplisere intensitetene med kartet som vises: Korrigeringen bruker dets inverse. Se etter biologiske strukturer som har kommet med i estimatet.",
-    "Den radielle stigningen endres fra omtrent −0,181 til +0,026. Den rapporterte reduksjonen på 85,4 prosent samsvarer med vår uavhengige beregning, men kurven etter korrigering er ikke flat. Dette er de samme feltene som modellen ble tilpasset til, så det er ikke uavhengig validering.",
-    "For senere gjenbruk oppgir du banen til den lagrede modellen og aktiverer korrigering uttrykkelig i ønsket Mask- eller Measure-arbeidsflyt. Bevar modell, kanaltilordning, plateidentiteter og innstillinger sammen. Undersøk uavhengige felt og unngå å korrigere allerede korrigerte intensiteter to ganger før du tolker biologiske forskjeller."
+    "Åpne Measure og deretter Illumination for å anslå en korreksjonsmodell for ujevn bildelysstyrke.",
+    "Sett Source til mappen merged som inneholder bildematrisene. Bruk representative synsfelt fra opptaket ditt; eksemplet bruker seksten synsfelt fra én plate.",
+    "Sett Channels til de lagrede intensitetsplanene du vil korrigere. Eksemplet bruker kanal 0. Kontroller kanaltilordningen og utelat plan med etikettmasker.",
+    "Aktiver Illumination correction før du anslår et felt. Når den er av, fullføres Run uten at det lages en korreksjonsmodell.",
+    "Velg en estimator og innstillingene for den. For polynomeksemplet bruker du grad 4 og lar Illumination model stå tomt for å anslå et nytt felt. Undersøk resultatet for strukturer som hører til celler i stedet for belysningen.",
+    "Aktiver Illumination per plate for å tilpasse opptaksgrupper separat. Sett Maximum fields til et representativt utvalg; eksemplet tar med alle de seksten tilgjengelige synsfeltene.",
+    "Sett Illumination dark ut fra kamerakalibreringen når den er tilgjengelig. Det er en additiv forskyvning i råtellinger; 0 er verdien i eksemplet.",
+    "Aktiver Illumination QC og velg en regel for manglende modeller. Med error valgt stopper behandlingen når en platekorreksjon mangler, slik at du kan løse det.",
+    "Trykk på Run og les banen til den lagrede modellen i konsollen. Dette trinnet anslår modellen; aktiver den i en senere analyse for å bruke korreksjonen.",
+    "Åpne den lagrede QC-PNG-filen for belysning i mappen illumination. Bruk en bildeviser hvis den ikke vises i panelet Figures.",
+    "Undersøk det anslåtte belysningsfeltet for jevn variasjon i lysstyrke og uønskede celleformede strukturer. Korreksjonen trekker fra mørkeforskyvningen og deler på dette feltet med gjennomsnitt 1.",
+    "Sammenlign de radielle profilene før og etter. Bruk flere synsfelt for å vurdere hvor godt korreksjonen virker utover bildene som ble brukt til tilpasningen.",
+    "For å gjenbruke modellen oppgir du banen og aktiverer korreksjonen i den tiltenkte Mask- eller Measure-flyten. Behold kanalene, plateidentitetene og innstillingene sammen med den, og unngå å korrigere de samme intensitetene to ganger."
   ]
 }

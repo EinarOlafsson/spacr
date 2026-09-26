@@ -209,3 +209,19 @@ def test_spacr_run_validate_keeps_a_saved_100_and_says_why_it_warns(
         assert f"{key}=100" in out, out
     assert "spaCR and Cellpose both default to 0.4" in out
     assert "spaCR ships 1.0" not in out
+
+
+def test_the_example_pack_carries_the_default_flow_threshold():
+    """Decision 2026-09-25 (item 428): the example pack
+    spaCR_settings/1_generate_masks_settings.csv moves nucleus_/cell_/
+    pathogen_FT from 100 to 0.4, matching the default, so loading it no
+    longer draws the "comes from an old saved file" warning."""
+    from spacr.cli import load_settings_file
+
+    pack = (Path(__file__).resolve().parents[1] / "spaCR_settings"
+            / "1_generate_masks_settings.csv")
+    settings = load_settings_file(str(pack))
+    for key in ("nucleus_FT", "cell_FT", "pathogen_FT"):
+        assert float(settings[key]) == 0.4, key
+        assert not V._flow_threshold_problems(key, settings[key],
+                                              float(settings[key]))

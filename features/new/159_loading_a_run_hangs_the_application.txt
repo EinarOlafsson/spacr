@@ -2,10 +2,10 @@
 LOADING A RUN HANGS THE APPLICATION
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
-           "DONE 2026-08-19."
-           Originally filed 2026-08-18; the header was never moved off
-           "filed" and the item read as unstarted until 2026-09-13.
+Status:    DONE 2026-09-25. Off the GUI thread and cancellable since
+           2026-08-19/26; the staged narration counted against a total, the
+           last criterion, landed 2026-09-25 (see the closing note).
+           Originally filed 2026-08-18.
 Requested: 2026-08-18 -- "i tried to load another run and this seemed to hang
            spacr"
 
@@ -98,3 +98,37 @@ in <folder>…" and nothing further. The staged narration this file asked for
 ("reading results.csv", "building the diagnostics", counted against a total) is
 not there. One sentence is enough that the window is not silent; it is not what
 was specified.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- THE LOAD SAYS WHICH STAGE IT IS IN, COUNTED. Closed.
+--------------------------------------------------------------------------------
+
+"Reading the run in <folder>…" is gone. A load started with `start_load` now
+says, in the panel's header, one of three stages counted against the three:
+
+    Step 1 of 3: searching <folder> for a results table…
+    Step 2 of 3: reading results.csv (file 1 of 2)…
+    Step 2 of 3: reading results_gene.csv (file 2 of 2)…
+    Step 3 of 3: building the table, plots and diagnostics for 41 rows…
+
+and then the loaded run's own status line. Step 2 is reported by the worker
+(`read_run_tables(tables, progress=...)`, before each file it actually reads),
+relayed through a queued signal the way the merge's `_relay_progress` is, with
+the same RuntimeError guard for a panel closed mid-read. The file total counts
+the primary table and every sibling beside it, so it is an upper bound: a
+sibling whose level the primary already carries is counted and not read.
+Step 3 is said on the GUI thread and painted at once (`repaint`), because the
+work it announces runs on that thread and a queued paint would arrive after
+it.
+
+A STAGE FROM A DEAD LOAD IS DROPPED. Every change of the busy flag bumps a
+load generation; a stage carrying an older generation, or arriving while
+nothing is loading, is ignored -- so a late "reading results.csv" cannot
+overwrite "Loading was cancelled".
+
+The strings go through `tr()`; they are new catalog entries and read in
+English until the catalogs are rebuilt.
+
+Tests: tests/test_loading_a_run_is_off_the_gui_thread.py, 13 (three new: the
+worker's per-file count, every stage said in order on a real async load, and
+a stale stage after a cancel leaving the cancel sentence in place).

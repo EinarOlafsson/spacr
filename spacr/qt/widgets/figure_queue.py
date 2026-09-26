@@ -82,6 +82,10 @@ PDF_ZOOM_REFINE_RATIO = 1.6
 FIGURE_TEXT_SIZE_ATTR = "_spacr_text_size"
 
 
+PRINT_BACKGROUND = "#ffffff"
+PRINT_INK = "#000000"
+
+
 def figure_text_items(fig):
     """Return every text object attached to a Matplotlib figure.
 
@@ -249,17 +253,24 @@ def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
     user chose, and silently substituting a smaller one is the bug this
     function is fixing.
 
-    **The background stays the app theme's**, i.e. black under a dark theme.
-    That looks wrong for an export and is nevertheless right here. The PDF is
-    not only the export: :meth:`FigureQueue._request_pdf_refinement`
+    **The background is whatever the caller passes**, and the two callers
+    pass different things on purpose. A graph the user SAVES comes through
+    :func:`render_figure_to_png` with ``for_print=True``: a detached copy is
+    restyled white-on-dark-ink first (:data:`PRINT_BACKGROUND`,
+    :data:`PRINT_INK`), so the page and every artist on it agree. The
+    gallery's own sibling page below keeps the app theme's colours, i.e. black
+    under a dark theme. That looks wrong for an export and is nevertheless
+    right for THAT page, because it is not an export: it :meth:`FigureQueue._request_pdf_refinement`
     rasterises this same file at 2200 px and swaps it in as the on-screen
     pixmap, so a white page would make every figure flash from dark to light a
     moment after it appeared. And a white page would not fix anything on its
     own — :func:`_style_figure_colors` has already painted the axes black and
     the labels white *on the Figure object*, so ``facecolor="white"`` alone
     yields black panels and white-on-white text, which is worse than a
-    consistent dark page. Restyling every artist for print is what the
-    "Figure settings…" dialog does, and it re-renders both files.
+    consistent dark page. That is why the print style works on a copy and
+    never on the figure the gallery or a canvas is showing: a print page is
+    written where the user asked, never beside a gallery PNG, so the pixmap
+    swap in :meth:`FigureQueue._request_pdf_refinement` can never pick one up.
 
     Returns True if the page was written.
     """
@@ -298,7 +309,51 @@ def _retry_on_a_fresh_canvas(fig, png_path, dpi, bg) -> bool:
         return False
 
 
-def render_figure_to_png(fig, png_path: str) -> bool:
+def _render_print_copy(fig, png_path: str, dpi: int, text_size: int,
+                       write_pdf: bool, screen: tuple) -> bool:
+    """Write ``fig`` to ``png_path`` (and its sibling PDF) in the print style.
+
+    The styling happens on a detached copy (the same pickle round trip the
+    save-figure dialog uses), so the figure on screen is not touched at all.
+    A figure that cannot be copied is styled in place, written, and then put
+    back to ``screen`` -- the ``(bg, fg, line)`` the screen path would apply --
+    so the canvas is left as the screen path would leave it.
+
+    The PNG is written at the requested DPI with no display cap and an opaque
+    white page: the cap exists to keep a screen raster quick to decode, and
+    this file is not a screen raster.
+    """
+    from .save_figure_dialog import copy_figure
+
+    copy = copy_figure(fig)
+    target = copy if copy is not None else fig
+    try:
+        _style_figure_colors(target, PRINT_BACKGROUND, PRINT_INK, text_size,
+                             PRINT_INK)
+        try:
+            target.savefig(png_path, dpi=dpi, bbox_inches="tight",
+                           facecolor=PRINT_BACKGROUND, transparent=False)
+        except Exception as exc:
+            try:
+                from matplotlib.backends.backend_agg import FigureCanvasAgg
+                FigureCanvasAgg(target)
+                target.savefig(png_path, dpi=dpi, bbox_inches="tight",
+                               facecolor=PRINT_BACKGROUND, transparent=False)
+            except Exception:
+                LOG.info("print render failed: %s", exc)
+                return False
+        if write_pdf:
+            _export_vector_pdf(target, _sibling_pdf(png_path), dpi,
+                               PRINT_BACKGROUND)
+        return True
+    finally:
+        if copy is None:
+            bg, fg, line = screen
+            _style_figure_colors(fig, bg, fg, text_size, line)
+
+
+def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
+                         write_pdf: Optional[bool] = None) -> bool:
     """Style ``fig`` per the app theme and save it as a display-capped PNG —
     plus, in PDF mode, a genuinely vector ``.pdf`` beside it
     (:func:`_export_vector_pdf`). Pure matplotlib — no Qt — so it is
@@ -325,6 +380,18 @@ def render_figure_to_png(fig, png_path: str) -> bool:
         theme's colours and text size before saving.
     :param png_path: destination PNG path; in PDF mode the ``.pdf`` is
         written beside it with the same stem.
+    :param for_print: True for a graph the user is SAVING to a file. The
+        files get the white print style (:data:`PRINT_BACKGROUND`,
+        :data:`PRINT_INK`) whatever the screen theme, are written from a
+        detached copy so the figure on screen keeps its colours, and the PNG
+        is not display-capped. False (every gallery and canvas render) is
+        unchanged: theme colours, applied to ``fig`` itself. Decision
+        2026-09-25 (item 50): "saved graphs (PDF/PNG) get a WHITE PRINT STYLE
+        (white background, dark text/axes/lines) whatever the screen theme";
+        a file is opened by a PDF reader, a printer or a journal, and white
+        text on a transparent page disappears on every one of them.
+    :param write_pdf: whether to write the sibling PDF. ``None`` follows the
+        figure-format preference; a save dialog passes the user's choice.
     """
     with FIGURE_LOCK:
         try:
@@ -341,6 +408,10 @@ def render_figure_to_png(fig, png_path: str) -> bool:
             bg, fg, text_size = "#ffffff", "#000000", 0
             line = fg
         text_size = figure_text_size_override(fig) or text_size
+        pdf_wanted = (fmt == "pdf") if write_pdf is None else bool(write_pdf)
+        if for_print:
+            return _render_print_copy(fig, png_path, dpi, text_size,
+                                      pdf_wanted, (bg, fg, line))
         _style_figure_colors(fig, bg, fg, text_size, line)
         try:
             w_in, h_in = fig.get_size_inches()
@@ -357,7 +428,7 @@ def render_figure_to_png(fig, png_path: str) -> bool:
             if not _retry_on_a_fresh_canvas(fig, png_path, display_dpi, bg):
                 LOG.info("figure render failed: %s", e)
                 return False
-        if fmt == "pdf":
+        if pdf_wanted:
             _export_vector_pdf(fig, _sibling_pdf(png_path), dpi, bg)
         return True
 

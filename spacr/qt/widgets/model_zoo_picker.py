@@ -1254,12 +1254,16 @@ class ModelZooPicker(QDialog):
         landed, so a first opening showed an empty bioimage.io category.
         """
         def _warm():
-            """Fetch the collection and ask for a redraw only if it changed."""
+            """Fetch the collection on this worker thread; signal a redraw
+            only when what the table would show changed. Any failure is
+            silent: the cached rows stay on screen."""
             try:
                 from ... import model_zoo
 
                 def seen(rows):
-                    """What a redraw would show of ``rows``."""
+                    """What the table shows of ``rows``: one
+                    ``(key, uri, notes, size_bytes)`` tuple per entry, so
+                    two fetches compare by what a user would see."""
                     return [(e.key, e.uri, e.notes, e.size_bytes) for e in rows]
 
                 before = seen(model_zoo.bioimageio_entries())

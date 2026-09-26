@@ -1,17 +1,30 @@
 {
-  "lesson": "22_model_zoo", "language": "fr", "english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "Model Zoo : trouver des modèles et examiner leur provenance",
-  "description": "Ouvrez la bibliothèque imbriquée, explorez un cache local et distinguez les informations d’entraînement des origines inconnues. L’incompatibilité actuelle de Cellpose empêche de présenter une évaluation réussie.",
-  "objectives": ["Trouver Model Zoo dans Make Masks et explorer un répertoire local.", "Lire origine, type, empreinte et entraînement sans confondre métadonnées inconnues et validation.", "Distinguer gestion des modèles, téléchargement, entraînement et évaluation."],
-  "prerequisite": "spaCR 1.5.0.7 nightly. L’enregistrement explore un cache Cellpose existant et sélectionne le fichier cpsam original, sans téléchargement, entraînement ni inférence. Utilisez votre répertoire, pas le chemin personnel du présentateur. Les métadonnées sélectionnées ne donnent ni empreinte publiée, ni données d’entraînement, ni auteur ; on ne les déduit pas du nom. Une empreinte indépendante prouve seulement que le fichier local n’a pas changé pendant l’enregistrement, pas son origine. L’évaluation de Model Zoo et Model Compare transmettent invert, incompatible avec Cellpose 4.2.1.1 ; ce défaut n’est ni réparé ni contourné ici. Le tutoriel Plaque montre un vrai téléchargement et aperçu. Aucune exactitude ni validation indépendante n’est revendiquée.",
+  "lesson": "22_model_zoo",
+  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Model Zoo : choisir un modèle et l’essayer sur vos images",
+  "description": "Ouvrez Model Zoo, trouvez ou téléchargez un point de contrôle, examinez ses détails et choisissez un petit jeu d’images pour un essai.",
+  "objectives": [
+    "Ouvrir Model Zoo et analyser un dossier local de modèles.",
+    "Choisir une famille et une version de modèle, puis examiner ses détails.",
+    "Lancer un petit essai sur des images et examiner les masques et résumés de qualité obtenus."
+  ],
+  "prerequisite": "Extrayez l’exemple associé et utilisez son dossier images pour l’essai sur trois champs. Choisissez un modèle de segmentation Cellpose installé, ou téléchargez un point de contrôle adapté via Model Zoo. Pour votre propre essai, préparez quelques images TIFF, PNG, NPY ou NPZ représentatives.",
   "scenes": [
-    "Model Zoo est la bibliothèque de modèles dans Make Masks. Ouvrez le module hôte, puis sa commande Model Zoo. Cette leçon montre la bibliothèque réelle et la recherche de modèles locaux, pas un nouvel entraînement ni une évaluation de précision.",
-    "Le tableau réunit les entrées publiées et les fichiers trouvés localement. Lisez ensemble les colonnes de type et d’origine. La présence d’un modèle ne signifie pas qu’il est téléchargé, testé sur vos images ou validé pour votre expérience.",
-    "Saisissez un répertoire de modèles existant et appuyez sur Scan, ou choisissez-le avec le bouton voisin. Ici, nous explorons le vrai cache Cellpose. Utilisez votre propre chemin. Cette recherche découvre fichiers et métadonnées ; elle n’entraîne pas de modèle et ne segmente pas d’images.",
-    "Cette recherche affiche huit entrées : certains modèles distants publiés et certains fichiers de poids locaux. Ce nombre décrit cet ordinateur, pas une configuration obligatoire. Sélectionnez le fichier exact : des noms proches ne garantissent pas les mêmes poids.",
-    "Le fichier local sélectionné n’a ni empreinte publiée ni provenance d’entraînement enregistrée dans cette vue. Inconnu signifie inconnu. Son nom ne prouve pas son jeu d’entraînement. Notre empreinte confirme qu’il n’a pas changé pendant l’enregistrement, pas son auteur ni ses performances.",
-    "La zone de téléchargement définit où enregistrer un modèle distant disponible. Elle propose aussi un choix pour les modèles sans empreinte publiée ; une empreinte absente n’est pas une vérification. Cette sélection locale n’est pas téléchargée de nouveau. La leçon Plaque montre un vrai téléchargement et aperçu.",
-    "La zone inférieure sert à tester des champs et comparer des modèles. Ce sont des opérations distinctes de l’exploration de la bibliothèque. L’incompatibilité actuelle des arguments Cellpose empêche d’annoncer une évaluation réussie ici. Aucun masque ni score n’est inventé. Pour évaluer le flux réparé, gardez des images représentatives de validation séparées de l’entraînement."
+    "Depuis Home, ouvrez Make Masks, puis choisissez Model Zoo. Cette page permet de trouver un modèle de segmentation et de l’essayer sur un petit jeu d’images.",
+    "Cliquez sur Choose folder et sélectionnez votre répertoire de modèles pour l’analyser. Si vous saisissez le chemin, cliquez sur Scan. Activez les rubriques de source à parcourir, par exemple Cellpose ou les modèles locaux.",
+    "Sélectionnez une famille de modèles et utilisez son contrôle Version pour choisir le point de contrôle. Lisez les détails sur le type d’image, les informations d’entraînement et le chemin local. Pour un point de contrôle distant, choisissez un dossier dans Save to et cliquez sur Download avant de l’essayer.",
+    "Extrayez l’exemple associé et choisissez son dossier images sous Test on fields. Réglez le nombre de champs sur trois. Pour vos propres images, commencez avec un petit jeu qui contient des champs typiques et des cas difficiles.",
+    "Sélectionnez le modèle de segmentation local et cliquez sur Test on fields. Attendez la fin de l’essai. Les images et modèles plus volumineux peuvent prendre plus de temps, surtout sur un CPU.",
+    "Sélectionnez une ligne de résultat pour examiner l’aperçu de son masque. Vérifiez sur l’image les contours, les objets qui se touchent et les objets manqués. Servez-vous du nombre d’objets et des indicateurs de qualité pour repérer les champs à examiner de plus près.",
+    "Examinez les résumés des champs, puis conservez le chemin du point de contrôle choisi pour votre module d’analyse. Pour comparer deux familles de modèles différentes sur les mêmes images, sélectionnez les deux lignes et choisissez Compare the two selected. Utilisez le contrôle de version pour essayer une autre version d’une même famille."
   ]
 }

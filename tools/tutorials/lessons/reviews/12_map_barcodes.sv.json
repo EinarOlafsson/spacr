@@ -1,0 +1,35 @@
+{
+  "lesson": "12_map_barcodes",
+  "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Map Barcodes: från sekvenseringsläsningar till räkningar",
+  "description": "Läs in parade läsningar och biblioteksreferenser, hitta streckkodspositionerna, tillämpa inställningarna och spara guideräkningarna.",
+  "objectives": [
+    "Hämta ett litet exempel med parade läsningar och välja matchande referenstabeller.",
+    "Granska streckkodernas positioner och orientering innan du tillämpar ett förslag.",
+    "Köra mappningen och granska räkningar och kvalitetskontrollutdata."
+  ],
+  "prerequisite": "Välj Load test data i Map Barcodes. Exemplet använder läsningarna SRR33531217, de matchande kolumn- och radtabellerna primers_3 och guidereferenserna. Använd referenstabeller som matchar ditt eget bibliotek när du bearbetar andra läsningar.",
+  "scenes": [
+    "Från Home öppnar du Map Barcodes. Indata är sekvenseringsläsningar och referenstabeller som namnger streckkoderna i ditt bibliotek. Utdata räknar varje observerad kombination och är redo för sekvenseringens kvalitetskontroll och vidare analys.",
+    "Klicka på Load test data och välj båda läsningarna i paret från arkivets första körning. Begränsa varje fil till 10 000 läsningar i det här exemplet och vänta sedan tills det parade provet har hämtats.",
+    "Välj de matchande referenstabellerna för kolumner, rader och guider. Varje tabell kopplar streckkodsnamn till sekvenser. Håll namnen konsekventa med plattlayouten och de guideidentifierare som används i resten av analysen.",
+    "Öppna Find barcodes och starta sökningen. Förhandsvisningen tar stickprov från båda läsningarna i paret och kontrollerar streckkodernas positioner och orienteringar. Vänta på resultaten innan du ändrar huvudformuläret.",
+    "Jämför Observed med By chance och granska sedan föreslagen orientering, förskjutning och bedömning för varje streckkod. Föredra positioner som stöds av många läsningar och tydligt åtskilda förväntade referenser. Öppna förklaringen till bedömningen om resultatet är osäkert.",
+    "Granska guideresultaten för båda läsningarna i paret. I det här exemplet stöder läsning 1 den omvänt komplementära guidesekvensen och läsning 2 den sparade orienteringen. Utgå från resultaten för ditt bibliotek och ditt läspar när du väljer orientering.",
+    "Kontrollera även radstreckkoden. Här stöder läsning 1 dess omvända komplement och läsning 2 den sparade sekvensen. Granska kolumn, guide och rad tillsammans så att hela kombinationen identifierar avsedd brunn och avsedd guide.",
+    "Öppna läsningsvisaren för att granska enskilda läsningar. Använd färgförklaringen för att hitta segmenten för kolumn, guide, rad och ankare. Kontrollera att de föreslagna positionerna stämmer med bibliotekets förväntade struktur.",
+    "Granska de föreslagna extraktionsinställningarna och klicka sedan på Apply these settings för att kopiera dem till formuläret. Exemplet använder ett extraktionsfönster på 89 baser. Kontrollera de uppdaterade fälten innan du startar körningen.",
+    "Följ orienteringsanteckningarna när du väljer dina slutliga referensfiler. I det här exemplet väljer du omvänt komplementära kopior av rad- och guidereferenserna och behåller kolumnreferensen som den är sparad. Bevara alla streckkodsnamn när du förbereder kopiorna.",
+    "Välj det hämtade läsparet, två arbetsprocesser och block om 1 000 läsningar. Aktivera sparande av annoterade läsningar om du vill granska enskilda tilldelningar. Klicka på Run; det här mappningsflödet använder CPU.",
+    "När mappningen är klar granskar du unique_combinations.csv och kvalitetskontrollens utdata. Räkningstabellen kopplar kolumn-, rad- och guidenamn till antal läsningar. Granska omatchade och tvetydiga tilldelningar i Barcode QC och para sedan ihop räkningarna med fenotyppoäng i Regression."
+  ]
+}

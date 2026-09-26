@@ -1,6 +1,7 @@
 492 — HOST–PATHOGEN LIVE PREVIEW
 ================================
-Status: IMPLEMENTED,2026-09-23;56focused checks and offscreen visual review pass.
+Status: DONE 2026-09-25 (implemented 2026-09-23, re-checked 2026-09-25); native
+macOS/Windows acceptance needs those systems.
 Revision2026-09-23 COMPLETE: real THP-1/RNF213 images, existing host/vacuole masks
 and fresh Measure output replace synthetic product test data. Published source,
 pixel checks and public-download acceptance are recorded at the end below.
@@ -72,3 +73,12 @@ AppScreen settings, ran164host/97vacuole analysis and displayed37/60vacuoles
 in the two Live fields. Offscreen images visually reviewed.88focused GUI,
 preview, cache and CLI checks pass. No native-platform claim. Bottom Live
 placement already verified in the same tests.
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2: tests/test_host_pathogen_preview.py,
+tests/qt/test_host_pathogen_preview.py and test_host_pathogen_example.py,
+25 passed (offscreen). docs/source/host_pathogen.rst covers the module and
+is linked from index.rst and workflows.rst. Nothing buildable remains.
+Outside this machine: native macOS/Windows acceptance. Outside the data:
+marker states need the maintainer's thresholds and replication needs
+individual-parasite counts or 484's whole-vacuole model.

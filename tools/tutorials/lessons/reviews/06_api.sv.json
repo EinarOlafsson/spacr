@@ -1,19 +1,29 @@
 {
-  "lesson": "06_api", "language": "sv",
-  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
-  "review": {"kind": "Editorial caption translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
-  "title": "Python-API och aktuella arbetsflöden utan grafiskt gränssnitt",
-  "description": "Hitta installerade batchkommandon, skilj interaktiva verktyg från Python-funktioner och granska en provkörning med ett verkligt exempel utan att påstå att analysen har utförts.",
-  "objectives": ["Bekräfta paketversionen i den aktiva Python-miljön.", "Hitta aktuella kommandonycklar och de funktioner som faktiskt anropas.", "Skilj mellan ett interaktivt arbetsflöde, en Python-funktion och ett batchkommando.", "Läs provkörningens inställningar, avslutningskod och begränsningar före obevakad körning."],
-  "prerequisite": "Slutför först en installationslektion. Använd nedladdade parade data och sparade inställningar från Regression-lektionen för förkontrollen som visas; ersätt den här datorns sökvägar med dina egna. Ingen analys eller rapport skapas i inspelningen.",
+  "lesson": "06_api",
+  "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Python-API och batchkommandon",
+  "description": "Hitta en analysfunktion, läs in sparade inställningar, kontrollera indata och kör spaCR från en terminal.",
+  "objectives": [
+    "Hitta de installerade batchkommandona och deras Python-funktioner.",
+    "Granska en funktions signatur och dess API-referens.",
+    "Kontrollera sparade inställningar innan en analys körs."
+  ],
+  "prerequisite": "Installera spaCR och aktivera dess Python-miljö. Följ Regression-handledningen för att förbereda parade tabeller med poäng och antal och spara analysinställningarna. Använd dina egna filsökvägar i kommandona.",
   "scenes": [
-    "Importera paketet och skriv ut versionen i den miljö där du installerade spaCR. Den här verkliga terminalen visar version ett punkt fem punkt noll punkt fyra. Kontrollera din egen version innan du följer kommandona, eftersom en äldre miljö kan erbjuda andra funktioner och inställningar.",
-    "Kör spacr-run med alternativet list. Batchavsnittet visar exakta kommandonycklar och Python-ingångspunkter, bland annat mask, measure och classify_merged. Namn på Home-skärmen och nästlade knappar är inte automatiskt batchkommandon. Använd den installerade listan i stället för att gissa en nyckel från en lektions titel.",
-    "Använd describe med regression för att se funktionen perform_regression i spacr.ml, funktionen som levererar standardvärdena och kraven på indata. Det kopplar kommandot till den faktiska analysfunktionen. De sparade inställningarna för parade data kommer från det länkade Regression-exemplet, inte från en påhittad mätmapp.",
-    "Annotate är ett interaktivt arbetsflöde. Anropet spacr-run annotate returnerar faktiskt avslutningskod två och förklarar att någon batchmotsvarighet inte finns. Använd Annotate i skrivbordsprogrammet för att märka bildutsnitt. Den här förväntade avvisningen är inte bevis för att installationen är trasig.",
-    "Andra funktioner har ett Python-API utan motsvarande batchnyckel. Här importerar vi build_report från spacr.report och granskar den verkliga funktionssignaturen. Vi anropar den inte och skapar ingen rapport. Läs funktionens dokumentation och argument i stället för att anta att spacr-run report finns.",
-    "Ge regression den sparade inställningsfilen och lägg till dry-run. Det verkliga kommandot fastställer inställningarna och kör förkontrollerna, och säger sedan uttryckligen att perform_regression inte anropades. Läs avslutningskoden och meddelandena; inspelningen startade ingen ytterligare regression och skrev inga analysresultat.",
-    "En förkontroll utan fel bevisar varken att hela analysen lyckas eller att den är vetenskapligt giltig. Den här versionens generella plan nämner en mätdatabas, trots att vår regression använder parade tabeller. Granska modulens faktiska indata och testa en avgränsad körning innan du förlitar dig på obevakad bearbetning.",
-    "Ta bara bort dry-run när du avser att utföra analysen. Spara exakta inställningar, indataidentifierare, paketversion och konsollogg tillsammans med resultaten. Följ den länkade modullektionen för en demonstrerad körning och läs funktionens aktuella API-referens när du skriver Python-skript."
+    "Aktivera Python-miljön där du installerade spaCR. Importera spacr och skriv ut versionen med det visade kommandot. Spara versionen med dina analysanteckningar så att du kan återskapa samma körning senare.",
+    "Kör spacr-run --list för att hitta de tillgängliga batchkommandona. Listan visar varje kommandos nyckel och dess Python-funktion. Välj kommandot för din uppgift, till exempel mask, measure eller regression. Använd skrivbordsprogrammet för interaktiva uppgifter som att märka bilder i Annotate.",
+    "Kör spacr-run --describe regression. Läs de obligatoriska indata, standardvärdena och funktionsnamnet. Här anropar batchkommandot perform_regression i spacr.ml. Öppna funktionen i API-referensen för att läsa dess parametrar och returvärden.",
+    "I Python importerar du den funktion du behöver och granskar dess signatur. Det här exemplet importerar build_report från spacr.report. Sök upp samma namn i API-referensen, förbered de obligatoriska argumenten och anropa funktionen från ditt skript eller din notebook.",
+    "Spara inställningarna från modulens arbetsflöde och skicka sedan filen med --settings. Lägg till --dry-run för att kontrollera konfigurationen och indatasökvägarna. I det här Regression-exemplet parar inställningarna fenotyppoäng med guideantal för varje platta. Läs meddelandena och rätta saknade indata innan du fortsätter.",
+    "För att köra analysen kör du samma kommando utan --dry-run. Följ konsolen tills kommandot är klart och granska sedan de utdata som beskrivs i modulens handledning och API-sida. Spara inställningsfilen, indatatabellerna, paketversionen och konsolloggen tillsammans med resultaten."
   ]
 }

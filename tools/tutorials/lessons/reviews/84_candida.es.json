@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Candida: explorar la guía del organismo",
+  "description": "Recorre la guía de Candida, explora el diagrama de la levadura y encuentra los flujos generales de análisis de imágenes disponibles.",
+  "objectives": [
+    "Abrir la página desde Home y encontrar sus controles principales.",
+    "Identificar las entradas, acciones y salidas disponibles.",
+    "Elegir el siguiente análisis o la siguiente referencia disponible."
+  ],
+  "prerequisite": "Abre Home en spaCR. La guía no necesita archivos de entrada. Los mosaicos de ensayos específicos de Candida muestran por ahora Coming soon.",
+  "scenes": [
+    "Desde Home, elige Candida. Su guía trata la morfología, la filamentación, las biopelículas y cómo interactúa la levadura con las células huésped.",
+    "Lee el panel de información con las descripciones de los módulos al lado, y arrastra el divisor para ensanchar el lado que estés leyendo.",
+    "El diagrama de la levadura en gemación funciona como en las demás guías. Pasa el cursor sobre un componente para leer su descripción, selecciona varios para mantenerlos resaltados, y Clear components restablece la selección.",
+    "Los mosaicos de ensayos específicos de Candida están marcados por ahora como Coming soon, pero puedes analizar tus imágenes con las herramientas generales. Vuelve a Home, segméntalas en Mask y mídelas en Measure, eligiendo canales y máscaras adecuados para tu especie y tu experimento.",
+    "Para detalles de genes y proteínas, los enlaces a Candida Genome Database y UniProt se abren en tu navegador. La guía no necesita archivos de entrada ni escribe salidas; cuando estés listo para procesar imágenes, sigue el tutorial de un módulo ejecutable."
+  ]
+}

@@ -1,37 +1,38 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "eb59bf95ab937290708c8202a22ef1b8105d466f6622e97b7b2a96b3e557ba3d",
+  "english_sha256": "85459d27b582a4c2802a96b468ca4d177be03d7bcbdc663f0307e4bc40ec8a5d",
   "review": {
-    "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false,
-    "visual_only_update": "Console spotlight geometry only; all English narration, scene order, holds and translated text remain unchanged."
+    "listening_review": false
   },
   "language": "nb",
-  "title": "Plakkanalyse",
-  "description": "Gjenbruk syntetiske masker, velg modellen for forhåndsvisning eksplisitt, og kontroller reversible filtre og lagrede tabeller.",
+  "title": "Plaque Assay: tell plakk og mål arealene deres",
+  "description": "Åpne det syntetiske eksemplet, velg lagrede masker eller modellsegmentering, undersøk en forhåndsvisning og les resultatene per bilde og per plakk.",
   "objectives": [
-    "Skille lagrede masker fra nye modellprediksjoner.",
-    "Prøve et reversibelt filter uten ny segmentering.",
-    "Lese antall og pikselarealer uten oppdiktet kalibrering eller biologiske effekter."
+    "Åpne Plaque Assay fra Toxoplasma og velge bildemappen.",
+    "Velge en modell, undersøke en forhåndsvisning og angi arealfiltre.",
+    "Kjøre analysen og undersøke antall, arealer og kalibrering i utdatadatabasen."
   ],
-  "prerequisite": "Last ned det SYNTETISKE eksemplet og pakk det ut i en ny mappe. Fire TIFF-bilder og fire masker bevarer originalenes byte; gamle resultater, innstillinger og modeller følger ikke med. Sett Source til SYNTHETIC_plaque og slå av Masks. Objektene er konstruert: 4, 3, 2 og 1, ti totalt, uten innsamlede bilder eller fysisk kalibrering. Forhåndsvisningens modell lastes ned separat og kontrolleres mot publisert sjekksum, ikke som en nøyaktighetstest. Grensen 26211 beholder to prediksjoner; null gjenoppretter fire. Forhåndsvisningen arver ikke automatisk plaque_model. Oppgi en eksisterende modell også når Masks er av. API: spacr.submodules.analyze_plaques. Ingen batch med nye masker eller biologisk validering hevdes.",
+  "prerequisite": "Last ned og pakk ut SYNTHETIC_plaque_example.zip. Det inneholder fire TIFF-bilder i gråtoner og de lagrede etikettmaskene deres. Bruk en arbeidskopi når du prøver ny segmentering. Ha et lokalt plakk-sjekkpunkt tilgjengelig, eller last ned et via Model Zoo. Det syntetiske eksemplet har ingen fysisk kalibrering.",
   "scenes": [
-    "Åpne Plaque Analysis i Assays-delen av Home. Denne leksjonen bruker fire syntetiske bilder med konstruerte masker, ikke innsamlede infeksjonsbilder. Vi teller lagrede masker, prøver en separat modellforhåndsvisning og undersøker den faktiske databasen uten å kalle undervisningsformene biologiske resultater.",
-    "Last ned det syntetiske eksemplet nedenfor og pakk det ut i en ny mappe. Sett Source til mappen med de fire TIFF-bildene og undermappen masks. Bevar originalene; bruk en annen kopi før du prøver segmentering som kan erstatte maskene.",
-    "La Masks være av for å gjenbruke maskene som følger med. Antallene er fire, tre, to og én. Hvis du slår på Masks, utføres segmentering: diameter, normalisering og modell påvirker da en annen beregning. Gjenbruk av masker tester ikke modellen.",
-    "Well detection er av fordi hvert undervisningsbilde allerede representerer ett felt. Fysisk areal krever reell brønngeometri og en kjent størrelse; eksemplet har ingen av delene. La kalibreringen stå tom. Et brønnnavn, en gjettet diameter eller en vellykket kjøring fastsetter ikke en millimeterskala.",
-    "Plaque model må vise til en tilgjengelig modell, også ved gjenbruk av masker. Opptaket starter med en medfølgende modell som allerede finnes. På en ny installasjon laster du ned plakkmodellen via Model zoo og skriver den lokale banen her. Forhåndsvisningen har en egen modellvelger som vi sjekker etterpå.",
-    "Åpne Live preview og deretter Live settings. Kontroller Model: denne versjonen viser først den generelle modellen, selv om Plaque model angir en annen fil. Ikke anta at forhåndsvisning og analyseskjema er synkronisert. Velg eksplisitt samme modell begge steder før nye masker lages.",
-    "Velg Model zoo og plakkmodellen. Filen er omtrent 1,2 gigabyte; velg en egnet Save to-mappe og last den ned én gang. Opptakets byte er kontrollert mot den publiserte sjekksummen. On this machine betyr at filen finnes, ikke at forsøket er validert.",
-    "Velg det første syntetiske bildet og Run preview. Modellen finner fire objekter. View bytter mellom konturer og fargede masker; ingen av visningene måler modellens nøyaktighet. Dette er en ny segmentering, separat fra de medfølgende maskene som ble brukt i den fullførte analysen.",
-    "I Live settings øker du Min area til 26211 piksler. De to minste predikerte objektene fjernes. Filteret gjenbruker masker i minnet uten å kjøre modellen igjen. Endre én innstilling om gangen, så ser du hvilke objekter den fjerner.",
-    "Sett Min area tilbake til null: alle fire objektene kommer tilbake med nøyaktig de opprinnelige pikslene. Null deaktiverer denne nedre arealgrensen. Forhåndsvisningen overskriver ikke inputmasker eller resultatdatabasen; en pen forhåndsvisning er ikke en fullført batchanalyse.",
-    "Maskegjenbruket skriver en database i masks-mappen. Denne veien gir tabeller, ikke en innebygd graf, så et tomt Figures-område er ikke bevis på feil her. Les konsollen. AI forblir av; et assistantsvar erstatter ikke kontroll av lagrede resultater.",
-    "Åpne Database browser fra Help og velg plakkanalysens database i masks. La Edit mode være av. Nettleseren for databasen viser faktisk lagrede tabeller, ikke et bilde av oppdiktede resultater, og denne inspeksjonen endrer ikke databasens byte.",
-    "Velg summary og identifiser hver rad etter filnavnet, ikke plasseringen. Object count kommer fra de medfølgende maskene: fire, tre, to og én. Average size er gjennomsnittlig merket areal i piksler. Control og treatment er vilkårlige undervisningsnavn, ikke dokumentasjon på en behandlingseffekt.",
-    "Velg stats for antall plakk, gjennomsnittlig areal og spredning per bilde. Standardavviket beskriver de enkelte plakkarealene i bildet, ikke et usikkerhetsintervall for et biologisk forsøk. Tolk tellinger først etter at skala og segmentering er validert på reelle data.",
-    "Velg details for å se hvert enkelt areal. Kolonnene for fysisk areal er tomme fordi kalibrering mangler. Behold bilder, masker, innstillinger og resultater samlet, og bruk uavhengige forsøksreplikater til biologiske sammenligninger. Leksjonen sjekker programvare på syntetiske former, ikke infeksjon eller legemiddeleffekt."
+    "Fra Home åpner du Toxoplasma og velger deretter Plaque Assay. Begynn med en mappe med plakkbilder. Denne gjennomgangen bruker det lenkede syntetiske eksemplet, slik at du kan øve på å velge masker, justere forhåndsvisningen og åpne resultatene.",
+    "Last ned og pakk ut eksemplet. Sett Source til SYNTHETIC_plaque, mappen som inneholder TIFF-bildene og undermappen masks. Behold en arbeidskopi hvis du planlegger å lage erstatningsmasker.",
+    "La Masks være av for å analysere de medfølgende etikettmaskene. Slå på Masks når du vil at den valgte modellen først skal segmentere bildene. For ny segmentering velger du en plakkmodell og kontrollerer diameteren og deteksjonsterskelene på et representativt bilde.",
+    "La brønndeteksjon være av i dette eksemplet. For bilder som viser en hel plate, bruker du brønndeteksjon til å skille brønnene. Hvis du kjenner bildeskalaen, oppgir du piksler per mikrometer; en kjent fysisk brønndiameter kan også gi kalibrering. Registrer dannelsestiden i timer når den er kjent. La ukjente kalibreringsverdier stå tomme.",
+    "Sett Plaque model til et lokalt sjekkpunkt. Hvis du trenger et, åpner du Model Zoo, laster ned en plakkmodell og oppgir den lokale banen. Analysen løser opp denne modellinnstillingen også når den gjenbruker lagrede masker.",
+    "Åpne Live preview og Live settings. Kontroller valgt modell og bilde før du kjører forhåndsvisningen. Bruk den samme modellen i forhåndsvisningen som du planlegger å bruke i hele analysen.",
+    "I Model Zoo velger du plakkmodellen, velger en mappe i Save to og klikker på Download. Vent til modellen er tilgjengelig lokalt, og velg deretter det sjekkpunktet for forhåndsvisningen. Behold banen til senere kjøringer.",
+    "Velg et eksempelbilde og klikk på Run preview. Bytt View mellom omriss og fargede masker for å kontrollere om de predikerte områdene følger plakkgrensene. Undersøk flere representative bilder før du kjører en plate.",
+    "Øk Min area for å skjule små predikerte områder. Se hvilke objekter som forsvinner, og juster terskelen etter det minste plakket du vil måle. Endre én innstilling om gangen slik at effekten blir tydelig.",
+    "Senk Min area for å få tilbake mindre områder; 0 fjerner denne nedre arealgrensen. Kontroller den endelige forhåndsvisningen og batchinnstillingene før Run. Forhåndsvisningen viser det valgte bildet; Run lager analysens utdata.",
+    "Trykk på Run og følg konsollen til analysen er ferdig. Med Masks av leser eksemplet de medfølgende etikettene og skriver masks/plaques_analysis.db. Databasen inneholder antall og arealer for bildene i Source.",
+    "Åpne Help og deretter Database browser. Velg plaques_analysis.db i mappen masks. La Edit mode være av mens du undersøker utdataene, og velg en tabell fra tabellisten.",
+    "Åpne summary for en oversikt per bilde. Koble radene via filnavnene. De medfølgende syntetiske maskene inneholder fire, tre, to og ett objekt. Gjennomsnittlig størrelse viser gjennomsnittsarealet i piksler.",
+    "Åpne stats for å sammenligne antall plakk, gjennomsnittlig areal og arealspredning for hvert bilde. Standardavviket beskriver spennet i plakkstørrelser i bildet. Bruk uavhengige eksperimentelle replikater når du sammenligner biologiske betingelser.",
+    "Åpne details for å undersøke arealet til hvert enkelt plakk. Kolonner med fysisk areal er tomme når kalibrering mangler. Lagre databasen sammen med bildene, maskene og innstillingene. Eksperimentelle vekstanslag krever i tillegg en kjent skala for å anslå tid, eller en kjent tid for å anslå skala; valider referansekurven for analysen din."
   ]
 }

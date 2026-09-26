@@ -2,7 +2,8 @@ CELLPOSE 3 MODELS ARE USABLE AFTER THE BACKEND IS INSTALLED
 
 Status: BUILT 2026-09-25, ~98%. Built, tested, real CPU and GPU runs and
 Measure done; pipeline_style 'v2' and the Live preview run cellpose3: models
-too (see the last note). Owed: i18n catalogs for the new strings (docs lane).
+too (see the last note). On nightly (2c63b3695 .. 147eb1a73, checked
+2026-09-25). Owed: i18n catalogs for the new strings (docs lane).
 Owner: Claude (503 worktree). Related: 423 (backends in the zoo), 446 (Cellpose 3 and
 Cellpose-SAM take different settings), 473 (detection methods).
 

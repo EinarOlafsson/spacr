@@ -1,38 +1,34 @@
 {
   "lesson": "10_classify_cv",
-  "english_sha256": "104932e5a39da62949d4d9ce3bde235cf5db2ab8dac208aa6973871b6d7f5106",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "zh-CN",
-  "title": "Classify：经过核查的计算机视觉示例",
-  "description": "保留下载裁剪图的原始像素与明确孔位身份，运行小型模型，并如实检查其有限性能。",
-  "objectives": [
-    "找到主模块Classify中的计算机视觉分类方式。",
-    "根据下载的已有注释准备明确的数据划分，不修改原图或标签。",
-    "分离真实孔位，展示训练图，并区分运行成功与预测有用。",
-    "找到保存的模型、预测和嵌套工具。"
-  ],
-  "prerequisite": "按照Annotate教程选择Load test data → Load，不选Stream。保留plate1/measurements/measurements.db及png裁剪图。录制版本为spaCR 1.5.0.8。解压ZIP，在spaCR环境运行prepare_classify_split.py：--source指向plate1，--destination指向全新文件夹。辅助脚本仅适用于此四孔示例，每孔从已有infected=1和infected=2标签各取8张，在训练前按确定性规则排序，复制64张字节完全一致的RGB图。辅助脚本还保留原始测量数据库的字节完全一致的副本。 副本以数据库prcfo身份命名；旧文件名解析器没有修复。平衡后的子集不保留总体类别比例。选择准备好的文件夹、Computer Vision (Torch)，关闭Generate training dataset。设置：ResNet18，epochs=1，batch_size=8，image_size=128，n_jobs=2，init_weights=False，augment=False，val_split=0.5，test_split=0.5，cv_group_by=well，random_seed=42，train_channels=['r','g','b']，train/test/plot=True；所有泄漏检查保持启用。train内32张再分成训练16张、验证16张，test有32张。真实孔位互不重叠，但来自同一块板。测试全部预测为类别0：准确率0.5，多数类基线0.5，宏平均F1为1/3。已独立核查32条预测的身份、标签、概率和、准确率、类别样本数及宏平均F1，并非验证了全部指标。输出位于model/resnet18/rgb/epochs_1。API：spacr.classify.classify → spacr.deep_spacr.train_test_model。不声称模型有用、生物学有效或可泛化到新实验。没有发送AI问题。",
-  "scenes": [
-    "从Home打开Classify，选择Computer Vision，也就是Torch方式。计算机视觉从对象图像学习，表格方式从已保存的测量值学习。现在两者属于同一个主模块。本课运行一个经过核查的小型图像示例，使用单独的数据准备变通方案；这并没有修复应用对旧文件名的解析。",
-    "按照链接中的Annotate教程，通过Load载入真实示例，保留测量数据库和裁剪图。终端列出四个真实孔位中已有的注释标签。我们保留这些标签，但它们不是经过独立验证的生物学真值。整个演示不会修改源项目。",
-    "下载辅助脚本并在spaCR环境运行。source是下载的板文件夹，destination必须是新文件夹。脚本从每孔的两个已有类别各复制八张，共六十四张图像。选择规则是确定性的，并在训练前执行，不是在看到模型表现后挑选数据。",
-    "继续前先阅读清单。副本名称使用数据库的标准对象身份，每张图保留原始字节。两个完整孔位进入训练文件夹，另外两个进入测试。这个教学子集有意平衡类别，改变了类别比例，不能代表原始总体。",
-    "在Classify选择准备好的数据集根文件夹，不要选原项目或某个类别子文件夹。其中包含train和test目录，每个目录下有两个类别文件夹。通过源文件夹选择器打开这个已有数据集。不要覆盖源项目，也不要复用存有以前结果的输出目录。",
-    "因为划分已经准备好，请关闭Generate training dataset。Train和Test保持开启，向完整数据集应用模型保持关闭。类别文件夹保留标签一和二，模型却使用类别索引零和一。这是两种编号方式，并不矛盾。",
-    "这个有限示例选择ResNet18，训练一个轮次，批量为八，图像尺寸一百二十八，加载工作进程数为二。使用全部三个RGB通道，关闭预训练权重和数据增强。这些设置是为了缩小演示规模，不是训练高准确率分类器的推荐配方。",
-    "保持按孔分组，并启用所有泄漏检查。验证比例为一半，将训练文件夹中的三十二张分成训练十六张、验证十六张，各来自一个完整孔位。另外三十二张仅用于测试。四个孔都在同一块板上，因此这不是独立实验验证。",
-    "打开Plot，清除设置搜索，再点击Run。观察控制台中的实际划分、泄漏审计、训练过程和保存路径。本次录制中，两项按孔分组的边界检查均通过。只有文件名与真实样本身份一致时，软件检查通过才有意义；这一点也经过了独立核对。",
-    "Figures显示损失、准确率和各类别的验证准确率。只有一个训练轮次，因此图中是单个点，不是收敛证据。独立测试核查发现每张图都被预测为类别零，准确率为百分之五十，恰好等于平衡后的多数类基线。运行成功并没有得到有用的分类器。",
-    "保留模型目录中的检查点、模型卡、泄漏审计和结果表。这里位于model、resnet18、rgb、epochs下划线一。比较保存预测的身份与类别标签，不要只看准确率。复制出来供复查的误分类图像是输出，不是新增的独立训练或测试样本。",
-    "配置服务提供方后，可用AI控件询问设置或输出。这里是一条尚未发送的问题，不是回答或分析结果。在Python中，classify将这种分类方式交给train_test_model。保留划分清单，并在规划更大规模、独立验证的实验前核查建议。"
-  ],
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: bind current native CV recording; scene 7 uses two loader workers. Prerequisites name spaCR 1.5.0.8, n_jobs=2 and the byte-identical preserved measurements database. Eleven other narration scenes and all measured limitations remain unchanged."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Classify：训练图像分类器",
+  "description": "准备带标签的图像裁剪，选择计算机视觉模型系列，训练一个小模型，并找到它的预测结果。",
+  "objectives": [
+    "准备可下载的图像分类示例。",
+    "选择模型、图像通道和训练设置。",
+    "保持各孔分开，并检查保存的模型和预测结果。"
+  ],
+  "prerequisite": "在Annotate中使用Load test data，再选择Load，下载已测量的示例。保留其中包含measurements/measurements.db和png裁剪图像的plate1文件夹。下载下方的Classify_existing_split_example.zip并解压出辅助脚本。在spaCR环境中运行prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split。在Classify中选择new_split文件夹。该辅助脚本专用于这个四孔示例；它会把64张带标签的RGB裁剪图像复制到训练和测试文件夹中。",
+  "scenes": [
+    "从Home打开Classify，选择Computer Vision, Torch。这个模型系列从带标签的对象裁剪图像中学习，并保存一个可以为其他裁剪图像打分的模型。请先按照Annotate课程下载示例图像及其标签。",
+    "在Annotate中选择Load test data，再选择Load。保留包含测量数据和PNG裁剪图像的板文件夹。对于您自己的数据，请从Measure生成的裁剪图像开始，并在Annotate中标注您想让模型学习的类别。",
+    "下载链接中的示例ZIP，解压出prepare_classify_split.py。在spaCR环境中运行它，把源指向示例板文件夹，把目标指向一个新文件夹。该辅助脚本会为本练习准备六十四张带标签的图像。",
+    "打开新文件夹及其清单文件。训练和测试目录各包含两个类别文件夹。清单列出了每张复制的图像及其所属的孔。当同一个孔的图像共享实验条件时，请把整个孔保留在划分的同一侧。",
+    "回到Classify，选择准备好的文件夹作为Source。选择包含train和test的上级文件夹。在本课程余下部分都使用这个文件夹，让模型和输出文件保存在一起。",
+    "关闭Generate training dataset，因为辅助脚本已经准备好了划分。开启Train和Test。在第一次运行中，保持对完整数据集的应用为关闭。模型用类别索引零和一对应两个类别文件夹。",
+    "选择ResNet18，图像尺寸一百二十八，全部三个RGB通道，批大小八，训练一个轮次。把加载进程数设为二，在这个简短示例中关闭预训练权重和数据增强。轮次决定训练遍历输入图像的次数。",
+    "把验证比例设为二分之一，保持按孔分组，并保留数据泄漏检查。验证用于在训练过程中监控模型；单独的测试文件夹用于最终评估。在解读分数之前，请检查报告的孔分配情况。",
+    "开启Plot，清空设置搜索，然后按Run。在控制台中查看数据集加载、最终划分、训练进度和输出路径。等训练和测试都完成后，再打开保存的结果。",
+    "打开Figures查看损失和准确率。一个轮次可以快速完成第一次尝试。在增加训练时间之前，先比较各类别的测试结果。如果预测只偏向某一个类别，请在把模型用于更大的数据集之前，检查标签、类别平衡和输入通道。",
+    "打开准备好的文件夹中的model、resnet18、rgb、epochs下划线一。把检查点、模型卡和结果表放在一起。用保存的预测结果检查错误，然后继续使用Classifier Evaluation或Activation Maps进一步检查模型。"
+  ]
 }

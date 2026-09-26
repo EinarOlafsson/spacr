@@ -1,27 +1,32 @@
 {
   "lesson": "46_napari_bridge",
-  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "14688c14b96399c6c9c53e6f7d24eecc4573e2051c997b9e04f162a1d0977bf2",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "fr",
-  "title": "Napari Bridge : modifier, importer et rouvrir en sécurité",
-  "description": "Pratiquez un aller-retour vérifié pixel par pixel avec une image et un masque synthétiques, des sauvegardes, Fill et Undo natifs, puis fermeture et réouverture entre les imports.",
+  "title": "Napari Bridge : modifier et renvoyer un masque d’étiquettes",
+  "description": "Ouvrez une image et son masque dans napari, modifiez les étiquettes et enregistrez le masque corrigé dans spaCR.",
   "objectives": [
-    "Ouvrir Napari Bridge dans Make Masks avec des fichiers d’image et d’étiquettes distincts.",
-    "Distinguer modification dans le visualiseur, Undo, écriture sur disque et historique des corrections.",
-    "Fermer et rouvrir entre les imports et vérifier les deux corrections sans prétendre corriger le défaut d’édition dans un même visualiseur."
+    "Ouvrir les fichiers d’image et d’étiquettes correspondants.",
+    "Modifier et annuler des changements dans napari.",
+    "Renvoyer le masque enregistré et l’examiner."
   ],
-  "prerequisite": "Extrayez l’exemple explicitement SYNTHÉTIQUE dans un NOUVEAU dossier et gardez une sauvegarde intacte. L’image et le masque uint16 mesurent 256x256 et contiennent seize objets ; aucune correction biologique n’est validée. napari est requis ; la capture utilise napari 0.9.1 et une police de taille 20. Choisissez mask.tif et image.tif dans Napari Bridge, sous Make Masks. Avec Fill, remplacez 2 par 18, annulez, recommencez puis cliquez sur Take the mask back : le masque de travail est écrasé et 2 197 pixels sont consignés dans mask.tif.curation.json. FERMEZ et ROUVREZ avant toute autre modification : un contrôle antérieur a perdu la deuxième modification dans le même visualiseur en la déclarant inchangée. Ce défaut n’est pas annoncé comme corrigé. Après réouverture, remplacez 4 par 20 et importez : 1 288 pixels changent et les deux entrées restent présentes. Les 65 536 pixels de chaque masque enregistré ont été vérifiés ; source et intensités d’origine sont préservées. Des identifiants ajoutés/supprimés ne signifient pas des cellules supplémentaires/manquantes. API : spacr.napari_bridge.load_handoff, open_in_napari, write_back. Aucune revendication d’entraînement, de validation biologique, d’édition sans restriction, de publication ou de validation d’écoute.",
+  "prerequisite": "Installez la dépendance optionnelle napari et décompressez l’exemple synthétique dans un nouveau dossier. Gardez une sauvegarde intacte : Take the mask back écrase le masque de travail sélectionné. Fermez et rouvrez la visionneuse entre deux séries de modifications enregistrées.",
   "scenes": [
-    "Ouvrez Napari Bridge dans Make Masks. Il transmet une image et un masque d’étiquettes au visualiseur optionnel napari, puis importe les étiquettes corrigées. Cette leçon utilise un exemple d’exercice clairement synthétique, pas une expérience biologique. Gardez une sauvegarde intacte : l’importation écrase le masque de travail sélectionné.",
-    "Téléchargez l’exemple et extrayez-le dans un nouveau dossier. Sélectionnez mask point tif, puis image point tif, et cliquez sur Open in napari. Ce sont deux entrées différentes : les étiquettes entières des objets vont dans Mask, tandis que l’image d’intensité sert de référence visuelle. L’exemple contient seize objets synthétiques.",
-    "Napari s’ouvre avec une couche image et une couche Labels nommée mask. Sélectionnez mask pour modifier les étiquettes ; laissez les intensités de l’image intactes. L’étiquette zéro représente le fond. Les couleurs distinguent les objets, pas des classes biologiques ni la confiance. Nous avons agrandi la police réelle de l’interface pour la capture, pas l’image source.",
-    "Revenez dans spaCR et cliquez sur Take the mask back avant de modifier quoi que ce soit. Le statut indique que le masque est inchangé, et rien n’est écrit. Importer est distinct de modifier dans le visualiseur. Ce contrôle sans changement ne prouve pas qu’une correction ultérieure a été enregistrée ; vérifiez aussi ce résultat.",
-    "Dans napari, sélectionnez l’étiquette dix-huit, choisissez Fill et cliquez sur l’objet d’exercice étiqueté deux. Seule l’étiquette de cet objet change. C’est un exercice contrôlé de réétiquetage, pas une amélioration d’une segmentation biologique. Le fichier de travail sur disque n’a pas encore changé.",
-    "Utilisez Undo pour rétablir l’étiquette initiale ; cette capture utilise Contrôle Z. Répétez ensuite le même remplissage avant d’importer. Undo agit sur l’historique des modifications du visualiseur. Ne le confondez pas avec la récupération d’un fichier antérieur après un import : gardez des sauvegardes pour cela.",
-    "Cliquez sur Take the mask back. Le statut annonce deux mille cent quatre-vingt-dix-sept pixels modifiés et un fichier d’historique. Une étiquette a été ajoutée et une supprimée parce que deux est devenu dix-huit ; il reste seize objets. Vérifiez le masque enregistré et l’historique, pas seulement la couleur affichée dans napari.",
-    "Cliquez maintenant sur Close viewer, avant toute nouvelle modification, puis rouvrez-le. Cette étape est essentielle dans la version testée : une deuxième modification dans le même visualiseur pouvait être déclarée inchangée et perdue. Nous montrons le parcours vérifié avec fermeture et réouverture, pas une correction de ce défaut de l’application.",
-    "Après réouverture, remplacez l’étiquette quatre par vingt et importez à nouveau. Mille deux cent quatre-vingt-huit pixels changent, et la première entrée d’historique est conservée. Fermez le visualiseur une fois terminé. Conservez image originale, masque corrigé et provenance, puis relancez les mesures concernées au lieu de réutiliser des résultats liés aux anciennes étiquettes."
+    "Ouvrez Make Masks, puis Napari Bridge. Il permet de modifier un masque d’étiquettes existant en prenant son image d’intensité comme référence. Gardez une sauvegarde intacte du masque.",
+    "Téléchargez et décompressez l’exemple synthétique. Choisissez mask point tif pour Mask et image point tif pour Image, puis appuyez sur Open in napari.",
+    "Sélectionnez dans napari le calque Labels du masque. L’étiquette zéro correspond au fond ; chaque étiquette d’objet a une couleur d’affichage. Faites vos modifications sur le calque d’étiquettes.",
+    "Revenez dans spaCR et utilisez Take the mask back pour importer les étiquettes actuelles de la visionneuse. Si vous n’avez rien modifié, l’état indique que le masque est inchangé.",
+    "Pour vous exercer, sélectionnez l’étiquette dix-huit, choisissez Fill et cliquez sur l’objet portant l’étiquette deux. Examinez l’étiquette modifiée avant de l’importer.",
+    "Utilisez Undo pour annuler la dernière modification dans la visionneuse. Refaites l’opération Fill quand vous êtes prêt à garder le changement.",
+    "Cliquez sur Take the mask back dans spaCR. Vérifiez le nombre de pixels modifiés, puis examinez le masque enregistré et son fichier annexe d’historique des corrections.",
+    "Cliquez sur Close viewer et rouvrez le masque avant la série de modifications suivante. Le masque enregistré devient ainsi le point de départ des corrections suivantes.",
+    "Après la modification suivante, renvoyez le masque et examinez de nouveau le résultat. Fermez la visionneuse à la fin, conservez l’historique des corrections et relancez les mesures touchées par les étiquettes modifiées."
   ]
 }

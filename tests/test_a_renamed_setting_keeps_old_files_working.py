@@ -81,6 +81,10 @@ FACTORIES = {
     # the default before anything could move it.
     "drop_straight_tracks": "get_automated_motility_assay_default_settings",
     "track_outlier_zscore": "get_automated_motility_assay_default_settings",
+    # 2026-09-25, item 237 ("WARN AND MIGRATE"): `complevel` was a
+    # misspelling of the live `comp_level`, so it is a rename rather than a
+    # removal. The barcode-mapping factory folds before it fills comp_level.
+    "comp_level": "set_default_generate_barecode_mapping",
 }
 
 

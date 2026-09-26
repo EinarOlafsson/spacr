@@ -1,31 +1,34 @@
 {
   "lesson": "20_cellpose_masks",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "de",
-  "title": "Cellpose anwenden: gespeicherte Masken und Live-Filter",
-  "description": "CPSAM über die verschachtelte Workbench auf drei herunterladbare echte Bilder anwenden, Diagramme und Konsole prüfen und Vorschau von Stapelverarbeitung unterscheiden.",
+  "title": "Cellpose anwenden: einen Ordner segmentieren und Masken prüfen",
+  "description": "Wählen Sie ein Segmentierungsmodell, verarbeiten Sie die mitgelieferten Bilder und prüfen Sie gespeicherte Masken und Live-Größenfilter.",
   "objectives": [
-    "Apply in Make Masks und Cellpose Workbench finden.",
-    "Erhaltene Bildkopien und aufgezeichnete Einstellungen des Standardmodells verwenden.",
-    "Drei Masken und ihre Original-, Kontur- und Flussdarstellungen prüfen.",
-    "Umkehrbare Filter und synchronen Mausradzoom zeigen.",
-    "Den gemessenen Unterschied zwischen Vorschau und Stapel ohne Genauigkeitsversprechen erkennen."
+    "Bilder, Modellgewichte und Segmentierungseinstellungen auswählen.",
+    "Apply ausführen und die gespeicherten Masken-TIFFs finden.",
+    "Live-Ergebnisse prüfen und Objektgrößenfilter vergleichen."
   ],
-  "prerequisite": "Die drei Bilder in einen neuen Ordner entpacken und src auf images setzen. recorded_settings.json enthält historische Werte, keinen nachgewiesenen portablen GUI-Import. Echte einkanalige Zellbildausschnitte im Format uint16, 512×512 Pixel; keine Segmentierungsreferenz. Standard-CPSAM statt Train-Modell. channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert, remove_background sind False. CUDA speichert 9/94/46 Objekte und drei native Abbildungen. Unabhängige Aufrufe reproduzieren sämtliche Maskenpixel und Abbildungsarrays. Außenkonturen trennen nicht jede berührende Instanz; Fluss ist ein Visualisierungskanal, keine gemessene Bewegung. Vorschau von Bild 02:95 statt 94, entsprechend Cellpose-Standardwerten auf dem Rohbild statt Stapelvorverarbeitung/Resampling. Angezeigte 2/99 beweisen keine Gleichwertigkeit. Mindestfläche 1838:95→47→95 ohne neue Inferenz, jedes wiederhergestellte Pixel geprüft, gespeicherte TIFFs unverändert. Synchroner Zoom beschneidet den Ausschnitt und repariert nicht die schmale Vorschaukarte. Frühere Sperren und Originaldaten bleiben erhalten. Keine biologische Genauigkeitsfreigabe, KI-Anfrage, Veröffentlichung oder App-Änderung.",
+  "prerequisite": "Entpacken Sie das verlinkte Apply-Cellpose-Beispiel in einen neuen Ordner. Es enthält drei einkanalige Zellbilder und eine Einstellungsreferenz. Wählen Sie seinen Ordner images als Source. Diese Anleitung verwendet das Standardmodell cpsam; wählen Sie für ein eigenes Modell Gewichte und Einstellungen, die zu Ihren Bildern passen.",
   "scenes": [
-    "Öffnen Sie in Make Masks die verschachtelte Cellpose Workbench und wählen Sie Apply. Train und Apply sind Registerkarten dieser Workbench; Apply ist keine eigene Startseitenkachel. Hier verwenden wir das Standardmodell auf drei echten Bildern, nicht den Demonstrationscheckpoint aus der verlinkten Train-Lektion.",
-    "Entpacken Sie das verlinkte Beispiel in einen neuen Ordner. Wählen Sie dessen images-Verzeichnis als Quelle und bewahren Sie den Originaldownload auf. Es sind drei einkanalige Zellbilder mit je 512 Pixeln Seitenlänge, keine Segmentierungsreferenz. Verwenden Sie die aufgezeichneten Einstellungen als Orientierung und ersetzen Sie den historischen Quellpfad durch Ihren eigenen.",
-    "Wählen Sie CPSAM und lassen Sie das benutzerdefinierte Modell leer. Für diese Bilder: Kanal 0, Normalisierung über das 2. und 99. Perzentil, Durchmesser 30, Flussschwelle 0,4 und Zellwahrscheinlichkeit 0. Das sind begrenzte Demonstrationseinstellungen, keine allgemeine Empfehlung.",
-    "Aktivieren Sie Save und Verbose, setzen Sie die Stapelgröße auf 1 und starten Sie Apply. Dieser Weg erzeugt Abbildungen ohne separaten Plot-Schalter. Die echte Konsole nennt eine RTX 3090 mit CUDA und beendet alle drei Bilder. Prüfen Sie Quelle und gespeicherte Einstellungen; Finished allein misst keine Genauigkeit.",
-    "Drei gleichnamige Masken-TIFFs werden im Unterordner masks der Quelle gespeichert. Die Anzahlen sind 9,94 und 46. Die echten Abbildungen zeigen Eingang, rote Vordergrund-Außenkonturen und Fluss. Konturen trennen nicht jede berührende Instanz; Flussfarben sind weder physische Bewegung noch Segmentierungsgenauigkeit.",
-    "Aktivieren Sie Live preview und wählen Sie cell_pair_02 über den echten Bilddialog. Klappen Sie Console und System für mehr Platz ein. Die Vorschau hat eigene Regler: Prüfen Sie Kanal 0 und die angezeigten Perzentile in Live settings, statt anzunehmen, alle Apply-Optionen seien übernommen.",
-    "Die Vorschau findet 95 Objekte, die gespeicherte Stapelmaske desselben Bildes 94. Unabhängige Prüfungen reproduzieren beides: Die Vorschau nutzt Cellpose-Standardwerte auf dem Rohbild, nicht die ausdrückliche Vorverarbeitung und das Resampling des Stapels. Sie ist explorativ und garantiert keine identischen gespeicherten Masken.",
-    "Die Vorschaukarte bleibt in dieser Version schmal. Das Mausrad vergrößert einen Ausschnitt synchron in beiden Ansichten, nicht die Karte selbst; das Gesamtbild wird beschnitten. Das hilft bei lokalen Konturen, ersetzt aber keine Prüfung des gesamten Bildfelds.",
-    "Öffnen Sie Live settings und setzen Sie die minimale Zellfläche auf 1838 Pixel. Das ist ein Demonstrationsgrenzwert, kein biologisches Optimum. Schließen Sie den Dialog, um das Ergebnis zu sehen. Der Filter entfernt 48 Objekte und lässt 47 übrig, ohne Cellpose erneut auszuführen oder die rohe Segmentierung zu verändern.",
-    "Hier ist die gefilterte Vorschau bei geschlossenem Dialog und erneutem Mausradzoom. Das Originalbild bleibt gleich, kleine Maskenobjekte verschwinden. Der Zähler zeigt 47. Das betrifft die Vorschau und überschreibt nicht die drei bereits gespeicherten Stapel-TIFFs.",
-    "Setzen Sie die Mindestfläche wieder auf 0, schließen Sie den Dialog und prüfen Sie erneut. 95 Objekte kehren zurück; jedes wiederhergestellte Labelpixel entspricht dem Ausgangszustand. Bewahren Sie Eingaben, Einstellungen und Modellidentität mit den Masken auf. Die optionale spaCR-AI-Konsole bleibt unbenutzt; wissenschaftliche Schlussfolgerungen benötigen unabhängige Validierung."
-  ],
-  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f"
+    "Öffnen Sie von Home aus Make Masks und dann dessen Cellpose Workbench. Wählen Sie Apply, um Bilder mit einem vorhandenen Modell zu segmentieren. Verwenden Sie Train, wenn Sie neue Gewichte aus geprüften Bild-Masken-Paaren lernen möchten.",
+    "Entpacken Sie das verlinkte Beispiel und setzen Sie Source auf seinen Ordner images. Er enthält drei einkanalige Zellbilder mit jeweils 512 × 512 Pixeln. Wenn Sie die aufgezeichnete Einstellungsdatei als Referenz nutzen, ersetzen Sie deren Quellpfad durch Ihren entpackten Ordner.",
+    "Wählen Sie cpsam und lassen Sie Custom model in diesem Beispiel leer. Setzen Sie Channels auf 0, die Normalisierungsperzentile auf 2 und 99, Diameter auf 30, Flow threshold auf 0,4 und Cell probability auf 0. Passen Sie diese Einstellungen an, nachdem Sie einige repräsentative Bildfelder aus Ihrem eigenen Experiment geprüft haben.",
+    "Aktivieren Sie Save und Verbose, wählen Sie eine Batchgröße von 1 und klicken Sie in Apply auf Run. Verfolgen Sie in der Konsole die Verarbeitung jedes Bildes. Prüfen Sie Fehler, bevor Sie zur Messung übergehen.",
+    "Öffnen Sie den Unterordner masks in Source. Zu jedem Bild gibt es ein Masken-TIFF mit demselben Namensstamm. Prüfen Sie die Abbildungen neben den Originalbildern und achten Sie auf übersehene Objekte und verbundene Zellen. Das Flow-Panel zeigt die Richtungen, die das Modell zur Segmentierung verwendet.",
+    "Schalten Sie Live preview ein und wählen Sie mit der Bildauswahl ein Bild. Öffnen Sie Live settings und prüfen Sie die Regler für Kanal und Normalisierung. Klappen Sie bei Bedarf Console und System ein, um der Vorschau mehr Platz zu geben.",
+    "Vergleichen Sie die Vorschau mit der gespeicherten Batch-Maske. Vorschau und Apply verwenden in diesem Beispiel unterschiedliche Verarbeitungswege und können daher unterschiedliche Grenzen und Anzahlen liefern. Prüfen Sie die gespeicherten TIFFs, wenn Sie entscheiden, ob die Batch-Ausgaben für die Messung geeignet sind.",
+    "Vergrößern Sie mit dem Mausrad einen Bereich auf beiden Vorschauflächen. Prüfen Sie sich berührende Objekte und schwache Grenzen und zoomen Sie dann wieder heraus, um das ganze Bildfeld zu kontrollieren.",
+    "Öffnen Sie Live settings und erhöhen Sie Minimum cell area, um kleine Objekte aus der Vorschau zu entfernen. Der Grenzwert ist in Pixeln angegeben; wählen Sie ihn passend zur Größe Ihrer Objekte. Schließen Sie den Dialog, um das gefilterte Ergebnis zu prüfen.",
+    "Vergleichen Sie die gefilterten Umrisse mit dem Originalbild. Eine Änderung dieses Live-Filters aktualisiert die Vorschau, ohne die bereits von Apply gespeicherten Masken zu überschreiben. Führen Sie den Batch mit den gewünschten Einstellungen erneut aus, wenn Sie neue gespeicherte Ausgaben benötigen.",
+    "Setzen Sie Minimum cell area wieder auf 0, um die ungefilterte Vorschau wiederherzustellen. Halten Sie Eingabebilder, Modellkennung, Einstellungen und gespeicherte Masken zusammen. Verwenden Sie Make Masks für Korrekturen oder Measure, um Objektmerkmale aus den geprüften Masken zu extrahieren."
+  ]
 }

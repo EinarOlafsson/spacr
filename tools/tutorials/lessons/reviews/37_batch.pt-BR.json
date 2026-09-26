@@ -1,25 +1,36 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "cfaf542e696d5f0d5b7916cd7cb3ecbd6c160471f01a0eac387828fe2411c7d6",
-  "review": {"kind": "Parent editorial review against frozen English and actual GUI; preserve visible controls and API identifiers", "independent_peer_review": false, "native_speaker_signoff": false},
+  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "pt-BR",
-  "title": "Batch Runner: tarefas validadas, dependências e registros separados",
-  "description": "Configure três conversões que preservam os canais pela interface real com threads e seletores de arquivos. Confira dependências, salve e recarregue a fila, depois pare e retome subprocessos reais.",
-  "objectives": ["Encontrar Batch runner em Help e adicionar configurações com dependências e substituições explícitas.", "Observar uma ordem inválida, corrigi-la e salvar o plano validado.", "Recarregar o plano, parar entre tarefas e continuar sem repetir as concluídas.", "Examinar registros separados e verificar independentemente pixels, canais e registros de conversão."],
-  "prerequisite": "Use os três campos adquiridos de quatro canais do conjunto de teste, com pastas de origem e destino separadas por tarefa. tools/tutorials/batch_data.py copia os originais byte a byte para TIFFs nomeados explicitamente de fov01_C1 a fov01_C4. A01 é uma coordenada demonstrativa; não reconstrói placa e poço originais. A gravação antiga mapeava os nomes originais para quatro campos C01 separados e não comprova preservação de canais. Aqui só convert é executado, não toda a cadeia Mask-to-Classify. Não se afirma ter usado um modelo, enviado AI ou obtido resultado biológico. A fila não tem Load test data, prévia de imagem ou painel de gráficos próprios; veja Format Converter para Preview e Resume. Políticas de falha são mostradas, mas análises que falham, recuperação após travamento e isolamento do driver GPU não são testados.",
+  "title": "Batch Runner: configurar e executar uma fila",
+  "description": "Adicione configurações de módulo, organize as dependências, execute trabalhos e inspecione os registros separados de cada um.",
+  "objectives": [
+    "Adicionar trabalhos com suas configurações e dependências.",
+    "Salvar, executar e continuar a fila.",
+    "Inspecionar o registro e as saídas de cada trabalho."
+  ],
+  "prerequisite": "Prepare os dados de entrada e o JSON de configurações exportado para cada trabalho. O exemplo executa três conversões de imagens em pastas de saída separadas.",
   "scenes": [
-    "Abra Help e depois Batch runner. Essa ferramenta compartilhada reúne tarefas de módulos sem interface gráfica, arquivos de configuração, dependências e registros separados. Executa suas tarefas em sequência; isso não impede outra aplicação ou fila de usar os recursos do mesmo computador.",
-    "Escolha convert e abra o primeiro JSON com Choose settings. Preparamos três campos reais de microscopia em pastas separadas, cada um com quatro arquivos de canal nomeados explicitamente. Os pixels não mudaram, mas A zero um é uma coordenada demonstrativa, não um poço original recuperado.",
-    "As configurações indicam origem, destino e conversão real, com prévia e retomada desativadas. Adicione um rótulo descritivo e escolha Add job. O primeiro identificador é convert um. Valide a conversão e os canais em um exemplo pequeno antes de programar um lote maior.",
-    "Na segunda tarefa, After indica convert um. A substituição plate naming igual a name muda a convenção do nome da placa sem reescrever o arquivo salvo. A dependência controla elegibilidade e ordem; não faz a segunda tarefa consumir automaticamente a saída da primeira.",
-    "Adicione a terceira tarefa sem dependência ou substituições. Todas usam pastas de saída diferentes. A tabela mostra identificadores, rótulos, dependências e estado pending. Selecionar uma linha carrega sua configuração no editor; a tabela exibida não é uma planilha editável.",
-    "Mova a segunda tarefa para cima de seu pré-requisito. A validação indica a dependência posterior e desativa Run queue. Talvez seja preciso rolar o pequeno painel de problemas para ler a explicação e a correção. É uma recusa realmente verificada, não apenas uma promessa de proteção do validador.",
-    "Volte com ela para baixo de convert um, depois mova a terceira tarefa independente para cima dela. A ordem válida é um, três, dois. Escolha Validate de novo: nenhum problema resta. A ordem atende às restrições, mas validar não estabelece se a análise responde à sua pergunta científica.",
-    "On failure permite continuar tarefas independentes ou parar na primeira falha. Examinamos as duas opções e restauramos a continuação. Stop after vale três falhas consecutivas: conta falhas, sem provar que tenham a mesma causa. Este exemplo bem-sucedido não testa nenhum dos dois desfechos de falha.",
-    "Use Save queue para preservar o plano ordenado em JSON. Depois removemos a terceira tarefa desta fila temporária em memória e usamos Load queue para restaurar o plano de três tarefas. As pastas não foram excluídas. Guarde configurações e entradas junto do plano.",
-    "Quando Run queue iniciar o primeiro subprocesso real, pressione Stop. A tarefa ativa termina antes da parada: a primeira linha indica success e as outras not run. Não encerra o processo imediatamente, e essa parada controlada não comprova recuperação após falha do computador.",
-    "Escolha Run queue novamente. Só as duas tarefas restantes executam, na ordem salva; os horários da primeira não mudam. Todas indicam success. Os subprocessos separam a execução normal, mas a demonstração não garante proteção contra falhas gerais de GPU ou memória.",
-    "Selecione cada linha para ler seu registro. O conversor informa aqui um poço, um campo e quatro identificadores de canal, depois quatro arquivos convertidos e código de saída zero. A substituição do nome aparece nas saídas da segunda tarefa. Registros são evidências para examinar, não prova automática de correção científica.",
-    "As doze imagens das três tarefas preservaram cada pixel original e as identidades de canal previstas. Cada registro de conversão também informa quatro tentativas, quatro sucessos e nenhuma falha. Os originais não mudaram. Para scripts, spacr.batch oferece Job, Queue e run_queue; veja a lição de API e a prévia dedicada do conversor."
+    "Abra Help e depois Batch runner. Use-o para colocar em fila trabalhos de módulos com seus arquivos de configurações, ordem de execução e registros separados.",
+    "Escolha o módulo e clique em Choose settings. Neste exemplo, selecione convert e o JSON de configurações do primeiro campo de microscopia.",
+    "Confira a origem e o destino nas configurações, adicione um rótulo descritivo e clique em Add job. Use uma pasta de saída separada para cada conversão.",
+    "Para o segundo trabalho, digite convert um em After para que ele dependa do primeiro. Adicione uma substituição de configuração quando este trabalho precisar de um valor diferente. Informe os caminhos de entrada explicitamente; uma dependência só controla a ordem.",
+    "Adicione mais trabalhos e revise os identificadores, os rótulos e as dependências. Selecione uma linha para carregar a configuração dela no editor.",
+    "Use os controles de movimentação para ordenar os trabalhos. Uma dependência precisa aparecer antes do trabalho que depende dela; leia as mensagens de validação e corrija a ordem.",
+    "Clique em Validate depois de organizar a fila. Resolva os problemas listados até que Run queue fique disponível.",
+    "Escolha em On failure se quer continuar com os trabalhos independentes ou parar na primeira falha. Defina Stop after para limitar as falhas consecutivas.",
+    "Clique em Save queue para salvar o plano como JSON. Use Load queue para reabri-lo depois, mantendo disponíveis os arquivos de configurações e as entradas a que ele se refere.",
+    "Clique em Run queue. Para pausar entre trabalhos, pressione Stop; o trabalho atual termina e os restantes ficam sem executar.",
+    "Clique em Run queue de novo para continuar com os trabalhos restantes. Acompanhe o status de cada linha conforme a fila avança.",
+    "Selecione uma linha para ler o registro dela e inspecionar erros ou caminhos de saída. No exemplo de conversão, confira os identificadores de campo e de canal informados.",
+    "Abra cada pasta de saída e inspecione as imagens convertidas e o registro da conversão. Guarde o JSON da fila, as configurações e os registros junto com os resultados."
   ]
 }

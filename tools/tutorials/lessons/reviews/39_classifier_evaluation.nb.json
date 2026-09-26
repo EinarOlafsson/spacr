@@ -1,35 +1,37 @@
 {
   "lesson": "39_classifier_evaluation",
-  "english_sha256": "b528765c05e0789e5a604ceca31eb1efc935ac0add1713d5f716187b4cb06eda",
+  "english_sha256": "c9422e3e62380aac367c30389de6533c519bd2e7212353f5650aae238e314280",
   "review": {
-    "kind": "Parent editorial translation of frozen English; exact counts, real overlap, inspection-only paths and causal limits preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "nb",
-  "title": "Evaluering av klassifikatorer",
-  "description": "Undersøk reelle, lagrede prediksjoner i Classify og oppdag felles brønner i trening og test.",
+  "title": "Classifier Evaluation: undersøk prediksjoner og feil",
+  "description": "Last inn en lagret evalueringspakke, undersøk lekkasje og forvekslingstall, og filtrer prediksjoner for gjennomgang.",
   "objectives": [
-    "Åpne den nestede resultatvisningen med nedlastingseksemplet.",
-    "Lese forvekslingsmatrise, konfidenslister, kalibrering og direktefiltre.",
-    "Skille resultatinspeksjon fra uavhengig validering."
+    "Laste inn en pakke og gå gjennom lekkasje.",
+    "Undersøke forvekslingstall og konfidensgrupper.",
+    "Filtrere prediksjoner og finne lagrede figurer."
   ],
-  "prerequisite": "Pakk ut REAL_evaluation_known_overlap.zip i en ny mappe, og velg mappen med evaluation_manifest.json. Pakken inneholder 234 reelle prediksjoner, men ingen bildeutsnitt, annotasjonsdatabase eller modell. Alle tre testbrønnene finnes også i treningen. Bare private stier er erstattet med crops-not-included-referanser; tall og identiteter er bevart. infected_1 og infected_2 er overførte etiketter. OOF-titler dokumenterer ikke kryssvalidering. API: spacr.classifier_evaluation.evaluate_predictions, write_evaluation_bundle og load_evaluation_bundle. Ingen ny trening, inferens eller forespørsel til spaCR AI.",
+  "prerequisite": "Last ned og pakk ut det lenkede eksemplet med lagrede resultater. Det inneholder prediksjoner, tabeller og figurer; utsnitt krever det tilsvarende eksperimentet ditt i Annotate. Eksemplet deler brønner mellom trenings- og testdata, så bruk det til å lære inspektøren, ikke til å anslå nøyaktighet med uavhengige brønner.",
   "scenes": [
-    "Åpne Classify og deretter snarveien Classifier Evaluation. Dette er en nestet resultatvisning, ikke en egen Home-modul eller et skjema for modelltrening. Classify-leksjonen forklarer hvordan prediksjoner lages; her undersøker vi en allerede lagret resultatpakke.",
-    "Last ned resultateksemplet fra lenken nedenfor og pakk det ut i en ny mappe. Klikk Browse og velg mappen med evaluation_manifest.json. Det lille arkivet inneholder reelle, lagrede prediksjoner og tabeller, men ingen bildeutsnitt, annotasjonsdatabase eller trent modell.",
-    "Summary viser 234 testprediksjoner fra en kjøring med én epoke. infected_1 og infected_2 er overførte datasettetiketter, ikke nylig bekreftede infeksjonstilstander. Innlasting leser lagrede resultater; den trener ikke, lager ikke nye prediksjoner og reparerer ikke datasettet.",
-    "Kontroller Leakage audit før du tolker nøyaktigheten. Alle tre testbrønnene forekommer også i treningen, så kontrollen feiler. Databaseidentiteter avdekket overlapp som den gamle filnavnkontrollen overså. Tallene demonstrerer visningen, ikke ytelse på uavhengige brønner eller biologisk validering.",
-    "I Confusion matrix er radene registrerte klasser og kolonnene prediksjoner. Diagonalen inneholder 104 og 111. De andre cellene inneholder elleve og åtte avvik: nitten til sammen. Samsvar med disse etikettene beviser ikke at etikettene er riktige.",
-    "Klikk cellen med elleve: registrert infected_1, predikert infected_2. Ved konfidens 0,75 går seks avvik til listen med høy konfidens og fem til listen med lav. Dette er to inspeksjonskøer for samme celle, ikke nye klassifikasjonsresultater.",
-    "Øk konfidensgrensen til 0,95. Den høye listen inneholder nå to bildeutsnitt, den lave ni. Sannsynligheter, klasseprediksjoner og cellen med elleve er uendret. Denne direktekontrollen deler køen; den rekalibrerer ikke modellen og kjører ikke inferens på nytt.",
-    "Vær forsiktig med automatiske forklaringer. Et avvik med høy konfidens beviser ikke feil annotasjon, og én plate kan ikke fastslå en platerelatert årsak. Forslag om modell eller brønn er hypoteser. Undersøk bildeopptak, etiketter og virkelig uavhengige data før du bestemmer hva som skal korrigeres.",
-    "Per-plate metrics har én rad med alle 234 prediksjonene. Det hjelper med å finne resultater per plate, men eksemplet kan ikke sammenligne plater eller estimere en plateeffekt. Høy nøyaktighet fjerner ikke problemet med felles brønner i Leakage audit.",
-    "Calibration sammenligner gjennomsnittlig predikert sannsynlighet med observert klassefrekvens i fem intervaller per klasse. Antallet betyr noe: intervaller med få observasjoner er usikre. Pakken brukte ingen kalibreringskorreksjon. Fanen beskriver tidligere beregnede resultater; den har ingen kontroll for å tilpasse kalibreringen.",
-    "Skriv r5_c2 i Predictions for å undersøke den brønnen. Tabellen snevres inn fra 234 til 128 rader. Dette er et direkte tekstfilter på lagrede poster, ikke bildefiltrering, segmentering eller endring av de underliggende resultatfilene.",
-    "Tøm filteret, så kommer alle 234 radene tilbake. Stiene sier uttrykkelig at bildeutsnitt ikke er inkludert. Åpne først det tilhørende eksperimentet i Annotate for å se avvikende utsnitt fra ditt prosjekt. Arkivet leverer ikke databasen; deaktiverte knapper demonstrerer ikke en fungerende bildeflyt.",
-    "Nedlastingen beholder også de opprinnelige kalibrerings- og forvekslingsfigurene. Kontroller kontrasten før de brukes i rapporter. Generiske out-of-fold-titler og filnavn gjør ikke denne ene testdelingen til kryssvalidering. Sannsynligheter og antall er uendret; bare private stier er erstattet med tydelige referanser.",
-    "Behold advarselen om datalekkasje sammen med alle eksporterte mål. API-referansen forklarer klargjøring og innlasting; Training Runs sammenligner lagrede fremdriftslogger. spaCR AI kan forklare begreper, men ikke godkjenne etiketter eller uavhengighet. Eksemplet krevde ingen forespørsel til en leverandør."
+    "Åpne Classify og deretter Classifier Evaluation. Bruk denne inspektøren til å utforske en lagret evalueringspakke etter at prediksjoner er laget.",
+    "Last ned og pakk ut eksemplet nedenfor. Klikk på Browse og velg mappen som inneholder evaluation_manifest.json.",
+    "Les Summary for antall prediksjoner og de registrerte klassenavnene. Eksemplet inneholder 234 prediksjoner fordelt på to klasser.",
+    "Åpne Leakage audit før du tolker nøyaktigheten. Eksemplet flagger brønner som deles mellom trenings- og testdata. For en evaluering med uavhengige brønner forbereder du en oppdeling med separate brønner og kjører trening og evaluering på nytt.",
+    "Åpne Confusion matrix. Radene er registrerte klasser og kolonnene prediksjoner. Diagonalen viser samsvar; celler utenfor diagonalen viser uenigheter som bør gjennomgås.",
+    "Klikk på en celle med uenighet for å liste eksemplene. Den valgte cellen inneholder elleve uenigheter, gruppert etter konfidens.",
+    "Endre Confidence threshold for å velge hvilke uenigheter som kommer på listen med høy konfidens. Hever du den fra 0,75 til 0,95, blir to igjen på den høye listen og ni på den lave.",
+    "Gå gjennom de valgte eksemplene sammen med bildene og annoteringene. Bruk de viste forklaringene som utgangspunkt for undersøkelse, og kontroller grunnlaget før du endrer merkelapper.",
+    "Åpne Per-plate metrics for å sammenligne resultater per plate. Eksemplet har én plate; en pakke med flere plater gir separate rader for sammenligning.",
+    "Åpne Calibration for å sammenligne predikert sannsynlighet med observert klassefrekvens. Kontroller antallet i hvert intervall når du tolker forskjellene.",
+    "Åpne Predictions og skriv inn en prøve- eller brønnidentifikator for å filtrere postene. I eksemplet velger r5_c2 prediksjonene for én brønn.",
+    "Fjern filteret for å få tilbake alle postene. For å åpne utsnitt i ditt eget prosjekt laster du først inn det tilsvarende eksperimentet i Annotate; det nedlastbare resultateksemplet inneholder ingen utsnitt.",
+    "Finn de lagrede kalibrerings- og forvekslingsfigurene i pakkemappen. Kontroller merking og lesbarhet før du bruker dem i en rapport.",
+    "Behold lekkasjegjennomgangen sammen med rapporterte mål. Bruk Training Runs til å sammenligne lagret treningsforløp, og gå tilbake til Annotate når bilder eller merkelapper må gjennomgås."
   ]
 }

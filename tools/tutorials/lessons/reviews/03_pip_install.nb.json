@@ -1,32 +1,34 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
   "review": {
-    "kind": "Parent editorial translation against frozen English, actual clean public installation and installed-package native capture",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "nb",
   "title": "Installer spaCR med pip",
-  "description": "Opprett et isolert Python-miljø, installer den offentlige pakken, kontroller avhengighetene og start den installerte Qt-appen.",
+  "description": "Opprett et isolert Python-miljø, installer den offentlige pakken, kontroller avhengighetene og start det installerte Qt-programmet.",
   "objectives": [
-    "Holde spaCRs avhengigheter i et eget Python-miljø.",
-    "Kontrollere installert pakke, Qt og advarsler om valgfrie funksjoner.",
-    "Åpne Home og bevisst oppdatere riktig miljø."
+    "Opprette og aktivere et virtuelt Python-miljø.",
+    "Installere spaCR og kontrollere avhengighetene.",
+    "Starte programmet og oppdatere riktig miljø."
   ],
-  "prerequisite": "Leksjonen verifiserer spaCR 1.5.0.5 fra PyPI på Linux med Python 3.12.13, ikke en redigerbar installasjon av kildekoden. Kommandokortene er veiledning, ikke opptak av terminalutdata; Windows- og macOS-kommandoene ble ikke kjørt her. Den rene installasjonen var ferdig før de innspilte kontrollene. De nåværende grunnavhengighetene inkluderer Qt. Doctor viser en advarsel om valgfri CZI-støtte; testen av GPU-minnetildeling hoppes uttrykkelig over. GUI-opptaket bruker --no-setup, en privat mørk profil med skriftskala 1.5 og en allerede lukket omvisning. Det dokumenterer at Home åpner og lukker normalt, ikke alle moduler, valgfrie formater, GPU-beregninger eller andre plattformer.",
+  "prerequisite": "Installer Python 3.12 og åpne en terminal. Bruk aktiveringskommandoen for operativsystemet og skallet ditt.",
   "scenes": [
-    "Installer spaCR i sitt eget Python-miljø. Demonstrasjonen bruker Python 3.12 på Linux og den offentlige PyPI-utgaven, ikke en utsjekket kildekodekopi. Kontroller python --version før du velger tolk for miljøet.",
-    "Opprett et nytt virtuelt miljø med kommandoen for plattformen din. Her er .venv en ny mappe i arbeidskatalogen. Python 3.12 må allerede være installert; kommandoen oppretter et miljø, ikke selve Python.",
-    "Aktiver miljøet med kommandoen for skallet ditt. PowerShell, Command Prompt, bash og zsh bruker ulike aktiveringskommandoer. Hvis PowerShell blokkerer skriptet, bruk Command Prompt eller kall miljøets Python direkte; ikke svekk sikkerheten for hele maskinen.",
-    "Kjør python -m pip --version. Plasseringen skal være inne i miljøet du valgte. Denne virkelige terminalen viser den lengre private stien brukt under opptaket. Med python -m pip knyttes pakkeinstallasjonen til nettopp den tolken.",
-    "Oppdater pip, og installer deretter spacr. Lås til 1.5.0.5 for samme utgave som i leksjonen. Den rene installasjonen var ferdig før disse kontrollene ble tatt opp. Sett av tid og diskplass til vitenskapelige avhengigheter; de nåværende grunnavhengighetene inkluderer allerede Qt-komponentene for skrivebordet.",
-    "Kontroller den installerte spaCR-versjonen, Qt-versjonen og pakkestien. Her kommer alle tre fra det nye miljøet. En vellykket import beviser ikke at alle valgfrie formater eller analyser virker, eller at vinduet kan åpnes.",
-    "Kjør python -m pip check. No broken requirements betyr at de installerte avhengighetserklæringene er forenlige. Løs eventuelle konflikter før du fortsetter; en bestått kontroll er ikke vitenskapelig validering av en analyse.",
-    "Kjør spacr-doctor, og les advarsler så vel som beståtte kontroller. Denne installasjonen har en advarsel om valgfri CZI-støtte og viser reparasjonskommandoen. Opptaket bruker --no-gpu-probe: Enheten oppdages, men GPU-minnetildeling testes ikke. Hoppede kontroller er ikke beståtte kontroller.",
-    "Start spacr fra det samme aktiverte miljøet. Ved vanlig førstegangsstart kan oppsettspørsmål vises. Denne avgrensede verifiseringen bruker uttrykkelig --no-setup og en forberedt opptaksprofil; den viser ikke hvordan spørsmålene besvares.",
-    "Dette er det virkelige Home-vinduet fra den installerte wheel-pakken, med seks kjernemoduler og gruppene Data, Tools og Assays. Det åpnet og lukket normalt uten å starte en analyse. Fortsett med Home for navigasjon, underliggende verktøy og modulleksjonene.",
-    "Lukk spaCR før en oppdatering, og aktiver miljøet du vil endre. Oppdater pakken, gjenta pip check og spacr-doctor, og registrer den nye versjonen sammen med analysen. Oppdateringer kan endre avhengigheter og virkemåte; ikke endre et miljø brukt til pågående arbeid uten å gjøre det kjent."
+    "Åpne en terminal og kontroller Python-versjonen. Denne gjennomgangen bruker Python 3.12. Hold spaCR i et eget virtuelt miljø, slik at pakkene er enkle å administrere.",
+    "Opprett et virtuelt miljø som heter .venv med kommandoen for operativsystemet ditt. Dette oppretter en mappe med Python-miljøet du skal bruke for spaCR.",
+    "Aktiver .venv med kommandoen for skallet ditt. Windows PowerShell og Ledetekst har ulike aktiveringskommandoer; macOS og Linux bruker vanligvis skallkommandoen som vises her.",
+    "Kjør python -m pip --version. Kontroller at banen som vises, hører til .venv. Bruk python -m pip i installasjonskommandoene, slik at pip bruker denne tolken.",
+    "Oppgrader pip, og installer deretter spacr. Vent til de vitenskapelige pakkene er lastet ned og installert. Den gjeldende pakken inneholder skrivebordskomponentene som trengs for å åpne programmet.",
+    "Kontroller den installerte spaCR-versjonen og plasseringen av pakken med kommandoen som vises. Lagre versjonen sammen med analysenotatene dine.",
+    "Kjør python -m pip check. Hvis den rapporterer motstridende krav, må du løse dem før du bruker miljøet.",
+    "Kjør spacr-doctor for å undersøke installasjonen og se om valgfrie funksjoner mangler. Følg den foreslåtte reparasjonen bare for formatene eller funksjonene du trenger.",
+    "Start spacr fra det aktiverte miljøet. Ved første oppstart følger du oppsettsinstruksjonene og velger innstillingene dine.",
+    "Home åpnes med kategoriene Core, Data, Tools og Assays. Fortsett med Home-veiledningen for å finne en modul, laste inn eksempeldata og åpne en pipelineoversikt.",
+    "For å oppdatere lukker du spaCR og aktiverer dette miljøet. Oppgrader pakken, og kontroller deretter versjonen og avhengighetene på nytt. Behold det forrige miljøet hvis du trenger det til en pågående analyse."
   ]
 }
