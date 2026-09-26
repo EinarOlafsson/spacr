@@ -2,22 +2,14 @@
 REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 ================================================================================
 
-Status:    OPEN, filed 2026-09-02. The version-update hold it was filed behind
-           was lifted on 2026-09-15 and the candidate's media is uploaded, so
-           what is left is work rather than a wait. As of 2026-09-22: current
-           Home/installers, Annotate and Classify CV/ML captures have private
-           English review masters. Annotate and CV pass full decode and
-           browser checks; all 150 narration tracks for 01/04/05 pass technical
-           verification after CPU rendering. Classify overview has 11 scenes
-           composed from verified current navigation and CV/ML recordings;
-           its English review media pass decode/audio/player checks. Map's
-           50 voices and Regression's current 4K master/player are verified.
-           Make Masks has a current combined magnifier/FEATURES/editor capture;
-           its updated lesson, translations and media remain private work. OPEN ON:
-           Mask's GPU recapture, remaining
-           captures, full language/voice/caption and audible acceptance,
-           complete-set publication, and the maintainer's Pages deployment.
-           Detailed dated receipts below preserve each acceptance boundary.
+Status:    OPEN, re-checked 2026-09-26 (CLAUDE-DOCS). All 85 lessons are live
+           on nightly with no Coming soon route. All 85 scripts are
+           walkthroughs, and 84 have matching live media. Still open: the
+           lesson 19 re-recording, translated
+           captions and voices going live lesson by lesson, one red audit
+           assertion, and the human listening and native-speaker reviews. The
+           dated note "2026-09-26 — CLAUDE-DOCS: STATUS" at the end lists what
+           is done and what remains, requirement by requirement.
 Requested: 2026-09-02 — "the tutorials for all of the core moduals need to be
            redone. there is now live data for all core moduals that should be
            used in the tutorials, there are also several buttons that have been
@@ -2608,3 +2600,88 @@ The previous eight-video batch is directly verified LIVE at1e5c408b6, with
 11528generated English API entries and browser chapter seeks passing. This
 new seven-video batch is accepted/prepared pending its nightly deployment;
 see358_live_exploration_guides_2026-09-24.json for the last direct live proof.
+
+2026-09-26 — CLAUDE-DOCS: STATUS
+Checked at nightly HEAD ae74da81f against the live receipts. The working tree
+also holds two things from other agents that are not counted as done here: an
+uncommitted candidate (voices for 07, 08, 09, 10 and 78-81) and an uncommitted
+rewrite of lesson 19.
+
+DONE
+ 1. The inventory comes from the runtime. `tools/build_tutorial_index.py
+    --check` passes: spacr/resources/tutorial_index.json is up to date with
+    75 modules. The release manifest at 4967c275b has 85 ready lessons,
+    85 routes, 0 Coming soon and 0 outstanding module tutorials.
+ 2-4. Each lesson teaches the current GUI as a user walkthrough. The audit in
+    tools/tutorials/evidence/2026-09-23-user-walkthrough-review.json lists
+    80 rewritten existing lessons and 4 new organism guides. 71 Investigate
+    Hit was rewritten on the real screen example (e1e6a23d7, 91f25fcf2).
+    These lessons were re-recorded natively against the current GUI:
+      * 02-04 (80cf6b58b)
+      * 05 and 78-85 (8aedcd1b1)
+      * 17 and 76 (a01ed0888, cdcb42a60, f614151dc)
+      * 33 (e3a55ce70)
+      * 59 and 77 (on 09-24)
+      * 71
+    The 78-85 narratives were rewritten from
+    spacr/resources/module_workflows.json (b8a9757f6, 92d6bd5dc).
+ 7. Checks run today:
+      * 13 of 14 tests pass in tests/test_tutorial_release_audit.py and
+        tools/tutorials/tests/test_release_candidate_routes.py. The one
+        failure is item d below.
+      * 128 tests pass, 1 is skipped (no Playwright) and 2 are xfail
+        (report-only) across the module-workflow map, missing-lesson,
+        catalog i18n, install recipe, Coming soon and hosted-web tests.
+ 8. Published and verified live. There are 12 receipts,
+    features/data/358_live_*_2026-09-2*.json, and each has passed: true.
+    The latest is 358_live_voices_b4_2026-09-26.json (candidate 5bd5m2eg,
+    media revision a949b980). 17 lessons have hosted web copies. The player
+    holds narration while the video is seeking or buffering (ad7089c50,
+    063fe9eb8); this is live per 358_live_voices_b3_2026-09-26.json.
+    Text: every lesson from 01 to 85 has narration and caption reviews in
+    13 languages, bound to the committed English (measure.py shows 0 stale at
+    HEAD). Each is labelled "AI technical review (Claude Opus 5.5), no
+    native-speaker signoff".
+    Voices in 7 languages (es, fr, hi, it, pt-BR, ja, zh-CN): full sets are
+    LIVE for 12 lessons: 02, 03, 04, 05, 14, 17, 26, 27, 28, 33, 35, and 19
+    on its older recording. Full sets are STAGED for 35 lessons
+    (scratch-docs/narr/fullcount.py, run 10:00 on 09-26).
+
+REMAINS
+ a. Lesson 19, Train a Cellpose model (owner: CLAUDE-DOCS t19). Native
+    capture run 5 is done; see
+    evidence/2026-09-26-train-cellpose-native-walkthrough.json, which is not
+    yet committed. Still to do:
+      1. Render the English.
+      2. Commit the lesson.
+      3. Redo its 13 reviews, because the rewrite makes all 13 stale.
+      4. Render the voices.
+      5. Publish, then record a live receipt.
+ b. Translated text is not yet live for 72 lessons (owner: CLAUDE-DOCS
+    publisher). The HEAD manifest registers 936 english_fallback rows (one per
+    lesson and language). Each lesson turns translated on the site when it is
+    republished. Next: the in-flight candidate for 07-10 and 78-81, then a
+    receipt.
+ c. Voices (owner: CLAUDE-DOCS narration).
+      * 48 lessons have only 5 or 6 of their 26 tracks. They are rendering
+        on the GPU turn 358-narr-voices-2.
+      * 23 lessons have full sets staged but are not yet in any candidate.
+ d. A red test (owner: CLAUDE-DOCS publisher).
+    test_every_spoken_pypi_is_the_reviewed_single_syllable_pype fails its
+    last assertion at HEAD. lesson_catalog.js carries hosted "web" paths for
+    17 lessons, but lessons_en.json has web null; this started with the web
+    copies in 1a93d0499. The pype checks themselves pass. The fix is to pop
+    "web" as well as "poster" and "silent" at tests/test_tutorial_release_audit.py:424,
+    or to have the builder write "web" into lessons_en.json.
+ e. The walkthrough audit's flags lag behind (owner: CLAUDE-DOCS).
+      * published_rewrite is still False for 18 lessons that are now live:
+        02-05, 14, 17, 26-28, 33, 35, 36, 75, 76 and 78-81.
+      * manual_review still says "pending" for 71 and 82-85.
+    Regenerate the audit from the receipts.
+ f. No live receipt since 09-24 includes a mobile-viewport playback case. Add
+    one to the next verifier run (owner: CLAUDE-DOCS publisher).
+ g. The main channel still serves main's catalog (09383fb35). Nightly
+    reaching main is the release merge (owner: maintainer).
+ h. Human review. An agent cannot close this, and none has happened:
+    native-speaker review in 13 languages and a listening review of every
+    voice (owner: maintainer).

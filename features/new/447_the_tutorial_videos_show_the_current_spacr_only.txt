@@ -3,14 +3,11 @@ THE TUTORIAL VIDEOS: DARK MODE AND BLOBS, THE CURRENT spaCR ONLY, AND NO PATHS
 OF THE MAINTAINER'S
 ================================================================================
 
-Status:    IN PROGRESS, Codex, 2026-09-22. Current Home/installers, Annotate
-           and Classify CV/ML captures have private English review masters.
-           All 150 narration tracks for 01/04/05 pass technical verification.
-           Map's 50 voices and Regression's current master/player verify.
-           Make Masks magnifier/FEATURES/editor now share one verified current
-           capture; revised narration and translations are still in progress.
-           Remaining captures, full media/caption and audible acceptance,
-           and complete-set publication remain open; see dated receipts below.
+Status:    OPEN, re-checked 2026-09-26 (CLAUDE-DOCS). Requirements 4 and 5 are
+           met and live. Still open: a maintainer path is visible in the
+           published lesson 53 poster, no library-wide frame sweep exists yet,
+           and nobody has listened to "pype". See "2026-09-26 — CLAUDE-DOCS:
+           STATUS" at the end.
 
 Requested: 2026-09-20 -- "some tutorial videos need to be redone. all tutorial
            videos should be in dark mode with blobs theme. pype is now
@@ -508,3 +505,52 @@ module lessons retain explicitly identified, hash-checked existing captures.
 Accepted media revision:f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65. Native and
 retained-capture status stays explicit in the per-lesson evidence; remaining
 installation/Timelapse/Cellpose/OPS capture work and locale review stay open.
+
+2026-09-26 — CLAUDE-DOCS: STATUS
+Checked at nightly HEAD ae74da81f, against the published tree and the receipts.
+
+DONE
+ 1. Dark mode and Blobs.
+      * capture_all_modules/capture_refresh take a named dark/Blobs input
+        and refuse anything else (dated 09-21 above).
+      * Today, all 85 published posters in
+        docs/source/_extra/tutorials/production/*/poster.jpg pass a
+        luminance screen: none is light.
+      * The posters of four older retained captures (24, 40, 50 and 53) were
+        inspected by eye and all show Blobs.
+    This is one frame per lesson, not every sampled frame (see a below).
+ 2. pype. The rule is in tools/tutorials/authoring/tools/pronunciation.py
+    (2026-08-28-pype-v11). The pype checks in
+    test_every_spoken_pypi_is_the_reviewed_single_syllable_pype pass. That
+    test is red only for a separate catalog assertion (item 358 note d).
+ 3. Paths, harness side. Captures refuse visible personal or mounted paths
+    and run from a neutral root (dated 09-21 above). The English lesson
+    scripts contain no /home, /mnt or username strings.
+ 4. No older spaCR. A grep of all English narration for
+    older/earlier/previous/replaces/used to/no longer finds only in-workflow
+    uses ("previous page", "an earlier model"). None compares versions.
+    Lesson 02 teaches the current conda-forge install, recorded in a real
+    sandboxed shell (80cf6b58b). It is live per
+    features/data/358_live_install_and_investigate_hit_2026-09-25.json.
+ 5. The new features are in their modules' lessons, with narration and
+    captions:
+      * Help search is in 05_home (visual 08_help_search).
+      * The magnifier and Features are in 14_make_masks.
+    Both lessons are live with full voices
+    (features/data/358_live_voices_b2_2026-09-25.json).
+
+REMAINS
+ a. A maintainer path is in a published frame (owner: CLAUDE-DOCS capture).
+    The 53_prediction_profiler poster shows Regression's Output directory as
+    "…2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/…". This is a
+    09-09 capture made before the path guard existed.
+      1. Recapture 53 from the neutral root.
+      2. Add the sampled-frame path and theme sweep that the acceptance asks
+         for (tools/sample_tutorial_frames.py plus OCR or a visual pass).
+      3. Run it over every lesson that keeps a pre-09-21 capture.
+    Neither check exists yet.
+ b. "nested setup". Lesson 02 teaches the current route and never says
+    "nested". The maintainer should confirm that this is what he asked for
+    (owner: maintainer).
+ c. Nobody has listened to "pype" in the rendered audio. Only the phonemes
+    are checked (owner: maintainer).
