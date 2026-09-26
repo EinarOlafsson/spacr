@@ -12,6 +12,12 @@
 """
 from __future__ import annotations
 
+from spacr.model_zoo import _mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = _mask_model_kinds()
+
 from pathlib import Path
 
 import pytest
@@ -167,7 +173,7 @@ def test_make_masks_asks_for_dino_rows_and_labels_them(qapp, monkeypatch):
     host = types.SimpleNamespace(_cp_model=combo,
                                  _fill_zoo_models=lambda: None)
     chosen = mm.MakeMasksScreen._choose_cellpose_model_from_zoo(host)
-    assert asked == [("cellpose", "cellpose3", "cellpose_dino")]
+    assert asked == [MASK_KINDS]
     assert chosen == "cellpose_dino:/models/cellposedino_vit_b"
     assert combo.currentData() == chosen
     assert combo.currentText() == "Cellpose-DINO · cellposedino_vit_b"
@@ -292,7 +298,7 @@ def test_the_preview_zoo_button_asks_for_dino_rows(qapp, monkeypatch):
     monkeypatch.setattr(mzp, "choose_model", choose)
     host = types.SimpleNamespace(_model_box=QComboBox())
     LP.LivePreviewPanel._choose_a_preview_model(host)
-    assert asked == [("cellpose", "cellpose3", "cellpose_dino")]
+    assert asked == [MASK_KINDS]
     assert host._model_box.currentText() == "cellpose_dino:/m/w"
 
 

@@ -23,6 +23,12 @@ properties tested here are:
 """
 from __future__ import annotations
 
+from spacr.model_zoo import _mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = _mask_model_kinds()
+
 import numpy as np
 import pytest
 
@@ -320,7 +326,7 @@ def test_the_preview_offers_only_cellpose_models(panel, monkeypatch):
         lambda parent=None, kinds=None: seen.update(kinds=kinds))
     panel._choose_a_preview_model()
 
-    assert seen["kinds"] == ("cellpose", "cellpose3", "cellpose_dino")
+    assert seen["kinds"] == MASK_KINDS
 
 
 # --------------------------------------------------------------------------

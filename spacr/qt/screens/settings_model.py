@@ -277,7 +277,10 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     "mask": {"pathogen_model"},
     # Parallel GPU masks refuse timelapse and t_stack runs, so the Timelapse
     # panel keeps both keys at their off/blank defaults without showing them.
-    "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices"},
+    "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
+                  "watch_folder", "watch_pipeline", "watch_measure_settings",
+                  "watch_settle_seconds", "watch_poll_seconds",
+                  "watch_idle_minutes"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -1170,7 +1173,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Workflow & Test Run", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
-            "dry_run",
+            "dry_run", "watch_folder", "watch_pipeline",
+            "watch_measure_settings", "watch_settle_seconds",
+            "watch_poll_seconds", "watch_idle_minutes",
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
