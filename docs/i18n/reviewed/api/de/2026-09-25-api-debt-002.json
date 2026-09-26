@@ -3251,6 +3251,1558 @@
       "context": "No new repositories, and no archives. The example set is a purpose-built repo with a single tar. The training datasets are not: they are 556 to 6,062 files of `images/` and `masks/`, and nobody is downloading 3,029 microscope fields of view to look at ten. Each sample is fetched file by file with `hf_hub_download`, which is why :data:`MASK_DATASETS` carries the two folder names per repo rather than assuming them -- `cross-channel-toxoplasma-from-cellmask` calls its masks `masks_pv`, and assuming `masks` would have given ten images and no labels with no error to explain it.",
       "translation": "KEINE NEUEN REPOSITORIES UND KEINE ARCHIVE. Der Beispielsatz ist ein eigens dafür erstelltes Repo mit einem einzigen tar. Die Trainingsdatensätze sind das nicht: Sie umfassen 556 bis 6,062 Dateien in `images/` und `masks/`, und niemand lädt 3,029 Sichtfelder herunter, um sich zehn anzusehen. Jede Stichprobe wird DATEI FÜR DATEI mit `hf_hub_download` abgerufen, weshalb :data:`MASK_DATASETS` die beiden Ordnernamen pro Repo angibt, statt sie anzunehmen -- `cross-channel-toxoplasma-from-cellmask` nennt seine Masken `masks_pv`, und die Annahme `masks` hätte zehn Bilder und keine Labels ergeben, ohne einen Fehler, der das erklärt.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets#4",
+      "source": "WHICH FIELDS. A random draw in which every field of the dataset has the same chance -- the first N by name are the first plate of the first domain, which is not the dataset. SEEDED by the dataset key, so the draw is the same on every machine: a sample that changes between two people's machines is a sample nobody can talk about -- \"the third field looks wrong\" has to mean the same field for both of them. A dataset with a quota draws that way within each domain.",
+      "source_sha256": "40744d3d14c1c0acc6e6e8a688f031c04c22fd45e15de0c2d02cd52e2567f659",
+      "context": "Which fields. A random draw in which every field of the dataset has the same chance -- the first N by name are the first laboratory microplate of the first domain, which is not the dataset. SEEDED by the dataset structured-data name, so the draw is the same on every machine: a sample that changes between two people's machines is a sample nobody can talk about -- \"the third field looks wrong\" has to mean the same field for both of them. A dataset with a quota draws that way within each domain.",
+      "translation": "WELCHE SICHTFELDER. Eine Zufallsziehung, bei der jedes Sichtfeld des Datensatzes dieselbe Chance hat -- die ersten N nach Namen sind die erste Platte der ersten Domäne, und das ist nicht der Datensatz. MIT DEM SCHLÜSSEL DES DATENSATZES ALS SEED, sodass die Ziehung auf jeder Maschine dieselbe ist: Eine Stichprobe, die sich zwischen den Maschinen zweier Personen unterscheidet, ist eine Stichprobe, über die niemand reden kann -- \"das dritte Sichtfeld sieht falsch aus\" muss für beide dasselbe Sichtfeld bedeuten. Ein Datensatz mit einer Quote zieht auf diese Weise innerhalb jeder Domäne.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets#5",
+      "source": "THE LAYOUT IS MAKE MASKS' OWN: images at the top of the folder, masks in `masks/` beneath them, which is what `curation_queue.detect_layout` calls `nested` and the layout spaCR uses everywhere. So a sample opens for EDITING, with the published masks as the drafts -- deliberately unlike the example set, which hides its truth in `ground_truth_masks/` so the fields open raw. Those are two different jobs: the example set is \"try segmenting this\", and a training-dataset sample is \"look at what the model was taught\".",
+      "source_sha256": "0ab4bdd63a6625c10b664798c979ac12b1d33f262dc97d950c736893005a11f3",
+      "context": "The layout is make masks' own: images at the top of the folder, masks in `masks/` beneath them, which is what `curation_queue.detect_layout` calls `nested` and the layout spaCR uses everywhere. So a sample opens for EDITING, with the published masks as the drafts -- deliberately unlike the example set, which hides its truth in `ground_truth_masks/` so the microscope fields of view open raw. Those are two different jobs: the example set is \"try segmenting this\", and a training-dataset sample is \"look at what the model was taught\".",
+      "translation": "DAS LAYOUT IST DAS VON MAKE MASKS SELBST: Bilder auf oberster Ebene des Ordners, Masken darunter in `masks/`, was `curation_queue.detect_layout` als `nested` bezeichnet und das Layout, das spaCR überall verwendet. Eine Stichprobe öffnet sich daher zum BEARBEITEN, mit den veröffentlichten Masken als Entwürfen -- bewusst anders als der Beispielsatz, der seine Grundwahrheit in `ground_truth_masks/` verbirgt, damit sich die Sichtfelder roh öffnen. Das sind zwei verschiedene Aufgaben: Der Beispielsatz ist \"try segmenting this\", und eine Stichprobe aus einem Trainingsdatensatz ist \"sieh dir an, was dem Modell beigebracht wurde\".",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets#6",
+      "source": "THE WELL-DETECTOR DATASET IS NOT HERE. `toxoplasma-plaque-well-detector-dataset` has `images/` and `labels/`, and those labels are YOLO bounding boxes. A box is not a mask and Make Masks would open every field blank.",
+      "source_sha256": "f2302c34a3833568aafcc92e3a249febde293fa16d8859b3d755cfb5238cd227",
+      "context": "The microplate sample position-detector dataset is not here. `toxoplasma-plaque-well-detector-dataset` has `images/` and `labels/`, and those labels are YOLO bounding boxes. A box is not a mask and Make Masks would open every microscope field of view blank.",
+      "translation": "DER WELL-DETEKTOR-DATENSATZ IST NICHT HIER. `toxoplasma-plaque-well-detector-dataset` hat `images/` und `labels/`, und diese Labels sind YOLO-Begrenzungsrahmen. Ein Rahmen ist keine Maske, und Make Masks würde jedes Sichtfeld leer öffnen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.DatasetPicker#0",
+      "source": "The dataset list: one row per dataset, with what it is.",
+      "source_sha256": "f4b088bbaca2b0f9e4f1f805aa451bd72ffcc31fb292c4bb89d12bfb0abb9f46",
+      "context": "The dataset list: one row per dataset, with what it is.",
+      "translation": "Die Datensatzliste: eine Zeile pro Datensatz, mit Angabe, was er ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.DatasetPicker#1",
+      "source": "A dialog rather than a dropdown on the toolbar, because each row needs two lines -- a title a user recognises and the model it trained -- and a dropdown gives one. Build the dialog with one row per dataset, the first selected.",
+      "source_sha256": "48380c4b2d285ba845759485a8330bc57f636ddd944f5701ef102a1d6d6b41bd",
+      "context": "A dialog rather than a dropdown on the toolbar, because each row needs two lines -- a title a user recognises and the model it trained -- and a dropdown gives one. Build the dialog with one row per dataset, the first selected.",
+      "translation": "Ein Dialog statt einer Dropdown-Liste in der Werkzeugleiste, weil jede Zeile zwei Zeilen Text braucht -- einen Titel, den ein Benutzer wiedererkennt, und das Modell, das damit trainiert wurde --, und eine Dropdown-Liste bietet nur eine. Erstellt den Dialog mit einer Zeile pro Datensatz, die erste ausgewählt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#0",
+      "source": "One published dataset, and how to take a sample of it.",
+      "source_sha256": "ff7980e1b48f16c0670bb09a17817963b5e97836a86d36790a599600dfbf64b1",
+      "context": "One published dataset, and how to take a sample of it.",
+      "translation": "Ein veröffentlichter Datensatz und wie man eine Stichprobe daraus zieht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#1",
+      "source": "the stable name this is stored and tested under.",
+      "source_sha256": "28af3947ad1207a7fac06e8baa0cb614583f91944b07069decba2b903155f4f8",
+      "context": "the stable name this is stored and tested under.",
+      "translation": "der stabile Name, unter dem dies gespeichert und getestet wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#10",
+      "source": "where the repository says which fields have objects: a CSV with an ``n_objects`` column keyed by ``stem`` or ``name``, or ``labels/`` for a YOLO set, whose empty label files are the images with nothing in them. Read by :func:`foreground_stems`.",
+      "source_sha256": "2f6dac55faacbf7f79df4f8696685046272062baf600a52421e4816ab5515a11",
+      "context": "where the repository says which microscope fields of view have objects: a CSV with an ``n_objects`` column keyed by ``stem`` or ``name``, or ``labels/`` for a YOLO set, whose empty label files are the images with nothing in them. Read by :func:`foreground_stems`.",
+      "translation": "wo das Repository angibt, welche Sichtfelder Objekte enthalten: eine CSV mit einer Spalte ``n_objects`` und den Schlüsseln ``stem`` oder ``name``, oder ``labels/`` bei einem YOLO-Satz, dessen leere Label-Dateien die Bilder ohne Inhalt sind. Wird von :func:`foreground_stems` gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#11",
+      "source": "the smallest share of the sample that must show objects; :data:`FOREGROUND_SHARE` unless the set says otherwise.",
+      "source_sha256": "6b498594970846205709d49741b4e4de102c4225253a2bc52cf199f6ed69cdcc",
+      "context": "the smallest share of the sample that must show objects; :data:`FOREGROUND_SHARE` unless the set says otherwise.",
+      "translation": "der kleinste Anteil der Stichprobe, der Objekte zeigen muss; :data:`FOREGROUND_SHARE`, sofern der Satz nichts anderes angibt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#12",
+      "source": "a CSV in ``spacr/resources/data`` whose ``filename`` column lists the only fields the sample may be drawn from; empty draws from the whole folder. The plaque figures use it for what the repository does not record -- which figures are high resolution.",
+      "source_sha256": "9964edcde8842a964ad34a352032557904e2032a405f90107fc9675cb8e3ba89",
+      "context": "a CSV in ``spacr/resources/data`` whose ``filename`` column lists the only fields the sample may be drawn from; empty draws from the whole folder. The plaque figures use it for what the repository does not record -- which figures are high resolution.",
+      "translation": "eine CSV in ``spacr/resources/data``, deren Spalte ``filename`` die einzigen Sichtfelder auflistet, aus denen die Stichprobe gezogen werden darf; leer bedeutet Ziehung aus dem gesamten Ordner. Die Plaque-Abbildungen nutzen dies für das, was das Repository nicht aufzeichnet -- welche Abbildungen hochaufgelöst sind.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#13",
+      "source": "added to the cache folder's name when this set's draw changes, so a sample drawn the old way is not reopened as the new one.",
+      "source_sha256": "9192deb78dbb9ec39b053b14b294cdeb79be6fdf1232c03b973ca5246fc52e09",
+      "context": "added to the cache folder's name when this set's draw changes, so a sample drawn the old way is not reopened as the new one.",
+      "translation": "wird an den Namen des Cache-Ordners angehängt, wenn sich die Ziehung dieses Satzes ändert, damit eine nach der alten Methode gezogene Stichprobe nicht als die neue wieder geöffnet wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#3",
+      "source": "the Hugging Face dataset repository.",
+      "source_sha256": "20584004d177529128ef626ef83f1655104912c855d8d7338ab467e885f8bdfb",
+      "context": "the Hugging Face dataset repository.",
+      "translation": "das Hugging Face-Dataset-Repository.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#4",
+      "source": "the folder inside it holding the fields.",
+      "source_sha256": "9c2dbca513bc33bff8d7589e9c58cbcec0c78a8c3b8a8d092248bd9238a01241",
+      "context": "the folder inside it holding the fields.",
+      "translation": "der Ordner darin, der die Sichtfelder enthält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#5",
+      "source": "the folder holding their labels. NOT assumed to be \"masks\".",
+      "source_sha256": "e12bb4371859e19323978a3f4e7a7d79013f13f6a8c3e6b6af9691ece3fa0d32",
+      "context": "the folder holding their labels. NOT assumed to be \"masks\".",
+      "translation": "der Ordner mit ihren Labels. Es wird NICHT angenommen, dass er \"masks\" heißt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#6",
+      "source": "the model this dataset trained, for the line under the title.",
+      "source_sha256": "ad0c138777110b4db63bc40466fef73c842d85e960224c06ef6bda45d57cbe64",
+      "context": "the model this dataset trained, for the line under the title.",
+      "translation": "das Modell, das mit diesem Datensatz trainiert wurde, für die Zeile unter dem Titel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#7",
+      "source": "what a reader should know before opening it.",
+      "source_sha256": "ce116b6f642448db5d62a4952824ca7252fb69b470ce5e41fae8113f042416a6",
+      "context": "what a reader should know before opening it.",
+      "translation": "was ein Leser wissen sollte, bevor er ihn öffnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#8",
+      "source": "which modules offer this set. A dataset belongs to the module whose job it illustrates, and the plaque sets belong to two -- Make Masks, where a curator edits the masks, and Plaque Analysis, where the pipeline runs on them.",
+      "source_sha256": "cedd0ed9c3d4eceefdb55c8e80d48a774f0fe5ffae48e6fda1106028e1b2c09f",
+      "context": "which modules offer this set. A dataset belongs to the module whose job it illustrates, and the plaque sets belong to two -- Make Masks, where a curator edits the masks, and Plaque Analysis, where the workflow processing sessions on them.",
+      "translation": "welche Module diesen Satz anbieten. Ein Datensatz gehört zu dem Modul, dessen Aufgabe er veranschaulicht, und die Plaque-Sätze gehören zu zwei -- Make Masks, wo ein Kurator die Masken bearbeitet, und Plaque Analysis, wo die Pipeline auf ihnen läuft.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.MaskDataset#9",
+      "source": "how many fields to take from each domain, as ``(domain, count)``, a domain being the ``<domain>__`` prefix of a file name. Empty means :data:`SAMPLE_SIZE` fields from the whole set.",
+      "source_sha256": "c29e8cc3db0dc4e8ea91f07d1f5f5832993892a394634f13608da5ed6feacae1",
+      "context": "how many fields to take from each domain, as ``(domain, count)``, a domain being the ``<domain>__`` prefix of a file name. Empty means :data:`SAMPLE_SIZE` fields from the whole set.",
+      "translation": "wie viele Sichtfelder aus jeder Domäne genommen werden, als ``(domain, count)``, wobei eine Domäne das Präfix ``<domain>__`` eines Dateinamens ist. Leer bedeutet :data:`SAMPLE_SIZE` Sichtfelder aus dem gesamten Satz.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.choose_sample#0",
+      "source": "Pick which files a sample holds, as ``(image path, mask path)`` in the repo.",
+      "source_sha256": "e50900862f27db434ba1dc0d12238b0ecbb6a87688aeabd117d9dd145c93c5bb",
+      "context": "Pick which files a sample holds, as ``(image path, mask path)`` in the repo.",
+      "translation": "Wählt aus, welche Dateien eine Stichprobe enthält, als ``(image path, mask path)`` im Repo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.choose_sample#1",
+      "source": "A field is only taken when BOTH its image and its mask are in the listing, by stem. Pairing on the stem rather than the full name is what lets a repo store ``images/x.tif`` beside ``masks/x.tif`` or ``masks_pv/x.tif`` and still pair.",
+      "source_sha256": "5673f08a0f0f9d12ace95c016c3b3b32487d83e36a0e1b03af2575aa322c32c8",
+      "context": "A microscope field of view is only taken when BOTH its image and its mask are in the listing, by stem. Pairing on the stem rather than the full name is what lets a repo store ``images/x.tif`` beside ``masks/x.tif`` or ``masks_pv/x.tif`` and still pair.",
+      "translation": "Ein Sichtfeld wird nur genommen, wenn SOWOHL sein Bild als auch seine Maske in der Auflistung vorhanden sind, zugeordnet über den Dateistamm. Die Paarung über den Stamm statt über den vollständigen Namen erlaubt es einem Repo, ``images/x.tif`` neben ``masks/x.tif`` oder ``masks_pv/x.tif`` abzulegen und trotzdem zu paaren.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.choose_sample#2",
+      "source": "A DATASET WITH NO MASKS FOLDER -- ``masks=\"\"`` -- yields images alone, with an empty mask path. That is the plaque FIGURES set: the Plaque Analysis pipeline takes a figure and finds the wells itself, so there is nothing to pair and demanding a pair would return an empty sample and no reason why.",
+      "source_sha256": "e89516daa7acc49a3012ca20c7ed486fe108789cb2407b8afe387fde9e976d67",
+      "context": "A dataset with no masks folder -- ``masks=\"\"`` -- yields images alone, with an empty mask path. That is the plaque FIGURES set: the Plaque Analysis workflow takes a figure and finds the microplate sample positions itself, so there is nothing to pair and demanding a pair would return an empty sample and no reason why.",
+      "translation": "EIN DATENSATZ OHNE MASKENORDNER -- ``masks=\"\"`` -- liefert nur Bilder, mit leerem Maskenpfad. Das ist der Satz der Plaque-ABBILDUNGEN: Die Pipeline von Plaque Analysis nimmt eine Abbildung und findet die Wells selbst, daher gibt es nichts zu paaren, und das Verlangen eines Paares würde eine leere Stichprobe ohne Begründung liefern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.choose_sample#3",
+      "source": "which dataset, for its two folder names.",
+      "source_sha256": "875e21946654e400cfc40f451d2a67856398891082e3dcf3b37f7b9c098f66f7",
+      "context": "which dataset, for its two folder names.",
+      "translation": "welcher Datensatz, wegen seiner beiden Ordnernamen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.choose_sample#5",
+      "source": "how many pairs to take. Ignored when the dataset has a :attr:`MaskDataset.quota`, which says how many per domain instead.",
+      "source_sha256": "355cd3a3f40e7d9113438b04499e545a67e515574a4d51784087b49c15b16ea5",
+      "context": "how many pairs to take. Ignored when the dataset has a :attr:`MaskDataset.quota`, which says how many per domain instead.",
+      "translation": "wie viele Paare genommen werden. Wird ignoriert, wenn der Datensatz ein :attr:`MaskDataset.quota` hat, das stattdessen angibt, wie viele pro Domäne.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.choose_sample#6",
+      "source": "from :func:`foreground_stems`: at least 80% of what is drawn (per domain, with a quota) has objects, at most 20% is empty.",
+      "source_sha256": "19bb703754d72f6c8618b3ee76dc5b8872fd858ebd78737839b753794cddca84",
+      "context": "from :func:`foreground_stems`: at least 80% of what is drawn (per domain, with a quota) has objects, at most 20% is empty.",
+      "translation": "aus :func:`foreground_stems`: Mindestens 80% des Gezogenen (pro Domäne, bei einer Quote) enthält Objekte, höchstens 20% ist leer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.choose_sample#7",
+      "source": "up to ``size`` pairs drawn by :func:`_random_pick`, sorted, the same on every machine.",
+      "source_sha256": "57b0407006d72ada6792aab3a1eb0596a8ad63bbd8ac10b37ac267cdc7b9b7b6",
+      "context": "up to ``size`` pairs drawn by :func:`_random_pick`, sorted, the same on every machine.",
+      "translation": "bis zu ``size`` Paare, gezogen von :func:`_random_pick`, sortiert, auf jeder Maschine gleich.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.datasets_for#1",
+      "source": "the module, e.g. ``mask`` or ``analyze_plaques``.",
+      "source_sha256": "a84faeb5e4c44c1e423314fddd63da7da94af4fc9f999899f14cd675467260e6",
+      "context": "the module, e.g. ``mask`` or ``analyze_plaques``.",
+      "translation": "das Modul, z. B. ``mask`` oder ``analyze_plaques``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.examples_root#0",
+      "source": "Where spaCR keeps downloaded example data.",
+      "source_sha256": "288f30b16b92c6cd4175c0edcba409efbc013ef5d22234a1fffd828c883fcefa",
+      "context": "Where spaCR keeps downloaded example data.",
+      "translation": "Wo spaCR heruntergeladene Beispieldaten aufbewahrt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.examples_root#1",
+      "source": "The same ``~/.cache/spacr/example_data`` that the example set unpacks beside, so a user who clears one clears both and there is one place to look.",
+      "source_sha256": "ceb4bc73c5c3a1b63b5586247f409672f315f64a2bdabac5f3f62be0cc25ba05",
+      "context": "The same ``~/.cache/spacr/example_data`` that the example set unpacks beside, so a user who clears one clears both and there is one place to look.",
+      "translation": "Dasselbe ``~/.cache/spacr/example_data``, neben dem der Beispielsatz entpackt wird, sodass ein Benutzer, der das eine löscht, beides löscht und es nur einen Ort zum Nachsehen gibt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#0",
+      "source": "The stems of the fields that have at least one object, or ``None``.",
+      "source_sha256": "5d19ff875afa14332624cf141f048de155a298a9f59c6be8414de31d90293360",
+      "context": "The stems of the microscope fields of view that have at least one object, or ``None``.",
+      "translation": "Die Stämme der Sichtfelder, die mindestens ein Objekt enthalten, oder ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#1",
+      "source": "the dataset, whose :attr:`MaskDataset.counts` says where to look.",
+      "source_sha256": "64b827933037738fe8a713045107297d2d6871d801bcbe39f9032ee49a4d0a66",
+      "context": "the dataset, whose :attr:`MaskDataset.counts` says where to look.",
+      "translation": "der Datensatz, dessen :attr:`MaskDataset.counts` angibt, wo gesucht wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#2",
+      "source": "``fn(repo, filename) -> local path``; defaults to :func:`huggingface_hub.hf_hub_download`.",
+      "source_sha256": "06b565b74c71ad59d4a06c2bfe2d1945df0cbafce5d90fdd74d26d78e1163a16",
+      "context": "``fn(repo, filename) -> local path``; defaults to :func:`huggingface_hub.hf_hub_download`.",
+      "translation": "``fn(repo, filename) -> local path``; standardmäßig :func:`huggingface_hub.hf_hub_download`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#3",
+      "source": "``fn(repo, folder) -> [(path, size)]``; defaults to :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "source_sha256": "cd46649aeffaaa3f1e319276b2435d83b483832a460235923e988a37a4c54713",
+      "context": "``fn(repo, folder) -> [(path, size)]``; defaults to :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "translation": "``fn(repo, folder) -> [(path, size)]``; standardmäßig :meth:`huggingface_hub.HfApi.list_repo_tree`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.foreground_stems#4",
+      "source": "the stems, or ``None`` when the dataset says nothing, in which case every field is treated alike.",
+      "source_sha256": "3f697dcb45143a23029dd7fa31bc2f87d4e699b458963a5a0684393918bf7e92",
+      "context": "the stems, or ``None`` when the dataset says nothing, in which case every field is treated alike.",
+      "translation": "die Stämme oder ``None``, wenn der Datensatz nichts angibt; in diesem Fall wird jedes Sichtfeld gleich behandelt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.install_dataset_button#0",
+      "source": "Build Make Masks' \"Training datasets…\" button, wired to ``screen``.",
+      "source_sha256": "43148d6e86b02e5a0bde8b3a856ca2e3ab28cd796dd73a6702f78ec67681a495",
+      "context": "Build Make Masks' \"Training datasets…\" button, wired to ``screen``.",
+      "translation": "Erstellt die Schaltfläche \"Training datasets…\" von Make Masks, verbunden mit ``screen``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.install_dataset_button#1",
+      "source": "It sits beside the example set's \"Load test data…\" rather than replacing it. The two answer different questions: that one gives raw fields to segment, this one gives fields WITH the masks a published model was trained on.",
+      "source_sha256": "107700a9812588cb0970e9d48daf32ba3a87bca28dd346314ba83554d5622ec9",
+      "context": "It sits beside the example set's \"Load test data…\" rather than replacing it. The two answer different questions: that one gives raw microscope fields of view to segment, this one gives microscope fields of view WITH the masks a published model was trained on.",
+      "translation": "Sie steht neben \"Load test data…\" des Beispielsatzes, statt sie zu ersetzen. Die beiden beantworten unterschiedliche Fragen: Jene liefert rohe Sichtfelder zum Segmentieren, diese liefert Sichtfelder MIT den Masken, auf denen ein veröffentlichtes Modell trainiert wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.install_dataset_button#2",
+      "source": "the Make Masks screen the sample opens in.",
+      "source_sha256": "9ea61965c8210a5c30dd463dc9094fda15f755f189e9d0269edb5a575573090d",
+      "context": "the Make Masks screen the sample opens in.",
+      "translation": "die Make Masks-Ansicht, in der sich die Stichprobe öffnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.is_present#0",
+      "source": "Whether a complete sample is already unpacked in ``folder``.",
+      "source_sha256": "254ddd18f3c87f889213b81583f56a611e0092c369b0337ab83b5b2bafd0be31",
+      "context": "Whether a complete sample is already unpacked in ``folder``.",
+      "translation": "Ob eine vollständige Stichprobe bereits in ``folder`` entpackt ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.is_present#3",
+      "source": "how many pairs a complete sample has.",
+      "source_sha256": "093821056cc005c17cc126cc2f4fcbb5a9daf03a612eb8fb9835dad897f5a7b4",
+      "context": "how many pairs a complete sample has.",
+      "translation": "wie viele Paare eine vollständige Stichprobe hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.is_present#4",
+      "source": "whether that many image/mask pairs are there.",
+      "source_sha256": "342411309af11a79c3ad00d36f76df94d09d74e7b6649104939f64da749e5f44",
+      "context": "whether that many image/mask pairs are there.",
+      "translation": "ob so viele Bild-/Maskenpaare vorhanden sind.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.open_a_training_dataset#0",
+      "source": "Ask which dataset, fetch a sample if it is not cached, and open it.",
+      "source_sha256": "2e0df731e24897d3f9724ef25279f61af071d164c43c92314e996cf1982fb6fb",
+      "context": "Ask which dataset, fetch a sample if it is not cached, and open it.",
+      "translation": "Fragt, welcher Datensatz, ruft eine Stichprobe ab, falls sie nicht zwischengespeichert ist, und öffnet sie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.open_a_training_dataset#1",
+      "source": "A cached sample opens at once with no request. Otherwise the fetch runs on a worker thread behind the shared progress dialog and the folder opens when it lands.",
+      "source_sha256": "da76a96252ae5d2f3555fe39a71f78360432f92ed79cd24c807c2625dcfa15a7",
+      "context": "A cached sample opens at once with no request. Otherwise the fetch executes on a background execution unit behind the shared progress dialog and the folder opens when it lands.",
+      "translation": "Eine zwischengespeicherte Stichprobe öffnet sich sofort ohne Anfrage. Andernfalls läuft der Abruf in einem Worker-Thread hinter dem gemeinsamen Fortschrittsdialog, und der Ordner öffnet sich, wenn er angekommen ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.open_a_training_dataset#3",
+      "source": "replaces the dialog, for tests. Called as ``pick(screen)`` and returns a :class:`MaskDataset` or None.",
+      "source_sha256": "cb55400c16789e089fc2172ca27ce53bb4c5e3d43dd64c7f42d6078dd3539e39",
+      "context": "replaces the dialog, for tests. Called as ``pick(screen)`` and returns a :class:`MaskDataset` or None.",
+      "translation": "ersetzt den Dialog, für Tests. Aufgerufen als ``pick(screen)`` und gibt ein :class:`MaskDataset` oder None zurück.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.open_a_training_dataset#4",
+      "source": "replaces the download, for tests. Called as ``fetch(screen, dataset, folder, on_done)``.",
+      "source_sha256": "5ce5fedefaf927d4fcf14f39e2b8fd83184969baaf79e735436b33dace93a953",
+      "context": "replaces the download, for tests. Called as ``fetch(screen, dataset, folder, on_done)``.",
+      "translation": "ersetzt den Download, für Tests. Aufgerufen als ``fetch(screen, dataset, folder, on_done)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.open_a_training_dataset#5",
+      "source": "where samples are cached; defaults to the example-data folder.",
+      "source_sha256": "0ba36f1be739d1b65622a65735e3ebcd1402d92b24b57194e326a7e9d2202192",
+      "context": "where samples are cached; defaults to the example-data folder.",
+      "translation": "wo Stichproben zwischengespeichert werden; standardmäßig der Ordner für Beispieldaten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.open_a_training_dataset#6",
+      "source": "which module is asking, so the picker offers its sets.",
+      "source_sha256": "7643837c99b8aaa2b60328ac8d252646180867d08a6b48f1878c3f2a2a888c90",
+      "context": "which module is asking, so the picker offers its sets.",
+      "translation": "welches Modul fragt, damit die Auswahl dessen Sätze anbietet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.open_a_training_dataset#7",
+      "source": "what to DO with the folder, as ``use(folder) -> bool``. Make Masks opens it in the editor; Plaque Analysis points its ``src`` at it instead. The default calls ``screen._open_folder``, which is Make Masks' own.",
+      "source_sha256": "8cf44b0c864a6b9e3b67bed32d2ab30ac6b6ca41402877ae3c04580663d2f42b",
+      "context": "what to DO with the folder, as ``use(folder) -> bool``. Make Masks opens it in the editor; Plaque Analysis points its ``src`` at it instead. The default calls ``screen._open_folder``, which is Make Masks' own.",
+      "translation": "was mit dem Ordner GETAN werden soll, als ``use(folder) -> bool``. Make Masks öffnet ihn im Editor; Plaque Analysis richtet stattdessen sein ``src`` darauf. Der Standard ruft ``screen._open_folder`` auf, das zu Make Masks gehört.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.open_a_training_dataset#8",
+      "source": "whether a folder was opened synchronously. A download that has to run returns False and opens later, which is what a caller can check.",
+      "source_sha256": "3a2bfd61211b98a7ed0b07c878e04f46e77fc29275d3c32e56f70a1258ca8535",
+      "context": "whether a folder was opened synchronously. A download that has to execute returns False and opens later, which is what a caller can check.",
+      "translation": "ob ein Ordner synchron geöffnet wurde. Ein Download, der erst laufen muss, gibt False zurück und öffnet später, und genau das kann ein Aufrufer prüfen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.pool_stems#0",
+      "source": "The stems a sample may be drawn from, when the dataset names a pool.",
+      "source_sha256": "1559794a231b71a80a3b29bc6b523dc967007ef475b103a2d3af975b88c68af1",
+      "context": "The stems a sample may be drawn from, when the dataset names a pool.",
+      "translation": "Die Stämme, aus denen eine Stichprobe gezogen werden darf, wenn der Datensatz einen Pool nennt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.pool_stems#1",
+      "source": "Written by ``tools/build_plaque_figure_sample_pool.py``, which measures what the repository does not record.",
+      "source_sha256": "d17a9cb9e6c1e64dbf0de70b97702a8a4264dd90a6b7759e45bc6e2b1d7b6b8b",
+      "context": "Written by ``tools/build_plaque_figure_sample_pool.py``, which measures what the repository does not record.",
+      "translation": "Geschrieben von ``tools/build_plaque_figure_sample_pool.py``, das misst, was das Repository nicht aufzeichnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.pool_stems#3",
+      "source": "the stems, or None when every field may be drawn.",
+      "source_sha256": "380879f5817f2adb351fe037d4937fa2726a95913104dab3dfbd66dcee7f1f4b",
+      "context": "the stems, or None when every field may be drawn.",
+      "translation": "die Stämme oder None, wenn jedes Sichtfeld gezogen werden darf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.sample_folder#0",
+      "source": "Where ``dataset``'s sample is cached.",
+      "source_sha256": "c9be8f3c336a08d05092bad47878f4bd939198c9d7b3ac0983c80997a92190c6",
+      "context": "Where ``dataset``'s sample is cached.",
+      "translation": "Wo die Stichprobe von ``dataset`` zwischengespeichert wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.sample_folder#1",
+      "source": "the folder example data is kept in.",
+      "source_sha256": "f3e483a2ffc673108fbe85a9b9da261525e781ca67f7958a87f46b1ec664884d",
+      "context": "the folder example data is kept in.",
+      "translation": "der Ordner, in dem Beispieldaten aufbewahrt werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.make_masks_datasets.sample_folder#3",
+      "source": "``<root>/mask_datasets/<key>_<rule>``, the rule naming how the sample was drawn, so a copy drawn under an older rule is never opened as if it were this one.",
+      "source_sha256": "f4f74d321547fb1acd7178c8d7de088b3141895299ff1ee1041eb618a0b02683",
+      "context": "``<root>/mask_datasets/<key>_<rule>``, the rule naming how the sample was drawn, so a copy drawn under an older rule is never opened as if it were this one.",
+      "translation": "``<root>/mask_datasets/<key>_<rule>``, wobei die Regel angibt, wie die Stichprobe gezogen wurde, sodass eine nach einer älteren Regel gezogene Kopie nie so geöffnet wird, als wäre sie diese.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine#1",
+      "source": "This module provides image and mask I/O plus non-brush label operations, including fill, relabel, size and intensity filtering, Otsu detection, and magic-wand selection. It has no Qt dependency, so the editing operations can be tested without a display.",
+      "source_sha256": "2ef04ceb1f02ea5e923cf4802fb8b99a364c45fa36b9544760a2212862da6d5a",
+      "context": "This module provides image and mask I/O plus non-brush label operations, including fill, relabel, size and intensity filtering, Otsu detection, and magic-wand selection. It has no Qt dependency, so the editing operations can be tested without a display.",
+      "translation": "Dieses Modul bietet Bild- und Masken-I/O sowie Label-Operationen ohne Pinsel, darunter Füllen, Neu-Labeln, Filtern nach Größe und Intensität, Otsu-Erkennung und Zauberstab-Auswahl. Es hat keine Qt-Abhängigkeit, sodass die Bearbeitungsoperationen ohne Anzeige getestet werden können.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine#2",
+      "source": "THREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS (items 435 and 419 point 9). :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary field that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "source_sha256": "5853f6cd5be1179d1340dd4b1219aa90013d5e943b6b7af5c410bead612343ae",
+      "context": "Three inversions live here and they do different things (items 435 and 419 point 9). :func:`invert_intensity` is the photographic complement of an IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly reversible on every integer dtype -- and it is what the Make Masks screen's \"Invert image\" draws with. :func:`invert_for_detection` reflects an image about its OWN range instead, and is what the screen's \"Invert for detection\" hands the detectors; its docstring has the measurement that says why a detector cannot use the complement, and it is NOT a duplicate to be merged away. :func:`invert_mask` flips a LABEL image's foreground and background; on an ordinary microscope field of view that gives one object covering the frame, which is why it was reported as doing nothing.",
+      "translation": "HIER LEBEN DREI INVERSIONEN, UND SIE TUN VERSCHIEDENES (Punkte 435 und 419, Unterpunkt 9). :func:`invert_intensity` ist das fotografische Komplement eines BILDES -- ``dtype_max - value``, was die Funktion Invert eines Viewers tut, auf jedem ganzzahligen dtype exakt umkehrbar --, und damit zeichnet \"Invert image\" der Make Masks-Ansicht. :func:`invert_for_detection` spiegelt ein Bild stattdessen an seinem EIGENEN Wertebereich und ist das, was \"Invert for detection\" der Ansicht an die Detektoren übergibt; sein Docstring enthält die Messung, die zeigt, warum ein Detektor das Komplement nicht verwenden kann, und es ist KEIN Duplikat, das wegfusioniert werden sollte. :func:`invert_mask` vertauscht Vordergrund und Hintergrund eines LABEL-Bildes; bei einem gewöhnlichen Sichtfeld ergibt das ein einziges Objekt, das den ganzen Rahmen bedeckt, weshalb gemeldet wurde, dass es nichts tue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine#6",
+      "source": "The editor opens all three layouts :mod:`spacr.curation_queue` reads, and edits each one in place rather than converting it:",
+      "source_sha256": "434a68bfe06db876d3989f056d8c911369efe8ea65be54b713a03eefc8e3ddc2",
+      "context": "The editor opens all three layouts :mod:`spacr.curation_queue` reads, and edits each one in place rather than converting it:",
+      "translation": "Der Editor öffnet alle drei Layouts, die :mod:`spacr.curation_queue` liest, und bearbeitet jedes an Ort und Stelle, statt es zu konvertieren:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine#7",
+      "source": "``nested`` ``<folder>/<image>`` with the mask at ``<folder>/masks/<stem>.tif``. The default, and what every function below does when told nothing else. ``sibling`` ``<root>/images/<image>`` with the mask at ``<root>/masks/<stem>.tif``. The editor opens ``<root>/images`` and passes ``masks_dir=<root>/masks``; without it the mask would be read from and written to ``<root>/images/masks``, a folder the set does not have. ``seg`` ``<folder>/<stem>_seg.npy``, a Cellpose bundle holding the image and the labels in one pickled dict. The editor's file list names the bundles themselves, and a name ending in :data:`SEG_SUFFIX` is read and written as a bundle by :func:`load_image_and_mask`, :func:`save_mask`, :func:`write_recrop` and :func:`retire_recropped_original`.",
+      "source_sha256": "147ff69ef46fe2f33206de9ba270ead921c32287edadbe5bf09a4e94985c173f",
+      "context": "``nested`` ``<folder>/<image>`` with the mask at ``<folder>/masks/<stem>.tif``. The default, and what every function below does when told nothing else. ``sibling`` ``<root>/images/<image>`` with the mask at ``<root>/masks/<stem>.tif``. The editor opens ``<root>/images`` and passes ``masks_dir=<root>/masks``; without it the mask would be read from and written to ``<root>/images/masks``, a folder the set does not have. ``seg`` ``<folder>/<stem>_seg.npy``, a Cellpose bundle holding the image and the labels in one pickled key-value mapping. The editor's file list names the bundles themselves, and a name ending in :data:`SEG_SUFFIX` is read and written as a bundle by :func:`load_image_and_mask`, :func:`save_mask`, :func:`write_recrop` and :func:`retire_recropped_original`.",
+      "translation": "``nested`` ``<folder>/<image>`` mit der Maske in ``<folder>/masks/<stem>.tif``. Der Standard und das, was jede Funktion unten tut, wenn ihr nichts anderes gesagt wird. ``sibling`` ``<root>/images/<image>`` mit der Maske in ``<root>/masks/<stem>.tif``. Der Editor öffnet ``<root>/images`` und übergibt ``masks_dir=<root>/masks``; ohne das würde die Maske aus ``<root>/images/masks`` gelesen und dorthin geschrieben, einem Ordner, den der Satz nicht hat. ``seg`` ``<folder>/<stem>_seg.npy``, ein Cellpose-Bündel, das Bild und Labels in einem einzigen gepickelten Wörterbuch enthält. Die Dateiliste des Editors nennt die Bündel selbst, und ein Name, der auf :data:`SEG_SUFFIX` endet, wird von :func:`load_image_and_mask`, :func:`save_mask`, :func:`write_recrop` und :func:`retire_recropped_original` als Bündel gelesen und geschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine#8",
+      "source": "In place is sound for both, which is why there is no convert step. A sibling set differs from a nested one only in where its masks folder is, so passing that folder is the whole change. A bundle is rewritten with every key it already had kept, ``masks`` replaced, and the two keys derived from the masks -- ``outlines`` and ``ismanual`` -- brought up to date with it (see :func:`save_seg_bundle`); that is what the external curation tool did to the same files, less its stale outlines. A convert step would have been a second copy of every field, and the curator would have had to remember which copy was the truth.",
+      "source_sha256": "dc2b2f64ff402ab8dda9025aaad341dce4c2f3af0ea04bfdc686b2aca27c58a9",
+      "context": "In place is sound for both, which is why there is no convert step. A sibling set differs from a nested one only in where its masks folder is, so passing that folder is the whole change. A bundle is rewritten with every structured-data name it already had kept, ``masks`` replaced, and the two structured-data names derived from the masks -- ``outlines`` and ``ismanual`` -- brought up to date with it (see :func:`save_seg_bundle`); that is what the external curation tool did to the same files, less its stale outlines. A convert step would have been a second copy of every microscope field of view, and the curator would have had to remember which copy was the truth.",
+      "translation": "Die Bearbeitung an Ort und Stelle ist für beide zuverlässig, deshalb gibt es keinen Konvertierungsschritt. Ein sibling-Satz unterscheidet sich von einem nested-Satz nur darin, wo sein Maskenordner liegt, daher ist die Übergabe dieses Ordners die ganze Änderung. Ein Bündel wird neu geschrieben, wobei jeder vorhandene Schlüssel erhalten bleibt, ``masks`` ersetzt wird und die beiden aus den Masken abgeleiteten Schlüssel -- ``outlines`` und ``ismanual`` -- mit ihm aktualisiert werden (siehe :func:`save_seg_bundle`); genau das tat das externe Kurationswerkzeug mit denselben Dateien, abzüglich seiner veralteten Umrisse. Ein Konvertierungsschritt wäre eine zweite Kopie jedes Sichtfelds gewesen, und der Kurator hätte sich merken müssen, welche Kopie die gültige war.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FILTER_BOUNDS#0",
+      "source": "The four legacy bounds, named as :func:`filter_report`'s keywords are.",
+      "source_sha256": "6ca46fa236f46b3273c7718263c23b7c2a9138fbe6a0cf4c85a9ec82cbc301d7",
+      "context": "The four legacy bounds, named as :func:`filter_report`'s keywords are.",
+      "translation": "Die vier Legacy-Grenzen, so benannt wie die Schlüsselwortargumente von :func:`filter_report`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FILTER_BOUNDS#1",
+      "source": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list (item 511), so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "source_sha256": "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936",
+      "context": "They are no longer a second filter. :func:`legacy_filters` turns them into entries of the one filter list (item 511), so a caller that still passes ``min_area=20`` is judged by the same regionprops pass as a user who added an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound an object failed so the older ledgers read the same.",
+      "translation": "Sie sind kein zweiter Filter mehr. :func:`legacy_filters` macht aus ihnen Einträge der einen Filterliste (Punkt 511), sodass ein Aufrufer, der noch ``min_area=20`` übergibt, im selben regionprops-Durchlauf beurteilt wird wie ein Benutzer, der eine ``area``-Zeile hinzugefügt hat, und ein :class:`FilterRemoval` nennt weiterhin die Legacy-Grenze, an der ein Objekt gescheitert ist, damit die älteren Ledger gleich zu lesen sind.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FILTER_KEYS#0",
+      "source": "The keys of one filter entry, the whole of its serialised form.",
+      "source_sha256": "e356bfb248a8ed1318b18764e330e2f421801a65845d2a89a8af666984ee274a",
+      "context": "The keys of one filter entry, the whole of its serialised form.",
+      "translation": "Die Schlüssel eines Filtereintrags, die gesamte serialisierte Form.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FILTER_KEYS#1",
+      "source": "A filter list is a plain list of ``{\"property\": name, \"min\": number or None, \"max\": number or None}`` dicts. It goes into the curation ledger, into a settings file and through JSON unchanged, which is what lets Make Masks and Mask generation be handed the same list and give the same answer.",
+      "source_sha256": "d1e84a6f629c488b98bb541b209a8c2dda098bdd416004c0172fb57688b5def0",
+      "context": "A filter list is a plain list of ``{\"property\": name, \"min\": number or None, \"max\": number or None}`` key-value mappings. It goes into the curation ledger, into a settings file and through JSON unchanged, which is what lets Make Masks and Mask generation be handed the same list and give the same answer.",
+      "translation": "Eine Filterliste ist eine einfache Liste von ``{\"property\": name, \"min\": number or None, \"max\": number or None}``-Wörterbüchern. Sie geht unverändert in den Kurations-Ledger, in eine Einstellungsdatei und durch JSON, und deshalb kann man Make Masks und der Maskenerzeugung dieselbe Liste übergeben und erhält dieselbe Antwort.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FailedBound#0",
+      "source": "One side of one filter entry that an object fell outside.",
+      "source_sha256": "020de290009f4a1f8b8564d47b9364dc46b8602ffba4c7af0782b55298c298d0",
+      "context": "One side of one filter entry that an object fell outside.",
+      "translation": "Eine Seite eines Filtereintrags, außerhalb derer ein Objekt lag.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FailedBound#1",
+      "source": "the entry's position in the filter list.",
+      "source_sha256": "5130c97c61099dbd153b7c51c27683681b5c078d9c1aac7de032f717ad49f9cb",
+      "context": "the entry's position in the filter list.",
+      "translation": "die Position des Eintrags in der Filterliste.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FailedBound#2",
+      "source": "the regionprop it judged.",
+      "source_sha256": "18a7d2e94853c562bf06ef06c85d828055ff454be241470fd1a79333092f0670",
+      "context": "the regionprop it judged.",
+      "translation": "die regionprop-Eigenschaft, nach der beurteilt wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FailedBound#3",
+      "source": "``\"min\"`` or ``\"max\"``.",
+      "source_sha256": "1e7bc86be223242ec25f82100d94b62a682b457f6084f64e18275682e06e4321",
+      "context": "``\"min\"`` or ``\"max\"``.",
+      "translation": "``\"min\"`` oder ``\"max\"``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FailedBound#4",
+      "source": "the number the user set.",
+      "source_sha256": "7b53e7114cf115c26d833b9bcb4c93cc5f6a93a4a72d9111ccd3bdb8573c5db2",
+      "context": "the number the user set.",
+      "translation": "die Zahl, die der Benutzer festgelegt hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FailedBound#5",
+      "source": "the object's measured value.",
+      "source_sha256": "8e409cd1b2400eda1a79741dd6d04279a7d0d91c08ac513844b6effd909fb2e7",
+      "context": "the object's measured value.",
+      "translation": "der gemessene Wert des Objekts.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FilterRemoval#0",
+      "source": "One object the filter dropped, and which bound dropped it.",
+      "source_sha256": "ba991bfb505e1e33e584eee4726ca1816b5bc1386f8b6190d4e2949fe953a664",
+      "context": "One object the filter dropped, and which bound dropped it.",
+      "translation": "Ein Objekt, das der Filter verworfen hat, und welche Grenze es verworfen hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FilterRemoval#1",
+      "source": "The screen reports \"object 22 with area x and intensity y was removed by minimum intensity\", one row per object, so the filter has to say more than which ids went.",
+      "source_sha256": "983bbdba395148945f298c46ea12fbfc581177859159a8d53a91b5e5fc0398fd",
+      "context": "The screen reports \"object 22 with area x and intensity y was removed by minimum intensity\", one row per object, so the filter has to say more than which ids went.",
+      "translation": "Die Ansicht meldet \"Objekt 22 mit Fläche x und Intensität y wurde durch die minimale Intensität entfernt\", eine Zeile pro Objekt, daher muss der Filter mehr sagen als nur, welche IDs entfernt wurden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FilterRemoval#2",
+      "source": "the id :func:`canonical_labels` gave the object -- the same id the hover readout showed for it.",
+      "source_sha256": "6800bd81dd11a1d92ece2b21a4b720b6ea93cb5fe48b82cefc4857f7a6f9a866",
+      "context": "the id :func:`canonical_labels` gave the object -- the same id the hover readout showed for it.",
+      "translation": "die ID, die :func:`canonical_labels` dem Objekt gegeben hat -- dieselbe ID, die die Hover-Anzeige dafür gezeigt hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FilterRemoval#5",
+      "source": "the names of every LEGACY bound it failed, a subset of :data:`FILTER_BOUNDS` in that order.",
+      "source_sha256": "ddb331c3bd6b825b1d7b067bd3eb14344ba4b75a23f90646e96a5a862c4fbcbc",
+      "context": "the names of every LEGACY bound it failed, a subset of :data:`FILTER_BOUNDS` in that order.",
+      "translation": "die Namen jeder LEGACY-Grenze, an der es gescheitert ist, eine Teilmenge von :data:`FILTER_BOUNDS` in dieser Reihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.FilterRemoval#6",
+      "source": "every bound it failed, legacy or listed, as :class:`FailedBound` entries.",
+      "source_sha256": "a99fb86173185a78f2cdccbf2b60cc6c23c78c8426d182a9d9db2b74b706eca2",
+      "context": "every bound it failed, legacy or listed, as :class:`FailedBound` entries.",
+      "translation": "jede Grenze, an der es gescheitert ist, ob Legacy oder aufgelistet, als :class:`FailedBound`-Einträge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.MaskHistory.push#1",
+      "source": "label mask to record as the newest undo state.",
+      "source_sha256": "f139131708702abd1305e7e233ca26a889dd2d25e5662a75ab9301358e502ca6",
+      "context": "label mask to record as the newest undo state.",
+      "translation": "Labelmaske, die als neuester Undo-Zustand aufgezeichnet wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup#0",
+      "source": "The objects of one mask, measured as :func:`filter_objects` measures them.",
+      "source_sha256": "b340a546f95f55cb33846c74d0a646b6490858ba020687fc32689484a9a82c25",
+      "context": "The objects of one mask, measured as :func:`filter_objects` measures them.",
+      "translation": "Die Objekte einer Maske, so gemessen, wie :func:`filter_objects` sie misst.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup#3",
+      "source": "the raw image under it, with the mask's height and width.",
+      "source_sha256": "8f33f9f73374aa05eb746bc682fd0cf04fd0eacb2248db78d0377056b9194e9e",
+      "context": "the raw image under it, with the mask's height and width.",
+      "translation": "das Rohbild darunter, mit der Höhe und Breite der Maske.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup#4",
+      "source": "Number the objects and index their bounding boxes.",
+      "source_sha256": "ad235aa8df6f2b77e6407c3a48702f529c9eb81475dd6c3518e8ef00e76de599",
+      "context": "Number the objects and index their bounding boxes.",
+      "translation": "Nummeriert die Objekte und indiziert ihre Begrenzungsrahmen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup#7",
+      "source": "index exact IDs without binary interpretation or splitting disconnected pieces; agrees with exact-ID filtering.",
+      "source_sha256": "f41ae3063b1e830b799158da1bbfd76df22ce2fe86f79e7cc15f1b5a72063a81",
+      "context": "index exact IDs without binary interpretation or splitting disconnected pieces; agrees with exact-ID filtering.",
+      "translation": "exakte IDs indizieren, ohne binäre Interpretation und ohne getrennte Teile aufzuteilen; stimmt mit der Filterung nach exakten IDs überein.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup.at#0",
+      "source": "The readout for image pixel ``(x, y)``.",
+      "source_sha256": "cc6bdb73f440a600f0248325ff6487299e6d549071f0727d3ff42b7bc50f5c5f",
+      "context": "The readout for image pixel ``(x, y)``.",
+      "translation": "Die Anzeige für das Bildpixel ``(x, y)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup.at#3",
+      "source": "the readout, or ``None`` for a pixel outside the field.",
+      "source_sha256": "636e7885274257047b3c12a31d888faf2fc349ecc27d66b6e1d5a54e618913b2",
+      "context": "the readout, or ``None`` for a pixel outside the field.",
+      "translation": "die Anzeige oder ``None`` für ein Pixel außerhalb des Sichtfelds.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup.measure#0",
+      "source": "The area and mean intensity of object ``label``.",
+      "source_sha256": "8d52baa44d8f2804ae25092b5e60ec581e46cf9179488f7075531d7007dee316",
+      "context": "The area and mean intensity of object ``label``.",
+      "translation": "Die Fläche und mittlere Intensität des Objekts ``label``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup.measure#2",
+      "source": "``(area, mean)``, or ``None`` when no object has that id.",
+      "source_sha256": "7a8526b3ef1ed116d36623601cbf63ff473c3cd1a40bd55c977b8d918caed5ac",
+      "context": "``(area, mean)``, or ``None`` when no object has that id.",
+      "translation": "``(area, mean)`` oder ``None``, wenn kein Objekt diese ID hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectRemoval#0",
+      "source": "One object a filter list removed, with what it was measured as.",
+      "source_sha256": "562bdac754de0f6c5db7b9bd67ca7a78303ea7973b9b254d452c70859b5473af",
+      "context": "One object a filter list removed, with what it was measured as.",
+      "translation": "Ein Objekt, das eine Filterliste entfernt hat, mit den Werten, mit denen es gemessen wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectRemoval#1",
+      "source": "the object's id in the label image that was judged.",
+      "source_sha256": "b39f1068d4c6345d088bb45ec15ec40c2956dd15ca228c8ee08f85be0c451d4d",
+      "context": "the object's id in the label image that was judged.",
+      "translation": "die ID des Objekts in dem beurteilten Labelbild.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectRemoval#2",
+      "source": "every property the pass measured for it, by name.",
+      "source_sha256": "9e970892a15bb85b0e2def5d20b0d8584fda511270b4029e856e34ba9806ae56",
+      "context": "every property the pass measured for it, by name.",
+      "translation": "jede Eigenschaft, die der Durchlauf dafür gemessen hat, nach Namen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectRemoval#3",
+      "source": "each bound it fell outside, in list order.",
+      "source_sha256": "eccdf965fb73b593ff0024a712916363a702c2045ff2ff69919af5c292e8ca29",
+      "context": "each bound it fell outside, in list order.",
+      "translation": "jede Grenze, außerhalb derer es lag, in Listenreihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PixelReadout#0",
+      "source": "What the Make Masks readout says about one pixel of the open field.",
+      "source_sha256": "5faac9060b0ed8b25d8a3406f5ff6eaae61a56a7d505c412eacc991b29771859",
+      "context": "What the Make Masks readout says about one pixel of the open field.",
+      "translation": "Was die Anzeige von Make Masks über ein Pixel des geöffneten Sichtfelds aussagt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PixelReadout#3",
+      "source": "the raw image value at the pixel, before any display stretching.",
+      "source_sha256": "e685b2f7de6c2e08b33452e9eeaf801f46520bbc1ca59507da50ee1e943186b2",
+      "context": "the raw image value at the pixel, before any display stretching.",
+      "translation": "der Rohbildwert am Pixel, vor jeder Streckung für die Anzeige.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PixelReadout#4",
+      "source": "the id of the object under the pixel, as :func:`canonical_labels` numbers it; 0 on background.",
+      "source_sha256": "33ce1f97e0168ea974da489b18261b657a79e360640226c41fab344f5822e207",
+      "context": "the id of the object under the pixel, as :func:`canonical_labels` numbers it; 0 on background.",
+      "translation": "die ID des Objekts unter dem Pixel, wie :func:`canonical_labels` es nummeriert; 0 auf dem Hintergrund.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PixelReadout#5",
+      "source": "that object's pixel count; 0 on background.",
+      "source_sha256": "6f61f99701dfaf1da14be3c1a6f0afc4bcdf2bf84ef7d6b20f0dc5350a96be22",
+      "context": "that object's pixel count; 0 on background.",
+      "translation": "die Pixelanzahl dieses Objekts; 0 auf dem Hintergrund.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PixelReadout#6",
+      "source": "that object's mean raw intensity, or ``None`` on background.",
+      "source_sha256": "cd420181a17821c08fe95a406b2374cd6a1e6c38331c4d12b233fd538af2d5a0",
+      "context": "that object's mean raw intensity, or ``None`` on background.",
+      "translation": "die mittlere Rohintensität dieses Objekts oder ``None`` auf dem Hintergrund.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#0",
+      "source": "Label relationships between a primary mask and a secondary mask.",
+      "source_sha256": "6b57c1da202c1131fa9ed2f76b46a3bdabb06a49e02adf7ee1d77e63aadff3df",
+      "context": "Label relationships between a primary mask and a secondary mask.",
+      "translation": "Label-Beziehungen zwischen einer Primärmaske und einer Sekundärmaske.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#1",
+      "source": "All fields contain sorted tuples of Python integer IDs; 0 is excluded. ``matched_ids`` occur in both masks. ``missing_secondary_ids`` occur only in the primary mask, and ``orphan_secondary_ids`` only in the secondary mask. ``incomplete_primary_ids`` are matched IDs whose secondary does not contain every pixel of its primary. Matched IDs without any secondary pixels outside their own primary are listed in ``unexpanded_primary_ids``; these can indicate a threshold that stopped growth immediately. A match alone does not prove correct cell boundaries.",
+      "source_sha256": "fae867fe1beb51df01790181e7502c457affa8d560c12022def9812ef423e24a",
+      "context": "All microscope fields of view contain sorted tuples of Python integer IDs; 0 is excluded. ``matched_ids`` occur in both masks. ``missing_secondary_ids`` occur only in the primary mask, and ``orphan_secondary_ids`` only in the secondary mask. ``incomplete_primary_ids`` are matched IDs whose secondary does not contain every pixel of its primary. Matched IDs without any secondary pixels outside their own primary are listed in ``unexpanded_primary_ids``; these can indicate a threshold that stopped growth immediately. A match alone does not prove correct cell boundaries.",
+      "translation": "Alle Felder enthalten sortierte Tupel von Python-Ganzzahl-IDs; 0 ist ausgeschlossen. ``matched_ids`` kommen in beiden Masken vor. ``missing_secondary_ids`` kommen nur in der Primärmaske vor und ``orphan_secondary_ids`` nur in der Sekundärmaske. ``incomplete_primary_ids`` sind zugeordnete IDs, deren Sekundärobjekt nicht jedes Pixel seines Primärobjekts enthält. Zugeordnete IDs ohne sekundäre Pixel außerhalb ihres eigenen Primärobjekts werden in ``unexpanded_primary_ids`` aufgeführt; sie können auf einen Schwellenwert hindeuten, der das Wachstum sofort gestoppt hat. Eine Zuordnung allein beweist keine korrekten Zellgrenzen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#2",
+      "source": "nonzero IDs present in the primary mask.",
+      "source_sha256": "1f60f5dbea3fcb4ac9cfcb45e5d3934c8b21584241dc4170f7328eebcab90221",
+      "context": "nonzero IDs present in the primary mask.",
+      "translation": "IDs ungleich null, die in der Primärmaske vorkommen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#3",
+      "source": "nonzero IDs present in the secondary mask.",
+      "source_sha256": "0b56f588d74c3406fc4d19ae2b305072257575d3f082213a0252e5aab5f69f42",
+      "context": "nonzero IDs present in the secondary mask.",
+      "translation": "IDs ungleich null, die in der Sekundärmaske vorkommen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#5",
+      "source": "primary IDs absent from the secondary mask.",
+      "source_sha256": "30e863affce4eb1666abb7892d25cd3774f2b834de7c8b2cac0062fece571fcd",
+      "context": "primary IDs absent from the secondary mask.",
+      "translation": "primäre IDs, die in der Sekundärmaske fehlen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#6",
+      "source": "secondary IDs absent from the primary mask.",
+      "source_sha256": "805c579d17c6ba555f34d4727bece48c279c7f5be20a8a099ac31e07e418d4be",
+      "context": "secondary IDs absent from the primary mask.",
+      "translation": "sekundäre IDs, die in der Primärmaske fehlen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#7",
+      "source": "matched IDs whose secondary omits primary pixels.",
+      "source_sha256": "2e6b664b03ff177b7bbf651ae71dda4f75f3f9934991f0fe54bf8f73669994a8",
+      "context": "matched IDs whose secondary omits primary pixels.",
+      "translation": "zugeordnete IDs, deren Sekundärobjekt Pixel des Primärobjekts auslässt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PrimarySecondaryReport#8",
+      "source": "matched IDs with no growth beyond their primary.",
+      "source_sha256": "f3fdf08e91d112c10ea0fa6a6f7bc93d22f0987281f0cde9cbf58943c24cc840",
+      "context": "matched IDs with no growth beyond their primary.",
+      "translation": "zugeordnete IDs ohne Wachstum über ihr Primärobjekt hinaus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PropagateResult#0",
+      "source": "What one maxima-and-propagate run found.",
+      "source_sha256": "bcbad8c5ffba7b6862da3c6a6d3fcc47c6cf453cccadc80163c01128d0dee9b2",
+      "context": "What one maxima-and-propagate run found.",
+      "translation": "Was ein Lauf von Maxima + Ausbreitung gefunden hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PropagateResult#1",
+      "source": "the objects, one label per seed that survived.",
+      "source_sha256": "13a526d3d43e2bd638dacb61a234d9e891320e98c1b79588875446553d8cc223",
+      "context": "the objects, one label per seed that survived.",
+      "translation": "die Objekte, ein Label pro überlebendem Saatpunkt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PropagateResult#2",
+      "source": "how many local maxima were found. THE NUMBER THE USER TUNES AGAINST: too many and the minimum distance or the seed level is too low, too few and an object has no centre to grow from, and neither is visible from the objects alone.",
+      "source_sha256": "8cab76a3e6a48bb4c1a8ba79827f0c3367163641338f991d28a714e887644cfc",
+      "context": "how many local maxima were found. the number the user tunes against: too many and the minimum distance or the seed level is too low, too few and an object has no centre to grow from, and neither is visible from the objects alone.",
+      "translation": "wie viele lokale Maxima gefunden wurden. DIE ZAHL, AN DER DER BENUTZER JUSTIERT: zu viele, und der Mindestabstand oder das Saatpunktniveau ist zu niedrig, zu wenige, und ein Objekt hat kein Zentrum, aus dem es wachsen kann, und beides ist an den Objekten allein nicht zu erkennen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.PropagateResult#3",
+      "source": "the intensity the growth stopped at, for the stop rules that have ONE -- absolute, percentile and a global threshold. None for ``seed_fraction``, which has a different level per object and so has no single number to report.",
+      "source_sha256": "9c8adc01665a52b80c301747e96a05e36091192a2aba546d5c9dcf4966ee0e70",
+      "context": "the intensity the growth stopped at, for the stop rules that have ONE -- absolute, percentile and a global threshold. None for ``seed_fraction``, which has a different level per object and so has no single number to report.",
+      "translation": "die Intensität, bei der das Wachstum stoppte, für die Stoppregeln, die EINE haben -- absolut, Perzentil und ein globaler Schwellenwert. None für ``seed_fraction``, das pro Objekt ein anderes Niveau hat und daher keine einzelne Zahl melden kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.SecondaryResult#0",
+      "source": "Secondary labels, their primary relationships and the common stop level.",
+      "source_sha256": "1cdf326eb2007e940f2da6d25205fb8be0582267a0e84609b081b832d96017fa",
+      "context": "Secondary labels, their primary relationships and the common stop level.",
+      "translation": "Sekundäre Labels, ihre Beziehungen zu den Primärobjekten und das gemeinsame Stoppniveau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.SecondaryResult#1",
+      "source": "``labels`` has the primary mask's dtype, shape and retained object IDs. ``relationships`` includes primaries removed by minimum-area filtering. ``level`` is None for the per-primary peak-ratio rule or an empty primary mask; otherwise it is the common threshold in processed intensity units.",
+      "source_sha256": "958f32bd0dfdcf7161c302cdf2533ae24887fe072ac0f2d9d2cd81621052e504",
+      "context": "``labels`` has the primary mask's dtype, shape and retained object IDs. ``relationships`` includes primaries removed by minimum-area filtering. ``level`` is None for the per-primary peak-ratio rule or an empty primary mask; otherwise it is the common threshold in processed intensity units.",
+      "translation": "``labels`` hat dtype, Form und beibehaltene Objekt-IDs der Primärmaske. ``relationships`` schließt Primärobjekte ein, die durch die Mindestflächenfilterung entfernt wurden. ``level`` ist None bei der Peak-Verhältnis-Regel pro Primärobjekt oder einer leeren Primärmaske; andernfalls ist es der gemeinsame Schwellenwert in Einheiten der verarbeiteten Intensität.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.SecondaryResult#2",
+      "source": "secondary label array retaining primary IDs and dtype.",
+      "source_sha256": "170f1294b2d7b58f6151b8ad0b3a0c31a9eda2c358b5287589a78f6d2db03bc4",
+      "context": "secondary label array retaining primary IDs and dtype.",
+      "translation": "sekundäres Label-Array, das die primären IDs und den dtype beibehält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.SecondaryResult#3",
+      "source": "primary/secondary identity report after filtering.",
+      "source_sha256": "fb65af9ba1bcbeed2495fe863673351d2c4a1f7e8df26ad18f2c875c6510e81c",
+      "context": "primary/secondary identity report after filtering.",
+      "translation": "Identitätsbericht Primär/Sekundär nach der Filterung.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.SecondaryResult#4",
+      "source": "shared stop threshold, or None when no common threshold applies.",
+      "source_sha256": "15dd9587977f356ec1b10ecd9180dd78e9ef73f97fcad503e54544d69d058488",
+      "context": "shared stop threshold, or None when no common threshold applies.",
+      "translation": "gemeinsamer Stoppschwellenwert oder None, wenn kein gemeinsamer Schwellenwert gilt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.apply_filters#0",
+      "source": "Make Masks' filter list applied to one mask; ``(mask, removals)``.",
+      "source_sha256": "7a3348b0b992abcb835a65d8c72036ff228e56de89aed7f0611c1c03ec72881b",
+      "context": "Make Masks' filter list applied to one mask; ``(mask, removals)``.",
+      "translation": "Die Filterliste von Make Masks, auf eine Maske angewendet; ``(mask, removals)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.apply_filters#1",
+      "source": "Objects are judged under :func:`canonical_labels` ids, the ids the hover readout shows, and the failing ones are zeroed in a copy; the other ids are left as they were. An intensity property reads ``image``, the raw loaded pixels (a 3-D image is averaged over its last axis first), never the contrast-stretched display.",
+      "source_sha256": "f8285b5f659276879f354dc0bbdc1e87ef02687727a981c9061b9512602348c6",
+      "context": "Objects are judged under :func:`canonical_labels` ids, the ids the hover readout shows, and the failing ones are zeroed in a copy; the other ids are left as they were. An intensity property reads ``image``, the raw loaded pixels (a 3-D image is averaged over its last axis first), never the contrast-stretched display.",
+      "translation": "Objekte werden unter den IDs von :func:`canonical_labels` beurteilt, den IDs, die die Hover-Anzeige zeigt, und die durchgefallenen werden in einer Kopie auf null gesetzt; die übrigen IDs bleiben, wie sie waren. Eine Intensitätseigenschaft liest ``image``, die roh geladenen Pixel (ein 3-D-Bild wird zuerst über seine letzte Achse gemittelt), nie die kontrastgestreckte Anzeige.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.apply_filters#2",
+      "source": "the label mask to filter.",
+      "source_sha256": "520b7364e23b0308da48ce69a44a626ac7aeae1dda8e70d88e121ac24073b61f",
+      "context": "the label mask to filter.",
+      "translation": "die zu filternde Labelmaske.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.apply_filters#3",
+      "source": "the raw intensity image, or ``None`` when none is open; required by any intensity property in ``filters``.",
+      "source_sha256": "35da1cc5f50dfe6a3b9dfba768592bc28705439b9eaaa4cb80813fc2f9141d01",
+      "context": "the raw intensity image, or ``None`` when none is open; required by any intensity property in ``filters``.",
+      "translation": "das Rohintensitätsbild oder ``None``, wenn keines geöffnet ist; erforderlich für jede Intensitätseigenschaft in ``filters``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.apply_filters#4",
+      "source": "the filter list, in any form :func:`normalise_filters` accepts.",
+      "source_sha256": "5a11a66bcf7b7524d2a2e4a1b54b0a5007a21419f9c0246cb5656cf73dba20d0",
+      "context": "the filter list, in any form :func:`normalise_filters` accepts.",
+      "translation": "die Filterliste, in jeder Form, die :func:`normalise_filters` akzeptiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.apply_filters#5",
+      "source": "judge objects by their supplied ids, as :func:`canonical_labels` does with it; disconnected pieces sharing an id count together.",
+      "source_sha256": "2001fa1e2afab017a6848894f150a698e0ba604d058300e22e4ba4a83a84af21",
+      "context": "judge objects by their supplied ids, as :func:`canonical_labels` does with it; disconnected pieces sharing an id count together.",
+      "translation": "Objekte nach ihren übergebenen IDs beurteilen, wie :func:`canonical_labels` es damit tut; getrennte Teile mit derselben ID zählen zusammen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.apply_filters#6",
+      "source": "properties measured for the ledger in the same pass; ``intensity_mean`` is added whenever an image is given.",
+      "source_sha256": "e140f3a85eeec8176dfe707235b75a610209ce06e0d9b94332d4876631f09cc6",
+      "context": "properties measured for the ledger in the same pass; ``intensity_mean`` is added whenever an image is given.",
+      "translation": "Eigenschaften, die im selben Durchlauf für den Ledger gemessen werden; ``intensity_mean`` wird hinzugefügt, sobald ein Bild übergeben wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.apply_filters#7",
+      "source": "the original array untouched and an empty list when nothing fails.",
+      "source_sha256": "964264dc28cadac1a4873ff4bce03c4829baaeb03eb7d09e6cbc9005297d15eb",
+      "context": "the original array untouched and an empty list when nothing fails.",
+      "translation": "das ursprüngliche Array unverändert und eine leere Liste, wenn nichts durchfällt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.box_overlap#1",
+      "source": "first box; its first four items are read and truncated to ``int``.",
+      "source_sha256": "0355f331b0e09eef3b46b7c32f0cdd2b24f195d6d3ca0ca3112c63dde89cb4dc",
+      "context": "first box; its first four items are read and truncated to ``int``.",
+      "translation": "erster Rahmen; seine ersten vier Elemente werden gelesen und auf ``int`` abgeschnitten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.box_overlap#2",
+      "source": "second box, read the same way.",
+      "source_sha256": "f405e13b2e2963abaefff5c114f93a52582194f649b53e8ce45128ecf6d7a1c6",
+      "context": "second box, read the same way.",
+      "translation": "zweiter Rahmen, auf dieselbe Weise gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.canonical_labels#5",
+      "source": "Each id is examined inside its own bounding box (:func:`scipy.ndimage.find_objects`) rather than across the whole field, which gives the same pieces in the same order and makes the call cheap enough to run while the mouse moves: on a 2048 x 2048 field of 400 objects it went from about 3.5 s to tens of milliseconds.",
+      "source_sha256": "f8c09a00d0044b24c4f65f46e3b0f1a45f5db1068130558d4f2c58e61799796e",
+      "context": "Each id is examined inside its own bounding box (:func:`scipy.ndimage.find_objects`) rather than across the whole microscope field of view, which gives the same pieces in the same order and makes the call cheap enough to run while the mouse moves: on a 2048 x 2048 microscope field of view of 400 objects it went from about 3.5 s to tens of milliseconds.",
+      "translation": "Jede ID wird innerhalb ihres eigenen Begrenzungsrahmens (:func:`scipy.ndimage.find_objects`) untersucht statt über das ganze Sichtfeld, was dieselben Teile in derselben Reihenfolge liefert und den Aufruf so günstig macht, dass er während Mausbewegungen laufen kann: Bei einem Sichtfeld von 2048 x 2048 mit 400 Objekten sank die Zeit von etwa 3.5 s auf einige zehn Millisekunden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.canonical_labels#6",
+      "source": "a label image; any integer or boolean dtype in default mode.",
+      "source_sha256": "035c3e4784c95a1772f269c6baac4f7e4f502ffe307b7e98a606203256e18694",
+      "context": "a label image; any integer or boolean dtype in default mode.",
+      "translation": "ein Labelbild; im Standardmodus jeder ganzzahlige oder boolesche dtype.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.canonical_labels#7",
+      "source": "disable binary interpretation and component splitting. Use for primary/secondary relationships: a lone cell 900 remains 900, and separated pieces with the same primary ID remain one label. Requires a nonempty 2-D nonnegative integer array, not a boolean mask.",
+      "source_sha256": "016cba00f46b45fc49c70ed1922755167cf08c6579e06a49ed4bc55e60ed58d1",
+      "context": "disable binary interpretation and component splitting. Use for primary/secondary relationships: a lone cell 900 remains 900, and separated pieces with the same primary ID remain one label. Requires a nonempty 2-D nonnegative integer array, not a boolean mask.",
+      "translation": "binäre Interpretation und Aufteilung in Komponenten abschalten. Für Primär-/Sekundärbeziehungen verwenden: Eine einzelne Zelle 900 bleibt 900, und getrennte Teile mit derselben primären ID bleiben ein Label. Erfordert ein nicht leeres, nicht negatives ganzzahliges 2-D-Array, keine boolesche Maske.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.canonical_labels#9",
+      "source": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
+      "source_sha256": "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0",
+      "context": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
+      "translation": "wenn eine ID nicht in ``uint16`` passt oder der Modus mit exakten IDs ungültige Labels erhält. Übergroße IDs werden nie abgeschnitten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.canonical_property#0",
+      "source": "``name`` as the regionprop it means, or a ValueError naming the choices.",
+      "source_sha256": "dfc8eb6e101443aa3c6e2d68b9dae140272e119264ee85dbfaac3339d5a91e71",
+      "context": "``name`` as the regionprop it means, or a ValueError naming the choices.",
+      "translation": "``name`` als die regionprop-Eigenschaft, die es meint, oder ein ValueError, der die Auswahlmöglichkeiten nennt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.canonical_property#1",
+      "source": "Old skimage spellings (``mean_intensity``, ``MajorAxisLength``, ``convex_area``) are accepted and mapped to the current name through skimage's own alias table, so a filter written against an older release still names the same measurement.",
+      "source_sha256": "ed26f4a0900c5bbf01eca063fb298302c7f1a7952fea529b50843806e28c5de8",
+      "context": "Old skimage spellings (``mean_intensity``, ``MajorAxisLength``, ``convex_area``) are accepted and mapped to the current name through skimage's own alias table, so a filter written against an older release still names the same measurement.",
+      "translation": "Alte skimage-Schreibweisen (``mean_intensity``, ``MajorAxisLength``, ``convex_area``) werden akzeptiert und über die eigene Aliastabelle von skimage dem aktuellen Namen zugeordnet, sodass ein Filter, der für eine ältere Version geschrieben wurde, weiterhin dieselbe Messung bezeichnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.canonical_property#2",
+      "source": "a regionprop name, current or legacy spelling.",
+      "source_sha256": "5797e1a52cb3ae23d2cfb7dc794c6016b2f51db2f787a6d749d05489e06de8dd",
+      "context": "a regionprop name, current or legacy spelling.",
+      "translation": "ein regionprop-Name, in aktueller oder veralteter Schreibweise.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.clear_mask#1",
+      "source": "label mask whose shape and dtype the result copies.",
+      "source_sha256": "1e38502c6d59aa661dbd1ed8c26ce3c13d5777e44c6eb5e4323c5601b1e0d2a2",
+      "context": "label mask whose shape and dtype the result copies.",
+      "translation": "Labelmaske, deren Form und dtype das Ergebnis übernimmt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.curation_folder#0",
+      "source": "Where a folder of images keeps its curation files.",
+      "source_sha256": "2e6785fb6af119d81bb088ff5f0032b75b4a87d2f9d8502a21801754d32468be",
+      "context": "Where a folder of images keeps its curation files.",
+      "translation": "Wo ein Bildordner seine Kurationsdateien aufbewahrt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.curation_folder#1",
+      "source": "spaCR's layout: masks live at ``<images>/masks`` and the curation CSV at ``<images>/csv``. It is a folder rather than a file beside the images so that a folder listing of the fields is still a listing of the fields.",
+      "source_sha256": "4c46bf174da5f2e62ad4ca8b2eaa9c6d87f29ce4d5d5a0c2d594c7782e0dfa90",
+      "context": "spaCR's layout: masks live at ``<images>/masks`` and the curation CSV at ``<images>/csv``. It is a folder rather than a file beside the images so that a folder listing of the microscope fields of view is still a listing of the microscope fields of view.",
+      "translation": "Das Layout von spaCR: Masken liegen in ``<images>/masks`` und die Kurations-CSV in ``<images>/csv``. Es ist ein Ordner statt einer Datei neben den Bildern, damit eine Ordnerauflistung der Sichtfelder weiterhin eine Auflistung der Sichtfelder ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.curation_verdict#0",
+      "source": "Whether this field is marked keep, discard, or not marked at all.",
+      "source_sha256": "9a57ff41b5e6634b73a462a0a33aa32d69364bfecd746fe08800cad1a205f485",
+      "context": "Whether this field is marked keep, discard, or not marked at all.",
+      "translation": "Ob dieses Sichtfeld als behalten, verwerfen oder überhaupt nicht markiert ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.curation_verdict#3",
+      "source": "True for keep, False for discard, None for no row.",
+      "source_sha256": "6f0071978b2dc9bb6c567a492270446717bbe2716cb30453ecf67e8f945766ab",
+      "context": "True for keep, False for discard, None for no row.",
+      "translation": "True für behalten, False für verwerfen, None, wenn keine Zeile existiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#0",
+      "source": "Grow every object by ``distance`` pixels, without merging any two.",
+      "source_sha256": "79fca8048995edd10cbdeffe004e6fc1b76756f7e0d22bc7c9e17c341b94b68c",
+      "context": "Grow every object by ``distance`` pixels, without merging any two.",
+      "translation": "Vergrößert jedes Objekt um ``distance`` Pixel, ohne zwei Objekte zu verschmelzen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#1",
+      "source": "A label takes the background pixels within ``distance`` of it; a pixel contested by two labels goes to the nearer one, and a pixel that already carries a label is never taken. SO THE OBJECT COUNT CANNOT CHANGE, which is what makes this safe on a mask that has been curated: ids survive, and an object that has been given the right id keeps it, along with every measurement, track and crop keyed by it.",
+      "source_sha256": "4832de25fae555c54525303db321fe06173cfafc2638e3d07b1fcb00673c7e4a",
+      "context": "A label takes the background pixels within ``distance`` of it; a pixel contested by two labels goes to the nearer one, and a pixel that already carries a label is never taken. so the object count cannot change, which is what makes this safe on a mask that has been curated: ids survive, and an object that has been given the right id keeps it, along with every measurement, track and extracted image region keyed by it.",
+      "translation": "Ein Label übernimmt die Hintergrundpixel im Abstand ``distance`` um sich herum; ein Pixel, das von zwei Labels beansprucht wird, geht an das nähere, und ein Pixel, das bereits ein Label trägt, wird nie übernommen. DAHER KANN SICH DIE OBJEKTANZAHL NICHT ÄNDERN, und das macht dies bei einer kuratierten Maske sicher: IDs bleiben erhalten, und ein Objekt, das die richtige ID erhalten hat, behält sie, zusammen mit jeder Messung, jeder Spur und jedem Bildausschnitt, die darüber verknüpft sind.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#2",
+      "source": "The distance is Euclidean (:func:`skimage.segmentation.expand_labels`), so ``1`` adds the four edge neighbours and not the corners -- the same metric :func:`shrink_objects` takes away by, which is what makes a shrink after a dilate land back where it started on an object with no neighbour close enough to have blocked the growth.",
+      "source_sha256": "44f8fde05f27329897f2a788482a8d805b7c6683c5f0ad235ac1bc4fbe06ba4e",
+      "context": "The distance is Euclidean (:func:`skimage.segmentation.expand_labels`), so ``1`` adds the four edge neighbours and not the corners -- the same metric :func:`shrink_objects` takes away by, which is what makes a shrink after a dilate land back where it started on an object with no neighbour close enough to have blocked the growth.",
+      "translation": "Der Abstand ist euklidisch (:func:`skimage.segmentation.expand_labels`), daher fügt ``1`` die vier Kantennachbarn hinzu und nicht die Ecken -- dieselbe Metrik, mit der :func:`shrink_objects` abträgt, und deshalb landet ein Schrumpfen nach einem Dilatieren bei einem Objekt ohne Nachbarn, der nahe genug wäre, um das Wachstum zu blockieren, wieder dort, wo es begonnen hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#4",
+      "source": "pixels to grow by. 0 or less returns a copy.",
+      "source_sha256": "d92990eff1502c98070ab1a30c72abd1e23f9408002afb0f0fd03cc54dc0d4e8",
+      "context": "pixels to grow by. 0 or less returns a copy.",
+      "translation": "Pixel, um die vergrößert wird. 0 oder weniger gibt eine Kopie zurück.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.dilate_objects#5",
+      "source": "a mask of the same dtype with the same label values.",
+      "source_sha256": "85f1388aa10ac11b8dfadf6c106bee82ee0c78c44e7ee17e27a72ce5cd6efdeb",
+      "context": "a mask of the same dtype with the same label values.",
+      "translation": "eine Maske desselben dtype mit denselben Labelwerten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.divide_object#6",
+      "source": "2-D label mask; it is not modified.",
+      "source_sha256": "d3c3d8862dc9d90b3e4c79f24c9a177f08929a020f8ba108c0dd07131e1f5d82",
+      "context": "2-D label mask; it is not modified.",
+      "translation": "2-D-Labelmaske; sie wird nicht verändert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.divide_object#7",
+      "source": "first end of the cut as ``(x, y)`` in pixels.",
+      "source_sha256": "e654b4297c68448eafc447b332bb8bf9ea239885dcc29132276cb2b79eee3e48",
+      "context": "first end of the cut as ``(x, y)`` in pixels.",
+      "translation": "erstes Ende des Schnitts als ``(x, y)`` in Pixeln.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.divide_object#8",
+      "source": "second end of the cut as ``(x, y)`` in pixels.",
+      "source_sha256": "aba322576d956fe76aade96228c7072b6c442c0b9b1483608fb6963323305b7c",
+      "context": "second end of the cut as ``(x, y)`` in pixels.",
+      "translation": "zweites Ende des Schnitts als ``(x, y)`` in Pixeln.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_at#1",
+      "source": "2-D label mask; a modified copy is returned and the input is left alone.",
+      "source_sha256": "0f65df0e8985bed2a1b838bb20b46b7a1750b9dd72537876e598e0c8665f4956",
+      "context": "2-D label mask; a modified copy is returned and the input is left alone.",
+      "translation": "2-D-Labelmaske; eine veränderte Kopie wird zurückgegeben, die Eingabe bleibt unberührt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_at#2",
+      "source": "column in pixels; out of range returns ``mask`` itself.",
+      "source_sha256": "834b5f364a86faec70eaa6c4ecd06683e35b456f7b2792c64b0b201bd44fbff1",
+      "context": "column in pixels; out of range returns ``mask`` itself.",
+      "translation": "Spalte in Pixeln; außerhalb des Bereichs wird ``mask`` selbst zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_at#3",
+      "source": "row in pixels; out of range returns ``mask`` itself.",
+      "source_sha256": "75492e3286d73d75bc45da5299da1790a426b3f4655c25ddc15741675f396c79",
+      "context": "row in pixels; out of range returns ``mask`` itself.",
+      "translation": "Zeile in Pixeln; außerhalb des Bereichs wird ``mask`` selbst zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_in_place#3",
+      "source": "2-D label mask, modified in place.",
+      "source_sha256": "b39764833d7296754b1ab90859fceed7912b3173df950692228b774775e022a4",
+      "context": "2-D label mask, modified in place.",
+      "translation": "2-D-Labelmaske, an Ort und Stelle verändert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_in_place#4",
+      "source": "column in pixels; out of range removes nothing.",
+      "source_sha256": "4e80ff1f60e16541bfa17104238f7f16ec9f83a90367071bfaa594c19bc41359",
+      "context": "column in pixels; out of range removes nothing.",
+      "translation": "Spalte in Pixeln; außerhalb des Bereichs wird nichts entfernt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.erase_object_in_place#5",
+      "source": "row in pixels; out of range removes nothing.",
+      "source_sha256": "b18d98c89ff3bbba09bd6f07e5406a4cb836a64c2a3f0c25c971b7f0e92b9b6b",
+      "context": "row in pixels; out of range removes nothing.",
+      "translation": "Zeile in Pixeln; außerhalb des Bereichs wird nichts entfernt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.field_stem#0",
+      "source": "The stem a field is known by in ``curate_status.csv``.",
+      "source_sha256": "74232f44f3e55ba93db682d39e4b6cfd0bb2ce1c585a2b48b03e5489fc2738c3",
+      "context": "The stem a field is known by in ``curate_status.csv``.",
+      "translation": "Der Stamm, unter dem ein Sichtfeld in ``curate_status.csv`` bekannt ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.field_stem#1",
+      "source": "``os.path.splitext`` gives ``well_A1_seg`` for ``well_A1_seg.npy``, and the queue calls that field ``well_A1``; a status row written under the first name would never take the field out of the queue.",
+      "source_sha256": "a29e3aba397dd82344d1c4987bb2d2b32dab278b5aa60da5aabc4fff1ded70c8",
+      "context": "``os.path.splitext`` gives ``well_A1_seg`` for ``well_A1_seg.npy``, and the work list calls that field ``well_A1``; a status row written under the first name would never take the field out of the work list.",
+      "translation": "``os.path.splitext`` liefert ``well_A1_seg`` für ``well_A1_seg.npy``, und die Warteschlange nennt dieses Sichtfeld ``well_A1``; eine unter dem ersten Namen geschriebene Statuszeile würde das Sichtfeld nie aus der Warteschlange nehmen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.field_stem#2",
+      "source": "an image file name, or a ``_seg.npy`` bundle name.",
+      "source_sha256": "055241e198f03c2c0695bc25f56b93ffb7a979f7cf6d8d62ebb20a680cd663ef",
+      "context": "an image file name, or a ``_seg.npy`` bundle name.",
+      "translation": "ein Bilddateiname oder ein ``_seg.npy``-Bündelname.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.field_stem#3",
+      "source": "the file name without its extension, or without :data:`SEG_SUFFIX` for a bundle.",
+      "source_sha256": "b5f61b0e87582c3e5d709647031b31c135352fa163e0db4458b72dd6ff4a4b4a",
+      "context": "the file name without its extension, or without :data:`SEG_SUFFIX` for a bundle.",
+      "translation": "der Dateiname ohne seine Erweiterung bzw. bei einem Bündel ohne :data:`SEG_SUFFIX`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#0",
+      "source": "Fill enclosed background pixels, optionally retaining primary identities.",
+      "source_sha256": "dcf5c9a6c3d42cdacfee0cf82dda4ea5201589046095d5c8e204d476eb3d7c05",
+      "context": "Fill enclosed background pixels, optionally retaining primary identities.",
+      "translation": "Füllt eingeschlossene Hintergrundpixel, optional unter Beibehaltung primärer Identitäten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#1",
+      "source": "label image to fill.",
+      "source_sha256": "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
+      "context": "label image to fill.",
+      "translation": "zu füllendes Labelbild.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.fill_holes#2",
+      "source": "fill per object without merging or renumbering labels. Requires exact uint16-compatible IDs; default retains binary relabeling.",
+      "source_sha256": "324f21972dfe3d00de9f3ff423ffb008c798db9581c13651442e1e4e1b323309",
+      "context": "fill per object without merging or renumbering labels. Requires exact uint16-compatible IDs; default retains binary relabeling.",
+      "translation": "pro Objekt füllen, ohne Labels zu verschmelzen oder neu zu nummerieren. Erfordert exakte, uint16-kompatible IDs; der Standard behält die binäre Neu-Labelung bei.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#0",
+      "source": "Drop objects outside the bounds; ``(mask, dropped ids)``.",
+      "source_sha256": "4b4b2b03868aed62c2be18f6cebae49829944cdf2c6a8a9f469a132f3e6d6e0b",
+      "context": "Drop objects outside the bounds; ``(mask, dropped ids)``.",
+      "translation": "Verwirft Objekte außerhalb der Grenzen; ``(mask, dropped ids)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#1",
+      "source": ":func:`filter_report` without the measurements: the same engine, the same list, only the ids kept. Area is the pixel count; intensity is the mean on the *raw* image. Each legacy bound is off at 0.",
+      "source_sha256": "db4af42a59864de23388dc3ca417d86b9a8797fa02929ca7110c6c3c5e7cb971",
+      "context": ":func:`filter_report` without the measurements: the same engine, the same list, only the ids kept. Area is the pixel count; intensity is the mean on the *raw* image. Each legacy bound is off at 0.",
+      "translation": ":func:`filter_report` ohne die Messungen: dieselbe Engine, dieselbe Liste, nur die IDs werden behalten. Die Fläche ist die Pixelanzahl; die Intensität ist der Mittelwert auf dem *Roh*-Bild. Jede Legacy-Grenze ist bei 0 ausgeschaltet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#3",
+      "source": "raw intensity image the same height and width as ``mask``.",
+      "source_sha256": "65ce25808a7411238c8bc8971492ab50ef73c81387ca767d2177354de745c776",
+      "context": "raw intensity image the same height and width as ``mask``.",
+      "translation": "Rohintensitätsbild mit derselben Höhe und Breite wie ``mask``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#4",
+      "source": "further filter entries (see :func:`normalise_filters`).",
+      "source_sha256": "70b5e3d1b29957702ec73c3b92e8009d262c97f5845e9092dc3305b098dd7e86",
+      "context": "further filter entries (see :func:`normalise_filters`).",
+      "translation": "weitere Filtereinträge (siehe :func:`normalise_filters`).",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_objects#5",
+      "source": "retain primary/secondary identities when measuring and removing labels; disconnected pieces sharing an ID count together.",
+      "source_sha256": "eab577b260db095a8ff31b38e3506c6de379b4f0e3a24cf8bb18c778e503738c",
+      "context": "retain primary/secondary identities when measuring and removing labels; disconnected pieces sharing an ID count together.",
+      "translation": "primäre/sekundäre Identitäten beim Messen und Entfernen von Labels beibehalten; getrennte Teile mit derselben ID zählen zusammen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_properties#0",
+      "source": "The regionprops a filter row may name, for an image at hand.",
+      "source_sha256": "851dd06adfccc7bca4f0f283d1ca60b43b84b76d64048be9501c8515ef62d0a1",
+      "context": "The regionprops a filter row may name, for an image at hand.",
+      "translation": "Die regionprops, die eine Filterzeile für ein vorliegendes Bild nennen darf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_properties#1",
+      "source": "True when an intensity image exists for the mask, so the intensity statistics are real for it. Without one they are not offered at all, rather than offered and refused later.",
+      "source_sha256": "a94b06f52f55c253f5c149405a6f8a7fe9bbe32ff0a4c2768353acb5de784c14",
+      "context": "True when an intensity image exists for the mask, so the intensity statistics are real for it. Without one they are not offered at all, rather than offered and refused later.",
+      "translation": "True, wenn für die Maske ein Intensitätsbild existiert, sodass die Intensitätsstatistiken für sie real sind. Ohne ein solches werden sie gar nicht erst angeboten, statt angeboten und später abgelehnt zu werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_properties#2",
+      "source": "property names, shape properties first, each group sorted.",
+      "source_sha256": "8b9d60b732b3a8ed063b7d40f207499269766eec709b6583129b260a7aaa2a70",
+      "context": "property names, shape properties first, each group sorted.",
+      "translation": "Eigenschaftsnamen, Formeigenschaften zuerst, jede Gruppe sortiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#0",
+      "source": "Judge every object of ``labels`` against ``filters``; return the failures.",
+      "source_sha256": "4acbf4f655e4efe1f77ce350920b688e69a087ea830905a890d6fc3923def327",
+      "context": "Judge every object of ``labels`` against ``filters``; return the failures.",
+      "translation": "Beurteilt jedes Objekt von ``labels`` anhand von ``filters``; gibt die durchgefallenen zurück.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#1",
+      "source": "THE ONE FILTER ENGINE. Make Masks' Filter list, :func:`filter_report`, and Mask generation's :func:`spacr.utils._filter_objects` all run this, so one list gives one answer wherever it is applied. It calls :func:`skimage.measure.regionprops_table` ONCE per mask with every property the list names plus ``report``, never once per filter.",
+      "source_sha256": "af6d4e0796f6b7224e59e45d63bf4763051de3d56267083fe2416376b3bc3579",
+      "context": "The one filter engine. Make Masks' Filter list, :func:`filter_report`, and Mask generation's :func:`spacr.utils._filter_objects` all run this, so one list gives one answer wherever it is applied. It calls :func:`skimage.measure.regionprops_table` ONCE per mask with every property the list names plus ``report``, never once per filter.",
+      "translation": "DIE EINE FILTER-ENGINE. Die Filterliste von Make Masks, :func:`filter_report` und :func:`spacr.utils._filter_objects` der Maskenerzeugung führen alle dies aus, sodass eine Liste überall, wo sie angewendet wird, dieselbe Antwort gibt. Sie ruft :func:`skimage.measure.regionprops_table` EINMAL pro Maske mit jeder Eigenschaft auf, die die Liste nennt, plus ``report``, nie einmal pro Filter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#2",
+      "source": "An object is kept when ``min <= value <= max`` for every entry; a side that is None is off. A NaN measurement fails no bound, since there is nothing to compare.",
+      "source_sha256": "b78036b50e6d85e9701e95c26d27b891ca6f65c664411a12ccd8b55e01aea6c0",
+      "context": "An object is kept when ``min <= value <= max`` for every entry; a side that is None is off. A NaN measurement fails no bound, since there is nothing to compare.",
+      "translation": "Ein Objekt wird behalten, wenn ``min <= value <= max`` für jeden Eintrag gilt; eine Seite, die None ist, ist ausgeschaltet. Eine NaN-Messung verletzt keine Grenze, da es nichts zu vergleichen gibt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#3",
+      "source": "integer label image, 2-D or 3-D.",
+      "source_sha256": "69058d0e186acc584a2f205d476c22c02deda91b805a5cb14519921c764f3b1f",
+      "context": "integer label image, 2-D or 3-D.",
+      "translation": "ganzzahliges Labelbild, 2-D oder 3-D.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#5",
+      "source": "pixel values the same shape as ``labels``; required exactly when an entry names an intensity property.",
+      "source_sha256": "1c8c5b7f0a5936a5f6a8e5e6f5efe12d3cbf6ba16531ea4f0a36846e518ebdf1",
+      "context": "pixel values the same shape as ``labels``; required exactly when an entry names an intensity property.",
+      "translation": "Pixelwerte mit derselben Form wie ``labels``; genau dann erforderlich, wenn ein Eintrag eine Intensitätseigenschaft nennt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#6",
+      "source": "extra properties to measure in the same pass so a caller can print them; they judge nothing.",
+      "source_sha256": "2afb13b4302e73eb7c80d4254a5983aaf5c0502e3d792d69ed9d5041af2084e3",
+      "context": "extra properties to measure in the same pass so a caller can print them; they judge nothing.",
+      "translation": "zusätzliche Eigenschaften, die im selben Durchlauf gemessen werden, damit ein Aufrufer sie ausgeben kann; sie beurteilen nichts.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#7",
+      "source": "raise when an intensity property is not finite for some object, as Mask generation always has.",
+      "source_sha256": "bb1a7d6d49eda3513dca65afeab4b0cad4de0bdb4418aeb48388263ccd4327e6",
+      "context": "throw an exception when an intensity property is not finite for some object, as Mask generation always has.",
+      "translation": "eine Ausnahme auslösen, wenn eine Intensitätseigenschaft für ein Objekt nicht endlich ist, wie es die Maskenerzeugung schon immer getan hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#8",
+      "source": "the removals sorted by label; empty when nothing fails.",
+      "source_sha256": "c05c878a4a19e19e43ce3e3b60ddf1b5cef4ccc27a213b92b9295428e6a398a7",
+      "context": "the removals sorted by label; empty when nothing fails.",
+      "translation": "die Entfernungen, nach Label sortiert; leer, wenn nichts durchfällt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_removals#9",
+      "source": "an intensity property without an intensity image, or a property scikit-image cannot compute for this dimensionality.",
+      "source_sha256": "64352534df43eeff3512194508b1a87b8cf7e39232c975727d34ef63b759d677",
+      "context": "an intensity property without an intensity image, or a property scikit-image cannot compute for this dimensionality.",
+      "translation": "eine Intensitätseigenschaft ohne Intensitätsbild oder eine Eigenschaft, die scikit-image für diese Dimensionalität nicht berechnen kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#0",
+      "source": "Filter ``mask`` by the legacy bounds and ``filters``, measuring what went.",
+      "source_sha256": "9dc621adb34edc225cac72d68888c4d1b1d299776dde39ca1b04277c418770b5",
+      "context": "Filter ``mask`` by the legacy bounds and ``filters``, measuring what went.",
+      "translation": "Filtert ``mask`` nach den Legacy-Grenzen und ``filters`` und misst, was entfernt wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#1",
+      "source": "The four keyword bounds are migrated into the filter list by :func:`legacy_filters` and judged together with ``filters`` by :func:`apply_filters` -- one engine, one regionprops pass.",
+      "source_sha256": "190daa82746023624ee031cf5e9ae343cc7cd4950c672e1445f4731771d159c5",
+      "context": "The four keyword bounds are migrated into the filter list by :func:`legacy_filters` and judged together with ``filters`` by :func:`apply_filters` -- one engine, one regionprops pass.",
+      "translation": "Die vier Schlüsselwort-Grenzen werden von :func:`legacy_filters` in die Filterliste überführt und zusammen mit ``filters`` von :func:`apply_filters` beurteilt -- eine Engine, ein regionprops-Durchlauf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#3",
+      "source": "raw intensity image the same height and width as ``mask``; a 3-D image is averaged over its last axis first.",
+      "source_sha256": "617c291f90d560bd8aba35b9609ad5da233deba5f5b1cfff5c45bb09a16d3511",
+      "context": "raw intensity image the same height and width as ``mask``; a 3-D image is averaged over its last axis first.",
+      "translation": "Rohintensitätsbild mit derselben Höhe und Breite wie ``mask``; ein 3-D-Bild wird zuerst über seine letzte Achse gemittelt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#5",
+      "source": "measure all pixels bearing an ID as one object, including lone or disconnected primary/secondary labels.",
+      "source_sha256": "9f2dbe9cd509ab62b1e874f75099da7dc3b99cc77cac0b919576dca78328ba73",
+      "context": "measure all pixels bearing an ID as one object, including lone or disconnected primary/secondary labels.",
+      "translation": "alle Pixel, die eine ID tragen, als ein Objekt messen, einschließlich einzelner oder getrennter primärer/sekundärer Labels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filter_report#6",
+      "source": "``(mask, removals)``, the removals sorted by id. Nothing to do returns the original array untouched and an empty list.",
+      "source_sha256": "615635ec8895b75af3f659fdd9bb23fcaf5ceccdc5730fd6774010ba2247f335",
+      "context": "``(mask, removals)``, the removals sorted by id. Nothing to do returns the original array untouched and an empty list.",
+      "translation": "``(mask, removals)``, die Entfernungen nach ID sortiert. Gibt es nichts zu tun, werden das ursprüngliche Array unverändert und eine leere Liste zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filters_need_intensity#0",
+      "source": "Whether any entry of ``filters`` needs an intensity image.",
+      "source_sha256": "2bc23ff9fa06cec8ac55ba300875c2c90ba992b57e6e933da027f2b03d792ef5",
+      "context": "Whether any entry of ``filters`` needs an intensity image.",
+      "translation": "Ob irgendein Eintrag von ``filters`` ein Intensitätsbild benötigt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.filters_need_intensity#1",
+      "source": "a canonical filter list, as :func:`normalise_filters` returns.",
+      "source_sha256": "d39c17b981cde26c3e39fcefebc333f89bd7de2a95ac697d2b1f8b529a21f5ea",
+      "context": "a canonical filter list, as :func:`normalise_filters` returns.",
+      "translation": "eine kanonische Filterliste, wie :func:`normalise_filters` sie zurückgibt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#0",
+      "source": "Reflect an image about its OWN range, for a DETECTOR to read.",
+      "source_sha256": "3c659a00a91be34f5a330b477103b8acbe982b841306d08e9b3d8bb3e5c971db",
+      "context": "Reflect an image about its OWN range, for a DETECTOR to read.",
+      "translation": "Spiegelt ein Bild an seinem EIGENEN Wertebereich, damit ein DETEKTOR es liest.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#1",
+      "source": "Masks are generated from the inverted image so a threshold written for bright objects can take dark ones. It is ``max + min - value`` on the field's own extremes.",
+      "source_sha256": "3548b57449897559315c85534130a4beb46e5e10f642dd9dd2c3094d786fc3ee",
+      "context": "Masks are generated from the inverted image so a threshold written for bright objects can take dark ones. It is ``max + min - value`` on the microscope field of view's own extremes.",
+      "translation": "Masken werden aus dem invertierten Bild erzeugt, damit ein für helle Objekte geschriebener Schwellenwert dunkle erfassen kann. Es ist ``max + min - value`` bezogen auf die eigenen Extremwerte des Sichtfelds.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#17",
+      "source": "The complement puts that field into 61440..65535, so a correction of 0.8 asks for a cut at about 49000, below every pixel there is, and 1.3 asks for one above all of them. The correction stops being a dial and becomes an on/off switch. At exactly 1.0 the two agree, which is why this is easy to miss.",
+      "source_sha256": "8406a05569b0730005dbbd8e1dd18deffbb75a43d093e66e4d5d8b5089f3b756",
+      "context": "The complement puts that field into 61440..65535, so a correction of 0.8 asks for a cut at about 49000, below every pixel there is, and 1.3 asks for one above all of them. The correction stops being a dial and becomes an on/off switch. At exactly 1.0 the two agree, which is why this is easy to miss.",
+      "translation": "Das Komplement verschiebt dieses Sichtfeld in den Bereich 61440..65535, daher verlangt eine Korrektur von 0.8 einen Schnitt bei etwa 49000, unterhalb jedes vorhandenen Pixels, und 1.3 einen oberhalb aller Pixel. Die Korrektur ist dann kein Regler mehr, sondern ein Ein-/Ausschalter. Bei genau 1.0 stimmen beide überein, weshalb dies leicht zu übersehen ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#18",
+      "source": "The other two candidates were considered and are worse. The DTYPE's maximum is the case above. The CONTRAST-STRETCHED view is a viewing choice, and a detector reading it would move when the percentiles moved, which is the argument :func:`filter_objects` already makes about intensity bounds.",
+      "source_sha256": "3103d6417f27e3da0275f098f521dc766a7d82f9d2b93fa087d5f25ac84c6fec",
+      "context": "The other two candidates were considered and are worse. The DTYPE's maximum is the case above. The CONTRAST-STRETCHED view is a viewing choice, and a detector reading it would move when the percentiles moved, which is the argument :func:`filter_objects` already makes about intensity bounds.",
+      "translation": "Die beiden anderen Kandidaten wurden erwogen und sind schlechter. Das Maximum des DTYPE ist der obige Fall. Die KONTRASTGESTRECKTE Ansicht ist eine Darstellungsentscheidung, und ein Detektor, der sie liest, würde sich verschieben, sobald sich die Perzentile verschieben, und genau dieses Argument führt :func:`filter_objects` bereits für Intensitätsgrenzen an.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#19",
+      "source": "Reflecting about the image's own extremes keeps the span exactly, maps the darkest pixel onto the brightest and back, and is its own inverse on an image whose extremes it has not changed.",
+      "source_sha256": "83131d66cb08207e0f2ea0a0b974f96aa4c42931720e3e7f57a3c3304699bc13",
+      "context": "Reflecting about the image's own extremes keeps the span exactly, maps the darkest pixel onto the brightest and back, and is its own inverse on an image whose extremes it has not changed.",
+      "translation": "Die Spiegelung an den eigenen Extremwerten des Bilds erhält die Spanne exakt, bildet das dunkelste Pixel auf das hellste ab und umgekehrt und ist bei einem Bild, dessen Extremwerte sie nicht verändert hat, ihre eigene Umkehrung.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#2",
+      "source": "WHY THIS IS NOT :func:`invert_intensity`, which is the other inversion in this module and is one line away. The difference is not taste and it is not a duplicate that wants merging -- the two are read by different things and only one of them can afford to move the numbers:",
+      "source_sha256": "f625564cc94d07160f19066d7348ab3ce1478a92e4cb041dc84c6a288252eefa",
+      "context": "Why this is not :func:`invert_intensity`, which is the other inversion in this module and is one line away. The difference is not taste and it is not a duplicate that wants merging -- the two are read by different things and only one of them can afford to move the numbers:",
+      "translation": "WARUM DIES NICHT :func:`invert_intensity` IST, die andere Inversion in diesem Modul, nur eine Zeile entfernt. Der Unterschied ist keine Geschmacksfrage und kein Duplikat, das zusammengeführt werden will -- die beiden werden von verschiedenen Dingen gelesen, und nur eine von ihnen kann es sich leisten, die Zahlen zu verschieben:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#20",
+      "source": "Nonfinite pixels take no part in finding the extremes and are returned unchanged, since a NaN is not dark and is not bright.",
+      "source_sha256": "16e1460fc42a276ed6deaa09c0e36b53ad2ab89fdcc8bee0bd46559263816288",
+      "context": "Nonfinite pixels take no part in finding the extremes and are returned unchanged, since a NaN is not dark and is not bright.",
+      "translation": "Nicht endliche Pixel nehmen an der Bestimmung der Extremwerte nicht teil und werden unverändert zurückgegeben, denn ein NaN ist weder dunkel noch hell.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#21",
+      "source": "any 2-D field, as the canvas holds it.",
+      "source_sha256": "dd7260741bd59003cdcf29e62f0d9b96cf8b370afb6666e98c98b4e810424541",
+      "context": "any 2-D field, as the canvas holds it.",
+      "translation": "ein beliebiges 2-D-Sichtfeld, wie die Zeichenfläche es hält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#22",
+      "source": "``(lo, hi)`` to reflect about, instead of ``image``'s own extremes. WHAT A CROP IS GIVEN: a region inverted about its own extremes is inverted differently wherever the box is put, so the magnifier hands it the whole field's pair and the box stays a preview of what the detect button will do with the same setting. (:func:`invert_intensity` needs no such thing, being a function of the pixel value alone -- another way the two differ.)",
+      "source_sha256": "ec87f4f25f0aba8e65221e0ee59fde63ce7b140d38676094ad9ea3462ac542e1",
+      "context": "``(lo, hi)`` to reflect about, instead of ``image``'s own extremes. what an extracted image region is given: a region inverted about its own extremes is inverted differently wherever the box is put, so the magnifier hands it the whole field's pair and the box stays a preview of what the detect button will do with the same setting. (:func:`invert_intensity` needs no such thing, being a function of the pixel value alone -- another way the two differ.)",
+      "translation": "``(lo, hi)``, an dem gespiegelt wird, statt an den eigenen Extremwerten von ``image``. WAS EIN BILDAUSSCHNITT ERHÄLT: Eine an ihren eigenen Extremwerten invertierte Region wird je nach Position des Rahmens unterschiedlich invertiert, daher übergibt die Lupe ihr das Paar des ganzen Sichtfelds, und der Rahmen bleibt eine Vorschau dessen, was die Detect-Schaltfläche mit derselben Einstellung tun wird. (:func:`invert_intensity` braucht nichts dergleichen, da sie allein vom Pixelwert abhängt -- ein weiterer Unterschied zwischen beiden.)",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#23",
+      "source": "a NEW array of the input's dtype. The original is never touched: the readout and the filter must keep reporting the raw values whatever the detector was shown.",
+      "source_sha256": "7f7c70e57e77688caea2b7ab371128f7d378ffe777cf34ddf3deaffc8809973f",
+      "context": "a NEW array of the input's dtype. The original is never touched: the readout and the filter must keep reporting the raw values whatever the detector was shown.",
+      "translation": "ein NEUES Array mit dem dtype der Eingabe. Das Original wird nie berührt: Die Anzeige und der Filter müssen weiterhin die Rohwerte melden, was auch immer dem Detektor gezeigt wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#3",
+      "source": ":func:`invert_intensity` complements the DTYPE and is what \"Invert image\" draws with. It has to be exactly reversible, because a curator leaves it on all day, and nothing downstream reads its result.",
+      "source_sha256": "20b7e5f9841d1cd7b815708613b12375768b11ade6de9a8ca96bba65a8e855ee",
+      "context": ":func:`invert_intensity` complements the DTYPE and is what \"Invert image\" draws with. It has to be exactly reversible, because a curator leaves it on all day, and nothing downstream reads its result.",
+      "translation": ":func:`invert_intensity` bildet das Komplement bezüglich des DTYPE und ist das, womit \"Invert image\" zeichnet. Sie muss exakt umkehrbar sein, weil ein Kurator sie den ganzen Tag eingeschaltet lässt, und nichts Nachgelagertes liest ihr Ergebnis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#4",
+      "source": "this one is read by a THRESHOLD, and the Otsu threshold correction is a MULTIPLIER on the level Otsu finds, applied to absolute intensity in :func:`_otsu_levels`. Multiplying is not invariant to an offset, so an inversion that moves the field's span moves what the correction means. Measured on a 12-bit field (216..4095) with dark objects, inverted and put through :func:`_otsu_instances` on the bright side:",
+      "source_sha256": "439833bd1492fe96e8a9e1c24113e9da5f6c1db6b6fadc91e915f404c18531f2",
+      "context": "this one is read by a THRESHOLD, and the Otsu threshold correction is a MULTIPLIER on the level Otsu finds, applied to absolute intensity in :func:`_otsu_levels`. Multiplying is not invariant to an offset, so an inversion that moves the microscope field of view's span moves what the correction means. Measured on a 12-bit microscope field of view (216..4095) with dark objects, inverted and put through :func:`_otsu_instances` on the bright side:",
+      "translation": "diese hier wird von einem SCHWELLENWERT gelesen, und die Otsu-Schwellenwertkorrektur ist ein MULTIPLIKATOR auf das Niveau, das Otsu findet, angewendet auf absolute Intensitäten in :func:`_otsu_levels`. Multiplikation ist nicht invariant gegenüber einem Offset, daher verschiebt eine Inversion, die die Spanne des Sichtfelds verschiebt, auch die Bedeutung der Korrektur. Gemessen an einem 12-Bit-Sichtfeld (216..4095) mit dunklen Objekten, invertiert und durch :func:`_otsu_instances` auf der hellen Seite geschickt:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_for_detection#9",
+      "source": "1 object, 100% of the field -- everything",
+      "source_sha256": "20550882ae3477dbb3e809c68513c60a25496740069c327688ea7678e97b53c3",
+      "context": "1 object, 100% of the microscope field of view -- everything",
+      "translation": "1 Objekt, 100% des Sichtfelds -- alles",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#0",
+      "source": "Return the photographic complement of ``image``: dark becomes bright.",
+      "source_sha256": "bd3b486693874b0f7527bc462831d7b9a74ab217327e4a8caa0171f4f96c6fa6",
+      "context": "Return the photographic complement of ``image``: dark becomes bright.",
+      "translation": "Gibt das fotografische Komplement von ``image`` zurück: Dunkles wird hell.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#1",
+      "source": "Low intensity becomes high intensity and vice versa, fitted to the dtype. WHAT IS BUILT IS THE COMPLEMENT, ``dtype_max - value``, NOT THE RECIPROCAL, for three reasons that are worth having written down because the reciprocal is the obvious first thought:",
+      "source_sha256": "4ff231cc4df36e3ecc6be0da73df2a777af0310b7bb54201e1a91ba20c93ea04",
+      "context": "Low intensity becomes high intensity and vice versa, fitted to the dtype. what is built is the complement, ``dtype_max - value``, not the reciprocal, for three reasons that are worth having written down because the reciprocal is the obvious first thought:",
+      "translation": "Niedrige Intensität wird zu hoher Intensität und umgekehrt, an den dtype angepasst. ERZEUGT WIRD DAS KOMPLEMENT, ``dtype_max - value``, NICHT DER KEHRWERT, aus drei Gründen, die festgehalten werden sollten, weil der Kehrwert der naheliegende erste Gedanke ist:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#2",
+      "source": "it is what every image viewer means by Invert, so the picture that comes back is the one a reader expects from Invert;",
+      "source_sha256": "de0ffdcdf6d1285e06d67e1adb74436e44ce9097089d1fee7006db01597e88e6",
+      "context": "it is what every image viewer means by Invert, so the picture that comes back is the one a reader expects from Invert;",
+      "translation": "es ist das, was jeder Bildbetrachter unter Invert versteht, sodass das zurückgegebene Bild das ist, was ein Leser von Invert erwartet;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#3",
+      "source": "it is EXACTLY reversible on an integer field -- inverting twice returns the identical array, which is what makes it safe to leave switched on while curating, and is asserted by comparing arrays;",
+      "source_sha256": "06bae63760cca3b2589b15108c00bdda656ac7cbec3b8b017675d6f6b8e35659",
+      "context": "it is EXACTLY reversible on an integer field -- inverting twice returns the identical array, which is what makes it safe to leave switched on while curating, and is asserted by comparing arrays;",
+      "translation": "es ist auf einem ganzzahligen Sichtfeld EXAKT umkehrbar -- zweimaliges Invertieren liefert das identische Array, und deshalb kann es beim Kuratieren gefahrlos eingeschaltet bleiben; dies wird durch einen Vergleich der Arrays geprüft;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#4",
+      "source": "``1/value`` divides by zero on every background pixel, and it squashes the bright end non-linearly, so two objects a thousand counts apart come back indistinguishable while the background explodes.",
+      "source_sha256": "712e964d4ec4305b3c6dae792a7b785abd54d79a8996c74f74f6ea478070b28c",
+      "context": "``1/value`` divides by zero on every background pixel, and it squashes the bright end non-linearly, so two objects a thousand counts apart come back indistinguishable while the background explodes.",
+      "translation": "``1/value`` teilt bei jedem Hintergrundpixel durch null und staucht das helle Ende nichtlinear, sodass zwei Objekte, die tausend Zählwerte auseinanderliegen, ununterscheidbar zurückkommen, während der Hintergrund explodiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#5",
+      "source": "The reciprocal remains a reasonable SECOND mode for anyone who wants a log-like lift of the dim end; it is not this one.",
+      "source_sha256": "970409c266e941a7045204da1e24cc16aa795ba9b9f079062e4570c9f5744d00",
+      "context": "The reciprocal remains a reasonable SECOND mode for anyone who wants a log-like lift of the dim end; it is not this one.",
+      "translation": "Der Kehrwert bleibt ein vernünftiger ZWEITER Modus für jeden, der eine logarithmusartige Anhebung des dunklen Endes will; dieser hier ist es nicht.",
+      "review_basis": "MT draft edited in AI review"
     }
   ]
 }
