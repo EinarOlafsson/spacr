@@ -7533,10 +7533,7 @@ class PreferencesDialog:
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
-                _alpha_features = dlg.findChild(
-                    QWidget, "ShowAlphaFutureFeatures")
-                if _alpha_features is not None:
-                    _alpha_features.setChecked(_get_show_alpha_features())
+                alpha_features_check.setChecked(_get_show_alpha_features())
                 if sound_page is not None:
                     sound_page.reset()
             finally:
@@ -7611,9 +7608,7 @@ class PreferencesDialog:
             set_db_browser_editable(db_edit_check.isChecked())
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
-            alpha_features = dlg.findChild(QWidget, "ShowAlphaFutureFeatures")
-            if alpha_features is not None:
-                _set_show_alpha_features(alpha_features.isChecked())
+            _set_show_alpha_features(alpha_features_check.isChecked())
             set_figure_save_mode(figure_save_mode_combo.currentData())
             set_figure_format(fig_format_combo.currentData())
             for shape, combo in default_graph_combos.items():

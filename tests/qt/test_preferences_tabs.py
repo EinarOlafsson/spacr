@@ -342,6 +342,25 @@ def test_a_control_asked_for_by_name_brings_its_page_back(dialog, qtbot):
     assert _tabs(dialog).currentIndex() == 0
 
 
+def test_the_alpha_features_switch_saves_and_resets_unopened(
+        qtbot, qt_theme_applied, _isolated_qsettings):
+    """Item 569's switch is on Modules; Save and Reset reach it there
+    without bringing the page back."""
+    from spacr.qt import preferences as prefs
+
+    prefs._set_show_alpha_features(True)
+    dlg = prefs.PreferencesDialog()
+    qtbot.addWidget(dlg)
+    switch = dlg.findChild(QWidget, "ShowAlphaFutureFeatures")
+    assert switch.isChecked()
+    _open(dlg, qtbot)
+    dlg.findChild(QPushButton, "PreferencesReset").click()
+    assert not switch.isChecked()
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    assert prefs._get_show_alpha_features() is False
+    assert _tabs_with_their_page(dlg) == {"General"}
+
+
 def test_a_walk_of_the_dialog_sees_every_page(dialog, qtbot):
     _open(dialog, qtbot)
     names = {w.objectName() for w in dialog.findChildren(QWidget)}
