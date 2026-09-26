@@ -5,6 +5,1790 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr.qt.help_index.HelpEntry.haystack#0",
+      "source": "Title, subtitle and description, lowercased, for matching.",
+      "source_sha256": "fd57e2bbf9c5c195bcabcc0fceff7a4e6ab670dc339a4fc9e0045611c82b644f",
+      "context": "Title, subtitle and description, lowercased, for matching.",
+      "translation": "标题、副标题和描述，转换为小写，用于匹配。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.api_entries#0",
+      "source": "One entry per public API symbol, saying which settings it reads.",
+      "source_sha256": "15b1fc358d58d369c2b5f4fd9ddede899f7a83c77a9c7f485b1fa7635b53b82f",
+      "context": "One entry per public API symbol, saying which settings it reads.",
+      "translation": "每个公共 API 符号一个条目，说明它读取哪些设置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.api_entries#1",
+      "source": "The settings half is what makes an API row findable by the name of a setting: searching ``cell_diameter`` offers the setting's own row in each module that exposes it AND the entry of each function that takes it, which is what a setting query returns.",
+      "source_sha256": "fde9322fa857edc2b97093addb36642e897400b932491248a2d68fd2b6331b62",
+      "context": "The settings half is what makes an API row findable by the name of a setting: searching ``cell_diameter`` offers the setting's own row in each module that exposes it AND the entry of each function that takes it, which is what a setting query returns.",
+      "translation": "设置部分使 API 行能够通过设置名称被找到：搜索 ``cell_diameter`` 时，既会给出每个暴露该设置的模块中该设置自身的行，也会给出每个接受该设置的函数的条目，这正是设置查询所返回的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.api_entries#2",
+      "source": "``kind=\"api\"`` entries carrying ``{\"symbol\": dotted name}``, and ``\"reads\"`` when the symbol consumes settings.",
+      "source_sha256": "9c9ee12bfa593404caca5bcee59f22a74fbef3c11898513ccbefef2b7175f357",
+      "context": "``kind=\"api\"`` entries carrying ``{\"symbol\": dotted name}``, and ``\"reads\"`` when the symbol consumes settings.",
+      "translation": "``kind=\"api\"`` 条目，携带 ``{\"symbol\": dotted name}``，当该符号使用设置时还带有 ``\"reads\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.build_index#0",
+      "source": "Run every provider and collect what they know.",
+      "source_sha256": "6c37e169387580d64a400c2a02f5deef37ba3189d5012667d33a0ddf3742be47",
+      "context": "Run every provider and collect what they know.",
+      "translation": "运行每个提供者，并收集它们所知道的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.build_index#1",
+      "source": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
+      "source_sha256": "fb3f090d3ee2e389bffa1631460f0be3ceaa182631408114661f315b0e7b9707",
+      "context": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
+      "translation": "每个提供者都有各自的保护：因为无法读取 API 清单而丢失设置的搜索框，比悄悄地少提供几种类型的搜索框更糟。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.build_index#2",
+      "source": "providers to run; all of them when ``None``.",
+      "source_sha256": "d27e252a1b710bf1a3ab2731278be3b8ecdf7e0d775c85378a45bf89b7970beb",
+      "context": "providers to run; all of them when ``None``.",
+      "translation": "要运行的提供者；为 ``None`` 时运行全部。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.build_index#3",
+      "source": "every entry, in provider order.",
+      "source_sha256": "8b3a1fbb744fa3663147a125b239b1faa96efb0748fe7e0ee923d5b2bf1efc53",
+      "context": "every entry, in provider order.",
+      "translation": "所有条目，按提供者顺序排列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.module_entries#0",
+      "source": "One entry per module in the live registry.",
+      "source_sha256": "79e9285b3736281f00ac4eff0641b7a2d5551db92c0d44427a00124c0669e43a",
+      "context": "One entry per module in the live registry.",
+      "translation": "实时注册表中每个模块一个条目。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.module_entries#1",
+      "source": "``kind=\"module\"`` entries carrying ``{\"app\": key}``.",
+      "source_sha256": "c1a3924950a9c0f767db0f70ab165bb8c9acd677010cf4ba51b1fb7fa7dc1e8b",
+      "context": "``kind=\"module\"`` entries carrying ``{\"app\": key}``.",
+      "translation": "``kind=\"module\"`` 条目，携带 ``{\"app\": key}``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.preference_entries#0",
+      "source": "One entry per labelled row of the preferences dialog.",
+      "source_sha256": "a8e32220f1ebda0595ae95520f2dc9a632a7572766ff3bd262e707c8a39ebeb2",
+      "context": "One entry per labelled row of the preferences dialog.",
+      "translation": "偏好设置对话框中每个带标签的行一个条目。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.preference_entries#1",
+      "source": "``kind=\"preference\"`` entries carrying ``{\"tab\", \"label\"}``, where ``tab`` is the page's object name.",
+      "source_sha256": "b0fec461a714f0117b4c5490bc187feebcee44b4fa9aabe46e266cc152f82872",
+      "context": "``kind=\"preference\"`` entries carrying ``{\"tab\", \"label\"}``, where ``tab`` is the page's object name.",
+      "translation": "``kind=\"preference\"`` 条目，携带 ``{\"tab\", \"label\"}``，其中 ``tab`` 是页面的对象名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.provider_names#0",
+      "source": "The registered providers, in registration order.",
+      "source_sha256": "24855a0eb4899b22f5fcd93812797358651c644e7febdb355bce3ecb49f37efd",
+      "context": "The registered providers, in registration order.",
+      "translation": "已注册的提供者，按注册顺序排列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.register_provider#0",
+      "source": "Add or replace a source of entries.",
+      "source_sha256": "130b9a5c6fbb5628fe63d8335d5c68c22ebfe0c753e9aafb910a1e9b12bc264f",
+      "context": "Add or replace a source of entries.",
+      "translation": "添加或替换一个条目来源。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.register_provider#1",
+      "source": "the provider's name; registering the same name twice replaces the first, which is what lets a test swap a cheap provider in for an expensive one.",
+      "source_sha256": "1489c84b2336a2ee56323535c9a843911a72f54a9c58d7400550a708e73d7c2a",
+      "context": "the provider's name; registering the same name twice replaces the first, which is what lets a test swap a cheap provider in for an expensive one.",
+      "translation": "提供者的名称；两次注册相同的名称会替换第一个，这使得测试可以用一个开销小的提供者替换开销大的提供者。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#0",
+      "source": "An entry's description in the reader's language.",
+      "source_sha256": "0458bb7a319163fdf93366b185f481df594472fbf59376ce3ba1d0d033f4344a",
+      "context": "An entry's description in the reader's language.",
+      "translation": "以读者的语言表示的条目描述。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#1",
+      "source": "An API summary inside it is a docstring and stays as it was written; what this translates is the sentence spaCR wraps around it.",
+      "source_sha256": "4c5bbe78cf38a9bdb2e050cd90ab7d36db51933559ac44c2d490584c3f1709fb",
+      "context": "An API summary inside it is a docstring and stays as it was written; what this translates is the sentence spaCR wraps around it.",
+      "translation": "其中的 API 摘要是文档字符串，保持原样；这里翻译的是 spaCR 包裹在其外面的那句话。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#2",
+      "source": "the result.",
+      "source_sha256": "5145de6665d84ff79c9c4c17f2a5a2c73dab78ab1f32df5f8e906cbb845b2a62",
+      "context": "the result.",
+      "translation": "该结果。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#3",
+      "source": ":func:`spacr.qt.i18n.tr`, or ``None`` for English.",
+      "source_sha256": "03aa78bdf848d2e58068672e299e99dab81a01638569c51c17536dfd56eeaea8",
+      "context": ":func:`spacr.qt.i18n.tr`, or ``None`` for English.",
+      "translation": ":func:`spacr.qt.i18n.tr`，或 ``None`` 表示英文。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_description#4",
+      "source": "the line for the row's tooltip.",
+      "source_sha256": "fb186b7260f92cda0327a2fca29a46356b0dba4d8cbcfce902b9217c6beec4eb",
+      "context": "the line for the row's tooltip.",
+      "translation": "用于该行工具提示的文字。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_subtitle#0",
+      "source": "An entry's subtitle in the reader's language.",
+      "source_sha256": "2c9031bb500ec24d6dbc3e1062ef1a42f976ff6c77569e8ad681e2acc7770bc8",
+      "context": "An entry's subtitle in the reader's language.",
+      "translation": "以读者的语言表示的条目副标题。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.rendered_subtitle#3",
+      "source": "what the row should show under or beside the title.",
+      "source_sha256": "88a28a98039203e95edd353c921f79495f5ffe4780424919fe0738f78096d68e",
+      "context": "what the row should show under or beside the title.",
+      "translation": "该行应在标题下方或旁边显示的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.score#0",
+      "source": "The entry's score for a whole query, or ``None`` when a term misses.",
+      "source_sha256": "9831f5be5f2ea4d1be81231488ffc0f59240e594e9a4faa1a0813d68e6e396c7",
+      "context": "The entry's score for a whole query, or ``None`` when a term misses.",
+      "translation": "条目对整个查询的得分；当有任一词项未匹配时为 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.score#1",
+      "source": "Terms are ANDed, the same rule the per-module settings search uses: typing a second word must narrow, because otherwise typing more is a way of getting more results, which is the opposite of what typing means.",
+      "source_sha256": "ee33e0b61c5fe51f360b6e103db4362a0adbeaaff6bf149857d040bdd69c5cdb",
+      "context": "Terms are ANDed, the same rule the per-module settings search uses: typing a second word must narrow, because otherwise typing more is a way of getting more results, which is the opposite of what typing means.",
+      "translation": "各词项之间是“与”的关系，与逐模块设置搜索使用的规则相同：输入第二个词必须缩小范围，否则多输入内容反而会得到更多结果，这与输入的本意恰恰相反。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.score#2",
+      "source": "the candidate.",
+      "source_sha256": "a0ba636a8599a1fb438f9b7135dbd39766fa657baf5319af1e523f968b8769aa",
+      "context": "the candidate.",
+      "translation": "候选条目。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.score#3",
+      "source": "lowercased query terms.",
+      "source_sha256": "00e08845fb81f4b1a9d522dd456445f0df81f4a65fdcbe8154eb7443c63bd0e7",
+      "context": "lowercased query terms.",
+      "translation": "转换为小写的查询词项。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.score#4",
+      "source": "the summed score plus the kind tiebreak, or ``None``.",
+      "source_sha256": "4541c7c9c8b2160c55765437fd2b6aa50f0ddeaa5a25cb94656655293adf2e86",
+      "context": "the summed score plus the kind tiebreak, or ``None``.",
+      "translation": "得分总和加上类型的平局决胜值，或 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.search#0",
+      "source": "The best matches for ``query``, best first.",
+      "source_sha256": "5d9e939641509108cfa389cd754f90084066f618f60d4f6bcb654609ef77580f",
+      "context": "The best matches for ``query``, best first.",
+      "translation": "与 ``query`` 最匹配的结果，最佳的排在前面。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.search#1",
+      "source": "what :func:`build_index` returned.",
+      "source_sha256": "b20ca2ef534dbeb9d7bd8981883ab56b9078fdd0a00e7e631f671501c5a2b38d",
+      "context": "what :func:`build_index` returned.",
+      "translation": ":func:`build_index` 的返回值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.search#2",
+      "source": "raw text from the search box.",
+      "source_sha256": "658d9bdce2f5278a8a8874121982ff0a3fe3f9b6e61bc45ff9f51448cf0668af",
+      "context": "raw text from the search box.",
+      "translation": "来自搜索框的原始文本。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_index.search#3",
+      "source": "how many rows to return in total.",
+      "source_sha256": "a391403591bd19245854c63a851cac81b9a02b6dda45f9daf70f6c6ec2d8e07b",
+      "context": "how many rows to return in total.",
+      "translation": "总共返回多少行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.search#4",
+      "source": "how many rows of one kind may be returned; ``None`` lifts the cap, which is what a test asking \"is it in there at all\" wants.",
+      "source_sha256": "1452aa19330b3105219e3d0ea9043207f25c376d035c45757db3b5f8caad036e",
+      "context": "how many rows of one kind may be returned; ``None`` lifts the cap, which is what a test asking \"is it in there at all\" wants.",
+      "translation": "同一类型最多可以返回多少行；``None`` 表示取消上限，这正是询问“它到底在不在里面”的测试所需要的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.search#5",
+      "source": "matching entries, highest score first; ties are broken by kind and then by title, so the same query always lists the same way.",
+      "source_sha256": "e770965e1fe01399f7c3b1fc87e773b7518da5b82bcfd7b3a16f48b237d0d3b3",
+      "context": "matching entries, highest score first; ties are broken by kind and then by title, so the same query always lists the same way.",
+      "translation": "匹配的条目，得分最高的排在前面；平局先按类型再按标题决定，因此同一查询总是以相同的方式列出。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.setting_entries#0",
+      "source": "One entry per module a setting appears in, plus its API consumers.",
+      "source_sha256": "b22293ba33821dddcbf430c2b21fdc00db66feca453daf9df93035780d068fd8",
+      "context": "One entry per module a setting appears in, plus its API consumers.",
+      "translation": "设置所出现的每个模块一个条目，外加其 API 使用方。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.setting_entries#1",
+      "source": "ONE ROW PER MODULE: a setting in four modules is four rows, each naming its module and the category it sits under, rather than one row that then asks which. The user already knows which module they meant; a row that asks is a second click for information the list could have shown.",
+      "source_sha256": "917a074f3dd7eb984c35c457a05c4a12a81140c0fc0130ac87a3011098d84fd1",
+      "context": "One row per module: a setting in four modules is four rows, each naming its module and the category it sits under, rather than one row that then asks which. The user already knows which module they meant; a row that asks is a second click for information the list could have shown.",
+      "translation": "每个模块一行：出现在四个模块中的设置就是四行，每行都注明其模块及其所属的类别，而不是只有一行然后再询问是哪一个。用户已经知道自己指的是哪个模块；再询问的一行，意味着要为列表本可以直接显示的信息多点一次。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.setting_entries#2",
+      "source": "THE API HALF OF A SETTING IS NOT EMITTED HERE. ``SETTING_CONSUMERS`` names every addressable function that reads a key, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
+      "source_sha256": "2ab02ab5546359c5694a4040595795136c576571fc67d51f9b4ce0b0f0006a0c",
+      "context": "The API half of a setting is not emitted here. ``SETTING_CONSUMERS`` names every addressable function that reads a structured-data name, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
+      "translation": "设置的 API 部分不在这里生成。``SETTING_CONSUMERS`` 列出了每个读取某个键的可定位函数，而 :func:`api_entries` 会把这些信息合并到每个这类函数的 API 行中——每个符号一行，说明它读取哪些设置。如果两个提供者都生成这些行，``spacr.io.preprocess_img_data`` 就会为其自身列出一次，又为它读取的每个设置各列出一次，结果在一个结果列表中出现了十一行完全相同的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_index.setting_entries#3",
+      "source": "``kind=\"setting\"`` entries carrying ``{\"app\", \"key\", \"category\"}``.",
+      "source_sha256": "cc70d19a15577bdbbf51de6076e2a5a376db3afd2b884d2ae57ebcf21e9388b2",
+      "context": "``kind=\"setting\"`` entries carrying ``{\"app\", \"key\", \"category\"}``.",
+      "translation": "``kind=\"setting\"`` 条目，携带 ``{\"app\", \"key\", \"category\"}``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#0",
+      "source": "The search field beside the Help menu, and what each result opens.",
+      "source_sha256": "302de7e101673a08c199ec33cf600875a4bd3189e9f939a36be72608bd8dcebc",
+      "context": "The search field beside the Help menu, and what each result opens.",
+      "translation": "帮助菜单旁边的搜索框，以及每个结果所打开的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#1",
+      "source": ":mod:`spacr.qt.help_index` decides WHAT is addressable by name; this module is where a user types a name and where the answer takes them. The two halves are apart because only this one needs a display.",
+      "source_sha256": "2ed1190297dac95630e8a03a2c1b34769f2a49d333a10d9b083bd8e9e191161c",
+      "context": ":mod:`spacr.qt.help_index` decides WHAT is addressable by name; this module is where a user types a name and where the answer takes them. The two halves are apart because only this one needs a display.",
+      "translation": ":mod:`spacr.qt.help_index` 决定哪些内容可以按名称定位；本模块则是用户输入名称的地方，也是答案将用户带去的地方。两者分开，是因为只有本模块需要显示器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#2",
+      "source": "WHAT A RESULT DOES IS REGISTERED, NOT SWITCHED ON. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
+      "source_sha256": "9b06bc94e966f1588d6bb3afc4ac0f73c71437496df2efe0ac02e0e0ec01cd21",
+      "context": "What a result does is registered, not switched on. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
+      "translation": "结果执行的操作是注册的，而不是通过分支语句切换的。:func:`register_opener` 将一种类型绑定到 ``(window, entry) -> str``；:func:`open_entry` 查找该类型。因此，一种新类型的内容只需要在索引模块中添加一个提供者，并在这里添加一个打开器，而现有的函数都无需改动——这正是对该原则中 \"and so on\" 条款的字面贯彻。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#3",
+      "source": "The four that ship:",
+      "source_sha256": "5ddc9a8555d463332cecd2c083707c4050e89a7e43a7f5a544c89a0b66478442",
+      "context": "The four that ship:",
+      "translation": "随附提供的四种：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#4",
+      "source": "``module`` :meth:`spacr.qt.app.MainWindow.open_module`, which resolves a folded module to the host that took it over.",
+      "source_sha256": "b77ccdf263f62cde9587625a77742f067ec3e692cd4c6f220d75c475c9142b10",
+      "context": "``module`` :meth:`spacr.qt.app.MainWindow.open_module`, which resolves a folded module to the host that took it over.",
+      "translation": "``module`` —— :meth:`spacr.qt.app.MainWindow.open_module`，它会把已折叠的模块解析为接管它的宿主模块。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#5",
+      "source": "``setting`` Opens the module and then :func:`reveal_setting`: every category collapsed except the one holding the setting, the row scrolled to and marked. NOT by filtering the panel -- the per-module strip already has a filter and it leaves the other categories hidden, so a user who wanted to look around next has to work out what happened to the form.",
+      "source_sha256": "0412bad52eae8ac06d27b65ce47178901c4916d917fa67a6f3120324fa094fa1",
+      "context": "``setting`` Opens the module and then :func:`reveal_setting`: every category collapsed except the one holding the setting, the row scrolled to and marked. NOT by filtering the panel -- the per-module strip already has a filter and it leaves the other categories hidden, so a user who wanted to look around next has to work out what happened to the form.",
+      "translation": "``setting`` —— 打开模块，然后调用 :func:`reveal_setting`：除包含该设置的类别外，其他所有类别都会折叠，并滚动到该行并加以标记。并不是通过过滤面板实现的——逐模块的工具条已经有一个过滤器，它会让其他类别保持隐藏，于是之后想四处浏览的用户就得去弄清表单发生了什么。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#6",
+      "source": "``preference`` Opens Preferences on the tab that holds the row and marks the row.",
+      "source_sha256": "de860d39ebbc02a2a4430403099c775d1ca6998e02f089973d562c43479c80bc",
+      "context": "``preference`` Opens Preferences on the tab that holds the row and marks the row.",
+      "translation": "``preference`` —— 在包含该行的选项卡上打开偏好设置，并标记该行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#7",
+      "source": "``api`` Opens the published page WHEN IT IS REACHABLE, and otherwise shows the docstring that is on this machine and says the page is not reachable. A search result is believed, so a result that opens a 404 is worse than no result at all.",
+      "source_sha256": "4eda68fd6cc8ade496fa248319928c0e591678a08a07e0106484048f63f74e65",
+      "context": "``api`` Opens the published page when it is reachable, and otherwise shows the docstring that is on this machine and says the page is not reachable. A search result is believed, so a result that opens a 404 is worse than no result at all.",
+      "translation": "``api`` —— 在已发布的页面可以访问时打开该页面，否则显示本机上的文档字符串，并说明该页面无法访问。搜索结果会被用户信任，因此打开 404 页面的结果比没有结果更糟。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#8",
+      "source": "NOTHING THIS MODULE DOES ON THE GUI THREAD BLOCKS IT. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
+      "source_sha256": "e9885c01c2cfd5de99ec32fb6330b680f3e824759cb7e79172a16ef2b3e504b6",
+      "context": "Nothing this module does on the main GUI execution path blocks it. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
+      "translation": "本模块在 GUI 线程上所做的任何事情都不会阻塞它。构建索引大约需要一秒钟，因此它会在首次向搜索框输入时在工作线程上构建（:class:`_IndexLoader`），在构建完成之前，搜索框会显示相应提示。文档网站是否有响应是一个网络问题，因此同样在工作线程上询问（:class:`_DocsReach`），而且只会在用户打开 API 结果时才询问——spaCR 不会因为有人输入了内容就访问网络。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search#9",
+      "source": "OPENING A RESULT NEVER DISCARDS SETTINGS. ``MainWindow._on_nav_selected`` keeps every screen it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this field existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
+      "source_sha256": "efafb19e7ac93635222d2320b091ae7d8524b5208d71838143a70b95ccdb4261",
+      "context": "Opening a result never discards settings. ``MainWindow._on_nav_selected`` keeps every application view it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this microscope field of view existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
+      "translation": "打开结果绝不会丢弃设置。``MainWindow._on_nav_selected`` 会把它构建过的每个界面都保存在 ``self._screens`` 中，并将堆栈切换到该界面，因此当用户从 Measure 返回时，填了一半的 Mask 表单仍然保持填了一半的状态。在这个搜索框出现之前情况就是如此，现在又由 ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` 固定下来，以免将来某次改为导航时重建界面的改动悄悄地破坏它。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.ApiEntryDialog#0",
+      "source": "A symbol's local docstring, shown when its web page cannot be reached.",
+      "source_sha256": "080744a6ece7ca9efd347d4b997d469a75c9c82c6a8dd35748052c909b2d1dcf",
+      "context": "A symbol's local docstring, shown when its web page cannot be reached.",
+      "translation": "某个符号的本地文档字符串，在其网页无法访问时显示。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.ApiEntryDialog#1",
+      "source": "the dotted symbol.",
+      "source_sha256": "34d9a41c70c5dcc12b3f169145bcfd3ad9630f17429939d09a7d7d33306cb1e0",
+      "context": "the dotted symbol.",
+      "translation": "带点号的符号。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.ApiEntryDialog#2",
+      "source": "where the page would be.",
+      "source_sha256": "6378e43dd7b36e697562ba8dd4435e7387de8a9783b333b69ce510dc80813294",
+      "context": "where the page would be.",
+      "translation": "该页面本应所在的位置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.ApiEntryDialog#3",
+      "source": "the indexed summary, used when the source has no docstring to read.",
+      "source_sha256": "affeb623d2124942bd055e43ce22cd5fdb957080d3f01180bcb686d55da7978a",
+      "context": "the indexed summary, used when the source has no docstring to read.",
+      "translation": "索引中的摘要，在源代码中没有可读取的文档字符串时使用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.ApiEntryDialog#4",
+      "source": "parent widget.",
+      "source_sha256": "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+      "context": "parent widget.",
+      "translation": "父控件。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_search.ApiEntryDialog#5",
+      "source": "Build the offline view of one API entry.",
+      "source_sha256": "90149fc0cc7869f4840f7efd06f4b81e96f0d6a5dc774860168593c23ea1b6b5",
+      "context": "Build the offline view of one API entry.",
+      "translation": "构建某个 API 条目的离线视图。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField#0",
+      "source": "The box beside the Help menu.",
+      "source_sha256": "93d7b0016d29e7641cfcc82bcc6a219307ab073b58dec170f958c906c6ddbff2",
+      "context": "The box beside the Help menu.",
+      "translation": "帮助菜单旁边的输入框。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField#1",
+      "source": "Owns the popup, the index and the keyboard. Arrow keys and Return are forwarded to the list while it is open, which is what lets the whole feature be used without the mouse leaving the keyboard: focus, type, Down, Return.",
+      "source_sha256": "b646e325092745f84263e82a9f3ef196a1eb6bd5ede4f400745047e9e5230327",
+      "context": "Owns the popup, the index and the keyboard. Arrow keys and Return are forwarded to the list while it is open, which is what lets the whole feature be used without the mouse leaving the keyboard: focus, type, Down, Return.",
+      "translation": "负责弹出列表、索引和键盘操作。列表打开时，方向键和回车键会被转发给列表，这使得整个功能无需离开键盘使用鼠标即可完成：聚焦、输入、按下方向键、回车。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField#2",
+      "source": "the main window results act on.",
+      "source_sha256": "ef60e771395cf21d48e7f7fde3d27179ffe2a483aa090471466168ce57810eb6",
+      "context": "the main window results act on.",
+      "translation": "结果所作用的主窗口。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField#4",
+      "source": "Build the field, its popup and the debounce timer.",
+      "source_sha256": "78a3e40c3bb7e4f4ded1311021de8eb85e08150ebb2f4f66d7cd78cb26156b76",
+      "context": "Build the field, its popup and the debounce timer.",
+      "translation": "构建输入框、其弹出列表以及防抖定时器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.focusOutEvent#0",
+      "source": "Close the list when the caret leaves the box.",
+      "source_sha256": "b8fffe6fcd00b0e78e0961006e954c5b7bd115a2277cd14c5b869df0de48a125",
+      "context": "Close the list when the caret leaves the box.",
+      "translation": "当光标离开输入框时关闭列表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.focusOutEvent#1",
+      "source": "Safe to do unconditionally now that the list takes ``NoFocus``: clicking a row cannot move focus, so a focus-out means the user went somewhere else and the list is in the way of whatever that was.",
+      "source_sha256": "321caab73a70d63a9ca43004869a44694c5988ded7a169525c3a8132b1046d98",
+      "context": "Safe to do unconditionally now that the list takes ``NoFocus``: clicking a row cannot move focus, so a focus-out means the user went somewhere else and the list is in the way of whatever that was.",
+      "translation": "既然列表采用 ``NoFocus``，现在无条件地这样做是安全的：点击某一行不会移动焦点，因此失去焦点意味着用户去了别处，而列表会妨碍用户正在做的事情。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.focusOutEvent#2",
+      "source": "the focus-out event; it is not inspected, only passed on to the base class after the list is hidden.",
+      "source_sha256": "8a02801636f7cab8dfd517f9d22f094364056a9e511a29ebb605ffca3546460f",
+      "context": "the focus-out event; it is not inspected, only passed on to the base class after the list is hidden.",
+      "translation": "失去焦点事件；不会检查它，只是在隐藏列表后传给基类。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.hide_popup#0",
+      "source": "Put the popup away.",
+      "source_sha256": "43bc98f3ad345ba7c988879cc19b27a47d08e55a5ecd88071d4b3d201c6dd5a5",
+      "context": "Put the popup away.",
+      "translation": "收起弹出列表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.index#0",
+      "source": "The index, or ``None`` while it is still being built.",
+      "source_sha256": "11a545ee5ce749127514778112ae690ea6936a157ded3d3a3accaee282ad8a0b",
+      "context": "The index, or ``None`` while it is still being built.",
+      "translation": "索引；仍在构建期间为 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.keyPressEvent#0",
+      "source": "Steer the list from the box, and let Esc give the window back.",
+      "source_sha256": "26862b974bad7da72d300deea16ec89ead051421a7be86b8bfc952c59ff218b2",
+      "context": "Steer the list from the box, and let Esc give the window back.",
+      "translation": "从输入框操控列表，并让 Esc 把窗口交还给用户。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.keyPressEvent#1",
+      "source": "the key press.",
+      "source_sha256": "a9c4339240c90f62c6483a32e7d0ea67cd274e7532a6b077b13d12c7343f791c",
+      "context": "the key press.",
+      "translation": "按键事件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.note#0",
+      "source": "The line above the list: what is being built, or what matched.",
+      "source_sha256": "8a0de8cadb3e016b66bb67794e24d24fec57edd428badfafc173f7d35b3a283a",
+      "context": "The line above the list: what is being built, or what matched.",
+      "translation": "列表上方的那一行：正在构建什么，或匹配到了什么。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.popup#0",
+      "source": "The results popup, so a test can ask whether it is up.",
+      "source_sha256": "df2ed8b50cac99a91a63b829e84862a49d92ed897a7277a498356d6c957b4e1e",
+      "context": "The results popup, so a test can ask whether it is up.",
+      "translation": "结果弹出列表，以便测试可以询问它是否已显示。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.results#0",
+      "source": "What the popup is showing, best first.",
+      "source_sha256": "73a7e3825148a9ce18bba17118f48e7385ebe7539d26d3217f930a0d7b111de8",
+      "context": "What the popup is showing, best first.",
+      "translation": "弹出列表正在显示的内容，最佳的排在前面。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.set_index#0",
+      "source": "Use ``entries`` instead of building one.",
+      "source_sha256": "63611e943e223df27459af84cbf17c4d0968f3b28c56c552c862c9d5a968b4f1",
+      "context": "Use ``entries`` instead of building one.",
+      "translation": "使用 ``entries``，而不是自行构建索引。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.set_index#1",
+      "source": "what :func:`spacr.qt.help_index.build_index` returned.",
+      "source_sha256": "1cd85f7f524d2119f4a0ba90ae48b8caf91e6a78fde94ac9fae24496b28a4bb6",
+      "context": "what :func:`spacr.qt.help_index.build_index` returned.",
+      "translation": ":func:`spacr.qt.help_index.build_index` 的返回值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.type_and_search#0",
+      "source": "Put ``text`` in the box and search now, skipping the debounce.",
+      "source_sha256": "93d0aba88220a6127b3ba1e8290b9c7a3db64bd9b07f566afbb15381025b1337",
+      "context": "Put ``text`` in the box and search now, skipping the debounce.",
+      "translation": "将 ``text`` 放入输入框并立即搜索，跳过防抖。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.type_and_search#1",
+      "source": "The seam tests drive: typing is the user's action, and waiting 140 ms for a timer in every assertion would make the suite slower and no more honest about what the field does.",
+      "source_sha256": "a41dde4f85bdc2ad98703622e35a68acb345f497ce5bd4c8b2164616a1c7e3a3",
+      "context": "The seam tests drive: typing is the user's action, and waiting 140 ms for a timer in every assertion would make the suite slower and no more honest about what the field does.",
+      "translation": "测试所驱动的接口：输入是用户的操作，而在每个断言中都等待 140 ms 的定时器，只会让测试套件更慢，并不会更真实地反映输入框的行为。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.type_and_search#2",
+      "source": "what the user typed.",
+      "source_sha256": "7bbe8f5c3895b96ec40eede65b2880d6a4bfd2824c0f2aac099eada5359b8ca1",
+      "context": "what the user typed.",
+      "translation": "用户输入的内容。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_search.HelpSearchField.type_and_search#3",
+      "source": "the results now on screen.",
+      "source_sha256": "d15faf15233933b652574ae2a1a4ee14e5677e9647b1ec347e0f6e79c789df71",
+      "context": "the results now on application view.",
+      "translation": "现在显示在界面上的结果。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.api_url#0",
+      "source": "The published page for a dotted symbol.",
+      "source_sha256": "211920da3fcde351a7b1c9bfc56726ac8cfa8a2a8f46b8b4a173b816a84dac93",
+      "context": "The published page for a dotted symbol.",
+      "translation": "带点号符号的已发布页面。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.api_url#1",
+      "source": "The same shape ``spacr.qt.screens.settings_model.api_docs_url`` builds for a settings row -- ``<base>/spacr/core/index.html#spacr.core.f``, with ``?lang=`` on a page the reader wants in another language -- from the same ``DOCS_API_BASE``, so the search field and a settings row cannot disagree about where the documentation lives.",
+      "source_sha256": "db556f360a37851e93da769270897c29119764abf680a7d958a654d9e2ce749c",
+      "context": "The same shape ``spacr.qt.screens.settings_model.api_docs_url`` builds for a settings row -- ``<base>/spacr/core/index.html#spacr.core.f``, with ``?lang=`` on a page the reader wants in another language -- from the same ``DOCS_API_BASE``, so the search field and a settings row cannot disagree about where the documentation lives.",
+      "translation": "与 ``spacr.qt.screens.settings_model.api_docs_url`` 为设置行构建的形式相同——``<base>/spacr/core/index.html#spacr.core.f``，对于读者希望以另一种语言阅读的页面则带有 ``?lang=``——并且基于同一个 ``DOCS_API_BASE``，因此搜索框和设置行不会对文档所在位置产生分歧。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.api_url#2",
+      "source": "WHICH PREFIX IS THE MODULE is answered from the disk rather than assumed: ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask`` is an attribute two levels inside one, and only the file layout knows which of the dots is the last one in the path.",
+      "source_sha256": "9d2f1646ec608d1df65993717f61432e1bd129f33a71faef030a7c0937316896",
+      "context": "Which prefix is the module is answered from the disk rather than assumed: ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask`` is an attribute two levels inside one, and only the file layout knows which of the dots is the last one in the path.",
+      "translation": "哪个前缀是模块，这是根据磁盘而不是假设来回答的：``spacr.qt.screens.mask`` 是一个模块，而 ``spacr.layers.ShapesLayer.mask`` 是某个模块内部两层的属性，只有文件布局才知道哪个点号是路径中的最后一个。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.api_url#3",
+      "source": "a dotted symbol name.",
+      "source_sha256": "a76d5add647bdd1f381e7f08fd2caab4098799194a66ca6f4963a8f66345cffb",
+      "context": "a dotted symbol name.",
+      "translation": "带点号的符号名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.api_url#4",
+      "source": "a language code; the current one when ``None``.",
+      "source_sha256": "65229f3dea2c8fcbe8a046cdd8d7ffc12cc4392db242d166aafc74c6bae3cb12",
+      "context": "a language code; the current one when ``None``.",
+      "translation": "语言代码；为 ``None`` 时使用当前语言。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.api_url#5",
+      "source": "an absolute URL.",
+      "source_sha256": "17fd6c8d610221e0164a522f2cb92e6ae363d6cbbb7a2ad230b9d91f9cdaf9ac",
+      "context": "an absolute URL.",
+      "translation": "一个绝对 URL。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.docs_reach#0",
+      "source": "The one reachability probe, made on first use.",
+      "source_sha256": "e7ea479da87ff4c3218eb504821abab11adaf0633c088a333245247bc2ac92a6",
+      "context": "The one reachability probe, made on first use.",
+      "translation": "唯一的可达性探测，在首次使用时进行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.field_of#0",
+      "source": "The field installed on ``window``, if there is one.",
+      "source_sha256": "988af479e8ef2de6bf34509ba5c9f41778259825829643f9e832a09d6d8c8ece",
+      "context": "The field installed on ``window``, if there is one.",
+      "translation": "安装在 ``window`` 上的输入框（如果有）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.field_of#1",
+      "source": "the main window.",
+      "source_sha256": "94cd1d2e1a6a30ffff46478f3584697dfecaf5c5ad160c9c5b5d4a3edb5c8d05",
+      "context": "the main window.",
+      "translation": "主窗口。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.help_search.field_of#2",
+      "source": "the field, or ``None``.",
+      "source_sha256": "0a529926ae12d7775cb0a6f03be83d6abe1d9a093edabb5cc787f05b9cc40a04",
+      "context": "the field, or ``None``.",
+      "translation": "该输入框，或 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.focus_field#0",
+      "source": "Put the caret in the help search box.",
+      "source_sha256": "03a424863582362d9e51674fc4faa6f23a5b9f7f674833a7d4e43901524c97bb",
+      "context": "Put the caret in the help search box.",
+      "translation": "将光标放入帮助搜索框。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.focus_field#2",
+      "source": "True when there was a field to focus.",
+      "source_sha256": "e279890c1b4597fa34e5d57d630bd2d151e734545bd81bcf1bea60739b777e91",
+      "context": "True when there was a field to focus.",
+      "translation": "存在可以聚焦的输入框时为 True。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.install#0",
+      "source": "Put the search field directly to the right of the Help menu.",
+      "source_sha256": "a17625ad20304a719e5610cd4028878841907044d6144e00b691a00fcae20f66",
+      "context": "Put the search field directly to the right of the Help menu.",
+      "translation": "将搜索框紧挨着放在帮助菜单的右侧。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.install#1",
+      "source": "IN THE MENU ROW, NOT THE CORNER. The field was first installed in the menu bar's top-right corner widget, which put it beside the minimise, full screen and close marks at the far right of the window, away from the menus. It belongs directly to the right of Help, so it is placed in the menu row itself: the bar lays its actions out left to right, and Help is the last menu, so the field follows Help and moves with it when the menus are re-translated or re-ordered.",
+      "source_sha256": "fae337d102853e9f49e575c630681a3e0679440efcd741087ee227cc96bf0351",
+      "context": "In the menu row, not the corner. The field was first installed in the menu bar's top-right corner widget, which put it beside the minimise, full application view and close marks at the far right of the window, away from the menus. It belongs directly to the right of Help, so it is placed in the menu row itself: the bar lays its actions out left to right, and Help is the last menu, so the field follows Help and moves with it when the menus are re-translated or re-ordered.",
+      "translation": "放在菜单行中，而不是角落里。搜索框最初安装在菜单栏右上角的角落控件中，这使它位于窗口最右侧的最小化、全屏和关闭标记旁边，远离各个菜单。它应当紧挨在帮助菜单的右侧，因此被放在菜单行本身中：菜单栏从左到右排列其动作，而帮助是最后一个菜单，因此搜索框跟在帮助之后，并在菜单被重新翻译或重新排序时随之移动。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.install#2",
+      "source": "Idempotent: a second call hands back the field the first one installed.",
+      "source_sha256": "0204c9702335e56114379d0e53d1d840b28eda6558b394dbc5a5b6567989045d",
+      "context": "Idempotent: a second call hands back the field the first one installed.",
+      "translation": "可重复调用而结果不变：第二次调用会返回第一次调用安装的输入框。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.install#4",
+      "source": "the field, or ``None`` when there is no menu bar to hang it on.",
+      "source_sha256": "c974098e758c1ad89335fbf0b99c704a9002d8beeaa14bb01409440a3cd859e2",
+      "context": "the field, or ``None`` when there is no menu bar to hang it on.",
+      "translation": "该输入框；如果没有可以挂载它的菜单栏，则为 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.install_window_hooks#0",
+      "source": "Install the field from :func:`spacr.qt.shortcuts.install`.",
+      "source_sha256": "59dc45cc8215fd1f57aad10607371d06d5f47e2f888c28aac8e8c1250e6d9ee6",
+      "context": "Install the field from :func:`spacr.qt.shortcuts.install`.",
+      "translation": "从 :func:`spacr.qt.shortcuts.install` 安装该输入框。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.install_window_hooks#1",
+      "source": "Named for the convention the other window-scoped installers follow, so that ``_install_window_hooks`` reads as one list of the same thing.",
+      "source_sha256": "7c79b9ca7b850a80f842dd1bd640baabacb8fa2ddacc711d921ef023826c77c4",
+      "context": "Named for the convention the other window-scoped installers follow, so that ``_install_window_hooks`` reads as one list of the same thing.",
+      "translation": "按照其他窗口级安装函数所遵循的约定命名，这样 ``_install_window_hooks`` 读起来就是同一类事物的一个列表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.local_docstring#0",
+      "source": "The docstring of ``symbol`` as it is on this machine.",
+      "source_sha256": "0521a589f1fc649f731d101f363931a9265e96f638804cf119abc544844d3983",
+      "context": "The docstring of ``symbol`` as it is on this machine.",
+      "translation": "``symbol`` 在本机上的文档字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.local_docstring#1",
+      "source": "Read from the source with :mod:`ast` rather than by importing: the offline path must not be the one that drags ``spacr.core`` and its scientific stack into the process, and a docstring is in the syntax tree.",
+      "source_sha256": "90e184f6df61627abfb51917ec5623fdfd36e8e09dbc7fd3c9445d20d2bcbed8",
+      "context": "Read from the source with :mod:`ast` rather than by importing: the offline path must not be the one that drags ``spacr.core`` and its scientific stack into the process, and a docstring is in the syntax tree.",
+      "translation": "使用 :mod:`ast` 从源代码中读取，而不是通过导入：离线路径不应把 ``spacr.core`` 及其科学计算依赖拖入进程，而文档字符串就在语法树中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.local_docstring#3",
+      "source": "the docstring, or ``\"\"`` when it cannot be found.",
+      "source_sha256": "fd26bcdb9292f4c6c4c0cb3cb17083430a57e1e7bac35c79d66c9526232cb47c",
+      "context": "the docstring, or ``\"\"`` when it cannot be found.",
+      "translation": "文档字符串；找不到时为 ``\"\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.open_entry#0",
+      "source": "Take the user to ``entry``.",
+      "source_sha256": "9a0247ca11a362bc244c0bde396df615492e0a26eb8cd57cb62c9896e7afaacc",
+      "context": "Take the user to ``entry``.",
+      "translation": "将用户带到 ``entry``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.open_entry#2",
+      "source": "the chosen result.",
+      "source_sha256": "ed0a8330daa6e20563da041643ee279e4a33c2d84005932c35ab3a63fc3d417b",
+      "context": "the chosen result.",
+      "translation": "所选的结果。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.open_entry#3",
+      "source": "what to say in the status bar; ``\"\"`` when nothing was done.",
+      "source_sha256": "89ffe3f49a8cbfdddb2826803477d36bd5b6527c6c4f6fd61f51024a40507fe3",
+      "context": "what to say in the status bar; ``\"\"`` when nothing was done.",
+      "translation": "要在状态栏中显示的内容；未执行任何操作时为 ``\"\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.opener_kinds#0",
+      "source": "The kinds that can be opened, in registration order.",
+      "source_sha256": "85e73d707c9daf06f22e4a5be1e61658b0ba449fb0c02ffc20a123e3aeb80b8e",
+      "context": "The kinds that can be opened, in registration order.",
+      "translation": "可以被打开的类型，按注册顺序排列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.register_opener#0",
+      "source": "Say what happens when a result of ``kind`` is chosen.",
+      "source_sha256": "8d379c221b1cd73e208ce22f5f5a9393d45db6042ac67972541a369442c81fc3",
+      "context": "Say what happens when a result of ``kind`` is chosen.",
+      "translation": "说明选择 ``kind`` 类型的结果时会发生什么。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.register_opener#1",
+      "source": "the entry kind, matching a provider in :mod:`spacr.qt.help_index`.",
+      "source_sha256": "8f2e941e9a3bf0a474d3128ddb69b709fd867f23e1084b0d92b5e09b5fbfaae1",
+      "context": "the entry kind, matching a provider in :mod:`spacr.qt.help_index`.",
+      "translation": "条目类型，与 :mod:`spacr.qt.help_index` 中的某个提供者相对应。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.register_opener#2",
+      "source": "``(window, entry) -> str``; the string is shown in the status bar.",
+      "source_sha256": "e6b75504c74c631eae921c8d60698225c52bf29682c6a0f4697cf45dfffa826c",
+      "context": "``(window, entry) -> str``; the string is shown in the status bar.",
+      "translation": "``(window, entry) -> str``；返回的字符串会显示在状态栏中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.reveal_setting#0",
+      "source": "Open ``app_key`` with only ``key``'s category expanded and ``key`` shown.",
+      "source_sha256": "f3485605f4096c125810b3b5ec4996349dfd55fbaffbac942d4d3e456efbdc26",
+      "context": "Open ``app_key`` with only ``key``'s category expanded and ``key`` shown.",
+      "translation": "打开 ``app_key``，只展开 ``key`` 所属的类别并显示 ``key``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.reveal_setting#1",
+      "source": "Goes through the per-module search strip, which already owns the map from a setting key to the section and field widget rendering it. Building a second map here would be a second thing to keep in step with the form.",
+      "source_sha256": "828be92c0faaddcb390eb7854fa194786a328bd953acc3b36277982dafae31f4",
+      "context": "Goes through the per-module search strip, which already owns the map from a setting name to the section and field widget rendering it. Building a second map here would be a second thing to keep in step with the form.",
+      "translation": "通过逐模块的搜索工具条完成，它已经拥有从设置键到渲染该设置的分区和字段控件的映射。在这里再构建第二个映射，就意味着又多了一样需要与表单保持同步的东西。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.reveal_setting#3",
+      "source": "the module to open.",
+      "source_sha256": "9b30d779ebafa80fcfc56e1009be802f8a6a2ce7f1055683e77d4d51246ccaf9",
+      "context": "the module to open.",
+      "translation": "要打开的模块。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.reveal_setting#4",
+      "source": "the setting to reveal.",
+      "source_sha256": "6e6f0b8e0c249d6ac5c85a52ca2df3df3f29c1136ebc32480cf7f4c4dd8ce060",
+      "context": "the setting to reveal.",
+      "translation": "要显示的设置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.reveal_setting#5",
+      "source": "True when the row was found and revealed.",
+      "source_sha256": "5a7078a42aafd6f5106e3a61f5b0050a6bcf8390927973449c9eac59110431ca",
+      "context": "True when the row was found and revealed.",
+      "translation": "找到并显示了该行时为 True。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.show_api_entry#0",
+      "source": "Show one API entry's local docstring.",
+      "source_sha256": "611a85ead13c8570664cf9be8f829aa3da4a81386b2d377bc7cac38ab424746b",
+      "context": "Show one API entry's local docstring.",
+      "translation": "显示某个 API 条目的本地文档字符串。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.show_api_entry#3",
+      "source": "where the published page would be.",
+      "source_sha256": "268b406c4a0f7e39328939004f0ca55d58ff693a338640b16ee5e6c2244dd7a8",
+      "context": "where the published page would be.",
+      "translation": "已发布页面本应所在的位置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.show_api_entry#4",
+      "source": "the indexed summary.",
+      "source_sha256": "116d177227b5467e78ac8056409fb0ac9ced6a911e3f848138704eb2ef752ae4",
+      "context": "the indexed summary.",
+      "translation": "索引中的摘要。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.help_search.show_api_entry#5",
+      "source": "the dialog, already shown.",
+      "source_sha256": "a1b1c5e95a5e3dd0c9b6b1ae89959b1ecc4a04d1acea0b4fd987cb318a3c739f",
+      "context": "the dialog, already shown.",
+      "translation": "已经显示的对话框。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.hf_download.DownloadResult#1",
+      "source": "local folder holding the downloaded data, as the worker reported it on success.",
+      "source_sha256": "bb05700998c9f421dc28e7b1f22e667ef70921fdf32627744655e9e58827f798",
+      "context": "local folder holding the downloaded data, as the worker reported it on success.",
+      "translation": "存放已下载数据的本地文件夹，即工作线程在成功时报告的位置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hf_download.DownloadResult#2",
+      "source": "local folder holding the settings files that came with the download.",
+      "source_sha256": "eec03ba0079a1f10c2f86392469588d72b3f0c6c62c4b9dbd8644924ff9d333b",
+      "context": "local folder holding the settings files that came with the download.",
+      "translation": "存放随下载一起提供的设置文件的本地文件夹。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hf_download.download_annotate_example#1",
+      "source": "QWidget that parents the progress dialog and the worker thread.",
+      "source_sha256": "ab941f719159d7c097ad829e0055e2d92923c932bbca660bc8883dc81f403a9d",
+      "context": "QWidget that parents the progress dialog and the background execution unit.",
+      "translation": "作为进度对话框和工作线程父对象的 QWidget。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hf_download.download_annotate_example#2",
+      "source": "local directory the example archive is unpacked into; created if missing.",
+      "source_sha256": "215158a17a55e1d6cc8ad3e30cd453a49ad0669c4590268927fb53b7e013269f",
+      "context": "local directory the example archive is unpacked into; created if missing.",
+      "translation": "示例归档解压到的本地目录；不存在时会被创建。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hf_download.download_annotate_example#3",
+      "source": "called with ``(result, error_message)`` when the download ends; ``result`` is a :class:`DownloadResult` on success and ``None`` on failure or cancellation.",
+      "source_sha256": "37e055d73a73046535007f52b6d15d06b1ee7d60cd10e7489398936d2fe62c88",
+      "context": "called with ``(result, error_message)`` when the download ends; ``result`` is a :class:`DownloadResult` on success and ``None`` on failure or cancellation.",
+      "translation": "下载结束时以 ``(result, error_message)`` 调用；``result`` 在成功时为 :class:`DownloadResult`，在失败或取消时为 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hf_download.download_chosen_screen_data#2",
+      "source": "local directory every archive is unpacked into; created if missing.",
+      "source_sha256": "8f35afcb16b5c9d31e36226b60d08bcf4f1b4f5e2f81a4349b90ec96cb38ef75",
+      "context": "local directory every archive is unpacked into; created if missing.",
+      "translation": "每个归档解压到的本地目录；不存在时会被创建。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hf_download.download_chosen_screen_data#3",
+      "source": "archive file names to fetch from ``repo``, in order. An empty selection ends the run with \"Nothing was selected.\" instead of fetching everything.",
+      "source_sha256": "a9e16e5bc44b656b00a2d96bdad4e6dababc2647b5242bf9a46f0c4c7bccb561",
+      "context": "archive file names to fetch from ``repo``, in order. An empty selection ends the run with \"Nothing was selected.\" instead of fetching everything.",
+      "translation": "要从 ``repo`` 获取的归档文件名，按顺序排列。空选择会以 \"Nothing was selected.\" 结束本次运行，而不是获取全部内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hf_download.download_chosen_screen_data#4",
+      "source": "Hugging Face dataset repo id the archives are read from; an empty string keeps the worker's default.",
+      "source_sha256": "2eb57aa3b41fa9ac1ba409696bc1ff1f9661bff96a22a25fbdf25c076ec2e303",
+      "context": "Hugging Face dataset repo id the archives are read from; an empty string keeps the worker's default.",
+      "translation": "读取归档所用的 Hugging Face 数据集仓库 ID；空字符串表示保留工作线程的默认值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.follow_device_ratio#3",
+      "source": "the ``QObject`` (normally a widget) to watch; it becomes the watcher's parent. Anything that is not a ``QObject`` gives ``None``.",
+      "source_sha256": "d59af6138b69833b9993a9cae6dc2e05f93385b9a2c9c0f75cb8f7baa4a94152",
+      "context": "the ``QObject`` (normally a widget) to watch; it becomes the watcher's parent. Anything that is not a ``QObject`` gives ``None``.",
+      "translation": "要监视的 ``QObject``（通常是控件）；它会成为监视器的父对象。任何不是 ``QObject`` 的对象都会得到 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.follow_device_ratio#4",
+      "source": "zero-argument callable run when the widget's device pixel ratio actually changes; an exception it raises is logged at debug level and swallowed.",
+      "source_sha256": "92713f8a74bc4aca728706bfb82562a25f392c76744f3719c381d09ee9795ee1",
+      "context": "zero-argument callable run when the widget's device pixel ratio actually changes; an exception it raises is logged at debug level and swallowed.",
+      "translation": "在控件的设备像素比真正发生变化时运行的无参数可调用对象；它抛出的异常会以调试级别记录并被吞掉。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.logical_size#2",
+      "source": "a ``QPixmap`` or ``QImage`` (or ``None``); its device-independent size is used when it has one, otherwise its pixel size divided by its device pixel ratio.",
+      "source_sha256": "6e84973158bf0e93ffff9d48b5b01550ff339583303792f755aea01b43ea1e6c",
+      "context": "a ``QPixmap`` or ``QImage`` (or ``None``); its device-independent size is used when it has one, otherwise its pixel size divided by its device pixel ratio.",
+      "translation": "一个 ``QPixmap`` 或 ``QImage``（或 ``None``）；有设备无关尺寸时使用该尺寸，否则使用其像素尺寸除以其设备像素比。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.scaled_for#4",
+      "source": "the ``QPixmap`` or ``QImage`` to scale; ``None`` or a null picture is returned unchanged.",
+      "source_sha256": "4d484930191cc872f07b114a42721824de9b8318b18a173d052096438070f951",
+      "context": "the ``QPixmap`` or ``QImage`` to scale; ``None`` or a null picture is returned unchanged.",
+      "translation": "要缩放的 ``QPixmap`` 或 ``QImage``；``None`` 或空图片原样返回。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.scaled_for#5",
+      "source": "the widget (or window, screen or paint device) the picture will be shown on; its device pixel ratio is read through :func:`device_ratio`.",
+      "source_sha256": "3e598e5c40605bb2f010e195b3af679cf3712404381e2c613dd3341eb736a1ed",
+      "context": "the widget (or window, application view or paint device) the picture will be shown on; its device pixel ratio is read through :func:`device_ratio`.",
+      "translation": "将显示该图片的控件（或窗口、屏幕或绘图设备）；其设备像素比通过 :func:`device_ratio` 读取。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.scaled_for#6",
+      "source": "logical width in widget pixels, or the whole size as a single side length, a ``(w, h)`` pair or a ``QSize`` when ``height`` is not given.",
+      "source_sha256": "c413e5722a15df907c2e3d475a59bfa7e84ad4a0d2d9de90c3f05ca781ef7540",
+      "context": "logical width in widget pixels, or the whole size as a single side length, a ``(w, h)`` pair or a ``QSize`` when ``height`` is not given.",
+      "translation": "以控件像素为单位的逻辑宽度；或者以单边长度、``(w, h)`` 对或 ``QSize`` 表示的整体尺寸（当未给出 ``height`` 时）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.screen_for_widget#0",
+      "source": "Find a display without making its Python wrapper a child of a window.",
+      "source_sha256": "dcf53904bb88de7dd3543d9739ec71539d20b11a3cea835baecea78c7b8fc8ac",
+      "context": "Find a display without making its Python wrapper a child of a window.",
+      "translation": "查找显示器，而不让其 Python 包装对象成为某个窗口的子对象。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.screen_for_widget#1",
+      "source": "PySide can associate ``QWidget.screen()``'s shared QScreen wrapper with that widget. Closing it then invalidates the wrapper; cyclic collection can even destroy the display object still used by QApplication. Static QGuiApplication lookups leave display lifetime with Qt.",
+      "source_sha256": "fb5d24e3610e7aa21ed8517662eb243c36ceda1f104d40699e069d86108d135b",
+      "context": "PySide can associate ``QWidget.screen()``'s shared QScreen wrapper with that widget. Closing it then invalidates the wrapper; cyclic collection can even destroy the display object still used by QApplication. Static QGuiApplication lookups leave display lifetime with Qt.",
+      "translation": "PySide 可能会把 ``QWidget.screen()`` 的共享 QScreen 包装对象与该控件关联起来。关闭该控件就会使该包装对象失效；循环垃圾回收甚至可能销毁 QApplication 仍在使用的显示器对象。静态的 QGuiApplication 查找会让显示器的生命周期由 Qt 管理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.screen_for_widget#2",
+      "source": "QWidget or QWindow whose center selects the display, or None for the primary display. An unshown child uses its parent. Non-Qt stand-ins may supply their own ``screen()`` accessor.",
+      "source_sha256": "9b99ed0ccedec10443d858aff9e4969dbdbffe0c6b1772bbaa585da17873806c",
+      "context": "QWidget or QWindow whose center selects the display, or None for the primary display. An unshown child uses its parent. Non-Qt stand-ins may supply their own ``screen()`` accessor.",
+      "translation": "以其中心位置选择显示器的 QWidget 或 QWindow，或 None 表示主显示器。尚未显示的子控件使用其父控件。非 Qt 的替代对象可以提供自己的 ``screen()`` 访问器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.hidpi.screen_for_widget#3",
+      "source": "QScreen at that position, the primary display as fallback, or None when there is no GUI application/display.",
+      "source_sha256": "3f7d77a0a557a47f4cf17d6568aa0210ec6ea1fcaf7ec84c7080380266817c27",
+      "context": "QScreen at that position, the primary display as fallback, or None when there is no GUI application/display.",
+      "translation": "该位置上的 QScreen，回退时为主显示器；当没有 GUI 应用程序/显示器时为 None。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.catalog_coverage#1",
+      "source": "English UI strings; each is converted with ``str`` and duplicates are counted once.",
+      "source_sha256": "d9236bef0c7f36698fa5a25099ee2f7fee269dbe4ad51fe169db32621467dba4",
+      "context": "English UI strings; each is converted with ``str`` and duplicates are counted once.",
+      "translation": "英文 UI 字符串；每个都用 ``str`` 转换，重复项只计一次。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.catalog_coverage#2",
+      "source": "language code to check; ``None`` uses the current language.",
+      "source_sha256": "9cfa07b86635e3f752c3b921527d73364358c22f7c51ed88550776b1267bfdea",
+      "context": "language code to check; ``None`` uses the current language.",
+      "translation": "要检查的语言代码；``None`` 表示使用当前语言。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.has_translation#1",
+      "source": "the English UI string, converted with ``str``. For English itself the answer is whether the string is a catalog row.",
+      "source_sha256": "99fa9c1a4bada852129168b205d04f7357fffdada30125dcaabb4ed5013805ee",
+      "context": "the English UI string, converted with ``str``. For English itself the answer is whether the string is a catalog row.",
+      "translation": "英文 UI 字符串，用 ``str`` 转换。对于英文本身，答案是该字符串是否为目录中的一行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.install_dialog_translation#2",
+      "source": "the ``QApplication`` to install the event filter on. ``None`` does nothing, and an application that already has the filter is left as it is.",
+      "source_sha256": "fcbd9a530c6da4aaecddc2f8008456e36c55be1aec6068c7f86760ebc10d2679",
+      "context": "the ``QApplication`` to install the event filter on. ``None`` does nothing, and an application that already has the filter is left as it is.",
+      "translation": "要安装事件过滤器的 ``QApplication``。``None`` 不执行任何操作，已经带有该过滤器的应用程序保持原样。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.install_qt_translations#2",
+      "source": "the ``QApplication`` the ``qtbase`` translator is installed on; ``None`` returns ``False``.",
+      "source_sha256": "d72e79d6cba60d732017457d17a20486dec0f9d3e5868484f6a3d66533534189",
+      "context": "the ``QApplication`` the ``qtbase`` translator is installed on; ``None`` returns ``False``.",
+      "translation": "``QApplication``，``qtbase`` 翻译器会安装在其上；``None`` 返回 ``False``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.install_qt_translations#3",
+      "source": "language code to load; ``None`` uses the current language. English and languages without a Qt catalog install nothing.",
+      "source_sha256": "4c80902a9d6c5221d6a37331b4dc20be333692d112734c5d55eac592fa560e58",
+      "context": "language code to load; ``None`` uses the current language. English and languages without a Qt catalog install nothing.",
+      "translation": "要加载的语言代码；``None`` 表示使用当前语言。英文以及没有 Qt 目录的语言不会安装任何内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.normalize_language#2",
+      "source": "any value; converted with ``str`` (``None`` and other falsy values count as empty), hyphens read as underscores and matched case-insensitively. Anything unrecognised returns ``DEFAULT_LANGUAGE``.",
+      "source_sha256": "cc1dc5adb90554f5062773612a5228854b8936b8afc0741f96ce1325a68b3883",
+      "context": "any value; converted with ``str`` (``None`` and other falsy values count as empty), hyphens read as underscores and matched case-insensitively. Anything unrecognised returns ``DEFAULT_LANGUAGE``.",
+      "translation": "任意值；用 ``str`` 转换（``None`` 和其他假值视为空），连字符按下划线处理，匹配时不区分大小写。任何无法识别的值都返回 ``DEFAULT_LANGUAGE``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.retranslate_widget_tree#5",
+      "source": "the widget (or other ``QObject``) whose child widgets and actions are walked; it is included itself when it is a ``QWidget``. ``None`` does nothing.",
+      "source_sha256": "51bc08fc9a939b84dd0bf6b0dfca830971500c0e2e8b6cca0f4605a14a4e5169",
+      "context": "the widget (or other ``QObject``) whose child widgets and actions are walked; it is included itself when it is a ``QWidget``. ``None`` does nothing.",
+      "translation": "要遍历其子控件和动作的控件（或其他 ``QObject``）；当它本身是 ``QWidget`` 时也包括在内。``None`` 不执行任何操作。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.retranslate_widget_tree#6",
+      "source": "language code to translate into; ``None`` uses the current language.",
+      "source_sha256": "030656566c108bd16372016163759a1bcb0872282a2d69e76d005f5a979f2679",
+      "context": "language code to translate into; ``None`` uses the current language.",
+      "translation": "要翻译成的语言代码；``None`` 表示使用当前语言。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.retranslate_widget_tree#7",
+      "source": "skip widgets already stamped for this language and catalog generation, as described above.",
+      "source_sha256": "39ecc794ccab59c1ca9eba3d30892d0461a2b02abf22ee5510823d5e28a0fc10",
+      "context": "skip widgets already stamped for this language and catalog generation, as described above.",
+      "translation": "跳过已针对此语言和目录版本打上标记的控件，如上所述。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.set_translatable_text#2",
+      "source": "a widget with ``setText``; the template and values are stored on it so a later language pass can re-render the text.",
+      "source_sha256": "be8dfd1f8e37c28a8941cbfef22ce96641ff4486fd0ceb2d3524490aecbf82ec",
+      "context": "a widget with ``setText``; the template and values are stored on it so a later language pass can re-render the text.",
+      "translation": "具有 ``setText`` 的控件；模板和值会存储在其上，以便之后的语言处理可以重新渲染文本。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.set_translatable_text#3",
+      "source": "the English template, translated with :func:`tr`.",
+      "source_sha256": "87e662781df9df09af06c8784bf36a26d07e7086cd8d0b07d87525e28338d80b",
+      "context": "the English template, translated with :func:`tr`.",
+      "translation": "英文模板，用 :func:`tr` 翻译。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.set_translatable_text#4",
+      "source": "language code; ``None`` uses the current language.",
+      "source_sha256": "449df5b31134ab81fb686487ad8866eec08b9351ba2b3ce4caf2857cf1e5dc38",
+      "context": "language code; ``None`` uses the current language.",
+      "translation": "语言代码；``None`` 表示使用当前语言。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.set_translatable_text#5",
+      "source": "placeholder values applied with ``str.format`` after translation.",
+      "source_sha256": "b219af72c7a9812f0fddb23146acbb6e319b8418d4288d3a8acc87c7ea15aa3f",
+      "context": "placeholder values applied with ``str.format`` after translation.",
+      "translation": "翻译之后用 ``str.format`` 应用的占位符值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.tr#2",
+      "source": "the English UI string, converted with ``str``.",
+      "source_sha256": "e1105d6f96231462bc38c017da039ff70da51f149318fb5e67e0c5321463a07a",
+      "context": "the English UI string, converted with ``str``.",
+      "translation": "英文 UI 字符串，用 ``str`` 转换。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n.tr#4",
+      "source": "placeholder values for ``str.format``; a template the values do not fit is returned unformatted.",
+      "source_sha256": "33821ccc88dfb94412f36ec2a87d98cb780277339e8227df030a35b02fc93699",
+      "context": "placeholder values for ``str.format``; a template the values do not fit is returned unformatted.",
+      "translation": "用于 ``str.format`` 的占位符值；与这些值不匹配的模板会原样返回，不进行格式化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n_module_summaries.module_summary#2",
+      "source": "module key selecting the reviewed summary in ``MODULE_SUMMARIES``.",
+      "source_sha256": "1ac1e47442f00c7a988db41f67f4876e8fc1c22aefee58801ab6e0244c4509a7",
+      "context": "module key selecting the reviewed summary in ``MODULE_SUMMARIES``.",
+      "translation": "在 ``MODULE_SUMMARIES`` 中选择经审阅摘要的模块键。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.i18n_module_summaries.module_summary#3",
+      "source": "the English summary, returned for English and as the last fallback; a reviewed translation is used only when this text's SHA-256 matches the hash recorded at review time.",
+      "source_sha256": "4cf526dd9254b78e4b64cd3339bdb6c899bdf1bda58c0bc85e2e0c7a5ad74fee",
+      "context": "the English summary, returned for English and as the last fallback; a reviewed translation is used only when this text's SHA-256 matches the hash recorded at review time.",
+      "translation": "英文摘要，在英文环境下以及作为最后的回退时返回；只有当这段文本的 SHA-256 与审阅时记录的哈希值一致时，才会使用经审阅的翻译。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.iconset.accent_icon#1",
+      "source": "semantic icon key, as for :func:`icon`.",
+      "source_sha256": "447ecd9adecc6247f0db54ac2e20c515d07a3e612e88c899a6454f5eb6fea927",
+      "context": "semantic icon key, as for :func:`icon`.",
+      "translation": "语义图标键，与 :func:`icon` 相同。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.iconset.app_icon#1",
+      "source": "application registry key; resolved to bundled artwork by :func:`bundled_icon_path`, and used as the :func:`icon` name when no artwork is found or it cannot be read.",
+      "source_sha256": "8085aa1e6e2696b5d2d30f6377ed118ee3a6368e079a3f6f0a36fdf464858d7a",
+      "context": "application registry key; resolved to bundled artwork by :func:`bundled_icon_path`, and used as the :func:`icon` name when no artwork is found or it cannot be read.",
+      "translation": "应用注册表键；由 :func:`bundled_icon_path` 解析为随附的图片，在找不到图片或无法读取时用作 :func:`icon` 的名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.iconset.carries_tonal_structure#3",
+      "source": "RGBA pixel array of shape (H, W, 4) with 0-255 values; only pixels whose alpha exceeds 2 % are measured, and a fully transparent array gives ``False``.",
+      "source_sha256": "93baad30077d4db2370924e1ec83cfa90aa8df9378afde514868e5db55a4c947",
+      "context": "RGBA pixel array of shape (H, W, 4) with 0-255 values; only pixels whose alpha exceeds 2 % are measured, and a fully transparent array gives ``False``.",
+      "translation": "形状为 (H, W, 4)、取值为 0-255 的 RGBA 像素数组；只测量 alpha 超过 2 % 的像素，完全透明的数组返回 ``False``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.iconset.hardest_surface#1",
+      "source": "theme name, one of :data:`spacr.qt.theme.THEMES`; the theme's ``fg`` ink is compared against each role in :data:`ICON_SURFACES`.",
+      "source_sha256": "682886a8fb1017218401a7e6b6b91a1025ec95a9ad1d70a5805680a8ca35cdea",
+      "context": "theme name, one of :data:`spacr.qt.theme.THEMES`; the theme's ``fg`` ink is compared against each role in :data:`ICON_SURFACES`.",
+      "translation": "主题名称，为 :data:`spacr.qt.theme.THEMES` 之一；会将该主题的 ``fg`` 前景色与 :data:`ICON_SURFACES` 中的每个角色进行比较。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.iconset.icon#2",
+      "source": "semantic icon key looked up in the module's glyph table, e.g. ``\"open\"`` or ``\"run\"``.",
+      "source_sha256": "7b38139378670cb75b6169cd140f21d29f8ebc6bfbba16eb5155b1ecdb914cac",
+      "context": "semantic icon structured-data name looked up in the module's glyph table, e.g. ``\"open\"`` or ``\"run\"``.",
+      "translation": "在模块字形表中查找的语义图标键，例如 ``\"open\"`` 或 ``\"run\"``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.iconset.icon_contrast#2",
+      "source": "path to the icon artwork (PNG or SVG); its modification time and size key both the in-memory and the on-disk cache.",
+      "source_sha256": "4df5c8495d66f905a8185e2b141f231d14b33c4c5415a16180d27e84baa84008",
+      "context": "path to the icon artwork (PNG or SVG); its modification time and size structured-data name both the in-memory and the on-disk cache.",
+      "translation": "图标图片（PNG 或 SVG）的路径；其修改时间和大小同时作为内存缓存和磁盘缓存的键。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.iconset.themed_pixmap#0",
+      "source": ":func:`themed_qimage` as a ``QPixmap``, or ``None``.",
+      "source_sha256": "7ab84379e50229cb38a7daed5a94552e797b2e6b1ad22630b391cb5db7465ca8",
+      "context": ":func:`themed_qimage` as a ``QPixmap``, or ``None``.",
+      "translation": ":func:`themed_qimage`，以 ``QPixmap`` 形式返回，或者为 ``None``。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.iconset.veil_color#2",
+      "source": "theme name, one of :data:`spacr.qt.theme.THEMES`; the result is cached per theme.",
+      "source_sha256": "a38bae6ea067481f19552e6874372d7aa18fbb0a63c1fafd2ceb175ce2d8cddf",
+      "context": "theme name, one of :data:`spacr.qt.theme.THEMES`; the result is cached per theme.",
+      "translation": "主题名称，为 :data:`spacr.qt.theme.THEMES` 之一；结果按主题缓存。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.background_path#2",
+      "source": "wallpaper key in :data:`MASTERS`, e.g. ``\"microtubules\"``; also names the cached file.",
+      "source_sha256": "703ee8c7fa3deead41485d803f111d2676dfb14ee818cdbee8142638271aca1d",
+      "context": "wallpaper key in :data:`MASTERS`, e.g. ``\"microtubules\"``; also names the cached file.",
+      "translation": ":data:`MASTERS` 中的壁纸键，例如 ``\"microtubules\"``；也用于命名缓存文件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.brightest_window#1",
+      "source": "uint8 RGB image array of shape ``(h, w, 3)``.",
+      "source_sha256": "c43f429bde562f8509d5ba4f0adeb6590f231465b893b431b415a7b5976a5a72",
+      "context": "uint8 RGB image array of shape ``(h, w, 3)``.",
+      "translation": "形状为 ``(h, w, 3)`` 的 uint8 RGB 图像数组。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.build_master#3",
+      "source": "wallpaper key in :data:`MASTERS`; an unknown key raises ``KeyError``.",
+      "source_sha256": "690f5d3c797781746de0dc07702955a34491938089441f685cceda9f1b0d52cb",
+      "context": "wallpaper key in :data:`MASTERS`; an unknown key throws ``KeyError``.",
+      "translation": ":data:`MASTERS` 中的壁纸键；未知的键会抛出 ``KeyError``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.build_master#4",
+      "source": "directory holding the original image named by the entry's ``\"source\"``.",
+      "source_sha256": "ac4eb7d9f68e0073c1f79969823f6c0f8267a2a5e40187e495162dc1f9f8c5cc",
+      "context": "directory holding the original image named by the entry's ``\"source\"``.",
+      "translation": "存放由条目的 ``\"source\"`` 所指定原始图像的目录。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.build_master#5",
+      "source": "directory the JPEG master is written into, under the entry's ``\"file\"`` name; created if missing.",
+      "source_sha256": "c9a9dacf44b24af694e016e5bde9790909ea7c67746b297c11de8631327ca105",
+      "context": "directory the JPEG master is written into, under the entry's ``\"file\"`` name; created if missing.",
+      "translation": "JPEG 母版以条目的 ``\"file\"`` 名称写入的目录；不存在时会被创建。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.build_masters#1",
+      "source": "directory holding the originals, passed to :func:`build_master` for every key.",
+      "source_sha256": "d77706c3efc4d1da3a7edbb86b438e977e89c90dcaa2b62c3e49f208a4b7675b",
+      "context": "directory holding the originals, passed to :func:`build_master` for every key.",
+      "translation": "存放原始图像的目录，会针对每个键传给 :func:`build_master`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.cache_name#1",
+      "source": "wallpaper key, embedded in the name as ``photo-<key>-...``.",
+      "source_sha256": "75617a04f50fc31c8dbc280153127bb2172932f80ecf88fa487628e181c4cf77",
+      "context": "wallpaper key, embedded in the name as ``photo-<key>-...``.",
+      "translation": "壁纸键，以 ``photo-<key>-...`` 的形式嵌入名称中。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.cache_name#2",
+      "source": "image width in pixels.",
+      "source_sha256": "b42c963560bf6ac5f6b71ec965be04923919d1d5df1efcea37e9c6d4384efdf7",
+      "context": "image width in pixels.",
+      "translation": "图像宽度，以像素为单位。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.imagery.cache_name#3",
+      "source": "image height in pixels.",
+      "source_sha256": "21f5d19ff64755bc677619ab1d6455b78a060acc9ea9a0b46c5c46fef283bf78",
+      "context": "image height in pixels.",
+      "translation": "图像高度，以像素为单位。",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.imagery.dim#1",
+      "source": "uint8 image array; every value is mapped through a 256-entry lookup table, so any shape works.",
+      "source_sha256": "b634341023e9f5e3ec688de331f1357a62bba83b9615cc9481a99445030e5aa9",
+      "context": "uint8 image array; every value is mapped through a 256-entry lookup table, so any shape works.",
+      "translation": "uint8 图像数组；每个值都通过一个 256 项的查找表映射，因此任何形状都适用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.dim#2",
+      "source": "multiplier applied to linear-light values; ``1.0`` or more returns ``arr`` unchanged.",
+      "source_sha256": "433fbd2cee7bf4d68e928221a2472839b509aebf8b8e87127a97fb15ef2a1f37",
+      "context": "multiplier applied to linear-light values; ``1.0`` or more returns ``arr`` unchanged.",
+      "translation": "应用于线性光值的乘数；``1.0`` 或更大时原样返回 ``arr``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.exposure_target#2",
+      "source": "theme name whose palette sets the limit, e.g. ``\"cell\"`` or ``\"space\"``; see :func:`spacr.qt.theme.max_background_luma`.",
+      "source_sha256": "aad33a9f941f63ade2bcc03c8174e99bbf84704a1e8b842559eb91d05d785384",
+      "context": "theme name whose palette sets the limit, e.g. ``\"cell\"`` or ``\"space\"``; see :func:`spacr.qt.theme.max_background_luma`.",
+      "translation": "其调色板决定上限的主题名称，例如 ``\"cell\"`` 或 ``\"space\"``；参见 :func:`spacr.qt.theme.max_background_luma`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.legibility#2",
+      "source": "wallpaper key in :data:`MASTERS`; the master is judged against that entry's theme.",
+      "source_sha256": "0cf469fc214d1b8ca104255a6794f4aecd0d17f8f543e650168b0177e83e6757",
+      "context": "wallpaper key in :data:`MASTERS`; the master is judged against that entry's theme.",
+      "translation": ":data:`MASTERS` 中的壁纸键；母版会根据该条目的主题进行评判。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.legibility_of#10",
+      "source": "theme name whose palette sets ``limit`` and ``failures``.",
+      "source_sha256": "c51e67a921b7c46316c8bfe30aeb1e22962a144705c00e0b5c285edfc44979ea",
+      "context": "theme name whose palette sets ``limit`` and ``failures``.",
+      "translation": "其调色板决定 ``limit`` 和 ``failures`` 的主题名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.linear_rgb#1",
+      "source": "uint8 image array; each value is looked up in a 256-entry table, so the result has the same shape.",
+      "source_sha256": "1143f10d7a9d7d4c675eef9084ef4775419e7b69c62c3f565d8b75e6b758420f",
+      "context": "uint8 image array; each value is looked up in a 256-entry table, so the result has the same shape.",
+      "translation": "uint8 图像数组；每个值都在一个 256 项的表中查找，因此结果具有相同的形状。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.luminance_map#1",
+      "source": "uint8 RGB image array of shape ``(h, w, 3)``; the result has shape ``(h, w)``.",
+      "source_sha256": "7049fa8573d02ccd100f74972c2ba5d866ad4371b52c443cf3ab3dc400e1259b",
+      "context": "uint8 RGB image array of shape ``(h, w, 3)``; the result has shape ``(h, w)``.",
+      "translation": "形状为 ``(h, w, 3)`` 的 uint8 RGB 图像数组；结果的形状为 ``(h, w)``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.master_array#2",
+      "source": "wallpaper key in :data:`MASTERS`; see :func:`master_path`.",
+      "source_sha256": "890b69ddaf37705d157a5d5586937344b25fbaf4c4c7b07b9ce04147db1ee76d",
+      "context": "wallpaper key in :data:`MASTERS`; see :func:`master_path`.",
+      "translation": ":data:`MASTERS` 中的壁纸键；参见 :func:`master_path`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.master_path#2",
+      "source": "wallpaper key in :data:`MASTERS`; its ``\"file\"`` is looked for in each of :func:`master_dirs` in turn.",
+      "source_sha256": "c15b31c2c1a29e2169f581ec66f86abbe226b03751ec724b3ff318a154a1e58e",
+      "context": "wallpaper key in :data:`MASTERS`; its ``\"file\"`` is looked for in each of :func:`master_dirs` in turn.",
+      "translation": ":data:`MASTERS` 中的壁纸键；其 ``\"file\"`` 会依次在 :func:`master_dirs` 的每个目录中查找。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.rects_overlap#1",
+      "source": "first rectangle as ``(x0, y0, x1, y1)``.",
+      "source_sha256": "6d4a4e53aa8af197a876b672b9a1d24656dbd34c60dc234a92997e46061b8e09",
+      "context": "first rectangle as ``(x0, y0, x1, y1)``.",
+      "translation": "以 ``(x0, y0, x1, y1)`` 表示的第一个矩形。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.rects_overlap#2",
+      "source": "second rectangle, same form. Rectangles that only touch along an edge do not overlap.",
+      "source_sha256": "f0241d79c3b98652ee2b36617b855027cc6fa16a7ab8258a82c6a3adb423bb9f",
+      "context": "second rectangle, same form. Rectangles that only touch along an edge do not overlap.",
+      "translation": "第二个矩形，形式相同。只沿一条边相接的矩形不算重叠。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.render#1",
+      "source": "wallpaper key in :data:`MASTERS`.",
+      "source_sha256": "ef4ca76f02933373dd810fbfab66f1da2aec03288e3012613637d4f353120e4a",
+      "context": "wallpaper key in :data:`MASTERS`.",
+      "translation": ":data:`MASTERS` 中的壁纸键。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.render#2",
+      "source": "output width in pixels, clamped to :data:`spacr.qt.space.MIN_DIM` and :data:`spacr.qt.space.MAX_DIM`.",
+      "source_sha256": "fbd30b5dbd2a855d78e1b117c8fd8ba49ceb8b467da0a3003d68946ac08ef199",
+      "context": "output width in pixels, clamped to :data:`spacr.qt.space.MIN_DIM` and :data:`spacr.qt.space.MAX_DIM`.",
+      "translation": "输出宽度，以像素为单位，会被限制在 :data:`spacr.qt.space.MIN_DIM` 和 :data:`spacr.qt.space.MAX_DIM` 之间。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.render#3",
+      "source": "output height in pixels, clamped the same way.",
+      "source_sha256": "23f7ed07daa0ba157bcbf31e9e0b5dfee7e202aa5bbdd4d59402acfd2ac507b4",
+      "context": "output height in pixels, clamped the same way.",
+      "translation": "输出高度，以像素为单位，以同样的方式限制。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.solid_annotation_blocks#3",
+      "source": "uint8 RGB image array of shape ``(h, w, 3)``; an empty array or one smaller than :data:`ANNOTATION_BLOCK` on either side gives 0.",
+      "source_sha256": "ecf1ab96d929961f3eec8fa05da131923736d96e6a6abe3367730e29a083a444",
+      "context": "uint8 RGB image array of shape ``(h, w, 3)``; an empty array or one smaller than :data:`ANNOTATION_BLOCK` on either side gives 0.",
+      "translation": "形状为 ``(h, w, 3)`` 的 uint8 RGB 图像数组；空数组或任一边小于 :data:`ANNOTATION_BLOCK` 的数组返回 0。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.solve_dim#2",
+      "source": "current linear relative luminance; ``0`` or less gives ``1.0``.",
+      "source_sha256": "82c615973d1e243d9cf984dc0cb5a6bfc3c3e6f1460ebfe6acda9fafba80f0b3",
+      "context": "current linear relative luminance; ``0`` or less gives ``1.0``.",
+      "translation": "当前的线性相对亮度；``0`` 或更小时返回 ``1.0``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.solve_dim#3",
+      "source": "luminance to reach; negative values are treated as ``0``.",
+      "source_sha256": "f8d05cf3120b53f5ea047a856cb078c8ac397fd5b9fc495e61f94c83b9e49681",
+      "context": "luminance to reach; negative values are treated as ``0``.",
+      "translation": "要达到的亮度；负值按 ``0`` 处理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.solve_image_file#3",
+      "source": "image file to read and, if it needs dimming, overwrite.",
+      "source_sha256": "20145dd116abd3d3073b18e92c979fef143f1190eaa827e9fd93a3dfb345d156",
+      "context": "image file to read and, if it needs dimming, overwrite.",
+      "translation": "要读取的图像文件，如果需要调暗则会被覆盖。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.solve_image_file#4",
+      "source": "theme name whose palette sets the exposure target.",
+      "source_sha256": "76263a45ae499fd2a9048c003fc3e36a38d75d2bd8d40462b868770a0bd25f4e",
+      "context": "theme name whose palette sets the exposure target.",
+      "translation": "其调色板决定曝光目标的主题名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.srgb_encode#2",
+      "source": "linear-light value; clipped to ``[0, 1]`` before encoding.",
+      "source_sha256": "aa931f63c046b2a80f5237c0939d96073ab4218d9d68cfe1ae400191a1f4f252",
+      "context": "linear-light value; clipped to ``[0, 1]`` before encoding.",
+      "translation": "线性光值；编码前会被裁切到 ``[0, 1]``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.theme_for#1",
+      "source": "wallpaper key in :data:`MASTERS`; unknown keys give ``None``.",
+      "source_sha256": "6a252ecad2c028de24a6b686c5133b7dcd25c22aacbc4d7e063687558ce76a0c",
+      "context": "wallpaper key in :data:`MASTERS`; unknown keys give ``None``.",
+      "translation": ":data:`MASTERS` 中的壁纸键；未知的键返回 ``None``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.imagery.title_for#1",
+      "source": "wallpaper key in :data:`MASTERS`; an unknown key is returned as its own title.",
+      "source_sha256": "1e7d0bdf1f6df5cece5140624fcb0176c396b9a407d8103902b0410c5d729b21",
+      "context": "wallpaper key in :data:`MASTERS`; an unknown key is returned as its own title.",
+      "translation": ":data:`MASTERS` 中的壁纸键；未知的键会被原样作为其标题返回。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo#0",
+      "source": "Import's \"Load test data…\": every vendor format and naming, one press away.",
+      "source_sha256": "b846fe72a4a034340614131b7b02a3277d1f499d748a4e097d51f12b3284109d",
+      "context": "Import's \"Load test data…\": every vendor format and naming, one press away.",
+      "translation": "Import 的 \"Load test data…\"：每种厂商格式和命名方式，一键即可获得。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo#1",
+      "source": "A press of \"Test Zeiss CZI import\" downloads Zeiss CZI files named by ZEN's split-tiles convention, fills the Import screen with their paths on disk and previews them, so the user can import them and see each file land on the well, field and channel it came from. Every other format and filename convention in :data:`spacr.import_examples.IMPORT_VARIANTS` works the same way.",
+      "source_sha256": "cd5a4c994b8508cf2b8a74edcb9d36b6bd858df741f9d3be168cef89e57a5534",
+      "context": "A press of \"Test Zeiss CZI import\" downloads Zeiss CZI files named by ZEN's split-microscope image fields convention, fills the Import screen with their paths on disk and previews them, so the user can import them and see each file land on the microplate sample position, field and channel it came from. Every other format and filename convention in :data:`spacr.import_examples.IMPORT_VARIANTS` works the same way.",
+      "translation": "按下 \"Test Zeiss CZI import\" 会下载按 ZEN 的拆分图块约定命名的 Zeiss CZI 文件，用它们在磁盘上的路径填充 Import 界面并进行预览，这样用户就可以导入它们，并看到每个文件落到其原本所属的孔、视野和通道上。:data:`spacr.import_examples.IMPORT_VARIANTS` 中的其他每种格式和文件名约定都以同样的方式工作。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo#2",
+      "source": "WHAT THE BUTTON DOES. It opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
+      "source_sha256": "7a7f32df124f51efefc2db2199d62485e7299a0fa2072c3ec9b811a4a840d2ef",
+      "context": "What the button does. It opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
+      "translation": "按钮的作用。它会打开 :class:`ImportTestDataChooser`，其中 :data:`spacr.import_examples.IMPORT_VARIANTS` 的每个变体对应一个按钮，鼠标悬停时显示说明。所选变体会被获取——整个数据集是一个归档，因此第一次按下时会下载所有变体，之后每次按下都从缓存中打开——然后：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo#3",
+      "source": "an ``import`` variant fills the Import screen itself: the image folder, the three mask folders, the measurement table, the naming convention and, for Custom, its pattern. A fresh destination is chosen, so a second demo never lands in the first one's project, and Preview is pressed. Nothing is written until the user presses Import.",
+      "source_sha256": "7de4a251a0f3fd1076f83f81abe5e8b52ad6138564c4e59e9029fa14d373c5dc",
+      "context": "an ``import`` variant fills the Import application view itself: the image folder, the three mask folders, the measurement table, the naming convention and, for Custom, its pattern. A fresh destination is chosen, so a second demo never lands in the first one's project, and Preview is pressed. Nothing is written until the user presses Import.",
+      "translation": "``import`` 变体会填充 Import 界面本身：图像文件夹、三个掩膜文件夹、测量表、命名约定，以及 Custom 所用的模式。会选择一个新的目标位置，这样第二次演示绝不会落入第一次的项目中，然后自动按下 Preview。在用户按下 Import 之前不会写入任何内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo#4",
+      "source": "a ``convert`` variant -- the public ND2 and LIF samples, which have no masks -- opens the Format Converter page and fills and previews that.",
+      "source_sha256": "a24f96e5398a50f9e683cb0887d8fc41881d1b5aa0eb396f3062a2d7abfbf8f8",
+      "context": "a ``convert`` variant -- the public ND2 and LIF samples, which have no masks -- opens the Format Converter page and fills and previews that.",
+      "translation": "``convert`` 变体——即公开的 ND2 和 LIF 样本，它们没有掩膜——会打开 Format Converter 页面，并填充和预览该页面。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo#5",
+      "source": "SAME MACHINERY AS EVERY OTHER EXAMPLE SET: :class:`_TarExampleWorker` streams the archive on a worker thread behind the shared progress dialog and unpacks it through the tar data filter.",
+      "source_sha256": "9b3f1d5cfa5375ecbdcc0d1bd9d032e5f5edd74afc26b42c98fddf68650ab816",
+      "context": "Same machinery as every other example set: :class:`_TarExampleWorker` streams the archive on a background execution unit behind the shared progress dialog and unpacks it through the tar data filter.",
+      "translation": "与其他所有示例数据集使用相同的机制：:class:`_TarExampleWorker` 在工作线程上以流式方式传输归档，前台显示共享的进度对话框，并通过 tar 数据过滤器进行解压。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.ImportTestDataChooser#0",
+      "source": "Every Import test variant, described on hover, in a grid.",
+      "source_sha256": "45487eb5743b6877684024d7f0768dec160c0742a769f064264ded7ca51a56ba",
+      "context": "Every Import test variant, described on hover, in a grid.",
+      "translation": "所有 Import 测试变体，以网格排列，鼠标悬停时显示说明。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.ImportTestDataChooser#2",
+      "source": "Build the chooser from the variant registry.",
+      "source_sha256": "5347daa4a9be075d0eb4c2981da8d68cd8cbd84abe952f09868ec2605198f757",
+      "context": "Build the chooser from the variant registry.",
+      "translation": "根据变体注册表构建选择器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.apply_variant#0",
+      "source": "Fill the screen for one unpacked variant and press Preview.",
+      "source_sha256": "8218bf5fe027510b497ebd8cf299eb28be3ad9f132c1a50df1f6cfb97ff2da1b",
+      "context": "Fill the application view for one unpacked variant and press Preview.",
+      "translation": "为一个已解压的变体填充界面并按下 Preview。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.apply_variant#1",
+      "source": "the Import screen.",
+      "source_sha256": "c085bbbb4e406a697160d9e09b719bdb261ee7b080b46ee1e6cdcd849a85a3d9",
+      "context": "the Import screen.",
+      "translation": "Import 界面。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.apply_variant#4",
+      "source": "whether the variant was complete and the preview started.",
+      "source_sha256": "a5076029258e4b2620298f8ff6243cd73c18997862257af498c41067e4945014",
+      "context": "whether the variant was complete and the preview started.",
+      "translation": "该变体是否完整以及预览是否已启动。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.choose_import_test_data#0",
+      "source": "Show the chooser, then load whatever was picked.",
+      "source_sha256": "b07c2b50f08f1672568a741b2c7137f6c55df8c0e7b99b4d04611f01964aa971",
+      "context": "Show the chooser, then load whatever was picked.",
+      "translation": "显示选择器，然后加载所选的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.choose_import_test_data#2",
+      "source": "replaces :class:`ImportTestDataChooser`, for tests -- a headless run cannot show a modal dialog.",
+      "source_sha256": "67e9d35f0c51c06581916353995677b4b61d271aa69f71277cc00790e897f3ac",
+      "context": "replaces :class:`ImportTestDataChooser`, for tests -- a headless run cannot show a modal dialog.",
+      "translation": "替代 :class:`ImportTestDataChooser`，用于测试——无界面运行无法显示模态对话框。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.choose_import_test_data#3",
+      "source": "passed to :func:`load_import_test_data`.",
+      "source_sha256": "cfa635645f1617beb86482b9fd33adc69cd0d04a729ab57a69563416eebc6852",
+      "context": "passed to :func:`load_import_test_data`.",
+      "translation": "传给 :func:`load_import_test_data`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.choose_import_test_data#5",
+      "source": "whether a variant was opened by this call.",
+      "source_sha256": "a11257547d4f3d0139945d15921d2e7953092323e93cd4f2ec095fb85cb4e92e",
+      "context": "whether a variant was opened by this call.",
+      "translation": "本次调用是否打开了某个变体。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.download_import_example#0",
+      "source": "Fetch Import's test data behind the shared progress dialog.",
+      "source_sha256": "033417e99f3fc385d1c56d1ab7cd7e7fe12943d35e0d7dde4543133852ae7b02",
+      "context": "Fetch Import's test data behind the shared progress dialog.",
+      "translation": "在共享的进度对话框之后获取 Import 的测试数据。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.download_import_example#2",
+      "source": "the example plate folder the archive unpacks into.",
+      "source_sha256": "5363d482f983d5105860f325589dac90c74ab6c8ef0f25459d6bfe5ce536bb36",
+      "context": "the example plate folder the archive unpacks into.",
+      "translation": "归档解压到的示例板文件夹。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.download_import_example#3",
+      "source": "called on the GUI thread as ``on_done(result, error)``.",
+      "source_sha256": "6b7d2d1a7520599dd02f1796dd5373364978f22428e0791549f931c6e7f51189",
+      "context": "called on the main GUI execution path as ``on_done(result, error)``.",
+      "translation": "在 GUI 线程上以 ``on_done(result, error)`` 形式调用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.load_import_test_data#0",
+      "source": "Open one variant, downloading the set first when it is not cached.",
+      "source_sha256": "c34e4b30fd744e0e0c5a4da51f07fe3bb2b35f49c28023d4153dbf19f3d46255",
+      "context": "Open one variant, downloading the set first when it is not cached.",
+      "translation": "打开一个变体，如果数据集尚未缓存则先下载。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.load_import_test_data#3",
+      "source": "replaces :func:`download_import_example`, for tests. Called as ``ask(screen, plate, on_done)``.",
+      "source_sha256": "67512796339a0f7a7514bae864a51778fb42111f6a48ab00beac7d53dc47d91b",
+      "context": "replaces :func:`download_import_example`, for tests. Called as ``ask(screen, plate, on_done)``.",
+      "translation": "替代 :func:`download_import_example`，用于测试。以 ``ask(screen, plate, on_done)`` 形式调用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.load_import_test_data#4",
+      "source": "replaces the example plate folder, for tests.",
+      "source_sha256": "7d7be2db2800f8ba2e2171c9443cc9f7fe84d6c905566b788d8b0846962ef7b1",
+      "context": "replaces the example plate folder, for tests.",
+      "translation": "替代示例板文件夹，用于测试。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.import_demo.load_import_test_data#5",
+      "source": "whether the variant was opened by this call. ``False`` while a download is still running, and after a failure.",
+      "source_sha256": "51b8f6296c48dc93813c9ddb3a480ed383af137f8b43e22207cadafd4ab10193",
+      "context": "whether the variant was opened by this call. ``False`` while a download is still executing, and after a failure.",
+      "translation": "本次调用是否打开了该变体。下载仍在进行时以及失败后为 ``False``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ingest_preview.mapping_to_row#1",
+      "source": "mapping object, read by attribute; a missing attribute falls back to ``\"\"`` (paths, well), ``\"plate1\"`` or ``1`` (field, channel, time). The row's keys are :data:`ROW_COLUMNS`.",
+      "source_sha256": "8da1ff914f1387e23862a24d150fee1870ce6bea2939f18ef6f8db0f2e980aae",
+      "context": "mapping object, read by attribute; a missing attribute falls back to ``\"\"`` (paths, well), ``\"plate1\"`` or ``1`` (microscope field of view, channel, time). The row's structured-data names are :data:`ROW_COLUMNS`.",
+      "translation": "映射对象，按属性读取；缺失的属性回退为 ``\"\"``（路径、孔）、``\"plate1\"`` 或 ``1``（视野、通道、时间）。行的键为 :data:`ROW_COLUMNS`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ingest_preview.rows_to_mappings#1",
+      "source": "row dicts keyed by :data:`ROW_COLUMNS`; missing text keys become ``\"\"`` (``plate`` becomes ``\"plate1\"``) and a missing or empty field, channel or time becomes ``1``.",
+      "source_sha256": "3cbb0af9032508131a6f45c125d7a77274cdd60eac2d4b68f71597cc30116e33",
+      "context": "row key-value mappings keyed by :data:`ROW_COLUMNS`; missing text structured-data names become ``\"\"`` (``plate`` becomes ``\"plate1\"``) and a missing or empty microscope field of view, channel or time becomes ``1``.",
+      "translation": "以 :data:`ROW_COLUMNS` 为键的行字典；缺失的文本键变为 ``\"\"``（``plate`` 变为 ``\"plate1\"``），缺失或为空的视野、通道或时间变为 ``1``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ingest_preview.summarize_rows#1",
+      "source": "preview row dicts; distinct ``well``, ``field``, ``channel`` and ``time`` values are counted, and timepoints are only mentioned when there is more than one.",
+      "source_sha256": "94615fb47f62744d380dda84cac0d01ab7f8f5fa9a2137b9db771a23d2627087",
+      "context": "preview row key-value mappings; distinct ``well``, ``field``, ``channel`` and ``time`` values are counted, and timepoints are only mentioned when there is more than one.",
+      "translation": "预览行字典；会统计不同的 ``well``、``field``、``channel`` 和 ``time`` 值，只有当时间点多于一个时才会提及时间点。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.install_consent.apply_choices#1",
+      "source": "the consent answers, read by the keys ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
+      "source_sha256": "82abef8f86c95d2674f76fb2ce6ae43eeee5ec6dc13afbaea427e4127878ed19",
+      "context": "the consent answers, read by the structured-data names ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
+      "translation": "同意选项的答案，通过 ``share_diagnostics``、``report_issues`` 和 ``sign_in_now`` 键读取；缺失或无法识别的值视为否。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.install_consent.maybe_show_installer_consent#1",
+      "source": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
+      "source_sha256": "42e71bc786fd1e162aa0c4fab39550375f7644ad1f2a7f2bdb5326846e1903da",
+      "context": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
+      "translation": "作为应用内同意对话框的父控件的控件；如果选择了登录，也作为账户设置对话框的父控件。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.CanvasTool.double_click#1",
+      "source": "the :class:`LayerCanvas` the tool is attached to.",
+      "source_sha256": "1456c4e61c66777bb01c3d4ab4294eec5fc75a10eab1774331a9e8a3c68daf7a",
+      "context": "the :class:`LayerCanvas` the tool is attached to.",
+      "translation": "工具所附着的 :class:`LayerCanvas`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.CanvasTool.double_click#2",
+      "source": "world position already resolved from the cursor, as an axis-name to coordinate dict that includes the pinned depth axes.",
+      "source_sha256": "daba4341fb37f6105c519867793064a519b41bcdb1ff6c77b912303b913f2dac",
+      "context": "world position already resolved from the cursor, as an axis-name to coordinate key-value mapping that includes the pinned depth axes.",
+      "translation": "已从光标解析出的世界位置，形式为轴名到坐标的字典，其中包括固定的深度轴。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.CanvasTool.double_click#3",
+      "source": "the Qt mouse event, passed through unchanged.",
+      "source_sha256": "393a9206a78cc2eee6e0ac9b4d9eb844aad4d50cb385315eb0e98346795ef62b",
+      "context": "the Qt mouse event, passed through unchanged.",
+      "translation": "Qt 鼠标事件，原样传递。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.CanvasTool.double_click#4",
+      "source": "``True`` to consume the double click; the base returns ``False``.",
+      "source_sha256": "478c6e769a3eebb389bea7e83924956e972e5336419b10e6c5fce95764384486",
+      "context": "``True`` to consume the double click; the base returns ``False``.",
+      "translation": "返回 ``True`` 表示处理该双击；基类返回 ``False``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.CanvasTool.key#2",
+      "source": "the Qt key event, passed through unchanged.",
+      "source_sha256": "b6e58d8764c774bda9d5d7a51b250d840d2a233972250c365ee04a349a493c92",
+      "context": "the Qt key event, passed through unchanged.",
+      "translation": "Qt 按键事件，原样传递。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.CanvasTool.key#3",
+      "source": "``True`` to consume the key; the base returns ``False`` so the canvas's default handling runs.",
+      "source_sha256": "c758a679ee213521c48a9036291182579d52f56882c304fe9a6f91e89dcdf79a",
+      "context": "``True`` to consume the key; the base returns ``False`` so the canvas's default handling runs.",
+      "translation": "返回 ``True`` 表示处理该按键；基类返回 ``False``，以便运行画布的默认处理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.CanvasTool.move#4",
+      "source": "``True`` to consume the move; the base returns ``False``.",
+      "source_sha256": "ff967cb35075adb55164d5037ace782983fbe0aa9b6c34e839e81cdd3ddb1ade",
+      "context": "``True`` to consume the move; the base returns ``False``.",
+      "translation": "返回 ``True`` 表示处理该移动；基类返回 ``False``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.CanvasTool.press#3",
+      "source": "the Qt mouse event, passed through unchanged; a tool can read its button and modifiers.",
+      "source_sha256": "b86923a026b32765c733d56d1a30fc7942bc9a2d89245aa396574e06c0287796",
+      "context": "the Qt mouse event, passed through unchanged; a tool can read its button and modifiers.",
+      "translation": "Qt 鼠标事件，原样传递；工具可以读取其按键和修饰键。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.LayerCanvas.set_plane#1",
+      "source": "world-axis names for the canvas rows and columns, in that order; only the first two items are used.",
+      "source_sha256": "3f18ba564c562432e6bab032ae1a84d6b4d5bd3b620ba31b69f3547231dbc4a9",
+      "context": "world-axis names for the canvas rows and columns, in that order; only the first two items are used.",
+      "translation": "画布的行和列所对应的世界坐标轴名称，按此顺序排列；只使用前两项。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.LayerCanvas.set_stack#2",
+      "source": "the :class:`~spacr.layers.LayerStack` to display; the canvas subscribes to its layer changes.",
+      "source_sha256": "19d71d757ca4299c9240bdec19b4c0941a4f88c7bda53e2c85cc9155139dcd45",
+      "context": "the :class:`~spacr.layers.LayerStack` to display; the canvas subscribes to its layer changes.",
+      "translation": "要显示的 :class:`~spacr.layers.LayerStack`；画布会订阅其图层变化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.layer_viewer.LayerCanvas.set_tool#2",
+      "source": "the :class:`CanvasTool` to receive mouse and key events, or ``None``. A different tool already attached is detached first.",
+      "source_sha256": "b5728a9d5c55362cd6d2b8f52964cff16122c2a8a0a0b67103d9d39b7569990d",
+      "context": "the :class:`CanvasTool` to receive mouse and key events, or ``None``. A different tool already attached is detached first.",
+      "translation": "接收鼠标和按键事件的 :class:`CanvasTool`，或 ``None``。如果已附着了另一个工具，会先将其分离。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
       "label": "spacr.qt.widgets.gate_spec.GateSet.add#2",
       "source": "the gate to add; its parent, if any, must already be in the set.",
       "source_sha256": "f9dc9a4b0318fc228e72596f44e3a3139f1854d9e54d3a40256be8a500192627",
