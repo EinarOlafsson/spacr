@@ -700,7 +700,7 @@ class _MasksConsole(QWidget):
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
         self._last = None
-        self._relay.connect(self.say)
+        self._relay.connect(self.post)
         self.stream_updates = 0
         self._stream_lock = threading.Lock()
         self._stream_pending = None
@@ -717,7 +717,7 @@ class _MasksConsole(QWidget):
         stop = backends._listen_to_workers(self._worker_said)
         self.destroyed.connect(lambda *_args: stop())
 
-    def say(self, text: str, kind: str = "info") -> None:
+    def post(self, text: str, kind: str = "info") -> None:
         """Write one line.
 
         :param text: what to say; blank is ignored.
@@ -10027,11 +10027,11 @@ class MakeMasksScreen(QWidget):
 
         :param text: the line.
         :param kind: ``progress``, ``stream``, ``info``, ``warning`` or
-            ``error``; see :meth:`_MasksConsole.say`. A ``stream`` line (an
+            ``error``; see :meth:`_MasksConsole.post`. A ``stream`` line (an
             install's own output) goes to the console only, which throttles
             it; the corner keeps the task's own words.
         """
-        self._masks_console.say(text, kind)
+        self._masks_console.post(text, kind)
         if kind != "stream":
             self._status_label.set_quietly(text)
 
@@ -10044,7 +10044,7 @@ class MakeMasksScreen(QWidget):
         """
         stripped = str(text or "").rstrip()
         running = stripped.endswith(("…", "..."))
-        self._masks_console.say(stripped, "progress" if running else "info")
+        self._masks_console.post(stripped, "progress" if running else "info")
 
     def _build_shortcut_panel(self) -> QWidget:
         """The gestures, one terse line each.
