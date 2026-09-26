@@ -893,6 +893,13 @@ class SettingsSearchBar(QWidget):
         for key, section in waiting.items():
             if key not in self._index or self._index[key][1] is None:
                 self._index[key] = (section, None)
+        from .preferences import _is_alpha_visible
+
+        if not _is_alpha_visible():
+            from ..settings import _alpha_names
+
+            for key in _alpha_names("settings"):
+                self._index.pop(key, None)
 
     def _apply_section_state(self, shown: Dict[int, int],
                              narrowing: bool, reopen: bool = True) -> None:
