@@ -149,13 +149,18 @@ def test_a_waiting_row_is_still_a_row_on_the_form(qtbot):
 
 def test_the_search_strip_still_indexes_every_setting(qtbot):
     """The strip indexes the RENDERED FORM, so an unrendered row is one it
-    cannot show. Every row is rendered; only the captions wait."""
+    cannot show. Every row is rendered; only the captions wait.
+
+    Less the alpha settings (item 569), which the strip leaves out while
+    Preferences -> Show alpha features is off, as it is by default."""
     from spacr.qt.settings_search import SettingsSearchBar
+    from spacr.settings import _alpha_names
 
     screen, model = _screen(qtbot)
     bar = SettingsSearchBar(screen)
     qtbot.addWidget(bar)
-    assert set(bar.indexed_keys()) == set(model._widgets)
+    assert set(bar.indexed_keys()) == set(model._widgets) - _alpha_names(
+        "settings")
 
 
 def test_reading_a_headings_rows_back_captions_them_all(qtbot):

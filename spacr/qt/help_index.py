@@ -476,6 +476,17 @@ def setting_entries() -> List[HelpEntry]:
     except Exception:
         LOG.debug("no setting categories could be read", exc_info=True)
 
+    hidden_alpha: frozenset = frozenset()
+    try:
+        from .preferences import _is_alpha_visible
+
+        if not _is_alpha_visible():
+            from ..settings import _alpha_names
+
+            hidden_alpha = _alpha_names("settings")
+    except Exception:
+        LOG.debug("could not ask the alpha gate", exc_info=True)
+
     out: List[HelpEntry] = []
     for key, name, _desc in _visible_apps():
         try:
@@ -494,6 +505,8 @@ def setting_entries() -> List[HelpEntry]:
                 if setting in defaults:
                     placed.setdefault(setting, str(title))
         for setting in defaults:
+            if setting in hidden_alpha:
+                continue
             category = placed.get(setting, "")
             where = (SUBTITLE_SETTING.format(module=name, category=category)
                      if category else name)

@@ -421,6 +421,10 @@ def write_permutation_qc(destination: str,
     :returns: ``{'dir', 'report', 'figure', 'figure_error'}``. The JSON
         report is always written; ``figure`` is ``None`` and
         ``figure_error`` says why when there is nothing to draw against.
+        The panel is written by :func:`spacr.plot.save_figure`, so its
+        format and resolution follow the figure preferences as the
+        parametric panels beside it do, and ``figure`` names the file on
+        disk.
     """
     from .regression_qc import QC_DIRNAME
 
@@ -442,7 +446,8 @@ def write_permutation_qc(destination: str,
     except ValueError as error:
         manifest["figure_error"] = str(error)
         return manifest
-    figure_path = os.path.join(out_dir, f"residual_by_position_{stem}.png")
-    fig.savefig(figure_path, dpi=110)
-    manifest["figure"] = figure_path
+    from .plot import save_figure
+
+    manifest["figure"] = save_figure(
+        fig, os.path.join(out_dir, f"residual_by_position_{stem}"))
     return manifest
