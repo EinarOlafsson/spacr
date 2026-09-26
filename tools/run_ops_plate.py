@@ -164,7 +164,15 @@ def well_row(report: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _stored_reads_match(db: Path, plate: str, well: str, record: Dict[str, Any]) -> bool:
-    """Require evidence that the requested detailed reads survived on disk."""
+    """Require evidence that the requested detailed reads survived on disk.
+
+    The decode report's ``ops_reads_rows`` is this well's own row count, so
+    it is compared with the rows ``ops_reads`` holds for this plate and
+    well. A result file written before that count was per well recorded the
+    whole table instead; it still reads, and it matches whenever the table
+    held no other well's reads when it was written. Otherwise the well is
+    run once more, and its new file carries the per-well count.
+    """
     if not (record.get("settings") or {}).get("ops_store_reads"):
         return False
     expected = ((record.get("report") or {}).get("decode") or {}).get("ops_reads_rows")
