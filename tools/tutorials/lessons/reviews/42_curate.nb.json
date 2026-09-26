@@ -1,30 +1,34 @@
 {
   "lesson": "42_curate",
-  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "54e14df590f9c3ae40a549095430907e6e853617b3cbc6e9ec04702b29e80d0d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "nb",
-  "title": "Curate: øv på endringer og bevar historikken",
-  "description": "Rediger masker og spor med syntetiske data og eksterne sikkerhetskopier på grunn av dagens tap av maskehistorikk.",
+  "title": "Curate: rediger masker og spor",
+  "description": "Øv på penselredigering, deling og sammenslåing av spor, og lagre de korrigerte filene.",
   "objectives": [
-    "Åpne Curate i Make Masks med arbeidskopier.",
-    "Mal, angre og lagre uten å fremstille øvelsen som biologisk korrigering.",
-    "Bevar maske og logg utenfor appen før gjenåpning.",
-    "Del og slå sammen spor, og forkast en ulagret sletting."
+    "Redigere en etikettmaske med penselen og angrekontrollene.",
+    "Dele, slå sammen og lagre spor.",
+    "Bevare kildefiler og kurasjonshistorikk."
   ],
-  "prerequisite": "Pakk ut Curate_SYNTHETIC_practice.zip og bruk kopier. TIFF: etikettplan 2 fra syntetisk Timelapse, 256 × 256 piksler, seksten etiketter 2–17. CSV: seksten spor, 128 rader, åtte bilderammer. Ikke innsamlede biologiske data. NPY-innlasting feilet; TIFF bevarer heltallsetikettene. Radius 8 og etikett 18 er øvelse. Alle piksler og CSV-verdier er kontrollert. Save mask overskriver valgt fil og skriver .curation.json. Gjenåpning nullstiller tre loggoppføringer i minnet; neste lagring erstatter sidefilen med én ny oppføring. Feilen er ikke rettet. Kjør først curate_checkpoint.py med lagret maske og en NY mappe: nøyaktig kopi av begge filer, ikke gjenoppretting eller sammenslåing av apphistorikk. Gjenåpning legger til et visningslag; lysstyrke er ikke etikettidentitet. Deling av spor 2 ved ramme 4 lager 18; sammenslåing gjenoppretter 128 rader. 2 og 3 kan ikke slås sammen på grunn av overlappende rammer. Sporhistorikk bevares ved ny innlasting. API: spacr.curation.MaskCuration og TrackCuration. Ingen GPU, KI, ny segmentering, biologisk validering, appendring eller publisering.",
+  "prerequisite": "Last ned det syntetiske øvingsarkivet og arbeid på kopier. Ta separate sikkerhetskopier av maskene og deres .curation.json-sidefiler før du åpner dem igjen: å lagre en gjenåpnet maske erstatter foreløpig den tidligere redigeringsloggen.",
   "scenes": [
-    "Åpne Make Masks og deretter det underordnede Curate-verktøyet. I veiledningene ligger Curate under Make Masks sine undermoduler, ikke på en egen Home-flis. Det redigerer etikettmasker og spor. Leksjonen bruker syntetiske Timelapse-utdata, ikke biologiske observasjoner eller bevis på at manuelle endringer forbedrer nøyaktigheten.",
-    "Last ned det tilknyttede øvingsarkivet og arbeid med kopier. Åpne TIFF-masken med heltallsetiketter: seksten opprinnelige etiketter ligger i et kvadrat på 256 piksler. Velgeren tilbyr også NPY, men den innlastingen feilet. TIFF bevarer det nøyaktige etikettplanet; et farget skjermbilde er ikke en erstatning.",
-    "Sett penselradius til åtte og klikk New for å velge etikett atten. Mal én gang i det tomme øvingsområdet. Denne sirkelen er laget for å lære kontrollen, ikke en manglende celle. Penselen endrer piksler i minnet; lagret fil forblir uendret frem til Save mask.",
-    "Undo stroke gjenoppretter hver opprinnelige piksel her. Mal igjen og kontroller før lagring. Loggen inneholder maling, angre og maling; angre er også del av historikken. Den nøyaktige museposisjonen kan endre pikselantallet, så øvingsavtrykket vårt er ikke et biologisk mål.",
-    "Save mask skriver tilbake til valgt arbeids-TIFF og lagrer kurateringsloggen. Før gjenåpning kjører du det separate sikkerhetskopiskriptet fra nedlastingen med den lagrede masken og en ny mappe. Det kopierer begge filene nøyaktig. Dette er et uttrykkelig eksternt backuptrinn, ikke en skjult appfunksjon.",
-    "Begrensningen er denne: Gjenåpning nullstiller maskeloggen i minnet, og ny lagring erstatter sidefilen med den nye øktens endring. Den tidligere kopien vår bevarer de tre opprinnelige oppføringene. Behold separate kopier og notater; skriptet reparerer ikke apphistorikk. Gjenåpning legger også til et visningslag, så lysstyrke ikke er etikettidentitet.",
-    "Åpne arbeids-CSV-en med spor. Den har seksten spor over åtte bilderammer, totalt 128 rader. Valg av spor to og tre med Join avvises fordi begge finnes i de samme rammene. Les meldingen; å tvinge ubeslektede baner sammen ville ikke være en gyldig korrigering.",
-    "Velg spor to, sett Split at frame til fire og klikk Split. Rammene fire til sju flyttes til nytt spor atten; null til tre blir i to. Koordinater og opprinnelige etiketter er uendret. Dette er en kontrollert redigeringsøvelse, ikke bevis på virkelig celledeling.",
-    "Velg to og atten sammen og klikk Join. Halvdelene uten overlapp slås sammen og gjenoppretter alle opprinnelige rader. Save tracks skriver CSV og egen logg. Den uavhengige kontrollen sammenligner hver ramme, identifikator og koordinat, ikke bare antall spor. Hold maske- og sporhistorikk atskilt.",
-    "Sletting av spor tre fjerner dets åtte rader i minnet. Ikke lagre denne øvingsslettingen. Åpne lagret CSV igjen for å forkaste endringen. Dette skiller aktuelle endringer fra diskinnhold; å slette virkelige spor krever en dokumentert grunn, ikke bare et uønsket resultat.",
-    "Alle 128 rader og lagret delings- og sammenslåingshistorikk kommer tilbake. Til forskjell fra masker i denne versjonen beholder spor historikken ved gjenåpning i testen. Bevar originaler, sikkerhetskopier og begrunnelser. Python har MaskCuration og TrackCuration; GPU og KI-leverandør er unødvendige, og vellykket redigering er ikke vitenskapelig validering."
+    "Åpne Make Masks og deretter Curate for å redigere etikettmasker og spor. Last ned det syntetiske øvingseksemplet nedenfor og behold en urørt kopi.",
+    "Bla til eksemplets TIFF med heltallsetiketter. Hvert objekt har sin egen etikett, og 0 er reservert for bakgrunn. Bruk TIFF-eksemplet i denne gjennomgangen.",
+    "Sett Brush radius til 8 og klikk på New for å velge en ny etikett. Klikk på en tom del av øvingsbildet for å male et lite område.",
+    "Klikk på Undo stroke for å fjerne den siste penselredigeringen. Mal igjen og undersøk resultatet før du lagrer.",
+    "Klikk på Save mask for å skrive arbeids-TIFF-filen og kurasjonssidefilen. Før du åpner på nytt, tar du vare på begge filene i en ny sikkerhetskopimappe; nedlastingen inneholder et sjekkpunktskript for dette trinnet.",
+    "Behold sikkerhetskopien og redigeringsnotatene for hver økt. Når du åpner en maske på nytt, starter en ny logg i minnet, og neste lagring erstatter sidefilen med historikken fra den økten.",
+    "Bla til spor-CSV-filen og velg spor som skal gjennomgås. Join godtar spor med bildeområder som ikke overlapper; et overlapp gir en melding som må løses først.",
+    "Velg spor 2, sett Split at frame til 4 og klikk på Split. De senere bildene flyttes til et nytt spor, mens de tidligere beholder den opprinnelige identifikatoren.",
+    "Velg de to halvdelene som ikke overlapper, og klikk på Join for å slå dem sammen. Klikk på Save tracks for å skrive CSV-filen og den separate kurasjonssidefilen.",
+    "Bruk Delete bare for spor du vil fjerne. For å forkaste en ulagret endring åpner du den sist lagrede CSV-filen på nytt.",
+    "Undersøk de gjenåpnede sporene og den lagrede historikken. Behold originaler og begrunnelser for endringer, og kjør på nytt alle etterfølgende analyser som påvirkes av korrigerte masker eller baner."
   ]
 }
