@@ -111,24 +111,10 @@
     },
     {
       "table": "ui",
-      "key": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
-      "source": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
-      "source_sha256": "c374731b1b2c4eec70eb888649b01ba12d6b48523762ee67263e16d45f3af320",
-      "translation": "इस पेज के सभी आठ Plasmodium मॉड्यूल योजना में हैं। इनके विवरण उपलब्ध विश्लेषण पाइपलाइन नहीं, बल्कि अभिप्रेत मापों को परिभाषित करते हैं। PlasmoDB और UniProt मार्कर चुनने और परिणामों की व्याख्या के लिए जीनोम और प्रोटीन संदर्भ देते हैं। एपिकॉम्प्लेक्सन चित्रण Toxoplasma के साथ साझा कक्षों पर चर्चा के लिए उपयोगी है, पर यह स्थापित नहीं करता कि किसी प्रोटीन का स्थान दोनों जीवों में एक जैसा है।"
-    },
-    {
-      "table": "ui",
       "key": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
       "source": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
       "source_sha256": "c06245eda459e385d3e5bb8ce5d6ec58e9ea0851afac9f5ff7fd6e0452a49bca",
       "translation": "जब पॉइंटर किसी सक्षम नियंत्रण पर रुकता है, तब और भी धीमी झंकार। यह पॉइंटर के स्थिर होने की प्रतीक्षा करती है और फिर कुछ क्षण मौन रहती है, ताकि किसी पैनल पर पॉइंटर घुमाने से ध्वनियों की झड़ी न लगे। यहाँ चालू करने तक बंद।"
-    },
-    {
-      "table": "ui",
-      "key": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
-      "source": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
-      "source_sha256": "f3daa1382843e31a232a9ecc036eba4b9ae12183a86a6f0b22dfe2fd6285368b",
-      "translation": "कवकरोधी अनुक्रिया कवक वृद्धि और आकृति के लिए एक प्रस्तावित सांद्रता-अनुक्रिया कार्यप्रवाह है। इसे आकृति विज्ञान या बायोफ़िल्म के साथ जोड़ने से यह बताने में मदद मिलेगी कि उपचार के दौरान कौन-सी छवि विशेषताएँ बदलती हैं। सभी आठ Candida मॉड्यूल अभी योजना में हैं और उनकी टाइलों पर जल्द आ रहा है अंकित है। Candida Genome Database और UniProt मार्कर चयन और व्याख्या में सहायता के लिए जीन और प्रोटीन एनोटेशन देते हैं।"
     },
     {
       "table": "ui",
@@ -356,13 +342,6 @@
     },
     {
       "table": "ui",
-      "key": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
-      "source": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
-      "source_sha256": "b4a8acea49fc2990a3ba506c91ffd1d86f8049dd25e2fb8e4774c09b37444de8",
-      "translation": "उपकला आक्रमण की योजना बाह्यकोशिकीय कवकों को उपकला कोशिकाओं द्वारा भीतर लिए गए कवकों से अलग करने के लिए है। भक्षकाणुक्रिया भक्षक कोशिकाओं द्वारा ग्रहण को मापेगी। दोनों के लिए संपर्क को आंतरिकीकरण से अलग करने का तरीका चाहिए, जैसे उपयुक्त विभेदी लेबलिंग या स्थानिक जानकारी। ग्रहण के परिणाम के साथ पोषक-कोशिका समूह और कवक आकृति की भी रिपोर्ट करें।"
-    },
-    {
-      "table": "ui",
       "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
       "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
       "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
@@ -458,13 +437,6 @@
       "source": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
       "source_sha256": "69b290e0d6c71dfe9ff67646482b0d6e03a1b609d9408b638511995918e232c8",
       "translation": "पूरे क्षेत्र का हिस्टोग्राम एक साथ समतल करें, ताकि हर चमक पट्टी में पिक्सेल की संख्या बराबर हो। यह कंट्रास्ट चरणों में सबसे प्रबल है और डेटा के प्रति सबसे कम सावधान: अधिकतर पृष्ठभूमि वाले दृश्य क्षेत्र की पृष्ठभूमि आधी परास तक खिंच जाती है।"
-    },
-    {
-      "table": "ui",
-      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
-      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
-      "source_sha256": "ebfb1c9811c74671d5842f0a8f7a663cdad6815e6a0622cb58809571a838e266",
-      "translation": "गैमेटोसाइट परिपक्वता अवस्था और लिंग से जुड़ी छवि विशेषताओं के लिए एक प्रस्तावित कार्यप्रवाह है, जब उपयुक्त मार्कर और संदर्भ एनोटेशन उपलब्ध हों। दवा अनुक्रिया इमेजिंग वृद्धि और आकृति को सांद्रता से जोड़ेगी। इन मापों के साथ प्रजाति, आरंभिक अवस्था और संपर्क अवधि दर्ज करें: अन्यथा अवस्थाओं के मिश्रण में बदलाव को परजीवी संख्या में बदलाव समझा जा सकता है।"
     },
     {
       "table": "ui",
@@ -633,13 +605,6 @@
       "source": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
       "source_sha256": "08f075cd8d7c276a8437c84e93bc6e01d37ba0290019d2fe32545f515141a80a",
       "translation": "आपके पास पहले से मौजूद मॉडल फ़ाइल सूचीबद्ध करें, और चाहें तो उसे Hugging Face पर साझा करें ताकि अन्य उसका उपयोग कर सकें।"
-    },
-    {
-      "table": "ui",
-      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
-      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
-      "source_sha256": "ae13b680adfb10492d7bda64d4b0f36ce4765cf0b32bd763df25fb690455fac1",
-      "translation": "यकृत-अवस्था वृद्धि की योजना हेपेटोसाइट के भीतर परजीवियों की संख्या और आकार मापने के लिए है। स्पोरोज़ोइट गतिशीलता ग्लाइडिंग पथों या निशानों पर केंद्रित होगी, जबकि कोशिका पारगमन परजीवी के पथ के साथ पोषक कोशिका की क्षति को देखेगा। पारगमन, उत्पादक आक्रमण और उसके बाद की वृद्धि अलग-अलग परिणाम हैं: उनके छवि मार्कर, अवलोकन समय और हर अलग-अलग परिभाषित करने होंगे।"
     },
     {
       "table": "ui",
@@ -1497,31 +1462,10 @@
     },
     {
       "table": "ui",
-      "key": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
-      "source": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
-      "source_sha256": "3db2af90e552d9f1ff09084d9fcc2467ba0a8907b230de616dd7257c8a266014",
-      "translation": "योजनाबद्ध निर्गमन मॉड्यूल रिक्तिका के फटने और परजीवी के बाहर निकलने पर केंद्रित होगा; ग्लाइडिंग गतिशीलता बाह्यकोशिकीय निशानों और गति को मापेगी। ब्रैडीज़ोइट रूपांतरण अवस्था-मार्कर और सिस्ट-भित्ति मापों को देखेगा, जबकि पोषक कोशिका क्षति एकल परत की हानि का वर्णन करेगी। ये प्रस्तावित कार्यप्रवाह हैं, इसलिए उनकी टाइलों पर जल्द आ रहा है अंकित है। स्थिर छवियाँ, समय श्रृंखला और अवस्था-विशिष्ट मार्कर अलग-अलग प्रश्नों के उत्तर देते हैं और अभिप्रेत माप के अनुसार चुने जाने चाहिए।"
-    },
-    {
-      "table": "ui",
       "key": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
       "source": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
       "source_sha256": "6e0c370bb9d95162771a35b59788beb7866ce81eb66ce6a73d44196cc8ff72d3",
       "translation": "पूर्वावलोकन की सेटिंग्स, दो टैब में: चित्र (प्लाक वेल खोजना और चित्र पढ़ना) और प्लाक पहचान (प्लाक मॉडल और उसके सीमा मान)।"
-    },
-    {
-      "table": "ui",
-      "key": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
-      "source": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
-      "source_sha256": "77f3167fe2cb6f5c77b1e1b654a69b6404b54a6ad078b463adfa86b873a8e483",
-      "translation": "प्रस्तावित आसंजन मॉड्यूल पोषक कोशिका की सतह से जुड़ी कवक कोशिकाओं को गिनेगा। बायोफ़िल्म सामूहिक वृद्धि पर केंद्रित होगा, जिसमें ढका क्षेत्रफल और, अधिग्रहण में गहराई की जानकारी होने पर, मोटाई शामिल है। एक द्वि-आयामी दृश्य क्षेत्र सतह कवरेज बता सकता है, पर अकेले बायोफ़िल्म की मोटाई स्थापित नहीं कर सकता। अंतिम बिंदु के अनुसार एकल-तल या आयतनी इमेजिंग चुनें।"
-    },
-    {
-      "table": "ui",
-      "key": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
-      "source": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
-      "source_sha256": "1ed3b2e9fa86adf509f980a162693fab21484b44ddb9780c3f59e54f573546e6",
-      "translation": "प्रस्तावित परजीवी-रक्तता मॉड्यूल कुल लाल रक्त कोशिका समूह के सापेक्ष संक्रमित लाल रक्त कोशिकाओं को गिनेगा। रक्त-अवस्था निर्धारण रिंग, ट्रोफ़ोज़ोइट और शाइज़ॉन्ट को अलग करेगा, ताकि अवस्था संरचना में बदलाव को संक्रमण आवृत्ति के साथ देखा जा सके। मेरोज़ोइट आक्रमण लाल रक्त कोशिकाओं में प्रवेश पर केंद्रित होगा। ये माप मिलकर कम नई संक्रमित कोशिकाओं और पहले से भीतर मौजूद परजीवियों के बदले हुए विकास में अंतर करने में मदद करेंगे।"
     },
     {
       "table": "ui",

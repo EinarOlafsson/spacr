@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QLabel, QMainWindow, QSizePolicy, QStackedWidget
 from spacr.qt import app
 from spacr.qt.command_palette import CommandPalette
 from spacr.qt.iconset import SHARED_ICON_ASSETS
-from spacr.qt.organisms import ORGANISMS
+from spacr.qt.organisms import ORGANISMS, workflow
 from spacr.qt.screens.organism_screen import OrganismScreen, _IMAGES
 from spacr.qt.preferences import scaled_px
 from spacr.qt.theme import TILE_H, TILE_MAX_W, TILE_W
@@ -19,6 +19,19 @@ from spacr.qt.widgets.organism_diagram import _diagram_svg
 
 
 ASSAYS = ("analyze_plaques", "recruitment", "host_pathogen", "invasion", "replication")
+LIVE = {
+    "toxoplasma": {"gliding": "motility"},
+    "plasmodium": {"parasitaemia": "host_pathogen", "sporozoite": "motility",
+                   "drug": "dose_response"},
+    "candida": {"adhesion": "invasion", "epithelial": "invasion",
+                "phagocytosis": "host_pathogen", "antifungal": "dose_response"},
+}
+COMING_SOON = {
+    "toxoplasma": ["Egress", "Bradyzoite conversion", "Host cell damage"],
+    "plasmodium": ["Blood-stage staging", "Merozoite invasion", "Liver-stage growth",
+                   "Cell traversal", "Gametocyte maturity"],
+    "candida": ["Filamentation", "Germ tube formation", "Biofilm", "Morphology"],
+}
 
 
 def test_home_offers_three_organisms_and_keeps_all_assay_registry_keys():
@@ -61,8 +74,9 @@ def test_proposals_cannot_navigate_and_explain_their_status(qtbot, key):
     requested = []
     screen.module_requested.connect(requested.append)
     proposals = [tile for tile in screen._tiles
-                 if not tile.property("organismModuleKey")]
-    assert len(proposals) == (4 if key == "toxoplasma" else 8)
+                 if not tile.property("organismModuleKey")
+                 and not tile.property("organismWorkflow")]
+    assert [tile.text_label for tile in proposals] == COMING_SOON[key]
     for tile in proposals:
         assert not tile.isEnabled()
         assert tile.graphicsEffect().opacity() < 0.5
@@ -213,7 +227,7 @@ def test_prose_mentions_every_module_and_active_links_navigate(qtbot):
     requested = []
     screen.module_requested.connect(requested.append)
     links = screen.findChildren(QLabel, "OrganismModuleLink")
-    assert len(links) == 5
+    assert len(links) == 6
     for link in links:
         assert not link.openExternalLinks()
     for key in ASSAYS:
@@ -258,5 +272,74 @@ def test_main_window_opens_an_assay_from_the_organism_page_and_returns_home(
     assert window._screens["replication"].app_key == "replication"
     window._on_nav_selected("toxoplasma")
     assert window._stack.currentWidget() is screen
+    window._on_nav_selected("__home__")
+    assert window._stack.currentWidget() is window._startup
+
+
+def test_twenty_proposals_split_into_live_workflows_and_coming_soon():
+    for key, guide in ORGANISMS.items():
+        proposals = [row for row in guide["modules"] if row[0] is None]
+        assert len(proposals) == (4 if key == "toxoplasma" else 8)
+        live = {icon: workflow(key, icon)[0] for _, _, _, icon in proposals
+                if workflow(key, icon)}
+        assert live == LIVE[key]
+        assert [title for _, title, _, icon in proposals
+                if not workflow(key, icon)] == COMING_SOON[key]
+        assert set(guide["workflows"]) == set(LIVE[key])
+        for app_key, preset, note in guide["workflows"].values():
+            assert app_key in {row[0] for row in app.APPS} | {"motility"}
+            assert isinstance(preset, dict) and note.startswith("Opens ")
+
+
+@pytest.mark.parametrize("key", ORGANISMS)
+def test_each_page_shows_its_tiles_and_live_proposals_are_enabled(qtbot, key):
+    screen = OrganismScreen(key)
+    qtbot.addWidget(screen)
+    assert [tile.text_label for tile in screen._tiles] == [
+        title for _, title, _, _ in ORGANISMS[key]["modules"]]
+    routed = {tile.property("organismWorkflow") for tile in screen._tiles
+              if tile.property("organismWorkflow")}
+    assert routed == set(LIVE[key].values())
+    for tile in screen._tiles:
+        if tile.property("organismWorkflow"):
+            assert tile.isEnabled() and tile.graphicsEffect() is None
+            assert not tile.toolTip().startswith("Coming soon")
+            assert "Opens " in tile.toolTip()
+
+
+@pytest.mark.parametrize("key", ORGANISMS)
+def test_live_proposals_without_a_window_request_their_module(qtbot, key):
+    screen = OrganismScreen(key)
+    qtbot.addWidget(screen)
+    requested = []
+    screen.module_requested.connect(requested.append)
+    tiles = [tile for tile in screen._tiles if tile.property("organismWorkflow")]
+    for tile in tiles:
+        qtbot.mouseClick(tile, Qt.LeftButton)
+    assert requested == [tile.property("organismWorkflow") for tile in tiles]
+
+
+def test_main_window_opens_a_live_proposal_with_its_preset_and_returns(
+        qtbot, qt_theme_applied):
+    window = app.MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1280, 800)
+    window.show()
+    window._on_nav_selected("plasmodium")
+    page = window._screens["plasmodium"]
+    tile = next(tile for tile in page._tiles
+                if tile.text_label == "Sporozoite motility")
+    qtbot.mouseClick(tile, Qt.LeftButton)
+    motility = window._screens["motility"]
+    assert window._stack.currentWidget() is motility
+    assert motility._settings_model.collect()["infection_intensity_qc_scope"] == "none"
+    window._on_nav_selected("candida")
+    candida = window._screens["candida"]
+    next(tile for tile in candida._tiles
+         if tile.text_label == "Epithelial invasion").click()
+    assert window._stack.currentWidget() is window._screens["invasion"]
+    before = window._stack.currentWidget()
+    next(tile for tile in candida._tiles if tile.text_label == "Biofilm").click()
+    assert window._stack.currentWidget() is before
     window._on_nav_selected("__home__")
     assert window._stack.currentWidget() is window._startup

@@ -3051,7 +3051,7 @@ class MainWindow(QMainWindow):
         self._app_actions: dict[str, QAction] = {}
         self._section_menus: dict[str, QMenu] = {}
         from .widgets.fold_strip import folded_modules
-        from .organisms import ORGANISMS
+        from .organisms import ORGANISMS, workflow
 
         folded = folded_children()
         catalogue = folded_modules()
@@ -3096,6 +3096,10 @@ class MainWindow(QMainWindow):
                             child_action.triggered.connect(
                                 lambda checked=False, k=child: self._open_organism_module(k))
                             self._app_actions[child] = child_action
+                        elif workflow(key, _icon):
+                            child_action.setProperty("organismWorkflow", workflow(key, _icon)[0])
+                            child_action.triggered.connect(
+                                lambda checked=False, o=key, i=_icon: self._open_organism_workflow(o, i))
                         else:
                             child_action.setText(tr("{name} — Coming soon", name=tr(title)))
                             child_action.setEnabled(False)
@@ -3717,6 +3721,19 @@ class MainWindow(QMainWindow):
             open_starplast(self)
         else:
             self.open_module(key)
+
+    def _open_organism_workflow(self, organism: str, icon: str) -> None:
+        """Open the existing module behind an organism tile, with its preset.
+
+        :param organism: the organism page key.
+        :param icon: the tile's icon key in that organism's ``workflows``.
+        """
+        from .organisms import workflow
+        from .screens.organism_screen import open_workflow
+
+        route = workflow(organism, icon)
+        if route is not None:
+            open_workflow(self, route)
 
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
