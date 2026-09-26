@@ -5,6 +5,430 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#2",
+      "source": "the folder the user is drawing in. Its files are offered to the table straight away, because a user who pressed FEATURES from an open folder means that folder.",
+      "source_sha256": "f37d1528c89f841d2b11cd7bbe2a32981d7d94f6c46413e658a46c12ba19e89e",
+      "context": "the folder the user is drawing in. Its files are offered to the table straight away, because a user who pressed FEATURES from an open folder means that folder.",
+      "translation": "la carpeta en la que está dibujando el usuario. Sus archivos se ofrecen a la tabla de inmediato, porque un usuario que pulsó FEATURES desde una carpeta abierta se refiere a esa carpeta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#3",
+      "source": "``False`` runs the measurement and the folder walk inline; for tests.",
+      "source_sha256": "cda5df05c9d51d9e42b59b4b38e07e1e08ea647eef9e7e626f5c0d02f6f0e144",
+      "context": "``False`` runs the measurement and the folder walk inline; for tests.",
+      "translation": "``False`` ejecuta en línea la medición y el recorrido de la carpeta; para las pruebas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#4",
+      "source": "the window, already shown.",
+      "source_sha256": "8efec856ccb8cf76d4b7456f29ab62e8d3353d1079289e1e37d585efecc0a012",
+      "context": "the window, already shown.",
+      "translation": "la ventana, ya mostrada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.open_measure_inputs#5",
+      "source": "THE FOLDER IS NOT READ HERE. This runs in the Make Masks button handler, on the GUI thread, and ``folder`` is a path the user chose -- on a microscope rig, the share the images live on. It used to ``isdir`` and ``listdir`` it and stat every entry before the window was even shown, so pressing FEATURES on a folder living on a sleeping automount froze the application with no traceback. The walk is :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table fills in a moment later.",
+      "source_sha256": "0245540ddf0fa85b0368b85b0be0fd1f4df470512e2ea1cdef054850a1dfa2e1",
+      "context": "The folder is not read here. This executes in the Make Masks button handler, on the main GUI execution path, and ``folder`` is a path the user chose -- on a microscope rig, the share the images live on. It used to ``isdir`` and ``listdir`` it and stat every entry before the window was even shown, so pressing FEATURES on a folder living on a sleeping automount froze the application with no traceback. The walk is :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table fills in a moment later.",
+      "translation": "LA CARPETA NO SE LEE AQUÍ. Esto se ejecuta en el manejador del botón de Make Masks, en el hilo de la GUI, y ``folder`` es una ruta que eligió el usuario -- en un equipo de microscopio, el recurso compartido donde están las imágenes. Antes se hacía ``isdir`` y ``listdir`` sobre ella y stat de cada entrada antes siquiera de mostrar la ventana, así que pulsar FEATURES sobre una carpeta situada en un montaje automático dormido congelaba la aplicación sin ningún traceback. El recorrido es cosa de :meth:`MeasureInputTable.add_dropped`, en un proceso de trabajo, y la tabla se rellena un momento después.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#0",
+      "source": "Write one value into whichever kind of control holds it.",
+      "source_sha256": "8f5f134b5331a7ad9abf0e981c9bc9e3828be4da81c47e383ae03714bfba71c1",
+      "context": "Write one value into whichever kind of control holds it.",
+      "translation": "Escribe un valor en el tipo de control que lo contenga.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#1",
+      "source": "THE TRAP THIS EXISTS FOR: only some of the settings controls carry a ``set_value`` method. ``cell_min_size`` is a plain ``QSpinBox``, and a writer that tests ``hasattr(widget, 'set_value')`` skips it -- silently, leaving the default 8000 in place. A run configured that way measures nothing and reports success, because every object was smaller than a minimum nobody chose.",
+      "source_sha256": "838af7f7634f688891241ed5aa3b2db8f48a6f6f8ec4588a4098e3d940b24e15",
+      "context": "The trap this exists for: only some of the settings controls carry a ``set_value`` method. ``cell_min_size`` is a plain ``QSpinBox``, and a writer that tests ``hasattr(widget, 'set_value')`` skips it -- silently, leaving the default 8000 in place. A processing session configured that way measures nothing and reports success, because every object was smaller than a minimum nobody chose.",
+      "translation": "LA TRAMPA PARA LA QUE EXISTE ESTO: solo algunos de los controles de ajustes tienen un método ``set_value``. ``cell_min_size`` es un ``QSpinBox`` sin más, y un escritor que comprueba ``hasattr(widget, 'set_value')`` se lo salta -- en silencio, dejando el valor predeterminado 8000. Una ejecución configurada así no mide nada e informa de éxito, porque todos los objetos eran más pequeños que un mínimo que nadie eligió.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#2",
+      "source": "The coercions are the ones :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value` makes, kept in step with it by hand. They are not shared yet because that method is bound to a screen this window is not one of; if a third caller appears, move it rather than copying it again.",
+      "source_sha256": "0c13d5ad70212e61cd850a263def550bfbab6f63ee787d1642f39ee2e4ab0804",
+      "context": "The coercions are the ones :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value` makes, kept in step with it by hand. They are not shared yet because that method is bound to an application view this window is not one of; if a third caller appears, move it rather than copying it again.",
+      "translation": "Las conversiones son las que hace :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value`, mantenidas a mano en sintonía con él. Todavía no se comparten porque ese método está ligado a una pantalla, y esta ventana no lo es; si aparece un tercer llamador, muévalo en lugar de volver a copiarlo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#3",
+      "source": "the control to write into.",
+      "source_sha256": "56d8dced6e57cef91cf48b2d9426c29edf0a346148b210c5c6b6e27c5f106d40",
+      "context": "the control to write into.",
+      "translation": "el control en el que se escribe.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#4",
+      "source": "the value, coerced to the control's own type and left alone when it cannot be.",
+      "source_sha256": "6363d099a89225c9714196aa291f5796e520ea26e857ce28e5ccd1415fa21a49",
+      "context": "the value, coerced to the control's own type and left alone when it cannot be.",
+      "translation": "el valor, convertido al tipo propio del control y dejado sin tocar cuando no se puede.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.write_setting_value#5",
+      "source": "whether the control took it.",
+      "source_sha256": "096c9d78c04a9204869f8450b06d7925f7a8c3f7e4ad93b0c256b1e8c7bf1335",
+      "context": "whether the control took it.",
+      "translation": "si el control lo aceptó.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.methods_export.MethodsExportScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class once the drafting job has been shut down.",
+      "source_sha256": "8d609d346e19b09225fedc68f01cca70e0c8ab109a2c1c7497f66e3a64e0e141",
+      "context": "the close event, passed on to the base class once the drafting job has been shut down.",
+      "translation": "el evento de cierre, que se pasa a la clase base una vez cerrado el trabajo de redacción.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.methods_export.MethodsExportScreen.provenance_message#2",
+      "source": "the :class:`spacr.qt.ai.manuscript.ManuscriptDraft` just produced. When ``ok``, its provider and the counts of checked numbers are quoted; otherwise its ``problems`` are listed one per line.",
+      "source_sha256": "6d4788e469e41f231a9c0fe8eb6e59cdeb36a59dc3f25ece4d3925f9a75785b4",
+      "context": "the :class:`spacr.qt.ai.manuscript.ManuscriptDraft` just produced. When ``ok``, its provider and the counts of checked numbers are quoted; otherwise its ``problems`` are listed one per line.",
+      "translation": "el :class:`spacr.qt.ai.manuscript.ManuscriptDraft` que se acaba de producir. Cuando es ``ok``, se citan su proveedor y los recuentos de números comprobados; en caso contrario, se enumeran sus ``problems``, uno por línea.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_compare.ModelCompareScreen.closeEvent#1",
+      "source": "the close event; it is passed on to the base class after running threads are asked to quit and waited on for up to 5 s each.",
+      "source_sha256": "aac6ad9998e729864eca8242297eedbb0b1ab4cf567ef1fc628b82454426fba4",
+      "context": "the close event; it is passed on to the base class after running threads are asked to quit and waited on for up to 5 s each.",
+      "translation": "el evento de cierre; se pasa a la clase base después de pedir a los hilos en ejecución que terminen y de esperarlos hasta 5 s cada uno.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_compare.ModelCompareScreen.set_segment_fn#2",
+      "source": "``fn(images, config) -> masks``, or None.",
+      "source_sha256": "bdaf14922118a94789961920be1e138e08842aa7752245d3d9e1a8d4246450c9",
+      "context": "``fn(images, config) -> masks``, or None.",
+      "translation": "``fn(images, config) -> masks``, o None.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitPanel.run_analysis#10",
+      "source": "the regression results folder the hit came from, passed as ``results_folder``; outputs are written below it.",
+      "source_sha256": "e5c71a98790dfb71fe2cfb43e3825eb41b551d03ab5585a1712cdc10e2c6acfb",
+      "context": "the regression results folder the hit came from, passed as ``results_folder``; outputs are written below it.",
+      "translation": "la carpeta de resultados de regresión de la que procede el hit, que se pasa como ``results_folder``; las salidas se escriben dentro de ella.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitPanel.run_analysis#8",
+      "source": "``'positive'`` or ``'negative'``: whether larger or smaller scores rank first, passed as ``hit_direction``.",
+      "source_sha256": "eea1d3c42770e6306857391a3ffeb28acc56b014fa4fad68c04466df9b42375c",
+      "context": "``'positive'`` or ``'negative'``: whether larger or smaller scores rank first, passed as ``hit_direction``.",
+      "translation": "``'positive'`` o ``'negative'``: si las puntuaciones mayores o menores se clasifican primero; se pasa como ``hit_direction``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitPanel.run_analysis#9",
+      "source": "measured feature columns for the attribution model, passed as ``hit_feature_columns``; empty lets the investigation choose numeric features itself.",
+      "source_sha256": "d21413b6c3e4da01743bee875fe0d1a2797373aa24a05b69f3383b5051909684",
+      "context": "measured feature columns for the attribution model, passed as ``hit_feature_columns``; empty lets the investigation choose numeric features itself.",
+      "translation": "columnas de características medidas para el modelo de atribución, que se pasan como ``hit_feature_columns``; vacío deja que la investigación elija ella misma las características numéricas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitScreen.apply_seed#1",
+      "source": "hand-off settings from the hit list. ``results_folder``, ``target_gene``, ``hit_effect``, ``target_guides``, ``hit_fdr``, ``hit_phenotype``, ``hit_guide_agreement``, ``hit_n_guides`` and ``hit_well_support`` are read, each with a fallback when missing.",
+      "source_sha256": "3ad11e56a05723525982042fc30e480c63ee559a065ea45bebbe4d91ac0a1578",
+      "context": "hand-off settings from the hit list. ``results_folder``, ``target_gene``, ``hit_effect``, ``target_guides``, ``hit_fdr``, ``hit_phenotype``, ``hit_guide_agreement``, ``hit_n_guides`` and ``hit_well_support`` are read, each with a fallback when missing.",
+      "translation": "ajustes de traspaso desde la lista de hits. Se leen ``results_folder``, ``target_gene``, ``hit_effect``, ``target_guides``, ``hit_fdr``, ``hit_phenotype``, ``hit_guide_agreement``, ``hit_n_guides`` y ``hit_well_support``, cada uno con un valor de respaldo cuando falta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.chosen_entry#1",
+      "source": "index into the grouped listing, i.e. the model family in the order :meth:`set_entries` laid the rows out.",
+      "source_sha256": "26898f92961f2abdc30f32d1cdbd230da1c2b20c57748912b89cfe94d9deb24e",
+      "context": "index into the grouped listing, i.e. the model family in the order :meth:`set_entries` laid the rows out.",
+      "translation": "índice en el listado agrupado, es decir, la familia de modelos en el orden en que :meth:`set_entries` dispuso las filas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.closeEvent#2",
+      "source": "the close event, passed on to the base class after running jobs are cancelled and waited on (up to five seconds each).",
+      "source_sha256": "27774b0a361791b8996dc92d6518dae5975092a32c0b966041a8ac8e636252d4",
+      "context": "the close event, passed on to the base class after executing jobs are cancelled and waited on (up to five seconds each).",
+      "translation": "el evento de cierre, que se pasa a la clase base después de cancelar los trabajos en ejecución y esperarlos (hasta cinco segundos cada uno).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.set_entries#1",
+      "source": "One row per model family. The version column is a combo box, so a model with several versions is one row the user opens rather than several rows they have to tell apart by suffix.",
+      "source_sha256": "531db2896a022ced7f3c9b631dc30deff8693df864326f2ccc9e28c3c8226795",
+      "context": "One row per model family. The version column is a combo box, so a model with several versions is one row the user opens rather than several rows they have to tell apart by suffix.",
+      "translation": "Una fila por familia de modelos. La columna de versión es un cuadro combinado, de modo que un modelo con varias versiones es una fila que el usuario despliega en lugar de varias filas que tiene que distinguir por el sufijo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.set_entries#2",
+      "source": "iterable of :class:`spacr.model_zoo.ModelEntry`; grouped into families by key, newest version first.",
+      "source_sha256": "51360537d7aee28660b48f7f807736c8e494206b1cb996c88214124afde375e4",
+      "context": "iterable of :class:`spacr.model_zoo.ModelEntry`; grouped into families by key, newest version first.",
+      "translation": "iterable de :class:`spacr.model_zoo.ModelEntry`; se agrupa en familias por clave, con la versión más reciente primero.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.set_opener#2",
+      "source": "callable of that form, or ``None``.",
+      "source_sha256": "9f72c00e249a067d14ea9a50db1fd1db173fbc7b7542b5e2f4452a97f3ae7c88",
+      "context": "callable of that form, or ``None``.",
+      "translation": "invocable con esa forma, o ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.uninstall_selected#0",
+      "source": "Remove the selected backend's environment, after asking.",
+      "source_sha256": "ff064a7779788b565d4426057e843f878088bf0c55b12ccc06b288cec8db5a3c",
+      "context": "Remove the selected backend's environment, after asking.",
+      "translation": "Elimina el entorno del motor seleccionado, después de preguntar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.ModelZooScreen.uninstall_selected#1",
+      "source": "whether it was removed.",
+      "source_sha256": "6eb48017b1c19f7907d39df6b0c936824844c1503fd7ae65b01908c54cc2bb70",
+      "context": "whether it was removed.",
+      "translation": "si se eliminó.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.group_entries#0",
+      "source": "Collapse a listing to one row per model family, newest version first.",
+      "source_sha256": "9701c443122b8620472e133ae3ae338e8b054800e5217350a19a678f0118dfc1",
+      "context": "Collapse a listing to one row per model family, newest version first.",
+      "translation": "Reduce un listado a una fila por familia de modelos, con la versión más reciente primero.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.model_zoo.group_entries#1",
+      "source": "The zoo used to show one row per checkpoint, so a model with three versions pushed two unrelated models off the screen. Grouping makes the row a MODEL and the version a choice within it.",
+      "source_sha256": "60937aa50d32a4631226239f7dd53def42dee5504af026e672f1aac1e14e99dc",
+      "context": "The zoo used to show one row per checkpoint, so a model with three versions pushed two unrelated models off the screen. Grouping makes the row a MODEL and the version a choice within it.",
+      "translation": "El zoo mostraba antes una fila por punto de control, así que un modelo con tres versiones empujaba fuera de la pantalla a dos modelos sin relación. Agrupar hace que la fila sea un MODELO y la versión una elección dentro de él.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#0",
+      "source": "Explore organism guides and open the available image-analysis modules.",
+      "source_sha256": "16b23bf825a6dddbe7fed8a730ad1fb22ac92a24bd33e231101c96026e518850",
+      "context": "Explore organism guides and open the available image-analysis modules.",
+      "translation": "Explore las guías de organismos y abra los módulos de análisis de imágenes disponibles.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#1",
+      "source": "From Home, choose an organism to read its introduction, explore the cell diagram and browse its assay tiles. These guide pages require no input files and produce no analysis files. Drag the divider to give the information or module pane more space; each pane scrolls independently. Hover over a diagram component to read its description, select several components to keep them highlighted, and use Clear components to reset the selection.",
+      "source_sha256": "3118d2e8276129f10ee74636bcdb2192718366011aca521ca285e57d59657888",
+      "context": "From Home, choose an organism to read its introduction, explore the cell diagram and browse its assay tiles. These guide pages require no input files and produce no analysis files. Drag the divider to give the information or module pane more space; each pane scrolls independently. Hover over a diagram component to read its description, select several components to keep them highlighted, and use Clear components to reset the selection.",
+      "translation": "Desde Inicio, elija un organismo para leer su introducción, explorar el diagrama celular y examinar sus teselas de ensayos. Estas páginas de guía no requieren archivos de entrada ni producen archivos de análisis. Arrastre el divisor para dar más espacio al panel de información o al de módulos; cada panel se desplaza de forma independiente. Pase el cursor sobre un componente del diagrama para leer su descripción, seleccione varios componentes para mantenerlos resaltados y use Clear components para restablecer la selección.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#2",
+      "source": "Toxoplasma",
+      "source_sha256": "3ff5936a6dc0cecc6db54a2188e880f2e27a3e40bb4462514d23ef2293825b1d",
+      "context": "Toxoplasma",
+      "translation": "Toxoplasma gondii",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#3",
+      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
+      "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
+      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
+      "translation": "Abra Inicio > Toxoplasma y elija Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay o Replication Assay. El módulo seleccionado ofrece sus selectores de entrada, ajustes, vista previa y controles Run. Use su control Test data cuando haya un ejemplo disponible. Plaque Assay parte de imágenes; los demás ensayos usan las tablas de mediciones y relaciones entre objetos correspondientes. Siga la ayuda de entrada de cada módulo antes de ejecutarlo y después abra los resultados en la carpeta de salida que haya seleccionado. Starplast abre una aplicación aparte para explorar el mapa de conocimiento de Toxoplasma; su primer arranque ofrece instalarla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#4",
+      "source": "Plasmodium",
+      "source_sha256": "8843da7eb78c64330b37365265b1adf8e7e176ae2bec0d9d68b4f16add016584",
+      "context": "Plasmodium",
+      "translation": "Plasmodio",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#5",
+      "source": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, channels and masks for your experiment.",
+      "source_sha256": "c3bc62cd105aef79f366dd9c8afe25460673628ae96f782fb4fcc23cd35c9992",
+      "context": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, image data channels and masks for your experiment.",
+      "translation": "Abra Inicio > Plasmodium para examinar temas de estadio sanguíneo, estadio hepático, motilidad y respuesta a compuestos. Explore el diagrama de apicomplejo y siga los enlaces a PlasmoDB o UniProt para obtener información específica del organismo. Las teselas de ensayos indican por ahora Coming soon y están desactivadas; esta página no tiene ningún análisis específico de Plasmodium ejecutable y no escribe resultados. Para trabajar con imágenes ahora, vuelva a Inicio y use los módulos generales de segmentación y medición con imágenes, canales y máscaras adecuados para su experimento.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#6",
+      "source": "Candida",
+      "source_sha256": "693e86c368aece52b6b8d6464ca2eb70b2e81f54788003647a11d4cd2faf0a4f",
+      "context": "Candida",
+      "translation": "Cándida",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#7",
+      "source": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging channels suited to your species and experimental readout.",
+      "source_sha256": "a7e6d6572b1fff456a0ccd0a0ea28f37a96cb23c1e5df4cc52f699f626828a6f",
+      "context": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging image data channels suited to your species and experimental readout.",
+      "translation": "Abra Inicio > Candida para examinar temas de morfología, filamentación, biopelícula e interacción con la célula huésped. Explore el diagrama de levadura en gemación y siga los enlaces a Candida Genome Database o UniProt para obtener información sobre genes y proteínas. Las teselas de ensayos indican por ahora Coming soon y están desactivadas; esta página no requiere datos ni escribe archivos de análisis. Para un flujo de trabajo de imágenes disponible, vuelva a Inicio y seleccione los módulos generales de segmentación y medición, eligiendo máscaras y canales de imagen adecuados para su especie y su lectura experimental.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep.sweepable#2",
+      "source": "the module's registry key; only ``\"regression\"`` gives ``True``.",
+      "source_sha256": "4cf4f6a7489f2e6790f1e108451c8b0ba891b9b8ea7d6f3b4c79bbe0f094ec74",
+      "context": "the module's registry key; only ``\"regression\"`` gives ``True``.",
+      "translation": "la clave de registro del módulo; solo ``\"regression\"`` da ``True``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pca.PCAScreen.load_path#3",
+      "source": "CSV, TSV or TXT file, or a SQLite measurement database whose table names fill the table picker.",
+      "source_sha256": "ec7e390faad8096574d5b683d417556b244c49657d302f27ae4d47ef9b44d97e",
+      "context": "CSV, TSV or TXT file, or a SQLite measurement database whose table names fill the table picker.",
+      "translation": "archivo CSV, TSV o TXT, o una base de datos de mediciones SQLite cuyos nombres de tabla rellenan el selector de tablas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pca.PCAScreen.set_frame#1",
+      "source": "measurement table, one row per object; it is passed through the screen's filters before the decomposition.",
+      "source_sha256": "ec133ee886d039504266d6f419547e0612d4b4f9a0eec4adbf5ad27b0a4772b2",
+      "context": "measurement table, one row per object; it is passed through the screen's filters before the decomposition.",
+      "translation": "tabla de mediciones, una fila por objeto; se pasa por los filtros de la pantalla antes de la descomposición.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.mousePressEvent#1",
+      "source": "the mouse press; its ``position()`` picks the box, and it is then passed on to the base-class handler.",
+      "source_sha256": "87615214eab51830d3c142c57c7e8b2f0648d9f9f95946f018567a5f93da227e",
+      "context": "the mouse press; its ``position()`` picks the box, and it is then passed on to the base-class handler.",
+      "translation": "la pulsación del ratón; su ``position()`` elige el cuadro, y después se pasa al manejador de la clase base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.paintEvent#1",
+      "source": "the paint event; not read, the whole canvas is repainted.",
+      "source_sha256": "e6ee697baa00fc9c2a6d746f19379686885d75368af730b308276a26643c6dd1",
+      "context": "the paint event; not read, the whole canvas is repainted.",
+      "translation": "el evento de pintado; no se lee, se vuelve a pintar todo el lienzo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.select#1",
+      "source": "the artifact to select; an id that is not drawn clears the selection.",
+      "source_sha256": "5bb243b38d55cb31e4560d7d77e8b3a8436fcfd122281110e36d7bc0ccee9973",
+      "context": "the artifact to select; an id that is not drawn clears the selection.",
+      "translation": "el artefacto que se selecciona; un id que no está dibujado borra la selección.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.set_graph#1",
+      "source": "the pipeline graph to lay out and draw, or ``None`` for an empty canvas.",
+      "source_sha256": "a2cb51492808c2313ab82ebc3bdde6b57974ecd04ffe2d2424dca783dc22a6e5",
+      "context": "the workflow graph to lay out and draw, or ``None`` for an empty canvas.",
+      "translation": "el grafo del flujo de trabajo que se dispone y se dibuja, o ``None`` para un lienzo vacío.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.GraphCanvas.set_graph#2",
+      "source": "artifact ids to draw; ``None`` draws every node, and ids not in the graph are ignored.",
+      "source_sha256": "0b45a4612559d1e4b9aee7164cacd52a5a114d417413ef832cb286034717027b",
+      "context": "artifact ids to draw; ``None`` draws every node, and ids not in the graph are ignored.",
+      "translation": "ids de artefactos que se dibujan; ``None`` dibuja todos los nodos, y los ids que no están en el grafo se ignoran.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.PipelineGraphScreen.closeEvent#1",
+      "source": "the close event; passed on unchanged to the base class.",
+      "source_sha256": "b9eb123ca96c52b521d76de3ff058530c59881d3bd133709c7462cff19968c75",
+      "context": "the close event; passed on unchanged to the base class.",
+      "translation": "el evento de cierre; se pasa sin cambios a la clase base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.PipelineGraphScreen.describe#2",
+      "source": "the artifact to describe; an empty or unknown id, or no graph loaded, gives ``\"\"``.",
+      "source_sha256": "8713a75b15647f8295cdf4c4faae7c7ab8d079d1f31fb486ea9fea57891b3e40",
+      "context": "the artifact to describe; an empty or unknown id, or no graph loaded, gives ``\"\"``.",
+      "translation": "el artefacto que se describe; un id vacío o desconocido, o que no haya grafo cargado, da ``\"\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.pipeline_graph.PipelineGraphScreen.load_project#2",
+      "source": "the spaCR project folder; stripped, and an empty value only asks for a folder.",
+      "source_sha256": "26a9bc01227996ec3e6a17bd2190d68067a2cdfb697365b1ee4e32b468def0ff",
+      "context": "the spaCR project folder; stripped, and an empty value only asks for a folder.",
+      "translation": "la carpeta del proyecto de spaCR; se le quitan los espacios, y un valor vacío solo pide una carpeta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.cell_rect#2",
+      "source": "1-based plate row.",
+      "source_sha256": "f9bb7af3fb5e5ccd971f31291744947aa0f1749615b4cfb7968c44f2f9c0fe4e",
+      "context": "1-based laboratory microplate row.",
+      "translation": "fila de la placa, contando desde 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.cell_rect#3",
+      "source": "1-based plate column.",
+      "source_sha256": "f6da487df6704eadc8b58f803fbf05fc37c6a56fd1317016320750fe0cb40a3e",
+      "context": "1-based laboratory microplate column.",
+      "translation": "columna de la placa, contando desde 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.select#1",
+      "source": "1-based plate row, or ``None`` to clear.",
+      "source_sha256": "c5ae54aaff04d47f15c7687efe965af1fb1b457731447c47b0098cd037204ef6",
+      "context": "1-based laboratory microplate row, or ``None`` to clear.",
+      "translation": "fila de la placa, contando desde 1, o ``None`` para borrar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.select#2",
+      "source": "1-based plate column; ``None`` also clears.",
+      "source_sha256": "29037e0304a68b01296dc65e442f7da3cb90707ebc2d87fd18abfac10ab6bad7",
+      "context": "1-based laboratory microplate column; ``None`` also clears.",
+      "translation": "columna de la placa, contando desde 1; ``None`` también borra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateGridWidget.set_placeholder#1",
+      "source": "the message painted in place of the grid.",
+      "source_sha256": "17df43cb93a66402f4c4d4b1d4e56b1dccb4a585c725e91a44f4c3911a5cc741",
+      "context": "the message painted in place of the grid.",
+      "translation": "el mensaje que se pinta en lugar de la cuadrícula.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.on_linked_filter_changed#2",
+      "source": "the filter that was published; not read here, as the redraw reads the link's current filter itself.",
+      "source_sha256": "662cfe3ef1e103e60a6f8500633d2358090fe465c2215d9cdf65dd42b2947b01",
+      "context": "the filter that was published; not read here, as the redraw reads the link's current filter itself.",
+      "translation": "el filtro que se publicó; no se lee aquí, ya que el redibujado lee él mismo el filtro actual del enlace.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.set_table#1",
+      "source": "name of a table in the table box, converted with ``str``.",
+      "source_sha256": "dc32a4e63d6cf3eeba536262a410488cbf3dbc6509cd9b63934f5f1a41b676ca",
+      "context": "name of a table in the table box, converted with ``str``.",
+      "translation": "nombre de una tabla del cuadro de tablas, convertido con ``str``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
       "label": "spacr.qt.widgets.sweep_panel.sweep_inputs#2",
       "source": "the merged per-object frame with ``plateID``, ``rowID`` and ``columnID`` (or ``prc``); its numeric columns are averaged per well. It is copied, not modified.",
       "source_sha256": "dea27295db8ab367e60e56eb0a306c5647d14c6d69fb0dad5b6e6c9d210e7e11",
