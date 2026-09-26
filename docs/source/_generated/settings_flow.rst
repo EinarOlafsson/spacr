@@ -1363,11 +1363,12 @@ cell_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-cell_chann_dim:
 
@@ -1475,6 +1476,7 @@ cell_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_get_object_settings`` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
@@ -1487,7 +1489,7 @@ cell_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
+Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
 
 .. _setting-flow-cell_dim:
 
@@ -1513,11 +1515,12 @@ cell_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-cell_intensity_range:
 
@@ -3629,11 +3632,12 @@ cytoplasm_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-cytoplasm_channel:
 
@@ -3716,6 +3720,7 @@ cytoplasm_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
@@ -3726,7 +3731,7 @@ cytoplasm_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_describe_objects``.
 
 .. _setting-flow-cytoplasm_flow_threshold:
 
@@ -3741,11 +3746,12 @@ cytoplasm_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-cytoplasm_mask_dim:
 
@@ -10985,11 +10991,12 @@ nucleus_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-nucleus_chann_dim:
 
@@ -11097,6 +11104,7 @@ nucleus_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_get_object_settings`` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
@@ -11109,7 +11117,7 @@ nucleus_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
 
 .. _setting-flow-nucleus_flow_threshold:
 
@@ -11126,11 +11134,12 @@ nucleus_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-nucleus_intensity_range:
 
@@ -12190,12 +12199,13 @@ organelle_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-organelle_channel:
 
@@ -12337,6 +12347,7 @@ organelle_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
@@ -12358,7 +12369,7 @@ organelle_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_morphology_of_organelle_type``, ``_build_object_settings``, ``_cellpose3_eval_settings``, ``_segment_cellpose``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.organelle_types.apply_preset`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_describe_objects``.
+Read by ``_morphology_of_organelle_type``, ``_build_object_settings``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.organelle_types.apply_preset`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_describe_objects``.
 
 .. _setting-flow-organelle_dog_sigma_high:
 
@@ -12425,12 +12436,13 @@ organelle_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-organelle_hysteresis_high:
 
@@ -13664,11 +13676,12 @@ pathogen_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-pathogen_chann_dim:
 
@@ -13787,6 +13800,7 @@ pathogen_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_get_object_settings`` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
@@ -13799,7 +13813,7 @@ pathogen_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
 
 .. _setting-flow-pathogen_flow_threshold:
 
@@ -13816,11 +13830,12 @@ pathogen_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-pathogen_intensity_range:
 
