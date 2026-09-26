@@ -4587,6 +4587,222 @@
       "context": "Keep or revert. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
       "translation": "HALDA EÐA AFTURKALLA. Hver breyting á GUI-kvarða eða leturkvarða tekur gildi strax og spyr síðan „Halda þessum stillingum?“ (:class:`KeepOrRevertDialog`), með niðurtalningu í 15 s; niðurtalningin, Esc og lokun gluggans setja öll gömlu gildin aftur. Glugginn er undanþeginn kvarðanum og stillir eigin textastærð, svo hann er læsilegur jafnt við 10 % GUI og 10 % letur. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) er áfram varaleiðin.",
       "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.add_listener#0",
+      "source": "Call ``callback(scale)`` after every change of GUI scale.",
+      "source_sha256": "c0d8eac3ec6fbc8b9ee8a50ac5ce52785e3e7b219212bb69b562c01693e09acd",
+      "context": "Call ``callback(scale)`` after every change of GUI scale.",
+      "translation": "Kalla á ``callback(scale)`` eftir hverja breytingu á GUI-kvarða.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.add_listener#1",
+      "source": "Held weakly when it is a bound method, so a listener does not keep its widget alive.",
+      "source_sha256": "001fb42ac7c82247bffa00d2cde0e37f1efe948cace6ff26067d3a6dc5f28827",
+      "context": "Held weakly when it is a bound method, so a listener does not keep its widget alive.",
+      "translation": "Haldið veikt þegar það er bundin aðferð, svo hlustandi haldi ekki græju sinni á lífi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.add_listener#2",
+      "source": "called with the new scale.",
+      "source_sha256": "9d6d6db9cb361a1dc19a5094edc7a2207002be5fa6a9aaa51955703544ba54bb",
+      "context": "called with the new scale.",
+      "translation": "kallað með nýja kvarðanum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_canvas_dpi#0",
+      "source": "Draw a matplotlib canvas at base dpi x GUI scale x its preview scale.",
+      "source_sha256": "34975bd6c24da9c96299bcec1a1e5fcfd4a62c0f705ea6ed2ca3708319814e2f",
+      "context": "Draw a matplotlib canvas at base dpi x GUI scale x its preview scale.",
+      "translation": "Teikna matplotlib-striga við grunn-dpi x GUI-kvarða x forsýnarkvarða hans.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_canvas_dpi#1",
+      "source": "A figure draws in points, so its dpi is what makes a 9 pt label take more or fewer pixels; scaling the dpi scales every label, dot and line while the widget keeps the size its layout gives it.",
+      "source_sha256": "bc45dc96ef6feb955f8f2e2fa31e020dd2d8713fd442cfa166f7ace1e576275b",
+      "context": "A figure draws in points, so its dpi is what makes a 9 pt label take more or fewer pixels; scaling the dpi scales every label, dot and line while the widget keeps the size its layout gives it.",
+      "translation": "Mynd teiknar í punktum, svo dpi hennar er það sem lætur 9 pt merki taka fleiri eða færri pixla; kvörðun dpi kvarðar hvert merki, punkt og línu á meðan græjan heldur þeirri stærð sem uppsetning hennar gefur henni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_canvas_dpi#3",
+      "source": "the GUI scale; the current one by default.",
+      "source_sha256": "53362d908ab5b9b1fb5781acb3f33fde3feff64ab02739ea05eca3c3bd03f5cd",
+      "context": "the GUI scale; the current one by default.",
+      "translation": "GUI-kvarðinn; núverandi kvarði sjálfgefið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_canvas_dpi#4",
+      "source": "``True`` if the canvas's dpi was set.",
+      "source_sha256": "6e3d086b544aa867d23964af1279c9891788e0a9a78ee01959e8f6fe0e0c5970",
+      "context": "``True`` if the canvas's dpi was set.",
+      "translation": "``True`` ef dpi strigans var stillt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_saved_gui_scale#0",
+      "source": "Start at the saved GUI scale; called once the application exists.",
+      "source_sha256": "e34adeefe6ff77b24b8cc56f37089190472682377b0e5916243fa2e8b98a7c9a",
+      "context": "Start at the saved GUI scale; called once the application exists.",
+      "translation": "Byrja á vistuðum GUI-kvarða; kallað þegar forritið er til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.apply_saved_gui_scale#1",
+      "source": "the scale in force.",
+      "source_sha256": "6bd9a2d814ca8b1ae83c303cf731a5e7502677b81c67716b03f472ac391abfef",
+      "context": "the scale in force.",
+      "translation": "kvarðinn sem er í gildi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#0",
+      "source": "Apply a new GUI and/or font scale now, then ask whether to keep it.",
+      "source_sha256": "21804ecc2bd28b8d646518969e52e8c9a5e7bc954b657ab7435fa53d95f4e8f4",
+      "context": "Apply a new GUI and/or font scale now, then ask whether to keep it.",
+      "translation": "Beita nýjum GUI- og/eða leturkvarða núna, og spyrja síðan hvort eigi að halda honum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#1",
+      "source": "The question is shown without blocking (``open``, not ``exec``): the rest of spaCR keeps running under it, and the countdown reverts by itself if nobody answers.",
+      "source_sha256": "8a689cc1fbbb7c8331126448b5d9e4fcdf36c3180efb93b7905251308674ebae",
+      "context": "The question is shown without blocking (``open``, not ``exec``): the rest of spaCR keeps running under it, and the countdown reverts by itself if nobody answers.",
+      "translation": "Spurningin er sýnd án þess að blokka (``open``, ekki ``exec``): restin af spaCR heldur áfram að keyra undir henni, og niðurtalningin afturkallar af sjálfu sér ef enginn svarar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#10",
+      "source": "the question dialog, or ``None`` when nothing was asked.",
+      "source_sha256": "725c75df566e4820569573a430fdcbcd0feadb08281a55346d20b792ccf8931c",
+      "context": "the question dialog, or ``None`` when nothing was asked.",
+      "translation": "spurningarglugginn, eða ``None`` þegar ekkert var spurt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#2",
+      "source": "the window the question is centred on.",
+      "source_sha256": "eafa054e60eb92c9ac29e1bb88d6e6c190f67ffe858ffdec90467f33f108289e",
+      "context": "the window the question is centred on.",
+      "translation": "glugginn sem spurningin er miðjuð á.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#3",
+      "source": "the new GUI scale; unchanged when ``None``.",
+      "source_sha256": "377167a423bc039f10a1a4a76486ac195920f1c35219aeea4bb6a6d97551d194",
+      "context": "the new GUI scale; unchanged when ``None``.",
+      "translation": "nýi GUI-kvarðinn; óbreyttur þegar ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#4",
+      "source": "the new font scale; unchanged when ``None``.",
+      "source_sha256": "30de1ad70b3ae395e102c01116719268b78bb58d4c3375cf124d7bf345f22fcc",
+      "context": "the new font scale; unchanged when ``None``.",
+      "translation": "nýi leturkvarðinn; óbreyttur þegar ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#5",
+      "source": "``False`` keeps without asking.",
+      "source_sha256": "493188a8d5bc3a48f6870c3fec474bbc03d39a489dd8de1ee2b0d2320ee313f8",
+      "context": "``False`` keeps without asking.",
+      "translation": "``False`` heldur án þess að spyrja.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#6",
+      "source": "the countdown before it reverts by itself.",
+      "source_sha256": "8bb6f9ae282ef763fcca48f197801b33861400f9d123dd0a529eae00f6c7e545",
+      "context": "the countdown before it reverts by itself.",
+      "translation": "niðurtalningin áður en það afturkallast af sjálfu sér.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#7",
+      "source": "``(gui, font)`` to revert to when the caller has already applied and saved the new values (the Z + wheel gesture); nothing is applied again then.",
+      "source_sha256": "5f0286a628992751f5727b7b3aa43fc6c3dabf174eb7621b43dcf8c27a754d8f",
+      "context": "``(gui, font)`` to revert to when the caller has already applied and saved the new values (the Z + wheel gesture); nothing is applied again then.",
+      "translation": "``(gui, font)`` til að afturkalla í þegar kallandinn hefur þegar beitt og vistað nýju gildin (Z + hjól-hreyfingin); þá er engu beitt aftur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#8",
+      "source": "ask only when there is a window to centre the question on. ``False`` asks anyway, which is what a test does.",
+      "source_sha256": "2c91bee6c339e8bc34a0d9544274406969c7fff333a56af9a588574b07e3455f",
+      "context": "ask only when there is a window to centre the question on. ``False`` asks anyway, which is what a test does.",
+      "translation": "spyrja aðeins þegar til er gluggi til að miðja spurninguna á. ``False`` spyr samt, sem er það sem próf gerir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales#9",
+      "source": "called with ``True`` when kept, ``False`` when reverted.",
+      "source_sha256": "a66a5eb4e4ac8e6625986c9dfc19ebfe4b1ca9b9d2ad91545081ed79f13793a2",
+      "context": "called with ``True`` when kept, ``False`` when reverted.",
+      "translation": "kallað með ``True`` þegar haldið er, ``False`` þegar afturkallað er.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.current_scale#0",
+      "source": "The GUI scale in force now (1.0 = 100 %).",
+      "source_sha256": "08510d88321d39211476b557bdb25a29e93806a20b6c7c34b680ff8246501962",
+      "context": "The GUI scale in force now (1.0 = 100 %).",
+      "translation": "GUI-kvarðinn sem er í gildi núna (1.0 = 100 %).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.follow_canvas#0",
+      "source": "Draw a new matplotlib canvas at the current GUI scale.",
+      "source_sha256": "e606a7a562e36b10153236ab3442f0d6b4c7d2e334ba6ca509a5a124faf18f3e",
+      "context": "Draw a new matplotlib canvas at the current GUI scale.",
+      "translation": "Teikna nýjan matplotlib-striga við núverandi GUI-kvarða.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.follow_canvas#1",
+      "source": "a ``FigureCanvasQTAgg`` just built.",
+      "source_sha256": "5d84de9db3a5983965496e8489bf3c6fe82078c5c3602155b2ffb0e7b5285f1c",
+      "context": "a ``FigureCanvasQTAgg`` just built.",
+      "translation": "``FigureCanvasQTAgg`` sem var rétt í þessu smíðaður.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.follow_canvas#2",
+      "source": "``True`` if its dpi was set.",
+      "source_sha256": "60d3145b4002fd2bde4aed7b29ade24d2e5734dcb78cd3d48c03a35ff46eb9c9",
+      "context": "``True`` if its dpi was set.",
+      "translation": "``True`` ef dpi hans var stillt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.install_scaling_layer#0",
+      "source": "Put the scaling layer on the Qt classes. Idempotent.",
+      "source_sha256": "235e4c722116b349c6bfe05bb235e9b1031c1dc0cd3608d5c628810553a3990d",
+      "context": "Put the scaling layer on the Qt classes. Idempotent.",
+      "translation": "Setja kvörðunarlagið á Qt-klasana. Sömu áhrif við endurtekningu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.install_scaling_layer#1",
+      "source": "Called from :func:`spacr.qt.app.launch` before the first widget, so every size spaCR sets is remembered at 100 %. At 100 % every replacement hands Qt exactly the value it was given, which is why a default session draws the pixels it drew before the layer existed.",
+      "source_sha256": "e1d059a24ad0e1644cbf4ffac67e04b7970ce8a5a4339759b10acf62dc0e045e",
+      "context": "Called from :func:`spacr.qt.app.launch` before the first widget, so every size spaCR sets is remembered at 100 %. At 100 % every replacement hands Qt exactly the value it was given, which is why a default session draws the pixels it drew before the layer existed.",
+      "translation": "Kallað frá :func:`spacr.qt.app.launch` fyrir fyrstu græjuna, svo hver stærð sem spaCR stillir er munuð við 100 %. Við 100 % afhendir hver staðgengill Qt nákvæmlega gildið sem honum var gefið, og þess vegna teiknar sjálfgefin lota sömu pixla og hún teiknaði áður en lagið var til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.gui_scale.install_scaling_layer#2",
+      "source": "``True`` the first time, ``False`` if it was already in place.",
+      "source_sha256": "322fe5d5afaaa37406da846c25fd6187c147a404333266026748c4c3f526a4e7",
+      "context": "``True`` the first time, ``False`` if it was already in place.",
+      "translation": "``True`` í fyrsta sinn, ``False`` ef það var þegar á sínum stað.",
+      "review_basis": "written from the English (no current MT draft)"
     }
   ]
 }
