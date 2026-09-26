@@ -468,3 +468,38 @@ actual installer checkout79d71a9, confirming the label defect fixed by
 the repaired label. The full evidence is in
 features/data/425_ci_and_public_registry_2026-09-23.json.
 Only real GPU execution from the original WHAT IS LEFT list remains open.
+
+2026-09-26 — PUBLISHED 1.5.1.0 CUDA IMAGE PULLED, CPU BASELINE MEASURED
+nvidia-container-toolkit is now installed; `docker info` lists the nvidia
+runtime, and `docker run --rm --gpus all ubuntu nvidia-smi -L` prints
+"GPU 0: NVIDIA GeForce RTX 3090". Docker can hand the card to a container.
+
+The image under test is the PUBLISHED one, not a local build:
+  ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 (also tags cuda, cuda12.4)
+  manifest sha256:2863e27da58acc9c04f33a1cb2ca680f97b489e8ce1227ce63ef72cc438168e9
+  config   sha256:d3ea8a4075f53dde5322ec197a5e965670aebf4ca518a2e1c4c46a16cfb74334
+  labels   version 1.5.1.0, revision fbb78e1fc48bcc64015db66f1e5cff6ab4c3bde5
+  17 layers, 6.29 GB compressed, 11.48 GB unpacked; `spacr --version` 1.5.1.0.
+`docker pull` failed twice on this box's link: the 4.05 GB torch/venv layer
+(5c4cf48be369) died with "unexpected EOF" after 57 min and again on retry,
+and docker restarts a failed layer from zero. The blobs were instead fetched
+with resumable `curl -C -` from the registry's anonymous blob API, each one
+sha256-checked against the manifest, the manifest itself hashed to the
+digest above, and the set fed to `docker load`. The loaded image's ID equals
+the published config digest, so it is byte-for-byte the published image.
+Worth knowing for users on flaky links: Docker has no resume.
+
+CPU BASELINE, same image, no --gpus (--cpus 16, --memory 24g, --user 1000):
+one real Cellpose-SAM mask generation through spaCR's own
+spacr.model_compare.segment_with_cellpose (ModelConfig('cpsam') defaults:
+diameter 30, flow 0.4, cellprob 0.0), on plate1_A02_12.tif (1994x1994 uint16)
+from the Make Masks Toxo PV example set, mounted read-only; stock cpsam
+weights mounted read-only on /models from ~/.cellpose/models.
+  torch 2.6.0+cu124, cellpose 4.2.1.1, python 3.12.14
+  torch.cuda.is_available() False; spaCR accelerator kind cpu, float32 weights
+  wall time 641 s cold (incl. model load), 683 s warm (machine was loaded
+  by other sessions, ~8-9 effective cores)
+  48 objects; against the 33-object curated mask, 28 matched at IoU>=0.5,
+  mean IoU of matches 0.871, 20 predicted and 5 truth objects unmatched.
+The GPU run of the same probe is queued through tools/gpu_turn.sh
+(label 425-docker-gpu); results follow in the next note.
