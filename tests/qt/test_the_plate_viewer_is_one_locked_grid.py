@@ -583,8 +583,14 @@ class TestADragScrollsAtTheEdge:
         big.begin_drag(2, 1)
         big.drag_to(QPoint(view.right() + 30, _row_y(big, 2)))
 
+        reached = max(column for _row, column in big.selection())
         qtbot.waitUntil(lambda: bar.value() > 0, timeout=3000)
-        big.finish_drag()
+        qtbot.waitUntil(lambda: max(column for _row, column
+                                    in big.selection()) > reached,
+                        timeout=3000)
+
+        assert bar.value() > 0
+        assert big.finish_drag() is True
 
     def test_a_plate_that_fits_never_scrolls(self, picker):
         _sized(picker, WIDE)
