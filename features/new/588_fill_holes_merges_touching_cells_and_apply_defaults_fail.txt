@@ -1,6 +1,7 @@
 FILLING HOLES MERGES TOUCHING CELLS, AND APPLY'S DEFAULT CHANNELS/PERCENTILES FAIL
 
-Status: OPEN, filed 2026-09-26. Not started.
+Status: DONE, 2026-09-26. See the closing note.
+Was: OPEN, filed 2026-09-26.
 Owner: unassigned. Found by the docs session while recording the Train
 Cellpose tutorial (evidence: /mnt/firecuda2/codex/scratch-docs/status/t19.md,
 /mnt/firecuda2/codex/scratch-docs/t19/gpu_run4.log).
@@ -30,3 +31,89 @@ DONE WHEN
 A field with touching cells keeps every object after fill_in (test with a
 synthetic two-touching-cells mask and a real field); Apply with defaults gives
 the preview's object count on the tutorial's fields; no numpy warnings.
+
+
+2026-09-26 -- FIXED (4639c2d06, merged with nightly)
+----------------------------------------------------
+CAUSES
+  1. spacr.utils.fill_holes_in_mask labelled the mask afresh with
+     ndimage.label(mask) and filled each connected component. Every pair of
+     touching cells is one component, so it became one object. The same
+     "fill the foreground, then label" pattern was in Make Masks' Fill holes
+     button (mask_engine.fill_holes, default mode: binary_fill_holes then
+     label), and object._postprocess_masks renumbered with label(mask > 0).
+     mask_engine._fill_label_holes (secondary-object propagation and Fill
+     holes in exact-id mode) did keep ids but scanned the whole field once
+     per label.
+  2. Apply (spacr_cellpose.identify_masks_finetune) with its defaults
+     channels [0,0] and percentiles None did not segment what the preview
+     segments. The preview hands Cellpose ONE raw plane and lets it
+     normalise per image (eval normalize=True). Apply stacked channel 0 twice
+     on a multi-channel image and, without percentiles, ran the set-wide
+     search in io._load_normalized_images_and_labels, which averages four
+     fixed channel slots; the empty ones are np.mean([]), which is the
+     "Mean of empty slice" warning with site-packages paths. Apply then
+     called eval(normalize=False) on that rescaled image.
+
+EVERY CALL SITE, ONE HELPER: spacr.qt.mask_engine.fill_label_holes
+  Each label is filled inside its own find_objects box and written only
+  onto background, smallest box first (so a nested ring owns its hole), and
+  never relabelled. Exact, and 0.14 s on 2000 x 2000 with 400 touching
+  ringed objects (the old fill_in returned 1 object there).
+  - spacr.utils.fill_holes_in_mask -> fill_label_holes (Apply's fill_in;
+    its only caller is identify_masks_finetune).
+  - mask_engine.fill_holes (Make Masks' Fill holes): both modes now use it;
+    a single-valued brush mask is still numbered by connectivity first
+    (canonical_labels) because it carries no ids.
+  - mask_engine propagate (secondary objects, fill_holes=True) -> the same
+    helper, now box-local instead of whole-field per label.
+  - object._postprocess_masks renumbers by lookup table, not label(mask>0).
+  - Checked and left alone: object._segment_irregular's remove_small_holes,
+    mask_engine._finish_region_binary and the Otsu/threshold paths, the
+    annotate_engine outline mask and diameter.py all fill a BINARY
+    foreground before any object exists, so nothing can merge there.
+    Plaque Assay no longer reads fill_in (it segments via
+    plaque.segment_plaque_image).
+  Apply: new spacr_cellpose._apply_input_settings. A repeated channel index
+  is kept once ([0,0] -> [0]); with no explicit [low, high] pair the loader
+  returns the image unscaled (new rescale=False) and eval runs with
+  normalize=True, i.e. exactly the preview's input. An explicit pair keeps
+  the old path. The loader's percentile search now averages only the
+  channel slots that were filled, so no empty-slice warning anywhere.
+  fill_in and percentiles help text updated; notebooks 08/09/10/13 rebuilt.
+
+NUMBERS (tutorial ZIP Cellpose_training_images_masks.zip)
+  Curated training masks, ids -> objects after the OLD fill_in:
+    cell_pair_01..06: 11/95/51/84/52/46 -> 11/5/10/3/3/4.
+    NEW: 11/95/51/84/52/46, every pixel keeps its id.
+  Apply fields with the tutorial's trained checkpoint
+  (tutorial_cells_cpsam_e10, CPU), preview masks 76/48/54 objects:
+    OLD fill_in -> 8/5/3 (docs run 4 saw 8/4/6); NEW fill_in -> 76/48/54.
+  Apply with DEFAULT settings (channels [0,0], percentiles None, fill_in
+  True), same checkpoint, CPU (float32 weights, as the app uses on CPU):
+    the app's own preview path (live_preview._segment_multi): 75/46/55.
+    BEFORE: 4/3/4 objects, with "Mean of empty slice" and "invalid value
+            encountered in scalar divide" (docs GPU run 3 saw 5/4/7).
+    AFTER:  75/46/55, identical to the preview, no warnings.
+  (A bare Cellpose eval with bfloat16 weights gives 76/48/54; the docs GPU
+  run 5 preview was 76 on cell_field_01. The small offset is weight
+  precision, not settings: resample True/False made no difference here.)
+  The queued GPU turn was withdrawn unstarted; everything above is CPU.
+
+TESTS
+  tests/test_filling_holes_keeps_touching_cells_apart.py (new): synthetic
+  touching ringed cells keep both ids with holes filled, through all four
+  entry points; nested ring; boolean/empty input; 2000 x 2000 x 400 under
+  5 s; the six curated tutorial masks keep every object; postprocess does
+  not merge; Apply hands Cellpose the raw plane with normalize=True by
+  default (percentiles [2,99] keeps the old path) with RuntimeWarnings as
+  errors; and, marked slow, stock cpsam on CPU on a 256 x 256 crop of
+  cell_field_01: Apply with defaults == the preview's count (passed, 232 s).
+  tests/test_docstring_correctness.py: the public-callable pins move by
+  exactly one function (fill_label_holes, one required parameter); the
+  digest was proved by subtraction (without that row it is the old
+  d6171327... pin).
+  Relevant suites (fill, mask engine, Make Masks, io loaders, Cellpose
+  apply/train, preview, docstring, i18n, help index): before 1342 passed
+  / 1 failed (notebook staleness already on nightly); after the merge
+  with nightly 1633 passed, 0 failed.

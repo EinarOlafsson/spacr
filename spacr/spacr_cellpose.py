@@ -129,6 +129,43 @@ def parse_cellpose4_output(output):
 
     raise ValueError(f"Unrecognized Cellpose flows format: type={type(flows)}, len={len(flows) if hasattr(flows,'__len__') else 'unknown'}")
 
+def _apply_input_settings(channels, percentiles):
+    """The channels and normalisation Apply segments with, as the preview does.
+
+    The Cellpose Masks preview segments ONE channel plane, raw, and lets
+    Cellpose normalise it per image (``eval(normalize=True)``: the 1st to
+    99th percentile of that image). Apply's defaults did something else:
+    ``channels=[0, 0]`` stacked channel 0 twice, and ``percentiles=None``
+    started a search for a set-wide upper percentile above
+    ``background * Signal_to_noise`` that averaged four channel slots,
+    empty ones included, into numpy "Mean of empty slice" warnings (item
+    588).
+
+    So when the user has not set them, Apply takes the preview's: a repeated
+    channel index is kept once, and without an explicit ``[low, high]`` pair
+    each image goes to Cellpose unscaled for Cellpose to normalise.
+
+    :param channels: the ``channels`` setting, a list of indices or ``None``.
+    :param percentiles: the ``percentiles`` setting.
+    :returns: ``(channels, percentiles, own_normalisation)``: the channels
+        with repeats removed (``None`` kept), the percentile pair or ``None``,
+        and whether spaCR rescales the images itself (``True`` only for an
+        explicit pair).
+    """
+    if channels is not None:
+        picked = []
+        for channel in list(channels):
+            if int(channel) not in picked:
+                picked.append(int(channel))
+        channels = picked or None
+    pair = None
+    if isinstance(percentiles, (list, tuple)) and len(percentiles) == 2:
+        try:
+            pair = [float(percentiles[0]), float(percentiles[1])]
+        except (TypeError, ValueError):
+            pair = None
+    return channels, (list(percentiles) if pair else None), pair is not None
+
 def identify_masks_finetune(settings):
     """Generate Cellpose masks for a directory of images using a stock or custom model.
 
@@ -177,8 +214,14 @@ def identify_masks_finetune(settings):
         print("grayscale=True has no effect under Cellpose 4: the channel "
               "pair (eval channels=) is deprecated and ignored.")
 
+    channels, percentiles, own_normalisation = _apply_input_settings(
+        settings['channels'], settings['percentiles'])
+    model_normalises = bool(settings['normalize']) and not own_normalisation
+
     if settings['verbose'] == True:
-        print(f"Cellpose settings: Model: {pretrained}, channels: {settings['channels']}, diameter:{settings['diameter']}, flow_threshold:{settings['flow_threshold']}, cellprob_threshold:{settings['CP_prob']}")
+        how = (f"percentiles {percentiles}" if own_normalisation else
+               "Cellpose per image, as the preview" if model_normalises else "none")
+        print(f"Cellpose settings: Model: {pretrained}, channels: {channels}, normalisation: {how}, diameter:{settings['diameter']}, flow_threshold:{settings['flow_threshold']}, cellprob_threshold:{settings['CP_prob']}")
 
     image_files = [os.path.join(settings['src'], f) for f in os.listdir(settings['src']) if f.endswith('.tif')]
     mask_files = set(os.listdir(os.path.join(settings['src'], 'masks')))
@@ -200,8 +243,9 @@ def identify_masks_finetune(settings):
         if settings['normalize']:
             images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files=image_files,
                                                                                       label_files=None,
-                                                                                      channels=settings['channels'],
-                                                                                      percentiles=settings['percentiles'],
+                                                                                      channels=channels,
+                                                                                      percentiles=percentiles,
+                                                                                      rescale=own_normalisation,
                                                                                       invert=settings['invert'],
                                                                                       visualize=settings['verbose'],
                                                                                       remove_background=settings['remove_background'],
@@ -221,7 +265,7 @@ def identify_masks_finetune(settings):
         for file_index, stack in enumerate(images):
             start = time.time()
             output = model.eval(x=stack,
-                         normalize=False,
+                         normalize=model_normalises,
                          channel_axis=cellpose_channel_axis(stack),
                          diameter=settings['diameter'],
                          flow_threshold=settings['flow_threshold'],
