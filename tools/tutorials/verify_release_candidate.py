@@ -44,14 +44,24 @@ def check_sentence_cues(page):
     cases = []
     for sentence in sentences:
         requested = (sentence['speech_start'] + sentence['speech_end']) / 2
-        page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking')
-        page.evaluate('(seconds) => seekTo(seconds)', requested)
-        page.wait_for_timeout(300)
-        page.evaluate('elements.video.pause()')
-        page.wait_for_timeout(150)
-        actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
-            video: elements.video.currentTime,
-            cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+        # A hosted seek can still be fetching when a fixed delay ends; the cue
+        # list then describes the previous position. Read only after the video
+        # has finished seeking, and repeat the seek if narration drifted more
+        # than the unchanged one-second tolerance while it loaded.
+        for attempt in range(4):
+            page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking',
+                                   timeout=30000)
+            page.evaluate('(seconds) => seekTo(seconds)', requested)
+            page.wait_for_timeout(300)
+            page.wait_for_function('!elements.video.seeking && elements.video.readyState >= 2', timeout=30000)
+            page.evaluate('elements.video.pause()')
+            page.wait_for_timeout(150)
+            actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
+                video: elements.video.currentTime,
+                cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+            if abs(actual['audio'] - requested) < 1:
+                break
+        actual['seek_attempts'] = attempt + 1
         assert abs(actual['audio'] - requested) < 1, (requested, actual)
         assert sentence['text'] in actual['cues'], (sentence, actual)
         cases.append({'requested_audio_time': requested, 'text': sentence['text'], **actual})
