@@ -1,31 +1,35 @@
 {
   "lesson": "16_activation",
-  "english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "a93b1d181e542e8162f7a36996e2de029d338fcf457fe57b640fbf7fe4cd0980",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "fr",
-  "title": "Activation Maps : sorties de saillance réelles et leurs limites",
-  "description": "Ouvrez Activation Maps dans Classify, associez un modèle fiable aux recadrages réels et comparez deux sorties sans confondre attribution et validation.",
+  "title": "Activation Maps : examiner les cartes de saillance d’un classificateur d’images",
+  "description": "Sélectionnez un classificateur entraîné et des vignettes compatibles, comparez la saillance par canal et par image, et ouvrez les cartes enregistrées.",
   "objectives": [
-    "Trouver l'outil intégré et préserver le contrat d'entrée du modèle.",
-    "Distinguer prétraitement, contraste d'affichage et attribution.",
-    "Examiner les fichiers enregistrés lorsque Figures reste vide.",
-    "Séparer vérification numérique, prédictions et validité scientifique."
+    "Faire correspondre l’archive de vignettes, le modèle et les paramètres de prétraitement.",
+    "Lancer la saillance par canal avec une superposition sur l’image.",
+    "Comparer la saillance par image et localiser les grilles enregistrées."
   ],
-  "prerequisite": "Quatre recadrages RGB inchangés de l'exemple téléchargé dans Annotate et un checkpoint ResNet18 local fiable entraîné une seule époque. Des puits sont partagés entre les partitions du précédent exemple : AUCUNE précision indépendante démontrée. Conserver marqueur de format 3/RGB et fiche du modèle. Taille 128, lot 4, canaux [1,2,3], normalize_input/normalize/Plot/Save activés, shuffle/correlation désactivés, un processus CPU. saliency_channel avec superposition puis saliency_image sans superposition. Vérification de 196608 valeurs d'entrée et 262144 composantes de cartes, tolérance maximale d'un niveau sur huit bits. Identités et sources intactes. Avertissement src et Figures vide NON réparés ; PNG réels ouverts dans le visualiseur externe. Quatre emplacements inutilisés restent vides. Pas de validation d'attribution, précision indépendante, requête AI, validation biologique ou publication. API : spacr.deep_spacr.generate_activation_maps et spacr.utils.SaliencyMapGenerator.",
+  "prerequisite": "Utilisez un point de contrôle de classification d’images entraîné et une archive TAR de vignettes compatibles. Conservez le marqueur de format de vignette s’il existe et respectez l’ordre des canaux, la taille d’image et la normalisation indiqués dans la fiche du modèle. L’exemple utilise quatre vignettes RGB issues d’Annotate et un modèle ResNet18 issu de Classify. Entraînez ou procurez-vous un modèle dont le prétraitement est connu avant de commencer.",
   "scenes": [
-    "Ouvrez Classify, puis son outil imbriqué Activation Maps. Ce flux examine comment la prédiction d'un modèle entraîné réagit aux pixels. Il n'entraîne pas de classifieur et n'établit pas la cause d'un phénotype observé. Nous montrons deux vrais calculs de saillance, leur console et une voie explicite de consultation des fichiers enregistrés.",
-    "Utilisez la véritable archive de recadrages, pas un dossier fictif. Notre petite archive contient quatre recadrages cellulaires RGB inchangés de l'exemple téléchargé d'Annotate, avec leur marqueur de format. Nous préservons les sources et travaillons dans un projet privé. Quatre images pratiques illustrent le fonctionnement ; ce n'est pas une cohorte de validation représentative.",
-    "Choisissez le modèle fiable correspondant et conservez sa fiche. C'est un checkpoint ResNet dix-huit entraîné une seule époque dans la démonstration précédente. Des puits sont partagés entre ses partitions : nous ne revendiquons donc aucune précision indépendante. Une attribution convaincante ne sauve pas un modèle insuffisamment validé. Ne chargez pas de checkpoint non fiable par commodité.",
-    "Respectez le contrat d'entrée de l'entraînement : taille cent vingt-huit et ordre RGB déclaré. Ici, le sélecteur réel utilise un, deux, trois. N'intervertissez pas les canaux parce qu'un autre outil commence ses indices à zéro. Nous avons vérifié indépendamment les valeurs recadrées au centre et transformées contre le chargeur d'entraînement avant de comparer la saillance.",
-    "Distinguez normalisation d'entrée et normalisation d'affichage. L'entrée doit correspondre à l'entraînement ; ici, elle utilise le prétraitement symétrique enregistré. La normalisation d'affichage change l'aspect de l'image sous la superposition, pas la précision du modèle ni le sens d'une couleur. Conservez les deux réglages dans les comparaisons ; une image plus brillante n'est pas une preuve plus forte.",
-    "Choisissez saliency channel avec Overlay activé, et gardez Plot et Save. Nous utilisons un processus, un lot de quatre et le CPU pour cette petite démonstration. L'écran n'a pas d'aperçu en direct : changer de méthode exige une autre exécution. La saillance par canal conserve les canaux d'entrée séparés lors de l'enregistrement des cartes de dérivées.",
-    "Lisez la console réelle. Le calcul finit, mais cette version signale à tort src manquant alors qu'Activation utilise Dataset. Le panneau Figures reste également vide. Nous avons vérifié indépendamment entrée, cartes enregistrées et identités en base ; ces défauts d'interface ne sont pas réparés. Les autres erreurs doivent toujours être examinées.",
-    "Ouvrez la grille enregistrée dans un visualiseur d'images. Il s'agit du vrai visualiseur externe, pas d'une figure insérée dans spaCR. Quatre emplacements occupés correspondent aux quatre recadrages ; les quatre autres sont inutilisés. Les étiquettes zéro et un sont des prédictions, pas la vérité terrain. La superposition représente une sensibilité, pas un masque de segmentation.",
-    "Choisissez maintenant saliency image, désactivez Overlay et relancez sur les mêmes entrées. Cette méthode combine les dérivées absolues entre canaux avant la remise à l'échelle de la carte grise enregistrée. Ce n'est ni de l'occlusion ni des gradients intégrés. Séparez les sorties par méthode pour ne pas confondre la deuxième exécution avec la première.",
-    "La deuxième grille montre les cartes sans les images sous-jacentes. Les couleurs représentent l'échelle de saillance affichée, pas des probabilités de classe ni une importance biologique prouvée. Les contrôles indépendants comparent chaque composante enregistrée à un gradient calculé séparément, avec au plus un niveau d'arrondi sur huit bits. Ils vérifient l'implémentation, pas l'utilité de l'explication.",
-    "La quantification des cartes est désactivée. Nous n'avons effectué ni suppression, insertion, randomisation du modèle ni autre test de validation d'attribution ; deux méthodes visuellement différentes ne les remplacent pas. Avant de conclure, utilisez des échecs et réussites représentatifs, des contrôles pertinents et des données réservées indépendamment. Cette démonstration limitée vérifie seulement le fonctionnement.",
-    "Conservez ensemble identités des recadrages, images originales, modèle et fiche, réglages, journaux, cartes et base. Les sources sont restées intactes et les deux méthodes ont conservé les quatre identités. L'aide AI est facultative ; aucune requête n'a été envoyée ici. Confrontez les conseils ultérieurs à l'API réelle et aux preuves : la fluidité d'une explication ne vaut pas validation."
+    "Depuis Home, ouvrez Classify, puis Activation Maps. Cet outil montre à quels pixels d’entrée la prédiction d’un classificateur d’images entraîné est sensible. Commencez avec le modèle et une archive de vignettes préparées de la même façon que ses données d’entraînement.",
+    "Sélectionnez l’archive de vignettes dans Dataset. Cet exemple contient quatre vignettes RGB de cellules issues d’Annotate. Incluez le marqueur de format de vignette lorsque vous empaquetez les images, et gardez leurs noms de fichier pour relier chaque carte à son objet d’origine.",
+    "Sélectionnez le modèle entraîné et choisissez son type. Ici, le modèle est ResNet dix-huit. Lisez sa fiche et réglez Image size sur cent vingt-huit pour correspondre à l’entrée d’entraînement.",
+    "Réglez Channels dans l’ordre attendu par le modèle. Dans cet exemple, le sélecteur utilise un, deux et trois pour l’entrée RGB. Conservez cet ordre lorsque vous comparez les cartes de différentes images.",
+    "Réglez Normalize input comme pendant l’entraînement. La normalisation d’affichage, distincte, détermine l’apparence de l’image dans la superposition enregistrée. Gardez ces deux réglages identiques lorsque vous comparez des exécutions.",
+    "Choisissez saliency channel et activez Overlay, Plot et Save. Vous obtenez des cartes distinctes par canal superposées aux images. Pour l’exemple à quatre vignettes, utilisez une taille de lot de quatre et un seul processus, puis cliquez sur Run.",
+    "Suivez la console jusqu’à la fin du traitement. Si le panneau Figures est vide, ouvrez le dossier de sortie et examinez les grilles de lot enregistrées. Vérifiez les messages d’erreur et les résultats enregistrés avant de continuer.",
+    "Ouvrez batch_0_grid.png dans le dossier batch_grids de la méthode. Associez chaque case occupée à sa vignette source ; les cases inutilisées peuvent rester vides. Les étiquettes dans les coins sont les prédictions du modèle. Comparez les régions saillantes avec l’image d’origine et les contours connus des objets.",
+    "Pour comparer une carte combinée, sélectionnez saliency image et désactivez Overlay. Relancez les mêmes images avec le même prétraitement. Gardez les sorties des deux méthodes dans leurs dossiers respectifs.",
+    "Ouvrez la deuxième grille enregistrée. La saillance par image combine les sensibilités des canaux en une seule carte par vignette. Comparez les régions mises en évidence avec les cartes par canal. Les couleurs indiquent l’échelle de la carte ; leur interprétation exige de tenir compte du modèle et du contexte de l’image.",
+    "Laissez Correlation désactivé pour cette première démonstration. Examinez des exemples de différentes classes, y compris les erreurs de prédiction, avant d’interpréter des motifs. Utilisez Classifier Evaluation pour évaluer les performances sur des données mises de côté de façon indépendante.",
+    "Gardez ensemble l’archive d’entrée, le modèle et sa fiche, les paramètres, les cartes et la base de données de sortie. Revenez aux vignettes d’origine pour étudier les régions inattendues, ou comparez une autre méthode avec les mêmes entrées."
   ]
 }

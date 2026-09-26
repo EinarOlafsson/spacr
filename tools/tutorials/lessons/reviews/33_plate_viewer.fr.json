@@ -1,0 +1,33 @@
+{
+  "lesson": "33_plate_viewer",
+  "english_sha256": "bf218ea49218a8edb7e4e993cab83bd97c96daa3cb82b53175e7a5288113444e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Plate Viewer : inspecter les puits et exporter une table de carte thermique",
+  "description": "Chargez les mesures d’exemple, comparez les caractéristiques et les comptages par puits, inspectez des puits individuels et exportez la table filtrée.",
+  "objectives": [
+    "Ouvrir Plate Viewer depuis Graph Builder et charger les mesures d’exemple.",
+    "Choisir une caractéristique, une agrégation et un nombre minimal d’objets.",
+    "Inspecter le détail des puits et exporter la grille de puits actuelle."
+  ],
+  "prerequisite": "Utilisez Load test data dans Plate Viewer pour l’exemple téléchargeable, ou ouvrez le fichier measurements.db de votre projet mesuré. L’exemple contient 2 341 cellules réparties dans quatre puits ; utilisez des mesures couvrant votre propre plaque pour évaluer des motifs spatiaux.",
+  "scenes": [
+    "Depuis Home, ouvrez Graph Builder dans Data, puis choisissez Plate Viewer. Utilisez-le pour résumer les mesures d’objets par puits et inspecter leur répartition sur une plaque.",
+    "Cliquez sur Load test data pour ouvrir l’exemple téléchargeable. Pour vos propres données, choisissez une base de données de mesures ou son dossier d’exécution et cliquez sur Open. L’exemple contient quatre puits mesurés.",
+    "Choisissez cell comme Table, cell_area comme Measurement et plate1 comme Plate. Réglez Per well sur mean pour afficher l’aire cellulaire moyenne. La médiane réduit l’influence d’objets anormalement grands ou petits.",
+    "Choisissez une échelle de couleurs. La plage robuste utilise les percentiles du deuxième au quatre-vingt-dix-huitième, ce qui évite qu’un puits extrême écrase les couleurs des autres.",
+    "Cliquez sur Render et comparez les puits colorés. Lisez le rapport d’effet de bord à côté de la carte thermique, en vérifiant la disposition de la plaque et la couverture mesurée. Utilisez des mesures couvrant toute votre plaque pour évaluer des motifs de bord, de ligne ou de colonne.",
+    "Cliquez sur un puits mesuré pour voir son identifiant, son nombre d’objets et la valeur affichée. Utilisez ces identifiants pour retrouver le même puits dans vos images ou vos résultats exportés.",
+    "Réglez Per well sur count pour comparer le nombre d’objets. Cette vue vous aide à repérer les puits ayant moins d’objets segmentés avant d’interpréter des différences de caractéristiques.",
+    "Augmentez Min objects per well pour exclure les puits qui ont trop peu d’objets pour votre comparaison. À six cent un, il reste deux des quatre puits de cet exemple. Les puits exclus apparaissent vides et non comme des mesures nulles.",
+    "Cliquez sur Export well grid CSV, choisissez un nom de fichier et enregistrez. Le CSV contient les puits retenus par le filtre actuel, avec leurs identifiants, comptages, valeurs affichées et annotations spatiales.",
+    "Conservez la table exportée avec les paramètres de mesure et d’agrégation. Abaissez le nombre minimal pour faire réapparaître les puits exclus, ou choisissez une autre mesure pour votre prochaine comparaison."
+  ]
+}

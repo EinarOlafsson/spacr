@@ -1,36 +1,34 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
   "review": {
-    "kind": "Parent editorial translation of frozen English; exact counts, unknown and hypothetical calibration, infection and PDF limitations retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "es",
-  "title": "Análisis de motilidad",
-  "description": "Explore filtros en vivo y unidades con trayectorias sintéticas reproducibles en Motility, dentro de Measure.",
+  "title": "Ensayo de motilidad",
+  "description": "Mide el movimiento a partir de objetos seguidos, revisa los filtros de trayectorias y guarda resultados por fotograma y por pozo.",
   "objectives": [
-    "Encontrar Motility dentro de Measure y cargar el ejemplo exacto.",
-    "Comparar filtros sin releer imágenes ni ejecutar otro modelo.",
-    "Distinguir unidades desconocidas, conversión hipotética y límites de los resultados."
+    "Cargar un proyecto con arreglos combinados que incluyen seguimiento.",
+    "Elegir los planos de máscara, los filtros de trayectorias y las unidades de adquisición.",
+    "Ejecutar el análisis y encontrar las tablas y gráficos de movimiento."
   ],
-  "prerequisite": "Extraiga SYNTHETIC_motility_tracks.zip en una carpeta nueva. Son ocho matrices sintéticas con intensidad nuclear 0, celular 1, máscara celular seguida 2 y nuclear 3; no hay patógeno ni calibración adquirida. Use la raíz que contiene merged. En Live: dos canales, plano seguido 2, patógeno -1, ocho fotogramas, longitud mínima 3 y calibración 0/0. Los valores 2 píxeles/µm y 60 segundos/fotograma solo ilustran aritmética. No active Propagate settings. Los PDF tienen marcas de bajo contraste; Screen no lo arregló. No se valida infección ni exactitud biológica. API: spacr.timelapse.automated_motility_assay. AI permanece desactivado.",
+  "prerequisite": "Completa una ejecución de Timelapse, o descarga y extrae SYNTHETIC_motility_tracks.zip. Selecciona la carpeta que contiene merged. El ejemplo tiene ocho fotogramas, la intensidad nuclear en el canal 0, la intensidad celular en el canal 1, las máscaras de células seguidas en el plano 2 y las máscaras de núcleos en el plano 3. No tiene máscara de patógenos ni calibración física.",
   "scenes": [
-    "Abra Measure y después su acceso Time para llegar a Motility Assay. Es un módulo anidado, no una tarjeta independiente de Home. Timelapse, dentro de Mask, crea trayectorias; Motility las mide. Si sus imágenes aún no tienen seguimiento, consulte primero la lección Timelapse.",
-    "Descargue el ejemplo de matrices con seguimiento enlazado abajo y extráigalo en una carpeta nueva. En Source elija la carpeta que contiene merged. Sus ocho fotogramas contienen dieciséis trayectorias celulares. Seleccione cell, canal nuclear cero y celular uno, sin canal de patógeno.",
-    "En un experimento adquirido, use la escala de píxel y el intervalo reales. Aquí, dos píxeles por micrómetro y sesenta segundos por fotograma son deliberadamente hipotéticos, solo para demostrar aritmética. El formulario del lote exige números; sus valores predeterminados no prueban la calibración de su microscopio.",
-    "Deje Reuse existing measurements desactivado para esta copia nueva y active los gráficos de control de calidad. No hay canal de patógeno, así que el control de infección está desactivado en esta ejecución. No se prueban clasificadores opcionales ni se establece un efecto de infección con estas trayectorias didácticas.",
-    "Ejecute el ejemplo pequeño y lea la consola. El lote guarda ciento veintiocho observaciones y un resumen de dieciséis trayectorias por pocillo, además de archivos PDF. Estos no aparecen en la cola de figuras. Esta versión advierte de colores tenues al exportar; inspeccione los archivos antes de usarlos en un informe.",
-    "Active Live para abrir Motility preview. Contraiga Console y System si restan espacio a los gráficos y elija la misma carpeta extraída. Los ajustes del lote y las métricas de la vista previa son independientes. Deje Propagate settings desactivado para que un filtro temporal no modifique la siguiente ejecución completa.",
-    "Establezca dos canales de intensidad, plano de máscara seguido dos y plano de patógeno menos uno, es decir, ninguno. Visualice los ocho fotogramas. Una máscara nuclear no es una máscara de patógeno. Ponga ambos campos de calibración en cero para unidades desconocidas y pulse Run preview.",
-    "La vista previa lee ciento veintiocho observaciones y muestra dieciséis trayectorias utilizables con longitud mínima tres. La velocidad media es aproximadamente uno coma cuatro píxeles por fotograma. Sin ambos valores de calibración, no debe describirse como micrómetros por minuto.",
-    "Suba Min track length a nueve. Cada trayectoria tiene solo ocho fotogramas, así que las dieciséis quedan excluidas del resumen utilizable y la velocidad media no está disponible. No se eliminan las trayectorias ni las imágenes originales. Un resumen vacío no equivale a velocidad cero.",
-    "Restaure el mínimo a tres. Regresan las dieciséis trayectorias utilizables, la distribución de longitudes y los puntos de velocidad. Estas métricas se recalculan desde observaciones en caché. Cambiar una métrica no repite la segmentación ni demuestra que las identidades del seguimiento original fueran correctas.",
-    "Active Drop over-straight tracks con umbral cero coma noventa y cinco. La rectitud es el desplazamiento neto dividido por la longitud recorrida. Se excluyen quince trayectorias didácticas casi rectas y queda una. El movimiento recto puede ser real; este filtro no prueba automáticamente deriva ni constituye una recomendación de análisis.",
-    "Desactive el filtro y confirme que regresan las dieciséis trayectorias. Compare gráficos y cantidad retenida antes de aceptar una regla de filtrado. Aquí la etiqueta uninfected refleja únicamente la ausencia del plano de patógeno; no es un grupo biológico negativo validado.",
-    "Introduzca dos píxeles por micrómetro, pero deje desconocido el intervalo. La vista previa sigue indicando píxeles por fotograma. La escala espacial no aporta el tiempo ausente, y la velocidad de reproducción no es el intervalo de adquisición.",
-    "Introduzca ahora sesenta segundos por fotograma. Con ambos valores hipotéticos, la velocidad media pasa de unos uno coma cuatro píxeles por fotograma a cero coma siete micrómetros por minuto. Las identidades no cambian. El gráfico de trayectorias sigue etiquetando el desplazamiento en píxeles; aquí solo cambia la unidad de velocidad.",
-    "Devuelva ambos campos de calibración de la vista previa a cero. Regresa exactamente el resumen original en píxeles. Separe este ejercicio aritmético de los metadatos reales y consulte la función del lote en la referencia API. spaCR AI puede explicar ajustes, pero no certificar calibración, infección ni validez científica."
+    "Desde Home, abre Measure y luego usa Time para abrir Motility Assay. Empieza con imágenes seguidas de Timelapse, o descarga el archivo de ejemplo de abajo para seguir la lección.",
+    "Extrae el ejemplo y pon en Source la carpeta que contiene merged. Elige cells como objetos seguidos, el canal nuclear cero y el canal celular uno. Deja sin asignar el canal de patógenos en este ejemplo.",
+    "Activa Live para abrir Motility preview y elige la misma carpeta de proyecto. Usa la vista previa para revisar las trayectorias y probar filtros antes de ejecutar el análisis completo. Deja Propagate settings desactivado mientras exploras opciones temporales.",
+    "Pon dos canales de intensidad, el plano de máscara seguida en dos y el plano de máscara de patógenos en menos uno, que significa ninguno. Previsualiza los ocho fotogramas. En la vista previa, pon ambos valores de calibración en cero para este ejemplo sin calibrar y haz clic en Run preview.",
+    "Con una longitud mínima de trayectoria de tres, el ejemplo tiene dieciséis trayectorias utilizables. Revisa las trayectorias, la distribución de longitudes y el resumen de velocidad. La velocidad es de aproximadamente uno coma cuatro píxeles por fotograma, porque el ejemplo no tiene escala ni intervalo de adquisición.",
+    "Min track length fija cuántos fotogramas debe abarcar un objeto para entrar en el resumen. Auméntalo para excluir trayectorias breves y observa el número que se conserva. Déjalo en tres para este ejemplo de ocho fotogramas.",
+    "Drop over-straight tracks excluye las trayectorias por encima del umbral de rectitud elegido. La rectitud es el desplazamiento neto dividido entre la longitud total del recorrido. Compara las trayectorias conservadas y los gráficos antes de elegir un umbral; deja este filtro desactivado cuando el movimiento recto forme parte de tu experimento.",
+    "Con datos adquiridos, introduce los píxeles por micrómetro y los segundos por fotograma a partir de los metadatos de tu microscopio y de la adquisición. Con ambos valores, la vista previa puede expresar la velocidad en micrómetros por minuto. Para probar la conversión en este ejemplo didáctico, dos píxeles por micrómetro y sesenta segundos por fotograma cambian la media a aproximadamente cero coma siete. Son valores de ejemplo, no una calibración medida.",
+    "Ajusta también la escala de píxeles y el intervalo entre fotogramas en el formulario del análisis completo; los cambios de la vista previa son independientes hasta que los propagas. Comprueba el objeto, los canales y los filtros elegidos antes de iniciar la ejecución. Conserva los valores de adquisición junto con tus resultados.",
+    "Deja Reuse existing measurements desactivado en la primera ejecución y activa los gráficos de control de calidad. Sin canal de patógenos, deja desactivado el control de calidad de la infección. Haz clic en Run y sigue el avance en la consola.",
+    "Cuando termine la ejecución, abre measurements y luego measurements.db en la carpeta del proyecto. La tabla seleccionada contiene observaciones por fotograma; su tabla complementaria well_motility resume el movimiento por pozo. Revisa los gráficos guardados y sus unidades antes de comparar condiciones o exportar figuras."
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Settings read only when an object is segmented by a legacy Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 weights file -- chosen from the model zoo's cellpose3 heading, which writes cellpose3:<model> into the object's model setting. They stay hidden until one is chosen. The object's diameter, flow and cell probability thresholds still apply.",
+      "source": "Settings read only when an object is segmented by a legacy Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 weights file -- chosen from the model zoo's cellpose3 heading, which writes cellpose3:<model> into the object's model setting. They stay hidden until one is chosen. The object's diameter, flow and cell probability thresholds still apply.",
+      "source_sha256": "bb16dfc3cce467afa5bc2d1399699e182c9ce11869a5c80ef7b58161748b27a8",
+      "translation": "Configurações lidas somente quando um objeto é segmentado por um modelo legado do Cellpose 3 -- cyto, cyto2, cyto3, nuclei ou um arquivo de pesos do Cellpose 3 -- escolhido no cabeçalho cellpose3 da Biblioteca de modelos, que grava cellpose3:<model> na configuração de modelo do objeto. Elas permanecem ocultas até que um deles seja escolhido. O diâmetro do objeto e os limiares de fluxo e de probabilidade de célula continuam valendo."
+    },
+    {
+      "table": "categories",
+      "key": "The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.",
+      "source": "The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.",
+      "source_sha256": "18ed875c964abc8cb6f32f6e27fc59d69e6117b66baf69cf124a8c94ea6fd514",
+      "translation": "A cadeia de realce de imagem que Criar máscaras (Make Masks) ajusta, aplicada sem alteração a cada canal de segmentação selecionado após a correção de iluminação e antes da normalização: subtração de fundo, a PSF, redução de ruído, as curvas de contraste e nitidez, nessa ordem fixa. Todas as etapas vêm desativadas por padrão. As imagens brutas e as intensidades de medição permanecem inalteradas; a proveniência da máscara registra quais etapas foram executadas, e uma execução retomada recusa entradas geradas com uma cadeia diferente."
+    }
+  ]
+}

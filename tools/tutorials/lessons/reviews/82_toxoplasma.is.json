@@ -1,0 +1,30 @@
+{
+  "lesson": "82_toxoplasma",
+  "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Toxoplasma: skoðaðu síðuna og veldu greiningu",
+  "description": "Opnaðu síðu lífverunnar, skoðaðu frumuskýringarmyndina og veldu greiningu sem er í boði.",
+  "objectives": [
+    "Opna síðuna frá Home og finna helstu stýringar hennar.",
+    "Greina tiltæk inntök, aðgerðir og úttök.",
+    "Velja næstu tiltæku greiningu eða heimild."
+  ],
+  "prerequisite": "Opnaðu Home í spaCR. Leiðarvísir lífverunnar þarf engar inntaksskrár. Hver greining hefur eigin inntök og tengda yfirferð.",
+  "scenes": [
+    "Hver Toxoplasma-tilraun getur hafist á einni síðu. Frá Home velurðu Toxoplasma: leiðarvísir lífverunnar, frumuskýringarmynd og greiningarnar sem eru í boði liggja hlið við hlið, tilbúnar til skoðunar áður en þú hleður inn nokkurri mynd.",
+    "Byrjaðu á inngangnum í upplýsingaspjaldinu. Hvert spjald flettist sér, og ef þú dregur skilrúmið færðu leiðarvísinum eða greiningarreitunum meira pláss.",
+    "Skýringarmyndin er til að kanna. Haltu bendlinum yfir frumuhluta og lýsing hans birtist. Veldu nokkra til að halda þeim auðkenndum, og Clear components endurstillir myndina.",
+    "Veldu reitinn sem passar við spurninguna þína. Plaque Assay telur skellur og mælir flatarmál þeirra; Invasion Assay kannar hversu mörg sníkjudýr komust inn. Recruitment mælir hversu mikið merki safnast við bóluna, Replication Assay hversu mörg sníkjudýr eru í hverri bólu, og Host–Pathogen tengir bólur við hýsilfrumur sínar. Hvert hefur sína eigin kennslu.",
+    "Fylgjum einu þeirra. Smelltu á Host–Pathogen og greiningarskjár þess opnast. Load test data hleður inn meðfylgjandi smásjárdæmi og þaðan leiðir Host–Pathogen-kennslan þig í gegnum stillingar, forskoðun og Run.",
+    "Aftur á Toxoplasma-síðunni opnar Starplast þekkingarkort í eigin forriti; í fyrsta sinn býður það upp á uppsetningarskref til að fylgja. Heimildatenglarnir opna hins vegar efni um lífveruna í vafranum þínum.",
+    "Leiðarvísirinn skrifar engar greiningarskrár, svo raunverulega vinnan fer fram annars staðar. Ef enn á eftir að aðgreina eða mæla myndirnar þínar skaltu fyrst fara aftur í Home; þegar myndirnar eða töflurnar eru tilbúnar taka greiningarsíðurnar við."
+  ]
+}

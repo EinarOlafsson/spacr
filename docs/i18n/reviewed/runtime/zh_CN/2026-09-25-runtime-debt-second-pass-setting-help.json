@@ -1,0 +1,218 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_add_nucleus_channel",
+      "source": "Cellpose 3 reads two channels as [cyto, nucleus]. When True, a cell segmented by a Cellpose 3 model also receives the nucleus channel as its second channel, as cyto, cyto2 and cyto3 were trained; when False, the model sees the cell channel alone. Read only for objects whose model is a Cellpose 3 model. Default True.",
+      "source_sha256": "d631089a1ee0864029818d8f9f726458f39b5205411583062033d2a88c93126e",
+      "translation": "Cellpose 3 以 [cyto, nucleus] 的形式读取两个通道。为 True 时，由 Cellpose 3 模型分割的细胞还会将细胞核通道作为第二通道，与 cyto、cyto2 和 cyto3 的训练方式一致；为 False 时，模型只看到细胞通道。仅对模型为 Cellpose 3 模型的对象读取。默认值 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_augment",
+      "source": "When True, Cellpose 3 averages its prediction over flipped copies of overlapping tiles, which is slower and can steady borderline objects. It stands in for net averaging, which Cellpose 3.1 no longer offers. Read only for objects whose model is a Cellpose 3 model. Default False.",
+      "source_sha256": "080c75e97c3d3b3da9696e73d75b570c4421ef79621a2b6c85ea150e2ce549e7",
+      "translation": "为 True 时，Cellpose 3 会对重叠分块的翻转副本取预测平均值，速度较慢，但可使处于边界状态的对象更稳定。它替代 Cellpose 3.1 已不再提供的网络平均。仅对模型为 Cellpose 3 模型的对象读取。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_percentile_high",
+      "source": "Upper percentile of Cellpose 3's per-channel normalization: this intensity becomes 1 before the model sees the image. Lowering it brightens dim objects and saturates bright ones. Cellpose 3's models were trained with 99. Read only for Cellpose 3 models. Default 99.0.",
+      "source_sha256": "64e621df61884f1e2b7588a43155ace3ad04e09bbdb8837dff2d56451d081ba4",
+      "translation": "Cellpose 3 逐通道归一化的上限百分位数：在模型看到图像之前，该强度变为 1。调低会提亮暗淡对象并使明亮对象饱和。Cellpose 3 的模型使用 99 训练。仅对 Cellpose 3 模型读取。默认值 99.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_percentile_low",
+      "source": "Lower percentile of Cellpose 3's per-channel normalization: this intensity becomes 0 before the model sees the image. Raising it darkens more of the background. Cellpose 3's models were trained with 1. Read only for Cellpose 3 models. Default 1.0.",
+      "source_sha256": "1db0aad2167a90e426b06865f541c3798b18e6f1bd6102fe767f84de5db7221e",
+      "translation": "Cellpose 3 逐通道归一化的下限百分位数：在模型看到图像之前，该强度变为 0。调高会使更多背景变暗。Cellpose 3 的模型使用 1 训练。仅对 Cellpose 3 模型读取。默认值 1.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_resample",
+      "source": "When True, Cellpose 3 computes flows at the image's original size before building masks, which gives smoother outlines at some cost in time; when False, it builds them at the rescaled size. Read only for objects whose model is a Cellpose 3 model. Default True.",
+      "source_sha256": "98c41f5fd00fa7aa189fa07d648b8ebdceffb00c12a5c26ed0089e4c6adc15c5",
+      "translation": "为 True 时，Cellpose 3 在构建掩膜之前以图像原始尺寸计算流场，轮廓更平滑，但会耗费一些时间；为 False 时，在缩放后的尺寸上构建。仅对模型为 Cellpose 3 模型的对象读取。默认值 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_size_model",
+      "source": "When True, a named Cellpose 3 model estimates each image's object diameter with its own size model, which is slower and, on Toxoplasma vacuoles, far less accurate; when False, the object's diameter setting is used, or its magnification default when blank. Read only for Cellpose 3 models. Default False.",
+      "source_sha256": "5699e735e899567e2786bdfc4b627fa8e5f52a295662d323b8a54529131a593b",
+      "translation": "为 True 时，具名的 Cellpose 3 模型会用自身的尺寸模型估计每幅图像的对象直径，速度较慢，并且在弓形虫纳虫泡上准确度要低得多；为 False 时，使用该对象的直径设置，留空时使用其放大倍数对应的默认值。仅对 Cellpose 3 模型读取。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background",
+      "source": "Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
+      "source_sha256": "5dd1d7203d14829df4d61e0a8b992e7bbb16028aefb738f7bf8e2d3e06f2b1b4",
+      "translation": "对每个所选分割通道进行背景扣除，在光照校正之后、归一化之前，是创建掩膜 (Make Masks) 所调整的增强链的第一步。rolling_ball 去除以下方半径拟合的曲面，并使不均匀的光照变平坦；tophat 保留比周围更亮的部分，速度更快；none 表示关闭。请将半径设置为大于最大的对象。恢复的运行会拒绝使用不同增强链生成的掩膜输入。默认值 'none'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background_radius",
+      "source": "Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
+      "source_sha256": "a34eda8a367c04d30ce8bd60f479060f44436790f8a141c061c2cc166179c15c",
+      "translation": "滚球或顶帽圆盘的半径（像素）。应大于最大的对象，并小于光照变化的尺度；小于对象尺寸的半径会把对象连同背景一起去除。默认值 50。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background_scale",
+      "source": "Fraction of full size the background is estimated at, above 0 and at most 1. The surface is scaled back up before subtraction, so only the estimate is smaller; 1.0 is scikit-image's exact answer and is slow on large fields. Default 0.5.",
+      "source_sha256": "ab8cf3b7e8238fad27bbf7fdf278a283a4415d2bc020c89739fc2445554f988b",
+      "translation": "估计背景时所用的尺寸占全尺寸的比例，大于 0 且不超过 1。扣除前会将背景曲面放大回原尺寸，因此只有估计是在较小尺寸上进行；1.0 是 scikit-image 的精确结果，在大视野上较慢。默认值 0.5。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe",
+      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without blowing out the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+      "source_sha256": "f465bb6876b67694c23711b4799fbf90b9a58525d353c2a759931cec2532ed77",
+      "translation": "限制对比度的自适应直方图均衡化，按分块而非整个视野进行。可以突出暗角中的对象而不使明亮的中部过曝，并会放大空白分块中的噪声，裁剪上限对此加以限制。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe_clip",
+      "source": "CLAHE clip limit, above 0 and at most 1. Higher gives more contrast and more amplified noise in tiles that hold only background; unused unless enhance_clahe is on. Default 0.01.",
+      "source_sha256": "76965f4475f12af7b1956a80a90a18e1d4af145d1f58549e3c9164d5080adabe",
+      "translation": "CLAHE 裁剪上限，大于 0 且不超过 1。值越高，对比度越强，仅含背景的分块中噪声放大也越多；仅在 enhance_clahe 开启时使用。默认值 0.01。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe_tile",
+      "source": "Side of one CLAHE tile in pixels, at least 8. Make it larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself. Default 64.",
+      "source_sha256": "2b49b6e9b3cc896678dfb8d67fd029e85672d6128c140e490950841978bdb83b",
+      "translation": "单个 CLAHE 分块的边长（像素），至少为 8。应大于单个对象，并小于光照变化的尺度；与单个对象同样大小的分块会让对象与自身进行均衡。默认值 64。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_denoise",
+      "source": "Smoothing after background subtraction and the PSF, before the contrast curves. gaussian is a Gaussian filter with the strength as sigma in pixels; median removes speckle and keeps edges; bilateral and nlm (non-local means) keep edges better and are slow on whole fields; tv is total-variation (Chambolle), the edge-preserving smoother offered in place of anisotropic diffusion; none is off. Default 'none'.",
+      "source_sha256": "ee987370df03140f44631dca0ce4164973ae949bc2deebd4658106c7286d9fdc",
+      "translation": "在背景扣除和 PSF 之后、对比度曲线之前进行平滑。gaussian 为高斯滤波，强度即以像素为单位的 sigma；median 去除斑点噪声并保留边缘；bilateral 和 nlm（非局部均值）能更好地保留边缘，但在整个视野上较慢；tv 为全变差（Chambolle），是替代各向异性扩散的保边平滑方法；none 表示关闭。默认值 'none'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_denoise_strength",
+      "source": "How much smoothing, above 0: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, the non-local means cut-off in multiples of the measured noise, or ten times the total-variation weight on 0..1. Default 1.0.",
+      "source_sha256": "968d3d0c77d8aa3ac68feab003ef260bf22ba325135c6a848b990872866258b7",
+      "translation": "平滑程度，大于 0：高斯滤波的 sigma（像素）、中值滤波和双边滤波的圆盘半径、非局部均值以实测噪声倍数表示的截断值，或 0..1 上全变差权重的十倍。默认值 1.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_equalize",
+      "source": "Global histogram equalisation of each selected channel plane, the strongest of the contrast curves. A field that is mostly background has its background stretched across half the range. Default False.",
+      "source_sha256": "f1c95f6e2047ca41d41bea12188ae4f6cf8126d6ffd647444ca40ea879e56735",
+      "translation": "对每个所选通道平面进行全局直方图均衡化，是对比度曲线中最强的一种。在大部分为背景的视野中，背景会被拉伸到半个范围。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_gamma",
+      "source": "Exponent the intensities are raised to on 0..1, above 0; 1.0 is off. Below 1 lifts the dim end so faint objects rise out of the background; above 1 pushes it down and keeps only the bright ones. Default 1.0.",
+      "source_sha256": "361e660fac3030c578d3a9fc6e68ee7835618b68d7bfa5d1b1914d86e7e2e1bd",
+      "translation": "强度在 0..1 上被提升的指数，大于 0；1.0 表示关闭。低于 1 会提亮暗端，使微弱对象从背景中显现；高于 1 会压低暗端，只保留明亮对象。默认值 1.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_log",
+      "source": "Logarithmic transform on 0..1, log(1 + gain x) / log(1 + gain), applied after gamma. It compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1 does. Default False.",
+      "source_sha256": "4c70381dd320b9d0c270a34b724eef682e8fc9353814df8e34c4bbfe650eced4",
+      "translation": "在 0..1 上的对数变换 log(1 + gain x) / log(1 + gain)，在伽马之后应用。它压缩亮端并提亮暗端，在接近零处比低于 1 的伽马更强。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_log_gain",
+      "source": "Factor the unit-interval intensities are multiplied by before the logarithm, above 0. Larger compresses the bright end harder; as it goes to zero the curve becomes the identity. Unused unless enhance_log is on. Default 10.0.",
+      "source_sha256": "59fc6e3b4f9ee6372e5c861c3dd25ec8c8d516c5371484b3c2cb031301c0dbfe",
+      "translation": "在对数之前与单位区间强度相乘的因子，大于 0。值越大，亮端压缩越强；趋近于零时，曲线变为恒等映射。仅在 enhance_log 开启时使用。默认值 10.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_clip",
+      "source": "Clip each selected channel plane to two percentiles of its own intensities before the contrast curves. Removes hot and dead pixels from the range the curves are drawn on without stretching anything, so intensity thresholds keep their units. Default False.",
+      "source_sha256": "ed106e48038ea67f82ac2741d4399464fb21f91e5600c4d1442ab82c5d6ffd38",
+      "translation": "在对比度曲线之前，将每个所选通道平面裁剪到其自身强度的两个百分位数之间。从绘制曲线的范围中去除热像素和坏点，而不做任何拉伸，因此强度阈值保持原有单位。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_high",
+      "source": "Upper percentile of the enhancement chain's percentile clip, at most 100 and above the lower percentile. Pixels brighter than this percentile of their own plane are lowered to it. Default 99.0.",
+      "source_sha256": "a686edc681176dcbaa520f43bd984b53d06668693a5968396fabe7a910f97949",
+      "translation": "增强链百分位裁剪的上限百分位数，不超过 100 且高于下限百分位数。比所在平面该百分位数更亮的像素会被降低到该值。默认值 99.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_low",
+      "source": "Lower percentile of the enhancement chain's percentile clip, at least 0 and below the upper percentile. Pixels darker than this percentile of their own plane are raised to it. Default 1.0.",
+      "source_sha256": "d5151af6931a0f2ce88769f18f6c6ad74d005d400a785a662c0eaade0a1595df",
+      "translation": "增强链百分位裁剪的下限百分位数，至少为 0 且低于上限百分位数。比所在平面该百分位数更暗的像素会被提升到该值。默认值 1.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen",
+      "source": "Unsharp mask after the contrast curves. Makes edges steeper so a threshold lands on the boundary; too much amount puts a bright rim around every object and a dark moat outside it. Default False.",
+      "source_sha256": "f80e503ae01722b15bcc53b6ff97ab87312256209f10b34ce0621d6518bb9fce",
+      "translation": "在对比度曲线之后应用反锐化掩模。使边缘更陡，从而让阈值落在边界上；强度过大会在每个对象周围形成亮边，并在其外侧形成暗沟。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen_amount",
+      "source": "How much of the unsharp mask is added back, at least 0. One is a normal sharpen; above 2 the halos around objects start to become objects of their own. Default 1.0.",
+      "source_sha256": "ef5a48dfa756047713630b1f2668981c7452b635a5cac757f04d9a03cef3f5d9",
+      "translation": "反锐化掩模加回的比例，至少为 0。1 为常规锐化；超过 2 时，对象周围的光晕开始自成对象。默认值 1.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen_radius",
+      "source": "Blur radius in pixels the unsharp mask is built from, above 0: about the scale of the edges to sharpen. Unused unless enhance_sharpen is on. Default 1.0.",
+      "source_sha256": "755c40375db19b9dfc23c7b410255c16a15e47bb10fb29317cf1bf168205f8df",
+      "translation": "构建反锐化掩模所用的模糊半径（像素），大于 0：约为要锐化的边缘的尺度。仅在 enhance_sharpen 开启时使用。默认值 1.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sqrt",
+      "source": "Square-root transform on 0..1, applied after the logarithm: the curve a gamma of 0.5 draws, offered by name. It lifts the dim end of every selected channel before detection. Default False.",
+      "source_sha256": "5492478078058e15a3b4eba808b57729424b91d24cc59b9019cad84d6007eb2e",
+      "translation": "在 0..1 上的平方根变换，在对数之后应用：即伽马为 0.5 时的曲线，以单独名称提供。它会在检测前提亮每个所选通道的暗端。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_filters",
+      "source": "Extra object filters on any scalar scikit-image regionprop, listed per object type, for example {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. An object is kept when min <= value <= max, and a missing side is off. Intensity properties read the object's own raw channel. Applied together with the area and intensity bounds in Mask runs and Live Preview, in the same form Make Masks records its Filter list. Default {}.",
+      "source_sha256": "9d212036814768ba9e81034cb7fb7633b5b4e8db2b20e22381c3201ecbc2ff01",
+      "translation": "基于任意标量 scikit-image regionprop 的额外对象过滤器，按对象类型列出，例如 {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}。当 min <= value <= max 时保留对象，缺失的一侧表示不限制。强度属性读取对象自身的原始通道。在掩膜运行和实时预览中与面积及强度界限一起应用，形式与创建掩膜 (Make Masks) 记录其过滤器列表的方式相同。默认值 {}。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_spot_detector",
+      "source": "Which detector finds the sequencing spots each field's reads are called at. 'native' is spaCR's own spot score and the only one this plate was validated with. 'spotnet' is DeepCell's SpotNet, a trained spot detector run in an environment of its own; its positions go through the same bases, calls and assignment to nuclei, and ops_read_threshold no longer applies. SpotNet's models are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be installed from the Model Zoo, and its weights need a free DeepCell access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. It decodes one field at a time. Default 'native'.",
+      "source_sha256": "edda98fd31da19d81f11b2d6e7a2d689841eaa9a7722dd63c497211a698fdddd",
+      "translation": "用于查找测序斑点的检测器，每个视野的读段在这些斑点处进行碱基判读。'native' 是 spaCR 自带的斑点评分，也是此板唯一经过验证的检测器。'spotnet' 是 DeepCell 的 SpotNet，一种在独立环境中运行的训练好的斑点检测器；其位置会经过相同的碱基、判读和细胞核分配步骤，ops_read_threshold 不再适用。SpotNet 的模型仅限非商业学术用途（NON-COMMERCIAL ACADEMIC USE ONLY），必须从模型库安装，其权重需要在 DEEPCELL_ACCESS_TOKEN 或 ~/.spacr/deepcell_token 中提供免费的 DeepCell 访问令牌。它一次解码一个视野。默认值 'native'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_fwhm_um",
+      "source": "Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
+      "source_sha256": "8cd70f74d9eb3b2d6adcd9a40610d115ebf39c76c1cc28f532970222b0efe04a",
+      "translation": "默认值 None（未设置）。高斯半高全宽 [Y, X]，单位为微米；两个值都必须为正的有限数。未设置时，掩膜和延时成像会根据图像元数据或 psf_objective 计算 0.51 × 发射波长 / NA（默认 520 nm、NA 0.75：0.354 µm），这是理想宽场 PSF 的近似值，而非实测分辨率。测量要求显式设置该值。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_image_sampling_um",
+      "source": "Default None (unset). Image pixel spacing [Y, X] in micrometers; both numbers must be positive and finite. Unset with a Gaussian PSF, Mask and timelapse infer it from the first source image's OME/ImageJ calibration, else camera pixel / magnification of psf_objective (6.5 µm / 20 = 0.325 µm by default), and print each value's source. Measure and measured kernels require it explicitly.",
+      "source_sha256": "3d02205c40eae1d7fe29a5a55faa5186693092bd2e541c8bd51fbd30874c1fd2",
+      "translation": "默认值 None（未设置）。图像像素间距 [Y, X]，单位为微米；两个数都必须为正的有限数。在使用高斯 PSF 且未设置时，掩膜和延时成像会从第一幅源图像的 OME/ImageJ 标定中推断，否则按 psf_objective 的相机像素 / 放大倍数计算（默认 6.5 µm / 20 = 0.325 µm），并输出每个值的来源。测量和实测卷积核要求显式设置该值。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_objective",
+      "source": "Objective used to infer PSF calibration that is left unset: auto reads magnification, numerical aperture, immersion and pixel size from the first source image's OME metadata and otherwise assumes a 20x/0.75 air objective; a table row such as 10x/0.30 air, 40x/0.95 air, 60x/1.40 oil or 100x/1.45 oil uses that objective's values, with a 6.5 µm camera pixel and 520 nm emission unless the metadata says otherwise. Explicit psf_image_sampling_um and psf_fwhm_um always win. Default auto.",
+      "source_sha256": "f19fbe9131eb425633e0949d28055117c8df9e5a7a21100dbe2adec220098d19",
+      "translation": "用于推断未设置的 PSF 标定的物镜：auto 从第一幅源图像的 OME 元数据中读取放大倍数、数值孔径、浸没介质和像素尺寸，否则假定为 20x/0.75 空气物镜；表中的某一行（如 10x/0.30 空气、40x/0.95 空气、60x/1.40 油浸或 100x/1.45 油浸）使用该物镜的参数，除非元数据另有说明，否则相机像素为 6.5 µm、发射波长为 520 nm。显式设置的 psf_image_sampling_um 和 psf_fwhm_um 始终优先。默认值 auto。"
+    }
+  ]
+}

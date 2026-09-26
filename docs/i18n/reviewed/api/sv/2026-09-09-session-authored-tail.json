@@ -10,11 +10,12 @@
       "translation": "Upptäckt och användbar rapporteras var för sig. En inställningsskärm som tillkännager en accelerator som spaCR aldrig kommer att skicka arbete till är sämre än en som inget säger, eftersom användaren då skyller CPU-hastigheten på sin hårdvara. Neurala motorer är hela skälet till att den skillnaden finns här: Apple Neural Engine, Intel AI Boost och Qualcomm Hexagon är alla verkligt kisel utan någon portabel torch-enhet, så de namnges som UPPTÄCKTA och väljs aldrig."
     },
     {
-      "label": "spacr.active_learning.retrain_round#26",
+      "label": "spacr.active_learning.retrain_round#27",
       "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
-      "translation": "hur många oannoterade bildutsnitt som ska dras slumpmässigt och anpassas som klassen FRÅNVARANDE när endast en klass har annoterats. ``None`` (standard) vägrar i stället, som tidigare."
+      "translation": "hur många oannoterade bildutsnitt som ska dras slumpmässigt och anpassas som klassen FRÅNVARANDE när endast en klass har annoterats. ``None`` (standard) vägrar i stället, som tidigare.",
+      "rebound_from": "spacr.active_learning.retrain_round#26"
     },
     {
       "label": "spacr.cancellation.CancellationToken#2",

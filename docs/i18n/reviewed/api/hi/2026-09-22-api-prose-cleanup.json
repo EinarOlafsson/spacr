@@ -50,14 +50,17 @@
       "label": "spacr.qt.detect_chain#6",
       "source": "The Mask pipeline has separate preprocessing. :func:`spacr.object._preprocess_batch` applies rolling ball then CLAHE to organelle batches using ``organelle_rolling_ball`` and ``organelle_clahe``. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` instead apply per-channel intensity floors. This Make Masks chain configures neither route.",
       "source_sha256": "33c80637d028a0791efe572c97b5b1108f0bf808c9a8b23a449ddfd79bdb5ad8",
-      "translation": "Mask पाइपलाइन में अलग प्रीप्रोसेसिंग होती है। :func:`spacr.object._preprocess_batch`, ``organelle_rolling_ball`` और ``organelle_clahe`` का उपयोग करके कोशिकांगों के बैच पर पहले रोलिंग बॉल और फिर CLAHE लागू करता है। इसके विपरीत, Mask सेटिंग ``remove_background``, ``background`` और ``signal_to_noise`` हर चैनल पर तीव्रता की निचली सीमाएँ लागू करती हैं। यह Make Masks शृंखला इनमें से किसी भी मार्ग को कॉन्फ़िगर नहीं करती।"
+      "translation": "Mask पाइपलाइन में अलग प्रीप्रोसेसिंग होती है। :func:`spacr.object._preprocess_batch`, ``organelle_rolling_ball`` और ``organelle_clahe`` का उपयोग करके कोशिकांगों के बैच पर पहले रोलिंग बॉल और फिर CLAHE लागू करता है। इसके विपरीत, Mask सेटिंग ``remove_background``, ``background`` और ``signal_to_noise`` हर चैनल पर तीव्रता की निचली सीमाएँ लागू करती हैं। यह Make Masks शृंखला इनमें से किसी भी मार्ग को कॉन्फ़िगर नहीं करती।",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference workflow.",
-      "label": "spacr.qt.detect_chain#7",
+      "label": "spacr.qt.detect_chain#9",
       "source": "Enhancement changes the objects proposed for curation. Models trained on enhanced images require matching preprocessing at inference; this module does not configure the training or inference pipeline.",
       "source_sha256": "814d002b8299c15c5ec9f976ca2a97626da81481bb6f258ae7a11a3d70f57b87",
-      "translation": "संवर्धन से समीक्षा के लिए प्रस्तावित ऑब्जेक्ट बदलते हैं। संवर्धित छवियों पर प्रशिक्षित मॉडलों को अनुमान के समय मेल खाती प्रीप्रोसेसिंग चाहिए; यह मॉड्यूल प्रशिक्षण या अनुमान पाइपलाइन को कॉन्फ़िगर नहीं करता।"
+      "translation": "संवर्धन से समीक्षा के लिए प्रस्तावित ऑब्जेक्ट बदलते हैं। संवर्धित छवियों पर प्रशिक्षित मॉडलों को अनुमान के समय मेल खाती प्रीप्रोसेसिंग चाहिए; यह मॉड्यूल प्रशिक्षण या अनुमान पाइपलाइन को कॉन्फ़िगर नहीं करता।",
+      "rebound_from": "spacr.qt.detect_chain#7"
     },
     {
       "context": "The slowly varying background under ``image``, at ``image``'s size.",

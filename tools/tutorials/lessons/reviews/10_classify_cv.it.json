@@ -1,38 +1,34 @@
 {
   "lesson": "10_classify_cv",
-  "english_sha256": "104932e5a39da62949d4d9ce3bde235cf5db2ab8dac208aa6973871b6d7f5106",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "it",
-  "title": "Classify: un esempio verificato di visione artificiale",
-  "description": "Prepara ritagli scaricati senza modificarne i pixel, conserva le identità dei pozzetti e valuta un piccolo modello senza esagerarne le prestazioni.",
-  "objectives": [
-    "Trovare la famiglia di visione artificiale nel modulo principale Classify.",
-    "Preparare una suddivisione esistente dalle annotazioni scaricate senza cambiare immagini o etichette originali.",
-    "Separare i pozzetti reali, mostrare i grafici e distinguere esecuzione riuscita e predizione utile.",
-    "Individuare modelli, predizioni e strumenti annidati."
-  ],
-  "prerequisite": "Segui Annotate: Load test data → Load, non Stream. Conserva plate1/measurements/measurements.db e i ritagli png. Registrazione con spaCR 1.5.0.8. Estrai lo ZIP ed esegui prepare_classify_split.py nell’ambiente spaCR: --source indica plate1 e --destination una cartella NUOVA. Lo script è limitato a questo esempio di quattro pozzetti: otto etichette esistenti infected=1 e otto infected=2 per pozzetto, selezione deterministica prima dell’addestramento, 64 ritagli RGB identici byte per byte. Lo script conserva anche una copia identica byte per byte del database originale delle misurazioni. Le copie usano nomi prcfo del database; il parser dei vecchi nomi NON viene corretto. La selezione bilanciata NON conserva la prevalenza della popolazione. Seleziona la cartella preparata, Computer Vision (Torch), Generate training dataset disattivato. Impostazioni: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=2, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True; tutti i controlli di contaminazione attivi. Le 32 immagini di train diventano 16 di addestramento e 16 di validazione; test ne contiene 32. Pozzetti distinti sulla stessa piastra. Tutte le predizioni di test sono classe zero: accuratezza=0.5, riferimento maggioritario=0.5, F1 macro=1/3. Verificati indipendentemente 32 identità, etichette, somme delle probabilità, accuratezza, numerosità e F1 macro, non tutte le metriche. Output: model/resnet18/rgb/epochs_1. API: spacr.classify.classify → spacr.deep_spacr.train_test_model. Non si affermano qualità del modello, validità biologica o generalizzazione a nuovi esperimenti. Nessuna domanda AI inviata.",
-  "scenes": [
-    "Apri Classify da Home e scegli Computer Vision, Torch. La visione artificiale apprende dalle immagini degli oggetti; la famiglia tabulare usa misure salvate. Entrambe appartengono ora allo stesso modulo principale. Eseguiamo un piccolo esempio verificato, con una preparazione alternativa che non corregge il parser dei vecchi nomi di file dell’applicazione.",
-    "Segui il tutorial Annotate collegato per caricare l’esempio reale con Load, conservando database delle misure e ritagli. Il terminale elenca le annotazioni esistenti di quattro pozzetti reali. Preserviamo queste etichette; non sono verità biologiche validate indipendentemente. Il progetto originale resta invariato durante l’intera dimostrazione.",
-    "Scarica lo script ed eseguilo nell’ambiente spaCR. Source è la cartella della piastra scaricata; destination deve essere una cartella nuova. Copia otto immagini di ciascuna delle due classi esistenti per pozzetto: sessantaquattro in totale. La selezione è deterministica e precedente all’addestramento, non successiva all’osservazione delle prestazioni.",
-    "Leggi il manifesto prima di continuare. I nomi delle copie usano le identità canoniche del database e ogni immagine conserva i byte originali. Due pozzetti interi vanno nella cartella di addestramento e due in test. Questo sottoinsieme didattico bilanciato cambia la prevalenza delle classi; non rappresenta la popolazione originale.",
-    "In Classify scegli la cartella del dataset preparato, non il progetto originale o una sottocartella di classe. Contiene train e test, ciascuna con due cartelle di classe. Il selettore apre questo dataset esistente. Non sovrascrivere il progetto fonte e non riutilizzare una destinazione con risultati di esecuzioni precedenti.",
-    "Disattiva Generate training dataset perché la suddivisione è già pronta. Train e Test restano attivi; l’applicazione al dataset completo rimane disattivata. Le cartelle conservano etichette uno e due, mentre il modello usa indici zero e uno. Sono numerazioni diverse, non contraddittorie.",
-    "Scegli ResNet18 per questo esempio limitato: un’epoca, lotti di otto, dimensione immagine centoventotto e due processi di caricamento. Usa tutti e tre i canali RGB e disattiva pesi preaddestrati e aumento dei dati. Questi parametri riducono la dimostrazione; non sono una ricetta consigliata per ottenere un classificatore accurato.",
-    "Mantieni il raggruppamento per pozzetto e tutti i controlli di contaminazione. La frazione di validazione di metà divide le trentadue immagini di train in sedici per addestramento e sedici per validazione, un pozzetto intero ciascuno. Le altre trentadue restano solo per test. Tutti condividono una piastra: non è validazione su un esperimento indipendente.",
-    "Attiva Plot, cancella la ricerca delle impostazioni e premi Run. Osserva nella console suddivisione effettiva, controlli di contaminazione, addestramento e percorsi salvati. Entrambi i controlli fra gruppi di pozzetti passano qui. Un controllo software ha significato solo se i nomi corrispondono alle identità reali, verificate separatamente.",
-    "Figures mostra perdita, accuratezza e accuratezza di validazione per classe. Con una sola epoca sono punti isolati, non prove di convergenza. La verifica separata del test trova ogni immagine predetta come classe zero: cinquanta per cento di accuratezza, identico al riferimento maggioritario bilanciato. L’esecuzione riuscita non ha prodotto un classificatore utile.",
-    "Conserva la cartella del modello con checkpoint, scheda, controlli di contaminazione e tabelle dei risultati. Qui si trova sotto model, resnet18, rgb, epochs trattino basso uno. Confronta identità delle predizioni ed etichette, non solo l’accuratezza. Le immagini classificate male copiate per revisione sono output, non nuovi campioni indipendenti.",
-    "Il controllo AI permette domande su parametri o risultati dopo aver configurato un fornitore. Questa è una domanda non inviata, non una risposta o un risultato analitico. In Python, classify richiama train_test_model per questa famiglia. Conserva il manifesto e verifica i consigli prima di pianificare un esperimento maggiore con validazione indipendente."
-  ],
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: bind current native CV recording; scene 7 uses two loader workers. Prerequisites name spaCR 1.5.0.8, n_jobs=2 and the byte-identical preserved measurements database. Eleven other narration scenes and all measured limitations remain unchanged."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Classify: addestrare un classificatore di immagini",
+  "description": "Prepara ritagli di immagine etichettati, scegli la famiglia di visione artificiale, addestra un piccolo modello e trova le sue previsioni.",
+  "objectives": [
+    "Preparare l’esempio scaricabile di classificazione delle immagini.",
+    "Scegliere il modello, i canali dell’immagine e le impostazioni di addestramento.",
+    "Tenere separati i pozzetti ed esaminare i modelli e le previsioni salvati."
+  ],
+  "prerequisite": "Scarica l’esempio misurato da Annotate con Load test data e poi Load. Conserva la cartella plate1 con measurements/measurements.db e i ritagli png. Scarica Classify_existing_split_example.zip qui sotto ed estrai lo script di supporto. Nel tuo ambiente spaCR, esegui prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Seleziona la cartella new_split in Classify. Lo script è pensato per questo esempio con quattro pozzetti; copia 64 ritagli RGB etichettati in cartelle di addestramento e di test.",
+  "scenes": [
+    "Da Home, apri Classify e scegli Computer Vision, Torch. Questa famiglia impara da ritagli di oggetti etichettati e salva un modello in grado di assegnare un punteggio ad altri ritagli. Segui prima la lezione su Annotate per scaricare le immagini di esempio e le loro etichette.",
+    "In Annotate, scegli Load test data e poi Load. Conserva la cartella della piastra che contiene le misure e i ritagli PNG. Con i tuoi dati, parti dai ritagli di Measure e assegna in Annotate le classi che vuoi insegnare.",
+    "Scarica lo ZIP di esempio collegato ed estrai prepare_classify_split.py. Eseguilo nel tuo ambiente spaCR con l’origine sulla cartella della piastra di esempio e la destinazione su una nuova cartella. Lo script prepara sessantaquattro immagini etichettate per questo esercizio.",
+    "Apri la nuova cartella e il suo manifesto. Le directory di addestramento e di test contengono ciascuna due cartelle di classe. Il manifesto elenca ogni immagine copiata e il suo pozzetto. Tieni ogni pozzetto intero da un solo lato della suddivisione quando le immagini dello stesso pozzetto condividono le condizioni sperimentali.",
+    "Torna a Classify e scegli la cartella preparata come Source. Seleziona la cartella superiore che contiene train e test. Tieni questa cartella preparata per il resto della lezione, così il modello e i suoi file di output restano insieme.",
+    "Disattiva Generate training dataset, perché lo script ha già preparato la suddivisione. Attiva Train e Test. Lascia disattivata l’applicazione all’intero insieme di dati in questa prima esecuzione. Il modello usa gli indici di classe zero e uno per le due cartelle di classe.",
+    "Scegli ResNet18, dimensione dell’immagine centoventotto, tutti e tre i canali RGB, dimensione del batch otto e un’epoca. Imposta due processi di caricamento, con pesi preaddestrati e aumento dei dati disattivati per questo breve esempio. Il numero di epoche indica quante volte l’addestramento passa sulle immagini di input.",
+    "Imposta la frazione di validazione a un mezzo, mantieni il raggruppamento per pozzetto e lascia attivi i controlli di fuga dei dati. La validazione monitora il modello durante l’addestramento; la cartella di test separata serve per la valutazione finale. Controlla l’assegnazione dei pozzetti riportata prima di interpretare i punteggi.",
+    "Attiva Plot, cancella la ricerca delle impostazioni e premi Run. Segui nella console il caricamento dei dati, la suddivisione ottenuta, l’avanzamento dell’addestramento e i percorsi di output. Attendi la fine di addestramento e test prima di aprire i risultati salvati.",
+    "Apri Figures per esaminare perdita e accuratezza. Un’epoca offre un primo passaggio rapido. Confronta i risultati di test tra le classi prima di aumentare il tempo di addestramento. Se le previsioni favoriscono una sola classe, controlla etichette, bilanciamento delle classi e canali di input prima di usare il modello su un insieme di dati più grande.",
+    "Apri model, resnet18, rgb, epochs trattino basso uno nella cartella preparata. Tieni insieme il checkpoint, la scheda del modello e le tabelle dei risultati. Usa le previsioni salvate per esaminare gli errori, poi prosegui con Classifier Evaluation o Activation Maps per esaminare meglio il modello."
+  ]
 }

@@ -1,15 +1,13 @@
 {
   "scope": "Private incremental release; incomplete voices and translations remain tracked",
-  "ready_lessons": 84,
-  "coming_soon": [
-    "71_investigate_hit"
-  ],
+  "ready_lessons": 85,
+  "coming_soon": [],
   "routes": 85,
   "catalog_languages": 14,
-  "narration_tracks": 280,
-  "web_bytes": 603532677,
+  "narration_tracks": 212,
+  "web_bytes": 600422661,
   "ceiling_bytes": 734003200,
-  "media_host_bytes": 1483877669,
+  "media_host_bytes": 1420244392,
   "files": [
     {
       "path": "media_host/01_pypi_github/audio/en/af_heart.json",
@@ -27,1519 +25,844 @@
       "bytes": 3337123
     },
     {
-      "path": "media_host/02_conda_install/audio/en/af_aoede.json",
-      "sha256": "c135c31681dd2116900466b1086ed73b141fbc24f49cf7abcbaec956d3f0e9ba",
-      "bytes": 39606
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_aoede.m4a",
-      "sha256": "b919e2bc878d2d78dc607682179a279e873f3f00a2ffe6345a89ced0879f31e0",
-      "bytes": 942272
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_bella.json",
-      "sha256": "5a3d95b54831f0a095599ae9a861ae73247b93b1909701ab932050dbe4204786",
-      "bytes": 39589
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_bella.m4a",
-      "sha256": "ded39ee0d7f2419d7939c0869f08b875276c7fa816c23b2b5600558572e01fa2",
-      "bytes": 972911
-    },
-    {
       "path": "media_host/02_conda_install/audio/en/af_heart.json",
-      "sha256": "8b764a7a850c2a78b92f8e2e9d000b29564379da4092f48826dfb1d8247bd0b2",
-      "bytes": 39564
+      "sha256": "d46b2d3d38036b91cf3c284f71c323a051881324093d4d09eaced57b27c05236",
+      "bytes": 33558
     },
     {
       "path": "media_host/02_conda_install/audio/en/af_heart.m4a",
-      "sha256": "c42a5d7d2b6d34204b20c38cfa2a929265eeacd3761fc4ae42822d77b20f7630",
-      "bytes": 955201
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_jessica.json",
-      "sha256": "fa5f89bb43b046e8b2800816bb7fb84eac2f83890112a438e41b02922167123a",
-      "bytes": 39183
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_jessica.m4a",
-      "sha256": "7e104b39e552f5e7e4ce15e032bafbf47a571bfb85d5b2aaa129a024aec7cec1",
-      "bytes": 919158
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_river.json",
-      "sha256": "851a3e0b0400fa2460bb1fd3d3ea161e3c2dce9f3df2975709521eff53814130",
-      "bytes": 39451
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_river.m4a",
-      "sha256": "7ff9c01fb14a776c4a3a131f48b88447cf4327d8008c7fc0b7ef4cf451f8373d",
-      "bytes": 924460
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_sarah.json",
-      "sha256": "1cd7e2a234c38ad0fbdd430741c661ca50282ff09f2ab9f5d8a809961abbee75",
-      "bytes": 39330
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_sarah.m4a",
-      "sha256": "ff46dc111b45771c527bbb1b349edb9af166c6a5e976bcb01c7a62ca87a04f38",
-      "bytes": 977298
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_sky.json",
-      "sha256": "0bfa9c94d0afb17d701ff067c1955cdbe4a8eb7e847c44d0e134bbd0549a19a7",
-      "bytes": 39460
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/af_sky.m4a",
-      "sha256": "e3554d749c7bf107093f6f419d66beea506b594b34426e8f8dda839cdc22e00e",
-      "bytes": 963050
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_adam.json",
-      "sha256": "3466e40fd72ff1b5b73aff6c9de75af78fd88697f75b768e963b8e1613a41247",
-      "bytes": 39622
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_adam.m4a",
-      "sha256": "4b23a937c4dd1776f4fd668b20c205117adc29362159e1f54e144a4e20cf3c41",
-      "bytes": 939845
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_echo.json",
-      "sha256": "af55c602baf5e027df1e709685b49bf59a1dcaf1ec96d6e083be995f6b6fac19",
-      "bytes": 39330
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_echo.m4a",
-      "sha256": "0e7c6a7c47499a5f58f16a1ae644d471b4e0cb3efa2e239fe2d6812b43eb33b7",
-      "bytes": 979655
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_eric.json",
-      "sha256": "fe29dca1983505c8826f43a0d492b43e02d43b6f486e99eb81241951aa10516a",
-      "bytes": 39393
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_eric.m4a",
-      "sha256": "81cb94f63ed53a6728a9c3bce95ad8ee044a51b95ab0357af4148f15adc8c138",
-      "bytes": 901569
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_fenrir.json",
-      "sha256": "b8224e2b4345444abfd663137bf7c6f144f3196148f7cddb3f60a5c46858ec05",
-      "bytes": 39664
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_fenrir.m4a",
-      "sha256": "91b9fd982d1f57009abbcd62502ba489fb90713ba0a5ef165c22e0853bd5f972",
-      "bytes": 969301
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_liam.json",
-      "sha256": "3bda80eca91381f366607a777a40b46746db06b9bb5659e594c596e1a4bb072a",
-      "bytes": 39396
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_liam.m4a",
-      "sha256": "6501341045f1960ca4d9a207feef845eb9e9cd95d2eb7a6285a6e5895c315582",
-      "bytes": 968974
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_michael.json",
-      "sha256": "83dfee0eef7ba4cea8d431c2a381baa6ad8d106615258f43f43e99fa46daecb0",
-      "bytes": 39119
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_michael.m4a",
-      "sha256": "12d14562b405548ade1240a0394a3102994421dc1f4f4e75cda545256def6b3b",
-      "bytes": 1020639
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_onyx.json",
-      "sha256": "1fbf0064617f7f5d8f2ac4a8a9dffcf03a4d4b80bcd847471ee63eaa3cb3c5a6",
-      "bytes": 39070
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_onyx.m4a",
-      "sha256": "342b4cfe86712630afc683b922d42822265d318cfd349f879d73b81dfaa450e9",
-      "bytes": 988404
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_puck.json",
-      "sha256": "c3f8d0ec4a7891c1f982c783b7cc5a3d04fd100fbc03aa13d3787347a72f5691",
-      "bytes": 39486
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_puck.m4a",
-      "sha256": "4b55d15069715d1f2438a64e3674ca81971bdacd24a84b1d27302c022d98a049",
-      "bytes": 975548
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_santa.json",
-      "sha256": "7c920b9dd6ead3ee42ac54520bc245e1c1366bb45a29935f00cd5624a17fe8eb",
-      "bytes": 39188
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/am_santa.m4a",
-      "sha256": "6dbb251d58fdc670d2c8dab30b9cfd358004c4422ad1af0b901c73a4d50bab21",
-      "bytes": 1028421
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bf_alice.json",
-      "sha256": "6fe7f28dfa7497779aa4d5715870580f649623ea58348065a0b22c03f7f217e3",
-      "bytes": 39479
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bf_alice.m4a",
-      "sha256": "5f34aa5dc16685aa634ff04637bedc2b40fe772ae8757bd4ed76f304f0a2438f",
-      "bytes": 975797
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bf_emma.json",
-      "sha256": "2c5b5293dd514584bb6c18dad6a65f643a9f31619df28784ab537eadd0f34898",
-      "bytes": 39328
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bf_emma.m4a",
-      "sha256": "e2de6d4174d6c6d0d20d40779abdfb1c4bb210b9d6c0ef05280a7ab882032b67",
-      "bytes": 940579
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bf_isabella.json",
-      "sha256": "e75d65f890fc6b3f0462b25ff0dfbed2deeaef02cb56acfcc77c7330474a01cd",
-      "bytes": 39742
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bf_isabella.m4a",
-      "sha256": "b1e5df6b6ebf36f6356bbf40051853cf2a0d7617a522b15f77f10e0e91ca632e",
-      "bytes": 958229
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bf_lily.json",
-      "sha256": "7c0108c8d908ef7274198224fc46f4e8be48e9abee91339d3946fa0c0a782c30",
-      "bytes": 39240
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bf_lily.m4a",
-      "sha256": "7bf41a944b8c8d6225da083e06f5d3fc4614ab44d7166c83a1f77e13262fc06b",
-      "bytes": 974641
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bm_daniel.json",
-      "sha256": "db011a6cbe4c463c65cdbad83b961d861c5c357fefae85d0c45de7af7d52b5d5",
-      "bytes": 39156
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bm_daniel.m4a",
-      "sha256": "580c2ae01849e0cc6116674926af381ba1c9ac26dbfa956ecbca93e350836541",
-      "bytes": 963057
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bm_fable.json",
-      "sha256": "f4eb1a4692ecd79bc3aed6b97c21c012735953c6935c865d75852e6b286dbb6a",
-      "bytes": 39332
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bm_fable.m4a",
-      "sha256": "252e6a1b30cf2bc6bdee4130ade35ff368a22a760a64e5755b527a87f8745d82",
-      "bytes": 999040
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bm_george.json",
-      "sha256": "0ed521cf32e2cee341dd3c02dae0d7dd7601fc9fca057659d9ba85fb227f054a",
-      "bytes": 39813
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bm_george.m4a",
-      "sha256": "26953c09e93d5ad30bf6fd8364742cbb8f5ee3662c7ab5b481208b5c6dbbbafa",
-      "bytes": 1049738
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bm_lewis.json",
-      "sha256": "74c4af780c2db6cea77f0b17cd432bda12250ab2462bdd01105d5079a45627f5",
-      "bytes": 39008
-    },
-    {
-      "path": "media_host/02_conda_install/audio/en/bm_lewis.m4a",
-      "sha256": "2daa5a7769aa148152846bd67752f4b632e9cff90fdc2da6df1b9eda2a09849a",
-      "bytes": 1026465
+      "sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+      "bytes": 742593
     },
     {
       "path": "media_host/02_conda_install/audio/es/ef_dora.json",
-      "sha256": "a9ef9e5c83a70d5a8092b672361954dabbb1fecab1fd784f5dc80350ebf61ffd",
-      "bytes": 32478
+      "sha256": "88bd87b4012bf4e1c004b483daaa61da246c7abc75b13b40ee1f3949f80530b1",
+      "bytes": 29191
     },
     {
       "path": "media_host/02_conda_install/audio/es/ef_dora.m4a",
-      "sha256": "e8a15d1a98cd5456d036d2e6157f39549764ba2f95aecfe50cfc7714555892cd",
-      "bytes": 864380
+      "sha256": "5dfaa490713cdaea13adc920e2354dd308635acbe85cae793e50370a1b1eff90",
+      "bytes": 698877
     },
     {
       "path": "media_host/02_conda_install/audio/es/em_alex.json",
-      "sha256": "5f3c45011c6ca03b854bca80edd53575b32820b294785126f58491af34478048",
-      "bytes": 32454
+      "sha256": "880d206c3e32d954c1dddce4b953aa5611684638448d108bd4918c51a49ae171",
+      "bytes": 29342
     },
     {
       "path": "media_host/02_conda_install/audio/es/em_alex.m4a",
-      "sha256": "043abda4b9a6ea9983911a9988fbd11f7e5dfe92ee0bbc647b440e08d71f7d86",
-      "bytes": 869662
+      "sha256": "7921c27fac68eb299dd6f8ab1a40698f544cac2a966e214b294940c392e39cad",
+      "bytes": 706511
     },
     {
       "path": "media_host/02_conda_install/audio/es/em_santa.json",
-      "sha256": "bd4e38d694231763dbbd6016cc7f43cd2992f01e676c292b06942ffe864375d0",
-      "bytes": 32491
+      "sha256": "3737d1c353972c1935a04413b6470acd2c0b39d88f4ae9a67dd6933dd856757a",
+      "bytes": 29162
     },
     {
       "path": "media_host/02_conda_install/audio/es/em_santa.m4a",
-      "sha256": "8e31b0c0fdc4c49131e49973e8bf2fa6fbc8d3cbb8ac6650c87469ea1454413b",
-      "bytes": 863509
+      "sha256": "1770bb2e40cd7dfe7f3e34adee54f9913eff7cbaab4a6ebf12b300382a135109",
+      "bytes": 702800
     },
     {
       "path": "media_host/02_conda_install/audio/fr/ff_siwis.json",
-      "sha256": "6efa41ecc4bfe2d37a6dbeac5ddaca43a8eaf5a0a1b717a2f799a7576a1a7c67",
-      "bytes": 33214
+      "sha256": "a655f8820842b1da7e48ac70505f9f1deccd8df366c7e227e044ad314c1890b0",
+      "bytes": 30347
     },
     {
       "path": "media_host/02_conda_install/audio/fr/ff_siwis.m4a",
-      "sha256": "535c79d0b6529ddb7f488694237ce87581cdf178d3f499290b843a93582ab4d9",
-      "bytes": 878861
+      "sha256": "8af89015c4b17501bcc8edf8877c94bacea78576796f3d789d1912cc845d5dc6",
+      "bytes": 747682
     },
     {
       "path": "media_host/02_conda_install/audio/hi/hf_alpha.json",
-      "sha256": "9df0871864b9fef6ed9cc7cb6d08a480ea95c5574b17053ab360d888b0c889aa",
-      "bytes": 50991
+      "sha256": "2a92a5376e3df333d1fc24fd3233c4044672399164ef076d4aa4a985b43bbc0a",
+      "bytes": 45683
     },
     {
       "path": "media_host/02_conda_install/audio/hi/hf_alpha.m4a",
-      "sha256": "3b7a6406d706a6b5ed1420cd274abbe1ac7fd859600500aad2b6fad953e069ed",
-      "bytes": 1021982
+      "sha256": "d42ec892f9c53ee3e2461fa3c808cde2ccd1f7ca38786497b64877131f1356cf",
+      "bytes": 897847
     },
     {
       "path": "media_host/02_conda_install/audio/hi/hf_beta.json",
-      "sha256": "e671b6e12270424b393d37568e134dbea28e4ddc7170383cb0b21e452c859a4e",
-      "bytes": 51018
+      "sha256": "64677d050bbd26b35a529bdccab0738b12dd56eeb864cb1675edf7e68875f42a",
+      "bytes": 45420
     },
     {
       "path": "media_host/02_conda_install/audio/hi/hf_beta.m4a",
-      "sha256": "651e1da152d305cafc6d20c94001ab64dbbbd979bc47282a581ffa89014d6f98",
-      "bytes": 865376
+      "sha256": "ae4d9bc53adc7830dda03d2a8ac28a96a9d737315ccea85c78eca368a43d9beb",
+      "bytes": 774742
     },
     {
       "path": "media_host/02_conda_install/audio/hi/hm_omega.json",
-      "sha256": "9fcdc89c860e6636dce6fde7abaa8d354f2d733f56c39cee41a1d5fb777a85cb",
-      "bytes": 51127
+      "sha256": "f27238766acbea705c385703c758ab41858abbaa6d47921bb0365c881bc822b2",
+      "bytes": 45555
     },
     {
       "path": "media_host/02_conda_install/audio/hi/hm_omega.m4a",
-      "sha256": "29c683b68ecaba76a2e8a74bb73a503b505f7fad37ef788c66d8ec6f8d1fb8b2",
-      "bytes": 1035205
+      "sha256": "96cc013e4e8818b47ea344666eb08f93828827b4cc0d500da7ee5982c7b13e4a",
+      "bytes": 920048
     },
     {
       "path": "media_host/02_conda_install/audio/hi/hm_psi.json",
-      "sha256": "664003bf26bae4cb000dce667197d64c7e3ff3dbe5116d5646e0a51824eef620",
-      "bytes": 50968
+      "sha256": "84af3a26c7e983762a487f7c386ccfbd56cde46a9b9da78992f510b98f49c7a6",
+      "bytes": 45517
     },
     {
       "path": "media_host/02_conda_install/audio/hi/hm_psi.m4a",
-      "sha256": "beeedf0c4d772f14dddb368a345c2192dcf5a336ecdb146533d2e674e01f8b2b",
-      "bytes": 1050847
+      "sha256": "b41c44e587e2b111af16eaf2ccd91c42d37d679c0090e48f9f7293eab5665a27",
+      "bytes": 933228
     },
     {
       "path": "media_host/02_conda_install/audio/it/if_sara.json",
-      "sha256": "230a1b7a8a2e4dce07ba0d6c6422111f097ea6d6d9fe57f52f9085203adabb6e",
-      "bytes": 31733
+      "sha256": "3203b0cf96085e610731a28ca0c67b419e7684582b9b372b551e3b689e8fee52",
+      "bytes": 28935
     },
     {
       "path": "media_host/02_conda_install/audio/it/if_sara.m4a",
-      "sha256": "44c7fcaa754f887644c2cbf5ff8babeba8a2d6d1744c9268e56cda969345d7f2",
-      "bytes": 837532
+      "sha256": "7695bfb4e020eed9d78f16949090e9d72d5271e326737332edcbca95f7d960cc",
+      "bytes": 695561
     },
     {
       "path": "media_host/02_conda_install/audio/it/im_nicola.json",
-      "sha256": "d46235113b2d0fefaaa45fab0b096f6276e5c6796c57f011b5c77f043b20a479",
-      "bytes": 31709
+      "sha256": "1e597af35cf246f135f56e59a6870d44956df245a701cc4272edadc9abc7f580",
+      "bytes": 29048
     },
     {
       "path": "media_host/02_conda_install/audio/it/im_nicola.m4a",
-      "sha256": "387bb68c3a7886d7cb411ef479107c877d6378f33110853709e922eb67157d4b",
-      "bytes": 953359
+      "sha256": "22ef99a9d589707f14131208f6d9b2ca097e0f116fadcbdead95aab29466c5e5",
+      "bytes": 797292
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jf_alpha.json",
-      "sha256": "14292818d335093da28cc285c79d68b4ddce514ecdf83ab0a5ed7d1a22ba8102",
-      "bytes": 35143
+      "sha256": "675abfce2a0acdbfc22568a5d615dc456bc0448980818b67bf803949ef097714",
+      "bytes": 33587
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jf_alpha.m4a",
-      "sha256": "a9c459989a88534035826bd09f480a2f83a004265e4eb368153f5e9eb71bda03",
-      "bytes": 1049635
+      "sha256": "214ecc63076a0b609fe3996d759c951c6cc80e08214634745a077fa7852871fa",
+      "bytes": 896276
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jf_gongitsune.json",
-      "sha256": "073b94d8fc152ad95277825cc752df5cde980d053ed0dd81b9645531c0eebbfa",
-      "bytes": 35306
+      "sha256": "aae223cddcc400aed6a34d55c1331cd782ad81dc9c972ebf3d86c8f7add2e55e",
+      "bytes": 33431
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jf_gongitsune.m4a",
-      "sha256": "ada61b335cf225911b36a5f97493119088a03adb5d5f02e14d02fc1ab9ca7846",
-      "bytes": 1275195
+      "sha256": "80d6f17b1e9483563281c76c49f3c2526f93baca2ec8aae814b71d2757d89f27",
+      "bytes": 1110853
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jf_nezumi.json",
-      "sha256": "6da658b3edeef6d8a9e16066c89aff4dc319a49cca7edf9a0812d197bc9f5cc4",
-      "bytes": 35132
+      "sha256": "982b1b92ac0148003f3499d4841603e35e11e5f04bbf00f859a8f626dfc02de4",
+      "bytes": 33573
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jf_nezumi.m4a",
-      "sha256": "11ba642275dd2f9fdb49489b4cbb810dcde04d982ab40ae34f759410a68a1057",
-      "bytes": 1308938
+      "sha256": "b2701157012f42af8accce52ba06320b2639acfb28ee8677aceb880bf3ef06d3",
+      "bytes": 1125855
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jf_tebukuro.json",
-      "sha256": "5a9c6a9acbea1bc952a9efff71a963c9576b0e8eba6a916bf61534be697ff3c4",
-      "bytes": 35236
+      "sha256": "bd99690bb90b5ee50ee483ee9969692d8ad9f39e270992936bb0c36bd3756007",
+      "bytes": 33437
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jf_tebukuro.m4a",
-      "sha256": "f79f0d3dbf7b7649dbcf755acf7d001383320de96e84723fca873792d716379f",
-      "bytes": 1268290
+      "sha256": "9c57a89a16316d1ba53d636542eacf56a21441ccf841b351b8277d69e5116a53",
+      "bytes": 1111589
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jm_kumo.json",
-      "sha256": "153de4df7212fc089601363427ce8335e77a4f9076f87e8aee48c10d495111e1",
-      "bytes": 35323
+      "sha256": "7e14a630e226e7cbcc621ad9085c4df05b491056942da6b42db68e411bbb5ab9",
+      "bytes": 33617
     },
     {
       "path": "media_host/02_conda_install/audio/ja/jm_kumo.m4a",
-      "sha256": "30b414e942b0577a5649a4a07f02a0aa671c0d77bb1dbc4ed2fba41dfda02d8a",
-      "bytes": 1107601
+      "sha256": "505c59446b6bc280aba882b90068212d83aa8b8c9658650c2847d5ebdb6d9c06",
+      "bytes": 986404
     },
     {
       "path": "media_host/02_conda_install/audio/pt-BR/pf_dora.json",
-      "sha256": "383840cd02304f98fc8e92e8f625d0d2a9ec9ccb5c76053c94aeb6f24935402e",
-      "bytes": 32741
+      "sha256": "fb2b487bf9580114d168452081cb0676fadbbcbc7b46a3f92781d751102fcc06",
+      "bytes": 30136
     },
     {
       "path": "media_host/02_conda_install/audio/pt-BR/pf_dora.m4a",
-      "sha256": "7e3c3a1308c3b522d27200bb260a660a7134f38a89d1d5c0a162726a5ff55367",
-      "bytes": 818294
+      "sha256": "884191076f5ba7f47db68a46c3fa190b2721830eb1a1ead14bd42a44696f4fbf",
+      "bytes": 694370
     },
     {
       "path": "media_host/02_conda_install/audio/pt-BR/pm_alex.json",
-      "sha256": "ce1e19bec66f937f74780b000e4b8741289de044b064cfefeaef0d2b52dfc82c",
-      "bytes": 32863
+      "sha256": "6f3faded841a48c47d7de0693c17a72c2e083f7a613f1c8f5354f403f5019dbe",
+      "bytes": 30184
     },
     {
       "path": "media_host/02_conda_install/audio/pt-BR/pm_alex.m4a",
-      "sha256": "eaf3781586538e653f40b6fd364c371c7f3693838d253d25d1c3049a5a64e9e2",
-      "bytes": 820941
+      "sha256": "6b9c22fde6412c094f73117dc2a58698dfe7035769e222fe878ee07ba1f50362",
+      "bytes": 692606
     },
     {
       "path": "media_host/02_conda_install/audio/pt-BR/pm_santa.json",
-      "sha256": "b4187e3888b064814f2075f8f034a90e710680e60a8bb433d0549fd3181d2281",
-      "bytes": 32628
+      "sha256": "7d71f0dab1faf2836589927a09142b940f66a27f824bbc7dd58c9f020040ad39",
+      "bytes": 30166
     },
     {
       "path": "media_host/02_conda_install/audio/pt-BR/pm_santa.m4a",
-      "sha256": "0f43430ad4948407a3e1dd099baeaca680664dceaa375668bfba8c05f3bea326",
-      "bytes": 822973
+      "sha256": "c99afa9da783f6c7a2f0329c963034c5707c3dc7c8912dfbb91538ae637a8519",
+      "bytes": 705869
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zf_xiaobei.json",
-      "sha256": "b02364685baa8e57e3ebd513e5e269633a5be5b60323def345f04561231380da",
-      "bytes": 31782
+      "sha256": "eb5f4877f352df823d91f3706929c63efdd0b485357c428e31563a365bab25f1",
+      "bytes": 28932
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zf_xiaobei.m4a",
-      "sha256": "620d1ca42f51a90b577c16c584300d7a5883d1e6011b8e20928028e04567f189",
-      "bytes": 849918
+      "sha256": "0d020880dd6013db4e09c6f012e76604c704860f87f87a14742a1354c87eeb4f",
+      "bytes": 724574
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zf_xiaoni.json",
-      "sha256": "78b6c00ff8d02b0e647f27844e2d2b690a6fd80fd58036c4cdeacafed13f4528",
-      "bytes": 31952
+      "sha256": "18a4d15f968fed08d2ef56f4a4bd356f7a0ce2bda86103c7a8c741aa6bb4f72a",
+      "bytes": 28999
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zf_xiaoni.m4a",
-      "sha256": "bfe6dbe455727fe7b33024e76a92d4b377acc3c71b4ef7a7657110a24e228f1c",
-      "bytes": 752801
+      "sha256": "6c291f3609ddd075f867c8893e8d0e01e2bdab9754ce1d7fb1613136d36be7a5",
+      "bytes": 651772
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zf_xiaoxiao.json",
-      "sha256": "79fb6883f674a0e00518f07bf1a148c8e187fb2d5ac75ae0e9166386882e431c",
-      "bytes": 31948
+      "sha256": "4fc5e0d2b7cb02e5dc8f8a9eca7401a265f5885e0b3b66bf124eebf77a2a2134",
+      "bytes": 29048
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zf_xiaoxiao.m4a",
-      "sha256": "ae5a366922e0d37b833e706c8e0dd42e64ce743919320b410f215ca4b2e13fdc",
-      "bytes": 735810
+      "sha256": "48c7e8fff079ce553a3f81f8c9a47bbee6c69fa375e51397156e1bfb3327e54f",
+      "bytes": 636389
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zf_xiaoyi.json",
-      "sha256": "e8cd88f8976eda57d60b025aa0ac26185e35d79c4081f40fc7e59da6cf7b0d9e",
-      "bytes": 31883
+      "sha256": "29d32c2118f8eb982bd5abfa2a60734094832ede41a1eea5d897954822f4c214",
+      "bytes": 29186
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zf_xiaoyi.m4a",
-      "sha256": "e1ae97d61cf70d8db284e5da1b4fbdcf1d7dee1f9f7010bc22468cd1a2faa834",
-      "bytes": 719767
+      "sha256": "afbd75b8def68bd215ad6525aa3934185b5a9cfccc12f6b4a7517defe78ff5d1",
+      "bytes": 614820
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zm_yunjian.json",
-      "sha256": "1a4aba76fb73aa95dfbc2ca8a1500fe91705129766e8e1e58952551f2b0a7167",
-      "bytes": 31899
+      "sha256": "c052fa78d65a0a999d2b542b4d91da696041bcad249ff9c80c926219417c73e7",
+      "bytes": 28882
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zm_yunjian.m4a",
-      "sha256": "820cc12567fe8c79e5b03ac03c5bb636cd4ded2ed14be1305dd61cccac5994b7",
-      "bytes": 721086
+      "sha256": "9d02b4a5a31bc809e679cb103c118448f78af81f5aa9d9f3ec620c75732c909c",
+      "bytes": 622737
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zm_yunxi.json",
-      "sha256": "ac76011f5b0574b3bc41264c7d8823e7aaf593d4dd994f37379652ca1ff67368",
-      "bytes": 32166
+      "sha256": "a6099d971447759753a485527428980dcb6d37e74233e4fd84ee1bed2caad208",
+      "bytes": 29094
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zm_yunxi.m4a",
-      "sha256": "5fc96b2691b6fb8481e852ea54141ab226e7602c651dd650636f6d8de10e3cb1",
-      "bytes": 678876
+      "sha256": "08ffa61c93f05a401918e7483400305b99a0a38593eb2b5ebdd029fadcdbfc06",
+      "bytes": 587145
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zm_yunxia.json",
-      "sha256": "237e1e205683b1a0efa6c0416851dd4eb9d007cd5908c8604540c65f28e23b17",
-      "bytes": 31858
+      "sha256": "3a5cb74077377acd90e09ea2fd80c387147d926bee46325e1aabae375927e193",
+      "bytes": 29127
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zm_yunxia.m4a",
-      "sha256": "8284893ea3479e539e543cb6eb03f6957301a19044398031bf77968cd62fedbf",
-      "bytes": 767573
+      "sha256": "66f9851e7400faefdbc91a19166dc01f042baf132c4195340dfa07ceadbbf56c",
+      "bytes": 654696
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zm_yunyang.json",
-      "sha256": "c70f57b4bc36d86f2a7dff29f36cd55261787a6cef27c01bbe9d845e03a93b66",
-      "bytes": 31830
+      "sha256": "42e68726a1008ba259346c56dba4d50fb9a3f6b0cf4b80f75519cf3db0bbd0f8",
+      "bytes": 29005
     },
     {
       "path": "media_host/02_conda_install/audio/zh-CN/zm_yunyang.m4a",
-      "sha256": "f4380f5568d248cdcb448e1f595a3f7a51ee48da0c6bd9b86f8f9f1363c585f3",
-      "bytes": 682411
+      "sha256": "8766349ffd5fb4222cc84b9676ad9682fea4f229adf643c4c64e68df4b4fd6c5",
+      "bytes": 580633
     },
     {
       "path": "media_host/02_conda_install/video/02_conda_install_silent.mp4",
-      "sha256": "1b3c1b9932ebd1eb1d6ef2f7cdf3d6af35b1bbe41050a3f397a81f15e725ceec",
-      "bytes": 4357684
+      "sha256": "33195755ef8666770a3ee035187e6acb5361fd3dfc2f4653286674b8ad166c6d",
+      "bytes": 3612934
     },
     {
-      "path": "media_host/03_pip_install/audio/en/af_aoede.json",
-      "sha256": "c5d0b5390170c59ccaf53aa958faa6f7d9e87037afe00cb646f9c58ddf1fede7",
-      "bytes": 50958
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_aoede.m4a",
-      "sha256": "3175f83e92369e621b31a5a9acfa1be6092409866331b71af41cb02bcfac8ebd",
-      "bytes": 1185178
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_bella.json",
-      "sha256": "aa5de6c26422e850bef3bd9e66975c0d9bac476b908ef29a9ddcf1db23fe761c",
-      "bytes": 51037
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_bella.m4a",
-      "sha256": "dc644ff5f2122c876e16ef6286114f99b9a8808c8156288d2e196e88536f3e45",
-      "bytes": 1257214
+      "path": "media_host/02_conda_install/web/02_conda_install_silent.mp4",
+      "sha256": "b04da43a42458f6c844f158bd6a942386d864c427eb8caa5bc44663fef8406fd",
+      "bytes": 3743210
     },
     {
       "path": "media_host/03_pip_install/audio/en/af_heart.json",
-      "sha256": "6fddbef29ab2ffa6c172403c4ae54ac0317e418fa1a03fcf9c8a3f4f37f737e5",
-      "bytes": 51090
+      "sha256": "e14a1d3f560ed59000d5cfa15ec3bee5aac1799bf96e47ca54ff3c0f3ac78f55",
+      "bytes": 37357
     },
     {
       "path": "media_host/03_pip_install/audio/en/af_heart.m4a",
-      "sha256": "34d8cbef2ef81a8525e541f7fede5aa294a97d99a586acf34c28f3de064e9352",
-      "bytes": 1224703
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_jessica.json",
-      "sha256": "4763f9bb3d47a44447b5355039a93d7f9689ccb0769127e25180615df734f72a",
-      "bytes": 50959
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_jessica.m4a",
-      "sha256": "62bbda5ddd28b6e2786d80e642ab9ad129da98e099f1464436bb7e7809970be1",
-      "bytes": 1186980
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_river.json",
-      "sha256": "578dae8243fefde7015b7294bcc3f17b0bff459dfcfc1bec052dd368a3b5e337",
-      "bytes": 50830
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_river.m4a",
-      "sha256": "3302598c84cc8238eb0c2d192bf2e525b51ed8435df2039a53d3554c4f2508c0",
-      "bytes": 1183032
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_sarah.json",
-      "sha256": "5d29ec9cc6580282f31cd4d8feec05acf84d9c88128d6196d6417b534f40e1a8",
-      "bytes": 50938
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_sarah.m4a",
-      "sha256": "f24a9aa65f0790217e8133f0f283814ebabe60dd34b72603c21d0208db2606a2",
-      "bytes": 1249953
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_sky.json",
-      "sha256": "0ddbe294fb110d3701a1fdaee063e0a73e21bc810bf33b217a55799cd93e63c0",
-      "bytes": 51296
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/af_sky.m4a",
-      "sha256": "99cbe2aa68a9b141d48548c4aa323e1231b607c2c7c0a202e0e90b8e81ded76c",
-      "bytes": 1220776
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_adam.json",
-      "sha256": "2afbc1fdc8d40eaa906579a3cf332836f072542d1cd682fedea47f53a5222521",
-      "bytes": 51454
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_adam.m4a",
-      "sha256": "abcdd8d5a2fae1fcb01f00a7eb8d00bf968ce4ffdd1033ff712dcb962ee3f8a8",
-      "bytes": 1219299
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_echo.json",
-      "sha256": "ac64a9de9816feb3895a9b621c4f5e44206650757a5281697c6b97ec4879f3f4",
-      "bytes": 50626
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_echo.m4a",
-      "sha256": "4443d0fc37eaf02b1b28e51ac9ce3f2a0a5fabcc1f95d01b7d59f5d8d2a3230a",
-      "bytes": 1263012
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_eric.json",
-      "sha256": "92be9a480c6cd79cc4db3b261464cd9a0801b9392ab3cfe98c09291d74398e08",
-      "bytes": 50725
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_eric.m4a",
-      "sha256": "3d64bf6c1e00e0382b67be1a4a1617a8565b95d861b716343296e860574e17bd",
-      "bytes": 1162080
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_fenrir.json",
-      "sha256": "e1855e451cedf94c40157b9c78f03a045fe57e9e127bc7e4d16c319e0bc4700c",
-      "bytes": 50674
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_fenrir.m4a",
-      "sha256": "f887d93cdbad5bf329b38dc6300b8963f8cf373bf91cce0c7b3e1cd2c907562d",
-      "bytes": 1215370
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_liam.json",
-      "sha256": "28a5b5939d06ff6c72a239c033adf9df82ee722e78df055fab3258e1d08e3efe",
-      "bytes": 51069
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_liam.m4a",
-      "sha256": "e057c9139253986f1ad1972a595fa4650ebba4c6b306331851b1144dfa5441ce",
-      "bytes": 1221641
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_michael.json",
-      "sha256": "d782b027925b03c4e2a875c21c1554ef2fc94caf530fb3e0ea868b84393a2836",
-      "bytes": 51390
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_michael.m4a",
-      "sha256": "770f6bd2ad092ca162dbff58ddaff71e2667a997fa66c24b827d273ffb41cf22",
-      "bytes": 1307630
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_onyx.json",
-      "sha256": "d19080673a2245c74a14c336c377684c7f73a8d887f4ea372af7adc7164ce9e8",
-      "bytes": 50818
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_onyx.m4a",
-      "sha256": "64b1885223d9e8e17bccaf5f1ea742b2df917ed794a6edc7577178b4071dccfe",
-      "bytes": 1277588
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_puck.json",
-      "sha256": "febc6c273594752d57cc200bcbb16dd1d40a2908c809181ba00a4f116d1216f5",
-      "bytes": 51166
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_puck.m4a",
-      "sha256": "d4c8dd79f16ff5ad6147f2b0783e6d38b03b24ce501eca518de35c3069b13397",
-      "bytes": 1230513
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_santa.json",
-      "sha256": "cccdd4c00c8fba87de5c373cf73e90209cea6b5cc607476aabceca3eaecb83a8",
-      "bytes": 51059
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/am_santa.m4a",
-      "sha256": "cd74a9b99f7d391b4fa585e22a7b38eeb571aa83adbf763025fa9005e40ad3ac",
-      "bytes": 1325307
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bf_alice.json",
-      "sha256": "e7ac3cd09e7cc5d7c2299fab3b015865633dce359e142086ed7f2512699ec344",
-      "bytes": 51243
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bf_alice.m4a",
-      "sha256": "00c2f0800288dd0d55c784c1b16125dc0ecb8a677df7c2d99844e35365acbcb4",
-      "bytes": 1242499
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bf_emma.json",
-      "sha256": "b185057263642cbde20abfafa05c4cae37d7e96821dfdfaa8473b4ca836fe7b2",
-      "bytes": 51168
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bf_emma.m4a",
-      "sha256": "a3c5a664d9ac2c3b8ce84a8d48f0dae5838d980441cd7abaedaf5806bc63b0e6",
-      "bytes": 1208948
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bf_isabella.json",
-      "sha256": "0f120d013ecba8171fad6a9fa6b8ef5d686fc91f0503b487eb62b0d86a61faf6",
-      "bytes": 50923
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bf_isabella.m4a",
-      "sha256": "0ab44880f949bd56f6dbd2845e276bec33ed17c2b0b79393c864078dda6e877a",
-      "bytes": 1232560
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bf_lily.json",
-      "sha256": "ca62f6a9d36fff7ac4f3c36b9ebac38980fb1091ea2daa1560621a6097752e9e",
-      "bytes": 51173
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bf_lily.m4a",
-      "sha256": "98cf5ff2f1a6db5a21a091e1db94c108e5f51016e2084f4dfe5eebd290130ca4",
-      "bytes": 1256733
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bm_daniel.json",
-      "sha256": "cecd7d472e3b45ca7ef921f5b6be55ab9dd30fedeea666d438f2b85506312c24",
-      "bytes": 50573
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bm_daniel.m4a",
-      "sha256": "ebcbf704865e9120f30df39d4bc5e3ea4e6c95eea7ff68305f1f2b94b4991874",
-      "bytes": 1239282
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bm_fable.json",
-      "sha256": "e98b5cf4568efde79a8a41fe7b995e26748a3da640843abd226e2cb2cc0c4366",
-      "bytes": 51129
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bm_fable.m4a",
-      "sha256": "dc016baea1ebdf5354b38c6bd25091be7c69f1b8a36925e4ff301a276ec528bc",
-      "bytes": 1309769
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bm_george.json",
-      "sha256": "9c30b0a28bbc8a21ba76c75ebe8b5b13584e8f7413e17c5b5d01368f596bd4ca",
-      "bytes": 51079
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bm_george.m4a",
-      "sha256": "ef9bd6a024c35ae1073e06be306df78b183b37e744a725cefeeae1651c02d14d",
-      "bytes": 1351148
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bm_lewis.json",
-      "sha256": "abbf94060d8f70a4148adbd35d08144bb296fc6def083385d4caeb47eb7fb3f5",
-      "bytes": 51587
-    },
-    {
-      "path": "media_host/03_pip_install/audio/en/bm_lewis.m4a",
-      "sha256": "043275d911e057fdbfd10eaf24ae3dc992865904c588510ca0c122d9bbc1f227",
-      "bytes": 1313272
+      "sha256": "be137840f23c6680d6a7ac0bd743a97bc8f785f783a75c32a342403105ca5be8",
+      "bytes": 758595
     },
     {
       "path": "media_host/03_pip_install/audio/es/ef_dora.json",
-      "sha256": "e38bf04357a06688d5c07d6adb6f570779728348200693575341009c7c5bdc67",
-      "bytes": 42257
+      "sha256": "f04ede1b40c7d2212881148972821ede98f87b31860213e7f26fac5a63342774",
+      "bytes": 31493
     },
     {
       "path": "media_host/03_pip_install/audio/es/ef_dora.m4a",
-      "sha256": "56487a56ee33466dd62d2080d49125fd1bc92184b8d6b95e411d5cd80a2f1427",
-      "bytes": 1144202
+      "sha256": "54f6fc91f9dd3bb350e49995f55d95ac1f0c3be26f527b87aece5c6c50e7042c",
+      "bytes": 726825
     },
     {
       "path": "media_host/03_pip_install/audio/es/em_alex.json",
-      "sha256": "ad832b4f930fcafe1064448ad4e497ce09845aa7f10f1000758cb465fbac2ed4",
-      "bytes": 42092
+      "sha256": "eaf6c92850ce2060667f2efff6177cbdb5c6ba332168ab85216f7c3bf7869e78",
+      "bytes": 31945
     },
     {
       "path": "media_host/03_pip_install/audio/es/em_alex.m4a",
-      "sha256": "9e6ba3189992c67e5be9e70d915b1e268f7612e5d3af280ad19785189dc26f25",
-      "bytes": 1146047
+      "sha256": "97f1e25ab681389dca7c4270e26c89bb8239cad459e85c5d3ab1ff92bbdfe088",
+      "bytes": 728831
     },
     {
       "path": "media_host/03_pip_install/audio/es/em_santa.json",
-      "sha256": "d0589e452bedea86f4ce14f3f4fec08ebb0f473ba7f50b512fdec806613837a0",
-      "bytes": 41941
+      "sha256": "dbe292df9d63ca0fc3296da45bd92205b4fb6a21f778a40e174ba800ba316093",
+      "bytes": 31809
     },
     {
       "path": "media_host/03_pip_install/audio/es/em_santa.m4a",
-      "sha256": "c25d3a28b6291e910ca078004a6100d5cda7567d895c77d4bf5da7e5df8a7ed9",
-      "bytes": 1137780
+      "sha256": "80c32e29483fb18162c1abf609391b86869dd712830617af92dc5eb33a93313b",
+      "bytes": 733492
     },
     {
       "path": "media_host/03_pip_install/audio/fr/ff_siwis.json",
-      "sha256": "d71bd1073da7baee3579da6e25c45795c2d15cff58fe245f70cb888583124ca5",
-      "bytes": 43629
+      "sha256": "e8be191bb3d6158e6c57e2e3fc42c88c9f0ee11af6d200e34e2d54d6b7ad5421",
+      "bytes": 32743
     },
     {
       "path": "media_host/03_pip_install/audio/fr/ff_siwis.m4a",
-      "sha256": "344dab6a0a8d148af7ca7b91bb6e595edcb7a98a8ad5ceded1041816f3470d25",
-      "bytes": 1178966
+      "sha256": "a8fa61eb9272bf81d84eaca8e382c5646a9089629c33cffcf3ba9eaa5d21b8c9",
+      "bytes": 792883
     },
     {
       "path": "media_host/03_pip_install/audio/hi/hf_alpha.json",
-      "sha256": "6c09dbbbae5fe506046bde0efc4b6f6ac2a80eba8178fd75382d3f1cbc2efe03",
-      "bytes": 63913
+      "sha256": "d8db2ed66cf738bf633cdb71bf20e5cb41a6c2696f79e73b541edbb5442939c2",
+      "bytes": 47935
     },
     {
       "path": "media_host/03_pip_install/audio/hi/hf_alpha.m4a",
-      "sha256": "2c86b170c6beafceaa24cf06aba41cae4f05df1e81c3cd9d68321c83063e9afe",
-      "bytes": 1324236
+      "sha256": "15ae9bc5a133cd6840409457768cb79e80b71b1c2b5e91ed16edd222177843d0",
+      "bytes": 934776
     },
     {
       "path": "media_host/03_pip_install/audio/hi/hf_beta.json",
-      "sha256": "8032b60d6e9c9e73b441f28d8f2f11e4fc0af54faad3610ae11f56dde827dcba",
-      "bytes": 63863
+      "sha256": "de1c1aae5f9d9d9d729df6f6bfa589de8d52253ba5395bbe9c54988e7748d1a5",
+      "bytes": 47821
     },
     {
       "path": "media_host/03_pip_install/audio/hi/hf_beta.m4a",
-      "sha256": "a051dd79bebf7bb99005221ff2d6ce085aecd92215e8a15f162f9ff582cb050a",
-      "bytes": 1141504
+      "sha256": "61ec63ea119da16587f4c908aa82837a1d48135b502327958ac1263fc9192d4a",
+      "bytes": 821598
     },
     {
       "path": "media_host/03_pip_install/audio/hi/hm_omega.json",
-      "sha256": "99e8c1589b24c096698e299300127408987b8b606f62f6a96d3d8f2b95235fdc",
-      "bytes": 63785
+      "sha256": "0bd2b0e098882aeb598d4842edfd1f53b727a3f19a70d56c14cff541fa28b37d",
+      "bytes": 48097
     },
     {
       "path": "media_host/03_pip_install/audio/hi/hm_omega.m4a",
-      "sha256": "b1c5eedcbf855c33fab4315566359b48752e96389d753006bbbc6d36c7180bf9",
-      "bytes": 1345973
+      "sha256": "38c97b1c1ce513eaf0850677a7131be849ead3ea9f5e4c69eb680463306805ce",
+      "bytes": 970932
     },
     {
       "path": "media_host/03_pip_install/audio/hi/hm_psi.json",
-      "sha256": "860e949483e312964e070c0fb93f7e3364550ad36340b0a477fc8e64ec74f51b",
-      "bytes": 63572
+      "sha256": "1378afc25580ec2b10a435ee4e7029585c514ec732697282e1d08fbc957e8704",
+      "bytes": 47774
     },
     {
       "path": "media_host/03_pip_install/audio/hi/hm_psi.m4a",
-      "sha256": "284e221e22c77a1fcd2446a758e90dbf8167f8c2c3a2283423a7aec336fa01e0",
-      "bytes": 1372894
+      "sha256": "b6f4e33b2cf000ef1133945dad9c5a9f01a1ebc6ab569d61f401017fce8ca3c0",
+      "bytes": 991178
     },
     {
       "path": "media_host/03_pip_install/audio/it/if_sara.json",
-      "sha256": "df89d9f10c5c0947526212ab6dbfb88542d1fb3e3306c9f8418737f1a9390bb5",
-      "bytes": 41257
+      "sha256": "324d737a9444f6f842515d2c3b684d9afa7db98594f173516d78d8fc19b065e8",
+      "bytes": 31420
     },
     {
       "path": "media_host/03_pip_install/audio/it/if_sara.m4a",
-      "sha256": "54204743b9c3cfab38821c3241cbf7c19d99d075cf4964bb5b8250fc1e29b898",
-      "bytes": 1125289
+      "sha256": "6a58ff65479bcada48137e9e6fd47d2cd64ae849b31e8fe0b1878bf4be5bec43",
+      "bytes": 744167
     },
     {
       "path": "media_host/03_pip_install/audio/it/im_nicola.json",
-      "sha256": "9824192aaea5752d163db09ea982b57a86fb216ba1b4ab54f3eb41c3f38c83bc",
-      "bytes": 41396
+      "sha256": "b6d1f2271e44825ef0e41a444311153a1d150022b9e93e0518bda4be60dd9393",
+      "bytes": 31538
     },
     {
       "path": "media_host/03_pip_install/audio/it/im_nicola.m4a",
-      "sha256": "7841e47df75106b2f515bd4b2aee66bbe5aa51859ad8e07bb341ab1363417227",
-      "bytes": 1273961
+      "sha256": "927122d31eab1eb3d2fde0cb52db493053020983ecd9cbf26ee9670f26b2787c",
+      "bytes": 829913
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jf_alpha.json",
-      "sha256": "eb7d8daa8390b1acc993057eb264de4531344ad72aeb326bd9c0421af39359c1",
-      "bytes": 47239
+      "sha256": "28a2702090ff18fb449312c80a64dd1c7fed564d5b0951bee63eefcea11f32ad",
+      "bytes": 35726
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jf_alpha.m4a",
-      "sha256": "bf0de4fe375ce33031bde545e5413718e052f634da8c765962877e70a43eef92",
-      "bytes": 1438512
+      "sha256": "9e50c5a5acd7977994647342cb3a757812b3497e42b9cf62999cc1f96ce13f3e",
+      "bytes": 884611
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jf_gongitsune.json",
-      "sha256": "4d881275f8fb7689058c17c31d538eb978c913482b993718ffdc22367c85695f",
-      "bytes": 47371
+      "sha256": "e136121456dd0a6f1d6f7d89f483018e5a404dfbbb834deffec26cc706800b78",
+      "bytes": 35746
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jf_gongitsune.m4a",
-      "sha256": "bd40e80dd74fc4df4bc180ea2a0f2573363a4629ff4918fd870264af06fd9385",
-      "bytes": 1773372
+      "sha256": "9c24e7c9f1531613ce41c8e4c60f6ccbc504110806c9fc0dd13d1e15dae2eed9",
+      "bytes": 1100661
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jf_nezumi.json",
-      "sha256": "7d258574f8c85c06e15bbd8205fe9f9104ce0a6bce5bd525d48f6723633f55b7",
-      "bytes": 47422
+      "sha256": "42702f5f89cd076b89dd55e51f34e21f63fd2c80f3211674541e28011afe68b3",
+      "bytes": 35669
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jf_nezumi.m4a",
-      "sha256": "608eed63fed7017ec76055afa289285d86bfc6817290398f244c4590b1b42dbe",
-      "bytes": 1797537
+      "sha256": "fc270fe28e26d24c14e362ca15d8afdac17d9b3927a911123d50e2ab6c40ab09",
+      "bytes": 1121389
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jf_tebukuro.json",
-      "sha256": "7d21127fc2f6c7b8fe2a103295c36f0c8139b022e7547eebdd81b100e8c0c006",
-      "bytes": 47425
+      "sha256": "f901e799a90ad7135d054c2c1891eecadb199f15ddcf259e3739f22755e827ee",
+      "bytes": 35630
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jf_tebukuro.m4a",
-      "sha256": "4a6242e198c30722e6554e170b93398d1eec913627c96748a080c018c386eb5a",
-      "bytes": 1754822
+      "sha256": "8c2c0127b412acb08699f0c95d498f1f97be2da74d44d93359a67fe74d5a6f7d",
+      "bytes": 1104670
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jm_kumo.json",
-      "sha256": "2b97f5f6679d775abe7e8a4270007ccd11529f52c1f2d4a8111a41e7d9211aad",
-      "bytes": 47434
+      "sha256": "7720e7ab730d8843ebe00f72ebc326879cdba95a747d2140a54c469f4e1631db",
+      "bytes": 35487
     },
     {
       "path": "media_host/03_pip_install/audio/ja/jm_kumo.m4a",
-      "sha256": "4253dc920f72db9ccc0ba5d8e50087bea3793c663ddb6cbb1a97702f128fd3fa",
-      "bytes": 1541780
+      "sha256": "4d273be1fff0f3385c552e1e14a125d135c24fb0d5d971030753aaf17b966b74",
+      "bytes": 992401
     },
     {
       "path": "media_host/03_pip_install/audio/pt-BR/pf_dora.json",
-      "sha256": "ab341944d84720de1badbd271ff9c6413dbbfe3a26deb4f3fe01cfb918462cf9",
-      "bytes": 42632
+      "sha256": "12b3a420ae2772d52b900d26a9b634becf6411dcf7a320933e8c7a226099ae8c",
+      "bytes": 32498
     },
     {
       "path": "media_host/03_pip_install/audio/pt-BR/pf_dora.m4a",
-      "sha256": "edbb3aac638ec8da89c53b9dd7283f234b5863a868a324a1b6a44bb06a7656a3",
-      "bytes": 1092958
+      "sha256": "020fce86ed3f40a70e459ef0dc173c6ec2537b5f1bd8467e8e9ebcbed9db8f2a",
+      "bytes": 718294
     },
     {
       "path": "media_host/03_pip_install/audio/pt-BR/pm_alex.json",
-      "sha256": "e6222638a642295431e84008f3afe70e98c2aae7129ed0d56d7572ef87bd4ccf",
-      "bytes": 42649
+      "sha256": "a1dc705e89f2fc1a65f8dff8318fddd268d30e9e40f8b05a7f75a2b29ffc62a8",
+      "bytes": 32442
     },
     {
       "path": "media_host/03_pip_install/audio/pt-BR/pm_alex.m4a",
-      "sha256": "0f4d6ed2e96904142b0ac94a0976bbfa6b60ad7bccc661eecec27b816387024c",
-      "bytes": 1102750
+      "sha256": "ee5fc226e7e50e9bbe1b9a9fa9c9b9dd7d0122db0639fdf594676586028a4bb7",
+      "bytes": 718244
     },
     {
       "path": "media_host/03_pip_install/audio/pt-BR/pm_santa.json",
-      "sha256": "9b7e51175b920e509f64ef3a2093d56ecfcdce1509afb83a61f3b5b059995fe5",
-      "bytes": 42704
+      "sha256": "d76458f4cf27c976a303d4ea6faf3207bf4e08d9ac9c1a3cf66696f1de43cf1f",
+      "bytes": 32467
     },
     {
       "path": "media_host/03_pip_install/audio/pt-BR/pm_santa.m4a",
-      "sha256": "a6d16a75a11b0428f2ef56a4bf2cd047fdeec6ea24d776146745f56c2ad2c162",
-      "bytes": 1100514
+      "sha256": "92d666cd5e89fb97737f3094550a06bb924c8c5ef01679ceedaae3f49c001256",
+      "bytes": 727020
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zf_xiaobei.json",
-      "sha256": "d9a2b911a15028dcf898def7262f10976514df3baed375450273c65664d5ca3c",
-      "bytes": 42375
+      "sha256": "306048a500d5a8286db7401554cbc8c3e61944a0e7a297766c12191e9168f832",
+      "bytes": 31101
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zf_xiaobei.m4a",
-      "sha256": "b6e593572ee4e839b170e10fa6ef89255345f3f3cbaae8afed151f9440e0b906",
-      "bytes": 1164750
+      "sha256": "aa5d423fea53290d8cffe39cba6c31e372915669cf21b34285db4b0dd6908403",
+      "bytes": 746545
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zf_xiaoni.json",
-      "sha256": "145d2ab34a18eab47a50e963917d7a7f2bb9ff8539780ff3d911736070a075fc",
-      "bytes": 42106
+      "sha256": "52104c911019d759e4de5b3cdb01ca721872fee794107c13fa1723cd404bfd0b",
+      "bytes": 30844
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zf_xiaoni.m4a",
-      "sha256": "bb92737fd9ceef318f117147889d92ac7d696e8d26ccdad7449876ff45bb835c",
-      "bytes": 1042468
+      "sha256": "21d0c6846b5e184cda3ed055aeac340eea9722c0b43e2e3783b3d20e3f7e124a",
+      "bytes": 661981
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zf_xiaoxiao.json",
-      "sha256": "a0911c07086d08dc8c7955d9791757cf3d95b2cc917196b56e29bbe96fd6300c",
-      "bytes": 42330
+      "sha256": "84f16b12f54d88275f19fcaa152c7e10fa4809086cdba2e9c7e2fb31cd593d7b",
+      "bytes": 30924
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zf_xiaoxiao.m4a",
-      "sha256": "9deb86a454c9e5b28d0b71be6e10f743f3b4ee3d415bae00a4b7ce19b31e3f09",
-      "bytes": 1012848
+      "sha256": "c49a07873687bf63111e1f87eaaad246895094b37e0d9963d3a63f5077d76bfc",
+      "bytes": 648468
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zf_xiaoyi.json",
-      "sha256": "a60f1f333986b8daf81d2588108d71b598a4c81627a5997bd5fc2257dd8de1ba",
-      "bytes": 42305
+      "sha256": "d66813f10ac567f074955e0217b6ae80cf4b46a1c5c6eab137db6e0a3c1baaf0",
+      "bytes": 31069
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zf_xiaoyi.m4a",
-      "sha256": "cdaa04a1af280c364fb5a6b7f8faa610ae91ff7684b720e613eee9156a1b289f",
-      "bytes": 982995
+      "sha256": "5294b187e21ccca02fda29f0ed5535ed09b7861bc9434ed3aca26c6e2543e1d5",
+      "bytes": 623567
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zm_yunjian.json",
-      "sha256": "6c76eee978cb40bd0d1b44360f1db82ebabdc1517a30bd645c827eb221fa24a3",
-      "bytes": 42046
+      "sha256": "0a20da5dcf54b9f274fef445b9a465e0ae4f55b87f87fadcb767b97c0e4748c6",
+      "bytes": 31132
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zm_yunjian.m4a",
-      "sha256": "f9b88e02265bc367e013cac5fc2768269cfd0be4f9e6d32762eae44c4179bbc1",
-      "bytes": 977785
+      "sha256": "b211c818ffc470f91802b08fa8a24b7ddfcaa166a9ad4a903a27eae8e3d30e6f",
+      "bytes": 640271
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zm_yunxi.json",
-      "sha256": "d67c508b145e5b3d9da2e93365c32193f6b26b446ce82da9c56715f08abf40a4",
-      "bytes": 42392
+      "sha256": "347956ac756ab8faaeeeeb04559762e73bebf562576882657dfa4d7b7c149823",
+      "bytes": 31208
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zm_yunxi.m4a",
-      "sha256": "9e8cbc0ea0fb620d26e0d5b1451c0d6067225f8943bd741bbb911898fcd02c31",
-      "bytes": 933455
+      "sha256": "e4a43a0e78eb9f831ac0bc7ebd57753e52cc8de9ee15dc24babdeff779f33a95",
+      "bytes": 608315
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zm_yunxia.json",
-      "sha256": "0a95dfac5e14926533a4f43732307f6c1ee01a1fb7a0837cbe01b7fb3cb6ec9b",
-      "bytes": 42325
+      "sha256": "26baa578384a8290b2c01a939946657e1fbbd90ee0270ac6241f1a395590e315",
+      "bytes": 31035
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zm_yunxia.m4a",
-      "sha256": "deb1f56ed31f0ff34e776010bb76e2e7d2dc7f00e3c1078c1a617f40322e6db3",
-      "bytes": 1047004
+      "sha256": "6a9ab6ddd7066725473171672ea88543490114b6e8f9f5c96033138a93704e09",
+      "bytes": 665634
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zm_yunyang.json",
-      "sha256": "a0f1ec3b200045a498a55b713efcd3b1d5a4255dfdbd0635eca8ba5bc036d4cc",
-      "bytes": 42465
+      "sha256": "93af6abccd0865e8e45ce312562f048766f5e9188bdd884f9a1426fe44056272",
+      "bytes": 31291
     },
     {
       "path": "media_host/03_pip_install/audio/zh-CN/zm_yunyang.m4a",
-      "sha256": "60724d0e2dc5665939d8d425d8f6df49a1099fe01f692e63151f2907185d0db8",
-      "bytes": 925656
+      "sha256": "bb9eb78d782250f30b09dc22080d9a3068370cb9b3b20d1342f8837d0cbd8743",
+      "bytes": 594126
     },
     {
       "path": "media_host/03_pip_install/video/03_pip_install_silent.mp4",
-      "sha256": "9bed191a9f06e633c0ac7bdf56766011d6337bd941c2501d0e85bc83582e95f4",
-      "bytes": 4663449
+      "sha256": "53b5403a6c7c0ef29d983d80f14cfc0a394834cc7a9d213e57b790ccfc110bc0",
+      "bytes": 5056314
     },
     {
-      "path": "media_host/04_platform_installers/audio/en/af_aoede.json",
-      "sha256": "5eb605be4a48c64be923f6748e778c20dab63a507ea8915e2a53b9568c87fa7d",
-      "bytes": 52504
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_aoede.m4a",
-      "sha256": "9b3ec682f0bcdce7578c0776e68f89ba37bc84d237b5ce47ea94033d0bfc599d",
-      "bytes": 1303104
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_bella.json",
-      "sha256": "123f5f2a76eb6ca6bcf880e38f09cfad36962fe6b3dc2c010eab404f10d7d2b1",
-      "bytes": 52993
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_bella.m4a",
-      "sha256": "251a993b0e4dcc598967ebc8b8aeb40f2f4867e257a127ca3ea17dba3f7d7d9f",
-      "bytes": 1375446
+      "path": "media_host/03_pip_install/web/03_pip_install_silent.mp4",
+      "sha256": "0b5f6d32b1e9d12bdb66a431e0f2972e6a0814dac9029cbcca8587a1538eaf2c",
+      "bytes": 5405952
     },
     {
       "path": "media_host/04_platform_installers/audio/en/af_heart.json",
-      "sha256": "fc93fac11b70227a78a032939e7a6d7e28405abb772d02c4fea428084bc63db5",
-      "bytes": 52909
+      "sha256": "eecf55c5a1e2d314ca10056cda172e2a9acc432a2f87b181fd4dd39dbcbf8a14",
+      "bytes": 41277
     },
     {
       "path": "media_host/04_platform_installers/audio/en/af_heart.m4a",
-      "sha256": "c682ac3262a2e473083209949f17b66335cc6a8d770b8646938e6b0bfc35dfa2",
-      "bytes": 1337539
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_jessica.json",
-      "sha256": "e0295e7e6f1116b1dc98d25acf8184a2344371473b3758a6ed1a464b5437c49b",
-      "bytes": 53023
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_jessica.m4a",
-      "sha256": "989b1fd37d0edbe6557107136f44f67a7f797b5e4e0229de166930174a5af13e",
-      "bytes": 1276503
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_river.json",
-      "sha256": "6f3adc01a51385a2c140e1b359d5a8ebc0a76f64468943c7c724979ba93a62d6",
-      "bytes": 53208
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_river.m4a",
-      "sha256": "8dd1a0b6746f3f164a8aad3529c6fa026746c64dbf97c6c25bd8940d18527706",
-      "bytes": 1276859
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_sarah.json",
-      "sha256": "5b45535cbe37192b5fff8023691d6bd16b9bfd144c7ad1eb034106a0e82726d1",
-      "bytes": 53205
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_sarah.m4a",
-      "sha256": "f6615710645e9698f004a091a5b22431bbe3a450b6950048a997ebb6d935b586",
-      "bytes": 1354495
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_sky.json",
-      "sha256": "e3f3f67d4818702f0b3e52b2693cc11a6e0a73978049b6a69fafa279787f0b33",
-      "bytes": 52824
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/af_sky.m4a",
-      "sha256": "03a5282410a2e6f1ea69861a360f5cd52b85bc891b5e415c526529a34d553dde",
-      "bytes": 1336860
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_adam.json",
-      "sha256": "20193b163a99f4339b98e54cf680a5fdfaeaaaaffa4486573359d31e253debcb",
-      "bytes": 52981
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_adam.m4a",
-      "sha256": "f69cd6c2d72535ee2a5375f6fcf5ed4252ff93a997ab9de851acf3c82268e3b6",
-      "bytes": 1328246
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_echo.json",
-      "sha256": "3ffd8dbe005c687b7655eba9043866246173eb8c4edad13d54adad5c321f3948",
-      "bytes": 53165
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_echo.m4a",
-      "sha256": "6065e4916361285ce68cd53ca3bda55b894c2eb70d622ec1f07ea217123ddfcf",
-      "bytes": 1360127
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_eric.json",
-      "sha256": "055d726e0417de0f4a11b7a92e37af455631efaee8560a23f2528262ebec0c0d",
-      "bytes": 52824
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_eric.m4a",
-      "sha256": "a69b3371732d937106607e2a5262317e45d5eff823d27510ef6a7597a974a791",
-      "bytes": 1247140
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_fenrir.json",
-      "sha256": "23e01421ee4c177e627d045efb72ec16e55a4bf9ec5ba3a5a936f69e271f4b00",
-      "bytes": 52917
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_fenrir.m4a",
-      "sha256": "c7c01c79690abab0c1a88e86b40cafb98bf3ee8643170ec395e057c254c0a16c",
-      "bytes": 1337133
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_liam.json",
-      "sha256": "20a03d5cf609f170c06cb38946d35a0b8b51ff0f9671be750161add471143873",
-      "bytes": 53052
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_liam.m4a",
-      "sha256": "212b3ddc181f63c1725030b1646b9ea6e17ea490fe753c9de216a25a38b3d523",
-      "bytes": 1328287
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_michael.json",
-      "sha256": "e611c972746b458e98f2a2f07d1c4cc0f9c2ec7f5bc2ada62ee6dc4a5c995ba9",
-      "bytes": 52851
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_michael.m4a",
-      "sha256": "45c4342f00b40351cb3b5c33e746d75f0d6334522f2b2bbd40ba46603f44aee3",
-      "bytes": 1416676
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_onyx.json",
-      "sha256": "f2f056d2c867e8b373321ef721e7f8d651a2db185121de1c5a611b40617980f9",
-      "bytes": 52922
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_onyx.m4a",
-      "sha256": "49aca692b40043ebc04af1e8a5788164f8763f26f8e073ec38fce526181a925e",
-      "bytes": 1373724
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_puck.json",
-      "sha256": "8bdc74115fcd4987cf64f225fb85a36781d052a78066708c45371971c6440408",
-      "bytes": 52597
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_puck.m4a",
-      "sha256": "bddaa76ed274b630857ce12bffbb355824f29229382bc4027bcb21c0e4d57597",
-      "bytes": 1346755
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_santa.json",
-      "sha256": "d6a49db4708ac70b55edc52f739cb5ef97be6f3f417ad6b779f0dcb737089668",
-      "bytes": 52919
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/am_santa.m4a",
-      "sha256": "dc880dc74a82bcad1c94abb2e7a6b5c0315f68307f3bc28953c1d3c88df4fd75",
-      "bytes": 1445903
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bf_alice.json",
-      "sha256": "ecb233726c09313133b2932a536400bfe54dda11ebfe4122394ed592c4e4d4e1",
-      "bytes": 53205
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bf_alice.m4a",
-      "sha256": "119ae4a8ca0865b806950d74023e1f633e946fb6d228040eeb380a01ed7ed1c4",
-      "bytes": 1346864
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bf_emma.json",
-      "sha256": "98e76590eb89bbc340d2f41b408e7feb1f8904c70ec798fa7ee0c4a3846ec946",
-      "bytes": 53271
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bf_emma.m4a",
-      "sha256": "e9536df07991c7aa8c21ad2c4c37beb05aa12a094d6e6d9ee16b11034897e3ee",
-      "bytes": 1318947
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bf_isabella.json",
-      "sha256": "967507a01f7cca664cfcbfb8c4bb800ced981eec32a264811923939ac2f08788",
-      "bytes": 53345
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bf_isabella.m4a",
-      "sha256": "0944b78d8c2b41b32803dc26be85996524076cae458cf42985856fd004d97c47",
-      "bytes": 1339140
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bf_lily.json",
-      "sha256": "153481e2fc8970379c7f6dd3a076e6c63d8c1f96355299fcd27545e33488fc0e",
-      "bytes": 53188
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bf_lily.m4a",
-      "sha256": "1e77a8f221713633f02d47a8bb36086ea685f8c39af2b90159bf94bff4ea4ed1",
-      "bytes": 1351103
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bm_daniel.json",
-      "sha256": "11e7d6374337ae1d168c6045a86ea14e8ee1b60c088ec0d969840b6b87902ab2",
-      "bytes": 53181
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bm_daniel.m4a",
-      "sha256": "224443b60b16bc6f6c887f6bb7ca3d9fe3c9c5484e09d0d28c4dba565bec13aa",
-      "bytes": 1345909
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bm_fable.json",
-      "sha256": "5bf0c824c068c82b50edf94f7a14b4b6da8086b8f0b135ca9e7ddc8e8dd7cef3",
-      "bytes": 53161
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bm_fable.m4a",
-      "sha256": "2cb3ba28de83c346680c4012a9bf5b78d75a53be40dbcb66102754710890aba7",
-      "bytes": 1412895
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bm_george.json",
-      "sha256": "217f81d31be13f9fe3be2e5eb738b5d6cde40faba54645b5ea5a873d307d7c7a",
-      "bytes": 52892
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bm_george.m4a",
-      "sha256": "d80622faaf58206c6d7056fa5ea3bb94ad45daf7ef8add1c15a741a3a436aaef",
-      "bytes": 1467007
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bm_lewis.json",
-      "sha256": "a9d4090e479ebcf34d3edb1be6602fda4a0c43d3f8fe64b7612d22a670bff3f8",
-      "bytes": 52801
-    },
-    {
-      "path": "media_host/04_platform_installers/audio/en/bm_lewis.m4a",
-      "sha256": "352a1994006cd015e5a3cc932b8f9161aaadbc135a462dd38e99ec8fb27cb23e",
-      "bytes": 1436100
+      "sha256": "5e233179a9754423b4db9a69ed848aadd768217af24a47b429ba03f4314a1f40",
+      "bytes": 964849
     },
     {
       "path": "media_host/04_platform_installers/audio/es/ef_dora.json",
-      "sha256": "0126b0109e5ccca62ccf5def1c31c8ad51c2a91340937fd7fef64f5101bcdbf1",
-      "bytes": 43678
+      "sha256": "655ed9da4149828b734a125b75074ef8aa4f6f162c0ded525466c8c3863d3920",
+      "bytes": 36806
     },
     {
       "path": "media_host/04_platform_installers/audio/es/ef_dora.m4a",
-      "sha256": "705810a3cc88298ac2f6226c4ebbfd5a78c226e02b3db66cb005617837672f12",
-      "bytes": 1234882
+      "sha256": "49d6d3944e632168bd3d8947cbea5238eb388c8b1b67321e284b66a005034c50",
+      "bytes": 949545
     },
     {
       "path": "media_host/04_platform_installers/audio/es/em_alex.json",
-      "sha256": "16577f1f0660dea4c9d1d035c4812c7ac52797f6e115f6ed823ff77cab34e21a",
-      "bytes": 43507
+      "sha256": "02500d15e8ee2ca42aceb2da33ab0b62a142a7ca3740dcf70b70df6cd0705e72",
+      "bytes": 36667
     },
     {
       "path": "media_host/04_platform_installers/audio/es/em_alex.m4a",
-      "sha256": "2387583df995efed60ad6d79191f2e69d1b76de6da2f467ee388f03fd569491f",
-      "bytes": 1228079
+      "sha256": "484cfe57976bd3be661afc89118b489758d7d83a8461a8a56e612662c9720d70",
+      "bytes": 951106
     },
     {
       "path": "media_host/04_platform_installers/audio/es/em_santa.json",
-      "sha256": "5f5a606ab3be93ca9894ef1ae75a27bbe672295e3d12e621d7771695c0ab4554",
-      "bytes": 43545
+      "sha256": "708504cf98a56969ddb0edfe89d8522e3945dea73ccd1e7a18a79b996b2c1aa4",
+      "bytes": 36623
     },
     {
       "path": "media_host/04_platform_installers/audio/es/em_santa.m4a",
-      "sha256": "abd9fc22dd201a55712714dc35f13967e04ead25698ee4c2484bac610e097686",
-      "bytes": 1219775
+      "sha256": "b6068f5a5c72f3c7bff59ca6a725d44f7e80e8ba8b062bc38f86ef5f4de59c6c",
+      "bytes": 958673
     },
     {
       "path": "media_host/04_platform_installers/audio/fr/ff_siwis.json",
-      "sha256": "8387c5289b37e0daefa67b5aa836f1b687bd84fc7de242c1b53293186bf4eca0",
-      "bytes": 44738
+      "sha256": "ab136725de6e9274b359fe652a1f6d55991f7144ee023606601fcbc705ccca83",
+      "bytes": 37743
     },
     {
       "path": "media_host/04_platform_installers/audio/fr/ff_siwis.m4a",
-      "sha256": "32c52fb80b5652d6c2d0c921120e56c8341b7465c976b489289ca742bea713d5",
-      "bytes": 1253373
+      "sha256": "68f4f5fd12684473da11d63b93f524e919d059c0aab46f0edbe146abe7183047",
+      "bytes": 1026922
     },
     {
       "path": "media_host/04_platform_installers/audio/hi/hf_alpha.json",
-      "sha256": "7dcfcdd29ad9f8a5ec9b70d147c5a2687b9941b198c4e2feec98ecce7062b8bd",
-      "bytes": 69330
+      "sha256": "4439d7e7e34e57fba97e07394769b437fdf90e754f16beefaae158750705d3fe",
+      "bytes": 56830
     },
     {
       "path": "media_host/04_platform_installers/audio/hi/hf_alpha.m4a",
-      "sha256": "c6421296e533ab07069d15c1169506f317aeaffbf647a06bf85b53036a0ffee4",
-      "bytes": 1405529
+      "sha256": "8f7d18fcb96b13ff348e4bb8f8baa62ce246fa5ca3e74876abe1ccafc72656e7",
+      "bytes": 1131208
     },
     {
       "path": "media_host/04_platform_installers/audio/hi/hf_beta.json",
-      "sha256": "e90efb4b2c46bde993aff444d7b0a60e2a642e8c54ba28a3f14ab4aeca62baaa",
-      "bytes": 69389
+      "sha256": "e1bc7ce6668220ffb642d105db648cbe644b3ff1251246cf83361016324e93af",
+      "bytes": 56897
     },
     {
       "path": "media_host/04_platform_installers/audio/hi/hf_beta.m4a",
-      "sha256": "c6ee0474293f7faf5d29882ea62d7cabd857e1ad5224deccb7d797e92e041a18",
-      "bytes": 1194400
+      "sha256": "a86f5f23066878e827b19bd42822da6c4833f7277f725ac9d6842dd4d1ff1e1a",
+      "bytes": 978890
     },
     {
       "path": "media_host/04_platform_installers/audio/hi/hm_omega.json",
-      "sha256": "a9f12a22c2d9b41d4e44777ea9eac09545c527343a2b1bd387cc80c5d5beea16",
-      "bytes": 69382
+      "sha256": "fd12724940c882f21cf003571f7aef6c55fd1fdcea0dccf07f16fcc83f25cc59",
+      "bytes": 56823
     },
     {
       "path": "media_host/04_platform_installers/audio/hi/hm_omega.m4a",
-      "sha256": "65961ea724c284d4e6922630261b95898dd2447f67ee57877f602e9869d1b9f6",
-      "bytes": 1420357
+      "sha256": "abed230a822fad1e6a891c4cf7bdd30a390b1c65780902331eca6cf4264b02f1",
+      "bytes": 1152422
     },
     {
       "path": "media_host/04_platform_installers/audio/hi/hm_psi.json",
-      "sha256": "5502242d04682f13c3e98421c906691f1909ab4af8ea90306e6fa48e48c821bf",
-      "bytes": 69423
+      "sha256": "503e0fbaa11b00fcbd1b9d0a6c89cef814cc4a23c46ce0e8136c79bd373b9c4a",
+      "bytes": 56732
     },
     {
       "path": "media_host/04_platform_installers/audio/hi/hm_psi.m4a",
-      "sha256": "16270f85aec7801ea9c527daa1d6f855335408c6015bab299d979953f9bc531c",
-      "bytes": 1437827
+      "sha256": "b63d2f846b4d7593b02b761171a0889484a5841ed00740fdaa2c8aab644c31d6",
+      "bytes": 1166318
     },
     {
       "path": "media_host/04_platform_installers/audio/it/if_sara.json",
-      "sha256": "1cf451202029333a6c0193f65b3365d4f0a8cffa4d5082365f76c05c4a4540a6",
-      "bytes": 42607
+      "sha256": "c11cae5a9cbf523223a892463d453593a06448e16778fa0457a7ddc3f0fdf2e1",
+      "bytes": 35808
     },
     {
       "path": "media_host/04_platform_installers/audio/it/if_sara.m4a",
-      "sha256": "294319e9c8a746fa8b7ea45385c0f291087b8e8203203d6b3f303e055b8a2881",
-      "bytes": 1175459
+      "sha256": "b1fcb6c37acad3bf03e9e8744548aeba8303e3c848e97f0d0a1aa805dc18edcd",
+      "bytes": 924291
     },
     {
       "path": "media_host/04_platform_installers/audio/it/im_nicola.json",
-      "sha256": "0909c89f070f73e504348eedf7ee08c7a964d5d8005022f3e502794dbd8c96de",
-      "bytes": 42683
+      "sha256": "9b4659a7a373eed80f8b9b1eb2254391fdfb1993fde21b1826b739f12ab22f4d",
+      "bytes": 35607
     },
     {
       "path": "media_host/04_platform_installers/audio/it/im_nicola.m4a",
-      "sha256": "6a4b6924382cbee1a76bf1ced41a2ba742925bb4ae0f6105a3beae12f9766582",
-      "bytes": 1333979
+      "sha256": "9c0b53add02f10e0187343fb1f8a304303c04cf3044fce0ad4e0db61188bfa21",
+      "bytes": 1042160
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jf_alpha.json",
-      "sha256": "0ccf63d5400c1c908edebc49a3dc99b45ab8f7f136512691fc69398d6d9ee56a",
-      "bytes": 47592
+      "sha256": "698f8c89867eb9a5a3c79735d02da66e8088d0b74a287859edaeed5c716bbec5",
+      "bytes": 41445
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jf_alpha.m4a",
-      "sha256": "63fd6c4541f7b6cddd33b3aa9063a53a4905bee1746af996f455eec44c3682b1",
-      "bytes": 1447473
+      "sha256": "e5fe823657b56849ac61ac9c409266f185a895c8df67b7881898f150d8b3b1e3",
+      "bytes": 1126734
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jf_gongitsune.json",
-      "sha256": "0346ced147a68f32e90fdbf5024dde280fcefc3005fb9fd8a8e7481c231890e8",
-      "bytes": 47613
+      "sha256": "8b60d1b24bca996701c27eba0f33d04aee91b5238846cbcb5e119611e7f45429",
+      "bytes": 41293
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jf_gongitsune.m4a",
-      "sha256": "81c34b17495d5a7ce86a2aee49ecbaa22f01e4f93d01c90e21b34240ab05991f",
-      "bytes": 1787904
+      "sha256": "e61beb4a1da9a796b35a0112bb79740c5fd0a53ad3bf55793338075e6385d7d1",
+      "bytes": 1399015
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jf_nezumi.json",
-      "sha256": "82b9c51298e279592e7c1afd78838a711b188b79ad85a77b4204b8fc4da22226",
-      "bytes": 47819
+      "sha256": "f4219cee179b05a2c05e75dcb6fce64ee8b053c5113e4dd5d08c08c54909bb10",
+      "bytes": 41235
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jf_nezumi.m4a",
-      "sha256": "1995b57982115d9a00fdbec100f46389b13f40f3e32e22c26477f306f77e5c4c",
-      "bytes": 1824341
+      "sha256": "abdce3e8aa8c4c3390dacea0feaf6e0c153086e2b55bf67136bbc0fc7038202c",
+      "bytes": 1411765
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jf_tebukuro.json",
-      "sha256": "f1add6277f6b791b1203e2117b1d2959b273678f0b755b3e01ef9f951b18dc99",
-      "bytes": 47686
+      "sha256": "28d92223028f31facd96f95ace607053d565fbf4a8f053e2f35c92e8c6122b8a",
+      "bytes": 41454
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jf_tebukuro.m4a",
-      "sha256": "1e1c05010157e12402ce46e89bb51068df9918205e6181c6f6adf9b6ce24e5d0",
-      "bytes": 1786854
+      "sha256": "1d3181e528cb073e7eaf66dd8e3f96bd390053bb9743b6f4908f1c5d20587c2e",
+      "bytes": 1377204
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jm_kumo.json",
-      "sha256": "8bb9191dbd5c76ddecce9a57467a823b9c022ffe021f40b57749d30455458a66",
-      "bytes": 47575
+      "sha256": "dede7e1cc1877bc803aab0291ac953d1ea99ea76467f2a22e8534fe9c898481b",
+      "bytes": 41274
     },
     {
       "path": "media_host/04_platform_installers/audio/ja/jm_kumo.m4a",
-      "sha256": "3d348facb9d6321003ce548cff98494a07dfa195f29e9ff4652a70974fcfb923",
-      "bytes": 1536178
+      "sha256": "365e74d793277a3c4cae13b3505240500578e152ee6276506c3ebebc1f170405",
+      "bytes": 1219305
     },
     {
       "path": "media_host/04_platform_installers/audio/pt-BR/pf_dora.json",
-      "sha256": "0b8b635db3eabb8c5ae8a13d204e83e47afcd0539bf18aa987e77c126c95ce61",
-      "bytes": 44779
+      "sha256": "d0e96681fab31b0131be3a66c396818f5345d3483a9191fab71562f0046a9d69",
+      "bytes": 37226
     },
     {
       "path": "media_host/04_platform_installers/audio/pt-BR/pf_dora.m4a",
-      "sha256": "5ddeb7d845e4d40994784aba0c112a34e844f0541f78c134f61d821e6b640270",
-      "bytes": 1186385
+      "sha256": "7284c92e59f6ce08a849b9b7675555fd18472b2d287464bfe3fe2b426de0e530",
+      "bytes": 928388
     },
     {
       "path": "media_host/04_platform_installers/audio/pt-BR/pm_alex.json",
-      "sha256": "ad3edc415340f31ccc9805982520fed6e14275286099724cb3f3cf837b703097",
-      "bytes": 44780
+      "sha256": "baa5cfd084f5d8c64b482dd4ec517070186d4e66acbcb7cd1fa52d1c4bd37e99",
+      "bytes": 37097
     },
     {
       "path": "media_host/04_platform_installers/audio/pt-BR/pm_alex.m4a",
-      "sha256": "4134ced11ebeaada295848bda9d033155c2fe199efff7290e19d06fe82f3df32",
-      "bytes": 1183209
+      "sha256": "3d3ed4332d8cf8142322e686eeb1343b6d3222920ab2a575f413a63d456ab24c",
+      "bytes": 921855
     },
     {
       "path": "media_host/04_platform_installers/audio/pt-BR/pm_santa.json",
-      "sha256": "5c1824ad86bc947b273b50e248f002e36b163f1f47b5fe304cc93c04778bc135",
-      "bytes": 44557
+      "sha256": "9c0abf67cdcc208cd2b1bda2b4cdbcb81a95002f98609d5fa39fb7d2feb94ec7",
+      "bytes": 37252
     },
     {
       "path": "media_host/04_platform_installers/audio/pt-BR/pm_santa.m4a",
-      "sha256": "045f92d4eb3336bea208f7da8d84962320dba40b316cafe19a59e5692c398e3f",
-      "bytes": 1177752
+      "sha256": "dbb628e7302bb8703c4974778247c1cc8b8ed9ab7fb2abf861b2a5dac56215d4",
+      "bytes": 928139
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zf_xiaobei.json",
-      "sha256": "53ed9d8c51f2c52b38b8aefce8f91f6d6f223ed7c2cd5ef68d6a605bc67df181",
-      "bytes": 42149
+      "sha256": "7e82abcdf0bd7aad43096f0ebd2fb2ee5c6630b7efaa3344931642f6ac022e94",
+      "bytes": 36981
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zf_xiaobei.m4a",
-      "sha256": "851158011962c15b0c73c3cbf538edd161c70d77c16dcd6d9f27ce401d6b4cb3",
-      "bytes": 1190927
+      "sha256": "16532ef6f303abdc330ba189904004ce8468e99272d2737f1207e1c816e8b054",
+      "bytes": 972523
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zf_xiaoni.json",
-      "sha256": "1307d3b20cd9013052406f3bf36030383a1f12e2eba53a6546356a9b41ddb83a",
-      "bytes": 42172
+      "sha256": "b206aaefa981de35d71e05bca5a51eb05505c7a33acea0c3c7812a7671543b3f",
+      "bytes": 36869
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zf_xiaoni.m4a",
-      "sha256": "3f88d38fa54bd166d00c071e5a5c4d8eeba87c75ac4b3aedd23384bdea8ce3ff",
-      "bytes": 1055417
+      "sha256": "5a662fc4a966839e39fbb7f25552180e655aecfbdac18f78829afc855cfe5c9b",
+      "bytes": 870013
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zf_xiaoxiao.json",
-      "sha256": "77c4b746170cd11dc19cf333a07777466aa514897b6708c7dfa785568e1ac646",
-      "bytes": 42227
+      "sha256": "59790c75c2cbc538b83f1767fb7c9de0ba84ce3f9362f0a94d90d057174ee4a8",
+      "bytes": 36449
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zf_xiaoxiao.m4a",
-      "sha256": "c936cd07c6da8fec49ab3a9d8e0eab00b1152fa3b2373eb6814e2e75c5c2a101",
-      "bytes": 1016030
+      "sha256": "ce536f37e9068e675f6a2eb8aea5056ec3442bf541c388890d28e23ae1a56af7",
+      "bytes": 847667
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zf_xiaoyi.json",
-      "sha256": "fe3da2265d213fd0a77acd900daadcc49de630ee0d8c02b7caa17bbc3505148e",
-      "bytes": 42424
+      "sha256": "1623f8adff7fb3ac0874b273ffb69ee53e6efdfd95d1d2a70560c99dd543c5cf",
+      "bytes": 36774
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zf_xiaoyi.m4a",
-      "sha256": "9dcea60fac336f8a192cf57337b47c320be5edf74ffe57619c2b6af9ba855537",
-      "bytes": 995383
+      "sha256": "4aab58122411cd61d534e358ecfb23ca54b4b00b2872743f2b9e3dce8a0082c2",
+      "bytes": 826465
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zm_yunjian.json",
-      "sha256": "ce9a54c03bbc66ce375b83851b29851b388aaa8e687bf7237e811102255024bb",
-      "bytes": 42487
+      "sha256": "00438bf7a81750dbd167a42cb4d39d4c466eb2652b458ec3e231ce041d9ce49e",
+      "bytes": 36906
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zm_yunjian.m4a",
-      "sha256": "ce4804bb2de1bdb8e748bb6cd375f551a4d3ef4fcd8cffc91b7614517a2d6f50",
-      "bytes": 992433
+      "sha256": "0e19fe696355726539d920574ce8ac510d609680bc0ed657e40e1edd4d54f97f",
+      "bytes": 829360
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zm_yunxi.json",
-      "sha256": "26d5fb6e1b0d571a4adb334d0ff2bad0a8eb91082ba56eee068b35ec7ed39d88",
-      "bytes": 42323
+      "sha256": "fc94cdbf854303d0e11bbe8a1bd4ee6cb32ab2cfd6e8293f25bcb78ac1deb110",
+      "bytes": 36656
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zm_yunxi.m4a",
-      "sha256": "5ab8c89f4e8cf4d3e31eeaca21d18daddc887db749187c0de3634e20f70bc52b",
-      "bytes": 933100
+      "sha256": "0f909fe3691bdf57e38209f7b2c8eadae6745e15d695f080bb3567cf04373db6",
+      "bytes": 773635
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zm_yunxia.json",
-      "sha256": "7e12aeb6ab448afde0b9617d2304cfab540cf463af76a4329bc3c418078ef495",
-      "bytes": 42072
+      "sha256": "545590de693453d9e882effd47b46527614978b84feb03aa8c9ff387eedca8b0",
+      "bytes": 36757
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zm_yunxia.m4a",
-      "sha256": "a3358e245579a174ea6e4fb395e6d5223be51dae27754779e677ed6dab904cea",
-      "bytes": 1064041
+      "sha256": "0ca0a80cacfe3f1d124f5ad5f81410a784791f6c534a081a748c12674cf3f482",
+      "bytes": 877640
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zm_yunyang.json",
-      "sha256": "a77bc82e3bf04656ec0208fed20f11595fd207b42e2632fbdf71287b845a064a",
-      "bytes": 42127
+      "sha256": "4b46b42168b6e9d26ee0b029966bb0043c432d64fe3cb0aa620226d0d8149d65",
+      "bytes": 36694
     },
     {
       "path": "media_host/04_platform_installers/audio/zh-CN/zm_yunyang.m4a",
-      "sha256": "48376a7456f693fe3ed94a1ba90b720caed86d0aa0fb7c36782843f0b9197d0e",
-      "bytes": 941483
+      "sha256": "fb935454bcbe570a3a44d664993a1c8449f36e8d015a3eeb0f1d726a1d4487da",
+      "bytes": 774581
     },
     {
       "path": "media_host/04_platform_installers/video/04_platform_installers_silent.mp4",
-      "sha256": "2a73f31f9fd76fdaf0295dba0d80314c7ba6de1bd81cfe41e730525932fb36b8",
-      "bytes": 7508511
+      "sha256": "bec54ca09a00a9d8240b0538170887cc9a0c50179594cfaada8dc473f12e4078",
+      "bytes": 4849895
+    },
+    {
+      "path": "media_host/04_platform_installers/web/04_platform_installers_silent.mp4",
+      "sha256": "03521fe8b8c533331691683a75e0800d7789958458279717127d777f900157df",
+      "bytes": 6279964
     },
     {
       "path": "media_host/05_home/audio/en/af_heart.json",
@@ -1723,23 +1046,23 @@
     },
     {
       "path": "media_host/17_timelapse/audio/en/af_heart.json",
-      "sha256": "d4f5790f9259c1c3a0c1b1552fdcce3f3b323c650776af550cb72629912319b1",
-      "bytes": 52387
+      "sha256": "5ecff7f44f6f7d8dbd131a20bffc24746899e940a48b546c553d2b83f0b1a8e8",
+      "bytes": 52737
     },
     {
       "path": "media_host/17_timelapse/audio/en/af_heart.m4a",
-      "sha256": "bc8d8a75c408ec0404718f8b5a6ff59922b59f90715655035d19df010642a795",
-      "bytes": 1211983
+      "sha256": "c87e4bd4f064b51674cee387c611db6699c33ee903d371659a69dfbc9da82186",
+      "bytes": 1213278
     },
     {
       "path": "media_host/17_timelapse/video/17_timelapse_silent.mp4",
-      "sha256": "7eebe078c7772786b6afa60535ad1481468f50bd2f2f8eb643caca3b8fcc78e6",
-      "bytes": 9578270
+      "sha256": "4ff69ebb4fb5c2d70542c27a76f80bc87685a6b8fccaf2226d4a644de9560ba7",
+      "bytes": 9110752
     },
     {
       "path": "media_host/17_timelapse/web/17_timelapse_silent.mp4",
-      "sha256": "91dc61946047d95b2bd6c805b8d3ca09aaf7ad1f688fb7f535177fa341a9bca8",
-      "bytes": 7308424
+      "sha256": "9f5df94cedc7527f113234ad77ba902f6f7a49f69a676bc1cb246ea000f27318",
+      "bytes": 7322576
     },
     {
       "path": "media_host/18_motility/audio/en/af_heart.json",
@@ -3027,6 +2350,26 @@
       "bytes": 7260109
     },
     {
+      "path": "media_host/71_investigate_hit/audio/en/af_heart.json",
+      "sha256": "b27c30c122b481c8f87f434b68ba33c53b9be731f73dd03e99e761839c81e06e",
+      "bytes": 75591
+    },
+    {
+      "path": "media_host/71_investigate_hit/audio/en/af_heart.m4a",
+      "sha256": "d9e3f995b36e94d6aafe789495008284d79d36385a4ac6c0b05f8674ba3f8112",
+      "bytes": 1825140
+    },
+    {
+      "path": "media_host/71_investigate_hit/video/71_investigate_hit_silent.mp4",
+      "sha256": "b33a402010488e56762fecbf7782e082589a21fbe5b50bcc9c70b38c809cf4aa",
+      "bytes": 17024295
+    },
+    {
+      "path": "media_host/71_investigate_hit/web/71_investigate_hit_silent.mp4",
+      "sha256": "d4eed257cc4d037d7a053d7c6c9762aa278b794427786a85ab2a7dbb8baf2729",
+      "bytes": 13708815
+    },
+    {
       "path": "media_host/72_volcano_explorer/audio/en/af_heart.json",
       "sha256": "c62cd936f20727cb020c98981e0e82b34fb3ebc02ee30b3f82897359df8b4e2b",
       "bytes": 46498
@@ -3098,13 +2441,13 @@
     },
     {
       "path": "media_host/76_ops/video/76_ops_silent.mp4",
-      "sha256": "de79ee837a6b7a2260fa31752f58fab8d5c9d86a397a25af1b94690393d0302f",
-      "bytes": 9685525
+      "sha256": "62a06f623f7154109e01418a81ca8b9f77e782df1abf819b7e4b56134077f37f",
+      "bytes": 9627495
     },
     {
       "path": "media_host/76_ops/web/76_ops_silent.mp4",
-      "sha256": "077f84c49ea7d9c88fc2f3f7a338a4a6438c4a1f0789ac20d5a82a8dc32a8d17",
-      "bytes": 7226218
+      "sha256": "6818113ae82f58c75192d9429d4180b4cd37eac2f32f5fff11648ab2382ed1ce",
+      "bytes": 7204723
     },
     {
       "path": "media_host/77_embeddings/audio/en/af_heart.json",
@@ -3273,73 +2616,73 @@
     },
     {
       "path": "web/catalog/captions_da.json",
-      "sha256": "22fcadd461435e0b45ddae4874dd2f43e2fab76e07e5ec3c0847d2c41a166dd9",
-      "bytes": 558008
+      "sha256": "0bfc4ba0c7ddbea6a6c5c401866850b74d71be042ff1ec19339abeb6062480cb",
+      "bytes": 563817
     },
     {
       "path": "web/catalog/captions_de.json",
-      "sha256": "2f18daeeaaa8735fbb5da5cad2643e2b94ecca02d1c860da7e4d0ea19e66ecab",
-      "bytes": 559926
+      "sha256": "a42561f0f872a9a5136ef13e99a4b6d1c9fa9134cbd2eb711bdb2a1a226a568f",
+      "bytes": 565835
     },
     {
       "path": "web/catalog/captions_is.json",
-      "sha256": "f53c243381144ab92acf47f8eef503eee25e99a11d88634a1633107bd3acc1b7",
-      "bytes": 558920
+      "sha256": "d616cd5df0797c40144e665f5ed063d37a4f9a496d13a43e3071863357bd7429",
+      "bytes": 564408
     },
     {
       "path": "web/catalog/captions_ko.json",
-      "sha256": "7ac2696f2343a043e6e051d5e3f6afa1d136a936b9cd26ad29c43b465b2f1c89",
-      "bytes": 560722
+      "sha256": "25a362d56fc6b1b2a2a56129fd9529e491686299560aa595836a7d2cdc97678a",
+      "bytes": 566611
     },
     {
       "path": "web/catalog/captions_nb.json",
-      "sha256": "e7ee5daf26d8f719470fbfbf66e48e40745ff552cfc7c4386d353d4f051c65e1",
-      "bytes": 557729
+      "sha256": "19e83f0b8c1ab9bd213d465da03c37db1b1194177ba9848f00991b607925bf0a",
+      "bytes": 563697
     },
     {
       "path": "web/catalog/captions_sv.json",
-      "sha256": "00139b5c0cec632967218e305850cb54041aeb5826faf4a68a3f42befaec7c71",
-      "bytes": 558317
+      "sha256": "b1ae864e43b7682b9f771606ae9758bc5778da91f337f336a882b6dd65d77e57",
+      "bytes": 564069
     },
     {
       "path": "web/catalog/lessons_en.json",
-      "sha256": "d7210347ecc9bcfb5d6b1d09308b82e98d7fda45bfc92dd31f391823ea43159e",
-      "bytes": 558944
+      "sha256": "f7483a32cfb7a0beb94a13c52d3b4304c58f4338a1a53c4bb054f40fdcce6dfb",
+      "bytes": 564780
     },
     {
       "path": "web/catalog/lessons_es.json",
-      "sha256": "8ec36e33f04dab1981a8ff3e9bea642e4dc59f2baacd660bb0102355ed7cc60b",
-      "bytes": 573713
+      "sha256": "60dc698b1297e5f307abc6e03c59b9ca6db916f9d1ab37f983505da65303e768",
+      "bytes": 583114
     },
     {
       "path": "web/catalog/lessons_fr.json",
-      "sha256": "ec8adca0fd19d0474cfe718a289bb82683a98ef718ac1ba63c73035cc028db27",
-      "bytes": 575922
+      "sha256": "50110267b569c7a4402f3ea47a76f30d55939862ad58fbd495a2059f008a9516",
+      "bytes": 585263
     },
     {
       "path": "web/catalog/lessons_hi.json",
-      "sha256": "1eff2415eea683a582e00aad64ab8f210e1d29d0c7877951ea9508d174650f55",
-      "bytes": 608231
+      "sha256": "e05a3635d219feb41e91ea9d39aeb4b152c3092b60abf738d28b14561de6dbcb",
+      "bytes": 621149
     },
     {
       "path": "web/catalog/lessons_it.json",
-      "sha256": "5d15b8379e74c1e27e9deb11b6b2411f45eb38939e42c34821dd4752c45e5500",
-      "bytes": 573106
+      "sha256": "90afb0910e047c7e90d9f096b102d18a98d1d8c13e3a0f5dc2a0c7e233ee94c1",
+      "bytes": 582460
     },
     {
       "path": "web/catalog/lessons_ja.json",
-      "sha256": "4c1b8b96ea730f762039254ea2bb5b28766d3532ab4812191ff61138a467469f",
-      "bytes": 580167
+      "sha256": "3b6eec95353fdd366e3aba49c69848f42e1e8456392c24dda7ac2c0d6c29c11c",
+      "bytes": 590866
     },
     {
       "path": "web/catalog/lessons_pt-BR.json",
-      "sha256": "2eb8d454fbdd61d42485b3a75e61d85a8196082cac11f740b018c7c90bbbce0e",
-      "bytes": 572653
+      "sha256": "9b431e272567b4e5f3bcd7c5270b0acc806f5ec2e9e9592a2df24fc4930c41ee",
+      "bytes": 582232
     },
     {
       "path": "web/catalog/lessons_zh-CN.json",
-      "sha256": "d3b76be76da85fd933337b583cc2e63ba2933c028767ab86c6095b73e600a792",
-      "bytes": 567666
+      "sha256": "02d51d4d8d359d87979b0539212d378acc4d2ff5250383eed013e0876ecba17d",
+      "bytes": 576493
     },
     {
       "path": "web/examples/Agreement_artificial_labels_real_crops.zip",
@@ -3368,8 +2711,8 @@
     },
     {
       "path": "web/examples/Cellpose_training_images_masks.zip",
-      "sha256": "a001d89f6fcd42bc9e4d33a8a0e08b92694fe800c9203f32ccf61b9111bdac91",
-      "bytes": 2258052
+      "sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6",
+      "bytes": 3437727
     },
     {
       "path": "web/examples/Classify_existing_split_example.zip",
@@ -3400,6 +2743,11 @@
       "path": "web/examples/Hit_List_real_results_companion.zip",
       "sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb",
       "bytes": 59303
+    },
+    {
+      "path": "web/examples/Investigate_Hit_real_screen_example.zip",
+      "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464",
+      "bytes": 1995731
     },
     {
       "path": "web/examples/Layer_Viewer_real_image_mask.zip",
@@ -3513,13 +2861,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "47a287f4e281fe6cf23034bb1b0ca9978a9b94916fb49b83821c24b781484032",
-      "bytes": 15627
+      "sha256": "cf42ad31e5ad8d7eb9a1530dd0f37ae29ba85d4b3829ba50c2d1e5de7b73562e",
+      "bytes": 15613
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "6b2d8bffdb495a88a31f3b8c0102741eec612bb72f3b9cb033561a2c88dc38a0",
-      "bytes": 454468
+      "sha256": "cf50d188fa521ea375c5aadea9539caf35ba0364cb723dad038be1c5cc29fac4",
+      "bytes": 458007
     },
     {
       "path": "web/logo_spacr.png",
@@ -3528,7 +2876,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "ee6bb5489c37803f094e4faf8c25e56d8b358cd075505bd174ff99fb30db2ede",
+      "sha256": "82c7b68e381137bbfbb390ae9fbf5f9a797fe108716b6a8b4d13a7f224fcbe00",
       "bytes": 16356
     },
     {
@@ -3543,33 +2891,18 @@
     },
     {
       "path": "web/production/02_conda_install/poster.jpg",
-      "sha256": "d767eff4707233ae28ca8fa9de43bfd3185255e65aad959495f7c5310d180225",
-      "bytes": 33959
-    },
-    {
-      "path": "web/production/02_conda_install/video/02_conda_install_silent.mp4",
-      "sha256": "2b18c6cb07aa53f3165c01af2824a88dfbe215f6b6e234754b53bf21a48448ff",
-      "bytes": 1883102
+      "sha256": "340f04e4cf50b5c4efe6d0bdd4f2a8dcaa45400e5b7d4403ad176e4baec705ec",
+      "bytes": 81723
     },
     {
       "path": "web/production/03_pip_install/poster.jpg",
-      "sha256": "367f5641a93eb0d76472c7903d0a250eae55737ebb73668ab7ea567de9619ea6",
-      "bytes": 15427
-    },
-    {
-      "path": "web/production/03_pip_install/video/03_pip_install_silent.mp4",
-      "sha256": "79059fd8fb8ea002d3a559b98a32df451dde28c9699edacbd9d6216c2316a6a8",
-      "bytes": 1999937
+      "sha256": "502a4d732df8c872fcecc324e719b5ce69155ade608f5c40d98d36897e5152c4",
+      "bytes": 72244
     },
     {
       "path": "web/production/04_platform_installers/poster.jpg",
-      "sha256": "f473eb0e13101defeb1851ae1b3bc1306bcfead29c7946020b40fdbe647d3ff7",
-      "bytes": 112302
-    },
-    {
-      "path": "web/production/04_platform_installers/video/04_platform_installers_silent.mp4",
-      "sha256": "99c6997475b9070a4ed2b55981ada47ed22608abf10b722168f09f49ae45cbe9",
-      "bytes": 2888953
+      "sha256": "db86fedf6e313dca39a1c2f185cee5b4a1aa9d433de1134858356722c2fc2a7f",
+      "bytes": 188459
     },
     {
       "path": "web/production/05_home/poster.jpg",
@@ -3693,8 +3026,8 @@
     },
     {
       "path": "web/production/17_timelapse/poster.jpg",
-      "sha256": "9a71737dd61958a902d316e0426719a696c642150c910eaeebb9f021da5d83c6",
-      "bytes": 164281
+      "sha256": "ba99d8c3bdf40a7653b97dddd99003477afd7335424bbf00cada95521692cbd1",
+      "bytes": 165752
     },
     {
       "path": "web/production/18_motility/poster.jpg",
@@ -4227,6 +3560,11 @@
       "bytes": 7056817
     },
     {
+      "path": "web/production/71_investigate_hit/poster.jpg",
+      "sha256": "5934274c8c6dbb7099be076376cf9a2f211c2135ecbf5d71e5e11fa27f87fad6",
+      "bytes": 183048
+    },
+    {
       "path": "web/production/72_volcano_explorer/poster.jpg",
       "sha256": "f9babf30219feb56a0726f8135d55d401dc17eb89213fa70c41038db388b9cd0",
       "bytes": 241045
@@ -4348,8 +3686,8 @@
     },
     {
       "path": "web/translation-compatibility.json",
-      "sha256": "4aae3a14abd872e6db225b4510959b410587d9aefb4b2c3957915a038d4b928d",
-      "bytes": 182661
+      "sha256": "29bf7a40a9d6ba2f79a6826906fb66daef870d957e53f62f30e6dbf50f136c02",
+      "bytes": 189679
     },
     {
       "path": "web/voice_catalog.js",
@@ -4359,26 +3697,42 @@
   ],
   "web_checks": [
     {
-      "lesson": "17_timelapse",
-      "rendition_sha256": "91dc61946047d95b2bd6c805b8d3ca09aaf7ad1f688fb7f535177fa341a9bca8",
-      "browser_report_sha256": "91784763d959ea5c651092ea48a8ccf0f9658a8762119c67bc4269fd96cd2b75"
+      "lesson": "02_conda_install",
+      "rendition_sha256": "b04da43a42458f6c844f158bd6a942386d864c427eb8caa5bc44663fef8406fd",
+      "browser_report_sha256": "fd2a070b956aefe4290d1dd124876279593be485ffc76542af36d99080287b0f"
     },
     {
-      "lesson": "76_ops",
-      "rendition_sha256": "077f84c49ea7d9c88fc2f3f7a338a4a6438c4a1f0789ac20d5a82a8dc32a8d17",
-      "browser_report_sha256": "9a23c8dd621641ca868b7ab4172908772740e8961ab71fc5865a693b3b83eef2"
+      "lesson": "03_pip_install",
+      "rendition_sha256": "0b5f6d32b1e9d12bdb66a431e0f2972e6a0814dac9029cbcca8587a1538eaf2c",
+      "browser_report_sha256": "cdd39b0ee69d45849499aad3e410ffdec2cf32063fc2d6ed51296aae260e04b2"
+    },
+    {
+      "lesson": "04_platform_installers",
+      "rendition_sha256": "03521fe8b8c533331691683a75e0800d7789958458279717127d777f900157df",
+      "browser_report_sha256": "7b01e2b69ff461d3666de5d69df88b6f2616820a879481aab94b945f76335a4a"
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "rendition_sha256": "d4eed257cc4d037d7a053d7c6c9762aa278b794427786a85ab2a7dbb8baf2729",
+      "browser_report_sha256": "b58158aaa3ed39118bb9c730a794fa57c2a4418da89740207e66393621eb618d"
     }
   ],
-  "baseline_manifest_sha256": "06124070577ecb3fe9d7d850d67cc3154aeca8e6b83ccd00a61b807dba22380a",
-  "preserved_lessons": 83,
+  "baseline_manifest_sha256": "d380f5539eb0eabd31a2c9d012b12a3fb563fd78e768d467a16cf8f56bb3a1e1",
+  "preserved_lessons": 81,
   "appended_lessons": [],
   "refreshed_lessons": [
-    "17_timelapse",
-    "76_ops"
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "71_investigate_hit"
   ],
   "link_only_updates": [],
   "hosted_web_lessons": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
     "17_timelapse",
+    "71_investigate_hit",
     "76_ops",
     "78_spacr_screens",
     "79_module_inputs_outputs",
@@ -4387,20 +3741,504 @@
   ],
   "outstanding_module_tutorials": [],
   "new_lesson_tracks": {
-    "17_timelapse": [
+    "02_conda_install": [
       {
         "language": "en",
         "voice": "af_heart",
-        "audio_sha256": "bc8d8a75c408ec0404718f8b5a6ff59922b59f90715655035d19df010642a795",
-        "timing_sha256": "d4f5790f9259c1c3a0c1b1552fdcce3f3b323c650776af550cb72629912319b1"
+        "audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+        "timing_sha256": "d46b2d3d38036b91cf3c284f71c323a051881324093d4d09eaced57b27c05236"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "audio_sha256": "5dfaa490713cdaea13adc920e2354dd308635acbe85cae793e50370a1b1eff90",
+        "timing_sha256": "88bd87b4012bf4e1c004b483daaa61da246c7abc75b13b40ee1f3949f80530b1"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "audio_sha256": "7921c27fac68eb299dd6f8ab1a40698f544cac2a966e214b294940c392e39cad",
+        "timing_sha256": "880d206c3e32d954c1dddce4b953aa5611684638448d108bd4918c51a49ae171"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "audio_sha256": "1770bb2e40cd7dfe7f3e34adee54f9913eff7cbaab4a6ebf12b300382a135109",
+        "timing_sha256": "3737d1c353972c1935a04413b6470acd2c0b39d88f4ae9a67dd6933dd856757a"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "audio_sha256": "8af89015c4b17501bcc8edf8877c94bacea78576796f3d789d1912cc845d5dc6",
+        "timing_sha256": "a655f8820842b1da7e48ac70505f9f1deccd8df366c7e227e044ad314c1890b0"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "audio_sha256": "d42ec892f9c53ee3e2461fa3c808cde2ccd1f7ca38786497b64877131f1356cf",
+        "timing_sha256": "2a92a5376e3df333d1fc24fd3233c4044672399164ef076d4aa4a985b43bbc0a"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "audio_sha256": "ae4d9bc53adc7830dda03d2a8ac28a96a9d737315ccea85c78eca368a43d9beb",
+        "timing_sha256": "64677d050bbd26b35a529bdccab0738b12dd56eeb864cb1675edf7e68875f42a"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "audio_sha256": "96cc013e4e8818b47ea344666eb08f93828827b4cc0d500da7ee5982c7b13e4a",
+        "timing_sha256": "f27238766acbea705c385703c758ab41858abbaa6d47921bb0365c881bc822b2"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "audio_sha256": "b41c44e587e2b111af16eaf2ccd91c42d37d679c0090e48f9f7293eab5665a27",
+        "timing_sha256": "84af3a26c7e983762a487f7c386ccfbd56cde46a9b9da78992f510b98f49c7a6"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "audio_sha256": "7695bfb4e020eed9d78f16949090e9d72d5271e326737332edcbca95f7d960cc",
+        "timing_sha256": "3203b0cf96085e610731a28ca0c67b419e7684582b9b372b551e3b689e8fee52"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "audio_sha256": "22ef99a9d589707f14131208f6d9b2ca097e0f116fadcbdead95aab29466c5e5",
+        "timing_sha256": "1e597af35cf246f135f56e59a6870d44956df245a701cc4272edadc9abc7f580"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "audio_sha256": "214ecc63076a0b609fe3996d759c951c6cc80e08214634745a077fa7852871fa",
+        "timing_sha256": "675abfce2a0acdbfc22568a5d615dc456bc0448980818b67bf803949ef097714"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "audio_sha256": "80d6f17b1e9483563281c76c49f3c2526f93baca2ec8aae814b71d2757d89f27",
+        "timing_sha256": "aae223cddcc400aed6a34d55c1331cd782ad81dc9c972ebf3d86c8f7add2e55e"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "audio_sha256": "b2701157012f42af8accce52ba06320b2639acfb28ee8677aceb880bf3ef06d3",
+        "timing_sha256": "982b1b92ac0148003f3499d4841603e35e11e5f04bbf00f859a8f626dfc02de4"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "audio_sha256": "9c57a89a16316d1ba53d636542eacf56a21441ccf841b351b8277d69e5116a53",
+        "timing_sha256": "bd99690bb90b5ee50ee483ee9969692d8ad9f39e270992936bb0c36bd3756007"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "audio_sha256": "505c59446b6bc280aba882b90068212d83aa8b8c9658650c2847d5ebdb6d9c06",
+        "timing_sha256": "7e14a630e226e7cbcc621ad9085c4df05b491056942da6b42db68e411bbb5ab9"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "audio_sha256": "884191076f5ba7f47db68a46c3fa190b2721830eb1a1ead14bd42a44696f4fbf",
+        "timing_sha256": "fb2b487bf9580114d168452081cb0676fadbbcbc7b46a3f92781d751102fcc06"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "audio_sha256": "6b9c22fde6412c094f73117dc2a58698dfe7035769e222fe878ee07ba1f50362",
+        "timing_sha256": "6f3faded841a48c47d7de0693c17a72c2e083f7a613f1c8f5354f403f5019dbe"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "audio_sha256": "c99afa9da783f6c7a2f0329c963034c5707c3dc7c8912dfbb91538ae637a8519",
+        "timing_sha256": "7d71f0dab1faf2836589927a09142b940f66a27f824bbc7dd58c9f020040ad39"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "audio_sha256": "0d020880dd6013db4e09c6f012e76604c704860f87f87a14742a1354c87eeb4f",
+        "timing_sha256": "eb5f4877f352df823d91f3706929c63efdd0b485357c428e31563a365bab25f1"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "audio_sha256": "6c291f3609ddd075f867c8893e8d0e01e2bdab9754ce1d7fb1613136d36be7a5",
+        "timing_sha256": "18a4d15f968fed08d2ef56f4a4bd356f7a0ce2bda86103c7a8c741aa6bb4f72a"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "audio_sha256": "48c7e8fff079ce553a3f81f8c9a47bbee6c69fa375e51397156e1bfb3327e54f",
+        "timing_sha256": "4fc5e0d2b7cb02e5dc8f8a9eca7401a265f5885e0b3b66bf124eebf77a2a2134"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "audio_sha256": "afbd75b8def68bd215ad6525aa3934185b5a9cfccc12f6b4a7517defe78ff5d1",
+        "timing_sha256": "29d32c2118f8eb982bd5abfa2a60734094832ede41a1eea5d897954822f4c214"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "audio_sha256": "9d02b4a5a31bc809e679cb103c118448f78af81f5aa9d9f3ec620c75732c909c",
+        "timing_sha256": "c052fa78d65a0a999d2b542b4d91da696041bcad249ff9c80c926219417c73e7"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "audio_sha256": "08ffa61c93f05a401918e7483400305b99a0a38593eb2b5ebdd029fadcdbfc06",
+        "timing_sha256": "a6099d971447759753a485527428980dcb6d37e74233e4fd84ee1bed2caad208"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "audio_sha256": "66f9851e7400faefdbc91a19166dc01f042baf132c4195340dfa07ceadbbf56c",
+        "timing_sha256": "3a5cb74077377acd90e09ea2fd80c387147d926bee46325e1aabae375927e193"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "audio_sha256": "8766349ffd5fb4222cc84b9676ad9682fea4f229adf643c4c64e68df4b4fd6c5",
+        "timing_sha256": "42e68726a1008ba259346c56dba4d50fb9a3f6b0cf4b80f75519cf3db0bbd0f8"
       }
     ],
-    "76_ops": [
+    "03_pip_install": [
       {
         "language": "en",
         "voice": "af_heart",
-        "audio_sha256": "5257b1e4e70fd290402ac8863345f774529f702027a4597085be35cef204d77c",
-        "timing_sha256": "c553fadea99cfbc6de1d6530347b4a422c14ba9bee1fd502ffbdacef62bb712d"
+        "audio_sha256": "be137840f23c6680d6a7ac0bd743a97bc8f785f783a75c32a342403105ca5be8",
+        "timing_sha256": "e14a1d3f560ed59000d5cfa15ec3bee5aac1799bf96e47ca54ff3c0f3ac78f55"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "audio_sha256": "54f6fc91f9dd3bb350e49995f55d95ac1f0c3be26f527b87aece5c6c50e7042c",
+        "timing_sha256": "f04ede1b40c7d2212881148972821ede98f87b31860213e7f26fac5a63342774"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "audio_sha256": "97f1e25ab681389dca7c4270e26c89bb8239cad459e85c5d3ab1ff92bbdfe088",
+        "timing_sha256": "eaf6c92850ce2060667f2efff6177cbdb5c6ba332168ab85216f7c3bf7869e78"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "audio_sha256": "80c32e29483fb18162c1abf609391b86869dd712830617af92dc5eb33a93313b",
+        "timing_sha256": "dbe292df9d63ca0fc3296da45bd92205b4fb6a21f778a40e174ba800ba316093"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "audio_sha256": "a8fa61eb9272bf81d84eaca8e382c5646a9089629c33cffcf3ba9eaa5d21b8c9",
+        "timing_sha256": "e8be191bb3d6158e6c57e2e3fc42c88c9f0ee11af6d200e34e2d54d6b7ad5421"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "audio_sha256": "15ae9bc5a133cd6840409457768cb79e80b71b1c2b5e91ed16edd222177843d0",
+        "timing_sha256": "d8db2ed66cf738bf633cdb71bf20e5cb41a6c2696f79e73b541edbb5442939c2"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "audio_sha256": "61ec63ea119da16587f4c908aa82837a1d48135b502327958ac1263fc9192d4a",
+        "timing_sha256": "de1c1aae5f9d9d9d729df6f6bfa589de8d52253ba5395bbe9c54988e7748d1a5"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "audio_sha256": "38c97b1c1ce513eaf0850677a7131be849ead3ea9f5e4c69eb680463306805ce",
+        "timing_sha256": "0bd2b0e098882aeb598d4842edfd1f53b727a3f19a70d56c14cff541fa28b37d"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "audio_sha256": "b6f4e33b2cf000ef1133945dad9c5a9f01a1ebc6ab569d61f401017fce8ca3c0",
+        "timing_sha256": "1378afc25580ec2b10a435ee4e7029585c514ec732697282e1d08fbc957e8704"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "audio_sha256": "6a58ff65479bcada48137e9e6fd47d2cd64ae849b31e8fe0b1878bf4be5bec43",
+        "timing_sha256": "324d737a9444f6f842515d2c3b684d9afa7db98594f173516d78d8fc19b065e8"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "audio_sha256": "927122d31eab1eb3d2fde0cb52db493053020983ecd9cbf26ee9670f26b2787c",
+        "timing_sha256": "b6d1f2271e44825ef0e41a444311153a1d150022b9e93e0518bda4be60dd9393"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "audio_sha256": "9e50c5a5acd7977994647342cb3a757812b3497e42b9cf62999cc1f96ce13f3e",
+        "timing_sha256": "28a2702090ff18fb449312c80a64dd1c7fed564d5b0951bee63eefcea11f32ad"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "audio_sha256": "9c24e7c9f1531613ce41c8e4c60f6ccbc504110806c9fc0dd13d1e15dae2eed9",
+        "timing_sha256": "e136121456dd0a6f1d6f7d89f483018e5a404dfbbb834deffec26cc706800b78"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "audio_sha256": "fc270fe28e26d24c14e362ca15d8afdac17d9b3927a911123d50e2ab6c40ab09",
+        "timing_sha256": "42702f5f89cd076b89dd55e51f34e21f63fd2c80f3211674541e28011afe68b3"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "audio_sha256": "8c2c0127b412acb08699f0c95d498f1f97be2da74d44d93359a67fe74d5a6f7d",
+        "timing_sha256": "f901e799a90ad7135d054c2c1891eecadb199f15ddcf259e3739f22755e827ee"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "audio_sha256": "4d273be1fff0f3385c552e1e14a125d135c24fb0d5d971030753aaf17b966b74",
+        "timing_sha256": "7720e7ab730d8843ebe00f72ebc326879cdba95a747d2140a54c469f4e1631db"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "audio_sha256": "020fce86ed3f40a70e459ef0dc173c6ec2537b5f1bd8467e8e9ebcbed9db8f2a",
+        "timing_sha256": "12b3a420ae2772d52b900d26a9b634becf6411dcf7a320933e8c7a226099ae8c"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "audio_sha256": "ee5fc226e7e50e9bbe1b9a9fa9c9b9dd7d0122db0639fdf594676586028a4bb7",
+        "timing_sha256": "a1dc705e89f2fc1a65f8dff8318fddd268d30e9e40f8b05a7f75a2b29ffc62a8"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "audio_sha256": "92d666cd5e89fb97737f3094550a06bb924c8c5ef01679ceedaae3f49c001256",
+        "timing_sha256": "d76458f4cf27c976a303d4ea6faf3207bf4e08d9ac9c1a3cf66696f1de43cf1f"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "audio_sha256": "aa5d423fea53290d8cffe39cba6c31e372915669cf21b34285db4b0dd6908403",
+        "timing_sha256": "306048a500d5a8286db7401554cbc8c3e61944a0e7a297766c12191e9168f832"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "audio_sha256": "21d0c6846b5e184cda3ed055aeac340eea9722c0b43e2e3783b3d20e3f7e124a",
+        "timing_sha256": "52104c911019d759e4de5b3cdb01ca721872fee794107c13fa1723cd404bfd0b"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "audio_sha256": "c49a07873687bf63111e1f87eaaad246895094b37e0d9963d3a63f5077d76bfc",
+        "timing_sha256": "84f16b12f54d88275f19fcaa152c7e10fa4809086cdba2e9c7e2fb31cd593d7b"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "audio_sha256": "5294b187e21ccca02fda29f0ed5535ed09b7861bc9434ed3aca26c6e2543e1d5",
+        "timing_sha256": "d66813f10ac567f074955e0217b6ae80cf4b46a1c5c6eab137db6e0a3c1baaf0"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "audio_sha256": "b211c818ffc470f91802b08fa8a24b7ddfcaa166a9ad4a903a27eae8e3d30e6f",
+        "timing_sha256": "0a20da5dcf54b9f274fef445b9a465e0ae4f55b87f87fadcb767b97c0e4748c6"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "audio_sha256": "e4a43a0e78eb9f831ac0bc7ebd57753e52cc8de9ee15dc24babdeff779f33a95",
+        "timing_sha256": "347956ac756ab8faaeeeeb04559762e73bebf562576882657dfa4d7b7c149823"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "audio_sha256": "6a9ab6ddd7066725473171672ea88543490114b6e8f9f5c96033138a93704e09",
+        "timing_sha256": "26baa578384a8290b2c01a939946657e1fbbd90ee0270ac6241f1a395590e315"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "audio_sha256": "bb9eb78d782250f30b09dc22080d9a3068370cb9b3b20d1342f8837d0cbd8743",
+        "timing_sha256": "93af6abccd0865e8e45ce312562f048766f5e9188bdd884f9a1426fe44056272"
+      }
+    ],
+    "04_platform_installers": [
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "5e233179a9754423b4db9a69ed848aadd768217af24a47b429ba03f4314a1f40",
+        "timing_sha256": "eecf55c5a1e2d314ca10056cda172e2a9acc432a2f87b181fd4dd39dbcbf8a14"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "audio_sha256": "49d6d3944e632168bd3d8947cbea5238eb388c8b1b67321e284b66a005034c50",
+        "timing_sha256": "655ed9da4149828b734a125b75074ef8aa4f6f162c0ded525466c8c3863d3920"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "audio_sha256": "484cfe57976bd3be661afc89118b489758d7d83a8461a8a56e612662c9720d70",
+        "timing_sha256": "02500d15e8ee2ca42aceb2da33ab0b62a142a7ca3740dcf70b70df6cd0705e72"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "audio_sha256": "b6068f5a5c72f3c7bff59ca6a725d44f7e80e8ba8b062bc38f86ef5f4de59c6c",
+        "timing_sha256": "708504cf98a56969ddb0edfe89d8522e3945dea73ccd1e7a18a79b996b2c1aa4"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "audio_sha256": "68f4f5fd12684473da11d63b93f524e919d059c0aab46f0edbe146abe7183047",
+        "timing_sha256": "ab136725de6e9274b359fe652a1f6d55991f7144ee023606601fcbc705ccca83"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "audio_sha256": "8f7d18fcb96b13ff348e4bb8f8baa62ce246fa5ca3e74876abe1ccafc72656e7",
+        "timing_sha256": "4439d7e7e34e57fba97e07394769b437fdf90e754f16beefaae158750705d3fe"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "audio_sha256": "a86f5f23066878e827b19bd42822da6c4833f7277f725ac9d6842dd4d1ff1e1a",
+        "timing_sha256": "e1bc7ce6668220ffb642d105db648cbe644b3ff1251246cf83361016324e93af"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "audio_sha256": "abed230a822fad1e6a891c4cf7bdd30a390b1c65780902331eca6cf4264b02f1",
+        "timing_sha256": "fd12724940c882f21cf003571f7aef6c55fd1fdcea0dccf07f16fcc83f25cc59"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "audio_sha256": "b63d2f846b4d7593b02b761171a0889484a5841ed00740fdaa2c8aab644c31d6",
+        "timing_sha256": "503e0fbaa11b00fcbd1b9d0a6c89cef814cc4a23c46ce0e8136c79bd373b9c4a"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "audio_sha256": "b1fcb6c37acad3bf03e9e8744548aeba8303e3c848e97f0d0a1aa805dc18edcd",
+        "timing_sha256": "c11cae5a9cbf523223a892463d453593a06448e16778fa0457a7ddc3f0fdf2e1"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "audio_sha256": "9c0b53add02f10e0187343fb1f8a304303c04cf3044fce0ad4e0db61188bfa21",
+        "timing_sha256": "9b4659a7a373eed80f8b9b1eb2254391fdfb1993fde21b1826b739f12ab22f4d"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "audio_sha256": "e5fe823657b56849ac61ac9c409266f185a895c8df67b7881898f150d8b3b1e3",
+        "timing_sha256": "698f8c89867eb9a5a3c79735d02da66e8088d0b74a287859edaeed5c716bbec5"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "audio_sha256": "e61beb4a1da9a796b35a0112bb79740c5fd0a53ad3bf55793338075e6385d7d1",
+        "timing_sha256": "8b60d1b24bca996701c27eba0f33d04aee91b5238846cbcb5e119611e7f45429"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "audio_sha256": "abdce3e8aa8c4c3390dacea0feaf6e0c153086e2b55bf67136bbc0fc7038202c",
+        "timing_sha256": "f4219cee179b05a2c05e75dcb6fce64ee8b053c5113e4dd5d08c08c54909bb10"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "audio_sha256": "1d3181e528cb073e7eaf66dd8e3f96bd390053bb9743b6f4908f1c5d20587c2e",
+        "timing_sha256": "28d92223028f31facd96f95ace607053d565fbf4a8f053e2f35c92e8c6122b8a"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "audio_sha256": "365e74d793277a3c4cae13b3505240500578e152ee6276506c3ebebc1f170405",
+        "timing_sha256": "dede7e1cc1877bc803aab0291ac953d1ea99ea76467f2a22e8534fe9c898481b"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "audio_sha256": "7284c92e59f6ce08a849b9b7675555fd18472b2d287464bfe3fe2b426de0e530",
+        "timing_sha256": "d0e96681fab31b0131be3a66c396818f5345d3483a9191fab71562f0046a9d69"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "audio_sha256": "3d3ed4332d8cf8142322e686eeb1343b6d3222920ab2a575f413a63d456ab24c",
+        "timing_sha256": "baa5cfd084f5d8c64b482dd4ec517070186d4e66acbcb7cd1fa52d1c4bd37e99"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "audio_sha256": "dbb628e7302bb8703c4974778247c1cc8b8ed9ab7fb2abf861b2a5dac56215d4",
+        "timing_sha256": "9c0abf67cdcc208cd2b1bda2b4cdbcb81a95002f98609d5fa39fb7d2feb94ec7"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "audio_sha256": "16532ef6f303abdc330ba189904004ce8468e99272d2737f1207e1c816e8b054",
+        "timing_sha256": "7e82abcdf0bd7aad43096f0ebd2fb2ee5c6630b7efaa3344931642f6ac022e94"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "audio_sha256": "5a662fc4a966839e39fbb7f25552180e655aecfbdac18f78829afc855cfe5c9b",
+        "timing_sha256": "b206aaefa981de35d71e05bca5a51eb05505c7a33acea0c3c7812a7671543b3f"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "audio_sha256": "ce536f37e9068e675f6a2eb8aea5056ec3442bf541c388890d28e23ae1a56af7",
+        "timing_sha256": "59790c75c2cbc538b83f1767fb7c9de0ba84ce3f9362f0a94d90d057174ee4a8"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "audio_sha256": "4aab58122411cd61d534e358ecfb23ca54b4b00b2872743f2b9e3dce8a0082c2",
+        "timing_sha256": "1623f8adff7fb3ac0874b273ffb69ee53e6efdfd95d1d2a70560c99dd543c5cf"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "audio_sha256": "0e19fe696355726539d920574ce8ac510d609680bc0ed657e40e1edd4d54f97f",
+        "timing_sha256": "00438bf7a81750dbd167a42cb4d39d4c466eb2652b458ec3e231ce041d9ce49e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "audio_sha256": "0f909fe3691bdf57e38209f7b2c8eadae6745e15d695f080bb3567cf04373db6",
+        "timing_sha256": "fc94cdbf854303d0e11bbe8a1bd4ee6cb32ab2cfd6e8293f25bcb78ac1deb110"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "audio_sha256": "0ca0a80cacfe3f1d124f5ad5f81410a784791f6c534a081a748c12674cf3f482",
+        "timing_sha256": "545590de693453d9e882effd47b46527614978b84feb03aa8c9ff387eedca8b0"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "audio_sha256": "fb935454bcbe570a3a44d664993a1c8449f36e8d015a3eeb0f1d726a1d4487da",
+        "timing_sha256": "4b46b42168b6e9d26ee0b029966bb0043c432d64fe3cb0aa620226d0d8149d65"
+      }
+    ],
+    "71_investigate_hit": [
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "audio_sha256": "d9e3f995b36e94d6aafe789495008284d79d36385a4ac6c0b05f8674ba3f8112",
+        "timing_sha256": "b27c30c122b481c8f87f434b68ba33c53b9be731f73dd03e99e761839c81e06e"
       }
     ]
   },
@@ -4484,6 +4322,240 @@
       "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
+      "lesson": "02_conda_install",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "05_home",
       "language": "da",
       "status": "english_fallback",
@@ -9552,6 +9624,84 @@
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "72_volcano_explorer",

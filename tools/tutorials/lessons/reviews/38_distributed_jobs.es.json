@@ -1,30 +1,32 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
   "review": {
-    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "es",
-  "title": "Trabajos distribuidos",
-  "description": "Preparar un perfil real desde Help y distinguir la configuración guardada de una ejecución remota verificada.",
+  "title": "Distributed Jobs: configurar un destino de ejecución",
+  "description": "Crea un perfil de ejecución y prepara un trabajo de módulo para otra estación de trabajo o un clúster.",
   "objectives": [
-    "Abrir Distributed jobs desde Help y guardar un perfil.",
-    "Distinguir el mapeo de rutas de la copia de datos y las credenciales de los ajustes.",
-    "Preparar SSH, Slurm o comandos personalizados sin afirmar una ejecución no probada."
+    "Crear un perfil para tu destino de ejecución.",
+    "Configurar las rutas y las opciones del backend.",
+    "Preparar el envío y revisar el estado de los trabajos."
   ],
-  "prerequisite": "Solo configuración: almacén local aislado, sin conexión ni trabajo enviado. researcher@workstation.invalid y los directorios mostrados son ejemplos, no destinos válidos. Antes de enviar, disponga de acceso autorizado, spaCR y dependencias compatibles y datos existentes en el destino. Use los ajustes exportados por el módulo, no este perfil como configuración experimental. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. Los perfiles no guardan contraseñas; autentíquese fuera de spaCR. Las raíces sustituyen prefijos de rutas absolutas; no copian imágenes. Se comprueban guardado, reapertura y cancelación de cambios, no el planificador, resultados remotos ni la validez del modelo.",
+  "prerequisite": "Consigue acceso a un destino con spaCR, sus dependencias y tus datos de entrada. Exporta los ajustes del módulo que quieres ejecutar. Sustituye el host y las rutas de ejemplo que se muestran aquí por los tuyos.",
   "scenes": [
-    "Abra Help y después Distributed jobs. Esta utilidad se encuentra en Help, no en una baldosa principal independiente de Home. Prepararemos un perfil real y examinaremos los controles actuales. No mostramos una conexión ni un trabajo remoto; guardar el perfil no demuestra que el destino funcione.",
-    "Este panel envía los ajustes de un módulo a otro destino de ejecución. Antes de enviarlos, disponga de acceso autorizado, una instalación compatible de spaCR y datos disponibles allí. Los perfiles guardan ajustes de conexión, no contraseñas. Configure las claves SSH o la autenticación de la herramienta de nube fuera de spaCR.",
-    "Elija New profile. Guardar el formulario vacío produce un mensaje de rechazo. Asigne un nombre claro y elija el backend. Nuestro ejemplo se llama explícitamente NOT CONNECTED, para no confundirlo con una estación probada ni con un trabajo exitoso.",
-    "Para SSH, introduzca el host, el directorio remoto y el ejecutable de spaCR. El host terminado en punto invalid y los directorios son ejemplos, no credenciales utilizables ni ubicaciones verificadas. Guardamos el perfil y lo reabrimos; los valores visibles coinciden exactamente con la configuración almacenada.",
-    "Las raíces local y remota representan los mismos datos con distintos prefijos de ruta absoluta. Configure ambas, o deje ambas vacías si las rutas son idénticas. Esto transforma rutas en los ajustes; no copia una colección de imágenes al servidor. Prepare por separado el almacenamiento compartido o la transferencia.",
-    "Slurm habilita las opciones del planificador y mantiene los controles de host y rutas. Los nombres de partición, límites de tiempo y solicitudes de aceleradores deben corresponder a su asignación del clúster. La partición mostrada es un marcador. Cambiar esta selección no reserva una GPU ni comprueba el acceso al planificador.",
-    "Cloud or custom command habilita plantillas separadas de argumentos para enviar, consultar estado y cancelar, con recuperación opcional del registro. Use los marcadores obligatorios de ajustes e identificador externo. Son argumentos tokenizados, no un script de shell. Los controles de conexión atenuados corresponden a otros backends; aquí no ejecutamos comandos personalizados.",
-    "Cancel descarta nuestros cambios de backend no guardados y conserva el perfil SSH original byte por byte. Save guarda los cambios que desee conservar. Poll interval sugiere la frecuencia de supervisión, no la velocidad de cálculo. Un destino guardado sigue siendo solo configuración hasta comprobar un trabajo real y autorizado.",
-    "Para una ejecución real, seleccione el módulo correspondiente y sus ajustes exportados antes de Submit. Empiece con una comprobación pequeña y autorizada; después examine estado, logs y registro local. Cancel job actúa sobre un trabajo seleccionado; borrar un perfil es distinto. Nuestra tabla sigue vacía porque no enviamos nada ni afirmamos obtener resultados remotos."
+    "Abre Help y luego Distributed jobs. Empieza creando un perfil de ejecución para la estación de trabajo o el clúster que quieres usar.",
+    "Instala dependencias de spaCR compatibles en el destino y deja allí disponibles los datos de entrada. Configura las claves SSH o la autenticación por línea de comandos de tu proveedor fuera de spaCR.",
+    "Elige New profile. Introduce un nombre descriptivo y selecciona el backend. Completa los campos obligatorios que muestra el formulario.",
+    "Para SSH, introduce el host, el directorio de trabajo remoto y el ejecutor de spaCR. Guarda el perfil y vuelve a abrirlo cuando necesites actualizar estos ajustes.",
+    "Ajusta las raíces de datos local y remota cuando los mismos datos tengan rutas absolutas distintas en las dos máquinas. Esto reescribe las rutas de los ajustes; organiza un almacenamiento compartido o copia los archivos por separado.",
+    "Para Slurm, elige la partición, el límite de tiempo y la solicitud de aceleradores que admite tu clúster. Mantén el host y el directorio adecuados para su entorno de inicio de sesión.",
+    "Para un comando de nube o personalizado, introduce las plantillas de argumentos para enviar, consultar el estado y cancelar, y para recuperar los registros si hace falta. Incluye los marcadores de ajustes y de identificador externo que indican los controles.",
+    "Guarda los cambios que quieras conservar, o usa Cancel para dejar el perfil sin cambios. Poll interval fija con qué frecuencia se consulta el estado de los trabajos.",
+    "Selecciona el perfil, el módulo y sus ajustes exportados, y usa Submit cuando el destino esté listo. Sigue el estado y los registros en la tabla de trabajos. Usa Cancel job para detener un trabajo seleccionado y revisa sus resultados en la ubicación de salida configurada."
   ]
 }

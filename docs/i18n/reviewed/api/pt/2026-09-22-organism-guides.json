@@ -27,14 +27,18 @@
       "label": "spacr.qt.screens.organism_screen#0",
       "source": "Sourced organism guides, interactive cell diagrams and assay navigation.",
       "source_sha256": "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
-      "translation": "Guias de organismos com fontes, diagramas celulares interativos e navegação entre ensaios."
+      "translation": "Guias de organismos com fontes, diagramas celulares interativos e navegação entre ensaios.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The information and module panes scroll independently and share a horizontal splitter. Existing assays keep their registry keys; proposals cannot execute.",
       "label": "spacr.qt.screens.organism_screen#1",
       "source": "The information and module panes scroll independently and share a horizontal splitter. Existing assays keep their registry keys; proposals cannot run.",
       "source_sha256": "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce",
-      "translation": "Os painéis de informação e módulos deslocam-se independentemente e partilham um divisor horizontal. Os ensaios existentes mantêm as suas chaves de registo; as propostas não podem ser executadas."
+      "translation": "Os painéis de informação e módulos deslocam-se independentemente e partilham um divisor horizontal. Os ensaios existentes mantêm as suas chaves de registo; as propostas não podem ser executadas.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Show one organism and its existing or proposed image-analysis modules.",

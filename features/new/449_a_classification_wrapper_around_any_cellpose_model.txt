@@ -3,12 +3,12 @@ A CLASSIFICATION WRAPPER AROUND ANY CELLPOSE-SAM MODEL: PARASITES PER VACUOLE,
 AND WHAT EACH OBJECT ACTUALLY IS
 ================================================================================
 
-Status:    OPEN on trained heads and biological validation. The wrapper
-           landed in f27c92aef; input/output, merge and count-adapter repairs
-           were validated 2026-09-22 (see the final note). Design questions
-           were answered below. The 8,882-crop set still has no annotation
-           column; parasite-stain training data and measured merge precision
-           remain missing. Filed 2026-09-20.
+Status:    OPEN on trained heads and biological validation, BLOCKED on the
+           maintainer's hand counts. The wrapper (f27c92aef, repaired
+           2026-09-22) is done. 2026-09-25: the only count labels on this
+           machine (the MTOC screen's own parasite objects) were tried; heads
+           trained on them do not beat PV area (last note). The 8,882-crop set
+           still has no annotation column. Filed 2026-09-20.
 
 Requested: 2026-09-20 -- "it would be cool to have a cellpose model that
            detects toxo then detects how many nuclei are in each PV. so this
@@ -538,3 +538,63 @@ merge precision against independently labelled examples. The current
 unlocated: a fresh guarded NAS directory listing did not answer in10seconds;
 that is an availability failure, not evidence that the data is absent. No GPU
 training started; the live idle monitor has accumulated no qualifying window.
+
+--------------------------------------------------------------------------------
+2026-09-25 — CAN A HEAD BE TRAINED ON DATA ALREADY HERE? TRIED; NOT WORTH SHIPPING
+--------------------------------------------------------------------------------
+The question was whether any labelled data on this machine can train a
+parasites-per-vacuole head now, without the maintainer's annotation.
+
+THE ONE LABEL SOURCE THERE IS. The MTOC screen's plate-1 Measure database
+(/mnt/wd4tb/spacr_testdata/assays/src_mtoc_plate1/measurements.db, kept for
+463's replication example) holds the screen's own parasite objects,
+segmented from the parasite stain, for 6,931 fields. The 485 PV-crop stacks
+(/mnt/wd4tb/spacr_pv_crops/MTOCScreen/merged) are fields of that plate.
+They line up: on A02_2 all 52 screen parasites fall inside a PV, and the
+stack's CellMask plane correlates r = 0.80 with the screen's cell-stain
+object means. So every PV can be labelled with the number of screen
+parasites whose parasite-stain-weighted centroid lies inside it.
+
+WHAT THOSE LABELS LOOK LIKE (485 fields, 10,174 PVs, 2,416 parasites):
+  count  0     1     2    3   4   5  6  7  8  9
+  PVs  8,214 1,741  148  36  25   5  2  2  0  1
+Only 1,960 PVs (19%) get any parasite, 269 fields have PVs but no screen
+parasite at all, and 111 parasites fall outside every PV. The screen's
+table is filtered or misses most vacuoles, so a zero is not a count, and
+the counted PVs are 89% singles with 71 at three or more -- the 4/8/16 bins
+cannot be learned from this at all.
+
+THE EXPERIMENT anyway, on the binary question the labels can support (one
+parasite vs two or more, 1,741 vs 219), five folds grouped by well (161
+wells, no well in both train and test), crops cut by crop_source.crop_object
+exactly as the wrapper cuts them (bounding box, padding 8, 48 x 48). A small
+CNN per stain (25 epochs, class-weighted, rotation/flip augmentation and
+TTA, CPU):
+                          balanced acc   AUC    recall 1   recall >=2
+  PV area alone (logistic)    0.776     0.861    0.780      0.772
+  CNN on Hoechst              0.728     0.785    0.863      0.594
+  CNN on CellMask             0.702     0.788    0.797      0.607
+About 15 and 13 minutes of CPU for the five folds of each stain on a shared
+machine. Neither stain head beats the vacuole's area, which the wrapper
+already reports for free (describe_objects). Part of that is the resize:
+a 48 x 48 crop throws away the size that best separates the classes. But
+even a head that recovered it would be trained and scored against a
+segmenter's counts, not the hand counts HOW TO KNOW IT WORKED asks for.
+
+DECISION: NO HEAD IS SHIPPED OR SAVED. Training on these labels would put a
+model in front of users that is worse than a number they already have, and
+its accuracy would be measured against another model. Receipt, numbers and
+both scripts (with hashes): features/data/449_head_feasibility_2026-09-25.json.
+
+WHAT UNBLOCKS THIS ITEM (the maintainer's):
+  1. hand counts for a held-out set -- the Annotate module on the 8,882
+     MTOCScreen crops (annotation column still absent 2026-09-25), with
+     enough 4/8/16 vacuoles, which this plate barely has (a later
+     timepoint or a replication plate would);
+  2. the parasite-stain source planes for the third head (the MTOC screen
+     acquisitions are on the NAS, /nas_mnt/data/MTOC_Screen/...; the
+     local stacks and crops carry no parasite channel);
+  3. independently labelled split/merged pairs for merge precision.
+When the counts exist, pv_train.py in the receipt is the starting point:
+keep the grouped-by-well folds and report area alone as the baseline to
+beat, per count bin.

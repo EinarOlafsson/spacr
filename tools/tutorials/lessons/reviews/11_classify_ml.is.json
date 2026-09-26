@@ -1,36 +1,33 @@
 {
   "lesson": "11_classify_ml",
-  "english_sha256": "d042a85fceacc953e4c9f14cf04f6287ac61958c4f2931bf18802b6912439aab",
-  "review_type": "source-pinned editorial caption translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
-  "language": "is",
-  "title": "Classify: vélanám á töflugögnum",
-  "description": "Notaðu Classify með niðurhalanlegum frumumælingum, skýrum lýsigagnamerkingum, litlum slembiskógi, raunverulegu úttaki í stjórnborði og vistuðum spám.",
-  "objectives": [
-    "Velja töflugagnaflokkinn og hlaða mælda dæminu inn með gagnavalinu.",
-    "Skilgreina flokka eftir plötudálki og greina á milli umbeðins hlutfalls og brunna sem eru í raun teknir frá.",
-    "Skoða myndrit, ómetin viðföng og niðurstöður án þess að túlka sýninákvæmni sem líffræðilega staðfestingu."
-  ],
-  "prerequisite": "Þessi upptaka notar spaCR 1.5.0.8. Veldu Load test data og síðan Load í Classify, ekki Stream. Dæmið inniheldur 2.341 viðfang í fjórum brunnum; 2.153 eru varðveitt en 188 fá ekkert mat vegna þess að samsvarandi kjarnagögn vantar. c1 er flokkur núll og c2 flokkur eitt: plötudálkar, ekki staðfestar svipgerðir. Stillingar: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Stilltu test_size=0.1 fyrir þetta litla dæmi; núverandi ML-beining notar þá stillingu. Staðfestu innhlaðna verkefnið með Choose source data áður en keyrt er. Tveir brunnar og 1.035 viðföng eru tekin frá og enginn brunnur er sameiginlegur þjálfun og prófun. Síun eiginleika fer fram fyrir skiptingu; mikilvægi samkvæmt umraðunum notar þjálfunargögn. Nákvæmni: 0.6202898551; viðmið meirihlutaflokks: 0.5632850242. Níu mæligildi og 2.153 vistaðar spár voru sannreynd sjálfstætt. API: spacr.classify.classify kallar á spacr.ml.generate_ml_scores. Úttak: results/random_forest/channel_1; predictions geymir tvígildan flokk og ml_pred líkur á flokki eitt. Aðeins þrjú raunveruleg myndrit eru sýnd; engar fullyrðingar um SHAP, kvörðun, orsakasamband eða líffræðilega staðfestingu. Engin AI-fyrirspurn var send.",
-  "scenes": [
-    "Opnaðu Classify frá Home og veldu Tabular Machine Learning sem flokkunarlíkanahóp. Hann lærir af vistuðum mælingum fyrir hvert viðfang. Stillingar fyrir tölvusjón geta enn verið sýnilegar en óvirkar, því þær tilheyra hinum hópnum.",
-    "Smelltu á Load test data og veldu Load. Mælda dæmið er hlaðið inn, sótt ef þörf krefur, og skráarslóðir þess undirbúnar; Stream er önnur leið. Í eigin verkefni skaltu fyrst ljúka Measure og velja verkefnismöppuna. Ekki gera ráð fyrir að hvaða myndamappa sem er innihaldi þegar nauðsynlegan mæligagnagrunn.",
-    "Staðfestu niðurhalaða verkefnið með Choose source data. Veldu plötumöppuna sem inniheldur measurements-möppuna. Í þessari upptöku hverfur áminningin um tóman gagnagjafa, sem stóð eftir þegar dæmið var hlaðið inn, þegar mappan er staðfest. Gagnagjafinn verður að innihalda mæld viðföng áður en hægt er að keyra töflugagnalíkanið.",
-    "Notaðu lýsigögn sem grunn og skilgreindu tvo Classes úr columnID: c1 og c2. Hér eru þetta merkingar plötudálka til að kenna verkferlið, ekki sjálfstætt staðfestar heilbrigðar og áhrifaorðnar frumur. Þjálfun byggð á merkingum krefst raunverulegra merkinga úr Annotate. Breyttu aldrei merkingum sem vantar í tilbúnar sannleikamerkingar.",
-    "Channel of interest velur mældu eiginleikana. Við notum rás eitt án þess að gefa henni óstaðfesta líffræðilega merkingu. Athugaðu stillingar myndatöku og mælinga áður en þú velur rás fyrir eigin gögn. Val á eiginleikarás hér endurtekur hvorki myndgreiningarskiptingu né mælingu myndanna.",
-    "Veldu Random Forest og sextán matslíkön fyrir þetta litla sýnidæmi, með tveimur vinnsluverkum. Þetta er ekki ráðlegging um besta líkanið. Við höfum stýrt eiginleikaval og krossprófun slökkt. Slökkt krossprófun fjarlægir ekki sérstaka prófunarhlutann sem þessi keyrsla tekur frá.",
-    "Stilltu prófunarstærð á einn tíunda og haltu hópun eftir brunni. Umbeðið hlutfall er ekki nákvæmur fjöldi viðfanga: þetta fjögurra brunna dæmi tekur tvo heila brunna frá, um fjörutíu og átta prósent varðveittra viðfanga. Báðir flokkar eru hvorum megin og enginn raunverulegur brunnur er bæði í þjálfun og prófun.",
-    "Kveiktu á Plot, hreinsaðu leitina og ýttu á Run. Stjórnborðið skráir endanlegar stillingar, síun, skiptingu og líkanaskýrslu. Geymdu skráninguna með niðurstöðunum. Lokamerki sannar ekki að merkingar, staðfestingaráætlun eða líffræðileg túlkun hafi verið viðeigandi.",
-    "Þessi keyrsla metur tvö þúsund eitt hundrað fimmtíu og þrjú viðföng. Eitt hundrað áttatíu og átta hafa engin samsvarandi kjarnagögn og eru áfram ómetin, ekki neikvæð. Vistuð prófunarnákvæmni er um sextíu og tvö prósent, samanborið við fimmtíu og sex prósent fyrir meirihlutaflokkinn. Fjórir brunnar á einni plötu sýna ekki alhæfingu yfir á nýja tilraun.",
-    "Þrjú myndrit eru tiltæk: mikilvægi samkvæmt umraðunum, mikilvægi eiginleika trjánna og þetta hitakort plötunnar. Með Predictions og meðaltalshópun sýnir kortið meðaltal tvígildra spáðra flokka, ekki líkurnar á þeim. Mikilvægi er ekki orsakasamband; umraðanir nota þjálfunargögn. Skoðaðu vistuðu töflurnar áður en þú dregur ályktanir af litríkri mynd.",
-    "AI-rofinn gerir kleift að spyrja um verkferlið með aðstoð þjónustuveitanda. Þetta eru ósend drög, ekki myndað svar. Geymdu niðurstöður með stillingum og sannreyndu öll ráð. Undirverkfæri hafa eigin inntakskröfur: Explain-leiðbeiningarnar nota tölvusjónarskor, ekki þetta ML-úttak. AI kemur ekki í stað þess að athuga merkingar og auðkenni í skiptingunni."
-  ],
+  "english_sha256": "92e4828684b94f5fecd03ac4fe73b16a0b457fbdddbb462025d73f7df608675e",
   "review": {
-    "kind": "AI-assisted technical review",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "2026-09-21: current eleven-scene native ML recording. Remove merged/older-application framing; describe conditional download; add explicit Choose source data confirmation. Prerequisites name spaCR 1.5.0.8 and the respected test_size=0.1 setting. Eight retained narration scenes preserve all measured results and scientific limitations."
-    ]
-  }
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Classify: lærðu af mældum eiginleikum",
+  "description": "Hlaðu inn mælingum, skilgreindu flokka, þjálfaðu töfluflokkara og skoðaðu stig hluta og samantektir platna.",
+  "objectives": [
+    "Velja töflufjölskylduna og mælt verkefni.",
+    "Skilgreina flokka og velja eiginleikarásir, stærð líkans og brunna sem haldið er til hliðar.",
+    "Finna úttak líkansins, spár fyrir hluti og samantektarmyndrit."
+  ],
+  "prerequisite": "Notaðu Load test data í Classify og veldu Load, staðfestu svo sóttu plötumöppuna með Choose source data. Fyrir þitt eigið verkefni keyrirðu fyrst Measure. Dæmið notar columnID-gildin c1 og c2 sem tvo flokka; notaðu merki sem henta tilrauninni þinni þegar þú vinnur með eigin gögn.",
+  "scenes": [
+    "Frá Home opnarðu Classify og velur Tabular Machine Learning. Þessi fjölskylda notar mælingar á hlutum sem Measure vistaði. Hún býr til aðlagað líkan og stig fyrir hvern hlut sem hefur nauðsynlegar mælingar.",
+    "Smelltu á Load test data og veldu Load. Bíddu þar til mælda dæmið hefur verið sótt. Fyrir þín eigin gögn velurðu verkefnismöppuna sem Measure bjó til, ásamt mælingagagnagrunni hennar.",
+    "Notaðu Choose source data til að staðfesta sóttu plötumöppuna. Veldu möppuna sem geymir mælingarnar. Þá fær flokkarinn aðgang að töflum hlutanna og lýsigögnunum sem notuð eru til að skilgreina flokkana.",
+    "Veldu lýsigögn sem grunn flokkanna og skilgreindu tvo Classes með columnID-gildunum c1 og c2. Þessi merki greina á milli tveggja dálka plötunnar í dæminu. Til að þjálfa á þínum eigin frumumerkingum velurðu merkingargrunninn og merkjadálkinn sem þú bjóst til í Annotate.",
+    "Stilltu Channel of interest á 1 fyrir dæmið. Það ræður hvaða rásarbundnu mældu eiginleikar fara inn í líkanið. Í þinni eigin tilraun velurðu rásina sem ber merkið sem skiptir máli fyrir flokkana.",
+    "Veldu Random Forest, 16 matara og tvö vinnsluverk. Fjöldi matara ræður fjölda trjáa. Fleiri tré auka vinnuna við aðlögun. Hafðu slökkt á grisjun eiginleika og víxlprófun í þessari fyrstu umferð; þú getur borið þá valkosti saman þegar þú ert komin með virka grunnlínu.",
+    "Stilltu Test size á 0,1 og haltu flokkun eftir brunnum. spaCR heldur heilum brunnum til hliðar, svo endanlegt hlutfall hluta getur vikið frá umbeðnu hlutfalli. Lestu endanlega skiptingu í stjórnborðinu og gakktu úr skugga um að hún henti tilrauninni.",
+    "Kveiktu á Plot, hreinsaðu leitina og ýttu á Run. Stjórnborðið sýnir síun eiginleika, skiptingu í þjálfun og prófun, aðlögun líkans og vistaðar úttaksslóðir. Bíddu þar til keyrslunni lýkur áður en þú berð saman stigin.",
+    "Niðurstöðurnar eru í results/random_forest/channel_1. Gagnagrunnurinn geymir spáðan flokk í predictions og líkur á flokki 1 í ml_pred. Hlutir sem vantar nauðsynlegar mælingar geta verið án stiga; athugaðu gildi sem vantar þegar þú flytur út samantekt.",
+    "Flettu í gegnum myndrit um mikilvægi eiginleika og hitakort plötunnar. Með Predictions og meðaltalsflokkun er gildi brunns meðaltal tvíundarspáðra flokka hans. Notaðu vistuð stig hlutanna til nákvæmrar yfirferðar og berðu saman frammistöðu á brunnunum sem haldið var til hliðar áður en þú beitir flokkaranum á aðra tilraun."
+  ]
 }

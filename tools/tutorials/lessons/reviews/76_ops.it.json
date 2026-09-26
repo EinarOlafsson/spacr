@@ -1,19 +1,35 @@
 {
-  "lesson": "76_ops", "language": "it", "english_sha256": "4b52abe939abc1c32a7649c513ce93adb3d4eeabeb9e9bf32e6e65a2a869c385",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "OPS: schermata attuale e allineamento di quattro campi",
-  "description": "Trova OPS dentro Mask e segui un esempio verificato di geometria e composizione su quattro campi reali. Non è un flusso completo di piastra, segmentazione o decodifica.",
-  "objectives": ["Trovare la schermata annidata di OPS e capire i limiti della dimostrazione.", "Allineare quattro campi vicini mantenendo le coordinate originali.", "Controllare sovrapposizioni, copertura e provenienza salvata."],
-  "prerequisite": "Registrazione con le API ops_layout, ops_stitch e ops_compose di spaCR 1.5.0.7 nightly su CPU. Run nella GUI usa un altro motore precedente, non avviato qui. Fonte NAS privata: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, siti 0, 1, 10 e 11. Occorre accesso autorizzato; non è un download pubblico e non sono concessi diritti di redistribuzione. Ogni TIFF uint16 contiene cinque piani di 1480 per 1480 pixel, con DAPI nel piano zero. Si mantiene la disposizione originale di 333 siti. Non riutilizzare geometria, sovrapposizione o soglie su un’acquisizione non misurata. Scegli una nuova cartella di uscita fuori dagli originali. Non vengono dimostrati il pozzetto completo, la segmentazione, l’allineamento tra cicli, la decodifica o l’analisi biologica.",
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "OPS: dalle immagini di sequenziamento ai codici a barre delle cellule",
+  "description": "Carica i dati di prova di OPS, scegli le impostazioni di immagine e decodifica, esegui l’analisi e trova le assegnazioni dei codici a barre nel database di output.",
+  "objectives": [
+    "Aprire OPS dentro Mask e caricare le immagini di esempio e la libreria di codici a barre.",
+    "Scegliere le cartelle di input e di output e capire le principali impostazioni di allineamento e decodifica.",
+    "Eseguire OPS ed esaminare le assegnazioni dei codici a barre ai nuclei nel database di output."
+  ],
+  "prerequisite": "Apri spaCR. Usa Load test data dentro OPS per le immagini di sequenziamento di esempio e la libreria di guide. Per il tuo esperimento, prepara i TIFF dei cicli di sequenziamento con i nomi di file di acquisizione e un CSV della libreria di codici a barre corrispondente.",
   "scenes": [
-    "Lo screening ottico in pool inizia con immagini acquisite in campi vicini durante cicli di acquisizione ripetuti. In spaCR, apri Mask per trovare la schermata annidata di OPS. Questa lezione ne mostra la posizione e un piccolo esempio verificato di allineamento delle immagini.",
-    "Usa l’interruttore OPS nella riga delle azioni di Mask. Apre una pagina separata nel modulo principale. OPS non è una seconda tessera Home e non è il flusso Map Barcodes per i file delle letture di sequenziamento.",
-    "La pagina OPS attuale presenta impostazioni di ingresso, unione dei campi, mosaico, allineamento e controllo qualità. Il pulsante Run usa un altro motore precedente. Non lo avviamo e non affermiamo di aver validato un intero flusso di screening. I prossimi passi usano direttamente le API di geometria.",
-    "Questa dimostrazione su CPU allinea e compone quattro campi reali di un’acquisizione esistente. Non segmenta cellule, decodifica codici a barre o elabora un’intera piastra. Gli originali non sono un download di prova incluso; per riprodurre esattamente l’esempio serve accesso autorizzato ai file.",
-    "Seleziona i siti zero, uno, dieci e undici del primo ciclo di acquisizione. Ogni file originale ha cinque piani; il piano zero contiene la colorazione nucleare. Mantieni la disposizione originale di trecentotrentatré siti e i loro numeri. Quattro campi selezionati non definiscono un nuovo pozzetto di quattro campi.",
-    "Lo script chiama stitch_well, controlla le quattro sovrapposizioni vicine e poi chiama compose_window. Tutti e quattro i campi sono posizionati. La regione composta misura duemilasettecentocinquantasei pixel per lato. In questa acquisizione il ciclo geometrico si chiude entro un quarto di pixel, non una garanzia universale di precisione.",
-    "Non fidarti solo del posizionamento. Confronta i pixel realmente sovrapposti indipendentemente dal punteggio di allineamento. Qui le correlazioni allineate sono molto maggiori di quelle ottenute spostando deliberatamente uno dei due assi di diciassette pixel. Questi controlli aiutano a trovare un posizionamento plausibile ma errato.",
-    "Esamina l’immagine e la mappa di copertura realmente salvate. A sinistra c’è l’immagine nucleare composta; a destra, il numero di campi che contribuiscono. Copertura zero significa assenza di pixel acquisiti, non fondo biologico. Si combinano vicini spaziali nello stesso piano, mai cicli di sequenziamento diversi.",
-    "Conserva insieme matrice, copertura, posizioni, checksum degli originali e rapporto. Lo script riapre i risultati e conferma che i quattro file originali non sono cambiati. È un passaggio geometrico riproducibile. Un tutorial ottico completo richiede ancora la validazione separata delle fasi successive."
+    "Da Home, apri Mask, poi attiva OPS. Questa pagina riceve le immagini dei cicli di sequenziamento e assegna ai nuclei i codici a barre decodificati.",
+    "Fai clic su Load test data. L’esempio include due posizioni di immagine su undici cicli di sequenziamento e una libreria di codici a barre corrispondente. Al termine del caricamento, spaCR compila i campi di input, libreria, piastra e output.",
+    "In OPS input, controlla la cartella delle immagini di sequenziamento e il CSV della libreria di codici a barre. Scegli una destinazione per i risultati. L’esempio scrive nella cartella ops_output all’interno del suo progetto scaricato.",
+    "In questo esempio lascia vuota la cartella delle immagini di fenotipo. Quando hai un’acquisizione di fenotipo corrispondente, seleziona qui la sua cartella per registrare come i suoi campi si allineano alle immagini di sequenziamento.",
+    "In OPS alignment, scegli il modello di segmentazione dei nuclei. Diameter imposta la dimensione attesa del nucleo in pixel. Raster overlap descrive la sovrapposizione tra riquadri acquisiti adiacenti; usa il valore della tua acquisizione. Per questa prima esecuzione mantieni le impostazioni dell’esempio.",
+    "Window overlap controlla quanto si sovrappongono le finestre di segmentazione adiacenti. Deve essere maggiore del nucleo più grande, così gli oggetti ai bordi delle finestre possono essere inclusi interi. Aumentarlo allunga l’elaborazione.",
+    "In OPS decoding, imposta i quattro canali delle basi nell’ordine G, T, A, C. L’esempio usa CY3, A594, CY5 e CY7. Per le tue immagini, fai corrispondere questi nomi ai nomi dei canali presenti nei nomi dei file TIFF.",
+    "Read threshold stabilisce quanto deve essere luminoso uno spot per contare come lettura. Alzarlo seleziona spot più intensi; abbassarlo include spot più deboli e più sfondo. Footprint stabilisce a quale distanza da un nucleo una lettura può trovarsi e contribuire ancora al suo codice a barre.",
+    "Attiva Store reads se vuoi esaminare in seguito le singole letture. Viene salvata una tabella aggiuntiva e si usa più spazio su disco. Lascialo disattivato per una prima esecuzione compatta.",
+    "Controlla OPS performance, poi premi Run. GPU attiva l’accelerazione dove disponibile. Workers stabilisce quanti campi vengono decodificati contemporaneamente; abbassalo se la memoria è limitata. Segui l’avanzamento in Console.",
+    "Quando Console mostra Finished, apri Help, poi Database Browser, e scegli measurements.db nella cartella di output selezionata. Accanto, ogni pozzetto ha una cartella, qui A1, con il suo rapporto OPS che contiene il riepilogo della decodifica ed eventuali avvisi.",
+    "La tabella ops_barcodes assegna a ogni nucleo il suo codice a barre, il supporto delle letture e la guida corrispondente; ops_objects contiene gli stessi identificatori dei nuclei con le coordinate nell’immagine. Quegli identificatori sono il ponte verso il resto dello screening: tramite essi unisci i codici a barre alle misure di fenotipo, poi aggrega per Regression. Conserva insieme database, rapporti e impostazioni."
   ]
 }

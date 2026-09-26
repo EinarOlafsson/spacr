@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Plasmodium: explorar o guia do organismo",
+  "description": "Navegue pelo guia de Plasmodium, explore o diagrama celular e encontre os fluxos gerais de análise de imagens disponíveis.",
+  "objectives": [
+    "Abrir a página pela tela Home e encontrar os controles principais.",
+    "Identificar as entradas, ações e saídas disponíveis.",
+    "Escolher a próxima análise ou referência disponível."
+  ],
+  "prerequisite": "Abra a tela Home do spaCR. O guia não precisa de arquivos de entrada. Os blocos de ensaios específicos de Plasmodium mostram por enquanto Coming soon.",
+  "scenes": [
+    "Plasmodium tem um guia próprio. Na tela Home, escolha Plasmodium para conhecer o organismo, seus compartimentos celulares e os ensaios planejados para ele.",
+    "O painel de informações conta a história do parasita em seções, da fase sanguínea e da fase hepática até a motilidade. Arraste o divisor para ter mais espaço ao lado dos blocos de módulos.",
+    "No diagrama de apicomplexo, passe o cursor sobre um compartimento para ler o que ele é. Selecione vários para destacá-los juntos, e Clear components restaura a visualização.",
+    "Os blocos de ensaios ainda estão marcados como Coming soon e não podem ser abertos, mas as descrições mostram o que cada um vai medir. Para analisar imagens de Plasmodium hoje, volte à tela Home e abra Mask ou Measure com suas próprias imagens e configurações de canal adequadas.",
+    "Para ler mais a fundo, os links do PlasmoDB e do UniProt abrem recursos sobre o organismo no seu navegador. Nada aqui precisa de um conjunto de dados ou de Run, e o guia não grava arquivos."
+  ]
+}

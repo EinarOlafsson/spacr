@@ -1,31 +1,33 @@
 {
   "lesson": "23_agreement",
-  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
   "review": {
-    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "da",
-  "title": "Enighed mellem annotatorer",
-  "description": "Åbn det indlejrede værktøj, sammenlign tydeligt kunstige undervisningsetiketter på kopier af virkelige downloadede billedudsnit, og skeln mellem parvis enighed og en samlet opgørelse for flere gennemgange.",
+  "title": "Annotator Agreement: sammenlign uafhængige annoteringsrunder",
+  "description": "Vælg annoteringskolonner, sammenlign overensstemmelsen, og undersøg de udsnit, hvor labels er forskellige.",
   "objectives": [
-    "Åbn Annotator Agreement fra Annotate.",
-    "Sammenlign etiketter, manglende observationer og forvekslingsmatricer uden at ændre annotationer.",
-    "Undersøg billedudsnit med uenighed og fortolk opgørelser for to og tre gennemgange."
+    "Åbne eksempeldatabasen og vælge to annoteringsrunder.",
+    "Læse parvis overensstemmelse og forvekslingsmatricen.",
+    "Undersøge uenigheder og sammenligne tre annoteringsrunder."
   ],
-  "prerequisite": "De seksten billedudsnit er uændrede kopier af Annotates eksempel til download. DEMO_A, DEMO_B og DEMO_C er kunstige undervisningsetiketter i en ny privat database, ikke biologiske klasser, vurderinger af menneskers præstation eller modelprædiktioner. Originale etiketter og billeder er uændrede; kun i demokopien bliver png_path relativ. Brug reelt uafhængige annotationer til din egen vurdering. Standardregistreringen udelader kendte modeloutputkolonner. Uafhængige beregninger med heltal og brøker kontrollerer alle par, matricer og samlede mål; tre forhåndsvisninger matcher originalernes pixels præcist. Det lille eksempel viser betjeningen, ikke forsøgets pålidelighed. Den gamle video gentog et tomt skærmbillede og beskrev automatisk registrering af prædiktioner, som ikke længere passer til API'et: lektionen er ikke blot flyttet.",
+  "prerequisite": "Udpak det linkede Annotator Agreement-eksempel, og behold dets database sammen med udsnitsbillederne. Det indeholder seksten billeder fra Annotate-eksemplet og tre kunstige undervisningskolonner med labels, DEMO_A, DEMO_B og DEMO_C. Til din egen analyse bruger du uafhængigt indsamlede annoteringer af de samme billeder.",
   "scenes": [
-    "Åbn Annotate og derefter knappen Annotator Agreement. Det er et indlejret værktøj, ikke endnu et Home-modul. Sammenligningen læser annotationskolonner uden at redigere dem; gå tilbage til Annotate, når du vil ændre en etiket.",
-    "Åbn den forberedte demonstrationsdatabase. De seksten billeder er virkelige udsnit fra eksemplet til download, men de tre DEMO-kolonner er kunstige undervisningsetiketter. De måler hverken en persons færdigheder eller en biologisk fænotype. De originale etiketter og billeder er bevaret i en separat kildekopi.",
-    "Kontrollér udtrykkeligt de valgte kolonner i stedet for at acceptere de første standardvalg. Én kolonne kan ikke måle enighed. Den aktuelle registrering udelader som standard kendte modeloutputkolonner; sammenligning af en klassifikator med et menneske er modelvalidering, ikke enighed mellem mennesker.",
-    "Vælg DEMO A og DEMO B, og tryk på Compute agreement. Tolv udsnit har etiketter fra begge gennemgange, tre fra kun én, og ét fra ingen. Manglende etiketter bliver ikke automatisk og ubemærket til uenighed.",
-    "De to undervisningsgennemgange er enige om ni af tolv sammenlignede udsnit: femoghalvfjerds procent med Cohens kappa på nul komma fem. Se rå enighed, overlap og klassebalance samlet. Skærmen advarer om, at tolv fælles etiketter er for få til et stabilt mål for pålidelighed; de opdigtede etiketter er kun en demonstration.",
-    "Rækkerne er DEMO A, og kolonnerne er DEMO B. Fem udsnit har klasse ét i begge gennemgange, og fire har klasse to i begge. Tallene uden for diagonalen, ét og to, viser tre uenigheder. En samlet betegnelse som moderat er en konvention, ikke en acceptgrænse for dit forsøg.",
-    "Vælg en uenighed for at undersøge det tilhørende udsnit og begge etiketter. Vi kontrollerede alle tre forhåndsvisninger mod deres originale pixels. I en virkelig undersøgelse bør du gennemgå repræsentative billeder og klassedefinitioner, før du afgør, hvordan uenigheder skal afklares; denne skrivebeskyttede visning beslutter det ikke for dig.",
-    "Tilføj DEMO C, og beregn igen. En ændring af et afkrydsningsfelt udløser ikke i sig selv en ny beregning. Tabellen sammenligner nu tre par med forskellige antal fælles etiketter, mens den samlede Fleiss-opgørelse kun bruger de tolv udsnit med etiketter fra alle valgte gennemgange.",
-    "Undervisningseksemplets Fleiss-kappa er cirka nul komma seks seks tre, ikke gennemsnittet af de tre parvise kappaer. Den samlede rå enighed tæller her enstemmige, komplette rækker. Den fjerde række til gennemgang mangler A, men B og C er uenige; derfor kan den vises til gennemgang uden at indgå i opgørelsen for komplette rækker.",
-    "Hvis du kun vælger A og B og beregner igen, gendannes den oprindelige sammenligning. Vi bekræftede, at databasen og billedfilerne er uændrede gennem alle tre beregninger. Brug reelt uafhængige annotationsgennemgange til din egen analyse, og vend tilbage til Annotate-vejledningen for at indsamle etiketterne."
+    "Fra Home åbner du Annotate og vælger derefter Annotator Agreement. Brug værktøjet til at sammenligne labels, der er indsamlet i separate annoteringsrunder. Resultaterne hjælper dig med at finde billeder, der skal gennemgås.",
+    "Åbn eksempeldatabasen. Hav de udpakkede udsnitsmapper ved siden af, så billedforhåndsvisningerne kan indlæses. DEMO-kolonnerne indeholder kunstige undervisningslabels; brug dine egne uafhængige annoteringskolonner, når du vurderer overensstemmelse i et studie.",
+    "Vælg mindst to annoteringskolonner på listen. I dette eksempel begynder du med DEMO A og DEMO B. Kontrollér kolonnenavnene, så du sammenligner de tilsigtede runder.",
+    "Klik på Compute agreement. De to valgte runder deler tolv mærkede udsnit. Tre andre udsnit har kun en label i én runde, og ét har ingen. Parvis overensstemmelse bruger de udsnit, der er mærket i begge runder.",
+    "Læs de parvise resultater. Runderne er enige om ni af tolv udsnit, hvilket giver 75 % overensstemmelse og Cohens kappa på 0,5. Læs værdierne sammen med antallet af fælles labels; en lille stikprøve giver et usikkert skøn.",
+    "Åbn forvekslingsmatricen. Rækkerne repræsenterer DEMO A og kolonnerne DEMO B. Diagonalen indeholder matchende labels: fem for klasse 1 og fire for klasse 2. Cellerne uden for diagonalen indeholder de tre uenigheder.",
+    "Vælg en uenighed for at se dens udsnit og de labels, der blev tildelt i hver runde. Sammenlign billedet med dine klassedefinitioner. For at ændre en label efter gennemgang vender du tilbage til Annotate.",
+    "Tilføj DEMO C, og klik på Compute agreement igen. Den parvise tabel viser nu alle tre par. Hvert par bruger sine fælles labels, mens den samlede oversigt bruger udsnit, der er mærket i alle tre valgte runder.",
+    "Læs den samlede Fleiss' kappa og oversigten over enstemmig overensstemmelse. Dette eksempel giver en Fleiss' kappa på omkring 0,663. Gennemgå også listen over uenigheder: den kan indeholde et udsnit, der kun har labels i to af de tre runder.",
+    "For igen at fokusere på ét par vælger du kun A og B og klikker på Compute agreement. Resultaterne bliver i denne sammenligningsvisning; dine annoteringskolonner forbliver i kildedatabasen. Fortsæt i Annotate for at indsamle endnu en uafhængig runde eller gennemgå de fundne uenigheder."
   ]
 }

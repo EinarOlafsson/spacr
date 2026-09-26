@@ -2,11 +2,12 @@
 THE STARTUP WINDOW'S TEXT IS BRIGHT IN DARK MODE
 ================================================================================
 
-Status:    BUILT 2026-09-15, verified offscreen only. The startup window now
-           wears the theme spaCR opens in, and its words read at 7:1 or
-           better in every OS-scheme x spaCR-theme pair. STILL OWED: a check
-           on a real Windows machine by the maintainer (OS light, spaCR
-           dark; and both light).
+Status:    DONE here (re-verified 2026-09-25: 19/19 offscreen cases pass on
+           nightly a93f937d2); remaining: a check on a real Windows machine by
+           the maintainer (OS light + spaCR dark; and both light). Nothing
+           else is implementable on this Linux box. The startup window wears
+           the theme spaCR opens in, and its words read at 7:1 or better in
+           every OS-scheme x spaCR-theme pair.
 Requested: 2026-09-15, by the maintainer, in these words (item 2 of three):
            "the text in the startup needs to be bright if the mode is dark
            mode."
@@ -171,3 +172,11 @@ The19 rendered startup cases and35 existing dark-default/platform-scheme
 checks pass together (54 in7.48s). No production palette, contrast target or
 fallback behavior changed. The application's current default is dark; Follow
 system is an explicit choice. Real Windows acceptance is still outstanding.
+
+2026-09-25 -- RE-VERIFIED, NOTHING LEFT HERE
+tests/qt/test_the_startup_window_reads_in_every_scheme.py: 19 passed (8.4 s,
+offscreen) on nightly a93f937d2. No code change. The only open line is the
+real-Windows look (maintainer): OS light + spaCR dark shows bright words on
+black, both light shows dark words on light. Remember the loading screen only
+shows under the "eager" preload policy; under the default "on_demand" what
+shows at startup is MainWindow's first frame, covered by the same test.

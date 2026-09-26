@@ -1,6 +1,6 @@
 497 — ROUNDED TRANSLUCENT KEYBOARD INSTRUCTIONS
 =============================================
-Status: implemented and visually checked 2026-09-23.
+Status: DONE 2026-09-25 (implemented and visually checked 2026-09-23, re-tested 2026-09-25).
 Owner: implementation lane; documentation/API/translations in Codex lane.
 
 Keyboard instructions now paint a dedicated rounded, 80-percent opaque card,
@@ -14,3 +14,9 @@ Validation: rendered screenshot /tmp/spacr-keyboard-style.png reviewed, plus
 shortcut/navigation/flowchart cohort116passed. A stale menu-label assertion
 was corrected to Settings templates; its focused rerun passed. General map
 changes and their checks are recorded in483.
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2 (offscreen): tests/qt/test_shortcut_
+overlay.py and test_cov_wf_qt_shortcuts.py, 34 passed. The change added no
+caption, so there is no catalog debt. Nothing remains; how the 80-percent
+card composites on other desktops is a real-display check.

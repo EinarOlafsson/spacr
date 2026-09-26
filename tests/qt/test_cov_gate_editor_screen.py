@@ -432,8 +432,9 @@ def test_the_graph_is_written_through_the_print_restyler(loaded, tmp_path,
 
     called = {}
 
-    def _render(figure, path):
+    def _render(figure, path, **kwargs):
         called["path"] = path
+        called.update(kwargs)
         open(path, "wb").close()
         return True
 
@@ -442,6 +443,9 @@ def test_the_graph_is_written_through_the_print_restyler(loaded, tmp_path,
 
     assert loaded.save_graph(target) == target
     assert called["path"] == target
+    assert called["for_print"] is True, (
+        "decision 2026-09-25: saved graphs get the white print style")
+    assert called["write_pdf"] is False
     assert "Saved the graph to" in loaded.console.log.toPlainText()
 
 
@@ -455,7 +459,7 @@ def test_a_path_with_no_suffix_gets_the_preferred_one(loaded, tmp_path,
     monkeypatch.setattr(preferences, "get_figure_format", lambda: "pdf")
     written = []
 
-    def _render(figure, path):
+    def _render(figure, path, **_kwargs):
         written.append(path)
         open(path, "wb").close()
         # A PDF run writes the vector file beside the PNG.
@@ -475,7 +479,7 @@ def test_a_render_that_refuses_says_so_instead_of_claiming_a_file(
         loaded, tmp_path, monkeypatch):
     import spacr.qt.widgets.figure_queue as queue
 
-    monkeypatch.setattr(queue, "render_figure_to_png", lambda *_a: False)
+    monkeypatch.setattr(queue, "render_figure_to_png", lambda *_a, **_k: False)
 
     assert loaded.save_graph(str(tmp_path / "graph.png")) == ""
     assert "Could not save the graph." in loaded.console.log.toPlainText()

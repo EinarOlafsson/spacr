@@ -1,36 +1,34 @@
 {
   "lesson": "18_motility",
-  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "english_sha256": "8a04ed0f7516a23ddfd70ffc4bceeadf78f277e0e2818e72352c08eac5353530",
   "review": {
-    "kind": "Parent editorial caption translation of frozen English; units, exact exclusions and export limitations retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "da",
-  "title": "Motilitetsanalyse",
-  "description": "Undersøg livefiltre og enheder med reproducerbare syntetiske spor i Measure > Motility.",
+  "title": "Motilitetsassay",
+  "description": "Mål bevægelse ud fra sporede objekter, undersøg sporfiltre, og gem resultater pr. billede og pr. brønd.",
   "objectives": [
-    "Find Motility i Measure, og indlæs de præcise eksempelarrays.",
-    "Sammenlign filtre uden at genlæse billeder eller køre en model igen.",
-    "Skeln mellem ukendte enheder, hypotetisk omregning og resultaternes begrænsninger."
+    "Indlæse et projekt med sporede sammenlagte arrays.",
+    "Vælge maskeplaner, sporfiltre og optageenheder.",
+    "Køre analysen og finde bevægelsestabellerne og plottene."
   ],
-  "prerequisite": "Pak SYNTHETIC_motility_tracks.zip ud i en ny mappe. Otte syntetiske arrays: kerneintensitet 0, celleintensitet 1, sporet cellemaske 2 og kernemaske 3. Intet patogenplan eller målt kalibrering. Vælg roden med merged. Live: to intensitetskanaler, sporplan 2, patogen -1, otte billeder, minimumslængde 3, kalibrering 0/0. 2 pixel/µm og 60 sekunder/billede er kun hypotetiske regneværdier. Lad Propagate settings være slået fra. PDF-markeringer har lav kontrast; Screen løste det ikke. Ingen biologisk eller infektionsvalidering. API: spacr.timelapse.automated_motility_assay. AI er slået fra.",
+  "prerequisite": "Gennemfør en Timelapse-kørsel, eller hent og udpak SYNTHETIC_motility_tracks.zip. Vælg mappen, der indeholder merged. Eksemplet har otte billeder, kerneintensitet i kanal 0, celleintensitet i kanal 1, sporede cellemasker i plan 2 og kernemasker i plan 3. Det har hverken patogenmaske eller fysisk kalibrering.",
   "scenes": [
-    "Åbn Measure, og brug Time-genvejen til fanen Motility Assay. Det er et indlejret modul, ikke en særskilt Home-flise. Timelapse i Mask skaber spor; Motility måler dem. Se først Timelapse-lektionen, hvis billederne endnu ikke er sporet.",
-    "Hent det syntetiske eksempel med sporede arrays via linket nedenfor, og pak det ud i en ny mappe. Sæt Source til mappen med merged. Otte billeder indeholder seksten cellespor. Vælg cell, kernekanal nul og cellekanal ét, uden patogenkanal.",
-    "Brug den faktiske pixelskala og billedafstand i tid til optagne forsøg. Her er to pixel pr. mikrometer og tres sekunder pr. billede bevidst hypotetiske og viser kun regningen. Batchformularen kræver tal; standardværdierne dokumenterer ikke mikroskopets kalibrering.",
-    "Lad Reuse existing measurements være slået fra for den nye kopi, og slå kvalitetskontrolgrafer til. Uden patogenkanal er infektionskontrollen deaktiveret i denne kørsel. Valgfrie klassifikatorer testes ikke; disse undervisningsspor påviser ingen infektionseffekt.",
-    "Kør det lille eksempel, og læs konsollen. Batchen gemmer 128 observationer, en brøndopsummering med seksten spor og PDF-filer. Filerne vises ikke i figurkøen. Denne version advarer om svage eksportfarver; kontrollér filerne før brug i rapporter.",
-    "Slå Live til for at åbne Motility preview. Fold Console og System sammen, hvis de fylder, og vælg samme udpakkede mappe. Forhåndsvisningens mål og batchindstillinger er adskilte. Hold Propagate settings slået fra under forsøg, så et midlertidigt filter ikke ændrer næste fulde kørsel.",
-    "Angiv to intensitetskanaler, sporet maskeplan to og patogenmaskeplan minus ét, altså intet. Vis alle otte billeder. En kernemaske er ikke en patogenmaske. Sæt begge kalibreringsfelter til nul for ukendte enheder, og klik Run preview.",
-    "Forhåndsvisningen læser 128 objektobservationer og viser seksten brugbare spor ved minimumslængde tre. Middelhastigheden er cirka 1,4 pixel pr. billede. Uden begge kalibreringsværdier må den ikke beskrives som mikrometer pr. minut.",
-    "Hæv Min track length til ni. Hvert spor har kun otte billeder, så alle seksten udelukkes fra den brugbare opsummering, og middelhastigheden er ikke tilgængelig. Spor og billeder slettes ikke. En tom opsummering betyder ikke hastighed nul.",
-    "Sæt minimum tilbage til tre. De seksten brugbare spor, længdefordelingen og hastighedspunkterne vender tilbage. Målene genberegnes fra cachede observationer. En ændring kører ikke segmenteringen igen og beviser ikke, at den oprindelige sporing havde korrekte identiteter.",
-    "Slå Drop over-straight tracks til ved tærskel 0,95. Retlinethed er nettoforskydning divideret med banelængde. Femten næsten rette undervisningsspor udelukkes; ét bliver tilbage. Ret bevægelse kan være ægte; filteret beviser ikke automatisk drift og er ikke en analyseanbefaling.",
-    "Slå filteret fra, og kontrollér, at alle seksten spor vender tilbage. Sammenlign grafer og tilbageholdt antal, før du accepterer en filterregel. uninfected afspejler her kun det manglende patogenplan, ikke en valideret biologisk negativgruppe.",
-    "Indtast to pixel pr. mikrometer, men lad billedintervallet være ukendt. Visningen angiver stadig pixel pr. billede. En rumlig skala leverer ikke manglende tid, og videoens afspilningshastighed er ikke optagelsesintervallet.",
-    "Indtast nu tres sekunder pr. billede. Med begge hypotetiske værdier ændres middelhastigheden fra cirka 1,4 pixel pr. billede til 0,7 mikrometer pr. minut. Identiteterne ændres ikke. Sporplottet angiver stadig forskydning i pixel; kun hastighedsenheden ændres her.",
-    "Sæt begge kalibreringsfelter i forhåndsvisningen tilbage til nul. Den oprindelige pixelopsummering vender præcist tilbage. Hold regneøvelsen adskilt fra virkelige optagelsesmetadata, og brug API-referencen til batchfunktionen. spaCR AI kan forklare indstillinger, men ikke certificere kalibrering, infektionsstatus eller videnskabelig gyldighed."
+    "Fra Home åbner du Measure og bruger derefter Time til at åbne Motility Assay. Begynd med sporede billeder fra Timelapse, eller hent eksempelarkivet nedenfor for at følge med.",
+    "Udpak eksemplet, og sæt Source til mappen, der indeholder merged. Vælg cells som sporede objekter, kernekanal 0 og cellekanal 1. Lad patogenkanalen være uindstillet i dette eksempel.",
+    "Slå Live til for at åbne Motility preview, og vælg den samme projektmappe. Brug forhåndsvisningen til at undersøge spor og prøve filtre, før du kører hele analysen. Lad Propagate settings være slået fra, mens du afprøver midlertidige valg.",
+    "Indstil to intensitetskanaler, sporet maskeplan 2 og patogenmaskeplan −1, hvilket betyder ingen. Forhåndsvis alle otte billeder. I forhåndsvisningen sætter du begge kalibreringsværdier til 0 for dette ukalibrerede eksempel og klikker derefter på Run preview.",
+    "Med mindste sporlængde 3 har eksemplet seksten brugbare spor. Gennemgå banerne, længdefordelingen og hastighedsoversigten. Hastigheden er omkring 1,4 pixel pr. billede, fordi eksemplet mangler optageskala og interval.",
+    "Min track length angiver, hvor mange billeder et objekt skal strække sig over for at indgå i oversigten. Øg værdien for at udelukke korte spor, og følg med i antallet, der bliver tilbage. Behold 3 for dette eksempel med otte billeder.",
+    "Drop over-straight tracks udelukker spor over den valgte tærskel for retlinethed. Retlinethed er nettoforskydningen divideret med hele banens længde. Sammenlign de tilbageværende spor og plot, før du vælger en tærskel; lad filteret være slået fra, når retlinet bevægelse er en del af dit forsøg.",
+    "For optagede data indtaster du pixel pr. mikrometer og sekunder pr. billede fra mikroskopets og optagelsens metadata. Med begge værdier kan forhåndsvisningen angive hastigheden i mikrometer pr. minut. For at afprøve omregningen på dette undervisningseksempel ændrer to pixel pr. mikrometer og 60 sekunder pr. billede gennemsnittet til omkring 0,7. Det er eksempelværdier, ikke en målt kalibrering.",
+    "Indstil også pixelskala og billedinterval i formularen til hele analysen; ændringer i forhåndsvisningen er adskilte, indtil du overfører dem. Kontrollér det valgte objekt, kanaler og filtre, før du starter kørslen. Gem optageværdierne sammen med dine resultater.",
+    "Lad Reuse existing measurements være slået fra i den første kørsel, og slå graferne til kvalitetskontrol til. Uden patogenkanal lader du kvalitetskontrollen af infektion være deaktiveret. Klik på Run, og følg forløbet i konsollen.",
+    "Når kørslen er færdig, åbner du measurements og derefter measurements.db i projektmappen. Den valgte tabel indeholder observationer pr. billede; den tilhørende tabel well_motility opsummerer bevægelsen pr. brønd. Undersøg de gemte plot og deres enheder, før du sammenligner betingelser eller eksporterer figurer."
   ]
 }

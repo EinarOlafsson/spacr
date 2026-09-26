@@ -179,3 +179,58 @@ def test_shortcuts_scroll_instead_of_compressing_text(screen, qtbot):
     qtbot.wait(20)
     top = last.mapTo(scroll.viewport(), QPoint()).y()
     assert 0 <= top and top + last.height() <= scroll.viewport().height()
+
+
+def _write_calibrated(path, image, microns_per_pixel):
+    """A TIFF whose ImageJ header states ``microns_per_pixel`` (y, x)."""
+    import tifffile
+    y, x = microns_per_pixel
+    tifffile.imwrite(path, image, imagej=True,
+                     resolution=(1.0 / x, 1.0 / y), metadata={'unit': 'micron'})
+
+
+def test_ruler_takes_only_the_spacing_the_file_header_states(qapp, tmp_path):
+    image = np.zeros((40, 60), dtype=np.uint16)
+    stated = tmp_path / 'stated.tif'
+    _write_calibrated(stated, image, (0.5, 0.25))
+    bare = tmp_path / 'bare_40x_.tif'
+    imageio.imwrite(bare, image)
+    ruler = ImageRuler()
+    ruler.start, ruler.end = (0, 0), (4, 3)
+    assert ruler.calibrate_from_file(stated, image.shape) == pytest.approx((0.25, 0.5))
+    assert ruler.length(True) == pytest.approx(hypot(4 * 0.25, 3 * 0.5))
+    assert 'µm' in ruler.label()
+    assert ruler.calibrate_from_file(bare, image.shape) is None
+    assert ruler.spacing is None and ruler.label() == '5.00 px'
+    assert ruler.calibrate_from_file(stated, (20, 30)) is None
+    assert ruler.spacing is None
+    assert ruler.calibrate_from_file(stated, (40, 60, 3)) is not None
+    assert ruler.calibrate_from_file(tmp_path / 'missing.tif') is None
+    assert ruler.calibrate_from_file('') is None and ruler.spacing is None
+
+
+def test_preview_ruler_reads_the_loaded_files_calibration(qtbot, tmp_path):
+    image = np.arange(64 * 64, dtype=np.uint16).reshape(64, 64)
+    stated = tmp_path / 'stated.tif'
+    _write_calibrated(stated, image, (0.2, 0.2))
+    bare = tmp_path / 'bare.tif'
+    imageio.imwrite(bare, image)
+    panel = LivePreviewPanel()
+    qtbot.addWidget(panel)
+    assert panel.load_image(stated)
+    assert panel._src_view.ruler.spacing == pytest.approx((0.2, 0.2))
+    assert panel.load_image(bare)
+    assert panel._src_view.ruler.spacing is None
+    panel.close()
+
+
+def test_make_masks_ruler_reads_the_opened_fields_calibration(screen, tmp_path):
+    image = np.zeros((48, 48), dtype=np.uint16)
+    _write_calibrated(tmp_path / 'stated.tif', image, (0.65, 0.65))
+    screen._folder = str(tmp_path)
+    mask = np.zeros_like(image)
+    screen._apply_loaded_pair('stated.tif', screen._load_token, image, mask)
+    assert screen._canvas.ruler.spacing == pytest.approx((0.65, 0.65))
+    imageio.imwrite(tmp_path / 'bare.tif', image)
+    screen._apply_loaded_pair('bare.tif', screen._load_token, image, mask)
+    assert screen._canvas.ruler.spacing is None

@@ -119,10 +119,11 @@
     },
     {
       "context": "The dim solve runs here as well as in :func:`build_master`, and it is deliberately not redundant: on the shipped masters it resolves to a no-op because they are already at the limit, but a user who drops their own photograph into ``~/.spacr/themes`` gets the same guarantee without having to know it exists. Solving costs one pass over a 480 px thumbnail plus one 256-entry lookup table.",
-      "label": "spacr.qt.imagery.render#3",
+      "label": "spacr.qt.imagery.render#6",
       "source": "The dim solve runs here as well as in :func:`build_master`, and it is deliberately not redundant: on the shipped masters it resolves to a no-op because they are already at the limit, but a user who drops their own photograph into ``~/.spacr/themes`` gets the same guarantee without having to know it exists. Solving costs one pass over a 480 px thumbnail plus one 256-entry lookup table.",
       "source_sha256": "c9dba032bf8b5ee588ac390cf842c991e39ac6f643b6ad0f57ea081d82380b17",
-      "translation": "Dökku leysa keyrir hér sem og í :func:`build_master`, og það er viljandi ekki óþarft: á þeim sendu meistarum leysist það sem engin aðgerð vegna þess að þeir eru þegar komnir að takmörkun, en notandi sem stingur eigin ljósmynd í ``~/.spacr/themes`` fær sama ábyrgðina án þess að þurfa að vita að hún sé til. Lausn kostar eina ferð yfir 480 punkta forskoðunarmynd auk eitt 256-liða uppflettingartöflu."
+      "translation": "Dökku leysa keyrir hér sem og í :func:`build_master`, og það er viljandi ekki óþarft: á þeim sendu meistarum leysist það sem engin aðgerð vegna þess að þeir eru þegar komnir að takmörkun, en notandi sem stingur eigin ljósmynd í ``~/.spacr/themes`` fær sama ábyrgðina án þess að þurfa að vita að hún sé til. Lausn kostar eina ferð yfir 480 punkta forskoðunarmynd auk eitt 256-liða uppflettingartöflu.",
+      "rebound_from": "spacr.qt.imagery.render#3"
     },
     {
       "context": "The settings that produced a processing session are *not* in the processing-session folder: ``save_settings`` writes them to ``<src>/settings/train_test_<model_type>_<epochs>.csv`` as a ``Key,Value`` CSV. :func:`load_run` walks up from the processing-session folder to find it — but only as far as the processing session's own project root, which the layout above makes identifiable: ``<src>`` is the folder the ``model/`` tree hangs off. An ancestor above that belongs to a different project, and reading it would report somebody else's settings as this processing session's provenance, so the settings diff would show differences nobody configured and the answer would depend on where in the filesystem the project happened to sit. See :func:`_owns_this_run`.",
