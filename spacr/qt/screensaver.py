@@ -71,7 +71,8 @@ class Screensaver(QWidget):
             return create_fractal_widget(
                 Settings(pattern=values["pattern"],
                          backend=values["backend"],
-                         quality=values["quality"], scale=values["scale"]),
+                         quality=values["quality"], scale=values["scale"],
+                         supersampling=values.get("supersampling", 2)),
                 RuntimeControls(
                     speed=values["speed"], dream=values["dream"],
                     variable_speed=values["variable_speed"],

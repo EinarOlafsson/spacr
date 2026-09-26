@@ -423,3 +423,113 @@ class TestTheExplanationScreens:
         assert "gain" not in panel.importance_methods()
         panel.backend.setCurrentIndex(panel.backend.findData("random_forest"))
         assert panel.importance_boxes["gain"].isChecked()
+
+
+class TestTheActivationSweepOffersTheNewMethods:
+    """Item 18 follow-up: the hyperparameter sweep's cam_type candidates."""
+
+    NEW = ("hirescam", "ablation_cam", "gradient_shap", "deeplift_shap",
+           "chefer")
+
+    def test_the_default_grid_names_every_new_method(self):
+        from spacr.hyperparam import DEFAULT_SPACES
+
+        methods = DEFAULT_SPACES["activation"]["cam_type"]
+        for name in self.NEW:
+            assert name in methods
+        assert all(name in att.ATTRIBUTION_METHODS for name in methods)
+        families = {att.ATTRIBUTION_METHODS[m].family for m in methods}
+        assert families == {"cam", "gradient", "shap", "perturbation",
+                            "attention"}
+
+    def test_the_form_aliases_reach_the_registry_names(self):
+        from spacr.hyperparam import _activation_params
+
+        assert _activation_params({"cam_type": "torchcam_gradcam"})[0] \
+            == "gradcam"
+        assert _activation_params({"cam_type": "torchcam_gradcam_pp"})[0] \
+            == "gradcam_pp"
+        assert _activation_params({"cam_type": "saliency_image"})[0] \
+            == "saliency"
+        assert _activation_params({"cam_type": "hirescam"})[0] == "hirescam"
+
+    def _space(self, model, model_type=None):
+        from spacr.hyperparam import (DEFAULT_SPACES, ActivationSearchData,
+                                      SearchSpace,
+                                      _applicable_activation_space)
+
+        data = ActivationSearchData(model=model, images=[],
+                                    model_type=model_type)
+        space = SearchSpace(DEFAULT_SPACES["activation"])
+        return _applicable_activation_space(space, data)
+
+    def test_a_cnn_keeps_the_cams_and_shap_and_drops_chefer(self):
+        space, notes = self._space(CornerCNN())
+        kept = space.params["cam_type"]
+        for name in ("hirescam", "ablation_cam", "gradient_shap",
+                     "deeplift_shap", "saliency"):
+            assert name in kept
+        assert "chefer" not in kept
+        assert any("'chefer'" in note and "Vision Transformers" in note
+                   for note in notes)
+
+    def test_a_resnet_also_drops_deeplift_shap_with_the_reason(self):
+        from torchvision.models import resnet18
+
+        space, notes = self._space(resnet18(weights=None), "resnet18")
+        kept = space.params["cam_type"]
+        assert "deeplift_shap" not in kept and "chefer" not in kept
+        assert "hirescam" in kept and "gradient_shap" in kept
+        assert any("'deeplift_shap'" in note and "ReLU" in note
+                   for note in notes)
+
+    def test_a_vit_keeps_chefer_and_drops_every_cam(self):
+        space, notes = self._space(TinyViT(), "vit_b_16")
+        kept = space.params["cam_type"]
+        assert "chefer" in kept and "gradient_shap" in kept
+        for name in ("gradcam", "gradcam_pp", "layercam", "hirescam",
+                     "ablation_cam"):
+            assert name not in kept
+            assert any(f"'{name}'" in note for note in notes)
+
+    def test_nothing_applicable_is_refused_with_the_reasons(self):
+        from spacr.hyperparam import (ActivationSearchData, SearchSpace,
+                                      _applicable_activation_space)
+
+        data = ActivationSearchData(model=CornerCNN(), images=[])
+        with pytest.raises(ValueError, match="chefer"):
+            _applicable_activation_space(
+                SearchSpace({"cam_type": ["chefer"]}), data)
+
+    def test_the_sweep_runs_the_filtered_grid_and_says_what_it_left_out(
+            self, monkeypatch):
+        from spacr import hyperparam as hp
+
+        captured = {}
+
+        def grid(fit, space, **kwargs):
+            captured.update(space=space, notes=kwargs["notes"])
+            return hp.SearchResult(metric="deletion_auc")
+
+        monkeypatch.setattr(hp, "grid_search", grid)
+        data = hp.ActivationSearchData(model=CornerCNN(), images=[object()])
+        hp.activation_search(
+            data, hp.SearchSpace({"cam_type": ["hirescam", "chefer"]}))
+        assert tuple(captured["space"].params["cam_type"]) == ("hirescam",)
+        assert any("'chefer' was left out" in n for n in captured["notes"])
+
+    def test_a_replaced_attribution_call_is_not_filtered(self, monkeypatch):
+        from spacr import hyperparam as hp
+
+        captured = {}
+
+        def grid(fit, space, **kwargs):
+            captured.update(space=space)
+            return hp.SearchResult(metric="deletion_auc")
+
+        monkeypatch.setattr(hp, "grid_search", grid)
+        data = hp.ActivationSearchData(model=CornerCNN(), images=[object()])
+        space = hp.SearchSpace({"cam_type": ["chefer"]})
+        hp.activation_search(data, space,
+                             attribute_fn=lambda *_a: np.zeros((2, 2)))
+        assert captured["space"] is space

@@ -185,7 +185,6 @@ def test_a_runtime_setting_reaches_the_running_backdrop(
     ("path", "guided"),
     ("steering", 0.8),
     ("max_depth", 12.0),
-    ("supersampling", 3),
     ("seconds_per_decade", 10.0),
     ("base_iterations", 250),
     ("iterations_per_decade", 70.0),
