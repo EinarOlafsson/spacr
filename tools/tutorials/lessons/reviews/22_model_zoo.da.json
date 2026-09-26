@@ -1,17 +1,30 @@
 {
-  "lesson": "22_model_zoo", "language": "da", "english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "Model Zoo: find modeller og undersøg deres oprindelse",
-  "description": "Åbn det indlejrede modelbibliotek, scan en eksisterende lokal cache, og skeln mellem registreret træningsinformation og ukendt oprindelse. Cellposes aktuelle inkompatibilitet forhindrer en dokumenteret benchmark.",
-  "objectives": ["Find Model Zoo i Make Masks og scan en lokal modelmappe.", "Læs kilde, type, kontrolsum og træning uden at forveksle ukendte metadata med validering.", "Skeln mellem modeladministration, download, træning og benchmark."],
-  "prerequisite": "spaCR 1.5.0.7 nightly. Optagelsen scanner en eksisterende Cellpose-cache og vælger den originale cpsam-fil uden download, træning eller inferens. Brug din egen mappe, ikke præsentatorens personlige sti. De valgte metadata har ingen offentliggjort kontrolsum, træningsdatasæt eller forfatter; intet udledes af navnet. En separat hash viser kun, at den lokale fil ikke ændredes under optagelsen, ikke dens oprindelse. Model Zoo-benchmark og Model Compare sender invert, som Cellpose 4.2.1.1 ikke understøtter. Appfejlen hverken repareres eller omgås her. Plaque-lektionen viser en faktisk download og forhåndsvisning. Ingen nøjagtighedssammenligning eller uafhængig validering påstås.",
+  "lesson": "22_model_zoo",
+  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Model Zoo: vælg en model, og prøv den på dine billeder",
+  "description": "Åbn Model Zoo, find eller hent et checkpoint, undersøg dets detaljer, og vælg et lille billedsæt til en afprøvning.",
+  "objectives": [
+    "Åbne Model Zoo og scanne en lokal modelmappe.",
+    "Vælge modelfamilie og version og derefter undersøge detaljerne.",
+    "Køre en lille billedafprøvning og undersøge de resulterende masker og kvalitetsoversigter."
+  ],
+  "prerequisite": "Udpak det linkede eksempel, og brug dets mappe images til afprøvningen med tre synsfelter. Vælg en installeret Cellpose-segmenteringsmodel, eller hent et egnet checkpoint via Model Zoo. Til din egen afprøvning forbereder du nogle repræsentative TIFF-, PNG-, NPY- eller NPZ-billeder.",
   "scenes": [
-    "Model Zoo er modelbiblioteket inde i Make Masks. Åbn værtsmodulet og derefter dets Model Zoo-kontrol. Lektionen viser det virkelige bibliotek og scanning af lokale modeller, ikke ny træning eller en benchmark af nøjagtighed.",
-    "Tabellen samler offentliggjorte poster og lokalt fundne filer. Læs modeltype og kilde sammen. At en model står på listen betyder ikke, at den er downloadet, testet på dine billeder eller valideret til dit forsøg.",
-    "Indtast en eksisterende modelmappe og tryk Scan, eller vælg den med knappen ved siden af. Her scanner vi den rigtige Cellpose-cache. Brug din egen sti. Scanning finder filer og metadata; den træner ikke modeller og segmenterer ikke billeder.",
-    "Denne scanning viser otte poster: nogle offentliggjorte fjernmodeller og nogle lokale vægtfiler. Antallet beskriver denne computer, ikke en obligatorisk opsætning. Vælg den præcise fil; lignende navne garanterer ikke samme vægte.",
-    "Den valgte lokale fil har hverken offentliggjort kontrolsum eller registreret træningsoprindelse i denne visning. Ukendt betyder ukendt. Navnet beviser ikke et træningsdatasæt. Vores hash bekræfter, at filen var uændret under optagelsen, ikke hvem der skabte den, eller hvor godt den fungerer.",
-    "Downloadområdet bestemmer, hvor en tilgængelig fjernmodel gemmes. Det giver også et valg for modeller uden offentliggjort kontrolsum. En manglende kontrolsum er ikke en verificering. Denne lokale fil downloades ikke igen. Plaque-lektionen viser en faktisk download og forhåndsvisning.",
-    "Det nederste område bruges til at teste billedfelter og sammenligne valgte modeller. Det er andre opgaver end biblioteksscanning. Den aktuelle Cellpose-argumentfejl forhindrer os i at påstå en vellykket benchmark. Ingen masker eller testtal er opdigtede. Hold repræsentative valideringsbilleder adskilt fra træningseksempler, når det reparerede forløb evalueres."
+    "Fra Home åbner du Make Masks og vælger derefter Model Zoo. Brug denne side til at finde en segmenteringsmodel og prøve den på et lille billedsæt.",
+    "Klik på Choose folder, og vælg din modelmappe for at scanne den. Hvis du skriver stien, klikker du på Scan. Slå de kildeoverskrifter til, du vil gennemse, for eksempel Cellpose eller lokale modeller.",
+    "Vælg en modelfamilie, og brug dens kontrol Version til at vælge checkpoint. Læs detaljerne om billedtype, træningsoplysninger og lokal sti. For et eksternt checkpoint vælger du en mappe i Save to og klikker på Download, før du prøver det.",
+    "Udpak det linkede eksempel, og vælg dets mappe images under Test on fields. Sæt antallet af synsfelter til 3. Til dine egne billeder begynder du med et lille sæt, der indeholder typiske synsfelter og vanskelige tilfælde.",
+    "Vælg den lokale segmenteringsmodel, og klik på Test on fields. Vent, til afprøvningen er færdig. Større billeder og modeller kan tage længere tid, især på en CPU.",
+    "Vælg en resultatrække for at undersøge dens maskeforhåndsvisning. Kontrollér grænser, objekter, der rører hinanden, og oversete objekter mod billedet. Brug objektantallet og kvalitetsmarkeringerne til at finde synsfelter, der bør undersøges nærmere.",
+    "Gennemgå oversigterne for synsfelterne, og gem derefter stien til det valgte checkpoint til dit analysemodul. For at sammenligne to forskellige modelfamilier på de samme billeder vælger du begge rækker og derefter Compare the two selected. Brug versionskontrollen til at prøve en anden version af samme familie."
   ]
 }

@@ -1,17 +1,30 @@
 {
-  "lesson": "22_model_zoo", "language": "zh-CN", "english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "Model Zoo：查找模型并检查来源",
-  "description": "打开嵌套的模型库，扫描现有本地缓存，区分已记录的训练信息与未知来源。当前Cellpose参数不兼容问题尚在，不能声称已成功完成基准测试。",
-  "objectives": ["在Make Masks内找到Model Zoo并扫描本地模型目录。", "解读来源、类型、校验和及训练信息，不将未知元数据视为验证。", "区分模型管理、下载、训练和基准测试。"],
-  "prerequisite": "spaCR 1.5.0.7 nightly。真实录制只扫描现有Cellpose缓存并选择原始cpsam文件，不下载、不训练、不执行推理。请使用自己的模型目录，不要照搬演示者的个人路径。所选元数据没有公开校验和、训练数据集或作者，不能根据文件名推断。独立计算的哈希只能证明录制期间本地文件未改变，不能证明来源。Model Zoo基准测试和Model Compare传入Cellpose 4.2.1.1不支持的invert参数；这里不修复或绕过应用缺陷。真实下载和预览请参阅Plaque教程。本课不声称进行了准确性比较或独立数据验证。",
+  "lesson": "22_model_zoo",
+  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Model Zoo：选择模型并在您的图像上试用",
+  "description": "打开Model Zoo，查找或下载检查点，查看其详细信息，并选择一小组图像进行试用。",
+  "objectives": [
+    "打开Model Zoo并扫描本地模型文件夹。",
+    "选择模型系列和版本，然后查看其详细信息。",
+    "在少量图像上运行试用，并检查生成的掩膜和质量汇总。"
+  ],
+  "prerequisite": "解压链接中的示例，使用其中的images文件夹进行三个视野的试用。选择一个已安装的Cellpose分割模型，或通过Model Zoo下载合适的检查点。自行试用时，请准备几张有代表性的TIFF、PNG、NPY或NPZ图像。",
   "scenes": [
-    "Model Zoo是Make Masks内部的模型库。打开父模块，再使用Model Zoo控件。本课演示真实的模型库和本地模型扫描，不进行新训练或准确性基准测试。",
-    "表格将已发布条目和本地发现的文件放在同一视图中。请结合模型类型和来源两列阅读。出现在列表中不表示模型已下载、已在您的图像上测试，或已针对您的实验验证。",
-    "输入现有模型目录并点击Scan，或用旁边的按钮选择文件夹。这里扫描真实的Cellpose缓存。请使用自己的路径。扫描只发现文件和元数据，不训练模型，也不执行分割。",
-    "此次扫描显示八个条目，既有公开的远程模型，也有本地权重文件。数量描述的是这台机器，并非必需配置。请选择确切的目标文件，不要认为相似名称就代表相同权重。",
-    "在这个视图中，所选本地文件没有公开校验和，也没有记录训练来源。未知就是未知。名称不是训练数据集的证据。我们计算的哈希确认录制未改变文件，却不能证明作者身份或模型性能。",
-    "下载区域决定将可用的远程模型保存在哪里，也提供处理没有公开校验和的模型的选项。缺少校验和不等于下载已验证。我们不会重新下载当前选中的本地文件。Plaque课程展示真实的模型下载和预览。",
-    "下方区域用于测试视野和比较所选模型，这些任务与扫描模型库不同。当前Cellpose参数不兼容，因而不能声称这里成功完成了基准测试。我们不编造掩膜或测试分数。评估修复后的流程时，应将有代表性的验证图像与训练示例分开。"
+    "从Home打开Make Masks，然后选择Model Zoo。在这个页面上可以查找分割模型，并在一小组图像上试用。",
+    "点击Choose folder，选择您的模型目录进行扫描。如果是手动输入路径，请点击Scan。开启想浏览的来源标题，例如Cellpose或本地模型。",
+    "选择一个模型系列，用它的Version控件选择检查点。阅读关于图像类型、训练信息和本地路径的详细信息。对于远程检查点，试用之前请在Save to中选择文件夹，然后点击Download。",
+    "解压链接中的示例，在Test on fields下选择其中的images文件夹。把视野数量设为三。使用自己的图像时，请从一小组包含典型视野和困难情况的图像开始。",
+    "选择本地分割模型，点击Test on fields。等待试用完成。较大的图像和模型可能需要更长时间，尤其是在CPU上。",
+    "选择一行结果，查看其掩膜预览。对照图像检查边界、相互接触的对象和漏检的对象。借助对象数量和质量标记，找出需要仔细检查的视野。",
+    "查看各视野的汇总，然后记下所选检查点的路径，供分析模块使用。要在同一组图像上比较两个不同的模型系列，请选中两行并选择Compare the two selected。要试用同一系列的其他版本，请使用版本控件。"
   ]
 }
