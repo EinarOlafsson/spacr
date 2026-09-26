@@ -239,8 +239,15 @@ UNKNOWN = "unknown"
 #: ``cellpose_dino`` is a Cellpose-DINO checkpoint, which runs through the
 #: Cellpose-DINO backend (item 525): spaCR's own Cellpose 4 has no DINOv3,
 #: and without it Cellpose 4 cannot build the network the weights are for.
+#:
+#: Each backend an object chooses by a model-setting prefix of its own --
+#: StarDist, InstanSeg, Omnipose (items 551-553) -- is a kind named after
+#: it (:data:`PREFIXED_KINDS`): its models run in that backend and nowhere
+#: else.
+PREFIXED_KINDS = tuple(_name for _name, _spec in _BACKEND_SPECS.items()
+                       if _spec.prefix)
 KINDS = ("cellpose", "classifier", "detector", "encoder", "backend",
-         "cellpose3", "cellpose_dino")
+         "cellpose3", "cellpose_dino") + PREFIXED_KINDS
 #: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
 #: lists so a user learns it exists and can install it from inside spaCR.
 
@@ -2533,6 +2540,42 @@ def _cellpose3_model_entries() -> List["ModelEntry"]:
     return out
 
 
+def _mask_model_kinds() -> Tuple[str, ...]:
+    """The kinds an object's model setting in Mask generation can run:
+    Cellpose-SAM, Cellpose 3, Cellpose-DINO and each prefixed backend's
+    models. What every Model zoo button beside such a setting asks for."""
+    return ("cellpose", "cellpose3", "cellpose_dino") + PREFIXED_KINDS
+
+
+def _prefixed_model_entries() -> List["ModelEntry"]:
+    """The models of each prefixed backend (StarDist, InstanSeg, Omnipose),
+    listed whether or not the backend is here.
+
+    As for Cellpose 3's own models the name is the path: Use this model
+    writes ``<prefix><name>`` into the object's model setting. Until the
+    backend is installed the row has no path, says what it needs, and
+    choosing it offers the install.
+    """
+    from ._segmentation_backends import _backend_state
+
+    out = []
+    for name in PREFIXED_KINDS:
+        spec = _BACKEND_SPECS[name]
+        ready = _backend_state(name).ready
+        for model in spec.models:
+            out.append(ModelEntry(
+                key=f"{name}_{model}", name=model, kind=name,
+                source="stock", path=model if ready else "",
+                uri=f"backend:{name}", sha256="", size_bytes=0,
+                trained_on=(f"{spec.label}'s own {model} model. Runs "
+                            f"through the {spec.label} backend."),
+                trained_by=spec.label, licence=spec.licence,
+                notes=() if ready else (
+                    f"needs the {spec.label} backend, which installs from "
+                    f"this list into an environment of its own",)))
+    return out
+
+
 def _backend_for(entry: Any) -> str:
     """The optional segmentation backend a zoo row needs, or ``''``.
 
@@ -2544,7 +2587,7 @@ def _backend_for(entry: Any) -> str:
     if uri.startswith("backend:"):
         return uri.split(":", 1)[1]
     kind = getattr(entry, "kind", "")
-    if kind in ("cellpose3", "cellpose_dino"):
+    if kind in ("cellpose3", "cellpose_dino") + PREFIXED_KINDS:
         return kind
     return ""
 
@@ -2756,7 +2799,8 @@ def source_of(entry: Any) -> str:
         return "cellpose3"
     if kind == "cellpose" and source == "stock":
         return "cellposeSAM"
-    if kind == "backend" or source in _SPACR_OWN_SOURCES:
+    if (kind == "backend" or kind in PREFIXED_KINDS
+            or source in _SPACR_OWN_SOURCES):
         return "spaCR"
     LOG.warning(
         "model zoo: %r (kind=%r, source=%r) matches no source heading; "
@@ -2832,6 +2876,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     entries.extend(stock_cellpose_entries())
     entries.extend(installable_backend_entries())
     entries.extend(_cellpose3_model_entries())
+    entries.extend(_prefixed_model_entries())
     if remote:
         entries.extend(bioimageio_entries())
     if remote:

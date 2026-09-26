@@ -346,3 +346,112 @@ def test_spacrs_application_filters_are_behind_the_hub_and_none_hears_a_restyle(
              QEvent.Type.DynamicPropertyChange, QEvent.Type.Resize,
              QEvent.Type.Move, QEvent.Type.ChildAdded}
     assert not storm & set(hub._by_kind)
+
+
+# ---------------------------------------------------------------------------
+# 43, 2026-09-26: a Qt shard died with a segfault while events were being
+# processed around the GUI-scale tests, and the hub was the first suspect.
+# The crash was the GUI scale's (see test_the_gui_scale_fits_a_laptop.py);
+# these hold the hub to the two things that were suspected of it.
+# ---------------------------------------------------------------------------
+
+
+def test_a_watcher_widget_deleted_by_qt_is_skipped_then_forgotten():
+    """A module screen registers ITSELF, and Qt deletes it on its own time.
+
+    Behind the hub the watcher is only weakly held, so a widget Qt has
+    destroyed -- by ``deleteLater`` or with its parent -- must be skipped
+    without a call into freed memory, and then dropped, as Qt drops a
+    destroyed filter, rather than looked at on every event for the rest of
+    the process.
+    """
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QWidget
+    from shiboken6 import isValid
+
+    from spacr.qt.gil_priority import (_application_event_hub,
+                                       _application_watchers,
+                                       _stop_watching_application_events,
+                                       _watch_application_events)
+
+    app = _hub_app()
+    kinds = (QEvent.Type.Enter, QEvent.Type.Leave, QEvent.Type.User)
+    calls = []
+
+    class _ScreenLike(QWidget):
+        def eventFilter(self, watched, event):  # noqa: N802
+            calls.append((self.objectName(), event.type()))
+            return False
+
+    parent = QWidget()
+    doomed = _ScreenLike()
+    doomed.setObjectName("doomed")
+    child = _ScreenLike(parent)
+    child.setObjectName("child")
+    survivor = _recorder("survivor", calls)
+    for watcher in (survivor, doomed, child):
+        _watch_application_events(app, watcher, kinds)
+    try:
+        doomed.deleteLater()
+        parent.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        app.processEvents()
+        assert not isValid(doomed) and not isValid(child)
+
+        target = QWidget()
+        for kind in kinds:
+            QCoreApplication.sendEvent(target, QEvent(kind))
+        target.deleteLater()
+        assert [name for name, _kind in calls] == ["survivor"] * 3
+
+        hub = _application_event_hub(app, create=False)
+        assert all(isValid(entry[0]()) for entry in hub._entries
+                   if entry[0]() is not None)
+        assert doomed not in _application_watchers(app)
+        assert child not in _application_watchers(app)
+        assert survivor in _application_watchers(app)
+    finally:
+        _stop_watching_application_events(app, survivor)
+
+
+def test_events_nobody_asked_for_are_passed_on_untouched():
+    """The hub only ever narrows who is ASKED; it never eats an event.
+
+    Tooltips, hover, enter and cursor changes are what the tooltip, sound
+    and cursor watchers act on; with a watcher registered for something
+    else entirely, the hub must hand every one of them back to Qt (return
+    ``False``) without asking anybody. A hub of its own, so the watchers
+    other tests leave on the application -- the tooltip policy, which does
+    take ``ToolTip`` on purpose -- are not what is being measured.
+    """
+    from PySide6.QtCore import QEvent, QPoint, QPointF
+    from PySide6.QtGui import QHelpEvent, QHoverEvent
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.gil_priority import _application_event_hub_class
+
+    _hub_app()
+    calls = []
+    bystander = _recorder("bystander", calls)
+    hub = _application_event_hub_class()()
+    hub.add(bystander, (QEvent.Type.User,))
+    target = QWidget()
+    sent = [
+        QHelpEvent(QEvent.Type.ToolTip, QPoint(1, 1), QPoint(1, 1)),
+        QEvent(QEvent.Type.Enter),
+        QEvent(QEvent.Type.Leave),
+        QHoverEvent(QEvent.Type.HoverMove, QPointF(1, 1), QPointF(1, 1),
+                    QPointF(0, 0)),
+        QEvent(QEvent.Type.CursorChange),
+        QEvent(QEvent.Type.Polish),
+        QEvent(QEvent.Type.Show),
+    ]
+    try:
+        assert [hub.eventFilter(target, event) for event in sent] == (
+            [False] * len(sent))
+        assert calls == []
+        assert hub.eventFilter(target, QEvent(QEvent.Type.User)) is False
+        assert calls == [("bystander", QEvent.Type.User)]
+    finally:
+        target.deleteLater()
+        hub.deleteLater()

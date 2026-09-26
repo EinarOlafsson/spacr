@@ -1124,6 +1124,12 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('adjust_cells', True)
     settings.setdefault('mask_parallel', False)
     settings.setdefault('mask_gpu_indices', '')
+    settings.setdefault('watch_folder', False)
+    settings.setdefault('watch_pipeline', 'mask')
+    settings.setdefault('watch_measure_settings', '')
+    settings.setdefault('watch_settle_seconds', 10.0)
+    settings.setdefault('watch_poll_seconds', 5.0)
+    settings.setdefault('watch_idle_minutes', 0.0)
 
     settings.setdefault('z_stack', False)
     settings.setdefault('z_segmentation_mode', 'project')
@@ -1663,6 +1669,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('spatial_neighbor_radius', 50)
     settings.setdefault('bystander_measurements', False)
     settings.setdefault('bystander_reach_in_diameters', 1.0)
+    settings.setdefault('confluency', False)
+    settings.setdefault('confluency_source', 'auto')
+    settings.setdefault('confluency_channel', None)
+    settings.setdefault('confluency_window', 15)
+    settings.setdefault('confluency_qc_threshold', 0.8)
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3282,6 +3293,12 @@ expected_types = {
     "keep_original_images": bool,
     "mask_parallel": bool,
     "mask_gpu_indices": str,
+    "watch_folder": bool,
+    "watch_pipeline": str,
+    "watch_measure_settings": str,
+    "watch_settle_seconds": float,
+    "watch_poll_seconds": float,
+    "watch_idle_minutes": float,
     "save": bool,
     "plot": bool,
     "tensorboard": bool,
@@ -3420,6 +3437,11 @@ expected_types = {
     "radial_dist": bool,
     "bystander_measurements": bool,
     "bystander_reach_in_diameters": float,
+    "confluency": bool,
+    "confluency_source": str,
+    "confluency_channel": (int, type(None)),
+    "confluency_window": int,
+    "confluency_qc_threshold": (float, int, type(None)),
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4425,6 +4447,12 @@ tooltips = {
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
     "mask_parallel": "(bool) - Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
     "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+    "watch_folder": "(bool) - Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.",
+    "watch_pipeline": "(str) - What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' then runs Measure on the field's merged stacks and appends its rows to src/spacr_watch/measurements/measurements.db. Default 'mask'.",
+    "watch_measure_settings": "(str) - A Measure settings file (.csv or .json, as the Measure screen saves them) that watch_pipeline 'mask_measure' measures every field with. Blank uses Measure's defaults with this run's channels. Default blank.",
+    "watch_settle_seconds": "(float) - How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
+    "watch_poll_seconds": "(float) - How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
+    "watch_idle_minutes": "(float) - Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
@@ -4510,7 +4538,7 @@ tooltips = {
     "experiment": "(str) - Free-text run label. Its real effect is naming the exported PNG dataset tar as <YYMMDD>_<experiment>.tar (a random-numbered variant is used if that name already exists), so give each screen a distinct value to avoid confusing dataset tars. It is also passed to the measurement-database writer but not stored there. Default 'experiment' (the barcode pipeline uses 'experiment_1' and a foreign import uses 'foreign_import').",
     "figuresize": "(int) - Base figure size in inches; figures are built square as figuresize x figuresize and font sizes are derived from it (legend, axis labels and ticks at 0.75x, overlay text at 0.5x). Raise it when text is unreadable at publication scale, lower it to fit panels on screen. Default 10; cluster grids cap total width at 200 inches.",
     "filter_by": "(str or None) - Restricts the feature matrix before dimensionality reduction: only columns matching this channel are kept and the other channel_1-channel_4 columns are dropped. Accepts 'channel_0'-'channel_3', an int, a list of channel numbers, or 'morphology' to keep only shape features (area, eccentricity, Zernike moments, ...). None, 'None', 'all', and '*' disable filtering. Default 'channel_0'.",
-    "fill_in": '(bool) - Post-process each Cellpose mask with fill_holes_in_mask in the mask-finetune and plaque tools. The mask is relabelled by connectivity over all nonzero pixels, then interior holes are filled component by component. Relabelling does not preserve the original label values, so touching objects can merge. Default False. Plaque Analysis starts with this enabled so plaque interiors are filled before scoring.',
+    "fill_in": '(bool) - Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks.',
     "flow_threshold": "(float) - Cellpose flow_threshold: the maximum allowed error between the predicted flow field and the flows recomputed from each candidate mask; masks above it are discarded. Raise it to keep more objects, including irregularly shaped ones; lower it to reject poorly formed masks and reduce false positives. Default 0.4.",
     "fps": "(int) - Playback rate of the per-channel movies written to <src>/movies from timelapse .npy stacks, and only when timelapse is True. Raise it to skim long acquisitions, lower it to inspect individual frames. Affects the movies only - never tracking, segmentation or measurements. Default 2.",
     "calibrate_fraction_threshold": "(bool) - Estimate fraction_threshold from control wells instead of using the configured value. The sweep recomputes per-well fractions across candidate cutoffs and selects the cutoff with greatest imaging-sequencing agreement. The plate design must identify pure control wells independently; selecting controls by the measured fraction would be circular. Default False.",
@@ -4582,7 +4610,7 @@ tooltips = {
     "nucleus_signal_to_noise": "(float) - Multiplied by nucleus_background to define the intensity a bright pixel must reach before normalisation stops increasing the upper clip point. spaCR evaluates the 98th through 99.5th percentiles of the non-zero nucleus channel and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. A higher value raises the clip point, reduces contrast stretching and protects bright nuclei from saturation; a lower value increases contrast for dim nuclei but saturates bright nuclei sooner. Default 10.",
     "pathogen_size_range": "(list) - Two-element [min, max] area filter in pixels squared applied to the pathogen table in analyze_recruitment, well after segmentation: rows with pathogen_area outside the open interval are dropped. Bounds must be ints - floats are silently ignored. None widens it to effectively unlimited. Default [0, 100000]. Use it to discard debris and merged clumps.",
     "pathogen_types": "(list) - Names given to each pathogen condition on the plate, e.g. ['wt','ku80']. Element i is written into the pathogen column for every well listed in pathogen_plate_metadata[i] and folded into the combined condition label used for grouping and plotting. Must match pathogen_plate_metadata in length and order; None skips pathogen annotation. Default ['pathogen_1', 'pathogen_2'] for the dataset builders, ['pc'] for the control-based paths, None where types are not used.",
-    "percentiles": "(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. Default None in the Cellpose steps.",
+    "percentiles": "(list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps.",
     "pin_memory": "(bool) - Decode and hold the entire train/test image set in RAM up front (loaded in parallel across all cores) and hand batches to the GPU from page-locked memory. Enable when the dataset fits comfortably in RAM and disk I/O is the bottleneck; disable for large datasets or it will exhaust memory before the first epoch even starts. Default False.",
     "plate": "(str) - Legacy setting that is not read by the regression path. Use plateID instead; perform_regression passes plateID to process_scores and process_reads, which apply it to count and score rows lacking a plate identifier. Default None.",
     "plot": "(bool) - Render and save quality-control figures during the pipeline, including channel montages, Cellpose mask overlays, filtration comparisons, and crop grids. Figure generation increases runtime and memory use, particularly for complete plates. test_mode enables this setting automatically. Default False. Merged Classifier and Recruitment both start with plotting enabled so their diagnostic figures are produced on the first run.",
@@ -4597,6 +4625,11 @@ tooltips = {
     "png_size": "(list of int) - Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
     "positive_control_id": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run image preparation before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into floating-point arrays. Keep True for unprocessed input; set False only when the normalized arrays already exist, because segmentation requires those arrays. Default True.",
+    "confluency": "(bool) - Measure confluency, the fraction of each field covered by cells, and write it to measurements.db: one row per field in the confluency table and one per well in confluency_well, with a monolayer_ok flag the plaque and infection assays can filter on or divide by. Works for any channel (brightfield, phase or a fluorescent stain) or straight from the cell masks, as confluency_source decides. With plot on, each field also gets an overlay of the covered area. Default False.",
+    "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+    "confluency_channel": "(int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+    "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+    "confluency_qc_threshold": "(float or None) - Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5227,7 +5260,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -5238,6 +5271,11 @@ categories = {
         "t_stack", "t_axis_order", "t_axis", "frame_interval_s",
         "t_track_backend", "t_link_threshold", "t_max_displacement_px",
         "t_max_displacement_um", "t_project_for_tracking",
+    ],
+
+    "Confluency (Alpha)": [
+        "confluency", "confluency_source", "confluency_channel",
+        "confluency_window", "confluency_qc_threshold",
     ],
 
     "Motility (beta)": motility_settings,
@@ -6770,6 +6808,44 @@ ALPHA_FEATURES = {
     493: {
         'settings': ('mask_parallel', 'mask_gpu_indices'),
         'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
+    },
+    541: {
+        'settings': ('confluency', 'confluency_source', 'confluency_channel',
+                     'confluency_window', 'confluency_qc_threshold'),
+        'widgets': ('MeasureConfluencyToggle',),
+    },
+    544: {
+        'widgets': ('AnnotateBlindToggle', 'MakeMasksBlindToggle'),
+    },
+    545: {
+        'widgets': ('MakeMasksRoisButton',),
+    },
+    548: {
+        'settings': ('watch_folder', 'watch_pipeline', 'watch_measure_settings',
+                     'watch_settle_seconds', 'watch_poll_seconds',
+                     'watch_idle_minutes'),
+        'widgets': ('WatchFolderProgress',),
+    },
+    551: {
+        'models': ('stardist_v1', 'stardist_2D_versatile_fluo',
+                   'stardist_2D_versatile_he', 'stardist_2D_paper_dsb2018'),
+    },
+    552: {
+        'models': ('instanseg_v1', 'instanseg_fluorescence_nuclei_and_cells',
+                   'instanseg_brightfield_nuclei'),
+    },
+    553: {
+        'models': ('omnipose_v1', 'omnipose_bact_phase_omni',
+                   'omnipose_bact_fluor_omni', 'omnipose_worm_omni',
+                   'omnipose_worm_bact_omni', 'omnipose_worm_high_res_omni',
+                   'omnipose_cyto2_omni'),
+    },
+    570: {
+        'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
+                    'ControlChartExportHits'),
+    },
+    573: {
+        'widgets': ('AnalysisLockButton',),
     },
 }
 

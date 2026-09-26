@@ -9,11 +9,12 @@ it can do is show a picture and link, and GitHub itself shows a PDF one page
 at a time with next/previous. So the deck is published three ways from one
 .pptx, all under ``docs/source/_static/deck/``:
 
-    slides/slide_NN.jpg     every slide, 1600 px wide    (the README's cover,
+    slides/slide_NN.jpg     every slide, 3200 px wide    (the README's cover,
                                                            and the viewer)
     thumbs/slide_NN.jpg     every slide, 320 px wide     (the viewer's strip)
     anim/slide_NN_*.gif     the deck's animated GIFs     (played by the viewer)
-    spacr_deck.pdf          the deck as one PDF          (flip through on GitHub)
+    spacr_deck.pdf          the deck as one PDF, text    (flip through on GitHub)
+                            and shapes as vectors
     slides.json             count and a title per slide  (the viewer)
     pages/NN.md             one GitHub page per slide: the slide, then
                             "← Back" and "Next →" to the pages either side
@@ -42,6 +43,12 @@ in spaCR's own bundled Open Sans, at the place, size and colour the deck gave
 it -- from ``VERSION`` in setup.py. ``--stamp`` redraws it without the deck;
 ``packaging/release.py`` calls that on every version bump.
 
+HIGH RESOLUTION (item 589, 2026-09-26: "all slides need to be higher
+resolution"). The pictures are 3200 px wide (they were 1600), rendered from
+a lossless PDF so no image is compressed twice, and saved without chroma
+subsampling. The published PDF is LibreOffice's own, with vector text; its
+title page is the stamped picture (``replace_first_page``).
+
 Run it again with a new deck to replace the old one; slides the new deck no
 longer has are removed::
 
@@ -65,18 +72,35 @@ OUT = ROOT / "docs" / "source" / "_static" / "deck"
 VIEWER = Path(__file__).resolve().parent / "readme_deck_viewer.html"
 
 
-def to_pdf(pptx: Path, work: Path) -> Path:
+#: LibreOffice's PDF export options for the two PDFs a build makes. The one
+#: the pictures are rendered from keeps every image as the deck holds it
+#: (no downsampling, lossless); the published one keeps text and shapes as
+#: vectors and stores images as JPEG at up to 300 dpi, a fraction of the size.
+PDF_LOSSLESS = {"ReduceImageResolution": {"type": "boolean", "value": "false"},
+                "UseLosslessCompression": {"type": "boolean", "value": "true"}}
+PDF_PUBLISHED = {"ReduceImageResolution": {"type": "boolean", "value": "true"},
+                 "MaxImageResolution": {"type": "long", "value": "300"},
+                 "Quality": {"type": "long", "value": "90"}}
+
+
+def to_pdf(pptx: Path, work: Path, options: Optional[dict] = None) -> Path:
     """The deck as LibreOffice renders it to PDF.
 
     :param pptx: the deck.
-    :param work: a scratch folder.
+    :param work: a scratch folder; the PDF is written into it.
+    :param options: LibreOffice PDF export options (``PDF_LOSSLESS``,
+        ``PDF_PUBLISHED``); LibreOffice's defaults when None.
     :returns: the PDF.
     """
-    profile = work / "lo_profile"
+    profile = work.parent / "lo_profile"
+    target = "pdf"
+    if options:
+        target = "pdf:impress_pdf_Export:" + json.dumps(options)
+    work.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         ["soffice", f"-env:UserInstallation=file://{profile}", "--headless",
-         "--convert-to", "pdf", "--outdir", str(work), str(pptx)],
-        check=True, capture_output=True, timeout=900)
+         "--convert-to", target, "--outdir", str(work), str(pptx)],
+        check=True, capture_output=True, timeout=1800)
     pdf = work / f"{pptx.stem}.pdf"
     if not pdf.is_file():
         raise SystemExit(f"LibreOffice wrote no PDF for {pptx}")
@@ -86,26 +110,34 @@ def to_pdf(pptx: Path, work: Path) -> Path:
 def render(pdf: Path, folder: Path, width: int, quality: int) -> List[Path]:
     """Every page of ``pdf`` as a JPEG ``width`` pixels wide.
 
+    poppler draws each page losslessly and Pillow encodes it with full-
+    resolution colour (4:4:4): the usual 4:2:0 halves the colour resolution,
+    which fringes the deck's coloured text on its dark background.
+
     :param pdf: the deck.
     :param folder: where the pictures go; emptied first.
     :param width: the width in pixels.
     :param quality: JPEG quality.
     :returns: the pictures, in slide order.
     """
+    from PIL import Image
+
     if folder.exists():
         shutil.rmtree(folder)
     folder.mkdir(parents=True)
     subprocess.run(
-        ["pdftoppm", "-jpeg", "-jpegopt", f"quality={quality},optimize=y",
-         "-scale-to-x", str(width), "-scale-to-y", "-1", str(pdf),
-         str(folder / "slide")],
-        check=True, capture_output=True, timeout=900)
-    pages = sorted(folder.glob("slide-*.jpg"),
+        ["pdftoppm", "-png", "-scale-to-x", str(width), "-scale-to-y", "-1",
+         str(pdf), str(folder / "slide")],
+        check=True, capture_output=True, timeout=3600)
+    pages = sorted(folder.glob("slide-*.png"),
                    key=lambda p: int(p.stem.split("-")[-1]))
     named = []
     for number, page in enumerate(pages, 1):
         target = folder / f"slide_{number:02d}.jpg"
-        page.rename(target)
+        with Image.open(page) as drawn:
+            drawn.convert("RGB").save(target, quality=quality, optimize=True,
+                                      subsampling=0, progressive=True)
+        page.unlink()
         named.append(target)
     return named
 
@@ -361,20 +393,65 @@ def stamp_title(folder: Path, version: Optional[str] = None) -> Optional[str]:
     picture.save(folder / first["image"], quality=86, optimize=True)
     thumb = picture.resize((320, round(320 * height / width)), Image.LANCZOS)
     thumb.save(folder / first["thumb"], quality=75, optimize=True)
-    slides = [folder / s["image"] for s in manifest["slides"]]
-    pdf_from(slides, folder / "spacr_deck.pdf")
+    pdf = folder / "spacr_deck.pdf"
+    if not replace_first_page(pdf, picture):
+        if pdf.is_file():
+            print("info deck: pypdf is not installed here, so the PDF's title "
+                  "page keeps its old version line; the pictures are stamped.")
+        else:
+            slides = [folder / s["image"] for s in manifest["slides"]]
+            pdf_from(slides, pdf)
     manifest["version"] = version
     manifest_path.write_text(json.dumps(manifest, indent=1, ensure_ascii=False)
                              + "\n", encoding="utf-8")
     return text
 
 
+def replace_first_page(pdf: Path, picture) -> bool:
+    """Put ``picture`` in place of the first page of ``pdf``, at its size.
+
+    The published PDF is LibreOffice's, with text and shapes as vectors; only
+    the title page, whose version line is drawn by this tool, is a picture.
+
+    :param pdf: the published deck; rewritten in place.
+    :param picture: the stamped title slide (a PIL image).
+    :returns: False when there is no PDF or pypdf is not installed.
+    """
+    import io
+    import os
+
+    if not pdf.is_file():
+        return False
+    try:
+        from pypdf import PdfReader, PdfWriter
+    except ImportError:
+        return False
+    reader = PdfReader(str(pdf))
+    if not reader.pages:
+        return False
+    width = float(reader.pages[0].mediabox.width)
+    page_pdf = io.BytesIO()
+    picture.convert("RGB").save(page_pdf, "PDF", quality=90,
+                                resolution=picture.width * 72.0 / width)
+    page_pdf.seek(0)
+    writer = PdfWriter()
+    writer.add_page(PdfReader(page_pdf).pages[0])
+    for page in reader.pages[1:]:
+        writer.add_page(page)
+    writer.add_metadata({"/Title": "spaCR"})
+    temporary = pdf.with_suffix(".tmp.pdf")
+    with open(temporary, "wb") as handle:
+        writer.write(handle)
+    os.replace(temporary, pdf)
+    return True
+
+
 def pdf_from(slides: Sequence[Path], target: Path) -> None:
     """One PDF of the slide pictures, for GitHub's page-by-page view.
 
-    Built from the pictures rather than copied from LibreOffice's PDF, whose
-    embedded full-size images make it several times larger for a page GitHub
-    shows at the same size either way.
+    Used only where no vector PDF exists (a folder stamped before it was
+    built); a build publishes LibreOffice's PDF, whose text stays sharp at any
+    zoom (``PDF_PUBLISHED``).
 
     :param slides: the pictures, in order.
     :param target: the PDF to write.
@@ -438,8 +515,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--stamp", action="store_true",
                         help="only redraw the title slide's version line")
     parser.add_argument("--out", type=Path, default=OUT)
-    parser.add_argument("--width", type=int, default=1600)
-    parser.add_argument("--quality", type=int, default=82)
+    parser.add_argument("--width", type=int, default=3200)
+    parser.add_argument("--quality", type=int, default=86)
     args = parser.parse_args(argv)
     if args.stamp:
         drawn = stamp_title(args.out)
@@ -456,10 +533,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             title_line = blank_version_line(copy)
         except Exception:
             title_line = None
-        pdf = to_pdf(copy, work)
+        pdf = to_pdf(copy, work / "lossless", PDF_LOSSLESS)
         slides = render(pdf, args.out / "slides", args.width, args.quality)
         render(pdf, args.out / "thumbs", 320, 75)
         names = titles(pdf, len(slides))
+        published = to_pdf(copy, work / "published", PDF_PUBLISHED)
+        shutil.copyfile(published, args.out / "spacr_deck.pdf")
     try:
         from_deck = deck_titles(args.pptx)
     except Exception:
@@ -467,7 +546,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if len(from_deck) == len(names):
         names = [own or found for own, found in zip(from_deck, names)]
     moving = animations(args.pptx, args.out / "anim")
-    pdf_from(slides, args.out / "spacr_deck.pdf")
     if title_line:
         shutil.copyfile(slides[0], args.out / "title_base.jpg")
     elif (args.out / "title_base.jpg").exists():

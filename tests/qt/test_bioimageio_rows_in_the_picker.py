@@ -10,6 +10,12 @@ plainly refused.
 """
 from __future__ import annotations
 
+from spacr.model_zoo import _mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = _mask_model_kinds()
+
 import pytest
 
 from spacr import model_zoo
@@ -119,6 +125,14 @@ def test_the_warm_up_redraws_the_table_when_rows_arrive(qapp, qtbot,
         qtbot.waitUntil(lambda: any(
             getattr(pairs[dialog._chosen[stem]][1], "key", "") == CYTO3.key
             for stem, pairs in dialog._groups), timeout=5000)
+        assert answers["network"], "the warm-up never asked bioimage.io"
+        group = next(
+            index for index, (stem, pairs) in enumerate(dialog._groups)
+            if getattr(pairs[dialog._chosen[stem]][1], "key", "") == CYTO3.key)
+        row = dialog._row_of_group(group)
+        assert row is not None, "the new row is in the groups, not the table"
+        assert dialog.table.rowCount() == len(dialog._groups)
+        assert dialog.table.item(row, 2).text() == CYTO3.trained_on
     finally:
         dialog._stop_any_download()
 
@@ -148,7 +162,7 @@ def test_make_masks_offers_cellpose3_rows_and_lists_what_comes_back(
     host = types.SimpleNamespace(_cp_model=combo,
                                  _fill_zoo_models=lambda: None)
     chosen = mm.MakeMasksScreen._choose_cellpose_model_from_zoo(host)
-    assert asked == [("cellpose", "cellpose3", "cellpose_dino")]
+    assert asked == [MASK_KINDS]
     assert chosen == "cellpose3:/models/cellpose_cyto3.pth"
     assert combo.currentData() == chosen
     assert combo.currentText() == "Cellpose 3 · cellpose_cyto3.pth"

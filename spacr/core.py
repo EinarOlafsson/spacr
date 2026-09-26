@@ -198,12 +198,20 @@ def preprocess_generate_masks(settings):
         - ``dry_run`` — validate only: inspect the input folders, print the
           preflight report and plan and return, without writing anything or
           loading a model.
+        - ``watch_folder`` — keep watching ``src`` and analyse each field as
+          its files arrive and stop changing, with ``watch_pipeline``,
+          ``watch_measure_settings``, ``watch_settle_seconds``,
+          ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather
+          in ``src/spacr_watch``, and a record there lets a restarted watch
+          skip the fields already analysed.
         - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.
 
     :returns: ``None`` on a normal run, having written masks, overlays,
         ``measurements.db`` counts and settings CSVs into subfolders of
         ``src``. When ``dry_run`` is set, returns instead the list of
-        problems from :func:`spacr.validate.run_preflight`.
+        problems from :func:`spacr.validate.run_preflight`. When
+        ``watch_folder`` is set, returns a dict naming the fields analysed,
+        failed and never completed when the watch ends.
     :raises ValueError: if ``src`` is missing or of the wrong type, or no
         segmentation channel is defined.
 
@@ -248,6 +256,9 @@ def preprocess_generate_masks(settings):
         raise ValueError('src is a required parameter')
 
     settings['src'] = normalize_src_path(settings['src'])
+
+    if _watch_truthy(settings.get('watch_folder', False)):
+        return _watch_folder_and_analyse(settings)
 
     if settings.get('pipeline_style', 'v1') == 'v2':
         settings = set_default_settings_preprocess_generate_masks(settings)
@@ -707,6 +718,675 @@ def preprocess_generate_masks_timelapse(settings):
               "to True. Use the Mask module for non-timelapse segmentation.")
     settings = get_timelapse_settings(settings)
     return preprocess_generate_masks(settings)
+
+
+_WATCH_DIR = 'spacr_watch'
+_WATCH_LEDGER = 'watch_ledger.json'
+_WATCH_PIPELINES = ('mask', 'mask_measure')
+_WATCH_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2',
+                   '.czi', '.lif')
+_WATCH_KEY_GROUPS = ('plateID', 'wellID', 'timeID', 'fieldID')
+
+
+def _watch_truthy(value):
+    """Read a settings switch that may arrive as a bool or as text.
+
+    :param value: the stored value.
+    :returns: True for True and for the words true, yes, on and 1.
+    """
+    if isinstance(value, str):
+        return value.strip().lower() in ('true', 'yes', 'on', '1')
+    return bool(value)
+
+
+def _watch_number(settings, key, default, minimum=0.0):
+    """Read a non-negative number from ``settings``.
+
+    :param settings: the run settings.
+    :param key: the settings key.
+    :param default: used when the key is missing or blank.
+    :param minimum: the smallest accepted value.
+    :returns: the value as a float.
+    :raises ValueError: naming the key, when the value is not a number or is
+        below ``minimum``.
+    """
+    value = settings.get(key, default)
+    if value is None or (isinstance(value, str) and not value.strip()):
+        value = default
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        raise ValueError(f'{key} must be a number, not {value!r}.') from None
+    if number < minimum:
+        raise ValueError(f'{key} must be at least {minimum:g}, not {number:g}.')
+    return number
+
+
+def _watch_expected_channels(settings):
+    """How many channel files make one field complete.
+
+    :param settings: the run settings; ``channels`` may be a list or its text.
+    :returns: the length of ``channels``, and 1 when it cannot be read.
+    """
+    import ast
+
+    channels = settings.get('channels')
+    if isinstance(channels, str):
+        try:
+            channels = ast.literal_eval(channels)
+        except (ValueError, SyntaxError):
+            channels = None
+    if isinstance(channels, (list, tuple)) and channels:
+        return len(channels)
+    return 1
+
+
+def _watch_pattern(settings, extension, cache):
+    """The compiled filename pattern the run groups files into fields with.
+
+    ``custom_regex`` wins when it is set; otherwise the pattern of
+    ``metadata_type`` for this extension. A convention without a pattern
+    gives None, and every file then counts as one whole field.
+
+    :param settings: the run settings.
+    :param extension: the file extension without its dot.
+    :param cache: a dict reused across calls so each pattern compiles once.
+    :returns: a compiled pattern, or None.
+    """
+    import re
+
+    if extension in cache:
+        return cache[extension]
+    from .regex_infer import _metadata_pattern
+
+    custom = settings.get('custom_regex')
+    try:
+        if custom not in (None, '', 'None'):
+            pattern = str(custom)
+        else:
+            pattern = _metadata_pattern(
+                settings.get('metadata_type', 'cellvoyager'), extension)
+        compiled = re.compile(pattern)
+    except (KeyError, re.error, TypeError):
+        compiled = None
+    cache[extension] = compiled
+    return compiled
+
+
+def _watch_field_of(name, settings, cache):
+    """Which field a file belongs to, and which channel it carries.
+
+    :param name: the file name.
+    :param settings: the run settings, for the filename pattern.
+    :param cache: the pattern cache of :func:`_watch_pattern`.
+    :returns: ``(field key, channel)``. The channel is None when the name
+        carries none, and the file is then the whole field.
+    """
+    import re
+
+    stem, extension = os.path.splitext(name)
+    pattern = _watch_pattern(settings, extension.lstrip('.').lower(), cache)
+    match = pattern.match(name) if pattern is not None else None
+    groups = match.groupdict() if match else {}
+    channel = groups.get('chanID')
+    parts = [str(groups[group]) for group in _WATCH_KEY_GROUPS
+             if groups.get(group) not in (None, '')]
+    if channel in (None, '') or not parts:
+        parts, channel = [stem], None
+    key = re.sub(r'[^A-Za-z0-9._-]+', '_', '_'.join(parts)).strip('._')
+    return key or 'field', channel
+
+
+def _watch_unreadable(path):
+    """Why an image cannot be read yet, or None when it reads whole.
+
+    TIFFs are decoded in full and PNG, JPEG and BMP files are loaded, so a
+    file whose writer has not finished fails here. Other formats are opened
+    and read to their last byte.
+
+    :param path: the image file.
+    :returns: None, or the error text.
+    """
+    extension = os.path.splitext(path)[1].lower()
+    try:
+        if extension in ('.tif', '.tiff'):
+            import tifffile
+
+            tifffile.imread(path)
+        elif extension in ('.png', '.jpg', '.jpeg', '.bmp'):
+            from PIL import Image
+
+            with Image.open(path) as image:
+                image.load()
+        else:
+            with open(path, 'rb') as handle:
+                handle.seek(0, os.SEEK_END)
+                if handle.tell():
+                    handle.seek(-1, os.SEEK_END)
+                    handle.read(1)
+    except Exception as exc:
+        return f'{type(exc).__name__}: {exc}'
+    return None
+
+
+def _watch_images(src):
+    """The image files directly in ``src``, hidden files excluded.
+
+    :param src: the watched folder.
+    :returns: the file names, sorted.
+    """
+    try:
+        names = os.listdir(src)
+    except OSError:
+        return []
+    return sorted(name for name in names
+                  if not name.startswith('.')
+                  and name.lower().endswith(_WATCH_SUFFIXES)
+                  and os.path.isfile(os.path.join(src, name)))
+
+
+def _watch_load_ledger(path, src):
+    """Read the watch record, or start an empty one.
+
+    A record that cannot be parsed is moved aside to ``<path>.unreadable``
+    and a new one is started.
+
+    :param path: the ``watch_ledger.json`` path.
+    :param src: the watched folder, stored in a new record.
+    :returns: the record dict with a ``fields`` mapping.
+    """
+    import json
+
+    try:
+        with open(path, encoding='utf-8') as handle:
+            ledger = json.load(handle)
+    except FileNotFoundError:
+        ledger = None
+    except (OSError, ValueError) as exc:
+        broken = f'{path}.unreadable'
+        os.replace(path, broken)
+        print(f'watch_folder: the record {path} could not be read ({exc}); '
+              f'it was moved to {broken} and a new record was started.')
+        ledger = None
+    if not isinstance(ledger, dict) or not isinstance(ledger.get('fields'), dict):
+        ledger = {'src': src, 'fields': {}}
+    return ledger
+
+
+def _watch_save_ledger(path, ledger):
+    """Write the watch record atomically.
+
+    :param path: the ``watch_ledger.json`` path.
+    :param ledger: the record dict.
+    """
+    import json
+
+    partial = f'{path}.partial'
+    with open(partial, 'w', encoding='utf-8') as handle:
+        json.dump(ledger, handle, indent=1, sort_keys=True)
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(partial, path)
+
+
+def _watch_link(source, target):
+    """Hard-link ``source`` to ``target``, copying when a link is refused.
+
+    :param source: the existing file.
+    :param target: the new path.
+    """
+    import shutil
+
+    try:
+        os.link(source, target)
+    except OSError:
+        shutil.copy2(source, target)
+
+
+def _watch_measure_settings(settings):
+    """The Measure settings a watch run measures every field with.
+
+    :param settings: the watch run settings. ``watch_measure_settings`` names
+        a saved Measure settings file; blank uses Measure's defaults with the
+        run's ``channels``.
+    :returns: the Measure settings dict, without ``src``. Measure fills in
+        its own defaults, and the mask planes from the field's merged layout.
+    """
+    path = str(settings.get('watch_measure_settings') or '').strip()
+    measure = {}
+    if path:
+        from .cli import load_settings_file
+
+        measure = dict(load_settings_file(os.path.expanduser(path)))
+    else:
+        measure['channels'] = settings.get('channels')
+    measure.pop('src', None)
+    return measure
+
+
+def _watch_analyse_field(field_dir, settings):
+    """Run the chosen pipeline on one field's folder.
+
+    Make Masks runs on ``field_dir`` exactly as a batch run would on a plate
+    folder holding only this field; with ``watch_pipeline='mask_measure'``
+    Measure then runs on its ``merged`` folder.
+
+    :param field_dir: a folder holding the field's image files.
+    :param settings: the watch run settings.
+    :raises RuntimeError: when a step leaves no output behind.
+    """
+    run = {key: value for key, value in settings.items()
+           if not str(key).startswith('watch_')}
+    run.update(src=field_dir, consolidate=False, dry_run=False, test_mode=False)
+    preprocess_generate_masks(run)
+    merged = os.path.join(field_dir, 'merged')
+    if not os.path.isdir(merged) or not _overlay_candidates(merged):
+        raise RuntimeError('Make Masks wrote no merged stack for this field; '
+                           'the log above says why.')
+    if str(settings.get('watch_pipeline') or 'mask') != 'mask_measure':
+        return
+    from .measure import measure_crop
+
+    measure = _watch_measure_settings(settings)
+    measure['src'] = merged
+    measure_crop(measure)
+    if not os.path.exists(os.path.join(field_dir, 'measurements',
+                                       'measurements.db')):
+        raise RuntimeError('Measure wrote no measurements.db for this field; '
+                           'the log above says why.')
+
+
+def _watch_quote(name):
+    """Quote a table or column name for SQLite.
+
+    :param name: the name.
+    :returns: the name in double quotes, inner quotes doubled.
+    """
+    return '"' + str(name).replace('"', '""') + '"'
+
+
+def _watch_merge_database(field_db, combined_db, key):
+    """Append one field's measurement tables to the combined database once.
+
+    Every table of ``field_db`` is created in ``combined_db`` when missing,
+    widened by any column it lacks, and given the field's rows. The field is
+    recorded in the ``spacr_watch_fields`` table in the same transaction, so
+    a field is appended exactly once even when the watch stops between the
+    append and its record.
+
+    :param field_db: the field's ``measurements.db``.
+    :param combined_db: the combined ``measurements.db``.
+    :param key: the field key recorded with the rows.
+    :returns: True when rows were appended, False when the field was there.
+    """
+    import sqlite3
+
+    quote = _watch_quote
+    os.makedirs(os.path.dirname(combined_db), exist_ok=True)
+    connection = sqlite3.connect(combined_db, timeout=30, isolation_level=None)
+    try:
+        connection.execute('CREATE TABLE IF NOT EXISTS spacr_watch_fields '
+                           '(field TEXT PRIMARY KEY, merged_at REAL)')
+        if connection.execute('SELECT 1 FROM spacr_watch_fields WHERE field = ?',
+                              (key,)).fetchone():
+            return False
+        connection.execute('ATTACH DATABASE ? AS field_db', (field_db,))
+        try:
+            connection.execute('BEGIN IMMEDIATE')
+            try:
+                tables = connection.execute(
+                    "SELECT name, sql FROM field_db.sqlite_master "
+                    "WHERE type = 'table' AND name NOT LIKE 'sqlite_%' "
+                    "ORDER BY name").fetchall()
+                for name, sql in tables:
+                    columns = [row[1] for row in connection.execute(
+                        f'PRAGMA field_db.table_info({quote(name)})')]
+                    present = [row[1] for row in connection.execute(
+                        f'PRAGMA main.table_info({quote(name)})')]
+                    if not present:
+                        connection.execute(sql)
+                    for column in columns:
+                        if present and column not in present:
+                            connection.execute(
+                                f'ALTER TABLE main.{quote(name)} '
+                                f'ADD COLUMN {quote(column)}')
+                    listed = ', '.join(quote(column) for column in columns)
+                    connection.execute(
+                        f'INSERT OR IGNORE INTO main.{quote(name)} ({listed}) '
+                        f'SELECT {listed} FROM field_db.{quote(name)}')
+                connection.execute(
+                    'INSERT INTO spacr_watch_fields VALUES (?, ?)',
+                    (key, time.time()))
+                connection.execute('COMMIT')
+            except BaseException:
+                connection.execute('ROLLBACK')
+                raise
+        finally:
+            connection.execute('DETACH DATABASE field_db')
+    finally:
+        connection.close()
+    return True
+
+
+def _watch_collect(field_dir, work, key):
+    """Gather one analysed field into the watch folder's combined outputs.
+
+    The field's ``merged`` files are linked into ``<work>/merged`` and its
+    measurement tables appended to ``<work>/measurements/measurements.db``,
+    so the combined folder is laid out like a plate a batch run analysed.
+
+    :param field_dir: the analysed field's folder.
+    :param work: the ``spacr_watch`` folder.
+    :param key: the field key.
+    """
+    merged = os.path.join(field_dir, 'merged')
+    if os.path.isdir(merged):
+        target = os.path.join(work, 'merged')
+        os.makedirs(target, exist_ok=True)
+        for name in sorted(os.listdir(merged)):
+            source = os.path.join(merged, name)
+            destination = os.path.join(target, name)
+            if os.path.isfile(source) and not os.path.exists(destination):
+                _watch_link(source, destination)
+    field_db = os.path.join(field_dir, 'measurements', 'measurements.db')
+    if os.path.exists(field_db):
+        _watch_merge_database(
+            field_db, os.path.join(work, 'measurements', 'measurements.db'),
+            key)
+
+
+def _watch_status_line(ledger, waiting):
+    """The progress line the GUI reads, counting the record's fields.
+
+    :param ledger: the watch record.
+    :param waiting: fields seen but not analysed yet.
+    :returns: one line of text.
+    """
+    states = [entry.get('status') for entry in ledger['fields'].values()]
+    return (f"watch_folder: {states.count('done')} analysed, {waiting} "
+            f"waiting, {states.count('failed')} failed")
+
+
+def _watch_check_settings(settings):
+    """Resolve and check what a watch run needs before it starts.
+
+    :param settings: the watch run settings.
+    :returns: ``(src, pipeline, settle seconds, poll seconds, idle seconds)``.
+    :raises ValueError: for a list of folders, a missing folder, an unknown
+        ``watch_pipeline``, a bad number or a timelapse, z-stack or t-stack
+        run.
+    """
+    from .utils import normalize_src_path
+
+    src = normalize_src_path(settings.get('src'))
+    if isinstance(src, list):
+        if len(src) != 1:
+            raise ValueError('watch_folder watches one folder; src names '
+                             f'{len(src)}.')
+        src = src[0]
+    src = os.path.abspath(os.path.expanduser(str(src)))
+    if not os.path.isdir(src):
+        raise ValueError(f'watch_folder: the folder {src} does not exist.')
+    for key in ('timelapse', 'z_stack', 't_stack'):
+        if _watch_truthy(settings.get(key, False)):
+            raise ValueError(
+                f'watch_folder does not support {key} runs: a field is '
+                f'analysed as soon as its channels are in, before later '
+                f'planes or frames arrive.')
+    pipeline = str(settings.get('watch_pipeline') or 'mask')
+    if pipeline not in _WATCH_PIPELINES:
+        raise ValueError(f'watch_pipeline must be one of {_WATCH_PIPELINES}, '
+                         f'not {pipeline!r}.')
+    settle = _watch_number(settings, 'watch_settle_seconds', 10.0)
+    poll = _watch_number(settings, 'watch_poll_seconds', 5.0, minimum=0.01)
+    idle = _watch_number(settings, 'watch_idle_minutes', 0.0) * 60.0
+    return src, pipeline, settle, poll, idle
+
+
+def _watch_run_field(key, members, signature, context):
+    """Analyse one ready field and record the outcome.
+
+    :param key: the field key.
+    :param members: ``(file name, channel)`` pairs of the field.
+    :param signature: ``{file name: [size, mtime_ns]}`` of those files.
+    :param context: the watch state: ``src``, ``work``, ``ledger``,
+        ``ledger_path``, ``seen``, ``tried``, ``analyse`` and ``settings``.
+    :raises spacr.cancellation.PipelineCancelled: when Stop was pressed
+        during the field; it is recorded as interrupted first.
+    """
+    import shutil
+
+    from .cancellation import PipelineCancelled
+
+    seen, ledger = context['seen'], context['ledger']
+    arrived = max(seen[name]['changed'] for name, _channel in members)
+    entry = ledger['fields'].setdefault(key, {})
+    entry.update(status='running', files=signature,
+                 first_seen=min(seen[name]['first'] for name, _c in members),
+                 stable_since=arrived, started=time.time(), error=None)
+    _watch_save_ledger(context['ledger_path'], ledger)
+    field_dir = os.path.join(context['work'], 'fields', key)
+    if os.path.exists(field_dir):
+        shutil.rmtree(field_dir)
+    os.makedirs(field_dir)
+    print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
+    try:
+        for name, _channel in members:
+            shutil.copy2(os.path.join(context['src'], name),
+                         os.path.join(field_dir, name))
+        context['analyse'](field_dir, context['settings'])
+        _watch_collect(field_dir, context['work'], key)
+    except PipelineCancelled:
+        entry.update(status='interrupted', finished=time.time())
+        _watch_save_ledger(context['ledger_path'], ledger)
+        raise
+    except Exception as exc:
+        entry.update(status='failed', finished=time.time(),
+                     error=f'{type(exc).__name__}: {exc}')
+        context['tried'].add((key, repr(sorted(signature.items()))))
+        _watch_save_ledger(context['ledger_path'], ledger)
+        print(f'watch_folder: ERROR {key} failed: {type(exc).__name__}: {exc}')
+        return
+    finished = time.time()
+    entry.update(status='done', finished=finished,
+                 seconds=round(finished - entry['started'], 3),
+                 waited=round(entry['started'] - arrived, 3))
+    _watch_save_ledger(context['ledger_path'], ledger)
+    print(f'watch_folder: analysed {key} in {entry["seconds"]:.1f} s, taken '
+          f'{entry["waited"]:.1f} s after its last file stopped changing.')
+
+
+def _watch_ready_fields(context, now):
+    """Sort the files seen so far into fields and pick the ready ones.
+
+    :param context: the watch state of :func:`_watch_folder_and_analyse`.
+    :param now: the current time.
+    :returns: ``(ready, waiting)``: the ready fields as
+        ``(first seen, key, members, signature)`` tuples, and how many fields
+        are seen but not analysed.
+    """
+    seen, fields = context['seen'], context['ledger']['fields']
+    groups = {}
+    for name in seen:
+        key, channel = _watch_field_of(name, context['settings'],
+                                       context['patterns'])
+        groups.setdefault(key, []).append((name, channel))
+    ready, waiting = [], 0
+    for key, members in sorted(groups.items()):
+        entry = fields.get(key, {})
+        signature = {name: list(seen[name]['signature'])
+                     for name, _channel in members}
+        if entry.get('status') == 'done':
+            if signature != entry.get('files') and key not in context['warned']:
+                context['warned'].add(key)
+                print(f'watch_folder: {key} changed after it was analysed; it '
+                      f'is not analysed again. Remove its entry from '
+                      f'{context["ledger_path"]} to analyse it again.')
+            continue
+        if (key, repr(sorted(signature.items()))) in context['tried']:
+            continue
+        waiting += 1
+        channels = {channel for _name, channel in members}
+        if None not in channels and len(channels) < context['expected']:
+            continue
+        if any(now - seen[name]['changed'] < context['settle']
+               for name, _channel in members):
+            continue
+        unreadable = None
+        for name, _channel in members:
+            if seen[name]['readable']:
+                continue
+            unreadable = _watch_unreadable(os.path.join(context['src'], name))
+            if unreadable is not None:
+                seen[name]['changed'] = now
+                print(f'watch_folder: {name} cannot be read yet '
+                      f'({unreadable}); waiting.')
+                break
+            seen[name]['readable'] = True
+        if unreadable is None:
+            ready.append((min(seen[name]['first'] for name, _c in members),
+                          key, members, signature))
+    return sorted(ready), waiting
+
+
+def _watch_observe(context, now):
+    """Record every image file's size and modification time.
+
+    :param context: the watch state of :func:`_watch_folder_and_analyse`.
+    :param now: the current time.
+    :returns: True when a file appeared, changed or went away.
+    """
+    seen = context['seen']
+    names = _watch_images(context['src'])
+    changed = False
+    for name in names:
+        try:
+            stat = os.stat(os.path.join(context['src'], name))
+        except OSError:
+            continue
+        signature = (stat.st_size, stat.st_mtime_ns)
+        record = seen.get(name)
+        if record is None or record['signature'] != signature:
+            seen[name] = {'signature': signature, 'changed': now,
+                          'first': (record or {}).get('first', now),
+                          'readable': False}
+            changed = True
+    for name in [name for name in seen if name not in names]:
+        del seen[name]
+        changed = True
+    return changed
+
+
+def _watch_folder_and_analyse(settings, analyse=None):
+    """Watch an acquisition folder and analyse each field as it arrives.
+
+    The folder ``src`` is scanned every ``watch_poll_seconds``. A file is
+    ready once its size and modification time have not changed for
+    ``watch_settle_seconds`` and it reads whole; a field is ready once it has
+    a file for every entry of ``channels`` and all of them are ready. Fields
+    are told apart by the ``metadata_type`` or ``custom_regex`` filename
+    pattern, and a file whose name carries no channel is a field by itself.
+    Images already in the folder are analysed first.
+
+    Each ready field is copied into ``src/spacr_watch/fields/<field>``, so
+    the pipeline never writes to the acquired files, and analysed there on
+    its own by ``watch_pipeline``: ``'mask'`` runs Make
+    Masks, ``'mask_measure'`` then runs Measure with the settings file named
+    by ``watch_measure_settings``. Its merged stacks are linked into
+    ``src/spacr_watch/merged`` and its measurements appended to
+    ``src/spacr_watch/measurements/measurements.db``. Every field is
+    preprocessed alone, so the result equals a batch run of the same plate
+    with ``batch_size=1``.
+
+    ``src/spacr_watch/watch_ledger.json`` records every field with its files,
+    when it arrived, started and finished, and whether it succeeded. It is
+    written after every change, so a restarted watch skips the fields already
+    analysed; a field that failed is tried again on the next start, and a
+    field interrupted by Stop is analysed again from its images.
+
+    The watch runs until Stop is pressed, or until nothing has changed in the
+    folder for ``watch_idle_minutes`` when that is above 0. Stop takes effect
+    between fields and while waiting.
+
+    :param settings: Make Masks settings with ``src`` naming one folder, plus
+        the ``watch_*`` keys.
+    :param analyse: the callable run on each field folder as
+        ``analyse(field_dir, settings)``; None runs the chosen pipeline.
+    :returns: a dict with ``done``, ``failed`` and ``incomplete`` lists of
+        field keys and the ``ledger`` path.
+    :raises ValueError: see :func:`_watch_check_settings`.
+    :raises spacr.cancellation.PipelineCancelled: when Stop was pressed; the
+        record is saved first.
+    """
+    from .cancellation import PipelineCancelled, checkpoint
+
+    src, pipeline, settle, poll, idle = _watch_check_settings(settings)
+    work = os.path.join(src, _WATCH_DIR)
+    os.makedirs(work, exist_ok=True)
+    ledger_path = os.path.join(work, _WATCH_LEDGER)
+    ledger = _watch_load_ledger(ledger_path, src)
+    ledger['pipeline'] = pipeline
+    for entry in ledger['fields'].values():
+        if entry.get('status') == 'running':
+            entry['status'] = 'interrupted'
+    _watch_save_ledger(ledger_path, ledger)
+    context = {'src': src, 'work': work, 'ledger': ledger,
+               'ledger_path': ledger_path, 'settings': settings,
+               'analyse': analyse or _watch_analyse_field, 'settle': settle,
+               'expected': _watch_expected_channels(settings), 'seen': {},
+               'patterns': {}, 'tried': set(), 'warned': set()}
+    before = sum(1 for entry in ledger['fields'].values()
+                 if entry.get('status') == 'done')
+    print(f'watch_folder: watching {src} with pipeline {pipeline}; a file is '
+          f'taken {settle:g} s after it stops changing. {before} field(s) '
+          f'were analysed before.')
+    last_change, last_line = time.time(), None
+    try:
+        while True:
+            checkpoint()
+            now = time.time()
+            if _watch_observe(context, now):
+                last_change = now
+            ready, waiting = _watch_ready_fields(context, now)
+            line = _watch_status_line(ledger, waiting)
+            if line != last_line:
+                print(line)
+                last_line = line
+            for _first, key, members, signature in ready:
+                checkpoint()
+                _watch_run_field(key, members, signature, context)
+                last_change = time.time()
+            if ready:
+                continue
+            if idle > 0 and time.time() - last_change >= idle:
+                print(f'watch_folder: nothing changed for {idle / 60.0:g} '
+                      f'min; stopping.')
+                break
+            deadline = time.time() + poll
+            while time.time() < deadline:
+                checkpoint()
+                time.sleep(min(0.25, max(0.0, deadline - time.time())))
+    except PipelineCancelled:
+        print('watch_folder: stopped. The record is saved; the next start '
+              'continues where this one ended.')
+        raise
+    finally:
+        _watch_save_ledger(ledger_path, ledger)
+
+    fields = ledger['fields']
+    done = sorted(key for key, entry in fields.items()
+                  if entry.get('status') == 'done')
+    failed = sorted(key for key, entry in fields.items()
+                    if entry.get('status') == 'failed')
+    incomplete = sorted(
+        {_watch_field_of(name, settings, context['patterns'])[0]
+         for name in context['seen']} - set(done) - set(failed))
+    print(_watch_status_line(ledger, len(incomplete)))
+    if incomplete:
+        print(f'watch_folder: {len(incomplete)} field(s) never became '
+              f'complete: {", ".join(incomplete[:10])}.')
+    return {'done': done, 'failed': failed, 'incomplete': incomplete,
+            'ledger': ledger_path}
 
 
 #: The column a multi-plate UMAP carries so a user can colour by source.

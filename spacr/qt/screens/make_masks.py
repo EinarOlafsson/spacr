@@ -154,8 +154,10 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
+    QMenu,
     QMessageBox,
     QPlainTextEdit,
     QProgressBar,
@@ -701,7 +703,7 @@ class _MasksConsole(QWidget):
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
         self._last = None
-        self._relay.connect(self.say)
+        self._relay.connect(self.post)
         self.stream_updates = 0
         self._stream_lock = threading.Lock()
         self._stream_pending = None
@@ -718,7 +720,7 @@ class _MasksConsole(QWidget):
         stop = backends._listen_to_workers(self._worker_said)
         self.destroyed.connect(lambda *_args: stop())
 
-    def say(self, text: str, kind: str = "info") -> None:
+    def post(self, text: str, kind: str = "info") -> None:
         """Write one line.
 
         :param text: what to say; blank is ignored.
@@ -2678,6 +2680,47 @@ def _zoo_cellpose_dino_models() -> List[tuple]:
             if path]
 
 
+def _zoo_prefixed_models() -> List[tuple]:
+    """``(model setting, caption)`` for each model of each installed
+    prefixed backend -- StarDist, InstanSeg, Omnipose (items 551-553).
+
+    The setting is ``<prefix><model>``, which :func:`load_cellpose_model`
+    and :func:`_backend_model` run in that backend; the caption is
+    "<backend> · <model>". A backend that is not installed lists nothing
+    here: the Mode box offers its install.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import (_SPECS, _prefixed_names,
+                                           _prefixed_value)
+
+    out = []
+    for name in _prefixed_names():
+        if not _state_ready(name):
+            continue
+        spec = _SPECS[name]
+        out.extend((_prefixed_value(name, model),
+                    tr("{backend} · {model}", backend=spec.label,
+                       model=model))
+                   for model in spec.models
+                   if not _prefixed_alpha_hidden(name, model))
+    return out
+
+
+def _prefixed_alpha_hidden(name: str, model: str) -> bool:
+    """Whether the alpha gate hides backend ``name``'s ``model`` (item 569).
+
+    The model is hidden when its Model Zoo row (``<name>_<model>``) or its
+    backend's row (``<name>_v1``) is registered in
+    ``spacr.settings.ALPHA_FEATURES`` and Show alpha features is off -- the
+    same rows the Model Zoo folds away, so the Mode box and the Model list
+    offer exactly what the zoo shows.
+    """
+    from ..preferences import _is_alpha_visible
+
+    return not (_is_alpha_visible("models", f"{name}_{model}")
+                and _is_alpha_visible("models", f"{name}_v1"))
+
+
 def _zoo_models_of_kind(kind: str) -> List[tuple]:
     """``(key, path or None, entry)`` for every zoo model of ``kind``.
 
@@ -2747,7 +2790,8 @@ def load_cellpose_model(model_name: str):
     is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own
     environment, as Mask generation loads it. A ``cellpose_dino:<path>``
     model, a Cellpose-DINO checkpoint, is loaded the same way in the
-    Cellpose-DINO backend (item 525).
+    Cellpose-DINO backend (item 525), and a ``stardist:``, ``instanseg:``
+    or ``omnipose:`` model in its own backend (items 551-553).
 
     :param model_name: a Cellpose model name, the path of a fine-tuned
         checkpoint, resolved by
@@ -2757,10 +2801,12 @@ def load_cellpose_model(model_name: str):
     import inspect
 
     from ..._segmentation_backends import (_cellpose3_choice,
-                                           _cellpose_dino_choice)
+                                           _cellpose_dino_choice,
+                                           _prefixed_backend)
 
     if (_cellpose3_choice(model_name) is not None
-            or _cellpose_dino_choice(model_name) is not None):
+            or _cellpose_dino_choice(model_name) is not None
+            or _prefixed_backend(model_name) is not None):
         return _backend_model(str(model_name).strip())
 
     import torch
@@ -3324,6 +3370,43 @@ def _offer_cellpose_dino_modes() -> List[str]:
         _MAGNIFIER_BACKENDS[mode] = ("cellpose_dino", label)
         _MAGNIFIER_SEGMENTERS[mode] = _backend_segmenter
         added.append(mode)
+    return added
+
+
+def _offer_prefixed_modes() -> List[str]:
+    """Make each StarDist, InstanSeg and Omnipose model a magnifier mode.
+
+    Items 551-553. ``<prefix><model>`` joins :data:`_MAGNIFIER_BACKENDS`
+    under its backend and the caption "<backend> · <model>", and
+    :data:`_MAGNIFIER_SEGMENTERS` with :func:`_backend_segmenter`, whose
+    :func:`_backend_model` loads it. Every model is listed whether or not
+    its backend is installed; greying and the install offer are the
+    per-backend code every backend mode already has. A model the alpha
+    gate hides (:func:`_prefixed_alpha_hidden`) is not listed, and one
+    listed before Show alpha features was turned off is taken out again
+    the next time the Mode box is built.
+
+    :returns: the modes added, in the backends' order.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import (_SPECS, _prefixed_names,
+                                           _prefixed_value)
+
+    added = []
+    for name in _prefixed_names():
+        spec = _SPECS[name]
+        for model in spec.models:
+            mode = _prefixed_value(name, model)
+            if _prefixed_alpha_hidden(name, model):
+                _MAGNIFIER_BACKENDS.pop(mode, None)
+                _MAGNIFIER_SEGMENTERS.pop(mode, None)
+                continue
+            if mode in _MAGNIFIER_BACKENDS:
+                continue
+            _MAGNIFIER_BACKENDS[mode] = (name, tr(
+                "{backend} · {model}", backend=spec.label, model=model))
+            _MAGNIFIER_SEGMENTERS[mode] = _backend_segmenter
+            added.append(mode)
     return added
 
 
@@ -7359,6 +7442,7 @@ class MakeMasksScreen(QWidget):
         #: :meth:`open_queue`; what makes a save reach
         #: ``curate_status.csv``.
         self._queue = None
+        self._blind: Optional[dict] = None
         #: A copy of the mask the current field opened with, and whether it
         #: was read from the file a save would write. Together they are what
         #: lets a save that changed nothing leave that file alone.
@@ -7675,9 +7759,13 @@ class MakeMasksScreen(QWidget):
         outer.addWidget(self._body_stack, 1)
 
         nav = QWidget()
-        nav_row = QHBoxLayout(nav)
-        nav_row.setContentsMargins(0, 0, 0, 0)
-        nav_row.setSpacing(SPACING["sm"])
+        outer_row = QHBoxLayout(nav)
+        outer_row.setContentsMargins(0, 0, 0, 0)
+        outer_row.setSpacing(SPACING["sm"])
+        from .app_screen import _WrappingButtonStrip
+
+        nav_row = _WrappingButtonStrip(SPACING["sm"])
+        outer_row.addLayout(nav_row)
         self._btn_open = QPushButton("Open folder…")
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
@@ -7689,6 +7777,8 @@ class MakeMasksScreen(QWidget):
         from ..make_masks_datasets import install_dataset_button
         nav_row.addWidget(install_dataset_button(self))
         nav_row.addWidget(self._build_contribute_button())
+        nav_row.addWidget(self._build_roi_button())
+        nav_row.addWidget(self._build_blind_toggle())
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -7746,11 +7836,11 @@ class MakeMasksScreen(QWidget):
         self._btn_skip.clicked.connect(self._on_skip)
         nav_row.addWidget(self._btn_skip)
 
-        nav_row.addStretch(1)
+        outer_row.addStretch(1)
         self._status_label = _StatusLabel("Ready.")
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
-        nav_row.addWidget(self._status_label)
+        outer_row.addWidget(self._status_label)
         outer.addWidget(nav)
 
     def _build_fold_strip(self) -> FoldStrip:
@@ -8109,6 +8199,593 @@ class MakeMasksScreen(QWidget):
             dialog.show()
         return dialog
 
+    def _build_roi_button(self) -> QPushButton:
+        """The "ROIs" button: masks out to and in from QuPath, Fiji and COCO.
+
+        An ALPHA feature (item 545): the button is registered as
+        ``MakeMasksRoisButton`` in :data:`spacr.settings.ALPHA_FEATURES`, so
+        it is shown only while Preferences -> "Show alpha features" is on.
+        Its menu exports the
+        field on screen or every field of the folder or queue, and imports a
+        file back into the field on screen or into every field, through
+        :func:`spacr.mask_io.export_rois` and
+        :func:`spacr.mask_io.import_rois`.
+
+        :returns: the button, with its menu.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("ROIs…"), self)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Export the masks as QuPath GeoJSON, an ImageJ RoiSet or COCO "
+            "JSON, one outline per object with its id and class, or import "
+            "one of those files back as masks."))
+        menu = QMenu(button)
+        self._roi_actions = {}
+        entries = (
+            ("export_field_geojson", tr("Export this field as QuPath GeoJSON…"),
+             lambda: self._on_export_field_rois("geojson")),
+            ("export_field_imagej", tr("Export this field as an ImageJ RoiSet…"),
+             lambda: self._on_export_field_rois("imagej")),
+            ("export_field_coco", tr("Export this field as COCO JSON…"),
+             lambda: self._on_export_field_rois("coco")),
+            None,
+            ("export_all_geojson",
+             tr("Export every field as QuPath GeoJSON…"),
+             lambda: self._on_export_all_rois("geojson")),
+            ("export_all_imagej", tr("Export every field as ImageJ RoiSets…"),
+             lambda: self._on_export_all_rois("imagej")),
+            ("export_all_coco", tr("Export every field as one COCO JSON…"),
+             lambda: self._on_export_all_rois("coco")),
+            None,
+            ("import_field", tr("Import ROIs into this field…"),
+             self._on_import_field_rois),
+            ("import_all_geojson", tr("Import QuPath GeoJSON for every field…"),
+             lambda: self._on_import_all_rois("geojson")),
+            ("import_all_imagej", tr("Import ImageJ RoiSets for every field…"),
+             lambda: self._on_import_all_rois("imagej")),
+            ("import_all_coco", tr("Import COCO JSON for every field…"),
+             lambda: self._on_import_all_rois("coco")),
+        )
+        for entry in entries:
+            if entry is None:
+                menu.addSeparator()
+                continue
+            key, text, slot = entry
+            action = menu.addAction(text)
+            action.triggered.connect(
+                lambda _checked=False, run=slot: run())
+            self._roi_actions[key] = action
+        button.setMenu(menu)
+        button.setObjectName("MakeMasksRoisButton")
+        _apply_alpha_widgets(button)
+        self._btn_rois = button
+        return button
+
+    def _build_blind_toggle(self) -> QPushButton:
+        """The Blind switch: curate fields without knowing where they are from.
+
+        On, the open fields are shuffled under a blinding key
+        (:func:`spacr.run_journal.start_blinding`) and every field is named
+        on screen by its code, never by its file name or folder. Off asks
+        first, then unblinds through :func:`spacr.run_journal.unblind`,
+        which records who did it and when, and puts the fields back in
+        their own order. An alpha feature, registered as
+        ``MakeMasksBlindToggle`` in :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the checkable button.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Blind"), self)
+        button.setObjectName("MakeMasksBlindToggle")
+        button.setCheckable(True)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Curate blind: name every field by a code instead of its file "
+            "name and folder, and show the fields in a shuffled order. The "
+            "key is kept beside the run journal, outside the data folder. "
+            "Turning it off unblinds, and the journal records who unblinded "
+            "and when. Default off."))
+        button.toggled.connect(self._on_blind_toggled)
+        _apply_alpha_widgets(button)
+        self._btn_blind = button
+        return button
+
+    def _set_blind_checked(self, on: bool) -> None:
+        """Move the Blind switch without asking it to act."""
+        button = getattr(self, "_btn_blind", None)
+        if button is None:
+            return
+        button.blockSignals(True)
+        button.setChecked(bool(on))
+        button.blockSignals(False)
+
+    def _on_blind_toggled(self, checked: bool) -> None:
+        """Start blinding, or ask to unblind; undo the click if refused."""
+        if checked and self._blind is None:
+            if not self._start_blind():
+                self._set_blind_checked(False)
+        elif not checked and self._blind is not None:
+            if not self._end_blind():
+                self._set_blind_checked(True)
+
+    def _field_pairs(self) -> list:
+        """``(folder, file name)`` of every open field, in the order offered."""
+        folders = self._field_folders or [self._folder] * len(
+            self._image_files)
+        return list(zip(folders, self._image_files))
+
+    def _set_field_pairs(self, pairs) -> None:
+        """Offer ``pairs`` of ``(folder, file name)`` as the open fields."""
+        self._image_files = [name for _folder, name in pairs]
+        if self._field_folders is not None:
+            self._field_folders = [folder for folder, _name in pairs]
+
+    def _blind_label(self, path: str) -> str:
+        """How a field is named on screen: its code while blinded.
+
+        :param path: the field's image path.
+        :returns: the code, a placeholder for a field made after blinding
+            started, or the file name when not blinded.
+        """
+        if self._blind is None:
+            return os.path.basename(str(path))
+        from ..i18n import tr
+
+        code = self._blind["codes"].get(os.path.abspath(str(path)))
+        return code or tr("uncoded field")
+
+    def _start_blind(self) -> bool:
+        """Shuffle the open fields under a new blinding key.
+
+        :returns: whether blinding started; not without open fields.
+        """
+        from ..i18n import tr
+
+        if not self._image_files:
+            self._status_label.setText(tr(
+                "Open a folder of images before curating it blind."))
+            return False
+        self.finish_recrop()
+        pairs = self._field_pairs()
+        paths = [os.path.abspath(os.path.join(folder, name))
+                 for folder, name in pairs]
+        from ...run_journal import start_blinding
+
+        try:
+            src = os.path.commonpath([os.path.dirname(p) for p in paths])
+        except ValueError:
+            src = self._folder
+        key = start_blinding(paths, scope="make_masks", src=src)
+        rank = {item: index for index, item in enumerate(key["order"])}
+        order = sorted(range(len(pairs)),
+                       key=lambda i: rank.get(paths[i], len(rank)))
+        self._blind = {"key_id": key["key_id"], "codes": key["codes"],
+                       "original": paths}
+        self._set_field_pairs([pairs[i] for i in order])
+        self._current_index = 0
+        self._set_blind_checked(True)
+        self._src_label.setText(tr(
+            "Blinded: {count} fields, named by code and in a shuffled order.",
+            count=len(pairs)))
+        self._load_current()
+        self._sync_button_states()
+        return True
+
+    def _end_blind(self, *, ask=None) -> bool:
+        """Unblind, after asking; record who did it and when; restore the order.
+
+        :param ask: returns whether to go ahead; a Yes/No question when
+            omitted.
+        :returns: whether the session was unblinded.
+        """
+        if self._blind is None:
+            return True
+        from ..i18n import tr
+
+        if ask is None:
+            def ask():
+                return self._confirm(
+                    tr("Unblind?"),
+                    tr("Unblinding shows every field's file name and folder "
+                       "again, and the run journal records who unblinded and "
+                       "when. An analysis lock on this folder treats any "
+                       "later change as post-hoc. Unblind now?"))
+        if not ask():
+            return False
+        from ...run_journal import unblind
+
+        unblind(self._blind["key_id"], reason="make_masks")
+        self._restore_blind_order()
+        self._load_current()
+        return True
+
+    def _leave_blind_unopened(self, reason: str) -> None:
+        """End a blinded session without unblinding it, and log that it ended.
+
+        :param reason: why it ended, kept in the key's log.
+        """
+        if self._blind is None:
+            return
+        from ...run_journal import _close_blinding
+
+        _close_blinding(self._blind["key_id"], reason=reason)
+        self._restore_blind_order()
+
+    def _restore_blind_order(self) -> None:
+        """Put the fields back in their own order and show their names again.
+
+        A field made while blinded (a recrop) follows the field it came
+        after. The field on screen stays on screen.
+        """
+        original = {path: index for index, path
+                    in enumerate(self._blind["original"])}
+        self._blind = None
+        self._set_blind_checked(False)
+        pairs = self._field_pairs()
+        current = (pairs[self._current_index]
+                   if 0 <= self._current_index < len(pairs) else None)
+        keyed = []
+        last = -1
+        for seq, (folder, name) in enumerate(pairs):
+            at = original.get(os.path.abspath(os.path.join(folder, name)))
+            if at is not None:
+                last = at
+                keyed.append(((at, 0, seq), (folder, name)))
+            else:
+                keyed.append(((last, 1, seq), (folder, name)))
+        restored = [pair for _key, pair in sorted(keyed)]
+        self._set_field_pairs(restored)
+        if current is not None:
+            self._current_index = restored.index(current)
+        if self._queue is not None:
+            self._src_label.setText(
+                f"{self._queue.folder}  --  {len(restored)} to curate this "
+                f"session, {self._queue.order_phrase}")
+        elif self._folder:
+            self._src_label.setText(
+                f"{self._folder}  —  {len(restored)} images")
+
+    def _roi_object_type(self) -> str:
+        """The object type the masks of this folder are exported as.
+
+        A masks folder named for its objects -- ``cell_mask_stack``,
+        ``nucleus_masks`` -- gives that name; anything else gives
+        :data:`spacr.mask_io.DEFAULT_OBJECT_TYPE`.
+
+        :returns: the object type.
+        """
+        from ...mask_io import DEFAULT_OBJECT_TYPE
+
+        folder = engine.masks_folder(self._folder or "", self._masks_dir)
+        name = os.path.basename(os.path.normpath(folder))
+        match = re.match(r"^(.+?)_masks?(?:_stack)?$", name)
+        return match.group(1) if match else DEFAULT_OBJECT_TYPE
+
+    def _roi_fields(self) -> List[tuple]:
+        """Every field of the folder or queue, as ``(index, folder, name)``.
+
+        :returns: the fields, in queue order.
+        """
+        return [(i, self._field_folders[i] if self._field_folders
+                 else self._folder, name)
+                for i, name in enumerate(self._image_files or [])]
+
+    def _roi_field_labels(self, index: int, folder: str, name: str):
+        """The labels of one field: on screen for the current one, else saved.
+
+        :param index: the field's place in the queue.
+        :param folder: the folder the field lies in.
+        :param name: the field's image file name.
+        :returns: the label mask; zeros for a field with no saved mask.
+        """
+        if index == self._current_index and self._canvas.mask is not None:
+            return np.array(self._canvas.mask, copy=True)
+        _image, mask = engine.load_image_and_mask(folder, name,
+                                                  **self._layout_kwargs())
+        return mask
+
+    def export_field_rois(self, path: str, fmt: Optional[str] = None) -> str:
+        """Write the mask on screen as QuPath GeoJSON, a RoiSet or COCO JSON.
+
+        :param path: the file to write.
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``; default from
+            the suffix of ``path``.
+        :returns: the path written, or ``""`` when no field is open.
+        """
+        from ...mask_io import export_rois
+
+        if not self._image_files or self._canvas.mask is None:
+            return ""
+        name = self._image_files[self._current_index]
+        written = export_rois(self._canvas.mask, path, fmt,
+                              object_type=self._roi_object_type(),
+                              file_name=name)
+        return str(written)
+
+    def export_all_rois(self, target: str, fmt: str) -> List[str]:
+        """Write every field's mask as ROIs.
+
+        GeoJSON and ImageJ are one file per field in the folder ``target``
+        (``<stem>.geojson``, ``<stem>_RoiSet.zip``), the way QuPath and Fiji
+        open them beside the image; COCO is one dataset file, ``target``,
+        holding every field. The field on screen is exported as it is on
+        screen; the others as saved. Fields without objects are left out.
+
+        :param target: the folder (GeoJSON, ImageJ) or file (COCO).
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :returns: the files written.
+        """
+        from ... import mask_io
+
+        fmt = mask_io.roi_format(target, fmt)
+        kind = self._roi_object_type()
+        written: List[str] = []
+        dataset = None
+        for index, folder, name in self._roi_fields():
+            labels = self._roi_field_labels(index, folder, name)
+            if labels is None or not np.any(labels):
+                continue
+            stem = os.path.splitext(os.path.basename(name))[0]
+            if fmt == "coco":
+                dataset = mask_io.masks_to_coco(labels, file_name=name,
+                                                object_type=kind,
+                                                dataset=dataset)
+                continue
+            suffix = ".geojson" if fmt == "geojson" else "_RoiSet.zip"
+            out = mask_io.export_rois(labels, os.path.join(target, stem + suffix),
+                                      fmt, object_type=kind, file_name=name)
+            written.append(str(out))
+        if fmt == "coco" and dataset is not None:
+            import json
+
+            os.makedirs(os.path.dirname(os.path.abspath(target)), exist_ok=True)
+            with open(target, "w", encoding="utf-8") as handle:
+                json.dump(dataset, handle)
+            written.append(str(target))
+        return written
+
+    def _pick_roi_type(self, masks: dict, object_type: Optional[str]):
+        """The one object type an import puts on the single-layer canvas.
+
+        :param masks: the imported masks by object type.
+        :param object_type: the type asked for, or ``None``.
+        :returns: the chosen type, or ``None`` when the user cancelled.
+        """
+        from ..i18n import tr
+
+        if object_type in masks:
+            return object_type
+        names = list(masks)
+        if self._roi_object_type() in masks:
+            names.remove(self._roi_object_type())
+            names.insert(0, self._roi_object_type())
+        if len(names) == 1 or is_headless() or object_type is not None:
+            return names[0]
+        chosen, accepted = QInputDialog.getItem(
+            self, tr("Import ROIs"),
+            tr("The file holds several object types. Which one goes on "
+               "this field?"), names, 0, False)
+        return chosen if accepted else None
+
+    def import_field_rois(self, path: str, fmt: Optional[str] = None,
+                          object_type: Optional[str] = None) -> int:
+        """Replace the mask on screen with the objects of a ROI file.
+
+        One edit on the undo stack and in the curation ledger; nothing is
+        written until the mask is saved. A file of several object types puts
+        ``object_type`` on the canvas, else the folder's own type, else the
+        user's choice.
+
+        :param path: the GeoJSON, RoiSet or COCO file.
+        :param fmt: its format; default from the file.
+        :param object_type: the object type to take.
+        :returns: the number of objects on screen afterwards, or ``-1`` when
+            nothing was imported.
+        """
+        from ...mask_io import import_rois
+
+        if not self._image_files or self._canvas.mask is None:
+            return -1
+        current = self._canvas.mask
+        name = self._image_files[self._current_index]
+        masks = import_rois(path, current.shape, fmt, file_name=name)
+        if not masks:
+            return -1
+        kind = self._pick_roi_type(masks, object_type)
+        if kind is None:
+            return -1
+        labels = masks[kind]
+        dtype = current.dtype
+        if labels.size and int(labels.max()) > np.iinfo(dtype).max:
+            dtype = labels.dtype
+        new = labels.astype(dtype, copy=False)
+        self._apply_op(lambda _mask: new, "import_rois",
+                       source=os.path.basename(str(path)), object_type=kind)
+        return int(np.count_nonzero(np.unique(new)))
+
+    def _roi_file_for(self, source: str, fmt: str, name: str) -> str:
+        """The file in ``source`` that holds one field's ROIs, or ``""``.
+
+        :param source: the folder the ROI files are in.
+        :param fmt: ``"geojson"`` or ``"imagej"``.
+        :param name: the field's image file name.
+        :returns: the first of the usual names that exists.
+        """
+        stem = os.path.splitext(os.path.basename(name))[0]
+        suffixes = ((".geojson", ".json") if fmt == "geojson"
+                    else ("_RoiSet.zip", ".zip", ".roi"))
+        for suffix in suffixes:
+            candidate = os.path.join(source, stem + suffix)
+            if os.path.isfile(candidate):
+                return candidate
+        return ""
+
+    def import_all_rois(self, source: str, fmt: str,
+                        object_type: Optional[str] = None) -> List[str]:
+        """Import ROIs for every field that has them and save them as masks.
+
+        GeoJSON and ImageJ files are found in the folder ``source`` by the
+        field's stem (``<stem>.geojson``, ``<stem>_RoiSet.zip`` ...); a COCO
+        ``source`` is one file matched on ``file_name``. Each matched field's
+        mask is written as :meth:`_on_save` writes it; the field on screen is
+        replaced on the canvas instead, as one undoable edit, and saved with
+        the rest when the user saves it.
+
+        :param source: the folder (GeoJSON, ImageJ) or file (COCO).
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :param object_type: the object type to take from files of several;
+            default the folder's own type, else the first in the file.
+        :returns: the names of the fields that were given masks.
+        """
+        from ... import mask_io
+
+        fmt = mask_io.roi_format(source, fmt)
+        coco_names = mask_io.coco_image_names(source) if fmt == "coco" else []
+        done: List[str] = []
+        for index, folder, name in self._roi_fields():
+            if fmt == "coco":
+                base = os.path.basename(name)
+                stems = {os.path.splitext(os.path.basename(n))[0]
+                         for n in coco_names}
+                if (base not in {os.path.basename(n) for n in coco_names}
+                        and os.path.splitext(base)[0] not in stems):
+                    continue
+                path = source
+            else:
+                path = self._roi_file_for(source, fmt, name)
+                if not path:
+                    continue
+            if index == self._current_index and self._canvas.mask is not None:
+                if self.import_field_rois(path, fmt, object_type
+                                          or self._roi_object_type()) >= 0:
+                    done.append(name)
+                continue
+            _image, mask = engine.load_image_and_mask(folder, name,
+                                                      **self._layout_kwargs())
+            masks = mask_io.import_rois(path, mask.shape, fmt, file_name=name)
+            if not masks:
+                continue
+            wanted = object_type or self._roi_object_type()
+            labels = masks.get(wanted, next(iter(masks.values())))
+            engine.save_mask(folder, name, labels, **self._layout_kwargs())
+            done.append(name)
+        return done
+
+    def _roi_filter(self, fmt: str) -> str:
+        """The file-dialog filter for one ROI format.
+
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :returns: the filter text.
+        """
+        from ..i18n import tr
+
+        return {"geojson": tr("QuPath GeoJSON (*.geojson)"),
+                "imagej": tr("ImageJ RoiSet (*.zip)"),
+                "coco": tr("COCO JSON (*.json)")}[fmt]
+
+    def _on_export_field_rois(self, fmt: str) -> None:
+        """Ask where, then export the field on screen."""
+        from ...mask_io import roi_suffix
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        name = self._image_files[self._current_index]
+        stem = os.path.splitext(os.path.basename(name))[0]
+        default = stem + ("_RoiSet.zip" if fmt == "imagej" else roi_suffix(fmt))
+        path, _filter = QFileDialog.getSaveFileName(
+            self, tr("Export ROIs"),
+            os.path.join(self._folder or os.getcwd(), default),
+            self._roi_filter(fmt))
+        if not path:
+            return
+        try:
+            written = self.export_field_rois(path, fmt)
+        except (ImportError, ValueError, OSError) as exc:
+            self._warn(tr("Export failed"), str(exc))
+            return
+        self._status_label.setText(tr("ROIs exported → {path}", path=written))
+
+    def _on_export_all_rois(self, fmt: str) -> None:
+        """Ask where, then export every field."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        start = self._folder or os.getcwd()
+        if fmt == "coco":
+            target, _filter = QFileDialog.getSaveFileName(
+                self, tr("Export ROIs"),
+                os.path.join(start, "annotations_coco.json"),
+                self._roi_filter(fmt))
+        else:
+            target = QFileDialog.getExistingDirectory(
+                self, tr("Folder for the ROI files"), start)
+        if not target:
+            return
+        try:
+            written = self.export_all_rois(target, fmt)
+        except (ImportError, ValueError, OSError) as exc:
+            self._warn(tr("Export failed"), str(exc))
+            return
+        self._status_label.setText(tr(
+            "{n} ROI file(s) written → {path}", n=len(written), path=target))
+
+    def _on_import_field_rois(self) -> None:
+        """Ask for a ROI file, then import it into the field on screen."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        filters = ";;".join([
+            tr("ROI files (*.geojson *.json *.zip *.roi)"),
+            self._roi_filter("geojson"), self._roi_filter("imagej"),
+            self._roi_filter("coco")])
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Import ROIs"), self._folder or os.getcwd(), filters)
+        if not path:
+            return
+        try:
+            count = self.import_field_rois(path)
+        except (ImportError, ValueError, OSError, KeyError) as exc:
+            self._warn(tr("Import failed"), str(exc))
+            return
+        if count >= 0:
+            self._status_label.setText(tr(
+                "{n} object(s) imported from {path}; save to keep them",
+                n=count, path=os.path.basename(path)))
+
+    def _on_import_all_rois(self, fmt: str) -> None:
+        """Ask for the ROI files, confirm, then import them for every field."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        start = self._folder or os.getcwd()
+        if fmt == "coco":
+            source, _filter = QFileDialog.getOpenFileName(
+                self, tr("Import ROIs"), start, self._roi_filter(fmt))
+        else:
+            source = QFileDialog.getExistingDirectory(
+                self, tr("Folder of ROI files"), start)
+        if not source or not self._confirm(
+                tr("Import ROIs"),
+                tr("Replace the saved mask of every field that has ROIs in "
+                   "{path}?", path=os.path.basename(source))):
+            return
+        try:
+            done = self.import_all_rois(source, fmt)
+        except (ImportError, ValueError, OSError, KeyError) as exc:
+            self._warn(tr("Import failed"), str(exc))
+            return
+        self._status_label.setText(tr(
+            "ROIs imported for {n} field(s)", n=len(done)))
+
     def save_curated_mask(self) -> str:
         """Write the labels Curate corrected back to the mask file.
 
@@ -8367,13 +9044,13 @@ class MakeMasksScreen(QWidget):
         except OSError as exc:
             LOG.warning("Could not record the curation verdict: %s", exc)
             self._warn("Verdict not recorded",
-                       f"{os.path.basename(image_path)} could not be marked: "
-                       f"{exc}")
+                       f"{self._blind_label(image_path)} could not be "
+                       f"marked: {exc}")
             self._show_curation_verdict(
                 engine.curation_verdict(self._folder, image_path))
             return None
         self._show_curation_verdict(keep)
-        self._advance_after_verdict(keep, os.path.basename(image_path))
+        self._advance_after_verdict(keep, self._blind_label(image_path))
         return written
 
     def _advance_after_verdict(self, keep: bool, judged: str) -> bool:
@@ -8404,7 +9081,8 @@ class MakeMasksScreen(QWidget):
         self._on_next()
         moved = self._current_index != was
         if moved:
-            now = os.path.basename(self._image_files[self._current_index])
+            now = self._blind_label(os.path.join(
+                self._folder or "", self._image_files[self._current_index]))
             self._status_label.setText(f"{judged} {said}  —  now on {now}")
         elif (self._image_files
                 and self._current_index >= len(self._image_files) - 1):
@@ -10024,11 +10702,11 @@ class MakeMasksScreen(QWidget):
 
         :param text: the line.
         :param kind: ``progress``, ``stream``, ``info``, ``warning`` or
-            ``error``; see :meth:`_MasksConsole.say`. A ``stream`` line (an
+            ``error``; see :meth:`_MasksConsole.post`. A ``stream`` line (an
             install's own output) goes to the console only, which throttles
             it; the corner keeps the task's own words.
         """
-        self._masks_console.say(text, kind)
+        self._masks_console.post(text, kind)
         if kind != "stream":
             self._status_label.set_quietly(text)
 
@@ -10041,7 +10719,7 @@ class MakeMasksScreen(QWidget):
         """
         stripped = str(text or "").rstrip()
         running = stripped.endswith(("…", "..."))
-        self._masks_console.say(stripped, "progress" if running else "info")
+        self._masks_console.post(stripped, "progress" if running else "info")
 
     def _build_shortcut_panel(self) -> QWidget:
         """The gestures, one terse line each.
@@ -10735,6 +11413,7 @@ class MakeMasksScreen(QWidget):
             self._mag_mode.addItem("Cellpose", "cellpose")
         self._mag_uninstalled = set()
         _offer_cellpose_dino_modes()
+        _offer_prefixed_modes()
         for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
             self._mag_mode.addItem(label, mode)
         self._resync_magnifier_modes()
@@ -11782,7 +12461,9 @@ class MakeMasksScreen(QWidget):
         chosen stays chosen, without a change signal when it did not change.
         Each Cellpose-DINO model downloaded follows, as
         ``cellpose_dino:<path>`` under "Cellpose-DINO · <file>" (item 525),
-        which :func:`load_cellpose_model` runs in its backend.
+        which :func:`load_cellpose_model` runs in its backend, and then
+        each model of an installed StarDist, InstanSeg or Omnipose backend
+        (:func:`_zoo_prefixed_models`, items 551-553).
         """
         from ..i18n import tr
         from ..model_install import UNINSTALLED_GREY
@@ -11814,7 +12495,8 @@ class MakeMasksScreen(QWidget):
                         "from the model zoo and selects it.", name=key),
                         Qt.ToolTipRole)
                 combo.setItemData(combo.count() - 1, True, _ZOO_ROLE)
-            for value, label in _zoo_cellpose_dino_models():
+            for value, label in (_zoo_cellpose_dino_models()
+                                 + _zoo_prefixed_models()):
                 if combo.findData(value) >= 0:
                     continue
                 combo.addItem(label, value)
@@ -11958,11 +12640,14 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
         from ..widgets import model_zoo_picker
-        from ..._segmentation_backends import (_cellpose3_choice,
-                                               _cellpose_dino_choice)
+        from ... import model_zoo
+        from ..._segmentation_backends import (_SPECS, _cellpose3_choice,
+                                               _cellpose_dino_choice,
+                                               _prefixed_backend,
+                                               _prefixed_choice)
 
         path = model_zoo_picker.choose_model(
-            self, kinds=("cellpose", "cellpose3", "cellpose_dino"))
+            self, kinds=model_zoo._mask_model_kinds())
         if not path:
             return None
         path = str(path)
@@ -11977,6 +12662,12 @@ class MakeMasksScreen(QWidget):
             elif dino is not None:
                 label = tr("Cellpose-DINO · {model}",
                            model=os.path.basename(dino) or dino)
+            elif _prefixed_backend(path) is not None:
+                backend = _prefixed_backend(path)
+                model = _prefixed_choice(backend, path)
+                label = tr("{backend} · {model}",
+                           backend=_SPECS[backend].label,
+                           model=os.path.basename(model) or model)
             else:
                 label = os.path.basename(path) or path
             self._cp_model.addItem(label, path)
@@ -12964,6 +13655,7 @@ class MakeMasksScreen(QWidget):
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")
             return False
+        self._leave_blind_unopened("another folder was opened")
         self._queue = None
         self._session_notice = ""
         self._masks_dir = masks_dir
@@ -12994,7 +13686,8 @@ class MakeMasksScreen(QWidget):
             request = (self._folder, filename, token)
             if self._load_worker is not None:
                 self._pending_load = request
-                self._status_label.setText(f"Waiting to load {filename}…")
+                self._status_label.setText(
+                    f"Waiting to load {self._blind_label(image_path)}…")
                 return
             self._start_background_load(*request)
             return
@@ -13028,7 +13721,8 @@ class MakeMasksScreen(QWidget):
     ) -> None:
         """Start one retained image loader and disable edit controls."""
         self._loading = True
-        self._status_label.setText(f"Loading {filename}…")
+        self._status_label.setText(
+            f"Loading {self._blind_label(os.path.join(folder, filename))}…")
         self._sync_button_states()
         worker = _MaskLoadWorker(folder, filename, token, self,
                                  layout=self._layout_kwargs())
@@ -13078,6 +13772,16 @@ class MakeMasksScreen(QWidget):
         """
         from ..bridge import drain_thread
 
+        if self._blind is not None:
+            try:
+                from ...run_journal import _close_blinding
+
+                _close_blinding(self._blind["key_id"],
+                                reason="the screen was closed")
+            except Exception:
+                LOG.debug("could not log the end of a blinded session",
+                          exc_info=True)
+            self._blind = None
         download, self._cp_download = self._cp_download, None
         if download is not None:
             download.cancel()
@@ -13173,7 +13877,7 @@ class MakeMasksScreen(QWidget):
         if record:
             self._primary_selector.restore_source(record)
         self._status_label.setText(
-            f"{filename}  "
+            f"{self._blind_label(os.path.join(self._folder or '', filename))}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
         self.apply_object_filter(on_load=True)
@@ -13223,6 +13927,12 @@ class MakeMasksScreen(QWidget):
         :returns: Filename of the recropped field, or ``None`` if the
             selection was rejected or could not be written.
         """
+        if self._blind is not None:
+            from ..i18n import tr
+            self._status_label.setText(tr(
+                "Recrop is off while blinded, because the new fields are "
+                "named after the field they are cut from."))
+            return None
         if getattr(self._canvas, 'preserve_ids', False):
             from ..i18n import tr
 

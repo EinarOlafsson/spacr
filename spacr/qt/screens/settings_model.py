@@ -277,7 +277,10 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     "mask": {"pathogen_model"},
     # Parallel GPU masks refuse timelapse and t_stack runs, so the Timelapse
     # panel keeps both keys at their off/blank defaults without showing them.
-    "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices"},
+    "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
+                  "watch_folder", "watch_pipeline", "watch_measure_settings",
+                  "watch_settle_seconds", "watch_poll_seconds",
+                  "watch_idle_minutes"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -1170,7 +1173,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Workflow & Test Run", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
-            "dry_run",
+            "dry_run", "watch_folder", "watch_pipeline",
+            "watch_measure_settings", "watch_settle_seconds",
+            "watch_poll_seconds", "watch_idle_minutes",
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
@@ -1244,6 +1249,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "object_distance_intensity",
             "summarize_organelles_by",
         )),
+        ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2629,6 +2635,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "CONFLUENCY (ALPHA)":
+        "How much of each field is covered by cells, measured per field and "
+        "per well into measurements.db with a monolayer QC flag: from the "
+        "cell masks, from the texture of a brightfield or phase channel, or "
+        "from a fluorescent stain. Plaque and infection results from a thin "
+        "or torn monolayer can then be dropped or divided by the covered "
+        "fraction.",
     "MOTILITY (BETA)":
         "The beta motility assay run inline with the mask pipeline: whether "
         "it runs at all, and the per-object tracking parameters it uses. "

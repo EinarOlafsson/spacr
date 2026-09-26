@@ -1008,7 +1008,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         columns=["plate", "well", "site", "centre_y", "centre_x", "sbs_site",
                  "is_anchor", "inliers", "alignment_residual_px",
                  "raster_residual_px"])
-    stored = _replace_well_rows(db, "ops_phenotype", frame, plate, well)
+    _replace_well_rows(db, "ops_phenotype", frame, plate, well)
 
     residuals = [record["raster_residual_px"] for record in records]
     report = {
@@ -1028,7 +1028,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         "fields_mapped": len(mapping),
         "fields_off_the_stitch": len(predicted) - len(mapping),
         "sbs_tiles_used": len(set(mapping.values())),
-        "ops_phenotype_rows": stored,
+        "ops_phenotype_rows": int(len(frame)),
         "unreadable": unreadable,
         "seconds": round(time.perf_counter() - started, 1),
     }
@@ -1578,7 +1578,10 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         ``ops_spot_detector``.
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
-    :returns: the decode report.
+    :returns: the decode report. Its ``ops_barcodes_rows`` and
+        ``ops_reads_rows`` count this well's rows only, the number a
+        ``plate``/``well`` filter on the stored table returns;
+        ``ops_reads_rows`` is None when reads were not stored.
     :raises ValueError: when the objects are not ready.
     """
     import multiprocessing
@@ -1683,13 +1686,15 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     } for object_id, row in sorted(assigned.items())],
         columns=["plate", "well", "object_id", "barcode", "quality", "n_reads",
                  "n_agreeing", "fraction", "n_cycles", "mapped_guide"])
-    stored = _replace_well_rows(db, "ops_barcodes", frame, plate, well)
+    _replace_well_rows(db, "ops_barcodes", frame, plate, well)
     reads_rows = None
     if store_reads:
         tick = time.perf_counter()
         reads = _reads_frame(plate, well, placements, decoded, cycles, _BASES)
-        reads_rows = _replace_well_rows(db, "ops_reads", reads, plate, well)
-        _say(f"{well} decode: ops_reads holds {reads_rows} rows "
+        table_rows = _replace_well_rows(db, "ops_reads", reads, plate, well)
+        reads_rows = int(len(reads))
+        _say(f"{well} decode: stored {reads_rows} ops_reads rows for this well, "
+             f"{table_rows} in the table "
              f"({round(time.perf_counter() - tick, 1)} s)")
 
     spots = sum(r["spots"] for r in decoded)
@@ -1719,7 +1724,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                                                for row in assigned.values())
                                            if library else None),
         "objects_mapped": int((frame["mapped_guide"] != "").sum()) if library else None,
-        "ops_barcodes_rows": stored, "ops_reads_rows": reads_rows,
+        "ops_barcodes_rows": int(len(frame)), "ops_reads_rows": reads_rows,
         "read_threshold": threshold, "footprint": footprint,
         "spot_detector": detector,
         "base_channels": list(channels), "workers": workers,

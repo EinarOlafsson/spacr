@@ -447,7 +447,8 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 
 def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  
                                        invert=False, visualize=False, remove_background=False, 
-                                       background=0, Signal_to_noise=10, target_height=None, target_width=None):
+                                       background=0, Signal_to_noise=10, target_height=None, target_width=None,
+                                       rescale=True):
     """Load a Cellpose training set, percentile-normalised and optionally resized.
 
     With no explicit percentiles, the upper one is chosen per channel as the
@@ -471,6 +472,11 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
         sit to count as signal.
     :param target_height: resize height, or ``None`` to keep the original.
     :param target_width: resize width, or ``None`` to keep the original.
+    :param rescale: ``False`` returns each image as loaded -- channels
+        picked, inverted, background removed and resized, but NOT rescaled --
+        for a caller that lets Cellpose normalise each image itself, as the
+        live preview does. ``percentiles``, ``Signal_to_noise`` and the
+        percentile search are then unused.
     :returns: ``(images, labels, image_names, label_names, orig_dims)``.
         Labels are resized with nearest-neighbour and no anti-aliasing,
         because interpolating a label array invents object ids.
@@ -521,7 +527,7 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
         if image.ndim < 3:
             image = np.expand_dims(image, axis=-1)
 
-        if percentiles is None:
+        if rescale and percentiles is None:
             for c in range(image.shape[-1]):
                 p1 = np.percentile(image[..., c], lower_percentile)
                 percentiles_1[c].append(p1)
@@ -538,9 +544,13 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
 
         images.append(image)
 
-    if percentiles is None:
-        avg_p1 = [np.mean(p) for p in percentiles_1]
-        avg_p99 = [np.mean(p) if p else avg_p1[i] for i, p in enumerate(percentiles_99)]
+    if not rescale:
+        normalized_images = images
+    elif percentiles is None:
+        used = [c for c, p in enumerate(percentiles_1) if p]
+        avg_p1 = [np.mean(percentiles_1[c]) for c in used]
+        avg_p99 = [np.mean(percentiles_99[c]) if percentiles_99[c] else avg_p1[i]
+                   for i, c in enumerate(used)]
 
         print(f'Average 1st percentiles: {avg_p1}, Average 99th percentiles: {avg_p99}')
 

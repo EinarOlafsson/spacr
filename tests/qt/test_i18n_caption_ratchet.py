@@ -1148,6 +1148,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 493, 2026-09-26: the parallel GPU mask controls, their greyed-out
 # reasons, the Cluster Distribution profile and the per-GPU progress line.
 # 569, 2026-09-26: the Show alpha features switch and its tooltip.
+# 548, 2026-09-26: the folder-watch progress line on Make Masks.
+# 570, 2026-09-26: the Control Charts hit-scoring option (alpha).
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Show alpha features',
     'Show the settings, controls, screens and models built from the '
@@ -1167,6 +1169,91 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'starting',
     'stopped',
     '{done}/{total} {role} batches done, {failed} failed',
+    'A well is a hit when its score reaches this value. SSMD 3 is a strong '
+    'effect; 3 for robust z and B-score is three robust standard deviations.',
+    'Call hits by',
+    'Export hits…',
+    'Hit threshold',
+    'Nothing scored yet.',
+    'Pick the control column and the negative control to score hits '
+    'against.',
+    'Reference',
+    'SSMD estimator',
+    'Score every well against the negative control and call hits. Needs the '
+    'negative control picked above and well positions in the table (prc, '
+    'rowID and columnID, or well).',
+    'Score hits (SSMD, robust z, B-score)',
+    'The column naming what is in each well. Wells sharing a treatment are '
+    'replicates and get one replicate SSMD in the export. Leave empty for a '
+    'screen without replicates.',
+    'Treatment',
+    'Turn on hit scoring and name the negative control.',
+    'Write the hit report into',
+    "Write the ranked hit table, every well's scores and the plate summary "
+    "as CSV, and one plate heatmap per statistic, into a folder",
+    'hit report written to {folder}',
+    # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
+    # status lines, and the Confluency (Alpha) category help.
+    'Confluency',
+    'Confluency failed: {error}',
+    'Confluency {percent} ({source}), {verdict}',
+    'How much of each field is covered by cells, measured per field and per '
+    'well into measurements.db with a monolayer QC flag: from the cell masks, '
+    'from the texture of a brightfield or phase channel, or from a '
+    'fluorescent stain. Plaque and infection results from a thin or torn '
+    'monolayer can then be dropped or divided by the covered fraction.',
+    'Show the area of this field Measure would count as covered by cells, '
+    'using the Confluency settings of the run.',
+    'below the monolayer QC threshold',
+    'monolayer QC passed',
+    # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
+    # Masks, their notices and questions, and the Lock analysis button and
+    # dialog (all alpha).
+    'Analysis locked: {sha} at {time}.',
+    'Blind',
+    'Blinded {count} crops under key {key}.',
+    'Blinded · {page}',
+    'Blinded: the source, plates, wells, conditions and file names are '
+    'hidden, and the crops are in a shuffled order.',
+    'Blinded: {count} fields, named by code and in a shuffled order.',
+    'Curate blind: name every field by a code instead of its file name and '
+    'folder, and show the fields in a shuffled order. The key is kept beside '
+    'the run journal, outside the data folder. Turning it off unblinds, and '
+    'the journal records who unblinded and when. Default off.',
+    'Hypotheses',
+    'Lock',
+    'Lock analysis',
+    'Lock analysis…',
+    'Locked {sha} at {time}. Runs of these settings on this source are '
+    'checked against it.',
+    'No analysis lock applies to these settings yet.',
+    'Open a folder of images before curating it blind.',
+    'Open an experiment source before scoring it blind.',
+    'Preregister the analysis: freeze these settings, your hypotheses and '
+    'thresholds, and the model and gate files they name, with a hash and a '
+    'timestamp, before the results are seen. Every later run on the same '
+    'source is checked against the lock, and a change is flagged in its '
+    'manifest, the report and the methods text, as post-hoc once the '
+    'blinding key has been opened. Default no lock.',
+    'Recrop is off while blinded, because the new fields are named after the '
+    'field they are cut from.',
+    'Score blind: hide the source, plates, wells, conditions and file names, '
+    'and show the crops in a shuffled order. The key is kept beside the run '
+    'journal, outside the data folder. Turning it off unblinds, and the '
+    'journal records who unblinded and when. Default off.',
+    'The thresholds and gates that decide a call, one per line.',
+    'Thresholds and gates',
+    'Unblind?',
+    'Unblinded key {key}; the journal recorded who and when.',
+    "Unblinding shows every field's file name and folder again, and the run "
+    "journal records who unblinded and when. An analysis lock on this folder "
+    "treats any later change as post-hoc. Unblind now?",
+    'Unblinding shows where every crop is from again, and the run journal '
+    'records who unblinded and when. An analysis lock on this folder treats '
+    'any later change as post-hoc. Unblind now?',
+    'What you expect to find, and what would count against it.',
+    'uncoded field',
+    'Watching: {done} analysed, {waiting} waiting, {failed} failed',
 })
 
 

@@ -1291,7 +1291,23 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # final_pass_callables in test_docstring_correctness (items 529, 18,
     # 533, 523, 224, 511, 474, 356, 477) and live_preview.BOUND_ROWS, less
     # prerun.diameter_panel and install_diameter_panel (533).
-    expected = 11_816
+    # 11,816 -> 11,834 on 2026-09-26, +18 / -0: item 545's ROI export and
+    # import callables, named at the callable inventory in
+    # test_docstring_correctness.
+    # 11,834 -> 11,860 on 2026-09-26, +26 / -0, item 570's hit scoring:
+    # spacr.sp_stats HitScoringError, mad, robust_z_scores,
+    # ssmd_unreplicated, ssmd_replicated, MedianPolish (and .fitted),
+    # median_polish, b_scores, call_hits, screen_wells, ArrayedHitResult (and
+    # .hits, .report), score_screen, treatment_ssmd, hit_table,
+    # score_arrayed_screen, hit_heatmap, write_hit_report;
+    # spacr.figures.plates.score_ramp; ControlChartScreen.hit_options,
+    # rescore_hits, choose_hit_export, export_hits, hit_result. The locale
+    # catalogs are not regenerated here (catalog lane).
+    # 11,860 -> 11,861 after merging nightly: item 588's
+    # spacr.qt.mask_engine.fill_label_holes.
+    # 11,861 -> 11,865 on 2026-09-26, +4 / -0, items 544 and 573 (blind
+    # scoring and the preregistered analysis lock): spacr.run_journal's start_blinding, unblind, lock_analysis and check_analysis_lock.
+    expected = 11_865
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1335,7 +1351,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,931 -> 11,166 with `expected` above, for the same 235.
     # 11,528 -> 11,651 -> 11,661 with `expected` above, for the same moves.
     # 11,758 -> 11,816 with `expected` above.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_816
+    # 11,816 -> 11,834 with `expected` above.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_865
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

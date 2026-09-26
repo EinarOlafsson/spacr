@@ -6244,3 +6244,18 @@ every B well (0.666-0.735), which may reflect a per-row difference in
 sequencing or imaging. The per-object exact fraction does not follow the
 rows (B1 has the plate's highest, 0.9498). The reports cannot separate
 those causes; the per-read table can.
+
+2026-09-26 15:05 EDT -- FIXED: THE ROW COUNTS DECODE RECORDS ARE PER WELL
+The "FOUND IN PASSING, NOT FIXED" bug above is fixed in commit 5f460c5c3.
+Decode now reports ops_barcodes_rows and ops_reads_rows as the rows it
+wrote for that well, and the phenotype phase does the same for
+ops_phenotype_rows. _replace_well_rows still returns the table total, and
+the decode log line gives both numbers. _stored_reads_match is unchanged:
+it already counted per well. Old result files still load. One recorded
+while another well's reads were in the table reruns once and is then
+written with the per-well count. No plate run so far stored reads, so no
+existing result file is affected. Regression:
+tests/test_the_ops_engine_runs_a_well_end_to_end.py::
+test_two_wells_with_stored_reads_resume_without_rerunning decodes two
+wells with stored reads, resumes through the real driver and asserts
+neither reruns. Before the fix, A2 reran.

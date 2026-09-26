@@ -126,7 +126,11 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # 11,710 on nightly 03a02c3b8: +47 callables and two mask_engine constants.
 # 11,758 with item 528's twelve, named in test_api_i18n_extractor.
 # 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
-REAL_SYMBOL_COUNT = 11_816
+# 11,834 on 2026-09-26: item 545's eighteen ROI callables.
+# 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
+# 11,861 with item 588's mask_engine.fill_label_holes.
+# 11,865 with items 544 and 573's four spacr.run_journal callables.
+REAL_SYMBOL_COUNT = 11_865
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
