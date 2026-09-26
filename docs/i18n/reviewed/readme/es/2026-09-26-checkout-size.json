@@ -5,9 +5,9 @@
   "records": [
     {
       "label": "dated-clone-and-current-checkout-size",
-      "source_sha256": "5f3d4d1cd6b907871ff9b11d9c8197872917cac92856e85359ba88190cd55fd0",
-      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1353 MB checkout (measured 2026-09-26), excluding Git history. Download sizes and times vary with the branch.",
-      "translation": "En la medición del 2026-09-15, el clon completo descargó 5,8 GB. Añadir ``--filter=blob:none`` al clon superficial no redujo su descarga medida. Los archivos versionados de nightly ocupan 1353 MB en la copia de trabajo (medidos el 2026-09-26), sin el historial de Git. El tamaño y el tiempo de descarga varían según la rama."
+      "source_sha256": "302ec165d5653c26bdbc31a2c739a409729e2c8bcb8a5d3f2add2ed2338e3f15",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 821 MB checkout (measured 2026-09-26), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "En la medición del 2026-09-15, el clon completo descargó 5,8 GB. Añadir ``--filter=blob:none`` al clon superficial no redujo su descarga medida. Los archivos versionados de nightly ocupan 821 MB en la copia de trabajo (medidos el 2026-09-26), sin el historial de Git. El tamaño y el tiempo de descarga varían según la rama."
     }
   ]
 }

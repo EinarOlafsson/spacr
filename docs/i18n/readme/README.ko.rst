@@ -249,7 +249,7 @@ conda-forge 설치
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-2026-09-15 측정에서 전체 클론은 5.8 GB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``을 추가해도 측정된 다운로드 크기는 줄지 않았습니다. nightly의 Git 추적 파일은 체크아웃에서 1353 MB를 차지합니다(2026-09-26 측정). Git 이력은 제외한 크기이며, 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
+2026-09-15 측정에서 전체 클론은 5.8 GB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``을 추가해도 측정된 다운로드 크기는 줄지 않았습니다. nightly의 Git 추적 파일은 체크아웃에서 821 MB를 차지합니다(2026-09-26 측정). Git 이력은 제외한 크기이며, 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
 
 
 명령줄 진입점
