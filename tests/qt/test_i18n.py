@@ -194,7 +194,11 @@ def test_main_window_and_lazy_screen_follow_runtime_language(
     section_titles = [
         section._header.text() for section in screen._settings_sections
     ]
-    assert any("MÄTNING" in title for title in section_titles)
+    # The Measurement Features category, in the reviewed Swedish row item
+    # 316 wrote on 2026-09-25. Before that row it reached the screen word
+    # by word as "MÄTNING FEATURES", which is what this used to look for.
+    assert "MÄTEGENSKAPER" in section_titles
+    assert "MEASUREMENT FEATURES" not in section_titles
 
     monkeypatch.setenv("SPACR_LANGUAGE", "ko")
     window.refresh_language()
