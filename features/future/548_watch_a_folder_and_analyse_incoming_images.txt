@@ -1,0 +1,26 @@
+WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/can-cellprofiler-watch-a-directory-and-analyze-images-as-they-are-created/13357
+
+WHAT TO BUILD
+    A live mode that watches an acquisition folder and runs the chosen
+    pipeline (mask, measure, classify) on each new field once the file is
+    complete (size stable / companion files present), with a live plate view
+    of results filling in during the scan and a resume-safe queue.
+
+DONE WHEN
+    Copying a plate's files into the watched folder one by one yields the
+    same results as a batch run, with each field processed within a set
+    delay of arriving.

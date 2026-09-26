@@ -1,0 +1,23 @@
+WEAKLY SUPERVISED MULTIPLE-INSTANCE LEARNING: WELL LABELS -> WHICH CELLS RESPOND
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/aggregation-of-per-cell-data-to-per-well-data/20614
+
+WHAT TO BUILD
+    Train attention-based MIL models from well-level labels only (treated vs
+    control, gene knockout vs control) so arrayed screens without cell
+    labels get a classifier and a per-cell attention score showing which
+    cells carry the phenotype.
+
+DONE WHEN
+    On a screen with known responder fractions, attention ranks true
+    responders above non-responders (AUROC) and well-level prediction beats
+    mean-feature baselines.

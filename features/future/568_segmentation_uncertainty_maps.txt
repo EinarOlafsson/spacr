@@ -1,0 +1,23 @@
+SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/cellpose-sam-variability-for-membrane-segmentation/116799
+
+WHAT TO BUILD
+    Estimate per-object and per-field segmentation uncertainty from test-
+    time augmentation or model ensembles (disagreement between
+    flips/rotations/models), show it as a map, and route the most uncertain
+    fields to the top of Make Masks' curation queue.
+
+DONE WHEN
+    Uncertainty correlates with actual segmentation error on fields with
+    ground truth (item 532 set), and the queue ordering finds the worst
+    fields first.

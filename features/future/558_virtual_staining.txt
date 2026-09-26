@@ -1,0 +1,23 @@
+VIRTUAL STAINING: PREDICT A FLUORESCENT CHANNEL FROM BRIGHTFIELD/PHASE
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/phase-contrast-halo-removal-and-segmentation/100029
+
+WHAT TO BUILD
+    Train and apply image-to-image models (e.g. U-Net / pix2pix-style, or
+    published virtual-staining models) that predict a nuclear or parasite
+    channel from brightfield/phase, so label-free timelapses can be
+    segmented and counted and a fluorescence channel is freed. Training data
+    = paired label-free + stained images from the user's own plates.
+
+DONE WHEN
+    On held-out paired fields, predicted channels segment to within a stated
+    F1 of the real stain's segmentation (item 532 method).
