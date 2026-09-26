@@ -2,11 +2,9 @@
 TEST DATA FOR OPS AND FOR ALIGN & STITCH, FROM THE PUBLISHED OPS SCREEN
 ================================================================================
 
-Status:    DONE here, re-verified 2026-09-25 against the published sets
-           (live download); remaining: docs lane -- Hindi and Icelandic lack
-           "Downloading the OPS test data" and "Downloading the Align &
-           Stitch test data" (item 316's catalog debt); every other runtime
-           string of this item is in all eight locales.
+Status:    DONE, re-verified 2026-09-25 against the published sets (live
+           download); every runtime string is in all eight locales since
+           the hi/is catch-up that landed on nightly the same evening.
            BUILT AND PUBLISHED 2026-09-21. The maintainer approved rehosting
            and the coordinator published both repos
            (huggingface.co/datasets/einarolafsson/spacr-example-stitch and
@@ -116,3 +114,6 @@ implementation or acceptance decision was changed by this translation pass.
 * Translations: of the item's runtime strings, all are in de/es/fr/ko/pt/
   zh_CN; hi and is miss the two "Downloading the ... test data" titles. That
   is 316's translation debt (docs lane), not code owed here.
+
+2026-09-25, after merging nightly: the hi/is runtime catalogs now carry
+this item's strings (checked by grep of spacr/qt/i18n_catalogs/hi.py, is.py).
