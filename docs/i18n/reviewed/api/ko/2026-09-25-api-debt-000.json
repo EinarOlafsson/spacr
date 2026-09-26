@@ -4459,6 +4459,350 @@
       "context": "Sort dropped files into rows and image data channel/mask columns with one regex.",
       "translation": "하나의 정규식으로 드롭된 파일을 행과 채널/마스크 열에 분류합니다.",
       "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#1",
+      "source": "The regex is matched against each file's BASENAME. What it captures decides where the file goes:",
+      "source_sha256": "02c3a82f8385346fe30dc5aa0765bec82c258e660567679ffd67a6488752652a",
+      "context": "The regex is matched against each file's BASENAME. What it captures decides where the file goes:",
+      "translation": "정규식은 각 파일의 기본 이름(BASENAME)과 일치시킵니다. 캡처한 내용에 따라 파일이 들어갈 위치가 정해집니다:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#10",
+      "source": "the plate name for a new table.",
+      "source_sha256": "b16afdd51adc67e4a7971f7126812ca4437591378242619771865e9344316eec",
+      "context": "the plate name for a new table.",
+      "translation": "새 테이블의 마이크로플레이트 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#11",
+      "source": "a :class:`TableAssignment`. Nothing is read from disk and nothing is written.",
+      "source_sha256": "10d7377a97eec21c603e92b3571ec69f40a372eea009cfafda6dee39db9486ea",
+      "context": "a :class:`TableAssignment`. Nothing is read from disk and nothing is written.",
+      "translation": ":class:`TableAssignment` 입니다. 디스크에서 아무것도 읽거나 쓰지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#12",
+      "source": "if ``pattern`` does not compile. The window catches this and shows it under the box rather than letting it reach a run.",
+      "source_sha256": "7c16fabbcb13db681607d7005497d36c75c222b3b5500e33eb930bc818d778e4",
+      "context": "if ``pattern`` does not compile. The window catches this and shows it under the box rather than letting it reach a run.",
+      "translation": "``pattern`` 을 컴파일할 수 없을 때 발생합니다. 창은 이를 잡아 처리 세션까지 가지 않도록 입력란 아래에 표시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#2",
+      "source": "one of :data:`FIELD_TABLE_FIELD_GROUPS` names the row. Files sharing a field token share a row, which is what makes a four-channel field one row rather than four.",
+      "source_sha256": "66ddf6f2e9eac71ca8fafd017b209be12db40f17d947c464ecb0f06dca3fade6",
+      "context": "one of :data:`FIELD_TABLE_FIELD_GROUPS` names the row. Files sharing a microscope field of view token share a row, which is what makes a four-channel microscope field of view one row rather than four.",
+      "translation": ":data:`FIELD_TABLE_FIELD_GROUPS` 중 하나는 행의 이름을 정합니다. 현미경 시야 토큰이 같은 파일은 같은 행을 공유하므로, 네 채널짜리 현미경 시야는 네 행이 아니라 한 행이 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#3",
+      "source": "one of :data:`FIELD_TABLE_MASK_GROUPS` sends it to a mask column, through :func:`mask_role_of`.",
+      "source_sha256": "4c57c9ade5c5c3f15a35ac9060ac72956feb5a079f3052522375e60e268b8802",
+      "context": "one of :data:`FIELD_TABLE_MASK_GROUPS` sends it to a mask column, through :func:`mask_role_of`.",
+      "translation": ":data:`FIELD_TABLE_MASK_GROUPS` 중 하나는 :func:`mask_role_of` 를 거쳐 파일을 마스크 열로 보냅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#4",
+      "source": "one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.",
+      "source_sha256": "f023346a87acc0b365d033b4e2c831d6caab37dcc2ffc8f33e7f4e8ccc413bb5",
+      "context": "one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.",
+      "translation": ":data:`FIELD_TABLE_CHANNEL_GROUPS` 중 하나는 파일을 채널 열로 보냅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#5",
+      "source": "THE CHANNEL TOKEN IS RANKED, NOT READ AS A NUMBER, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
+      "source_sha256": "f6acd04f48d6d519144ecb96dd4d8888afc9f9a2c07588a2cf62a61dbe947901",
+      "context": "The channel token is ranked, not read as a number, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
+      "translation": "채널 토큰은 숫자로 읽지 않고 순위를 매기며, 이것이 여기서 알아 둘 만한 유일한 결정입니다. ``C1``/``C2``/``C3``, ``w1``/``w2``, ``0``/``1``/``2`` 는 모두 채널 0, 1, 2 가 되어야 하는데, 세 경우 모두에 맞는 ``C1`` 해석은 없습니다. 문자 그대로 읽으면 첫 번째 집합은 채널 1 에서 시작하고 채널 0 은 영원히 비게 됩니다. 따라서 서로 다른 채널 토큰들을 (끝자리 숫자 기준으로 수치 정렬하여) 정렬하고 그 순서대로 0, 1, 2 ... 에 매핑합니다. 따라서 매핑은 개별 파일이 아니라 파일 집합의 속성이며, 이 때문에 창은 규칙을 설명하는 대신 할당 결과를 보여 줍니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#6",
+      "source": "THE SET IS THE TABLE'S, NOT THE DROP'S. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second field's ``C2`` in column 0 beside a first field's ``C1``, and the only sign of it would be in the database.",
+      "source_sha256": "26d27a5481fafcdfabeb96a65e8fde3d5203722bc07143d8a0b5f91159d67902",
+      "context": "The set is the table's, not the drop's. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second microscope field of view's ``C2`` in column 0 beside a first microscope field of view's ``C1``, and the only sign of it would be in the database.",
+      "translation": "집합은 드롭이 아니라 테이블의 것입니다. ``table`` 은 어떤 토큰이 어떤 열에 해당하는지 :attr:`FieldTable.channel_tokens` 에 기억하며, 이후의 드롭은 새로 가져온 것과 이미 있는 것의 합집합을 기준으로 순위가 매겨집니다. 이미 배치된 토큰보다 순위가 앞서는 토큰은 열 번호를 다시 매기고 이미 그 열에 있는 파일을 이동시키므로(:func:`_renumber_channels`), 모든 행이 채널 0 이 무엇인지에 대해 일치합니다. 대신 드롭마다 따로 순위를 매기면 두 번째 현미경 시야의 ``C2`` 가 첫 번째 현미경 시야의 ``C1`` 옆 열 0 에 들어가게 되고, 그 흔적은 데이터베이스에만 남습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#7",
+      "source": "file paths to assign.",
+      "source_sha256": "ab496304aa92d5b4aa46ed2c09302d6fce61ea50af41e9d959c33e8d089c26be",
+      "context": "file paths to assign.",
+      "translation": "할당할 파일 경로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#8",
+      "source": "a regex with at least a field group and one of a channel or mask group.",
+      "source_sha256": "ca46bfe8f8c2ce8f6209f85629f8f50ec9a39d34b2c5c988795b86c753dd8262",
+      "context": "a regex with at least a microscope field of view group and one of an image data channel or mask group.",
+      "translation": "최소한 현미경 시야 그룹 하나와, 채널 그룹 또는 마스크 그룹 중 하나를 가진 정규식입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex#9",
+      "source": "an existing table to add to. A new one is built when this is ``None``; its channel count and mask columns come from what the files turn out to hold.",
+      "source_sha256": "fc42067ba6a5a59eeeeea077e97a34951cecce8d3aebf317e1ceeb035b227c3d",
+      "context": "an existing table to add to. A new one is built when this is ``None``; its image data channel count and mask columns come from what the files turn out to hold.",
+      "translation": "추가할 기존 테이블입니다. ``None`` 이면 새 테이블을 만들며, 채널 수와 마스크 열은 파일에 실제로 들어 있는 내용에 따라 정해집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.crop_objects_from_array#13",
+      "source": "``(width, height)`` to resize every crop to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized THE WAY THE RUN RESIZES -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a run will write. Without it the preview showed bounding boxes while the run wrote squares, and the crop-size setting looked like it did nothing.",
+      "source_sha256": "6ac99987542fe799ee5c1449ec346e4227ab90f0c47c64e634c5bf93ab1651a8",
+      "context": "``(width, height)`` to resize every extracted image region to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized the way the processing session resizes -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a processing session will write. Without it the preview showed bounding boxes while the processing session wrote squares, and the extracted image region-size setting looked like it did nothing.",
+      "translation": "모든 추출 이미지 영역의 크기를 조정할 ``(width, height)``, 또는 각 객체 자체의 경계 상자를 반환하려면 ``None`` 입니다. 이는 ``measure_crop`` 의 ``png_size`` 이며, 처리 세션이 크기를 조정하는 것과 같은 방식(기본 리샘플링을 사용하는 동일한 ``PIL.Image.resize`` 호출)으로 크기가 조정됩니다. 이 값은 처리 세션이 기록할 내용을 보여 주는 것이 목적인 Measure 미리 보기에 사용되기 때문입니다. 이것이 없던 때에는 미리 보기가 경계 상자를 보여 주는 동안 처리 세션은 정사각형을 기록했고, 추출 이미지 영역 크기 설정이 아무 효과도 없는 것처럼 보였습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#0",
+      "source": "Where a run of ``table`` would write, given the destination it was handed.",
+      "source_sha256": "519476ca5bd79d598e1461c44b329f1c2c9c568380a646aff2a3895cbc66cd29",
+      "context": "Where a run of ``table`` would write, given the destination it was handed.",
+      "translation": "전달받은 대상 위치를 고려할 때 ``table`` 의 처리 세션이 기록할 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#1",
+      "source": "ONE ANSWER, so that the window and the run cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the run wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
+      "source_sha256": "cbd15fed09cbe3ab02bb5efce0266b7836fc0d792e48d6ac3f8b64a8d6dd6584",
+      "context": "One answer, so that the window and the processing session cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the processing session wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
+      "translation": "창과 처리 세션이 서로 다르게 판단할 수 없도록 답은 하나입니다. ``src`` 는 :data:`FIELD_TABLE_DECIDED_KEYS` 중 하나이므로 FEATURES 창에는 값이 채워진 채 비활성화되어 표시됩니다. 이 함수가 생기기 전에는 창이 대상 위치를 받았을 때만 이를 계산했기 때문에, 대상 위치 없이 열린 창은 설정 명세의 ``path`` 자리표시자를 보여 주었고 처리 세션은 첫 번째 채널 파일 옆에 기록했습니다. 잘못된 폴더를 가리키는 \"the table decides this\" 라는 캡션의 비활성 입력란은 입력란이 없는 것보다 나쁩니다. 창이 사용자에게 결과가 없는 곳을 알려 주는 셈이기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#2",
+      "source": "the :class:`FieldTable` the run would measure.",
+      "source_sha256": "88bf79fdbdd1379ad1fe931225410b1f85ee08a0d9bb604bb686ef00d8471b96",
+      "context": "the :class:`FieldTable` the run would measure.",
+      "translation": "처리 세션이 측정할 :class:`FieldTable` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#3",
+      "source": "the destination the caller was given, or ``None`` to derive one from the table.",
+      "source_sha256": "28ceaf70a8485a4c3a88d7015385a5d93f69d3ee39b6d8267654da577da4727a",
+      "context": "the destination the caller was given, or ``None`` to derive one from the table.",
+      "translation": "호출자가 받은 대상 위치이며, 테이블에서 계산하려면 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_destination#4",
+      "source": "the project root, or ``None`` when the table is too empty to derive one. Nothing is read from disk.",
+      "source_sha256": "33263e8dac39c90bb749748c7f1a4fa44dba0dd2257e2419903e7f4ae8a1d94f",
+      "context": "the project root, or ``None`` when the table is too empty to derive one. Nothing is read from disk.",
+      "translation": "프로젝트 루트이며, 테이블이 너무 비어 있어 계산할 수 없으면 ``None`` 입니다. 디스크에서 아무것도 읽지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#0",
+      "source": "The measure_crop settings this table decides, over the ones it does not.",
+      "source_sha256": "923f0eb34be606819f559664ce20d796b59a87b2151d0c76a447f25283827f33",
+      "context": "The measure_crop settings this table decides, over the ones it does not.",
+      "translation": "이 테이블이 결정하는 measure_crop 설정을, 결정하지 않는 설정 위에 덮어쓴 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#1",
+      "source": "Everything the table can answer is answered from the table: the channel list, the mask plane of every object it supplies, the crop modes that are possible, the PNG channels, and ``src``. Every other key is the user's, taken from ``settings`` and defaulted by :func:`spacr.settings.get_measure_crop_settings` exactly as the Measure module defaults them -- so the FEATURES window and the Measure module disagree about nothing.",
+      "source_sha256": "34cb67420b8d9b30eb5d3dabdeca2950bcee01238d4a0d6df94b8d9ee9f28f77",
+      "context": "Everything the table can answer is answered from the table: the image data channel list, the mask image layer of every object it supplies, the extracted image region modes that are possible, the PNG image data channels, and ``src``. Every other structured-data name is the user's, taken from ``settings`` and defaulted by :func:`spacr.settings.get_measure_crop_settings` exactly as the Measure module defaults them -- so the FEATURES window and the Measure module disagree about nothing.",
+      "translation": "테이블이 답할 수 있는 모든 것은 테이블에서 답합니다. 채널 목록, 테이블이 제공하는 모든 객체의 마스크 평면, 가능한 추출 이미지 영역 모드, PNG 채널, 그리고 ``src`` 입니다. 그 밖의 모든 키는 사용자의 것이며, ``settings`` 에서 가져와 Measure 모듈과 정확히 같은 방식으로 :func:`spacr.settings.get_measure_crop_settings` 가 기본값을 채웁니다. 따라서 FEATURES 창과 Measure 모듈은 어떤 것에서도 서로 다르지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#2",
+      "source": "A role the table does NOT supply is set to ``None`` rather than left out, which is how ``measure_crop`` is told not to measure it.",
+      "source_sha256": "038db708ed5f69b8ba705e109de18b5ad86dce4e5e2a1cbea84248fdf782bf78",
+      "context": "A role the table does NOT supply is set to ``None`` rather than left out, which is how ``measure_crop`` is told not to measure it.",
+      "translation": "테이블이 제공하지 않는 역할은 생략하지 않고 ``None`` 으로 설정하며, 이렇게 하여 ``measure_crop`` 에 그 역할을 측정하지 말라고 알립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#3",
+      "source": "the :class:`FieldTable` the user filled in.",
+      "source_sha256": "01317a74e65a3e64a76f51bf5f757cfdab25fbdaa9430ce5261a29ff2b814891",
+      "context": "the :class:`FieldTable` the user filled in.",
+      "translation": "사용자가 채운 :class:`FieldTable` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#4",
+      "source": "the user's answers from the settings panel.",
+      "source_sha256": "03e2a07699f87e1572a04cca6b08dbb489eaca148c311463d742c8b5519f52e7",
+      "context": "the user's answers from the settings panel.",
+      "translation": "설정 패널에서 받은 사용자의 입력값입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#5",
+      "source": "the project root the run will write. ``src`` is its ``merged`` folder, which is where ``measure_crop`` reads fields from.",
+      "source_sha256": "2f7fa2f34d49d9e09ef562dc460c2cc2312dfa4b9019c2e8f0b1c2905c2eac21",
+      "context": "the project root the processing session will write. ``src`` is its ``merged`` folder, which is where ``measure_crop`` reads fields from.",
+      "translation": "처리 세션이 기록할 프로젝트 루트입니다. ``src`` 는 그 ``merged`` 폴더이며, ``measure_crop`` 은 그곳에서 현미경 시야를 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.field_table_settings#6",
+      "source": "a new settings dict. Nothing is read from disk.",
+      "source_sha256": "c6f920fdda00e03c933ac7d82714cb4a20eb4c4d55bcc7d20d01cd4057932022",
+      "context": "a new settings key-value mapping. Nothing is read from disk.",
+      "translation": "새 설정 사전입니다. 디스크에서 아무것도 읽지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.mask_role_of#0",
+      "source": "Resolve what a user typed in a mask column to a spaCR object role.",
+      "source_sha256": "193d07c7811dc1b698b7819d20bcd01980915ed2027c32e76dd737ccfbfa1e75",
+      "context": "Resolve what a user typed in a mask column to a spaCR object role.",
+      "translation": "사용자가 마스크 열에 입력한 내용을 spaCR 객체 역할로 해석합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.mask_role_of#1",
+      "source": "Accepts the role's own name, the plural and the common laboratory synonyms (``nuclei``, ``parasite``, ``mito``), and the numbered organelle spelling the settings forms use on screen -- ``Organelle 2`` is ``organelleb``, because the slots are lettered internally and numbered for the reader.",
+      "source_sha256": "7b8959de77372b94cfc19f8b96f546322d30b1ac175ef9b8b9028c365952a41d",
+      "context": "Accepts the role's own name, the plural and the common laboratory synonyms (``nuclei``, ``parasite``, ``mito``), and the numbered organelle spelling the settings forms use on application view -- ``Organelle 2`` is ``organelleb``, because the slots are lettered internally and numbered for the reader.",
+      "translation": "역할 자체의 이름, 복수형, 흔히 쓰는 실험실 동의어(``nuclei``, ``parasite``, ``mito``), 그리고 설정 양식이 화면에 사용하는 번호가 붙은 소기관 표기를 받아들입니다. ``Organelle 2`` 는 ``organelleb`` 입니다. 슬롯은 내부적으로 문자로, 독자에게는 번호로 표시되기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.mask_role_of#2",
+      "source": "what the regex captured or the user chose, in any case.",
+      "source_sha256": "b16e75eb33c9b12c4ecf9a26d872db522335beec7d3c9e1365258ab483433458",
+      "context": "what the regex captured or the user chose, in any case.",
+      "translation": "정규식이 캡처했거나 사용자가 선택한 값이며, 대소문자는 상관없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.mask_role_of#3",
+      "source": "a role from :data:`spacr.crops.MASK_PLANE_ORDER`, or ``None`` when the token names no object spaCR can measure.",
+      "source_sha256": "b6e80d42da73acd12e7d83f3552e072d6971f6bc03fcf47cbf0cc42a171fcd95",
+      "context": "a role from :data:`spacr.crops.MASK_PLANE_ORDER`, or ``None`` when the token names no object spaCR can measure.",
+      "translation": ":data:`spacr.crops.MASK_PLANE_ORDER` 의 역할이며, 토큰이 spaCR 이 측정할 수 있는 객체를 가리키지 않으면 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_crop#4",
+      "source": "``psf_measurement_source`` — original (default) uses the normal rescaled/preprocessed intensities; processed adds an explicitly calibrated PSF before quantitative features. The immutable kernel reaches every worker. Source images and exported crops stay unchanged. Field provenance is saved in ``intensity_rescale``; incompatible existing PSF measurements are refused before any rows are appended.",
+      "source_sha256": "4087a34207b4e68d07756e7776e46daec0dba3fbab45e193c8439293c16521b0",
+      "context": "``psf_measurement_source`` — original (default) uses the normal rescaled/preprocessed intensities; processed adds an explicitly calibrated PSF before quantitative features. The immutable kernel reaches every worker. Source images and exported extracted image regions stay unchanged. microscope field of view provenance is saved in ``intensity_rescale``; incompatible existing PSF measurements are refused before any rows are appended.",
+      "translation": "``psf_measurement_source`` — original (기본값)은 일반적인 재조정/전처리된 강도를 사용하고, processed 는 정량 특징 계산 전에 명시적으로 보정된 PSF 를 적용합니다. 변경할 수 없는 커널이 모든 작업자에 전달됩니다. 원본 이미지와 내보낸 추출 이미지 영역은 변경되지 않습니다. 현미경 시야 출처 정보는 ``intensity_rescale`` 에 저장되며, 호환되지 않는 기존 PSF 측정값이 있으면 행을 추가하기 전에 거부됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#0",
+      "source": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
+      "source_sha256": "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
+      "context": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
+      "translation": "직접 고른 이미지와 마스크의 테이블을 측정합니다. FEATURES 진입점입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#1",
+      "source": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a pipeline already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the fields came from. The database, the crops and the folder tree are therefore the Measure module's, because they are made by it.",
+      "source_sha256": "70366df5ba0f3d39eed7dee6d1e3f6f955bc4752f9cc79a2d04358e0bb3f1b36",
+      "context": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a workflow already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the microscope fields of view came from. The database, the extracted image regions and the folder tree are therefore the Measure module's, because they are made by it.",
+      "translation": "이 모듈로 들어오는 또 다른 경로입니다. :func:`measure_crop` 은 워크플로가 이미 만든 ``merged/`` 폴더에서 시작하지만, 이 함수는 사용자가 파일을 드롭해 채운 테이블에서 시작하여 그 폴더를 기록한 다음 :func:`measure_crop` 자체를 호출합니다. 변경 없이, 현미경 시야의 출처를 알리는 플래그도 없이 호출합니다. 따라서 데이터베이스, 추출 이미지 영역, 폴더 트리는 Measure 모듈이 만든 것이므로 Measure 모듈의 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#2",
+      "source": "the :class:`FieldTable` the FEATURES window edited.",
+      "source_sha256": "5da4813e8295f95f89038414c660841ee291e2a2aac75eb0ec678d7093c5284d",
+      "context": "the :class:`FieldTable` the FEATURES window edited.",
+      "translation": "FEATURES 창이 편집한 :class:`FieldTable` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#3",
+      "source": "the user's answers from the settings panel. The keys the table decides are overwritten from it -- see :func:`field_table_settings`.",
+      "source_sha256": "147e809f4cbdc8ec4aedcb1ceddf4731b8c59776b471dd71a4f8c52783ae5a5c",
+      "context": "the user's answers from the settings panel. The structured-data names that the table decides are overwritten from it -- see :func:`field_table_settings`.",
+      "translation": "설정 패널에서 받은 사용자의 입력값입니다. 테이블이 결정하는 키는 테이블 값으로 덮어씁니다. :func:`field_table_settings` 를 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#4",
+      "source": "the project root to write. Defaults to a ``features`` folder beside the first channel file of the first row, which is where a user who dropped a folder in expects to find the results. See :func:`field_table_destination`, which is the one place that default is worked out.",
+      "source_sha256": "c071897510d7102e7e62aabbd0d515eeb6c4c5cff9eb4473f328c82b1beaf9c3",
+      "context": "the project root to write. Defaults to a ``features`` folder beside the first channel file of the first row, which is where a user who dropped a folder in expects to find the results. See :func:`field_table_destination`, which is the one place that default is worked out.",
+      "translation": "기록할 프로젝트 루트입니다. 기본값은 첫 번째 행의 첫 번째 채널 파일 옆의 ``features`` 폴더이며, 폴더를 드롭한 사용자가 결과를 찾으리라 예상하는 위치입니다. 이 기본값을 계산하는 유일한 곳인 :func:`field_table_destination` 을 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#5",
+      "source": "called with a sentence as each stage starts, or ``None``. It runs on whatever thread this does -- the FEATURES window runs this on a worker and its callback only emits a signal. Writing the arrays and measuring them are separate stages because on a large table the second takes minutes and the first does not.",
+      "source_sha256": "645c7da7a34005badb6c8abc0e5d815c046cf6775320a649524450e499231dbf",
+      "context": "called with a sentence as each stage starts, or ``None``. It executes on whatever independent execution path this does -- the FEATURES window runs this on a worker and its callback only emits a signal. Writing the arrays and measuring them are separate stages because on a large table the second takes minutes and the first does not.",
+      "translation": "각 단계가 시작될 때 문장을 인수로 호출되며, 또는 ``None`` 입니다. 이 함수가 실행되는 실행 경로와 같은 곳에서 실행됩니다. FEATURES 창은 이 함수를 작업자에서 실행하며 콜백은 시그널만 내보냅니다. 배열 기록과 측정은 별도의 단계입니다. 큰 테이블에서는 두 번째 단계에 몇 분이 걸리지만 첫 번째 단계는 그렇지 않기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#6",
+      "source": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` is the measurements database whether or not it exists, so a caller can report the path it was asked for.",
+      "source_sha256": "ea2eed0d50b013fad298ad8ede7e9f3f5ec9281b76a9bdb1ad94419a1943b64d",
+      "context": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` is the measurements database whether or not it exists, so a caller can report the path it was asked for.",
+      "translation": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}`` 입니다. ``db_path`` 는 존재 여부와 관계없이 측정 데이터베이스이므로, 호출자는 요청받은 경로를 보고할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#7",
+      "source": "if the table is incomplete or a file breaks the array contract. Nothing is measured in that case.",
+      "source_sha256": "47c7d25b397f58281374c5da6ab1554e0eb9868923ea4381f100c48cb6203ac0",
+      "context": "if the table is incomplete or a file breaks the array contract. Nothing is measured in that case.",
+      "translation": "테이블이 불완전하거나 파일이 배열 계약을 위반하면 발생합니다. 이 경우 아무것도 측정되지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table#9",
+      "source": "See Also: :func:`measure_crop` -- the run this delegates to, unchanged. :func:`write_field_table_project` -- the folders it writes first.",
+      "source_sha256": "24e2a1736002f331eead760689093685c87e8d3a22713148a88b0dd28a829ce7",
+      "context": "See Also: :func:`measure_crop` -- the processing session this delegates to, unchanged. :func:`write_field_table_project` -- the folders it writes first.",
+      "translation": "참고: :func:`measure_crop` -- 이 함수가 변경 없이 위임하는 처리 세션입니다. :func:`write_field_table_project` -- 이 함수가 먼저 기록하는 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.process_meassure_crop_results#2",
+      "source": "Completed Measure job tuples, passed unchanged to :func:`process_measure_crop_results` after a ``DeprecationWarning``.",
+      "source_sha256": "de9380919c086bd88843ca44295b5827463c9be19e79a23ccce7ac06bf6a705d",
+      "context": "Completed Measure job tuples, passed unchanged to :func:`process_measure_crop_results` after a ``DeprecationWarning``.",
+      "translation": "완료된 Measure 작업 튜플이며, :func:`process_measure_crop_results` 에 그대로 전달됩니다(먼저 ``DeprecationWarning`` 을 냄).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.process_meassure_crop_results#3",
+      "source": "Resolved Measure settings, passed unchanged; ``src`` identifies the output root.",
+      "source_sha256": "b6ac4abe3f728c797f73ebe47847264da8616c1e8a8a2c46ea59207b7222b6d0",
+      "context": "Resolved Measure settings, passed unchanged; ``src`` identifies the output root.",
+      "translation": "확인된 Measure 설정이며 그대로 전달됩니다. ``src`` 는 출력 루트를 식별합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.resolve_measurement_spacing#5",
+      "source": "2 or 3.",
+      "source_sha256": "173af733ae23c3ed4dc26cf280385942785d8d2b650967a8446c7f191927b61e",
+      "context": "2 or 3.",
+      "translation": "2 또는 3 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.spatial_column_names#2",
+      "source": "neighbourhood radius; truncated with ``int()`` for the ``neighbors_within_<r>`` name. The other four names do not depend on it.",
+      "source_sha256": "45da3cae010b33c5325ce27fa8c234110da14075c691738a07c43ad938058dd2",
+      "context": "neighbourhood radius; truncated with ``int()`` for the ``neighbors_within_<r>`` name. The other four names do not depend on it.",
+      "translation": "이웃 반경입니다. ``int()`` 로 잘라 낸 값을 ``neighbors_within_<r>`` 이름에 사용합니다. 나머지 네 이름은 이 값에 의존하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
     }
   ]
 }
