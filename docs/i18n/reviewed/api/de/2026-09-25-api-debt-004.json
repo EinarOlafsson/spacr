@@ -1,0 +1,640 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.resource_cleanup.DiskEntry#4",
+      "source": "bytes free.",
+      "source_sha256": "848f5d56412d9077c16f4f1d9acefa0cdf052f16879be38bb99644f5eaf91c91",
+      "context": "bytes free.",
+      "translation": "freie Byte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.confirmation_text#2",
+      "source": "one of :data:`ACTIONS`; any other value raises ``KeyError``.",
+      "source_sha256": "2bc8d6e20c5da95d1ff5fa1908426cbec68b74bd5260cdaba86751d071129683",
+      "context": "one of :data:`ACTIONS`; any other value raises ``KeyError``.",
+      "translation": "eine aus :data:`ACTIONS`; jeder andere Wert löst ``KeyError`` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.summary_text#1",
+      "source": "``'ram'``, ``'vram'``, ``'cpu'`` or ``'disk'``.",
+      "source_sha256": "7249596cabfa74ee2bc4fceaa8809ad222d9a2a45a295be2f690ba74aa47d74a",
+      "context": "``'ram'``, ``'vram'``, ``'cpu'`` or ``'disk'``.",
+      "translation": "``'ram'``, ``'vram'``, ``'cpu'`` oder ``'disk'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPanel.closeEvent#1",
+      "source": "the close event; it is passed on to the base class unchanged.",
+      "source_sha256": "c4a4318a8e93198e62a539d4ae4de21ce29e81281f0e29b2c4c35dd708ede448",
+      "context": "the close event; it is passed on to the base class unchanged.",
+      "translation": "das Schließereignis; es wird unverändert an die Basisklasse weitergereicht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPanel.set_roi_path#1",
+      "source": "where the ROI file should be written; it is made absolute.",
+      "source_sha256": "8bf45e73e3a7bc07bbf47f529351fcaf424076abb73c4bfe44116f965bb24787",
+      "context": "where the ROI file should be written; it is made absolute.",
+      "translation": "wohin die ROI-Datei geschrieben werden soll; der Pfad wird absolut gemacht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen#4",
+      "source": "``'polygon'``, ``'rectangle'`` or ``'ellipse'``.",
+      "source_sha256": "f0c029074e603be279beabe08680066181791bbf99064ba5a5e0b078f64a1c02",
+      "context": "``'polygon'``, ``'rectangle'`` or ``'ellipse'``.",
+      "translation": "``'polygon'``, ``'rectangle'`` oder ``'ellipse'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.add_world#2",
+      "source": "the vertex position as ``{axis: world coordinate}``, converted to data coordinates through the layer's spacing.",
+      "source_sha256": "5e745a6a99873bc66763fa0eece97f28a01cdaa7fe03e40f86f7462ecabde268",
+      "context": "the vertex position as ``{axis: world coordinate}``, converted to data coordinates through the layer's spacing.",
+      "translation": "die Position des Scheitelpunkts als ``{axis: world coordinate}``, über den Abstand der Ebene in Datenkoordinaten umgerechnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.double_click#1",
+      "source": "the canvas that received the double-click; unused.",
+      "source_sha256": "a58eb21bf45dd8e4bee440224e2b6ee53e50132263bf5f8a5075843cace3f323",
+      "context": "the canvas that received the double-click; unused.",
+      "translation": "die Zeichenfläche, die den Doppelklick erhalten hat; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.double_click#2",
+      "source": "the click position as ``{axis: world coordinate}``; unused, because the double-click only closes the shape.",
+      "source_sha256": "69359e1db50626079291cb68ea8753320b12ec1b48db17f28bc1cd09c6777969",
+      "context": "the click position as ``{axis: world coordinate}``; unused, because the double-click only closes the shape.",
+      "translation": "die Klickposition als ``{axis: world coordinate}``; nicht verwendet, weil der Doppelklick nur die Form schließt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.double_click#3",
+      "source": "the mouse event; unused.",
+      "source_sha256": "10eb852951fe31537369865c092decdc02330904ef71301b3b88e890aa8f85a0",
+      "context": "the mouse event; unused.",
+      "translation": "das Mausereignis; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.key#1",
+      "source": "the canvas that received the key press; unused.",
+      "source_sha256": "68c9577bd4e7fc51535b0fad113dc84df0c1946622400352c4007b36e27f2df9",
+      "context": "the canvas that received the key press; unused.",
+      "translation": "die Zeichenfläche, die den Tastendruck erhalten hat; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.key#2",
+      "source": "the key event; only its ``key()`` is read.",
+      "source_sha256": "ec8e4c3ceb59ba28369f3033e46bc01f9d6bc840691dd5dbb372d3f8b6875713",
+      "context": "the key event; only its ``key()`` is read.",
+      "translation": "das Tastenereignis; nur sein ``key()`` wird gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.press#1",
+      "source": "the canvas that received the press; unused.",
+      "source_sha256": "deb3fa84da7afcf0f57c6cf87e52804210577d1f499eca017ec7af966eff58af",
+      "context": "the canvas that received the press; unused.",
+      "translation": "die Zeichenfläche, die den Klick erhalten hat; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.press#2",
+      "source": "the press position as ``{axis: world coordinate}``, added as a vertex on a left-button press.",
+      "source_sha256": "34aa7aa01bd8df2f6303c96ccb3229f35159969f4fc08ef2be5a3d3b9678e32f",
+      "context": "the press position as ``{axis: world coordinate}``, added as a vertex on a left-button press.",
+      "translation": "die Klickposition als ``{axis: world coordinate}``, bei einem Linksklick als Scheitelpunkt hinzugefügt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.roi_tool.RoiPen.press#3",
+      "source": "the mouse event; only its ``button()`` is read, and an event without one counts as a left click.",
+      "source_sha256": "15ce28b19b3637aade6afeebf1289ba1113d65ea762db722b6c56708ca510899",
+      "context": "the mouse event; only its ``button()`` is read, and an event without one counts as a left click.",
+      "translation": "das Mausereignis; nur sein ``button()`` wird gelesen, und ein Ereignis ohne Taste gilt als Linksklick.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.activation.ExplainNavigator.attach#1",
+      "source": "the activation page widget, stored as ``page``.",
+      "source_sha256": "2c4cc32aa8ab51bcebf5a7387db694fe58a59c9fd94641f32cdf8b8d0c40911b",
+      "context": "the activation page widget, stored as ``page``.",
+      "translation": "das Widget der Aktivierungsseite, als ``page`` gespeichert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.activation.apply_seed#2",
+      "source": "the screen whose ``_settings_model`` widgets are set; None, or a screen without a settings model, does nothing.",
+      "source_sha256": "1d747eb32ae708e68265c1bc3f97f43ebf41ec6ffe38d0817fe2ae8001680769",
+      "context": "the screen whose ``_settings_model`` widgets are set; None, or a screen without a settings model, does nothing.",
+      "translation": "die Ansicht, deren ``_settings_model``-Widgets gesetzt werden; None oder eine Ansicht ohne Einstellungsmodell bewirkt nichts.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.activation.apply_seed#3",
+      "source": "setting name to value; each is applied to the widget of that name, and names with no widget are skipped.",
+      "source_sha256": "9979c0cf3d4b7e4eab87e660e0dcaeba3dd367fd196cb8f24d2b700dbd753192",
+      "context": "setting name to value; each is applied to the widget of that name, and names with no widget are skipped.",
+      "translation": "Mapping von Einstellungsname auf Wert; jeder wird auf das Widget dieses Namens angewendet, und Namen ohne Widget werden übersprungen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.activation.host_of#2",
+      "source": "the widget to start from, usually a folded page; None gives None.",
+      "source_sha256": "8b2b000bda721f26ba7b7a2b3b3471b622003c5b387281fe6de4f23a442893ce",
+      "context": "the widget to start from, usually a folded page; None gives None.",
+      "translation": "das Widget, bei dem begonnen wird, meist eine eingegliederte Seite; None ergibt None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.activation.open_page#1",
+      "source": "the screen that may carry the activation fold's opener; None gives None.",
+      "source_sha256": "d497a926e17c9bcbd9035ada4940b58787f48cb6bef3ba453452b108aa1b2778",
+      "context": "the screen that may carry the activation fold's opener; None gives None.",
+      "translation": "die Ansicht, die den Öffner der Aktivierungsfaltung tragen kann; None ergibt None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class once each running job thread has been asked to quit and waited on (up to five seconds each).",
+      "source_sha256": "14259a8bc77e9bf1b366fc9e8b1c73f671ab594b8910d6f7f62aa67782feae05",
+      "context": "the close event, passed on to the base class once each executing job independent execution path has been asked to quit and waited on (up to five seconds each).",
+      "translation": "das Schließereignis, an die Basisklasse weitergereicht, sobald jeder laufende Auftrags-Thread zum Beenden aufgefordert und abgewartet wurde (jeweils bis zu fünf Sekunden).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.select_columns#1",
+      "source": "annotation column names to check; every other listed column is unchecked. Names not in the list are reported in the status line.",
+      "source_sha256": "d52be0e0c8c6b22f0927526a543a3549db4eb9bba0fb0c85eb34cb967ae6c221",
+      "context": "annotation column names to check; every other listed column is unchecked. Names not in the list are reported in the status line.",
+      "translation": "anzuhakende Namen von Annotationsspalten; jede andere aufgeführte Spalte wird abgehakt. Namen, die nicht in der Liste stehen, werden in der Statuszeile gemeldet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.select_disagreement#2",
+      "source": "zero-based row of the disagreement table; out of range clears the preview.",
+      "source_sha256": "f82c6369e3953a48a052e8259238874efdbde6ff74bfd6b97b1b346efe7a18e4",
+      "context": "zero-based row of the disagreement table; out of range clears the preview.",
+      "translation": "nullbasierte Zeile der Tabelle der Unstimmigkeiten; außerhalb des Bereichs wird die Vorschau geleert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.set_database#2",
+      "source": "``measurements.db`` file, run ``src`` folder or ``measurements`` folder; resolved with :func:`spacr.qt.screens.db_browser.resolve_db_path`.",
+      "source_sha256": "afdc8879bcd1e0ed8359b2909fb3826f19a87cf3d02a0e8e7e2ee49e68cd5dc7",
+      "context": "``measurements.db`` file, run ``src`` folder or ``measurements`` folder; resolved with :func:`spacr.qt.screens.db_browser.resolve_db_path`.",
+      "translation": "``measurements.db``-Datei, ``src``-Ordner eines Laufs oder ``measurements``-Ordner; mit :func:`spacr.qt.screens.db_browser.resolve_db_path` aufgelöst.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.AlignScreen.apply_settings#1",
+      "source": "partial or full Align settings; missing keys are filled from :func:`spacr.align.default_settings` before the controls are set.",
+      "source_sha256": "86a8f20a07b2a92bdcdbb8be71af529867c9fc551e2c2da5334a752f5de8a846",
+      "context": "partial or full Align settings; missing structured-data names are filled from :func:`spacr.align.default_settings` before the controls are set.",
+      "translation": "teilweise oder vollständige Align-Einstellungen; fehlende Schlüssel werden aus :func:`spacr.align.default_settings` ergänzt, bevor die Steuerelemente gesetzt werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.mousePressEvent#1",
+      "source": "the mouse press event; only its position is read. A press outside every tile emits ``-1``.",
+      "source_sha256": "21fc520a444ed8fc27362685dc2b58da82d25412d2cb980adccc4bde5e17bbe1",
+      "context": "the mouse press event; only its position is read. A press outside every tile emits ``-1``.",
+      "translation": "das Maus-Klickereignis; nur seine Position wird gelesen. Ein Klick außerhalb aller Kacheln sendet ``-1``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.paintEvent#1",
+      "source": "the paint event; not read, the whole widget is redrawn.",
+      "source_sha256": "a546835d8d0b6f0040aac53f32776c9614af0d10ca852ac5cc867cf5670f7958",
+      "context": "the paint event; not read, the whole widget is redrawn.",
+      "translation": "das Zeichenereignis; wird nicht gelesen, das ganze Widget wird neu gezeichnet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget.set_plan#1",
+      "source": "the plan whose placements are drawn; ``None`` shows the empty-state hint.",
+      "source_sha256": "23a5e30c657d64bdb9bb1b1eba4038117a11774fab696aa9e0d4ab94b6794e66",
+      "context": "the plan whose placements are drawn; ``None`` shows the empty-state hint.",
+      "translation": "der Plan, dessen Platzierungen gezeichnet werden; ``None`` zeigt den Hinweis für den leeren Zustand.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.confidence_colour#2",
+      "source": "registration confidence from 0 to 1; values outside 0.3-1.0 are clamped to the ends of the ramp.",
+      "source_sha256": "f965ce025df8a8eed54a0e8b7bb372bc8c4908d434ec1166b0fd039f4c253a11",
+      "context": "registration confidence from 0 to 1; values outside 0.3-1.0 are clamped to the ends of the ramp.",
+      "translation": "Registrierungskonfidenz von 0 bis 1; Werte außerhalb von 0.3-1.0 werden auf die Enden der Farbrampe begrenzt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.align.confidence_colour#3",
+      "source": "placement method, one of the ``spacr.align.METHOD_*`` values; ``\"nominal\"`` gives the warning colour and ``\"unreadable\"`` the error colour regardless of confidence.",
+      "source_sha256": "176fe6ad314cbe9a0b680d4b56115a54b501385400c07b41a0e3b31886fef9b1",
+      "context": "placement method, one of the ``spacr.align.METHOD_*`` values; ``\"nominal\"`` gives the warning colour and ``\"unreadable\"`` the error colour regardless of confidence.",
+      "translation": "Platzierungsmethode, einer der Werte ``spacr.align.METHOD_*``; ``\"nominal\"`` ergibt unabhängig von der Konfidenz die Warnfarbe und ``\"unreadable\"`` die Fehlerfarbe.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#10",
+      "source": "A SUGGESTION IS JUDGED, NOT RELABELLED (item 512). A crop Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the key legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "source_sha256": "4fdaae1db8987abfa8b9fd8d63c4aefc84a97dd1fd067712b35b38c46b27fc16",
+      "context": "A suggestion is judged, not relabelled (item 512). An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
+      "translation": "EIN VORSCHLAG WIRD BEURTEILT, NICHT NEU GELABELT (Punkt 512). Ein Bildausschnitt, für den Suggest eine Klasse vorgeschlagen hat, trägt neben seinem gestrichelten Ring ein bernsteinfarbenes ``?``-Abzeichen. Ein Klick oder ``Y`` bestätigt ihn (er wird zu einem gewöhnlichen Label und trägt einen grünen Haken); ein Rechtsklick oder ``N`` lehnt ihn ab (er wird wieder unbeantwortet und trägt ein rotes Kreuz); ``U`` macht beides rückgängig. Die Leiste über der Tastenlegende sagt das und zählt, was die Seite und die Spalte enthalten. Jedes Urteil wird in die Spalte ``<column>_verdict`` geschrieben, als ``+c`` oder ``-c``, sodass es einen Neustart übersteht, und die nächste Suggest-Runde erhält die Ablehnungen zum Trainieren. Siehe :meth:`AnnotateScreen._judge` und :func:`spacr.suggest.verdict_column`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate#9",
+      "source": "A PAGE IS WHAT FITS (item 512). The grid holds exactly the crops that fit the room the crop pane gives it, at the crop size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first crop on screen stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "source_sha256": "cae822239c94b804ff9338aa4d1846cf19ad53d231e49525ab832c099283b2bd",
+      "context": "A page is what fits (item 512). The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
+      "translation": "EINE SEITE IST, WAS PASST (Punkt 512). Das Raster enthält genau die Bildausschnitte, die in den Platz passen, den der Bildausschnittbereich ihm gibt, in der von den Einstellungen verlangten Ausschnittgröße, und es scrollt nie: Das Öffnen der Konsole, das Einklappen eines Bereichs, eine Änderung der GUI-Skala oder der Fenstergröße berechnet die Seite neu und schiebt den Rest auf die nächste, der Seitenzähler folgt, und der erste Bildausschnitt auf dem Bildschirm bleibt, wo er war. Siehe :func:`grid_that_fits` und :meth:`AnnotateScreen._refit_grid`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class after every worker has been stopped or drained.",
+      "source_sha256": "c1d3fc3ec3e5e47e134fb18262cbfc252d2e0dbceee023a3a28ad1eb2743d6ee",
+      "context": "the close event, passed on to the base class after every worker has been stopped or drained.",
+      "translation": "das Schließereignis, an die Basisklasse weitergereicht, nachdem jeder Worker gestoppt oder abgearbeitet wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.eventFilter#2",
+      "source": "the watched object: the grid scroll area, its viewport or the grid holder. Resizes count only on the viewport, and mouse presses, moves and releases drive the selection band only on the grid holder.",
+      "source_sha256": "8de623cc7eb1579ba19a6ce3fb949c135b820d77839e07c16e3427410708fb78",
+      "context": "the watched object: the grid scroll area, its viewport or the grid holder. Resizes count only on the viewport, and mouse presses, moves and releases drive the selection band only on the grid holder.",
+      "translation": "das beobachtete Objekt: der Scrollbereich des Rasters, sein Viewport oder der Rasterhalter. Größenänderungen zählen nur beim Viewport, und Mausklicks, -bewegungen und -freigaben steuern das Auswahlband nur beim Rasterhalter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.eventFilter#3",
+      "source": "the event; key presses go to :meth:`handle_key`, and ``Leave`` clears the hover.",
+      "source_sha256": "c8ccd7e906cafda083b735661a606cdcc5e29dfe01ed49511dcf1ade8fc713c2",
+      "context": "the event; key presses go to :meth:`handle_key`, and ``Leave`` clears the hover.",
+      "translation": "das Ereignis; Tastendrücke gehen an :meth:`handle_key`, und ``Leave`` hebt das Hover auf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.handle_key#2",
+      "source": "Qt key code, Qt key name or literal character, normalised with :func:`key_token`.",
+      "source_sha256": "f8c4ca05efb4be49f8aa9f6d8772b17c4587f6a2b65c47fd85b92b1632c61939",
+      "context": "Qt key code, Qt key name or literal character, normalised with :func:`key_token`.",
+      "translation": "Qt-Tastencode, Qt-Tastenname oder literales Zeichen, mit :func:`key_token` normalisiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.keyPressEvent#1",
+      "source": "the key event; its key code and text are read, and it is accepted when the key is bound.",
+      "source_sha256": "32a44685cfb2aa5b4d3867fb1f8d85e2f48e4c905b60597a222bf9760144d349",
+      "context": "the key event; its key code and text are read, and it is accepted when the key is bound.",
+      "translation": "das Tastenereignis; sein Tastencode und sein Text werden gelesen, und es wird angenommen, wenn die Taste belegt ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.AnnotateScreen.resizeEvent#1",
+      "source": "the resize event, passed to the base class; the grid is re-measured from the widget's new size.",
+      "source_sha256": "7412713f3f2639c1662146c5e570457bb6bd67fbb80137e1772ce9156f2969ec",
+      "context": "the resize event, passed to the base class; the grid is re-measured from the widget's new size.",
+      "translation": "das Größenänderungsereignis, an die Basisklasse übergeben; das Raster wird anhand der neuen Größe des Widgets neu vermessen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#0",
+      "source": "``(fill, glyph)`` for the corner badge a judged or judgeable crop wears.",
+      "source_sha256": "d02a905e93a98f5bd4c6dd39bb06a520a75083b66caf6e4fea42f458dbd3e3eb",
+      "context": "``(fill, glyph)`` for the corner badge a judged or judgeable extracted image region wears.",
+      "translation": "``(fill, glyph)`` für das Eckabzeichen, das ein beurteilter oder beurteilbarer Bildausschnitt trägt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#1",
+      "source": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
+      "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "translation": "Punkt 512. Ein Vorschlag ist bernsteinfarben, ein bestätigter Vorschlag grün und ein abgelehnter rot -- die eigenen Warn-, Erfolgs- und Fehlerfarben des Themes, sodass das Abzeichen einem Theme-Wechsel so folgt wie der Rest der Oberfläche. Das Symbol wird in der Hintergrundfarbe des Themes gezeichnet, die im dunklen Theme schwarz und im hellen fast weiß ist; jede dieser Füllfarben wurde dagegen ausgewählt und erreicht in beiden einen Kontrast von besser als 4.5:1. Keine der drei (None) ist eine Klassenfarbe, sodass ein Abzeichen nie als Klasse gelesen wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#2",
+      "source": "one of :data:`JUDGEMENT_STATES`.",
+      "source_sha256": "7edbc9bf3a3b34cd6f802cea98ee83889357d69c6d73bf684d07d71ff41d1e16",
+      "context": "one of :data:`JUDGEMENT_STATES`.",
+      "translation": "einer aus :data:`JUDGEMENT_STATES`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#3",
+      "source": "which theme to answer for; the one on screen when None.",
+      "source_sha256": "f2b52d3da23ae2696084367095059fe5e3d2557707e7e3f65a8d07e402e07a3b",
+      "context": "which theme to answer for; the one on application view when None.",
+      "translation": "für welches Theme geantwortet wird; bei None das auf dem Bildschirm.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#4",
+      "source": "``(fill, glyph)`` hex colours.",
+      "source_sha256": "33864a9aba841a363620ed2ed8b92aa89af209f45e2870f7fc9e9026a8375ddb",
+      "context": "``(fill, glyph)`` hex colours.",
+      "translation": "``(fill, glyph)`` als Hex-Farben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#0",
+      "source": "``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.",
+      "source_sha256": "20135f404e68d411c61c5eed4261cb2502d5c5b56f43d729b2d98d26c6e484a6",
+      "context": "``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.",
+      "translation": "``(rows, cols)`` von Kacheln der Größe ``tile_w`` x ``tile_h``, die in einen Platz passen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#1",
+      "source": "Pure arithmetic, so a page size can be asserted without a window. ``margin`` comes off every edge of the ``width`` x ``height`` room, ``gap`` sits between tiles and not after the last one, and there is always at least one row and one column: a room smaller than a tile shows one crop rather than none.",
+      "source_sha256": "0ca0580b9a74797e56e38613595ea89bc034a835ed3df1f747730d815377b464",
+      "context": "Pure arithmetic, so a page size can be asserted without a window. ``margin`` comes off every edge of the ``width`` x ``height`` room, ``gap`` sits between tiles and not after the last one, and there is always at least one row and one column: a room smaller than a tile shows one extracted image region rather than none.",
+      "translation": "Reine Arithmetik, damit sich eine Seitengröße ohne Fenster prüfen lässt. ``margin`` wird von jedem Rand des Platzes ``width`` x ``height`` abgezogen, ``gap`` liegt zwischen den Kacheln und nicht nach der letzten, und es gibt immer mindestens eine Zeile und eine Spalte: Ein Platz, der kleiner als eine Kachel ist, zeigt einen Bildausschnitt statt keinen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#2",
+      "source": "the room's width, in the same pixels as the tiles.",
+      "source_sha256": "47ae44eeccdf616b6129bbeec8d74dfeebfe48d05a4ae1d47c8655436546f699",
+      "context": "the room's width, in the same pixels as the tiles.",
+      "translation": "die Breite des Platzes, in denselben Pixeln wie die Kacheln.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#3",
+      "source": "the room's height.",
+      "source_sha256": "707ffd9245c8f2ad6dc88fd2604ea9101d7366ab241e7b1b1b3630917f89fe16",
+      "context": "the room's height.",
+      "translation": "die Höhe des Platzes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#4",
+      "source": "one tile's width, rings included.",
+      "source_sha256": "28188a1c6de1091e9116d8eb341ed60949d5fde40b7be3ff269c31f58111bc5b",
+      "context": "one tile's width, rings included.",
+      "translation": "die Breite einer Kachel, einschließlich Ringen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#5",
+      "source": "one tile's height, rings included.",
+      "source_sha256": "3cb017cc6c9d2e63fdaf785dc37da862e77e9296d8f33682de4382bf5c38aab2",
+      "context": "one tile's height, rings included.",
+      "translation": "die Höhe einer Kachel, einschließlich Ringen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#6",
+      "source": "the layout's spacing between tiles.",
+      "source_sha256": "40ab2bbfe2e95da853f5513bb506a162bcde34b239dc2e3003f6de6e5dd7b1d1",
+      "context": "the layout's spacing between tiles.",
+      "translation": "der Abstand des Layouts zwischen den Kacheln.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#7",
+      "source": "the layout's margin on each edge.",
+      "source_sha256": "c32c295529d1da01ef5d9254fbd7999d314f112f681616e641ea5234b730b7af",
+      "context": "the layout's margin on each edge.",
+      "translation": "der Rand des Layouts an jeder Kante.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.key_token#2",
+      "source": "Qt key code (an int or int-like value), a key name such as ``\"Left\"``, or a literal character such as ``\"1\"``.",
+      "source_sha256": "60622257a6bf62ebe4e21a57c62137ba10f3f777f9003c5aeae356c7cb88830d",
+      "context": "Qt key code (an int or int-like value), a key name such as ``\"Left\"``, or a literal character such as ``\"1\"``.",
+      "translation": "Qt-Tastencode (ein int oder int-artiger Wert), ein Tastenname wie ``\"Left\"`` oder ein literales Zeichen wie ``\"1\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#0",
+      "source": "True when a recorded judgement no longer agrees with the label.",
+      "source_sha256": "f2e864653c379f76b3a8d01fbd9611a900f40762013c995210acd14a08624bd9",
+      "context": "True when a recorded judgement no longer agrees with the label.",
+      "translation": "True, wenn ein aufgezeichnetes Urteil nicht mehr zum Label passt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#1",
+      "source": "A confirmation of class c stands while the crop is labelled c; a rejection of class c stands until the crop is labelled c after all. Relabelling a confirmed crop, or labelling a rejected one as the class that was rejected, withdraws the judgement, so the verdict column never says something the annotation column contradicts.",
+      "source_sha256": "51cf2136f3a5203164009d9eba2799e14764276bcf874d20c9bfd565bc648c13",
+      "context": "A confirmation of class c stands while the extracted image region is labelled c; a rejection of class c stands until the extracted image region is labelled c after all. Relabelling a confirmed extracted image region, or labelling a rejected one as the class that was rejected, withdraws the judgement, so the verdict column never says something the annotation column contradicts.",
+      "translation": "Eine Bestätigung der Klasse c gilt, solange der Bildausschnitt als c gelabelt ist; eine Ablehnung der Klasse c gilt, bis der Bildausschnitt doch als c gelabelt wird. Ein bestätigter Bildausschnitt, der neu gelabelt wird, oder ein abgelehnter, der als die abgelehnte Klasse gelabelt wird, zieht das Urteil zurück, sodass die Urteilsspalte nie etwas aussagt, dem die Annotationsspalte widerspricht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#2",
+      "source": "``+c``, ``-c`` or None.",
+      "source_sha256": "b3186cfc999b0e7779b2b8b9130b702a65a1ea890407ecca59ec3a78f611c136",
+      "context": "``+c``, ``-c`` or None.",
+      "translation": "``+c``, ``-c`` oder None.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#3",
+      "source": "the crop's label, a suggestion or None.",
+      "source_sha256": "ce8ad95e3d0c344a2dce6eb6619b8166ef8aad51f79eebb4c2b6521331c52aef",
+      "context": "the extracted image region's label, a suggestion or None.",
+      "translation": "das Label des Bildausschnitts, ein Vorschlag oder None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#4",
+      "source": "True when the verdict should be withdrawn.",
+      "source_sha256": "73e11c14d760fcfdc29fbb1689940c8f282b5fe3792973cc3ac15ff84b100302",
+      "context": "True when the verdict should be withdrawn.",
+      "translation": "True, wenn das Urteil zurückgezogen werden sollte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#0",
+      "source": "Name a card someone else put in the runtime splitter.",
+      "source_sha256": "cc61228c9f64ca0ae97936ef05e9e269d3c9bfe246cd3e49bfcca1068d60a24c",
+      "context": "Name a card someone else put in the runtime splitter.",
+      "translation": "Übernimmt eine Karte, die jemand anderes in den Laufzeit-Splitter gelegt hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#1",
+      "source": ":mod:`spacr.qt.preview_registry` inserts a declared preview above the console; adopting it makes it collapse by its title, resize by its edge, and -- as a preview -- take the height when it is shown.",
+      "source_sha256": "f3656b4f90486eaa074c101aed27b80d2fdf856e97543885f46457682a2a8274",
+      "context": ":mod:`spacr.qt.preview_registry` inserts a declared preview above the console; adopting it makes it collapse by its title, resize by its edge, and -- as a preview -- take the height when it is shown.",
+      "translation": ":mod:`spacr.qt.preview_registry` fügt eine deklarierte Vorschau oberhalb der Konsole ein; die Übernahme sorgt dafür, dass sie sich über ihren Titel einklappen und über ihren Rand in der Größe ändern lässt und -- als Vorschau -- beim Anzeigen die Höhe beansprucht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#2",
+      "source": "the card, already in the runtime splitter.",
+      "source_sha256": "dffb1a3b1cbe5a97b4e9eb53147039614150d5ba550bc87a6e8a2c39e7d356bf",
+      "context": "the card, already in the runtime splitter.",
+      "translation": "die Karte, bereits im Laufzeit-Splitter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#3",
+      "source": "whether showing it collapses the console, System, the buttons and the settings column.",
+      "source_sha256": "b9b606fdc4906e085da96d42eeb30f15c9e8721c5124b14ecd8f7b99a44d1c7e",
+      "context": "whether showing it collapses the console, System, the buttons and the settings column.",
+      "translation": "ob ihre Anzeige die Konsole, System, die Schaltflächen und die Einstellungsspalte einklappt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#4",
+      "source": "the pane, or None when this screen has no such splitter.",
+      "source_sha256": "023be284c097d9524411add8f7218854a0f128e8ca2d1a4b88e2cb5b8a9e4694",
+      "context": "the pane, or None when this screen has no such splitter.",
+      "translation": "der Bereich oder None, wenn diese Ansicht keinen solchen Splitter hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict#2",
+      "source": "setting key to value mapping; legacy key names are translated first, and it is merged over the current values.",
+      "source_sha256": "e2c1e926747cd4c93f095026ecab13f06fb8af5d97d72cc566982d1390c865a5",
+      "context": "setting name to value mapping; legacy structured-data name names are translated first, and it is merged over the current values.",
+      "translation": "Mapping von Einstellungsschlüssel auf Wert; veraltete Schlüsselnamen werden zuerst übersetzt, und es wird über die aktuellen Werte gelegt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state#2",
+      "source": "mapping with ``app_key`` and ``settings`` keys, as saved with the workspace; anything that is not a dict, names another module, or has no settings applies nothing.",
+      "source_sha256": "98adbeaeda257e21da97d8cbfd7eb70829e6b5d1fb43babf9460ad098739a1aa",
+      "context": "mapping with ``app_key`` and ``settings`` structured-data names, as saved with the workspace; anything that is not a key-value mapping, names another module, or has no settings applies nothing.",
+      "translation": "Mapping mit den Schlüsseln ``app_key`` und ``settings``, wie mit dem Workspace gespeichert; alles, was kein Wörterbuch ist, ein anderes Modul nennt oder keine Einstellungen hat, wendet nichts an.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.changeEvent#5",
+      "source": "the state-change event; it is passed to the base class, and only its type is read -- ``ApplicationPaletteChange`` and ``PaletteChange`` re-theme the backdrops.",
+      "source_sha256": "130ce0831eacb82cd98a32a206c09fe6689912c0d54c5703598e66dd9d43879f",
+      "context": "the state-change event; it is passed to the base class, and only its type is read -- ``ApplicationPaletteChange`` and ``PaletteChange`` re-theme the backdrops.",
+      "translation": "das Zustandsänderungsereignis; es wird an die Basisklasse übergeben, und nur sein Typ wird gelesen -- ``ApplicationPaletteChange`` und ``PaletteChange`` passen die Hintergründe an das neue Theme an.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "source": "the close event; ignored (so the screen stays open) when the worker is still running three seconds after the cancel request.",
+      "source_sha256": "49ffd506b6f618a3e2eb51bc2710b1c67b4b3b0c0808d93d914d967736430f8a",
+      "context": "the close event; ignored (so the screen stays open) when the worker is still executing three seconds after the cancel request.",
+      "translation": "das Schließereignis; wird ignoriert (sodass die Ansicht offen bleibt), wenn der Worker drei Sekunden nach der Abbruchanforderung noch läuft.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.dimension_is_on#1",
+      "source": "``\"z\"`` (3D) or ``\"t\"`` (time); a dimension this screen does not track reads as off.",
+      "source_sha256": "aed0168fcabb17073bb3f5939e1618c647ba45c7c6a28e6fdfb9fd2ec9d9e6aa",
+      "context": "``\"z\"`` (3D) or ``\"t\"`` (time); a dimension this screen does not track reads as off.",
+      "translation": "``\"z\"`` (3D) oder ``\"t\"`` (Zeit); eine Dimension, die diese Ansicht nicht verfolgt, gilt als ausgeschaltet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.dimension_switch#1",
+      "source": "``\"z\"`` for the 3D toggle or ``\"t\"`` for the Time toggle.",
+      "source_sha256": "627134b258d861188c2b8d44fddd41b6ebb175b56a45e880f075f319896c3337",
+      "context": "``\"z\"`` for the 3D toggle or ``\"t\"`` for the Time toggle.",
+      "translation": "``\"z\"`` für den 3D-Schalter oder ``\"t\"`` für den Zeit-Schalter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.eventFilter#1",
+      "source": "the watched widget; its ``settingsCategory`` or ``settingKey`` property decides whether a category blurb or a setting's help is shown.",
+      "source_sha256": "d7fa144a6cd7dfb7588bc2bee4d63e0af8fa147b69862ee2dc4139efe056a831",
+      "context": "the watched widget; its ``settingsCategory`` or ``settingKey`` property decides whether a category blurb or a setting's help is shown.",
+      "translation": "das beobachtete Widget; seine Eigenschaft ``settingsCategory`` oder ``settingKey`` entscheidet, ob ein Kategorietext oder die Hilfe einer Einstellung angezeigt wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.eventFilter#2",
+      "source": "the filtered event; a ``ToolTip`` on a widget with hover help is swallowed, ``Enter`` shows the help and ``Leave`` hides it, and every event is otherwise passed to the base class.",
+      "source_sha256": "0977194cb24229afdd2b33cd834c5f4974541c8bc07e11858abf6a119366d1a9",
+      "context": "the filtered event; a ``ToolTip`` on a widget with hover help is swallowed, ``Enter`` shows the help and ``Leave`` hides it, and every event is otherwise passed to the base class.",
+      "translation": "das gefilterte Ereignis; ein ``ToolTip`` auf einem Widget mit Hover-Hilfe wird verworfen, ``Enter`` zeigt die Hilfe und ``Leave`` blendet sie aus, und jedes Ereignis wird ansonsten an die Basisklasse übergeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#0",
+      "source": "Fill the OPS settings with the test data, fetching it when needed.",
+      "source_sha256": "d1faefdfb9001b443829b7bc97fc69078a5a7afe8b985e3050052cff8ed766b1",
+      "context": "Fill the OPS settings with the test data, fetching it when needed.",
+      "translation": "Füllt die OPS-Einstellungen mit den Testdaten und ruft diese bei Bedarf ab.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#2",
+      "source": "replaces the cache folder, for tests.",
+      "source_sha256": "712f27328e107f729f2e189c432c99c13a5f0175620d4c3e1489ac8e3a9602ce",
+      "context": "replaces the cache folder, for tests.",
+      "translation": "ersetzt den Cache-Ordner, für Tests.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#3",
+      "source": "the settings that were applied; empty while a download is still running or after a failure.",
+      "source_sha256": "a7fd94076f09b924b6e2a78c696d3846d4124137d1626f6bd71af00bb488a38d",
+      "context": "the settings that were applied; empty while a download is still executing or after a failure.",
+      "translation": "die angewendeten Einstellungen; leer, solange ein Download noch läuft, oder nach einem Fehlschlag.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.paintEvent#2",
+      "source": "the paint event; handed to the base class only when there is no page fill. The fill always covers the whole screen, not just the event's region.",
+      "source_sha256": "439477830c58ef32e5cd58d4cc5895bafbe050f5dfdf796c4dfd037439340a4d",
+      "context": "the paint event; handed to the base class only when there is no page fill. The fill always covers the whole application view, not just the event's region.",
+      "translation": "das Zeichenereignis; wird nur an die Basisklasse übergeben, wenn es keine Seitenfüllung gibt. Die Füllung deckt immer die ganze Ansicht ab, nicht nur die Region des Ereignisses.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.pick_wells_for#1",
+      "source": "the settings field holding a well specification; its ``text()`` seeds the picker and ``setText()`` receives the choice when the field has them.",
+      "source_sha256": "9b2bcc03911dcd0b7a54130878dbaff80ba9f54fea7cbed2731a28f44296d08c",
+      "context": "the settings microscope field of view holding a microplate sample position specification; its ``text()`` seeds the picker and ``setText()`` receives the choice when the microscope field of view has them.",
+      "translation": "das Einstellungsfeld mit einer Well-Angabe; sein ``text()`` gibt der Auswahl den Anfangswert vor, und ``setText()`` erhält die Wahl, sofern das Feld diese Methoden hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#0",
+      "source": "Put ``folder`` in this module's ``src`` field. Returns whether it took.",
+      "source_sha256": "88866acf67e97d5525ef039e74c9c6e79a0c0687e728edee7293beb01d5a0ec3",
+      "context": "Put ``folder`` in this module's ``src`` field. Returns whether it took.",
+      "translation": "Setzt ``folder`` in das ``src``-Feld dieses Moduls. Gibt zurück, ob es übernommen wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#2",
+      "source": "the folder to run on, as a path or a string.",
+      "source_sha256": "235b9d8d91f97a062bc6cfdb843cd0d851c316d3103bf846659be898b08eaf55",
+      "context": "the folder to execute on, as a path or a string.",
+      "translation": "der Ordner, auf dem ausgeführt wird, als Pfad oder Zeichenkette.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#3",
+      "source": "True when the screen has a ``src`` field and it took the value.",
+      "source_sha256": "7d90a65b0311b88a6a14c39576fe912973e043b65ccfde21b75c2077635d0475",
+      "context": "True when the screen has a ``src`` field and it took the value.",
+      "translation": "True, wenn die Ansicht ein ``src``-Feld hat und dieses den Wert übernommen hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.refresh_maturity_visibility#1",
+      "source": "ALSO THE ONE PLACE A SECTION'S VISIBILITY IS DECIDED. Maturity is not the only reason a category is not on the form -- a category every one of whose settings needs a z axis is not on a flat plate's form either -- and two functions each calling ``setVisible`` on the same card is how a card comes back the next time Preferences is saved. So the dimension switches are answered here as well, and the settings search hands visibility back to this method for the same reason. A heading the object rule holds back, because the run has none of its objects, stays hidden here too.",
+      "source_sha256": "76b113e55b805b540d92c6fa6471da8bffd04ac948d9715597dd7ae0ba261d7e",
+      "context": "Also the one place a section's visibility is decided. Maturity is not the only reason a category is not on the form -- a category every one of whose settings needs a z axis is not on a flat laboratory microplate's form either -- and two functions each calling ``setVisible`` on the same card is how a card comes back the next time Preferences is saved. So the dimension switches are answered here as well, and the settings search hands visibility back to this method for the same reason. A heading the object rule holds back, because the processing session has none of its objects, stays hidden here too.",
+      "translation": "ZUGLEICH DER EINE ORT, AN DEM DIE SICHTBARKEIT EINES ABSCHNITTS ENTSCHIEDEN WIRD. Der Reifegrad ist nicht der einzige Grund, warum eine Kategorie nicht im Formular erscheint -- eine Kategorie, deren sämtliche Einstellungen eine z-Achse brauchen, erscheint auch nicht im Formular einer flachen Platte --, und zwei Funktionen, die beide ``setVisible`` auf derselben Karte aufrufen, führen dazu, dass eine Karte beim nächsten Speichern der Einstellungen wieder auftaucht. Daher werden auch die Dimensionsschalter hier beantwortet, und die Einstellungssuche gibt die Sichtbarkeit aus demselben Grund an diese Methode zurück. Eine Überschrift, die die Objektregel zurückhält, weil der Lauf keines ihrer Objekte hat, bleibt auch hier verborgen.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
