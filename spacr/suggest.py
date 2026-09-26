@@ -148,7 +148,8 @@ def _score_columns(columns: Sequence[str]) -> List[str]:
 
 def suggest_from_scores(db_path: str, annotation_column: str, *,
                         png_table: str = "png_list",
-                        classes: Optional[Sequence[int]] = None
+                        classes: Optional[Sequence[int]] = None,
+                        withhold_rejected: bool = True,
                         ) -> Suggestions:
     """Read the last retrain's probabilities and propose a label for each crop.
 
@@ -162,6 +163,11 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
     :param classes: the class value each score column stands for. Defaults to
         the values already present in the annotation column, in order, which
         is what the retrain encoded them from.
+    :param withhold_rejected: leave out every crop whose suggestion the
+        annotator REJECTED (a negative ``<column>_verdict``). The maintainer,
+        2026-09-25 (item 512): a rejected crop is not suggested again in a
+        later round. It still trains as an example of the other class
+        (:func:`rejected_suggestions`); it is only not proposed.
     :returns: a :class:`Suggestions`; its frame is empty when nothing has been
         scored, and ``note`` says why.
     """
@@ -203,6 +209,16 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
     if unlabelled.empty:
         return Suggestions(pd.DataFrame(), classes=classes,
                            note="every crop already carries a value")
+    verdict = verdict_column(annotation_column)
+    if withhold_rejected and verdict in unlabelled.columns:
+        judged = pd.to_numeric(unlabelled[verdict], errors="coerce")
+        unlabelled = unlabelled[~(judged < 0)]
+        if unlabelled.empty:
+            return Suggestions(
+                pd.DataFrame(), classes=classes,
+                note=("every crop left without a value is one whose "
+                      "suggestion was rejected, and a rejected crop is not "
+                      "suggested again"))
 
     raw = unlabelled[score_cols[:len(classes)]].apply(
         pd.to_numeric, errors="coerce")
