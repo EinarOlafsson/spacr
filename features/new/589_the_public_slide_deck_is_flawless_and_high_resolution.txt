@@ -1,0 +1,134 @@
+THE PUBLIC SLIDE DECK IS FLAWLESS AND HIGH RESOLUTION
+
+Status: OPEN, filed 2026-09-26. Being built the same day (see the dated
+notes at the end).
+Owner: Claude agent (worktree agent-af1616c9b018f601c).
+
+THE REQUEST (the maintainer, 2026-09-26, verbatim)
+  "in the slide deck, the slide with the organells (slide 10) has poor object
+  detection and that needs to change, the nuclei are also poorly detected in
+  that slide.
+  in slide 2 i can see appart of the A in the figure pannel
+  in most pannels the pannel resolution is so low and the white lines on the
+  icons so thin that the icons are not allway visable, so all slides need to
+  be higher resolution.
+  on slide 3 many the could add and replace some features with more general
+  features and less niech features
+  I can see the pannels in most of the figures that you use. put boxes over
+  the pannel letter (these boxes should be perfectly alligned wi the figures
+  and not look blocky.)
+  the regression ledgend looks terrible and should be changed (another
+  version of the presentation already did this, the lab presentation
+  bersion)
+  add this as a new feature and consult the archived presentation session if
+  you can where the presentation was made.
+  because this presentation is fromt fasing on github now it needs to be
+  perfekt, higher resolution."
+
+WHAT WAS FOUND (2026-09-26)
+  The published deck. docs/source/_static/deck/ (index.html, slides/ and
+  thumbs/ JPEGs, anim/, pages/NN.md, spacr_deck.pdf, slides.json with
+  "source": "spacr_overview.pptx", 51 slides at 1600x900). It was added in
+  c3ee0ed98 and 7485ff27b on 2026-09-21 and has not been rebuilt since,
+  except for the title slide's version stamp.
+
+  The publisher. tools/build_readme_deck.py renders a .pptx with LibreOffice
+  (soffice -> PDF) and poppler (pdftoppm), writes the slide and thumbnail
+  JPEGs, a PDF made from the JPEGs, slides.json, pages/NN.md and the viewer
+  (tools/readme_deck_viewer.html). The title slide's version line is stamped
+  from setup.py (--stamp, called by packaging/release.py).
+
+  The deck source. /mnt/firecuda2/Claude/toxoplasma_projects/presentation/
+  (not a git repository):
+    scripts/build.js         pptxgenjs; every slide's text and layout. It
+                             builds BOTH decks: `node scripts/build.js` writes
+                             spacr_lab_meeting.pptx (the lab version) and
+                             `PUBLIC=1 node scripts/build.js` writes
+                             spacr_overview.pptx (the public one).
+    scripts/prep_assets.py   icons (spacr/resources/icons, 1024 px, cut down
+                             to 256 px) and scripts/sizes.json.
+    scripts/crop.py, jobs*.json    crops of the 4K tutorial keyframes in
+                             ../tutorials/production/*/keyframes/.
+    scripts/crop_paper*.py, paper_jobs.json    preprint figure panels, with
+                             the panel letters painted over.
+    images/                  every picture on the slides (150 MB).
+  Slide 10 ("Mask: every object class") is three crops of the Mask
+  tutorial's keyframes (07_mask/09_nucleus_overlay, 05_cell_overlay,
+  15_organelle_overlay), an app screenshot of a 5-image test run on the
+  tutorial dataset /mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/
+  spacr/tutorials/orig (HeLa RAMP4-GFP siRNA, field W0107F0002T0001Z000;
+  C1 nuclei, C2 cells, C3 lipid droplets). The organelle outlines are
+  Cellpose circles that miss most droplets, and many nuclei are unoutlined.
+
+  The session that made it. /home/olafsson/.claude/projects/
+  -mnt-firecuda2-Claude-repo/d76975b5-7a10-46fa-bf01-dd62a1467de7.jsonl
+  ("repo-7e", 2026-09-21 to 2026-09-25), with subagent
+  agent-ac4b011554b32b1d9 (the Regression app screenshots in
+  images/regression_app/). The publishing session was bf3aeb50-6b54-4e7c-
+  9366-2d0b03a72c35 ("repo-16").
+
+  The lab version and the regression legend. On 2026-09-22 the maintainer
+  asked the deck session to "pick a volcano from my paper instead" for the
+  regression hit-list slide, and for regression slides built from the real
+  module ("use the pyqtgraph volcano and screenshots of the actual modual").
+  The deck session did that in build.js (both builds): the hit-list slide's
+  own volcano, whose 30-entry compartment legend is unreadable at slide
+  size, was replaced by preprint Fig. 5B-C (XGBoost and MaxViT volcanos with
+  labelled hits), and three slides were added (choose the model, pick a gene
+  and see its cells, which assumptions hold). It also moved the deck to Open
+  Sans, re-cut the paper figures with the panel letters covered, and split
+  the Make Masks magnifier slide in two (live magnifier with two GIFs;
+  Features). The public spacr_overview.pptx was rebuilt with all of that
+  (55 slides), but its republish into the repository was stopped on
+  2026-09-22 ("Republish the deck", then interrupted), so the README still
+  shows the 51-slide version of 2026-09-21. The 2026-09-25 build of
+  spacr_overview.pptx still has blocky black squares over panel letters
+  (Classify image model, saliency) and stray fragments of the covered
+  "(i)".."(v)" labels on slide 2.
+
+WHAT TO BUILD
+  (a) Slide 10: better organelle and nucleus detection. Re-segment the field
+      with a stronger model or settings so the masks are visibly right:
+      every nucleus outlined, and the lipid droplets found as droplets (a
+      spot detector suited to small bright puncta) instead of a few circles.
+      Draw the three panels from the raw images and the new masks at full
+      resolution, not from a screen recording.
+  (b) Slide 2: remove the stray partial "A" panel letter (and any other
+      fragment of a covered label) from the preprint Fig. 1A panel.
+  (c) Every slide re-rendered at a much higher resolution (at least 2x:
+      3200x1800), with the module icons embedded at full resolution and
+      their white strokes thick enough to read at slide size.
+  (d) Slide 3: replace niche comparison rows with more general features
+      that people choosing a tool look for, and add a few. Proposed rows
+      (general first; spaCR's own strengths kept, fewer niche rows):
+        Point-and-click interface; Scripting / Python API; Batch and
+        headless runs (cluster); Deep-learning segmentation; Train your own
+        segmentation model; Correct masks by hand; Per-cell measurements;
+        Whole plates in one run; Classify cells from images (deep learning);
+        Classify cells from measurements; Explore cells: UMAP with images,
+        gating; Plots and statistics without code; Time-lapse tracking;
+        Plate-level QC and heat maps; GPU acceleration; Pooled CRISPR
+        screens: images to genes; Pixel classifier from brush strokes;
+        Whole-slide / tissue images; 3-D (z-stack) images; Large plugin
+        ecosystem.
+      Dropped as niche: "Link each well's images to its gRNAs", "Optical
+      pooled screens (OPS)", "Gene-level hit calling" (merged into "Pooled
+      CRISPR screens: images to genes"), "Screen design & power", "Parasite
+      assays", "Live assisted segmentation (magnifier)".
+  (e) Panel letters in every reused figure covered by boxes that match the
+      figure's own background and edges exactly, so nothing blocky shows:
+      no black squares on white, no partial glyphs, box edges on the
+      figure's pixel grid.
+  (f) The regression legend replaced with the lab version's: the hit-list
+      slide uses the preprint Fig. 5B-C volcanos, and the lab version's
+      regression slides come with it.
+  Regenerate every deck output (slides, thumbs, anim, PDF, slides.json,
+  pages, viewer) and keep the README and viewer links working.
+
+DONE WHEN
+  Every slide is 3200x1800; slides 2, 3, 10, the regression slides and
+  every slide with a reused paper figure have been checked by eye at full
+  size; no panel letter or fragment of one is visible; slide 10's outlines
+  sit on every nucleus and on the droplets; icons read at slide size; the
+  README's Back/Next and the viewer open the right slides; the deck tests
+  pass.
