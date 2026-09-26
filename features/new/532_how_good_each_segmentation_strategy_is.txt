@@ -240,6 +240,7 @@ toxo_pv: 0.656 CPU against 0.674 GPU; all others within 0.01).
   cp3_cyto3                   general           1149   910  0.588  0.742  0.656   0.503  0.816  0.618    33.4     2.2
   cp3_nuclei                  general            865   910  0.592  0.563  0.577   0.441  0.819  0.368    17.9     2.2
   oc1_p66                     general           1031   910  0.498  0.564  0.529   0.399  0.829  0.464     7.7     2.2
+  stardist_fluo (551)         general           1748   910  0.360  0.692  0.474   0.371  0.823  0.489    16.3     4.8
 
   -- toxo_pv: F1 at IoU 0.5 per field
   field                                            pv_r2       pv_r5       pv_r6 dino_vitb+d   dino_vitl dino_vitb+c dino_vitb+t dino_vitb+d   dino_vitb dino_vitb+l dino_vitb+d       cpsam    cpsam_v2    cp3_cyto   cp3_cyto2 dino_vitb+f dino_vitb+b dino_vitb+f   cp3_cyto3  cp3_nuclei     oc1_p66
@@ -442,3 +443,52 @@ To finish, once it has run:
 then fill in ViT-L's GPU and training-sample cells in the first table. If
 ViT-L leads on the training sample too, rerun the ablations on it with
 --plan ablations --ablation-model dino_vitl, in a GPU turn of about 10 min.
+
+--------------------------------------------------------------------------------
+ADDED 2026-09-26: STARDIST, INSTANSEG AND OMNIPOSE (items 551-553)
+--------------------------------------------------------------------------------
+
+New strategies in the driver, each through spaCR's own Mask generation with
+the model setting "Use this model" writes (stardist:<model>,
+instanseg:<model>[#nuclei|#cells], omnipose:<model>), CPU pass only, 8
+threads, on a machine at load average 45 to 72 (the times rank, they do not
+promise). Their rows are in the CPU toxo_pv table above, marked with the item.
+
+  StarDist 2D_versatile_fluo (551), toxo_pv: F1@.5 0.474, F1@.75 0.371,
+  1,748 objects for 910 vacuoles (precision 0.36, recall 0.69), 16.3 s per
+  field. A nucleus model: it splits vacuoles and finds 1.9 times too many
+  objects, below every Cellpose model here. Not for PVs.
+
+NUCLEI (opt-in dataset nuclei_plate1). StarDist and InstanSeg are nucleus
+models, so they are also scored on nuclei: four 1994 x 1994 40x fields of
+the toxo_mito example plate (plate1/merged, E01 fields 9-11 and E02 field
+10), the DAPI plane, 223 nuclei. The "truth" is the nucleus mask of spaCR's
+own Cellpose-SAM Mask run on that plate (plane 5 of the merged stacks) -- a
+REFERENCE, not curated ground truth, so these are agreement scores, and
+Cellpose-SAM itself is not scored against it. plate1_E01_1_1 is left out:
+StarDist's and InstanSeg's diameter references were measured on it. Diameter
+= each field's reference median (about 86 px).
+
+  strategy                    family             obj    GT   P@.5   R@.5  F1@.5  F1@.75   mIoU  fldF1  eval s  prep s
+  cp3_nuclei                  general            211   223  0.972  0.919  0.945   0.926  0.954  0.938    41.1     5.3
+  stardist_fluo (551)         general            223   223  0.901  0.901  0.901   0.892  0.935  0.895     8.8     5.3
+
+  per field F1@.5 (cp3_nuclei / stardist_fluo): E01_10 0.977/0.939,
+  E01_11 0.968/0.920, E01_9 0.960/0.906, E02_10 0.847/0.814.
+
+  StarDist agrees with the Cellpose-SAM reference almost as well as Cellpose
+  3's nuclei model and is 4.7 times faster on the CPU (8.8 s against 41.1 s
+  per field).
+
+The synthetic Host-Pathogen nuclei (host_pathogen_v1, drawn labels) were
+tried first and dropped: their DNA plane is 1.2 % non-zero, so Mask's 2-98
+percentile normalisation maps the whole field to 1.0 and every model
+(cpsam, cp3_nuclei, StarDist) finds nothing. That is a property of the
+synthetic data, not of the models.
+
+Reproduce (receipts in /tmp/spacr-55x-scratch/bench/cpu/results):
+  CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu tools/run_capped.sh 16G python \
+    tools/benchmark_segmentation_strategies.py --device cpu --threads 8 \
+    --out /tmp/spacr-55x-scratch/bench/cpu --plan models \
+    --datasets toxo_pv --strategies stardist_fluo
+  (and --datasets nuclei_plate1 --strategies stardist_fluo,cp3_nuclei)

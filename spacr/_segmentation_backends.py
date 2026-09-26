@@ -156,6 +156,26 @@ _DINOV3_REQUIREMENT = (
     "dinov3 @ https://github.com/facebookresearch/dinov3/archive/"
     f"{_DINOV3_COMMIT}.zip")
 
+#: StarDist (item 551): star-convex polygons, for nuclei. It runs on
+#: TensorFlow, so its environment has no PyTorch at all. Like
+#: Cellpose-DINO it is not a ``segmentation_backend`` value: an object
+#: chooses it through its model setting, ``stardist:<model or folder>``.
+_STARDIST = "stardist"
+
+#: StarDist's own pretrained 2-D models, the fluorescence one first.
+_STARDIST_MODELS = ("2D_versatile_fluo", "2D_versatile_he",
+                    "2D_paper_dsb2018")
+
+#: The object diameter, in pixels, StarDist's models are run at when the
+#: object's diameter is set: the plane is rescaled by ``30 / diameter``
+#: (StarDist's own ``scale``). StarDist publishes no training size, so this
+#: was measured (2026-09-26, 2D_versatile_fluo, toxo_mito plate1_E01_1_1,
+#: 40x nuclei of median 86 px, 49 in spaCR's Cellpose-SAM reference): at
+#: native scale StarDist cut them into 111 objects of median 14 px; scaled
+#: to about 50, 30 and 22 px it found 58, 44 and 39 objects of median 73,
+#: 85 and 91 px. A blank diameter runs the plane at its own scale.
+_STARDIST_DIAMETER = 30.0
+
 _RESTORATION_MODELS = tuple(
     f"{operation}_{structure}"
     for operation in ("denoise", "deblur", "oneclick")
@@ -286,6 +306,14 @@ class _BackendSpec:
     :param published: the project's own reported results, quoted with their
         source, for the zoo row's scorecard note. spaCR has not measured
         these backends on its own data, and the note says so.
+    :param prefix: what an object's model setting starts with to choose
+        this backend, e.g. ``'stardist:'``, for a backend that is chosen
+        that way and is no ``segmentation_backend`` value. Its models are
+        :attr:`models` by name, or a model file or folder by path; see
+        :func:`_prefixed_model`.
+    :param default_model: the model a bare prefix runs.
+    :param alpha: built from the future-features list and shown only with
+        Preferences' "Show alpha features" on (item 569).
     """
 
     name: str
@@ -306,6 +334,9 @@ class _BackendSpec:
     blurb: str = ""
     published: str = ""
     segments: bool = True
+    prefix: str = ""
+    default_model: str = ""
+    alpha: bool = False
 
 
 #: Every optional backend. The versions are the ones each adapter was
@@ -376,6 +407,37 @@ _SPECS = {
             "arXiv:2508.10104. spaCR has not scored this backend on a "
             "benchmark of its own data; one Toxoplasma PV field is measured "
             "in item 525.")),
+    _STARDIST: _BackendSpec(
+        name=_STARDIST, label="StarDist", module="stardist",
+        probe=("stardist.models", "csbdeep.utils", "tensorflow"),
+        distribution="stardist",
+        requirements=("stardist==0.9.2", "csbdeep==0.8.2",
+                      "tensorflow==2.21.0"),
+        torch=(), python=((3, 10), (3, 13)),
+        licence="BSD-3-Clause (StarDist, CSBDeep) / Apache-2.0 (TensorFlow)",
+        licence_note=(
+            "StarDist 0.9.2 is BSD-3-Clause (Copyright 2018-2025 Uwe "
+            "Schmidt, Martin Weigert), CSBDeep 0.8.2 BSD-3-Clause and "
+            "TensorFlow 2.21 Apache-2.0. The pretrained models are "
+            "downloaded by StarDist itself from the stardist/stardist-models "
+            "GitHub release (BSD-3-Clause), checked against the digest "
+            "StarDist pins, into the backend's own folder. spaCR ships "
+            "none of it."),
+        homepage="https://github.com/stardist/stardist", size_gb=2.0,
+        models=_STARDIST_MODELS,
+        blurb=(
+            "StarDist, star-convex polygons for nuclei, with its "
+            "2D_versatile_fluo, 2D_versatile_he and 2D_paper_dsb2018 "
+            "models or a StarDist model folder of your own. It runs on "
+            "TensorFlow in an environment of its own; its masks and "
+            "object probability come back in Cellpose-SAM's shapes."),
+        published=(
+            "Published results: Schmidt, Weigert, Broaddus and Myers, 'Cell "
+            "Detection with Star-convex Polygons', MICCAI 2018 "
+            "(arXiv:1806.03535). The README publishes no results table. "
+            "spaCR has not scored it against those results; item 532 "
+            "scores it on spaCR's own fields."),
+        prefix="stardist:", default_model="2D_versatile_fluo", alpha=True),
     _DINOCELL: _BackendSpec(
         name=_DINOCELL, label="DINOCell", module="dinocell",
         probe=("dinocell.main", "dinocell.model", "dinocell.pipeline",
@@ -746,6 +808,118 @@ def _cellpose_dino_is_chosen(settings):
     :returns: a bool.
     """
     return any(_cellpose_dino_choice(value) is not None
+               for key, value in (settings or {}).items()
+               if str(key).endswith("_model_name")
+               or key == "pathogen_model")
+
+
+def _prefixed_names():
+    """The backends an object chooses by a model-setting prefix of their
+    spec's own (StarDist, InstanSeg, Omnipose), in :data:`_SPECS` order."""
+    return tuple(name for name, spec in _SPECS.items() if spec.prefix)
+
+
+def _prefixed_choice(name, model_name):
+    """What a model setting names after backend ``name``'s prefix.
+
+    :param name: a backend with a :attr:`_BackendSpec.prefix`.
+    :param model_name: an object's model setting, e.g.
+        ``'stardist:2D_versatile_fluo'``.
+    :returns: what follows the prefix, ``''`` when nothing does, or None
+        for a setting without it.
+    """
+    prefix = _SPECS[name].prefix
+    text = str(model_name or "").strip()
+    if not prefix or text[:len(prefix)].lower() != prefix:
+        return None
+    return text[len(prefix):].strip()
+
+
+def _prefixed_value(name, model):
+    """The model setting that runs ``model`` in backend ``name``.
+
+    :param model: a model name or path, or a value already carrying the
+        prefix.
+    :returns: ``'<prefix><model>'``.
+    """
+    chosen = _prefixed_choice(name, model)
+    return _SPECS[name].prefix + (chosen if chosen is not None
+                                  else str(model or "").strip())
+
+
+def _prefixed_backend(model_name):
+    """The prefixed backend a model setting names, or None.
+
+    :param model_name: an object's model setting.
+    :returns: a name from :func:`_prefixed_names`, or None.
+    """
+    for name in _prefixed_names():
+        if _prefixed_choice(name, model_name) is not None:
+            return name
+    return None
+
+
+def _prefixed_split(name, model_name):
+    """``(model, target)`` of a prefixed setting: a ``#<target>`` suffix
+    names which of a model's outputs to keep (InstanSeg's ``nuclei`` or
+    ``cells``) and is not part of the model."""
+    chosen = _prefixed_choice(name, model_name)
+    text = chosen if chosen is not None else str(model_name or "").strip()
+    model, _hash, target = text.partition("#")
+    return model.strip(), target.strip().lower()
+
+
+def _prefixed_model(name, model_name):
+    """The model a prefixed backend's setting selects.
+
+    One of the backend's own model names is used as it is, a blank one is
+    its :attr:`_BackendSpec.default_model`, and anything else is a path to a
+    model file or folder, which must be there: a missing path is refused
+    rather than quietly run as the default.
+
+    :param name: a backend from :func:`_prefixed_names`.
+    :param model_name: the setting, with or without the prefix.
+    :returns: a model name or an absolute path.
+    :raises FileNotFoundError: for a path that names nothing.
+    """
+    spec = _SPECS[name]
+    model, _target = _prefixed_split(name, model_name)
+    if not model:
+        return spec.default_model
+    if model in spec.models:
+        return model
+    path = os.path.expanduser(model)
+    if os.path.exists(path):
+        return os.path.abspath(path)
+    raise FileNotFoundError(
+        f"no {spec.label} model called {model!r}: it is not one of "
+        f"{', '.join(spec.models)}, and no file or folder is there.")
+
+
+def _prefixed_model_ok(value):
+    """Whether a prefixed setting names a model its backend can load.
+
+    :returns: True for a model of the backend's own, a bare prefix and a
+        path that exists; False for anything else; None when ``value`` has
+        no backend prefix.
+    """
+    name = _prefixed_backend(value)
+    if name is None:
+        return None
+    try:
+        _prefixed_model(name, value)
+    except FileNotFoundError:
+        return False
+    return True
+
+
+def _prefixed_is_chosen(settings):
+    """Whether a run's settings send any object to a prefixed backend.
+
+    :param settings: a settings mapping.
+    :returns: a bool.
+    """
+    return any(_prefixed_backend(value) is not None
                for key, value in (settings or {}).items()
                if str(key).endswith("_model_name")
                or key == "pathogen_model")
@@ -1252,6 +1426,9 @@ def _worker_env(name, env):
     preflight's free-space check -- which measures the backends folder --
     the check that matters.
 
+    StarDist fetches its pretrained models with Keras' ``get_file``, which
+    keeps them under ``KERAS_HOME`` (``~/.keras`` otherwise).
+
     SAMCell has two downloads: its fine-tuned checkpoint uses Torch's hub
     cache, and its SAM backbone uses Transformers and Hugging Face. Both
     are scoped to the environment; legacy Transformers cache overrides
@@ -1267,6 +1444,8 @@ def _worker_env(name, env):
     environ = _clean_env(env)
     if name in (_CELLPOSE3, _CELLPOSE_DINO):
         environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(env, "models")
+    elif name == _STARDIST:
+        environ["KERAS_HOME"] = os.path.join(env, "keras")
     elif name in (_DINOCELL, _SAMCELL):
         environ["HF_HOME"] = os.path.join(env, "huggingface")
         for variable in _HF_CACHE_VARIABLES:
@@ -2924,24 +3103,198 @@ class _CellposeDinoAdapter:
         return taken
 
 
+def _drop_small(labels, min_size):
+    """``labels`` without the objects smaller than ``min_size`` pixels,
+    relabelled as :func:`_as_label_image` does."""
+    arr = np.asarray(labels)
+    size = int(min_size or 0)
+    if size > 1 and arr.max(initial=0) > 0:
+        counts = np.bincount(arr.ravel().astype(np.int64))
+        small = counts < size
+        small[0] = False
+        if small.any():
+            arr = np.where(small[arr.astype(np.int64)], 0, arr)
+    return _as_label_image(arr)
+
+
+class _PrefixedAdapter:
+    """What the StarDist, InstanSeg and Omnipose workers share.
+
+    Each answers the ``eval`` call spaCR's Cellpose-SAM path makes and
+    returns ``(masks, flows, None)`` with Cellpose's per-image flows layout
+    ``[RGB flow, dP, cell probability, None]``, filling what its model has.
+    A setting that changes what Cellpose-SAM segments and that this model
+    has no counterpart for is named in :attr:`ignored`; one whose meaning
+    had to be changed on the way is said in :attr:`translated`. Settings
+    that only arrange the work -- batch size, progress, channel axis -- are
+    used where they apply and not reported.
+    """
+
+    name = ""
+    #: The Cellpose settings this model has no counterpart for.
+    unsupported = ()
+
+    def __init__(self):
+        """Start with nothing ignored or translated."""
+        self.ignored = set()
+        self.translated = set()
+
+    def _note(self, params):
+        """Record each unsupported setting the call gave a value."""
+        for key in self.unsupported:
+            if params.get(key) is not None:
+                self.ignored.add(key)
+
+    def eval(self, x, channel_axis=-1, min_size=None, **params):
+        """Segment each image's object channel.
+
+        :param x: a list of ``(H, W)`` or ``(H, W, C)`` images; the first
+            channel is the object's own, as ``_get_cellpose_channels``
+            orders them.
+        :param min_size: objects smaller than this many pixels are removed.
+        :param params: the rest of the Cellpose-SAM call.
+        :returns: ``(masks, flows, None)``, one entry per image.
+        """
+        self._note(params)
+        masks, flows = [], []
+        for image in x:
+            plane = _object_plane(image, channel_axis)
+            labels, parts = self._segment(plane, **params)
+            labels = np.asarray(labels)
+            if labels.shape != plane.shape:
+                raise ValueError(
+                    f"the {self.name} backend returned labels of shape "
+                    f"{labels.shape} for an image of shape {plane.shape}")
+            rgb, d_p, probability = (list(parts or ()) + [None] * 3)[:3]
+            masks.append(_drop_small(labels, min_size))
+            flows.append([
+                None if rgb is None else np.asarray(rgb),
+                None if d_p is None else np.asarray(d_p, np.float32),
+                None if probability is None else _resize_nearest(
+                    np.asarray(probability, np.float32), plane.shape),
+                None])
+        return masks, flows, None
+
+    def _segment(self, plane, **params):
+        """``(labels, [RGB flow, dP, probability])`` for one 2-D plane;
+        any of the three may be None, and the list may be shorter."""
+        raise NotImplementedError
+
+
+class _StarDistAdapter(_PrefixedAdapter):
+    """StarDist 2-D, inside its own TensorFlow environment (item 551).
+
+    A named model is StarDist's own pretrained one, which StarDist
+    downloads and checks against its pinned digest; a path is a StarDist
+    model folder (``config.json`` beside ``weights_best.h5``), loaded the
+    way StarDist loads a model it trained.
+
+    THE SETTINGS. The plane is normalised to its 1st and 99.8th
+    percentiles, as StarDist's models were trained and as its own examples
+    do; spaCR's own scaling is linear, so this is the normalisation of the
+    raw plane (the same argument as Cellpose 3's). The cell-probability
+    threshold is a Cellpose logit: its default 0 keeps the probability
+    threshold StarDist tuned for the model, any other value becomes a
+    probability through the logistic function. A diameter rescales the
+    plane so its objects are :data:`_STARDIST_DIAMETER` pixels across
+    (StarDist's ``scale``); labels and probability come back at the
+    plane's own size. StarDist has no flow threshold or resampling, and
+    those are named as not honoured. The minimum size is applied to its
+    objects. Large planes are tiled as StarDist itself guesses.
+
+    :param model: a name from :data:`_STARDIST_MODELS` or a model folder.
+    :param device: accepted for the shared signature; TensorFlow places
+        the network itself.
+    :raises FileNotFoundError: for a folder that is not there.
+    """
+
+    name = _STARDIST
+    unsupported = ("flow_threshold", "resample")
+
+    def __init__(self, model="2D_versatile_fluo", device="cpu",
+                 models_module=None):
+        """Load the model."""
+        super().__init__()
+        if models_module is None:
+            from stardist import models as models_module
+        self.model = model
+        if model in _STARDIST_MODELS:
+            self._model = models_module.StarDist2D.from_pretrained(model)
+        elif os.path.isdir(model):
+            folder = os.path.abspath(model)
+            self._model = models_module.StarDist2D(
+                None, name=os.path.basename(folder),
+                basedir=os.path.dirname(folder))
+        else:
+            raise FileNotFoundError(
+                f"no StarDist model called {model!r}: it is not one of "
+                f"{', '.join(_STARDIST_MODELS)}, and no model folder is "
+                f"there.")
+
+    def _segment(self, plane, normalize=True, cellprob_threshold=None,
+                 diameter=None, **other):
+        """StarDist's instances and object probability for one plane."""
+        from csbdeep.utils import normalize as percentile_normalize
+
+        if normalize is False:
+            self.translated.add(
+                "normalize=False became StarDist's 1-99.8 percentile "
+                "normalisation, which its models were trained on")
+        image = percentile_normalize(np.asarray(plane, np.float32), 1, 99.8,
+                                     axis=(0, 1))
+        threshold = None
+        if cellprob_threshold not in (None, 0, 0.0):
+            threshold = _probability_threshold(cellprob_threshold)
+            self.translated.add(
+                f"cellprob_threshold={cellprob_threshold} became StarDist's "
+                f"prob_thresh={threshold:.3f}")
+        scale = (_STARDIST_DIAMETER / float(diameter)
+                 if diameter and float(diameter) > 0 else None)
+        guess = getattr(self._model, "_guess_n_tiles", None)
+        tiles = guess(image) if callable(guess) else None
+        (labels, _details), (probability, _distances) = (
+            self._model.predict_instances(
+                image, prob_thresh=threshold, n_tiles=tiles, scale=scale,
+                show_tile_progress=False, return_predict=True, verbose=False))
+        return labels, [None, None, probability]
+
+
 #: Backend name -> in-process class. Tests replace entries with stubs.
 _BACKEND_CLASSES = {_DINOCELL: _DinoCellBackend, _SAMCELL: _SamCellBackend}
+
+#: Backend name -> the worker adapter of a prefixed backend.
+_PREFIXED_ADAPTERS = {_STARDIST: _StarDistAdapter}
 
 
 def _worker_device(requested=None):
     """The device a worker runs on: the one asked for, else CUDA, else
-    Apple's Metal, else the CPU."""
-    import torch
+    Apple's Metal, else the CPU.
 
+    StarDist's environment has TensorFlow and no PyTorch; there a GPU
+    TensorFlow can see is ``'gpu'``.
+    """
     wanted = str(requested or "auto").strip().lower()
     if wanted not in ("", "auto"):
         return wanted
+    try:
+        import torch
+    except ImportError:
+        return _tensorflow_device()
     if torch.cuda.is_available():
         return "cuda"
     metal = getattr(getattr(torch, "backends", None), "mps", None)
     if metal is not None and metal.is_available():
         return "mps"
     return "cpu"
+
+
+def _tensorflow_device():
+    """``'gpu'`` when TensorFlow sees one, else ``'cpu'``."""
+    try:
+        import tensorflow as tf
+    except ImportError:
+        return "cpu"
+    return "gpu" if tf.config.list_physical_devices("GPU") else "cpu"
 
 
 def _worker_hello(name):
@@ -2958,7 +3311,8 @@ def _worker_hello(name):
     for module in spec.probe:
         import_module(module)
     packages = {}
-    for distribution in (spec.distribution, "torch", "numpy"):
+    for distribution in (spec.distribution, "torch", "numpy") + (
+            () if spec.torch else ("tensorflow",)):
         try:
             packages[distribution] = version(distribution)
         except PackageNotFoundError:
@@ -2975,6 +3329,9 @@ def _worker_adapter(name, model, device, options):
         return _Cellpose3Adapter(model or "cyto3", device)
     if name == _CELLPOSE_DINO:
         return _CellposeDinoAdapter(model, device)
+    if name in _PREFIXED_ADAPTERS:
+        return _PREFIXED_ADAPTERS[name](model or _SPECS[name].default_model,
+                                        device, **options)
     return _BACKEND_CLASSES[name](device=device, **options)
 
 
@@ -3400,6 +3757,9 @@ def _load_backend(name, *, device=None, z_plan=None, t_plan=None,
     A ``cellpose_dino`` name, or a model setting reading
     ``cellpose_dino:<path>``, builds the Cellpose-DINO backend on that
     checkpoint; it runs only in its own environment.
+    A StarDist, InstanSeg or Omnipose name, or a model setting carrying
+    one of their prefixes (``stardist:``, ...), builds that backend on the
+    model the setting names (:func:`_load_prefixed`).
 
     :raises ValueError: for Cellpose, an unknown name, or a 3-D/4-D run.
     :raises ImportError: when the backend is not installed.
@@ -3409,6 +3769,13 @@ def _load_backend(name, *, device=None, z_plan=None, t_plan=None,
             or _cellpose_dino_choice(model_name) is not None):
         return _load_cellpose_dino(model_name, device=device, z_plan=z_plan,
                                    t_plan=t_plan, root=root)
+    prefixed = _prefixed_backend(model_name)
+    if prefixed is None and str(name or "").strip().lower() in _prefixed_names():
+        prefixed = str(name).strip().lower()
+    if prefixed is not None:
+        return _load_prefixed(prefixed, model_name, device=device,
+                              z_plan=z_plan, t_plan=t_plan,
+                              object_type=object_type, root=root)
     backend = _backend_name(name)
     if backend == _CELLPOSE:
         raise ValueError(
@@ -3456,6 +3823,42 @@ def _load_cellpose_dino(model_name, *, device=None, z_plan=None, t_plan=None,
                            root=root, worker_for=worker_for)
     print(f"Segmentation backend: {_CELLPOSE_DINO} -- {model.note}.")
     return model
+
+
+def _load_prefixed(name, model_name, *, device=None, z_plan=None,
+                   t_plan=None, object_type=None, root=None,
+                   worker_for=None):
+    """A prefixed backend (StarDist, InstanSeg, Omnipose) on one model.
+
+    :param name: a backend from :func:`_prefixed_names`.
+    :param model_name: ``<prefix><model>``, or the bare model; blank runs
+        the backend's default model. A ``#nuclei`` / ``#cells`` suffix
+        chooses InstanSeg's output; without it a nucleus object takes the
+        nuclei and every other object the cells.
+    :param object_type: the object being segmented.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :raises ValueError: for a z_stack or t_stack run.
+    :raises FileNotFoundError: when a model path is not there.
+    :raises ImportError: when the backend is not installed.
+    """
+    spec = _SPECS[name]
+    if z_plan is not None or t_plan is not None:
+        raise ValueError(
+            f"{spec.label} segments single 2-D planes, and this run has "
+            f"z_stack or t_stack on. Turn them off, or segment this object "
+            f"with a Cellpose-SAM model.")
+    model = _prefixed_model(name, model_name)
+    options = _prefixed_options(name, model_name, object_type)
+    backend = _RemoteBackend(name, model=model, device=device, root=root,
+                             options=options, worker_for=worker_for)
+    print(f"Segmentation backend: {name} -- {backend.note}.")
+    return backend
+
+
+def _prefixed_options(name, model_name, object_type=None):
+    """What a prefixed backend's worker is told beside the model: the
+    output InstanSeg keeps. Empty for the others."""
+    return {}
 
 
 if __name__ == "__main__":

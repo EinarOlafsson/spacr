@@ -6771,6 +6771,10 @@ ALPHA_FEATURES = {
         'settings': ('mask_parallel', 'mask_gpu_indices'),
         'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
     },
+    551: {
+        'models': ('stardist_v1', 'stardist_2D_versatile_fluo',
+                   'stardist_2D_versatile_he', 'stardist_2D_paper_dsb2018'),
+    },
 }
 
 

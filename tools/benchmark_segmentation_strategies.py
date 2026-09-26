@@ -18,6 +18,13 @@ Datasets (read from spaCR's example-data cache, never modified):
 
 * ``toxo_pv``: the ten Make Masks test fields (item 412) with
   ``ground_truth_masks/``. They are the in-house PV models' TRAINING data.
+* ``nuclei_plate1`` (opt-in, items 551/552): four merged fields of
+  the toxo_mito example plate (``plate1/merged``, 1994 x 1994, 40x), the
+  nucleus channel (plane 0) as the object, scored against the nucleus masks
+  of spaCR's own Cellpose-SAM Mask run on that plate (plane 5) -- a
+  REFERENCE, not curated ground truth, so a Cellpose-SAM score on it would
+  be circular and is not run. plate1_E01_1_1 is left out: StarDist's
+  diameter reference (``_STARDIST_DIAMETER``) was measured on it.
 * ``training_sample``: the PV training-dataset samples of item 450
   (``mask_datasets/toxoplasma_pv_random2`` and ``toxoplasma_pv``), the fields
   with objects plus two curated negatives, minus any field already in
@@ -71,6 +78,9 @@ EXAMPLE = Path.home() / ".cache/spacr/example_data"
 TOXO_PV = EXAMPLE / "make_masks_toxo_pv"
 SAMPLES = (EXAMPLE / "mask_datasets/toxoplasma_pv_random2",
            EXAMPLE / "mask_datasets/toxoplasma_pv")
+NUCLEI_PLATE1 = EXAMPLE / "plate1/merged"
+NUCLEI_PLATE1_FIELDS = 4
+NUCLEI_PLATE1_HELD_OUT = "plate1_E01_1_1"
 PV_MODELS = Path("/mnt/wd4tb/af3/projects/toxoplasma_pv_model")
 PV_SPLIT = PV_MODELS / "metrics/final_r6/split.csv"
 MODEL_SEARCH = (Path("/tmp/spacr-525-scratch/models"),)
@@ -125,6 +135,8 @@ BASE_MODELS = (
     Strategy("oc1_p66", "bioimage.io OC1 Project 66 (Cellpose 3)", "general",
              "cellpose3:@oc1_p66"),
     Strategy("dinocell", "DINOCell", "general", "cpsam", backend="dinocell"),
+    Strategy("stardist_fluo", "StarDist 2D_versatile_fluo (item 551)",
+             "general", "stardist:2D_versatile_fluo"),
     Strategy("pv_r2", "Toxoplasma PV v1 (cpsam r2)", "in_distribution",
              "@pv_r2"),
     Strategy("pv_r5", "Toxoplasma PV v2 (cpsam r5)", "in_distribution",
@@ -191,6 +203,14 @@ def collect_fields(names: List[str], split: Dict[str, str]) -> List[Field]:
         for image in sorted(TOXO_PV.glob("*.tif")):
             truth = TOXO_PV / "ground_truth_masks" / image.name
             fields.append(_field("toxo_pv", image, truth, split))
+    if "nuclei_plate1" in names:
+        merged = [path for path in sorted(NUCLEI_PLATE1.glob("*.npy"))
+                  if path.stem != NUCLEI_PLATE1_HELD_OUT][:NUCLEI_PLATE1_FIELDS]
+        for image in merged:
+            item = _field("nuclei_plate1", image, image, split,
+                          truth_plane=5)
+            item.extra.update(channel=0, truth_plane=5)
+            fields.append(item)
     if "training_sample" in names:
         seen = {f.stem for f in fields} | {p.stem for p in TOXO_PV.glob("*.tif")}
         for folder in SAMPLES:
@@ -210,7 +230,7 @@ def collect_fields(names: List[str], split: Dict[str, str]) -> List[Field]:
         members = [f for f in fields if f.dataset == dataset]
         pooled = []
         for item in members:
-            pooled += _gt_diameters(tifffile.imread(item.truth))
+            pooled += _gt_diameters(_truth_of(item))
         median = float(np.median(pooled)) if pooled else 30.0
         for item in members:
             item.extra["pooled_diameter"] = round(median, 2)
@@ -221,10 +241,24 @@ def collect_fields(names: List[str], split: Dict[str, str]) -> List[Field]:
     return fields
 
 
+def _read_plane(path, plane=None) -> np.ndarray:
+    """A TIFF, or one plane of a merged ``.npy`` stack (last axis)."""
+    path = Path(path)
+    array = np.load(path) if path.suffix == ".npy" else tifffile.imread(path)
+    if plane is None:
+        return array
+    return array[..., int(plane)] if path.suffix == ".npy" else array[int(plane)]
+
+
+def _truth_of(item: "Field") -> np.ndarray:
+    """A field's ground-truth (or reference) label image."""
+    return _read_plane(item.truth, item.extra.get("truth_plane"))
+
+
 def _field(dataset: str, image: Path, truth: Path,
-           split: Dict[str, str]) -> Field:
+           split: Dict[str, str], truth_plane=None) -> Field:
     """One field's record."""
-    mask = tifffile.imread(truth)
+    mask = _read_plane(truth, truth_plane)
     diameters = _gt_diameters(mask)
     return Field(dataset=dataset, stem=image.stem, image=str(image),
                  truth=str(truth), shape=list(mask.shape),
@@ -345,7 +379,7 @@ def stage_and_preprocess(item: Field, chain: str, root: Path) -> Dict[str, objec
     if plate.exists():
         shutil.rmtree(plate)
     plate.mkdir(parents=True)
-    image = tifffile.imread(item.image)
+    image = _read_plane(item.image, item.extra.get("channel"))
     name = cellvoyager_filename(plate="plate1", well=item.well, field=1, chan=0)
     tifffile.imwrite(plate / name, image)
     settings = base_settings(plate, dict(CHAINS[chain], masks=False,
@@ -520,7 +554,7 @@ def run_strategy(strategy: Strategy, fields: List[Field], dataset: str,
         field_evals = eval_calls[before:]
         saved = masks / "cell_mask_stack" / stack_name
         pred = np.load(saved)
-        truth = tifffile.imread(item.truth)
+        truth = _truth_of(item)
         if pred.shape != truth.shape:
             raise RuntimeError(f"{item.stem}: mask {pred.shape} vs truth {truth.shape}")
         row = dict(field=item.stem, dataset=dataset, pv_split=item.pv_split,

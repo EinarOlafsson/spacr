@@ -492,6 +492,7 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
                     SB._samcell_weights_path),
         "papers": (SB._worker_detect, SB._worker_read_text),
         "spotnet": (SB._worker_detect_spots,),
+        "stardist": (SB._StarDistAdapter, SB._tensorflow_device),
     }
     assert set(sources) == set(SB._SPECS), (
         "a backend was added or removed without its adapter being listed "

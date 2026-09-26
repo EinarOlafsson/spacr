@@ -10,6 +10,12 @@ plainly refused.
 """
 from __future__ import annotations
 
+from spacr.model_zoo import mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = mask_model_kinds()
+
 import pytest
 
 from spacr import model_zoo
@@ -148,7 +154,7 @@ def test_make_masks_offers_cellpose3_rows_and_lists_what_comes_back(
     host = types.SimpleNamespace(_cp_model=combo,
                                  _fill_zoo_models=lambda: None)
     chosen = mm.MakeMasksScreen._choose_cellpose_model_from_zoo(host)
-    assert asked == [("cellpose", "cellpose3", "cellpose_dino")]
+    assert asked == [MASK_KINDS]
     assert chosen == "cellpose3:/models/cellpose_cyto3.pth"
     assert combo.currentData() == chosen
     assert combo.currentText() == "Cellpose 3 · cellpose_cyto3.pth"
