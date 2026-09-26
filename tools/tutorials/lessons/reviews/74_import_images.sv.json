@@ -1,21 +1,33 @@
 {
-  "lesson": "74_import_images", "language": "sv",
-  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
-  "review": {"kind": "Editorial caption translation checked against English and recorded operations", "native_speaker_signoff": false, "corrections": ["Preserve the prepared-copy limitation and correct well, image-field and channel terminology.", "Retain every scan, link, tile and saved-plan caveat."]},
-  "title": "Import Images: granska planen före import",
-  "description": "Öppna Import Images i Import, granska ett litet urval verkliga mikroskopibilder innan filer skrivs och spara en återanvändbar plan. Exemplet skiljer ursprungliga namn som inte stöds från förberedda kopior.",
-  "objectives": ["Hitta Import Images i Import och skilja det från import av befintliga mätningar och masker.", "Kontrollera bildidentiteter och oklara namndelar innan projektet skrivs.", "Välja kopior eller länkar, spara och läsa in en plan samt kontrollera importen."],
-  "prerequisite": "Ladda först ned det verkliga Mask-exemplet. Inspelningen använder kopior av bildfälten E01/F001 och L01/F009, med fyra C-kanaler vardera. De förberedda kopiorna utelämnar bara A-delen direkt före Z; originalen ändras inte. Detta är ett särskilt kontrollerat exempel, inte en allmän uppmaning att ta bort okända metadata.",
+  "lesson": "74_import_images",
+  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Import Images: koppla bildidentiteter och skapa ett projekt",
+  "description": "Skanna bildnamn och metadata, granska den föreslagna kopplingen av brunn, synfält och kanal, spara en plan och importera kopior till ett projekt.",
+  "objectives": [
+    "Skanna mikroskopbilder och reda ut namnfrågor.",
+    "Välja mål, plattnamn och om filer ska kopieras eller länkas.",
+    "Spara en återanvändbar plan och importera bilder för Mask."
+  ],
+  "prerequisite": "Hämta först Mask-exemplet. Genomgången använder kopior av synfälten E01/F001 och L01/F009 med fyra kanaler vardera. De förberedda kopiorna utelämnar den överflödiga token A direkt före Z men behåller brunns-, synfälts- och kanalidentiteterna. Behåll originalen och använd avbildningsprotokollen när du tolkar okända tokens.",
   "scenes": [
-    "Öppna Import från kategorin Data på Home och välj Import Images. Det här underverktyget förbereder råa bildfiler. Import Project, Format Converter och External Masks är närliggande arbetsflöden med egna handledningar.",
-    "Våra åtta bilder är verkliga mikroskopidata från Masks nedladdningsbara exempel: ett bildfält från var och en av två brunnar med fyra kanaler per fält. Vi arbetar på separata kopior och lämnar de nedladdade originalen orörda.",
-    "Scan visar en oklar bildtagningsdel i originalnamnen. Import förblir avstängt och inget skrivs. Gissa inte en kanalkoppling: Två olika kanaler delar detta bildtagningsvärde, så den kopplingen skulle förvanska deras identiteter.",
-    "I det här kontrollerade exemplet utelämnar de förberedda kopiorna bara den överflödiga bildtagningsdelen. Brunns-, bildfälts- och kanalnamnen bevaras. Scan visar nu åtta rader, två brunnar, två bildfältsnummer och fyra kanaler. Det betyder inte att originalnamnen accepterades.",
-    "Jämför förslaget med filnamnen före import. Read inside each file kontrollerar även inbäddade axelmetadata. Sample begränsar vilka filer som undersöks; kontrollera att förslaget innehåller bilderna du vill importera. Besvara frågor utifrån bildtagningsloggen, inte genom att gissa.",
-    "Välj ett mål utanför indatamappen och ange plattans namn. Vi stänger av Link instead of copy för att skapa ett fristående projekt. Länkar sparar diskutrymme, men originalen måste förbli åtkomliga på sina nuvarande platser.",
-    "De här exempelfilerna är inte mosaikdelar. Läs Tiles noga vid mosaiktagning: Sammanfogning återskapar bildfält, separata delar ändrar vad ett bildfält betyder och överhoppning förlorar dessa bilder. Granska rapporten och obekräftade skarvar innan du mäter.",
-    "Save plan skriver källan och dina kopplingssvar till en JSON-fil, inte en säkerhetskopia av bilderna. Spara den tillsammans med bildtagningsanteckningarna. Samma plan kan läsas via Pythons API för bildimport.",
-    "Load plan läser källmappen på nytt och återanvänder de sparade svaren. Granska det nya förslaget före import; en sparad plan garanterar inte att en ändrad bildtagning är korrekt. Här återställs samma åtta kontrollerade bildidentiteter.",
-    "Tryck på Import och läs sammanfattningen. Körningen skrev åtta fristående bildkopior utan att hoppa över filer; innehållet matchar källorna. Välj sedan projektet i Mask och granska liveförhandsvisningen före segmentering. Enbart import skapar varken masker eller mätningar."
+    "Från Home öppnar du Data, väljer Import och sedan Import Images. Börja med de mikroskopbildfiler du vill ordna i ett projekt.",
+    "Använd Mask-exemplet i den här genomgången. Välj kopior av ett synfält från var och en av två brunnar, med fyra kanaler per synfält. Låt den ursprungliga nedladdningen vara oförändrad.",
+    "Klicka på Scan. Om du får frågan vad en token i filnamnet betyder, kontrollera avbildningsprotokollen innan du tilldelar den. Fortsätt först när de föreslagna identiteterna skiljer synfält och kanaler åt entydigt.",
+    "Skanna de förberedda exempelkopiorna. Den överflödiga avbildningstoken har tagits bort, medan brunns-, synfälts- och kanaltokens finns kvar. Kontrollera att förslaget listar åtta bilder, två brunnar, två synfältsnummer och fyra kanaler.",
+    "Jämför förslaget med filnamnen. Aktivera Read inside each file när du behöver inbäddade axelmetadata. Ställ in Sample tillräckligt stort för att granska filerna du tänker importera.",
+    "Välj ett mål utanför indatamappen och ange plattans namn. Stäng av Link instead of copy för att få oberoende kopior. Länkar sparar diskutrymme men kräver att originalfilerna förblir åtkomliga.",
+    "För avbildningar i rutor väljer du om rutorna ska sys ihop, behållas separat eller hoppas över. Granska den resulterande synfältsorganisationen innan du mäter. Exempelbilderna är separata synfält och behöver inte sys ihop.",
+    "Klicka på Save plan för att spara källan och kopplingsvalen som JSON. Behåll planen tillsammans med avbildningsanteckningar och originalbilder.",
+    "Klicka på Load plan för att läsa in källan och de sparade svaren igen. Granska det nya förslaget innan du importerar, särskilt när källfilerna har ändrats.",
+    "Klicka på Import och läs sammanfattningen. Exemplet ger åtta bildkopior utan överhoppade filer. Öppna det resulterande projektet i Mask och granska Live preview innan du startar segmenteringen."
   ]
 }
