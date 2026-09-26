@@ -774,8 +774,13 @@ def test_setting_animations_are_wired_into_readme_and_docs():
     # 86 referenced GIFs are present, no GIF is left unreferenced, and
     # the README links the gallery and registry pages rather than any
     # GIF, so nothing on the front page is broken by the deletion.
-    assert gallery.count(".. _setting-animation-") == 87
-    assert gallery.count(".. image:: ../../spacr/resources/") == 87
+    # 87 -> 78 on 2026-09-26, both counts: item 511 retired the twelve
+    # per-object {cell,nucleus,pathogen}_{min,max}_{area,intensity} settings
+    # into object_filters rows, and the nine animations that named only
+    # those keys were removed with them (the three min-area ones now name
+    # *_min_size). The gallery is generated, so both numbers move together.
+    assert gallery.count(".. _setting-animation-") == 78
+    assert gallery.count(".. image:: ../../spacr/resources/") == 78
     assert "**Settings:** ``psf_fwhm_um``" in gallery
     assert ":mod:`spacr.setting_animations`" in gallery
 
