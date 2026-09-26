@@ -1,6 +1,8 @@
 DECONVOLUTION INFERS ITS OWN VALUES, AND THE ADVANCED SETTINGS COLLAPSE
 
-Status: BUILT 2026-09-25 (worktree, not pushed). Inference, one-click PSF and the folds are done; translations owed to the catalog lane.
+Status: BUILT 2026-09-25. Inference, one-click PSF and the folds are done, and
+        since the second pass the Mask Live preview infers too; translations
+        owed to the catalog lane.
 Owner: 509 agent. Related: 490 (measured and calculated PSFs), 473, 508.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
@@ -107,5 +109,42 @@ For the docs lane: new setting psf_objective; public API Objective,
   "Logarithm settings", "Unsharp mask settings" need rows too. The old image
   pixel help's reviewed translations moved to superseded_records in
   docs/i18n/reviewed/runtime/*/2026-09-23-psf-help.json.
-Left: Mask live preview still requires explicit calibration (pinned by
-  test_live_preview_psf); non-TIFF formats contribute only the file-name token.
+Left: non-TIFF formats contribute only the file-name token. (The Mask live
+  preview's explicit-calibration requirement is gone -- see 2026-09-25 below.)
+
+2026-09-25 -- THE MASK LIVE PREVIEW INFERS ITS PSF CALIBRATION TOO
+--------------------------------------------------------------------------------
+DONE. The Live preview's PSF capture (spacr/qt/widgets/live_preview.py,
+_segment_multi) now calls spacr.point_spread.fill_psf_settings on the
+request's settings snapshot before prepare_psf, the same call the plate run
+makes in psf_pipeline._prepare_segmentation_psf. Its source is the file the
+preview field was loaded from: PreviewRequest gained `source_path`, which
+the panel's _build_request fills from the loaded path; empty falls back to
+the settings' `src` and then to the defaults, as fill_psf_settings does.
+Values already set are never replaced, and an INVALID value still fails
+before the model loads. What was inferred is kept in the preview's
+provenance as `psf_calibration` (describe_optics lines, or 'as set'), and
+the filled values are in its preprocess_settings snapshot, so the history
+entry says where the kernel came from. No new tr() caption.
+
+Real field, plate1_A02_12.tif (Toxo PV, no OME/ImageJ tags), deconvolve with
+both calibration fields unset: pixel 0.325 x 0.325 um and FWHM 0.3536 um,
+5x5 Gaussian kernel -- the plate run's numbers from the entry above --
+image_shape 1994 x 1994 read from the file, objective/NA/emission/camera as
+defaults. CPU only.
+
+Tests, tests/qt/test_live_preview_psf.py: the pin this item named is
+changed rather than deleted -- test_bad_calibration_fails_before_loading_
+model now uses a negative sampling, and the panel's failed-rerun test a
+zero, since None no longer fails. New: unset calibration is filled exactly
+as fill_psf_settings fills the plate run's settings and reaches the kernel;
+set calibration is kept and recorded 'as set'; an ImageJ TIFF's 0.5 um
+resolution, given as the source path, wins over the defaults; the request
+carries the loaded path. 24 passed with test_enhancement_reaches_mask_
+preview. Wider: test_live_preview, _coverage, test_cov_r4_live_preview,
+test_mask_run_matches_live_preview, _channels, _remove_background,
+test_make_masks_psf_infers_and_folds, test_psf_mask_pipeline,
+test_psf_optics_inference: 279 passed. test_i18n_caption_ratchet's two
+failures (awaiting-rebuild rows now in the catalog; sv lacks two indirect
+rows) and test_docstring_inline_markup_renders' one (a make_masks.py
+_MasksConsole literal) are on nightly and not this change's.

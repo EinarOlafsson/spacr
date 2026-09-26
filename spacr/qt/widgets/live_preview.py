@@ -763,6 +763,9 @@ class PreviewRequest:
 
     :param image: the field to segment, an array of shape (H, W) or
         (H, W, C); each object type's channel index selects its plane.
+    :param source_path: the file the field was loaded from, read for pixel
+        size and objective metadata when the PSF calibration is left unset;
+        empty falls back to the settings' ``src`` and then to the defaults.
     """
     image:               np.ndarray
     model:               str = "cpsam"
@@ -778,6 +781,7 @@ class PreviewRequest:
     provenance:         Dict[str, Any] = field(default_factory=dict)
     cellprob_maps:      Dict[str, np.ndarray] = field(default_factory=dict,
                                                   repr=False)
+    source_path:        str = ""
 
 
 class _PreviewWorker(QThread):
@@ -899,11 +903,20 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     selected channel goes through :func:`spacr.psf_pipeline.apply_chain`,
     the PSF folded in at the chain's own stage; with none on, the PSF path
     is exactly what it was, kernel or no kernel.
+
+    An unset Gaussian PSF calibration is inferred first, as the plate run
+    infers it (:func:`spacr.point_spread.fill_psf_settings`), from the
+    preview field's file and then the defaults, so a PSF switched on with
+    its default values previews instead of failing. Values already set are
+    kept, and an invalid one still fails before the model loads.
     """
+    from ...point_spread import describe_optics, fill_psf_settings
     from ...psf_pipeline import apply_chain, prepare_chain, prepare_psf
     from ..detect_chain import provenance as chain_provenance
 
     _check_preview_cancel(req)
+    inferred = fill_psf_settings(req.preprocess_settings,
+                                 req.source_path or None)
     plan = prepare_psf(req.preprocess_settings)
     chain = prepare_chain(req.preprocess_settings, plan)
     _check_preview_cancel(req)
@@ -912,6 +925,8 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     processed = {}
     req.provenance = {
         'processing': plan.provenance() if plan else {'operation': 'none'},
+        'psf_calibration': (describe_optics(inferred) if inferred is not None
+                            else 'as set'),
         'enhancement': (chain_provenance(chain)['enhancement']
                         if chain is not None else 'none'),
         'stage': 'loaded preview field, before background and model normalization',
@@ -4552,6 +4567,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             object_types=obj_types,
             preprocess_settings=pre,
             postprocess_settings=post,
+            source_path=self._path_full,
         )
 
     #: Fixed colours the outline-colour combo offers by name.
