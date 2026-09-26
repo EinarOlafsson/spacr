@@ -2,7 +2,11 @@
 THE PERMUTATION TEST SHOWS THE RESIDUALS IT PERMUTES
 ================================================================================
 
-Status:    DONE 2026-08-21, filed the same day.
+Status:    DONE 2026-09-25. The measurement landed 2026-08-21; the QC folder
+           and the residual-by-position panel the 2026-08-26 re-audit found
+           missing are built (last entry), and the real branch now reaches
+           the check at all -- it had been passing a LIST of outcomes and
+           the guard swallowed the error.
 Requested: 2026-08-21 -- "phenotype are first residualised against the block
            but no residual graph."
 Owner:     Regression QC, guide_permutation
@@ -137,3 +141,46 @@ console: the verdict names `guide_nuisance_columns`, and position is
 measured even where it was already removed. What is missing is the writing
 and the drawing, which is a feature rather than a repair -- left for whoever
 owns the QC renderers rather than half-built here.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- THE FOLDER AND THE PANEL, AND A CHECK THAT NEVER RAN
+--------------------------------------------------------------------------------
+
+FOUND FIRST: on the real permutation branch the check did not run at all.
+`_run_guide_permutation_analysis` called `_report_exchangeability(data,
+outcomes, ...)` with `outcomes` a LIST, so `outcomes[outcome_column]` selected
+a DataFrame, `pd.to_numeric` raised, and the courtesy guard returned None
+silently. The unit tests passed a string, which is why nobody saw it. The
+branch now calls it once per outcome column.
+
+BUILT:
+  * `permutation_qc.write_permutation_qc` writes `<results>/regression_qc/`
+    -- the folder a parametric run writes -- holding
+    `exchangeability_<outcome>.json` (report, verdict, and which nuisance
+    columns were removed before residualisation) and
+    `residual_by_position_<outcome>.png`.
+  * `permutation_qc.plot_residual_by_position`: one row per block, one
+    column per position column (rowID, columnID), the permuted residual
+    per well with the level means drawn through it; each panel title
+    carries that block's Durbin-Watson, the x label the pooled p-value.
+    The footer names what was removed ("block only" when
+    guide_nuisance_columns is empty) and the verdict's remedy -- "Add rowID
+    to guide_nuisance_columns ..." -- so the setting is named where the
+    gradient is seen. Levels sort naturally (r2 before r10). More than
+    MAX_PANEL_BLOCKS (12) blocks: the ones whose DW is furthest from 2 are
+    drawn; every block stays in the JSON.
+  * `_report_exchangeability(..., destination)` uses the destination (it was
+    unreferenced) and returns the manifest under `report['qc']`.
+
+The five criteria: folder written (yes); per-block residual-by-position
+panel (yes); DW on the residuals that were permuted (as before); remedy
+named on the panel (yes, footer); a run with position removed shows the
+difference (the JSON records `removed_before_residualisation` and the
+rowID effect's p drops above 0.01 -- tested).
+
+Tests: tests/test_the_permutation_shows_its_residuals.py 26 (11 new,
+including the real branch writing its QC), with test_cov_12_ml_reporting,
+test_level_chooses_the_permutation_levels, test_the_permutation_path_has_a_
+gene_pass, test_the_effect_size_cut_is_a_right_click and test_cov_r6_ml:
+112 passed.

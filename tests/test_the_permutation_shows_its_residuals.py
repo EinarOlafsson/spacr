@@ -153,3 +153,181 @@ class TestTheVerdictNamesTheRemedy:
 
         assert hasattr(permutation_qc, "DW_TOLERANCE")
         assert hasattr(permutation_qc, "POSITION_ALPHA")
+
+
+# ---------------------------------------------------------------------------
+# the QC folder and the residual-by-position panel (re-audit 2026-08-26)
+# ---------------------------------------------------------------------------
+
+def _plate_frame(row_effect, seed=0):
+    """Long guide table: two plates, 8 rows x 6 columns, three guides a well."""
+    import pandas as pd
+
+    rng = np.random.default_rng(seed)
+    records = []
+    for plate in ("plate1", "plate2"):
+        for r in range(8):
+            for c in range(6):
+                score = row_effect * (r - 3.5) + float(rng.normal(0, 0.05))
+                for guide in ("g1", "g2", "g3"):
+                    records.append({
+                        "plateID": plate, "rowID": f"r{r + 1}",
+                        "columnID": f"c{c + 1}",
+                        "prc": f"{plate}_r{r + 1}_c{c + 1}", "grna": guide,
+                        "fraction": float(rng.uniform(0.05, 0.6)),
+                        "score": score})
+    return pd.DataFrame(records)
+
+
+class TestTheQcFolder:
+    def test_a_permutation_run_writes_the_parametric_folder(self, tmp_path):
+        from spacr import ml
+        from spacr.regression_qc import QC_DIRNAME
+
+        report = ml._report_exchangeability(
+            _plate_frame(0.4), "score",
+            {"guide_permutation_block": "plateID",
+             "guide_nuisance_columns": []}, str(tmp_path))
+
+        qc = tmp_path / QC_DIRNAME
+        assert qc.is_dir()
+        assert report["qc"]["dir"] == str(qc)
+        assert (qc / "residual_by_position_score.png").stat().st_size > 0
+        assert (qc / "exchangeability_score.json").is_file()
+
+    def test_the_report_on_disk_names_the_remedy(self, tmp_path):
+        import json
+
+        from spacr import ml
+
+        ml._report_exchangeability(
+            _plate_frame(0.4), "score",
+            {"guide_permutation_block": "plateID",
+             "guide_nuisance_columns": []}, str(tmp_path))
+        saved = json.loads(
+            (tmp_path / "regression_qc" / "exchangeability_score.json")
+            .read_text())
+        assert saved["verdict"]["ok"] is False
+        assert "guide_nuisance_columns" in saved["verdict"]["remedy"]
+        assert "rowID" in saved["verdict"]["remedy"]
+        assert set(saved["report"]["per_block"]) == {"plate1", "plate2"}
+        assert saved["removed_before_residualisation"] == []
+
+    def test_position_already_removed_shows_the_difference(self, tmp_path):
+        import json
+
+        from spacr import ml
+
+        ml._report_exchangeability(
+            _plate_frame(0.4), "score",
+            {"guide_permutation_block": "plateID",
+             "guide_nuisance_columns": ["rowID"]}, str(tmp_path))
+        saved = json.loads(
+            (tmp_path / "regression_qc" / "exchangeability_score.json")
+            .read_text())
+        assert saved["removed_before_residualisation"] == ["rowID"]
+        assert saved["report"]["position"]["rowID"]["p_value"] > 0.01
+
+    def test_no_destination_writes_nothing(self, tmp_path, monkeypatch):
+        from spacr import ml
+
+        monkeypatch.chdir(tmp_path)
+        report = ml._report_exchangeability(
+            _plate_frame(0.0), "score",
+            {"guide_permutation_block": "plateID"}, None)
+        assert report is not None and "qc" not in report
+        assert list(tmp_path.iterdir()) == []
+
+
+class TestTheResidualByPositionPanel:
+    def test_one_row_per_block_and_one_column_per_position(self):
+        from spacr.permutation_qc import plot_residual_by_position
+
+        rng = np.random.default_rng(1)
+        blocks = ["p1"] * 24 + ["p2"] * 24 + ["p3"] * 24
+        rows = [f"r{i % 4 + 1}" for i in range(72)]
+        cols = [f"c{i % 6 + 1}" for i in range(72)]
+        residuals = rng.normal(size=72)
+        report = block_residual_report(residuals, blocks,
+                                       {"rowID": rows, "columnID": cols})
+        fig = plot_residual_by_position(
+            residuals, blocks, {"rowID": rows, "columnID": cols},
+            report=report, verdict=exchangeability_verdict(report))
+        assert len(fig.axes) == 6
+        titles = [ax.get_title() for ax in fig.axes]
+        assert titles[0].startswith("p1 -- by rowID")
+        assert "DW" in titles[0]
+        assert titles[5].startswith("p3 -- by columnID")
+
+    def test_rows_are_ordered_naturally(self):
+        from spacr.permutation_qc import plot_residual_by_position
+
+        rows = [f"r{i}" for i in (1, 2, 10, 11)] * 3
+        fig = plot_residual_by_position(
+            np.arange(12, dtype=float), ["p"] * 12, {"rowID": rows})
+        ticks = [t.get_text() for t in fig.axes[0].get_xticklabels()]
+        assert ticks == ["r1", "r2", "r10", "r11"]
+
+    def test_the_remedy_is_written_on_the_figure(self):
+        from spacr.permutation_qc import plot_residual_by_position
+
+        rows = np.repeat(np.arange(12), 20)
+        blocks = [f"p{i // 80}" for i in range(240)]
+        residuals = rows * 0.5 + np.random.default_rng(0).normal(
+            0, 0.1, size=240)
+        report = block_residual_report(residuals, blocks, {"rowID": rows})
+        fig = plot_residual_by_position(
+            residuals, blocks, {"rowID": rows}, report=report,
+            verdict=exchangeability_verdict(report))
+        text = " ".join(t.get_text() for t in fig.texts)
+        assert "guide_nuisance_columns" in text
+        assert "Removed before residualisation" in text
+
+    def test_many_blocks_keep_the_worst(self):
+        from spacr.permutation_qc import (MAX_PANEL_BLOCKS,
+                                          plot_residual_by_position)
+
+        rng = np.random.default_rng(3)
+        blocks, rows, residuals = [], [], []
+        for b in range(MAX_PANEL_BLOCKS + 3):
+            ramp = b == MAX_PANEL_BLOCKS + 2
+            for r in range(20):
+                blocks.append(f"p{b}")
+                rows.append(r)
+                residuals.append(r * 0.3 if ramp else rng.normal())
+        report = block_residual_report(residuals, blocks, {"rowID": rows})
+        fig = plot_residual_by_position(residuals, blocks, {"rowID": rows},
+                                        report=report)
+        assert len(fig.axes) == MAX_PANEL_BLOCKS
+        assert any(ax.get_title().startswith(f"p{MAX_PANEL_BLOCKS + 2} ")
+                   for ax in fig.axes)
+
+    def test_no_position_column_is_a_reason_not_a_crash(self, tmp_path):
+        from spacr.permutation_qc import write_permutation_qc
+
+        residuals = np.arange(6, dtype=float)
+        report = block_residual_report(residuals, ["p"] * 6)
+        manifest = write_permutation_qc(
+            tmp_path, "y", residuals, ["p"] * 6, {}, report,
+            exchangeability_verdict(report))
+        assert manifest["figure"] is None
+        assert "no position column" in manifest["figure_error"]
+        assert (tmp_path / "regression_qc" / "exchangeability_y.json").exists()
+
+
+def test_the_real_permutation_branch_writes_its_qc(tmp_path):
+    """The branch passes a LIST of outcomes; each gets its own QC files.
+
+    Before, the list reached ``_report_exchangeability`` whole, selecting a
+    DataFrame where a Series was expected, and the guard swallowed it -- so
+    the real run reported nothing at all.
+    """
+    from spacr.ml import _run_guide_permutation_analysis
+    from tests.test_level_chooses_the_permutation_levels import (_screen,
+                                                                 _settings)
+
+    _run_guide_permutation_analysis(_screen(), "pred", str(tmp_path),
+                                    _settings("grna"))
+    qc = tmp_path / "regression_qc"
+    assert (qc / "exchangeability_pred.json").is_file()
+    assert (qc / "residual_by_position_pred.png").is_file()
