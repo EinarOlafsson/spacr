@@ -44,12 +44,13 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QAbstractItemView, QComboBox, QFileDialog, QFormLayout,
+    QAbstractItemView, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout,
     QHBoxLayout, QHeaderView, QLabel, QListWidget, QListWidgetItem,
     QPlainTextEdit, QPushButton, QSpinBox, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
@@ -112,6 +113,35 @@ from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.toggle import Toggle
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import declared_app, register_declared
+
+#: Object names of the hit-scoring option (item 570). It ships as an alpha
+#: feature: these are the names registered with the alpha gate, so hiding
+#: them hides the whole option -- controls, output section and export.
+HIT_PANEL_OBJECT = "ControlChartHitPanel"
+HIT_SECTION_OBJECT = "ControlChartHitsSection"
+HIT_EXPORT_OBJECT = "ControlChartExportHits"
+HIT_ALPHA_WIDGETS = (HIT_PANEL_OBJECT, HIT_SECTION_OBJECT, HIT_EXPORT_OBJECT)
+
+#: How many ranked hits the on-screen table lists; the export has them all.
+_MAX_HIT_ROWS = 200
+
+#: The hit table's columns: the field of the ranked hit table, and its header.
+_HIT_COLUMNS = (
+    ("rank", "Rank"), ("plateID", "Plate"), ("well", "Well"),
+    ("treatment", "Treatment"), ("value", "Value"), ("ssmd", "SSMD"),
+    ("robust_z", "Robust z"), ("b_score", "B-score"),
+)
+
+#: The hit-scoring choices offered, as ``(value, English label)``.
+_HIT_RANK_CHOICES = (("ssmd", "SSMD"), ("robust_z", "Robust z"),
+                     ("b_score", "B-score"))
+_HIT_ESTIMATOR_CHOICES = (("mm", "Method of moments"),
+                          ("umvue", "Unbiased (UMVUE)"),
+                          ("robust", "Robust (SSMD*)"))
+_HIT_DIRECTION_CHOICES = (("both", "Both directions"),
+                          ("up", "Up only"), ("down", "Down only"))
+_HIT_SCOPE_CHOICES = (("plate", "Per plate"),
+                      ("pooled", "Pooled over plates"))
 
 #: Column names worth guessing at, best first, when a table is first loaded.
 #: A guess the user can see and change beats an empty form.
@@ -308,6 +338,9 @@ class ControlChartScreen(QWidget):
         self._loading = False
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
+        self._hit_result = None
+        self._hit_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._hit_jobs.job_failed.connect(self._on_hit_failed)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -349,6 +382,15 @@ class ControlChartScreen(QWidget):
             "fired on it, as CSV")
         export.clicked.connect(self.choose_export)
         head.addWidget(export)
+
+        self._export_hits = QPushButton(tr("Export hits…"), self)
+        self._export_hits.setObjectName("ControlChartExportHits")
+        self._export_hits.setToolTip(tr(
+            "Write the ranked hit table, every well's scores and the plate "
+            "summary as CSV, and one plate heatmap per statistic, into a "
+            "folder"))
+        self._export_hits.clicked.connect(self.choose_hit_export)
+        head.addWidget(self._export_hits)
         outer.addLayout(head)
 
         body = CollapsibleSplitter(Qt.Horizontal, self,
@@ -392,6 +434,29 @@ class ControlChartScreen(QWidget):
         self.violations.setMinimumHeight(90)
         outputs.add_section(self.violations, "Rule violations",
                             persist_key="control_chart/Rule violations")
+
+        hits = QWidget(lower)
+        hits_layout = QVBoxLayout(hits)
+        hits_layout.setContentsMargins(0, 0, 0, 0)
+        hits_layout.setSpacing(SPACING["xs"])
+        self.hit_summary = QLabel(tr(
+            "Turn on hit scoring and name the negative control."), hits)
+        self.hit_summary.setObjectName("ControlChartHitSummary")
+        self.hit_summary.setWordWrap(True)
+        hits_layout.addWidget(self.hit_summary)
+        self.hit_table = QTableWidget(0, len(_HIT_COLUMNS), hits)
+        install_sorting(self.hit_table)
+        self.hit_table.setObjectName("ControlChartHitTable")
+        self.hit_table.setHorizontalHeaderLabels(
+            [tr(label) for _key, label in _HIT_COLUMNS])
+        self.hit_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.hit_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.hit_table.verticalHeader().setVisible(False)
+        self.hit_table.setMinimumHeight(90)
+        hits_layout.addWidget(self.hit_table, 1)
+        self._hit_section = outputs.add_section(
+            hits, "Hits", persist_key="control_chart/Hits")
+        self._hit_section.setObjectName("ControlChartHitsSection")
         lower_layout.addWidget(outputs, 1)
         right.add_pane(lower, "Output", stretch=2)
 
@@ -529,7 +594,90 @@ class ControlChartScreen(QWidget):
         self._negative.setObjectName("ControlChartNegative")
         self._negative.currentTextChanged.connect(self._on_control_changed)
         form.addRow("Negative control", self._negative)
+        form.addRow(self._build_hit_panel(panel))
         return panel
+
+    def _build_hit_panel(self, parent: QWidget) -> QWidget:
+        """The hit-scoring option: SSMD, robust z and B-score per well.
+
+        Scores every well against the negative control picked above, with
+        :func:`spacr.sp_stats.score_arrayed_screen`; the positive control,
+        when picked, gives the per-plate Z' in the summary. One container, so
+        the alpha gate hides the whole option by one name.
+
+        :param parent: the controls column.
+        :returns: the container.
+        """
+        box = QWidget(parent)
+        box.setObjectName("ControlChartHitPanel")
+        form = QFormLayout(box)
+        form.setContentsMargins(0, SPACING["sm"], 0, 0)
+        form.setSpacing(SPACING["xs"])
+
+        self._hit_score = Toggle(tr("Score hits (SSMD, robust z, B-score)"),
+                                 box)
+        self._hit_score.setObjectName("ControlChartHitScore")
+        self._hit_score.setToolTip(tr(
+            "Score every well against the negative control and call hits. "
+            "Needs the negative control picked above and well positions in "
+            "the table (prc, rowID and columnID, or well)."))
+        self._hit_score.toggled.connect(self._on_hit_changed)
+        form.addRow("", self._hit_score)
+
+        def combo(name: str, choices, tip: str) -> QComboBox:
+            """A picker of ``(value, label)`` choices wired to a rescore."""
+            widget = QComboBox(box)
+            widget.setObjectName(name)
+            for value, label in choices:
+                widget.addItem(tr(label), value)
+            widget.setToolTip(tr(tip))
+            widget.currentIndexChanged.connect(self._on_hit_changed)
+            return widget
+
+        self._hit_rank = combo(
+            "ControlChartHitRankBy", _HIT_RANK_CHOICES,
+            "The statistic that calls and ranks the hits. B-score removes "
+            "row and column effects by median polish first.")
+        form.addRow(tr("Call hits by"), self._hit_rank)
+
+        self._hit_threshold = QDoubleSpinBox(box)
+        self._hit_threshold.setObjectName("ControlChartHitThreshold")
+        self._hit_threshold.setRange(0.5, 50.0)
+        self._hit_threshold.setSingleStep(0.5)
+        self._hit_threshold.setValue(3.0)
+        self._hit_threshold.setToolTip(tr(
+            "A well is a hit when its score reaches this value. SSMD 3 is a "
+            "strong effect; 3 for robust z and B-score is three robust "
+            "standard deviations."))
+        self._hit_threshold.valueChanged.connect(self._on_hit_changed)
+        form.addRow(tr("Hit threshold"), self._hit_threshold)
+
+        self._hit_direction = combo(
+            "ControlChartHitDirection", _HIT_DIRECTION_CHOICES,
+            "Call hits above the negative control, below it, or both.")
+        form.addRow(tr("Direction"), self._hit_direction)
+
+        self._hit_estimator = combo(
+            "ControlChartHitEstimator", _HIT_ESTIMATOR_CHOICES,
+            "How SSMD is estimated from the negative control: method of "
+            "moments, the unbiased estimate, or the median and MAD.")
+        form.addRow(tr("SSMD estimator"), self._hit_estimator)
+
+        self._hit_scope = combo(
+            "ControlChartHitScope", _HIT_SCOPE_CHOICES,
+            "Score each well against its own plate's negative control, or "
+            "against the negative control of every plate together.")
+        form.addRow(tr("Reference"), self._hit_scope)
+
+        self._hit_treatment = QComboBox(box)
+        self._hit_treatment.setObjectName("ControlChartHitTreatment")
+        self._hit_treatment.setToolTip(tr(
+            "The column naming what is in each well. Wells sharing a "
+            "treatment are replicates and get one replicate SSMD in the "
+            "export. Leave empty for a screen without replicates."))
+        self._hit_treatment.currentTextChanged.connect(self._on_hit_changed)
+        form.addRow(tr("Treatment"), self._hit_treatment)
+        return box
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Chart ``frame``. The one call a host needs.
@@ -595,6 +743,7 @@ class ControlChartScreen(QWidget):
              guesses=_ORDER_GUESSES)
         fill(self._value, values or columns, blank=False)
         fill(self._control_column, keys, blank=True, guesses=_CONTROL_GUESSES)
+        fill(self._hit_treatment, keys, blank=True)
         self._refill_levels(frame)
 
     def _refill_levels(self, frame: pd.DataFrame) -> None:
@@ -685,6 +834,7 @@ class ControlChartScreen(QWidget):
         frame = self._frame
         if frame is None:
             return
+        self.rescore_hits()
         try:
             spec = self.spec()
         except ControlChartError as exc:
@@ -696,6 +846,141 @@ class ControlChartScreen(QWidget):
             lambda f=frame, s=spec, z=zprime: (
                 zprime_chart(f, s) if z else control_chart(f, s)),
             self._on_result)
+
+    def _on_hit_changed(self, *_args) -> None:
+        """Rescore the hits after a hit-scoring option changed.
+
+        :param _args: whatever the emitting signal passes; ignored.
+        """
+        if not self._loading:
+            self.rescore_hits()
+
+    def hit_options(self) -> Dict[str, object]:
+        """The keyword arguments the form gives
+        :func:`spacr.sp_stats.score_arrayed_screen`.
+
+        :returns: the options; ``negative_levels`` is empty when no negative
+            control is picked.
+        """
+        column = self._control_column.currentText() or None
+        negative = self._negative.currentText()
+        positive = self._positive.currentText()
+        rank_by = self._hit_rank.currentData() or "ssmd"
+        return {
+            "value_col": self._value.currentText(),
+            "plate_column": self._plate.currentText() or None,
+            "control_column": column,
+            "negative_levels": (negative,) if negative else (),
+            "positive_levels": (positive,) if positive else (),
+            "treatment_column": self._hit_treatment.currentText() or None,
+            "rank_by": rank_by,
+            "thresholds": {rank_by: float(self._hit_threshold.value())},
+            "direction": self._hit_direction.currentData() or "both",
+            "ssmd_estimator": self._hit_estimator.currentData() or "mm",
+            "scope": self._hit_scope.currentData() or "plate",
+        }
+
+    def rescore_hits(self) -> None:
+        """Score the hits from the form, off the GUI thread, when turned on.
+
+        Runs on its own job runner, so a control chart the engine refuses
+        (too few plates for a baseline, say) does not also refuse the hit
+        scores, which need no baseline.
+        """
+        frame = self._frame
+        if frame is None or not self._hit_score.isChecked():
+            self._hit_result = None
+            self.hit_table.setRowCount(0)
+            self.hit_summary.setText(tr(
+                "Turn on hit scoring and name the negative control."))
+            return
+        options = self.hit_options()
+        if not options["control_column"] or not options["negative_levels"]:
+            self._show_hit_refusal(tr(
+                "Pick the control column and the negative control to score "
+                "hits against."))
+            return
+        from ...sp_stats import score_arrayed_screen
+
+        value = options.pop("value_col")
+        self._hit_jobs.cancel()
+        self._hit_jobs.submit(
+            lambda f=frame, v=value, o=options: score_arrayed_screen(
+                f, v, **o),
+            self._on_hit_result)
+
+    def _on_hit_result(self, result) -> None:
+        """Show a worker-computed hit scoring. GUI thread only.
+
+        :param result: the :class:`spacr.sp_stats.ArrayedHitResult`.
+        """
+        self._hit_result = result
+        hits = result.hits()
+        self.hit_summary.setText(result.report())
+        shown = hits.head(_MAX_HIT_ROWS)
+        self.hit_table.setSortingEnabled(False)
+        self.hit_table.setRowCount(len(shown))
+        for row, (_index, record) in enumerate(shown.iterrows()):
+            for column, (key, _label) in enumerate(_HIT_COLUMNS):
+                value = record.get(key, "")
+                if isinstance(value, float):
+                    text = ("" if not np.isfinite(value) else
+                            str(int(value)) if key == "rank" else
+                            f"{value:.3g}")
+                else:
+                    text = "" if value is None else str(value)
+                self.hit_table.setItem(row, column, table_item(text))
+        self.hit_table.setSortingEnabled(True)
+        self.hit_table.resizeColumnsToContents()
+
+    def _show_hit_refusal(self, message: str) -> None:
+        """Say why the hits could not be scored, in the hits section.
+
+        :param message: the reason.
+        """
+        self._hit_result = None
+        self.hit_table.setRowCount(0)
+        self.hit_summary.setText(message)
+
+    def _on_hit_failed(self, message: str) -> None:
+        """Log and show a refused hit scoring.
+
+        :param message: the refusal text from the job runner.
+        """
+        LOG.info("hit scoring refused: %s", message)
+        self._show_hit_refusal(message)
+
+    @property
+    def hit_result(self):
+        """The hit scoring currently shown, or ``None``."""
+        return self._hit_result
+
+    def choose_hit_export(self) -> None:
+        """Ask for a folder and write the hit report into it."""
+        if self._hit_result is None:
+            self._source.setText(tr("Nothing scored yet."))
+            return
+        folder = QFileDialog.getExistingDirectory(
+            self, tr("Write the hit report into"))
+        if folder:
+            self.export_hits(folder)
+
+    def export_hits(self, folder: str) -> Optional[Dict[str, str]]:
+        """Write the ranked hit table, the scores and the heatmaps.
+
+        :param folder: the folder, created if absent.
+        :returns: ``{name: path}`` of what was written, or ``None`` when
+            nothing has been scored.
+        """
+        if self._hit_result is None:
+            self._source.setText(tr("Nothing scored yet."))
+            return None
+        from ...sp_stats import write_hit_report
+
+        written = write_hit_report(self._hit_result, folder)
+        self._source.setText(tr("hit report written to {folder}",
+                                folder=os.path.basename(folder) or folder))
+        return written
 
     def _on_result(self, result: ControlChartResult) -> None:
         """Show a worker-computed chart. GUI thread only."""
@@ -814,11 +1099,11 @@ class ControlChartScreen(QWidget):
 
     def active_jobs(self) -> int:
         """How many worker threads are still winding down."""
-        return self._jobs.active_jobs()
+        return self._jobs.active_jobs() + self._hit_jobs.active_jobs()
 
     def is_busy(self) -> bool:
-        """True while a read or a chart is in flight."""
-        return self._jobs.is_busy()
+        """True while a read, a chart or a hit scoring is in flight."""
+        return self._jobs.is_busy() or self._hit_jobs.is_busy()
 
     def choose_export(self) -> None:
         """Ask where to write the per-plate table and write it."""
@@ -848,6 +1133,7 @@ class ControlChartScreen(QWidget):
         :param event: the Qt close event.
         """
         self._jobs.shutdown()
+        self._hit_jobs.shutdown()
         self.canvas.close()
         super().closeEvent(event)
 

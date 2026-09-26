@@ -9803,27 +9803,25 @@ def add_column_to_database(settings):
     print(f"Updated '{new_column_name}' in '{settings['table_name']}' using '{settings['match_column']}'.")
 
 def fill_holes_in_mask(mask):
-    """
-    Fill holes in each object in the mask while keeping objects separated.
-    
+    """Fill the holes inside each object of a label mask, keeping every id.
+
+    Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole
+    filler for label images. This used to run ``ndimage.label`` over the
+    mask first, which made every pair of touching objects one object: with
+    Cellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent
+    cells was saved as 8 (item 588). Now no object is merged or renumbered,
+    and a hole takes the id of the object that encloses it.
+
     Args:
         mask (np.ndarray): A labeled mask where each object has a unique integer value.
-    
+            A boolean mask is labelled by connectivity first.
+
     Returns:
-        np.ndarray: A mask with holes filled and original labels preserved.
+        np.ndarray: The mask with holes filled and the original labels preserved,
+        in the input's dtype.
     """
-    labeled_mask, num_features = ndimage.label(mask)
-
-    filled_mask = np.zeros_like(labeled_mask)
-
-    for i in range(1, num_features + 1):
-        object_mask = (labeled_mask == i)
-
-        filled_object = binary_fill_holes(object_mask)
-
-        filled_mask[filled_object] = i
-
-    return filled_mask
+    from .qt.mask_engine import fill_label_holes
+    return fill_label_holes(mask)
 
 def correct_metadata_column_names(df):
     """Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.

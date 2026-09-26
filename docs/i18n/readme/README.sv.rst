@@ -249,7 +249,7 @@ Den som bidrar behöver historiken; för att bara köra spaCR räcker ett av des
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Vid mätningen 2026-09-15 laddade den fullständiga klonen ner 5,8 GB. För den grunda klonen minskade ``--filter=blob:none`` inte den uppmätta nedladdningen. De versionshanterade filerna i nightly ger en utcheckning på 1353 MB (uppmätt 2026-09-26), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
+Vid mätningen 2026-09-15 laddade den fullständiga klonen ner 5,8 GB. För den grunda klonen minskade ``--filter=blob:none`` inte den uppmätta nedladdningen. De versionshanterade filerna i nightly ger en utcheckning på 821 MB (uppmätt 2026-09-26), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
 
 
 Kommandoradskommandon
