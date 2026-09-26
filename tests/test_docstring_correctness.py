@@ -2173,7 +2173,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 511's mask_engine.object_filter_area_floor and parse_object_filters;
     # 356's SettingsWidgets.organelle_keys_to_spawn and
     # spawn_organelle_slots; 477's ImageRuler.calibrate_from_file.
-    assert len(callables) == len(by_symbol) == 9_789
+    # 9,789 -> 9,807 on 2026-09-26, +18 / -0, item 545 (ROIs in and out):
+    # mask_io's object_polygons, masks_to_geojson, geojson_to_masks,
+    # masks_to_roiset, roiset_to_masks, rle_encode, rle_decode,
+    # masks_to_coco, coco_image_names, coco_to_masks, roi_format, roi_suffix,
+    # export_rois and import_rois; MakeMasksScreen's export_field_rois,
+    # export_all_rois, import_field_rois and import_all_rois.
+    assert len(callables) == len(by_symbol) == 9_807
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -3228,7 +3234,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 4f6c58418 on nightly 88a0ee002: the 59 final_pass_callables below and
     # live_preview.BOUND_ROWS, less prerun's diameter_panel and
     # install_diameter_panel.
-    assert len(docs) == 11_816
+    # 11,816 -> 11,834 on 2026-09-26: item 545's eighteen callables, named
+    # at the callable inventory above.
+    assert len(docs) == 11_834
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

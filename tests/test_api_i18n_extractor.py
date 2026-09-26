@@ -1291,7 +1291,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # final_pass_callables in test_docstring_correctness (items 529, 18,
     # 533, 523, 224, 511, 474, 356, 477) and live_preview.BOUND_ROWS, less
     # prerun.diameter_panel and install_diameter_panel (533).
-    expected = 11_816
+    # 11,816 -> 11,834 on 2026-09-26, +18 / -0: item 545's ROI export and
+    # import callables, named at the callable inventory in
+    # test_docstring_correctness.
+    expected = 11_834
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1335,7 +1338,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,931 -> 11,166 with `expected` above, for the same 235.
     # 11,528 -> 11,651 -> 11,661 with `expected` above, for the same moves.
     # 11,758 -> 11,816 with `expected` above.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_816
+    # 11,816 -> 11,834 with `expected` above.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_834
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
