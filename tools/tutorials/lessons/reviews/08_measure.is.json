@@ -1,32 +1,34 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b38108290d13c808c7abbafa7d550bde4e0e57279232f4e7063fe6b309cbb543",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "abd85a81d3554dfa4cacb1616aa17d54e0ddde2000c8f54937e38b2ed8a40630",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "is",
-  "title": "Measure: lifandi myndsvið, raunverulegar mælingar og vistaðar niðurstöður",
-  "description": "Notaðu sextán niðurhalanleg myndsvið til að skoða lifandi svið og rásir, endurheimta stillingar fyrir hráar úrklippur, lesa gæðaviðvaranir og sannreyna keyrslu með Plot.",
+  "title": "Measure: dragðu út eiginleika og úrklipp hluta",
+  "description": "Hlaðu inn myndum með grímum, skoðaðu hluti, veldu stillingar úrklippa og vistaðu mælingar fyrir merkingu og flokkun.",
   "objectives": [
-    "Hlaða dæminu og greina styrkrásir frá grímuplönum.",
-    "Skoða svið og rásir í lifandi forskoðun, greina birtingarval frá sameiginlegum úrklippustillingum og endurheimta stöðlunarstillinguna fyrir keyrslu.",
-    "Keyra allt dæmið, skoða raunverulegar myndir og stjórnborð og finna gagnagrunn og úrklippur.",
-    "Finna undirverkfærin og skilja takmarkanir AI og viðvörunar um úreltar niðurstöður."
+    "Greina styrkleikarásir og grímulög í dæminu.",
+    "Skoða sjónsvið og velja stöðlun vistaðra úrklippa af ásettu ráði.",
+    "Keyra Measure og finna gagnagrunninn, úrklipp hlutanna og myndritin."
   ],
-  "prerequisite": "Tekið upp með spaCR 1.5.0.8. Home/Core → Measure → Load test data. Mælda hlutmengið er sextán 1994x1994 uint16-fylki: styrkleikar 0–3 og frumu-/kjarna-/sýklagrímur 4/5/6. Kveiktu á Normalize í aðalstillingum fyrir fyrstu Live-forskoðun; upphafsbirtingin notar hundraðsmörkin 1/99. Ekki ýta á Run í þessari stöðu. Rás núll breytir aðeins birtingu, en Normalize snertir líka vistaðar úrklippur. Slökktu á Live og Normalize fyrir keyrslu. E02_1_1 sýnir 27 kandídata og E02_9_1 sýnir 15. Rásaskipti varðveita auðkenni, flatarmál og flokka; All channels endurheimtir upphaflegu mynddílana. Forskoðunar- og keyrslufylkin eru eins bæti fyrir bæti. Þessi kennslustund notar sýnilegar aðalstillingar og Live-stýringar; hún sýnir ekki gluggann Crop settings. QC merkir 3 bilanir og 16 viðvaranir í 156 færslum fyrir gerð hlutar og myndsvið úr stærra niðurhali með grímum frá 52 sviðum, ekki aðeins 16 sameinuðu sviðunum sem eru mæld. Gögnin eru ekki vottuð gallalaus. Full keyrsla: Plot, save_measurements og save_png á; Test mode og normalize af; eitt vinnsluferli; RGB-úrklippur 224x224. Án kvörðunar rúmpunkta er flatarmál í ferningsmynddílum. Vinnsla allra 16 myndsviðanna tókst. Sjálfstætt sannreynd voru 5409 flatarmáls-/styrkleikagildi og fimm sameiningar studdar frumgrímunum, ekki allir eiginleikar eða líffræðilegt réttmæti. Niðurstöður: 601 fruma og úrklippa, 622 kjarnar, 373 sýklahlutir, 48 vistaðar myndir og 48 í GUI-biðröðinni. Skráðar stillingar eru óbreyttar fyrir og eftir keyrsluna en viðvörunin um úreltar niðurstöður sést enn. Sannprófun þessara vistuðu niðurstaðna staðfestir hvorki réttmæti viðvörunarinnar né sjálfvirkrar afhendingar. API: spacr.measure.measure_crop. Sjá Illumination, Motility og AnnData Export sérstaklega; AnnData sýnir skýra hjáleið um API, ekki viðgert GUI. Engin AI-spurning send eða svar sýnt; hvorki mannleg hlustunarsamþykkt né útgáfa er staðhæfð.",
+  "prerequisite": "Notaðu sameinað úttak frá Mask eða veldu Load test data í Measure. Dæmið inniheldur sextán sjónsvið með styrkleikalögum 0–3 og grímum fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6.",
   "scenes": [
-    "Opnaðu Measure undir Core. Það breytir fyrirliggjandi myndfylkjum og hlutagrímum í mælingar og úrklippur; það býr ekki til nýja myndskiptingu. Illumination, AnnData Export og Motility eru undirverkflæði þessa aðaleiningar. Sérstök kennsla þeirra er flokkuð undir Measure í yfirliti kennsluefnis.",
-    "Veldu Load test data og bíddu eftir raunverulegri innhleðslu. Niðurhalið inniheldur sextán sameinuð myndsvið. Athugaðu upprunamöppu og rásaval: styrkrásir núll til þrjú, frumugríma fjögur, kjarnagríma fimm og sýklagríma sex. Merkingar gríma eru ekki styrkmælingar.",
-    "Áður en þú opnar Live í fyrsta sinn skaltu leita að Normalize í aðalstillingunum og kveikja á því. Þá verður forskoðunin læsileg, því hráar sextán bita úrklippur virðast dökkar. Þetta er líka stilling fyrir vistaðar úrklippur, ekki aðeins birtingarval. Ekki ýta á Run; við endurstillum þetta fyrst.",
-    "Kveiktu á Live og límdu inn slóð sameinaða fylkisins fyrir svið E núll tveir, einn, einn. Reiturinn sýnir tuttugu og sjö kandídata flokkaða eftir tengslum grímanna; skrunaðu til að skoða hina flokkana. Heitin eru ekki óháð yfirfarnar líffræðilegar merkingar og fjöldi kandídata tryggir ekki lokafjölda mældra frumna.",
-    "Veldu rás núll í valinu fyrir birta rás. Sömu tuttugu og sjö hlutirnir birtast í gráum tónum; auðkenni, flatarmál og flokkar haldast óbreytt. Ólíkt Normalize í aðalstillingunum breytir þetta val aðeins forskoðuninni. Farðu aftur í All channels til að endurheimta litmynddílana án þess að breyta keyrslustillingum.",
-    "Opnaðu E núll tveir, níu, einn með sviðavalinu. Þar birtast fimmtán kandídatar: skoðaðu fleiri en eitt svið áður en þú treystir fallegri mynd. Lestu líka rauðu viðvörunina um gæði myndskiptingar. Merktu grímurnar tilheyra stærra niðurhalaða safninu; virk forskoðun leysir ekki viðvaranirnar og vottar ekki gallalaus gögn.",
-    "Slökktu á Live, leitaðu aftur að Normalize og slökktu á því fyrir keyrslu. Við sannreyndum að allar lotustillingar færu aftur í upphafleg gildi og að bæði upprunafylkin héldust óbreytt. Stöðlun hverrar úrklippu getur fjarlægt styrkleikamun úr vistuðum myndum. Geymdu upprunafylkin svo síðari mælingar geti áfram notað óbreytt styrkleikagildi þeirra.",
-    "Hafðu Plot virkt, vistaðu mælingar og úrklippur og notaðu eitt vinnsluferli í þessari sýnikennslu. Slökkt er á Test mode: öll sextán myndsviðin úr dæminu eru unnin í aðalúttak verkefnisins. Geymdu skráðar stillingar með vistuðu niðurstöðunum svo hægt sé að endurtaka keyrsluna.",
-    "Ýttu á Run og fylgstu með stjórnborðinu. Athugaðu fjölda tilrauna, árangursríkra vinnslna og mistaka, ekki aðeins hvort lokaskilaboð birtist. Hér tókst vinnsla allra sextán myndsviðanna. Lestu líka viðvaranirnar. Útreikningur sem lýkur án villu er ekki vottorð um líffræðileg gæði.",
-    "Skoðaðu raunverulegar myndir fyrir og eftir síun í myndalistanum. Dragðu skilrúmið til að gefa myndunum pláss. Stærðarsíur og sameining foreldra og barna geta breytt merkingunum sem eru mældar. Hér sameina fimm vistaðir frumuhlutir frummerkingar sem tengjast með sameiginlegri kjarna- eða sýklagrímu.",
-    "Skoðaðu úrklippumyndina líka og geymdu mæligagnagrunn og myndslóðir saman. Keyrslan vistaði sex hundruð og eina frumufærslu og samsvarandi úrklippur. Óháð mynddílaprófun staðfesti flatarmál, summur og meðaltöl fjögurra rása, þar með taldar sameiningar; ekki alla eiginleika eða líffræðilega réttmætingu myndskiptingarinnar.",
-    "Þessi upptaka sýnir enn viðvörun um úreltar niðurstöður eftir vel heppnaða keyrslu með óbreyttum skráðum stillingum. Við sannreyndum vistuðu gögnin sjálfstætt en höfum hvorki staðfest réttmæti viðvörunarinnar né sjálfvirkrar afhendingar. Geymdu vistaðar stillingar með niðurstöðunum og kannaðu viðvaranir áður en haldið er áfram. Hér inniheldur myndaröðin öll fjörutíu og átta vistuðu gröfin.",
-    "Stjórnborðið býður einnig valkvæða spaCR AI-aðstoð. Hér kveikjum við á rofanum og undirbúum spurningu án þess að senda hana; ekkert svar eða ytri greining er sýnd. Líttu á síðari svör sem ráð sem þarf að sannreyna með stillingum, API og vistuðum niðurstöðum. Notaðu sérstaka kennslu undirverkflæðanna fyrir næsta verkefni."
+    "Frá Home opnarðu Measure. Byrjaðu á myndum sem hafa þegar grímur fyrir hluti. Measure dregur út eiginleika eins og flatarmál og styrk, parar tengda hluti saman og getur vistað úrklipp einstakra hluta fyrir Annotate og Classify.",
+    "Smelltu á Load test data og bíddu þar til dæmið hefur hlaðist inn, eða veldu þitt eigið sameinaða verkefni. Athugaðu vörpun laganna: dæmið hefur fjórar styrkleikarásir og svo grímur fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6.",
+    "Til að skoða þessi 16 bita dæmaúrklipp kveikirðu á Normalize áður en þú opnar Live. Þá er auðveldara að sjá forskoðunina. Mundu að þessi aðalstilling hefur líka áhrif á vistuð úrklipp; við slökkvum á henni fyrir þessa runukeyrslu.",
+    "Kveiktu á Live og veldu sjónsvið. Skoðaðu úrklipp hlutanna og tengsl grímna þeirra. Flettu í gegnum flokkana og stækkaðu forskoðunina ef þörf er á til að sjá mörkin skýrt.",
+    "Notaðu valið fyrir birta rás til að skoða eina styrkleikarás í einu. Rás 0 sýnir gráskalamynd; All channels sýnir aftur samsettu myndina. Valið breytir forskoðuninni án þess að breyta merkingunum eða rásavörpun rununnar.",
+    "Veldu annað sjónsvið og berðu hluti þess saman. Farðu yfir tilkynninguna um gæði aðgreiningar áður en þú mælir verkefnið. Ef grímur vantar eða eru ranglega sameinaðar skaltu laga þær eða stilla Mask áður en þú heldur áfram.",
+    "Slökktu á Live og settu Normalize aftur á óvirkt fyrir þetta dæmi. Veldu stöðlun af ásettu ráði þegar úrklipp eru vistuð: kvörðun fyrir hvert úrklipp breytir þeim styrkmun sem myndflokkari sér síðar. Haltu upprunalegu sameinuðu fylkjunum fyrir megindlegar mælingar.",
+    "Virkjaðu vistun mælinga og úrklippa hluta, hafðu kveikt á Plot og veldu stærð úrklippa og úttaksrásir. Notaðu eitt vinnsluferli í þessu dæmi. Hafðu slökkt á Test mode til að vinna úr öllum sextán sjónsviðunum og smelltu svo á Run.",
+    "Fylgstu með stjórnborðinu þar til keyrslunni lýkur. Athugaðu hvaða sjónsvið tókust og skoðaðu villur áður en þú heldur áfram. Haltu stillingunum sem vistaðar voru með keyrslunni svo þú getir endurtekið mælingarnar.",
+    "Notaðu myndritalistann til að bera hlutina saman fyrir og eftir síun. Stærðarsíur og tengsl foreldra og afkvæma geta breytt því hvaða hlutir eru mældir. Dragðu skilrúmið til að gefa myndritunum meira pláss og skoðaðu óvæntar breytingar.",
+    "Skoðaðu úrklippamyndritið og finndu svo measurements.db í möppunni measurements og vistuðu myndir hlutanna í úrklippaúttaki verkefnisins. Haltu gagnagrunninum og slóðum myndanna saman. Haltu áfram í Annotate til að merkja dæmahluti, eða í Classify ef þú ert þegar með merkt þjálfunargögn."
   ]
 }
