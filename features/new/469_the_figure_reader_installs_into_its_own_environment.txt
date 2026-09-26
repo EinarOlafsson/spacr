@@ -3,9 +3,7 @@ THE FIGURE READER (YOLO + OCR) INSTALLS INTO AN ENVIRONMENT OF ITS OWN
 ================================================================================
 
 Status:    DONE 2026-09-21 (a1ca9387a), re-verified on nightly 2026-09-25.
-           The one new runtime string is in seven catalogs; Hindi and
-           Icelandic carry it as part of item 316's translation debt (docs
-           lane), not as work owed by this item.
+           Its one runtime string is now in all eight locale catalogs.
 
 Requested: 2026-09-21, verbatim -- "if the downlode changes the dependencies
            and so on it would be great if we could contain it in a different
@@ -58,3 +56,6 @@ at /mnt/wd4tb/spacr_testdata/backends_sandbox/papers. The header said
 BUILDING while the body said DONE; the header now says DONE. The single tr()
 string this item added ("Figure mode needs {names}...") is translated in
 de/es/fr/ko/pt/zh_CN; hi and is are covered by 316's catalog debt.
+
+2026-09-25, after merging nightly: the hi/is runtime catalogs now carry
+this item's strings (checked by grep of spacr/qt/i18n_catalogs/hi.py, is.py).
