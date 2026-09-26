@@ -106,10 +106,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "100", "200", ACCURATE_SHARED,
         "The tooltip explicitly names 200 for plaque analysis.",
     ),
-    ("analyze_plaques", "fill_in"): DefaultVariant(
-        "False", "True", REPAIRED_TOOLTIP,
-        "Plaque analysis fills mask interiors on its initial run.",
-    ),
     ("analyze_plaques", "resize"): DefaultVariant(
         "False", "True", ACCURATE_SHARED,
         "The tooltip explicitly names the plaque-analysis resize override.",
@@ -302,9 +298,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
 # intentional: they prove each affected module contract, not just each source
 # string, including generated organelle-slot tooltips.
 REPAIRED_TOOLTIP_FACTS = {
-    ("analyze_plaques", "fill_in"): (
-        "Plaque Analysis starts with this enabled",
-    ),
     ("classify_merged", "coordinate_columns"): (
         "Merged Classifier derives one identifier from object_array",
         "initially ['cell_id']",
@@ -770,20 +763,31 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # "Default False." and mask_gpu_indices "Default blank.", both resolved
     # by Mask only (Timelapse keeps them hidden and is not in APPS).
     assert {("mask", "mask_parallel"), ("mask", "mask_gpu_indices")} <= compared_pairs
-    # 736 -> 742 on 2026-09-26, +6/-0 (item 548): the six folder-watch
+    # 736 -> 744 on 2026-09-26, +8/-0 (item 541): confluency (False),
+    # confluency_channel (None), confluency_window (15) and
+    # confluency_qc_threshold (0.8), each resolved by Measure and by External
+    # Masks, which measures with Measure's defaults. confluency_source says
+    # "Default auto.", which is not a literal and so is not compared.
+    item_541 = {(app, key) for app in ("measure", "external_masks")
+                for key in ("confluency", "confluency_channel",
+                            "confluency_window", "confluency_qc_threshold")}
+    assert item_541 <= compared_pairs
+    # 744 -> 750 on 2026-09-26, +6/-0 (item 548): the six folder-watch
     # settings, each ending in a parseable default and resolved by Mask only
     # (Timelapse hides them and is not in APPS).
     item_548 = {("mask", key) for key in (
         "watch_folder", "watch_pipeline", "watch_measure_settings",
         "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes")}
     assert item_548 <= compared_pairs
-    assert comparisons == 742
+    assert comparisons == 750
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
-    # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above.
+    # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above;
+    # + 8: item 541's four confluency claims in two apps, pinned above;
     # + 6: item 548's folder-watch settings, pinned above.
-    assert census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + len(item_548) == comparisons
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
+            + len(item_541) + len(item_548) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
@@ -827,7 +831,17 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # says mean" -- was an artefact of a setting whose tooltip had to name a
     # SECOND setting to explain itself. Instruction 391 removed both, so the
     # ambiguity is gone rather than newly tolerated.
-    assert len(variants) == 47
+    # 47 -> 46 on 2026-09-26, item 588. The entry that went was
+    # ("analyze_plaques", "fill_in"): the tooltip said "Default False" and
+    # added "Plaque Analysis starts with this enabled". Neither was the
+    # truth any more. Cellpose Masks (Apply), fill_in's only reader
+    # (spacr_cellpose.identify_masks_finetune), starts at True, and Plaque
+    # Assay segments with plaque.segment_plaque_image and never reads
+    # fill_in (grep of spacr/submodules.py, plaque.py and plaque_preview.py:
+    # no hit). The tooltip now says "Default True in Cellpose Masks", which
+    # matches both modules' True, so there is no variant left to record and
+    # no plaque fact to keep.
+    assert len(variants) == 46
     assert variants == expected
     assert {
         classification: sum(
@@ -846,7 +860,9 @@ def test_real_default_claims_have_no_unrecorded_drift():
         # `control_wells` split (357-Q6) took its repaired-tooltip entry
         # with it, because the tooltip it repaired documented two meanings
         # at once and there is now one tooltip per meaning.
-        REPAIRED_TOOLTIP: 22,
+        # 22 -> 21 on 2026-09-26, item 588: ("analyze_plaques", "fill_in")
+        # went with its variant; see the 47 -> 46 note above.
+        REPAIRED_TOOLTIP: 21,
         CONFIG_DEFECT: 0,
     }
     assert all(
@@ -881,7 +897,9 @@ def test_repaired_tooltips_state_each_module_value_and_behavior():
     # keeping all three: a repaired tooltip, the variant it explained, and
     # the fact it carried are one entry seen from three sides, and a change
     # that moved only one of them would be a change nobody had understood.
-    assert len(REPAIRED_TOOLTIP_FACTS) == 22
+    # 22 -> 21 on 2026-09-26, item 588: ("analyze_plaques", "fill_in"),
+    # the same one entry as the variant count and the class count above.
+    assert len(REPAIRED_TOOLTIP_FACTS) == 21
     assert set(REPAIRED_TOOLTIP_FACTS) == repaired
 
     defaults_by_app = {}

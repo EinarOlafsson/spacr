@@ -140,6 +140,60 @@
       ],
       "filesystem_bytes_freed": 8678105088,
       "note": "ii3rwunc was never recorded: its media equal vdq3zb7x except the player, which lives on Pages."
+    },
+    {
+      "date": "2026-09-26",
+      "kept": [
+        "release-candidate-append-0ws6a_j_ (current baseline)",
+        "release-candidate-append-s0ky01rx",
+        "release-candidate-append-xh6zicj_"
+      ],
+      "deleted": [
+        {
+          "folder": "release-candidate-append-iij8lm0r",
+          "commit": "006b95c49dde2403ad7674aa4b3f2501351416ec",
+          "tag": "tutorials-install71-20260925-iij8lm0r",
+          "tag_resolves_to_commit": true,
+          "bytes": 2021558708
+        },
+        {
+          "folder": "release-candidate-append-1dgypni8",
+          "commit": "9575040605aa5b2857ee20b2c12175e0bf86a450",
+          "tag": "tutorials-voices-b2-20260925-1dgypni8",
+          "tag_resolves_to_commit": true,
+          "bytes": 2165733684
+        },
+        {
+          "folder": "release-candidate-append-vdq3zb7x",
+          "commit": "cbf0079ecca23e214eac3d327e05293250b10378",
+          "tag": "tutorials-voices-b3p-20260926-vdq3zb7x",
+          "tag_resolves_to_commit": true,
+          "bytes": 2237186028
+        },
+        {
+          "folder": "release-candidate-append-i3gqsiyt",
+          "commit": "f8fce934c78df5c1cefdc6de957a8dc42a44a489",
+          "tag": "tutorials-voices-b4-20260926-i3gqsiyt",
+          "tag_resolves_to_commit": true,
+          "bytes": 2327745872
+        },
+        {
+          "folder": "release-candidate-append-5bd5m2eg",
+          "commit": "a949b980a54132761942056cf4f02909ff7a039d",
+          "tag": "tutorials-voices-b4p-20260926-5bd5m2eg",
+          "tag_resolves_to_commit": true,
+          "bytes": 2327857226
+        },
+        {
+          "folder": "release-candidate-append-e0gwtm5w",
+          "commit": "3f16faf5a8f9297a2024e648945dcec10361bcca",
+          "tag": "tutorials-voices-g1-20260926-e0gwtm5w",
+          "tag_resolves_to_commit": true,
+          "bytes": 3085303386
+        }
+      ],
+      "filesystem_bytes_freed": 14192521216,
+      "note": "i3gqsiyt was the unrecorded first b4 attempt (earlier player); its tag still resolves."
     }
   ]
 }
