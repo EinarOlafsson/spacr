@@ -1254,10 +1254,12 @@ class ModelZooPicker(QDialog):
         landed, so a first opening showed an empty bioimage.io category.
         """
         def _warm():
+            """Fetch the collection and ask for a redraw only if it changed."""
             try:
                 from ... import model_zoo
 
                 def seen(rows):
+                    """What a redraw would show of ``rows``."""
                     return [(e.key, e.uri, e.notes, e.size_bytes) for e in rows]
 
                 before = seen(model_zoo.bioimageio_entries())
