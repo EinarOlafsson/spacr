@@ -3052,136 +3052,176 @@
       "series": 3,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
-      "title": "Train Cellpose: सत्यापित जोड़े और स्पष्ट API विकल्प",
-      "description": "Cellpose Workbench में Train खोजें, स्रोत आयात की मौजूदा कमी पहचानें और छह डाउनलोड योग्य कोशिका-चित्र/मास्क जोड़ों से वास्तविक दो-एपॉक Python प्रशिक्षण देखें।",
+      "section": "Tools",
+      "title": "Cellpose मॉडल को प्रशिक्षित करें",
+      "description": "इमेज और मास्क के जोड़े तैयार करें, Cellpose Workbench में सेगमेंटेशन मॉडल को फ़ाइन-ट्यून करें और सहेजा गया चेकपॉइंट लागू करें।",
       "objectives": [
-        "अलग Home टाइल के बजाय Make Masks में Train और Apply ढूँढें।",
-        "मिलते नाम जाँचें और मौजूदा लेबल को समीक्षा किए ग्राउंड ट्रुथ से अलग रखें।",
-        "आंशिक आयात पहचानकर API और खराब GUI रास्ते अलग रखें।",
-        "वास्तविक इनपुट, वॉर्म-अप दर, बदले वज़न और सत्यापित पथ जाँचें।",
-        "ट्रेनिंग लॉस, टेस्ट प्लेसहोल्डर और वज़न पढ़ने को स्वतंत्र सटीकता से अलग रखें।"
+        "Make Masks में इमेज और उनसे मेल खाते ऑब्जेक्ट लेबल मास्क देखें।",
+        "प्रशिक्षण फ़ोल्डर, शुरुआती मॉडल, प्रशिक्षण योजना और आउटपुट स्थान चुनें।",
+        "प्रशिक्षण चलाएँ, चेकपॉइंट ढूँढें और उसे अलग इमेज पर लागू करें।"
       ],
       "example_files": [
-        "Train_Cellpose_API_example.zip"
+        "Cellpose_training_images_masks.zip"
       ],
-      "prerequisite": "लिंक के छह जोड़े, रिकॉर्ड किया सहायक और स्रोत मैनिफेस्ट इस्तेमाल करें। वास्तविक फ़ील्ड से कोशिका तीव्रता चैनल 1 और मास्क प्लेन 4 सुरक्षित हैं; प्लेन 6 रोगजनक है। मौजूदा लेबल और किनारे कटे ऑब्जेक्ट स्वतंत्र रूप से समीक्षा किए ग्राउंड ट्रुथ नहीं हैं। Train संख्याएँ आयात करता है लेकिन src छोड़कर model_name=new_model रखता है; GUI प्रशिक्षण शुरू नहीं होता। स्पष्ट spacr.submodules.train_cellpose कॉल नए गंतव्य, दो एपॉक, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 और बिना अतिरिक्त spaCR वृद्धि के चलती है। normalize=False spaCR पर्सेंटाइल प्रीप्रोसेसिंग बंद करता है, अधिकतम से स्केलिंग या Cellpose का आंतरिक नॉर्मलाइज़ेशन नहीं। Cellpose रोटेशन/रीसाइज़ और 256-पिक्सेल आंतरिक पैच अब भी उपयोग करता है। प्रवेश seed 19 है; आंतरिक यादृच्छिकता बनी रहती है। RTX 3090 पर CUDA सीमा 65% और 100 GiB RAM गार्ड केवल इस वर्कस्टेशन के लिए है। 3,145,728 इनपुट मान और बारह प्रदर्शित ऐरे जाँचे; सभी छह जोड़े प्रशिक्षण में रहे। वास्तविक दरें 0 और 1.1111111111111112e-6 थीं; 347 में 345 प्रशिक्षण योग्य पैरामीटर टेंसर बदले। लॉस 1.496740683913231 से 1.5215517828861873 हुआ। टेस्ट डेटा नहीं, शून्य टेस्ट स्लॉट केवल प्लेसहोल्डर हैं। models/cellpose_model/models का चेकपॉइंट weights_only=True से पढ़ा; सामान्य सारांश दूसरा models छोड़ता है। पढ़ना इन्फ़रेंस या सटीकता सत्यापन नहीं। वास्तविक चित्र बाहरी व्यूअर में है, GUI में जोड़ा नहीं। मूल डेटा, विफल कैप्चर और पुराना GUI होल्ड सुरक्षित हैं। कोई AI अनुरोध, प्रदाता उत्तर, वैज्ञानिक मंज़ूरी या प्रकाशन नहीं।",
+      "prerequisite": "जुड़ा उदाहरण डाउनलोड करके निकालें: मास्क के साथ छह प्रशिक्षण इमेज, और Apply के लिए तीन अलग इमेज। या अपनी इमेज और उनसे मेल खाते पूर्णांक लेबल मास्क तैयार करें, और प्रशिक्षण से पहले Make Masks में उन्हें देखें।",
       "scenes": [
         {
-          "visual": "gui_01_make_masks_host",
-          "narration": "Make Masks खोलकर उसके भीतर Cellpose Workbench खोलें। Train और Apply इसी पैनल की टैब हैं, अलग Home टाइल नहीं। यह पाठ वर्तमान रास्ता, सेटिंग आयात की समस्या और स्पष्ट Python विकल्प दिखाता है। प्रशिक्षण से पहले मास्क जाँचना और संपादित करना लिंक किए Make Masks पाठ में है।",
+          "visual": "home_make_masks",
+          "narration": "Home से Tools खोलें, फिर Make Masks। उसके टूलबार से Cellpose Workbench खोलें; यह Train टैब पर खुलता है। आप इमेज और उनके ऑब्जेक्ट लेबल मास्क से प्रशिक्षण देंगे, फिर सहेजे गए मॉडल को Apply में इस्तेमाल करेंगे।",
+          "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
+            "14_make_masks"
+          ],
+          "speech_text": "Home से Tools खोलें, फिर Make Masks। उसके टूलबार से सेल पोज़ Workbench खोलें; यह Train टैब पर खुलता है। आप इमेज और उनके ऑब्जेक्ट लेबल मास्क से प्रशिक्षण देंगे, फिर सहेजे गए मॉडल को Apply में इस्तेमाल करेंगे।"
+        },
+        {
+          "visual": "train_source",
+          "narration": "जुड़ा उदाहरण निकालें। इसके training फ़ोल्डर में छह इमेज और एक masks सबफ़ोल्डर है, और इसके apply फ़ोल्डर में बाद के लिए तीन अलग इमेज हैं। Image source folder के पास फ़ोल्डर बटन पर क्लिक करें और training चुनें। masks सबफ़ोल्डर इस्तेमाल करने के लिए Mask source folder खाली छोड़ें, या मास्क का कोई दूसरा फ़ोल्डर चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "जुड़ा उदाहरण निकालें। इसके training फ़ोल्डर में छह इमेज और एक masks सबफ़ोल्डर है, और इसके apply फ़ोल्डर में बाद के लिए तीन अलग इमेज हैं। Image source folder के पास फ़ोल्डर बटन पर क्लिक करें और training चुनें। masks सबफ़ोल्डर इस्तेमाल करने के लिए Mask source folder खाली छोड़ें, या मास्क का कोई दूसरा फ़ोल्डर चुनें।"
+        },
+        {
+          "visual": "train_pairs",
+          "narration": "हर इमेज को उतनी ही ऊँचाई और चौड़ाई वाला एक मास्क चाहिए। शून्य पृष्ठभूमि है, और हर वस्तु की अपनी धनात्मक संख्या है। प्रशिक्षण से पहले लेबल देखने और सुधारने के लिए प्रशिक्षण फ़ोल्डर को Make Masks में खोलें। इस इमेज में पचानवे लेबल की गई कोशिकाएँ हैं।",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "speech_text": "हर इमेज को उतनी ही ऊँचाई और चौड़ाई वाला एक मास्क चाहिए। शून्य पृष्ठभूमि है, और हर वस्तु की अपनी धनात्मक संख्या है। प्रशिक्षण से पहले लेबल देखने और सुधारने के लिए प्रशिक्षण फ़ोल्डर को Make Masks में खोलें। इस इमेज में पचानवे लेबल की गई कोशिकाएँ हैं।"
+        },
+        {
+          "visual": "train_channels",
+          "narration": "यह उदाहरण ग्रेस्केल है, इसलिए Channels खाली छोड़ें। मल्टीचैनल इमेज के लिए शून्य से गिने जाने वाले अधिकतम तीन चैनल नंबर जोड़ें, जैसे पहले और तीसरे चैनल के लिए शून्य और दो। Channel axis तभी तय करें जब अपने आप पहचान चैनल आयाम न ढूँढ पाए।",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            241
+          ],
+          "speech_text": "यह उदाहरण ग्रेस्केल है, इसलिए Channels खाली छोड़ें। मल्टीचैनल इमेज के लिए शून्य से गिने जाने वाले अधिकतम तीन चैनल नंबर जोड़ें, जैसे पहले और तीसरे चैनल के लिए शून्य और दो। Channel axis तभी तय करें जब अपने आप पहचान चैनल आयाम न ढूँढ पाए।"
+        },
+        {
+          "visual": "train_model_output",
+          "narration": "Cellpose-SAM से शुरू करने के लिए Base model को cpsam पर रहने दें, या किसी पुराने मॉडल का प्रशिक्षण आगे बढ़ाने के लिए चेकपॉइंट पथ लिखें। एक Model name लिखें; यहाँ यह tutorial cells है। स्रोत फ़ोल्डर के भीतर सहेजने के लिए Checkpoint folder खाली छोड़ें, या कोई दूसरा फ़ोल्डर चुनें।",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            496
+          ],
+          "speech_text": "सेल पोज़-SAM से शुरू करने के लिए Base model को cpsam पर रहने दें, या किसी पुराने मॉडल का प्रशिक्षण आगे बढ़ाने के लिए चेकपॉइंट पथ लिखें। एक Model name लिखें; यहाँ यह tutorial cells है। स्रोत फ़ोल्डर के भीतर सहेजने के लिए Checkpoint folder खाली छोड़ें, या कोई दूसरा फ़ोल्डर चुनें।"
+        },
+        {
+          "visual": "train_schedule",
+          "narration": "N epochs और Batch size तय करें। यह जल्दी वाला रन एक के बैच आकार के साथ दस एपॉक इस्तेमाल करता है। ज़्यादा एपॉक मॉडल को ज़्यादा प्रशिक्षण अपडेट देते हैं, और बड़े बैच ज़्यादा मेमोरी लेते हैं। शुरुआत में दिखाई गई लर्निंग रेट रहने दें।",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            757,
+            1165,
+            264
+          ],
+          "speech_text": "N epochs और Batch size तय करें। यह जल्दी वाला रन एक के बैच आकार के साथ दस एपॉक इस्तेमाल करता है। ज़्यादा एपॉक मॉडल को ज़्यादा प्रशिक्षण अपडेट देते हैं, और बड़े बैच ज़्यादा मेमोरी लेते हैं। शुरुआत में दिखाई गई लर्निंग रेट रहने दें।"
+        },
+        {
+          "visual": "train_normalization",
+          "narration": "शुरुआत के लिए पहले और निन्यानवेवें पर्सेंटाइल के साथ Normalize चालू रखें। ये हर चैनल के लिए इस्तेमाल होने वाली तीव्रता की सीमा तय करते हैं। Scale range प्रशिक्षण के दौरान इमेज का आकार बदलता है, और Min train masks कम लेबल वाली वस्तुओं वाली इमेज छोड़ देता है।",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            820,
+            1165,
+            561
+          ],
+          "speech_text": "शुरुआत के लिए पहले और निन्यानवेवें पर्सेंटाइल के साथ Normalize चालू रखें। ये हर चैनल के लिए इस्तेमाल होने वाली तीव्रता की सीमा तय करते हैं। Scale range प्रशिक्षण के दौरान इमेज का आकार बदलता है, और Min train masks कम लेबल वाली वस्तुओं वाली इमेज छोड़ देता है।"
+        },
+        {
+          "visual": "train_validation",
+          "narration": "वैलिडेशन लॉस देखने के लिए एक अलग Validation image folder और उसका Validation mask folder चुनें। वहाँ कभी प्रशिक्षण इमेज दोबारा इस्तेमाल न करें। अगर इस उदाहरण की तरह आपके पास अलग लेबल वाला सेट नहीं है, तो दोनों खाली छोड़ें।",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            158
+          ],
+          "speech_text": "वैलिडेशन लॉस देखने के लिए एक अलग Validation image folder और उसका Validation mask folder चुनें। वहाँ कभी प्रशिक्षण इमेज दोबारा इस्तेमाल न करें। अगर इस उदाहरण की तरह आपके पास अलग लेबल वाला सेट नहीं है, तो दोनों खाली छोड़ें।"
+        },
+        {
+          "visual": "train_run_console",
+          "narration": "फ़ोल्डर, मॉडल का नाम और आउटपुट स्थान जाँचें, फिर Run दबाएँ। Figures पैनल प्रशिक्षण इमेज को उनके मास्क के ऊपर दिखाता है, और कंसोल प्रगति दिखाता है। इस GPU पर छह इमेज पर दस एपॉक एक मिनट से कम में पूरे हुए।",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            520,
+            3410,
+            1260
+          ],
+          "speech_text": "फ़ोल्डर, मॉडल का नाम और आउटपुट स्थान जाँचें, फिर Run दबाएँ। Figures पैनल प्रशिक्षण इमेज को उनके मास्क के ऊपर दिखाता है, और कंसोल प्रगति दिखाता है। इस GPU पर छह इमेज पर दस एपॉक एक मिनट से कम में पूरे हुए।"
+        },
+        {
+          "visual": "train_checkpoint",
+          "narration": "प्रशिक्षण पूरा होने पर कंसोल चेकपॉइंट का पथ बताता है। डिफ़ॉल्ट स्थान पर यह स्रोत फ़ोल्डर में models, cellpose model, models के अंदर होता है। फ़ाइल नाम आपके मॉडल नाम में आर्किटेक्चर और एपॉक की संख्या जोड़ता है। इसे अपनी प्रशिक्षण सेटिंग्स के साथ रखें।",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            960,
+            3410,
+            700
+          ],
+          "speech_text": "प्रशिक्षण पूरा होने पर कंसोल चेकपॉइंट का पथ बताता है। डिफ़ॉल्ट स्थान पर यह स्रोत फ़ोल्डर में models, सेल पोज़ model, models के अंदर होता है। फ़ाइल नाम आपके मॉडल नाम में आर्किटेक्चर और एपॉक की संख्या जोड़ता है। इसे अपनी प्रशिक्षण सेटिंग्स के साथ रखें।"
+        },
+        {
+          "visual": "apply_checkpoint",
+          "narration": "Apply टैब खोलें। Custom model अब आपके प्रशिक्षित चेकपॉइंट की ओर इशारा करता है। Source को उदाहरण के apply फ़ोल्डर पर रखें, जिसकी इमेज उन वेल से हैं जो प्रशिक्षण में इस्तेमाल नहीं हुए। Channels को शून्य और Percentiles को दो और निन्यानवे पर रखें। छूती हुई कोशिकाएँ अलग रहें, इसके लिए Fill in बंद करें, और Save और Verbose चालू करें।",
+          "hold_after": 0.7,
+          "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Make Masks खोलकर उसके भीतर सेल पोज़ Workbench खोलें। Train और Apply इसी पैनल की टैब हैं, अलग Home टाइल नहीं। यह पाठ वर्तमान रास्ता, सेटिंग आयात की समस्या और स्पष्ट Python विकल्प दिखाता है। प्रशिक्षण से पहले मास्क जाँचना और संपादित करना लिंक किए Make Masks पाठ में है।"
-        },
-        {
-          "visual": "gui_02_actual_train_tab",
-          "narration": "Train में शुरुआती मॉडल और प्रशिक्षण योजना देखें। शुरुआती एपॉक संख्या या लर्निंग रेट को सिफ़ारिश मानकर न कॉपी करें। प्रशिक्षण को मेल खाते चित्र और इंस्टेंस मास्क, स्रोत फ़ोल्डर और आउटपुट नाम चाहिए। फ़ॉर्म दिखना यह सिद्ध नहीं करता कि ये आवश्यकताएँ पूरी हैं।",
-          "hold_after": 0.7,
-          "speech_text": "Train में शुरुआती मॉडल और प्रशिक्षण योजना देखें। शुरुआती एपॉक संख्या या लर्निंग रेट को सिफ़ारिश मानकर न कॉपी करें। प्रशिक्षण को मेल खाते चित्र और इंस्टेंस मास्क, स्रोत फ़ोल्डर और आउटपुट नाम चाहिए। फ़ॉर्म दिखना यह सिद्ध नहीं करता कि ये आवश्यकताएँ पूरी हैं।"
-        },
-        {
-          "visual": "gui_02a_real_settings_import_picker",
-          "narration": "वास्तविक Import settings पिकर सीमित उदाहरण की CSV खोलता है। आयात के बाद दो एपॉक, मिनीबैच एक और छोटी लर्निंग रेट दिखती हैं। लेकिन आवश्यक स्रोत हट जाता है और माँगा नाम new model ही रहता है। यह आंशिक आयात है, तैयार कॉन्फ़िगरेशन नहीं; Run न दबाएँ।",
-          "hold_after": 0.7,
-          "speech_text": "वास्तविक Import settings पिकर सीमित उदाहरण की CSV खोलता है। आयात के बाद दो एपॉक, मिनीबैच एक और छोटी लर्निंग रेट दिखती हैं। लेकिन आवश्यक स्रोत हट जाता है और माँगा नाम new model ही रहता है। यह आंशिक आयात है, तैयार कॉन्फ़िगरेशन नहीं; Run न दबाएँ।"
-        },
-        {
-          "visual": "gui_02b_actual_imported_values",
-          "narration": "अगला Python रास्ता GUI की इस कमी से अलग है। वह छिपा स्रोत चुपचाप नहीं भरता और फ़ॉर्म नहीं सुधारता। लिंक का उदाहरण नई फ़ोल्डर में लें। सहायक मौजूद गंतव्य अस्वीकार करता है, मूल जोड़े बचाता है और वास्तविक API कार्यान्वयन तथा इनपुट दर्ज करता है।",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "अगला Python रास्ता GUI की इस कमी से अलग है। वह छिपा स्रोत चुपचाप नहीं भरता और फ़ॉर्म नहीं सुधारता। लिंक का उदाहरण नई फ़ोल्डर में लें। सहायक मौजूद गंतव्य अस्वीकार करता है, मूल जोड़े बचाता है और वास्तविक API कार्यान्वयन तथा इनपुट दर्ज करता है।"
-        },
-        {
-          "visual": "command_01_verified_cell_pairs",
-          "narration": "मेल खाते नामों वाले पाँच सौ बारह पिक्सेल के छह वास्तविक चित्र और मास्क जोड़े हैं। मूल सेटिंग में कोशिका तीव्रता चैनल एक और मास्क प्लेन चार हैं; प्लेन छह रोगजनक है। मौजूदा लेबल स्वतंत्र रूप से समीक्षा किए ग्राउंड ट्रुथ नहीं। उत्पादन प्रशिक्षण से पहले सीमाएँ और किनारे कटे ऑब्जेक्ट जाँचें।",
           "focus": [
-            190,
-            80,
-            3450,
-            900
+            366,
+            607,
+            1165,
+            1156
           ],
-          "hold_after": 0.7,
-          "speech_text": "मेल खाते नामों वाले पाँच सौ बारह पिक्सेल के छह वास्तविक चित्र और मास्क जोड़े हैं। मूल सेटिंग में कोशिका तीव्रता चैनल एक और मास्क प्लेन चार हैं; प्लेन छह रोगजनक है। मौजूदा लेबल स्वतंत्र रूप से समीक्षा किए ग्राउंड ट्रुथ नहीं। उत्पादन प्रशिक्षण से पहले सीमाएँ और किनारे कटे ऑब्जेक्ट जाँचें।"
+          "speech_text": "Apply टैब खोलें। Custom model अब आपके प्रशिक्षित चेकपॉइंट की ओर इशारा करता है। Source को उदाहरण के apply फ़ोल्डर पर रखें, जिसकी इमेज उन वेल से हैं जो प्रशिक्षण में इस्तेमाल नहीं हुए। Channels को शून्य और Percentiles को दो और निन्यानवे पर रखें। छूती हुई कोशिकाएँ अलग रहें, इसके लिए Fill in बंद करें, और Save और Verbose चालू करें।"
         },
         {
-          "visual": "gui_09_saved_actual_training_pairs",
-          "narration": "यह API रन का सहेजा वास्तविक छह-जोड़ी चित्र है, बाहरी व्यूअर में खुला है, spaCR में जोड़ा नहीं गया। ऊपर का हर चित्र नीचे के मास्क से मेल खाता है। सभी इनपुट चित्र/लेबल मान और बारह दिखाए ऐरे स्रोत जोड़ों से जाँचे गए। यह मेल की जाँच है, एनोटेशन गुणवत्ता की नहीं।",
+          "visual": "apply_preview",
+          "narration": "Live preview खोलें, एक इमेज चुनें और उसी चैनल और पर्सेंटाइल के साथ Run preview दबाएँ। यह आपके चेकपॉइंट से उस इमेज का सेगमेंटेशन करता है और यहाँ छिहत्तर कोशिकाएँ पाता है। पूरा फ़ोल्डर चलाने से पहले सेटिंग्स यहीं बदलें।",
+          "hold_after": 0.7,
           "focus": [
-            560,
-            610,
-            2750,
-            970
+            390,
+            520,
+            3410,
+            1240
           ],
-          "hold_after": 0.7,
-          "speech_text": "यह API रन का सहेजा वास्तविक छह-जोड़ी चित्र है, बाहरी व्यूअर में खुला है, स्पेकर में जोड़ा नहीं गया। ऊपर का हर चित्र नीचे के मास्क से मेल खाता है। सभी इनपुट चित्र/लेबल मान और बारह दिखाए ऐरे स्रोत जोड़ों से जाँचे गए। यह मेल की जाँच है, एनोटेशन गुणवत्ता की नहीं।"
+          "speech_text": "Live preview खोलें, एक इमेज चुनें और उसी चैनल और पर्सेंटाइल के साथ Run preview दबाएँ। यह आपके चेकपॉइंट से उस इमेज का सेगमेंटेशन करता है और यहाँ छिहत्तर कोशिकाएँ पाता है। पूरा फ़ोल्डर चलाने से पहले सेटिंग्स यहीं बदलें।"
         },
         {
-          "visual": "command_02_actual_two_epoch_api",
-          "narration": "सहायक को डेटा स्रोत और नया गंतव्य देकर चलाएँ। सीमित CUDA उदाहरण सभी छह जोड़े, दो एपॉक और मिनीबैच एक लेता है। इनपुट लक्ष्य पाँच सौ बारह पिक्सेल है; Cellpose भीतर दो सौ छप्पन पिक्सेल पैच पर प्रशिक्षण करता है। spaCR की अतिरिक्त वृद्धि बंद करने से Cellpose का नॉर्मलाइज़ेशन, रोटेशन और रीसाइज़ बंद नहीं होता।",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
+          "visual": "apply_result",
+          "narration": "Run दबाएँ। Apply उन इमेज के पास एक masks सबफ़ोल्डर में हर इमेज का एक मास्क लिखता है, और Verbose हर परिणाम को चित्र के रूप में दिखाता है। यहाँ तीनों मास्क में छिहत्तर, अड़तालीस और पचपन कोशिकाएँ हैं। किसी मॉडल को पूरे प्रयोग पर इस्तेमाल करने से पहले उसके मास्क की तुलना अलग से लेबल किए गए फ़ील्ड से करें।",
           "hold_after": 0.7,
-          "speech_text": "सहायक को डेटा स्रोत और नया गंतव्य देकर चलाएँ। सीमित CUDA उदाहरण सभी छह जोड़े, दो एपॉक और मिनीबैच एक लेता है। इनपुट लक्ष्य पाँच सौ बारह पिक्सेल है; सेल पोज़ भीतर दो सौ छप्पन पिक्सेल पैच पर प्रशिक्षण करता है। स्पेकर की अतिरिक्त वृद्धि बंद करने से सेल पोज़ का नॉर्मलाइज़ेशन, रोटेशन और रीसाइज़ बंद नहीं होता।"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "पहले वॉर्म-अप एपॉक की लर्निंग रेट शून्य है। दूसरे की छोटी सकारात्मक दर वास्तविक अपडेट देती है। सहेजे चेकपॉइंट को शुरुआती प्रशिक्षण योग्य वज़नों से मिलाने पर तीन सौ सैंतालीस में तीन सौ पैंतालीस पैरामीटर टेंसर बदले। केवल व्यास बदलना जाँच पास नहीं करता। बदले वज़न फिर भी अच्छा मॉडल सिद्ध नहीं करते।",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "पहले वॉर्म-अप एपॉक की लर्निंग रेट शून्य है। दूसरे की छोटी सकारात्मक दर वास्तविक अपडेट देती है। सहेजे चेकपॉइंट को शुरुआती प्रशिक्षण योग्य वज़नों से मिलाने पर तीन सौ सैंतालीस में तीन सौ पैंतालीस पैरामीटर टेंसर बदले। केवल व्यास बदलना जाँच पास नहीं करता। बदले वज़न फिर भी अच्छा मॉडल सिद्ध नहीं करते।"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "ट्रेनिंग लॉस लगभग एक दशमलव चार नौ सात से एक दशमलव पाँच दो दो तक थोड़ा बढ़ा। कोई टेस्ट सेट नहीं दिया गया। शून्य टेस्ट-लॉस स्लॉट प्लेसहोल्डर हैं, पूर्ण प्रदर्शन नहीं। यह छोटा यांत्रिक प्रदर्शन है, कन्वर्जेंस, बेहतर सेगमेंटेशन या स्वतंत्र सटीकता नहीं। स्वतंत्र मूल्यांकन को प्रशिक्षण से अलग रखें।",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "ट्रेनिंग लॉस लगभग एक दशमलव चार नौ सात से एक दशमलव पाँच दो दो तक थोड़ा बढ़ा। कोई टेस्ट सेट नहीं दिया गया। शून्य टेस्ट-लॉस स्लॉट प्लेसहोल्डर हैं, पूर्ण प्रदर्शन नहीं। यह छोटा यांत्रिक प्रदर्शन है, कन्वर्जेंस, बेहतर सेगमेंटेशन या स्वतंत्र सटीकता नहीं। स्वतंत्र मूल्यांकन को प्रशिक्षण से अलग रखें।"
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "जाँची गई फ़ाइल वाला चेकपॉइंट पथ लें। उसमें दूसरा models फ़ोल्डर है, जो सामान्य कंसोल सारांश छोड़ देता है। चेकपॉइंट, सेटिंग, स्रोत मैनिफेस्ट और जाँच साथ रखें। टेंसर सुरक्षित पढ़ना केवल पठनीय फ़ाइल जाँचता है, इन्फ़रेंस नहीं। डाउनलोड में जोड़े और सहायक हैं, प्रमाणित मॉडल नहीं।",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7,
-          "speech_text": "जाँची गई फ़ाइल वाला चेकपॉइंट पथ लें। उसमें दूसरा models फ़ोल्डर है, जो सामान्य कंसोल सारांश छोड़ देता है। चेकपॉइंट, सेटिंग, स्रोत मैनिफेस्ट और जाँच साथ रखें। टेंसर सुरक्षित पढ़ना केवल पठनीय फ़ाइल जाँचता है, इन्फ़रेंस नहीं। डाउनलोड में जोड़े और सहायक हैं, प्रमाणित मॉडल नहीं।"
-        },
-        {
-          "visual": "gui_12_actual_apply_tab_no_inference",
-          "narration": "Apply में अलग स्रोत फ़ोल्डर, कस्टम मॉडल फ़ील्ड और लाइव प्रीव्यू है। टैब खोलना हमारा बाहरी चेकपॉइंट नहीं चुनता और इन्फ़रेंस नहीं चलाता। लिंक का पाठ पढ़कर स्वतंत्र चित्रों पर सत्यापन करें। वैकल्पिक spaCR AI यहाँ इस्तेमाल नहीं हुआ; प्रश्न या प्रदाता उत्तर वास्तविक प्रमाण जाँचने का विकल्प नहीं हैं।",
           "related_lessons": [
             "20_cellpose_masks",
-            "14_make_masks",
-            "06_api"
+            "14_make_masks"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Apply में अलग स्रोत फ़ोल्डर, कस्टम मॉडल फ़ील्ड और लाइव प्रीव्यू है। टैब खोलना हमारा बाहरी चेकपॉइंट नहीं चुनता और इन्फ़रेंस नहीं चलाता। लिंक का पाठ पढ़कर स्वतंत्र चित्रों पर सत्यापन करें। वैकल्पिक स्पेकर AI यहाँ इस्तेमाल नहीं हुआ; प्रश्न या प्रदाता उत्तर वास्तविक प्रमाण जाँचने का विकल्प नहीं हैं।"
+          "focus": [
+            390,
+            500,
+            3410,
+            390
+          ],
+          "speech_text": "Run दबाएँ। Apply उन इमेज के पास एक masks सबफ़ोल्डर में हर इमेज का एक मास्क लिखता है, और Verbose हर परिणाम को चित्र के रूप में दिखाता है। यहाँ तीनों मास्क में छिहत्तर, अड़तालीस और पचपन कोशिकाएँ हैं। किसी मॉडल को पूरे प्रयोग पर इस्तेमाल करने से पहले उसके मास्क की तुलना अलग से लेबल किए गए फ़ील्ड से करें।"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "20_cellpose_masks",
@@ -7610,22 +7650,22 @@
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Illumination: estimate and inspect a correction model",
+      "title": "Illumination: सुधार मॉडल का अनुमान लगाएँ और जाँचें",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
+      "description": "इमेज चैनल चुनें, रोशनी के क्षेत्र का अनुमान लगाएँ, उसका QC चित्र देखें और सहेजा गया मॉडल फिर से इस्तेमाल करें।",
       "objectives": [
-        "Select representative fields and intensity channels.",
-        "Estimate and inspect an illumination model.",
-        "Reuse the model in Mask or Measure."
+        "प्रतिनिधि फ़ील्ड और तीव्रता चैनल चुनें।",
+        "रोशनी मॉडल का अनुमान लगाएँ और उसे जाँचें।",
+        "मॉडल को Mask या Measure में फिर से इस्तेमाल करें।"
       ],
-      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
+      "prerequisite": "ऐसा मिली हुई इमेज का फ़ोल्डर इस्तेमाल करें जिसमें हर अधिग्रहण समूह के प्रतिनिधि फ़ील्ड हों। उदाहरण Measure के डाउनलोड किए गए प्लेट उदाहरण के सोलह फ़ील्ड इस्तेमाल करता है। जानें कि सहेजे गए कौन-से प्लेन में तीव्रता है और किनमें लेबल।",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
+          "narration": "इमेज की असमान चमक के लिए सुधार मॉडल का अनुमान लगाने के लिए Measure खोलें, फिर Illumination।",
           "focus": [
             3625,
             65,
@@ -7635,11 +7675,12 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "इमेज की असमान चमक के लिए सुधार मॉडल का अनुमान लगाने के लिए Measure खोलें, फिर Illumination।"
         },
         {
           "visual": "05_setting_src",
-          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
+          "narration": "Source में इमेज ऐरे वाला merged फ़ोल्डर रखें। अपने अधिग्रहण के प्रतिनिधि फ़ील्ड इस्तेमाल करें; उदाहरण एक प्लेट के सोलह फ़ील्ड इस्तेमाल करता है।",
           "focus": [
             363,
             375,
@@ -7650,121 +7691,132 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Source में इमेज ऐरे वाला merged फ़ोल्डर रखें। अपने अधिग्रहण के प्रतिनिधि फ़ील्ड इस्तेमाल करें; उदाहरण एक प्लेट के सोलह फ़ील्ड इस्तेमाल करता है।"
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
+          "narration": "Channels में वे सहेजे गए तीव्रता प्लेन रखें जिन्हें सुधारना है। उदाहरण चैनल शून्य इस्तेमाल करता है। अपनी चैनल मैपिंग जाँचें और लेबल मास्क वाले प्लेन बाहर रखें।",
           "focus": [
             374,
             475,
             850,
             65
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Channels में वे सहेजे गए तीव्रता प्लेन रखें जिन्हें सुधारना है। उदाहरण चैनल शून्य इस्तेमाल करता है। अपनी चैनल मैपिंग जाँचें और लेबल मास्क वाले प्लेन बाहर रखें।"
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
+          "narration": "क्षेत्र का अनुमान लगाने से पहले Illumination correction चालू करें। इसके बंद रहने पर Run बिना सुधार मॉडल बनाए पूरा हो जाता है।",
           "focus": [
             1518,
             405,
             2280,
             260
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "क्षेत्र का अनुमान लगाने से पहले Illumination correction चालू करें। इसके बंद रहने पर Run बिना सुधार मॉडल बनाए पूरा हो जाता है।"
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
+          "narration": "एक एस्टिमेटर और उसकी सेटिंग चुनें। बहुपद वाले उदाहरण में घात चार रखें और नया क्षेत्र अनुमानित करने के लिए Illumination model खाली छोड़ें। परिणाम में ऐसी संरचनाएँ देखें जो रोशनी के बजाय कोशिकाओं की हों।",
           "focus": [
             363,
             550,
             1140,
             300
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "एक एस्टिमेटर और उसकी सेटिंग चुनें। बहुपद वाले उदाहरण में घात चार रखें और नया क्षेत्र अनुमानित करने के लिए Illumination model खाली छोड़ें। परिणाम में ऐसी संरचनाएँ देखें जो रोशनी के बजाय कोशिकाओं की हों।"
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
+          "narration": "अलग-अलग अधिग्रहण समूहों को अलग से फ़िट करने के लिए Illumination per plate चालू करें। Maximum fields को एक प्रतिनिधि नमूने पर रखें; उदाहरण में उपलब्ध सभी सोलह फ़ील्ड शामिल हैं।",
           "focus": [
             363,
             858,
             1140,
             160
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "अलग-अलग अधिग्रहण समूहों को अलग से फ़िट करने के लिए Illumination per plate चालू करें। Maximum fields को एक प्रतिनिधि नमूने पर रखें; उदाहरण में उपलब्ध सभी सोलह फ़ील्ड शामिल हैं।"
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
+          "narration": "अगर उपलब्ध हो, तो अपने कैमरा कैलिब्रेशन से Illumination dark सेट करें। यह कच्ची गिनती में जोड़ा जाने वाला ऑफ़सेट है; उदाहरण में यह शून्य है।",
           "focus": [
             374,
             775,
             1110,
             61
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "अगर उपलब्ध हो, तो अपने कैमरा कैलिब्रेशन से Illumination dark सेट करें। यह कच्ची गिनती में जोड़ा जाने वाला ऑफ़सेट है; उदाहरण में यह शून्य है।"
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
+          "narration": "Illumination QC चालू करें और छूटे मॉडल के लिए नीति चुनें। error चुनने पर किसी प्लेट का सुधार न मिलने पर प्रोसेसिंग रुक जाती है, ताकि आप उसे ठीक कर सकें।",
           "focus": [
             363,
             1020,
             1140,
             150
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Illumination QC चालू करें और छूटे मॉडल के लिए नीति चुनें। error चुनने पर किसी प्लेट का सुधार न मिलने पर प्रोसेसिंग रुक जाती है, ताकि आप उसे ठीक कर सकें।"
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
+          "narration": "Run दबाएँ और कंसोल में सहेजे गए मॉडल का पथ पढ़ें। यह कदम मॉडल का अनुमान लगाता है; सुधार लागू करने के लिए उसे बाद के विश्लेषण में चालू करें।",
           "focus": [
             1518,
             405,
             2280,
             485
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Run दबाएँ और कंसोल में सहेजे गए मॉडल का पथ पढ़ें। यह कदम मॉडल का अनुमान लगाता है; सुधार लागू करने के लिए उसे बाद के विश्लेषण में चालू करें।"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
+          "narration": "illumination फ़ोल्डर में सहेजी गई रोशनी की QC वाली PNG खोलें। अगर वह Figures पैनल में न दिखे, तो इमेज व्यूअर इस्तेमाल करें।",
           "focus": [
             200,
             100,
             3440,
             1920
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "illumination फ़ोल्डर में सहेजी गई रोशनी की QC वाली PNG खोलें। अगर वह Figures पैनल में न दिखे, तो इमेज व्यूअर इस्तेमाल करें।"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
+          "narration": "अनुमानित रोशनी क्षेत्र में चमक का धीरे-धीरे बदलना और कोशिका जैसी अनचाही संरचनाएँ देखें। सुधार अंधेरे का ऑफ़सेट घटाता है और इस औसत एक वाले क्षेत्र से भाग देता है।",
           "focus": [
             400,
             680,
             790,
             825
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "अनुमानित रोशनी क्षेत्र में चमक का धीरे-धीरे बदलना और कोशिका जैसी अनचाही संरचनाएँ देखें। सुधार अंधेरे का ऑफ़सेट घटाता है और इस औसत एक वाले क्षेत्र से भाग देता है।"
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
+          "narration": "पहले और बाद के रेडियल प्रोफ़ाइल की तुलना करें। फ़िट करने में इस्तेमाल इमेज के अलावा सुधार कितना अच्छा काम करता है, यह आँकने के लिए और फ़ील्ड इस्तेमाल करें।",
           "focus": [
             1270,
             680,
             1080,
             840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "पहले और बाद के रेडियल प्रोफ़ाइल की तुलना करें। फ़िट करने में इस्तेमाल इमेज के अलावा सुधार कितना अच्छा काम करता है, यह आँकने के लिए और फ़ील्ड इस्तेमाल करें।"
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+          "narration": "मॉडल फिर से इस्तेमाल करने के लिए उसका पथ दें और चाहे गए Mask या Measure प्रक्रिया में सुधार चालू करें। उसके चैनल, प्लेट की पहचान और सेटिंग उसके साथ रखें, और एक ही तीव्रता को दो बार सुधारने से बचें।",
           "focus": [
             363,
             370,
@@ -7775,12 +7827,53 @@
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "मॉडल फिर से इस्तेमाल करने के लिए उसका पथ दें और चाहे गए Mask या Measure प्रक्रिया में सुधार चालू करें। उसके चैनल, प्लेट की पहचान और सेटिंग उसके साथ रखें, और एक ही तीव्रता को दो बार सुधारने से बचें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7791,128 +7884,181 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: inspect usage, clean up and archive",
-      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
+      "title": "Data Manager: उपयोग देखें, सफ़ाई करें और संग्रहित करें",
+      "description": "प्रोजेक्ट का स्टोरेज देखें, सफ़ाई योजना का पूर्वावलोकन करें और प्रोजेक्ट को संग्रह गंतव्य पर ले जाएँ।",
       "objectives": [
-        "Inspect project disk usage.",
-        "Review and apply a cleanup plan.",
-        "Move and rescan an archived project."
+        "प्रोजेक्ट का डिस्क उपयोग देखें।",
+        "सफ़ाई योजना जाँचें और लागू करें।",
+        "संग्रहित प्रोजेक्ट ले जाएँ और फिर से स्कैन करें।"
       ],
-      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
+      "prerequisite": "पूरा हो चुका spaCR प्रोजेक्ट इस्तेमाल करें और सफ़ाई से पहले एक स्वतंत्र बैकअप रखें। उदाहरण External Masks से बने प्रोजेक्ट की एक प्रति इस्तेमाल करता है।",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
+          "narration": "Help खोलें, फिर Data manager। स्टोरेज देखने और सफ़ाई या संग्रहण की योजना बनाने के लिए पूरा हो चुका प्रोजेक्ट चुनें।",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "Help खोलें, फिर Data manager। स्टोरेज देखने और सफ़ाई या संग्रहण की योजना बनाने के लिए पूरा हो चुका प्रोजेक्ट चुनें।"
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
+          "narration": "Choose project पर क्लिक करें और प्रोजेक्ट का मूल फ़ोल्डर चुनें। उसकी फ़ाइलों, डिस्क स्थान और पंजीकृत आर्टिफ़ैक्ट के लिए Usage पढ़ें।",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3400,
             570
-          ]
+          ],
+          "speech_text": "Choose project पर क्लिक करें और प्रोजेक्ट का मूल फ़ोल्डर चुनें। उसकी फ़ाइलों, डिस्क स्थान और पंजीकृत आर्टिफ़ैक्ट के लिए Usage पढ़ें।"
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
+          "narration": "Prune खोलें और विचार करने वाले आर्टिफ़ैक्ट प्रकार चुनें। अगर माप डेटाबेस और मॉडल भार रखने हैं, तो उन्हें अचयनित रखें, फिर Show what can be deleted पर क्लिक करें।",
           "hold_after": 0.7,
           "focus": [
             345,
             245,
             3470,
             230
-          ]
+          ],
+          "speech_text": "Prune खोलें और विचार करने वाले आर्टिफ़ैक्ट प्रकार चुनें। अगर माप डेटाबेस और मॉडल भार रखने हैं, तो उन्हें अचयनित रखें, फिर Show what can be deleted पर क्लिक करें।"
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
+          "narration": "प्रस्तावित फ़ाइलें, बचने वाली जगह और पुनर्प्राप्ति की जानकारी देखें। उदाहरण वस्तु क्रॉप वाला फ़ोल्डर चुनता है। जो भी हटाएँ, उसे फिर से बनाने के लिए ज़रूरी इनपुट और सेटिंग रखें।",
           "hold_after": 0.7,
           "focus": [
             345,
             320,
             3450,
             160
-          ]
+          ],
+          "speech_text": "प्रस्तावित फ़ाइलें, बचने वाली जगह और पुनर्प्राप्ति की जानकारी देखें। उदाहरण वस्तु क्रॉप वाला फ़ोल्डर चुनता है। जो भी हटाएँ, उसे फिर से बनाने के लिए ज़रूरी इनपुट और सेटिंग रखें।"
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
-          "hold_after": 0.7
+          "narration": "अंतिम फ़ाइल सूची देखने के लिए Delete पर क्लिक करें। हटाना वापस नहीं हो सकता, इसलिए योजना स्वीकार करने से पहले पथ और अपना बैकअप जाँचें।",
+          "hold_after": 0.7,
+          "speech_text": "अंतिम फ़ाइल सूची देखने के लिए Delete पर क्लिक करें। हटाना वापस नहीं हो सकता, इसलिए योजना स्वीकार करने से पहले पथ और अपना बैकअप जाँचें।"
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
-          "hold_after": 0.7
+          "narration": "अगर फ़ाइलें रखनी हैं या चयन बदलना है, तो Cancel इस्तेमाल करें। सूची स्वीकार करने पर अंतिम Delete क्रिया चालू होती है।",
+          "hold_after": 0.7,
+          "speech_text": "अगर फ़ाइलें रखनी हैं या चयन बदलना है, तो Cancel इस्तेमाल करें। सूची स्वीकार करने पर अंतिम Delete क्रिया चालू होती है।"
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
+          "narration": "योजना सही होने पर Delete की पुष्टि करें। परिणाम में हटाई गई फ़ाइलों की संख्या और वापस मिली जगह पढ़ें।",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             2500,
             240
-          ]
+          ],
+          "speech_text": "योजना सही होने पर Delete की पुष्टि करें। परिणाम में हटाई गई फ़ाइलों की संख्या और वापस मिली जगह पढ़ें।"
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
+          "narration": "अपडेट हुआ Usage स्कैन देखें। हटाए गए आर्टिफ़ैक्ट अपनी दर्ज विधि के साथ अनुपस्थित के रूप में सूचीबद्ध रह सकते हैं; ज़रूरत हो तो उन्हें उपयुक्त मॉड्यूल से फिर से बनाएँ।",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             580
-          ]
+          ],
+          "speech_text": "अपडेट हुआ Usage स्कैन देखें। हटाए गए आर्टिफ़ैक्ट अपनी दर्ज विधि के साथ अनुपस्थित के रूप में सूचीबद्ध रह सकते हैं; ज़रूरत हो तो उन्हें उपयुक्त मॉड्यूल से फिर से बनाएँ।"
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
-          "hold_after": 0.7
+          "narration": "Archive खोलें और स्रोत प्रोजेक्ट से बाहर एक खाली गंतव्य चुनें। Show what would move पर क्लिक करें और दोनों पथ जाँचें।",
+          "hold_after": 0.7,
+          "speech_text": "Archive खोलें और स्रोत प्रोजेक्ट से बाहर एक खाली गंतव्य चुनें। Show what would move पर क्लिक करें और दोनों पथ जाँचें।"
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
-          "hold_after": 0.7
+          "narration": "पुष्टि देखने के लिए Move पर क्लिक करें। Archive प्रोजेक्ट को ले जाता है, इसलिए आगे बढ़ने से पहले जो भी अलग बैकअप चाहिए, रखें।",
+          "hold_after": 0.7,
+          "speech_text": "पुष्टि देखने के लिए Move पर क्लिक करें। Archive प्रोजेक्ट को ले जाता है, इसलिए आगे बढ़ने से पहले जो भी अलग बैकअप चाहिए, रखें।"
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
-          "hold_after": 0.7
+          "narration": "प्रोजेक्ट ले जाने के लिए Yes की पुष्टि करें। गंतव्य पर मैनिफ़ेस्ट और मूल स्थान पर छोड़ा गया संग्रह लॉग रखें।",
+          "hold_after": 0.7,
+          "speech_text": "प्रोजेक्ट ले जाने के लिए Yes की पुष्टि करें। गंतव्य पर मैनिफ़ेस्ट और मूल स्थान पर छोड़ा गया संग्रह लॉग रखें।"
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
+          "narration": "गंतव्य को प्रोजेक्ट के रूप में चुनें और फिर से स्कैन करें। ले जाई गई फ़ाइलें जाँचें और पुराने स्थान की ओर इशारा करने वाले बाहरी संदर्भ अपडेट करें।",
           "hold_after": 0.7,
           "focus": [
             345,
             80,
             3470,
             670
-          ]
+          ],
+          "speech_text": "गंतव्य को प्रोजेक्ट के रूप में चुनें और फिर से स्कैन करें। ले जाई गई फ़ाइलें जाँचें और पुराने स्थान की ओर इशारा करने वाले बाहरी संदर्भ अपडेट करें।"
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
+          "narration": "माप तालिकाएँ देखने के लिए Database Browser, प्रोजेक्ट सारांश के लिए Report और स्टोरेज रखरखाव के लिए Data Manager इस्तेमाल करें। संग्रह के रिकॉर्ड अपने प्रोजेक्ट दस्तावेज़ों के साथ रखें।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "34_database",
             "29_report"
-          ]
+          ],
+          "speech_text": "माप तालिकाएँ देखने के लिए Database Browser, प्रोजेक्ट सारांश के लिए Report और स्टोरेज रखरखाव के लिए Data Manager इस्तेमाल करें। संग्रह के रिकॉर्ड अपने प्रोजेक्ट दस्तावेज़ों के साथ रखें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7923,49 +8069,52 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: find and inspect projects",
-      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
+      "title": "Project Browser: प्रोजेक्ट खोजें और देखें",
+      "description": "प्रोजेक्ट फ़ोल्डर खोजें, दर्ज चरण देखें, और खोलने के लिए अगला टूल पहचानें।",
       "objectives": [
-        "Discover projects using roots and search depth.",
-        "Inspect artifacts and recorded stages.",
-        "Choose the next relevant tool."
+        "खोज रूट और गहराई से प्रोजेक्ट खोजें।",
+        "आर्टिफ़ैक्ट और दर्ज चरण देखें।",
+        "अगला उपयुक्त टूल चुनें।"
       ],
-      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
+      "prerequisite": "अपने spaCR प्रोजेक्ट वाले फ़ोल्डर चुनें। अभ्यास के लिए External Masks और Format Converter के पूरे उदाहरण इस्तेमाल किए जा सकते हैं।",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
+          "narration": "प्रोजेक्ट फ़ोल्डर खोजने और उनके दर्ज आउटपुट देखने के लिए Help खोलें, फिर Project browser।",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "37_batch"
-          ]
+          ],
+          "speech_text": "प्रोजेक्ट फ़ोल्डर खोजने और उनके दर्ज आउटपुट देखने के लिए Help खोलें, फिर Project browser।"
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
+          "narration": "Add folder पर क्लिक करें और एक खोज रूट चुनें। गहराई शून्य केवल उसी फ़ोल्डर को जाँचती है; जब प्रोजेक्ट सबफ़ोल्डरों में हों, तो गहराई बढ़ाएँ।",
           "hold_after": 0.7,
           "focus": [
             345,
             170,
             3450,
             360
-          ]
+          ],
+          "speech_text": "Add folder पर क्लिक करें और एक खोज रूट चुनें। गहराई शून्य केवल उसी फ़ोल्डर को जाँचती है; जब प्रोजेक्ट सबफ़ोल्डरों में हों, तो गहराई बढ़ाएँ।"
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
+          "narration": "रूट के ठीक नीचे के फ़ोल्डर शामिल करने के लिए Depth को एक पर रखें और Scan पर क्लिक करें। बनी हुई प्रोजेक्ट पंक्तियाँ देखें।",
           "hold_after": 0.7,
           "focus": [
             345,
             180,
             3450,
             660
-          ]
+          ],
+          "speech_text": "रूट के ठीक नीचे के फ़ोल्डर शामिल करने के लिए Depth को एक पर रखें और Scan पर क्लिक करें। बनी हुई प्रोजेक्ट पंक्तियाँ देखें।"
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
+          "narration": "डिस्क पर मिली फ़ाइलों के साथ State और Stage पढ़ें। बिना आर्टिफ़ैक्ट रजिस्ट्री वाला फ़ोल्डर रूपांतरित इमेज होने पर भी unknown दिखा सकता है।",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7976,33 +8125,36 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ]
+          ],
+          "speech_text": "डिस्क पर मिली फ़ाइलों के साथ State और Stage पढ़ें। बिना आर्टिफ़ैक्ट रजिस्ट्री वाला फ़ोल्डर रूपांतरित इमेज होने पर भी unknown दिखा सकता है।"
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
+          "narration": "दूसरे प्रोजेक्ट शामिल करने के लिए और खोज रूट जोड़ें। किसी पंक्ति को देखने के लिए उसे चुनें; अगर फिर से स्कैन करने के बाद विवरण खाली हो, तो कोई दूसरी पंक्ति चुनकर वापस आएँ।",
           "hold_after": 0.7,
           "focus": [
             345,
             225,
             3450,
             260
-          ]
+          ],
+          "speech_text": "दूसरे प्रोजेक्ट शामिल करने के लिए और खोज रूट जोड़ें। किसी पंक्ति को देखने के लिए उसे चुनें; अगर फिर से स्कैन करने के बाद विवरण खाली हो, तो कोई दूसरी पंक्ति चुनकर वापस आएँ।"
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
+          "narration": "विवरण चौड़ा करने के लिए डिवाइडर खींचें। दर्ज आर्टिफ़ैक्ट, अपंजीकृत फ़ाइलें और पिछले रन के समय-चिह्न का स्रोत देखें।",
           "hold_after": 0.7,
           "focus": [
             2020,
             300,
             1790,
             260
-          ]
+          ],
+          "speech_text": "विवरण चौड़ा करने के लिए डिवाइडर खींचें। दर्ज आर्टिफ़ैक्ट, अपंजीकृत फ़ाइलें और पिछले रन के समय-चिह्न का स्रोत देखें।"
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
+          "narration": "कौन-से अपेक्षित आउटपुट मौजूद हैं, यह देखने के लिए Stages खोलें। उपयुक्त प्रक्रिया चुनने के लिए What could run next इस्तेमाल करें, फिर उस मॉड्यूल के ज़रूरी इनपुट जाँचें।",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -8012,50 +8164,95 @@
           ],
           "related_lessons": [
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "कौन-से अपेक्षित आउटपुट मौजूद हैं, यह देखने के लिए Stages खोलें। उपयुक्त प्रक्रिया चुनने के लिए What could run next इस्तेमाल करें, फिर उस मॉड्यूल के ज़रूरी इनपुट जाँचें।"
         },
         {
           "visual": "12_size_descending",
-          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
+          "narration": "प्रोजेक्टों को क्रम में लगाने के लिए Size जैसे किसी कॉलम शीर्षक पर क्लिक करें। क्रम उलटने के लिए फिर से क्लिक करें।",
           "hold_after": 0.7,
           "focus": [
             345,
             300,
             1680,
             170
-          ]
+          ],
+          "speech_text": "प्रोजेक्टों को क्रम में लगाने के लिए Size जैसे किसी कॉलम शीर्षक पर क्लिक करें। क्रम उलटने के लिए फिर से क्लिक करें।"
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
+          "narration": "जब संकरी या चौड़ी खोज चाहिए, तो Depth बदलें और फिर से स्कैन करें। सीधे चुना गया प्रोजेक्ट गहराई शून्य पर भी मिल जाता है।",
           "hold_after": 0.7,
           "focus": [
             345,
             175,
             3450,
             340
-          ]
+          ],
+          "speech_text": "जब संकरी या चौड़ी खोज चाहिए, तो Depth बदलें और फिर से स्कैन करें। सीधे चुना गया प्रोजेक्ट गहराई शून्य पर भी मिल जाता है।"
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
-          "hold_after": 0.7
+          "narration": "किसी रूट में खोजना बंद करने के लिए उसे चुनें और Remove पर क्लिक करें। इससे खोज का स्थान सूची से हट जाता है, पर उसकी फ़ाइलें डिस्क पर रहती हैं।",
+          "hold_after": 0.7,
+          "speech_text": "किसी रूट में खोजना बंद करने के लिए उसे चुनें और Remove पर क्लिक करें। इससे खोज का स्थान सूची से हट जाता है, पर उसकी फ़ाइलें डिस्क पर रहती हैं।"
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
+          "narration": "काम के रिकॉर्ड के लिए Run History, माप के लिए Database Browser, या सफ़ाई और संग्रहण के लिए Data Manager खोलें। विश्लेषण जारी रखने के लिए संबंधित मॉड्यूल का ट्यूटोरियल इस्तेमाल करें।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "34_database",
             "44_data_manager"
-          ]
+          ],
+          "speech_text": "काम के रिकॉर्ड के लिए Run History, माप के लिए Database Browser, या सफ़ाई और संग्रहण के लिए Data Manager खोलें। विश्लेषण जारी रखने के लिए संबंधित मॉड्यूल का ट्यूटोरियल इस्तेमाल करें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8063,25 +8260,25 @@
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: edit and return a label mask",
+      "title": "Napari Bridge: लेबल मास्क संपादित करें और वापस लाएँ",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "description": "napari में इमेज और मास्क खोलें, लेबल संपादित करें और सुधारा गया मास्क spaCR में वापस सहेजें।",
       "objectives": [
-        "Open corresponding image and label files.",
-        "Edit and undo changes in napari.",
-        "Return and inspect the saved mask."
+        "संबंधित इमेज और लेबल फ़ाइलें खोलें।",
+        "napari में बदलाव करें और उन्हें पूर्ववत करें।",
+        "सहेजा गया मास्क वापस लाएँ और देखें।"
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "prerequisite": "napari की वैकल्पिक निर्भरता इंस्टॉल करें और कृत्रिम उदाहरण को एक नए फ़ोल्डर में अनज़िप करें। एक अछूता बैकअप रखें: Take the mask back चुने गए कार्यशील मास्क को बदल देता है। सहेजे गए संपादन दौरों के बीच व्यूअर बंद करके फिर खोलें।",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+          "narration": "Make Masks खोलें, फिर Napari Bridge। इससे किसी मौजूदा लेबल मास्क को उसकी तीव्रता इमेज को संदर्भ मानकर संपादित करें। मास्क का एक अछूता बैकअप रखें।",
           "focus": [
             460,
             235,
@@ -8091,70 +8288,78 @@
           "related_lessons": [
             "14_make_masks"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Make Masks खोलें, फिर Napari Bridge। इससे किसी मौजूदा लेबल मास्क को उसकी तीव्रता इमेज को संदर्भ मानकर संपादित करें। मास्क का एक अछूता बैकअप रखें।"
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+          "narration": "कृत्रिम उदाहरण डाउनलोड करके अनज़िप करें। Mask के लिए mask डॉट tif और Image के लिए image डॉट tif चुनें, फिर Open in napari दबाएँ।",
           "focus": [
             460,
             365,
             3350,
             370
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "कृत्रिम उदाहरण डाउनलोड करके अनज़िप करें। Mask के लिए mask डॉट tif और Image के लिए image डॉट tif चुनें, फिर Open in napari दबाएँ।"
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
-          "hold_after": 0.7
+          "narration": "napari में मास्क की Labels परत चुनें। लेबल शून्य पृष्ठभूमि है; हर वस्तु लेबल का एक प्रदर्शन रंग है। संपादन लेबल परत पर करें।",
+          "hold_after": 0.7,
+          "speech_text": "napari में मास्क की Labels परत चुनें। लेबल शून्य पृष्ठभूमि है; हर वस्तु लेबल का एक प्रदर्शन रंग है। संपादन लेबल परत पर करें।"
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+          "narration": "spaCR पर लौटें और व्यूअर के मौजूदा लेबल इंपोर्ट करने के लिए Take the mask back इस्तेमाल करें। अगर आपने कोई बदलाव नहीं किया, तो स्थिति बताती है कि मास्क नहीं बदला।",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "स्पेकर पर लौटें और व्यूअर के मौजूदा लेबल इंपोर्ट करने के लिए Take the mask back इस्तेमाल करें। अगर आपने कोई बदलाव नहीं किया, तो स्थिति बताती है कि मास्क नहीं बदला।"
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
-          "hold_after": 0.7
+          "narration": "अभ्यास के लिए लेबल अठारह चुनें, Fill चुनें, और लेबल दो वाली वस्तु पर क्लिक करें। इंपोर्ट करने से पहले बदला हुआ लेबल देखें।",
+          "hold_after": 0.7,
+          "speech_text": "अभ्यास के लिए लेबल अठारह चुनें, Fill चुनें, और लेबल दो वाली वस्तु पर क्लिक करें। इंपोर्ट करने से पहले बदला हुआ लेबल देखें।"
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
-          "hold_after": 0.7
+          "narration": "व्यूअर का आख़िरी संपादन पलटने के लिए Undo इस्तेमाल करें। जब बदलाव रखना हो, तो Fill फिर से करें।",
+          "hold_after": 0.7,
+          "speech_text": "व्यूअर का आख़िरी संपादन पलटने के लिए Undo इस्तेमाल करें। जब बदलाव रखना हो, तो Fill फिर से करें।"
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+          "narration": "spaCR में Take the mask back पर क्लिक करें। बदले गए पिक्सेल की गिनती देखें, फिर सहेजा गया मास्क और उसकी सुधार इतिहास वाली सहायक फ़ाइल देखें।",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "स्पेकर में Take the mask back पर क्लिक करें। बदले गए पिक्सेल की गिनती देखें, फिर सहेजा गया मास्क और उसकी सुधार इतिहास वाली सहायक फ़ाइल देखें।"
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+          "narration": "अगले संपादन दौर से पहले Close viewer पर क्लिक करें और मास्क फिर से खोलें। इससे सहेजा गया मास्क आगे के सुधारों का आरंभ बनता है।",
           "focus": [
             460,
             445,
             3350,
             295
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "अगले संपादन दौर से पहले Close viewer पर क्लिक करें और मास्क फिर से खोलें। इससे सहेजा गया मास्क आगे के सुधारों का आरंभ बनता है।"
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+          "narration": "अगले संपादन के बाद मास्क वापस लाएँ और परिणाम फिर से देखें। काम पूरा होने पर व्यूअर बंद करें, सुधार इतिहास रखें, और बदले गए लेबल से प्रभावित माप फिर से चलाएँ।",
           "focus": [
             460,
             445,
@@ -8165,12 +8370,53 @@
             "08_measure",
             "06_api"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "अगले संपादन के बाद मास्क वापस लाएँ और परिणाम फिर से देखें। काम पूरा होने पर व्यूअर बंद करें, सुधार इतिहास रखें, और बदले गए लेबल से प्रभावित माप फिर से चलाएँ।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8178,86 +8424,137 @@
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "title": "Barcode QC: रीड गहराई देखें और कटऑफ़ चुनें",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "description": "मैप की गई गिनती लोड करें, वेल और गाइड का कवरेज देखें, और मात्रा की सीमाओं की तुलना करें।",
       "objectives": [
-        "Choose count inputs and QC settings.",
-        "Inspect coverage and positional effects.",
-        "Compare thresholds and keep the resulting tables and plots."
+        "गिनती वाले इनपुट और गुणवत्ता जाँच सेटिंग चुनें।",
+        "कवरेज और स्थिति के असर देखें।",
+        "सीमाओं की तुलना करें और बनी तालिकाएँ और प्लॉट रखें।"
       ],
-      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "prerequisite": "Regression ट्यूटोरियल में डाउनलोड किए गए उदाहरण स्क्रीन डेटा की plate_1_unique_combinations.csv, या अपनी मैप की गई गिनती तालिका इस्तेमाल करें। एक नया आउटपुट फ़ोल्डर चुनें। जब बिना मैप हुई रीड या अपेक्षित लाइब्रेरी पर निर्भर जाँच चाहिए, तो मैपिंग QC और बारकोड संदर्भ फ़ाइलें दें।",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+          "narration": "Map Barcodes खोलें, फिर Barcode QC। मैप की गई गिनती तालिका से शुरू करें; जुड़ा हुआ Regression उदाहरण अभ्यास के लिए एक तालिका देता है।",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Map Barcodes खोलें, फिर Barcode QC। मैप की गई गिनती तालिका से शुरू करें; जुड़ा हुआ Regression उदाहरण अभ्यास के लिए एक तालिका देता है।"
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
-          "hold_after": 0.7
+          "narration": "Count data में अपनी गिनती तालिका रखें और एक नया आउटपुट गंतव्य चुनें। उदाहरण में तीन सौ चौरासी वेल में मैप की गई रीड हैं।",
+          "hold_after": 0.7,
+          "speech_text": "Count data में अपनी गिनती तालिका रखें और एक नया आउटपुट गंतव्य चुनें। उदाहरण में तीन सौ चौरासी वेल में मैप की गई रीड हैं।"
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
-          "hold_after": 0.7
+          "narration": "अपने प्रयोग के डिज़ाइन के अनुसार Target gRNAs per well सेट करें और कटऑफ़ निकालने की सारांश विधि चुनें। उदाहरण पाँच और median इस्तेमाल करता है।",
+          "hold_after": 0.7,
+          "speech_text": "अपने प्रयोग के डिज़ाइन के अनुसार Target gRNAs per well सेट करें और कटऑफ़ निकालने की सारांश विधि चुनें। उदाहरण पाँच और median इस्तेमाल करता है।"
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
-          "hold_after": 0.7
+          "narration": "प्लेट की माध्यिका की तुलना में कम रीड वाले वेल चिह्नित करने के लिए Starved read fraction सेट करें। उदाहरण शून्य दशमलव एक इस्तेमाल करता है। चिह्नित वेल हटाने से पहले उन्हें देखें।",
+          "hold_after": 0.7,
+          "speech_text": "प्लेट की माध्यिका की तुलना में कम रीड वाले वेल चिह्नित करने के लिए Starved read fraction सेट करें। उदाहरण शून्य दशमलव एक इस्तेमाल करता है। चिह्नित वेल हटाने से पहले उन्हें देखें।"
         },
         {
           "visual": "05_09_plot",
-          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
-          "hold_after": 0.7
+          "narration": "Plot और Save चालू करें, फिर Run दबाएँ। जब उनकी संबंधित जाँच चाहिए, तो मैपिंग QC या संदर्भ इनपुट जोड़ें; अकेली गिनती तालिका केवल देखी गई मैप की गई रीड बताती है।",
+          "hold_after": 0.7,
+          "speech_text": "Plot और Save चालू करें, फिर Run दबाएँ। जब उनकी संबंधित जाँच चाहिए, तो मैपिंग QC या संदर्भ इनपुट जोड़ें; अकेली गिनती तालिका केवल देखी गई मैप की गई रीड बताती है।"
         },
         {
           "visual": "07_finished_console",
-          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
-          "hold_after": 0.7
+          "narration": "पूरा होने का लॉग और सहेजे गए आउटपुट पथ पढ़ें। परिणाम इस्तेमाल करने से पहले त्रुटियों की जाँच चुने गए इनपुट के संदर्भ में करें।",
+          "hold_after": 0.7,
+          "speech_text": "पूरा होने का लॉग और सहेजे गए आउटपुट पथ पढ़ें। परिणाम इस्तेमाल करने से पहले त्रुटियों की जाँच चुने गए इनपुट के संदर्भ में करें।"
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
-          "hold_after": 0.7
+          "narration": "आउटपुट फ़ोल्डर से barcode QC डॉट PNG और threshold sweep डॉट PNG खोलें। अगर Figures पैनल खाली हो, तो इमेज व्यूअर इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "आउटपुट फ़ोल्डर से barcode QC डॉट PNG और threshold sweep डॉट PNG खोलें। अगर Figures पैनल खाली हो, तो इमेज व्यूअर इस्तेमाल करें।"
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
-          "hold_after": 0.7
+          "narration": "रीड गहराई, पंक्ति और कॉलम के असर, और गाइड का प्रतिनिधित्व देखें। जब पूरी तरह गायब अपेक्षित गाइड पहचानने हों, तो संदर्भ लाइब्रेरी से तुलना करें।",
+          "hold_after": 0.7,
+          "speech_text": "रीड गहराई, पंक्ति और कॉलम के असर, और गाइड का प्रतिनिधित्व देखें। जब पूरी तरह गायब अपेक्षित गाइड पहचानने हों, तो संदर्भ लाइब्रेरी से तुलना करें।"
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
-          "hold_after": 0.7
+          "narration": "सीमा स्वीप देखें। इस उदाहरण में हर वेल की रीड के लगभग एक दशमलव दो एक प्रतिशत की कटऑफ़ से गाइड की माध्यिका पाँच होती है, और मैप की गई लगभग अट्ठावन प्रतिशत रीड बनी रहती हैं।",
+          "hold_after": 0.7,
+          "speech_text": "सीमा स्वीप देखें। इस उदाहरण में हर वेल की रीड के लगभग एक दशमलव दो एक प्रतिशत की कटऑफ़ से गाइड की माध्यिका पाँच होती है, और मैप की गई लगभग अट्ठावन प्रतिशत रीड बनी रहती हैं।"
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
-          "hold_after": 0.7
+          "narration": "कटऑफ़ बदलने पर बची रीड, बचे वेल और गाइड लक्ष्य से ऊपर वाले वेल की तुलना करें। अपने डिज़ाइन के अनुकूल कटऑफ़ चुनें; गाइड लक्ष्य से यह तय नहीं होता कि परिणाम एक ही गाइड का है।",
+          "hold_after": 0.7,
+          "speech_text": "कटऑफ़ बदलने पर बची रीड, बचे वेल और गाइड लक्ष्य से ऊपर वाले वेल की तुलना करें। अपने डिज़ाइन के अनुकूल कटऑफ़ चुनें; गाइड लक्ष्य से यह तय नहीं होता कि परिणाम एक ही गाइड का है।"
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+          "narration": "सुझाव, स्वीप तालिका, प्लॉट और सेटिंग को स्रोत गिनती के साथ रखें। चुनी गई कटऑफ़ को आगे के विश्लेषण में एक जैसा इस्तेमाल करें और चुनाव का कारण दर्ज करें।",
           "related_lessons": [
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "सुझाव, स्वीप तालिका, प्लॉट और सेटिंग को स्रोत गिनती के साथ रखें। चुनी गई कटऑफ़ को आगे के विश्लेषण में एक जैसा इस्तेमाल करें और चुनाव का कारण दर्ज करें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8265,7 +8562,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: filter candidates and export a shortlist",
+      "title": "Hit List: उम्मीदवार छाँटें और छोटी सूची निर्यात करें",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -8273,80 +8570,131 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
+      "description": "Regression के परिणाम लोड करें, q-मान, गाइड संख्या और सहमति से छाँटें, फिर चुने गए उम्मीदवार निर्यात करें।",
       "objectives": [
-        "Open the example Regression results with the supplied companion.",
-        "Filter candidates and read their effects and guide agreement.",
-        "Export the selected rows as CSV, Markdown or HTML."
+        "दी गई सहायक स्क्रिप्ट से उदाहरण Regression परिणाम खोलें।",
+        "उम्मीदवार छाँटें और उनके प्रभाव तथा गाइड सहमति पढ़ें।",
+        "चुनी गई पंक्तियाँ CSV, Markdown या HTML के रूप में निर्यात करें।"
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+      "prerequisite": "Hit_List_real_results_companion.zip निकालें और अपना spaCR वातावरण सक्रिय करें। Regression का मौजूदा Hits शॉर्टकट पैनल नहीं दिखाता; इसके बजाय python hit_list_companion.py चलाएँ और Browse से निकाले गए परिणाम फ़ोल्डर पर जाएँ। सहायक स्क्रिप्ट Investigate से नहीं जुड़ती। समर्थन वाले वेल की गिनती के लिए results_gene.csv का wells_with_gene इस्तेमाल करें: निर्यात किया गया n_obs=0 असली समर्थन नहीं है। उदाहरण में कोई जीन q <= 0.05 को पूरा नहीं करता।",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
+          "narration": "Home से Regression खोलें और Hits चुनें। अगर पैनल छिपा रहे, तो Hit List खोलने के लिए इस पाठ के साथ दी गई सहायक स्क्रिप्ट इस्तेमाल करें।",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Home से Regression खोलें और Hits चुनें। अगर पैनल छिपा रहे, तो Hit List खोलने के लिए इस पाठ के साथ दी गई सहायक स्क्रिप्ट इस्तेमाल करें।"
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
-          "hold_after": 0.7
+          "narration": "जुड़ा हुआ उदाहरण निकालें और अपना spaCR वातावरण सक्रिय करें। python hit_list_companion.py चलाएँ। सहायक विंडो में Browse पर क्लिक करें और निकाला गया परिणाम फ़ोल्डर चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "जुड़ा हुआ उदाहरण निकालें और अपना स्पेकर वातावरण सक्रिय करें। python hit_list_companion.py चलाएँ। सहायक विंडो में Browse पर क्लिक करें और निकाला गया परिणाम फ़ोल्डर चुनें।"
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
-          "hold_after": 0.7
+          "narration": "उदाहरण तीन सौ पच्चीस जीन लोड करता है। प्रभाव, P, q और गाइड सहमति पढ़ने के लिए कॉलम चौड़े करें। प्रभाव मानकीकृत सीमांत प्रभाव हैं। समर्थन वाले वेल की गिनती के लिए results_gene.csv में wells_with_gene पढ़ें; निर्यात में अवलोकन गिनती शून्य का मतलब है कि समर्थन उपलब्ध नहीं है।",
+          "hold_after": 0.7,
+          "speech_text": "उदाहरण तीन सौ पच्चीस जीन लोड करता है। प्रभाव, P, q और गाइड सहमति पढ़ने के लिए कॉलम चौड़े करें। प्रभाव मानकीकृत सीमांत प्रभाव हैं। समर्थन वाले वेल की गिनती के लिए results_gene.csv में wells_with_gene पढ़ें; निर्यात में अवलोकन गिनती शून्य का मतलब है कि समर्थन उपलब्ध नहीं है।"
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
-          "hold_after": 0.7
+          "narration": "Max q को शून्य दशमलव शून्य पाँच पर रखें। इस उदाहरण में कोई जीन इसे पार नहीं करता, इसलिए तालिका खाली हो जाती है। सभी उम्मीदवार देखने के लिए Max q को फिर से एक पर रखें।",
+          "hold_after": 0.7,
+          "speech_text": "Max q को शून्य दशमलव शून्य पाँच पर रखें। इस उदाहरण में कोई जीन इसे पार नहीं करता, इसलिए तालिका खाली हो जाती है। सभी उम्मीदवार देखने के लिए Max q को फिर से एक पर रखें।"
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
-          "hold_after": 0.7
+          "narration": "Minimum guides को दो पर रखें। कम से कम दो जाँची गई गाइड पंक्तियों वाले एक सौ सत्रह जीन बचते हैं। यह फ़िल्टर मूल q-मान बनाए रखता है।",
+          "hold_after": 0.7,
+          "speech_text": "Minimum guides को दो पर रखें। कम से कम दो जाँची गई गाइड पंक्तियों वाले एक सौ सत्रह जीन बचते हैं। यह फ़िल्टर मूल q-मान बनाए रखता है।"
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
-          "hold_after": 0.7
+          "narration": "Minimum agreement को एक पर रखें। सत्तावन उम्मीदवार बचते हैं जिनकी सभी जाँची गई गाइड जीन प्रभाव का चिह्न साझा करती हैं। सहमति को q के साथ पढ़ें: ये उम्मीदवार अब भी सार्थकता की सीमा पार नहीं करते।",
+          "hold_after": 0.7,
+          "speech_text": "Minimum agreement को एक पर रखें। सत्तावन उम्मीदवार बचते हैं जिनकी सभी जाँची गई गाइड जीन प्रभाव का चिह्न साझा करती हैं। सहमति को q के साथ पढ़ें: ये उम्मीदवार अब भी सार्थकता की सीमा पार नहीं करते।"
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
-          "hold_after": 0.7
+          "narration": "इस दृश्य से नियंत्रण पंक्ति हटाने के लिए Hide controls चालू करें, जिससे छप्पन उम्मीदवार बचते हैं। बाद के निर्यात में वह पंक्ति शामिल करने के लिए इसे फिर बंद करें।",
+          "hold_after": 0.7,
+          "speech_text": "इस दृश्य से नियंत्रण पंक्ति हटाने के लिए Hide controls चालू करें, जिससे छप्पन उम्मीदवार बचते हैं। बाद के निर्यात में वह पंक्ति शामिल करने के लिए इसे फिर बंद करें।"
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
-          "hold_after": 0.7
+          "narration": "दूसरे फ़िल्टर हटाएँ, Direction up चुनें और Minimum absolute effect को शून्य दशमलव एक पर रखें। सोलह पंक्तियाँ बचती हैं। अपने विश्लेषण के लिए सीमाएँ चुनें, फिर अगले कदम से पहले इन नियंत्रणों को पहले जैसा करें।",
+          "hold_after": 0.7,
+          "speech_text": "दूसरे फ़िल्टर हटाएँ, Direction up चुनें और Minimum absolute effect को शून्य दशमलव एक पर रखें। सोलह पंक्तियाँ बचती हैं। अपने विश्लेषण के लिए सीमाएँ चुनें, फिर अगले कदम से पहले इन नियंत्रणों को पहले जैसा करें।"
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
-          "hold_after": 0.7
+          "narration": "किसी पहचानकर्ता की पंक्ति खोजने के लिए उसे Search में लिखें। मेल न खाने वाली खोज तालिका खाली कर देती है। मौजूदा छँटी हुई सूची वापस लाने के लिए Search साफ़ करें।",
+          "hold_after": 0.7,
+          "speech_text": "किसी पहचानकर्ता की पंक्ति खोजने के लिए उसे Search में लिखें। मेल न खाने वाली खोज तालिका खाली कर देती है। मौजूदा छँटी हुई सूची वापस लाने के लिए Search साफ़ करें।"
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
-          "hold_after": 0.7
+          "narration": "निर्यात के लिए दो गाइड, पूरी सहमति, नियंत्रण शामिल और खाली खोज रखें। चुनी गई सत्तावन पंक्तियाँ CSV, Markdown या HTML के रूप में निर्यात करें। CSV संख्यात्मक विवरण बनाए रखती है। फ़िल्टर के विकल्प अपनी फ़ाइलों के साथ सहेजें।",
+          "hold_after": 0.7,
+          "speech_text": "निर्यात के लिए दो गाइड, पूरी सहमति, नियंत्रण शामिल और खाली खोज रखें। चुनी गई सत्तावन पंक्तियाँ CSV, Markdown या HTML के रूप में निर्यात करें। CSV संख्यात्मक विवरण बनाए रखती है। फ़िल्टर के विकल्प अपनी फ़ाइलों के साथ सहेजें।"
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
+          "narration": "सभी तीन सौ पच्चीस जीन पर लौटने के लिए फ़िल्टर हटाएँ। छोटी सूची के निर्यात मूल परिणामों से अलग रखें। Python में build_hit_list, फिर filter और CSV, Markdown या HTML लिखने वाले फ़ंक्शन इस्तेमाल करें; हर फ़ॉर्मेट की पंक्ति सीमा जाँचें।",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "सभी तीन सौ पच्चीस जीन पर लौटने के लिए फ़िल्टर हटाएँ। छोटी सूची के निर्यात मूल परिणामों से अलग रखें। Python में build_hit_list, फिर filter और CSV, Markdown या HTML लिखने वाले फ़ंक्शन इस्तेमाल करें; हर फ़ॉर्मेट की पंक्ति सीमा जाँचें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8354,95 +8702,103 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: draft and export a run report",
+      "title": "Methods & Results: रन रिपोर्ट का मसौदा बनाएँ और निर्यात करें",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
+      "description": "पूरा हुआ रन चुनें, उसकी रिपोर्ट बनाएँ, दर्ज सेटिंग और परिणाम देखें, और Markdown निर्यात करें।",
       "objectives": [
-        "Select the project, run journal and matching result folder.",
-        "Build a digest and review the Methods, Results and Caveats tabs.",
-        "Copy the report text or export Markdown with the run digest."
+        "प्रोजेक्ट, रन जर्नल और मेल खाता परिणाम फ़ोल्डर चुनें।",
+        "डाइजेस्ट बनाएँ और Methods, Results तथा Caveats टैब देखें।",
+        "रिपोर्ट का पाठ कॉपी करें या रन डाइजेस्ट के साथ Markdown निर्यात करें।"
       ],
-      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
+      "prerequisite": "पहले Regression उदाहरण पूरा करें। उसका प्रोजेक्ट फ़ोल्डर, रन जर्नल और guide_permutation परिणाम साथ रखें। रिपोर्ट में बने पाठ को इस्तेमाल करने से पहले अनुमानित सेटिंग, विश्लेषण संस्करण और सांख्यिकीय सीमाएँ जाँचें।",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
+          "narration": "Home से Regression खोलें, फिर Methods and Results। पूरे हुए विश्लेषण से रिपोर्ट का मसौदा बनाने के लिए यह टूल इस्तेमाल करें। यह वॉकथ्रू Regression उदाहरण के सहेजे गए रन से आगे बढ़ता है।",
           "related_lessons": [
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Home से Regression खोलें, फिर Methods and Results। पूरे हुए विश्लेषण से रिपोर्ट का मसौदा बनाने के लिए यह टूल इस्तेमाल करें। यह वॉकथ्रू Regression उदाहरण के सहेजे गए रन से आगे बढ़ता है।"
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
+          "narration": "प्रोजेक्ट फ़ोल्डर, रन जर्नल और मेल खाता रिग्रेशन परिणाम फ़ोल्डर चुनें। इस रिग्रेशन उदाहरण में Classifier खाली छोड़ें। पक्का करें कि चुनी गई सभी फ़ाइलें उसी रन की हैं जिसका आप वर्णन करना चाहते हैं।",
           "focus": [
             355,
             270,
             3450,
             410
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "प्रोजेक्ट फ़ोल्डर, रन जर्नल और मेल खाता रिग्रेशन परिणाम फ़ोल्डर चुनें। इस रिग्रेशन उदाहरण में Classifier खाली छोड़ें। पक्का करें कि चुनी गई सभी फ़ाइलें उसी रन की हैं जिसका आप वर्णन करना चाहते हैं।"
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
-          "hold_after": 0.7
+          "narration": "Build digest पर क्लिक करें, फिर Methods और Results टैब पढ़ें। विश्लेषण संस्करण की तुलना सहेजे गए रन वातावरण से करें; निर्यातक का संस्करण उस संस्करण से अलग हो सकता है जिसने विश्लेषण किया था।",
+          "hold_after": 0.7,
+          "speech_text": "Build digest पर क्लिक करें, फिर Methods और Results टैब पढ़ें। विश्लेषण संस्करण की तुलना सहेजे गए रन वातावरण से करें; निर्यातक का संस्करण उस संस्करण से अलग हो सकता है जिसने विश्लेषण किया था।"
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
+          "narration": "Caveats पढ़ें और सीड की प्रविष्टियों को नाम से सहेजी गई सेटिंग से मिलाएँ। क्रमचय सीड और वैश्विक सीड अलग-अलग जनरेटर से जुड़े होते हैं। रिपोर्ट संपादित करते समय किसी बिना दर्ज पुराने सीड को अज्ञात ही रहने दें।",
           "focus": [
             355,
             640,
             3450,
             760
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Caveats पढ़ें और सीड की प्रविष्टियों को नाम से सहेजी गई सेटिंग से मिलाएँ। क्रमचय सीड और वैश्विक सीड अलग-अलग जनरेटर से जुड़े होते हैं। रिपोर्ट संपादित करते समय किसी बिना दर्ज पुराने सीड को अज्ञात ही रहने दें।"
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
+          "narration": "संरचित सेटिंग और स्रोत रिकॉर्ड देखने के लिए Run digest खोलें। उनकी तुलना लिखे गए पाठ से करें, और मसौदा साझा करने से पहले छूटी रिपोर्ट या अनुमानित डिफ़ॉल्ट के बारे में चेतावनियाँ देखें।",
           "focus": [
             355,
             680,
             2400,
             1120
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "संरचित सेटिंग और स्रोत रिकॉर्ड देखने के लिए Run digest खोलें। उनकी तुलना लिखे गए पाठ से करें, और मसौदा साझा करने से पहले छूटी रिपोर्ट या अनुमानित डिफ़ॉल्ट के बारे में चेतावनियाँ देखें।"
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
+          "narration": "Results में प्रभाव के आकार और सुधारे गए q-मान साथ में देखें। इस उदाहरण में कोई जीन शून्य दशमलव शून्य पाँच की q-मान सीमा से नीचे नहीं है। अगर कोई शीर्षक इन पंक्तियों को hits कहता है, तो संपादन करते समय उन्हें क्रमबद्ध उम्मीदवार बताएँ।",
           "focus": [
             355,
             680,
             3450,
             700
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Results में प्रभाव के आकार और सुधारे गए q-मान साथ में देखें। इस उदाहरण में कोई जीन शून्य दशमलव शून्य पाँच की q-मान सीमा से नीचे नहीं है। अगर कोई शीर्षक इन पंक्तियों को hits कहता है, तो संपादन करते समय उन्हें क्रमबद्ध उम्मीदवार बताएँ।"
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
-          "hold_after": 0.7
+          "narration": "दिखाए गए Methods और Results कॉपी करने के लिए Copy sections पर क्लिक करें। कॉपी किए गए पाठ को स्रोत रिकॉर्ड से मिलाएँ। जब संरचित रन डाइजेस्ट भी चाहिए, तो Export Markdown इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "दिखाए गए Methods और Results कॉपी करने के लिए Copy sections पर क्लिक करें। कॉपी किए गए पाठ को स्रोत रिकॉर्ड से मिलाएँ। जब संरचित रन डाइजेस्ट भी चाहिए, तो Export Markdown इस्तेमाल करें।"
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
+          "narration": "Export Markdown पर क्लिक करें और एक नया फ़ाइल नाम चुनें। फ़ाइल में रिपोर्ट के दोनों खंड और परिशिष्ट के रूप में रन डाइजेस्ट होते हैं। मूल मसौदा रखें और अपने जाँचे गए संशोधन अलग सहेजें।",
           "focus": [
             1550,
             780,
             760,
             540
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Export Markdown पर क्लिक करें और एक नया फ़ाइल नाम चुनें। फ़ाइल में रिपोर्ट के दोनों खंड और परिशिष्ट के रूप में रन डाइजेस्ट होते हैं। मूल मसौदा रखें और अपने जाँचे गए संशोधन अलग सहेजें।"
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
+          "narration": "Draft with AI वैकल्पिक है और डाइजेस्ट को आपके सेट किए गए प्रदाता को भेजता है। यह विकल्प इस्तेमाल करने से पहले उसकी सामग्री देखें, फिर बने किसी भी पाठ को सहेजे गए विश्लेषण से मिलाएँ। आप Python से build_digest, render_methods और render_results भी इस्तेमाल कर सकते हैं।",
           "focus": [
             355,
             560,
@@ -8453,12 +8809,53 @@
             "06_api",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Draft with AI वैकल्पिक है और डाइजेस्ट को आपके सेट किए गए प्रदाता को भेजता है। यह विकल्प इस्तेमाल करने से पहले उसकी सामग्री देखें, फिर बने किसी भी पाठ को सहेजे गए विश्लेषण से मिलाएँ। आप Python से build_digest, render_methods और render_results भी इस्तेमाल कर सकते हैं।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8466,24 +8863,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: compare saved runs",
+      "title": "Run Compare: सहेजे गए रनों की तुलना करें",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
+      "description": "दो सहेजे गए रन चुनें, सेटिंग और गिनती के अंतर देखें, और उपलब्ध परिणाम तुलनाएँ जाँचें।",
       "objectives": [
-        "Select baseline and comparison runs.",
-        "Inspect settings and count differences.",
-        "Locate available result comparisons."
+        "आधार रन और तुलना वाला रन चुनें।",
+        "सेटिंग और गिनती के अंतर देखें।",
+        "उपलब्ध परिणाम तुलनाएँ खोजें।"
       ],
-      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
+      "prerequisite": "जुड़े हुए स्नैपशॉट डाउनलोड करके अनज़िप करें। उसके README के अनुसार अपने spaCR वातावरण में नए गंतव्य फ़ोल्डर के साथ prepare_run_compare_download.py चलाएँ। अपनी तुलनाओं के लिए हर रन के आउटपुट बदले जाने से पहले सुरक्षित रखें।",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+          "narration": "दो रनों के दर्ज आउटपुट देखने के लिए Home की Data श्रेणी से Run Compare खोलें।",
           "focus_modules": [
             "run_compare"
           ],
@@ -8491,54 +8888,60 @@
             "08_measure",
             "40_run_history"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "दो रनों के दर्ज आउटपुट देखने के लिए Home की Data श्रेणी से Run Compare खोलें।"
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
-          "hold_after": 0.7
+          "narration": "स्नैपशॉट उदाहरण डाउनलोड करके अनज़िप करें। उसके README के अनुसार नए गंतव्य फ़ोल्डर के साथ तैयारी स्क्रिप्ट चलाएँ।",
+          "hold_after": 0.7,
+          "speech_text": "स्नैपशॉट उदाहरण डाउनलोड करके अनज़िप करें। उसके README के अनुसार नए गंतव्य फ़ोल्डर के साथ तैयारी स्क्रिप्ट चलाएँ।"
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
-          "hold_after": 0.7
+          "narration": "Browse पर क्लिक करें और तैयार किया गया तुलना फ़ोल्डर चुनें। अपनी तुलनाओं के लिए मूल प्रोजेक्ट और उनके रन स्नैपशॉट उपलब्ध रखें।",
+          "hold_after": 0.7,
+          "speech_text": "Browse पर क्लिक करें और तैयार किया गया तुलना फ़ोल्डर चुनें। अपनी तुलनाओं के लिए मूल प्रोजेक्ट और उनके रन स्नैपशॉट उपलब्ध रखें।"
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
+          "narration": "आधार रन को A और तुलना वाले रन को B के रूप में चुनें, फिर Compare पर क्लिक करें। उनके मॉड्यूल नाम और दर्ज संस्करण जाँचें।",
           "focus": [
             350,
             235,
             3450,
             190
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "आधार रन को A और तुलना वाले रन को B के रूप में चुनें, फिर Compare पर क्लिक करें। उनके मॉड्यूल नाम और दर्ज संस्करण जाँचें।"
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
+          "narration": "मेल खाते मान शामिल करने के लिए Show unchanged settings चालू करें। हर रन का कॉन्फ़िगरेशन देखने के लिए प्रविष्टियाँ खोलें।",
           "focus": [
             350,
             360,
             2300,
             1400
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "मेल खाते मान शामिल करने के लिए Show unchanged settings चालू करें। हर रन का कॉन्फ़िगरेशन देखने के लिए प्रविष्टियाँ खोलें।"
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
+          "narration": "वस्तुओं के कुल की तुलना के लिए Counts खोलें। Delta का मतलब B में से A घटाना है। उदाहरण में गिनती एक जैसी है; जब किसी अंतर को समझना हो, तो संबंधित इमेज और माप देखें।",
           "focus": [
             350,
             425,
             1250,
             720
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "वस्तुओं के कुल की तुलना के लिए Counts खोलें। Delta का मतलब B में से A घटाना है। उदाहरण में गिनती एक जैसी है; जब किसी अंतर को समझना हो, तो संबंधित इमेज और माप देखें।"
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
+          "narration": "जब दोनों रनों में दर्ज रिग्रेशन परिणाम हों, तब Hits खोलें। उदाहरण में Measure के स्नैपशॉट हैं, इसलिए hits की तुलना उपलब्ध नहीं है।",
           "focus": [
             350,
             405,
@@ -8549,32 +8952,75 @@
             "13_regression",
             "40_run_history"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "जब दोनों रनों में दर्ज रिग्रेशन परिणाम हों, तब Hits खोलें। उदाहरण में Measure के स्नैपशॉट हैं, इसलिए hits की तुलना उपलब्ध नहीं है।"
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
+          "narration": "दो अलग रन चुनें। अगर दोनों तरफ़ एक ही रन चुना गया है, तो चेतावनी की मदद से चयन ठीक करें।",
           "focus": [
             350,
             235,
             3450,
             220
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "दो अलग रन चुनें। अगर दोनों तरफ़ एक ही रन चुना गया है, तो चेतावनी की मदद से चयन ठीक करें।"
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
+          "narration": "दोनों आउटपुट स्नैपशॉट और उनके अंतर समझाने वाली सेटिंग रखें। अलग-अलग लॉग के लिए Run History और मूल hits परिणामों के लिए Regression इस्तेमाल करें।",
           "related_lessons": [
             "06_api",
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "दोनों आउटपुट स्नैपशॉट और उनके अंतर समझाने वाली सेटिंग रखें। अलग-अलग लॉग के लिए Run History और मूल hits परिणामों के लिए Regression इस्तेमाल करें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8586,113 +9032,123 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: monitor controls across plates",
-      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
+      "title": "Control Charts: प्लेटों में नियंत्रणों पर नज़र रखें",
+      "description": "अभियान तालिका लोड करें, नियंत्रण और आधार सीमाएँ चुनें, चेतावनियाँ देखें और प्लॉट किए गए बिंदु निर्यात करें।",
       "objectives": [
-        "Choose the measurement and control population.",
-        "Set the baseline and alert rules.",
-        "Inspect alerts and export chart points."
+        "माप और नियंत्रण समूह चुनें।",
+        "आधार अवधि और चेतावनी नियम सेट करें।",
+        "चेतावनियाँ देखें और चार्ट के बिंदु निर्यात करें।"
       ],
-      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
+      "prerequisite": "नीचे दिया कृत्रिम अभियान CSV डाउनलोड करें, या प्लेट पहचान, रन क्रम, एक माप और नियंत्रण लेबल वाली वेल-स्तर की तालिका तैयार करें। उदाहरण में तीस प्लेट हैं, जिनमें जानबूझकर रखा गया बहाव है।",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
+          "narration": "किसी अभियान में दोहराए गए नियंत्रणों पर नज़र रखने के लिए QC खोलें, फिर Control Charts। अभ्यास CSV कृत्रिम प्लेट और जानबूझकर रखा गया बहाव इस्तेमाल करती है।",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "किसी अभियान में दोहराए गए नियंत्रणों पर नज़र रखने के लिए QC खोलें, फिर Control Charts। अभ्यास CSV कृत्रिम प्लेट और जानबूझकर रखा गया बहाव इस्तेमाल करती है।"
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
+          "narration": "नीचे दी गई उदाहरण CSV डाउनलोड करें, Load table पर क्लिक करें और उसे चुनें। इसमें तीस प्लेट हैं, हर एक में हर नियंत्रण प्रकार के तीन वेल और तीन नमूना वेल हैं।",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ]
+          ],
+          "speech_text": "नीचे दी गई उदाहरण CSV डाउनलोड करें, Load table पर क्लिक करें और उसे चुनें। इसमें तीस प्लेट हैं, हर एक में हर नियंत्रण प्रकार के तीन वेल और तीन नमूना वेल हैं।"
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
+          "narration": "Plate, Run order, Measurement और Control column को तालिका से मिलाएँ। Control is में ऋणात्मक नियंत्रणों के लिए neg चुनें। खाली चयन सभी पंक्तियाँ शामिल करता है।",
           "hold_after": 0.7,
           "focus": [
             290,
             460,
             740,
             700
-          ]
+          ],
+          "speech_text": "Plate, Run order, Measurement और Control column को तालिका से मिलाएँ। Control is में ऋणात्मक नियंत्रणों के लिए neg चुनें। खाली चयन सभी पंक्तियाँ शामिल करता है।"
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
+          "narration": "विचलन के अनुमान का तरीका तय करने के लिए Sigma from चुनें। यहाँ Auto उपसमूह वाला अनुमान इस्तेमाल करता है, क्योंकि हर प्लेट में तीन चुने गए नियंत्रण वेल हैं।",
           "hold_after": 0.7,
           "focus": [
             290,
             980,
             1760,
             600
-          ]
+          ],
+          "speech_text": "विचलन के अनुमान का तरीका तय करने के लिए Sigma from चुनें। यहाँ Auto उपसमूह वाला अनुमान इस्तेमाल करता है, क्योंकि हर प्लेट में तीन चुने गए नियंत्रण वेल हैं।"
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
+          "narration": "Rules में वे चेतावनियाँ चुनें जिन्हें आप देखना चाहते हैं। उदाहरण तीन सिग्मा सीमाओं से बाहर के बिंदुओं पर ध्यान देने के लिए Limits only इस्तेमाल करता है। कोई सेटिंग बदलने पर चार्ट फिर से बनता है।",
           "hold_after": 0.7,
           "focus": [
             290,
             1160,
             1900,
             450
-          ]
+          ],
+          "speech_text": "Rules में वे चेतावनियाँ चुनें जिन्हें आप देखना चाहते हैं। उदाहरण तीन सिग्मा सीमाओं से बाहर के बिंदुओं पर ध्यान देने के लिए Limits only इस्तेमाल करता है। कोई सेटिंग बदलने पर चार्ट फिर से बनता है।"
         },
         {
           "visual": "06_limits_only",
-          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
+          "narration": "Baseline plates को बीस पर रखें। पहली बीस प्लेट शृंखला की सीमाएँ तय करती हैं। चिह्नित बाद की प्लेट खोजने के लिए रिपोर्ट और नियम तालिका पढ़ें।",
           "hold_after": 0.7,
           "focus": [
             1010,
             450,
             2790,
             1600
-          ]
+          ],
+          "speech_text": "Baseline plates को बीस पर रखें। पहली बीस प्लेट शृंखला की सीमाएँ तय करती हैं। चिह्नित बाद की प्लेट खोजने के लिए रिपोर्ट और नियम तालिका पढ़ें।"
         },
         {
           "visual": "07_positive_control",
-          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
-          "hold_after": 0.7
+          "narration": "धनात्मक नियंत्रण देखने के लिए neg हटाएँ और pos चुनें। उनके औसत और सीमाएँ अलग से देखें, फिर उदाहरण जारी रखने के लिए neg पर लौटें।",
+          "hold_after": 0.7,
+          "speech_text": "धनात्मक नियंत्रण देखने के लिए neg हटाएँ और pos चुनें। उनके औसत और सीमाएँ अलग से देखें, फिर उदाहरण जारी रखने के लिए neg पर लौटें।"
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
+          "narration": "जब आपकी तय संदर्भ अवधि अलग हो, तो Baseline plates बदलें। टूल को कम से कम आठ प्लेट चाहिए; परीक्षण के अनुकूल एक स्थिर आधार चुनें।",
           "hold_after": 0.7,
           "focus": [
             295,
             1400,
             2600,
             375
-          ]
+          ],
+          "speech_text": "जब आपकी तय संदर्भ अवधि अलग हो, तो Baseline plates बदलें। टूल को कम से कम आठ प्लेट चाहिए; परीक्षण के अनुकूल एक स्थिर आधार चुनें।"
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
+          "narration": "Export points पर क्लिक करें और CSV का गंतव्य चुनें। इसमें प्लेट पहचान, औसत, उपसमूह आकार, सीमाएँ, आधार में शामिल होना और लागू हुए नियम सहेजे जाते हैं।",
           "hold_after": 0.7,
           "focus": [
             1550,
             790,
             740,
             510
-          ]
+          ],
+          "speech_text": "Export points पर क्लिक करें और CSV का गंतव्य चुनें। इसमें प्लेट पहचान, औसत, उपसमूह आकार, सीमाएँ, आधार में शामिल होना और लागू हुए नियम सहेजे जाते हैं।"
         },
         {
           "visual": "12_exported",
-          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
+          "narration": "इनपुट CSV, चुने गए नियंत्रण और आधार सेटिंग को निर्यात किए गए बिंदुओं के साथ रखें। अधिग्रहण या परीक्षण में बदलावों की जाँच के लिए चिह्नित प्लेटों की पहचान इस्तेमाल करें।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "इनपुट CSV, चुने गए नियंत्रण और आधार सेटिंग को निर्यात किए गए बिंदुओं के साथ रखें। अधिग्रहण या परीक्षण में बदलावों की जाँच के लिए चिह्नित प्लेटों की पहचान इस्तेमाल करें।"
         }
       ],
       "example_files": [
@@ -8701,6 +9157,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8711,27 +9207,28 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: inspect outputs and dependencies",
-      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
+      "title": "Pipeline Graph: आउटपुट और निर्भरताएँ देखें",
+      "description": "प्रोजेक्ट का आर्टिफ़ैक्ट ग्राफ़ खोलें, छूटे आउटपुट देखें और उसका निर्भरता आरेख कॉपी करें।",
       "objectives": [
-        "Open the artifact graph for a project.",
-        "Inspect paths, states and dependencies.",
-        "Copy the diagram and refresh its records."
+        "प्रोजेक्ट का आर्टिफ़ैक्ट ग्राफ़ खोलें।",
+        "पथ, स्थितियाँ और निर्भरताएँ देखें।",
+        "आरेख कॉपी करें और उसके रिकॉर्ड ताज़ा करें।"
       ],
-      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
+      "prerequisite": "पंजीकृत आउटपुट वाला spaCR प्रोजेक्ट चुनें। External Masks उदाहरण माप और क्रॉप देता है; Data Manager पाठ दिखाता है कि हटाया गया आर्टिफ़ैक्ट कैसे दिखता है।",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
+          "narration": "किसी प्रोजेक्ट के दर्ज आउटपुट और निर्भरताएँ देखने के लिए Help खोलें, फिर Pipeline graph।",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "44_data_manager"
-          ]
+          ],
+          "speech_text": "किसी प्रोजेक्ट के दर्ज आउटपुट और निर्भरताएँ देखने के लिए Help खोलें, फिर Pipeline graph।"
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
+          "narration": "Browse से प्रोजेक्ट फ़ोल्डर तक जाएँ। अगर ग्राफ़ खाली है, तो जाँचें कि उस फ़ोल्डर में पंजीकृत आर्टिफ़ैक्ट हैं या नहीं; फ़ाइलें बिना रजिस्ट्री रिकॉर्ड के भी मौजूद हो सकती हैं।",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8742,111 +9239,161 @@
           "related_lessons": [
             "37_batch",
             "40_run_history"
-          ]
+          ],
+          "speech_text": "Browse से प्रोजेक्ट फ़ोल्डर तक जाएँ। अगर ग्राफ़ खाली है, तो जाँचें कि उस फ़ोल्डर में पंजीकृत आर्टिफ़ैक्ट हैं या नहीं; फ़ाइलें बिना रजिस्ट्री रिकॉर्ड के भी मौजूद हो सकती हैं।"
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
+          "narration": "आर्टिफ़ैक्ट के बॉक्स दिखाने के लिए मापा गया प्रोजेक्ट चुनें। उदाहरण में माप, क्रॉप और एक संसाधन लॉग है, और हटाया गया एक क्रॉप फ़ोल्डर अनुपस्थित के रूप में चिह्नित है।",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ]
+          ],
+          "speech_text": "आर्टिफ़ैक्ट के बॉक्स दिखाने के लिए मापा गया प्रोजेक्ट चुनें। उदाहरण में माप, क्रॉप और एक संसाधन लॉग है, और हटाया गया एक क्रॉप फ़ोल्डर अनुपस्थित के रूप में चिह्नित है।"
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
+          "narration": "किसी आर्टिफ़ैक्ट पर क्लिक करें और डिवाइडर से विवरण चौड़ा करें। उसका पथ, भूमिका, रन पहचानकर्ता, बनने का समय और सॉफ़्टवेयर संस्करण देखें।",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "किसी आर्टिफ़ैक्ट पर क्लिक करें और डिवाइडर से विवरण चौड़ा करें। उसका पथ, भूमिका, रन पहचानकर्ता, बनने का समय और सॉफ़्टवेयर संस्करण देखें।"
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
+          "narration": "दर्ज पथ खोजने के लिए कोई Missing आर्टिफ़ैक्ट चुनें। दिखाया गया आकार सहेजे गए रिकॉर्ड का है, इसलिए गायब फ़ाइलों की जाँच करते समय असली स्थान देखें।",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "दर्ज पथ खोजने के लिए कोई Missing आर्टिफ़ैक्ट चुनें। दिखाया गया आकार सहेजे गए रिकॉर्ड का है, इसलिए गायब फ़ाइलों की जाँच करते समय असली स्थान देखें।"
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
+          "narration": "जहाँ दर्ज हों, वहाँ इनपुट और आगे के लिंक देखें। कुछ आर्टिफ़ैक्ट, जैसे संसाधन लॉग, प्रोजेक्ट फ़ोल्डर से बाहर हो सकते हैं।",
           "hold_after": 0.7,
           "focus": [
             1940,
             360,
             1870,
             345
-          ]
+          ],
+          "speech_text": "जहाँ दर्ज हों, वहाँ इनपुट और आगे के लिंक देखें। कुछ आर्टिफ़ैक्ट, जैसे संसाधन लॉग, प्रोजेक्ट फ़ोल्डर से बाहर हो सकते हैं।"
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
+          "narration": "कौन-सी आर्टिफ़ैक्ट स्थितियाँ दिखें, यह चुनने के लिए Current, Stale और Missing इस्तेमाल करें। उदाहरण के लिए, छूटे आउटपुट पर ध्यान देने के लिए Current छिपाएँ।",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ]
+          ],
+          "speech_text": "कौन-सी आर्टिफ़ैक्ट स्थितियाँ दिखें, यह चुनने के लिए Current, Stale और Missing इस्तेमाल करें। उदाहरण के लिए, छूटे आउटपुट पर ध्यान देने के लिए Current छिपाएँ।"
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
+          "narration": "अगर कोई बॉक्स नहीं दिखता, तो प्रदर्शन फ़िल्टर और आर्टिफ़ैक्ट की कुल गिनती जाँचें। जिन स्थितियों को देखना है, उन्हें वापस चालू करें।",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             3450,
             470
-          ]
+          ],
+          "speech_text": "अगर कोई बॉक्स नहीं दिखता, तो प्रदर्शन फ़िल्टर और आर्टिफ़ैक्ट की कुल गिनती जाँचें। जिन स्थितियों को देखना है, उन्हें वापस चालू करें।"
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
+          "narration": "पूरे आरेख को DOT पाठ के रूप में कॉपी करने के लिए Copy Graphviz पर क्लिक करें, जिसमें फ़िल्टर से छिपे नोड भी शामिल हैं। उसे दिखाने या सहेजने के लिए किसी Graphviz टूल में चिपकाएँ।",
           "hold_after": 0.7,
           "focus": [
             345,
             230,
             3450,
             200
-          ]
+          ],
+          "speech_text": "पूरे आरेख को DOT पाठ के रूप में कॉपी करने के लिए Copy Graphviz पर क्लिक करें, जिसमें फ़िल्टर से छिपे नोड भी शामिल हैं। उसे दिखाने या सहेजने के लिए किसी Graphviz टूल में चिपकाएँ।"
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
+          "narration": "चाहे गए फ़िल्टर वापस लगाएँ और विवरण देखने के लिए फिर से कोई आर्टिफ़ैक्ट चुनें। किस पर ध्यान देना है, यह तय करने के लिए उसका दर्ज पथ और पिछली प्रक्रिया इस्तेमाल करें।",
           "hold_after": 0.7,
           "focus": [
             345,
             235,
             500,
             470
-          ]
+          ],
+          "speech_text": "चाहे गए फ़िल्टर वापस लगाएँ और विवरण देखने के लिए फिर से कोई आर्टिफ़ैक्ट चुनें। किस पर ध्यान देना है, यह तय करने के लिए उसका दर्ज पथ और पिछली प्रक्रिया इस्तेमाल करें।"
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
+          "narration": "प्रोजेक्ट में बदलाव के बाद रजिस्ट्री फिर से पढ़ने के लिए Redraw पर क्लिक करें। सहेजी गई सेटिंग और लॉग के लिए Run History, या सफ़ाई और संग्रहण के लिए Data Manager खोलें।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "40_run_history",
             "44_data_manager",
             "45_project_browser"
-          ]
+          ],
+          "speech_text": "प्रोजेक्ट में बदलाव के बाद रजिस्ट्री फिर से पढ़ने के लिए Redraw पर क्लिक करें। सहेजी गई सेटिंग और लॉग के लिए Run History, या सफ़ाई और संग्रहण के लिए Data Manager खोलें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9001,56 +9548,61 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: inspect project quality reports",
-      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
+      "title": "QC: प्रोजेक्ट की गुणवत्ता रिपोर्ट देखें",
+      "description": "प्रोजेक्ट चुनें, उपलब्ध गुणवत्ता रिपोर्ट पढ़ें, चेतावनियों की जाँच करें और डैशबोर्ड ताज़ा करें।",
       "objectives": [
-        "Choose the intended project or run.",
-        "Read available, missing and outdated reports.",
-        "Investigate findings and refresh the view."
+        "इच्छित प्रोजेक्ट या रन चुनें।",
+        "उपलब्ध, छूटी और पुरानी रिपोर्ट पढ़ें।",
+        "निष्कर्षों की जाँच करें और दृश्य ताज़ा करें।"
       ],
-      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
+      "prerequisite": "सहेजी गई गुणवत्ता रिपोर्ट वाला प्रोजेक्ट इस्तेमाल करें। Mask और Annotate के डाउनलोड किए गए उदाहरण अलग-अलग रिपोर्ट सेट देते हैं; जिस प्रोजेक्ट या रन फ़ोल्डर को देखना है, वही चुनें।",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
-          "hold_after": 0.7
+          "narration": "किसी प्रोजेक्ट के साथ सहेजी गई गुणवत्ता रिपोर्ट देखने के लिए Home की Data श्रेणी से QC खोलें।",
+          "hold_after": 0.7,
+          "speech_text": "किसी प्रोजेक्ट के साथ सहेजी गई गुणवत्ता रिपोर्ट देखने के लिए Home की Data श्रेणी से QC खोलें।"
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
+          "narration": "शीर्ष भाग से Layer Viewer, Control Charts और Outliers खुलते हैं। जब डैशबोर्ड के किसी निष्कर्ष की और जाँच चाहिए, तो उनके ट्यूटोरियल इस्तेमाल करें।",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ]
+          ],
+          "speech_text": "शीर्ष भाग से Layer Viewer, Control Charts और Outliers खुलते हैं। जब डैशबोर्ड के किसी निष्कर्ष की और जाँच चाहिए, तो उनके ट्यूटोरियल इस्तेमाल करें।"
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
+          "narration": "Browse पर क्लिक करें और प्रोजेक्ट फ़ोल्डर चुनें। जिस रन का आकलन करना है, उसकी रिपोर्ट वाला फ़ोल्डर चुनें।",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Browse पर क्लिक करें और प्रोजेक्ट फ़ोल्डर चुनें। जिस रन का आकलन करना है, उसकी रिपोर्ट वाला फ़ोल्डर चुनें।"
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
-          "hold_after": 0.7
+          "narration": "Missing का मतलब है कि उस जाँच की रिपोर्ट उपलब्ध नहीं है। निष्कर्ष निकालने से पहले निर्देशों के अनुसार ज़रूरी रिपोर्ट प्राप्त करें।",
+          "hold_after": 0.7,
+          "speech_text": "Missing का मतलब है कि उस जाँच की रिपोर्ट उपलब्ध नहीं है। निष्कर्ष निकालने से पहले निर्देशों के अनुसार ज़रूरी रिपोर्ट प्राप्त करें।"
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
+          "narration": "जब किसी रन के आउटपुट मूल प्रोजेक्ट से अलग हों, तो उसका सबफ़ोल्डर चुनें। जाँचें कि दिखाया गया दायरा उसी डेटा से मेल खाता है जिसे आप देखना चाहते हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "speech_text": "जब किसी रन के आउटपुट मूल प्रोजेक्ट से अलग हों, तो उसका सबफ़ोल्डर चुनें। जाँचें कि दिखाया गया दायरा उसी डेटा से मेल खाता है जिसे आप देखना चाहते हैं।"
         },
         {
           "visual": "04_computed_subset",
-          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
+          "narration": "सेगमेंटेशन की चेतावनियाँ पढ़ें और संबंधित फ़ील्ड देखें। आकार वितरण की चेतावनी का कारण समझने के लिए इमेज और वस्तुओं की सीमाओं की तुलना करें।",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -9061,65 +9613,112 @@
           "related_lessons": [
             "14_make_masks",
             "57_layer_viewer"
-          ]
+          ],
+          "speech_text": "सेगमेंटेशन की चेतावनियाँ पढ़ें और संबंधित फ़ील्ड देखें। आकार वितरण की चेतावनी का कारण समझने के लिए इमेज और वस्तुओं की सीमाओं की तुलना करें।"
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
-          "hold_after": 0.7
+          "narration": "बाक़ी श्रेणियों के साथ इकाइयों वाला कार्ड भी देखें। इकाइयों की एकसमान रिपोर्ट उस जाँच को पूरा करती है; छूटी रिपोर्ट पर अब भी ध्यान देना होगा।",
+          "hold_after": 0.7,
+          "speech_text": "बाक़ी श्रेणियों के साथ इकाइयों वाला कार्ड भी देखें। इकाइयों की एकसमान रिपोर्ट उस जाँच को पूरा करती है; छूटी रिपोर्ट पर अब भी ध्यान देना होगा।"
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
+          "narration": "सभी पाँच श्रेणियाँ और उनके निर्देश पढ़ें। लीकेज के लिए जाँचें कि नमूनों की पहचान और समूहन इच्छित स्वतंत्र सत्यापन इकाइयों को दर्शाते हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "23_agreement",
             "33_plate_viewer"
-          ]
+          ],
+          "speech_text": "सभी पाँच श्रेणियाँ और उनके निर्देश पढ़ें। लीकेज के लिए जाँचें कि नमूनों की पहचान और समूहन इच्छित स्वतंत्र सत्यापन इकाइयों को दर्शाते हैं।"
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
+          "narration": "प्रभावित फ़ील्ड और स्रोत रिपोर्ट पहचानने के लिए विफलताओं या चेतावनियों का विवरण खोलें। उनकी जाँच के लिए संबंधित विश्लेषण टूल इस्तेमाल करें।",
           "hold_after": 0.7,
           "focus": [
             450,
             400,
             2950,
             240
-          ]
+          ],
+          "speech_text": "प्रभावित फ़ील्ड और स्रोत रिपोर्ट पहचानने के लिए विफलताओं या चेतावनियों का विवरण खोलें। उनकी जाँच के लिए संबंधित विश्लेषण टूल इस्तेमाल करें।"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
+          "narration": "डिस्क पर रिपोर्ट बदलने के बाद Refresh पर क्लिक करें। डैशबोर्ड उपलब्ध सबूत फिर से पढ़ता है; अपडेट रिपोर्ट उन्हें बनाने वाले विश्लेषण से बनाएँ।",
           "hold_after": 0.7,
           "focus": [
             450,
             2070,
             2950,
             50
-          ]
+          ],
+          "speech_text": "डिस्क पर रिपोर्ट बदलने के बाद Refresh पर क्लिक करें। डैशबोर्ड उपलब्ध सबूत फिर से पढ़ता है; अपडेट रिपोर्ट उन्हें बनाने वाले विश्लेषण से बनाएँ।"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
-          "hold_after": 0.7
+          "narration": "पुरानी रिपोर्ट की जाँच उसके इनपुट डेटा और सेटिंग के संदर्भ में करें। अनसुलझे निष्कर्ष अपने प्रोजेक्ट की समीक्षा में दिखते रहने दें।",
+          "hold_after": 0.7,
+          "speech_text": "पुरानी रिपोर्ट की जाँच उसके इनपुट डेटा और सेटिंग के संदर्भ में करें। अनसुलझे निष्कर्ष अपने प्रोजेक्ट की समीक्षा में दिखते रहने दें।"
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
+          "narration": "गुणवत्ता रिपोर्ट प्रोजेक्ट के साथ रखें। हर निष्कर्ष पर काम करने के लिए जुड़े विशेष टूल या संबंधित मॉड्यूल के ट्यूटोरियल में आगे बढ़ें।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "57_layer_viewer",
             "51_control_charts",
             "66_outliers"
-          ]
+          ],
+          "speech_text": "गुणवत्ता रिपोर्ट प्रोजेक्ट के साथ रखें। हर निष्कर्ष पर काम करने के लिए जुड़े विशेष टूल या संबंधित मॉड्यूल के ट्यूटोरियल में आगे बढ़ें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9131,37 +9730,40 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: inspect measurements and their crops",
-      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
+      "title": "Image Scatter: माप और उनके क्रॉप देखें",
+      "description": "माप के दो कॉलम प्लॉट करें, वस्तुओं के क्रॉप का पूर्वावलोकन करें, और चुनी गई वस्तु Annotate को भेजें।",
       "objectives": [
-        "Load measurements and choose axes.",
-        "Inspect the crop behind a point.",
-        "Send a selected object to Annotate."
+        "माप लोड करें और अक्ष चुनें।",
+        "किसी बिंदु के पीछे का क्रॉप देखें।",
+        "चुनी गई वस्तु Annotate को भेजें।"
       ],
-      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
+      "prerequisite": "मेल खाते वस्तु क्रॉप और क्रॉप-फ़ॉर्मेट फ़ाइलों वाला spaCR माप डेटाबेस इस्तेमाल करें। डाउनलोड होने वाला Annotate उदाहरण ये इनपुट देता है।",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
+          "narration": "दो मौजूदा माप प्लॉट करने के लिए Image UMAP खोलें, फिर Image Scatter। अभ्यास के लिए Annotate उदाहरण का डेटाबेस और उससे मेल खाते कोशिका क्रॉप इस्तेमाल करें।",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "15_image_umap"
-          ]
+          ],
+          "speech_text": "दो मौजूदा माप प्लॉट करने के लिए Image यू मैप खोलें, फिर Image Scatter। अभ्यास के लिए Annotate उदाहरण का डेटाबेस और उससे मेल खाते कोशिका क्रॉप इस्तेमाल करें।"
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
-          "hold_after": 0.7
+          "narration": "Browse पर क्लिक करें और measurements.db खोलें। प्रोजेक्ट का data फ़ोल्डर और क्रॉप-फ़ॉर्मेट फ़ाइलें डेटाबेस के साथ रखें, ताकि थंबनेल मिल सकें।",
+          "hold_after": 0.7,
+          "speech_text": "Browse पर क्लिक करें और मेज़रमेंट्स डॉट डी बी खोलें। प्रोजेक्ट का data फ़ोल्डर और क्रॉप-फ़ॉर्मेट फ़ाइलें डेटाबेस के साथ रखें, ताकि थंबनेल मिल सकें।"
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
-          "hold_after": 0.7
+          "narration": "तालिका चयनकर्ता में cell चुनें और Plot पर क्लिक करें। किसी दूसरी तालिका पर जाने पर उसकी पंक्तियाँ लोड करने के लिए फिर से Plot पर क्लिक करें।",
+          "hold_after": 0.7,
+          "speech_text": "तालिका चयनकर्ता में cell चुनें और Plot पर क्लिक करें। किसी दूसरी तालिका पर जाने पर उसकी पंक्तियाँ लोड करने के लिए फिर से Plot पर क्लिक करें।"
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
+          "narration": "x को कोशिका क्षेत्रफल और y को कोशिका के चैनल एक की औसत तीव्रता पर रखें। अक्ष चुनते ही लोड की गई पंक्तियाँ फिर से बन जाती हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -9171,85 +9773,93 @@
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "x को कोशिका क्षेत्रफल और y को कोशिका के चैनल एक की औसत तीव्रता पर रखें। अक्ष चुनते ही लोड की गई पंक्तियाँ फिर से बन जाती हैं।"
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
+          "narration": "किसी बिंदु पर पॉइंटर रखें, ताकि उसका सहेजा गया क्रॉप और वस्तु की पूरी पहचान दिखे। बिंदु के पीछे का माप समझने के लिए इमेज इस्तेमाल करें।",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "किसी बिंदु पर पॉइंटर रखें, ताकि उसका सहेजा गया क्रॉप और वस्तु की पूरी पहचान दिखे। बिंदु के पीछे का माप समझने के लिए इमेज इस्तेमाल करें।"
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
+          "narration": "अस्थायी पूर्वावलोकन हटाने के लिए पॉइंटर हटाएँ, फिर किसी दूसरे बिंदु को देखने के लिए उस पर पॉइंटर रखें।",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "अस्थायी पूर्वावलोकन हटाने के लिए पॉइंटर हटाएँ, फिर किसी दूसरे बिंदु को देखने के लिए उस पर पॉइंटर रखें।"
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
+          "narration": "संबंध को दूसरे नज़रिए से देखने के लिए x और y के माप आपस में बदलें। सार्थक विशेषताएँ चुनें और उनकी इकाइयाँ जाँचें।",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "संबंध को दूसरे नज़रिए से देखने के लिए x और y के माप आपस में बदलें। सार्थक विशेषताएँ चुनें और उनकी इकाइयाँ जाँचें।"
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
+          "narration": "कोई दूसरा माप चुनें, जैसे समरूपता वाली विशेषता। जिन पंक्तियों के निर्देशांक नहीं हैं, वे प्लॉट से छूट जाती हैं, इसलिए प्लॉट की गिनती लोड की गई तालिका की गिनती से अलग हो सकती है।",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "कोई दूसरा माप चुनें, जैसे समरूपता वाली विशेषता। जिन पंक्तियों के निर्देशांक नहीं हैं, वे प्लॉट से छूट जाती हैं, इसलिए प्लॉट की गिनती लोड की गई तालिका की गिनती से अलग हो सकती है।"
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
+          "narration": "स्थिर मान वाला कॉलम, जैसे इस उदाहरण में माप का आयाम, बिंदुओं को एक रेखा पर रख देता है। वस्तुओं की जाँच के लिए उपयोगी भिन्नता वाली विशेषता पर लौटें।",
           "hold_after": 0.7,
           "focus": [
             410,
             405,
             3410,
             120
-          ]
+          ],
+          "speech_text": "स्थिर मान वाला कॉलम, जैसे इस उदाहरण में माप का आयाम, बिंदुओं को एक रेखा पर रख देता है। वस्तुओं की जाँच के लिए उपयोगी भिन्नता वाली विशेषता पर लौटें।"
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
+          "narration": "चुने गए क्रॉप को Annotate में देखने के लिए पहले Annotate खोलें और वही प्रोजेक्ट लोड करें। फिर मौजूदा Image Scatter दृश्य पर लौटें।",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "चुने गए क्रॉप को Annotate में देखने के लिए पहले Annotate खोलें और वही प्रोजेक्ट लोड करें। फिर मौजूदा Image Scatter दृश्य पर लौटें।"
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
+          "narration": "वस्तु की पहचान Annotate को भेजने के लिए बिंदु पर ही क्लिक करें, फिर उस पेज पर जाएँ। पॉइंटर रखने से केवल क्रॉप का पूर्वावलोकन होता है।",
           "hold_after": 0.7,
           "focus": [
             3500,
             490,
             330,
             390
-          ]
+          ],
+          "speech_text": "वस्तु की पहचान Annotate को भेजने के लिए बिंदु पर ही क्लिक करें, फिर उस पेज पर जाएँ। पॉइंटर रखने से केवल क्रॉप का पूर्वावलोकन होता है।"
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
+          "narration": "लेबल लगाने से पहले Annotate में चुनी गई वस्तु देखें। तालिकाएँ निर्यात करने के लिए Database Browser, या घटक विश्लेषण के लिए PCA इस्तेमाल करें।",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -9261,12 +9871,53 @@
             330,
             550,
             410
-          ]
+          ],
+          "speech_text": "लेबल लगाने से पहले Annotate में चुनी गई वस्तु देखें। तालिकाएँ निर्यात करने के लिए Database Browser, या घटक विश्लेषण के लिए PCA इस्तेमाल करें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9278,14 +9929,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: browse parent objects and their contents",
-      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
+      "title": "Lineage: पैरेंट वस्तुएँ और उनकी सामग्री देखें",
+      "description": "सहेजे गए पैरेंट-चाइल्ड संबंध खोलें, एक परिवार चुनें और Annotate में मेल खाता पैरेंट कोशिका क्रॉप देखें।",
       "objectives": [
-        "Load measurements and expand parent-child relationships.",
-        "Select objects while checking field and object type.",
-        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
+        "माप लोड करें और पैरेंट-चाइल्ड संबंध खोलें।",
+        "फ़ील्ड और वस्तु का प्रकार जाँचते हुए वस्तुएँ चुनें।",
+        "मेल खाता पैरेंट कोशिका क्रॉप खोलें और Python से पूरा पदानुक्रम पाएँ।"
       ],
-      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+      "prerequisite": "Annotate का पूरा उदाहरण उसके माप डेटाबेस और मेल खाते कोशिका क्रॉप के साथ डाउनलोड करें। Graph Builder का केवल डेटाबेस वाला आर्काइव इमेज नहीं दे सकता। इस उदाहरण में केवल कोशिका क्रॉप हैं: क्रॉप देखने के लिए पैरेंट कोशिका पर डबल-क्लिक करें। मौजूदा Open crops पारिवारिक क्रिया छूटे चाइल्ड क्रॉप की जगह असंबंधित कोशिका क्रॉप रख सकती है; इस उदाहरण में उससे बचें।",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -9293,87 +9944,141 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
+          "narration": "Home से Database Browser खोलें, फिर Lineage। ट्री से देखें कि हर पैरेंट कोशिका के भीतर कौन-सी मापी गई वस्तुएँ दर्ज हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
-          ]
+          ],
+          "speech_text": "Home से Database Browser खोलें, फिर Lineage। ट्री से देखें कि हर पैरेंट कोशिका के भीतर कौन-सी मापी गई वस्तुएँ दर्ज हैं।"
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
-          "hold_after": 0.7
+          "narration": "Browse से Annotate उदाहरण की measurements.db तक जाएँ और Build tree पर क्लिक करें। लेबल पढ़ने के लिए Object कॉलम और डिवाइडर चौड़े करें। किसी वस्तु को उसकी संख्या के साथ-साथ उसके फ़ील्ड और प्रकार से पहचानें।",
+          "hold_after": 0.7,
+          "speech_text": "Browse से Annotate उदाहरण की मेज़रमेंट्स डॉट डी बी तक जाएँ और Build tree पर क्लिक करें। लेबल पढ़ने के लिए Object कॉलम और डिवाइडर चौड़े करें। किसी वस्तु को उसकी संख्या के साथ-साथ उसके फ़ील्ड और प्रकार से पहचानें।"
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
-          "hold_after": 0.7
+          "narration": "इस डेटाबेस में दो हज़ार तीन सौ इकतालीस कोशिकाएँ हैं। ट्री अधिकतम दो हज़ार पैरेंट परिवार दिखाता है। जब सभी परिवार चाहिए, तो इस पाठ में आगे दिखाया गया Python निर्यात इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "इस डेटाबेस में दो हज़ार तीन सौ इकतालीस कोशिकाएँ हैं। ट्री अधिकतम दो हज़ार पैरेंट परिवार दिखाता है। जब सभी परिवार चाहिए, तो इस पाठ में आगे दिखाया गया Python निर्यात इस्तेमाल करें।"
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
-          "hold_after": 0.7
+          "narration": "ट्री के ऊपर का सारांश पढ़ें। नाभिक भी चाइल्ड गिना जाता है, इसलिए सामग्री वाली कोशिका में कोई रोगजनक वस्तु न होना भी संभव है। हर परिवार को समझने के लिए चाइल्ड के प्रकार इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "ट्री के ऊपर का सारांश पढ़ें। नाभिक भी चाइल्ड गिना जाता है, इसलिए सामग्री वाली कोशिका में कोई रोगजनक वस्तु न होना भी संभव है। हर परिवार को समझने के लिए चाइल्ड के प्रकार इस्तेमाल करें।"
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
-          "hold_after": 0.7
+          "narration": "किसी पैरेंट के चाइल्ड देखने के लिए उसे खोलें। यहाँ कोशिका तीन में नाभिक पाँच और रोगजनक एक है। जिस प्रकार की वस्तु देखनी है, वही चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "किसी पैरेंट के चाइल्ड देखने के लिए उसे खोलें। यहाँ कोशिका तीन में नाभिक पाँच और रोगजनक एक है। जिस प्रकार की वस्तु देखनी है, वही चुनें।"
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
-          "hold_after": 0.7
+          "narration": "पैरेंट और उसके चाइल्ड को साथ चुनने के लिए Select with contents इस्तेमाल करें। चुनी गई पहचानों में उनका फ़ील्ड और वस्तु प्रकार शामिल होता है। जब केवल एक वस्तु चाहिए, तो सिर्फ़ उस चाइल्ड को चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "पैरेंट और उसके चाइल्ड को साथ चुनने के लिए Select with contents इस्तेमाल करें। चुनी गई पहचानों में उनका फ़ील्ड और वस्तु प्रकार शामिल होता है। जब केवल एक वस्तु चाहिए, तो सिर्फ़ उस चाइल्ड को चुनें।"
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
-          "hold_after": 0.7
+          "narration": "बड़े परिवार की सामग्री देखने के लिए उसे खोलें। इस उदाहरण में तैंतीस वस्तुओं वाला एक परिवार है। कोई गिनती असामान्य लगे, तो संबंधित इमेज देखें।",
+          "hold_after": 0.7,
+          "speech_text": "बड़े परिवार की सामग्री देखने के लिए उसे खोलें। इस उदाहरण में तैंतीस वस्तुओं वाला एक परिवार है। कोई गिनती असामान्य लगे, तो संबंधित इमेज देखें।"
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
-          "hold_after": 0.7
+          "narration": "दिखाए गए परिवारों को क्रम में लगाने के लिए किसी कॉलम शीर्षक पर क्लिक करें। क्रम बदलने से दर्ज संबंध और दो हज़ार पैरेंट की प्रदर्शन सीमा नहीं बदलती।",
+          "hold_after": 0.7,
+          "speech_text": "दिखाए गए परिवारों को क्रम में लगाने के लिए किसी कॉलम शीर्षक पर क्लिक करें। क्रम बदलने से दर्ज संबंध और दो हज़ार पैरेंट की प्रदर्शन सीमा नहीं बदलती।"
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
+          "narration": "क्रॉप देखने के लिए पहले Annotate खोलें और मेल खाता उदाहरण प्रोजेक्ट लोड करें। अगर Annotate माँगने वाला संदेश दिखे, तो Lineage से इमेज माँगने से पहले उसे खोलें।",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "क्रॉप देखने के लिए पहले Annotate खोलें और मेल खाता उदाहरण प्रोजेक्ट लोड करें। अगर Annotate माँगने वाला संदेश दिखे, तो Lineage से इमेज माँगने से पहले उसे खोलें।"
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
-          "hold_after": 0.7
+          "narration": "पूरा डाउनलोड किया गया प्रोजेक्ट इस्तेमाल करें, जिसमें कोशिका क्रॉप हैं। एक ही रन का डेटाबेस और इमेज साथ रखें, ताकि वस्तुओं की पहचान मेल खाए।",
+          "hold_after": 0.7,
+          "speech_text": "पूरा डाउनलोड किया गया प्रोजेक्ट इस्तेमाल करें, जिसमें कोशिका क्रॉप हैं। एक ही रन का डेटाबेस और इमेज साथ रखें, ताकि वस्तुओं की पहचान मेल खाए।"
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
-          "hold_after": 0.7
+          "narration": "इस उदाहरण में पूरे परिवार पर Open crops से बचें। छूटे नाभिक और रोगजनक क्रॉप की जगह असंबंधित कोशिका क्रॉप आ सकते हैं। ट्री पर लौटें और केवल पैरेंट कोशिका चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "इस उदाहरण में पूरे परिवार पर Open crops से बचें। छूटे नाभिक और रोगजनक क्रॉप की जगह असंबंधित कोशिका क्रॉप आ सकते हैं। ट्री पर लौटें और केवल पैरेंट कोशिका चुनें।"
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
-          "hold_after": 0.7
+          "narration": "Lineage में पैरेंट कोशिका पर डबल-क्लिक करें। Annotate उस पैरेंट का मेल खाता कोशिका क्रॉप खोलता है। डाउनलोड किए गए उदाहरण में यही क्रॉप उपलब्ध है।",
+          "hold_after": 0.7,
+          "speech_text": "Lineage में पैरेंट कोशिका पर डबल-क्लिक करें। Annotate उस पैरेंट का मेल खाता कोशिका क्रॉप खोलता है। डाउनलोड किए गए उदाहरण में यही क्रॉप उपलब्ध है।"
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
-          "hold_after": 0.7
+          "narration": "पैरेंट थंबनेल का पूर्वावलोकन बड़ा करने के लिए Shift के साथ क्लिक करें, फिर लौटने के लिए Escape दबाएँ। सामान्य बायाँ क्लिक एनोटेशन वर्ग लगा देता है, इसलिए केवल देखना हो तो Shift इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "पैरेंट थंबनेल का पूर्वावलोकन बड़ा करने के लिए Shift के साथ क्लिक करें, फिर लौटने के लिए Escape दबाएँ। सामान्य बायाँ क्लिक एनोटेशन वर्ग लगा देता है, इसलिए केवल देखना हो तो Shift इस्तेमाल करें।"
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
+          "narration": "दृश्य ताज़ा करने के लिए Build tree पर क्लिक करें। Python में पूरा पदानुक्रम पाने के लिए read_object_tables, build_forest और lineage_frame इस्तेमाल करें, फिर तालिका को CSV के रूप में सहेजें। जुड़ी उदाहरण CSV में सभी सात हज़ार दो सौ एक नोड हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ]
+          ],
+          "speech_text": "दृश्य ताज़ा करने के लिए Build tree पर क्लिक करें। Python में पूरा पदानुक्रम पाने के लिए read_object_tables, build_forest और lineage_frame इस्तेमाल करें, फिर तालिका को CSV के रूप में सहेजें। जुड़ी उदाहरण CSV में सभी सात हज़ार दो सौ एक नोड हैं।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9384,144 +10089,164 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: inspect images and label overlays",
-      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "title": "Layer Viewer: इमेज और लेबल ओवरले देखें",
+      "description": "मेल खाती इमेज और मास्क लोड करें, ओवरले समायोजित करें और वस्तुओं की सीमाएँ देखने के लिए ज़ूम करें।",
       "objectives": [
-        "Open an image and its matching mask.",
-        "Adjust visibility, opacity, blending and layer order.",
-        "Inspect labels with zoom and pan."
+        "इमेज और उससे मेल खाता मास्क खोलें।",
+        "दृश्यता, अपारदर्शिता, मिश्रण और परतों का क्रम समायोजित करें।",
+        "ज़ूम और खिसकाकर लेबल देखें।"
       ],
-      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "prerequisite": "Layer_Viewer_real_image_mask.zip डाउनलोड करके निकालें। शामिल तीव्रता इमेज और उससे मेल खाता पूर्णांक लेबल मास्क इस्तेमाल करें। इस उदाहरण में पिक्सेल का भौतिक कैलिब्रेशन उपलब्ध नहीं है।",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+          "narration": "Home से QC खोलें, फिर Layer Viewer। जुड़ा हुआ इमेज और मास्क उदाहरण डाउनलोड करके निकालें। इन दो इनपुट के लिए व्यूअर के अपने फ़ाइल नियंत्रण हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
             "54_qc_dashboard"
-          ]
+          ],
+          "speech_text": "Home से QC खोलें, फिर Layer Viewer। जुड़ा हुआ इमेज और मास्क उदाहरण डाउनलोड करके निकालें। इन दो इनपुट के लिए व्यूअर के अपने फ़ाइल नियंत्रण हैं।"
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
-          "hold_after": 0.7
+          "narration": "प्लस Image पर क्लिक करें और fov01_C1 डॉट tif खोलें। ग्रेस्केल इमेज कैनवास पर प्रदर्शन के लिए पर्सेंटाइल कंट्रास्ट के साथ दिखती है।",
+          "hold_after": 0.7,
+          "speech_text": "प्लस Image पर क्लिक करें और fov01_C1 डॉट tif खोलें। ग्रेस्केल इमेज कैनवास पर प्रदर्शन के लिए पर्सेंटाइल कंट्रास्ट के साथ दिखती है।"
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
-          "hold_after": 0.7
+          "narration": "इमेज पैनल भरने के लिए Fit पर क्लिक करें। Fit चौड़े पैनल में वर्गाकार इमेज को खींच सकता है; आकार देखते समय पैनल को लगभग वर्गाकार बनाने के लिए डिवाइडर समायोजित करें।",
+          "hold_after": 0.7,
+          "speech_text": "इमेज पैनल भरने के लिए Fit पर क्लिक करें। Fit चौड़े पैनल में वर्गाकार इमेज को खींच सकता है; आकार देखते समय पैनल को लगभग वर्गाकार बनाने के लिए डिवाइडर समायोजित करें।"
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
-          "hold_after": 0.7
+          "narration": "प्लस Mask पर क्लिक करें और fov01_cell_mask डॉट tif खोलें। चौवालीस लेबल वाली वस्तुएँ इमेज के ऊपर दिखती हैं। शून्य पृष्ठभूमि है और पारदर्शी रहता है।",
+          "hold_after": 0.7,
+          "speech_text": "प्लस Mask पर क्लिक करें और fov01_cell_mask डॉट tif खोलें। चौवालीस लेबल वाली वस्तुएँ इमेज के ऊपर दिखती हैं। शून्य पृष्ठभूमि है और पारदर्शी रहता है।"
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+          "narration": "नियंत्रण बदलने से पहले परत सूची में mask चुनें। नीचे की इमेज से सीमाओं की तुलना करने के लिए उसका चेकबॉक्स चालू-बंद करें।",
           "hold_after": 0.7,
           "focus": [
             1970,
             365,
             1840,
             100
-          ]
+          ],
+          "speech_text": "नियंत्रण बदलने से पहले परत सूची में mask चुनें। नीचे की इमेज से सीमाओं की तुलना करने के लिए उसका चेकबॉक्स चालू-बंद करें।"
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+          "narration": "परत को लोड रखते हुए उसके रंग छिपाने के लिए mask की Opacity शून्य करें। किसी दूसरी परत को बदलने से पहले चुनी गई पंक्ति जाँचें।",
           "hold_after": 0.7,
           "focus": [
             1970,
             1800,
             1840,
             250
-          ]
+          ],
+          "speech_text": "परत को लोड रखते हुए उसके रंग छिपाने के लिए mask की Opacity शून्य करें। किसी दूसरी परत को बदलने से पहले चुनी गई पंक्ति जाँचें।"
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
-          "hold_after": 0.7
+          "narration": "लेबल के आकार देखने के लिए Opacity को सौ प्रतिशत करें। रंग हर लेबल वाली वस्तु के भीतर इमेज को ढक देते हैं।",
+          "hold_after": 0.7,
+          "speech_text": "लेबल के आकार देखने के लिए Opacity को सौ प्रतिशत करें। रंग हर लेबल वाली वस्तु के भीतर इमेज को ढक देते हैं।"
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
-          "hold_after": 0.7
+          "narration": "Opacity को फिर पचास प्रतिशत करें और मास्क के आर-पार इमेज की बनावट देखने के लिए translucent मिश्रण चुनें। वस्तुओं की सीमाओं की तुलना नीचे के संकेत से करें।",
+          "hold_after": 0.7,
+          "speech_text": "Opacity को फिर पचास प्रतिशत करें और मास्क के आर-पार इमेज की बनावट देखने के लिए translucent मिश्रण चुनें। वस्तुओं की सीमाओं की तुलना नीचे के संकेत से करें।"
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
-          "hold_after": 0.7
+          "narration": "मास्क के रंग इमेज में जोड़ने के लिए additive मिश्रण चुनें। इस दृश्य में चमकीले हिस्से संतृप्त हो सकते हैं, इसलिए साफ़ तुलना के लिए translucent पर लौटें।",
+          "hold_after": 0.7,
+          "speech_text": "मास्क के रंग इमेज में जोड़ने के लिए additive मिश्रण चुनें। इस दृश्य में चमकीले हिस्से संतृप्त हो सकते हैं, इसलिए साफ़ तुलना के लिए translucent पर लौटें।"
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
-          "hold_after": 0.7
+          "narration": "गहरे ओवरले की तुलना के लिए multiply और minimum मिश्रण आज़माएँ। ये विकल्प केवल दिखाई गई संयुक्त छवि बदलते हैं; मूल तीव्रता मान स्रोत इमेज में उपलब्ध रहते हैं।",
+          "hold_after": 0.7,
+          "speech_text": "गहरे ओवरले की तुलना के लिए multiply और minimum मिश्रण आज़माएँ। ये विकल्प केवल दिखाई गई संयुक्त छवि बदलते हैं; मूल तीव्रता मान स्रोत इमेज में उपलब्ध रहते हैं।"
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
-          "hold_after": 0.7
+          "narration": "opaque चुनें और उसका रूप देखने के लिए Opacity स्लाइडर समायोजित करें। इस पूर्णांक मास्क के साथ पचास प्रतिशत opaque मिश्रण पचास प्रतिशत translucent जैसा दिखता है। आगे बढ़ने के लिए translucent पर लौटें।",
+          "hold_after": 0.7,
+          "speech_text": "opaque चुनें और उसका रूप देखने के लिए Opacity स्लाइडर समायोजित करें। इस पूर्णांक मास्क के साथ पचास प्रतिशत opaque मिश्रण पचास प्रतिशत translucent जैसा दिखता है। आगे बढ़ने के लिए translucent पर लौटें।"
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
-          "hold_after": 0.7
+          "narration": "image चुनें और रंग-मानचित्र चयनकर्ता में cyan चुनें। तीव्रता इमेज का रंग बदलता है, जबकि मास्क अपने लेबल रंग बनाए रखता है। ग्रेस्केल दृश्य पर लौटने के लिए gray चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "image चुनें और रंग-मानचित्र चयनकर्ता में cyan चुनें। तीव्रता इमेज का रंग बदलता है, जबकि मास्क अपने लेबल रंग बनाए रखता है। ग्रेस्केल दृश्य पर लौटने के लिए gray चुनें।"
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
-          "hold_after": 0.7
+          "narration": "mask चुनें और उसे इमेज के पीछे ले जाने के लिए नीचे वाला तीर दबाएँ। ऊपर वाली परत सामने दिखती है। लेबल देखने के लिए मास्क को फिर ऊपर ले जाएँ।",
+          "hold_after": 0.7,
+          "speech_text": "mask चुनें और उसे इमेज के पीछे ले जाने के लिए नीचे वाला तीर दबाएँ। ऊपर वाली परत सामने दिखती है। लेबल देखने के लिए मास्क को फिर ऊपर ले जाएँ।"
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+          "narration": "स्थिति पंक्ति में उसकी स्थिति और लेबल संख्या पढ़ने के लिए किसी दिखती लेबल वाली वस्तु पर क्लिक करें। उस वस्तु का फ़ील्ड, प्लेट या वेल पहचानने के लिए अपने प्रोजेक्ट का मेटाडेटा इस्तेमाल करें।",
           "hold_after": 0.7,
           "focus": [
             295,
             1920,
             3500,
             165
-          ]
+          ],
+          "speech_text": "स्थिति पंक्ति में उसकी स्थिति और लेबल संख्या पढ़ने के लिए किसी दिखती लेबल वाली वस्तु पर क्लिक करें। उस वस्तु का फ़ील्ड, प्लेट या वेल पहचानने के लिए अपने प्रोजेक्ट का मेटाडेटा इस्तेमाल करें।"
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
-          "hold_after": 0.7
+          "narration": "पॉइंटर के आसपास ज़ूम करने के लिए किसी वस्तु पर माउस व्हील घुमाएँ। तब तक पास जाएँ जब तक उसकी सीमा आसानी से न दिखे।",
+          "hold_after": 0.7,
+          "speech_text": "पॉइंटर के आसपास ज़ूम करने के लिए किसी वस्तु पर माउस व्हील घुमाएँ। तब तक पास जाएँ जब तक उसकी सीमा आसानी से न दिखे।"
         },
         {
           "visual": "23_native_pan",
-          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
-          "hold_after": 0.7
+          "narration": "खिसकाने के लिए Shift दबाए रखें और बाएँ माउस बटन से खींचें। आप बीच वाले बटन से भी खींच सकते हैं। मौजूदा ज़ूम बनाए रखते हुए फ़ील्ड में आगे-पीछे जाएँ।",
+          "hold_after": 0.7,
+          "speech_text": "खिसकाने के लिए Shift दबाए रखें और बाएँ माउस बटन से खींचें। आप बीच वाले बटन से भी खींच सकते हैं। मौजूदा ज़ूम बनाए रखते हुए फ़ील्ड में आगे-पीछे जाएँ।"
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
-          "hold_after": 0.7
+          "narration": "पूरे फ़ील्ड पर लौटने के लिए Fit पर क्लिक करें। अगर फ़िट की गई इमेज खिंची हुई दिखे, तो पैनल का आकार बदलें।",
+          "hold_after": 0.7,
+          "speech_text": "पूरे फ़ील्ड पर लौटने के लिए Fit पर क्लिक करें। अगर फ़िट की गई इमेज खिंची हुई दिखे, तो पैनल का आकार बदलें।"
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+          "narration": "प्लस Points और प्लस Shapes खाली सहायक परतें जोड़ते हैं। सेगमेंटेशन मास्क बनाने या संपादित करने के लिए Make Masks में आगे बढ़ें; इस व्यूअर में उन खाली परतों के लिए ड्रॉइंग नियंत्रण नहीं हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
-          ]
+          ],
+          "speech_text": "प्लस Points और प्लस Shapes खाली सहायक परतें जोड़ते हैं। सेगमेंटेशन मास्क बनाने या संपादित करने के लिए Make Masks में आगे बढ़ें; इस व्यूअर में उन खाली परतों के लिए ड्रॉइंग नियंत्रण नहीं हैं।"
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
-          "hold_after": 0.7
+          "narration": "कोई परत चुनें और उसे दृश्य से हटाने के लिए Remove इस्तेमाल करें। उसकी मूल फ़ाइल डिस्क पर रहती है और फिर से लोड की जा सकती है।",
+          "hold_after": 0.7,
+          "speech_text": "कोई परत चुनें और उसे दृश्य से हटाने के लिए Remove इस्तेमाल करें। उसकी मूल फ़ाइल डिस्क पर रहती है और फिर से लोड की जा सकती है।"
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+          "narration": "परिणाम एक जाँचा हुआ परत दृश्य है। संयुक्त छवि निर्यात करने के लिए Python से stack_from_paths और LayerStack.render_uint8 इस्तेमाल करें। मास्क के संपादन सहेजने के लिए Make Masks, या वस्तुओं के माप के लिए Measure पर जाएँ।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "14_make_masks",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "परिणाम एक जाँचा हुआ परत दृश्य है। संयुक्त छवि निर्यात करने के लिए Python से stack_from_paths और LayerStack.render_uint8 इस्तेमाल करें। मास्क के संपादन सहेजने के लिए Make Masks, या वस्तुओं के माप के लिए Measure पर जाएँ।"
         }
       ],
       "example_files": [
@@ -9531,6 +10256,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9541,93 +10306,145 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: plot measurements and filter objects",
-      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+      "title": "Graph Builder: माप प्लॉट करें और वस्तुएँ छाँटें",
+      "description": "माप तालिका लोड करें, प्लॉट के अक्ष तय करें, समूहों की तुलना करें और दिखाई गई वस्तुएँ छाँटें।",
       "objectives": [
-        "Load an example measurement table.",
-        "Build a histogram, scatter plot and grouped panels.",
-        "Filter objects and choose a follow-up view."
+        "उदाहरण माप तालिका लोड करें।",
+        "हिस्टोग्राम, स्कैटर प्लॉट और समूह वाले पैनल बनाएँ।",
+        "वस्तुएँ छाँटें और आगे के लिए एक दृश्य चुनें।"
       ],
-      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
+      "prerequisite": "Graph_Builder_real_measurements.zip डाउनलोड करके निकालें। इसमें measurements.db है। बाद में इमेज क्रॉप देखने के लिए मेल खाता Annotate प्रोजेक्ट और उसकी इमेज भी उपलब्ध रखें।",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
-          "hold_after": 0.7
+          "narration": "माप तालिका देखने के लिए Home से Graph Builder खोलें। जुड़े उदाहरण डेटाबेस से शुरू करें, फिर अपने मापे गए प्रोजेक्ट के साथ यही कदम दोहराएँ।",
+          "hold_after": 0.7,
+          "speech_text": "माप तालिका देखने के लिए Home से Graph Builder खोलें। जुड़े उदाहरण डेटाबेस से शुरू करें, फिर अपने मापे गए प्रोजेक्ट के साथ यही कदम दोहराएँ।"
         },
         {
           "visual": "03_choose_database",
-          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+          "narration": "Load table पर क्लिक करें और निकाले गए आर्काइव से measurements डॉट db खोलें। cell तालिका चुनें। इस उदाहरण में दो हज़ार तीन सौ इकतालीस मापी गई कोशिकाएँ हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
-          ]
+          ],
+          "speech_text": "Load table पर क्लिक करें और निकाले गए आर्काइव से measurements डॉट db खोलें। cell तालिका चुनें। इस उदाहरण में दो हज़ार तीन सौ इकतालीस मापी गई कोशिकाएँ हैं।"
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
-          "hold_after": 0.7
+          "narration": "कॉलम सूची में cell_area खोजें और उसे X पर खींचें। स्वचालित चार्ट हिस्टोग्राम बन जाता है: हर पट्टी एक क्षेत्रफल अंतराल की कोशिकाएँ गिनती है। अक्ष की व्याख्या से पहले माप की इकाइयाँ जाँचें।",
+          "hold_after": 0.7,
+          "speech_text": "कॉलम सूची में cell_area खोजें और उसे X पर खींचें। स्वचालित चार्ट हिस्टोग्राम बन जाता है: हर पट्टी एक क्षेत्रफल अंतराल की कोशिकाएँ गिनती है। अक्ष की व्याख्या से पहले माप की इकाइयाँ जाँचें।"
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
-          "hold_after": 0.7
+          "narration": "स्कैटर प्लॉट बनाने के लिए cell_channel_1_mean_intensity को Y पर खींचें। हर बिंदु एक कोशिका को उसके क्षेत्रफल और चैनल एक की औसत तीव्रता के अनुसार दिखाता है। बड़ी तालिकाओं के साथ काम करते समय पंक्ति संख्या वाली सूचना पढ़ें।",
+          "hold_after": 0.7,
+          "speech_text": "स्कैटर प्लॉट बनाने के लिए cell_channel_1_mean_intensity को Y पर खींचें। हर बिंदु एक कोशिका को उसके क्षेत्रफल और चैनल एक की औसत तीव्रता के अनुसार दिखाता है। बड़ी तालिकाओं के साथ काम करते समय पंक्ति संख्या वाली सूचना पढ़ें।"
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
-          "hold_after": 0.7
+          "narration": "प्लेट के कॉलम अलग दिखाने के लिए columnID को Colour पर खींचें। रंगों को दर्ज कॉलम लेबल से मिलाने के लिए लेजेंड इस्तेमाल करें, और ऐसे समूह खोजें जिन्हें ध्यान से देखना हो।",
+          "hold_after": 0.7,
+          "speech_text": "प्लेट के कॉलम अलग दिखाने के लिए columnID को Colour पर खींचें। रंगों को दर्ज कॉलम लेबल से मिलाने के लिए लेजेंड इस्तेमाल करें, और ऐसे समूह खोजें जिन्हें ध्यान से देखना हो।"
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
-          "hold_after": 0.7
+          "narration": "प्लेट की हर पंक्ति के लिए पैनल बनाने के लिए rowID को नीचे की ओर वाले फ़ैसेट चैनल पर खींचें। साझा अक्षों की मदद से पैनलों की तुलना करें। स्थितियों के बीच सांख्यिकीय तुलना के लिए स्वतंत्र वेल इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "प्लेट की हर पंक्ति के लिए पैनल बनाने के लिए rowID को नीचे की ओर वाले फ़ैसेट चैनल पर खींचें। साझा अक्षों की मदद से पैनलों की तुलना करें। स्थितियों के बीच सांख्यिकीय तुलना के लिए स्वतंत्र वेल इस्तेमाल करें।"
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
-          "hold_after": 0.7
+          "narration": "दाईं ओर के फ़िल्टर पैनल में cell_area जोड़ें और न्यूनतम मान दर्ज करें। उदाहरण इक्कीस हज़ार नौ सौ पच्चीस इस्तेमाल करता है, जिससे एक हज़ार एक सौ इकहत्तर पंक्तियाँ बचती हैं। अपने माप के अनुकूल सीमाएँ चुनें और प्लॉट की गिनती तथा अक्ष बदलते देखें।",
+          "hold_after": 0.7,
+          "speech_text": "दाईं ओर के फ़िल्टर पैनल में cell_area जोड़ें और न्यूनतम मान दर्ज करें। उदाहरण इक्कीस हज़ार नौ सौ पच्चीस इस्तेमाल करता है, जिससे एक हज़ार एक सौ इकहत्तर पंक्तियाँ बचती हैं। अपने माप के अनुकूल सीमाएँ चुनें और प्लॉट की गिनती तथा अक्ष बदलते देखें।"
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
-          "hold_after": 0.7
+          "narration": "पूरी तालिका वापस लाने के लिए फ़िल्टर पैनल में Clear all पर क्लिक करें। प्लॉट की मैपिंग हटाकर नया चार्ट शुरू करना हो, तो बाईं ओर Clear all channels इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "पूरी तालिका वापस लाने के लिए फ़िल्टर पैनल में Clear all पर क्लिक करें। प्लॉट की मैपिंग हटाकर नया चार्ट शुरू करना हो, तो बाईं ओर Clear all channels इस्तेमाल करें।"
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
-          "hold_after": 0.7
+          "narration": "एक ही स्कैटर प्लॉट पर लौटने के लिए फ़ैसेट को उसके छोटे क्रॉस से हटाएँ। कोई क्षेत्र चुनने के लिए वस्तुओं के चारों ओर आयत खींचें। अगर Open selection in Annotate उपलब्ध नहीं है, तो मेल खाते प्रोजेक्ट के साथ Annotate अलग से खोलें और वहाँ वस्तुएँ देखें।",
+          "hold_after": 0.7,
+          "speech_text": "एक ही स्कैटर प्लॉट पर लौटने के लिए फ़ैसेट को उसके छोटे क्रॉस से हटाएँ। कोई क्षेत्र चुनने के लिए वस्तुओं के चारों ओर आयत खींचें। अगर Open selection in Annotate उपलब्ध नहीं है, तो मेल खाते प्रोजेक्ट के साथ Annotate अलग से खोलें और वहाँ वस्तुएँ देखें।"
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
-          "hold_after": 0.7
+          "narration": "चयन हटाने के लिए प्लॉट के किसी खाली हिस्से पर क्लिक करें। वस्तुओं का दूसरा समूह देखने से पहले सक्रिय फ़िल्टर और दिखाई गई गिनती जाँचें।",
+          "hold_after": 0.7,
+          "speech_text": "चयन हटाने के लिए प्लॉट के किसी खाली हिस्से पर क्लिक करें। वस्तुओं का दूसरा समूह देखने से पहले सक्रिय फ़िल्टर और दिखाई गई गिनती जाँचें।"
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
+          "narration": "वेल हीटमैप के लिए Plate Viewer, या दोहराए गए चार्ट के लिए Small Multiples खोलने हेतु शीर्ष भाग के शॉर्टकट इस्तेमाल करें। स्रोत डेटाबेस, चुने गए कॉलम और फ़िल्टर रखें, ताकि आप दृश्य फिर से बना सकें।",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ]
+          ],
+          "speech_text": "वेल हीटमैप के लिए Plate Viewer, या दोहराए गए चार्ट के लिए Small Multiples खोलने हेतु शीर्ष भाग के शॉर्टकट इस्तेमाल करें। स्रोत डेटाबेस, चुने गए कॉलम और फ़िल्टर रखें, ताकि आप दृश्य फिर से बना सकें।"
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+          "narration": "मौजूदा स्क्रीन चार्ट निर्यात बटन के बिना प्लॉट दिखाती है। स्क्रिप्ट से प्लॉट बनाने के लिए Graph Builder API, या किसी दूसरे प्लॉटिंग टूल के लिए तालिका निर्यात करने हेतु Database Browser इस्तेमाल करें।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
-          ]
+          ],
+          "speech_text": "मौजूदा स्क्रीन चार्ट निर्यात बटन के बिना प्लॉट दिखाती है। स्क्रिप्ट से प्लॉट बनाने के लिए Graph Builder API, या किसी दूसरे प्लॉटिंग टूल के लिए तालिका निर्यात करने हेतु Database Browser इस्तेमाल करें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

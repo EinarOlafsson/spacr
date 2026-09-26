@@ -11261,7 +11261,7 @@ class MakeMasksScreen(QWidget):
             "Equalise the histogram inside each tile rather than over the "
             "whole field, with a limit on how much any one level may be "
             "stretched. It is what brings out objects in a dim corner "
-            "without blowing out the bright middle. It also amplifies "
+            "without saturating the bright middle. It also amplifies "
             "noise in empty tiles, which is what the clip limit is for.")
         card.body_layout.addWidget(self._enh_clahe)
 

@@ -2823,124 +2823,162 @@
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
       "section": "Tools",
-      "title": "Train Cellpose: kontrollerte par og en eksplisitt API-omvei",
-      "description": "Finn Train i Cellpose Workbench, gjenkjenn dagens kildeimportfeil og følg ekte Python-trening i to epoker med seks nedlastbare cellebilde-/maskepar.",
+      "title": "Tren en Cellpose-modell",
+      "description": "Forbered par av bilder og masker, finjuster en segmenteringsmodell i Cellpose Workbench og bruk det lagrede sjekkpunktet.",
       "objectives": [
-        "Finn Train og Apply i Make Masks, ikke egne Home-fliser.",
-        "Kontroller parrede filnavn og skill eksisterende etiketter fra gjennomgått fasit.",
-        "Gjenkjenn delvis import og skill API-omveien fra feilende GUI.",
-        "Undersøk input, oppvarmingsrater, endrede vekter og bekreftet filsti.",
-        "Skill treningstap, testplassholdere og vektinnlasting fra uavhengig nøyaktighet."
+        "Undersøke bilder og tilhørende objektetikettmasker i Make Masks.",
+        "Velge treningsmappe, startmodell, treningsplan og utdataplassering.",
+        "Kjøre treningen, finne sjekkpunktet og bruke det på separate bilder."
       ],
       "example_files": [
-        "Train_Cellpose_API_example.zip"
+        "Cellpose_training_images_masks.zip"
       ],
-      "prerequisite": "Bruk sekspakken med den registrerte hjelperen og kildemanifestet. Ekte felt bevarer celleintensitet kanal 1 og cellemaske plan 4; plan 6 er patogen. Eksisterende etiketter og kantavskårne objekter er IKKE uavhengig gjennomgått fasit. Train mister fortsatt src og beholder model_name=new_model selv om tall importeres; ingen GUI-trening starter. spacr.submodules.train_cellpose bruker nytt mål, to epoker, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 og ingen ekstra spaCR-augmentering. normalize=False stopper spaCR-persentiler, ikke maksimumskalering eller Cellposes normalisering. Cellpose roterer/skalerer fortsatt og bruker interne 256-pikselutsnitt. Startfrø 19; intern tilfeldighet består. CUDA begrenset til 65% på RTX 3090; RAM-vakt 100 GiB gjelder bare denne maskinen. 3,145,728 inputverdier og tolv figurarrayer kontrollert; alle seks par ble i treningen. Rater 0 og 1.1111111111111112e-6; 345 av 347 trenbare parametertensorer endret seg. Tap steg fra 1.496740683913231 til 1.5215517828861873. Ingen testdata: nuller er plassholdere. Kontrollpunkt under models/cellpose_model/models lest med weights_only=True; konsollsammendraget mangler andre models. Innlasting er ikke inferens eller nøyaktighet. Ekte figur i ekstern viser, ikke innsatt i GUI. Originaler, feilopptak og tidligere GUI-stopp beholdes. Ingen AI-forespørsel, leverandørsvar, vitenskapelig godkjenning eller publisering.",
+      "prerequisite": "Last ned og pakk ut det lenkede eksemplet: seks treningsbilder med masker og tre separate bilder for Apply. Eller forbered egne bilder og tilhørende masker med heltallsetiketter, og undersøk dem i Make Masks før trening.",
       "scenes": [
         {
-          "visual": "gui_01_make_masks_host",
-          "narration": "Åpne Make Masks og det innebygde Cellpose Workbench. Train og Apply er faner der, ikke egne Home-fliser. Leksjonen viser dagens rute, et importproblem og en eksplisitt Python-omvei. Den lenkede Make Masks-leksjonen viser maskekontroll og redigering før trening.",
+          "visual": "home_make_masks",
+          "narration": "Fra Home åpner du Tools og deretter Make Masks. Åpne Cellpose Workbench fra verktøylinjen; den starter på fanen Train. Du trener ut fra bilder og objektetikettmaskene deres, og bruker deretter den lagrede modellen i Apply.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "train_source",
+          "narration": "Pakk ut det lenkede eksemplet. Mappen training inneholder seks bilder og en undermappe masks, og mappen apply inneholder tre separate bilder til senere. Klikk på mappeknappen ved siden av Image source folder og velg training. La Mask source folder stå tomt for å bruke undermappen masks, eller velg en annen maskemappe.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "train_pairs",
+          "narration": "Hvert bilde trenger én maske med samme høyde og bredde. 0 er bakgrunn, og hvert objekt har sitt eget positive tall. Åpne treningsmappen i Make Masks for å undersøke etikettene og rette dem før trening. Dette bildet har 95 merkede celler.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "train_channels",
+          "narration": "Eksemplet er i gråtoner, så la Channels stå tomt. For et flerkanalsbilde legger du til opptil tre nullbaserte kanalnumre, for eksempel 0 og 2 for første og tredje kanal. Angi Channel axis bare hvis den automatiske gjenkjenningen ikke finner kanaldimensjonen.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            241
+          ]
+        },
+        {
+          "visual": "train_model_output",
+          "narration": "Behold Base model på cpsam for å starte fra Cellpose-SAM, eller skriv inn en bane til et sjekkpunkt for å fortsette treningen av en tidligere modell. Skriv inn et Model name; her tutorial cells. La Checkpoint folder stå tomt for å lagre i kildemappen, eller velg en annen mappe.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            496
+          ]
+        },
+        {
+          "visual": "train_schedule",
+          "narration": "Angi N epochs og Batch size. Denne raske kjøringen bruker 10 epoker med batchstørrelse 1. Flere epoker gir modellen flere treningsoppdateringer, og større batcher bruker mer minne. Behold den viste læringsraten til å begynne med.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            757,
+            1165,
+            264
+          ]
+        },
+        {
+          "visual": "train_normalization",
+          "narration": "La Normalize være på med 1. og 99. persentil som utgangspunkt. De angir intensitetsområdet for hver kanal. Scale range varierer bildestørrelsen under trening, og Min train masks hopper over bilder med færre merkede objekter.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            820,
+            1165,
+            561
+          ]
+        },
+        {
+          "visual": "train_validation",
+          "narration": "For å følge valideringstapet velger du en egen Validation image folder og tilhørende Validation mask folder. Bruk aldri treningsbilder der på nytt. La begge stå tomme når du, som i dette eksemplet, ikke har et eget merket sett.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            158
+          ]
+        },
+        {
+          "visual": "train_run_console",
+          "narration": "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften. På denne GPU-en ble 10 epoker på seks bilder ferdige på under ett minutt.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            520,
+            3410,
+            1260
+          ]
+        },
+        {
+          "visual": "train_checkpoint",
+          "narration": "Når treningen er ferdig, oppgir konsollen banen til sjekkpunktet. Med standardplasseringen ligger det i kildemappen under models/cellpose_model/models. Filnavnet legger arkitektur og antall epoker til modellnavnet. Behold det sammen med treningsinnstillingene.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            960,
+            3410,
+            700
+          ]
+        },
+        {
+          "visual": "apply_checkpoint",
+          "narration": "Åpne fanen Apply. Custom model peker nå på sjekkpunktet du trente. Sett Source til eksemplets mappe apply, der bildene kommer fra brønner som ikke ble brukt til trening. Sett Channels til 0 og Percentiles til 2 og 99. Slå av Fill in slik at celler som berører hverandre, holdes atskilt, og slå på Save og Verbose.",
+          "hold_after": 0.7,
+          "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_actual_train_tab",
-          "narration": "På Train undersøker du utgangspunkt og treningsplan. Ikke kopier opprinnelig epoketall eller læringsrate som anbefaling. Trening krever parrede bilder og instansmasker, kildemappe og utdatanavn. At skjemaet vises, betyr ikke at kravene er oppfylt.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02a_real_settings_import_picker",
-          "narration": "Den ekte Import settings-dialogen åpner en CSV med begrensede eksempelverdier. Etter import vises to epoker, minibatch én og liten læringsrate. Men nødvendig kilde forsvinner og ønsket modellnavn blir new model. Dette er delvis import, ikke en ferdig konfigurasjon; ikke trykk Run.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02b_actual_imported_values",
-          "narration": "Python-ruten nedenfor er adskilt fra GUI-feilen. Den setter ingen skjult kilde og reparerer ikke skjemaet. Bruk den lenkede pakken i en ny mappe. Hjelperen avviser eksisterende mål, bevarer originalparene og registrerer den faktiske API-implementasjonen og inndataene.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_01_verified_cell_pairs",
-          "narration": "Det er seks ekte 512-piksel bilde-/maskepar med samsvarende filnavn. Opprinnelige innstillinger angir celleintensitet kanal én og cellemasker plan fire; plan seks er patogen. Eksisterende etiketter er ikke uavhengig gjennomgått fasit. Kontroller grenser og kantavskårne objekter før produksjonstrening.",
           "focus": [
-            190,
-            80,
-            3450,
-            900
-          ],
-          "hold_after": 0.7
+            366,
+            607,
+            1165,
+            1156
+          ]
         },
         {
-          "visual": "gui_09_saved_actual_training_pairs",
-          "narration": "Dette er den faktiske seksparfiguren lagret av API-kjøringen og åpnet i en ekstern viser, ikke satt inn i spaCR. Hvert øvre bilde svarer til masken under. Alle inngangsverdier og tolv viste arrayer ble kontrollert mot kildene. Det bekrefter samsvar, ikke annotasjonskvalitet.",
+          "visual": "apply_preview",
+          "narration": "Åpne Live preview, velg ett bilde og trykk på Run preview med samme kanal og persentiler. Bildet segmenteres med sjekkpunktet ditt, som her finner 76 celler. Juster innstillingene her før du kjører hele mappen.",
+          "hold_after": 0.7,
           "focus": [
-            560,
-            610,
-            2750,
-            970
-          ],
-          "hold_after": 0.7
+            390,
+            520,
+            3410,
+            1240
+          ]
         },
         {
-          "visual": "command_02_actual_two_epoch_api",
-          "narration": "Kjør hjelperen med datakilden og et nytt mål. Det begrensede CUDA-eksemplet bruker seks par, to epoker og minibatch én. Inndatamålet er 512 piksler; Cellpose trener internt på 256-pikselutsnitt. Å slå av spaCRs ekstra augmentering slår ikke av Cellposes normalisering, rotasjon og størrelsesendring.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Første oppvarmingsepoke har læringsrate null. Den neste har en liten positiv rate, slik at vekter faktisk oppdateres. Kontrollpunktet ble sammenlignet med de opprinnelige trenbare vektene: 345 av 347 parametertensorer endret seg. Bare endret diameter ville ikke bestå. Endrede vekter beviser fortsatt ikke en god modell.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Treningstapet steg litt fra omtrent 1,497 til 1,522. Ingen testdata ble levert. Nullfeltene for testtap er plassholdere, ikke perfekt testytelse. Dette viser mekanikken, ikke konvergens, bedre segmentering eller uavhengig nøyaktighet. Hold uavhengig evaluering adskilt fra trening.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Bruk kontrollpunktstien i den verifiserte sjekkfilen. Den inneholder enda en models-mappe som det generelle konsollsammendraget utelater. Behold kontrollpunkt, innstillinger, manifest og sjekker sammen. Sikker tensorinnlasting bekrefter lesbarhet, ikke inferens; pakken inneholder par og hjelper, ingen sertifisert modell.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_12_actual_apply_tab_no_inference",
-          "narration": "Apply har egen kildemappe, eget modellfelt og liveforhåndsvisning. Å åpne fanen velger ikke vårt eksterne kontrollpunkt eller starter inferens. Følg den lenkede leksjonen og valider på uavhengige bilder. Valgfri spaCR AI brukes ikke her; ingen spørsmål eller leverandørsvar erstatter kontroll av ekte dokumentasjon.",
+          "visual": "apply_result",
+          "narration": "Trykk på Run. Apply skriver én maske per bilde i en undermappe masks ved siden av bildene, og Verbose viser hvert resultat som en figur. Her inneholder de tre maskene 76, 48 og 55 celler. Sammenlign en modells masker med separat merkede synsfelt før du bruker den på et helt eksperiment.",
+          "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
-            "14_make_masks",
-            "06_api"
+            "14_make_masks"
           ],
-          "hold_after": 0.7
+          "focus": [
+            390,
+            500,
+            3410,
+            390
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "20_cellpose_masks",
@@ -7099,22 +7137,22 @@
       "id": "43_illumination",
       "number": 43,
       "slug": "illumination",
-      "title": "Illumination: estimate and inspect a correction model",
+      "title": "Illumination: anslå og undersøk en korreksjonsmodell",
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
       "section": "Data",
-      "description": "Choose image channels, estimate an illumination field, inspect its QC figure, and reuse the saved model.",
+      "description": "Velg bildekanaler, anslå et belysningsfelt, undersøk QC-figuren og gjenbruk den lagrede modellen.",
       "objectives": [
-        "Select representative fields and intensity channels.",
-        "Estimate and inspect an illumination model.",
-        "Reuse the model in Mask or Measure."
+        "Velge representative synsfelt og intensitetskanaler.",
+        "Anslå og undersøke en belysningsmodell.",
+        "Gjenbruke modellen i Mask eller Measure."
       ],
-      "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
+      "prerequisite": "Bruk en mappe med sammenslåtte bilder med representative synsfelt fra hver opptaksgruppe. Eksemplet bruker de seksten synsfeltene fra plateeksemplet som ble lastet ned i Measure. Vit hvilke lagrede plan som inneholder intensiteter, og hvilke som inneholder etiketter.",
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
+          "narration": "Åpne Measure og deretter Illumination for å anslå en korreksjonsmodell for ujevn bildelysstyrke.",
           "focus": [
             3625,
             65,
@@ -7128,7 +7166,7 @@
         },
         {
           "visual": "05_setting_src",
-          "narration": "Set Source to the merged folder containing image arrays. Use representative fields from your acquisition; the example uses sixteen fields from one plate.",
+          "narration": "Sett Source til mappen merged som inneholder bildematrisene. Bruk representative synsfelt fra opptaket ditt; eksemplet bruker seksten synsfelt fra én plate.",
           "focus": [
             363,
             375,
@@ -7143,7 +7181,7 @@
         },
         {
           "visual": "05_setting_channels",
-          "narration": "Set Channels to the stored intensity planes you want to correct. The example uses channel zero. Check your channel mapping and exclude label-mask planes.",
+          "narration": "Sett Channels til de lagrede intensitetsplanene du vil korrigere. Eksemplet bruker kanal 0. Kontroller kanaltilordningen og utelat plan med etikettmasker.",
           "focus": [
             374,
             475,
@@ -7154,7 +7192,7 @@
         },
         {
           "visual": "04_correction_off_finished",
-          "narration": "Enable Illumination correction before estimating a field. When it is off, Run completes without creating a correction model.",
+          "narration": "Aktiver Illumination correction før du anslår et felt. Når den er av, fullføres Run uten at det lages en korreksjonsmodell.",
           "focus": [
             1518,
             405,
@@ -7165,7 +7203,7 @@
         },
         {
           "visual": "05_setting_illumination_degree",
-          "narration": "Choose an estimator and its settings. For the polynomial example, use degree four and leave Illumination model empty to estimate a new field. Inspect the result for structures that belong to cells rather than illumination.",
+          "narration": "Velg en estimator og innstillingene for den. For polynomeksemplet bruker du grad 4 og lar Illumination model stå tomt for å anslå et nytt felt. Undersøk resultatet for strukturer som hører til celler i stedet for belysningen.",
           "focus": [
             363,
             550,
@@ -7176,7 +7214,7 @@
         },
         {
           "visual": "05_setting_illumination_max_fields",
-          "narration": "Enable Illumination per plate to fit separate acquisition groups. Set Maximum fields to a representative sample; the example includes all sixteen available fields.",
+          "narration": "Aktiver Illumination per plate for å tilpasse opptaksgrupper separat. Sett Maximum fields til et representativt utvalg; eksemplet tar med alle de seksten tilgjengelige synsfeltene.",
           "focus": [
             363,
             858,
@@ -7187,7 +7225,7 @@
         },
         {
           "visual": "05_setting_illumination_dark",
-          "narration": "Set Illumination dark from your camera calibration when available. It is an additive offset in raw counts; zero is the example setting.",
+          "narration": "Sett Illumination dark ut fra kamerakalibreringen når den er tilgjengelig. Det er en additiv forskyvning i råtellinger; 0 er verdien i eksemplet.",
           "focus": [
             374,
             775,
@@ -7198,7 +7236,7 @@
         },
         {
           "visual": "05_setting_illumination_on_missing",
-          "narration": "Enable Illumination QC and choose a missing-model policy. With error selected, a missing plate correction stops processing so you can resolve it.",
+          "narration": "Aktiver Illumination QC og velg en regel for manglende modeller. Med error valgt stopper behandlingen når en platekorreksjon mangler, slik at du kan løse det.",
           "focus": [
             363,
             1020,
@@ -7209,7 +7247,7 @@
         },
         {
           "visual": "06_correction_on_finished",
-          "narration": "Press Run and read the saved model path in the console. This step estimates the model; enable it in a subsequent analysis to apply the correction.",
+          "narration": "Trykk på Run og les banen til den lagrede modellen i konsollen. Dette trinnet anslår modellen; aktiver den i en senere analyse for å bruke korreksjonen.",
           "focus": [
             1518,
             405,
@@ -7220,7 +7258,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Open the saved illumination QC PNG in the illumination folder. Use an image viewer if it does not appear in the Figures panel.",
+          "narration": "Åpne den lagrede QC-PNG-filen for belysning i mappen illumination. Bruk en bildeviser hvis den ikke vises i panelet Figures.",
           "focus": [
             200,
             100,
@@ -7231,7 +7269,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Inspect the estimated illumination field for smooth brightness variation and unwanted cell-shaped structure. Correction subtracts the dark offset and divides by this mean-one field.",
+          "narration": "Undersøk det anslåtte belysningsfeltet for jevn variasjon i lysstyrke og uønskede celleformede strukturer. Korreksjonen trekker fra mørkeforskyvningen og deler på dette feltet med gjennomsnitt 1.",
           "focus": [
             400,
             680,
@@ -7242,7 +7280,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "Compare the before and after radial profiles. Use additional fields to assess how well the correction works beyond the images used to fit it.",
+          "narration": "Sammenlign de radielle profilene før og etter. Bruk flere synsfelt for å vurdere hvor godt korreksjonen virker utover bildene som ble brukt til tilpasningen.",
           "focus": [
             1270,
             680,
@@ -7253,7 +7291,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+          "narration": "For å gjenbruke modellen oppgir du banen og aktiverer korreksjonen i den tiltenkte Mask- eller Measure-flyten. Behold kanalene, plateidentitetene og innstillingene sammen med den, og unngå å korrigere de samme intensitetene to ganger.",
           "focus": [
             363,
             370,
@@ -7270,6 +7308,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7280,18 +7358,18 @@
       "series": 5,
       "app_key": "data_manager",
       "section": "Data and batch runs",
-      "title": "Data Manager: inspect usage, clean up and archive",
-      "description": "Review project storage, preview a cleanup plan, and move a project to an archive destination.",
+      "title": "Data Manager: undersøk bruk, rydd opp og arkiver",
+      "description": "Gå gjennom prosjektets lagring, forhåndsvis en oppryddingsplan og flytt et prosjekt til et arkivmål.",
       "objectives": [
-        "Inspect project disk usage.",
-        "Review and apply a cleanup plan.",
-        "Move and rescan an archived project."
+        "Undersøke prosjektets diskbruk.",
+        "Gå gjennom og bruke en oppryddingsplan.",
+        "Flytte og skanne et arkivert prosjekt på nytt."
       ],
-      "prerequisite": "Use a completed spaCR project and keep an independent backup before cleanup. The example uses a copy of the project produced by External Masks.",
+      "prerequisite": "Bruk et fullført spaCR-prosjekt og ta en uavhengig sikkerhetskopi før opprydding. Eksemplet bruker en kopi av prosjektet som External Masks laget.",
       "scenes": [
         {
           "visual": "01_help_data_manager",
-          "narration": "Open Help, then Data manager. Choose a completed project to inspect its storage and plan cleanup or archiving.",
+          "narration": "Åpne Help og deretter Data manager. Velg et fullført prosjekt for å undersøke lagringen og planlegge opprydding eller arkivering.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks"
@@ -7299,7 +7377,7 @@
         },
         {
           "visual": "03_actual_usage",
-          "narration": "Click Choose project and select the project root. Read Usage for its files, disk space and registered artifacts.",
+          "narration": "Klikk på Choose project og velg prosjektets rot. Les Usage for filene, diskplassen og de registrerte artefaktene.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7310,7 +7388,7 @@
         },
         {
           "visual": "04_prune_choices",
-          "narration": "Open Prune and select the artifact types to consider. Leave measurement databases and model weights unchecked when you want to keep them, then click Show what can be deleted.",
+          "narration": "Åpne Prune og velg hvilke artefakttyper som skal vurderes. La måledatabaser og modellvekter være umerket hvis du vil beholde dem, og klikk deretter på Show what can be deleted.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7321,7 +7399,7 @@
         },
         {
           "visual": "05_real_prune_plan",
-          "narration": "Review the proposed files, space saving and recovery information. The example selects the object-crop folder. Keep the inputs and settings needed to regenerate anything you remove.",
+          "narration": "Gå gjennom de foreslåtte filene, plassbesparelsen og gjenopprettingsinformasjonen. Eksemplet velger mappen med objektutsnitt. Behold inndataene og innstillingene som trengs for å lage på nytt det du fjerner.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7332,17 +7410,17 @@
         },
         {
           "visual": "09_confirmation_locked",
-          "narration": "Click Delete to review the final file list. Deletion cannot be undone, so check the paths and your backup before acknowledging the plan.",
+          "narration": "Klikk på Delete for å gå gjennom den endelige fillisten. Sletting kan ikke angres, så kontroller banene og sikkerhetskopien før du godkjenner planen.",
           "hold_after": 0.7
         },
         {
           "visual": "11_acknowledged_not_deleted",
-          "narration": "Use Cancel if you want to keep the files or revise the selection. Acknowledging the list enables the final Delete action.",
+          "narration": "Bruk Cancel hvis du vil beholde filene eller endre utvalget. Når du godkjenner listen, aktiveres den endelige handlingen Delete.",
           "hold_after": 0.7
         },
         {
           "visual": "14_actual_cleanup_result",
-          "narration": "Confirm Delete when the plan is correct. Read the result for the number of removed files and space recovered.",
+          "narration": "Bekreft Delete når planen er riktig. Les i resultatet antallet fjernede filer og hvor mye plass som ble frigjort.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7353,7 +7431,7 @@
         },
         {
           "visual": "15_usage_after_cleanup",
-          "narration": "Review the updated Usage scan. Removed artifacts may remain listed as missing with their recorded recipe; regenerate them through the appropriate module when needed.",
+          "narration": "Gå gjennom den oppdaterte Usage-skanningen. Fjernede artefakter kan fortsatt stå oppført som manglende med registrert oppskrift; lag dem på nytt med riktig modul ved behov.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7364,22 +7442,22 @@
         },
         {
           "visual": "16_updated_archive_plan",
-          "narration": "Open Archive and choose an empty destination outside the source project. Click Show what would move and inspect both paths.",
+          "narration": "Åpne Archive og velg et tomt mål utenfor kildeprosjektet. Klikk på Show what would move og undersøk begge banene.",
           "hold_after": 0.7
         },
         {
           "visual": "17_archive_default_no",
-          "narration": "Click Move to review the confirmation. Archive moves the project, so keep any separate backup you need before proceeding.",
+          "narration": "Klikk på Move for å gå gjennom bekreftelsen. Archive flytter prosjektet, så ta eventuelle separate sikkerhetskopier du trenger før du fortsetter.",
           "hold_after": 0.7
         },
         {
           "visual": "19_archive_confirm_yes",
-          "narration": "Confirm Yes to move the project. Keep the manifest at the destination and the archive log left at the original location.",
+          "narration": "Bekreft Yes for å flytte prosjektet. Behold manifestet på målet og arkivloggen som blir liggende på den opprinnelige plasseringen.",
           "hold_after": 0.7
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Select the destination as the project and scan it again. Check the moved files and update any external references that still point to the old location.",
+          "narration": "Velg målet som prosjekt og skann det på nytt. Kontroller de flyttede filene og oppdater eksterne referanser som fortsatt peker til den gamle plasseringen.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7390,7 +7468,7 @@
         },
         {
           "visual": "22_rescan_archived_project",
-          "narration": "Use Database Browser to inspect measurement tables, Report to make a project summary, and Data Manager for storage maintenance. Keep the archive records with your project documentation.",
+          "narration": "Bruk Database Browser til å undersøke måletabeller, Report til å lage et prosjektsammendrag og Data Manager til lagringsvedlikehold. Behold arkivpostene sammen med prosjektdokumentasjonen.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7402,6 +7480,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7412,18 +7530,18 @@
       "series": 5,
       "app_key": "project_browser",
       "section": "Data and batch runs",
-      "title": "Project Browser: find and inspect projects",
-      "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
+      "title": "Project Browser: finn og undersøk prosjekter",
+      "description": "Søk i prosjektmapper, undersøk registrerte trinn og finn ut hvilket verktøy som skal åpnes neste.",
       "objectives": [
-        "Discover projects using roots and search depth.",
-        "Inspect artifacts and recorded stages.",
-        "Choose the next relevant tool."
+        "Finne prosjekter med søkerøtter og søkedybde.",
+        "Undersøke artefakter og registrerte trinn.",
+        "Velge neste relevante verktøy."
       ],
-      "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
+      "prerequisite": "Velg mapper som inneholder spaCR-prosjektene dine. De fullførte eksemplene fra External Masks og Format Converter kan brukes til øving.",
       "scenes": [
         {
           "visual": "01_help_project_browser",
-          "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
+          "narration": "Åpne Help og deretter Project browser for å finne prosjektmapper og undersøke de registrerte utdataene.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -7432,7 +7550,7 @@
         },
         {
           "visual": "04_depth_zero_no_projects",
-          "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
+          "narration": "Klikk på Add folder og velg en søkerot. Dybde 0 kontrollerer bare selve mappen; øk dybden når prosjektene ligger i undermapper.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7443,7 +7561,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
+          "narration": "Sett Depth til 1 og klikk på Scan for å ta med mappene rett under roten. Undersøk prosjektradene som dukker opp.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7454,7 +7572,7 @@
         },
         {
           "visual": "05_real_unregistered_conversion",
-          "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
+          "narration": "Les State og Stage sammen med filene som ble funnet på disken. En mappe uten artefaktregister kan vise unknown selv om den inneholder konverterte bilder.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7469,7 +7587,7 @@
         },
         {
           "visual": "07_two_real_projects",
-          "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
+          "narration": "Legg til flere søkerøtter for å ta med andre prosjekter. Velg en rad for å undersøke den; hvis detaljene er tomme etter en ny skanning, velger du en annen rad og går tilbake.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7480,7 +7598,7 @@
         },
         {
           "visual": "09_enlarged_details",
-          "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
+          "narration": "Dra i skillelinjen for å gjøre detaljene bredere. Gå gjennom registrerte artefakter, uregistrerte filer og kilden til tidsstempelet for siste kjøring.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -7491,7 +7609,7 @@
         },
         {
           "visual": "10_stages_and_next_steps",
-          "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
+          "narration": "Åpne Stages for å se hvilke forventede utdata som finnes. Bruk What could run next til å velge en passende arbeidsflyt, og kontroller deretter hvilke inndata modulen krever.",
           "hold_after": 0.7,
           "focus": [
             2020,
@@ -7505,7 +7623,7 @@
         },
         {
           "visual": "12_size_descending",
-          "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
+          "narration": "Klikk på en kolonneoverskrift, for eksempel Size, for å sortere prosjektene. Klikk igjen for å snu rekkefølgen.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7516,7 +7634,7 @@
         },
         {
           "visual": "14_depth_zero_keeps_direct_project",
-          "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
+          "narration": "Juster Depth og skann på nytt når du trenger et smalere eller bredere søk. Et direkte valgt prosjekt kan fortsatt finnes med dybde 0.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -7527,12 +7645,12 @@
         },
         {
           "visual": "16_remove_search_root_only",
-          "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
+          "narration": "Velg en rot og klikk på Remove for å slutte å søke i den. Dette fjerner søkeplasseringen fra listen, mens filene blir liggende på disken.",
           "hold_after": 0.7
         },
         {
           "visual": "18_restored_project_inventory",
-          "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
+          "narration": "Åpne Run History for jobboppføringer, Database Browser for målinger eller Data Manager for opprydding og arkivering. Bruk veiledningen for den aktuelle modulen for å fortsette analysen.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -7545,6 +7663,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7552,25 +7710,25 @@
       "id": "46_napari_bridge",
       "number": 46,
       "slug": "napari_bridge",
-      "title": "Napari Bridge: edit and return a label mask",
+      "title": "Napari Bridge: rediger og hent tilbake en etikettmaske",
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
       "section": "Mask correction",
-      "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+      "description": "Åpne et bilde og masken i napari, rediger etikettene og lagre den korrigerte masken tilbake i spaCR.",
       "objectives": [
-        "Open corresponding image and label files.",
-        "Edit and undo changes in napari.",
-        "Return and inspect the saved mask."
+        "Åpne tilhørende bilde- og etikettfiler.",
+        "Redigere og angre endringer i napari.",
+        "Hente tilbake og undersøke den lagrede masken."
       ],
       "example_files": [
         "SYNTHETIC_napari_example.zip"
       ],
-      "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+      "prerequisite": "Installer den valgfrie napari-avhengigheten og pakk ut det syntetiske eksemplet i en ny mappe. Behold en urørt sikkerhetskopi: Take the mask back overskriver den valgte arbeidsmasken. Lukk og åpne visningen igjen mellom lagrede redigeringsrunder.",
       "scenes": [
         {
           "visual": "02_actual_bridge",
-          "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+          "narration": "Åpne Make Masks og deretter Napari Bridge. Bruk den til å redigere en eksisterende etikettmaske med intensitetsbildet som referanse. Behold en urørt sikkerhetskopi av masken.",
           "focus": [
             460,
             235,
@@ -7584,7 +7742,7 @@
         },
         {
           "visual": "05_ready_to_open",
-          "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+          "narration": "Last ned og pakk ut det syntetiske eksemplet. Velg mask.tif for Mask og image.tif for Image, og trykk deretter på Open in napari.",
           "focus": [
             460,
             365,
@@ -7595,12 +7753,12 @@
         },
         {
           "visual": "06_actual_napari_layers",
-          "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
+          "narration": "Velg maskens Labels-lag i napari. Etikett 0 er bakgrunn; hver objektetikett har en visningsfarge. Gjør endringene i etikettlaget.",
           "hold_after": 0.7
         },
         {
           "visual": "07_unchanged_round_trip",
-          "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+          "narration": "Gå tilbake til spaCR og bruk Take the mask back for å importere visningens gjeldende etiketter. Hvis du ikke har gjort endringer, viser statusen at masken er uendret.",
           "focus": [
             460,
             445,
@@ -7611,17 +7769,17 @@
         },
         {
           "visual": "08_fill_one_synthetic_object",
-          "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
+          "narration": "For å øve velger du etikett 18, velger Fill og klikker på objektet med etikett 2. Undersøk den endrede etiketten før du importerer den.",
           "hold_after": 0.7
         },
         {
           "visual": "09_actual_napari_undo",
-          "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
+          "narration": "Bruk Undo for å angre den siste endringen i visningen. Gjenta Fill når du vil beholde endringen.",
           "hold_after": 0.7
         },
         {
           "visual": "11_imported_and_recorded",
-          "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+          "narration": "Klikk på Take the mask back i spaCR. Se gjennom antallet endrede piksler, og undersøk deretter den lagrede masken og sidefilen med korreksjonshistorikk.",
           "focus": [
             460,
             445,
@@ -7632,7 +7790,7 @@
         },
         {
           "visual": "12d_closed_before_next_edit",
-          "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+          "narration": "Klikk på Close viewer og åpne masken på nytt før neste redigeringsrunde. Da blir den lagrede masken utgangspunktet for senere korreksjoner.",
           "focus": [
             460,
             445,
@@ -7643,7 +7801,7 @@
         },
         {
           "visual": "14_history_preserved_after_reopen",
-          "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+          "narration": "Etter neste endring henter du tilbake masken og undersøker resultatet igjen. Lukk visningen når du er ferdig, behold korreksjonshistorikken, og kjør på nytt målinger som påvirkes av de endrede etikettene.",
           "focus": [
             460,
             445,
@@ -7660,6 +7818,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7667,22 +7865,22 @@
       "id": "47_barcode_qc",
       "number": 47,
       "slug": "barcode_qc",
-      "title": "Barcode QC: inspect read depth and choose a cutoff",
+      "title": "Barcode QC: undersøk lesedybde og velg en grense",
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
       "section": "Map Barcodes",
-      "description": "Load mapped counts, review well and guide coverage, and compare abundance thresholds.",
+      "description": "Last inn kartlagte tellinger, gå gjennom dekningen av brønner og guider, og sammenlign mengdegrenser.",
       "objectives": [
-        "Choose count inputs and QC settings.",
-        "Inspect coverage and positional effects.",
-        "Compare thresholds and keep the resulting tables and plots."
+        "Velge tellingsinndata og QC-innstillinger.",
+        "Undersøke dekning og posisjonseffekter.",
+        "Sammenligne grenser og beholde tabellene og plottene som lages."
       ],
-      "prerequisite": "Use plate_1_unique_combinations.csv from the downloaded example-screen data in the Regression tutorial, or your own mapped count table. Choose a new output folder. Supply mapping-QC and barcode-reference files when you need checks that depend on unmapped reads or the expected library.",
+      "prerequisite": "Bruk plate_1_unique_combinations.csv fra eksempelscreenens data som ble lastet ned i Regression-veiledningen, eller din egen tabell med kartlagte tellinger. Velg en ny utdatamappe. Legg ved kartleggings-QC- og strekkodereferansefiler når du trenger kontroller som avhenger av ukartlagte lesninger eller det forventede biblioteket.",
       "scenes": [
         {
           "visual": "02_barcode_qc_fold",
-          "narration": "Open Map Barcodes, then Barcode QC. Start from a mapped count table; the linked Regression example provides one for practice.",
+          "narration": "Åpne Map Barcodes og deretter Barcode QC. Begynn med en tabell med kartlagte tellinger; det lenkede Regression-eksemplet inneholder en du kan øve med.",
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
@@ -7691,52 +7889,52 @@
         },
         {
           "visual": "04_actual_count_input",
-          "narration": "Set Count data to your count table and choose a new output destination. The example contains mapped reads across three hundred eighty-four wells.",
+          "narration": "Sett Count data til tellingstabellen din og velg et nytt utdatamål. Eksemplet inneholder kartlagte lesninger fra 384 brønner.",
           "hold_after": 0.7
         },
         {
           "visual": "05_01_target_grnas_per_well",
-          "narration": "Set Target gRNAs per well from your experimental design and choose the summary method used to derive the cutoff. The example uses five and median.",
+          "narration": "Angi Target gRNAs per well ut fra forsøksdesignet, og velg oppsummeringsmetoden som brukes til å utlede grensen. Eksemplet bruker 5 og median.",
           "hold_after": 0.7
         },
         {
           "visual": "05_04_starved_read_fraction",
-          "narration": "Set Starved read fraction to flag wells with low reads relative to the plate median. The example uses zero point one. Review flagged wells before excluding them.",
+          "narration": "Angi Starved read fraction for å flagge brønner med få lesninger sammenlignet med platemedianen. Eksemplet bruker 0,1. Gå gjennom flaggede brønner før du utelukker dem.",
           "hold_after": 0.7
         },
         {
           "visual": "05_09_plot",
-          "narration": "Enable Plot and Save, then press Run. Add mapping-QC or reference inputs when you want their corresponding checks; the count table alone describes observed mapped reads.",
+          "narration": "Aktiver Plot og Save, og trykk deretter på Run. Legg til kartleggings-QC- eller referanseinndata når du vil ha de tilhørende kontrollene; tellingstabellen alene beskriver de observerte kartlagte lesningene.",
           "hold_after": 0.7
         },
         {
           "visual": "07_finished_console",
-          "narration": "Read the completion log and saved output paths. Investigate errors against the selected inputs before using the results.",
+          "narration": "Les fullføringsloggen og de lagrede utdatabanene. Undersøk feil opp mot de valgte inndataene før du bruker resultatene.",
           "hold_after": 0.7
         },
         {
           "visual": "08_actual_figures_state",
-          "narration": "Open barcode QC dot PNG and threshold sweep dot PNG from the output folder. Use an image viewer if the Figures panel is empty.",
+          "narration": "Åpne barcode_qc.png og threshold_sweep.png fra utdatamappen. Bruk en bildeviser hvis panelet Figures er tomt.",
           "hold_after": 0.7
         },
         {
           "visual": "09_saved_barcode_qc",
-          "narration": "Inspect read depth, row and column effects, and guide representation. Compare with a reference library when you need to identify expected guides that are missing entirely.",
+          "narration": "Undersøk lesedybde, rad- og kolonneeffekter og hvordan guidene er representert. Sammenlign med et referansebibliotek når du må finne forventede guider som mangler helt.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Inspect the threshold sweep. In this example, a cutoff near one point two one percent of each well’s reads gives a median of five guides while retaining about fifty-eight percent of mapped reads.",
+          "narration": "Undersøk grensesveipet. I dette eksemplet gir en grense nær 1,21 % av lesningene i hver brønn en median på fem guider og beholder omtrent 58 % av de kartlagte lesningene.",
           "hold_after": 0.7
         },
         {
           "visual": "10_saved_threshold_sweep",
-          "narration": "Compare retained reads, retained wells and wells above the guide target as the cutoff changes. Choose a cutoff appropriate to your design; the guide target does not establish single-guide attribution.",
+          "narration": "Sammenlign beholdte lesninger, beholdte brønner og brønner over guidemålet når grensen endres. Velg en grense som passer designet ditt; guidemålet fastslår ikke at resultatet kan tilskrives én enkelt guide.",
           "hold_after": 0.7
         },
         {
           "visual": "11_back_to_actual_gui",
-          "narration": "Keep the recommendation, sweep table, plots and settings with the source counts. Use the chosen cutoff consistently in the downstream analysis and record the reason for your choice.",
+          "narration": "Behold anbefalingen, sveipetabellen, plottene og innstillingene sammen med kildetellingene. Bruk den valgte grensen konsekvent i videre analyse, og noter begrunnelsen for valget.",
           "related_lessons": [
             "06_api",
             "13_regression"
@@ -7747,6 +7945,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7754,7 +7992,7 @@
       "id": "48_hit_list",
       "number": 48,
       "slug": "hit_list",
-      "title": "Hit List: filter candidates and export a shortlist",
+      "title": "Hit List: filtrer kandidater og eksporter en kortliste",
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
@@ -7762,17 +8000,17 @@
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
-      "description": "Load Regression results, filter by q-value, guide count and agreement, then export the selected candidates.",
+      "description": "Last inn Regression-resultater, filtrer på q-verdi, antall guider og samsvar, og eksporter deretter de valgte kandidatene.",
       "objectives": [
-        "Open the example Regression results with the supplied companion.",
-        "Filter candidates and read their effects and guide agreement.",
-        "Export the selected rows as CSV, Markdown or HTML."
+        "Åpne eksemplets Regression-resultater med det medfølgende hjelpeskriptet.",
+        "Filtrere kandidater og lese effektene og guidesamsvaret.",
+        "Eksportere de valgte radene som CSV, Markdown eller HTML."
       ],
-      "prerequisite": "Extract Hit_List_real_results_companion.zip and activate your spaCR environment. The current Regression Hits shortcut does not reveal the panel; run python hit_list_companion.py and Browse to the extracted results folder instead. The companion does not connect Investigate. Use results_gene.csv wells_with_gene for supporting well counts: exported n_obs=0 is not the actual support. The example contains no genes passing q <= 0.05.",
+      "prerequisite": "Pakk ut Hit_List_real_results_companion.zip og aktiver spaCR-miljøet ditt. Den nåværende snarveien Hits i Regression viser ikke panelet; kjør i stedet python hit_list_companion.py og bruk Browse for å gå til den utpakkede resultatmappen. Hjelpeskriptet er ikke koblet til Investigate. Bruk wells_with_gene fra results_gene.csv for antall støttende brønner: den eksporterte n_obs=0 er ikke den faktiske støtten. Eksemplet inneholder ingen gener som oppfyller q <= 0.05.",
       "scenes": [
         {
           "visual": "01b_hit_list_route_failure",
-          "narration": "From Home, open Regression and choose Hits. If the panel stays hidden, use the companion script supplied with this lesson to open Hit List.",
+          "narration": "Fra Home åpner du Regression og velger Hits. Hvis panelet forblir skjult, bruker du hjelpeskriptet som følger med leksjonen for å åpne Hit List.",
           "related_lessons": [
             "13_regression"
           ],
@@ -7780,52 +8018,52 @@
         },
         {
           "visual": "01c_explicit_companion_not_native_route",
-          "narration": "Extract the linked example and activate your spaCR environment. Run python hit_list_companion.py. In the companion window, click Browse and select the extracted results folder.",
+          "narration": "Pakk ut det lenkede eksemplet og aktiver spaCR-miljøet ditt. Kjør python hit_list_companion.py. I hjelpeskriptets vindu klikker du på Browse og velger den utpakkede resultatmappen.",
           "hold_after": 0.7
         },
         {
           "visual": "03_all_325_ranked_genes_not_discoveries",
-          "narration": "The example loads three hundred twenty-five genes. Widen columns to read effect, P, q and guide agreement. Effects are standardized marginal effects. For supporting well counts, read wells_with_gene in results_gene.csv; the exported observation-count zero is unavailable support.",
+          "narration": "Eksemplet laster inn 325 gener. Gjør kolonnene bredere for å lese effekt, P, q og guidesamsvar. Effektene er standardiserte marginale effekter. For antall støttende brønner leser du wells_with_gene i results_gene.csv; et eksportert observasjonsantall på 0 betyr at støtten ikke er tilgjengelig.",
           "hold_after": 0.7
         },
         {
           "visual": "04_no_genes_pass_q_point05",
-          "narration": "Set Max q to zero point zero five. This example has no passing genes, so the table becomes empty. Restore Max q to one to browse all candidates.",
+          "narration": "Sett Max q til 0,05. Ingen gener i eksemplet består, så tabellen blir tom. Sett Max q tilbake til 1 for å bla gjennom alle kandidatene.",
           "hold_after": 0.7
         },
         {
           "visual": "06_at_least_two_tested_guides",
-          "narration": "Set Minimum guides to two. One hundred seventeen genes remain with at least two tested guide rows. This filter keeps the original q-values.",
+          "narration": "Sett Minimum guides til 2. Det gjenstår 117 gener med minst to testede guiderader. Filteret beholder de opprinnelige q-verdiene.",
           "hold_after": 0.7
         },
         {
           "visual": "07_all_tested_guides_same_sign",
-          "narration": "Set Minimum agreement to one. Fifty-seven candidates remain whose tested guides all share the gene effect sign. Read agreement alongside q: these candidates still do not pass the significance threshold.",
+          "narration": "Sett Minimum agreement til 1. Det gjenstår 57 kandidater der alle testede guider deler fortegnet til geneffekten. Les samsvaret sammen med q: disse kandidatene når fortsatt ikke signifikansgrensen.",
           "hold_after": 0.7
         },
         {
           "visual": "08_hide_controls_not_recalculate_q",
-          "narration": "Enable Hide controls to remove the control row from this view, leaving fifty-six candidates. Disable it again to include that row in the later export.",
+          "narration": "Aktiver Hide controls for å fjerne kontrollraden fra visningen, slik at 56 kandidater gjenstår. Slå det av igjen for å ta med raden i den senere eksporten.",
           "hold_after": 0.7
         },
         {
           "visual": "10_positive_effect_magnitude_cut",
-          "narration": "Clear the other filters, choose Direction up and set Minimum absolute effect to zero point one. Sixteen rows remain. Choose your thresholds for your analysis, then restore these controls before the next step.",
+          "narration": "Fjern de andre filtrene, velg Direction up og sett Minimum absolute effect til 0,1. Det gjenstår 16 rader. Velg terskler for analysen din, og tilbakestill deretter disse kontrollene før neste trinn.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_gene_returns",
-          "narration": "Enter an identifier in Search to find its row. An unmatched query leaves the table empty. Clear Search to restore the current filtered population.",
+          "narration": "Skriv en identifikator i Search for å finne raden. Et søk uten treff tømmer tabellen. Tøm Search for å få tilbake det gjeldende filtrerte utvalget.",
           "hold_after": 0.7
         },
         {
           "visual": "17_export_html_complete",
-          "narration": "For export, set two guides, full agreement, controls included and an empty search. Export the fifty-seven selected rows as CSV, Markdown or HTML. CSV preserves numerical detail. Save the filter choices alongside your files.",
+          "narration": "For eksport angir du to guider, fullt samsvar, kontroller inkludert og tomt søk. Eksporter de 57 valgte radene som CSV, Markdown eller HTML. CSV bevarer de numeriske detaljene. Lagre filtervalgene sammen med filene.",
           "hold_after": 0.7
         },
         {
           "visual": "18_original_ranked_population_restored",
-          "narration": "Clear the filters to return to all three hundred twenty-five genes. Keep shortlist exports separate from the original results. For Python, use build_hit_list, then filter and the CSV, Markdown or HTML writers; check each format’s row limit.",
+          "narration": "Fjern filtrene for å gå tilbake til alle 325 gener. Hold kortlisteeksporter atskilt fra de opprinnelige resultatene. I Python bruker du build_hit_list, deretter filter og skrivefunksjonene for CSV, Markdown eller HTML; kontroller radgrensen for hvert format.",
           "related_lessons": [
             "06_api",
             "72_volcano_explorer"
@@ -7836,6 +8074,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7843,22 +8121,22 @@
       "id": "49_methods_results",
       "number": 49,
       "slug": "methods_results",
-      "title": "Methods & Results: draft and export a run report",
+      "title": "Methods & Results: skriv og eksporter en kjørerapport",
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
       "section": "Regression",
-      "description": "Select a completed run, build its report, review the recorded settings and results, and export Markdown.",
+      "description": "Velg en fullført kjøring, lag rapporten, gå gjennom registrerte innstillinger og resultater, og eksporter Markdown.",
       "objectives": [
-        "Select the project, run journal and matching result folder.",
-        "Build a digest and review the Methods, Results and Caveats tabs.",
-        "Copy the report text or export Markdown with the run digest."
+        "Velge prosjektet, kjørejournalen og den tilhørende resultatmappen.",
+        "Lage et sammendrag og gå gjennom fanene Methods, Results og Caveats.",
+        "Kopiere rapportteksten eller eksportere Markdown med kjøresammendraget."
       ],
-      "prerequisite": "Complete the Regression example first. Keep its project folder, run journal and guide_permutation results together. Review inferred settings, analysis versions and statistical thresholds before using the generated text in a report.",
+      "prerequisite": "Fullfør Regression-eksemplet først. Hold prosjektmappen, kjørejournalen og guide_permutation-resultatene samlet. Gå gjennom utledede innstillinger, analyseversjoner og statistiske terskler før du bruker den genererte teksten i en rapport.",
       "scenes": [
         {
           "visual": "01_regression_methods_host",
-          "narration": "From Home, open Regression, then Methods and Results. Use this tool to draft a report from a completed analysis. This walkthrough continues with the saved run from the Regression example.",
+          "narration": "Fra Home åpner du Regression og deretter Methods and Results. Bruk verktøyet til å lage et rapportutkast fra en fullført analyse. Gjennomgangen fortsetter med den lagrede kjøringen fra Regression-eksemplet.",
           "related_lessons": [
             "13_regression"
           ],
@@ -7866,7 +8144,7 @@
         },
         {
           "visual": "02_real_project_journal_and_result_sources",
-          "narration": "Choose the project folder, the run journal and the matching regression-results folder. Leave Classifier empty for this regression example. Confirm that all selected files belong to the run you want to describe.",
+          "narration": "Velg prosjektmappen, kjørejournalen og den tilhørende mappen med regresjonsresultater. La Classifier stå tomt i dette regresjonseksemplet. Bekreft at alle valgte filer hører til kjøringen du vil beskrive.",
           "focus": [
             355,
             270,
@@ -7877,12 +8155,12 @@
         },
         {
           "visual": "03_actual_deterministic_methods",
-          "narration": "Click Build digest, then read the Methods and Results tabs. Check the analysis version against the saved run environment; the exporter version can differ from the version that performed the analysis.",
+          "narration": "Klikk på Build digest, og les deretter fanene Methods og Results. Sammenlign analyseversjonen med det lagrede kjøremiljøet; eksportørens versjon kan avvike fra versjonen som utførte analysen.",
           "hold_after": 0.7
         },
         {
           "visual": "04_actual_seed_caveat",
-          "narration": "Read Caveats and compare seed entries by name with the saved settings. A permutation seed and a global seed refer to different generators. Leave an unrecorded historical seed unknown when editing the report.",
+          "narration": "Les Caveats og sammenlign frøoppføringene etter navn med de lagrede innstillingene. Et permutasjonsfrø og et globalt frø viser til ulike generatorer. La et uregistrert historisk frø stå som ukjent når du redigerer rapporten.",
           "focus": [
             355,
             640,
@@ -7893,7 +8171,7 @@
         },
         {
           "visual": "05_digest_run_record",
-          "narration": "Open Run digest to inspect the structured settings and source records. Compare them with the prose and review warnings about missing reports or inferred defaults before sharing the draft.",
+          "narration": "Åpne Run digest for å undersøke de strukturerte innstillingene og kildeoppføringene. Sammenlign dem med teksten, og gå gjennom advarsler om manglende rapporter eller utledede standardverdier før du deler utkastet.",
           "focus": [
             355,
             680,
@@ -7904,7 +8182,7 @@
         },
         {
           "visual": "06_zero_significant_genes_and_ranked_candidates",
-          "narration": "In Results, inspect effect sizes and corrected q-values together. This example has no genes below a q-value threshold of zero point zero five. Describe the listed rows as ranked candidates when editing a heading that calls them hits.",
+          "narration": "I Results undersøker du effektstørrelser og korrigerte q-verdier sammen. Eksemplet har ingen gener under q-verdigrensen 0,05. Beskriv radene som rangerte kandidater når du redigerer en overskrift som kaller dem hits.",
           "focus": [
             355,
             680,
@@ -7915,12 +8193,12 @@
         },
         {
           "visual": "07_copy_sections_is_not_scientific_approval",
-          "narration": "Click Copy sections to copy the displayed Methods and Results. Review the copied text against the source records. Use Export Markdown when you also need the structured run digest.",
+          "narration": "Klikk på Copy sections for å kopiere de viste Methods og Results. Kontroller den kopierte teksten mot kildeoppføringene. Bruk Export Markdown når du også trenger det strukturerte kjøresammendraget.",
           "hold_after": 0.7
         },
         {
           "visual": "08_export_unreviewed_markdown_picker",
-          "narration": "Click Export Markdown and choose a new filename. The file contains both report sections and the run digest as an appendix. Keep an original draft and save your reviewed revisions separately.",
+          "narration": "Klikk på Export Markdown og velg et nytt filnavn. Filen inneholder begge rapportdelene og kjøresammendraget som vedlegg. Behold et originalt utkast og lagre de gjennomgåtte revisjonene separat.",
           "focus": [
             1550,
             780,
@@ -7931,7 +8209,7 @@
         },
         {
           "visual": "09_actual_export_completed_not_approved",
-          "narration": "Draft with AI is optional and sends the digest to your configured provider. Review its contents before using that option, then check any generated text against the saved analysis. You can also use build_digest, render_methods and render_results from Python.",
+          "narration": "Draft with AI er valgfritt og sender sammendraget til den konfigurerte leverandøren. Gå gjennom innholdet før du bruker dette valget, og kontroller deretter all generert tekst mot den lagrede analysen. Du kan også bruke build_digest, render_methods og render_results fra Python.",
           "focus": [
             355,
             560,
@@ -7948,6 +8226,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7955,24 +8273,24 @@
       "id": "50_run_compare",
       "number": 50,
       "slug": "run_compare",
-      "title": "Run Compare: compare saved runs",
+      "title": "Run Compare: sammenlign lagrede kjøringer",
       "series": 5,
       "app_key": "run_compare",
       "section": "Data",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
-      "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
+      "description": "Velg to lagrede kjøringer, undersøk forskjeller i innstillinger og antall, og kontroller tilgjengelige resultatsammenligninger.",
       "objectives": [
-        "Select baseline and comparison runs.",
-        "Inspect settings and count differences.",
-        "Locate available result comparisons."
+        "Velge grunnlinjekjøring og sammenligningskjøring.",
+        "Undersøke forskjeller i innstillinger og antall.",
+        "Finne tilgjengelige resultatsammenligninger."
       ],
-      "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
+      "prerequisite": "Last ned og pakk ut de lenkede øyeblikksbildene. Følg README-filen for å kjøre prepare_run_compare_download.py i spaCR-miljøet ditt med en ny målmappe. For egne sammenligninger tar du vare på utdataene fra hver kjøring før de overskrives.",
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+          "narration": "I kategorien Data på Home åpner du Run Compare for å undersøke utdata som er registrert for to kjøringer.",
           "focus_modules": [
             "run_compare"
           ],
@@ -7984,17 +8302,17 @@
         },
         {
           "visual": "02_actual_empty_compare",
-          "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
+          "narration": "Last ned og pakk ut eksemplet med øyeblikksbilder. Følg README-filen for å kjøre forberedelsesskriptet med en ny målmappe.",
           "hold_after": 0.7
         },
         {
           "visual": "03_actual_snapshot_project_picker",
-          "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
+          "narration": "Klikk på Browse og velg den forberedte sammenligningsmappen. Hold de opprinnelige prosjektene og kjøreøyeblikksbildene tilgjengelige for dine egne sammenligninger.",
           "hold_after": 0.7
         },
         {
           "visual": "04_two_actual_runs_no_setting_change",
-          "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
+          "narration": "Velg en grunnlinjekjøring som A og sammenligningskjøringen som B, og klikk deretter på Compare. Kontroller modulnavnene og de registrerte versjonene.",
           "focus": [
             350,
             235,
@@ -8005,7 +8323,7 @@
         },
         {
           "visual": "05_actual_unchanged_settings",
-          "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
+          "narration": "Aktiver Show unchanged settings for å ta med like verdier. Utvid oppføringene for å undersøke konfigurasjonen hver kjøring brukte.",
           "focus": [
             350,
             360,
@@ -8016,7 +8334,7 @@
         },
         {
           "visual": "06_actual_equal_object_counts",
-          "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
+          "narration": "Åpne Counts for å sammenligne objektsummer. Delta er B minus A. Eksemplet har like antall; undersøk de aktuelle bildene og målingene når du trenger å forstå en forskjell.",
           "focus": [
             350,
             425,
@@ -8027,7 +8345,7 @@
         },
         {
           "visual": "07_actual_no_hit_list",
-          "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
+          "narration": "Åpne Hits når begge kjøringene har registrerte regresjonsresultater. Eksemplet inneholder Measure-øyeblikksbilder, så ingen hit-sammenligning er tilgjengelig.",
           "focus": [
             350,
             405,
@@ -8042,7 +8360,7 @@
         },
         {
           "visual": "08_actual_same_run_warning",
-          "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
+          "narration": "Velg to forskjellige kjøringer. Hvis samme kjøring er valgt på begge sider, bruker du advarselen til å rette valget.",
           "focus": [
             350,
             235,
@@ -8053,7 +8371,7 @@
         },
         {
           "visual": "09_actual_distinct_runs_restored",
-          "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
+          "narration": "Behold begge utdataøyeblikksbildene og innstillingene som forklarer forskjellene. Bruk Run History for enkeltlogger og Regression for de underliggende hit-resultatene.",
           "related_lessons": [
             "06_api",
             "08_measure"
@@ -8064,6 +8382,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8075,18 +8433,18 @@
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
       "section": "Data",
-      "title": "Control Charts: monitor controls across plates",
-      "description": "Load a campaign table, select controls and baseline limits, inspect alerts, and export the plotted points.",
+      "title": "Control Charts: overvåk kontroller på tvers av plater",
+      "description": "Last inn en kampanjetabell, velg kontroller og grunnlinjegrenser, undersøk varsler og eksporter de plottede punktene.",
       "objectives": [
-        "Choose the measurement and control population.",
-        "Set the baseline and alert rules.",
-        "Inspect alerts and export chart points."
+        "Velge måling og kontrollpopulasjon.",
+        "Angi grunnlinje og varslingsregler.",
+        "Undersøke varsler og eksportere diagrampunkter."
       ],
-      "prerequisite": "Download the synthetic campaign CSV below, or prepare a well-level table with plate identity, run order, a measurement and control labels. The example illustrates thirty plates with programmed drift.",
+      "prerequisite": "Last ned den syntetiske kampanje-CSV-filen nedenfor, eller forbered en tabell på brønnnivå med plateidentitet, kjørerekkefølge, en måling og kontrollmerkelapper. Eksemplet viser tretti plater med programmert drift.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "Open QC, then Control Charts to monitor repeated controls across a campaign. The practice CSV uses synthetic plates and a programmed drift.",
+          "narration": "Åpne QC og deretter Control Charts for å overvåke gjentatte kontroller gjennom en kampanje. Øvings-CSV-filen bruker syntetiske plater og en programmert drift.",
           "hold_after": 0.7,
           "related_lessons": [
             "54_qc_dashboard"
@@ -8094,7 +8452,7 @@
         },
         {
           "visual": "03_load_synthetic_csv",
-          "narration": "Download the example CSV below, click Load table and select it. It contains thirty plates, each with three wells for each control type and three sample wells.",
+          "narration": "Last ned eksempel-CSV-filen nedenfor, klikk på Load table og velg den. Den inneholder tretti plater, hver med tre brønner for hver kontrolltype og tre prøvebrønner.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -8105,7 +8463,7 @@
         },
         {
           "visual": "05_negative_control_default_rules",
-          "narration": "Match Plate, Run order, Measurement and Control column to the table. Under Control is, select neg for the negative controls. An empty selection includes all rows.",
+          "narration": "Koble Plate, Run order, Measurement og Control column til tabellen. Under Control is velger du neg for de negative kontrollene. Et tomt valg tar med alle radene.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8116,7 +8474,7 @@
         },
         {
           "visual": "05a_sigma_choices",
-          "narration": "Choose Sigma from to control the variation estimator. Auto uses the subgroup estimator here, because each plate contains three selected control wells.",
+          "narration": "Velg Sigma from for å styre variasjonsestimatet. Auto bruker her undergruppeestimatet, siden hver plate inneholder tre valgte kontrollbrønner.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8127,7 +8485,7 @@
         },
         {
           "visual": "05b_rule_choices",
-          "narration": "Choose Rules for the alerts you want to inspect. The example uses Limits only to focus on points outside the three-sigma limits. Changing a setting redraws the chart.",
+          "narration": "Velg i Rules varslene du vil undersøke. Eksemplet bruker Limits only for å konsentrere seg om punkter utenfor tresigmagrensene. Endring av en innstilling tegner diagrammet på nytt.",
           "hold_after": 0.7,
           "focus": [
             290,
@@ -8138,7 +8496,7 @@
         },
         {
           "visual": "06_limits_only",
-          "narration": "Set Baseline plates to twenty. The first twenty plates establish limits for the series. Read the report and rule table to locate flagged later plates.",
+          "narration": "Sett Baseline plates til 20. De første tjue platene fastsetter grensene for serien. Les rapporten og regeltabellen for å finne flaggede senere plater.",
           "hold_after": 0.7,
           "focus": [
             1010,
@@ -8149,12 +8507,12 @@
         },
         {
           "visual": "07_positive_control",
-          "narration": "To inspect positive controls, clear neg and select pos. Review their means and limits separately, then return to neg to continue the example.",
+          "narration": "For å undersøke positive kontroller fjerner du neg og velger pos. Se på gjennomsnittene og grensene deres separat, og gå deretter tilbake til neg for å fortsette eksemplet.",
           "hold_after": 0.7
         },
         {
           "visual": "09_shorter_baseline",
-          "narration": "Adjust Baseline plates when your planned reference period differs. The tool requires at least eight plates; choose a stable baseline appropriate to the assay.",
+          "narration": "Juster Baseline plates når den planlagte referanseperioden er en annen. Verktøyet krever minst åtte plater; velg en stabil grunnlinje som passer analysen.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8165,7 +8523,7 @@
         },
         {
           "visual": "11_actual_export_picker",
-          "narration": "Click Export points and choose a CSV destination. It saves plate identities, means, subgroup sizes, limits, baseline membership and fired rules.",
+          "narration": "Klikk på Export points og velg et CSV-mål. Filen lagrer plateidentiteter, gjennomsnitt, undergruppestørrelser, grenser, grunnlinjetilhørighet og utløste regler.",
           "hold_after": 0.7,
           "focus": [
             1550,
@@ -8176,7 +8534,7 @@
         },
         {
           "visual": "12_exported",
-          "narration": "Keep the input CSV, selected controls and baseline settings with the exported points. Use the flagged plate identities to investigate acquisition or assay changes.",
+          "narration": "Behold inndata-CSV-filen, de valgte kontrollene og grunnlinjeinnstillingene sammen med de eksporterte punktene. Bruk identitetene til de flaggede platene til å undersøke endringer i opptak eller analyse.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8190,6 +8548,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8200,18 +8598,18 @@
       "series": 5,
       "app_key": "pipeline_graph",
       "section": "Explore",
-      "title": "Pipeline Graph: inspect outputs and dependencies",
-      "description": "Open a project’s artifact graph, inspect missing outputs, and copy its dependency diagram.",
+      "title": "Pipeline Graph: undersøk utdata og avhengigheter",
+      "description": "Åpne artefaktgrafen for et prosjekt, undersøk manglende utdata og kopier avhengighetsdiagrammet.",
       "objectives": [
-        "Open the artifact graph for a project.",
-        "Inspect paths, states and dependencies.",
-        "Copy the diagram and refresh its records."
+        "Åpne artefaktgrafen for et prosjekt.",
+        "Undersøke baner, tilstander og avhengigheter.",
+        "Kopiere diagrammet og oppdatere oppføringene."
       ],
-      "prerequisite": "Choose a spaCR project with registered outputs. The External Masks example supplies measurements and crops; the Data Manager lesson shows how a removed artifact appears.",
+      "prerequisite": "Velg et spaCR-prosjekt med registrerte utdata. External Masks-eksemplet gir målinger og utsnitt; leksjonen om Data Manager viser hvordan en fjernet artefakt ser ut.",
       "scenes": [
         {
           "visual": "01_help_pipeline_graph",
-          "narration": "Open Help, then Pipeline graph to inspect a project’s recorded outputs and dependencies.",
+          "narration": "Åpne Help og deretter Pipeline graph for å undersøke registrerte utdata og avhengigheter for et prosjekt.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -8220,7 +8618,7 @@
         },
         {
           "visual": "04_unregistered_is_not_unprocessed",
-          "narration": "Browse to the project folder. If the graph is empty, check whether that folder has registered artifacts; existing files can be present without registry records.",
+          "narration": "Bla til prosjektmappen med Browse. Hvis grafen er tom, kontrollerer du om mappen har registrerte artefakter; filer kan finnes uten registeroppføringer.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8235,7 +8633,7 @@
         },
         {
           "visual": "06_three_actual_artifacts",
-          "narration": "Choose the measured project to display its artifact boxes. The example includes measurements, crops and a resource log, with a removed crop folder marked missing.",
+          "narration": "Velg det målte prosjektet for å vise artefaktboksene. Eksemplet inneholder målinger, utsnitt og en ressurslogg, der en fjernet utsnittsmappe er merket som manglende.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8246,7 +8644,7 @@
         },
         {
           "visual": "07_measurement_provenance",
-          "narration": "Click an artifact and widen the details with the divider. Inspect its path, role, run identifier, production time and software version.",
+          "narration": "Klikk på en artefakt og gjør detaljene bredere med skillelinjen. Undersøk bane, rolle, kjøreidentifikator, produksjonstid og programvareversjon.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8257,7 +8655,7 @@
         },
         {
           "visual": "08_missing_crop_provenance",
-          "narration": "Select a Missing artifact to find its recorded path. Its displayed size describes the saved record, so check the actual location when investigating absent files.",
+          "narration": "Velg en Missing-artefakt for å finne den registrerte banen. Størrelsen som vises beskriver den lagrede oppføringen, så kontroller den faktiske plasseringen når du undersøker manglende filer.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8268,7 +8666,7 @@
         },
         {
           "visual": "09_external_resource_log",
-          "narration": "Inspect input and downstream links where they are recorded. Some artifacts, such as resource logs, may be located outside the project folder.",
+          "narration": "Undersøk inndata- og nedstrømslenker der de er registrert. Noen artefakter, som ressurslogger, kan ligge utenfor prosjektmappen.",
           "hold_after": 0.7,
           "focus": [
             1940,
@@ -8279,7 +8677,7 @@
         },
         {
           "visual": "11_missing_detail",
-          "narration": "Use Current, Stale and Missing to choose which artifact states are visible. For example, hide Current to focus on missing outputs.",
+          "narration": "Bruk Current, Stale og Missing for å velge hvilke artefakttilstander som vises. Skjul for eksempel Current for å konsentrere deg om manglende utdata.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8290,7 +8688,7 @@
         },
         {
           "visual": "12_no_visible_artifacts",
-          "narration": "If no boxes are visible, check the display filters and overall artifact counts. Restore the states you want to inspect.",
+          "narration": "Hvis ingen bokser vises, kontrollerer du visningsfiltrene og totalt antall artefakter. Gjenopprett tilstandene du vil undersøke.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8301,7 +8699,7 @@
         },
         {
           "visual": "13_copy_full_graph_not_filtered_view",
-          "narration": "Click Copy Graphviz to copy the full diagram as DOT text, including nodes hidden by display filters. Paste it into a Graphviz tool to render or save it.",
+          "narration": "Klikk på Copy Graphviz for å kopiere hele diagrammet som DOT-tekst, også noder som er skjult av filtrene. Lim det inn i et Graphviz-verktøy for å tegne eller lagre det.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8312,7 +8710,7 @@
         },
         {
           "visual": "15_restore_all_nodes",
-          "narration": "Restore the desired filters and select an artifact again to inspect its details. Use its recorded path and upstream workflow to decide what needs attention.",
+          "narration": "Gjenopprett ønskede filtre og velg en artefakt igjen for å undersøke detaljene. Bruk den registrerte banen og den foregående arbeidsflyten til å avgjøre hva som trenger oppmerksomhet.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -8323,7 +8721,7 @@
         },
         {
           "visual": "16_redrawn_unchanged_graph",
-          "narration": "Click Redraw after project changes to reread the registry. Open Run History for saved settings and logs, or Data Manager for cleanup and archiving.",
+          "narration": "Klikk på Redraw etter prosjektendringer for å lese registeret på nytt. Åpne Run History for lagrede innstillinger og logger, eller Data Manager for opprydding og arkivering.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8336,6 +8734,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8490,23 +8928,23 @@
       "series": 5,
       "app_key": "qc_dashboard",
       "section": "Data",
-      "title": "QC: inspect project quality reports",
-      "description": "Choose a project, read available quality reports, investigate warnings and refresh the dashboard.",
+      "title": "QC: undersøk kvalitetsrapportene for et prosjekt",
+      "description": "Velg et prosjekt, les tilgjengelige kvalitetsrapporter, undersøk advarsler og oppdater dashbordet.",
       "objectives": [
-        "Choose the intended project or run.",
-        "Read available, missing and outdated reports.",
-        "Investigate findings and refresh the view."
+        "Velge prosjektet eller kjøringen som skal undersøkes.",
+        "Lese tilgjengelige, manglende og utdaterte rapporter.",
+        "Undersøke funn og oppdatere visningen."
       ],
-      "prerequisite": "Use a project with saved quality reports. The downloaded Mask and Annotate examples provide different report sets; choose the specific project or run folder you intend to inspect.",
+      "prerequisite": "Bruk et prosjekt med lagrede kvalitetsrapporter. De nedlastede eksemplene fra Mask og Annotate gir ulike rapportsett; velg det bestemte prosjektet eller den kjøremappen du vil undersøke.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open QC from Home’s Data category to review quality reports saved with a project.",
+          "narration": "Åpne QC fra kategorien Data på Home for å gå gjennom kvalitetsrapporter som er lagret med et prosjekt.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_layer_viewer",
-          "narration": "The header opens Layer Viewer, Control Charts and Outliers. Use their tutorials when a dashboard finding needs further investigation.",
+          "narration": "Toppfeltet åpner Layer Viewer, Control Charts og Outliers. Bruk veiledningene deres når et funn på dashbordet trenger nærmere undersøkelse.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -8517,7 +8955,7 @@
         },
         {
           "visual": "03_missing_reports_picker",
-          "narration": "Click Browse and choose the project folder. Select the folder containing the reports for the run you want to assess.",
+          "narration": "Klikk på Browse og velg prosjektmappen. Velg mappen som inneholder rapportene for kjøringen du vil vurdere.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8525,12 +8963,12 @@
         },
         {
           "visual": "03_missing_reports",
-          "narration": "Read Missing as an unavailable report for that check. Follow the guidance to obtain the required report before drawing a conclusion.",
+          "narration": "Forstå Missing som en rapport som ikke er tilgjengelig for den kontrollen. Følg veiledningen for å skaffe den nødvendige rapporten før du trekker konklusjoner.",
           "hold_after": 0.7
         },
         {
           "visual": "04_computed_subset_picker",
-          "narration": "Choose a run subfolder when its outputs are separate from the parent project. Check that the displayed scope matches the data you intend to review.",
+          "narration": "Velg en kjøringsundermappe når utdataene er atskilt fra det overordnede prosjektet. Kontroller at omfanget som vises, samsvarer med dataene du vil gå gjennom.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -8539,7 +8977,7 @@
         },
         {
           "visual": "04_computed_subset",
-          "narration": "Read segmentation warnings and inspect the corresponding fields. For a size-distribution warning, compare the images and object boundaries to understand the cause.",
+          "narration": "Les segmenteringsadvarslene og undersøk de tilhørende synsfeltene. Ved en advarsel om størrelsesfordelingen sammenligner du bildene og objektgrensene for å forstå årsaken.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8554,12 +8992,12 @@
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Review the units card alongside the remaining categories. A consistent units report addresses that check; missing reports still need attention.",
+          "narration": "Se gjennom enhetskortet sammen med de øvrige kategoriene. En konsistent enhetsrapport oppfyller den kontrollen; manglende rapporter trenger fortsatt oppmerksomhet.",
           "hold_after": 0.7
         },
         {
           "visual": "05_subset_remaining_checks",
-          "narration": "Read all five categories and their guidance. For leakage, check that sample identities and grouping reflect the intended independent validation units.",
+          "narration": "Les alle de fem kategoriene og veiledningen. For lekkasje kontrollerer du at prøveidentiteter og gruppering gjenspeiler de tiltenkte uavhengige valideringsenhetene.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -8569,7 +9007,7 @@
         },
         {
           "visual": "07_original_plate_details",
-          "narration": "Open the details of failures or warnings to identify affected fields and source reports. Use the relevant analysis tool to investigate them.",
+          "narration": "Åpne detaljene for feil eller advarsler for å finne berørte synsfelt og kilderapporter. Bruk det relevante analyseverktøyet til å undersøke dem.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8580,7 +9018,7 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Click Refresh after reports change on disk. The dashboard rereads available evidence; generate updated reports through the analysis that produces them.",
+          "narration": "Klikk på Refresh når rapporter endres på disken. Dashbordet leser tilgjengelig grunnlag på nytt; lag oppdaterte rapporter via analysen som produserer dem.",
           "hold_after": 0.7,
           "focus": [
             450,
@@ -8591,12 +9029,12 @@
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Investigate an out-of-date report against its input data and settings. Keep unresolved findings visible in your project review.",
+          "narration": "Undersøk en utdatert rapport opp mot inndataene og innstillingene. La uløste funn være synlige i prosjektgjennomgangen.",
           "hold_after": 0.7
         },
         {
           "visual": "08_unchanged_refresh",
-          "narration": "Keep quality reports with the project. Continue in the linked specialist tools or the relevant module tutorial to address each finding.",
+          "narration": "Behold kvalitetsrapportene sammen med prosjektet. Fortsett i de lenkede spesialverktøyene eller i veiledningen for den aktuelle modulen for å håndtere hvert funn.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -8609,6 +9047,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8620,18 +9098,18 @@
       "app_key": "image_scatter",
       "host_app_key": "umap",
       "section": "Explore",
-      "title": "Image Scatter: inspect measurements and their crops",
-      "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
+      "title": "Image Scatter: undersøk målinger og utsnittene deres",
+      "description": "Plott to målekolonner, forhåndsvis objektutsnitt og send et valgt objekt til Annotate.",
       "objectives": [
-        "Load measurements and choose axes.",
-        "Inspect the crop behind a point.",
-        "Send a selected object to Annotate."
+        "Laste inn målinger og velge akser.",
+        "Undersøke utsnittet bak et punkt.",
+        "Sende et valgt objekt til Annotate."
       ],
-      "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
+      "prerequisite": "Bruk en spaCR-måledatabase med tilhørende objektutsnitt og utsnittsformatfiler. Det nedlastbare Annotate-eksemplet inneholder disse inndataene.",
       "scenes": [
         {
           "visual": "01_image_umap_host",
-          "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
+          "narration": "Åpne Image UMAP og deretter Image Scatter for å plotte to eksisterende målinger. Øv med databasen fra Annotate-eksemplet og de tilhørende celleutsnittene.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -8640,17 +9118,17 @@
         },
         {
           "visual": "03_choose_real_measurements",
-          "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
+          "narration": "Klikk på Browse og åpne measurements.db. Hold prosjektets mappe data og utsnittsformatfilene sammen med databasen, slik at miniatyrbildene kan finnes.",
           "hold_after": 0.7
         },
         {
           "visual": "04_choose_cell_not_children",
-          "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
+          "narration": "Velg cell i tabellvelgeren og klikk på Plot. Når du bytter til en annen tabell, klikker du på Plot igjen for å laste inn radene.",
           "hold_after": 0.7
         },
         {
           "visual": "05_real_measurement_scatter",
-          "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
+          "narration": "Sett x til celleareal og y til cellens gjennomsnittlige intensitet i kanal 1. Valg av akser tegner de innlastede radene på nytt med en gang.",
           "hold_after": 0.7,
           "related_lessons": [
             "62_feature_dictionary"
@@ -8664,7 +9142,7 @@
         },
         {
           "visual": "06_genuine_large_cell_preview",
-          "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
+          "narration": "Hold pekeren over et punkt for å se det lagrede utsnittet og hele objektidentiteten. Bruk bildet til å forstå målingen bak punktet.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8675,7 +9153,7 @@
         },
         {
           "visual": "08_cached_same_cell",
-          "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
+          "narration": "Flytt pekeren bort for å fjerne den midlertidige forhåndsvisningen, og hold den deretter over et annet punkt for å undersøke det.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8686,7 +9164,7 @@
         },
         {
           "visual": "09_swapped_raw_axes",
-          "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
+          "narration": "Bytt om x- og y-målingene for å utforske sammenhengen fra en annen vinkel. Velg meningsfulle egenskaper og kontroller enhetene.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8697,7 +9175,7 @@
         },
         {
           "visual": "11_missing_texture_not_plotted",
-          "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
+          "narration": "Velg en annen måling, for eksempel homogenitetsegenskapen. Rader uten koordinater utelates fra plottet, så antall plottede punkter kan avvike fra antall innlastede rader.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8708,7 +9186,7 @@
         },
         {
           "visual": "12_constant_axis_is_centred",
-          "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
+          "narration": "En konstant kolonne, som måledimensjonen i dette eksemplet, legger punktene på en linje. Gå tilbake til en egenskap med nyttig variasjon for å undersøke objekter.",
           "hold_after": 0.7,
           "focus": [
             410,
@@ -8719,7 +9197,7 @@
         },
         {
           "visual": "16_real_annotate_grid",
-          "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
+          "narration": "For å undersøke et valgt utsnitt i Annotate åpner du først Annotate og laster inn det samme prosjektet. Gå deretter tilbake til den eksisterende Image Scatter-visningen.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8727,7 +9205,7 @@
         },
         {
           "visual": "17c_native_point_click_target",
-          "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
+          "narration": "Klikk på selve punktet for å sende objektidentiteten til Annotate, og bytt deretter til den siden. Å holde pekeren over viser bare en forhåndsvisning av utsnittet.",
           "hold_after": 0.7,
           "focus": [
             3500,
@@ -8738,7 +9216,7 @@
         },
         {
           "visual": "18_verified_clicked_cell_in_annotate",
-          "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
+          "narration": "Undersøk det valgte objektet i Annotate før du setter en merkelapp. Bruk Database Browser til tabelleksport, eller PCA til komponentanalyse.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database",
@@ -8756,6 +9234,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8767,14 +9285,14 @@
       "app_key": "lineage",
       "host_app_key": "db_browser",
       "section": "Explore",
-      "title": "Lineage: browse parent objects and their contents",
-      "description": "Open stored parent-child relationships, select a family and inspect a matching parent-cell crop in Annotate.",
+      "title": "Lineage: bla gjennom foreldreobjekter og innholdet deres",
+      "description": "Åpne lagrede forelder-barn-relasjoner, velg en familie og undersøk et tilhørende utsnitt av foreldrecellen i Annotate.",
       "objectives": [
-        "Load measurements and expand parent-child relationships.",
-        "Select objects while checking field and object type.",
-        "Open a matching parent-cell crop and obtain the full hierarchy through Python."
+        "Laste inn målinger og utvide forelder-barn-relasjoner.",
+        "Velge objekter og samtidig kontrollere synsfelt og objekttype.",
+        "Åpne et tilhørende utsnitt av foreldrecellen og hente hele hierarkiet via Python."
       ],
-      "prerequisite": "Download the complete Annotate example with its measurements database and matching cell crops. The Graph Builder database-only archive cannot supply images. This example provides cell crops only: use a parent-cell double-click to inspect a crop. The current Open crops family action can substitute unrelated cell crops for missing child crops; avoid that action with this example.",
+      "prerequisite": "Last ned det komplette Annotate-eksemplet med måledatabasen og de tilhørende celleutsnittene. Graph Builders arkiv med bare databasen kan ikke gi bilder. Eksemplet inneholder bare celleutsnitt: dobbeltklikk på en foreldercelle for å undersøke et utsnitt. Den nåværende familiehandlingen Open crops kan erstatte manglende barneutsnitt med utsnitt av urelaterte celler; unngå den med dette eksemplet.",
       "example_files": [
         "Lineage_real_containment_review.zip",
         "Graph_Builder_real_measurements.zip"
@@ -8782,7 +9300,7 @@
       "scenes": [
         {
           "visual": "02_database_host",
-          "narration": "From Home, open Database Browser, then Lineage. Use the tree to browse which measured objects are stored inside each parent cell.",
+          "narration": "Fra Home åpner du Database Browser og deretter Lineage. Bruk treet til å se hvilke målte objekter som er lagret inne i hver foreldercelle.",
           "hold_after": 0.7,
           "related_lessons": [
             "34_database"
@@ -8790,42 +9308,42 @@
         },
         {
           "visual": "04_choose_real_measurements",
-          "narration": "Browse to measurements.db from the Annotate example and click Build tree. Widen the Object column and divider to read the labels. Identify an object by its field and type as well as its number.",
+          "narration": "Bla til measurements.db fra Annotate-eksemplet og klikk på Build tree. Gjør kolonnen Object og skillelinjen bredere for å lese etikettene. Identifiser et objekt ut fra synsfelt og type i tillegg til nummer.",
           "hold_after": 0.7
         },
         {
           "visual": "05_full_counts_capped_tree_and_zero_orphans",
-          "narration": "This database contains two thousand three hundred forty-one cells. The tree displays up to two thousand parent families. Use the Python export later in this lesson when you need every family.",
+          "narration": "Databasen inneholder 2 341 celler. Treet viser opptil 2 000 foreldrefamilier. Bruk Python-eksporten som vises senere i leksjonen, når du trenger alle familiene.",
           "hold_after": 0.7
         },
         {
           "visual": "06_one_nucleus_no_pathogen",
-          "narration": "Read the summary above the tree. A nucleus counts as a child, so a cell with contents can still have no pathogen object. Use the child types to interpret each family.",
+          "narration": "Les sammendraget over treet. En kjerne teller som barn, så en celle med innhold kan likevel mangle patogenobjekt. Bruk barnetypene til å tolke hver familie.",
           "hold_after": 0.7
         },
         {
           "visual": "07_cell_with_nucleus_and_pathogen",
-          "narration": "Expand a parent to see its children. Here cell three contains nucleus five and pathogen one. Choose the specific object type you want to inspect.",
+          "narration": "Utvid en forelder for å se barna. Her inneholder celle 3 kjerne 5 og patogen 1. Velg den bestemte objekttypen du vil undersøke.",
           "hold_after": 0.7
         },
         {
           "visual": "09_publish_three_typed_objects",
-          "narration": "Use Select with contents to select the parent and its children together. The selected identities include their field and object type. Select a child alone when you only need that object.",
+          "narration": "Bruk Select with contents for å velge forelderen og barna samtidig. De valgte identitetene inkluderer synsfelt og objekttype. Velg et barn alene når du bare trenger det objektet.",
           "hold_after": 0.7
         },
         {
           "visual": "11_large_family_not_biological_validation",
-          "narration": "Expand a large family to inspect its contents. This example includes one family with thirty-three objects. Review the corresponding images when a count looks unusual.",
+          "narration": "Utvid en stor familie for å undersøke innholdet. Eksemplet inneholder én familie med 33 objekter. Undersøk de tilhørende bildene når et antall virker uvanlig.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_header_sort_preserves_containment",
-          "narration": "Click a column header to sort the displayed families. Sorting keeps the stored relationships and the two-thousand-parent display limit.",
+          "narration": "Klikk på en kolonneoverskrift for å sortere familiene som vises. Sorteringen beholder de lagrede relasjonene og visningsgrensen på 2 000 foreldre.",
           "hold_after": 0.7
         },
         {
           "visual": "13_real_open_annotate_prerequisite",
-          "narration": "To view crops, first open Annotate and load the matching example project. If you see the message asking for Annotate, open it before requesting images from Lineage.",
+          "narration": "For å se utsnitt åpner du først Annotate og laster inn det tilhørende eksempelprosjektet. Hvis du ser meldingen som ber om Annotate, åpner du det før du ber om bilder fra Lineage.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -8833,27 +9351,27 @@
         },
         {
           "visual": "16_real_downloaded_cell_crops",
-          "narration": "Use the complete downloaded project, which includes the cell crops. Keep the database and images from the same run together so their object identities match.",
+          "narration": "Bruk hele det nedlastede prosjektet, som inneholder celleutsnittene. Hold databasen og bildene fra samme kjøring samlet, slik at objektidentitetene samsvarer.",
           "hold_after": 0.7
         },
         {
           "visual": "20_wrong_typed_children_are_unrelated_cell_crops",
-          "narration": "Avoid Open crops on a whole family in this example. Missing nucleus and pathogen crops can be replaced by unrelated cell crops. Return to the tree and choose the parent cell alone instead.",
+          "narration": "Unngå Open crops for en hel familie i dette eksemplet. Manglende kjerne- og patogenutsnitt kan bli erstattet med utsnitt av urelaterte celler. Gå tilbake til treet og velg bare foreldrecellen.",
           "hold_after": 0.7
         },
         {
           "visual": "22_verified_parent_only_real_cell_crop",
-          "narration": "Double-click the parent cell in Lineage. Annotate opens that parent’s matching cell crop. This is the crop available in the downloaded example.",
+          "narration": "Dobbeltklikk på foreldrecellen i Lineage. Annotate åpner det tilhørende celleutsnittet for denne forelderen. Det er utsnittet som finnes i det nedlastede eksemplet.",
           "hold_after": 0.7
         },
         {
           "visual": "22a_zoom_parent_without_labelling",
-          "narration": "Shift-click the parent thumbnail to enlarge its preview, then press Escape to return. An ordinary left click assigns an annotation class, so use Shift when you only want to inspect.",
+          "narration": "Skift-klikk på miniatyrbildet av forelderen for å forstørre forhåndsvisningen, og trykk deretter på Esc for å gå tilbake. Et vanlig venstreklikk setter en annoteringsklasse, så bruk Shift når du bare vil undersøke.",
           "hold_after": 0.7
         },
         {
           "visual": "24_rebuild_preserves_full_containment",
-          "narration": "Click Build tree to refresh the view. For the full hierarchy in Python, use read_object_tables, build_forest and lineage_frame, then save the frame as CSV. The linked example CSV contains all seven thousand two hundred one nodes.",
+          "narration": "Klikk på Build tree for å oppdatere visningen. For hele hierarkiet i Python bruker du read_object_tables, build_forest og lineage_frame, og lagrer tabellen som CSV. Den lenkede eksempel-CSV-filen inneholder alle 7 201 noder.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -8863,6 +9381,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8873,18 +9431,18 @@
       "series": 5,
       "app_key": "layer_viewer",
       "section": "Explore",
-      "title": "Layer Viewer: inspect images and label overlays",
-      "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+      "title": "Layer Viewer: undersøk bilder og etikettoverlegg",
+      "description": "Last inn et tilhørende bilde og en maske, juster overlegget og zoom inn for å undersøke objektgrenser.",
       "objectives": [
-        "Open an image and its matching mask.",
-        "Adjust visibility, opacity, blending and layer order.",
-        "Inspect labels with zoom and pan."
+        "Åpne et bilde og den tilhørende masken.",
+        "Justere synlighet, opasitet, blanding og lagrekkefølge.",
+        "Undersøke etiketter med zoom og panorering."
       ],
-      "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+      "prerequisite": "Last ned og pakk ut Layer_Viewer_real_image_mask.zip. Bruk det medfølgende intensitetsbildet og den tilhørende masken med heltallsetiketter. Eksemplet har ingen fysisk pikselkalibrering.",
       "scenes": [
         {
           "visual": "01_qc_host",
-          "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+          "narration": "Fra Home åpner du QC og deretter Layer Viewer. Last ned og pakk ut det lenkede eksemplet med bilde og maske. Visningen har egne filkontroller for disse to inndataene.",
           "hold_after": 0.7,
           "related_lessons": [
             "31_external_masks",
@@ -8893,22 +9451,22 @@
         },
         {
           "visual": "04_raw_image_in_wide_pane",
-          "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+          "narration": "Klikk på + Image og åpne fov01_C1.tif. Gråtonebildet vises på lerretet med persentilbasert kontraststrekk for visningen.",
           "hold_after": 0.7
         },
         {
           "visual": "05_fit_after_actual_splitter_resize",
-          "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+          "narration": "Klikk på Fit for å fylle bildepanelet. Fit kan strekke et kvadratisk bilde i et bredt panel; juster skillelinjen slik at panelet blir omtrent kvadratisk når du undersøker former.",
           "hold_after": 0.7
         },
         {
           "visual": "07_real_44_label_overlay",
-          "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+          "narration": "Klikk på + Mask og åpne fov01_cell_mask.tif. De 44 merkede objektene vises over bildet. 0 er bakgrunn og forblir gjennomsiktig.",
           "hold_after": 0.7
         },
         {
           "visual": "09_mask_visible_again",
-          "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+          "narration": "Velg mask i lagoversikten før du endrer kontrollene. Slå avmerkingsboksen av og på for å sammenligne grensene med bildet under.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -8919,7 +9477,7 @@
         },
         {
           "visual": "10_opacity_zero_not_deleted",
-          "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+          "narration": "Sett Opacity for mask til 0 for å skjule fargene mens laget forblir lastet inn. Kontroller den valgte raden før du justerer et annet lag.",
           "hold_after": 0.7,
           "focus": [
             1970,
@@ -8930,42 +9488,42 @@
         },
         {
           "visual": "11_full_label_colours",
-          "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+          "narration": "Sett Opacity til 100 % for å undersøke formene på etikettene. Fargene dekker bildet innenfor hvert merket objekt.",
           "hold_after": 0.7
         },
         {
           "visual": "12_half_opacity_restored",
-          "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+          "narration": "Sett Opacity tilbake til 50 % og velg blandingen translucent for å se bildets tekstur gjennom masken. Sammenlign objektgrensene med det underliggende signalet.",
           "hold_after": 0.7
         },
         {
           "visual": "13_blend_additive",
-          "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+          "narration": "Velg blandingen additive for å legge maskefargene til bildet. Lyse områder kan bli mettet i denne visningen, så gå tilbake til translucent når du trenger en tydeligere sammenligning.",
           "hold_after": 0.7
         },
         {
           "visual": "15_blend_minimum",
-          "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+          "narration": "Prøv blandingene multiply og minimum for å sammenligne mørkere overlegg. Valgene endrer den viste sammensetningen, mens de opprinnelige intensitetsverdiene fortsatt finnes i kildebildet.",
           "hold_after": 0.7
         },
         {
           "visual": "16_blend_opaque",
-          "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+          "narration": "Velg opaque og juster glidebryteren Opacity for å sammenligne utseendet. Med denne heltallsmasken ser opaque ved 50 % ut som translucent ved 50 %. Sett tilbake translucent for å fortsette.",
           "hold_after": 0.7
         },
         {
           "visual": "18_cyan_image_not_changed_measurements",
-          "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+          "narration": "Velg image og velg cyan i fargekartvelgeren. Intensitetsbildet skifter farge, mens masken beholder etikettfargene. Velg gray for å gå tilbake til gråtonevisningen.",
           "hold_after": 0.7
         },
         {
           "visual": "19_mask_under_image",
-          "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+          "narration": "Velg mask og trykk på pil ned for å flytte den bak bildet. Det øverste laget vises foran. Flytt masken opp igjen for å undersøke etikettene.",
           "hold_after": 0.7
         },
         {
           "visual": "21_actual_label_no_field_identity",
-          "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+          "narration": "Klikk på et synlig merket objekt for å lese posisjonen og etikettnummeret i statuslinjen. Bruk prosjektets metadata når du må identifisere objektets synsfelt, plate eller brønn.",
           "hold_after": 0.7,
           "focus": [
             295,
@@ -8976,22 +9534,22 @@
         },
         {
           "visual": "22_native_wheel_zoom_keeps_world_anchor",
-          "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+          "narration": "Rull musehjulet over et objekt for å zoome rundt pekeren. Gå nærmere til grensen er lett å undersøke.",
           "hold_after": 0.7
         },
         {
           "visual": "23_native_pan",
-          "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+          "narration": "Hold nede Shift og dra med venstre museknapp for å panorere. Du kan også dra med midtknappen. Beveg deg over synsfeltet mens gjeldende zoom beholdes.",
           "hold_after": 0.7
         },
         {
           "visual": "24_fit_restores_original_view",
-          "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+          "narration": "Klikk på Fit for å gå tilbake til hele synsfeltet. Juster formen på panelet hvis det tilpassede bildet ser strukket ut.",
           "hold_after": 0.7
         },
         {
           "visual": "25_empty_shapes_layer",
-          "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+          "narration": "+ Points og + Shapes legger til tomme hjelpelag. For å tegne eller redigere segmenteringsmasker fortsetter du i Make Masks; denne visningen har ingen tegneverktøy for de tomme lagene.",
           "hold_after": 0.7,
           "related_lessons": [
             "14_make_masks"
@@ -8999,12 +9557,12 @@
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+          "narration": "Velg et lag og bruk Remove for å fjerne det fra visningen. Den opprinnelige filen ligger fortsatt på disken, klar til å lastes inn igjen.",
           "hold_after": 0.7
         },
         {
           "visual": "28_remove_mask_only_from_view",
-          "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+          "narration": "Resultatet er en gjennomgått lagvisning. For en eksportert sammensetning bruker du stack_from_paths og LayerStack.render_uint8 fra Python. Fortsett til Make Masks for lagrede maskeendringer eller Measure for objektmålinger.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -9020,6 +9578,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9030,26 +9628,26 @@
       "series": 5,
       "app_key": "graph_builder",
       "section": "Explore",
-      "title": "Graph Builder: plot measurements and filter objects",
-      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+      "title": "Graph Builder: plott målinger og filtrer objekter",
+      "description": "Last inn en måletabell, tilordne plottakser, sammenlign grupper og filtrer de viste objektene.",
       "objectives": [
-        "Load an example measurement table.",
-        "Build a histogram, scatter plot and grouped panels.",
-        "Filter objects and choose a follow-up view."
+        "Laste inn en eksempeltabell med målinger.",
+        "Lage et histogram, et spredningsplott og grupperte paneler.",
+        "Filtrere objekter og velge en oppfølgingsvisning."
       ],
-      "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
+      "prerequisite": "Last ned og pakk ut Graph_Builder_real_measurements.zip. Den inneholder measurements.db. For å undersøke bildeutsnitt senere holder du også det tilhørende Annotate-prosjektet og bildene tilgjengelige.",
       "example_files": [
         "Graph_Builder_real_measurements.zip"
       ],
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Open Graph Builder from Home to explore a measurement table. Start with the linked example database, then repeat the steps with your own measured project.",
+          "narration": "Åpne Graph Builder fra Home for å utforske en måletabell. Begynn med den lenkede eksempeldatabasen, og gjenta deretter trinnene med ditt eget målte prosjekt.",
           "hold_after": 0.7
         },
         {
           "visual": "03_choose_database",
-          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+          "narration": "Klikk på Load table og åpne measurements.db fra det utpakkede arkivet. Velg tabellen cell. Eksemplet inneholder 2 341 målte celler.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -9058,47 +9656,47 @@
         },
         {
           "visual": "05_area_histogram",
-          "narration": "Find cell_area in the column list and drag it onto X. The automatic chart becomes a histogram: each bar counts cells in an area interval. Check the measurement units before interpreting the axis.",
+          "narration": "Finn cell_area i kolonnelisten og dra den til X. Det automatiske diagrammet blir et histogram: hver søyle teller celler i et arealintervall. Kontroller måleenhetene før du tolker aksen.",
           "hold_after": 0.7
         },
         {
           "visual": "06_real_scatter",
-          "narration": "Drag cell_channel_1_mean_intensity onto Y to make a scatter plot. Each point places one cell by its area and channel-one mean intensity. Read the row-count notice when working with larger tables.",
+          "narration": "Dra cell_channel_1_mean_intensity til Y for å lage et spredningsplott. Hvert punkt plasserer én celle etter areal og gjennomsnittlig intensitet i kanal 1. Les meldingen om antall rader når du arbeider med større tabeller.",
           "hold_after": 0.7
         },
         {
           "visual": "07_well_column_colour",
-          "narration": "Drag columnID onto Colour to distinguish plate columns. Use the legend to match colours to the recorded column labels and look for groups that need closer inspection.",
+          "narration": "Dra columnID til Colour for å skille platekolonnene. Bruk forklaringen til å koble fargene til de registrerte kolonnemerkelappene, og se etter grupper som trenger nærmere undersøkelse.",
           "hold_after": 0.7
         },
         {
           "visual": "08_acquisition_row_facets",
-          "narration": "Drag rowID onto the downward facet channel to create a panel for each plate row. Compare the panels using their shared axes. Use independent wells when making statistical comparisons between conditions.",
+          "narration": "Dra rowID til fasettkanalen nedover for å lage et panel for hver platerad. Sammenlign panelene ved hjelp av de felles aksene. Bruk uavhengige brønner når du gjør statistiske sammenligninger mellom betingelser.",
           "hold_after": 0.7
         },
         {
           "visual": "09_live_area_filter",
-          "narration": "In the filter panel on the right, add cell_area and enter a minimum. The example uses twenty-one thousand nine hundred twenty-five, leaving one thousand one hundred seventy-one rows. Choose thresholds appropriate to your own measurements and watch the plotted count and axes change.",
+          "narration": "I filterpanelet til høyre legger du til cell_area og skriver inn et minimum. Eksemplet bruker 21 925, som gir 1 171 gjenværende rader. Velg terskler som passer dine egne målinger, og se hvordan antall plottede punkter og aksene endres.",
           "hold_after": 0.7
         },
         {
           "visual": "10_filter_cleared",
-          "narration": "Click Clear all in the filter panel to restore the full table. Use Clear all channels on the left when you want to remove the plot mappings and start a different chart.",
+          "narration": "Klikk på Clear all i filterpanelet for å gjenopprette hele tabellen. Bruk Clear all channels til venstre når du vil fjerne tilordningene i plottet og begynne på et annet diagram.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
+          "narration": "Fjern en fasett med det lille krysset for å gå tilbake til ett spredningsplott. Dra et rektangel rundt objekter for å velge et område. Hvis Open selection in Annotate ikke er tilgjengelig, åpner du Annotate separat med det tilhørende prosjektet og undersøker objektene der.",
           "hold_after": 0.7
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "Click an empty part of the plot to clear the selection. Check the active filters and displayed count before exploring another group of objects.",
+          "narration": "Klikk på en tom del av plottet for å fjerne markeringen. Kontroller aktive filtre og antallet som vises, før du utforsker en annen gruppe objekter.",
           "hold_after": 0.7
         },
         {
           "visual": "02_fold_trellis",
-          "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
+          "narration": "Bruk snarveiene i toppfeltet for å åpne Plate Viewer for brønnvarmekart eller Small Multiples for gjentatte diagrammer. Behold kildedatabasen, de valgte kolonnene og filtrene slik at du kan gjenskape visningen.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
@@ -9107,7 +9705,7 @@
         },
         {
           "visual": "12_selection_cleared",
-          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
+          "narration": "Den nåværende skjermen viser plott uten eksportknapp. Bruk Graph Builder-API-et for skriptede plott, eller Database Browser for å eksportere en tabell til et annet plotteverktøy.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api"
@@ -9117,6 +9715,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

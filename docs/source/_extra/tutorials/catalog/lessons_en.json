@@ -2844,124 +2844,162 @@
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
       "section": "Tools",
-      "title": "Train Cellpose: verified pairs and an explicit API workaround",
-      "description": "Find Train inside the Cellpose Workbench, recognise the current source-import defect, and follow a real two-epoch Python training demonstration using six downloadable cell-image/mask pairs.",
+      "title": "Train a Cellpose model",
+      "description": "Prepare image/mask pairs, fine-tune a segmentation model in the Cellpose Workbench and apply the saved checkpoint.",
       "objectives": [
-        "Find Train and Apply within Make Masks rather than looking for separate Home tiles.",
-        "Check matching cell-image/mask filenames and distinguish existing labels from reviewed ground truth.",
-        "Recognise partial settings import and keep the explicit API route separate from the broken GUI route.",
-        "Inspect actual training inputs, warm-up rates, changed weights and the verified checkpoint path.",
-        "Distinguish training loss, placeholder test slots and checkpoint deserialization from independent model accuracy."
+        "Inspect matching images and object-label masks in Make Masks.",
+        "Choose the training folder, starting model, schedule and output location.",
+        "Run training, find the checkpoint and apply it to separate images."
       ],
       "example_files": [
-        "Train_Cellpose_API_example.zip"
+        "Cellpose_training_images_masks.zip"
       ],
-      "prerequisite": "Use the linked six-pair bundle with the recorded helper and source manifest. The corrected examples preserve cell intensity channel 1 and cell mask plane 4 from real downloaded fields; plane 6 is pathogen. Existing labels and edge-cut instances are NOT independently reviewed ground truth. The native Train CSV import still drops required src and keeps model_name=new_model, although numerical controls import. No GUI training starts. The explicit spacr.submodules.train_cellpose call uses a new private destination, two epochs, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 and no extra spaCR augmentations. normalize=False disables spaCR percentile preprocessing, not maximum scaling or Cellpose's internal normalisation. Cellpose still rotates/resizes and uses internal 256-pixel patches. Seed 19 is set at entry; internal randomisation remains. CUDA is bounded to 65 percent on the recorded RTX 3090, with a 100 GiB system-RAM guard appropriate only to this workstation. All 3,145,728 image/label values and twelve preview arrays were checked. All six pairs remained in training. Actual warm-up rates were 0 and 1.1111111111111112e-6; 345 of 347 trainable parameter tensors changed. Loss rose from 1.496740683913231 to 1.5215517828861873. No test data were supplied; zero test-loss slots are placeholders. The checkpoint under models/cellpose_model/models was read with weights_only=True; the generic console path omits the second models directory. Deserialization is not inference or accuracy validation. The real figure is shown in an external viewer, never inserted into GUI Figures. Original data, previous failed captures and the old GUI hold are preserved. No AI request, provider response, scientific approval or publication.",
+      "prerequisite": "Download and extract the linked example: six training images with masks, plus three separate images for Apply. Or prepare your own images and matching integer-label masks, and inspect them in Make Masks before training.",
       "scenes": [
         {
-          "visual": "gui_01_make_masks_host",
-          "narration": "Open Make Masks, then its nested Cellpose Workbench. Train and Apply are tabs inside that workbench, not separate Home tiles. This lesson shows the current route, a settings-import problem and an explicit Python workaround. The linked Make Masks lesson covers inspecting and editing masks before any training.",
+          "visual": "home_make_masks",
+          "narration": "From Home, open Tools, then Make Masks. Open Cellpose Workbench from its toolbar; it starts on the Train tab. You will train from images and their object-label masks, then use the saved model in Apply.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "14_make_masks",
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "train_source",
+          "narration": "Extract the linked example. Its training folder holds six images and a masks subfolder, and its apply folder holds three separate images for later. Click the folder button beside Image source folder and choose training. Leave Mask source folder empty to use the masks subfolder, or choose another folder of masks.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "train_pairs",
+          "narration": "Each image needs one mask with the same height and width. Zero is background, and each object has its own positive number. Open the training folder in Make Masks to inspect the labels and correct them before training. This image has ninety-five labelled cells.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "14_make_masks"
+          ]
+        },
+        {
+          "visual": "train_channels",
+          "narration": "This example is grayscale, so leave Channels empty. For a multichannel image, add up to three zero-based channel numbers, such as zero and two for the first and third channels. Set Channel axis only if automatic detection cannot find the channel dimension.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            241
+          ]
+        },
+        {
+          "visual": "train_model_output",
+          "narration": "Keep Base model at cpsam to start from Cellpose-SAM, or enter a checkpoint path to continue training an earlier model. Enter a Model name; here it is tutorial cells. Leave Checkpoint folder empty to save inside the source folder, or choose another folder.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            496
+          ]
+        },
+        {
+          "visual": "train_schedule",
+          "narration": "Set N epochs and Batch size. This quick run uses ten epochs with a batch size of one. More epochs give the model more training updates, and larger batches use more memory. Keep the displayed learning rate to begin.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            757,
+            1165,
+            264
+          ]
+        },
+        {
+          "visual": "train_normalization",
+          "narration": "Keep Normalize on, with the first and ninety-ninth percentiles as a starting point. These set the intensity range used for each channel. Scale range varies the image size during training, and Min train masks skips images with fewer labelled objects.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            820,
+            1165,
+            561
+          ]
+        },
+        {
+          "visual": "train_validation",
+          "narration": "To follow validation loss, choose a separate Validation image folder and its Validation mask folder. Never reuse training images there. Leave both empty when you have no separate labelled set, as in this example.",
+          "hold_after": 0.7,
+          "focus": [
+            366,
+            632,
+            1165,
+            158
+          ]
+        },
+        {
+          "visual": "train_run_console",
+          "narration": "Check the folders, model name and output location, then press Run. The Figures panel shows the training images above their masks, and the console follows progress. On this GPU, ten epochs on six images finished in under a minute.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            520,
+            3410,
+            1260
+          ]
+        },
+        {
+          "visual": "train_checkpoint",
+          "narration": "When training finishes, the console gives the checkpoint path. With the default location it is in the source folder, under models, cellpose model, models. The file name adds the architecture and epoch count to your model name. Keep it with your training settings.",
+          "hold_after": 0.7,
+          "focus": [
+            390,
+            960,
+            3410,
+            700
+          ]
+        },
+        {
+          "visual": "apply_checkpoint",
+          "narration": "Open the Apply tab. Custom model now points to the checkpoint you trained. Set Source to the example apply folder, whose images come from wells that were not used for training. Set Channels to zero and Percentiles to two and ninety-nine. Turn off Fill in so touching cells stay separate, and turn on Save and Verbose.",
+          "hold_after": 0.7,
+          "related_lessons": [
             "20_cellpose_masks"
           ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02_actual_train_tab",
-          "narration": "On Train, inspect the starting point and training schedule. Do not copy the initial epoch count or learning rate as a recommendation. Training needs matching images and instance masks, plus a source folder and an output name. Merely seeing a form does not mean those requirements are satisfied.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02a_real_settings_import_picker",
-          "narration": "The real Import settings picker opens a CSV with our bounded example settings. After import, two epochs, minibatch one and the small learning rate appear. However, the required source is dropped and the requested model name stays new model. This is a partial import, not a ready configuration; do not press Run.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_02b_actual_imported_values",
-          "narration": "The Python route below is separate from this GUI defect. It does not secretly set a hidden source or repair the form. Use the linked example bundle in a fresh folder. Its helper refuses an existing destination, preserves the original pairs, and records exactly which API implementation and inputs were used.",
-          "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_01_verified_cell_pairs",
-          "narration": "There are six real, five-hundred-and-twelve-pixel image and mask pairs with matching filenames. Original settings identify cell intensity as channel one and cell masks as plane four; plane six is pathogen. These existing labels are not independently reviewed ground truth. Check boundaries and edge-cut objects before using any such labels for production training.",
           "focus": [
-            190,
-            80,
-            3450,
-            900
-          ],
-          "hold_after": 0.7
+            366,
+            607,
+            1165,
+            1156
+          ]
         },
         {
-          "visual": "gui_09_saved_actual_training_pairs",
-          "narration": "This is the actual six-pair figure saved by the API run and opened in an external viewer, not inserted into spaCR. Each top image corresponds to the mask directly below it. We checked all input image and label values and these twelve displayed arrays against the source pairs. That verifies correspondence, not annotation quality.",
+          "visual": "apply_preview",
+          "narration": "Open Live preview, choose one image and press Run preview, with the same channel and percentiles. It segments that image with your checkpoint, here finding seventy-six cells. Adjust settings here before running the whole folder.",
+          "hold_after": 0.7,
           "focus": [
-            560,
-            610,
-            2750,
-            970
-          ],
-          "hold_after": 0.7
+            390,
+            520,
+            3410,
+            1240
+          ]
         },
         {
-          "visual": "command_02_actual_two_epoch_api",
-          "narration": "Run the helper with its data source and a new destination. This bounded CUDA example uses all six pairs, two epochs and minibatch one. The input target is five hundred twelve pixels; Cellpose internally trains on two-hundred-and-fifty-six-pixel patches. Disabling spaCR's extra augmentations does not disable Cellpose's own normalisation, rotation and resizing.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1150
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "The first warm-up epoch has zero learning rate. The second uses a small positive rate, allowing actual weight updates. We compared the saved checkpoint with the initial trainable weights: three hundred forty-five of three hundred forty-seven parameter tensors changed. A changed diameter setting alone would not pass that check. Changed weights still do not establish a good model.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Training loss rose slightly, from about one point four nine seven to one point five two two. No test set was supplied. The zero test-loss slots are placeholders, not perfect test performance. This is a short mechanics demonstration, not convergence, improved segmentation or held-out accuracy. Keep an independent evaluation separate from training.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_03_actual_checkpoint_checks",
-          "narration": "Use the checkpoint path in the verified checks file. It includes a second models directory that the generic console summary omits. Keep the checkpoint with its settings, source manifest and checks. Loading its tensors safely verifies a readable checkpoint, not an inference result; the downloadable bundle contains the pairs and helper, not a certified model.",
-          "focus": [
-            190,
-            80,
-            3450,
-            950
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "gui_12_actual_apply_tab_no_inference",
-          "narration": "Apply has a separate source folder, custom-model field and live preview. Opening this tab does not select our external checkpoint or run inference. Follow its linked lesson before applying a model, and validate on independent images. The optional spaCR AI console control is unused here: no question or provider response substitutes for inspecting the real evidence.",
+          "visual": "apply_result",
+          "narration": "Press Run. Apply writes one mask per image into a masks subfolder beside those images, and Verbose shows each result as a figure. Here the three masks hold seventy-six, forty-eight and fifty-five cells. Before using a model on a whole experiment, compare its masks with separately labelled fields.",
+          "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
-            "14_make_masks",
-            "06_api"
+            "14_make_masks"
           ],
-          "hold_after": 0.7
+          "focus": [
+            390,
+            500,
+            3410,
+            390
+          ]
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "20_cellpose_masks",
@@ -7291,6 +7329,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7423,6 +7501,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7566,6 +7684,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7681,6 +7839,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7768,6 +7966,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7857,6 +8095,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -7969,6 +8247,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8085,6 +8403,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8211,6 +8569,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8357,6 +8755,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8630,6 +9068,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8777,6 +9255,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -8884,6 +9402,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9041,6 +9599,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9138,6 +9736,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
