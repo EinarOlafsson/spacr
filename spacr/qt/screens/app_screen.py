@@ -3055,6 +3055,379 @@ class AppScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not remember the form shape", exc_info=True)
 
+    def _follow_the_organelle_count(self, *_args) -> None:
+        """Answer a committed ``number_of_organelles`` without a reload.
+
+        Instruction 356, case 2. Lowering the count only hides slots, and
+        raising it within the slots already built only shows them, so both
+        are the in-place pass a channel gets. Raising it past them builds
+        the new slots' controls and lays them out in the headings already
+        on screen (:meth:`_grow_the_organelle_slots_in_place`). The whole
+        screen is rebuilt only when that cannot be done -- a run owns the
+        screen, the panel is drawn as tabs, or a category the new slot
+        needs has no heading to receive it.
+        """
+        try:
+            grown = self._grow_the_organelle_slots_in_place()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not grow the organelle slots in place",
+                      exc_info=True)
+            grown = False
+        if not grown:
+            self._rebuild_the_form()
+
+    def _grow_the_organelle_slots_in_place(self) -> bool:
+        """Spawn the slots a raised count asks for into the panel on screen.
+
+        EVERY CONTROL THAT EXISTED STAYS THE SAME OBJECT. A new slot's rows
+        are inserted where the module declares them -- beside the slots
+        before it in a flat category, as a new sub-heading in a category
+        split by object -- so nothing typed, scrolled or opened is lost. A
+        category still waiting to be opened is built first, the way opening
+        it would, and receives its rows the same way.
+
+        :returns: ``True`` when the count has been answered in place (or
+            there was nothing to answer); ``False`` when the caller must
+            rebuild the screen instead.
+        """
+        if getattr(self, "_rebuilding_the_form", False):
+            return True
+        model = getattr(self, "_settings_model", None)
+        if model is None or getattr(model, "_applying_settings", False):
+            return True
+        if (self._worker_thread_is_running()
+                or getattr(self, "_deferred_form_values", None) is not None
+                or getattr(self, "_settings_tabs", None) is not None
+                or not hasattr(model, "spawn_organelle_slots")):
+            return False
+        from ...organelle_types import NUMBER_OF_ORGANELLES
+
+        try:
+            count = int(model._setting_value(NUMBER_OF_ORGANELLES) or 0)
+        except (TypeError, ValueError):
+            return False
+        wanted = model.organelle_keys_to_spawn(count)
+        if wanted:
+            layout = self._categories_holding(wanted)
+            if layout is None:
+                return False
+            spawned = model.spawn_organelle_slots(count)
+            if spawned:
+                self._lay_out_spawned_rows(spawned, layout)
+                self._follow_the_spawned_switches(spawned)
+        self._show_the_objects_the_run_has()
+        grid = getattr(self, "_object_grid_binding", None)
+        if grid is not None:
+            try:
+                grid.seed()
+                model.hide_the_rows_the_grid_speaks_for(grid.owned_keys())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not reseed the per-object grid",
+                          exc_info=True)
+        return True
+
+    def _categories_holding(self, wanted):
+        """Each category holding one of ``wanted``, with its heading.
+
+        A heading still waiting to be opened is opened here, so the new
+        rows land in a built heading the same way as every other. A setting
+        in no category goes where the panel build puts it, "Other".
+
+        :param wanted: the settings about to be spawned.
+        :returns: ``[(title, keys, heading, new_keys), ...]`` in panel
+            order, ``heading`` being ``None`` for a top-level category the
+            panel has no heading for yet -- one whose every setting belongs
+            to a slot the count had not reached -- which is then built; or
+            ``None`` when one of them would have no heading on this screen.
+        """
+        from .settings_model import (_APP_HIDDEN_CATEGORIES,
+                                     _shared_category_parents,
+                                     categories_for_app, get_categories)
+
+        cats = categories_for_app(self.app_key, get_categories())
+        hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
+        parents = _shared_category_parents()
+        fresh = set(wanted)
+        placed = set()
+        out = []
+        for title, keys in cats.items():
+            keys = list(keys)
+            if title in hidden:
+                continue
+            mine = [key for key in keys if key in fresh and key not in placed]
+            if not mine:
+                continue
+            heading = self._heading_of_category(title, keys)
+            if heading is None and (
+                    title in parents
+                    or getattr(self, "_settings_layout", None) is None):
+                return None
+            placed.update(mine)
+            out.append((title, keys, heading, mine))
+        rest = [key for key in wanted if key not in placed]
+        if rest:
+            heading = self._heading_of_category("Other", ())
+            if heading is None:
+                return None
+            out.append(("Other", rest, heading, rest))
+        return out
+
+    def _heading_of_category(self, title: str, keys):
+        """The built heading drawing category ``title``, or ``None``.
+
+        :param title: the category as the module's layout names it.
+        :param keys: the category's settings, which tell it apart from a
+            sub-heading that happens to share its title.
+        """
+        from ..widgets.section import Section, _sections_below
+
+        wanted = set(keys)
+        seen = []
+        for section in (list(getattr(self, "_settings_sections", ()) or ())
+                        + list(getattr(self, "_discarded_settings_sections",
+                                       ()) or ())):
+            if any(section is other for other in seen):
+                continue
+            seen.append(section)
+            try:
+                if self._heading_is_waiting(section):
+                    spec = getattr(section, "_spacr_waiting_spec", None)
+                    titles = {getattr(node, "title", None)
+                              for node in (spec.walk() if hasattr(
+                                  spec, "walk") else ())}
+                    if title not in titles:
+                        continue
+                    self._open_a_waiting_heading(section)
+                    candidates = [section] + [
+                        child for child in _sections_below(section)
+                        if isinstance(child, Section)]
+                else:
+                    candidates = [section]
+                for candidate in candidates:
+                    if str(candidate.property("settingsCategorySource")
+                           or "") != title:
+                        continue
+                    declared = {key for key, _label, _widget in getattr(
+                        candidate, "_spacr_declared_rows", ()) or () if key}
+                    if (declared & wanted or _sections_below(candidate)
+                            or title == "Other"):
+                        return candidate
+            except RuntimeError:
+                continue
+        return None
+
+    def _lay_out_spawned_rows(self, spawned, layout) -> None:
+        """Put freshly built slot controls on the headings in ``layout``.
+
+        :param spawned: the keys :meth:`SettingsWidgets.spawn_organelle_slots`
+            built, in panel order.
+        :param layout: what :meth:`_categories_holding_roles` returned.
+        """
+        from ...organelle_types import ALL_ORGANELLE_ROLES, organelle_role_of
+        from .settings_model import (SettingsSection, _object_subheading,
+                                     _shared_category_parents)
+
+        model = self._settings_model
+        fresh = set(spawned)
+        split = set(_shared_category_parents())
+        touched = []
+        self._run_has_no_object_for = None
+        for title, keys, heading, planned in layout:
+            mine = [key for key in planned if key in fresh]
+            if not mine:
+                continue
+            if heading is None:
+                touched.append(self._add_a_category_heading(
+                    title, mine, split))
+                continue
+            touched.append(heading)
+            if title in split:
+                before = {id(other) for other in self._settings_sections}
+                by_role = {}
+                for key in mine:
+                    by_role.setdefault(organelle_role_of(key), []).append(
+                        (model._label_for(key), model._widgets[key]))
+                for role in sorted(by_role, key=ALL_ORGANELLE_ROLES.index):
+                    nested = self._build_settings_section(
+                        SettingsSection(_object_subheading(role),
+                                        by_role[role]), 1)
+                    heading.add_prose(nested)
+                    nested.toggled.connect(
+                        partial(self._open_the_headings_above, heading))
+                self._put_new_headings_ahead_of(heading, before)
+                continue
+            self._insert_waiting_rows(heading, keys, mine)
+        self._run_has_no_object_for = None
+        self._wire_category_hints()
+        for heading in touched:
+            self._clear_a_late_parts_surfaces(heading._body)
+        self.refresh_maturity_visibility()
+        self._the_rows_moved(judge_them=True)
+        for heading in touched:
+            self._translate_a_late_part(heading._body)
+
+    def _add_a_category_heading(self, title, keys, split):
+        """Build top-level category ``title`` from ``keys`` and mount it.
+
+        What raising the count from zero needs: the organelle categories
+        hold nothing but slot settings, so at zero they were never built.
+        The heading is built by the path every category takes and put
+        where the module's layout places it, before the first category on
+        the page that the layout lists after it.
+
+        :param title: the category.
+        :param keys: its new settings, in declared order.
+        :param split: the categories drawn with a sub-heading per object.
+        :returns: the new heading.
+        """
+        from .settings_model import (SettingsSection, _shared_category_parents,
+                                     _split_rows_by_object,
+                                     categories_for_app, get_categories)
+
+        model = self._settings_model
+        rows = [(model._label_for(key), model._widgets[key]) for key in keys]
+        if title in split:
+            own, children = _split_rows_by_object(rows, keys)
+            spec = SettingsSection(title, own, children)
+        else:
+            spec = SettingsSection(title, rows)
+        section = self._build_settings_section(spec)
+        order = list(categories_for_app(self.app_key, get_categories()))
+        parents = _shared_category_parents()
+        rank = {}
+        for index, name in enumerate(order):
+            rank.setdefault(name, index)
+            rank.setdefault(parents.get(name, name), index)
+        mine = rank.get(title, len(order))
+        layout = self._settings_layout
+        at = self._index_before_the_stretch(layout)
+        placed_after = -1.0
+        for index in range(layout.count()):
+            other = layout.itemAt(index).widget()
+            if other is None or getattr(
+                    other, "_settings_top_level_order", None) is None:
+                continue
+            name = str(other.property("settingsCategorySource") or "")
+            if rank.get(name, -1) > mine:
+                at = index
+                break
+            placed_after = float(other._settings_top_level_order)
+        section._settings_top_level_order = placed_after + 0.5
+        layout.insertWidget(at, section)
+        return section
+
+    def _insert_waiting_rows(self, heading, keys, mine) -> None:
+        """Insert rows into a built flat heading where the layout puts them.
+
+        Each is laid out the way a row whose object the run lacks is: its
+        field spans a form row of its own at the right index and is
+        registered as waiting, and the object rule captions it in place the
+        moment the run has the object. So a new slot's channel is captioned
+        at once and the rest of its settings wait for that channel.
+
+        :param heading: the built heading.
+        :param keys: the category's settings, in declared order.
+        :param mine: the new settings to insert, in declared order.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        form = getattr(heading, "_form", None)
+        if not isinstance(form, QFormLayout):
+            return
+        model = self._settings_model
+        order = {key: index for index, key in enumerate(keys)}
+        declared = list(getattr(heading, "_spacr_declared_rows", ()) or ())
+        waiting = self._rows_awaiting_layout
+        for key in mine:
+            widget = model._widgets[key]
+            label = model._label_for(key)
+            place, anchor = 0, None
+            for index, (other, _label, other_widget) in enumerate(declared):
+                if other in order and order[other] < order[key]:
+                    place, anchor = index + 1, other_widget
+            if anchor is not None:
+                at = self._form_row_holding(form, anchor) + 1
+            elif declared:
+                at = max(0, self._form_row_holding(form, declared[0][2]))
+            else:
+                at = form.rowCount()
+            heading.add_prose(widget)
+            last = form.rowCount() - 1
+            if 0 <= at < last:
+                taken = form.takeRow(last)
+                field = getattr(taken, "fieldItem", None)
+                if field is not None and field.widget() is not None:
+                    form.insertRow(at, field.widget())
+            declared.insert(place, (key, label, widget))
+            waiting[key] = heading
+        heading._spacr_declared_rows = tuple(declared)
+        opener = partial(self._lay_out_every_waiting_row, heading)
+        rows = heading.__dict__.get("_row_widgets")
+        if isinstance(rows, _RowsBuiltWhenTheyAreAskedFor):
+            rows._build_the_rest = opener
+        elif isinstance(rows, list):
+            armed = _RowsBuiltWhenTheyAreAskedFor(opener)
+            list.extend(armed, list.__iter__(rows))
+            heading._row_widgets = armed
+        from ..widgets.section import _sections_below
+
+        try:
+            model.remember_section_rows(
+                heading, [key for key, _l, _w in declared if key],
+                bool(_sections_below(heading)))
+        except AttributeError:
+            pass
+
+    @staticmethod
+    def _form_row_holding(form, widget) -> int:
+        """The form row whose field is ``widget`` or wraps it, or -1."""
+        from PySide6.QtWidgets import QFormLayout
+
+        for row in range(form.rowCount()):
+            for role in (QFormLayout.FieldRole, QFormLayout.SpanningRole):
+                item = form.itemAt(row, role)
+                held = item.widget() if item is not None else None
+                if held is None:
+                    continue
+                if held is widget or held.isAncestorOf(widget):
+                    return row
+        return -1
+
+    def _follow_the_spawned_switches(self, spawned) -> None:
+        """Watch the channel of every slot built after the panel was.
+
+        :meth:`_watch_the_settings_that_decide_the_form` connected the
+        switches the panel had when it was built; a slot spawned later
+        brings its own, which must reveal its settings the same way.
+
+        :param spawned: the keys just built; only their switches are new.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) or {}
+        fresh = set(spawned)
+        for key in self._object_switches_on_this_form():
+            if key not in fresh:
+                continue
+            widget = widgets.get(key)
+            if widget is None:
+                continue
+            done = getattr(widget, "editingFinished", None)
+            if done is not None:
+                try:
+                    done.connect(self._show_the_objects_the_run_has)
+                    continue
+                except Exception:                            # noqa: BLE001
+                    pass
+            for name in ("valueChanged", "currentIndexChanged"):
+                signal = getattr(widget, name, None)
+                if signal is None:
+                    continue
+                try:
+                    signal.connect(self._show_the_objects_the_run_has)
+                    break
+                except Exception:                            # noqa: BLE001
+                    continue
+
     def _watch_the_settings_that_decide_the_form(self) -> None:
         """Rebuild the form when a value that shapes it is COMMITTED.
 
@@ -3088,8 +3461,12 @@ class AppScreen(QWidget):
             widget = getattr(model, "_widgets", {}).get(key)
             if widget is None:
                 continue
-            slot = (self._show_the_objects_the_run_has if key in switches
-                    else self._rebuild_the_form)
+            if key in switches:
+                slot = self._show_the_objects_the_run_has
+            elif key == "number_of_organelles":
+                slot = self._follow_the_organelle_count
+            else:
+                slot = self._rebuild_the_form
             done = getattr(widget, "editingFinished", None)
             if done is not None:
                 try:

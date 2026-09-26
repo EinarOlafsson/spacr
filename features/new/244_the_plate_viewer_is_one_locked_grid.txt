@@ -4,7 +4,9 @@ THE PLATE VIEWER: ONE LOCKED GRID, SQUARE WELLS, AND DRAG TO SELECT
 
 Status:    done, 2026-08-25. All three asks and the fourth defect are
            built and measured; a fifth, found while driving the gesture,
-           is fixed with them. Reported again 2026-08-25, having been
+           is fixed with them. The one thing left open -- a drag at the
+           scroll area's edge did not scroll -- is built 2026-09-25 (last
+           entry). Reported again 2026-08-25, having been
            asked for once before and never built -- "a long time ago i
            told you that ... none of this is true".
 Owner:     spacr/qt/widgets/plate_map_picker.py, and every screen that
@@ -136,3 +138,36 @@ Nothing that blocks the ask. One thing was noticed and not built: a drag
 that reaches the edge of the scroll area does not scroll the plate, so on
 a 1536-well map in a narrow window the rectangle can only span the wells
 already in view. Selecting past the edge means scrolling first.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- A DRAG THAT REACHES THE EDGE SCROLLS THE PLATE
+--------------------------------------------------------------------------------
+
+The "still open" item above. `PlateMapPicker` now keeps its scroll area and
+a 30 ms QTimer. `drag_to` works out, from the pointer's global position, how
+deep it is into a one-well-wide band inside each viewport edge (or past the
+edge): the step grows with that depth, 2 px at the band's inner line up to
+AUTOSCROLL_MAX_STEP (40 px) far past the edge, and is zero in a direction
+the scroll bar cannot move. A non-zero step starts the timer; each tick
+scrolls and redraws the rectangle to the well now at the edge -- because a
+pointer held still sends no move events, which is exactly when the scroll
+has to keep going. Moving back inside the band, releasing, or reaching the
+end of the scroll range stops it.
+
+ALSO FIXED ON THE WAY: past the edge the pointer is over wells the viewport
+clips, and `well_at` found them anyway, so a fast drag out of a narrow
+window selected wells nobody could see. The lookup is now clamped to the
+visible viewport (only while the dialog is on screen), stepping inward over
+the 2 px spacing between wells, so the rectangle ends on the last visible
+well and only the scroll extends it.
+
+Tests (tests/qt/test_the_plate_viewer_is_one_locked_grid.py, 8 new, on a
+1536-well map in a 500x400 window): holding past the right edge scrolls and
+extends the columns while staying on one row; below the bottom scrolls rows;
+the rectangle stops at the last well on screen; a drag away from the edges,
+moving back inside, and no press all leave the timer off; the real timer
+scrolls with the pointer held still; a plate that fits never scrolls. File
+44 passed; with test_the_plate_map_is_squares_you_drag_across,
+test_cov_w2_6_plate_map_picker and test_both_plates_are_locked_and_keep_
+what_was_chosen, all pass.

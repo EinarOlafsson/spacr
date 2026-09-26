@@ -8,6 +8,9 @@ variance do not establish exchangeability across plate positions.
 """
 from __future__ import annotations
 
+import json
+import os
+import textwrap
 from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 import numpy as np
@@ -17,6 +20,8 @@ __all__ = [
     "autocorrelation",
     "position_effect",
     "exchangeability_verdict",
+    "plot_residual_by_position",
+    "write_permutation_qc",
 ]
 
 
@@ -229,3 +234,209 @@ def exchangeability_verdict(report: Mapping[str, Any]) -> Dict[str, Any]:
                   "right grouping -- a batch that spans plates is not "
                   "removed by blocking on plate.")
     return {"ok": not findings, "findings": findings, "remedy": remedy}
+
+
+#: The most blocks drawn as rows of the residual-by-position figure. Every
+#: block is still in the JSON report; past this many the figure keeps the
+#: blocks whose Durbin-Watson sits furthest from 2, because those are the
+#: ones a reader has to look at.
+MAX_PANEL_BLOCKS = 12
+
+
+def _safe_name(text: Any) -> str:
+    """A file-name-safe rendering of an outcome column name."""
+    cleaned = "".join(ch if ch.isalnum() or ch in "-_." else "_"
+                      for ch in str(text))
+    return cleaned.strip("._") or "outcome"
+
+
+def _plain(value: Any) -> Any:
+    """``value`` with numpy scalars and non-finite floats made JSON-safe."""
+    if isinstance(value, Mapping):
+        return {str(k): _plain(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_plain(v) for v in value]
+    if isinstance(value, np.integer):
+        return int(value)
+    if isinstance(value, (np.floating, float)):
+        number = float(value)
+        return number if np.isfinite(number) else None
+    return value
+
+
+def plot_residual_by_position(residuals: Sequence[float],
+                              blocks: Sequence[Any],
+                              positions: Mapping[str, Sequence[Any]],
+                              report: Optional[Mapping[str, Any]] = None,
+                              verdict: Optional[Mapping[str, Any]] = None,
+                              removed: Sequence[str] = (),
+                              title: str = ""):
+    """Draw the permuted residual against plate position, one row per block.
+
+    :param residuals: the residuals that WERE PERMUTED.
+    :param blocks: the block of each residual; the shuffle happens inside it.
+    :param positions: ``{'rowID': [...], 'columnID': [...]}``, aligned to
+        ``residuals``.
+    :param report: :func:`block_residual_report` for the same residuals; when
+        given, each block's Durbin-Watson and each column's pooled p-value
+        are drawn on the panel they describe.
+    :param verdict: :func:`exchangeability_verdict` of ``report``; its remedy
+        is written under the panels, so the setting that removes a gradient
+        is named where the gradient is seen.
+    :param removed: nuisance columns already removed before residualisation,
+        named on the figure so a run with position removed can be told from
+        one without.
+    :param title: the figure's title, normally the outcome column.
+    :returns: a :class:`matplotlib.figure.Figure`.
+    :raises ValueError: if ``positions`` is empty or a column is misaligned.
+
+    A GRADIENT ACROSS THE PLATE IS WHAT THIS SHOWS AND NO OTHER PANEL DOES.
+    Residuals-vs-fitted shows spread and Q-Q shows shape; neither shows that
+    row A sits above row P inside one plate, which is exactly what makes the
+    wells in that plate not swappable.
+    """
+    from matplotlib.figure import Figure
+
+    from .regression_qc import _natural_key
+
+    values = np.asarray(list(residuals), dtype=float)
+    labels = np.asarray([str(b) for b in blocks])
+    if labels.size != values.size:
+        raise ValueError("residuals and blocks must have the same length")
+    columns = {str(k): np.asarray([str(v) for v in col])
+               for k, col in (positions or {}).items()}
+    if not columns:
+        raise ValueError("no position column to draw residuals against")
+    for name, col in columns.items():
+        if col.size != values.size:
+            raise ValueError(
+                f"position column {name!r} must have one value per residual")
+
+    per_block = dict((report or {}).get("per_block") or {})
+    position_stats = dict((report or {}).get("position") or {})
+    order = sorted(set(labels.tolist()), key=_natural_key)
+    if len(order) > MAX_PANEL_BLOCKS:
+        def _distance(block):
+            dw = float(per_block.get(block, {}).get("durbin_watson",
+                                                    float("nan")))
+            return abs(dw - 2.0) if np.isfinite(dw) else -1.0
+        kept = set(sorted(order, key=_distance,
+                          reverse=True)[:MAX_PANEL_BLOCKS])
+        order = [block for block in order if block in kept]
+
+    names = list(columns)
+    finite = values[np.isfinite(values)]
+    limit = float(np.max(np.abs(finite))) if finite.size else 1.0
+    limit = limit * 1.08 if limit > 0 else 1.0
+
+    fig = Figure(figsize=(4.2 * len(names) + 0.6, 2.3 * len(order) + 1.9))
+    axes = fig.subplots(len(order), len(names), squeeze=False)
+    for i, block in enumerate(order):
+        here = labels == block
+        dw = float(per_block.get(block, {}).get("durbin_watson",
+                                                float("nan")))
+        y = values[here]
+        for j, name in enumerate(names):
+            ax = axes[i][j]
+            levels = sorted(set(columns[name][here].tolist()),
+                            key=_natural_key)
+            index = {level: k for k, level in enumerate(levels)}
+            x = np.asarray([index[v] for v in columns[name][here]],
+                           dtype=float)
+            means = [float(np.nanmean(y[x == k])) if np.any(x == k)
+                     and np.isfinite(y[x == k]).any() else float("nan")
+                     for k in range(len(levels))]
+            ax.axhline(0.0, color="0.6", linewidth=0.8, zorder=1)
+            ax.scatter(x, y, s=9, alpha=0.55, color="#4c72b0",
+                       linewidths=0, zorder=2)
+            ax.plot(range(len(levels)), means, color="#c44e52",
+                    linewidth=1.4, marker="o", markersize=3, zorder=3)
+            ax.set_ylim(-limit, limit)
+            step = max(1, int(np.ceil(len(levels) / 12)))
+            ax.set_xticks(range(0, len(levels), step))
+            ax.set_xticklabels(levels[::step], fontsize=7)
+            ax.tick_params(axis="y", labelsize=7)
+            head = f"{block} -- by {name}"
+            if np.isfinite(dw):
+                head += f"   DW {dw:.2f}"
+            ax.set_title(head, fontsize=8)
+            if j == 0:
+                ax.set_ylabel("residual", fontsize=8)
+            if i == len(order) - 1:
+                label = name
+                p_value = position_stats.get(name, {}).get("p_value")
+                if p_value is not None and np.isfinite(float(p_value)):
+                    label += f"  (pooled p = {float(p_value):.2g})"
+                ax.set_xlabel(label, fontsize=8)
+
+    heading = "Residual by position within block"
+    if title:
+        heading += f" -- {title}"
+    fig.suptitle(heading, fontsize=10)
+    lines = ["Removed before residualisation: "
+             + (", ".join(removed) if removed
+                else "block only (guide_nuisance_columns is empty)")]
+    if verdict is not None:
+        if verdict.get("ok"):
+            lines.append("Nothing found: the within-block shuffle is "
+                         "defensible for these residuals.")
+        elif verdict.get("remedy"):
+            lines.append(str(verdict["remedy"]))
+    footer = "\n".join(textwrap.fill(line, 140) for line in lines)
+    fig.text(0.01, 0.005, footer, fontsize=7.5, ha="left", va="bottom")
+    bottom = min(0.3, (0.3 + 0.16 * (footer.count("\n") + 1))
+                 / fig.get_figheight())
+    fig.tight_layout(rect=(0, bottom, 1, 0.97))
+    return fig
+
+
+def write_permutation_qc(destination: str,
+                         outcome: str,
+                         residuals: Sequence[float],
+                         blocks: Sequence[Any],
+                         positions: Mapping[str, Sequence[Any]],
+                         report: Mapping[str, Any],
+                         verdict: Mapping[str, Any],
+                         removed: Sequence[str] = ()) -> Dict[str, Any]:
+    """Write the permutation run's QC into ``<destination>/regression_qc/``.
+
+    The same folder a parametric run writes, so a permutation run's
+    diagnostics are found where every other run's are.
+
+    :param destination: the run's results folder.
+    :param outcome: the phenotype column the residuals belong to; it names
+        the files, so a multi-outcome run keeps one set per outcome.
+    :param residuals: the residuals that WERE PERMUTED.
+    :param blocks: the block of each residual.
+    :param positions: the position columns, aligned to ``residuals``.
+    :param report: :func:`block_residual_report` of the same residuals.
+    :param verdict: :func:`exchangeability_verdict` of ``report``.
+    :param removed: nuisance columns removed before residualisation.
+    :returns: ``{'dir', 'report', 'figure', 'figure_error'}``. The JSON
+        report is always written; ``figure`` is ``None`` and
+        ``figure_error`` says why when there is nothing to draw against.
+    """
+    from .regression_qc import QC_DIRNAME
+
+    out_dir = os.path.join(os.fspath(destination), QC_DIRNAME)
+    os.makedirs(out_dir, exist_ok=True)
+    stem = _safe_name(outcome)
+    report_path = os.path.join(out_dir, f"exchangeability_{stem}.json")
+    with open(report_path, "w", encoding="utf-8") as handle:
+        json.dump({"outcome": str(outcome),
+                   "removed_before_residualisation": list(removed),
+                   "report": _plain(report),
+                   "verdict": _plain(verdict)}, handle, indent=2)
+    manifest: Dict[str, Any] = {"dir": out_dir, "report": report_path,
+                                "figure": None, "figure_error": None}
+    try:
+        fig = plot_residual_by_position(
+            residuals, blocks, positions, report=report, verdict=verdict,
+            removed=removed, title=str(outcome))
+    except ValueError as error:
+        manifest["figure_error"] = str(error)
+        return manifest
+    figure_path = os.path.join(out_dir, f"residual_by_position_{stem}.png")
+    fig.savefig(figure_path, dpi=110)
+    manifest["figure"] = figure_path
+    return manifest

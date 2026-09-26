@@ -7,9 +7,10 @@ Status:    DONE 2026-09-19. The whole application was measured with verbose
            FIXED in the same landing (second 2026-09-19 note): launch() now
            runs setup_logging before the preferences, and the Logging tab
            holds the DEBUG file switch while verbose is on and stores the
-           user's own choice. Left: the translation pass for the changed
-           strings, and one pre-existing finding recorded at the end
-           (is_verbose() is True in every GUI session, verbose or not).
+           user's own choice. The two pre-existing findings are FIXED
+           2026-09-25 (last entry): is_verbose() reads the preference, and
+           Reset to defaults resets the Logging switches. Left, for the docs
+           lane: the translation pass for the changed strings, listed there.
 
 Asked 2026-08-28: "verbose logging should be on by default".
 
@@ -415,3 +416,54 @@ test_preferences_repolish_budget (3): all pass.
 test_i18n_caption_ratchet: the same 3 failures as before. It now also lists
 the new DEBUG switch hint among the captions without a source hash, which is
 expected until the translation pass. NOT run: the whole suite.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- is_verbose() READS THE PREFERENCE; RESET RESETS THE LOGGING TAB
+--------------------------------------------------------------------------------
+
+1. `verbose_logger.is_verbose()` now returns a module flag, `_verbose`, that
+   `apply_verbose_logging(on)` sets -- the preference as last applied --
+   instead of `_handler.level == DEBUG`, which `apply_console_levels` holds
+   at DEBUG in every session. So with verbose off the ~20 `log_call`
+   pipeline wrappers and `log_button_press` really do nothing: a new test
+   passes an object whose __repr__ records being called, through a wrapped
+   call, with verbose off and DEBUG shown in the console -- no repr built.
+   `test_is_verbose_follows_the_handler_level` pinned the old reading; it is
+   now `..._follows_the_preference_not_the_handler_level` and also asserts
+   that `apply_console_levels({DEBUG, INFO})` leaves is_verbose() False. The
+   vlog fixture snapshots `_verbose` with the other singletons.
+
+2. Reset to defaults now resets the Logging tab. After the verbose switch,
+   it sets `_chosen_debug` to the default store's DEBUG choice (off), puts
+   every file switch at the default file levels (with verbose's default on,
+   DEBUG is held on and greyed, as the tab already does), re-syncs each
+   console switch's enabled state and sets it from the default console
+   levels. Read through the same empty-store getters as every other reset
+   control, so no second table of defaults. Three tests in
+   tests/qt/test_preferences_reset.py: switches go back; after reset,
+   turning verbose off gives back DEBUG OFF (the default), not the drifted
+   choice; reset then Save stores DEFAULT_FILE_LEVELS / DEFAULT_CONSOLE_LEVELS.
+
+UNTRANSLATED STRINGS, for the docs lane (catalogs not touched here). Both are
+now wrapped in tr() so the extractor sees them:
+  * the DEBUG file switch tooltip, "While verbose logging is on (Modules
+    tab), DEBUG is always written to the log files, so this switch stays on.
+    Turn verbose logging off to choose it yourself. Your own choice is kept
+    for when you do." -- new in the 294 landing, had no tr() at all;
+  * the verbose switch tooltip ("Adds spaCR's DEBUG messages to the log
+    files ..."), whose sentences "Starting spaCR and opening its screens
+    took no longer with this on." and "Pipeline runs were not timed." changed
+    in the landing; the whole tooltip was not tr()-wrapped either.
+
+Tests, one file at a time, 8G cap, offscreen, CUDA hidden:
+test_cov_w3_8_verbose_logger, qt/test_cov_wf_qt_verbose_logger,
+qt/test_batch_f_diagnostics, test_verbose_logging_is_cheap,
+qt/test_preferences_reset, qt/test_batch_b_theme_logger,
+qt/test_cov_r8_verbose_logger_attachment (91 passed);
+qt/test_cov_s1_preferences_edges, qt/test_logging, qt/test_preferences,
+qt/test_preferences_tabs, qt/test_the_verbose_row_says_what_it_costs,
+test_a_comment_leaves_but_the_code_does_not: pass. qt/test_i18n_caption_
+ratchet: 2 failures, both catalog-level and naming other strings (optics
+captions without a source hash; sv lacking "Show tooltips" and the News
+panel row) -- the pre-existing ratchet debt noted above, not this change.

@@ -45,7 +45,8 @@ def vlog(tmp_path, monkeypatch):
 
     monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path / "logs"))
     saved = {name: getattr(module, name) for name in
-             ("_console_ref", "_handler", "_relay", "_file_handler")}
+             ("_console_ref", "_handler", "_relay", "_file_handler",
+              "_verbose")}
     saved_handlers = {name: list(logging.getLogger(name).handlers)
                       for name in module._ATTACHED_LOGGERS}
     saved_levels = {name: logging.getLogger(name).level
@@ -442,9 +443,16 @@ def test_console_levels_is_empty_when_the_handler_carries_no_gate(vlog):
         handler.filters[:] = saved
 
 
-def test_is_verbose_follows_the_handler_level(vlog):
-    """Verbose is DEBUG on the console forwarder and nothing else."""
+def test_is_verbose_follows_the_preference_not_the_handler_level(vlog):
+    """Verbose is what the preference last applied, and nothing else.
+
+    Instruction 294: the per-level console switches hold the forwarder at
+    DEBUG in every session so their filter decides, and a check that read
+    the handler level reported verbose on for everyone -- so every
+    ``log_call`` wrapper did its repr() work with verbose off.
+    """
     vlog._handler = None
+    vlog._verbose = False
     assert vlog.is_verbose() is False
 
     vlog.apply_verbose_logging(True)
@@ -453,10 +461,35 @@ def test_is_verbose_follows_the_handler_level(vlog):
     vlog.apply_verbose_logging(False)
     assert vlog.is_verbose() is False
 
+    vlog.apply_console_levels({logging.DEBUG, logging.INFO})
+    assert vlog._handler.level == logging.DEBUG
+    assert vlog.is_verbose() is False
+
+
+def test_a_wrapped_call_builds_no_repr_with_verbose_off_and_debug_shown(vlog):
+    """The console showing DEBUG is not verbose; nothing is formatted."""
+    built = []
+
+    class Loud:
+        def __repr__(self):
+            built.append(1)
+            return "Loud()"
+
+    vlog.apply_verbose_logging(False)
+    vlog.apply_console_levels({logging.DEBUG, logging.INFO})
+
+    @vlog.log_call
+    def target(value):
+        return value
+
+    target(Loud())
+    assert built == []
+
 
 def test_a_button_press_logs_nothing_when_verbose_is_off(vlog, caplog):
     """Decorated call sites must cost nothing with verbose off."""
     vlog._handler = None
+    vlog._verbose = False
 
     with caplog.at_level(logging.DEBUG, logger="spacr.trace"):
         vlog.log_button_press("Run", {"src": "/data"})

@@ -146,3 +146,82 @@ def test_reset_leaves_the_settings_accessor_restored(private_store, qtbot):
 
     preferences.set_pane_opacity(0.85)
     assert preferences.get_pane_opacity() == 0.85
+
+
+# ---------------------------------------------------------------------------
+# 3. The Logging tab's switches (instruction 294)
+# ---------------------------------------------------------------------------
+
+_LEVEL_NAMES = ("Debug", "Info", "Warning", "Error", "Critical")
+
+
+def _switch(dialog, kind, name):
+    from spacr.qt.widgets.toggle import Toggle
+
+    return dialog.findChild(Toggle, f"Log{kind}Level{name}")
+
+
+def _on(dialog, kind):
+    return {name for name in _LEVEL_NAMES
+            if _switch(dialog, kind, name).isChecked()}
+
+
+def _verbose_switch(dialog):
+    from spacr.qt.widgets.toggle import Toggle
+
+    return next(t for t in dialog.findChildren(Toggle)
+                if t.text() == "Enable verbose logging")
+
+
+def _drift_the_logging_switches():
+    import logging
+
+    from spacr.qt import preferences
+
+    preferences.set_verbose_logging(False)
+    preferences.set_log_levels([logging.DEBUG, logging.ERROR],
+                               [logging.DEBUG])
+
+
+def test_reset_puts_the_logging_switches_back(private_store, qtbot):
+    """Reset used to leave every Logging switch where the user had it."""
+    _drift_the_logging_switches()
+    dialog = _dialog(qtbot)
+    assert _on(dialog, "File") == {"Debug", "Error"}
+
+    dialog.findChild(QPushButton, "PreferencesReset").click()
+
+    assert _verbose_switch(dialog).isChecked() is True
+    assert _on(dialog, "File") == set(_LEVEL_NAMES)
+    assert not _switch(dialog, "File", "Debug").isEnabled()
+    assert _on(dialog, "Console") == {"Warning", "Error", "Critical"}
+
+
+def test_after_reset_verbose_off_gives_back_the_default_debug_choice(
+        private_store, qtbot):
+    """Not the drifted one: DEBUG off, which is what a fresh install keeps."""
+    _drift_the_logging_switches()
+    dialog = _dialog(qtbot)
+
+    dialog.findChild(QPushButton, "PreferencesReset").click()
+    _verbose_switch(dialog).setChecked(False)
+
+    assert _switch(dialog, "File", "Debug").isEnabled()
+    assert _on(dialog, "File") == {"Info", "Warning", "Error", "Critical"}
+    assert not _switch(dialog, "Console", "Debug").isChecked()
+
+
+def test_reset_then_save_stores_the_default_levels(private_store, qtbot):
+    import logging
+
+    from spacr.logging_util import DEFAULT_CONSOLE_LEVELS, DEFAULT_FILE_LEVELS
+    from spacr.qt import preferences
+
+    _drift_the_logging_switches()
+    dialog = _dialog(qtbot)
+    dialog.findChild(QPushButton, "PreferencesReset").click()
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+
+    assert preferences._chosen_log_file_levels() == DEFAULT_FILE_LEVELS
+    assert preferences.get_log_console_levels() == DEFAULT_CONSOLE_LEVELS
+    assert logging.DEBUG in preferences.get_log_file_levels()

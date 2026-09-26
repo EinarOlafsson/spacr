@@ -2,7 +2,9 @@
 CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
 ================================================================================
 
-Status:    DONE. Requested 2026-08-22, verified 2026-08-23.
+Status:    DONE. Requested 2026-08-22, verified 2026-08-23. The AMP path,
+           the one torch path never exercised, was driven on the GPU
+           2026-09-25 (last entry).
 
            Every one of the thirteen items is driven. Re-verified against
            the current tree after the reboot rather than carried on trust:
@@ -232,3 +234,30 @@ HOW TO KNOW IT WORKED
   merely narrated.
 * The GPU is shared. Nothing here kills another session's process, and the
   torch work runs on whatever is free -- or says it could not.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- THE AMP PATH, DRIVEN ON A GPU
+--------------------------------------------------------------------------------
+
+"AMP, which is CUDA-only and has not been exercised" (WHAT IS LEFT, above).
+New test, tests/test_mixed_precision_is_a_setting_that_is_read.py::
+test_a_real_cuda_training_run_uses_half_precision, skipped without CUDA:
+a real resnet18 from spaCR's own `utils.choose_model` (init_weights=False, so
+no download), trained by `deep_spacr.train_model` for two epochs on three
+batches of eight random 3x64x64 crops, two classes, with
+settings={'mixed_precision': True}. A forward hook on the model records the
+output dtype. It asserts: the amp=True note is printed (resolve_mixed_
+precision said yes on cuda); float16 came out of the training forward pass
+(autocast took effect); every parameter is still float32, finite and on
+cuda (the GradScaler stepped them without inf/NaN); and the checkpoint the
+run returns exists.
+
+Run through the shared queue, as required:
+
+    tools/gpu_turn.sh 236-amp tools/run_capped.sh 8G python -m pytest
+        tests/test_mixed_precision_is_a_setting_that_is_read.py -k real_cuda
+
+queued 20:31, started 21:27:36 after the idle and gap rules, 1 passed in
+16.06 s, FINISH rc=0 at 21:28:00. With CUDA hidden the same file is 17
+passed, 1 skipped, and tests/test_cov_8_deep_spacr_device.py passes with it.
