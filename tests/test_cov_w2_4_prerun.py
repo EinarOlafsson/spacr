@@ -983,31 +983,43 @@ def test_a_banner_that_raises_while_being_built_costs_only_the_banner(
 def test_a_screen_with_no_diameter_field_has_no_use_for_the_panel(qtbot):
     screen = _Screen(widgets={"src": _src_field("")})
     qtbot.addWidget(screen)
-    assert prerun.install_diameter_panel(screen) is None
+    assert prerun.diameter_dialog(screen) is None
 
 
-def test_the_diameter_panel_is_installed_once_and_reused(qtbot):
+def test_the_diameter_popup_carries_the_panel_for_its_screen(qtbot):
     screen = _Screen(widgets={"src": _src_field(""),
                               "cell_diameter": _src_field("")})
     qtbot.addWidget(screen)
 
-    panel = prerun.install_diameter_panel(screen)
+    dialog = prerun.diameter_dialog(screen)
+    qtbot.addWidget(dialog)
 
-    assert panel is not None
-    assert prerun.diameter_panel(screen) is panel
-    assert prerun.install_diameter_panel(screen) is panel
+    assert isinstance(dialog, prerun.DiameterDialog)
+    assert isinstance(dialog.panel, prerun.DiameterPanel)
+    assert dialog.panel._screen is screen
+    assert dialog.panel.window() is dialog
+    assert dialog.close_button.objectName() == "DangerButton"
+    assert screen.findChildren(prerun.DiameterPanel) == []
 
 
-def test_a_diameter_panel_that_cannot_be_placed_is_cleaned_up(qtbot):
+def test_a_second_popup_shows_the_last_measurement_again(qtbot):
+    """Closing the popup is not a reason to measure twice."""
     screen = _Screen(widgets={"src": _src_field(""),
-                              "cell_diameter": _src_field("")},
-                     with_anchors=False)
+                              "cell_diameter": _src_field("")})
     qtbot.addWidget(screen)
-    assert prerun.install_diameter_panel(screen) is None
-    assert prerun.diameter_panel(screen) is None
+    first = prerun.diameter_dialog(screen)
+    qtbot.addWidget(first)
+    first.panel._on_estimated({"estimates": {"cell": _estimate()}})
+
+    second = prerun.diameter_dialog(screen)
+    qtbot.addWidget(second)
+
+    assert set(second.panel.estimates) == {"cell"}
+    assert second.panel._btn_use_all.isHidden() is False
+    assert second.panel._rows_box.isHidden() is False
 
 
-def test_a_diameter_panel_that_raises_costs_only_the_panel(qtbot, monkeypatch,
+def test_a_diameter_popup_that_raises_costs_only_the_popup(qtbot, monkeypatch,
                                                            caplog):
     screen = _Screen(widgets={"src": _src_field(""),
                               "cell_diameter": _src_field("")})
@@ -1018,11 +1030,11 @@ def test_a_diameter_panel_that_raises_costs_only_the_panel(qtbot, monkeypatch,
                             RuntimeError("no")))
 
     with caplog.at_level("ERROR", logger="spacr.qt.prerun"):
-        assert prerun.install_diameter_panel(screen) is None
-    assert "could not install the diameter panel" in caplog.text
+        assert prerun.diameter_dialog(screen) is None
+    assert "could not build the diameter popup" in caplog.text
 
 
-def test_install_puts_each_panel_on_its_own_screen_only(qtbot):
+def test_install_puts_the_banner_on_measure_and_nothing_on_mask(qtbot):
     measure = _Screen(widgets={"src": _src_field("")})
     mask = _Screen(widgets={"src": _src_field(""),
                             "cell_diameter": _src_field("")})
@@ -1035,9 +1047,23 @@ def test_install_puts_each_panel_on_its_own_screen_only(qtbot):
     prerun.install(mask)
 
     assert prerun.qc_banner(measure) is not None
-    assert prerun.diameter_panel(measure) is None
-    assert prerun.diameter_panel(mask) is not None
     assert prerun.qc_banner(mask) is None
+    for screen in (measure, mask):
+        assert screen.findChildren(prerun.DiameterPanel) == []
+
+
+def test_the_mask_screen_is_found_from_any_widget_inside_it(qtbot):
+    mask = _Screen(widgets={"src": _src_field(""),
+                            "cell_diameter": _src_field("")})
+    qtbot.addWidget(mask)
+    mask.app_key = prerun.DIAMETER_APP
+    inner = QWidget(QWidget(mask))
+
+    assert prerun.diameter_screen_of(inner) is mask
+    assert prerun.diameter_screen_of(mask) is mask
+    assert prerun.diameter_screen_of(None) is None
+    mask.app_key = prerun.QC_APP
+    assert prerun.diameter_screen_of(inner) is None
 
 
 # ---------------------------------------------------------------------------
