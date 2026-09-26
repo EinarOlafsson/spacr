@@ -1269,7 +1269,7 @@ function restartNarratedPlayback() {
   elements.video.defaultPlaybackRate = 1;
   elements.video.playbackRate = 1;
   updateSceneSyncRate(0);
-  elements.audio.play()
+  playNarration()
     .then(() => syncVideoToNarration(true))
     .catch(() => showToast("Select play again to start narration."));
 }
@@ -1368,10 +1368,9 @@ function narrationHoldApplies() {
 
 function updateNarrationHold() {
   if (narrationHoldApplies() && videoIsLoading()) {
-    if (!narrationHeldForVideo) {
-      narrationHeldForVideo = true;
-      if (!elements.audio.paused) elements.audio.pause();
-    }
+    // Also re-pause narration that another path started during the hold.
+    narrationHeldForVideo = true;
+    if (!elements.audio.paused) elements.audio.pause();
     return;
   }
   if (!narrationHeldForVideo) return;
@@ -1381,6 +1380,17 @@ function updateNarrationHold() {
     elements.audio.play()
       .catch(() => showToast("Select play again to start narration."));
   }
+}
+
+// Every narration start goes through here: while the picture is loading the
+// narration is held instead (updateNarrationHold resumes it with the picture),
+// so no play() races a pause() and no false "select play again" appears.
+function playNarration() {
+  if (narrationHoldApplies() && videoIsLoading()) {
+    narrationHeldForVideo = true;
+    return Promise.resolve();
+  }
+  return elements.audio.play();
 }
 
 function setVideoTimeFromNarration(target) {
@@ -1906,7 +1916,7 @@ elements.video.addEventListener("play", () => {
     return;
   }
   if (action === "resume") {
-    elements.audio.play()
+    playNarration()
       .then(updateNarrationHold)
       .catch(() => showToast("Select play again to start narration."));
     return;
@@ -1914,7 +1924,7 @@ elements.video.addEventListener("play", () => {
   videoParkedForNarration = false;
   seekNarrationToVideo();
   if (narrationAudioAvailable) {
-    elements.audio.play()
+    playNarration()
       .then(() => {
         syncVideoToNarration(true);
         updateNarrationHold();
@@ -1957,6 +1967,7 @@ elements.video.addEventListener("seeked", () => {
 });
 // Registered after the handlers above so a finished correction or a viewer
 // seek has updated both clocks before narration is held or released.
+elements.audio.addEventListener("play", updateNarrationHold);
 for (const type of ["waiting", "stalled", "seeking", "seeked", "loadeddata",
                     "canplay", "canplaythrough", "playing", "pause", "emptied"]) {
   elements.video.addEventListener(type, updateNarrationHold);
@@ -1997,7 +2008,7 @@ elements.audio.addEventListener("loadedmetadata", () => {
   if (!narrationAudioAvailable) return;
   configureMediaSync();
   if (!elements.video.paused) {
-    elements.audio.play().catch(() => {
+    playNarration().catch(() => {
       showToast("Select play again to start narration.");
     });
   }

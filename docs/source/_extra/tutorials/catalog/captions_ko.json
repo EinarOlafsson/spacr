@@ -3732,18 +3732,18 @@
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
       "section": "Tools",
-      "title": "Training Runs: compare curves and settings",
-      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
+      "title": "Training Runs: 곡선과 설정 비교",
+      "description": "학습 로그를 불러와 지표를 겹쳐 보고, 설정을 비교하고, 교차 검증 폴드를 살펴봅니다.",
       "objectives": [
-        "Find saved runs and select the ones to compare.",
-        "Overlay training and validation metrics and inspect settings differences.",
-        "Switch between individual folds and their mean and standard deviation."
+        "저장된 실행을 찾아 비교할 실행을 고릅니다.",
+        "학습 지표와 검증 지표를 겹쳐 보고 설정 차이를 확인합니다.",
+        "개별 폴드와 그 평균 및 표준편차 보기 사이를 전환합니다."
       ],
-      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
+      "prerequisite": "연결된 합성 Training Runs 예제를 내려받아 압축을 푸세요. 곡선은 연습용 데이터입니다. 자신의 분석에는 각 실행의 설정과 함께 저장된 train.csv와 validation.csv 파일이 들어 있는 상위 폴더를 선택하세요. 성능을 평가할 때는 독립적인 평가 결과를 모델과 함께 보관하세요.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
+          "narration": "Home에서 Classify를 연 다음 Training Runs를 여세요. 이 도구로 저장된 학습 실행의 진행 로그와 설정을 비교합니다. 연결된 샘플에는 조작을 연습할 수 있는 합성 곡선이 들어 있습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
@@ -3751,7 +3751,7 @@
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Work through the screen in order: choose a folder to find runs, pick them in the list, then choose a Metric and Folds and click Overlay selected. Begin with the parent folder that holds your runs.",
+          "narration": "화면을 순서대로 진행하세요. 폴더를 골라 실행을 찾고, 목록에서 선택한 다음 Metric과 Folds를 고르고 Overlay selected를 클릭합니다. 실행이 들어 있는 상위 폴더에서 시작하세요.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3762,7 +3762,7 @@
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
+          "narration": "연결된 샘플의 압축을 풀고 Choose folder를 클릭하세요. training_runs 폴더를 선택한 뒤 확인하세요. 자신의 프로젝트에서는 실행 폴더와 저장된 CSV 로그가 들어 있는 상위 폴더를 선택하세요.",
           "hold_after": 0.7,
           "focus": [
             1555,
@@ -3773,7 +3773,7 @@
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
+          "narration": "폴더를 검색하고 찾은 실행을 검토하세요. 샘플에는 baseline, tuned, cross_validated 예제와 불완전한 항목 하나가 있습니다. 비교할 수 있는 실행을 선택하세요.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3784,7 +3784,7 @@
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
+          "narration": "불완전한 항목에 대한 경고를 확인하세요. train.csv, validation.csv, 설정 중 하나가 없으면 곡선이나 설정이 표시되지 않을 수 있습니다. 비교에 추가하기 전에 완전한 실행 폴더를 찾으세요.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3795,7 +3795,7 @@
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
+          "narration": "baseline과 tuned에 체크한 다음 Metric에서 accuracy를 고르세요. 메뉴에는 선택한 로그에 있는 숫자 열이 나열됩니다. 비교하려는 질문에 맞는다면 loss나 다른 기록된 지표를 고르세요.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3806,7 +3806,7 @@
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
+          "narration": "Overlay selected를 클릭하세요. 학습 곡선은 점선, 검증 곡선은 실선입니다. 범례에서 각 실행과 데이터 구분을 확인하세요. 각 곡선은 마지막으로 기록된 자신의 에포크에서 끝납니다.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3817,7 +3817,7 @@
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
+          "narration": "그래프 아래의 설정 비교를 검토하세요. 배치 크기, 에포크 수, 학습률 같은 차이가 강조됩니다. 곡선을 해석하기 전에 실행 사이에 무엇이 바뀌었는지 여기서 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3828,7 +3828,7 @@
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
+          "narration": "환경 행은 작업자 수 같은 실행 설정을 학습 구성과 구분해 보여 줍니다. 서로 다른 컴퓨터에서 한 실행을 비교할 때는 구성 차이와 함께 읽으세요.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3839,7 +3839,7 @@
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
+          "narration": "검증 곡선을 클릭하면 마지막 기록값과 최고 기록값, 그리고 해당 에포크가 표시됩니다. 실행을 비교할 때는 같은 선택 기준을 쓰세요. 선택한 체크포인트의 성능은 독립적인 데이터로 평가하세요.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3850,7 +3850,7 @@
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
+          "narration": "Metric에서 loss를 고르면 세로축과 겹쳐 보기가 업데이트됩니다. 학습이 끝날 무렵의 방향을 포함해 학습과 검증의 추이를 비교하세요.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3861,7 +3861,7 @@
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
+          "narration": "tuned와 cross_validated를 선택하고 accuracy를 고른 다음 Overlay selected를 클릭하세요. Folds를 열고 개별 폴드, 평균과 표준편차, 또는 둘 다 중 무엇을 표시할지 고르세요.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3872,7 +3872,7 @@
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
+          "narration": "폴드 곡선을 요약하려면 평균 ± 표준편차를 고르세요. 각 띠는 해당 에포크에서 사용 가능한 폴드들 사이의 표본 표준편차 하나를 나타냅니다. 띠는 폴드 사이의 변동으로 읽으세요.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3883,7 +3883,7 @@
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
+          "narration": "둘 다를 고르면 개별 폴드 곡선이 평균과 함께 표시됩니다. 폴드를 비교해 요약 뒤에 다른 추이를 보이는 실행이 가려져 있지 않은지 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3894,7 +3894,7 @@
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
+          "narration": "폴드별 보기를 고르면 개별 곡선만 표시됩니다. 설정 비교는 선택한 실행에 맞춰 업데이트됩니다. 학습이 어디서 끝났는지 비교할 때는 각 곡선의 에포크 범위를 염두에 두세요.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3905,12 +3905,12 @@
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
+          "narration": "다른 기록된 값을 비교하려면 Metric으로 돌아가고, 비교를 좁히려면 선택한 실행을 바꾸세요. 같은 비교를 다시 열 수 있도록 원본 CSV 로그와 설정을 함께 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
+          "narration": "스크립트로 분석하려면 spacr.train_compare의 find_runs와 load_run을 사용한 다음 compare_runs와 plot_curves를 사용하세요. 다음 학습 구성을 고를 때는 비교 결과를 모델 및 독립적인 평가 결과와 함께 보관하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -3924,6 +3924,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4459,21 +4499,21 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer: inspect wells and export a heatmap table",
+      "title": "Plate Viewer: 웰 확인과 히트맵 표 내보내기",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
+      "description": "예제 측정값을 불러오고, 웰 단위 특징과 개수를 비교하고, 개별 웰을 확인한 뒤 필터링된 표를 내보냅니다.",
       "objectives": [
-        "Open Plate Viewer from Graph Builder and load example measurements.",
-        "Choose a feature, aggregation and minimum object count.",
-        "Inspect well details and export the current well grid."
+        "Graph Builder에서 Plate Viewer를 열고 예제 측정값을 불러옵니다.",
+        "특징, 집계 방식, 최소 객체 수를 고릅니다.",
+        "웰 세부 정보를 확인하고 현재 웰 격자를 내보냅니다."
       ],
-      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
+      "prerequisite": "내려받을 수 있는 예제는 Plate Viewer의 Load test data로 열고, 자신의 데이터는 측정한 프로젝트의 measurements.db를 여세요. 예제에는 웰 4개에 걸쳐 세포 2,341개가 있습니다. 공간 패턴을 평가할 때는 플레이트 전체를 포괄하는 측정값을 사용하세요.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+          "narration": "Home에서 Data의 Graph Builder를 연 다음 Plate Viewer를 선택하세요. 객체 측정값을 웰별로 요약하고 플레이트 전체의 분포를 확인하는 데 사용합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -4481,7 +4521,7 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
+          "narration": "Load test data를 클릭해 내려받을 수 있는 예제를 여세요. 자신의 데이터라면 측정 데이터베이스나 실행 폴더를 고르고 Open을 클릭하세요. 예제에는 측정된 웰이 4개 있습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -4496,7 +4536,7 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
+          "narration": "Table에서 cell, Measurement에서 cell_area, Plate에서 plate1을 선택하세요. 평균 세포 면적을 표시하려면 Per well을 mean으로 설정하세요. 중앙값을 쓰면 유난히 크거나 작은 객체의 영향이 줄어듭니다.",
           "hold_after": 0.7,
           "focus": [
             335,
@@ -4507,7 +4547,7 @@
         },
         {
           "visual": "04_colour_scale",
-          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
+          "narration": "색상 척도를 고르세요. 로버스트 범위는 2번째부터 98번째 백분위수를 사용하므로, 극단적인 웰 하나가 나머지 웰의 색 차이를 눌러 버리지 않습니다.",
           "hold_after": 0.7,
           "focus": [
             335,
@@ -4518,17 +4558,17 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
+          "narration": "Render를 클릭하고 색칠된 웰을 비교하세요. 히트맵 옆의 가장자리 효과 보고서를 읽고, 플레이트 배치와 측정 범위를 확인하세요. 가장자리, 행, 열 패턴을 평가할 때는 플레이트 전체의 측정값을 사용하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_detail",
-          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
+          "narration": "측정된 웰을 클릭하면 식별자, 객체 수, 표시된 값을 볼 수 있습니다. 이미지나 내보낸 결과에서 같은 웰을 찾을 때 이 식별자를 사용하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "06_count",
-          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
+          "narration": "객체 수를 비교하려면 Per well을 count로 설정하세요. 이 보기로 특징 차이를 해석하기 전에 분할된 객체가 적은 웰을 찾을 수 있습니다.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -4539,17 +4579,17 @@
         },
         {
           "visual": "07_filtered",
-          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
+          "narration": "비교하기에 객체가 너무 적은 웰을 제외하려면 Min objects per well을 올리세요. 601로 설정하면 이 예제의 웰 4개 중 2개가 남습니다. 제외된 웰은 0 측정값이 아니라 빈칸으로 표시됩니다.",
           "hold_after": 0.7
         },
         {
           "visual": "08_save_csv",
-          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
+          "narration": "Export well grid CSV를 클릭하고 파일 이름을 정해 저장하세요. CSV에는 현재 필터로 남은 웰이 식별자, 개수, 표시된 값, 공간 주석과 함께 들어 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "09_exported",
-          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
+          "narration": "내보낸 표는 측정 및 집계 설정과 함께 보관하세요. 제외된 웰을 다시 보려면 최소 개수를 낮추고, 다음 비교에는 다른 측정 항목을 고르세요.",
           "hold_after": 0.7
         }
       ],
@@ -4557,6 +4597,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4639,18 +4719,18 @@
       "app_key": "convert",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "Format Converter: preview and convert image files",
-      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
+      "title": "Format Converter: 이미지 파일 미리 보기와 변환",
+      "description": "원본 폴더를 선택하고 대상 이름과 채널 배정을 확인한 뒤 이미지를 변환하고, 완료된 작업을 이어서 진행합니다.",
       "objectives": [
-        "Choose source and destination folders with the correct acquisition layout.",
-        "Preview target names, fields and channel assignments.",
-        "Convert the files and use Resume for completed fields."
+        "올바른 촬영 레이아웃으로 원본 폴더와 대상 폴더를 고릅니다.",
+        "대상 이름, 시야, 채널 배정을 미리 봅니다.",
+        "파일을 변환하고 완료된 시야에는 Resume을 사용합니다."
       ],
-      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
+      "prerequisite": "지원되는 이미지 파일 폴더를 준비하고 촬영 메타데이터를 보관하세요. Import Project 튜토리얼에서 쓰는 TIFF 이미지 두 개로 연습할 수 있습니다. 레이아웃과 Z 처리 방식은 자신의 촬영에 맞게 설정하세요.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
+          "narration": "Home에서 Import Project를 열고 Format Converter를 선택하세요. 다음 분석 단계를 위해 이미지 파일과 파일 이름을 준비하는 데 사용합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
@@ -4659,7 +4739,7 @@
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "The converter works in one direction: from Source, through Preview, into Destination. Preview shows where every source file will land before anything is written, so you can check the assignments; Convert then writes them.",
+          "narration": "변환기는 한 방향으로 작동합니다. Source에서 Preview를 거쳐 Destination으로 갑니다. Preview는 아무것도 쓰기 전에 각 원본 파일이 어디로 갈지 보여 주므로 배정을 확인할 수 있고, 그다음 Convert가 파일을 씁니다.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4670,7 +4750,7 @@
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
+          "narration": "원본 이미지가 들어 있는 폴더를 고르세요. 이 예제는 단일 채널 TIFF 두 개를 사용합니다. 변환된 이름을 확인할 때 쓸 수 있도록 원래 촬영 메타데이터를 가까이 두세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
@@ -4678,12 +4758,12 @@
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
+          "narration": "새 대상 폴더를 고르세요. 변환기는 새 이미지와 함께 매핑 파일을 그곳에 씁니다. 원본 이미지는 따로 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
+          "narration": "Layout을 폴더 구조에 맞게 설정하세요. 예제처럼 평평한 폴더라면 원본 폴더에 이미지가 바로 있는 옵션을 고르고, 필요한 플레이트 이름 규칙을 선택하세요. 플레이트와 웰별 디렉터리 구조라면 그에 맞는 레이아웃을 고르세요.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4694,7 +4774,7 @@
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
+          "narration": "Z 평면 처리 방식을 고르세요. 전체 스택이 필요하면 모든 평면을 유지하고, 투영 이미지가 필요하면 최대 투영을 사용하며, 첫 평면이 원하는 입력이라면 그것을 고르세요. 이 예제는 파일마다 평면이 하나입니다.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4705,7 +4785,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
+          "narration": "Preview를 누르세요. 플레이트, 웰, 시야, 채널을 포함해 원본에서 대상으로의 모든 배정을 확인하세요. 번호가 붙은 이름은 배정된 식별자이므로, 어떤 실험 조건에 해당하는지는 원래 메타데이터로 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4716,7 +4796,7 @@
         },
         {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
+          "narration": "대상 이름과 함께 From field와 From channel을 검토하세요. 배열의 채널 인덱스와 파일 이름의 채널 번호는 서로 다른 규칙을 따를 수 있습니다. 각 대상에 분석하려는 이미지 평면이 들어 있는지 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4727,7 +4807,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
+          "narration": "매핑이 잘못되었다면 원본 레이아웃이나 변환 설정을 바꾸고 다시 미리 보세요. 미리 보기 표는 읽기 전용입니다.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4738,7 +4818,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
+          "narration": "Convert를 누르고 변환, 실패, 건너뛴 파일에 대한 최종 요약을 읽으세요. 분할이나 측정으로 넘어가기 전에 변환된 이미지를 하나 열어 크기와 채널을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4749,7 +4829,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
+          "narration": "conversion_map.csv는 변환된 이미지와 함께 보관하세요. 원본과 대상 경로, 배정된 식별자, 변환 상태가 기록되어 있습니다. 원래 촬영 메타데이터도 옆에 보관하세요.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4760,7 +4840,7 @@
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
+          "narration": "같은 원본, 계획, 대상으로 나중에 다시 실행한다면 Resume을 켜세요. 호환되는 완료된 시야는 다시 사용할 수 있습니다. 요약을 읽고 어떤 파일이 변환되었고 어떤 파일이 이미 있었는지 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             2700,
@@ -4773,6 +4853,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

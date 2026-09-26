@@ -3732,18 +3732,18 @@
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
       "section": "Tools",
-      "title": "Training Runs: compare curves and settings",
-      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
+      "title": "Training Runs: berðu saman ferla og stillingar",
+      "description": "Hlaðu inn þjálfunarannálum, leggðu mælikvarða hvern ofan á annan, berðu saman stillingar og skoðaðu brot krossprófunar.",
       "objectives": [
-        "Find saved runs and select the ones to compare.",
-        "Overlay training and validation metrics and inspect settings differences.",
-        "Switch between individual folds and their mean and standard deviation."
+        "Finna vistaðar keyrslur og velja þær sem á að bera saman.",
+        "Leggja saman þjálfunar- og prófunarmælikvarða og skoða mun á stillingum.",
+        "Skipta á milli einstakra brota og meðaltals þeirra og staðalfráviks."
       ],
-      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
+      "prerequisite": "Sæktu og afþjappaðu tengda tilbúna Training Runs-dæmið. Ferlarnir í því eru æfingagögn. Fyrir eigin greiningu velurðu yfirmöppu sem inniheldur vistaðar train.csv- og validation.csv-skrár með stillingum hverrar keyrslu. Geymdu óháðar matsniðurstöður með líkaninu þegar þú metur frammistöðu þess.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
+          "narration": "Frá Home opnarðu Classify og síðan Training Runs. Notaðu þetta tól til að bera saman framvinduannála og stillingar vistaðra þjálfunarkeyrslna. Tengda sýnið inniheldur tilbúna ferla til að æfa stýringarnar.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
@@ -3751,7 +3751,7 @@
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Work through the screen in order: choose a folder to find runs, pick them in the list, then choose a Metric and Folds and click Overlay selected. Begin with the parent folder that holds your runs.",
+          "narration": "Farðu í gegnum skjáinn í röð: veldu möppu til að finna keyrslur, merktu við þær á listanum, veldu svo Metric og Folds og smelltu á Overlay selected. Byrjaðu á yfirmöppunni sem geymir keyrslurnar þínar.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3762,7 +3762,7 @@
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
+          "narration": "Afþjappaðu tengda sýnið og smelltu á Choose folder. Veldu möppuna training_runs og staðfestu valið. Fyrir eigin verkefni velurðu yfirmöppu sem inniheldur keyrslumöppurnar og vistaða CSV-annála þeirra.",
           "hold_after": 0.7,
           "focus": [
             1555,
@@ -3773,7 +3773,7 @@
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
+          "narration": "Leitaðu í möppunni og skoðaðu keyrslurnar sem finnast. Sýnið inniheldur dæmin baseline, tuned og cross_validated, auk einnar ófullgerðrar færslu. Veldu nothæfu keyrslurnar sem þú vilt bera saman.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3784,7 +3784,7 @@
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
+          "narration": "Athugaðu viðvaranir um ófullgerðar færslur. Ef train.csv, validation.csv eða stillingar vantar geta ferlar eða stillingar vantað í birtinguna. Finndu fullgerðu keyrslumöppuna áður en þú bætir henni við samanburð.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3795,7 +3795,7 @@
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
+          "narration": "Merktu við baseline og tuned og veldu svo accuracy undir Metric. Valmyndin sýnir tölulegu dálkana sem eru í völdum annálum. Veldu loss eða annan skráðan mælikvarða þegar hann svarar spurningunni sem samanburðurinn á að svara.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3806,7 +3806,7 @@
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
+          "narration": "Smelltu á Overlay selected. Þjálfunarferlar eru strikaðir og prófunarferlar heildregnir. Lestu hverja keyrslu og hverja gagnaskiptingu úr skýringunum. Hver ferill endar á sinni síðustu skráðu lotu.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3817,7 +3817,7 @@
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
+          "narration": "Skoðaðu samanburð stillinga fyrir neðan grafið. Hann dregur fram mun eins og stærð runu, fjölda lotna og námshraða. Notaðu hann til að sjá hvað breyttist milli keyrslna áður en þú túlkar ferlana.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3828,7 +3828,7 @@
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
+          "narration": "Umhverfislínan greinir keyrslustillingar, eins og fjölda vinnsluferla, frá þjálfunarstillingunum. Lestu hana samhliða mun á stillingum þegar þú berð saman keyrslur sem voru gerðar á ólíkum tölvum.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3839,7 +3839,7 @@
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
+          "narration": "Smelltu á prófunarferil til að sjá síðustu og bestu skráðu gildi hans og lotur. Notaðu sömu valreglu þegar þú berð saman keyrslur. Mettu valinn vistunarpunkt á óháðum gögnum til að meta frammistöðu hans.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3850,7 +3850,7 @@
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
+          "narration": "Veldu loss undir Metric til að uppfæra lóðrétta ásinn og samsettu myndina. Berðu saman feril þjálfunar og prófunar, þar á meðal stefnu þeirra undir lok þjálfunar.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3861,7 +3861,7 @@
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
+          "narration": "Veldu tuned og cross_validated, veldu accuracy og smelltu svo á Overlay selected. Opnaðu Folds og veldu hvort sýna eigi einstök brot, meðaltal þeirra og staðalfrávik, eða hvort tveggja.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3872,7 +3872,7 @@
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
+          "narration": "Veldu meðaltal plús eða mínus staðalfrávik til að taka saman ferla brotanna. Hvert band sýnir eitt staðalfrávik úrtaks yfir tiltæk brot í þeirri lotu. Lestu bandið sem breytileika milli brota.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3883,7 +3883,7 @@
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
+          "narration": "Veldu hvort tveggja til að sýna ferla einstakra brota ásamt meðaltali þeirra. Berðu brotin saman til að sjá hvort samantekt feli keyrslu með annan feril.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3894,7 +3894,7 @@
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
+          "narration": "Veldu birtingu eftir brotum til að sýna aðeins einstaka ferla. Samanburður stillinga uppfærist með völdum keyrslum. Hafðu lotubil hvers ferils í huga þegar þú berð saman hvar þjálfun lauk.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3905,12 +3905,12 @@
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
+          "narration": "Farðu aftur í Metric til að bera saman aðra skráða stærð, eða breyttu völdum keyrslum til að þrengja samanburðinn. Haltu upprunalegu CSV-annálunum og stillingunum saman svo hægt sé að opna sama samanburð aftur.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
+          "narration": "Fyrir greiningu með skriftu notarðu find_runs og load_run í spacr.train_compare, og síðan compare_runs og plot_curves. Geymdu samanburðinn með líkaninu og óháðum matsniðurstöðum þegar þú velur næstu þjálfunarstillingar.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -3924,6 +3924,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4459,21 +4499,21 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer: inspect wells and export a heatmap table",
+      "title": "Plate Viewer: skoðaðu brunna og fluttu út hitakortstöflu",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
+      "description": "Hlaðu inn sýnimælingunum, berðu saman eiginleika og fjölda eftir brunnum, skoðaðu einstaka brunna og fluttu út síuðu töfluna.",
       "objectives": [
-        "Open Plate Viewer from Graph Builder and load example measurements.",
-        "Choose a feature, aggregation and minimum object count.",
-        "Inspect well details and export the current well grid."
+        "Opna Plate Viewer úr Graph Builder og hlaða inn sýnimælingum.",
+        "Velja eiginleika, samantekt og lágmarksfjölda hluta.",
+        "Skoða upplýsingar um brunna og flytja út núverandi brunnanet."
       ],
-      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
+      "prerequisite": "Notaðu Load test data í Plate Viewer fyrir niðurhalanlega dæmið, eða opnaðu measurements.db úr mælda verkefninu þínu. Dæmið inniheldur 2.341 frumu í fjórum brunnum; notaðu mælingar sem ná yfir alla plötuna þína þegar þú metur rúmfræðileg mynstur.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+          "narration": "Frá Home opnarðu Graph Builder undir Data og velur síðan Plate Viewer. Notaðu það til að taka saman mælingar hluta eftir brunnum og skoða dreifingu þeirra yfir plötuna.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -4481,7 +4521,7 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
+          "narration": "Smelltu á Load test data til að opna niðurhalanlega dæmið. Fyrir eigin gögn velurðu mæligagnagrunn eða keyrslumöppu hans og smellir á Open. Dæmið inniheldur fjóra mælda brunna.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -4496,7 +4536,7 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
+          "narration": "Veldu cell sem Table, cell_area sem Measurement og plate1 sem Plate. Stilltu Per well á mean til að sýna meðalflatarmál frumna. Miðgildi dregur úr áhrifum óvenju stórra eða lítilla hluta.",
           "hold_after": 0.7,
           "focus": [
             335,
@@ -4507,7 +4547,7 @@
         },
         {
           "visual": "04_colour_scale",
-          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
+          "narration": "Veldu litakvarða. Trausta bilið notar 2. til 98. hundraðsmark, svo einn öfgabrunnur þjappi ekki litum hinna saman.",
           "hold_after": 0.7,
           "focus": [
             335,
@@ -4518,17 +4558,17 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
+          "narration": "Smelltu á Render og berðu saman lituðu brunnana. Lestu skýrsluna um jaðaráhrif við hlið hitakortsins og athugaðu uppsetningu plötunnar og mælda þekju. Notaðu mælingar af allri plötunni þegar þú metur mynstur við jaðar, í röðum eða dálkum.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_detail",
-          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
+          "narration": "Smelltu á mældan brunn til að sjá auðkenni hans, fjölda hluta og birta gildið. Notaðu þessi auðkenni til að finna sama brunn í myndunum þínum eða útfluttum niðurstöðum.",
           "hold_after": 0.7
         },
         {
           "visual": "06_count",
-          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
+          "narration": "Stilltu Per well á count til að bera saman fjölda hluta. Þessi sýn hjálpar þér að finna brunna með færri aðgreindum hlutum áður en þú túlkar mun á eiginleikum.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -4539,17 +4579,17 @@
         },
         {
           "visual": "07_filtered",
-          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
+          "narration": "Hækkaðu Min objects per well til að útiloka brunna með of fáa hluti fyrir samanburðinn. Við 601 eru tveir af fjórum brunnum dæmisins eftir. Útilokaðir brunnar birtast auðir í stað þess að sýna mælinguna núll.",
           "hold_after": 0.7
         },
         {
           "visual": "08_save_csv",
-          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
+          "narration": "Smelltu á Export well grid CSV, veldu skráarheiti og vistaðu. CSV-skráin inniheldur brunnana sem núverandi sía heldur, með auðkennum, fjölda, birtum gildum og rúmfræðilegum athugasemdum.",
           "hold_after": 0.7
         },
         {
           "visual": "09_exported",
-          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
+          "narration": "Geymdu útfluttu töfluna með stillingum mælingar og samantektar. Lækkaðu lágmarksfjöldann til að sjá útilokaða brunna aftur, eða veldu aðra mælingu fyrir næsta samanburð.",
           "hold_after": 0.7
         }
       ],
@@ -4557,6 +4597,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4639,18 +4719,18 @@
       "app_key": "convert",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "Format Converter: preview and convert image files",
-      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
+      "title": "Format Converter: forskoðaðu og umbreyttu myndaskrám",
+      "description": "Veldu upprunamöppu, athugaðu markheiti og úthlutun rása, umbreyttu síðan myndunum og haltu áfram með verk sem þegar er lokið.",
       "objectives": [
-        "Choose source and destination folders with the correct acquisition layout.",
-        "Preview target names, fields and channel assignments.",
-        "Convert the files and use Resume for completed fields."
+        "Velja uppruna- og markmöppur með réttri myndatökuuppsetningu.",
+        "Forskoða markheiti, sjónsvið og úthlutun rása.",
+        "Umbreyta skránum og nota Resume fyrir sjónsvið sem er lokið."
       ],
-      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
+      "prerequisite": "Útbúðu möppu með studdum myndaskrám og haltu lýsigögnum myndatökunnar. Þú getur æft þig með TIFF-myndunum tveimur úr Import Project-kennslunni. Stilltu uppsetningu og meðferð Z-sneiða eftir eigin myndatöku.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
+          "narration": "Frá Home opnarðu Import Project og velur Format Converter. Notaðu það til að undirbúa myndaskrár og skráarheiti fyrir næsta greiningarskref.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
@@ -4659,7 +4739,7 @@
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "The converter works in one direction: from Source, through Preview, into Destination. Preview shows where every source file will land before anything is written, so you can check the assignments; Convert then writes them.",
+          "narration": "Umbreytirinn vinnur í eina átt: frá Source, í gegnum Preview, í Destination. Preview sýnir hvert hver upprunaskrá fer áður en nokkuð er skrifað, svo þú getir athugað úthlutunina; Convert skrifar þær síðan.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4670,7 +4750,7 @@
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
+          "narration": "Veldu möppuna sem geymir upprunamyndirnar. Þetta dæmi notar tvær TIFF-skrár með einni rás hvor. Hafðu upprunaleg lýsigögn myndatökunnar við höndina þegar þú athugar umbreyttu heitin.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
@@ -4678,12 +4758,12 @@
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
+          "narration": "Veldu nýja markmöppu. Umbreytirinn skrifar nýju myndirnar þangað ásamt vörpunarskrá; geymdu upprunalegu myndirnar sér.",
           "hold_after": 0.7
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
+          "narration": "Stilltu Layout svo það passi við möppurnar þínar. Fyrir flötu möppuna í dæminu velurðu kostinn fyrir myndir beint í upprunamöppunni og þá nafnareglu fyrir plötur sem þú þarft. Fyrir möpputré eftir plötum og brunnum velurðu samsvarandi uppsetningu.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4694,7 +4774,7 @@
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
+          "narration": "Veldu hvernig fara á með Z-sneiðar. Haltu öllum sneiðum þegar þú þarft allan stafla, notaðu hámarksvörpun fyrir varpaða mynd, eða veldu fyrstu sneiðina þegar hún er ætlaða inntakið. Í þessu dæmi er ein sneið í hverri skrá.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4705,7 +4785,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
+          "narration": "Ýttu á Preview. Skoðaðu hverja úthlutun frá uppruna til marks, þar á meðal plötu, brunn, sjónsvið og rás. Tölusett heiti eru úthlutuð auðkenni; notaðu upprunalegu lýsigögnin til að staðfesta hvaða tilraunaskilyrðum þau samsvara.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4716,7 +4796,7 @@
         },
         {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
+          "narration": "Skoðaðu From field og From channel samhliða markheitunum. Rásavísar í fylkjum og rásanúmer í skráarheitum geta fylgt ólíkum venjum. Athugaðu að hvert mark innihaldi myndsneiðina sem þú ætlar að greina.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4727,7 +4807,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
+          "narration": "Ef vörpun er röng breytirðu uppsetningu upprunans eða umbreytingarstillingum og forskoðar aftur. Forskoðunartaflan er aðeins til lestrar.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4738,7 +4818,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
+          "narration": "Ýttu á Convert og lestu lokasamantektina um umbreyttar skrár, skrár sem mistókust og skrár sem var sleppt. Opnaðu umbreytta mynd til að athuga stærð hennar og rásir áður en þú heldur áfram í aðgreiningu eða mælingu.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4749,7 +4829,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
+          "narration": "Geymdu conversion_map.csv með umbreyttu myndunum. Hún skráir uppruna- og markslóðir, úthlutuð auðkenni og stöðu umbreytingar. Geymdu upprunalegu lýsigögn myndatökunnar við hliðina.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4760,7 +4840,7 @@
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
+          "narration": "Fyrir síðari keyrslu með sama uppruna, sömu áætlun og sama marki kveikirðu á Resume. Hægt er að endurnýta samhæf sjónsvið sem er lokið. Lestu samantektina til að sjá hvaða skrám var umbreytt og hverjar voru þegar til staðar.",
           "hold_after": 0.7,
           "focus": [
             2700,
@@ -4773,6 +4853,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

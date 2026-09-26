@@ -3732,18 +3732,18 @@
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
       "section": "Tools",
-      "title": "Training Runs: compare curves and settings",
-      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
+      "title": "Training Runs: jämför kurvor och inställningar",
+      "description": "Läs in träningsloggar, överlagra mått, jämför inställningar och utforska korsvalideringens veck.",
       "objectives": [
-        "Find saved runs and select the ones to compare.",
-        "Overlay training and validation metrics and inspect settings differences.",
-        "Switch between individual folds and their mean and standard deviation."
+        "Hitta sparade körningar och välja vilka som ska jämföras.",
+        "Överlagra tränings- och valideringsmått och granska skillnader i inställningar.",
+        "Växla mellan enskilda veck och deras medelvärde och standardavvikelse."
       ],
-      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
+      "prerequisite": "Ladda ned och packa upp det länkade syntetiska Training Runs-exemplet. Dess kurvor är övningsdata. För din egen analys väljer du en överordnad mapp som innehåller sparade train.csv- och validation.csv-filer med varje körnings inställningar. Behåll oberoende utvärderingsresultat med din modell när du bedömer prestandan.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
+          "narration": "Från Home öppnar du Classify och sedan Training Runs. Använd verktyget för att jämföra förloppsloggar och inställningar från sparade träningskörningar. Det länkade provet innehåller syntetiska kurvor för att öva på kontrollerna.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
@@ -3751,7 +3751,7 @@
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Work through the screen in order: choose a folder to find runs, pick them in the list, then choose a Metric and Folds and click Overlay selected. Begin with the parent folder that holds your runs.",
+          "narration": "Gå igenom skärmen i ordning: välj en mapp för att hitta körningar, markera dem i listan, välj sedan Metric och Folds och klicka på Overlay selected. Börja med den överordnade mappen som innehåller dina körningar.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3762,7 +3762,7 @@
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
+          "narration": "Packa upp det länkade provet och klicka på Choose folder. Välj dess mapp training_runs och bekräfta valet. För egna projekt väljer du en överordnad mapp som innehåller körningsmapparna och deras sparade CSV-loggar.",
           "hold_after": 0.7,
           "focus": [
             1555,
@@ -3773,7 +3773,7 @@
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
+          "narration": "Sök igenom mappen och granska de körningar som hittas. Provet har exemplen baseline, tuned och cross_validated samt en ofullständig post. Välj de användbara körningar du vill jämföra.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3784,7 +3784,7 @@
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
+          "narration": "Kontrollera varningarna för ofullständiga poster. Om train.csv, validation.csv eller inställningarna saknas kan det hindra kurvor eller inställningar från att visas. Leta upp den fullständiga körningsmappen innan du lägger till den i en jämförelse.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3795,7 +3795,7 @@
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
+          "narration": "Markera baseline och tuned och välj sedan accuracy under Metric. Menyn listar de numeriska kolumner som finns i de valda loggarna. Välj loss eller ett annat loggat mått när det besvarar din jämförelsefråga.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3806,7 +3806,7 @@
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
+          "narration": "Klicka på Overlay selected. Träningskurvorna är streckade och valideringskurvorna heldragna. Läs av varje körning och datadelning i förklaringen. Varje kurva slutar vid sin egen sista loggade epok.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3817,7 +3817,7 @@
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
+          "narration": "Granska jämförelsen av inställningar under diagrammet. Den framhäver skillnader som batchstorlek, antal epoker och inlärningstakt. Använd den för att se vad som ändrats mellan körningarna innan du tolkar kurvorna.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3828,7 +3828,7 @@
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
+          "narration": "Miljöraden skiljer körningsinställningar, som antal arbetsprocesser, från träningskonfigurationen. Läs den tillsammans med konfigurationsskillnaderna när du jämför körningar gjorda på olika datorer.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3839,7 +3839,7 @@
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
+          "narration": "Klicka på en valideringskurva för att se dess senaste och bästa loggade värden och epoker. Använd samma urvalsregel när du jämför körningar. Utvärdera en vald kontrollpunkt på oberoende data för att bedöma dess prestanda.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3850,7 +3850,7 @@
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
+          "narration": "Välj loss under Metric för att uppdatera den lodräta axeln och överlagringen. Jämför tränings- och valideringskurvornas förlopp, även deras riktning mot slutet av träningen.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3861,7 +3861,7 @@
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
+          "narration": "Välj tuned och cross_validated, välj accuracy och klicka sedan på Overlay selected. Öppna Folds och välj om du vill visa enskilda veck, deras medelvärde och standardavvikelse, eller båda.",
           "hold_after": 0.7,
           "focus": [
             465,
@@ -3872,7 +3872,7 @@
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
+          "narration": "Välj medelvärde plus minus standardavvikelse för att sammanfatta veckens kurvor. Varje band visar en standardavvikelse för stickprovet över de tillgängliga vecken vid den epoken. Läs bandet som variationen mellan vecken.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3883,7 +3883,7 @@
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
+          "narration": "Välj båda för att visa de enskilda veckens kurvor tillsammans med medelvärdet. Jämför vecken för att se om en sammanfattning döljer en körning med ett annat förlopp.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3894,7 +3894,7 @@
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
+          "narration": "Välj visning per veck för att bara visa de enskilda kurvorna. Jämförelsen av inställningar uppdateras med dina valda körningar. Tänk på varje kurvas epokintervall när du jämför var träningen slutade.",
           "hold_after": 0.7,
           "focus": [
             1390,
@@ -3905,12 +3905,12 @@
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
+          "narration": "Gå tillbaka till Metric för att jämföra en annan loggad storhet, eller ändra de valda körningarna för att avgränsa jämförelsen. Håll ihop de ursprungliga CSV-loggarna och inställningarna så att samma jämförelse kan öppnas igen.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
+          "narration": "För skriptad analys använder du find_runs och load_run i spacr.train_compare, och sedan compare_runs och plot_curves. Behåll jämförelsen med din modell och oberoende utvärderingsresultat när du väljer nästa träningskonfiguration.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -3924,6 +3924,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4459,21 +4499,21 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer: inspect wells and export a heatmap table",
+      "title": "Plate Viewer: granska brunnar och exportera en värmekartetabell",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
+      "description": "Läs in exempelmätningarna, jämför egenskaper och antal per brunn, granska enskilda brunnar och exportera den filtrerade tabellen.",
       "objectives": [
-        "Open Plate Viewer from Graph Builder and load example measurements.",
-        "Choose a feature, aggregation and minimum object count.",
-        "Inspect well details and export the current well grid."
+        "Öppna Plate Viewer från Graph Builder och läsa in exempelmätningar.",
+        "Välja en egenskap, en aggregering och ett minsta antal objekt.",
+        "Granska brunnsdetaljer och exportera det aktuella brunnsrutnätet."
       ],
-      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
+      "prerequisite": "Använd Load test data i Plate Viewer för det nedladdningsbara exemplet, eller öppna measurements.db från ditt uppmätta projekt. Exemplet innehåller 2 341 celler i fyra brunnar; använd mätningar som täcker hela din platta när du bedömer rumsliga mönster.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+          "narration": "Från Home öppnar du Graph Builder under Data och väljer sedan Plate Viewer. Använd det för att sammanfatta objektmätningar per brunn och granska hur de fördelar sig över en platta.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
@@ -4481,7 +4521,7 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
+          "narration": "Klicka på Load test data för att öppna det nedladdningsbara exemplet. För egna data väljer du en mätdatabas eller dess körningsmapp och klickar på Open. Exemplet innehåller fyra uppmätta brunnar.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -4496,7 +4536,7 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
+          "narration": "Välj cell som Table, cell_area som Measurement och plate1 som Plate. Ställ Per well på mean för att visa den genomsnittliga cellarean. Medianen minskar inverkan av ovanligt stora eller små objekt.",
           "hold_after": 0.7,
           "focus": [
             335,
@@ -4507,7 +4547,7 @@
         },
         {
           "visual": "04_colour_scale",
-          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
+          "narration": "Välj en färgskala. Det robusta intervallet använder 2:a till 98:e percentilen, så att en extrem brunn inte trycker ihop färgerna för de andra.",
           "hold_after": 0.7,
           "focus": [
             335,
@@ -4518,17 +4558,17 @@
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
+          "narration": "Klicka på Render och jämför de färgade brunnarna. Läs rapporten om kanteffekter bredvid värmekartan och kontrollera plattans layout och den uppmätta täckningen. Använd mätningar över hela plattan när du bedömer kant-, rad- eller kolumnmönster.",
           "hold_after": 0.7
         },
         {
           "visual": "05_well_detail",
-          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
+          "narration": "Klicka på en uppmätt brunn för att se dess identifierare, antal objekt och det visade värdet. Använd identifierarna för att hitta samma brunn i dina bilder eller exporterade resultat.",
           "hold_after": 0.7
         },
         {
           "visual": "06_count",
-          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
+          "narration": "Ställ Per well på count för att jämföra antal objekt. Vyn hjälper dig att hitta brunnar med färre segmenterade objekt innan du tolkar skillnader i egenskaper.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -4539,17 +4579,17 @@
         },
         {
           "visual": "07_filtered",
-          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
+          "narration": "Höj Min objects per well för att utesluta brunnar med för få objekt för din jämförelse. Vid 601 återstår två av exemplets fyra brunnar. Uteslutna brunnar visas tomma i stället för som mätvärdet noll.",
           "hold_after": 0.7
         },
         {
           "visual": "08_save_csv",
-          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
+          "narration": "Klicka på Export well grid CSV, välj ett filnamn och spara. CSV-filen innehåller de brunnar som det aktuella filtret behåller, med identifierare, antal, visade värden och rumsliga anteckningar.",
           "hold_after": 0.7
         },
         {
           "visual": "09_exported",
-          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
+          "narration": "Spara den exporterade tabellen tillsammans med mät- och aggregeringsinställningarna. Sänk minimiantalet för att visa uteslutna brunnar igen, eller välj en annan mätning för nästa jämförelse.",
           "hold_after": 0.7
         }
       ],
@@ -4557,6 +4597,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4639,18 +4719,18 @@
       "app_key": "convert",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "Format Converter: preview and convert image files",
-      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
+      "title": "Format Converter: förhandsgranska och konvertera bildfiler",
+      "description": "Välj en källmapp, kontrollera målnamn och kanaltilldelningar, konvertera sedan bilderna och återuppta slutfört arbete.",
       "objectives": [
-        "Choose source and destination folders with the correct acquisition layout.",
-        "Preview target names, fields and channel assignments.",
-        "Convert the files and use Resume for completed fields."
+        "Välja käll- och målmappar med rätt insamlingslayout.",
+        "Förhandsgranska målnamn, synfält och kanaltilldelningar.",
+        "Konvertera filerna och använda Resume för slutförda synfält."
       ],
-      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
+      "prerequisite": "Förbered en mapp med bildfiler som stöds och behåll deras insamlingsmetadata. Du kan öva med de två TIFF-bilderna från handledningen för Import Project. Ställ in layout och hantering av Z efter din egen insamling.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
+          "narration": "Från Home öppnar du Import Project och väljer Format Converter. Använd det för att förbereda bildfiler och filnamn för nästa analyssteg.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
@@ -4659,7 +4739,7 @@
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "The converter works in one direction: from Source, through Preview, into Destination. Preview shows where every source file will land before anything is written, so you can check the assignments; Convert then writes them.",
+          "narration": "Konverteraren arbetar i en riktning: från Source, via Preview, till Destination. Preview visar var varje källfil hamnar innan något skrivs, så att du kan kontrollera tilldelningarna; Convert skriver dem sedan.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4670,7 +4750,7 @@
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
+          "narration": "Välj mappen som innehåller dina källbilder. Det här exemplet använder två TIFF-filer med en kanal. Ha de ursprungliga insamlingsmetadata till hands när du kontrollerar de konverterade namnen.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
@@ -4678,12 +4758,12 @@
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
+          "narration": "Välj en ny målmapp. Konverteraren skriver de nya bilderna där tillsammans med en mappningsfil; behåll dina originalbilder separat.",
           "hold_after": 0.7
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
+          "narration": "Ställ in Layout så att den matchar dina mappar. För exemplets platta mapp väljer du alternativet med bilder direkt i källan och den regel för plattnamn du behöver. För ett katalogträd per platta och brunn väljer du motsvarande layout.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4694,7 +4774,7 @@
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
+          "narration": "Välj hur Z-plan ska hanteras. Behåll alla plan när du behöver hela stacken, använd maximiprojektion för en projicerad bild, eller välj det första planet när det är den avsedda indata. Det här exemplet har ett plan per fil.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4705,7 +4785,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
+          "narration": "Tryck på Preview. Granska varje tilldelning från källa till mål, inklusive platta, brunn, synfält och kanal. Indexerade namn är tilldelade identiteter; använd de ursprungliga metadata för att bekräfta vilka försöksvillkor de motsvarar.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4716,7 +4796,7 @@
         },
         {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
+          "narration": "Granska From field och From channel tillsammans med målnamnen. Kanalindex i matriser och kanalnummer i filnamn kan följa olika konventioner. Kontrollera att varje mål innehåller det bildplan du tänker analysera.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4727,7 +4807,7 @@
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
+          "narration": "Om en mappning är fel ändrar du källayouten eller konverteringsinställningarna och förhandsgranskar igen. Förhandsgranskningstabellen är skrivskyddad.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4738,7 +4818,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
+          "narration": "Tryck på Convert och läs slutsammanfattningen över konverterade, misslyckade och överhoppade filer. Öppna en konverterad bild och kontrollera dess dimensioner och kanaler innan du går vidare till segmentering eller mätning.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4749,7 +4829,7 @@
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
+          "narration": "Behåll conversion_map.csv tillsammans med de konverterade bilderna. Den registrerar käll- och målsökvägar, tilldelade identiteter och konverteringsstatus. Spara de ursprungliga insamlingsmetadata bredvid.",
           "hold_after": 0.7,
           "focus": [
             460,
@@ -4760,7 +4840,7 @@
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
+          "narration": "För en senare körning med samma källa, plan och mål slår du på Resume. Kompatibla slutförda synfält kan återanvändas. Läs sammanfattningen för att se vilka filer som konverterades och vilka som redan fanns.",
           "hold_after": 0.7,
           "focus": [
             2700,
@@ -4773,6 +4853,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
