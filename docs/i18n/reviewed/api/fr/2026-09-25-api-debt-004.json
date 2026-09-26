@@ -1,0 +1,536 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#1",
+      "source": ":func:`normalize_uint16` for an integer field, so a detector reads the exact numbers the canvas paints; a float field has no integer range to fill and comes back on 0..1 instead.",
+      "source_sha256": "f7eb889a5ee6bf6dc19ad685cae2df807c5c33fe45f53234227fbaa9a2a28f59",
+      "context": ":func:`normalize_uint16` for an integer field, so a detector reads the exact numbers the canvas paints; a float field has no integer range to fill and comes back on 0..1 instead.",
+      "translation": ":func:`normalize_uint16` pour un champ entier, afin qu’un détecteur lise exactement les nombres que peint le canevas ; un champ en flottants n’a pas de plage entière à remplir et revient plutôt sur 0..1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#3",
+      "source": "the percentile mapped to the bottom of the range.",
+      "source_sha256": "1e60c06fc62dd7777e8c247eb1bce132adf2d85e9e1bbed99480cd4954058118",
+      "context": "the percentile mapped to the bottom of the range.",
+      "translation": "le percentile associé au bas de la plage.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#4",
+      "source": "the percentile mapped to the top.",
+      "source_sha256": "6787dd65ddd04687679de9ed63d09d0e29f874d5308e5862fea3c4ce60e27dea",
+      "context": "the percentile mapped to the top.",
+      "translation": "le percentile associé au haut de la plage.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#5",
+      "source": "the stretched field, the same shape.",
+      "source_sha256": "bdd9efc92e98baa977d3ab9ba5fb4c11ebaaabbda110dd3a0ca7f9845ffb33bd",
+      "context": "the stretched field, the same shape.",
+      "translation": "le champ étiré, de même forme.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_uint16#1",
+      "source": "integer-typed image (any integer dtype, despite the name); clipped to its ``lower_pct`` and ``upper_pct`` percentiles. An empty array is returned as is.",
+      "source_sha256": "917d96b03fcbddd459d27ed2450883aec43a00c62a0a19dcc7748a668071faaa",
+      "context": "integer-typed image (any integer dtype, despite the name); clipped to its ``lower_pct`` and ``upper_pct`` percentiles. An empty array is returned as is.",
+      "translation": "image de type entier (tout dtype entier, malgré le nom) ; écrêtée à ses percentiles ``lower_pct`` et ``upper_pct``. Un tableau vide est renvoyé tel quel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.overlay_mask#1",
+      "source": "2-D grayscale or RGB image in the 16-bit range; it is divided by 256 to reach 8 bits.",
+      "source_sha256": "3c087d6c6e54fe41e08f548a2d69f3e8aa6b22deb840a0e775ed8374d9644c27",
+      "context": "2-D grayscale or RGB image in the 16-bit range; it is divided by 256 to reach 8 bits.",
+      "translation": "image 2-D en niveaux de gris ou RGB dans la plage 16 bits ; elle est divisée par 256 pour atteindre 8 bits.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.overlay_mask#2",
+      "source": "label mask with the image's height and width; each label gets a fixed pseudo-random colour and 0 stays unblended.",
+      "source_sha256": "a190ffb20026e8e47904159bb5edcf5c56ccc606a56405ce45c81665fa31dd49",
+      "context": "label mask with the image's height and width; each label gets a fixed pseudo-random colour and 0 stays unblended.",
+      "translation": "masque d’étiquettes de même hauteur et même largeur que l’image ; chaque étiquette reçoit une couleur pseudo-aléatoire fixe et 0 reste non mélangé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_disk#1",
+      "source": "2-D mask, modified in place; the square is clipped to it.",
+      "source_sha256": "1759f9e7b99e0635acac9d0c7caafea6b2f95fc7891e0d38bac30b47d80e297d",
+      "context": "2-D mask, modified in place; the square is clipped to it.",
+      "translation": "masque 2-D, modifié sur place ; le carré est tronqué à ses limites.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_disk#2",
+      "source": "centre column in pixels.",
+      "source_sha256": "80979d618d01aa9855aec75bc203dbd602765cc072a8047137756282f7ea3b6d",
+      "context": "centre column in pixels.",
+      "translation": "colonne du centre, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_disk#3",
+      "source": "centre row in pixels.",
+      "source_sha256": "5c85835bed541c9f2a73ac9f7b3603f7c3b17b0db359792d1c5e3ff65bf570b1",
+      "context": "centre row in pixels.",
+      "translation": "ligne du centre, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_disk#4",
+      "source": "half-width of the square in pixels; values below 1 are treated as 1.",
+      "source_sha256": "1b0f550301b8ebbcd91ffa2afd7c34c387d6404460200f2e16c3c25c36c4f11a",
+      "context": "half-width of the square in pixels; values below 1 are treated as 1.",
+      "translation": "demi-largeur du carré en pixels ; les valeurs inférieures à 1 sont traitées comme 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#1",
+      "source": "2-D mask, modified in place.",
+      "source_sha256": "c36f9c0bae4e16e7678abe0b5d90353ba429b90b12e2356d3fd879bcb021e492",
+      "context": "2-D mask, modified in place.",
+      "translation": "masque 2-D, modifié sur place.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#2",
+      "source": "start column in pixels.",
+      "source_sha256": "7d620165dadba4d059166250bfb4e550a54b33895fd34e1288f85eb52ba8f3b5",
+      "context": "start column in pixels.",
+      "translation": "colonne de départ, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#3",
+      "source": "start row in pixels.",
+      "source_sha256": "2dcd09618732035c8c90f2683741aa16e532d37ee4412321996c97482429dad4",
+      "context": "start row in pixels.",
+      "translation": "ligne de départ, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#4",
+      "source": "end column in pixels.",
+      "source_sha256": "75916a952a8e38439d8c5c5e885622b7a6bea12b2d3fe83626975b08db069ec8",
+      "context": "end column in pixels.",
+      "translation": "colonne d’arrivée, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#5",
+      "source": "end row in pixels.",
+      "source_sha256": "947148f8254b7389b023b0a0306b4922f08740cfe6a1269367f4088cb1e4da88",
+      "context": "end row in pixels.",
+      "translation": "ligne d’arrivée, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#6",
+      "source": "half-width of each stamp; see :func:`paint_disk`.",
+      "source_sha256": "fe6d9670d4b7bd4e7efede338a6984f83f822b278502dde5972d85823a9b54b6",
+      "context": "half-width of each stamp; see :func:`paint_disk`.",
+      "translation": "demi-largeur de chaque tampon ; voir :func:`paint_disk`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#0",
+      "source": "Report shared, missing, orphaned and incompletely enclosed object IDs.",
+      "source_sha256": "b56889789374ad6045f467bc4f910d6c2d951a3361bd6d641a3eb5fc831a2faa",
+      "context": "Report shared, missing, orphaned and incompletely enclosed object IDs.",
+      "translation": "Signale les ID d’objets partagés, manquants, orphelins et incomplètement englobés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#1",
+      "source": "nonempty 2-D nonnegative integer primary labels.",
+      "source_sha256": "12ee15dab189b0b99af406cf0d6f9bde203b2f8b054a67fe8d764c28a2fe4e91",
+      "context": "nonempty 2-D nonnegative integer primary labels.",
+      "translation": "étiquettes primaires entières non négatives, 2-D et non vides.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#2",
+      "source": "secondary labels of the same shape. Sparse and uint64 IDs are compared exactly, including values above signed int64.",
+      "source_sha256": "391ceea12639a6b2c055c7c79d6898920a1c7f8f1f5193b6ff003de92d9f2b5c",
+      "context": "secondary labels of the same shape. Sparse and uint64 IDs are compared exactly, including values above signed int64.",
+      "translation": "étiquettes secondaires de même forme. Les ID épars et uint64 sont comparés exactement, y compris les valeurs supérieures au maximum d’un int64 signé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#3",
+      "source": ":class:`PrimarySecondaryReport`; no array is modified. An ID match means the IDs agree, not that spatial overlap was used to infer or repair a parent assignment.",
+      "source_sha256": "1be24cbaf7843a9a6f760b089437e3fa0465df1c46d8246fbad281d54f4dd2c4",
+      "context": ":class:`PrimarySecondaryReport`; no array is modified. An ID match means the IDs agree, not that spatial overlap was used to infer or repair a parent assignment.",
+      "translation": ":class:`PrimarySecondaryReport` ; aucun tableau n’est modifié. Une correspondance d’ID signifie que les ID concordent, et non que le recouvrement spatial a servi à déduire ou à réparer une affectation au parent.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#4",
+      "source": "mismatched shapes or invalid label arrays.",
+      "source_sha256": "ecd89ebb40bfc14ec4733cd7d06fbf4885e18834c5566bc7168c3b7837807cd9",
+      "context": "mismatched shapes or invalid label arrays.",
+      "translation": "formes discordantes ou tableaux d’étiquettes invalides.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.property_needs_intensity#0",
+      "source": "Whether the regionprop ``name`` measures pixel values.",
+      "source_sha256": "39e31cec8869769c2bc3a2e53de0637b216367f6a8e81f5de2273b9467591a59",
+      "context": "Whether the regionprop ``name`` measures pixel values.",
+      "translation": "Indique si la propriété regionprops ``name`` mesure des valeurs de pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_curation#0",
+      "source": "Every verdict recorded for ``folder``, keyed by image path.",
+      "source_sha256": "c273fa0829419fcf5bb3cdc46c3143c0820340bace0b7d32c58e8408cbf0ed6b",
+      "context": "Every verdict recorded for ``folder``, keyed by image path.",
+      "translation": "Chaque verdict enregistré pour ``folder``, indexé par chemin d’image.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_curation#1",
+      "source": "A file that is missing, empty or unreadable is NO VERDICTS rather than an error: this is a curation aid, and refusing to open a folder because its CSV was edited by hand would be the wrong trade.",
+      "source_sha256": "a912b8dfd949bcffa895fde99a603e4b6acf65daecd5f5034177f19c38b4110b",
+      "context": "A file that is missing, empty or unreadable is no verdicts rather than an error: this is a curation aid, and refusing to open a folder because its CSV was edited by hand would be the wrong trade.",
+      "translation": "Un fichier manquant, vide ou illisible équivaut à AUCUN VERDICT plutôt qu’à une erreur : c’est une aide à la curation, et refuser d’ouvrir un dossier parce que son CSV a été modifié à la main serait un mauvais compromis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_curation#3",
+      "source": "image path -> the row, as strings.",
+      "source_sha256": "80cc32dffd316f347387c8a0899aca0a9197cdc83e22a6278a15f1a19bd22944",
+      "context": "image path -> the row, as strings.",
+      "translation": "chemin d’image -> la ligne, sous forme de chaînes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_recrop_manifest#1",
+      "source": "image folder whose :func:`recrop_archive_dir` holds the manifest; a missing, unreadable or non-list manifest gives ``[]``.",
+      "source_sha256": "25d7cb30d80537ba31d7f268ee28888cd41cd5bb99de48ed217826c7bb4e1333",
+      "context": "image folder whose :func:`recrop_archive_dir` holds the manifest; a missing, unreadable or non-list manifest gives ``[]``.",
+      "translation": "dossier d’images dont le :func:`recrop_archive_dir` contient le manifeste ; un manifeste manquant, illisible ou qui n’est pas une liste donne ``[]``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#0",
+      "source": "Read a Cellpose ``_seg.npy`` bundle as the dict it holds.",
+      "source_sha256": "624c081795d499b304df7a9197dfe53d5529045f80429fb67bb4bd42ba5f93f3",
+      "context": "Read a Cellpose ``_seg.npy`` bundle as the key-value mapping it holds.",
+      "translation": "Lit un paquet Cellpose ``_seg.npy`` sous la forme du dictionnaire qu’il contient.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#1",
+      "source": "A bundle is a pickle, and unpickling runs whatever the file says, so a bundle is only ever read from a queue folder the curator chose -- the same trust the external curation tool and Cellpose itself extend to it.",
+      "source_sha256": "7f60461257706399349ca61ab34c208e6c721d9af856172bfee9b820877d477a",
+      "context": "A bundle is a pickle, and unpickling runs whatever the file says, so a bundle is only ever read from a work list folder the curator chose -- the same trust the external curation tool and Cellpose itself extend to it.",
+      "translation": "Un paquet est un pickle, et le dépicklage exécute tout ce que dit le fichier ; un paquet n’est donc jamais lu que depuis un dossier de file d’attente choisi par le curateur -- la même confiance que lui accordent l’outil de curation externe et Cellpose lui-même.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#2",
+      "source": "the bundle.",
+      "source_sha256": "d4e19dcdca1df93796f50f785a3acbc33de5b94b262e2573c334ffe37eb7c290",
+      "context": "the bundle.",
+      "translation": "le paquet.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#3",
+      "source": "the bundle's dict, with every key it was written with.",
+      "source_sha256": "0ecd1dde5d0a1f22d346f6e867047398745bc957ba1d11b3934e0d7868a7683e",
+      "context": "the bundle's key-value mapping, with every structured-data name it was written with.",
+      "translation": "le dictionnaire du paquet, avec toutes les clés avec lesquelles il a été écrit.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#4",
+      "source": "when the file does not hold a dict with a ``masks`` entry.",
+      "source_sha256": "f49ce633bc8b3e3c6a661c1bd00ceb5d381e4fa00261cad675903cdb74f5f81b",
+      "context": "when the file does not hold a key-value mapping with a ``masks`` entry.",
+      "translation": "lorsque le fichier ne contient pas de dictionnaire doté d’une entrée ``masks``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#0",
+      "source": "Record one verdict, replacing any the field already had.",
+      "source_sha256": "8df423fa323cd87096d261d2fb958fc3a2f7f628eac21646cd7c3d454c0594bb",
+      "context": "Record one verdict, replacing any the field already had.",
+      "translation": "Enregistre un verdict, en remplaçant celui que le champ avait déjà.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#1",
+      "source": "ONE ROW PER FIELD. Keep and then Discard on the same image leaves the later verdict and nothing else, because two rows that disagree are worse than no file -- whoever reads it downstream would have to guess which press came last, and a CSV does not say.",
+      "source_sha256": "ee96b4e31173f5c6d2cbc4b0cfdee06ce2cc00c09de9e304fd0fbcb2d428db76",
+      "context": "One row per microscope field of view. Keep and then Discard on the same image leaves the later verdict and nothing else, because two rows that disagree are worse than no file -- whoever reads it downstream would have to guess which press came last, and a CSV does not say.",
+      "translation": "UNE LIGNE PAR CHAMP. Conserver puis Écarter sur la même image ne laisse que le dernier verdict, et rien d’autre, car deux lignes contradictoires sont pires qu’aucun fichier -- qui le lit en aval devrait deviner quel clic est venu en dernier, et un CSV ne le dit pas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#2",
+      "source": "Written to a dot-name in the same folder and renamed over the target, so a reader never sees half a file and a crash leaves the old one whole. The same shape as :func:`_write_bundle` above.",
+      "source_sha256": "7533a45751bf9a7a8e416f92c9615ab0f2648c387d4220f639ee87120517a9fa",
+      "context": "Written to a dot-name in the same folder and renamed over the target, so a reader never sees half a file and a crash leaves the old one whole. The same shape as :func:`_write_bundle` above.",
+      "translation": "Écrit sous un nom commençant par un point dans le même dossier puis renommé par-dessus la cible, si bien qu’un lecteur ne voit jamais un fichier à moitié écrit et qu’un plantage laisse l’ancien fichier intact. Même schéma que :func:`_write_bundle` ci-dessus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#4",
+      "source": "the field being judged.",
+      "source_sha256": "1bba90d8477c6164d2e15309067f2ffbd5e308772cb0dd64707bd8081ec8793f",
+      "context": "the field being judged.",
+      "translation": "le champ évalué.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#5",
+      "source": "its mask, from :func:`mask_save_path`.",
+      "source_sha256": "1d2f2c17041f1ff9e05a41edde44fdb390725957c2a94d46aae66abbe07b1965",
+      "context": "its mask, from :func:`mask_save_path`.",
+      "translation": "son masque, issu de :func:`mask_save_path`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#6",
+      "source": "how many objects the mask holds right now.",
+      "source_sha256": "8fc38ce3f0ae54702e454d52b62e643fad21e5eb772345c79e414247ef269bee",
+      "context": "how many objects the mask holds right now.",
+      "translation": "nombre d’objets que contient actuellement le masque.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#7",
+      "source": "True for Keep, False for Discard.",
+      "source_sha256": "82e149cfa713bb0690239c94caf8518fef4b85bcd609da1e952e76526d9e3c1b",
+      "context": "True for Keep, False for Discard.",
+      "translation": "True pour conserver, False pour écarter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#8",
+      "source": "the CSV's path.",
+      "source_sha256": "25396ced467465dd74ff7ae682de646c7c251d41859c3e1d05051a97a2067c59",
+      "context": "the CSV's path.",
+      "translation": "le chemin du CSV.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.recrop_archive_dir#1",
+      "source": "image folder; the archive is its :data:`RECROP_ARCHIVE_DIRNAME` subfolder. Nothing is created.",
+      "source_sha256": "c7a84863b664c13eed6254471cf31e75be67fccbd908635d58a7b39582017591",
+      "context": "image folder; the archive is its :data:`RECROP_ARCHIVE_DIRNAME` subfolder. Nothing is created.",
+      "translation": "dossier d’images ; l’archive est son sous-dossier :data:`RECROP_ARCHIVE_DIRNAME`. Rien n’est créé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.recrop_child_name#3",
+      "source": "the field being cut.",
+      "source_sha256": "85990aafa3011d4300e12a02ba229cb043498f1a2eed6b93cca767342365e770",
+      "context": "the field being cut.",
+      "translation": "le champ en cours de découpe.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.recrop_child_name#4",
+      "source": "the child image's extension. Ignored for a bundle, whose child is a bundle too, ``<field>__rNN_seg.npy``, because a TIFF written into a folder of bundles would make it two layouts at once.",
+      "source_sha256": "0148dee76dea46d5ad487ae8fdc2cc928cf4bb334251d9ee09c681a09731cfa3",
+      "context": "the child image's extension. Ignored for a bundle, whose child is a bundle too, ``<field>__rNN_seg.npy``, because a TIFF written into a folder of bundles would make it two layouts at once.",
+      "translation": "l’extension de l’image enfant. Ignorée pour un paquet, dont l’enfant est lui aussi un paquet, ``<field>__rNN_seg.npy``, car un TIFF écrit dans un dossier de paquets lui donnerait deux dispositions à la fois.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.recrop_child_name#6",
+      "source": "the child's file name.",
+      "source_sha256": "794261a24536777611da19ea0ebe0a779ea3a404b23bec1f3f6c60921537eafd",
+      "context": "the child's file name.",
+      "translation": "le nom de fichier de l’enfant.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.relabel_objects#1",
+      "source": "label or binary mask; every pixel above 0 is foreground and the result keeps its dtype.",
+      "source_sha256": "5a0c0fc4f890730de0e020b0fb66fadb8d1a25b4e4d21f0bfc54e4f6ade13195",
+      "context": "label or binary mask; every pixel above 0 is foreground and the result keeps its dtype.",
+      "translation": "masque d’étiquettes ou binaire ; tout pixel supérieur à 0 est du premier plan et le résultat conserve son dtype.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.relative_tolerance#3",
+      "source": "intensity image whose max minus min sets the range; an empty array gives ``1.0``.",
+      "source_sha256": "5dad790f1332571cc17897cabe5db0e535723f9c86c1b3db7e14157586bda8d8",
+      "context": "intensity image whose max minus min sets the range; an empty array gives ``1.0``.",
+      "translation": "image d’intensité dont le maximum moins le minimum définit la plage ; un tableau vide donne ``1.0``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.relative_tolerance#4",
+      "source": "share of that range, in percent (``5`` means 5 %).",
+      "source_sha256": "e306fd07d42eaf99ff1a8dec69cdfa4932136dd26066cb8ef884877b8dcef8c4",
+      "context": "share of that range, in percent (``5`` means 5 %).",
+      "translation": "part de cette plage, en pourcentage (``5`` signifie 5 %).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.remove_small_objects#1",
+      "source": "label or binary mask; every pixel above 0 is foreground. The survivors are relabelled 1..N in the input's dtype.",
+      "source_sha256": "fe131edd28a4a747e82c83cdf124bd8ee0b8b8cb1bc998c38cfb103aef8ab7d8",
+      "context": "label or binary mask; every pixel above 0 is foreground. The survivors are relabelled 1..N in the input's dtype.",
+      "translation": "masque d’étiquettes ou binaire ; tout pixel supérieur à 0 est du premier plan. Les composantes conservées sont réétiquetées 1..N dans le dtype de l’entrée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.remove_small_objects#2",
+      "source": "smallest component to keep, in pixels; 0 or less returns a copy unchanged.",
+      "source_sha256": "eac35ab95f7d7a4753c09f068fb5e84c1e4b71d4d4a33f6f03141a9aed200f1c",
+      "context": "smallest component to keep, in pixels; 0 or less returns a copy unchanged.",
+      "translation": "plus petite composante à conserver, en pixels ; 0 ou moins renvoie une copie inchangée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.retire_recropped_original#1",
+      "source": "The source image, mask, and curation ledger are moved to ``<folder>/recropped_originals`` and recorded in :data:`RECROP_MANIFEST`. This removes the multi-object source from the training queue without deleting it. A bundle goes with its ledger and with any display image of its stem beside it, as the external curation tool moved its ``.png``.",
+      "source_sha256": "4f7ced9f30622818b98822e60c1ee49e87eb549eeec09c263307c40fa1c51246",
+      "context": "The source image, mask, and curation ledger are moved to ``<folder>/recropped_originals`` and recorded in :data:`RECROP_MANIFEST`. This removes the multi-object source from the training work list without deleting it. A bundle goes with its ledger and with any display image of its stem beside it, as the external curation tool moved its ``.png``.",
+      "translation": "L’image source, le masque et le registre de curation sont déplacés vers ``<folder>/recropped_originals`` et consignés dans :data:`RECROP_MANIFEST`. Cela retire la source multi-objets de la file d’attente d’entraînement sans la supprimer. Un paquet part avec son registre et avec toute image d’affichage de même racine de nom située à côté, comme l’outil de curation externe déplaçait son ``.png``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#1",
+      "source": "Object ids are preserved -- see :func:`canonical_labels` for what that costs and why the alternative is worse. A ``_seg.npy`` bundle is written back into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the TIFF to the sibling layout's masks folder.",
+      "source_sha256": "58e4f435f3deef69bb9c086657670f27f02c6b9386ea1c791cf1928290c71db7",
+      "context": "Object ids are preserved -- see :func:`canonical_labels` for what that costs and why the alternative is worse. A ``_seg.npy`` bundle is written back into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the TIFF to the sibling layout's masks folder.",
+      "translation": "Les id d’objets sont conservés -- voir :func:`canonical_labels` pour ce que cela coûte et pourquoi l’alternative est pire. Un paquet ``_seg.npy`` est réécrit sur lui-même par :func:`save_seg_bundle`, et ``masks_dir`` déplace le TIFF vers le dossier des masques de la disposition voisine.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#3",
+      "source": "source image name; its extension is discarded and its stem becomes the TIFF mask name. A name ending in :data:`SEG_SUFFIX` is the bundle to write into.",
+      "source_sha256": "c0bea415c9505292362f509f2f28f66eb6845411ec88366ee918dcabf9510772",
+      "context": "source image name; its extension is discarded and its stem becomes the TIFF mask name. A name ending in :data:`SEG_SUFFIX` is the bundle to write into.",
+      "translation": "nom de l’image source ; son extension est supprimée et sa racine de nom devient le nom du masque TIFF. Un nom se terminant par :data:`SEG_SUFFIX` désigne le paquet dans lequel écrire.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#7",
+      "source": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
+      "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
+      "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
+      "translation": "conserver les ID primaires/secondaires exacts, sans interpréter les masques à valeur unique comme binaires ni scinder les morceaux disjoints. Le mode explicite valide des étiquettes entières non négatives 2-D et refuse les ID supérieurs à 65535 avant l’écriture ; il ne les renumérote jamais silencieusement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#0",
+      "source": "Write edited labels back into the bundle they came from.",
+      "source_sha256": "7a308b9b06106321911de80e4f94356a56c56fba0e139e3431e7b235d062a770",
+      "context": "Write edited labels back into the bundle they came from.",
+      "translation": "Réécrit les étiquettes modifiées dans le paquet dont elles proviennent.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#1",
+      "source": "Every key the bundle already had is kept -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter``, and any other -- and ``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys are DERIVED from the masks and would describe the old ones if left:",
+      "source_sha256": "fc5d86098182f1227cb9b6b5d7aeb7f0afcd738c36b3c320f09fd759653b23ee",
+      "context": "Every key the bundle already had is kept -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter``, and any other -- and ``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys are DERIVED from the masks and would describe the old ones if left:",
+      "translation": "Chaque clé que le paquet possédait déjà est conservée -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter`` et toute autre -- et ``masks`` est remplacé par le :func:`canonical_labels` de ``mask``. Deux clés sont DÉRIVÉES des masques et décriraient les anciens si on les laissait telles quelles :",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#2",
+      "source": "``outlines`` is redrawn by :func:`seg_outlines`;",
+      "source_sha256": "e1377f06d0b8e311a9b249f41d9e66d13cfc87c38c192e251ba6ae9eb690c292",
+      "context": "``outlines`` is redrawn by :func:`seg_outlines`;",
+      "translation": "``outlines`` est redessiné par :func:`seg_outlines` ;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#3",
+      "source": "``ismanual``, one flag per object, is resized to the new largest id: an id the bundle already flagged keeps its flag, and an id beyond the old list was drawn in this editor, so it is flagged manual.",
+      "source_sha256": "4512d8585bda3c7f00bc28a4bf6e04bd87c3369e5ed99dee191eb404407b5ed6",
+      "context": "``ismanual``, one flag per object, is resized to the new largest id: an id the bundle already flagged keeps its flag, and an id beyond the old list was drawn in this editor, so it is flagged manual.",
+      "translation": "``ismanual``, un indicateur par objet, est redimensionné selon le nouvel id le plus grand : un id que le paquet avait déjà marqué conserve son indicateur, et un id au-delà de l’ancienne liste a été dessiné dans cet éditeur, il est donc marqué comme manuel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#5",
+      "source": "the edited labels.",
+      "source_sha256": "1ff7977629fe768d38f93c120a633a45b75678e61dccaaa054ec047b409375df",
+      "context": "the edited labels.",
+      "translation": "les étiquettes modifiées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#6",
+      "source": "keep every supplied label exactly, including a lone ID or disconnected pieces with the same ID. Labels must fit uint16.",
+      "source_sha256": "bb39147b837252cc70c8038f9bd16e634ec249100a8e6bf7bac1dd32577d5ba3",
+      "context": "keep every supplied label exactly, including a lone ID or disconnected pieces with the same ID. Labels must fit uint16.",
+      "translation": "conserver exactement chaque étiquette fournie, y compris un ID isolé ou des morceaux disjoints portant le même ID. Les étiquettes doivent tenir dans uint16.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#8",
+      "source": "when ``path`` is not a bundle.",
+      "source_sha256": "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf",
+      "context": "when ``path`` is not a bundle.",
+      "translation": "lorsque ``path`` n’est pas un paquet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#0",
+      "source": "Grow secondary objects from labelled primaries with a seeded watershed.",
+      "source_sha256": "3170bdb4c52eaf2bc6d1ee9c7e677a201002e93870844c75ef852d55a2142241",
+      "context": "Grow secondary objects from labelled primaries with a seeded watershed.",
+      "translation": "Fait croître des objets secondaires à partir de primaires étiquetés, par une ligne de partage des eaux à marqueurs.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#1",
+      "source": "Every positive primary label is a marker, including all its pixels. Intensity growth follows the negative, optionally Gaussian-smoothed image. Distance growth floods a flat surface from the primary pixels. Common stop thresholds constrain four-connected paths around excluded pixels; seed_fraction trims after growth. This is not unrestricted Euclidean nearest-primary assignment. Neither mode is CellProfiler's distance/intensity Propagation algorithm.",
+      "source_sha256": "a990898d19f4db95d3ba41b520ea08d001d3bf0197622377d8cc291ed1e9c40e",
+      "context": "Every positive primary label is a marker, including all its pixels. Intensity growth follows the negative, optionally Gaussian-smoothed image. Distance growth floods a flat surface from the primary pixels. Common stop thresholds constrain four-connected paths around excluded pixels; seed_fraction trims after growth. This is not unrestricted Euclidean nearest-primary assignment. Neither mode is CellProfiler's distance/intensity Propagation algorithm.",
+      "translation": "Chaque étiquette primaire positive est un marqueur, tous ses pixels compris. La croissance en intensité suit l’image négative, éventuellement lissée par un filtre gaussien. La croissance en distance inonde une surface plane à partir des pixels primaires. Les seuils d’arrêt communs contraignent des chemins 4-connexes autour des pixels exclus ; seed_fraction rogne après la croissance. Il ne s’agit pas d’une affectation euclidienne sans contrainte au primaire le plus proche. Aucun des deux modes n’est l’algorithme Propagation distance/intensité de CellProfiler.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#2",
+      "source": "The four rules in :data:`PROPAGATE_STOPS` use processed intensities. ``absolute``, ``percentile`` and ``threshold`` restrict growth with a common foreground mask. ``seed_fraction`` trims each watershed basin at a fraction of the brightest processed pixel inside its primary. That ratio is not a quantile and depends on background offset. With a dark nucleus in a cytoplasmic channel, use a common threshold instead of a nucleus-relative peak ratio.",
+      "source_sha256": "19d5ca2454ed0cbbc92a2df588de29ae1417f8654160f613bfac0fa50a1e4880",
+      "context": "The four rules in :data:`PROPAGATE_STOPS` use processed intensities. ``absolute``, ``percentile`` and ``threshold`` restrict growth with a common foreground mask. ``seed_fraction`` trims each watershed basin at a fraction of the brightest processed pixel inside its primary. That ratio is not a quantile and depends on background offset. With a dark nucleus in a cytoplasmic image data channel, use a common threshold instead of a nucleus-relative peak ratio.",
+      "translation": "Les quatre règles de :data:`PROPAGATE_STOPS` utilisent les intensités traitées. ``absolute``, ``percentile`` et ``threshold`` restreignent la croissance par un masque de premier plan commun. ``seed_fraction`` rogne chaque bassin de la ligne de partage des eaux à une fraction du pixel traité le plus clair à l’intérieur de son primaire. Ce rapport n’est pas un quantile et dépend du décalage du fond. Avec un noyau sombre dans un canal cytoplasmique, utilisez un seuil commun plutôt qu’un rapport au pic relatif au noyau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#3",
+      "source": "Primary pixels are always included before minimum-area filtering, even below the threshold. Hole filling can also restore below-threshold pixels. Filtering can remove a whole secondary together with its seed; the missing ID is reported. Remaining labels retain their primary IDs exactly, without splitting or renumbering disconnected components. Sparse IDs use compact internal markers, never arrays sized by max ID.",
+      "source_sha256": "c41f991374b50ce6c5daa4400a56120b28de055012135f2fc1d46578571cb5ac",
+      "context": "Primary pixels are always included before minimum-area filtering, even below the threshold. Hole filling can also restore below-threshold pixels. Filtering can remove a whole secondary together with its seed; the missing ID is reported. Remaining labels retain their primary IDs exactly, without splitting or renumbering disconnected components. Sparse IDs use compact internal markers, never arrays sized by max ID.",
+      "translation": "Les pixels primaires sont toujours inclus avant le filtrage par aire minimale, même sous le seuil. Le remplissage des trous peut aussi rétablir des pixels sous le seuil. Le filtrage peut retirer un secondaire entier avec son germe ; l’ID manquant est signalé. Les étiquettes restantes conservent exactement leurs ID primaires, sans scinder ni renuméroter les composantes disjointes. Les ID épars utilisent des marqueurs internes compacts, jamais des tableaux dimensionnés selon l’ID maximal.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#4",
+      "source": "finite nonempty 2-D intensities, converted to float32. The caller supplies normalization, background correction or inversion.",
+      "source_sha256": "1d9f0243902d1877e96434a1f379698f9fe395d9ca11600cef797d24c93f825e",
+      "context": "finite nonempty 2-D intensities, converted to float32. The caller supplies normalization, background correction or inversion.",
+      "translation": "intensités 2-D finies et non vides, converties en float32. L’appelant se charge de la normalisation, de la correction du fond ou de l’inversion.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#5",
+      "source": "same-shape nonnegative integer primary labels; 0 means background. The returned labels retain this dtype and these IDs.",
+      "source_sha256": "9294fdc6cd3d4f5d12d25e5306cbd454e83fc02593e3f1fddd2ccd0ea90c985c",
+      "context": "same-shape nonnegative integer primary labels; 0 means background. The returned labels retain this dtype and these IDs.",
+      "translation": "étiquettes primaires entières non négatives de même forme ; 0 signifie le fond. Les étiquettes renvoyées conservent ce dtype et ces ID.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
