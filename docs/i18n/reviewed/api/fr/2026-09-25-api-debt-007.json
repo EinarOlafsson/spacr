@@ -733,11 +733,1755 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
+      "label": "spacr.qt.widgets.ambient#58",
+      "source": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and threading it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
+      "source_sha256": "a1355976eea48ed77fefa2ca3105552777d3be0592166e82fafefc302dd0a52a",
+      "context": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and execution concurrency it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
+      "translation": "``drift`` conserve le chemin synchrone, et sa ligne ci-dessus en est la raison : c’est le seul moteur sans tampon, celui des sept qui se dégrade le moins (2.1x contre 48.7x pour ``cells``), et le passer sur un fil d’exécution obligerait à publier une image en pleine résolution — 7.91 MiB par emplacement contre 126.6 KiB pour ``blobs`` — pour obtenir la plus petite amélioration de la liste.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient#59",
+      "source": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
+      "source_sha256": "0e6640726db7450a0eca04b3cca77fecf63e57b5c80d0ff5bc3a34e6ac40c958",
+      "context": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
+      "translation": "Les performances dépendent du matériel, de la taille de l’affichage, du thème et du travail concurrent. Les réglages ont des coûts relatifs prévisibles : le détail est à peu près quadratique, la densité à peu près linéaire, et le flou est peu coûteux pour les six thèmes à tampon. ``drift`` n’a pas de tampon, si bien que son flou est une seconde passe plus large par point et qu’il est plafonné par :data:`DRIFT_HALO_MAX_PX`. :data:`WORK_BUDGET` limite les combinaisons de densité et de détail qui mettraient l’arrière-plan en concurrence avec le travail d’analyse. Les widgets masqués cessent entièrement leur rendu.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
       "label": "spacr.qt.widgets.ambient#6",
       "source": "There is an eighth engine, ``fractal``, and it is not one of the seven: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
       "source_sha256": "0b92868f453e8ad238b4f94022f978b0898af7cd7abe59d44f66a311c5fd1755",
       "context": "There is an eighth engine, ``fractal``, and it is not one of the seven: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
       "translation": "Il existe un huitième moteur, ``fractal``, et il ne fait pas partie des sept : il n’est pas dans :data:`AMBIENT_THEMES`, aucun menu ne le liste, aucune préférence ne peut le retenir, et la seule façon de le voir est de démarrer l’application avec la commande ``spaceout`` au lieu de ``spacr``. Voir :data:`SPACEOUT_THEME` et :class:`FractalEngine`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.advance_frame#2",
+      "source": "seconds to step; the engine scales the step by its speed, and a step that is not positive leaves the clock where it is.",
+      "source_sha256": "565bc361da7158233b4b15e06212859245cb61e944cd497c718c9525afe40e5f",
+      "context": "seconds to step; the engine scales the step by its speed, and a step that is not positive leaves the clock where it is.",
+      "translation": "secondes à avancer ; le moteur met le pas à l’échelle de sa vitesse, et un pas non positif laisse l’horloge où elle est.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.changeEvent#2",
+      "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
+      "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
+      "context": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
+      "translation": "l’événement de changement ; il passe d’abord par la classe de base, et seul un ``ApplicationPaletteChange`` est pris en compte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.eventFilter#1",
+      "source": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
+      "source_sha256": "4669fac782246e1355bf20ea76ded985801c8dfea9353a5dfdf7ee64f2a8aee1",
+      "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
+      "translation": "l’objet auquel l’événement est destiné — le parent (dont ce widget suit le redimensionnement) ou la fenêtre de premier niveau surveillée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.eventFilter#2",
+      "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
+      "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
+      "context": "the event; resize, window-state, hide, show, move and application view-change types are acted on, and every event is still passed on to the base-class filter.",
+      "translation": "l’événement ; les types redimensionnement, état de fenêtre, masquage, affichage, déplacement et changement d’écran sont pris en compte, et chaque événement est quand même transmis au filtre de la classe de base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.focusInEvent#1",
+      "source": "the focus event; it is ignored and focus is cleared.",
+      "source_sha256": "8f9a215b2df946f32e8ecc15d8a0824761d84f5f49f45a3f4b97d7076c68c5a9",
+      "context": "the focus event; it is ignored and focus is cleared.",
+      "translation": "l’événement de focus ; il est ignoré et le focus est retiré.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.hideEvent#1",
+      "source": "the hide event; passed on to the base class before the animation stops.",
+      "source_sha256": "6451fe110fb89cda590e1013d7b254fd2cbc0b1b8d613fa41c33c317cb278f25",
+      "context": "the hide event; passed on to the base class before the animation stops.",
+      "translation": "l’événement de masquage ; transmis à la classe de base avant l’arrêt de l’animation.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.paintEvent#4",
+      "source": "the paint event; a new frame is taken from the shading thread only when its ``rect()`` covers the whole widget, otherwise the current frame is repainted.",
+      "source_sha256": "1081bb5bd61e83fba215027133d2e5e6a6a03c5e7293ec3b47b841cc46b1634b",
+      "context": "the paint event; a new frame is taken from the shading independent execution path only when its ``rect()`` covers the whole widget, otherwise the current frame is repainted.",
+      "translation": "l’événement de peinture ; une nouvelle image n’est prise au fil d’exécution de rendu que lorsque son ``rect()`` couvre tout le widget, sinon l’image actuelle est repeinte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_animating#2",
+      "source": "truthy to animate, falsy to pause.",
+      "source_sha256": "dcdb22bd2f1ea77bdf4883ccf8f382fa269ed279ccac1b101b0bd5816a1126e0",
+      "context": "truthy to animate, falsy to pause.",
+      "translation": "une valeur vraie pour animer, fausse pour mettre en pause.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_backdrop#2",
+      "source": "an image path, ``QPixmap`` or ``QImage``, or ``None``; anything that does not load as a non-null pixmap also gives the flat fill.",
+      "source_sha256": "3abc541d6d91dcce1f1e744932dfc5585c8792f2a5bc29514a5c4124f4903444",
+      "context": "an image path, ``QPixmap`` or ``QImage``, or ``None``; anything that does not load as a non-null pixmap also gives the flat fill.",
+      "translation": "un chemin d’image, un ``QPixmap`` ou un ``QImage``, ou ``None`` ; tout ce qui ne se charge pas en pixmap non nul donne aussi le remplissage uni.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_background_color#2",
+      "source": "a ``QColor`` or any string ``QColor`` accepts; an invalid colour keeps the current one, and alpha is forced opaque. The widget then stops following the application theme.",
+      "source_sha256": "8a4cbc04071ce3fc5bebc3adab291337a135b9a29725ab6e2c32692dd5d81d65",
+      "context": "a ``QColor`` or any string ``QColor`` accepts; an invalid colour keeps the current one, and alpha is forced opaque. The widget then stops following the application theme.",
+      "translation": "un ``QColor`` ou toute chaîne qu’accepte ``QColor`` ; une couleur non valide conserve la couleur actuelle, et l’alpha est forcé à opaque. Le widget cesse alors de suivre le thème de l’application.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_blur#1",
+      "source": "the blur amount, converted with ``float``.",
+      "source_sha256": "f7c072d39e413ffeb3b9aedeee9f39cdd7f8b3d9b90d0f9ac8d8aa66c2af876a",
+      "context": "the blur amount, converted with ``float``.",
+      "translation": "la quantité de flou, convertie avec ``float``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_density#1",
+      "source": "the density multiplier, converted with ``float``.",
+      "source_sha256": "fc3e8f0940c42e24bac7736826c9860c98f17545375b0f42c89ef798d2771f4a",
+      "context": "the density multiplier, converted with ``float``.",
+      "translation": "le multiplicateur de densité, converti avec ``float``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_direction#1",
+      "source": "one of :data:`DRIFT_DIRECTIONS`.",
+      "source_sha256": "de54510650fb63e4883010d63e199aacefe5df23d1830958f8869ce87960bebd",
+      "context": "one of :data:`DRIFT_DIRECTIONS`.",
+      "translation": "l’un des :data:`DRIFT_DIRECTIONS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_fps#1",
+      "source": "frames per second, converted with ``int`` and clamped to :data:`MIN_FPS` to :data:`MAX_FPS`.",
+      "source_sha256": "bc71fb10ea14d3a145da870b5b90de829102c29ec8d38fe3b4f7da36f76cc4bd",
+      "context": "frames per second, converted with ``int`` and clamped to :data:`MIN_FPS` to :data:`MAX_FPS`.",
+      "translation": "images par seconde, converties avec ``int`` et bornées de :data:`MIN_FPS` à :data:`MAX_FPS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_palette#2",
+      "source": "a palette the current theme offers.",
+      "source_sha256": "f580c3c2f2931212d4d8f5f1842945890834490f65610b80cc9855cfccb75ead",
+      "context": "a palette the current theme offers.",
+      "translation": "une palette que propose le thème actuel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_resolution#1",
+      "source": "the resolution multiplier, converted with ``float``.",
+      "source_sha256": "73445b2a76651bf859233ff92614faa93d432650be945f228602acf616379c63",
+      "context": "the resolution multiplier, converted with ``float``.",
+      "translation": "le multiplicateur de résolution, converti avec ``float``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_size_scale#1",
+      "source": "the size multiplier, converted with ``float``.",
+      "source_sha256": "f1dfd87cfc6e26030ed89d583b7220f746a7610b3c61f0da8d932f51d9ab389c",
+      "context": "the size multiplier, converted with ``float``.",
+      "translation": "le multiplicateur de taille, converti avec ``float``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_speed#2",
+      "source": "the speed multiplier, converted with ``float``.",
+      "source_sha256": "30601855f208d9086a9b4c8c953460a18c7618e74ce1ba21ebf69fa68dd36943",
+      "context": "the speed multiplier, converted with ``float``.",
+      "translation": "le multiplicateur de vitesse, converti avec ``float``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_theme#3",
+      "source": "a paintable theme name.",
+      "source_sha256": "54666679917e662f4ea18b99a0d0f892cedf15c8e04ff8a7f45a949e0b667c36",
+      "context": "a paintable theme name.",
+      "translation": "un nom de thème pouvant être peint.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_time#1",
+      "source": "the new clock value, in animation seconds (the clock :meth:`advance_frame` steps, already scaled by speed).",
+      "source_sha256": "73583b622d68e2e3f9d8079fe0625f218863a5aadb43364ca4063b646670ba43",
+      "context": "the new clock value, in animation seconds (the clock :meth:`advance_frame` steps, already scaled by speed).",
+      "translation": "la nouvelle valeur de l’horloge, en secondes d’animation (l’horloge que fait avancer :meth:`advance_frame`, déjà mise à l’échelle par la vitesse).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#2",
+      "source": "softness of the painted shapes; the widget clamps it to :data:`BLUR_RANGE`.",
+      "source_sha256": "a0fd8c0189eae9eed8b457b2b21ef93ad44a8cdada03d5ca6e477aa939849d0e",
+      "context": "softness of the painted shapes; the widget clamps it to :data:`BLUR_RANGE`.",
+      "translation": "douceur des formes peintes ; le widget la borne à :data:`BLUR_RANGE`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#3",
+      "source": "animation-clock multiplier, clamped to :data:`SPEED_RANGE`.",
+      "source_sha256": "1c5f8f04a64d7184310c32cbb0cc017eee9415d89923ca4114653fa33d1fa4ec",
+      "context": "animation-clock multiplier, clamped to :data:`SPEED_RANGE`.",
+      "translation": "multiplicateur de l’horloge d’animation, borné à :data:`SPEED_RANGE`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#4",
+      "source": "element-size multiplier, clamped to :data:`SIZE_RANGE`.",
+      "source_sha256": "c174cd3c7f6c5e8d324e0a626499eade11a9ea7a4452510990ddf591a06cbdd2",
+      "context": "element-size multiplier, clamped to :data:`SIZE_RANGE`.",
+      "translation": "multiplicateur de la taille des éléments, borné à :data:`SIZE_RANGE`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#5",
+      "source": "detail (render buffer) multiplier, clamped to :data:`RESOLUTION_RANGE`.",
+      "source_sha256": "26efe7e1730078e7df14a85d9e2e0540bfa91a759a09d60dda90db53967a7c9d",
+      "context": "detail (render buffer) multiplier, clamped to :data:`RESOLUTION_RANGE`.",
+      "translation": "multiplicateur de détail (tampon de rendu), borné à :data:`RESOLUTION_RANGE`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#6",
+      "source": "element-count multiplier, clamped to :data:`DENSITY_RANGE`.",
+      "source_sha256": "f0841b081b47229c8d3488be0a8a95aab6ab8c410cc01cd6901cb0d5002cd76d",
+      "context": "element-count multiplier, clamped to :data:`DENSITY_RANGE`.",
+      "translation": "multiplicateur du nombre d’éléments, borné à :data:`DENSITY_RANGE`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.Motion#7",
+      "source": "starfield drift direction, one of :data:`DRIFT_DIRECTIONS`; an unknown name falls back to the default.",
+      "source_sha256": "8978f7070f828d993111e587de205f5c53668d71b59baa2c34074541051be28c",
+      "context": "starfield drift direction, one of :data:`DRIFT_DIRECTIONS`; an unknown name falls back to the default.",
+      "translation": "direction de dérive du champ d’étoiles, l’une des valeurs :data:`DRIFT_DIRECTIONS` ; un nom inconnu se rabat sur la valeur par défaut.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#0",
+      "source": "Chladni figures: sand on a plate that is driven by what is playing.",
+      "source_sha256": "20c9739fd833271312a8e7c10d41115c970393fbdf27d574a0de10eb801ab652",
+      "context": "Chladni figures: sand on a plate that is driven by what is playing.",
+      "translation": "Figures de Chladni : du sable sur une plaque excitée par ce qui est en train de jouer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#1",
+      "source": "A floor with particles on it, and the particles are sand on a vibrating plate. The physics is in :mod:`spacr.qt.resonance` and is worth one paragraph here because it is what makes this theme different from a particle system with a music-shaped wobble: a plate driven at one of its resonances has lines that do not move, sand is thrown off everywhere else and comes to rest along them, and the figure IS the nodal set. So there is a right answer for where a particle goes, and the drive decides which figure it is and how hard the sand is being shaken rather than deciding the motion directly.",
+      "source_sha256": "4169dd518c67a35e48f9064d4858db9fceff6784a5c59ed3e15f39bb73476151",
+      "context": "A floor with particles on it, and the particles are sand on a vibrating plate. The physics is in :mod:`spacr.qt.resonance` and is worth one paragraph here because it is what makes this theme different from a particle system with a music-shaped wobble: a plate driven at one of its resonances has lines that do not move, sand is thrown off everywhere else and comes to rest along them, and the figure IS the nodal set. So there is a right answer for where a particle goes, and the drive decides which figure it is and how hard the sand is being shaken rather than deciding the motion directly.",
+      "translation": "Un fond couvert de particules, et ces particules sont du sable sur une plaque vibrante. La physique se trouve dans :mod:`spacr.qt.resonance` et mérite un paragraphe ici, car c’est ce qui distingue ce thème d’un système de particules agité au rythme de la musique : une plaque excitée à l’une de ses résonances a des lignes immobiles, le sable est chassé de partout ailleurs et vient se déposer le long de celles-ci, et la figure EST l’ensemble nodal. Il existe donc une bonne réponse pour l’endroit où va une particule, et l’excitation décide de quelle figure il s’agit et de la force avec laquelle le sable est secoué plutôt que de décider directement du mouvement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#2",
+      "source": "WHAT DRIVES IT. :func:`spacr.qt.resonance.playing_moment` -- the music bed's own precomputed envelope and spectrum, read at the position the bed is at. Nothing captures the machine's audio; nothing here can hear anything spaCR is not playing. With sound off it returns silence and the plate idles on its own clock, which is the case almost everybody sees because sound is off on a fresh install.",
+      "source_sha256": "c00dbf5b3953eb6b969df38d53098c89f032487c27bba1b6a777ca58f5958071",
+      "context": "What drives it. :func:`spacr.qt.resonance.playing_moment` -- the music bed's own precomputed envelope and spectrum, read at the position the bed is at. Nothing captures the machine's audio; nothing here can hear anything spaCR is not playing. With sound off it returns silence and the plate idles on its own clock, which is the case almost everybody sees because sound is off on a fresh install.",
+      "translation": "CE QUI L’ANIME. :func:`spacr.qt.resonance.playing_moment` -- l’enveloppe et le spectre précalculés du fond musical, lus à la position où se trouve le fond. Rien ne capture l’audio de la machine ; rien ici ne peut entendre quoi que ce soit que spaCR ne joue pas. Avec le son désactivé, il renvoie le silence et la plaque tourne au repos sur sa propre horloge, ce que voit presque tout le monde puisque le son est désactivé sur une installation neuve.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#3",
+      "source": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two threads and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING THREAD, where the failure is a picture that differs from the one the GUI thread would have drawn. So the drive is an INPUT, set on the GUI thread between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "source_sha256": "11b047c8553958c624954d39686045407f12afbf0a4259fc3703ab84b1eca99d",
+      "context": "Why the drive is read in :meth:`advance` and not WHERE it is used. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two independent execution paths and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the shading independent execution path, where the failure is a picture that differs from the one the main GUI execution path would have drawn. So the drive is an INPUT, set on the main GUI execution path between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "translation": "POURQUOI L’EXCITATION EST LUE DANS :meth:`advance` ET NON LÀ OÙ (WHERE) ELLE EST UTILISÉE. Tous les autres moteurs promettent qu’une image est une fonction pure de ``(seed, clock, size)``, et deux tests le garantissent : l’un rend la même horloge sur deux fils d’exécution et compare les octets, l’autre fait avancer un moteur douze fois et fait sauter un second directement à la même horloge. Lire un signal en temps réel dans :meth:`shade` casserait les deux, et les casserait sur le FIL D’EXÉCUTION DE RENDU, où l’échec est une image différente de celle qu’aurait dessinée le fil d’exécution de la GUI. L’excitation est donc une ENTRÉE, définie sur le fil d’exécution de la GUI entre deux images sous le verrou du moteur, exactement comme :meth:`set_palette`, et la promesse devient \"une fonction pure de ``(seed, clock, size, drive)``\" -- qui est la même promesse tant que rien ne joue, et c’est justement là que les tests s’exécutent.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#4",
+      "source": ":meth:`geometry` yields ``(x, y, brightness)`` per painted particle, in pixels. Start with no floor and no canvas; the first shade builds both.",
+      "source_sha256": "0c86df9cc97b20e02acfda9edb6f9c1e2c42e48626b39dc40c4514b8c9cde73e",
+      "context": ":meth:`geometry` yields ``(x, y, brightness)`` per painted particle, in pixels. Start with no floor and no canvas; the first shade builds both.",
+      "translation": ":meth:`geometry` produit ``(x, y, brightness)`` par particule peinte, en pixels. Commence sans fond ni canevas ; le premier rendu construit les deux.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#0",
+      "source": "Step the clock and read what is playing.",
+      "source_sha256": "12c69edf78839f899c0e8c8c509e48215a67e6bfdb600c9e215b4238a32142d6",
+      "context": "Step the clock and read what is playing.",
+      "translation": "Fait avancer l’horloge et lit ce qui est en train de jouer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#1",
+      "source": "The one place a real-time signal enters this engine, and it is here because this runs on the GUI thread between frames while the shading thread is locked out -- see the class docstring. It costs a lock, an index and two array reads; measured at 6.8 us with the music bed playing, against the 41 ms a frame the cap allows.",
+      "source_sha256": "dc0a33e3a6f42419191a8b150d897d87a8957d056736c435136bf4f0edad03bc",
+      "context": "The one place a real-time signal enters this engine, and it is here because this runs on the main GUI execution path between frames while the shading independent execution path is locked out -- see the class docstring. It costs a lock, an index and two array reads; measured at 6.8 us with the music bed playing, against the 41 ms a frame the cap allows.",
+      "translation": "Le seul endroit où un signal en temps réel entre dans ce moteur, et il est ici parce que ceci s’exécute sur le fil d’exécution de la GUI entre deux images pendant que le fil d’exécution de rendu est verrouillé -- voir la docstring de la classe. Cela coûte un verrou, un indice et deux lectures de tableau ; mesuré à 6.8 us avec le fond musical en lecture, contre les 41 ms par image que permet le plafond.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.advance#2",
+      "source": "What is read is damped by :meth:`answering` before it is stored, so the Speed preference reaches the music-driven half of the theme as well as the clock.",
+      "source_sha256": "c05982352b0fa955e15e5a76bc8ca426e215740d2643d48070ff7f30abd8feb4",
+      "context": "What is read is damped by :meth:`answering` before it is stored, so the Speed preference reaches the music-driven half of the theme as well as the clock.",
+      "translation": "Ce qui est lu est amorti par :meth:`answering` avant d’être stocké, de sorte que la préférence Speed atteint la moitié du thème pilotée par la musique aussi bien que l’horloge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#0",
+      "source": "``moment`` scaled by how much of it the Speed setting lets in.",
+      "source_sha256": "b0b1f6405fce048f4468fe8a2bb0ff45bb8085c7a6c4389b00784e86c004f9d5",
+      "context": "``moment`` scaled by how much of it the Speed setting lets in.",
+      "translation": "``moment`` mis à l’échelle selon la part que le réglage Speed en laisse passer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#1",
+      "source": "THE CLOCK IS NOT THE WHOLE ANIMATION HERE, WHICH IS WHY THIS EXISTS. :meth:`AmbientEngine.advance` multiplies ``dt`` by :attr:`speed`, and that is the whole of the Speed preference for every other theme, because every other theme's motion is a function of the clock alone. Half of this one is a function of the music instead: the throw on an onset, the per-band brightness and the figure the spectrum's centre of mass asks for. At the bottom of :data:`SPEED_RANGE` the breath, the mode walk and the wander all crawl at a tenth, and a kick would still have thrown the sand :data:`RESONANCE_THROW` of the plate twice a second -- leaving the busiest movement in the theme running at full rate for somebody who set the slider to its minimum precisely to stop that.",
+      "source_sha256": "d25285229ab79054823e95f2d610a392b9f28cdb8a2248a9f6c9336764f23c5b",
+      "context": "The clock is not the whole animation here, which is why this exists. :meth:`AmbientEngine.advance` multiplies ``dt`` by :attr:`speed`, and that is the whole of the Speed preference for every other theme, because every other theme's motion is a function of the clock alone. Half of this one is a function of the music instead: the throw on an onset, the per-band brightness and the figure the spectrum's centre of mass asks for. At the bottom of :data:`SPEED_RANGE` the breath, the mode walk and the wander all crawl at a tenth, and a kick would still have thrown the sand :data:`RESONANCE_THROW` of the plate twice a second -- leaving the busiest movement in the theme running at full rate for somebody who set the slider to its minimum precisely to stop that.",
+      "translation": "L’HORLOGE N’EST PAS TOUTE L’ANIMATION ICI, ET C’EST POURQUOI CECI EXISTE. :meth:`AmbientEngine.advance` multiplie ``dt`` par :attr:`speed`, et c’est tout l’effet de la préférence Speed pour tous les autres thèmes, car le mouvement de chacun ne dépend que de l’horloge. La moitié de celui-ci dépend au contraire de la musique : la projection sur une attaque, la luminosité par bande et la figure que demande le centre de masse du spectre. Au bas de :data:`SPEED_RANGE`, la respiration, le parcours des modes et la dérive rampent tous à un dixième, et une grosse caisse aurait encore projeté le sable sur :data:`RESONANCE_THROW` de la plaque deux fois par seconde -- laissant le mouvement le plus agité du thème à plein régime pour quelqu’un qui a mis le curseur au minimum précisément pour l’arrêter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#2",
+      "source": "So the share let in is ``min(1, speed)``: the shipped setting and anything above it hear the music in full, and turning the animation down turns the reaction down with it, until at the minimum the plate is the idle plate. Above 1.0 it is *not* scaled up, because every field of a :class:`~spacr.qt.resonance.Moment` is already 0 to 1 against the loop's own loudest: there is nothing above full to give.",
+      "source_sha256": "8319ec7778de7f5a32e93186a70cefb5306565d87eae996a367a7329de1868f4",
+      "context": "So the share let in is ``min(1, speed)``: the shipped setting and anything above it hear the music in full, and turning the animation down turns the reaction down with it, until at the minimum the laboratory microplate is the idle laboratory microplate. Above 1.0 it is *not* scaled up, because every microscope field of view of a :class:`~spacr.qt.resonance.Moment` is already 0 to 1 against the loop's own loudest: there is nothing above full to give.",
+      "translation": "La part admise est donc ``min(1, speed)`` : le réglage livré et tout ce qui est au-dessus entendent la musique en entier, et baisser l’animation baisse la réaction avec elle, jusqu’à ce qu’au minimum la plaque soit la plaque au repos. Au-dessus de 1.0, elle n’est *pas* amplifiée, car chaque champ d’un :class:`~spacr.qt.resonance.Moment` est déjà compris entre 0 et 1 par rapport au maximum propre de la boucle : il n’y a rien au-delà du plein à donner.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#3",
+      "source": "what :func:`spacr.qt.resonance.playing_moment` returned.",
+      "source_sha256": "6a595daf922db1fcc2da4c5447cb339efdbcff63a01473173ec8464abff7a0b3",
+      "context": "what :func:`spacr.qt.resonance.playing_moment` returned.",
+      "translation": "ce qu’a renvoyé :func:`spacr.qt.resonance.playing_moment`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.answering#4",
+      "source": "the same moment at speed 1.0 or above, a damped copy below it.",
+      "source_sha256": "1daeb4783ffbd0cc6d9bbeab460a2bfb5ab5e0ea33f5629ba5fe269d821f76bd",
+      "context": "the same moment at speed 1.0 or above, a damped copy below it.",
+      "translation": "le même moment à une vitesse de 1.0 ou plus, une copie amortie en dessous.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.energy#0",
+      "source": "How hard the plate is being driven, 0 to 1.",
+      "source_sha256": "d5fcd180833bcdd43144ab9450481e5b0b9464ac975165c851ae59c32223f7dd",
+      "context": "How hard the plate is being driven, 0 to 1.",
+      "translation": "L’intensité avec laquelle la plaque est excitée, de 0 à 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.energy#1",
+      "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
+      "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
+      "context": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
+      "translation": "Le plus fort entre ce qui est en train de jouer et la respiration au repos, de sorte qu’un passage calme ne fait jamais descendre l’image sous ce qu’aurait dessiné le silence. C’est la règle qui fait de « il tourne magnifiquement au repos dans le silence » et « il réagit à la musique » le même chemin de code.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#0",
+      "source": "Every grain as ``(x, y, brightness)`` in pixels.",
+      "source_sha256": "b84207e0f7a99d7d924f7493673b6bbae44cc7f9ec373105197b819d488c672e",
+      "context": "Every grain as ``(x, y, brightness)`` in pixels.",
+      "translation": "Chaque grain sous forme ``(x, y, brightness)`` en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#1",
+      "source": "canvas width in pixels.",
+      "source_sha256": "405005d19f21c4d35e655b774f3520add4e5d4dc3c8840cd6d09540fab657791",
+      "context": "canvas width in pixels.",
+      "translation": "largeur du canevas en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#2",
+      "source": "canvas height.",
+      "source_sha256": "db6111c9a435ab7ec9f382aae41e472eee177c73660a422dded30c7e00521d4a",
+      "context": "canvas height.",
+      "translation": "hauteur du canevas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.geometry#3",
+      "source": "one tuple per painted grain.",
+      "source_sha256": "cd4c99ef5c5fb69d26c38c98694016d42f4a6e1b928aaf84125e5bd2ce898840",
+      "context": "one tuple per painted grain.",
+      "translation": "un tuple par grain peint.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.mode_position#0",
+      "source": "Where along :data:`spacr.qt.resonance.MODES` the figure sits.",
+      "source_sha256": "b54a45528254f228f491b3073f55fc755a09232170b65b6671fca111f7dee829",
+      "context": "Where along :data:`spacr.qt.resonance.MODES` the figure sits.",
+      "translation": "La position de la figure le long de :data:`spacr.qt.resonance.MODES`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.plate#0",
+      "source": "The square the figure is drawn in: ``(left, top, side)`` in px.",
+      "source_sha256": "1d291dacedcf5b85d38a7c4eba4428b62fb171aefa28f3cc3d58e68373303598",
+      "context": "The square the figure is drawn in: ``(left, top, side)`` in px.",
+      "translation": "Le carré dans lequel la figure est dessinée : ``(left, top, side)`` en px.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#0",
+      "source": "Where the sand is now, and how brightly each grain shows.",
+      "source_sha256": "b794197a63ccf59891947499777c528dd1ca5c8bb6b4f90f4107702693f4298a",
+      "context": "Where the sand is now, and how brightly each grain shows.",
+      "translation": "L’endroit où se trouve maintenant le sable, et la luminosité de chaque grain.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#1",
+      "source": "The whole simulation, and it is four numpy passes: wander the seeded starting points, build the lattice for the mode the drive asks for, relax onto its nodal lines, and throw the result off them by whatever the last onset was worth.",
+      "source_sha256": "a594da0f792af1475529f015d09130dcba826db157f5cc03f3e99b07a8e4edda",
+      "context": "The whole simulation, and it is four numpy passes: wander the seeded starting points, build the lattice for the mode the drive asks for, relax onto its nodal lines, and throw the result off them by whatever the last onset was worth.",
+      "translation": "Toute la simulation, en quatre passes numpy : faire errer les points de départ initialisés par une graine, construire le réseau pour le mode que demande l’excitation, relaxer vers ses lignes nodales, et projeter le résultat hors de celles-ci selon la force de la dernière attaque.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#2",
+      "source": "how many grains; the density setting's own count by default.",
+      "source_sha256": "95d0e830ff6cbeb68678389b5f39d24e4d506d5f34a8f8f9bb8e0ed43d17c89b",
+      "context": "how many grains; the density setting's own count by default.",
+      "translation": "nombre de grains ; par défaut, le nombre propre au réglage de densité.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.sand#3",
+      "source": "``(x, y, brightness)`` in plate units, x and y in 0..1.",
+      "source_sha256": "3f3bde981785cd7aed6dbaaea8957c1a9e258fbc483f4d2c28c39fec595dc9fa",
+      "context": "``(x, y, brightness)`` in plate units, x and y in 0..1.",
+      "translation": "``(x, y, brightness)`` en unités de plaque, x et y dans 0..1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.animation_label#2",
+      "source": ":data:`NO_ANIMATION` or a paintable theme name; any other name raises :class:`ValueError`.",
+      "source_sha256": "cfbbd9ee9d5b8c9afcff677306500af26b720a73b5bb2867b61b442ca408600e",
+      "context": ":data:`NO_ANIMATION` or a paintable theme name; any other name raises :class:`ValueError`.",
+      "translation": ":data:`NO_ANIMATION` ou un nom de thème pouvant être peint ; tout autre nom lève :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.default_palette_for#1",
+      "source": "a paintable theme name; an unknown one raises :class:`ValueError`.",
+      "source_sha256": "059bff6a6990e1bb6dd99a84d09dc2d9c442e7d607bbb090cad94cf3381919b4",
+      "context": "a paintable theme name; an unknown one throws :class:`ValueError`.",
+      "translation": "un nom de thème pouvant être peint ; un nom inconnu lève :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.dressed#2",
+      "source": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
+      "source_sha256": "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+      "context": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
+      "translation": "le nom de thème demandé ; renvoyé tel quel sauf si l’habillage spaceout est actif. Il n’est pas validé ici.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.dressed#3",
+      "source": "the requested palette name, treated the same way.",
+      "source_sha256": "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100",
+      "context": "the requested palette name, treated the same way.",
+      "translation": "le nom de palette demandé, traité de la même manière.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.drift_direction_label#1",
+      "source": "one of :data:`DRIFT_DIRECTIONS`; any other value raises :class:`ValueError`.",
+      "source_sha256": "99444b56c5d77cfab0be041751ccb90b07f5d87c87009ad4d561793277492132",
+      "context": "one of :data:`DRIFT_DIRECTIONS`; any other value raises :class:`ValueError`.",
+      "translation": "l’une des valeurs :data:`DRIFT_DIRECTIONS` ; toute autre valeur lève :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_animation_choice#1",
+      "source": "the value to test, typically a stored preference.",
+      "source_sha256": "4cade2a77c543163e26ed5a0704f32ccfb4d7151fd596515902e9f87b3441e50",
+      "context": "the value to test, typically a stored preference.",
+      "translation": "la valeur à tester, généralement une préférence enregistrée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_drift_direction#1",
+      "source": "the value to test.",
+      "source_sha256": "704a925a72017a5cf295ce4c33ad3ba3f29de928766f18a2aea5eb7300287c70",
+      "context": "the value to test.",
+      "translation": "la valeur à tester.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_palette#1",
+      "source": "the theme name; an unknown theme offers nothing.",
+      "source_sha256": "c1312040fe195cfd7115baeaf2239dcc077eb3a6b9d50a89c0f09a102cfa6680",
+      "context": "the theme name; an unknown theme offers nothing.",
+      "translation": "le nom du thème ; un thème inconnu ne propose rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_palette#2",
+      "source": "the palette name to look for among ``theme``'s palettes.",
+      "source_sha256": "cde3c76f6f415d0d6c12cb6c0f82e247e15811390b9e01c9b0802f5951687b11",
+      "context": "the palette name to look for among ``theme``'s palettes.",
+      "translation": "le nom de palette à rechercher parmi les palettes de ``theme``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.palette_colors#2",
+      "source": "a palette ``theme`` offers; an unknown theme, or a palette the theme does not offer, raises :class:`ValueError`.",
+      "source_sha256": "5c919dc215a57084480b713811f75e58e4edb63251038ca4b8e96cb4b4c8da31",
+      "context": "a palette ``theme`` offers; an unknown theme, or a palette the theme does not offer, throws :class:`ValueError`.",
+      "translation": "une palette que propose ``theme`` ; un thème inconnu, ou une palette que le thème ne propose pas, lève :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.theme_label#1",
+      "source": "a paintable theme name; any other raises :class:`ValueError`.",
+      "source_sha256": "044af7c7fd761d33ef9cfaabe426e54c753890c9a4a05074a34271b117095d10",
+      "context": "a paintable theme name; any other raises :class:`ValueError`.",
+      "translation": "un nom de thème pouvant être peint ; tout autre lève :class:`ValueError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.ZoomedAnimation#1",
+      "source": "the animation file, as passed to :func:`zoomed_animation`.",
+      "source_sha256": "870a113ab9be2438a7808b2f2517d57103765985b772dc3acc408deddcb3c0d7",
+      "context": "the animation file, as passed to :func:`zoomed_animation`.",
+      "translation": "le fichier d’animation, tel que transmis à :func:`zoomed_animation`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.ZoomedAnimation#2",
+      "source": "side of the square display frames, in pixels.",
+      "source_sha256": "bc277c295a9945db50fb77199ba3707d4bb9e63cd94ee7abbedb655f46497bc7",
+      "context": "side of the square display frames, in pixels.",
+      "translation": "côté des images d’affichage carrées, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.chrome_mask#2",
+      "source": "side of the square frame, in pixels.",
+      "source_sha256": "b3e6f3864ad7a121aa02d76319dc91999f9109262604d58681f9f1f07ff6af54",
+      "context": "side of the square frame, in pixels.",
+      "translation": "côté de l’image carrée, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.chrome_mask#3",
+      "source": "the well rectangle ``(left, top, right, bottom)`` in pixels of this frame; ``None`` uses :func:`field_geometry` for ``size``.",
+      "source_sha256": "fc53c836e2bf03417639f711dca27d7b9514181490424d6cfa93615014687d9f",
+      "context": "the microplate sample position rectangle ``(left, top, right, bottom)`` in pixels of this frame; ``None`` uses :func:`field_geometry` for ``size``.",
+      "translation": "le rectangle du puits ``(left, top, right, bottom)`` en pixels de cette image ; ``None`` utilise :func:`field_geometry` pour ``size``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.chrome_mask#4",
+      "source": "the well's corner radius in pixels; ``None`` uses :func:`field_geometry` for ``size``.",
+      "source_sha256": "1f3200a7185ffe9d274d110a2944be218db15cd99f6528f251881ed7c3826b94",
+      "context": "the microplate sample position's corner radius in pixels; ``None`` uses :func:`field_geometry` for ``size``.",
+      "translation": "le rayon d’angle du puits en pixels ; ``None`` utilise :func:`field_geometry` pour ``size``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.chrome_mask#5",
+      "source": "half-width, in pixels, of the band masked around the field path.",
+      "source_sha256": "eb67f39a5ba220a38d8c1eb27c6d2e72e550b6b061da99aefc4df671095b9c36",
+      "context": "half-width, in pixels, of the band masked around the field path.",
+      "translation": "demi-largeur, en pixels, de la bande masquée autour du contour du champ.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_bounds#2",
+      "source": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them.",
+      "source_sha256": "1c120d148b690d892818030db7e4408fd0b98de1bef873cd03490f7fa6b04c2e",
+      "context": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them.",
+      "translation": "les images RGB uint8 de l’animation, toutes de la même taille carrée, telles que les renvoie :func:`read_frames`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_bounds#3",
+      "source": "boolean mask of pixels to ignore, as :func:`chrome_mask` returns it, or ``None`` to count every pixel.",
+      "source_sha256": "ad1b9fb4bf2721a27367d2f741954b95a37183927d0d695bc22927c1737cd232",
+      "context": "boolean mask of pixels to ignore, as :func:`chrome_mask` returns it, or ``None`` to count every pixel.",
+      "translation": "masque booléen des pixels à ignorer, tel que le renvoie :func:`chrome_mask`, ou ``None`` pour compter chaque pixel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_bounds#4",
+      "source": "lit 8-neighbours a lit pixel needs to count; see :data:`MIN_NEIGHBOURS`.",
+      "source_sha256": "62651e0d7f07374d34bad0e88cc91821833a835c2ca477e545d98022a1cb3fe1",
+      "context": "lit 8-neighbours a lit pixel needs to count; see :data:`MIN_NEIGHBOURS`.",
+      "translation": "nombre de voisins (8-connexité) allumés dont un pixel allumé a besoin pour compter ; voir :data:`MIN_NEIGHBOURS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_extent#2",
+      "source": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them. An empty sequence gives 0.0.",
+      "source_sha256": "4e42d84ca34ff8ec124ccd22881292b17c1f48dc46e8d85f7862925b132b85b6",
+      "context": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them. An empty sequence gives 0.0.",
+      "translation": "les images RGB uint8 de l’animation, toutes de la même taille carrée, telles que les renvoie :func:`read_frames`. Une séquence vide donne 0.0.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_mask#3",
+      "source": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them. A pixel is lit when any channel is above :data:`BACKGROUND_LEVEL`.",
+      "source_sha256": "0a8ce722869cb7ed00154d073651eb94ce43a868ef3c12949d68ae28c7d39d0b",
+      "context": "the animation's RGB uint8 frames, all the same square size, as :func:`read_frames` returns them. A pixel is lit when any image data channel is above :data:`BACKGROUND_LEVEL`.",
+      "translation": "les images RGB uint8 de l’animation, toutes de la même taille carrée, telles que les renvoie :func:`read_frames`. Un pixel est allumé lorsqu’un canal quelconque dépasse :data:`BACKGROUND_LEVEL`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.drop_specks#2",
+      "source": "2-D boolean mask of lit pixels.",
+      "source_sha256": "f620ebd5201e9e572f7fefafe478927457319d6324773f0eb2956e3b5a6b252c",
+      "context": "2-D boolean mask of lit pixels.",
+      "translation": "masque booléen 2-D des pixels allumés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.drop_specks#3",
+      "source": "lit 8-neighbours a pixel needs to be kept; 0 or less returns ``mask`` unchanged.",
+      "source_sha256": "7230a9c04e5f5ec1c142f026f6e7464919e71653fd4480e1e259f474b76c9589",
+      "context": "lit 8-neighbours a pixel needs to be kept; 0 or less returns ``mask`` unchanged.",
+      "translation": "nombre de voisins (8-connexité) allumés dont un pixel a besoin pour être conservé ; 0 ou moins renvoie ``mask`` inchangé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.field_geometry#1",
+      "source": "side of the square frame, in pixels; the geometry drawn at :data:`SOURCE_SIZE` is scaled to it.",
+      "source_sha256": "b1f98241db1bcec9d0fcdd41114b785edef96de60a9e1e0faed928e67110d787",
+      "context": "side of the square frame, in pixels; the geometry drawn at :data:`SOURCE_SIZE` is scaled to it.",
+      "translation": "côté de l’image carrée, en pixels ; la géométrie dessinée à :data:`SOURCE_SIZE` y est mise à l’échelle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.from_qimage#2",
+      "source": "the ``QImage`` to convert; it is converted to RGB888 first, so any format is accepted.",
+      "source_sha256": "d8cd1203af37e6f7ab0501020b4d1145346102f214218c0ba7c87dc994e9287b",
+      "context": "the ``QImage`` to convert; it is converted to RGB888 first, so any format is accepted.",
+      "translation": "le ``QImage`` à convertir ; il est d’abord converti en RGB888, si bien que tout format est accepté.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.source_content_extent#1",
+      "source": "the packaged animation file, decoded with :func:`read_frames`; a file with no frames gives 0.0.",
+      "source_sha256": "3fd9ae6b2ae8761e49e3986fa93ad5acf847e04ed1296b36b6059e80db914862",
+      "context": "the packaged animation file, decoded with :func:`read_frames`; a file with no frames gives 0.0.",
+      "translation": "le fichier d’animation fourni, décodé avec :func:`read_frames` ; un fichier sans image donne 0.0.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.to_qimage#2",
+      "source": "one RGB frame, an array of shape (H, W, 3), converted to uint8.",
+      "source_sha256": "76e4021a0381ca5f528404aa07673a8383cbf2a7a649a2b429e2d26ea9539aaf",
+      "context": "one RGB frame, an array of shape (H, W, 3), converted to uint8.",
+      "translation": "une image RGB, un tableau de forme (H, W, 3), convertie en uint8.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoom_frames#1",
+      "source": "the source RGB uint8 frames, all the same square size; the chrome mask is built for that size.",
+      "source_sha256": "591255563122f2afbd464adb82ba474d33818a8bfba691e00b5c4f3c34c21d0a",
+      "context": "the source RGB uint8 frames, all the same square size; the chrome mask is built for that size.",
+      "translation": "les images sources RGB uint8, toutes de la même taille carrée ; le masque d’habillage est construit pour cette taille.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoom_frames#2",
+      "source": "side of the square output frames, in pixels.",
+      "source_sha256": "3f7f98afffc4b894b72c874afee2cc8b7d917921d600d8edefad96e3fc42f951",
+      "context": "side of the square output frames, in pixels.",
+      "translation": "côté des images de sortie carrées, en pixels.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoom_frames#3",
+      "source": "share of the output square the content should span.",
+      "source_sha256": "7fc788c1d52bc02f28e2523ee830e9d77326a56725e0b65dde9ec2cc97e54c9e",
+      "context": "share of the output square the content should span.",
+      "translation": "part du carré de sortie que le contenu doit occuper.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoomed_animation#2",
+      "source": "the packaged animation file; the cache is keyed on it together with ``size`` and ``target``.",
+      "source_sha256": "7fbf79ccdd65e32017e5706fb27c9fb2397698520d500dd75182c85c4bc4f588",
+      "context": "the packaged animation file; the cache is keyed on it together with ``size`` and ``target``.",
+      "translation": "le fichier d’animation fourni ; le cache est indexé sur celui-ci conjointement avec ``size`` et ``target``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoomed_animation#3",
+      "source": "side of the square display frames, in pixels; converted to ``int``.",
+      "source_sha256": "619c755ac04e549d5efd00122603a2e336d2a9af5b415849821cf098e2fc1445",
+      "context": "side of the square display frames, in pixels; converted to ``int``.",
+      "translation": "côté des images d’affichage carrées, en pixels ; converti en ``int``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.zoomed_animation#4",
+      "source": "share of the output square the content should span; converted to ``float``.",
+      "source_sha256": "6b8f7ad84f1965526e69e13f5df484273125ab8830bc5370ee95b5983136bea7",
+      "context": "share of the output square the content should span; converted to ``float``.",
+      "translation": "part du carré de sortie que le contenu doit occuper ; convertie en ``float``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.closeEvent#1",
+      "source": "the close event, passed on to the base class after the strategy worker is shut down.",
+      "source_sha256": "f85eb957b68de84ede1845f60f0b822b44fa520cc13acd6b8d64180fe21906e7",
+      "context": "the close event, passed on to the base class after the strategy worker is shut down.",
+      "translation": "l’événement de fermeture, transmis à la classe de base après l’arrêt du worker de stratégie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.set_strategy#1",
+      "source": "key of a strategy in :data:`spacr.regression_annotation.STRATEGIES`, matched as a string against the menu entries. An unknown key leaves the selection unchanged and returns ``False``.",
+      "source_sha256": "bc3983a3d02c20779f3925494c2ee3406fee2510eb4b3237718f903471b151ff",
+      "context": "structured-data name of a strategy in :data:`spacr.regression_annotation.STRATEGIES`, matched as a string against the menu entries. An unknown structured-data name leaves the selection unchanged and returns ``False``.",
+      "translation": "clé d’une stratégie de :data:`spacr.regression_annotation.STRATEGIES`, comparée en tant que chaîne aux entrées du menu. Une clé inconnue laisse la sélection inchangée et renvoie ``False``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab.clear_result#2",
+      "source": "why there is no result, shown as the plot's status line.",
+      "source_sha256": "7d5cbb451a50de07ceea9a5169153258aeab0a8d343d3aaef7fb29ce2c0fa94a",
+      "context": "why there is no result, shown as the plot's status line.",
+      "translation": "la raison de l’absence de résultat, affichée comme ligne d’état du graphique.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab.refuse#1",
+      "source": "short reason shown as the emptied plot's status line.",
+      "source_sha256": "ebe9a1b20f4f628a43714a8f1b1054b7643611b97706e76805c6a4d37800eab8",
+      "context": "short reason shown as the emptied plot's status line.",
+      "translation": "raison courte affichée comme ligne d’état du graphique vidé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab.refuse#2",
+      "source": "fuller explanation written into the report box.",
+      "source_sha256": "2e3f1efd7d30326055c6848f978137e62251e652bcd8e19a45a6395f9e42b484",
+      "context": "fuller explanation written into the report box.",
+      "translation": "explication plus complète écrite dans la zone de rapport.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab.say#1",
+      "source": "the message for the report box; converted to a string.",
+      "source_sha256": "0eec7402d80a8cc6960e8c68fd274c4b2936774a718db33e00d9c921e74b6a17",
+      "context": "the message for the report box; converted to a string.",
+      "translation": "le message pour la zone de rapport ; converti en chaîne.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.PurityScatter.clear_plot#1",
+      "source": "why the plot is empty, shown as its status line.",
+      "source_sha256": "530d6afddd4e581be988aaa5697d3e98bd01facc7c89b9956badf5040ef7313a",
+      "context": "why the plot is empty, shown as its status line.",
+      "translation": "la raison pour laquelle le graphique est vide, affichée comme sa ligne d’état.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.resizeEvent#1",
+      "source": "the resize event, passed to the base class; the text is then elided to the label's new width.",
+      "source_sha256": "8bf643bdc7991eb4a8b8efba85fc8c8acac0ea43d93b97bd25743dd4ba545f88",
+      "context": "the resize event, passed to the base class; the text is then elided to the label's new width.",
+      "translation": "l’événement de redimensionnement, transmis à la classe de base ; le texte est ensuite tronqué avec points de suspension à la nouvelle largeur de l’étiquette.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.retranslate_dynamic_content#1",
+      "source": "the language to translate the hover help into, converted to a string; a falsy value clears it. Any :meth:`set_url` override is dropped.",
+      "source_sha256": "ca5f9dbc0dae0cf78f4ccea3a96c6f9edac4ceaba5a41402aa54dbf923a221fd",
+      "context": "the language to translate the hover help into, converted to a string; a falsy value clears it. Any :meth:`set_url` override is dropped.",
+      "translation": "la langue dans laquelle traduire l’aide au survol, convertie en chaîne ; une valeur fausse l’efface. Toute substitution :meth:`set_url` est abandonnée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.setText#1",
+      "source": "the full description; None becomes ``\"\"``. It is kept whole and painted elided to fit.",
+      "source_sha256": "1f6667309b13b8e7ccd4323aa5cdeed2effb90071ce261020623256e1138cb29",
+      "context": "the full description; None becomes ``\"\"``. It is kept whole and painted elided to fit.",
+      "translation": "la description complète ; None devient ``\"\"``. Elle est conservée en entier et peinte tronquée pour tenir.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.set_api_app_key#1",
+      "source": "the module whose API page is linked; None or empty means no link. Any :meth:`set_url` override is dropped.",
+      "source_sha256": "0a43c7eb580fcc31f3390d3c33daf404989704bfb6327073fbd3a6686a683df7",
+      "context": "the module whose API page is linked; None or empty means no link. Any :meth:`set_url` override is dropped.",
+      "translation": "le module dont la page API est liée ; None ou une valeur vide signifie aucun lien. Toute substitution :meth:`set_url` est abandonnée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.api_help_label.ApiHelpLabel.set_url#1",
+      "source": "the documentation URL to link instead of the module's API page; empty removes the override.",
+      "source_sha256": "43affedfd69bc40a30d35d8ff13a2a6843a006b193e3b66392e96c2bf9bebf63",
+      "context": "the documentation URL to link instead of the module's API page; empty removes the override.",
+      "translation": "l’URL de documentation à lier à la place de la page API du module ; une valeur vide supprime la substitution.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.enterEvent#1",
+      "source": "the enter event, passed on to the base class after any pending hide is cancelled.",
+      "source_sha256": "5a8d8dc53c5e1208a1af449c6242b840625cd1f4e741c81e6c7d8ac71f3d59c1",
+      "context": "the enter event, passed on to the base class after any pending hide is cancelled.",
+      "translation": "l’événement d’entrée, transmis à la classe de base après l’annulation de tout masquage en attente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.eventFilter#1",
+      "source": "the watched object; the filter is installed on the application, so this is whatever received the event. Not read.",
+      "source_sha256": "0563e75ef454e0cbc7b4f3abfe1a939b887568ccc88c0c440de6dacfd5020f3f",
+      "context": "the watched object; the filter is installed on the application, so this is whatever received the event. Not read.",
+      "translation": "l’objet surveillé ; le filtre étant installé sur l’application, il s’agit de l’objet qui a reçu l’événement, quel qu’il soit. Non lu.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.eventFilter#2",
+      "source": "the event; only a mouse press while the panel is visible is acted on, using its global position. Always returns ``False`` so the press still reaches its target.",
+      "source_sha256": "c70f26e84196cbbbdaf0e67b9c9f4b94ced87b13e11fc916067ed83b9bb456de",
+      "context": "the event; only a mouse press while the panel is visible is acted on, using its global position. Always returns ``False`` so the press still reaches its target.",
+      "translation": "l’événement ; seul un appui de souris pendant que le panneau est visible est pris en compte, d’après sa position globale. Renvoie toujours ``False`` afin que l’appui atteigne quand même sa cible.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.hideEvent#1",
+      "source": "the hide event, passed on to the base class.",
+      "source_sha256": "9495c4719c1701ca26090dcf86a98a2b234f81f37ffb02aec4e7b5505dddd4bd",
+      "context": "the hide event, passed on to the base class.",
+      "translation": "l’événement de masquage, transmis à la classe de base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.keyPressEvent#1",
+      "source": "the key event; Escape, Up/Left and Down/Right are accepted here (the arrows only with more than one entry), and any other key goes to the base class.",
+      "source_sha256": "6d712c58da41f60a844eb40409298a694bad98794a55ceef0677d59fab7e34bf",
+      "context": "the key event; Escape, Up/Left and Down/Right are accepted here (the arrows only with more than one entry), and any other key goes to the base class.",
+      "translation": "l’événement clavier ; Échap, Haut/Gauche et Bas/Droite sont acceptés ici (les flèches seulement s’il y a plus d’une entrée), et toute autre touche va à la classe de base.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.leaveEvent#1",
+      "source": "the leave event, passed on to the base class after a 100 ms hide is scheduled.",
+      "source_sha256": "f0f0f8cd969ac33a2fbcfc5356e407f97b58577ee76ba7f675b27a06d1d3f410",
+      "context": "the leave event, passed on to the base class after a 100 ms hide is scheduled.",
+      "translation": "l’événement de sortie, transmis à la classe de base après la planification d’un masquage dans 100 ms.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.open_for#2",
+      "source": "the widget the panel is docked under; see :meth:`show_for`.",
+      "source_sha256": "30ab88c65f274deb4e5645f0332e364cbce1457f7a8b7556542df5c51f71f4fc",
+      "context": "the widget the panel is docked under; see :meth:`show_for`.",
+      "translation": "le widget sous lequel le panneau est ancré ; voir :meth:`show_for`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.open_for#3",
+      "source": "availability mappings (``{title, reason, url, offer}``) as :meth:`show_for` takes them; an empty list shows nothing.",
+      "source_sha256": "9b6122d14a6c94a08eb9cb0d1e1f615a7a9729ae5d7b339edab6f19eea8233ce",
+      "context": "availability mappings (``{title, reason, url, offer}``) as :meth:`show_for` takes them; an empty list shows nothing.",
+      "translation": "mappages de disponibilité (``{title, reason, url, offer}``) tels que les reçoit :meth:`show_for` ; une liste vide n’affiche rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.set_install_handler#2",
+      "source": "callable taking the current entry's ``offer``, or ``None`` to leave the signal with no receiver.",
+      "source_sha256": "9f2bf3104940af5a691efb2f1840a4e04fd0e820c7e8695061ba139c5feec1d3",
+      "context": "callable taking the current entry's ``offer``, or ``None`` to leave the signal with no receiver.",
+      "translation": "appelable recevant l’``offer`` de l’entrée actuelle, ou ``None`` pour laisser le signal sans récepteur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.show_entry#1",
+      "source": "entry position; wraps around modulo the number of entries, so ``-1`` is the last one.",
+      "source_sha256": "7761c36ca40137601f7886278410c9991ac86ff532c895e886bd8386b38217d4",
+      "context": "entry position; wraps around modulo the number of entries, so ``-1`` is the last one.",
+      "translation": "position de l’entrée ; reboucle modulo le nombre d’entrées, de sorte que ``-1`` est la dernière.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.install_word_for#1",
+      "source": "the offer's action, ``\"install\"``, ``\"elsewhere\"``, ``\"impossible\"`` or ``\"ready\"`` (which gives ``''``); any other value gives ``\"What it needs\"``.",
+      "source_sha256": "3be68699b230aba068dd766ab9600a4a53013d10bf478f3f3c69bde9c224792d",
+      "context": "the offer's action, ``\"install\"``, ``\"elsewhere\"``, ``\"impossible\"`` or ``\"ready\"`` (which gives ``''``); any other value gives ``\"What it needs\"``.",
+      "translation": "l’action de l’offre, ``\"install\"``, ``\"elsewhere\"``, ``\"impossible\"`` ou ``\"ready\"`` (qui donne ``''``) ; toute autre valeur donne ``\"What it needs\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.BarcodeRegexResult#1",
+      "source": "whether the pattern (and the sample, when one was given) passed.",
+      "source_sha256": "e04001e0f631dc5d3b842e3a6fbb61a624465156e75283edc0ff93823c4d67d7",
+      "context": "whether the pattern (and the sample, when one was given) passed.",
+      "translation": "si le motif (et l’échantillon, lorsqu’il est fourni) est valide.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.BarcodeRegexResult#2",
+      "source": "one-line explanation to show beside the field.",
+      "source_sha256": "3f136229f979d0c944402311f3eebe28e5309a7ebab09593915e7e6af5c6c1c8",
+      "context": "one-line explanation to show beside the field.",
+      "translation": "explication d’une ligne à afficher à côté du champ.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.BarcodeRegexResult#3",
+      "source": "the ``columnID``, ``grna`` and ``rowID`` values the sample produced; empty when no sample was matched.",
+      "source_sha256": "7e159cad9389bfcab9d29b294dd197d9c1e166a9b6e39cc0b930fca1a7c213c5",
+      "context": "the ``columnID``, ``grna`` and ``rowID`` values the sample produced; empty when no sample was matched.",
+      "translation": "les valeurs ``columnID``, ``grna`` et ``rowID`` produites par l’échantillon ; vides lorsqu’aucun échantillon n’a correspondu.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.BarcodeRegexWidget.set_value#1",
+      "source": "the regex text; ``None`` clears the field, anything else is converted with ``str``.",
+      "source_sha256": "6328691f40df71a4680ff2a7a61238c23846d1c3d95d31d5a624afbf6bf3a9fc",
+      "context": "the regex text; ``None`` clears the field, anything else is converted with ``str``.",
+      "translation": "le texte de l’expression régulière ; ``None`` efface le champ, tout le reste est converti avec ``str``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.evaluate_barcode_regex#2",
+      "source": "the regular expression, stripped of surrounding whitespace; it must define the named groups ``columnID``, ``grna`` and ``rowID``.",
+      "source_sha256": "d270042a12621c0aa20bc0c889c0a953835fd9ab05b1fdf68fe015b6f2d206c1",
+      "context": "the regular expression, stripped of surrounding whitespace; it must define the named groups ``columnID``, ``grna`` and ``rowID``.",
+      "translation": "l’expression régulière, débarrassée des espaces qui l’entourent ; elle doit définir les groupes nommés ``columnID``, ``grna`` et ``rowID``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.barcode_regex.evaluate_barcode_regex#3",
+      "source": "an optional read to match from its start with ``re.match``; all whitespace is removed first, and empty skips the match.",
+      "source_sha256": "d51ca89c50a42cf25dc9ad292cd0f10ea8f5055964d4e3700409191e92a97344",
+      "context": "an optional read to match from its start with ``re.match``; all whitespace is removed first, and empty skips the match.",
+      "translation": "une lecture facultative à faire correspondre depuis son début avec ``re.match`` ; tous les espaces sont d’abord supprimés, et une valeur vide saute la correspondance.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.add_title_action#0",
+      "source": "Put ``widget`` at the right-hand end of the title row.",
+      "source_sha256": "1911bc647177e16f13ee1470636edc8025bb0ce9213f1c2ac8bbd44b4f9e4978",
+      "context": "Put ``widget`` at the right-hand end of the title row.",
+      "translation": "Place ``widget`` à l’extrémité droite de la ligne de titre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.add_title_action#1",
+      "source": "The title row is built on first use, so a card nobody adds an action to keeps its original layout exactly.",
+      "source_sha256": "fcfd170415344b79b748a5e16f10cf5d2a637887745a1ef799e0ba62ae17c36c",
+      "context": "The title row is built on first use, so a card nobody adds an action to keeps its original layout exactly.",
+      "translation": "La ligne de titre est construite à la première utilisation, de sorte qu’une carte à laquelle personne n’ajoute d’action conserve exactement sa mise en page d’origine.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.add_title_action#2",
+      "source": "the control to add, e.g. a Refresh button.",
+      "source_sha256": "b3ff52a4737f92ff264de9f5055e060205c754880a528b2af0df6e571efcbcc0",
+      "context": "the control to add, e.g. a Refresh button.",
+      "translation": "le contrôle à ajouter, par exemple un bouton Refresh.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#0",
+      "source": "Let the card shrink to its heading while ``folder`` is shut.",
+      "source_sha256": "1e74ff7cd596a4b3acf00609ed7b5ff33755b4696a8a994835423fe0d6249ab1",
+      "context": "Let the card shrink to its heading while ``folder`` is shut.",
+      "translation": "Laisse la carte se réduire à son titre tant que ``folder`` est fermé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#1",
+      "source": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "source_sha256": "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
+      "context": "The body is laid out with a stretch, and a layout counts that stretch even while the body is hidden, so a folded card still asked for room and shared it evenly with the stretch that locks a folded heading to the bottom of its pane (item 515): the folded Console came out half the pane tall. Folded, the body gives its stretch up; opened, it takes it back.",
+      "translation": "Le corps est disposé avec un facteur d’étirement, et une mise en page compte cet étirement même lorsque le corps est masqué, si bien qu’une carte repliée réclamait encore de la place et la partageait à parts égales avec l’étirement qui fixe un titre replié en bas de son panneau (point 515) : la Console repliée occupait la moitié de la hauteur du panneau. Replié, le corps cède son étirement ; ouvert, il le reprend.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold#2",
+      "source": "the :class:`~spacr.qt.widgets.foldable.Folder` that folds :attr:`body`.",
+      "source_sha256": "373da990fb11b9c9307b2c6bfb75acf74507f19a818434789b6f98acc835fbc8",
+      "context": "the :class:`~spacr.qt.widgets.foldable.Folder` that folds :attr:`body`.",
+      "translation": "le :class:`~spacr.qt.widgets.foldable.Folder` qui replie :attr:`body`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#3",
+      "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
+      "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
+      "context": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-key-value mapping applies nothing.",
+      "translation": "mappage tel qu’enregistré avec l’espace de travail ; ses entrées ``picture_settings``, ``widgets``, ``picture_mode`` et ``coefficient`` sont chacune appliquées si elles sont présentes, et un objet qui n’est pas un dictionnaire n’applique rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.cancel_loading#0",
+      "source": "Cancel the active montage and queued selections without blocking.",
+      "source_sha256": "435887725b2c66014cd2ef4f053a4b7fc4b591be1613df6acaf2181c49e560c6",
+      "context": "Cancel the active montage and queued selections without blocking.",
+      "translation": "Annule le montage actif et les sélections en file d’attente sans bloquer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.cancel_loading#1",
+      "source": "whether there was a current montage request to cancel. An existing database or filesystem read may finish before exit; no later stage or stale result is shown.",
+      "source_sha256": "219f2273a6d119c16e0bd9475214957870c73fe98c8d7b31b961350913ecfac1",
+      "context": "whether there was a current montage request to cancel. An existing database or filesystem read may finish before exit; no later stage or stale result is shown.",
+      "translation": "s’il existait une requête de montage en cours à annuler. Une lecture de base de données ou de système de fichiers déjà lancée peut se terminer avant la sortie ; aucune étape ultérieure ni aucun résultat périmé n’est affiché.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.closeEvent#1",
+      "source": "the close event; passed to the base class after :meth:`shutdown`.",
+      "source_sha256": "584510f5f798fb2f56a6b4ead22ef991f7c5b9702d186e445257c21770dcadd1",
+      "context": "the close event; passed to the base class after :meth:`shutdown`.",
+      "translation": "l’événement de fermeture ; transmis à la classe de base après :meth:`shutdown`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.resizeEvent#1",
+      "source": "the resize event; passed to the base class, and the reflow timer is restarted so only the last of a burst reflows.",
+      "source_sha256": "152e4cb2abdd85f1883fc39ed6b481051c88091746687e0e3bda2c483ef23bbb",
+      "context": "the resize event; passed to the base class, and the reflow timer is restarted so only the last of a burst reflows.",
+      "translation": "l’événement de redimensionnement ; transmis à la classe de base, et le minuteur de réagencement est redémarré afin que seul le dernier d’une rafale provoque un réagencement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.load#3",
+      "source": "optional callback receiving stage text on the calling thread. A GUI caller must relay it through a queued Qt signal.",
+      "source_sha256": "04c5609c3a751322b7f26b57428e44c0fea4538347033832f75865cf6052c728",
+      "context": "optional callback receiving stage text on the calling independent execution path. A GUI caller must relay it through a queued Qt signal.",
+      "translation": "callback facultatif recevant le texte de l’étape sur le fil d’exécution appelant. Un appelant de la GUI doit le relayer via un signal Qt mis en file d’attente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.load#4",
+      "source": "optional zero-argument predicate checked between reads and processing stages. An operation already in progress may finish.",
+      "source_sha256": "1a7d999b76786696bbd4b62a5649b26eb80fbec5444b48e5b79de5b91e098c1b",
+      "context": "optional zero-argument predicate checked between reads and processing stages. An operation already in progress may finish.",
+      "translation": "prédicat facultatif sans argument vérifié entre les lectures et les étapes de traitement. Une opération déjà en cours peut se terminer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_mapping.ChannelMappingWidget.set_value#2",
+      "source": "``None`` (the default mapping), a colour-slot mapping, a legacy ``png_dims`` list, or the string form of either; an unparseable string falls back to the default mapping.",
+      "source_sha256": "7359afd68a797a43eaac57ddaafc2a7dc3432efb8d1201d638602acdbee46175",
+      "context": "``None`` (the default mapping), a colour-slot mapping, a legacy ``png_dims`` list, or the string form of either; an unparseable string falls back to the default mapping.",
+      "translation": "``None`` (le mappage par défaut), un mappage vers des emplacements de couleur, une ancienne liste ``png_dims``, ou la forme chaîne de l’un ou l’autre ; une chaîne non analysable se rabat sur le mappage par défaut.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_picker.ChannelPicker.set_value#1",
+      "source": "the channels to check: a comma-separated string, an iterable of names, or an empty value, read by :func:`parse`; unknown names are ignored.",
+      "source_sha256": "621c7f91297b24bce29d4419fb4edfdc7219d6b310de0aaed06d5c66f9bce859",
+      "context": "the channels to check: a comma-separated string, an iterable of names, or an empty value, read by :func:`parse`; unknown names are ignored.",
+      "translation": "les canaux à cocher : une chaîne séparée par des virgules, un itérable de noms, ou une valeur vide, lus par :func:`parse` ; les noms inconnus sont ignorés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_picker.to_text#1",
+      "source": "channel names, stripped and lower-cased; names outside ``('r', 'g', 'b')`` are dropped.",
+      "source_sha256": "0dee345c6ef3cc44877e07705ac3c734d42ab76b706d2ed1d73629d5828fa022",
+      "context": "channel names, stripped and lower-cased; names outside ``('r', 'g', 'b')`` are dropped.",
+      "translation": "noms de canaux, débarrassés des espaces et en minuscules ; les noms hors de ``('r', 'g', 'b')`` sont écartés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.remove_at#1",
+      "source": "zero-based position of the class; out of range does nothing.",
+      "source_sha256": "1176a8e366712eb0ed48e79a7f1bc78e11fc77289a678e12d56d96626553dac1",
+      "context": "zero-based position of the class; out of range does nothing.",
+      "translation": "position de la classe, indexée à partir de zéro ; une valeur hors limites ne fait rien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.set_basis#2",
+      "source": "the dataset basis, passed on as the ``dataset_mode`` setting: ``\"metadata\"`` offers the plate coordinates, ``\"annotation\"`` the table's annotation columns. The column list is refilled.",
+      "source_sha256": "e61ddd7826b063ea57339e332404e09ba718346edea665ac29735eca6d300e20",
+      "context": "the dataset basis, passed on as the ``dataset_mode`` setting: ``\"metadata\"`` offers the laboratory microplate coordinates, ``\"annotation\"`` the table's annotation columns. The column list is refilled.",
+      "translation": "la base du jeu de données, transmise comme réglage ``dataset_mode`` : ``\"metadata\"`` propose les coordonnées de la plaque, ``\"annotation\"`` les colonnes d’annotation de la table. La liste des colonnes est remplie à nouveau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.set_frame#1",
+      "source": "the table whose column names are offered (filtered by the basis), or ``None`` when no table is loaded, which disables adding a class and shows a hint.",
+      "source_sha256": "b22c7c1208180bbe7f1f784fe7220877f8aeb3c4253fd25d09efc93cb76156af",
+      "context": "the table whose column names are offered (filtered by the basis), or ``None`` when no table is loaded, which disables adding a class and shows a hint.",
+      "translation": "la table dont les noms de colonnes sont proposés (filtrés selon la base), ou ``None`` lorsqu’aucune table n’est chargée, ce qui désactive l’ajout d’une classe et affiche une indication.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.set_value#2",
+      "source": "a mapping of class name to ``{column, value, random_complement}``, a legacy list or tuple of class names, or the text of either; anything else leaves the table empty. Malformed entries are skipped.",
+      "source_sha256": "bc4b7d18e0d85a973458287c53e4b1f6ace257503dcc7bef8e517976c30a8eb4",
+      "context": "a mapping of class name to ``{column, value, random_complement}``, a legacy list or tuple of class names, or the text of either; anything else leaves the table empty. Malformed entries are skipped.",
+      "translation": "un mappage du nom de classe vers ``{column, value, random_complement}``, une ancienne liste ou un ancien tuple de noms de classes, ou le texte de l’un ou l’autre ; tout autre objet laisse la table vide. Les entrées mal formées sont ignorées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel#0",
+      "source": "Install a vendor command-line tool, then sign in to it, from a screen row.",
+      "source_sha256": "e1c34a4b115b9fe5e9f7d265bf10b3f2bc89ddba74dc265f8d50bc377b4c6d8a",
+      "context": "Install a vendor command-line tool, then sign in to it, from a screen row.",
+      "translation": "Installe un outil en ligne de commande d’un fournisseur, puis s’y connecte, depuis une ligne de la vue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel#1",
+      "source": "The setup screen shows one of these under its AI provider marks and one under its GitHub mark. Pressing Install there runs the tool's own installer -- :func:`spacr.qt.ai.cli_install.run_install`, on a :class:`spacr.qt.job_runner.JobRunner` worker thread, never on the GUI thread -- and this panel shows what is happening: the command that is running, the installer's latest line of output, a Cancel button, and at the end either the next step or a sentence the user can act on.",
+      "source_sha256": "804238cd2c160742b339b5642008dc54ad9c2c7ed0e3879a76dab5d16a0e040b",
+      "context": "The setup application view shows one of these under its AI provider marks and one under its GitHub mark. Pressing Install there runs the tool's own installer -- :func:`spacr.qt.ai.cli_install.run_install`, on a :class:`spacr.qt.job_runner.JobRunner` background execution unit, never on the main GUI execution path -- and this panel shows what is happening: the command that is executing, the installer's latest line of output, a Cancel button, and at the end either the next step or a sentence the user can act on.",
+      "translation": "La vue de configuration en affiche un sous ses logos de fournisseurs d’IA et un sous son logo GitHub. Appuyer sur Install à cet endroit lance l’installateur propre de l’outil -- :func:`spacr.qt.ai.cli_install.run_install`, sur un fil d’exécution de travail :class:`spacr.qt.job_runner.JobRunner`, jamais sur le fil d’exécution de la GUI -- et ce panneau montre ce qui se passe : la commande en cours d’exécution, la dernière ligne de sortie de l’installateur, un bouton Cancel et, à la fin, soit l’étape suivante, soit une phrase sur laquelle l’utilisateur peut agir.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel#2",
+      "source": "After a successful install the owner's ``after_install`` starts the tool's sign-in, and :meth:`CliSetupPanel.sign_in` watches for it to finish by asking the tool's own status command every few seconds, again off the GUI thread.",
+      "source_sha256": "95f959e9509f4e918e9a211cc5a1103342868265e1dcf7198af3b004f5847c62",
+      "context": "After a successful install the owner's ``after_install`` starts the tool's sign-in, and :meth:`CliSetupPanel.sign_in` watches for it to finish by asking the tool's own status command every few seconds, again off the main GUI execution path.",
+      "translation": "Après une installation réussie, l’``after_install`` du propriétaire lance la connexion de l’outil, et :meth:`CliSetupPanel.sign_in` guette sa fin en interrogeant la commande d’état propre de l’outil toutes les quelques secondes, là encore hors du fil d’exécution de la GUI.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel#3",
+      "source": "The command is on screen from the first moment to the last, with a Copy button beside it, for the user who would rather run it themselves.",
+      "source_sha256": "ae1b1619582a66ca8ae9b49d0e2a8e82616bf572eadc6fb668e2b45026bda789",
+      "context": "The command is on application view from the first moment to the last, with a Copy button beside it, for the user who would rather run it themselves.",
+      "translation": "La commande est affichée du premier au dernier instant, avec un bouton Copy à côté, pour l’utilisateur qui préfère l’exécuter lui-même.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#0",
+      "source": "Install one command-line tool and see its sign-in through.",
+      "source_sha256": "c255117fb22e1f5daabf5d481612c6f91be018704de0dc87704ed2e8c6db02a6",
+      "context": "Install one command-line tool and see its sign-in through.",
+      "translation": "Installe un outil en ligne de commande et accompagne sa connexion jusqu’au bout.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#1",
+      "source": "the owning widget.",
+      "source_sha256": "94422e94f2fd7a9b47b2a970555cd74816199555f54d3b548b11288a84c36080",
+      "context": "the owning widget.",
+      "translation": "le widget propriétaire.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#2",
+      "source": "``False`` runs the installer and the sign-in checks inline, for a test that drives the panel synchronously.",
+      "source_sha256": "4a78791f6f89fa3047bfe83e35ec6e9f903e9b5e606efeb04bceabcb8e35af5b",
+      "context": "``False`` runs the installer and the sign-in checks inline, for a test that drives the panel synchronously.",
+      "translation": "``False`` exécute l’installateur et les vérifications de connexion directement dans l’appel, pour un test qui pilote le panneau de manière synchrone.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#3",
+      "source": "opens an install page; the default browser by default.",
+      "source_sha256": "8651c4a9a9887051f0fb36aba3bdd8b5d7423d3b0327c29af64b40e6773088ff",
+      "context": "opens an install page; the default browser by default.",
+      "translation": "ouvre une page d’installation ; le navigateur par défaut, par défaut.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#4",
+      "source": "what the panel is doing, one of this module's states.",
+      "source_sha256": "8e26d0b209d61932d35c0b7741bdaf51e5512eb2ea05161bb4e7c626e0194e4e",
+      "context": "what the panel is doing, one of this module's states.",
+      "translation": "ce que fait le panneau, l’un des états de ce module.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#5",
+      "source": "Build the panel, hidden until there is something to show.",
+      "source_sha256": "d7fe0b3995c7aa14f6e74c7820499aed011972262666369e3b8dccef0fe1d96e",
+      "context": "Build the panel, hidden until there is something to show.",
+      "translation": "Construit le panneau, masqué tant qu’il n’y a rien à afficher.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#7",
+      "source": "run jobs on a worker thread.",
+      "source_sha256": "42c9eee9ff9f5da8f6bb3044c81107cc1b058ff5220a775abd4862c35de6a6dd",
+      "context": "run jobs on a background execution unit.",
+      "translation": "exécuter les tâches sur un fil d’exécution de travail.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel#8",
+      "source": "opens an install page.",
+      "source_sha256": "88ff52f255ddc6a2f879a493531f5f04a0b81e4bbf77f7dd2a3c400917d19d3e",
+      "context": "opens an install page.",
+      "translation": "ouvre une page d’installation.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.cancel#0",
+      "source": "Stop the installer, or stop waiting for the sign-in.",
+      "source_sha256": "aead1d5c65fa9c4215c214e05537cf15efd89447e31d3292d1db60225fa32027",
+      "context": "Stop the installer, or stop waiting for the sign-in.",
+      "translation": "Arrête l’installateur, ou cesse d’attendre la connexion.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.copy_command#0",
+      "source": "Put the command on the clipboard.",
+      "source_sha256": "d3b36bba715f751c401f1f8985f409066457edff41ab1c2bef9c1f63e2539dba",
+      "context": "Put the command on the clipboard.",
+      "translation": "Place la commande dans le presse-papiers.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.copy_command#1",
+      "source": "the command copied, which stays on screen either way.",
+      "source_sha256": "9f72a83511eb53e365cf8f945a966ab7f4764e3558939da184471144b5cd9405",
+      "context": "the command copied, which stays on application view either way.",
+      "translation": "la commande copiée, qui reste affichée dans tous les cas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.done#0",
+      "source": "Close the panel and have the owner look at the tool again.",
+      "source_sha256": "87115cac8847f1de9fac6e725974d9c477d52488d9fe673ce1e454290a84898a",
+      "context": "Close the panel and have the owner look at the tool again.",
+      "translation": "Ferme le panneau et demande au propriétaire de réexaminer l’outil.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#0",
+      "source": "Run ``tool``'s installer off the GUI thread.",
+      "source_sha256": "3418d878d629e2aaad031a4d8c8ee80a4411a79314f855d01d9ba11c1fc0b1e5",
+      "context": "Run ``tool``'s installer off the main GUI execution path.",
+      "translation": "Exécute l’installateur de ``tool`` hors du fil d’exécution de la GUI.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#1",
+      "source": "Shows the command before anything runs and keeps it on screen. When none of the tool's install methods can run on this computer, says which program is missing instead and offers the command and the install page.",
+      "source_sha256": "a8491fe73e562580e7a5583b06e9c1e02491475a3b44ed078b3b22597062d5f8",
+      "context": "Shows the command before anything runs and keeps it on application view. When none of the tool's install methods can execute on this computer, says which program is missing instead and offers the command and the install page.",
+      "translation": "Affiche la commande avant que quoi que ce soit ne s’exécute et la garde affichée. Lorsqu’aucune des méthodes d’installation de l’outil ne peut s’exécuter sur cet ordinateur, indique plutôt quel programme manque et propose la commande et la page d’installation.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#3",
+      "source": "called on the GUI thread once the tool is installed, to start its sign-in.",
+      "source_sha256": "5f47937809f82dcddb1abf0088e8dc539063c8047000e1becdfc7379b7910a94",
+      "context": "called on the main GUI execution path once the tool is installed, to start its sign-in.",
+      "translation": "appelée sur le fil d’exécution de la GUI une fois l’outil installé, pour lancer sa connexion.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#4",
+      "source": "the tool's install page, offered when an install fails.",
+      "source_sha256": "e9ff692d1754cb12037743bdccb076b3099610b2080682d25faf25159e600208",
+      "context": "the tool's install page, offered when an install fails.",
+      "translation": "la page d’installation de l’outil, proposée lorsqu’une installation échoue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.install#5",
+      "source": "``True`` when an installer was started.",
+      "source_sha256": "baa145c9a7c7ae68b4e2848506b4fa56da12ba786c166ba2a2ad45feb10e201a",
+      "context": "``True`` when an installer was started.",
+      "translation": "``True`` lorsqu’un installateur a été lancé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.is_busy#0",
+      "source": "Whether an installer is running.",
+      "source_sha256": "3cc8194bae8dbba65f383d85226ca26c7c31a020af62566b0dffba29b23fda8b",
+      "context": "Whether an installer is running.",
+      "translation": "Indique si un installateur est en cours d’exécution.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.shutdown#0",
+      "source": "Stop the installer and the sign-in watch, and retire the thread.",
+      "source_sha256": "6e84b02c3315655555ec5ffac6a5934239a4c9d031afa8388a4e09b426b3aa45",
+      "context": "Stop the installer and the sign-in watch, and retire the thread.",
+      "translation": "Arrête l’installateur et la surveillance de la connexion, et retire le fil d’exécution.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.shutdown#1",
+      "source": "Called when the screen closes: an installer left running with no Cancel button on screen is one the user can no longer stop. The worker's own answer is dropped once the thread is retired, so an install that was running is shown as cancelled here, and the panel no longer counts as busy.",
+      "source_sha256": "acc52eabc78f6766ee5fc1bf80b1a20b6bd6b54378716a42c233fb6354bf4c8a",
+      "context": "Called when the application view closes: an installer left executing with no Cancel button on application view is one the user can no longer stop. The worker's own answer is dropped once the independent execution path is retired, so an install that was executing is shown as cancelled here, and the panel no longer counts as busy.",
+      "translation": "Appelée à la fermeture de la vue : un installateur laissé en cours d’exécution sans bouton Cancel à l’écran est un installateur que l’utilisateur ne peut plus arrêter. La réponse propre du worker est abandonnée une fois le fil d’exécution retiré, si bien qu’une installation en cours est affichée ici comme annulée, et le panneau ne compte plus comme occupé.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in#0",
+      "source": "Start ``tool``'s sign-in and watch for it to finish.",
+      "source_sha256": "0f88e90165ddb26c624e4ecac91297acf660409395d3714469e9ad50edcd3c1f",
+      "context": "Start ``tool``'s sign-in and watch for it to finish.",
+      "translation": "Lance la connexion de ``tool`` et guette sa fin.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in#2",
+      "source": "starts the sign-in -- in a terminal for an AI CLI, in spaCR itself for the GitHub CLI -- and says whether it started.",
+      "source_sha256": "94ca04d3102ddb92a780ac6010c4d200ef4dd3507aa101cafbad6bdf598edb47",
+      "context": "starts the sign-in -- in a terminal for an AI CLI, in spaCR itself for the GitHub CLI -- and says whether it started.",
+      "translation": "lance la connexion -- dans un terminal pour une CLI d’IA, dans spaCR lui-même pour la CLI GitHub -- et indique si elle a démarré.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in#3",
+      "source": "whether the sign-in started.",
+      "source_sha256": "7ac3a00cb0d55d71a2fb59f4e757e4d7fdb311a86ca17dede0724a757e1620d3",
+      "context": "whether the sign-in started.",
+      "translation": "si la connexion a démarré.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in_failed#0",
+      "source": "Say that a sign-in the owner was running has ended unfinished.",
+      "source_sha256": "080e25eef76809a4ed9af7d2c5952603a93f7e2b30918961e60de9658c6b7987",
+      "context": "Say that a sign-in the owner was running has ended unfinished.",
+      "translation": "Signale qu’une connexion lancée par le propriétaire s’est terminée sans aboutir.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.sign_in_failed#1",
+      "source": "what happened and what to do, already translated.",
+      "source_sha256": "f20ec4322b2fd5bd93b664f18751d531c97e8114c76928293a53094f5b25e346",
+      "context": "what happened and what to do, already translated.",
+      "translation": "ce qui s’est passé et ce qu’il faut faire, déjà traduit.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.tool_label#0",
+      "source": "The name of the tool this panel is installing or signing in to.",
+      "source_sha256": "376f4535b1ace3f791b84598e8213aa138d255887d948446fc4365b1a35f6bea",
+      "context": "The name of the tool this panel is installing or signing in to.",
+      "translation": "Le nom de l’outil que ce panneau installe ou auquel il se connecte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.cli_setup_panel.CliSetupPanel.tool_label#1",
+      "source": "its label, such as ``\"Claude\"``, or ``\"\"`` before the panel has been given a tool.",
+      "source_sha256": "af1d852ed4f2b25685308101ef4fc5e1d2c43761cee43d32d83c357343125b86",
+      "context": "its label, such as ``\"Claude\"``, or ``\"\"`` before the panel has been given a tool.",
+      "translation": "son étiquette, par exemple ``\"Claude\"``, ou ``\"\"`` avant que le panneau ait reçu un outil.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_section.CollapsibleSection.set_open_minimum#1",
+      "source": "the smallest body height, in pixels, the open section may be dragged to; converted to ``int`` and floored at 0. The header's folded height is added on top.",
+      "source_sha256": "fe08f02ba6ad730004785b9fe35a41224680e0efdce1b484dde21ed133e820b7",
+      "context": "the smallest body height, in pixels, the open section may be dragged to; converted to ``int`` and floored at 0. The header's folded height is added on top.",
+      "translation": "la plus petite hauteur du corps, en pixels, jusqu’à laquelle la section ouverte peut être réduite par glissement ; convertie en ``int`` et limitée à 0 au minimum. La hauteur repliée de l’en-tête s’y ajoute.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#0",
+      "source": "Drag an edge to resize a pane; collapsing is where the drag stops.",
+      "source_sha256": "b58492b31ef101ea14c8e802a7b0eb0aea3bae6da9ce598bceb456a81a9ee9a1",
+      "context": "Drag an edge to resize a pane; collapsing is where the drag stops.",
+      "translation": "Faites glisser un bord pour redimensionner un panneau ; le repli se produit là où le glissement s’arrête.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#1",
+      "source": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "source_sha256": "3261c34ab91f1d2717ea490f506ec08d25c2fe5f09d53e9b2746cc101911ebd0",
+      "context": "Item 471, slice B. Two requests that turn out to be one: every container collapses (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), and every container can be \"expanded or shrinkable by draging the edges\". A :class:`~PySide6.QtWidgets.QSplitter` already does both -- a handle to drag, and a child that can be taken down to nothing -- so both halves live here as ONE mechanism, and anything that collapses in a splitter also resizes, and the other way round.",
+      "translation": "Point 471, tranche B. Deux demandes qui n’en font en réalité qu’une : chaque conteneur se replie (\"whenever anything is collapsed it should auto lock to the bottom of the container it is in\"), et chaque conteneur peut être \"expanded or shrinkable by draging the edges\". Un :class:`~PySide6.QtWidgets.QSplitter` fait déjà les deux -- une poignée à faire glisser, et un enfant qui peut être réduit à rien -- de sorte que les deux moitiés vivent ici sous la forme d’UN SEUL mécanisme, et tout ce qui se replie dans un séparateur se redimensionne aussi, et inversement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#2",
+      "source": "THE THREE PIECES, AND WHAT SLICE C REUSES",
+      "source_sha256": "582b1bb33c1d80d3a614bbad57ef3426fc3bfd6492137169210801e0edfb2184",
+      "context": "The three pieces, and what slice c reuses",
+      "translation": "LES TROIS ÉLÉMENTS, ET CE QUE LA TRANCHE C RÉUTILISE",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#3",
+      "source": ":class:`CollapsibleSplitter` A ``QSplitter`` whose children are registered as named panes",
+      "source_sha256": "690d316705e8040992431f6cb6aa7f1a55a5b4926b2861a29cabfa68cbf10322",
+      "context": ":class:`CollapsibleSplitter` A ``QSplitter`` whose children are registered as named panes",
+      "translation": ":class:`CollapsibleSplitter` Un ``QSplitter`` dont les enfants sont enregistrés comme panneaux nommés",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#4",
+      "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
+      "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
+      "context": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on application view, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
+      "translation": ":class:`FocusCollapse` La moitié automatique. Certains widgets sont des widgets de FOCUS (un aperçu en direct, le panneau des figures) : tant que l’un d’eux est affiché, les panneaux CIBLES se replient (console, System, les boutons, la colonne des réglages), et quand le dernier disparaît ils reviennent. Il ne contrarie jamais l’utilisateur : une cible que l’utilisateur déplie à la main est ÉPINGLÉE ouverte et laissée tranquille jusqu’à la fin de la VUE. Voir la classe pour ce qu’est une vue.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter#5",
+      "source": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
+      "source_sha256": "daa0f348342f5d7483d80aaa03cd37f18baecb084b033ac9e8dfc735dd7b9486",
+      "context": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
+      "translation": ":func:`lock_folded_to_bottom` Pour un panneau replié qui n’est PAS dans un séparateur (une section dans une zone de défilement, une tuile de figure dans une colonne) : garde son titre en bas de l’espace que lui donne sa mise en page, ce qui est à lui seul la règle \"auto lock to the bottom\". :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` L’usage que fait la tranche C des trois éléments ci-dessus dans les vues : un titre qui replie une table, une figure, un panneau latéral ; le même titre dans un séparateur, afin que la section échange aussi de la place avec ses voisines par glissement ; et le même repli sur une carte titrée. Le repli n’affiche ni ne construit jamais un panneau que son propriétaire garde masqué.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#0",
+      "source": "A splitter whose panes resize by dragging and collapse at the limit.",
+      "source_sha256": "8f46c3128462953f906597968dd4fa39e9e983467bf9be2d1ecd06e827bcdc5e",
+      "context": "A splitter whose panes resize by dragging and collapse at the limit.",
+      "translation": "Un séparateur dont les panneaux se redimensionnent par glissement et se replient à la limite.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#1",
+      "source": "See the module docstring for the pane kinds and the API.",
+      "source_sha256": "963c2a287b6e6d5155240c3ae5a7eda15d0979cdf7d8cde6ea1101d025879a3d",
+      "context": "See the module docstring for the pane kinds and the API.",
+      "translation": "Voir la docstring du module pour les types de panneaux et l’API.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#2",
+      "source": "``Qt.Vertical`` stacks the panes.",
+      "source_sha256": "b37b74992cb7d11a28a924407466d479fc5a7ed6d3d037143595d0bbee377c3c",
+      "context": "``Qt.Vertical`` stacks the panes.",
+      "translation": "``Qt.Vertical`` empile les panneaux.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#4",
+      "source": "where the dragged sizes are remembered, e.g. ``\"mask::shell\"``; empty remembers nothing (what a test wants).",
+      "source_sha256": "1b7ffede4715a1f11ca970739ba43beaeb7671b76bac685169c3e9ff2b26d289",
+      "context": "where the dragged sizes are remembered, e.g. ``\"mask::shell\"``; empty remembers nothing (what a test wants).",
+      "translation": "l’emplacement où sont mémorisées les tailles modifiées par glissement, par ex. ``\"mask::shell\"`` ; une valeur vide ne mémorise rien (ce que veut un test).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter#5",
+      "source": "Build an empty splitter; add panes with :meth:`add_pane`.",
+      "source_sha256": "af629d7f48d1d75e9ae7fa5446e034897a656d7ee4d3efdf1892c81d0b46466e",
+      "context": "Build an empty splitter; add panes with :meth:`add_pane`.",
+      "translation": "Construit un séparateur vide ; ajoutez des panneaux avec :meth:`add_pane`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.addWidget#0",
+      "source": "Add as Qt does, and let a wrapping container inherit a pane.",
+      "source_sha256": "bf229559667297adffa98a67008efac9a15d0e85e3f58995d6cb904be9493851",
+      "context": "Add as Qt does, and let a wrapping container inherit a pane.",
+      "translation": "Ajoute comme le fait Qt, et laisse un conteneur englobant hériter d’un panneau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.addWidget#1",
+      "source": "the child to add.",
+      "source_sha256": "e3871ecc548b22bc72d750d180843bce8650f6529566580896d384355e1ae9a0",
+      "context": "the child to add.",
+      "translation": "l’enfant à ajouter.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#0",
+      "source": "Register ``widget`` as the pane ``name``, adding it if need be.",
+      "source_sha256": "67b8af81c4aa62110454d49de24be1f4d47964bfcc367594e8d3c1fd3a2dda90",
+      "context": "Register ``widget`` as the pane ``name``, adding it if need be.",
+      "translation": "Enregistre ``widget`` comme le panneau ``name``, en l’ajoutant si nécessaire.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#1",
+      "source": "the pane. Added at ``index`` (or the end) unless it is already a child of this splitter.",
+      "source_sha256": "636633ed68aa222e1723fe37c1c16b9c935f8edbda343c3faf440e7f7988a7a8",
+      "context": "the pane. Added at ``index`` (or the end) unless it is already a child of this splitter.",
+      "translation": "le panneau. Ajouté à ``index`` (ou à la fin) sauf s’il est déjà un enfant de ce séparateur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#10",
+      "source": "what dragging the pane's handle does, for its tooltip.",
+      "source_sha256": "ce623f063c4c5dfebc70ab4181551abe00480f0ed1419c339aaebe69dfc8a940",
+      "context": "what dragging the pane's handle does, for its tooltip.",
+      "translation": "ce que fait le glissement de la poignée du panneau, pour son infobulle.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#11",
+      "source": "the :class:`Pane`.",
+      "source_sha256": "148c1fb74b8934811ddad31e6ba2d0ce92541a3cfe9574879d704bfa2ee325b3",
+      "context": "the :class:`Pane`.",
+      "translation": "le :class:`Pane`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#2",
+      "source": "stable English name, used for the stored size and the handle's tooltip; translated where it is shown.",
+      "source_sha256": "b2e79a776faa97100aad423439023f39cd7e6924dd03c6f0dcbf380eef4441f0",
+      "context": "stable English name, used for the stored size and the handle's tooltip; translated where it is shown.",
+      "translation": "nom anglais stable, utilisé pour la taille enregistrée et l’infobulle de la poignée ; traduit là où il est affiché.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#3",
+      "source": "the heading's Folder; makes it a HEADER pane.",
+      "source_sha256": "23b4cbff11ca1b8a0bc710934160a74f1a9de8d476ca73e1b40c0d19e358bcbd",
+      "context": "the heading's Folder; makes it a HEADER pane.",
+      "translation": "le Folder du titre ; en fait un panneau HEADER.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#4",
+      "source": ":data:`EDGE` for a pane that collapses to nothing.",
+      "source_sha256": "5ab37fc9e92ecada3e4a599fe1c1d691a4a984feb36b50e413af0bf828c955be",
+      "context": ":data:`EDGE` for a pane that collapses to nothing.",
+      "translation": ":data:`EDGE` pour un panneau qui se replie jusqu’à disparaître.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#5",
+      "source": "0 keeps its own size as the splitter grows.",
+      "source_sha256": "b5d5ebce0a506bbc3bbbff6c7d04805dce16cc463b1ba9f4d1c6eabdc94624fa",
+      "context": "0 keeps its own size as the splitter grows.",
+      "translation": "0 conserve sa propre taille quand le séparateur s’agrandit.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#6",
+      "source": "the size to open at when the user never dragged it.",
+      "source_sha256": "84725cb1e90da6582ad0c37a253352b9ab9a8898f01f4a9ec84281f52ab2e051",
+      "context": "the size to open at when the user never dragged it.",
+      "translation": "la taille d’ouverture lorsque l’utilisateur ne l’a jamais redimensionné.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#7",
+      "source": "its minimum while open; ``None`` keeps the widget's.",
+      "source_sha256": "857d23883fbdc3a3dc03d63138fc4364bd65f716e6dbc51a231605bf253299bd",
+      "context": "its minimum while open; ``None`` keeps the widget's.",
+      "translation": "son minimum lorsqu’il est ouvert ; ``None`` conserve celui du widget.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#8",
+      "source": "showing the widget also opens the pane.",
+      "source_sha256": "b98e89e6d05d9a806e40e9c7c1211bb7850952375a2a0a43ffc7bb734354b8be",
+      "context": "showing the widget also opens the pane.",
+      "translation": "afficher le widget ouvre aussi le panneau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_pane#9",
+      "source": "remembers an EDGE pane's collapse across restarts.",
+      "source_sha256": "e19e26532dc4a89a2f8722be4bf9c4aca7f3b6cc5764e1cbdf2db6f941ed4cce",
+      "context": "remembers an EDGE pane's collapse across restarts.",
+      "translation": "mémorise le repli d’un panneau EDGE d’un redémarrage à l’autre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#0",
+      "source": "Wrap ``widget`` in a :class:`FoldSection` and add it as a pane.",
+      "source_sha256": "8092e744bfaa41bc1604a148a4d97c31bdecf9a3a8939e7f081e1bd5cd6b8799",
+      "context": "Wrap ``widget`` in a :class:`FoldSection` and add it as a pane.",
+      "translation": "Enveloppe ``widget`` dans un :class:`FoldSection` et l’ajoute comme panneau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#1",
+      "source": "The short way to give a splitter child a heading that folds it: the section's Folder makes it a HEADER pane, so it resizes by its edge, collapses at the limit of a drag, and folded, is its heading at the bottom of its room.",
+      "source_sha256": "1a767e833fcf28207c19d1e6c476b1e7dbb0bea358212499be97eb6db51291dd",
+      "context": "The short way to give a splitter child a heading that folds it: the section's Folder makes it a HEADER pane, so it resizes by its edge, collapses at the limit of a drag, and folded, is its heading at the bottom of its room.",
+      "translation": "La façon courte de donner à un enfant du séparateur un titre qui le replie : le Folder de la section en fait un panneau HEADER, si bien qu’il se redimensionne par son bord, se replie à la limite d’un glissement et, une fois replié, se réduit à son titre en bas de son espace.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#10",
+      "source": "widgets for the right-hand end of the heading.",
+      "source_sha256": "9ee115e30e041375947c5065169cd4a580dac5538a5befe68f96d45785a268eb",
+      "context": "widgets for the right-hand end of the heading.",
+      "translation": "widgets pour l’extrémité droite du titre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#11",
+      "source": "the section; its pane is ``self.pane(name)``.",
+      "source_sha256": "abab387f73f55b0c70c4a88d4abd6bf191a1ff246de7764b44c0d4919f541e42",
+      "context": "the section; its pane is ``self.pane(name)``.",
+      "translation": "la section ; son panneau est ``self.pane(name)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#2",
+      "source": "the content. Must not already be in this splitter.",
+      "source_sha256": "d3bcd0fb6e66cacb3f6686fb623e44e81da89dd2e0e46f48b3183d25135aaa33",
+      "context": "the content. Must not already be in this splitter.",
+      "translation": "le contenu. Ne doit pas déjà se trouver dans ce séparateur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#3",
+      "source": "stable English name for the heading and the stored size.",
+      "source_sha256": "f3b460ee1a39cb56852e6bec53e9420294349377795b0d323a27705b69c02f2e",
+      "context": "stable English name for the heading and the stored size.",
+      "translation": "nom anglais stable pour le titre et la taille enregistrée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#4",
+      "source": "``\"<module>/<section>\"`` to remember a user fold.",
+      "source_sha256": "a642fe84fe093fb45837200ff842027845135b9419fec575b643afd006a156d9",
+      "context": "``\"<module>/<section>\"`` to remember a user fold.",
+      "translation": "``\"<module>/<section>\"`` pour mémoriser un repli fait par l’utilisateur.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#7",
+      "source": "its minimum while open.",
+      "source_sha256": "43fe1ffcf11878bb7cf6b5b24d22c8f631958eec18aafd1a1912944f38378527",
+      "context": "its minimum while open.",
+      "translation": "son minimum lorsqu’il est ouvert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#8",
+      "source": "showing it also opens it.",
+      "source_sha256": "07f326c1f865e07f4baec413c490d2bf9f03329e9f148a65630d4e5acfd59c90",
+      "context": "showing it also opens it.",
+      "translation": "l’afficher l’ouvre aussi.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.add_section#9",
+      "source": "where to insert it; the end by default.",
+      "source_sha256": "9401893ae0bba7329a50cb202fb60b248f323e68bb85ce325e5d086c9eaf12c6",
+      "context": "where to insert it; the end by default.",
+      "translation": "où l’insérer ; à la fin par défaut.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.createHandle#0",
+      "source": "Every handle is a :class:`_PaneHandle`.",
+      "source_sha256": "a7d3dbbea0f96158da6625bf1ce0fb9e647d3af271bcbb4769abeaaf9010b055",
+      "context": "Every handle is a :class:`_PaneHandle`.",
+      "translation": "Chaque poignée est un :class:`_PaneHandle`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.eventFilter#0",
+      "source": "Follow a pane being shown or hidden by its owner.",
+      "source_sha256": "4eedf4d385d73c6ff80b50f061c3dbde65ebe1fc9242693e447318461c45bd8d",
+      "context": "Follow a pane being shown or hidden by its owner.",
+      "translation": "Suit un panneau affiché ou masqué par son propriétaire.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.eventFilter#1",
+      "source": "a pane's widget.",
+      "source_sha256": "601eea472cc254985da182579a722dd07ba7d03ed80980a92ce40aa9e8b3d905",
+      "context": "a pane's widget.",
+      "translation": "le widget d’un panneau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.eventFilter#2",
+      "source": "the event; only show and hide are read.",
+      "source_sha256": "d563a49c023a9cb88a65a0df32cf0af2691152d7970dadd90e8d69dc3bb4e2d5",
+      "context": "the event; only show and hide are read.",
+      "translation": "l’événement ; seuls l’affichage et le masquage sont lus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.eventFilter#3",
+      "source": "False, so the event goes on as usual.",
+      "source_sha256": "8b1883e2b0b1a87ca91a6fa824048a5c7a3109414526cb42903d7ac8a5db8bb6",
+      "context": "False, so the event goes on as usual.",
+      "translation": "False, afin que l’événement se poursuive normalement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.extents#0",
+      "source": "``{pane name: size to open at}`` for every registered pane.",
+      "source_sha256": "f637b9d0e1ca84fc2f753b0cbdb624521207fc73638705a56a2d243035e9dd90",
+      "context": "``{pane name: size to open at}`` for every registered pane.",
+      "translation": "``{pane name: size to open at}`` pour chaque panneau enregistré.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.insertWidget#0",
+      "source": "Insert as Qt does, and let a wrapping container inherit a pane.",
+      "source_sha256": "7f9e0dae1da1eba1315a04cbf5702f0f06129c0bedd65fd97e8ca112c9a55e2b",
+      "context": "Insert as Qt does, and let a wrapping container inherit a pane.",
+      "translation": "Insère comme le fait Qt, et laisse un conteneur englobant hériter d’un panneau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.insertWidget#1",
+      "source": "where to insert it.",
+      "source_sha256": "de81f7cb7b3ab794a92863d7823777ebc743933c26f3c437c6d5b2f75d909762",
+      "context": "where to insert it.",
+      "translation": "où l’insérer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.insertWidget#2",
+      "source": "the child to insert.",
+      "source_sha256": "8e3623cb2f44cbf098ea1c4fbb3727dd4cad3343578f798302aae43afddf83c5",
+      "context": "the child to insert.",
+      "translation": "l’enfant à insérer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.is_collapsed#0",
+      "source": "Whether the pane ``name`` is collapsed; False for no such pane.",
+      "source_sha256": "7e74563fb1e742cdba9062d6d4e041c463c8e40f93e68a91d44df299416d51ae",
+      "context": "Whether the pane ``name`` is collapsed; False for no such pane.",
+      "translation": "Indique si le panneau ``name`` est replié ; False si ce panneau n’existe pas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.is_collapsed#1",
+      "source": "the pane's name.",
+      "source_sha256": "d36656d07574959b2b2e0ac8c70c80bafa4923f9bd323e3dd5a61c3f9c85b6db",
+      "context": "the pane's name.",
+      "translation": "le nom du panneau.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.pane#0",
+      "source": "The pane called ``name``, or None.",
+      "source_sha256": "d277ac5759eabbe904ce05d257cb7ed7526112fac6c66140c4842a9733480fc8",
+      "context": "The pane called ``name``, or None.",
+      "translation": "Le panneau nommé ``name``, ou None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.pane#1",
+      "source": "the name it was added under.",
+      "source_sha256": "7f2772b9bcba991ebb6c6c98a07209fea683cccbb226f2b83f40e833693cf903",
+      "context": "the name it was added under.",
+      "translation": "le nom sous lequel il a été ajouté.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.panes#0",
+      "source": "Every registered pane, in the order registered.",
+      "source_sha256": "7b8d5cbac22a5b0f63e3277b4cf09819cb92c3340e113ce4927128ab3e4cf33a",
+      "context": "Every registered pane, in the order registered.",
+      "translation": "Chaque panneau enregistré, dans l’ordre d’enregistrement.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.rebalance#0",
+      "source": "Give every visible pane its share and return the new sizes.",
+      "source_sha256": "166b55b2c78f0c8c3a442a1687f7143afc1127d23be668ab055cc734a1170dcb",
+      "context": "Give every visible pane its share and return the new sizes.",
+      "translation": "Donne à chaque panneau visible sa part et renvoie les nouvelles tailles.",
       "review_basis": "MT draft edited in AI review"
     },
     {
