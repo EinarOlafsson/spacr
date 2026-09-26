@@ -1,0 +1,1336 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.timeflows_model#10",
+      "source": "Nothing here starts a GPU training run; that is a separate, queued job.",
+      "source_sha256": "688ba16871c74925904c490f9685cf202f24ca3c3c3d39e5f480bb9f120f9ac1",
+      "context": "Nothing here starts a GPU training processing session; that is a separate, queued job.",
+      "translation": "这里的任何内容都不会启动 GPU 训练运行；那是一个单独的、排队执行的作业。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model#3",
+      "source": ":func:`track_masks_from_ctc` -- full masks carrying track ids, from a Cell Tracking Challenge movie's silver segmentation relabelled by its tracking markers (the TRA ground truth marks cells with small markers only).",
+      "source_sha256": "be94689f0dac5987ec8c519cf404ff29d879cb8fcfbaa6c7f54562caadb2a540",
+      "context": ":func:`track_masks_from_ctc` -- full masks carrying track ids, from a Cell Tracking Challenge movie's silver segmentation relabelled by its tracking markers (the TRA ground truth marks cells with small markers only).",
+      "translation": ":func:`track_masks_from_ctc`——带有轨迹 ID 的完整掩膜，来自 Cell Tracking Challenge 影像序列的 silver 分割结果，并按其跟踪标记重新标注（TRA 参考标注只用小标记标出细胞）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model#4",
+      "source": ":func:`time_targets` -- the training target for one pair: a unit-diameter displacement field toward the successor's centre, a successor flag, and the pixels both are supervised on.",
+      "source_sha256": "6a3dc8f61eb83daa0799a3d98d2c79c55a165b41f69b35d64b66bad0b685f602",
+      "context": ":func:`time_targets` -- the training target for one pair: a unit-diameter displacement field toward the successor's centre, a successor flag, and the pixels both are supervised on.",
+      "translation": ":func:`time_targets`——一个帧对的训练目标：指向后继对象中心、以单位直径计的位移场，一个后继标志，以及两者各自受监督的像素。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model#5",
+      "source": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
+      "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
+      "context": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
+      "translation": ":func:`augment_pair`——对两帧和两幅标签图像完全相同地施加一次翻转/旋转；目标值在此“之后”才根据标签计算，因此翻转永远不会教给模型一个未发生的位移。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model#6",
+      "source": ":func:`pair_sampling_weights` -- pairs drawn across the displacement distribution rather than uniformly over mostly still frames.",
+      "source_sha256": "f59278b158d356a2c45f2fa0b0423bf787ee85d1d9fcdbaeba331546108b19be",
+      "context": ":func:`pair_sampling_weights` -- pairs drawn across the displacement distribution rather than uniformly over mostly still frames.",
+      "translation": ":func:`pair_sampling_weights`——按位移分布抽取帧对，而不是在大多近乎静止的帧上均匀抽取。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model#7",
+      "source": ":class:`TimeflowsNet` -- a backbone (Cellpose-SAM's encoder, or any module with the same ``features`` contract) shared by both frames, and a head that reads their features together.",
+      "source_sha256": "9bb316e49fce8efd1bf60b51a93fe05b0d1f86c6afd3c7e229b6301484291f4d",
+      "context": ":class:`TimeflowsNet` -- a backbone (Cellpose-SAM's encoder, or any module with the same ``features`` contract) shared by both frames, and a head that reads their features together.",
+      "translation": ":class:`TimeflowsNet`——由两帧共享的主干网络（Cellpose-SAM 的编码器，或任何遵循相同 ``features`` 约定的模块），以及一个同时读取两帧特征的预测头。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model#8",
+      "source": ":func:`timeflows_loss`, :func:`train_timeflows` -- masked losses, and the curriculum: the head alone on a frozen backbone, then all of it at a low learning rate.",
+      "source_sha256": "6eb2f109932a9613e74f561c51371ed846f68a2e8ec6c116c1c19b4d94c373c7",
+      "context": ":func:`timeflows_loss`, :func:`train_timeflows` -- masked losses, and the curriculum: the head alone on a frozen backbone, then all of it at a low learning rate.",
+      "translation": ":func:`timeflows_loss`、:func:`train_timeflows`——掩膜损失，以及课程式训练：先在冻结的主干网络上单独训练预测头，再以较低学习率训练整个网络。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model#9",
+      "source": ":func:`link_by_timeflows`, :func:`scramble_test` -- linking objects from the predictions, and the check that a model recovers identities after the next frame's labels are shuffled.",
+      "source_sha256": "88ad5d71d58674598f1a715405cbcfefc8ffca54d5e744592011c3b588f0859a",
+      "context": ":func:`link_by_timeflows`, :func:`scramble_test` -- linking objects from the predictions, and the check that a model recovers identities after the next frame's labels are shuffled.",
+      "translation": ":func:`link_by_timeflows`、:func:`scramble_test`——根据预测结果链接对象，以及检验模型在下一帧标签被打乱后能否恢复身份。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.CellposeSamFeatures#0",
+      "source": "Cellpose-SAM's encoder as a feature extractor, sharing its weights.",
+      "source_sha256": "46d518afbab370488c9f31bebb0eb8f9c9918f51a7d37e237053973294b4ef07",
+      "context": "Cellpose-SAM's encoder as a feature extractor, sharing its weights.",
+      "translation": "将 Cellpose-SAM 的编码器用作特征提取器，并共享其权重。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.CellposeSamFeatures#1",
+      "source": "Replays :meth:`cellpose.vit.CPSAM.forward` up to the neck: 256 feature channels at 1/``ps`` of the image size. The segmentation head stays the network's own, so what the model already segments is not re-learned.",
+      "source_sha256": "4e9773ceb02bb7df39415c9246a5eff28d49ac40e27c4cfa24dbadd6410c2585",
+      "context": "Replays :meth:`cellpose.vit.CPSAM.forward` up to the neck: 256 feature image data channels at 1/``ps`` of the image size. The segmentation head stays the network's own, so what the model already segments is not re-learned.",
+      "translation": "重放 :meth:`cellpose.vit.CPSAM.forward` 直到颈部：256 个特征通道，尺寸为图像的 1/``ps``。分割头仍然使用该网络自身的分割头，因此模型已经能分割的内容不会被重新学习。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.CellposeSamFeatures#3",
+      "source": "Hold the network.",
+      "source_sha256": "d71aa42660dd882c21d4ed61556d26685e8f1415a6e96e238fbf0b5f215f905d",
+      "context": "Hold the network.",
+      "translation": "持有该网络。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.CellposeSamFeatures.__call__#0",
+      "source": "Features for ``x`` (B, 3, H, W): (B, 256, H/ps, W/ps).",
+      "source_sha256": "94e743f21d9e19a6755f9d3a239b5072a2689ec7891441f55fbde0316935aa93",
+      "context": "Features for ``x`` (B, 3, H, W): (B, 256, H/ps, W/ps).",
+      "translation": "``x`` (B, 3, H, W) 的特征：(B, 256, H/ps, W/ps)。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.CellposeSamFeatures.__call__#1",
+      "source": "a batch of normalised images; cast to the encoder's own dtype (Cellpose-SAM runs in bfloat16).",
+      "source_sha256": "abadb6ae316dbc325156d16f3c838edffc8e829c89818d9945ea29bdb4bef425",
+      "context": "a batch of normalised images; cast to the encoder's own dtype (Cellpose-SAM runs in bfloat16).",
+      "translation": "一批归一化后的图像；会转换为编码器自身的数据类型（Cellpose-SAM 以 bfloat16 运行）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.CellposeSamFeatures.__call__#2",
+      "source": "the neck features, as float32 for the head.",
+      "source_sha256": "40f810c6c1797e98f958bb1b868f9b42bf7427e15496cf7855703a9334cd9d6b",
+      "context": "the neck features, as float32 for the head.",
+      "translation": "颈部特征，以 float32 形式提供给预测头。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.CellposeSamFeatures.parameters#0",
+      "source": "The encoder's parameters, for freezing and the optimiser.",
+      "source_sha256": "125ca860eeed928e9c517c7b40de0de8be0ba5e1f998e6d12575d5e58bf0c902",
+      "context": "The encoder's parameters, for freezing and the optimiser.",
+      "translation": "编码器的参数，用于冻结和优化器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.TimeflowsNet#0",
+      "source": "The time head on a shared backbone, as a ``torch.nn.Module``.",
+      "source_sha256": "4f7397c59463ef05fda46b5cee01e57eaa76bab81f224935e1ffc6fb3e993707",
+      "context": "The time head on a shared backbone, as a ``torch.nn.Module``.",
+      "translation": "位于共享主干网络上的时间预测头，作为一个 ``torch.nn.Module``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.TimeflowsNet#1",
+      "source": "Both frames go through the same backbone; their features are joined and read by a small head that predicts three channels at full resolution: ``dy``, ``dx`` (toward the successor's centre, in diameters) and a successor logit.",
+      "source_sha256": "e621c0e590b072debc458dd4c1372cf144d5cc8b984f1868cb5cf4b26b41e183",
+      "context": "Both frames go through the same backbone; their features are joined and read by a small head that predicts three channels at full resolution: ``dy``, ``dx`` (toward the successor's centre, in diameters) and a successor logit.",
+      "translation": "两帧都经过同一个主干网络；它们的特征被拼接后，由一个小型预测头读取，该预测头以全分辨率预测三个通道：``dy``、``dx``（指向后继对象的中心，以直径为单位）以及一个后继 logit。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.TimeflowsNet#2",
+      "source": "callable ``(B, 3, H, W) -> (B, C, H/ps, W/ps)`` with ``parameters()``; :class:`CellposeSamFeatures` for the real model.",
+      "source_sha256": "1e3b47cbae0cbbd2248381f7905e956da8af07a0d6e0146442e01d11bd63de21",
+      "context": "callable ``(B, 3, H, W) -> (B, C, H/ps, W/ps)`` with ``parameters()``; :class:`CellposeSamFeatures` for the real model.",
+      "translation": "可调用对象 ``(B, 3, H, W) -> (B, C, H/ps, W/ps)``，带有 ``parameters()``；真实模型使用 :class:`CellposeSamFeatures`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.TimeflowsNet#3",
+      "source": "``C``; read from ``backbone.channels`` when None.",
+      "source_sha256": "d2f6aa1cfd6054ba60b9c9b1c514adf20be60fb82cf5eeedd3013a3117700bcc",
+      "context": "``C``; read from ``backbone.channels`` when None.",
+      "translation": "``C``；为 None 时从 ``backbone.channels`` 读取。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.TimeflowsNet#4",
+      "source": "the backbone's downsampling; read from ``backbone.ps``.",
+      "source_sha256": "2bef9ca850091189a0d01b727aa088b2f9da02c296b43ab5f5955df9a7f04093",
+      "context": "the backbone's downsampling; read from ``backbone.ps``.",
+      "translation": "主干网络的下采样倍数；从 ``backbone.ps`` 读取。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.TimeflowsNet#5",
+      "source": "the module.",
+      "source_sha256": "a0b40caca73e0687862a92d82bf038d48727f8e3cc54402ff8e3e6ef5e913c96",
+      "context": "the module.",
+      "translation": "该模块。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.augment_pair#0",
+      "source": "One random flip and quarter-turn, the SAME for every frame and label.",
+      "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
+      "context": "One random flip and quarter-turn, the SAME for every frame and label.",
+      "translation": "一次随机翻转和四分之一旋转，对每一帧和每个标签都“完全相同”。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.augment_pair#1",
+      "source": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
+      "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
+      "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
+      "translation": "如果翻转只应用于帧 ``t`` 而不应用于 ``t+1``，就会教给模型一个从未发生过的位移，这是得到一个训练得很漂亮却什么也跟踪不了的模型的最简单方式。目标值随后根据增强后的标签计算，因此向量会自动随之变换。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.augment_pair#2",
+      "source": "the images, ``(H, W)`` or ``(H, W, C)``.",
+      "source_sha256": "a1c1dc07969ba0eb7fdf0b1adbaac7c0ed19204d7c6068e92682ac3103647b39",
+      "context": "the images, ``(H, W)`` or ``(H, W, C)``.",
+      "translation": "图像，``(H, W)`` 或 ``(H, W, C)``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.augment_pair#3",
+      "source": "the label images, ``(H, W)``.",
+      "source_sha256": "36364bbed9e94fec9690c7cfb1f841607a4581e274512f370303b041f9a8a60e",
+      "context": "the label images, ``(H, W)``.",
+      "translation": "标签图像，``(H, W)``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.augment_pair#4",
+      "source": "the random generator.",
+      "source_sha256": "b0c8591d20089810f6c2b5870b8a98246a5b1eb8d2300456badfed6f9ea84487",
+      "context": "the random generator.",
+      "translation": "随机数生成器。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.augment_pair#5",
+      "source": "the augmented frames and labels.",
+      "source_sha256": "eac653055e92d90c83f58b5c18908625bfcf2442387a80deb6af581bcceeabcf",
+      "context": "the augmented frames and labels.",
+      "translation": "增强后的帧和标签。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.main#1",
+      "source": "Trains the time head on Cell Tracking Challenge movies (both sequences of each), starting from ``--base`` (a Cellpose checkpoint or ``cpsam``), and saves the head and, after the full stage, the whole network.",
+      "source_sha256": "db0504bd544812f784a1f1ce2502431c7c3018353bf69bd1683c110775375986",
+      "context": "Trains the time head on Cell Tracking Challenge movies (both sequences of each), starting from ``--base`` (a Cellpose checkpoint or ``cpsam``), and saves the head and, after the full stage, the whole network.",
+      "translation": "在 Cell Tracking Challenge 影像序列（每个的两个序列）上训练时间预测头，从 ``--base``（一个 Cellpose 检查点或 ``cpsam``）开始，保存预测头，并在完整阶段之后保存整个网络。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.main#2",
+      "source": "arguments; ``sys.argv[1:]`` when None.",
+      "source_sha256": "0d2421d3c2f1a32a4d0d8a807538db1736976809e0ca81bbf7b3dc23abc25192",
+      "context": "arguments; ``sys.argv[1:]`` when None.",
+      "translation": "参数；为 None 时使用 ``sys.argv[1:]``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.object_centroids#0",
+      "source": "``label -> (y, x, equivalent diameter)`` for every object.",
+      "source_sha256": "9884387c2ec92487fb0fa7d30a24c829aca348e556764007d11220e55e9ab88e",
+      "context": "``label -> (y, x, equivalent diameter)`` for every object.",
+      "translation": "每个对象的 ``label -> (y, x, equivalent diameter)``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.object_centroids#1",
+      "source": "an instance label image.",
+      "source_sha256": "f11984913800dd52e3ba7f79d1e2230d0c6e0f7facfc926c48b76c533021c6c0",
+      "context": "an instance label image.",
+      "translation": "实例标签图像。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.object_centroids#2",
+      "source": "the centroids and diameters.",
+      "source_sha256": "e8e2bb0ee0d290153a1e53066ad7b58cf1dba64eab524120d11068ba058f7f15",
+      "context": "the centroids and diameters.",
+      "translation": "质心和直径。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.pair_sampling_weights#0",
+      "source": "Weights that draw pairs evenly across how far their objects move.",
+      "source_sha256": "7bbfa2698c17c4dfef7fe3424e5826af27c212be30bd38001a465c69a409bdf6",
+      "context": "Weights that draw pairs evenly across how far their objects move.",
+      "translation": "使抽取的帧对在对象移动距离上均匀分布的权重。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.pair_sampling_weights#1",
+      "source": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
+      "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
+      "context": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
+      "translation": "大多数连续帧几乎是静止的，因此均匀抽取帧对会让预测头看到的大多是容易的帧对。每个帧对的位移与直径之比的中位数会落入在所见范围内等宽划分的 ``bins`` 个区间之一，帧对的权重是其所在区间大小的倒数。最初尝试过分位数区间，但当大多数帧对移动方式相近时它会失效，而这恰恰是本函数所针对的影像序列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.pair_sampling_weights#2",
+      "source": "``(T, H, W)`` track-labelled frames.",
+      "source_sha256": "e48828a6843cbcdb99ed8cf897abcb670966cb91d6d38749f9d203ac896a7794",
+      "context": "``(T, H, W)`` track-labelled frames.",
+      "translation": "``(T, H, W)`` 带轨迹标签的帧。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.pair_sampling_weights#3",
+      "source": "how many displacement bins.",
+      "source_sha256": "10c7a1efc85de69490c1da903f3f013da69b19a440ca5d91f57747697f99cc86",
+      "context": "how many displacement bins.",
+      "translation": "位移区间的数量。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.pair_sampling_weights#4",
+      "source": "one weight per pair ``(t, t+1)``, summing to 1.",
+      "source_sha256": "db9dc963f6bda1e222ad25dfe055011cf70de3f9aa662d38e5849ba24345e5f8",
+      "context": "one weight per pair ``(t, t+1)``, summing to 1.",
+      "translation": "每个帧对 ``(t, t+1)`` 一个权重，总和为 1。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.predict_pair#0",
+      "source": "The time head's prediction for one pair.",
+      "source_sha256": "7dfd478da4a5b718f4966e858bd3cc553ffe28f7cab5d853d79fe053eca3f4ef",
+      "context": "The time head's prediction for one pair.",
+      "translation": "时间预测头对一个帧对的预测。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.predict_pair#1",
+      "source": "a trained :func:`TimeflowsNet`.",
+      "source_sha256": "8dd341dcfd289ce93d316caa950b4f905da6d7c677185b2a44921bbbb5571018",
+      "context": "a trained :func:`TimeflowsNet`.",
+      "translation": "一个已训练的 :func:`TimeflowsNet`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.predict_pair#2",
+      "source": "frame ``t``, normalised.",
+      "source_sha256": "75a79d141567c35bc8634b9280cb40dbe0a116d855ad5a1a6cf9fc2318ba97a5",
+      "context": "frame ``t``, normalised.",
+      "translation": "帧 ``t``，已归一化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.predict_pair#3",
+      "source": "frame ``t+1``, normalised.",
+      "source_sha256": "f31152e2160ee57cbaf7ea2ec3efa0c34605bf0d3460c29063136ff6e13459e4",
+      "context": "frame ``t+1``, normalised.",
+      "translation": "帧 ``t+1``，已归一化。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.predict_pair#4",
+      "source": "where to run.",
+      "source_sha256": "ed912b87bc067baf5ea50cf03c0ec1275ca0b6b379e0ca8802c3e28ba1e07b29",
+      "context": "where to run.",
+      "translation": "运行所在的设备。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.predict_pair#5",
+      "source": "``vector`` (2, H, W) and ``successor`` probability (H, W). The frame is read in :data:`TILE`-pixel tiles with a quarter-tile overlap and the overlaps averaged; the vectors are in each object's own diameters, so a tile needs no context beyond the object.",
+      "source_sha256": "83963cdecffd6a0c4520b19d4423cb7ff8b7a136061797b0e5b460c3ff3f9386",
+      "context": "``vector`` (2, H, W) and ``successor`` probability (H, W). The frame is read in :data:`TILE`-pixel microscope image fields with a quarter-microscope image field overlap and the overlaps averaged; the vectors are in each object's own diameters, so a microscope image field needs no context beyond the object.",
+      "translation": "``vector`` (2, H, W) 和 ``successor`` 概率 (H, W)。帧以 :data:`TILE` 像素的图块读取，图块之间重叠四分之一，重叠部分取平均；向量以每个对象自身的直径为单位，因此图块不需要对象之外的上下文。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.random_window#0",
+      "source": "One ``size`` square, the SAME window of every frame and label.",
+      "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
+      "context": "One ``size`` square, the SAME window of every frame and label.",
+      "translation": "一个 ``size`` 大小的正方形，每一帧和每个标签都使用“完全相同”的窗口。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.random_window#1",
+      "source": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
+      "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
+      "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
+      "translation": "以第一个标签图像中的一个随机对象为中心，并随机偏移至多四分之一窗口，使窗口中包含细胞而不是空背景。两帧共用同一窗口，可使每个位移保持真实。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.random_window#2",
+      "source": "the images.",
+      "source_sha256": "0be7fec0c631ce450269cb47f84ad2612a4ad975ebdc5b4507c51897d0b52a43",
+      "context": "the images.",
+      "translation": "图像。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.random_window#3",
+      "source": "the label images.",
+      "source_sha256": "d3b8937fede0dabfd5635bfb42f59a72ed4bf1b49e3f855426c00783e360366c",
+      "context": "the label images.",
+      "translation": "标签图像。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.random_window#5",
+      "source": "the window's side.",
+      "source_sha256": "413534c4fc3b71c4da6a98b135a7eb697e3982687aee0bb9f89651754fa28464",
+      "context": "the window's side.",
+      "translation": "窗口的边长。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.random_window#6",
+      "source": "the windowed frames and labels.",
+      "source_sha256": "8433008aa46c0c3d2fc6ab1d62383fa34d3f6fc79b2301550e83d4b0db5472eb",
+      "context": "the windowed frames and labels.",
+      "translation": "加窗后的帧和标签。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.scramble_test#0",
+      "source": "Shuffle frame ``t+1``'s labels and ask whether the model finds them.",
+      "source_sha256": "02c8458a20509e293f98786494be145f6a84d28c148061aa309b5ec84efab1ea",
+      "context": "Shuffle frame ``t+1``'s labels and ask whether the model finds them.",
+      "translation": "打乱帧 ``t+1`` 的标签，并检验模型能否找到它们。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.scramble_test#1",
+      "source": "Scrambling removes the numeric-ID shortcut, but object positions and overlap remain informative. A good score alone does not prove learned motion. The share of objects linked to their true successor is the score; the plain IoU stitcher on the same pair is the reference the model has to beat.",
+      "source_sha256": "b855660468b7bada5c1885ed718550311404f409f145f77871593af9eca07972",
+      "context": "Scrambling removes the numeric-ID shortcut, but object positions and overlap remain informative. A good score alone does not prove learned motion. The share of objects linked to their true successor is the score; the plain IoU stitcher on the same pair is the reference the model has to beat.",
+      "translation": "打乱消除了数值 ID 这一捷径，但对象位置和重叠仍然携带信息。仅凭高分并不能证明模型学到了运动。得分是与其真实后继对象相链接的对象所占的比例；同一帧对上的普通 IoU 拼接器是模型必须超越的参照。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.scramble_test#2",
+      "source": "frame ``t``, track ids.",
+      "source_sha256": "e4571991644568f381f3b98b57de0d51c3c548ff172a413512f6b004178a1603",
+      "context": "frame ``t``, track ids.",
+      "translation": "帧 ``t``，轨迹 ID。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.scramble_test#3",
+      "source": "frame ``t+1``, the same track ids.",
+      "source_sha256": "1d1577effff9249f9522d02a3b9cb52bc61cb91de637efa60650e79661733e82",
+      "context": "frame ``t+1``, the same track ids.",
+      "translation": "帧 ``t+1``，相同的轨迹 ID。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.scramble_test#5",
+      "source": "frame ``t``.",
+      "source_sha256": "3b4c035b2ba318c90b89d53c93c71c5dc12327d23e252a595276e55529da21a2",
+      "context": "frame ``t``.",
+      "translation": "帧 ``t``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.scramble_test#6",
+      "source": "frame ``t+1``.",
+      "source_sha256": "34556ae9851a30d4026ed7ac325b08fa7d70715bbd5322dd85018426bc02fc07",
+      "context": "frame ``t+1``.",
+      "translation": "帧 ``t+1``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.scramble_test#7",
+      "source": "the shuffle's seed.",
+      "source_sha256": "0a5328d8131671f5d0deeb2f7dd2cfe75253a6be8e67d47c425b3fe04d470ab7",
+      "context": "the shuffle's seed.",
+      "translation": "打乱操作的随机种子。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.time_targets#0",
+      "source": "What the time head must predict for one pair of labelled frames.",
+      "source_sha256": "dabbb956d7e6def28d35d8facf8ac2b0237b11db1aba677e58ba32c08debe766",
+      "context": "What the time head must predict for one pair of labelled frames.",
+      "translation": "时间预测头对一对带标签帧必须预测的内容。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.time_targets#1",
+      "source": "Inside every object of frame ``t``:",
+      "source_sha256": "ede4e5e73c2321df2a09bb326b65ea29d169644ca871dcb421bde75a0b0f1e57",
+      "context": "Inside every object of frame ``t``:",
+      "translation": "在帧 ``t`` 的每个对象内部：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.time_targets#2",
+      "source": "``vector`` -- ``(dy, dx)`` from the pixel to its object's centre in frame ``t+1``, divided by the object's diameter, so one number means the same thing for a large cell and a small one;",
+      "source_sha256": "0c3e53817a03061af9d1b5081d6977be9484714db0e6af05fb8bb31f8481b6eb",
+      "context": "``vector`` -- ``(dy, dx)`` from the pixel to its object's centre in frame ``t+1``, divided by the object's diameter, so one number means the same thing for a large cell and a small one;",
+      "translation": "``vector``——``(dy, dx)``，即从像素指向其对象在帧 ``t+1`` 中的中心的偏移，再除以对象的直径，因此同一个数值对大细胞和小细胞含义相同；",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.time_targets#3",
+      "source": "``successor`` -- 1 where the object's label is present in ``t+1``, 0 where it is not (it died, divided -- children take new labels in the movies checked -- or left the field).",
+      "source_sha256": "7b4a76e033aaa4397df3aea4741b6d327695dd256de669f5cfb3c6c2c1e24216",
+      "context": "``successor`` -- 1 where the object's label is present in ``t+1``, 0 where it is not (it died, divided -- children take new labels in the movies checked -- or left the microscope field of view).",
+      "translation": "``successor``——对象的标签在 ``t+1`` 中存在处为 1，不存在处为 0（对象死亡、分裂（在所检查的影像序列中子对象会获得新标签）或离开了视野）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.time_targets#4",
+      "source": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
+      "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
+      "context": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
+      "translation": "向量只在“确实存在”后继对象的地方进行监督（``vector_weight``）；后继标志则在对象内部各处进行监督（``object_weight``）。背景两者都不监督。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.time_targets#5",
+      "source": "frame ``t``'s labels, track ids.",
+      "source_sha256": "ba76261d23e8cb2629f22e45d973e973cb58d86c4920c67e0e3ecc9b84d94bb2",
+      "context": "frame ``t``'s labels, track ids.",
+      "translation": "帧 ``t`` 的标签，即轨迹 ID。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.time_targets#6",
+      "source": "frame ``t+1``'s labels, the same ids.",
+      "source_sha256": "114138a0a3f7bfbd9ec49f97f28d679d8c2a17cfc602b8b75f78d69bf453458c",
+      "context": "frame ``t+1``'s labels, the same ids.",
+      "translation": "帧 ``t+1`` 的标签，ID 相同。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.time_targets#7",
+      "source": "``vector`` (2, H, W), ``successor``, ``vector_weight`` and ``object_weight`` (H, W), all float32.",
+      "source_sha256": "96c2ed425ce8fec3bd15fc26d215da6c49226878da582785d63f22f678a9929c",
+      "context": "``vector`` (2, H, W), ``successor``, ``vector_weight`` and ``object_weight`` (H, W), all float32.",
+      "translation": "``vector`` (2, H, W)、``successor``、``vector_weight`` 和 ``object_weight`` (H, W)，均为 float32。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.timeflows_loss#0",
+      "source": "Masked loss for one batch.",
+      "source_sha256": "327bcea9ebc2740e3b79e5dc3315642596a496b76f4ae4153237bd51f3486590",
+      "context": "Masked loss for one batch.",
+      "translation": "一个批次的掩膜损失。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.timeflows_loss#1",
+      "source": "Mean squared error on the vector where a successor exists, binary cross-entropy on the successor flag inside objects, background unsupervised.",
+      "source_sha256": "e9fe7a4e0e66f586cb7c92ba457a9e98802355688d47b7d6b24eb57a330d3050",
+      "context": "Mean squared error on the vector where a successor exists, binary cross-entropy on the successor flag inside objects, background unsupervised.",
+      "translation": "在存在后继对象的位置对向量使用均方误差，在对象内部对后继标志使用二元交叉熵，背景不受监督。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.timeflows_loss#2",
+      "source": "the net's (B, 3, H, W) output.",
+      "source_sha256": "b664827e3dcb3df5d9aa78d196e3ca88c005087657f821525fbd201b01d62e0c",
+      "context": "the net's (B, 3, H, W) output.",
+      "translation": "网络的 (B, 3, H, W) 输出。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.timeflows_loss#3",
+      "source": "tensors from :func:`time_targets`, batched.",
+      "source_sha256": "f6c46819d5f8392f0ec01bb3554671e897a506b3f0632b73d11fa0be051f3944",
+      "context": "tensors from :func:`time_targets`, batched.",
+      "translation": "来自 :func:`time_targets` 的张量，已组成批次。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_model.timeflows_loss#4",
+      "source": "the scalar loss.",
+      "source_sha256": "cd061434fcbbb5c714727af6dfd1f09fa0c22607efa7a13cd481fa5fcddbc348",
+      "context": "the scalar loss.",
+      "translation": "标量损失。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#0",
+      "source": "Check that timelapse annotation carries one label per object over time.",
+      "source_sha256": "309cca3c9f797d02f5a66745e0f0271a6e043ab0be789e0332c07db6155202f2",
+      "context": "Check that timelapse annotation carries one label per object over time.",
+      "translation": "检查时间推移成像的标注是否随时间为每个对象保持一个标签。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#10",
+      "source": "WHAT IT DOES NOT DO",
+      "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
+      "context": "What it does not do",
+      "translation": "它不做什么",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#11",
+      "source": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
+      "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
+      "context": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
+      "translation": "它评判的是“标注”，而不是跟踪器。将预测的跟踪结果与参考标注进行对比评分由 :mod:`spacr.timeflows_baseline` 完成，这是同一方案的第 2 步。它不包含图形界面代码，也不会打开任何对话框。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#2",
+      "source": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the SAME LABEL in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
+      "source_sha256": "e4877979e7efafe306ddcdbe9a56fc3712465d7f9146681f5459d6015cec2c8b",
+      "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
+      "translation": "timeflows 方案（``features/future/426``）依赖于关于训练数据的一个前提：一个对象在其出现的每一帧中都保持“相同的标签”。时间流预测头被训练为从帧 ``t`` 中某个对象的像素指向该对象在帧 ``t+1`` 中的中心，而唯一能说明 ``t+1`` 中哪个对象是同一对象的就是标签。如果标注在某个对象死亡或离开后回收了它的标签，模型就会被训练为指向一个无关的细胞，而且之后的任何评分都发现不了——留出检验会打乱同样错误的标签，并与自身保持一致。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#3",
+      "source": "So this module reads label stacks and produces a table. It answers the four questions step 1 of the plan asks, and it answers them as measurements rather than impressions:",
+      "source_sha256": "ac42f7aad05d4105f445ba8f2a8be2ce3dd1448b12f839d11c2136bdb76f88db",
+      "context": "So this module reads label stacks and produces a table. It answers the four questions step 1 of the plan asks, and it answers them as measurements rather than impressions:",
+      "translation": "因此，本模块读取标签堆栈并生成一张表。它回答该方案第 1 步提出的四个问题，并以测量结果而非主观印象来回答：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#4",
+      "source": "**Is a label ever reused?** Every label that vanishes and comes back is listed with how far it moved across the gap, how much its mask overlaps the mask it had before the gap, and what a continuous object in the same data moves in one frame. A label that reappears on the other side of the field with no overlap is flagged; a label that flickers for one frame and returns where it was is reported as a gap and not as reuse.",
+      "source_sha256": "a77d3f946017a436aab6e429e8d393d3ffed1f943e4633181f35074fdbfa97a4",
+      "context": "**Is a label ever reused?** Every label that vanishes and comes back is listed with how far it moved across the gap, how much its mask overlaps the mask it had before the gap, and what a continuous object in the same data moves in one frame. A label that reappears on the other side of the microscope field of view with no overlap is flagged; a label that flickers for one frame and returns where it was is reported as a gap and not as reuse.",
+      "translation": "**标签是否曾被重用？** 每个消失后又重新出现的标签都会被列出，并附上它跨越间隔移动了多远、它的掩膜与间隔前的掩膜重叠多少，以及同一数据中连续存在的对象在一帧内移动多远。在视野另一侧重新出现且没有重叠的标签会被标记；闪烁一帧后回到原位置的标签则被报告为间隔，而不是重用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#5",
+      "source": "**How are divisions annotated?** Two new ids, or one child inheriting the parent's id. Both conventions exist in real annotation and the loss has to know which one it is being trained on.",
+      "source_sha256": "14919aeb596f191b6e776ab63d1414850e380d18aaa2422ef38a509df1a22503",
+      "context": "**How are divisions annotated?** Two new ids, or one child inheriting the parent's id. Both conventions exist in real annotation and the loss has to know which one it is being trained on.",
+      "translation": "**分裂是如何标注的？** 两个新 ID，或者一个子对象继承父对象的 ID。两种约定在真实标注中都存在，损失函数必须知道它训练所用的是哪一种。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#6",
+      "source": "**What is the frame interval, and is it constant?** Within a dataset and across datasets. A displacement field silently encodes pixels per frame, so a set imaged every 30 s mixed with one imaged every 10 min is two problems trained as one.",
+      "source_sha256": "4d7ea503f536d0d1d5b039d339c2895db1d8508db36d6f3b2b7634162aa50ee6",
+      "context": "**What is the frame interval, and is it constant?** Within a dataset and across datasets. A displacement field silently encodes pixels per frame, so a set imaged every 30 s mixed with one imaged every 10 min is two problems trained as one.",
+      "translation": "**帧间隔是多少，是否恒定？** 在数据集内部以及跨数据集。位移场会静默地编码每帧像素数，因此把每 30 s 成像一次的数据集与每 10 min 成像一次的数据集混在一起，就是把两个问题当作一个来训练。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#7",
+      "source": "**How far does an object move between frames?** In pixels, and -- the ratio that decides whether the task is easy or hard -- in multiples of its own diameter. Displacement much smaller than the object is a field a small receptive field can carry. Displacement larger than the object means the vector has to point further than the head can see, and several identical cells are candidates at the far end of it.",
+      "source_sha256": "32662aba9d2642d5c6c06f717aef04d09a7fb31200101ed735840123da04dd4f",
+      "context": "**How far does an object move between frames?** In pixels, and -- the ratio that decides whether the task is easy or hard -- in multiples of its own diameter. Displacement much smaller than the object is a microscope field of view a small receptive microscope field of view can carry. Displacement larger than the object means the vector has to point further than the head can see, and several identical cells are candidates at the far end of it.",
+      "translation": "**对象在帧之间移动多远？** 以像素计，以及以其自身直径的倍数计——这个比值决定任务是容易还是困难。远小于对象的位移，构成的是小感受野就能处理的位移场。大于对象的位移意味着向量必须指向超出预测头视野的地方，而在它远端会有若干个相同的细胞成为候选。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#8",
+      "source": "WHY A SCRIPT AND NOT A LOOK",
+      "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
+      "context": "Why a script and not a look",
+      "translation": "为什么用脚本而不是目测",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#9",
+      "source": "The defect this looks for is invisible by eye. A recycled id is a correct frame and a correct frame, and only the pair is wrong. The plan calls it the most common defect in tracking annotation and the easiest to miss, which is why the output here is a table with a verdict per check and an exit code, and why the detail tables behind every verdict are public: a flagged row is a row somebody has to read, not a number to average.",
+      "source_sha256": "c6395809278c049bc78b110d1d9e0102d45708c481100ad12739fffe7cf2e293",
+      "context": "The defect this looks for is invisible by eye. A recycled id is a correct frame and a correct frame, and only the pair is wrong. The plan calls it the most common defect in tracking annotation and the easiest to miss, which is why the output here is a table with a verdict per check and an exit code, and why the detail tables behind every verdict are public: a flagged row is a row somebody has to read, not a number to average.",
+      "translation": "本模块要查找的缺陷是肉眼看不出来的。被回收的 ID 是一个正确的帧加上另一个正确的帧，只有两者的配对是错误的。该方案称其为跟踪标注中最常见也最容易被忽略的缺陷，这就是为什么这里的输出是一张每项检查都有判定和退出码的表，也是为什么每个判定背后的详细表都是公开的：被标记的行是必须有人去读的行，而不是用来求平均的数字。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#0",
+      "source": "Audit several label stacks and compare their frame intervals.",
+      "source_sha256": "e0244d2fa2d3905a7b33993282b5e32f918073efb26182e3b3af931aa20dd9f8",
+      "context": "Audit several label stacks and compare their frame intervals.",
+      "translation": "审查多个标签堆栈并比较它们的帧间隔。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#1",
+      "source": "mapping of dataset name to label stack.",
+      "source_sha256": "3993cd047759bf4cac339436e5dab37b08c223153487d5faae41c2b687ee5632",
+      "context": "mapping of dataset name to label stack.",
+      "translation": "数据集名称到标签堆栈的映射。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#2",
+      "source": "optional mapping of dataset name to frame timestamps.",
+      "source_sha256": "9a96e8a6428ab30c416c6f0d783aa6c6eaefb674084a185f76973c23849325c2",
+      "context": "optional mapping of dataset name to frame timestamps.",
+      "translation": "可选的数据集名称到帧时间戳的映射。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#3",
+      "source": "optional mapping of dataset name to a stated interval.",
+      "source_sha256": "cee4e5ca699e6a64a6f689a0202a8a7c520bea6b867eb8e974f9d3645569a8df",
+      "context": "optional mapping of dataset name to a stated interval.",
+      "translation": "可选的数据集名称到标称间隔的映射。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#4",
+      "source": "passed to :func:`recycled_labels`.",
+      "source_sha256": "d41143e214b35c15a09591ac6683fec50e0ff4d51361a27c92c8e4f84a2fa36d",
+      "context": "passed to :func:`recycled_labels`.",
+      "translation": "传递给 :func:`recycled_labels`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_datasets#5",
+      "source": "``DataFrame`` of every dataset's rows, followed by one ``frame_interval_across_datasets`` row reported under the dataset name ``all``. Two datasets imaged at different intervals are a different problem from one dataset imaged unevenly, and only this row sees it.",
+      "source_sha256": "1b49697b157e5730c6d851a06ee37fae468a0e747a4460118da860487bb0df6a",
+      "context": "``DataFrame`` of every dataset's rows, followed by one ``frame_interval_across_datasets`` row reported under the dataset name ``all``. Two datasets imaged at different intervals are a different problem from one dataset imaged unevenly, and only this row sees it.",
+      "translation": "``DataFrame``，包含每个数据集的各行，其后是一行 ``frame_interval_across_datasets``，以数据集名称 ``all`` 报告。两个数据集以不同间隔成像，与一个数据集成像间隔不均匀是不同的问题，只有这一行能发现它。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#0",
+      "source": "Answer step 1's four questions about one label stack, as a table.",
+      "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
+      "context": "Answer step 1's four questions about one label stack, as a table.",
+      "translation": "以表格形式回答关于单个标签堆栈的第 1 步四个问题。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#1",
+      "source": "label stack, ``(T, Y, X)`` or a sequence of 2-D frames.",
+      "source_sha256": "f4b2ee517948033a5188cb43902ef1da7f9be600a2d00fba2f1737df9aa25520",
+      "context": "label stack, ``(T, Y, X)`` or a sequence of 2-D frames.",
+      "translation": "标签堆栈，``(T, Y, X)`` 或二维帧的序列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#2",
+      "source": "the name the rows are reported under.",
+      "source_sha256": "4ae551ece60018795d0f30a34563a032766b7ac5a8b2685bbcf9e15be104ad38",
+      "context": "the name the rows are reported under.",
+      "translation": "报告各行时使用的名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#3",
+      "source": "acquisition time of each frame, when it is known.",
+      "source_sha256": "1c2954179a7518d7bb2b388e575ab7e9883513fa33bfd09b0fee0fa679909fed",
+      "context": "acquisition time of each frame, when it is known.",
+      "translation": "每帧的采集时间（如果已知）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#4",
+      "source": "a stated frame interval, used when there are no timestamps.",
+      "source_sha256": "f249164d38b5ccceaac194e35a77a2b6ef0821fd060165cf0bcc520c627f7117",
+      "context": "a stated frame interval, used when there are no timestamps.",
+      "translation": "标称的帧间隔，在没有时间戳时使用。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.audit_label_consistency#6",
+      "source": "``DataFrame`` with the columns ``dataset``, ``check``, ``value``, ``verdict`` and ``detail``, one row per check.",
+      "source_sha256": "73e26ff66a147240857ee4464218bbde4d3dbb897a448eb57e8792cc8ece40d5",
+      "context": "``DataFrame`` with the columns ``dataset``, ``check``, ``value``, ``verdict`` and ``detail``, one row per check.",
+      "translation": "``DataFrame``，包含 ``dataset``、``check``、``value``、``verdict`` 和 ``detail`` 列，每项检查一行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.dataset_names#0",
+      "source": "A distinct name for each stack path, as short as it can be.",
+      "source_sha256": "6d38379f24b9f885ab0d8e5496a3ab096fac4699dda09b2f2834b613d05f1e7e",
+      "context": "A distinct name for each stack path, as short as it can be.",
+      "translation": "为每个堆栈路径生成一个互不相同且尽可能短的名称。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.dataset_names#1",
+      "source": "Named after the last path component, the fourteen Cell Tracking Challenge movies are all ``TRA`` -- they live at ``<movie>/01_GT/TRA`` -- and keyed on that, each overwrote the one before, so only the last was audited (found 2026-09-21, the first run on real movies). A name that repeats takes in parent folders until every name is unique.",
+      "source_sha256": "fa68a38e06027451607316e4bc84e7de16d962356433ce8d2913b0282dc23f1d",
+      "context": "Named after the last path component, the fourteen Cell Tracking Challenge movies are all ``TRA`` -- they live at ``<movie>/01_GT/TRA`` -- and keyed on that, each overwrote the one before, so only the last was audited (found 2026-09-21, the first run on real movies). A name that repeats takes in parent folders until every name is unique.",
+      "translation": "如果按最后一个路径组成部分命名，十四个 Cell Tracking Challenge 影像序列都会叫 ``TRA``（它们位于 ``<movie>/01_GT/TRA``），而以此为键时，每一个都会覆盖前一个，因此只有最后一个被审查（发现于 2026-09-21，即首次在真实影像序列上运行时）。重复的名称会逐级纳入父文件夹，直到每个名称都唯一。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.dataset_names#2",
+      "source": "the stack paths, in order.",
+      "source_sha256": "00f1b8a747ba26eb0efa27c61ae0a28042674b164f19751499467db900c436f7",
+      "context": "the stack paths, in order.",
+      "translation": "堆栈路径，按顺序排列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.dataset_names#3",
+      "source": "one name per path, in the same order.",
+      "source_sha256": "e189d7d4d08d0a56006a8ce7038754da70f1316ff2a58459171e460ba3f00123",
+      "context": "one name per path, in the same order.",
+      "translation": "每个路径一个名称，顺序相同。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.displacement_table#0",
+      "source": "Per-frame displacement of every label that survives a frame.",
+      "source_sha256": "d07c5d195586d997386e24b5ed457687a0a1a583be763a00123e9834791ded48",
+      "context": "Per-frame displacement of every label that survives a frame.",
+      "translation": "每个在帧之间存续的标签的逐帧位移。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.displacement_table#1",
+      "source": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
+      "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
+      "context": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
+      "translation": "只测量“连续”帧。在间隔之后重新出现的标签在这里不贡献任何数据，因为它经过的距离不是逐帧位移，把它计入平均值会夸大本模块要报告的这个数值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.displacement_table#2",
+      "source": "the table :func:`label_frames` returns.",
+      "source_sha256": "78c96e353bf2c1a6a77c4d11b012ab92e8152f6478af179af6188444985cd330",
+      "context": "the table :func:`label_frames` returns.",
+      "translation": ":func:`label_frames` 返回的表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.displacement_table#3",
+      "source": "``DataFrame`` with ``label``, ``frame``, ``displacement`` in pixels, ``diameter`` of the object in the earlier frame, and ``displacement_over_diameter``.",
+      "source_sha256": "7121aa2084ac81d5a60075a74306100b014f62945039b1f3924f63bf5cb6f542",
+      "context": "``DataFrame`` with ``label``, ``frame``, ``displacement`` in pixels, ``diameter`` of the object in the earlier frame, and ``displacement_over_diameter``.",
+      "translation": "``DataFrame``，包含 ``label``、``frame``、以像素为单位的 ``displacement``、对象在前一帧中的 ``diameter`` 以及 ``displacement_over_diameter``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.division_events#0",
+      "source": "Find divisions and say which labelling convention they follow.",
+      "source_sha256": "a813ede0621a64e1731b9708e294d61e22fcf3fb68a4107903adc0224cb5de14",
+      "context": "Find divisions and say which labelling convention they follow.",
+      "translation": "查找分裂事件，并说明它们遵循哪种标签约定。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.division_events#1",
+      "source": "A child is called an object's child when at least ``child_overlap`` of the child's own area came from that object. Two or more children of one parent in one step is a division, and the convention is read off the ids: either one child carries the parent's id forward, or both children are new.",
+      "source_sha256": "828aa294f6b7e3db96ee4f5d55713e4ed51484c55f2632a16ddf7f6d5472faa5",
+      "context": "A child is called an object's child when at least ``child_overlap`` of the child's own area came from that object. Two or more children of one parent in one step is a division, and the convention is read off the ids: either one child carries the parent's id forward, or both children are new.",
+      "translation": "当子对象自身面积中至少有 ``child_overlap`` 来自某个对象时，该子对象被称为这个对象的子对象。一个父对象在一步中有两个或更多子对象即为一次分裂，约定则从 ID 中读出：要么一个子对象沿用父对象的 ID，要么两个子对象都是新的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.division_events#3",
+      "source": "fraction of the child's area that has to come from the parent. Default :data:`CHILD_OVERLAP`.",
+      "source_sha256": "037678f0b79cb02b9eb4f7084d59318f5a5adf9c281c9bf15d1126d298053600",
+      "context": "fraction of the child's area that has to come from the parent. Default :data:`CHILD_OVERLAP`.",
+      "translation": "子对象面积中必须来自父对象的比例。默认值为 :data:`CHILD_OVERLAP`。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.division_events#4",
+      "source": "``DataFrame`` with ``frame`` (the frame the children are in), ``parent_label``, ``n_children``, ``child_labels`` and ``convention``, which is ``'child_inherits_parent'`` or ``'children_are_new'``.",
+      "source_sha256": "bd50762ad324dbd13506af97ee46290142a3dc2f52edcc633e93a6a9646685bc",
+      "context": "``DataFrame`` with ``frame`` (the frame the children are in), ``parent_label``, ``n_children``, ``child_labels`` and ``convention``, which is ``'child_inherits_parent'`` or ``'children_are_new'``.",
+      "translation": "``DataFrame``，包含 ``frame``（子对象所在的帧）、``parent_label``、``n_children``、``child_labels`` 和 ``convention``，后者为 ``'child_inherits_parent'`` 或 ``'children_are_new'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.format_qc_table#0",
+      "source": "Render a QC table as aligned text.",
+      "source_sha256": "ed46e52b6214ea37e414e20cf9dae07f4fac81d4cedbda00c027bd6a4d96c904",
+      "context": "Render a QC table as aligned text.",
+      "translation": "将 QC 表渲染为对齐的文本。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.format_qc_table#1",
+      "source": "the table :func:`audit_label_consistency` returns.",
+      "source_sha256": "32fdf966a380cef23b323fffef058b28028b8def6847fddc1d9dfb1c319b7faa",
+      "context": "the table :func:`audit_label_consistency` returns.",
+      "translation": ":func:`audit_label_consistency` 返回的表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.format_qc_table#2",
+      "source": "how much of the detail sentence to print per row.",
+      "source_sha256": "a8e322174aaeb962016aaec352f1e373813a91f0a2801cfe0615de379900499f",
+      "context": "how much of the detail sentence to print per row.",
+      "translation": "每行打印多少详情说明语句。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.format_qc_table#3",
+      "source": "the table as a string, one line per row, with no trailing newline.",
+      "source_sha256": "b4814fb8c8aa78c6592a5ca3c27241667a2b9986ec9ed4b32a98c5132e28355c",
+      "context": "the table as a string, one line per row, with no trailing newline.",
+      "translation": "以字符串形式表示的表，每行一行文本，末尾没有换行符。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#0",
+      "source": "Reduce frame timing to an interval and a verdict about its constancy.",
+      "source_sha256": "ec30cf326ea8df806e15a5f9787749eb8359b294d221fa481de9fffc9ce37a93",
+      "context": "Reduce frame timing to an interval and a verdict about its constancy.",
+      "translation": "将帧计时归纳为一个间隔以及关于其是否恒定的判定。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#1",
+      "source": "acquisition time of each frame, in any one unit. Two frames are the minimum that says anything.",
+      "source_sha256": "2eedc02eb8d13148d92db30621a172963eaa0c43d924fe831cd78778dc055594",
+      "context": "acquisition time of each frame, in any one unit. Two frames are the minimum that says anything.",
+      "translation": "每帧的采集时间，使用任意一种统一单位。至少需要两帧才能得出任何结论。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#2",
+      "source": "a stated interval, used when no timestamps are given. It is reported as stated and never contradicts a measurement.",
+      "source_sha256": "bdc06ec2f57dd6627b007c3e5804bbaa2682bcdce601a1b20a43e40bc191693f",
+      "context": "a stated interval, used when no timestamps are given. It is reported as stated and never contradicts a measurement.",
+      "translation": "标称间隔，在未提供时间戳时使用。它按标称值报告，绝不与测量值相矛盾。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#3",
+      "source": "absolute spread between the largest and smallest interval that still counts as constant.",
+      "source_sha256": "c86b78cc428de2a45e8ed743943a917d686039cc2f0261f1bafdcd66ab6c1a1b",
+      "context": "absolute spread between the largest and smallest interval that still counts as constant.",
+      "translation": "最大间隔与最小间隔之间仍被视为恒定的绝对差值。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#4",
+      "source": "dict with ``interval``, ``spread``, ``source`` (``'measured'``, ``'stated'`` or ``'missing'``) and ``verdict``.",
+      "source_sha256": "32debbb4e5f55f6839c4a1d15643d0048ff7f057441132962406ed1c4c82ef7a",
+      "context": "key-value mapping with ``interval``, ``spread``, ``source`` (``'measured'``, ``'stated'`` or ``'missing'``) and ``verdict``.",
+      "translation": "包含 ``interval``、``spread``、``source``（``'measured'``、``'stated'`` 或 ``'missing'``）和 ``verdict`` 的字典。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_frames#0",
+      "source": "Measure every labelled object in every frame.",
+      "source_sha256": "639c15640edef566f7bd8f8fdd10a74860aba43995a594dbc4665b8737b2186f",
+      "context": "Measure every labelled object in every frame.",
+      "translation": "测量每一帧中的每个带标签对象。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_frames#2",
+      "source": "``DataFrame`` with one row per object per frame and the columns ``frame``, ``label``, ``area``, ``y``, ``x`` and ``diameter``, where the diameter is the area-equivalent circle diameter in pixels.",
+      "source_sha256": "909c273d6b155b58a8db1510fcdb07232e7d48f6736b40b16fe70211ba239189",
+      "context": "``DataFrame`` with one row per object per frame and the columns ``frame``, ``label``, ``area``, ``y``, ``x`` and ``diameter``, where the diameter is the area-equivalent circle diameter in pixels.",
+      "translation": "``DataFrame``，每个对象每帧一行，包含 ``frame``、``label``、``area``、``y``、``x`` 和 ``diameter`` 列，其中直径是以像素为单位的等面积圆直径。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_spans#0",
+      "source": "Summarise where each label lives in the movie.",
+      "source_sha256": "4da880ca45a65e63e90b39e4c7ccd2cdd56eb3dd1744649cda2842a757f084f8",
+      "context": "Summarise where each label lives in the movie.",
+      "translation": "汇总每个标签在影像序列中出现的位置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_spans#2",
+      "source": "``DataFrame`` with one row per label carrying ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` and ``missing_frames``. ``n_missing`` counts frames between the first and the last appearance in which the label is absent, which is the only kind of gap that can hide a recycled id.",
+      "source_sha256": "098de28ac9d91e9335c7456ce07899feee9923fbb6acfbca2cd1634adc89c75b",
+      "context": "``DataFrame`` with one row per label carrying ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` and ``missing_frames``. ``n_missing`` counts frames between the first and the last appearance in which the label is absent, which is the only kind of gap that can hide a recycled id.",
+      "translation": "``DataFrame``，每个标签一行，包含 ``label``、``first_frame``、``last_frame``、``n_frames``、``n_missing`` 和 ``missing_frames``。``n_missing`` 统计在首次出现与最后一次出现之间该标签缺失的帧数，这是唯一可能掩盖被回收 ID 的间隔类型。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#0",
+      "source": "Read a label stack from a file or a folder of frames.",
+      "source_sha256": "3ce10360e6b4bfd1140accfef03fe58087ea8594863ba64126d1547a1aa25ebd",
+      "context": "Read a label stack from a file or a folder of frames.",
+      "translation": "从文件或帧文件夹中读取标签堆栈。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#1",
+      "source": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
+      "source_sha256": "7c1049011d7348f225794f7036a8746f04e2b2a08a27444793a106753b22b15e",
+      "context": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
+      "translation": "``.npy`` 文件、``.tif``/``.tiff`` 文件，或每帧一个文件的文件夹（按文件名排序后读取）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#2",
+      "source": "``(T, Y, X)`` integer array.",
+      "source_sha256": "bbd223fe617db5d8c97f14a5c4f5ce36d5e8f12ab99030ac871ce0236281d03f",
+      "context": "``(T, Y, X)`` integer array.",
+      "translation": "``(T, Y, X)`` 整数数组。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#3",
+      "source": "when the folder holds nothing readable, or the suffix is not one of the three above.",
+      "source_sha256": "2c99e07ce0cfbe7a3b80d84b5acbc08c820d560b9b0eedd91f06185cf3ad45f7",
+      "context": "when the folder holds nothing readable, or the suffix is not one of the three above.",
+      "translation": "文件夹中没有任何可读取的内容，或文件后缀不是上述三种之一。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#0",
+      "source": "Run the QC over one or more label stacks and print the table.",
+      "source_sha256": "296dd7c61debdc466a8f4dd0fa40afdaf9f72015f2b26ee4ad976c9328a75195",
+      "context": "Run the QC over one or more label stacks and print the table.",
+      "translation": "对一个或多个标签堆栈运行 QC 并打印表格。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#1",
+      "source": "command line arguments; ``sys.argv[1:]`` when ``None``.",
+      "source_sha256": "a6bb0bb1668e347e033a2bc7a19927342d952fb8b8c62135b53e513e4bb5ccba",
+      "context": "command line arguments; ``sys.argv[1:]`` when ``None``.",
+      "translation": "命令行参数；默认取 ``sys.argv[1:]``，即参数为 ``None`` 时。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#2",
+      "source": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
+      "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
+      "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
+      "translation": "没有任何检查失败时为 ``0``，有检查失败时为 ``1``。这里的失败说明的是“标注”的问题，而不是本程序的问题：它表示数据不支持 timeflows 方案对其所作的假设。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#0",
+      "source": "List every label that disappears and comes back, and judge each one.",
+      "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
+      "context": "List every label that disappears and comes back, and judge each one.",
+      "translation": "列出每个消失后又重新出现的标签，并逐一判定。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#1",
+      "source": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
+      "source_sha256": "c1baf2ba619a070b8a036b9c4e851c5944b6ba9cbd3df487d2faeb53c57e8a6f",
+      "context": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
+      "translation": "被回收的 ID（在第一个对象离开后分配给无关对象的相同编号）正是整个方案所面临的缺陷，而且它看起来与一帧的跟踪间隔完全相同。区分两者的是距离：一个真实对象在某帧中被漏检后，会在原位置附近被重新找到，而且通常仍与自身的掩膜重叠。因此，每个间隔都会报告每缺失一帧所经过的距离、间隔前掩膜与间隔后掩膜之间的重叠，以及同一数据中连续对象在一帧内经过的距离。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#3",
+      "source": "the table :func:`label_frames` returns, when it has already been measured. Measured here when ``None``.",
+      "source_sha256": "a37a91151f2c9e8cdb75d2ceb12e52596b7b35f2a1378bf7b171bbaa26c012cd",
+      "context": "the table :func:`label_frames` returns, when it has already been measured. Measured here when ``None``.",
+      "translation": ":func:`label_frames` 返回的表（如果已测量）。为 ``None`` 时在此处测量。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#4",
+      "source": "distance per missing frame, in pixels, above which a gap is called reuse. ``None`` measures it from the data as :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the continuous per-frame displacement, falling back to the median object diameter when nothing in the stack survives a frame.",
+      "source_sha256": "a9077fc5c166b691a4775d18b8fc343f6d49625da56001ab10051db081a4d052",
+      "context": "distance per missing frame, in pixels, above which a gap is called reuse. ``None`` measures it from the data as :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the continuous per-frame displacement, falling back to the median object diameter when nothing in the stack survives a frame.",
+      "translation": "每缺失一帧的距离（像素），超过该值的间隔被判定为 ID 重用。``None`` 表示从数据中测得该值：取连续逐帧位移第 95 百分位数的 :data:`REUSE_DISPLACEMENT_FACTOR` 倍；如果堆栈中没有任何对象在帧之间存续，则退而使用对象直径的中位数。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#5",
+      "source": "``DataFrame`` with one row per gap: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and ``verdict`` (``'gap'`` or ``'reuse-suspected'``).",
+      "source_sha256": "826d4e20a58bc4247ec0b1e1b919f6b4668201552844dbca4e3f6f323f2db3b7",
+      "context": "``DataFrame`` with one row per gap: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and ``verdict`` (``'gap'`` or ``'reuse-suspected'``).",
+      "translation": "``DataFrame``，每个间隔一行：``label``、``gap_start``、``gap_end``、``gap_frames``、``displacement``、``displacement_per_frame``、``iou_across_gap``、``allowed`` 和 ``verdict``（``'gap'`` 或 ``'reuse-suspected'``）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timelapse.automated_motility_assay#2",
+      "source": "dict of assay settings; see ``get_automated_motility_assay_default_settings`` for keys including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
+      "source_sha256": "6b64508bcb3db07b855edf6e851ab479a8ebcab82a7751e795d3f9f19a58adda",
+      "context": "key-value mapping of assay settings; see ``get_automated_motility_assay_default_settings`` for structured-data names including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
+      "translation": "实验设置字典；键请参见 ``get_automated_motility_assay_default_settings``，包括 ``src``、``db_table_name``、``n_jobs``、``max_displacement``、``track_outlier_zscore``、``infection_intensity_qc``、``infection_intensity_strategy``、``infection_intensity_mode``、``infection_xgb_drop_ambiguous``、``infection_xgb_ambiguous_low``、``infection_xgb_ambiguous_high``、``infection_xgb_proba_column``、``infection_hist_percentile``、``make_mask_panel``、``make_adjusted_panel``、``motility_xlim``、``motility_ylim``、``motility_origin_xlim``、``motility_origin_ylim`` 和 ``reuse_existing_measurements``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.uniprot.Resolution#1",
+      "source": "``'bundled'``, ``'accession'``, ``'organism'`` or ``'unknown'``.",
+      "source_sha256": "87346797c09dc811073f7e2efb9ff89bc954c2d6f4c027567c6d94037f26da5a",
+      "context": "``'bundled'``, ``'accession'``, ``'organism'`` or ``'unknown'``.",
+      "translation": "``'bundled'``、``'accession'``、``'organism'`` 或 ``'unknown'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater#5",
+      "source": "It also answers Home's News panel, through :func:`fetch_release_notes`: the published releases, cached for a day, so a running copy can show a release newer than the one bundled in its own wheel.",
+      "source_sha256": "0e7dc016793ee4ca9c3efac211012bb100c2424a61828b5b80dd3417f193c667",
+      "context": "It also answers Home's News panel, through :func:`fetch_release_notes`: the published releases, cached for a day, so a running copy can show a release newer than the one bundled in its own wheel.",
+      "translation": "它还通过 :func:`fetch_release_notes` 为主页的新闻面板提供数据：已发布的版本，缓存一天，因此运行中的副本可以显示比其自身 wheel 中内置版本更新的发布版本。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.PackageChange.describe#0",
+      "source": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
+      "source_sha256": "1fb0f487a65bf4e090df523d3d710ba630a6eade161a41d22857ef2a0f6650fa",
+      "context": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
+      "translation": "``'numpy 1.26.4 -> 2.2.6'`` 或 ``'cuml-cu12 26.8.0 (new)'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#0",
+      "source": "The repository's releases, newest first, or ``[]``.",
+      "source_sha256": "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
+      "context": "The repository's releases, newest first, or ``[]``.",
+      "translation": "仓库的发布版本，最新的在前；或 ``[]``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#1",
+      "source": "NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
+      "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
+      "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
+      "translation": "“绝对不要”在 GUI 线程上调用此函数。它会打开一个套接字。主页的新闻面板在页面显示之后，通过手动更新检查所使用的同一个 :class:`_UpdateWorker` 请求它。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#2",
+      "source": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
+      "source_sha256": "9c8f9d735106e346dcb83b0bdd2b598bca41999abde8f32fc6bc56166655395f",
+      "context": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
+      "translation": "不进行身份验证，因为替代方案是一个用户并不拥有的令牌。这意味着要受共享的、按地址计算的速率限制，这就是应答要缓存一天、并且每次失败都静默处理的原因：内置的 ``spacr/resources/release_notes.json`` 仍然是离线的权威来源，空列表只是让它保持不变。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#3",
+      "source": "request timeout in seconds. Short on purpose.",
+      "source_sha256": "683518d92d4d70fc6ea8b92a696d78f230cda680870e99eec4cc2dfa61b68c30",
+      "context": "request timeout in seconds. Short on purpose.",
+      "translation": "请求超时时间，单位为秒。有意设得较短。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#4",
+      "source": "how old a cached answer may be before it is asked again, in seconds.",
+      "source_sha256": "9b0b3f334aeb242980613aa333fbc09ab61078ae0ed1724ad3401262b7ffa1ec",
+      "context": "how old a cached answer may be before it is asked again, in seconds.",
+      "translation": "缓存的应答在重新请求之前可以保留多久，单位为秒。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#5",
+      "source": "release records shaped like the bundled resource's, or an empty list when the answer is unavailable for any reason at all.",
+      "source_sha256": "b6df52cba5b0cb072e39cd81c374730d8a36e4857495705144f09ff1fdec9b26",
+      "context": "release records shaped like the bundled resource's, or an empty list when the answer is unavailable for any reason at all.",
+      "translation": "与内置资源格式相同的发布记录；若因任何原因无法获得应答，则返回空列表。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#0",
+      "source": "Launch the updated Qt application after the old event loop has stopped.",
+      "source_sha256": "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
+      "context": "Launch the updated Qt application after the old event loop has stopped.",
+      "translation": "在旧的事件循环停止后启动更新后的 Qt 应用程序。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#1",
+      "source": "process identifier of the detached replacement application.",
+      "source_sha256": "df7bffe98977459e3629ebbd6df90bf7b5a73b2f150eb0f13c1399867f7646e4",
+      "context": "process identifier of the detached replacement application.",
+      "translation": "已分离的替代应用程序的进程标识符。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#2",
+      "source": "the replacement could not be started.",
+      "source_sha256": "c1bc615c92ef69f5875a3aacdfa3c47b58cb0e8561a586baa8e7151397d4806d",
+      "context": "the replacement could not be started.",
+      "translation": "无法启动替代程序。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.news_cache_path#0",
+      "source": "Where the fetched release list is remembered between launches.",
+      "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
+      "context": "Where the fetched release list is remembered between launches.",
+      "translation": "已获取的发布列表在多次启动之间的保存位置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.run_pip_upgrade#2",
+      "source": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "source_sha256": "0d823b21391fd6e582c7f79a809383d7870af304a14633c0cd3a95dab6e867eb",
+      "context": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "translation": "安装所提供的这个确切版本，并在报告成功之前于一个全新进程中验证它。None 保留不固定版本的升级。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#0",
+      "source": "Upgrade this interpreter, optionally to the exact version offered.",
+      "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
+      "context": "Upgrade this interpreter, optionally to the exact version offered.",
+      "translation": "升级当前解释器，可选择升级到所提供的确切版本。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "allow prerelease packages.",
+      "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
+      "context": "allow prerelease packages.",
+      "translation": "允许预发布软件包。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#2",
+      "source": "explicit version selected by the update check.",
+      "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
+      "context": "explicit version selected by the update check.",
+      "translation": "由更新检查选定的显式版本。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.ResNet.initialize_base#4",
+      "source": "``'imagenet'`` or ``'none'``.",
+      "source_sha256": "96f001c0da20357e41ea89d5767ceb0cebd011f10fee5ccfb7e63b904bf5d433",
+      "context": "``'imagenet'`` or ``'none'``.",
+      "translation": "``'imagenet'`` 或 ``'none'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#10",
+      "source": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every field finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected field set.",
+      "source_sha256": "0b483d7e974fd7bf8fed14df4cbebc83f61407b8f7b7e074e855fc405e605482",
+      "context": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every microscope field of view finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected microscope field of view set.",
+      "translation": "三个文件夹中的文件数量不同或文件名不匹配，或者某个掩膜被截断、非数值、为空、不是二维的，或与其配套掩膜的尺寸不同。可用的细胞器掩膜也会被检查。在修改任何掩膜或启动任何工作进程之前，会先完成对每个视野的仅文件头验证。显式指定的输出文件夹必须与每个源文件夹都不同，并且不得包含所选视野集合之外的掩膜。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#8",
+      "source": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected field is rebuilt from its source on each invocation, including after interrupted work.",
+      "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
+      "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
+      "translation": "用于调整后掩膜的可选独立文件夹。None 保留以往的原地修改行为。使用独立文件夹时，所有源掩膜保持字节级不变，并且每次调用都会从源文件重建每个选定的视野，包括中断的工作之后。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#3",
+      "source": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "source_sha256": "31f7b901992dd6f980688625984d84045eaa65d0a70d4eef3a0b87d167ceffdd",
+      "context": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "translation": "接受该参数，供传入它的调用方使用。无论是否设置，都只统计结构完整的掩膜数组，因此中断的运行留下的空数组或截断数组会重新加入队列。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#4",
+      "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
+      "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
+      "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
+      "translation": "当掩膜文件夹不存在，或任何预期的图像堆栈文件名缺少完整掩膜时返回 ``True``。无关的掩膜不能替代缺失的视野，也不会迫使已完成的视野重新运行。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.lasso_reg#3",
+      "source": "``'lasso'`` or ``'ridge'``.",
+      "source_sha256": "d87fa963235100757ae8ed6593bae68208f8fc409a82246858a5a52fddf2f82d",
+      "context": "``'lasso'`` or ``'ridge'``.",
+      "translation": "``'lasso'`` 或 ``'ridge'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.measure_test_mode#2",
+      "source": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a field. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which plane is which, and a ``test/merged`` without it is read as a legacy folder, against the default plane order.",
+      "source_sha256": "a2d5c1b9d11d5a9d6577513db0262d1fd5101ac12e26bd74ef1e43e1b4efeade",
+      "context": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a microscope field of view. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which image layer is which, and a ``test/merged`` without it is read as a legacy folder, against the default image layer order.",
+      "translation": "只对可见的 ``.npy`` 数组进行抽样，因此 macOS 的 ``._`` 附属文件永远不会被当作视野来测量。若文件夹中存在 ``.spacr_plane_layout.json``，也会一并复制：它说明哪个图像层是哪一个；没有它的 ``test/merged`` 会被视为旧式文件夹，按默认图像层顺序读取。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#14",
+      "source": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "source_sha256": "4de9b1bac442db49e4259666396b504d6cea95e039ed10d68ce1974c225f7c6f",
+      "context": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "translation": "对象过滤条目（任何带有最小值和最大值的标量 regionprop），与上述界限一起在单次遍历中判定。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.preprocess_data#7",
+      "source": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "source_sha256": "a9f96a9d58b325a2d70df263552d73dd8c68dfdba5be167f70e0dcd418571ecf",
+      "context": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "translation": "``none``、``center``、``zscore``、``robust_zscore``、``control_center`` 或 ``combat``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#10",
+      "source": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "source_sha256": "76b0e4af2a3fc6d2357c3b9f80f7433cc87f90478ca56302d89f698e65e6cacb",
+      "context": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "translation": "匹配的细胞或细胞核掩膜文件缺失，或者某个掩膜文件包含 pickle 序列化的对象：掩膜是普通数组，不会执行任何反序列化（unpickle）。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#3",
+      "source": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a run killed during the write leaves the previous whole mask, never a truncated one.",
+      "source_sha256": "40d7b307f3b754fd749a196f732cca4b0ebdfbed5a27dae5238e1a060c132a31",
+      "context": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a processing session killed during the write leaves the previous whole mask, never a truncated one.",
+      "translation": "细胞掩膜文件夹（原地覆盖）。调整后的掩膜以原子方式替换旧掩膜，因此在写入期间被终止的运行会留下先前完整的掩膜，而绝不会留下截断的掩膜。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#8",
+      "source": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "source_sha256": "f8c93a039ab2ba106c1d26d3d9460fc245fca4618e2ef00bbae69f77142870cf",
+      "context": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "translation": "调整后掩膜的可选独立目标位置。None 保留原地调整。显式指定的目标位置必须与每个源掩膜文件夹都不同，包括通过目录符号链接指向的情况。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#7",
+      "source": "``'dbscan'`` or ``'kmeans'``.",
+      "source_sha256": "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
+      "context": "``'dbscan'`` or ``'kmeans'``.",
+      "translation": "``'dbscan'`` 或 ``'kmeans'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#8",
+      "source": "``'umap'`` or ``'tsne'``.",
+      "source_sha256": "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
+      "context": "``'umap'`` or ``'tsne'``.",
+      "translation": "``'umap'`` 或 ``'tsne'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.validate.validate_settings#1",
+      "source": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is run.",
+      "source_sha256": "2d227b6d455184e300aee08b223db31e785aacf26c66d29ca620ba9d1607f878",
+      "context": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is executed.",
+      "translation": "图像数据通过文件头和目录列表进行检查。启用的 PSF 还会加载其大小受限的卷积核，以验证校准和数值；不会运行任何图像处理或 GPU 推理。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.workspace.save#4",
+      "source": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "source_sha256": "a346a4ae4445c5dc4561ae4ad35ae319000466eb9c1891dca8984101a62ce716",
+      "context": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "translation": "``'off'``、``'reference'`` 或 ``'copy'``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes#2",
+      "source": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "source_sha256": "b1cd5d7b1f5318210eed9d03ee95f35b395bf4ad0eaf117296a216030c7f9e2b",
+      "context": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "translation": "``(Z, Y, X)`` 或 ``(Z, Y, X, C)``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes_4d#4",
+      "source": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "source_sha256": "fde87c2383a2d70fb2c91dde4d3faa2d1ceb0b76201245a613cfe1e501a11f75",
+      "context": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "translation": "``(T, Z, Y, X)`` 或 ``(T, Z, Y, X, C)``。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.zstack.format_4d#2",
+      "source": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "source_sha256": "cdea53d430d950ea001e7e755164a8faffff42e026296f0452b52aacfaa161b4",
+      "context": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "translation": "一个 :class:`TStackResult` 或一个 :class:`TrackResult`。",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
