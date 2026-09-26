@@ -569,10 +569,13 @@ def test_a_widget_deleted_mid_gesture_does_not_end_it(zoom, screen):
 
 def test_installing_twice_leaves_one_filter(qapp):
     """Every event in the process pays for each filter on the list."""
+    from spacr.qt.gil_priority import (_stop_watching_application_events,
+                                       _watch_application_events)
+
     previous = getattr(qapp, live_zoom._FILTER_ATTRIBUTE, None)
     try:
         if previous is not None:
-            qapp.removeEventFilter(previous)
+            _stop_watching_application_events(qapp, previous)
             delattr(qapp, live_zoom._FILTER_ATTRIBUTE)
         first = live_zoom.install_live_zoom(qapp)
         second = live_zoom.install_live_zoom(qapp)
@@ -580,11 +583,11 @@ def test_installing_twice_leaves_one_filter(qapp):
     finally:
         installed = getattr(qapp, live_zoom._FILTER_ATTRIBUTE, None)
         if installed is not None and installed is not previous:
-            qapp.removeEventFilter(installed)
+            _stop_watching_application_events(qapp, installed)
             delattr(qapp, live_zoom._FILTER_ATTRIBUTE)
         if previous is not None:
             setattr(qapp, live_zoom._FILTER_ATTRIBUTE, previous)
-            qapp.installEventFilter(previous)
+            _watch_application_events(qapp, previous, live_zoom._ZOOM_KINDS)
 
 
 def test_the_launch_installs_the_gesture():

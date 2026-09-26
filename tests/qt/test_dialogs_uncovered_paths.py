@@ -67,13 +67,16 @@ def unfiltered_app(qtbot):
     app = QApplication.instance()
     had_glass = uninstall_glass_everywhere()
     saved = (dialogs._DETACHER, dialogs._DETACHED_APP)
+    from spacr.qt.gil_priority import (_stop_watching_application_events,
+                                       _watch_application_events)
+
     if saved[0] is not None:
-        app.removeEventFilter(saved[0])
+        _stop_watching_application_events(app, saved[0])
     dialogs._DETACHER = dialogs._DETACHED_APP = None
     yield app
     dialogs._DETACHER, dialogs._DETACHED_APP = saved
     if saved[0] is not None and saved[1] is app:
-        app.installEventFilter(saved[0])
+        _watch_application_events(app, saved[0], saved[0]._moments)
     if had_glass:
         install_glass_everywhere()
 
@@ -278,5 +281,7 @@ def test_an_application_that_refuses_the_filter_leaves_the_slot_empty(qapp):
         assert dialogs._DETACHED_APP is qapp
     finally:
         if dialogs._DETACHER is not None:
-            qapp.removeEventFilter(dialogs._DETACHER)
+            from spacr.qt.gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(qapp, dialogs._DETACHER)
         dialogs._DETACHER, dialogs._DETACHED_APP = saved

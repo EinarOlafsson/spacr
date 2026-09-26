@@ -48,6 +48,15 @@ from PySide6.QtCore import QEvent, QObject, QPoint, QTimer, Qt
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QApplication, QToolTip
 
+from .gil_priority import (_stop_watching_application_events,
+                           _watch_application_events)
+
+_TOOLTIP_MOMENTS = frozenset({
+    QEvent.Type.ToolTip, QEvent.Type.Leave, QEvent.Type.Hide,
+    QEvent.Type.WindowDeactivate, QEvent.Type.MouseButtonPress,
+    QEvent.Type.Wheel, QEvent.Type.KeyPress,
+})
+
 LOG = logging.getLogger(__name__)
 
 #: How long the pointer must rest before a tooltip appears, in milliseconds.
@@ -369,11 +378,10 @@ def install_tooltip_policy(app=None) -> bool:
     if app is None:
         return False
     if _filter is not None:
-        app.removeEventFilter(_filter)
-        app.installEventFilter(_filter)
+        _watch_application_events(app, _filter, _TOOLTIP_MOMENTS)
         return False
     _filter = _TooltipFilter()
-    app.installEventFilter(_filter)
+    _watch_application_events(app, _filter, _TOOLTIP_MOMENTS)
     return True
 
 
@@ -385,7 +393,7 @@ def uninstall_tooltip_policy(app=None) -> bool:
     _filter.hide_now()
     app = app or QApplication.instance()
     if app is not None:
-        app.removeEventFilter(_filter)
+        _stop_watching_application_events(app, _filter)
     _filter = None
     return True
 

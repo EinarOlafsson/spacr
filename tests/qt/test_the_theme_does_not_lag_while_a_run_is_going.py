@@ -138,3 +138,211 @@ def test_the_backdrop_shades_on_its_own_thread_when_it_has_a_frame_to_hand():
         widget.stop()
         widget.deleteLater()
         app.processEvents()
+
+
+
+# ---------------------------------------------------------------------------
+# 284, 2026-09-26: the application-wide event filters share one hub.
+#
+# Every Python event filter on the QApplication was called for every event in
+# the process. A screen's first stylesheet delivers ~7 events per widget
+# (6,288 on Make Masks), so thirteen filters turned one setStyleSheet into
+# ~80,000 C++ -> Python crossings: 650-700 ms of thread CPU against 200-290 ms
+# behind the hub (same screen, same process, load 90-100). These tests hold
+# the contract the hub has to keep so the filters behind it behave exactly as
+# they did when Qt called them itself.
+# ---------------------------------------------------------------------------
+
+
+def _hub_app():
+    pytest.importorskip("PySide6")
+    from PySide6.QtWidgets import QApplication
+
+    return QApplication.instance() or QApplication([])
+
+
+def _recorder(name, calls, *, consume=False, raises=False):
+    from PySide6.QtCore import QObject
+
+    class _Recorder(QObject):
+        def eventFilter(self, watched, event):  # noqa: N802
+            calls.append((name, event.type()))
+            if raises:
+                raise RuntimeError("a watcher that fails")
+            return consume
+
+    return _Recorder()
+
+
+def _deliver(kind):
+    from PySide6.QtCore import QCoreApplication, QEvent, QObject
+
+    target = QObject()
+    return QCoreApplication.sendEvent(target, QEvent(kind))
+
+
+def test_a_watcher_is_asked_only_about_the_kinds_it_named():
+    from PySide6.QtCore import QEvent
+
+    from spacr.qt.gil_priority import (_stop_watching_application_events,
+                                       _watch_application_events)
+
+    app = _hub_app()
+    calls = []
+    watcher = _recorder("a", calls)
+    assert _watch_application_events(app, watcher, (QEvent.Type.User,))
+    try:
+        _deliver(QEvent.Type.PaletteChange)
+        _deliver(QEvent.Type.FontChange)
+        assert calls == []
+        _deliver(QEvent.Type.User)
+        assert calls == [("a", QEvent.Type.User)]
+    finally:
+        assert _stop_watching_application_events(app, watcher)
+    _deliver(QEvent.Type.User)
+    assert calls == [("a", QEvent.Type.User)]
+
+
+def test_the_last_registered_is_asked_first_and_true_ends_the_event():
+    from PySide6.QtCore import QEvent
+
+    from spacr.qt.gil_priority import (_application_watchers,
+                                       _stop_watching_application_events,
+                                       _watch_application_events)
+
+    app = _hub_app()
+    calls = []
+    first = _recorder("first", calls)
+    second = _recorder("second", calls, consume=True)
+    kind = QEvent.Type.User
+    _watch_application_events(app, first, (kind,))
+    _watch_application_events(app, second, (kind,))
+    try:
+        watchers = _application_watchers(app)
+        assert watchers.index(second) < watchers.index(first)
+        assert _deliver(kind) is True
+        assert [name for name, _kind in calls] == ["second"]
+
+        calls.clear()
+        _watch_application_events(app, first, (kind,))
+        _deliver(kind)
+        assert [name for name, _kind in calls] == ["first", "second"]
+    finally:
+        _stop_watching_application_events(app, first)
+        _stop_watching_application_events(app, second)
+
+
+def test_a_watcher_removed_mid_event_is_not_asked_about_it():
+    from PySide6.QtCore import QEvent, QObject
+
+    from spacr.qt.gil_priority import (_stop_watching_application_events,
+                                       _watch_application_events)
+
+    app = _hub_app()
+    kind = QEvent.Type.User
+    calls = []
+    later = _recorder("later", calls)
+
+    class _Remover(QObject):
+        def eventFilter(self, watched, event):  # noqa: N802
+            calls.append(("remover", event.type()))
+            _stop_watching_application_events(app, later)
+            return False
+
+    remover = _Remover()
+    _watch_application_events(app, later, (kind,))
+    _watch_application_events(app, remover, (kind,))
+    try:
+        _deliver(kind)
+        assert [name for name, _kind in calls] == ["remover"]
+    finally:
+        _stop_watching_application_events(app, remover)
+        _stop_watching_application_events(app, later)
+
+
+def test_a_destroyed_watcher_is_skipped_and_a_failing_one_does_not_stop_the_rest(
+        monkeypatch):
+    from PySide6.QtCore import QEvent
+    from shiboken6 import delete
+
+    from spacr.qt.gil_priority import (_stop_watching_application_events,
+                                       _watch_application_events)
+
+    app = _hub_app()
+    kind = QEvent.Type.User
+    calls = []
+    hooked = []
+    monkeypatch.setattr(sys, "excepthook",
+                        lambda *exc_info: hooked.append(exc_info[0]))
+    survivor = _recorder("survivor", calls)
+    failing = _recorder("failing", calls, raises=True)
+    doomed = _recorder("doomed", calls)
+    _watch_application_events(app, survivor, (kind,))
+    _watch_application_events(app, failing, (kind,))
+    _watch_application_events(app, doomed, (kind,))
+    try:
+        delete(doomed)
+        _deliver(kind)
+        assert [name for name, _kind in calls] == ["failing", "survivor"]
+        assert hooked == [RuntimeError]
+    finally:
+        _stop_watching_application_events(app, failing)
+        _stop_watching_application_events(app, survivor)
+
+
+def test_a_stand_in_application_gets_the_filter_installed_directly():
+    from spacr.qt.gil_priority import (_stop_watching_application_events,
+                                       _watch_application_events)
+
+    class _StandIn:
+        def __init__(self):
+            self.installed = []
+
+        def installEventFilter(self, obj):  # noqa: N802
+            self.installed.append(obj)
+
+        def removeEventFilter(self, obj):  # noqa: N802
+            self.installed.remove(obj)
+
+    stand_in = _StandIn()
+    watcher = object()
+    assert _watch_application_events(stand_in, watcher, ())
+    assert stand_in.installed == [watcher]
+    assert _stop_watching_application_events(stand_in, watcher)
+    assert stand_in.installed == []
+
+
+def test_spacrs_application_filters_are_behind_the_hub_and_none_hears_a_restyle():
+    """The storm a stylesheet sets off reaches none of them."""
+    from PySide6.QtCore import QEvent
+
+    from spacr.qt.button_roles import install_button_roles
+    from spacr.qt.gil_priority import _application_event_hub
+    from spacr.qt.i18n import install_dialog_translation
+    from spacr.qt.live_zoom import install_column_text_scale, install_live_zoom
+    from spacr.qt.tooltip_policy import install_tooltip_policy
+    from spacr.qt.widgets.feature_dictionary import install_context_menu_filter
+    from spacr.qt.widgets.field_fade import install_field_fade
+    from spacr.qt.widgets.glass import install_glass_everywhere
+
+    app = _hub_app()
+    install_button_roles(app)
+    install_dialog_translation(app)
+    install_column_text_scale(app)
+    install_live_zoom(app)
+    install_tooltip_policy(app)
+    install_context_menu_filter(app)
+    install_field_fade(app)
+    install_glass_everywhere(app)
+
+    hub = _application_event_hub(app, create=False)
+    assert hub is not None
+    watched = {type(watcher).__name__ for watcher in hub.watchers()}
+    assert {"_SemanticButtonFilter", "_DialogTranslationFilter",
+            "ColumnTextScale", "LiveZoomFilter", "_TooltipFilter",
+            "FeatureHelpFilter", "_FieldFadeFilter", "_GlassInstaller",
+            "_CursorPolicy"} <= watched
+    storm = {QEvent.Type.PaletteChange, QEvent.Type.FontChange,
+             QEvent.Type.DynamicPropertyChange, QEvent.Type.Resize,
+             QEvent.Type.Move, QEvent.Type.ChildAdded}
+    assert not storm & set(hub._by_kind)

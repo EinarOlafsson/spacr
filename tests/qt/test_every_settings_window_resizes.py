@@ -33,6 +33,21 @@ pytestmark = pytest.mark.qt
 # the application filter, on and off
 # --------------------------------------------------------------------------
 
+def _filter_off(app, detacher):
+    """Stop the detacher. It sits behind the application event hub (284),
+    so Qt's own ``removeEventFilter`` would not reach it."""
+    from spacr.qt.gil_priority import _stop_watching_application_events
+
+    _stop_watching_application_events(app, detacher)
+
+
+def _filter_on(app, detacher):
+    """Start the detacher again, for the moments it acts on."""
+    from spacr.qt.gil_priority import _watch_application_events
+
+    _watch_application_events(app, detacher, detacher._moments)
+
+
 @pytest.fixture
 def _no_glass():
     """Take the card and the rim off for the duration of one test.
@@ -63,12 +78,12 @@ def bare(qtbot, _no_glass):
     app = QApplication.instance()
     saved = (dialogs._DETACHER, dialogs._DETACHED_APP)
     if saved[0] is not None:
-        app.removeEventFilter(saved[0])
+        _filter_off(app, saved[0])
     dialogs._DETACHER = dialogs._DETACHED_APP = None
     yield app
     dialogs._DETACHER, dialogs._DETACHED_APP = saved
     if saved[0] is not None and saved[1] is app:
-        app.installEventFilter(saved[0])
+        _filter_on(app, saved[0])
 
 
 @pytest.fixture
@@ -80,7 +95,7 @@ def resizer(bare):
     dialogs.detach_all_dialogs(app)
     mine = dialogs._DETACHER
     yield app
-    app.removeEventFilter(mine)
+    _filter_off(app, mine)
     dialogs._DETACHER = dialogs._DETACHED_APP = None
 
 
@@ -181,9 +196,9 @@ class TestTheFloorIsTheContent:
 
         from spacr.qt import dialogs
         app = QApplication.instance()
-        app.removeEventFilter(dialogs._DETACHER)
+        _filter_off(app, dialogs._DETACHER)
         without = _size(_open(qtbot, _picture_settings()))
-        app.installEventFilter(dialogs._DETACHER)
+        _filter_on(app, dialogs._DETACHER)
 
         assert with_filter == without
 
@@ -600,10 +615,10 @@ class TestTheRulesThemselves:
         from spacr.qt import dialogs
 
         app = QApplication.instance()
-        app.removeEventFilter(dialogs._DETACHER)
+        _filter_off(app, dialogs._DETACHER)
         without = _open(qtbot, BarcodeRegexDialog())
         floor = QWidget.minimumSize(without)
-        app.installEventFilter(dialogs._DETACHER)
+        _filter_on(app, dialogs._DETACHER)
 
         dialog = _open(qtbot, BarcodeRegexDialog())
 
@@ -1121,11 +1136,11 @@ class TestEverySettingsWindow:
                 last = size
             return last
 
-        app.removeEventFilter(dialogs._DETACHER)
+        _filter_off(app, dialogs._DETACHER)
         try:
             without = settled()
         finally:
-            app.installEventFilter(dialogs._DETACHER)
+            _filter_on(app, dialogs._DETACHER)
 
         assert settled() == without, name
 

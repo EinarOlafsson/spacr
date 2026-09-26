@@ -13,6 +13,8 @@ from PySide6.QtCore import QEvent, QObject, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QDialogButtonBox, QPushButton
 
+from .gil_priority import _watch_application_events
+
 POSITIVE_PREFIXES = ("run", "propagate")
 NEGATIVE_PREFIXES = (
     "stop", "close", "cancel", "abort", "delete", "remove", "clear",
@@ -289,7 +291,7 @@ def install_button_roles(app=None) -> None:
     if event_filter is None:
         parent = app if isinstance(app, QObject) else None
         event_filter = _SemanticButtonFilter(parent)
-        app.installEventFilter(event_filter)
+        _watch_application_events(app, event_filter, _CLASSIFYING_MOMENTS)
         setattr(app, _FILTER_ATTRIBUTE, event_filter)
     for widget in app.allWidgets():
         if isinstance(widget, QPushButton):
