@@ -339,6 +339,2358 @@
       "context": "Each object is eroded against everything that is not itself -- background AND the objects touching it -- so two objects sharing a border both pull back from it and the seam between them widens. Eroding the foreground as one binary would instead leave that seam untouched, which is the opposite of what a curator reaching for Shrink wants.",
       "translation": "Cada objeto se erosiona frente a todo lo que no es él mismo -- el fondo Y los objetos que lo tocan --, de modo que dos objetos que comparten un borde se retiran ambos de él y la costura entre ellos se ensancha. Erosionar el primer plano como un único binario dejaría en cambio esa costura intacta, que es lo contrario de lo que quiere un curador que recurre a Shrink.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#2",
+      "source": "AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS. That is what erosion means, and the screen says how many went rather than letting them go quietly; the edit is one undo step, so the way back is one press.",
+      "source_sha256": "a238c8fa2afcf39aa37605a48434329c62e932af1bec42b64cf72615a1a7aa5f",
+      "context": "An object thinner than twice the distance disappears. That is what erosion means, and the screen says how many went rather than letting them go quietly; the edit is one undo step, so the way back is one press.",
+      "translation": "UN OBJETO MÁS ESTRECHO QUE EL DOBLE DE LA DISTANCIA DESAPARECE. Eso es lo que significa erosionar, y la pantalla indica cuántos desaparecieron en lugar de dejarlos ir en silencio; la edición es un solo paso de deshacer, así que volver atrás es una sola pulsación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#3",
+      "source": "The image border counts as background, matching :func:`scipy.ndimage.binary_erosion`'s own default, so an object the field cut off pulls back from the cut too.",
+      "source_sha256": "a236c17a251b95ac07d3b58bd9043ea70f889eafb514fa1b21f13af7fd9b2e08",
+      "context": "The image border counts as background, matching :func:`scipy.ndimage.binary_erosion`'s own default, so an object the microscope field of view cut off pulls back from the cut too.",
+      "translation": "El borde de la imagen cuenta como fondo, igual que en el valor predeterminado de :func:`scipy.ndimage.binary_erosion`, de modo que un objeto cortado por el campo también se retira del corte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#4",
+      "source": "Each object is eroded inside its own bounding box, so the cost follows the area of the objects rather than the area of the field -- the same reason :func:`canonical_labels` works in boxes.",
+      "source_sha256": "261283968e340e8c4fd03cd88213e0334ec35c98aef77b2ec9d2675133aa8e88",
+      "context": "Each object is eroded inside its own bounding box, so the cost follows the area of the objects rather than the area of the field -- the same reason :func:`canonical_labels` works in boxes.",
+      "translation": "Cada objeto se erosiona dentro de su propio cuadro delimitador, así que el coste depende del área de los objetos y no del área del campo -- el mismo motivo por el que :func:`canonical_labels` trabaja con cuadros.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#6",
+      "source": "pixels to erode by. 0 or less returns a copy.",
+      "source_sha256": "0b2247cc029a8121a347d15844561ed90c4dfbf8b49c42860661b50da7e29b49",
+      "context": "pixels to erode by. 0 or less returns a copy.",
+      "translation": "número de píxeles de erosión. 0 o menos devuelve una copia.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#7",
+      "source": "a mask of the same dtype, holding the ids that survived.",
+      "source_sha256": "ba004ba596c04717d0eef65ed3affc2f1d8d94d4a58ff9680516c1e259d72619",
+      "context": "a mask of the same dtype, holding the ids that survived.",
+      "translation": "una máscara del mismo dtype, con los id que sobrevivieron.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#0",
+      "source": "Cut the object under (x, y) where its halves meet; ``(mask, new_ids)``.",
+      "source_sha256": "4debbc613fcd09b24080942e5520a5da32e2cc73134a677d763a99c053a10c54",
+      "context": "Cut the object under (x, y) where its halves meet; ``(mask, new_ids)``.",
+      "translation": "Corta el objeto bajo (x, y) por donde se unen sus mitades; ``(mask, new_ids)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#1",
+      "source": "What Ctrl + left click does. The cut is a watershed on the object's own distance to background, the same recipe :func:`_split_touching_objects` runs on a whole field: every local maximum of that distance is one half's middle and the ridge between two of them is the waist where they meet.",
+      "source_sha256": "55ca4181d6a12ffdabe18ea016f0baf63dfcbce42ac9991ef748421c842ead18",
+      "context": "What Ctrl + left click does. The cut is a watershed on the object's own distance to background, the same recipe :func:`_split_touching_objects` runs on a whole microscope field of view: every local maximum of that distance is one half's middle and the ridge between two of them is the waist where they meet.",
+      "translation": "Lo que hace Ctrl + clic izquierdo. El corte es un watershed sobre la distancia del propio objeto al fondo, la misma receta que ejecuta :func:`_split_touching_objects` sobre un campo completo: cada máximo local de esa distancia es el centro de una mitad y la cresta entre dos de ellos es la cintura por la que se unen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#10",
+      "source": "``(mask, new_ids)`` -- a new mask and the ids the split created, or a copy and an empty list when the click was on background, outside the field, or on an object with one centre.",
+      "source_sha256": "f24a32c3b2b6d5887bfe86d6b57275f0ee74a9cf1217689455d52b02f86842bc",
+      "context": "``(mask, new_ids)`` -- a new mask and the ids the split created, or a copy and an empty list when the click was on background, outside the microscope field of view, or on an object with one centre.",
+      "translation": "``(mask, new_ids)`` -- una máscara nueva y los id que creó la separación, o una copia y una lista vacía cuando el clic fue en el fondo, fuera del campo o sobre un objeto con un solo centro.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#2",
+      "source": "Three decisions, and the first is the one to read:",
+      "source_sha256": "36c42bdd262d90dc86cb016838f9d76279817e644605317957d261ffc8983eb0",
+      "context": "Three decisions, and the first is the one to read:",
+      "translation": "Tres decisiones, y la primera es la que hay que leer:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#3",
+      "source": "**AN OBJECT WITH ONE CENTRE IS LEFT ALONE** and reported as such, rather than being halved through the click. A single click carries no direction, so a forced cut would have to invent one, and the object that needs cutting is almost always a pair that merged -- which has two centres. The gesture for a cut the user aims themselves already exists and is the Divide tool (:func:`divide_object`).",
+      "source_sha256": "408c50c31ac03b58d80a8721de5ba0d39ec23dc0a1ca05a50631c8033b923f84",
+      "context": "**An object with one centre is left alone** and reported as such, rather than being halved through the click. A single click carries no direction, so a forced cut would have to invent one, and the object that needs cutting is almost always a pair that merged -- which has two centres. The gesture for a cut the user aims themselves already exists and is the Divide tool (:func:`divide_object`).",
+      "translation": "**UN OBJETO CON UN SOLO CENTRO SE DEJA COMO ESTÁ** y se notifica como tal, en lugar de partirlo por el punto del clic. Un solo clic no lleva ninguna dirección, así que un corte forzado tendría que inventarse una, y el objeto que hay que cortar es casi siempre una pareja que se fusionó -- que tiene dos centros. El gesto para un corte que el propio usuario dirige ya existe y es la herramienta Divide (:func:`divide_object`).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#4",
+      "source": "**The largest piece keeps the id** and the others are given ids above the mask's top label, which is :func:`canonical_labels`' own rule, so splitting and then saving renumbers nothing.",
+      "source_sha256": "6d0d02a837721c41bda8d43e0f700fb165bb5c030d00384667b788c94061349d",
+      "context": "**The largest piece keeps the id** and the others are given ids above the mask's top label, which is :func:`canonical_labels`' own rule, so splitting and then saving renumbers nothing.",
+      "translation": "**La pieza más grande conserva el id** y a las demás se les asignan id por encima de la etiqueta más alta de la máscara, que es la regla propia de :func:`canonical_labels`, así que separar y luego guardar no renumera nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#5",
+      "source": "**NO PIXEL IS LOST.** Every pixel of the object ends up under one of the new ids. ``min_area`` sets how far apart two centres must be to count as two (:func:`_split_touching_objects`' seed spacing) and is NOT applied as a drop here: a hand edit moves pixels between ids, and a gesture that quietly erased the smaller half would be a delete wearing a split's name.",
+      "source_sha256": "c0bd7e372bf6c7c4f0366bd9ac2a4b013b4c33ce1aa975d45686b85a227bbc49",
+      "context": "**No pixel is lost.** Every pixel of the object ends up under one of the new ids. ``min_area`` sets how far apart two centres must be to count as two (:func:`_split_touching_objects`' seed spacing) and is NOT applied as a drop here: a hand edit moves pixels between ids, and a gesture that quietly erased the smaller half would be a delete wearing a split's name.",
+      "translation": "**NO SE PIERDE NINGÚN PÍXEL.** Todos los píxeles del objeto acaban bajo uno de los nuevos id. ``min_area`` fija a qué distancia deben estar dos centros para contar como dos (el espaciado de semillas de :func:`_split_touching_objects`) y aquí NO se aplica como descarte: una edición manual mueve píxeles entre id, y un gesto que borrara en silencio la mitad más pequeña sería una eliminación disfrazada de separación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#7",
+      "source": "column clicked, in image pixels.",
+      "source_sha256": "4088399933763f8f90c0d7ebcb800cadbea8a0bd66bd7b769e26fd8e31c0d926",
+      "context": "column clicked, in image pixels.",
+      "translation": "columna en la que se hizo clic, en píxeles de imagen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#8",
+      "source": "row clicked, in image pixels.",
+      "source_sha256": "cdd0aa0ee2029b4d36f5b51f2d29f50a0d6201f99e9027ccad2e00925e5e3d4d",
+      "context": "row clicked, in image pixels.",
+      "translation": "fila en la que se hizo clic, en píxeles de imagen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#9",
+      "source": "the smallest object the screen is willing to keep, in pixels; it sets the seed spacing, so an object this size is not itself cut in two.",
+      "source_sha256": "f651bc23ff1350b2402185a4bd5d68e08324e4c9142c39857690affbb8bf3c4f",
+      "context": "the smallest object the screen is willing to keep, in pixels; it sets the seed spacing, so an object this size is not itself cut in two.",
+      "translation": "el objeto más pequeño que la pantalla está dispuesta a conservar, en píxeles; fija el espaciado de semillas, de modo que un objeto de este tamaño no se corta en dos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.write_recrop#2",
+      "source": "A field cut from a ``_seg.npy`` bundle becomes a bundle of its own, holding ``img``, ``masks``, empty ``flows`` and a ``filename`` naming the parent and the box -- the form the external curation tool gave its recrops, so either tool can open the other's.",
+      "source_sha256": "feccbe613b009fc5e9a4d31c56923593f728e549db7cbb16a48693a0ab72f8f7",
+      "context": "A field cut from a ``_seg.npy`` bundle becomes a bundle of its own, holding ``img``, ``masks``, empty ``flows`` and a ``filename`` naming the parent and the box -- the form the external curation tool gave its recrops, so either tool can open the other's.",
+      "translation": "Un campo cortado de un paquete ``_seg.npy`` se convierte en un paquete propio, con ``img``, ``masks``, ``flows`` vacío y un ``filename`` que nombra el padre y el cuadro -- la forma que daba la herramienta de curación externa a sus recortes nuevos, para que cualquiera de las dos herramientas pueda abrir los de la otra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.maturity.reason_for#2",
+      "source": "the app's registry key, e.g. ``\"align\"``; converted to ``str`` and looked up in :data:`PROMOTIONS`, then :data:`AFFIRMED`, then :data:`RETIREMENTS`.",
+      "source_sha256": "cc7e019b443f41e651be3c3703bb698bb2ac6c1ebee1787939fdd5c4a0910e7b",
+      "context": "the app's registry key, e.g. ``\"align\"``; converted to ``str`` and looked up in :data:`PROMOTIONS`, then :data:`AFFIRMED`, then :data:`RETIREMENTS`.",
+      "translation": "la clave de registro de la aplicación, p. ej. ``\"align\"``; se convierte a ``str`` y se busca en :data:`PROMOTIONS`, luego en :data:`AFFIRMED` y luego en :data:`RETIREMENTS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install#0",
+      "source": "Install a model from inside spaCR, without freezing the window.",
+      "source_sha256": "8315d25b5fc073737b6d46cd6397b47cbe52ad1ab86487d299de2f36e99a158e",
+      "context": "Install a model from inside spaCR, without freezing the window.",
+      "translation": "Instala un modelo desde dentro de spaCR, sin congelar la ventana.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install#1",
+      "source": "Two kinds of thing are installed from a click: a segmentation backend, which is a Python package added to the running environment with ``pip`` (DINOCell and SAMCell, :data:`spacr.model_zoo.INSTALLABLE_BACKENDS`), and a Cellpose checkpoint from the model zoo, which is a file downloaded and verified by :func:`spacr.model_zoo.install`. Both can take minutes, so both run off the GUI thread: :class:`PackageInstall` runs ``pip`` as a child process watched from the event loop, and :class:`CheckpointDownload` runs the zoo's download on a worker thread. Each reports progress while it runs and a single result when it ends, and a failure is a message rather than an exception, so a failed install leaves the screen that started it working.",
+      "source_sha256": "df8fab2cf5d50d95c95e9ae0e4ffe8849d18785af492986f624a9a56e9d144b8",
+      "context": "Two kinds of thing are installed from a click: a segmentation backend, which is a Python package added to the executing environment with ``pip`` (DINOCell and SAMCell, :data:`spacr.model_zoo.INSTALLABLE_BACKENDS`), and a Cellpose checkpoint from the model zoo, which is a file downloaded and verified by :func:`spacr.model_zoo.install`. Both can take minutes, so both run off the main GUI execution path: :class:`PackageInstall` runs ``pip`` as a child process watched from the event loop, and :class:`CheckpointDownload` runs the zoo's download on a background execution unit. Each reports progress while it executes and a single result when it ends, and a failure is a message rather than an exception, so a failed install leaves the application view that started it working.",
+      "translation": "Con un clic se instalan dos tipos de cosas: un backend de segmentación, que es un paquete de Python añadido con ``pip`` al entorno en ejecución (DINOCell y SAMCell, :data:`spacr.model_zoo.INSTALLABLE_BACKENDS`), y un punto de control de Cellpose del zoo de modelos, que es un archivo descargado y verificado por :func:`spacr.model_zoo.install`. Ambos pueden tardar minutos, así que ambos se ejecutan fuera del hilo de la GUI: :class:`PackageInstall` ejecuta ``pip`` como proceso hijo vigilado desde el bucle de eventos, y :class:`CheckpointDownload` ejecuta la descarga del zoo en un hilo de trabajo. Cada uno informa del progreso mientras se ejecuta y de un único resultado al terminar, y un fallo es un mensaje y no una excepción, de modo que una instalación fallida deja funcionando la pantalla que la inició.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install#2",
+      "source": ":class:`SegmentationBackendCombo` is the Mask module's choice of segmentation backend: every backend is listed, one that is not installed is greyed, and choosing it offers to install it and selects it once installed. Make Masks offers the same backends, in the same way, in its Live magnifier Mode box.",
+      "source_sha256": "3a7c7eb204fa952cc5cfef59d293b0bcce1b3b93a5a4daed76ef36a329a02b5b",
+      "context": ":class:`SegmentationBackendCombo` is the Mask module's choice of segmentation backend: every backend is listed, one that is not installed is greyed, and choosing it offers to install it and selects it once installed. Make Masks offers the same backends, in the same way, in its Live magnifier Mode box.",
+      "translation": ":class:`SegmentationBackendCombo` es la elección de backend de segmentación del módulo Mask: se enumeran todos los backends, uno que no está instalado aparece en gris, y elegirlo ofrece instalarlo y lo selecciona una vez instalado. Make Masks ofrece los mismos backends, de la misma forma, en su cuadro Mode de la lupa en directo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#0",
+      "source": "Download and verify one model-zoo checkpoint off the GUI thread.",
+      "source_sha256": "da4daf6f56769b0fd8bd20dfc1047169f44c7086167711d40629b99d6f47551b",
+      "context": "Download and verify one model-zoo checkpoint off the main GUI execution path.",
+      "translation": "Descarga y verifica un punto de control del zoo de modelos fuera del hilo de la GUI.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#1",
+      "source": "Goes through :func:`spacr.model_zoo.install`, so the file is checked against its published digest before it is put where it belongs, and a failure leaves the destination as it was. Like :class:`PackageInstall` it keeps itself alive until its thread has ended, so the widget that started it can be deleted without taking a running thread with it.",
+      "source_sha256": "063a329c2adc1ff42fee91a2c7cdce9668ea277dc437a947bf792a12e779cef7",
+      "context": "Goes through :func:`spacr.model_zoo.install`, so the file is checked against its published digest before it is put where it belongs, and a failure leaves the destination as it was. Like :class:`PackageInstall` it keeps itself alive until its independent execution path has ended, so the widget that started it can be deleted without taking an executing independent execution path with it.",
+      "translation": "Pasa por :func:`spacr.model_zoo.install`, de modo que el archivo se comprueba frente a su digest publicado antes de colocarlo donde corresponde, y un fallo deja el destino como estaba. Igual que :class:`PackageInstall`, se mantiene vivo hasta que termina su hilo, de modo que el widget que lo inició puede eliminarse sin llevarse consigo un hilo en ejecución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#10",
+      "source": "skip the checksum requirement.",
+      "source_sha256": "600c27a471f6fe1fb89d6fbba21da618b2ba4f94ffb0f1a9066fa8808c0e8d87",
+      "context": "skip the checksum requirement.",
+      "translation": "omitir el requisito de suma de comprobación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#2",
+      "source": "the zoo's :class:`spacr.model_zoo.ModelEntry`.",
+      "source_sha256": "5e87f98cba45300dbfeb70c995abc604133fefa2dbbc24171740c81debde05fd",
+      "context": "the zoo's :class:`spacr.model_zoo.ModelEntry`.",
+      "translation": "la :class:`spacr.model_zoo.ModelEntry` del zoo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#3",
+      "source": "where the checkpoint goes.",
+      "source_sha256": "0b2f1a96e112e491c251a753f247806bb001f53ec72e3eb2a7cd2b750b746a0c",
+      "context": "where the checkpoint goes.",
+      "translation": "dónde va el punto de control.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#4",
+      "source": "owner; give it none, for the reason above.",
+      "source_sha256": "27df6d99c57c33cafe478855bb85e924793309a47ec7100b25b6efa234272fc6",
+      "context": "owner; give it none, for the reason above.",
+      "translation": "propietario; no le asigne ninguno, por el motivo expuesto más arriba.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#5",
+      "source": "accept an entry that publishes no checksum. Only for an entry that has none, and only after the user has said so.",
+      "source_sha256": "505ebea288615f5eeb48cd8c5a793571858ca6d027a797c76b35c4c6388a00f4",
+      "context": "accept an entry that publishes no checksum. Only for an entry that has none, and only after the user has said so.",
+      "translation": "aceptar una entrada que no publica suma de comprobación. Solo para una entrada que no la tiene, y solo después de que el usuario lo haya autorizado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#6",
+      "source": "Prepare the download without starting it.",
+      "source_sha256": "0b03ae517c79839cb7603526666a98e45b1870c68baa187fef52ebaec583cb3a",
+      "context": "Prepare the download without starting it.",
+      "translation": "Prepara la descarga sin iniciarla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#7",
+      "source": "the zoo entry.",
+      "source_sha256": "d0e38abf000587ceb0573fc1d10cf783a157359f4d7971c1b0f0740bd3e5f58c",
+      "context": "the zoo entry.",
+      "translation": "la entrada del zoo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#8",
+      "source": "destination folder.",
+      "source_sha256": "139d37a5970afd1279a45ce1f05acb789f0f9d83797d1ed56f1d1cceb8dd6fb0",
+      "context": "destination folder.",
+      "translation": "carpeta de destino.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#9",
+      "source": "owner.",
+      "source_sha256": "0d4e0e77a921be5f17b48fba016c0b1879a3b9e548262f9f9bcdac59f1d9dd82",
+      "context": "owner.",
+      "translation": "propietario.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.cancel#0",
+      "source": "Stop the download at its next chunk, and report it as cancelled.",
+      "source_sha256": "66ffee53b704222c549e2f72514cd53b83895fce9e80cd074b46563360c8b2f4",
+      "context": "Stop the download at its next chunk, and report it as cancelled.",
+      "translation": "Detiene la descarga en su siguiente bloque y la notifica como cancelada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.cancel#1",
+      "source": "Returns at once: the thread ends on its own, and the partial file is removed by :func:`spacr.model_zoo.fetch`.",
+      "source_sha256": "eb45019ccc16ce2fa44746536de80a250dde3172bf5f86658ec231407402c376",
+      "context": "Returns at once: the thread ends on its own, and the partial file is removed by :func:`spacr.model_zoo.fetch`.",
+      "translation": "Vuelve de inmediato: el hilo termina por sí solo, y :func:`spacr.model_zoo.fetch` elimina el archivo parcial.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.start#0",
+      "source": "Start the download on its own thread.",
+      "source_sha256": "faba6051c0ea3447616ce4f40aee8eb9e6a04c826bb80584ea5ea6ebb1242d7a",
+      "context": "Start the download on its own thread.",
+      "translation": "Inicia la descarga en su propio hilo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.start#1",
+      "source": "True once the thread is running.",
+      "source_sha256": "4528dc45b7f72f25b7a704dd0073b7b9c200baabc5fdf1a3273c6aacff167e8b",
+      "context": "True once the thread is running.",
+      "translation": "True una vez que el hilo está en ejecución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.wait#0",
+      "source": "Block until the download thread has ended.",
+      "source_sha256": "b6ba74d076c239bc37fbe5a4d573e23625bd5fcc0cb1b19ec6cabee6420a64ca",
+      "context": "Block until the download thread has ended.",
+      "translation": "Bloquea hasta que termina el hilo de descarga.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.wait#1",
+      "source": "how long to wait.",
+      "source_sha256": "52767b23ad5379d361b723da8ce6d7c3a813d2da5f2fef782282e1b2ae868f2c",
+      "context": "how long to wait.",
+      "translation": "cuánto tiempo esperar.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.wait#2",
+      "source": "True when it has ended.",
+      "source_sha256": "8625d64197483458bb9436c55ace070a9eb67af93769bc3f4aaafaef6a742d23",
+      "context": "True when it has ended.",
+      "translation": "True cuando ha terminado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#0",
+      "source": "One ``pip install`` in a child process, watched from the event loop.",
+      "source_sha256": "0059d486d379e71feac64c21ef08c9b75fa67440f04792edb2dba624c822b837",
+      "context": "One ``pip install`` in a child process, watched from the event loop.",
+      "translation": "Un ``pip install`` en un proceso hijo, vigilado desde el bucle de eventos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#1",
+      "source": "Nothing waits on the process: its output arrives through :attr:`progressed` as it is written, and :attr:`finished` fires once, with whether it worked and what to tell the user. A process that cannot start finishes at once, unsuccessfully.",
+      "source_sha256": "f5936dd7cb8087f29f37996a4e233bea22d0ef0b26b53dbad5b4f16212e90b35",
+      "context": "Nothing waits on the process: its output arrives through :attr:`progressed` as it is written, and :attr:`finished` fires once, with whether it worked and what to tell the user. A process that cannot start finishes at once, unsuccessfully.",
+      "translation": "Nada espera al proceso: su salida llega a través de :attr:`progressed` a medida que se escribe, y :attr:`finished` se emite una vez, indicando si funcionó y qué decir al usuario. Un proceso que no puede iniciarse termina de inmediato, sin éxito.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#2",
+      "source": "Give it no parent. It keeps itself alive while ``pip`` runs, because a child process deleted with its owner is killed, and ``pip`` killed half way through an install can leave the environment broken.",
+      "source_sha256": "7d1db1b42e77c61955f385b6b2b754feb6fbdf9bd06dca1162d6528a7ebd586d",
+      "context": "Give it no parent. It keeps itself alive while ``pip`` runs, because a child process deleted with its owner is killed, and ``pip`` killed half way through an install can leave the environment broken.",
+      "translation": "No le asigne ningún padre. Se mantiene vivo mientras se ejecuta ``pip``, porque un proceso hijo eliminado con su propietario muere, y un ``pip`` matado a mitad de una instalación puede dejar el entorno roto.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#3",
+      "source": "what to install, for example ``'spacr[samcell]'``.",
+      "source_sha256": "66709eb9c11ec099cd060a80ca49e0815f23435ceb5cd7e21d31995266707966",
+      "context": "what to install, for example ``'spacr[samcell]'``.",
+      "translation": "qué instalar, por ejemplo ``'spacr[samcell]'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#4",
+      "source": "owner, if the caller insists on one.",
+      "source_sha256": "7136fff6694f87242c4ed45b7e0c0ce85d006849f5db1077b1b2599cb627ee32",
+      "context": "owner, if the caller insists on one.",
+      "translation": "propietario, si quien llama insiste en tener uno.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#5",
+      "source": "the program and arguments to run instead of :func:`pip_command`, for a caller that needs a different installer.",
+      "source_sha256": "86f32e806dd05f35c30a4847aa976e8bba81834e180d2a0874c12d143cdcfa84",
+      "context": "the program and arguments to run instead of :func:`pip_command`, for a caller that needs a different installer.",
+      "translation": "el programa y los argumentos que se ejecutan en lugar de :func:`pip_command`, para quien necesita un instalador distinto.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#6",
+      "source": "Prepare the install without starting it.",
+      "source_sha256": "2e25b0890b12b5d537911da8db834b98a7e608f7b236621fcdad82962aca7b18",
+      "context": "Prepare the install without starting it.",
+      "translation": "Prepara la instalación sin iniciarla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#7",
+      "source": "what to install.",
+      "source_sha256": "8b79979dc98719b5340aebd83eba09295d1d3c91e50fdbc0d4f38606a909a815",
+      "context": "what to install.",
+      "translation": "qué instalar.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#9",
+      "source": "a replacement for :func:`pip_command`.",
+      "source_sha256": "60f87d71a31a60fdd69edd06fe8e2701ae625e71136afeeb75b124a7712024b7",
+      "context": "a replacement for :func:`pip_command`.",
+      "translation": "un sustituto de :func:`pip_command`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall.start#0",
+      "source": "Start the installer.",
+      "source_sha256": "0ff4d07beddd5a4e8628022a0c52fdf62251cfc695b83d554f310562ea77804c",
+      "context": "Start the installer.",
+      "translation": "Inicia el instalador.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall.start#1",
+      "source": "False when it could not be started, in which case :attr:`finished` has already said so.",
+      "source_sha256": "32bce1ddc3af83a993a6ac4177291eb033ce77bdbb5ec27afb0e8ba46f7191b6",
+      "context": "False when it could not be started, in which case :attr:`finished` has already said so.",
+      "translation": "False cuando no se pudo iniciar, en cuyo caso :attr:`finished` ya lo ha indicado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#0",
+      "source": "The Mask module's ``segmentation_backend``: every backend, always.",
+      "source_sha256": "6b74d9073a6d08381c984776523dfb08d3e67dc94b2b5fb2bb2b24c3742e9a07",
+      "context": "The Mask module's ``segmentation_backend``: every backend, always.",
+      "translation": "El ``segmentation_backend`` del módulo Mask: todos los backends, siempre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#1",
+      "source": "Cellpose is always first and always installed. DINOCell and SAMCell are listed whether or not their packages are here; one that is missing is greyed, with a tooltip saying so, and choosing it asks before running ``pip`` in the background. The box goes back to the backend it was on while the install runs, so the setting never names a backend that cannot load, and selects the new backend once it is installed.",
+      "source_sha256": "eb52f9ff2239f47f673ef993a80077a1566d6627f5268639f8005996f066771c",
+      "context": "Cellpose is always first and always installed. DINOCell and SAMCell are listed whether or not their packages are here; one that is missing is greyed, with a tooltip saying so, and choosing it asks before executing ``pip`` in the background. The box goes back to the backend it was on while the install runs, so the setting never names a backend that cannot load, and selects the new backend once it is installed.",
+      "translation": "Cellpose siempre aparece primero y siempre está instalado. DINOCell y SAMCell se enumeran tanto si sus paquetes están aquí como si no; uno que falta aparece en gris, con una descripción emergente que lo indica, y elegirlo pregunta antes de ejecutar ``pip`` en segundo plano. El cuadro vuelve al backend en el que estaba mientras se ejecuta la instalación, de modo que el ajuste nunca nombra un backend que no puede cargarse, y selecciona el nuevo backend una vez instalado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#2",
+      "source": "The stored value of each row is the setting's own value (``'cellpose'``, ``'dinocell'``, ``'samcell'``), so the settings form reads and writes it as it reads and writes any other dropdown.",
+      "source_sha256": "aa457fc78cbc5ebab3f6a0bda6af85c469b350d69522c1d9424043fdea881a26",
+      "context": "The stored value of each row is the setting's own value (``'cellpose'``, ``'dinocell'``, ``'samcell'``), so the settings form reads and writes it as it reads and writes any other dropdown.",
+      "translation": "El valor almacenado de cada fila es el propio valor del ajuste (``'cellpose'``, ``'dinocell'``, ``'samcell'``), así que el formulario de ajustes lo lee y escribe como cualquier otro desplegable.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#3",
+      "source": "the value to start on.",
+      "source_sha256": "c7623ff24a2c0621c5a31641229972dd2aed38e48dd08e75c6e6339e44773b2a",
+      "context": "the value to start on.",
+      "translation": "el valor inicial.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#5",
+      "source": "List the backends and select ``default``.",
+      "source_sha256": "8ce771b0c97f3c98b19007b03890e536a3fd274afdeea589048f738be1a37c72",
+      "context": "List the backends and select ``default``.",
+      "translation": "Enumera los backends y selecciona ``default``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.missing#0",
+      "source": "The backends listed but not installed, by name.",
+      "source_sha256": "d8831683216422fdb5b47fc5855e533551be665b881f134a1aa3c92697c12549",
+      "context": "The backends listed but not installed, by name.",
+      "translation": "Los backends enumerados pero no instalados, por nombre.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.missing#1",
+      "source": "Installed means \"can segment now\", which is either an environment of its own under ``~/.spacr/backends`` or -- the older arrangement, still honoured -- the package importable in spaCR's own environment. :func:`spacr._segmentation_backends._backend_state` answers both with file checks and no import, so this stays cheap enough to ask while the box is being built.",
+      "source_sha256": "c02cf45c422ecf9575f0c0ba5d22535d3dec1a8f11883f728af4539d20119559",
+      "context": "Installed means \"can segment now\", which is either an environment of its own under ``~/.spacr/backends`` or -- the older arrangement, still honoured -- the package importable in spaCR's own environment. :func:`spacr._segmentation_backends._backend_state` answers both with file checks and no import, so this stays cheap enough to ask while the box is being built.",
+      "translation": "Instalado significa \"can segment now\", que es o bien un entorno propio bajo ``~/.spacr/backends`` o -- la disposición anterior, que se sigue respetando -- el paquete importable en el propio entorno de spaCR. :func:`spacr._segmentation_backends._backend_state` responde a ambas cosas con comprobaciones de archivos y sin importar nada, así que sigue siendo lo bastante barato como para preguntarlo mientras se construye el cuadro.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#0",
+      "source": "Install backend ``name`` into an environment of its own.",
+      "source_sha256": "02e34d41a118d254990b37cf08183eabab8c51e34278d7f143dafcdb26fe9655",
+      "context": "Install backend ``name`` into an environment of its own.",
+      "translation": "Instala el backend ``name`` en un entorno propio.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#1",
+      "source": "THE DESTINATION CHANGED, NOT THE GESTURE. A greyed row installs itself when it is chosen. It used to run ``pip install \"spacr[<backend>]\"`` against the environment spaCR is running in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the GUI thread, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
+      "source_sha256": "38f7b8d8fa3e0e692bcbc56a74593de36868a0662d0f786e3c9e301fa33a7814",
+      "context": "The destination changed, not the gesture. A greyed row installs itself when it is chosen. It used to execute ``pip install \"spacr[<backend>]\"`` against the environment spaCR is executing in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the main GUI execution path, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
+      "translation": "LO QUE CAMBIÓ FUE EL DESTINO, NO EL GESTO. Una fila en gris se instala sola cuando se elige. Antes ejecutaba ``pip install \"spacr[<backend>]\"`` sobre el entorno en el que se ejecuta spaCR; ahora cada motor recibe un entorno aislado, así que la instalación pasa por el propio diálogo del Model Zoo: fuera del hilo de la GUI, con progreso y Cancelar, en ``~/.spacr/backends/<name>``, y el entorno propio de spaCR nunca se modifica.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#2",
+      "source": "a backend name.",
+      "source_sha256": "280f8e3db1f9f4ac1d4d83eda205d9f87c7059898bdaa0d850d6aef3feec0ed2",
+      "context": "a backend name.",
+      "translation": "un nombre de motor.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#3",
+      "source": "True when the backend can segment afterwards.",
+      "source_sha256": "aeba2d92c2c8775ef656ae65783ff841b06baf76ff501297fb3ca4eca2fa872d",
+      "context": "True when the backend can segment afterwards.",
+      "translation": "True cuando el motor puede segmentar después.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.setCurrentText#0",
+      "source": "Select the row whose caption, or stored value, is ``text``.",
+      "source_sha256": "0c918a7f777889870be6d9def30a8dda12487ee1b50b81ff1c749a5f8ab320c9",
+      "context": "Select the row whose caption, or stored value, is ``text``.",
+      "translation": "Selecciona la fila cuyo título, o valor almacenado, es ``text``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.setCurrentText#1",
+      "source": "a caption such as ``'SAMCell'`` or a value such as ``'samcell'``; anything else leaves the selection alone.",
+      "source_sha256": "7c46cad04c6753ea0695dbb1b1611fff17c4bab67ca6818f0a340cdc93b14a6b",
+      "context": "a caption such as ``'SAMCell'`` or a value such as ``'samcell'``; anything else leaves the selection alone.",
+      "translation": "un título como ``'SAMCell'`` o un valor como ``'samcell'``; cualquier otra cosa deja la selección sin cambios.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#0",
+      "source": "The OPS module's ``ops_spot_detector``: spaCR's own, or SpotNet.",
+      "source_sha256": "6b638a66ddd27519dbe1d48fff8038026d909bb07a0f7908d9b0781d858f5740",
+      "context": "The OPS module's ``ops_spot_detector``: spaCR's own, or SpotNet.",
+      "translation": "El ``ops_spot_detector`` del módulo OPS: el propio de spaCR, o SpotNet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#1",
+      "source": "spaCR's own detector is first, the default and always usable. SpotNet is listed whether or not it can run; when its environment or its DeepCell token is missing its row is disabled and its tooltip says which, and either way the tooltip states its non-commercial licence, because this box is where a person chooses it.",
+      "source_sha256": "2645b131fcb0ef398a7f8880b46366b18f8e5144cb02a27706efb90c32d4d850",
+      "context": "spaCR's own detector is first, the default and always usable. SpotNet is listed whether or not it can run; when its environment or its DeepCell token is missing its row is disabled and its tooltip says which, and either way the tooltip states its non-commercial licence, because this box is where a person chooses it.",
+      "translation": "El detector propio de spaCR es el primero, el predeterminado y siempre utilizable. SpotNet aparece en la lista pueda o no ejecutarse; cuando falta su entorno o su token de DeepCell, su fila queda desactivada y su información emergente dice cuál, y en cualquier caso la información emergente indica su licencia no comercial, porque este cuadro es donde una persona lo elige.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#2",
+      "source": "the value to start on, ``'native'`` or ``'spotnet'``.",
+      "source_sha256": "2223d6ffa4d2e69a9aaa11ef1c9e0132b0bc68a78c11398ce93b079b2a338961",
+      "context": "the value to start on, ``'native'`` or ``'spotnet'``.",
+      "translation": "el valor inicial, ``'native'`` o ``'spotnet'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#4",
+      "source": "``() -> (ready, reason)``; SpotNet's own check when None, a stand-in in tests.",
+      "source_sha256": "b4d1422e4bd0ea541c4a2611a3976e68689eca370a873789e681481adb35275a",
+      "context": "``() -> (ready, reason)``; SpotNet's own check when None, a stand-in in tests.",
+      "translation": "``() -> (ready, reason)``; la comprobación propia de SpotNet cuando es None, un sustituto en las pruebas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#5",
+      "source": "List the detectors, disable SpotNet if it cannot run, select.",
+      "source_sha256": "07a1a8888483acf37f56f0f6eaa4e44f1eab6609c29763d0ca86576df9c34cb5",
+      "context": "List the detectors, disable SpotNet if it cannot run, select.",
+      "translation": "Enumera los detectores, desactiva SpotNet si no puede ejecutarse y selecciona.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.refresh#0",
+      "source": "Enable SpotNet's row only when it can run, and say why not.",
+      "source_sha256": "62bf713a143594afa112c55cbe7a0e726cb4e916d58220e0fb761c68fb9da044",
+      "context": "Enable SpotNet's row only when it can run, and say why not.",
+      "translation": "Habilita la fila de SpotNet solo cuando puede ejecutarse, y explica por qué no.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.refresh#1",
+      "source": "SpotNet's ``(ready, reason)``.",
+      "source_sha256": "a6fae124fd018d99f0550d935bbd5bf24a2bd6b809c73f7d6552a8b9f1fee241",
+      "context": "SpotNet's ``(ready, reason)``.",
+      "translation": "el ``(ready, reason)`` de SpotNet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.setCurrentText#0",
+      "source": "Select the row whose caption or value is ``text``, if usable.",
+      "source_sha256": "f53a58eaf09bcbaacfd28ef84758aca2ebfb16a7f49fa848f016a6397bc59ac1",
+      "context": "Select the row whose caption or value is ``text``, if usable.",
+      "translation": "Selecciona la fila cuyo título o valor es ``text``, si es utilizable.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.setCurrentText#1",
+      "source": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone.",
+      "source_sha256": "57820363ed8045e1868ed1479301fde9625955270e70b4e069ed1f4d1b1fc481",
+      "context": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone.",
+      "translation": "un título o valor almacenado; una fila no instalada (desactivada), o la ausencia de coincidencia, deja la selección sin cambios.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_row#0",
+      "source": "The :func:`backend_rows` row for one backend.",
+      "source_sha256": "e6df5a8867d86b44daac669f7862805a26a243ef7805a15445fb2fd089f2caaa",
+      "context": "The :func:`backend_rows` row for one backend.",
+      "translation": "La fila de :func:`backend_rows` para un motor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_row#1",
+      "source": "a backend name such as ``'samcell'``.",
+      "source_sha256": "f0c61f2bd000e4412d15147e6ec7460133f4ad7e667de85dcd670fba8d06c17b",
+      "context": "a backend name such as ``'samcell'``.",
+      "translation": "un nombre de motor como ``'samcell'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_row#2",
+      "source": "the row, or ``None`` for a name the zoo does not list.",
+      "source_sha256": "7cb1befdedf64aefa430fda803011a66bcd9e9aec4acb4ca935fda322bbce0d1",
+      "context": "the row, or ``None`` for a name the zoo does not list.",
+      "translation": "la fila, o ``None`` para un nombre que el zoo no incluye.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_rows#0",
+      "source": "Every installable segmentation backend, as the model zoo lists it.",
+      "source_sha256": "30cebeec4d443046244d0ff5602a0ea6d089a0ee97dd4a3dcf5fbf1d0afbd19b",
+      "context": "Every installable segmentation backend, as the model zoo lists it.",
+      "translation": "Cada motor de segmentación instalable, tal como lo enumera el zoo de modelos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_rows#1",
+      "source": "``(name, label, pip requirement, import name)`` per backend, in the zoo's order.",
+      "source_sha256": "f4dbf16003c920dc46abfbfb14f3c46e8f6f92995b52711a7b660b2cb6146e70",
+      "context": "``(name, label, pip requirement, import name)`` per backend, in the zoo's order.",
+      "translation": "``(name, label, pip requirement, import name)`` por motor, en el orden del zoo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.can_install_packages#0",
+      "source": "Whether this build of spaCR can add a package to itself.",
+      "source_sha256": "bb9370681aa52fd9e7a7683b8865f664ed09a2bd8598c320558631a72a02b119",
+      "context": "Whether this build of spaCR can add a package to itself.",
+      "translation": "Si esta compilación de spaCR puede añadirse un paquete a sí misma.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.can_install_packages#1",
+      "source": "A frozen application has no ``pip`` to run: its interpreter is the application binary.",
+      "source_sha256": "52bd99753c70a6ced0f13f7635daf88751d406bcc1dd28d769e74e8cabea297f",
+      "context": "A frozen application has no ``pip`` to run: its interpreter is the application binary.",
+      "translation": "Una aplicación congelada no tiene ``pip`` que ejecutar: su intérprete es el binario de la aplicación.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.can_install_packages#2",
+      "source": "False inside a frozen build.",
+      "source_sha256": "2671c165aba38df592f8410ca001ce3b8326a93f083f437ac767b6dcc8e33020",
+      "context": "False inside a frozen build.",
+      "translation": "False dentro de una compilación congelada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#0",
+      "source": "Ask before installing a backend, and say what the install risks.",
+      "source_sha256": "a242703dd08d28176a4a9745def315e6222fb78d295ae4ea93c1d4c54bf12b81",
+      "context": "Ask before installing a backend, and say what the install risks.",
+      "translation": "Pregunta antes de instalar un motor, e indica qué riesgos conlleva la instalación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#1",
+      "source": "the widget the question belongs to.",
+      "source_sha256": "f6738c161aa0966491c4b21ed92c45123f4679b57a553fe0a5641aeb3863de4f",
+      "context": "the widget the question belongs to.",
+      "translation": "el widget al que pertenece la pregunta.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#2",
+      "source": "the backend's name, for example ``'SAMCell'``.",
+      "source_sha256": "2844635f65690d061656aa7fdaf40738d51888ed6b31c1fb7d62624babd9d657",
+      "context": "the backend's name, for example ``'SAMCell'``.",
+      "translation": "el nombre del motor, por ejemplo ``'SAMCell'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#3",
+      "source": "what is passed to ``pip install``.",
+      "source_sha256": "408afd1e2c951a2fb778ac5d11611960ac8752fa6d9a71b62e49b6f69e7fd256",
+      "context": "what is passed to ``pip install``.",
+      "translation": "lo que se pasa a ``pip install``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#4",
+      "source": "True when the user agreed.",
+      "source_sha256": "e771f1bce41224da784b955e05a4aac895146df69891a0083b25d5d96b8b7af8",
+      "context": "True when the user agreed.",
+      "translation": "True cuando el usuario ha aceptado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.human_bytes#0",
+      "source": "A byte count a person can read, such as ``'1.2 GB'``.",
+      "source_sha256": "c3f4c256a09db9fef1ad8c873c1f6e74e074c9145a6275bcb2d9c68889ae08a7",
+      "context": "A byte count a person can read, such as ``'1.2 GB'``.",
+      "translation": "Un recuento de bytes legible por una persona, como ``'1.2 GB'``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.human_bytes#1",
+      "source": "bytes.",
+      "source_sha256": "c5aa1db676ac061cd8e7e7c80a4fa52cc67fa98ad791728be5f1a013f062838f",
+      "context": "Size measured in bytes.",
+      "translation": "el tamaño en bytes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.human_bytes#2",
+      "source": "the text, or ``''`` for an unknown (zero) size.",
+      "source_sha256": "b0dd0b6ff0d3ec6b4ddd567ec7d455f1a184592d3cdcd52644d9775b90e3d86e",
+      "context": "the text, or ``''`` for an unknown (zero) size.",
+      "translation": "el texto, o ``''`` para un tamaño desconocido (cero).",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.is_importable#0",
+      "source": "Whether ``module`` can be imported here, without importing it.",
+      "source_sha256": "9baba2740b93e5c004c3a3c05a1c3671a0614ebd0b8918d9e18c7cd02d687979",
+      "context": "Whether ``module`` can be imported here, without importing it.",
+      "translation": "Si ``module`` puede importarse aquí, sin importarlo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.is_importable#1",
+      "source": "the top-level import name.",
+      "source_sha256": "7294d933274722609f89b8556f160aa5df5bfee0a862569669503648c13d611b",
+      "context": "the top-level import name.",
+      "translation": "el nombre de importación de nivel superior.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.is_importable#2",
+      "source": "True when Python can find it.",
+      "source_sha256": "aff86f1b31a31678d6e0955f719b3861c2e909fa1c36a7aef02c01669566b257",
+      "context": "True when Python can find it.",
+      "translation": "True cuando Python puede encontrarlo.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.pip_command#0",
+      "source": "The command that installs ``requirement`` into this environment.",
+      "source_sha256": "54ba582721fe8e78ff0e19586d22b897a53111801f9cce66a646d7aedfaeaab7",
+      "context": "The command that installs ``requirement`` into this environment.",
+      "translation": "El comando que instala ``requirement`` en este entorno.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.pip_command#1",
+      "source": "``python -m pip`` with the interpreter spaCR is running on, so the package lands where this process imports from.",
+      "source_sha256": "dfd07f9e93318865f58dd05ca857abdcfc0a898c11b19a47d4f8597ead33acd7",
+      "context": "``python -m pip`` with the interpreter spaCR is executing on, so the package lands where this process imports from.",
+      "translation": "``python -m pip`` con el intérprete en el que se ejecuta spaCR, de modo que el paquete queda donde este proceso importa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.pip_command#2",
+      "source": "a pip requirement, for example ``'spacr[samcell]'``.",
+      "source_sha256": "79deba4bde08622ac8dd234f6636f717bc266080f717aa3ada9f12affff67fa1",
+      "context": "a pip requirement, for example ``'spacr[samcell]'``.",
+      "translation": "un requisito de pip, por ejemplo ``'spacr[samcell]'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.pip_command#3",
+      "source": "the program followed by its arguments.",
+      "source_sha256": "2599d62d0353bf7b96eb5ee97bc1981f3c02a4d62bfff1c9f6277e7faebd205e",
+      "context": "the program followed by its arguments.",
+      "translation": "el programa seguido de sus argumentos.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.module_hints.install_module_hints#2",
+      "source": "the main window; it parents the filter, and its ``_show_module_hint(key)`` method is called to show each hovered module's hint.",
+      "source_sha256": "575c4cf0db0f083d26dbe82b8d6f1aa7e0d1e6f38defe85e384a5edf5a3cb360",
+      "context": "the main window; it parents the filter, and its ``_show_module_hint(key)`` method is called to show each hovered module's hint.",
+      "translation": "la ventana principal; es la madre del filtro, y se llama a su método ``_show_module_hint(key)`` para mostrar la sugerencia de cada módulo sobre el que pasa el cursor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.module_hints.module_hint_text#2",
+      "source": "the hovered widget; its module name and summary Qt properties are read. ``None`` or a deleted widget gives ``\"\"``, and a line longer than :data:`MAX_HINT_CHARS` is cut at a word with an ellipsis.",
+      "source_sha256": "dd43587d6535df0a82747a6edf788a03ee70b638b2e4703d99607142b3d9e270",
+      "context": "the hovered widget; its module name and summary Qt properties are read. ``None`` or a deleted widget gives ``\"\"``, and a line longer than :data:`MAX_HINT_CHARS` is cut at a word with an ellipsis.",
+      "translation": "el widget bajo el cursor; se leen sus propiedades Qt de nombre de módulo y resumen. ``None`` o un widget eliminado da ``\"\"``, y una línea más larga que :data:`MAX_HINT_CHARS` se corta en una palabra con puntos suspensivos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes#0",
+      "source": "The ten night themes, each a palette, a backdrop and a sound set.",
+      "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+      "context": "The ten night themes, each a palette, a backdrop and a sound set.",
+      "translation": "Los diez temas nocturnos, cada uno una paleta, un fondo y un conjunto de sonidos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes#1",
+      "source": "A night theme is one choice that moves three things at once: the colours the interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten because of this module), which ambient animation runs behind it and in which colours (:mod:`spacr.qt.widgets.ambient`), and which set of sounds spaCR plays if the user has ever switched sound on (:mod:`spacr.qt.sound_synth`). Choosing one in Preferences therefore changes how spaCR looks *and* how it sounds, which is the whole point of the family.",
+      "source_sha256": "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
+      "context": "A night theme is one choice that moves three things at once: the colours the interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten because of this module), which ambient animation runs behind it and in which colours (:mod:`spacr.qt.widgets.ambient`), and which set of sounds spaCR plays if the user has ever switched sound on (:mod:`spacr.qt.sound_synth`). Choosing one in Preferences therefore changes how spaCR looks *and* how it sounds, which is the whole point of the family.",
+      "translation": "Un tema nocturno es una única elección que mueve tres cosas a la vez: los colores con los que se pinta la interfaz (:data:`spacr.qt.theme.THEMES` crece en diez por este módulo), qué animación ambiental se ejecuta detrás y en qué colores (:mod:`spacr.qt.widgets.ambient`), y qué conjunto de sonidos reproduce spaCR si el usuario ha activado alguna vez el sonido (:mod:`spacr.qt.sound_synth`). Por tanto, elegir uno en Preferencias cambia cómo se ve spaCR *y* cómo suena, que es precisamente el sentido de la familia.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes#2",
+      "source": "This module is Qt-free on purpose, the same way :mod:`spacr.qt.sound_synth` is: :mod:`spacr.qt.preferences` imports it to validate a stored theme name and must not pull QtGui or QtWidgets in while doing so. It holds data and three lookups and imports nothing from the rest of spaCR, so :mod:`spacr.qt.theme`, :mod:`spacr.qt.widgets.ambient` and :mod:`spacr.qt.sound_synth` can all read from it without a cycle.",
+      "source_sha256": "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
+      "context": "This module is Qt-free on purpose, the same way :mod:`spacr.qt.sound_synth` is: :mod:`spacr.qt.preferences` imports it to validate a stored theme name and must not pull QtGui or QtWidgets in while doing so. It holds data and three lookups and imports nothing from the rest of spaCR, so :mod:`spacr.qt.theme`, :mod:`spacr.qt.widgets.ambient` and :mod:`spacr.qt.sound_synth` can all read from it without a cycle.",
+      "translation": "Este módulo no depende de Qt a propósito, del mismo modo que :mod:`spacr.qt.sound_synth`: :mod:`spacr.qt.preferences` lo importa para validar un nombre de tema almacenado y no debe arrastrar QtGui ni QtWidgets al hacerlo. Contiene datos y tres búsquedas y no importa nada del resto de spaCR, de modo que :mod:`spacr.qt.theme`, :mod:`spacr.qt.widgets.ambient` y :mod:`spacr.qt.sound_synth` pueden leer de él sin un ciclo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes#3",
+      "source": "THE PALETTES ARE LITERALS RATHER THAN A RECIPE. Each one was generated from a hue and a saturation over a shared lightness ramp, then checked against :func:`spacr.qt.theme.contrast_failures` and :func:`spacr.qt.theme.page_separation_failures` and written down. Keeping the numbers here rather than the recipe means the published colours are the reviewed colours, no solver runs at import, and ``tests/qt/test_ten_night_themes.py`` judges what actually ships.",
+      "source_sha256": "9e416ff9a6db162726dfb91a00e8b61ff0fa6476d05142c39c4c7ba3da2c3633",
+      "context": "The palettes are literals rather than a recipe. Each one was generated from a hue and a saturation over a shared lightness ramp, then checked against :func:`spacr.qt.theme.contrast_failures` and :func:`spacr.qt.theme.page_separation_failures` and written down. Keeping the numbers here rather than the recipe means the published colours are the reviewed colours, no solver runs at import, and ``tests/qt/test_ten_night_themes.py`` judges what actually ships.",
+      "translation": "LAS PALETAS SON LITERALES Y NO UNA RECETA. Cada una se generó a partir de un tono y una saturación sobre una rampa de luminosidad compartida, luego se comprobó con :func:`spacr.qt.theme.contrast_failures` y :func:`spacr.qt.theme.page_separation_failures` y se dejó por escrito. Guardar aquí los números en lugar de la receta significa que los colores publicados son los colores revisados, que no se ejecuta ningún solucionador al importar y que ``tests/qt/test_ten_night_themes.py`` juzga lo que realmente se distribuye.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes#4",
+      "source": "THREE COLOURS WERE MOVED OFF THE RECIPE BY MEASUREMENT, and they are the only three. Nocturne's and Aphelion's ``accent_lo`` failed ``bg`` against ``accent_lo`` at 4.5:1 undressed — a deep blue and a deep violet are simply too dark at the recipe's lightness — and Vesper's failed it at 4.49:1 at one of the sixty hue offsets the ``spaceout`` dressing can reach. All three were raised until they passed, and nothing else was touched. See ``docs/notes/spacr/qt/night_themes.md``.",
+      "source_sha256": "f6dd7419e49258f93302b0be03ae57fb97083eeef18d64539a755988b2ea3ddd",
+      "context": "Three colours were moved off the recipe by measurement, and they are the only three. Nocturne's and Aphelion's ``accent_lo`` failed ``bg`` against ``accent_lo`` at 4.5:1 undressed — a deep blue and a deep violet are simply too dark at the recipe's lightness — and Vesper's failed it at 4.49:1 at one of the sixty hue offsets the ``spaceout`` dressing can reach. All three were raised until they passed, and nothing else was touched. See ``docs/notes/spacr/qt/night_themes.md``.",
+      "translation": "TRES COLORES SE APARTARON DE LA RECETA TRAS MEDIRLOS, y son solo esos tres. El ``accent_lo`` de Nocturne y el de Aphelion fallaban ``bg`` frente a ``accent_lo`` a 4.5:1 sin aderezo (un azul profundo y un violeta profundo son sencillamente demasiado oscuros con la luminosidad de la receta), y el de Vesper fallaba a 4.49:1 en uno de los sesenta desplazamientos de tono que puede alcanzar el aderezo ``spaceout``. Los tres se aclararon hasta que pasaron, y no se tocó nada más. Véase ``docs/notes/spacr/qt/night_themes.md``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes#5",
+      "source": "THREE ROLES ARE THE SAME IN ALL TEN, and deliberately: ``success``, ``warning`` and ``error``. A red that means *this run failed* must not become a theme decision, so the status hues do not follow the palette around the colour wheel. ``fg`` is white in all ten for the same reason a night palette wants it: every surface here is dark.",
+      "source_sha256": "552e6586e46573d11229cdea62271291a2f6c657ccd3f6e8d7d5a5eb8241b01c",
+      "context": "Three roles are the same in all ten, and deliberately: ``success``, ``warning`` and ``error``. A red that means *this processing session failed* must not become a theme decision, so the status hues do not follow the palette around the colour wheel. ``fg`` is white in all ten for the same reason a night palette wants it: every surface here is dark.",
+      "translation": "TRES ROLES SON IGUALES EN LOS DIEZ, y deliberadamente: ``success``, ``warning`` y ``error``. Un rojo que significa *esta ejecución falló* no debe convertirse en una decisión de tema, por lo que los tonos de estado no siguen a la paleta por la rueda de color. ``fg`` es blanco en los diez por la misma razón por la que lo quiere una paleta nocturna: aquí todas las superficies son oscuras.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes#6",
+      "source": ":data:`NIGHT_THEMES` is ordered by hue, warm through cool and back round to rose, so the Theme menu reads as one family rather than ten unrelated entries.",
+      "source_sha256": "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555",
+      "context": ":data:`NIGHT_THEMES` is ordered by hue, warm through cool and back round to rose, so the Theme menu reads as one family rather than ten unrelated entries.",
+      "translation": ":data:`NIGHT_THEMES` está ordenado por tono, de cálido a frío y de vuelta al rosa, de modo que el menú Tema se lee como una familia y no como diez entradas sin relación.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.NightTheme#0",
+      "source": "One night theme: what it is called, and the three things it moves.",
+      "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+      "context": "One night theme: what it is called, and the three things it moves.",
+      "translation": "Un tema nocturno: cómo se llama y las tres cosas que mueve.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.NightTheme#1",
+      "source": "stable identifier. It is the persisted ``prefs/theme`` value, the key in :data:`spacr.qt.theme.THEMES`, and the key of the matching :class:`spacr.qt.sound_synth.SoundTheme`, so the three stay in step by construction rather than by a table.",
+      "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+      "context": "stable identifier. It is the persisted ``prefs/theme`` value, the structured-data name in :data:`spacr.qt.theme.THEMES`, and the structured-data name of the matching :class:`spacr.qt.sound_synth.SoundTheme`, so the three stay in step by construction rather than by a table.",
+      "translation": "identificador estable. Es el valor persistido de ``prefs/theme``, la clave en :data:`spacr.qt.theme.THEMES` y la clave del :class:`spacr.qt.sound_synth.SoundTheme` correspondiente, de modo que los tres permanecen sincronizados por construcción y no mediante una tabla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.NightTheme#2",
+      "source": "name shown in Preferences.",
+      "source_sha256": "5c90f3f81c414201cd9307801a7c946abea22aa8032d6e5a0141d21bdd51bb6c",
+      "context": "name shown in Preferences.",
+      "translation": "nombre que se muestra en Preferencias.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.NightTheme#3",
+      "source": "one sentence shown as the choice's explanation.",
+      "source_sha256": "e0f90f3ca4bf447b317b49611d6132622c132dc3762cc30baefeff5e0fcdcb23",
+      "context": "one sentence shown as the choice's explanation.",
+      "translation": "una frase que se muestra como explicación de la elección.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.NightTheme#4",
+      "source": "the full interface palette, every role :func:`spacr.qt.theme.palette_for` promises.",
+      "source_sha256": "60fa51a7cddda06a4fce853b0331ff28b55a0d30748bf1b52e4ac2cfe43cf85a",
+      "context": "the full interface palette, every role :func:`spacr.qt.theme.palette_for` promises.",
+      "translation": "la paleta completa de la interfaz, todos los roles que promete :func:`spacr.qt.theme.palette_for`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.NightTheme#5",
+      "source": "the ambient animation this theme runs behind it, one of :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.",
+      "source_sha256": "bce99c944aa7c6a9abf154a160d790a7126fdc080064b62b3a14a25975477065",
+      "context": "the ambient animation this theme runs behind it, one of :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.",
+      "translation": "la animación ambiental que este tema ejecuta detrás, una de :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.NightTheme#6",
+      "source": "the colour set that animation is painted in, a key of :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.",
+      "source_sha256": "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22",
+      "context": "the colour set that animation is painted in, a key of :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.",
+      "translation": "el conjunto de colores con el que se pinta esa animación, una clave de :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.ambient_for#0",
+      "source": "The backdrop ``name`` asks for.",
+      "source_sha256": "1b89c135b53ba823e866f55d52277c7a7ffa2695ae6ccbd8b62a6192bca2afaa",
+      "context": "The backdrop ``name`` asks for.",
+      "translation": "El fondo que pide ``name``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.ambient_for#1",
+      "source": "one of :data:`NIGHT_THEME_KEYS`.",
+      "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+      "context": "one of :data:`NIGHT_THEME_KEYS`.",
+      "translation": "uno de :data:`NIGHT_THEME_KEYS`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.ambient_for#2",
+      "source": "``(animation, palette)`` — an :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` name and a :data:`spacr.qt.widgets.ambient.PALETTE_SETS` key.",
+      "source_sha256": "b3a9d03e1327a6b30ea9db8356fff41b7372987c2425adb33517d797de84240d",
+      "context": "``(animation, palette)`` — an :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` name and a :data:`spacr.qt.widgets.ambient.PALETTE_SETS` key.",
+      "translation": "``(animation, palette)``: un nombre de :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` y una clave de :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.ambient_for#3",
+      "source": "if ``name`` is not one of the ten.",
+      "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+      "context": "if ``name`` is not one of the ten.",
+      "translation": "si ``name`` no es uno de los diez.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.is_night_theme#0",
+      "source": "True when ``name`` is one of the ten.",
+      "source_sha256": "4e77fb6730bae62d55930dd8e30dedeb5ba71e3c50808db5835711d7d199020e",
+      "context": "True when ``name`` is one of the ten.",
+      "translation": "True cuando ``name`` es uno de los diez.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.is_night_theme#1",
+      "source": "a theme key, or anything at all.",
+      "source_sha256": "797a05661556dabc64a2a9bc8b5e2f37f8c0c2ed8d471badd9e4255ca004bb79",
+      "context": "a theme key, or anything at all.",
+      "translation": "una clave de tema, o cualquier otra cosa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.is_night_theme#2",
+      "source": "whether :data:`NIGHT_THEMES` has it.",
+      "source_sha256": "faf06cfe7d72563e002f6371d9785f64c267ddb8bb8370cf785692e54e3e6edd",
+      "context": "whether :data:`NIGHT_THEMES` has it.",
+      "translation": "si :data:`NIGHT_THEMES` lo contiene.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.palettes#0",
+      "source": "Every night palette, by theme key.",
+      "source_sha256": "3fff658f938a49bf8a81a200b821af44175a4aeaf8c89017be526645b84cea6c",
+      "context": "Every night palette, by theme key.",
+      "translation": "Todas las paletas nocturnas, por clave de tema.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.palettes#1",
+      "source": "a fresh mapping of key to a copy of that theme's palette, shaped for :data:`spacr.qt.theme._PALETTES`.",
+      "source_sha256": "9cce29f1b41b20987f447b0ae832bf655bd7190915f71f25e62aa2eeb54b7d79",
+      "context": "a fresh mapping of structured-data name to a copy of that theme's palette, shaped for :data:`spacr.qt.theme._PALETTES`.",
+      "translation": "un mapeo nuevo de clave a una copia de la paleta de ese tema, con la forma de :data:`spacr.qt.theme._PALETTES`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.sound_for#0",
+      "source": "The sound set ``name`` asks for.",
+      "source_sha256": "7f883d7d4007a2b3ea3594ca2cdbb46d5e6e66508b220caabab9320fc4254125",
+      "context": "The sound set ``name`` asks for.",
+      "translation": "El conjunto de sonidos que pide ``name``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.sound_for#2",
+      "source": "a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`.",
+      "source_sha256": "45d6b1c147b794bf98079e56230e071c9a42013618da724c95ffc40b03441040",
+      "context": "a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`.",
+      "translation": "una clave de :data:`spacr.qt.sound_synth.SOUND_THEMES`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.theme_for#0",
+      "source": "The :class:`NightTheme` called ``name``.",
+      "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+      "context": "The :class:`NightTheme` called ``name``.",
+      "translation": "El :class:`NightTheme` llamado ``name``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.night_themes.theme_for#2",
+      "source": "the theme.",
+      "source_sha256": "039b021392faea6f9527d02d26700e5d1c0babcb9708dd1a7d718122e8ec06f1",
+      "context": "the theme.",
+      "translation": "el tema.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.notify.announce_pipeline_finished#2",
+      "source": "The run sound is asked for only when :mod:`spacr.qt.sound` is already loaded, which it is exactly when sound has been switched on: the engine is built by ``apply_sound_preferences`` at launch and after every Save, and without an engine :func:`spacr.qt.sound.announce_run_end` is a no-op anyway. Importing it here unconditionally cost 20.4 ms on the GUI thread at the first run that ended, for a user who had never asked for sound.",
+      "source_sha256": "5bc623bfae4bd7897b3264bec31d1ea7a2e5e33d7611ec4447677f24f8c0810b",
+      "context": "The run sound is asked for only when :mod:`spacr.qt.sound` is already loaded, which it is exactly when sound has been switched on: the engine is built by ``apply_sound_preferences`` at launch and after every Save, and without an engine :func:`spacr.qt.sound.announce_run_end` is a no-op anyway. Importing it here unconditionally cost 20.4 ms on the main GUI execution path at the first run that ended, for a user who had never asked for sound.",
+      "translation": "El sonido de ejecución solo se solicita cuando :mod:`spacr.qt.sound` ya está cargado, lo que ocurre exactamente cuando se ha activado el sonido: ``apply_sound_preferences`` construye el motor al iniciar y después de cada Guardar, y sin motor :func:`spacr.qt.sound.announce_run_end` no hace nada de todos modos. Importarlo aquí de forma incondicional costaba 20.4 ms en el hilo de la GUI en la primera ejecución que terminaba, para un usuario que nunca había pedido sonido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.notify.notify_tray#2",
+      "source": "heading of the tray balloon message, shown for six seconds.",
+      "source_sha256": "f3e01a92f70582b6c62ec30414b6a74eacdd2d5907df241d680a901f7802b63f",
+      "context": "heading of the tray balloon message, shown for six seconds.",
+      "translation": "encabezado del mensaje en globo de la bandeja, que se muestra durante seis segundos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.notify.notify_tray#3",
+      "source": "``True`` if the message was handed to the system tray, ``False`` without an application or tray, or on any error.",
+      "source_sha256": "0e8d6b37d9e084e1ef7a2856cea4e64e53c71cd496acf21ad7dcf127d33c7e84",
+      "context": "``True`` if the message was handed to the system tray, ``False`` without an application or tray, or on any error.",
+      "translation": "``True`` si el mensaje se entregó a la bandeja del sistema, ``False`` sin aplicación o sin bandeja, o ante cualquier error.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo#0",
+      "source": "Test data for OPS and for Align & Stitch, one button away in each.",
+      "source_sha256": "80634c939fda60cc8ead24e8c2c975eba56823da9be0122ba3450b8f6ab3934f",
+      "context": "Test data for OPS and for Align & Stitch, one button away in each.",
+      "translation": "Datos de prueba para OPS y para Align & Stitch, a un botón de distancia en cada uno.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo#1",
+      "source": "OPS uses a small sample of an optical pooled screen, and Align & Stitch uses a small segment of the same OPS data.",
+      "source_sha256": "95e30a8a9956584dcf835f20c7ee56b5a71bea37bcd72d08dcfdde7b7e637320",
+      "context": "OPS uses a small sample of an optical pooled screening experiment, and Align & Stitch uses a small segment of the same OPS data.",
+      "translation": "OPS usa una pequeña muestra de un cribado óptico agrupado, y Align & Stitch usa un pequeño segmento de los mismos datos de OPS.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo#2",
+      "source": "TWO SAMPLES OF ONE PUBLISHED SCREEN. Both are cut from plate ``20200202_6W-LaC024A``, well A1, of Funk et al. 2022 (BioImage Archive S-BIAD394), unmodified:",
+      "source_sha256": "e63dd35277cf175b680fde5212d3ffc2d52211a7b158bf2b7d6938870d694dac",
+      "context": "Two samples of one published screen. Both are cut from laboratory microplate ``20200202_6W-LaC024A``, microplate sample position A1, of Funk et al. 2022 (BioImage Archive S-BIAD394), unmodified:",
+      "translation": "DOS MUESTRAS DE UN MISMO CRIBADO PUBLICADO. Ambas se recortan de la placa ``20200202_6W-LaC024A``, pocillo A1, de Funk et al. 2022 (BioImage Archive S-BIAD394), sin modificar:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo#3",
+      "source": ":data:`~spacr.example_archives.STITCH_EXAMPLE_REPO` -- nine cycle-1 tiles, a 3 x 3 block from the middle of the well, acquired in snake-column order with 213 px of overlap. Align & Stitch plans and writes it as it comes.",
+      "source_sha256": "056a46ccb0d433fe5da9f84c06ae2463c3c8c3b184416c15e159faf77ed577e3",
+      "context": ":data:`~spacr.example_archives.STITCH_EXAMPLE_REPO` -- nine cycle-1 microscope image fields, a 3 x 3 block from the middle of the microplate sample position, acquired in snake-column order with 213 px of overlap. Align & Stitch plans and writes it as it comes.",
+      "translation": ":data:`~spacr.example_archives.STITCH_EXAMPLE_REPO` -- nueve teselas del ciclo 1, un bloque de 3 x 3 del centro del pocillo, adquiridas en orden de columnas en serpentina con 213 px de solapamiento. Align & Stitch lo planifica y lo escribe tal cual llega.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo#4",
+      "source": ":data:`~spacr.example_archives.OPS_EXAMPLE_REPO` -- sites 331 and 332, every one of the eleven sequencing cycles, and the guide library's 11-base prefixes. The OPS engine stitches, segments and decodes them.",
+      "source_sha256": "0d013df7b7c3409930d3e99bc3bdbcf9ef2691bda0dadd172430340dfd7f0d6d",
+      "context": ":data:`~spacr.example_archives.OPS_EXAMPLE_REPO` -- sites 331 and 332, every one of the eleven sequencing cycles, and the guide library's 11-base prefixes. The OPS engine stitches, segments and decodes them.",
+      "translation": ":data:`~spacr.example_archives.OPS_EXAMPLE_REPO` -- los sitios 331 y 332, cada uno de los once ciclos de secuenciación, y los prefijos de 11 bases de la biblioteca de guías. El motor de OPS los une, los segmenta y los decodifica.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo#5",
+      "source": "WHY THE OPS SAMPLE IS THE WELL'S LAST TWO SITES. The engine takes a well's field count as its highest site number plus one and fits the round well to that count, so a sample has to include the last site to keep the measured 333-field layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype images, because the phenotype phase aligns anchors spread over the whole well, which a two-field sample cannot supply.",
+      "source_sha256": "e4e99262add6368878a0209aa268ebe08f254686a7e0b2196a9092a5cbefacff",
+      "context": "Why the ops sample is the well's last two sites. The engine takes a well's microscope field of view count as its highest site number plus one and fits the round well to that count, so a sample has to include the last site to keep the measured 333-microscope field of view layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype images, because the phenotype phase aligns anchors spread over the whole well, which a two-microscope field of view sample cannot supply.",
+      "translation": "POR QUÉ LA MUESTRA DE OPS SON LOS DOS ÚLTIMOS SITIOS DEL POCILLO. El motor toma como número de campos de un pocillo su número de sitio más alto más uno y ajusta el pocillo redondo a ese número, por lo que una muestra tiene que incluir el último sitio para conservar la disposición medida de 333 campos; véase :func:`spacr.ops_engine.run_ops`. Y no lleva imágenes de fenotipo, porque la fase de fenotipo alinea anclajes repartidos por todo el pocillo, que una muestra de dos campos no puede aportar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo#6",
+      "source": "THE SAME PATTERN AS EVERY OTHER EXAMPLE SET. One uncompressed ``.tar`` per repository, streamed behind the shared progress dialog and unpacked through the tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a folder of its own beside the shared example plate (:func:`example_folder`). A cached copy is used without a request.",
+      "source_sha256": "cd641607642cb1f90def1fc67f167d3abb1a3018f08138c0e56e84effdc87a19",
+      "context": "The same pattern as every other example set. One uncompressed ``.tar`` per repository, streamed behind the shared progress dialog and unpacked through the tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a folder of its own beside the shared example plate (:func:`example_folder`). A cached copy is used without a request.",
+      "translation": "EL MISMO PATRÓN QUE CUALQUIER OTRO CONJUNTO DE EJEMPLO. Un ``.tar`` sin comprimir por repositorio, descargado en flujo tras el diálogo de progreso compartido y desempaquetado con el filtro de datos de tar por :class:`spacr.qt.hf_download._TarExampleWorker`, en una carpeta propia junto a la placa de ejemplo compartida (:func:`example_folder`). Una copia en caché se usa sin hacer ninguna solicitud.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo#7",
+      "source": "WHAT \"FILLS THE SETTINGS\" MEANS HERE. The OPS panel gets its source, output folder, library and plate name; Align & Stitch gets its tile folder, the block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan -- is then the next action.",
+      "source_sha256": "99b835de8e84af9254722809fb93dca52f5a74ff83d46031d4d68d3beeded25b",
+      "context": "WHAT \"FILLS THE SETTINGS\" means here. The OPS panel gets its source, output folder, library and plate name; Align & Stitch gets its microscope image field folder, the block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan -- is then the next action.",
+      "translation": "QUÉ SIGNIFICA AQUÍ \"FILLS THE SETTINGS\". El panel de OPS recibe su origen, carpeta de salida, biblioteca y nombre de placa; Align & Stitch recibe su carpeta de teselas, la cuadrícula de 3 x 3 del bloque, su orden, su solapamiento y un lugar donde escribir. Ejecutar -- o Planificar -- es entonces la siguiente acción.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.example_folder#0",
+      "source": "Where the ``\"ops\"`` or ``\"stitch\"`` sample is unpacked and cached.",
+      "source_sha256": "aab706f595a5948e23dd36d1b0fed973cd535d0dab5ca79025988f930b08eb93",
+      "context": "Where the ``\"ops\"`` or ``\"stitch\"`` sample is unpacked and cached.",
+      "translation": "Dónde se desempaqueta y se guarda en caché la muestra ``\"ops\"`` o ``\"stitch\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.example_folder#1",
+      "source": "``\"ops\"`` or ``\"stitch\"``.",
+      "source_sha256": "45eaba7dddcba07fbcc5c5535d000f1b14dc329cc07b9c78c10361533db350ce",
+      "context": "``\"ops\"`` or ``\"stitch\"``.",
+      "translation": "``\"ops\"`` o ``\"stitch\"``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.example_folder#2",
+      "source": "the folder, beside the shared example plate. Not created here.",
+      "source_sha256": "59560693db914e1d2d2873a562c6e1fcf049c12c463d0789fb8064b567684d27",
+      "context": "the folder, beside the shared example plate. Not created here.",
+      "translation": "la carpeta, junto a la placa de ejemplo compartida. No se crea aquí.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.install_align_button#0",
+      "source": "Build Align & Stitch's \"Load test data…\" button, wired to ``screen``.",
+      "source_sha256": "984d0aef4c9d29f12c2d56c7075016404078f6ffa0be9d3b456a0df4b8199b70",
+      "context": "Build Align & Stitch's \"Load test data…\" button, wired to ``screen``.",
+      "translation": "Construye el botón \"Load test data…\" de Align & Stitch, conectado a ``screen``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.install_align_button#1",
+      "source": "the :class:`spacr.qt.screens.align.AlignScreen`. The button is kept on it as ``_btn_test_data``.",
+      "source_sha256": "72b5c16b0a2e8a6064366568f92f9cd82843cc55bd19534b0b3e22c067ea8ca8",
+      "context": "the :class:`spacr.qt.screens.align.AlignScreen`. The button is kept on it as ``_btn_test_data``.",
+      "translation": "el :class:`spacr.qt.screens.align.AlignScreen`. El botón se guarda en ella como ``_btn_test_data``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.is_present#0",
+      "source": "Whether a complete copy of a sample is unpacked in ``folder``.",
+      "source_sha256": "96d3cdfbdf58ca2c36033bef2ba757496672a97520c5efcb171b40590db13171",
+      "context": "Whether a complete copy of a sample is unpacked in ``folder``.",
+      "translation": "Si en ``folder`` hay desempaquetada una copia completa de una muestra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.is_present#1",
+      "source": "where the sample is expected.",
+      "source_sha256": "1c00837be3764cbc2541be0dddeffea549f435d1c1a530997b5a4f547e206c82",
+      "context": "where the sample is expected.",
+      "translation": "dónde se espera la muestra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.is_present#2",
+      "source": "True only when the manifest exists and every file it lists is there. A half-unpacked sample reads as absent, which is the answer that gets it downloaded again.",
+      "source_sha256": "653f71a874206fdd57502212dc20f15d8e898fe283e907faab6e98cb3102f71a",
+      "context": "True only when the manifest exists and every file it lists is there. A half-unpacked sample reads as absent, which is the answer that gets it downloaded again.",
+      "translation": "True solo cuando el manifiesto existe y todos los archivos que enumera están allí. Una muestra desempaquetada a medias se interpreta como ausente, que es la respuesta que hace que se descargue de nuevo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.listed_files#0",
+      "source": "Every file the sample's manifest says a complete copy holds.",
+      "source_sha256": "b4618a8231403e24b55f1ee5eba96d0e6bc638fb072abaab6b4dbc431b48521a",
+      "context": "Every file the sample's manifest says a complete copy holds.",
+      "translation": "Todos los archivos que, según el manifiesto de la muestra, contiene una copia completa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.listed_files#1",
+      "source": "where the sample was unpacked.",
+      "source_sha256": "76950bd53e45edaec5cfac48bbf3047362936a9331225334501c21eb73ca45a3",
+      "context": "where the sample was unpacked.",
+      "translation": "dónde se desempaquetó la muestra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.listed_files#2",
+      "source": "paths relative to ``folder``; empty when there is no readable manifest or a row names no file, so that an unrecognised folder is never mistaken for the sample.",
+      "source_sha256": "00d97a6757862321b8bce8485cc369c5acd964f34e19e6b03ad326f68e39b9d8",
+      "context": "paths relative to ``folder``; empty when there is no readable manifest or a row names no file, so that an unrecognised folder is never mistaken for the sample.",
+      "translation": "rutas relativas a ``folder``; vacío cuando no hay un manifiesto legible o una fila no nombra ningún archivo, para que una carpeta no reconocida nunca se confunda con la muestra.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_align_test_data#0",
+      "source": "Fill Align & Stitch with the stitch sample, fetching it when needed.",
+      "source_sha256": "3e7e6fdd59e7f6320081d898547da835d000faec06dec92911df5aa3db4ab695",
+      "context": "Fill Align & Stitch with the stitch sample, fetching it when needed.",
+      "translation": "Rellena Align & Stitch con la muestra de unión, descargándola cuando haga falta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_align_test_data#1",
+      "source": "the Align & Stitch screen.",
+      "source_sha256": "55e6bacb3cbb8a3ec83db875f13051885cda1387afc1f3e69c6cd69de6e25fa1",
+      "context": "the Align & Stitch screen.",
+      "translation": "la pantalla Align & Stitch.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_align_test_data#2",
+      "source": "replaces the downloader, for tests.",
+      "source_sha256": "047acd406ae05f968b2fccc513f5256835a7c5e1cd2555a10741f7f230ef054b",
+      "context": "replaces the downloader, for tests.",
+      "translation": "sustituye al descargador, para las pruebas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_align_test_data#3",
+      "source": "replaces :func:`example_folder`, for tests.",
+      "source_sha256": "393d9be290427e057c59f59d393eebd39b787e6b3429da23bb9b7dbe9535b29b",
+      "context": "replaces :func:`example_folder`, for tests.",
+      "translation": "sustituye a :func:`example_folder`, para las pruebas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_align_test_data#4",
+      "source": "see :func:`load_the_test_data`.",
+      "source_sha256": "ec34573fd93bd06bf042ecc20f678aee5444aa7fcff3dcb08bc1b6ef265e836c",
+      "context": "see :func:`load_the_test_data`.",
+      "translation": "véase :func:`load_the_test_data`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_the_test_data#0",
+      "source": "Put a sample in place, downloading it first when it is not cached.",
+      "source_sha256": "91a4b491048fed201c0cb8c0db6155fbc623d69bb8283a2aa3925c6eb065177d",
+      "context": "Put a sample in place, downloading it first when it is not cached.",
+      "translation": "Coloca una muestra en su sitio, descargándola primero cuando no está en caché.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_the_test_data#2",
+      "source": "called with the folder once a complete copy is there; it fills the screen's settings.",
+      "source_sha256": "1fa5ee346850b56fd958590dfbc9356cf49e26cf2e7165a3a034843180d6321e",
+      "context": "called with the folder once a complete copy is there; it fills the screen's settings.",
+      "translation": "se llama con la carpeta una vez que hay allí una copia completa; rellena los ajustes de la pantalla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_the_test_data#3",
+      "source": "called as ``report(text, is_error)`` with what happened.",
+      "source_sha256": "39f0d272373af8489509b69a69e137bd6c706f5b19b76d423e78b25862c256b4",
+      "context": "called as ``report(text, is_error)`` with what happened.",
+      "translation": "se llama como ``report(text, is_error)`` con lo que ha ocurrido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_the_test_data#4",
+      "source": "disabled while a download runs, and relabelled.",
+      "source_sha256": "bcc96dfcb94507d54f9e7b73ff54feee561ed3945650560d2abf14faa0dbe872",
+      "context": "disabled while a download runs, and relabelled.",
+      "translation": "se desactiva mientras se ejecuta una descarga, y se le cambia la etiqueta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_the_test_data#6",
+      "source": "replaces the downloader, for tests; called as ``ask(parent, folder, on_done)``.",
+      "source_sha256": "9b3d187d7ec9b2ede20078b7687b098b157d2668d8d68546a0b68efd86882595",
+      "context": "replaces the downloader, for tests; called as ``ask(parent, folder, on_done)``.",
+      "translation": "sustituye al descargador, para las pruebas; se llama como ``ask(parent, folder, on_done)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.load_the_test_data#8",
+      "source": "whether the sample was put in place by this call. False while a download is still running, and after a failure.",
+      "source_sha256": "0a095e6f6a6ab72c74f7a1fec80a5944a9721a5c3171cc1646765e9ad9d3945c",
+      "context": "whether the sample was put in place by this call. False while a download is still executing, and after a failure.",
+      "translation": "si esta llamada colocó la muestra en su sitio. False mientras una descarga sigue en curso, y después de un fallo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.ops_settings_for#0",
+      "source": "The OPS settings that run the unpacked sample.",
+      "source_sha256": "9c26ac318ff59e9ef3886c4c82721129db95e30fbafa7a4334a81865e613465d",
+      "context": "The OPS settings that processing session the unpacked sample.",
+      "translation": "Los ajustes de OPS que ejecutan la muestra desempaquetada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.ops_settings_for#1",
+      "source": "where the OPS sample was unpacked.",
+      "source_sha256": "819694417c67f51d68c9517d06828b980904bfd4924bfc1946d3e3d59cde8a0c",
+      "context": "where the OPS sample was unpacked.",
+      "translation": "dónde se desempaquetó la muestra de OPS.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.ops_settings_for#2",
+      "source": "the source, the output folder, the library and the plate. The output goes to ``ops_output`` inside the sample rather than into the source, which would mix the tables with the tiles.",
+      "source_sha256": "1e4e6d6bd4e60430ff33eb147ae4e526a8af47760f2c27138c5edcd66408a408",
+      "context": "the source, the output folder, the library and the laboratory microplate. The output goes to ``ops_output`` inside the sample rather than into the source, which would mix the tables with the tiles.",
+      "translation": "el origen, la carpeta de salida, la biblioteca y la placa. La salida va a ``ops_output`` dentro de la muestra en lugar de al origen, lo que mezclaría las tablas con las teselas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.stitch_settings_for#0",
+      "source": "The Align & Stitch settings that plan and write the unpacked block.",
+      "source_sha256": "46d93ae205566c59de73aa36b6f33903dbeba4c8809e6275da4e9378899a9642",
+      "context": "The Align & Stitch settings that plan and write the unpacked block.",
+      "translation": "Los ajustes de Align & Stitch que planifican y escriben el bloque desempaquetado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.stitch_settings_for#1",
+      "source": "where the stitch sample was unpacked.",
+      "source_sha256": "245ae63c3be886649bdcaf0a48f6fb1a1a10fa909a371251a3d57529b6fc26ca",
+      "context": "where the stitch sample was unpacked.",
+      "translation": "dónde se desempaquetó la muestra de unión.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ops_stitch_demo.stitch_settings_for#2",
+      "source": "a :func:`spacr.align.default_settings`-shaped partial dict.",
+      "source_sha256": "2d488102a91decac5388f27002645135ece5d6c6098738ed9d24bdd5bd17b35b",
+      "context": "a :func:`spacr.align.default_settings`-shaped partial key-value mapping.",
+      "translation": "un dict parcial con la forma de :func:`spacr.align.default_settings`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes#0",
+      "source": "Organelle detection's methods, offered to Make Masks as magnifier modes.",
+      "source_sha256": "eae1d26068b2f719a3c0c575ec1182f24fb661d2f36ad52b8ca701f66adf1f5b",
+      "context": "Organelle detection's methods, offered to Make Masks as magnifier modes.",
+      "translation": "Los métodos de la detección de orgánulos, ofrecidos a Make Masks como modos de la lupa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes#1",
+      "source": "spaCR already implements eight ways of finding an object -- ``otsu``, ``adaptive``, ``log``, ``dog``, ``ridge``, ``hysteresis``, ``cellpose`` and ``unet`` -- in :func:`spacr.object.generate_organelle_masks_sam`. Make Masks offered two of them. A curator correcting a mask of tubules had Otsu and Cellpose; the ridge filter that would have found the tubules was three screens away, in a batch pipeline, and could not be tried on the field in front of them.",
+      "source_sha256": "0e4e72c1469c8e2ed7d03e5658d62ed005d4065ca217f1fe4840cbfe2cef8bc3",
+      "context": "spaCR already implements eight ways of finding an object -- ``otsu``, ``adaptive``, ``log``, ``dog``, ``ridge``, ``hysteresis``, ``cellpose`` and ``unet`` -- in :func:`spacr.object.generate_organelle_masks_sam`. Make Masks offered two of them. A curator correcting a mask of tubules had Otsu and Cellpose; the ridge filter that would have found the tubules was three screens away, in a batch workflow, and could not be tried on the microscope field of view in front of them.",
+      "translation": "spaCR ya implementa ocho formas de encontrar un objeto -- ``otsu``, ``adaptive``, ``log``, ``dog``, ``ridge``, ``hysteresis``, ``cellpose`` y ``unet`` -- en :func:`spacr.object.generate_organelle_masks_sam`. Make Masks ofrecía dos de ellas. Un curador que corregía una máscara de túbulos tenía Otsu y Cellpose; el filtro de crestas que habría encontrado los túbulos estaba a tres pantallas de distancia, en un flujo de trabajo por lotes, y no se podía probar en el campo que tenía delante.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes#2",
+      "source": "THIS MODULE IS A BRIDGE AND NOT A SECOND IMPLEMENTATION. Every classical method runs through :func:`spacr.object._segment_single_image`, the one the organelle pipeline's workers call, and ``unet`` through :func:`spacr.object._segment_unet`. So \"adaptive\" means in Make Masks exactly what it means in a mask run, and a curator who tunes a block size on one field is tuning the setting the pipeline will read. The whole of this module's own work is naming the parameters, turning them into the ``organelle_*`` keys that engine reads, and saying what each method suits.",
+      "source_sha256": "1fbf3b8c242eac5111c79419122796cef02819c896a7870ba9b0f040a5947dd4",
+      "context": "This module is a bridge and not a second implementation. Every classical method executes through :func:`spacr.object._segment_single_image`, the one the organelle workflow's workers call, and ``unet`` through :func:`spacr.object._segment_unet`. So \"adaptive\" means in Make Masks exactly what it means in a mask run, and a curator who tunes a block size on one microscope field of view is tuning the setting the workflow will read. The whole of this module's own work is naming the parameters, turning them into the ``organelle_*`` structured-data names that engine reads, and saying what each method suits.",
+      "translation": "ESTE MÓDULO ES UN PUENTE Y NO UNA SEGUNDA IMPLEMENTACIÓN. Cada método clásico se ejecuta mediante :func:`spacr.object._segment_single_image`, la que llaman los procesos de trabajo del flujo de orgánulos, y ``unet`` mediante :func:`spacr.object._segment_unet`. Así, \"adaptive\" significa en Make Masks exactamente lo mismo que en una ejecución de máscaras, y un curador que ajusta un tamaño de bloque en un campo está ajustando el parámetro que leerá el flujo de trabajo. Todo el trabajo propio de este módulo consiste en nombrar los parámetros, convertirlos en las claves ``organelle_*`` que lee ese motor y decir para qué sirve cada método.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes#3",
+      "source": "WHICH MORPHOLOGY A MODE RUNS UNDER. The organelle engine dispatches on ``organelle_morphology`` FIRST and the method second, because the same word means different code for different shapes. Make Masks has no morphology box -- a curator picks a detector, not a cell-biology category -- so each mode names the morphology whose branch implements that method in the form a curator of whole objects wants, and :data:`MODE_MORPHOLOGY` is that choice written down:",
+      "source_sha256": "b3215079556b7e4b56851b5cdc38f3e3ab2264d1ddd8a8fb24b11463e01e282d",
+      "context": "Which morphology a mode runs under. The organelle engine dispatches on ``organelle_morphology`` FIRST and the method second, because the same word means different code for different shapes. Make Masks has no morphology box -- a curator picks a detector, not a cell-biology category -- so each mode names the morphology whose branch implements that method in the form a curator of whole objects wants, and :data:`MODE_MORPHOLOGY` is that choice written down:",
+      "translation": "BAJO QUÉ MORFOLOGÍA SE EJECUTA UN MODO. El motor de orgánulos despacha PRIMERO según ``organelle_morphology`` y después según el método, porque la misma palabra corresponde a código distinto para formas distintas. Make Masks no tiene cuadro de morfología -- un curador elige un detector, no una categoría de biología celular --, así que cada modo nombra la morfología cuya rama implementa ese método de la forma que quiere un curador de objetos completos, y :data:`MODE_MORPHOLOGY` es esa elección puesta por escrito:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes#4",
+      "source": "``adaptive`` runs under ``irregular``: the branch that smooths, closes, opens, fills holes and watershed-splits, which is what a solid object wants. The ``spots`` branch's adaptive is a top-hat filter first and erases anything wider than its disk.",
+      "source_sha256": "c17f3c03924a3592f6db0da7e666dc12e95b37f4f5cb176f8b77121682f426fa",
+      "context": "``adaptive`` runs under ``irregular``: the branch that smooths, closes, opens, fills holes and watershed-splits, which is what a solid object wants. The ``spots`` branch's adaptive is a top-hat filter first and erases anything wider than its disk.",
+      "translation": "``adaptive`` se ejecuta bajo ``irregular``: la rama que suaviza, cierra, abre, rellena huecos y divide por cuencas (watershed), que es lo que quiere un objeto sólido. El adaptativo de la rama ``spots`` aplica primero un filtro top-hat y borra todo lo que sea más ancho que su disco.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes#5",
+      "source": "``log`` and ``dog`` run under ``spots``, the only branch that has them.",
+      "source_sha256": "af5d7f49aa2d1b812588733a4917830af8c934c14755263e2ef81b825a27398e",
+      "context": "``log`` and ``dog`` run under ``spots``, the only branch that has them.",
+      "translation": "``log`` y ``dog`` se ejecutan bajo ``spots``, la única rama que los tiene.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes#6",
+      "source": "``ridge``, ``hysteresis`` and ``unet`` run under ``network``, likewise.",
+      "source_sha256": "eca7e9b5d59d866eeda0ca129bcc3c170982f7c2d9da7fc8102dcfb0901a146b",
+      "context": "``ridge``, ``hysteresis`` and ``unet`` run under ``network``, likewise.",
+      "translation": "``ridge``, ``hysteresis`` y ``unet`` se ejecutan bajo ``network``, del mismo modo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes#7",
+      "source": ":data:`spacr.organelle_types.LEGAL_METHODS` remains the statement of which method is legal for which shape, and :func:`guidance` reads the sentence each mode shows straight out of it rather than restating it here.",
+      "source_sha256": "dc5212603a8b0b5e0846361c301fa508dae0f212269cd3843f223a7c979ce1e4",
+      "context": ":data:`spacr.organelle_types.LEGAL_METHODS` remains the statement of which method is legal for which shape, and :func:`guidance` reads the sentence each mode shows straight out of it rather than restating it here.",
+      "translation": ":data:`spacr.organelle_types.LEGAL_METHODS` sigue siendo la declaración de qué método es legal para qué forma, y :func:`guidance` lee directamente de ella la frase que muestra cada modo en lugar de repetirla aquí.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#0",
+      "source": "Every parameter the organelle methods read, as one hashable value.",
+      "source_sha256": "247292ec6234acc96fc1546925b57e286b5241caf2ea8f3465ea69ec7c4e528a",
+      "context": "Every parameter the organelle methods read, as one hashable value.",
+      "translation": "Todos los parámetros que leen los métodos de orgánulos, como un único valor hashable.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#1",
+      "source": "One tuple rather than one per method, because it goes into the magnifier's request key: a request carries every setting a detector could read, so a mode that falls back to another still finds its own settings in it. The defaults are :func:`spacr.settings._set_organelle_defaults`', so a method means the same thing here as it does in a mask run until somebody moves a box.",
+      "source_sha256": "24d0b33912d167553d67f4c18f2e809494efa63788b88209bd117fb67cfa0f10",
+      "context": "One tuple rather than one per method, because it goes into the magnifier's request structured-data name: a request carries every setting a detector could read, so a mode that falls back to another still finds its own settings in it. The defaults are :func:`spacr.settings._set_organelle_defaults`', so a method means the same thing here as it does in a mask run until somebody moves a box.",
+      "translation": "Una sola tupla en lugar de una por método, porque entra en la clave de la solicitud de la lupa: una solicitud lleva todos los ajustes que un detector podría leer, de modo que un modo que recurre a otro sigue encontrando en ella sus propios ajustes. Los valores predeterminados son los de :func:`spacr.settings._set_organelle_defaults`, de modo que un método significa aquí lo mismo que en una ejecución de máscaras hasta que alguien mueve un cuadro.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#10",
+      "source": "the blob-response cut-off, read by ``log`` AND by ``dog``, which has no threshold of its own.",
+      "source_sha256": "a79c9a4b8fb324689853e7c6c0b0339dc41edcf92bb4bc900ba854a6e692740d",
+      "context": "the blob-response cut-off, read by ``log`` AND by ``dog``, which has no threshold of its own.",
+      "translation": "el umbral de corte de la respuesta de blob, que leen ``log`` Y TAMBIÉN ``dog``, que no tiene umbral propio.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#11",
+      "source": "DoG's smallest scale, in pixels.",
+      "source_sha256": "55c4238fb67e719212ae2a2621173850c28338e1274b7922dc24f523d9a444f9",
+      "context": "DoG's smallest scale, in pixels.",
+      "translation": "La escala más pequeña de DoG, en píxeles.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#12",
+      "source": "DoG's largest.",
+      "source_sha256": "7c14d1ffa04de1fd0187eb39af4a4b019f8ec6d60d4f87cf011f4cbaa117a12a",
+      "context": "DoG's largest.",
+      "translation": "La más grande de DoG.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#13",
+      "source": "``frangi``, ``sato`` or ``meijering``.",
+      "source_sha256": "ea3b6542c5dadb731116ddd45a3d58065e23d5cc982e09f88c2beb1b45793c83",
+      "context": "``frangi``, ``sato`` or ``meijering``.",
+      "translation": "``frangi``, ``sato`` o ``meijering``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#14",
+      "source": "the filament half-widths to look for, in pixels.",
+      "source_sha256": "156cfccac4b7e20d43cd886e307b4edf8432ad871fe06a4546e39ce3c1c99810",
+      "context": "the filament half-widths to look for, in pixels.",
+      "translation": "las semianchuras de filamento que se buscan, en píxeles.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#15",
+      "source": "``otsu`` or ``adaptive``, how the ridge response is cut.",
+      "source_sha256": "ec3e1fb20c7b815e26321391109bed03601903fdfc89365d872b15065cd5497c",
+      "context": "``otsu`` or ``adaptive``, how the ridge response is cut.",
+      "translation": "``otsu`` o ``adaptive``: cómo se corta la respuesta de cresta.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#16",
+      "source": "reduce a network to a one-pixel skeleton and label that, so area measures length rather than thickness.",
+      "source_sha256": "7fad0eb1d2d597933caaa82a7ae44f90e5804f7c2c5fa8a58d3c3632e6b99a5b",
+      "context": "reduce a network to a one-pixel skeleton and label that, so area measures length rather than thickness.",
+      "translation": "reduce una red a un esqueleto de un píxel y etiqueta eso, de modo que el área mide la longitud y no el grosor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#17",
+      "source": "the weak level; under 1.0 it is read as a fraction and becomes that percentile of the smoothed image.",
+      "source_sha256": "9ef9bbcdf278d67dc311774bf8d542dfea43e6253a4d591521c037b779e181d2",
+      "context": "the weak level; under 1.0 it is read as a fraction and becomes that percentile of the smoothed image.",
+      "translation": "el nivel débil; por debajo de 1.0 se interpreta como una fracción y pasa a ser ese percentil de la imagen suavizada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#18",
+      "source": "the seeding level, read the same way.",
+      "source_sha256": "565a779086893d5ff86f7f31ff20dc36ecc5f0ca0cd3787f0114083ed08d179c",
+      "context": "the seeding level, read the same way.",
+      "translation": "el nivel de siembra, interpretado de la misma forma.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#19",
+      "source": "the ``.pt``/``.pth`` file to load.",
+      "source_sha256": "e88eb2bda8093614bd3ef20f2cdd0243b2013467197548954b9df8a91ce61842",
+      "context": "the ``.pt``/``.pth`` file to load.",
+      "translation": "el archivo ``.pt``/``.pth`` que se carga.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#2",
+      "source": "the local threshold's window, in pixels, forced odd by the engine. Read by ``adaptive`` and by ``ridge`` when its threshold is adaptive.",
+      "source_sha256": "23c473233b9410e7dd6c1104d67afa3062141e087e222e09d099ed38ab0e874e",
+      "context": "the local threshold's window, in pixels, forced odd by the engine. Read by ``adaptive`` and by ``ridge`` when its threshold is adaptive.",
+      "translation": "la ventana del umbral local, en píxeles, que el motor fuerza a ser impar. La leen ``adaptive`` y ``ridge`` cuando su umbral es adaptativo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#20",
+      "source": "the probability the sigmoid output is cut at.",
+      "source_sha256": "b29675e340256ef99d8b4805919ec6a74b4497219d6a9181c9c833de7e8b7548",
+      "context": "the probability the sigmoid output is cut at.",
+      "translation": "la probabilidad en la que se corta la salida sigmoide.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#3",
+      "source": "subtracted from the Gaussian-weighted local mean before the bright-foreground comparison. Increasing it lowers the threshold and admits more pixels before cleanup; a negative offset raises the threshold. Units are those of the processed detector image: smoothed image intensity for ``adaptive``, ridge response for ``ridge`` with an adaptive threshold. Default 5.0; an offset suitable for raw intensities can overwhelm a response whose values lie between 0 and 1.",
+      "source_sha256": "316375280d24950825f591b4f86c2f38530cd2cc3de406021ea83e88e0c1ea0e",
+      "context": "subtracted from the Gaussian-weighted local mean before the bright-foreground comparison. Increasing it lowers the threshold and admits more pixels before cleanup; a negative offset raises the threshold. Units are those of the processed detector image: smoothed image intensity for ``adaptive``, ridge response for ``ridge`` with an adaptive threshold. Default 5.0; an offset suitable for raw intensities can overwhelm a response whose values lie between 0 and 1.",
+      "translation": "se resta de la media local ponderada gaussiana antes de la comparación de primer plano brillante. Aumentarlo baja el umbral y admite más píxeles antes de la limpieza; un desplazamiento negativo sube el umbral. Las unidades son las de la imagen procesada del detector: intensidad de la imagen suavizada para ``adaptive``, respuesta de cresta para ``ridge`` con umbral adaptativo. Predeterminado 5.0; un desplazamiento adecuado para intensidades en bruto puede desbordar una respuesta cuyos valores están entre 0 y 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#4",
+      "source": "the cleanup disk, in pixels. ``adaptive`` also pre-smooths with half of it; the network branches close with half.",
+      "source_sha256": "a0ab03a1fae02f44309480c4cb15c99c631d31b9d24d52478ceb0ade07505e89",
+      "context": "the cleanup disk, in pixels. ``adaptive`` also pre-smooths with half of it; the network branches close with half.",
+      "translation": "el disco de limpieza, en píxeles. ``adaptive`` además suaviza previamente con la mitad de él; las ramas de red cierran con la mitad.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#5",
+      "source": "holes up to this area, in square pixels, are filled. ``adaptive`` only.",
+      "source_sha256": "1c8e6e115e3845a87b5351307e014fc02845a421effa340b87a146c2e9769f2b",
+      "context": "holes up to this area, in square pixels, are filled. ``adaptive`` only.",
+      "translation": "se rellenan los huecos de hasta esta área, en píxeles cuadrados. Solo ``adaptive``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#6",
+      "source": "whether ``log`` and ``dog`` grow a watershed from each blob centre rather than stamping a disk.",
+      "source_sha256": "cd40201ad81b9bb2ca2fa04bc82bcec75a022a270a06ea1e440410cfc54cbf0f",
+      "context": "whether ``log`` and ``dog`` grow a watershed from each blob centre rather than stamping a disk.",
+      "translation": "si ``log`` y ``dog`` hacen crecer una cuenca (watershed) desde el centro de cada blob en lugar de estampar un disco.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#7",
+      "source": "smallest Gaussian scale LoG searches, in pixels; a blob's radius is about sigma times root two.",
+      "source_sha256": "ace7f0604708f74d5ef50a20a5c279221e91d3012ade8a55b0fa3387318f13be",
+      "context": "smallest Gaussian scale LoG searches, in pixels; a blob's radius is about sigma times root two.",
+      "translation": "la escala gaussiana más pequeña que busca LoG, en píxeles; el radio de un blob es aproximadamente sigma por raíz de dos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#8",
+      "source": "the largest.",
+      "source_sha256": "0a7ac9404d5659f020aaef5edb046ffbb909c85caaf127a8c25f3203f94e1932",
+      "context": "the largest.",
+      "translation": "la más grande.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.MethodParams#9",
+      "source": "how many scales between the two.",
+      "source_sha256": "c4dd217cbf6d3923181b9360a683454fd131235194b6761c7924bcd106081a47",
+      "context": "how many scales between the two.",
+      "translation": "cuántas escalas entre las dos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.guidance#0",
+      "source": "What this method suits, from :mod:`spacr.organelle_types`.",
+      "source_sha256": "5df1f40adf7383ce06020d1144d1ca6deb321ad30f8f26fe8481f97bcb27b11c",
+      "context": "What this method suits, from :mod:`spacr.organelle_types`.",
+      "translation": "Para qué sirve este método, según :mod:`spacr.organelle_types`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.guidance#1",
+      "source": "The sentence is built from :data:`spacr.organelle_types.LEGAL_METHODS`, which is where spaCR already records which method belongs to which shape, so a method that gains or loses a shape there gains or loses it here too rather than drifting into a second opinion.",
+      "source_sha256": "1a5137ae13b50b996564e1d369ab30af0d619f107d3756c6cdfcd45998b19fec",
+      "context": "The sentence is built from :data:`spacr.organelle_types.LEGAL_METHODS`, which is where spaCR already records which method belongs to which shape, so a method that gains or loses a shape there gains or loses it here too rather than drifting into a second opinion.",
+      "translation": "La frase se construye a partir de :data:`spacr.organelle_types.LEGAL_METHODS`, que es donde spaCR ya registra qué método corresponde a qué forma, de modo que un método que gana o pierde una forma allí la gana o la pierde también aquí, en lugar de derivar hacia una segunda opinión.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.guidance#2",
+      "source": "one of :func:`modes`, or any organelle method name.",
+      "source_sha256": "952201ba48587c4e41c7194e883150303fdd2caf868c41339f68389ae23efa42",
+      "context": "one of :func:`modes`, or any organelle method name.",
+      "translation": "uno de :func:`modes`, o cualquier nombre de método de orgánulos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.guidance#3",
+      "source": "an English sentence, not yet translated: a caller showing it passes it through ``tr``.",
+      "source_sha256": "79b37b09fa85c577cede573641c72768f22169060a2c64f71f5bd82465f9b19f",
+      "context": "an English sentence, not yet translated: a caller showing it passes it through ``tr``.",
+      "translation": "una frase en inglés, aún sin traducir: quien la muestre la pasa por ``tr``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.organelle_settings#0",
+      "source": "``params`` as the ``organelle_*`` keys the engine reads.",
+      "source_sha256": "0fbcd4f4bb62bce74279fcb33fccbd48fb013f632d39bb4a6c006550bdcab329",
+      "context": "``params`` as the ``organelle_*`` keys the engine reads.",
+      "translation": "``params`` como las claves ``organelle_*`` que lee el motor.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.organelle_settings#1",
+      "source": "one of :func:`modes`.",
+      "source_sha256": "e5469f81c3be88d056d3141a91b08c8892e52496ff196bbccd14a4770f61aab6",
+      "context": "one of :func:`modes`.",
+      "translation": "uno de :func:`modes`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.organelle_settings#2",
+      "source": "the parameters as the screen holds them.",
+      "source_sha256": "000a1162408d70a49483ac8a25d5edf89a10f4275dfda56b10f14386d702a697",
+      "context": "the parameters as the screen holds them.",
+      "translation": "los parámetros tal como los guarda la pantalla.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.organelle_settings#3",
+      "source": "the smallest object to keep, in pixels -- Make Masks' own Min area, so one number governs the magnifier, the detect buttons and the Remove-small button.",
+      "source_sha256": "e6bb3935d0bcd0670e18e4548c9b53fbd94eae2c0dd86018d3d019feb9b51efb",
+      "context": "the smallest object to keep, in pixels -- Make Masks' own Min area, so one number governs the magnifier, the detect buttons and the Remove-small button.",
+      "translation": "el objeto más pequeño que se conserva, en píxeles -- el propio Min area de Make Masks, de modo que un único número rige la lupa, los botones de detección y el botón Remove-small.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.organelle_settings#4",
+      "source": "a dict for :func:`spacr.object._segment_single_image`.",
+      "source_sha256": "a59fff01581b30eaf3ed030cc8107451d64a1cf2a3f7251cd8b5117cc1ee56bc",
+      "context": "a key-value mapping for :func:`spacr.object._segment_single_image`.",
+      "translation": "un dict para :func:`spacr.object._segment_single_image`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.organelle_settings#5",
+      "source": "for a mode this module does not add.",
+      "source_sha256": "78bb6b6957cab2abaaa7754e8b11facdfd3e6911a6b221e039b318529ed92d4b",
+      "context": "for a mode this module does not add.",
+      "translation": "para un modo que este módulo no añade.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.provenance#1",
+      "source": "A mode's own parameters and no others, so an entry says what the detection was told rather than carrying nineteen numbers eighteen of which no branch looked at.",
+      "source_sha256": "c22d2fc0df7bba3b5fb57e0e54667a522ea9d8e13d93755221fb3de840a1a6a3",
+      "context": "A mode's own parameters and no others, so an entry says what the detection was told rather than carrying nineteen numbers eighteen of which no branch looked at.",
+      "translation": "Los parámetros propios de un modo y ningún otro, para que una entrada diga lo que se indicó a la detección en lugar de llevar diecinueve números, dieciocho de los cuales no miró ninguna rama.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.provenance#2",
+      "source": "one of :func:`modes`, or any other magnifier mode, which reads nothing here and records nothing.",
+      "source_sha256": "ad12d9894b77c38dc06c8a7474711ee90d8ce1b21f39d3ad90c36551d9132002",
+      "context": "one of :func:`modes`, or any other magnifier mode, which reads nothing here and records nothing.",
+      "translation": "uno de :func:`modes`, o cualquier otro modo de la lupa, que aquí no lee nada y no registra nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.provenance#3",
+      "source": "the parameters the detection ran with.",
+      "source_sha256": "5574c091712098ce5117eb3da3e20ee17b4a3f8ec6d7ce74189ceb05c71be2a6",
+      "context": "the parameters the detection ran with.",
+      "translation": "los parámetros con los que se ejecutó la detección.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.provenance#4",
+      "source": "``{field: value}``, JSON-safe; empty for a mode that is not one of this module's.",
+      "source_sha256": "2f9f0b438f8cbf5a15117911425e0a5e5b1124589ab15bd48c325b5922ce1744",
+      "context": "``{field: value}``, JSON-safe; empty for a mode that is not one of this module's.",
+      "translation": "``{field: value}``, apto para JSON; vacío para un modo que no es de este módulo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.segment#0",
+      "source": "Detect objects in ``image`` the way organelle detection would.",
+      "source_sha256": "35c9205cd847459c64bab368a66c3c451ac844ec909bf8c7f02a7f7cf7b073bb",
+      "context": "Detect objects in ``image`` the way organelle detection would.",
+      "translation": "Detecta objetos en ``image`` como lo haría la detección de orgánulos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.segment#1",
+      "source": "a 2-D field or region. Read, never modified.",
+      "source_sha256": "06780da8871daaeecae551c957f69197031290fa4a5c3fcbac1973105f9b1806",
+      "context": "a 2-D field or region. Read, never modified.",
+      "translation": "un campo o región 2D. Se lee, nunca se modifica.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.segment#3",
+      "source": "the parameters the method reads.",
+      "source_sha256": "41575c6213574f8d47f034f86353f2fbcd0650890a863817dd7013360610bfed",
+      "context": "the parameters the method reads.",
+      "translation": "los parámetros que lee el método.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.segment#5",
+      "source": "a loaded U-Net, for ``unet``; loaded from :attr:`MethodParams.unet_model_path` when not given.",
+      "source_sha256": "44716361ad01d183aea5a83501803ddfa06b5b66cfcc15bcbba33679c1661335",
+      "context": "a loaded U-Net, for ``unet``; loaded from :attr:`MethodParams.unet_model_path` when not given.",
+      "translation": "una U-Net cargada, para ``unet``; se carga desde :attr:`MethodParams.unet_model_path` cuando no se proporciona.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.segment#6",
+      "source": "a 2-D label image the shape of ``image``.",
+      "source_sha256": "d7b3a2f67c1065e197504e3c0e3077e1f2d6855b9f0e184c72490cb5caa8149a",
+      "context": "a 2-D label image the shape of ``image``.",
+      "translation": "una imagen de etiquetas 2D con la forma de ``image``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.organelle_modes.segment#8",
+      "source": "from the engine, for a parameter it refuses -- an unknown ridge filter, a U-Net path that is not a file.",
+      "source_sha256": "f19de4cf5b318f4bacb6d18e3d1281cdccb94b423a5a1aed174f10bec51d031f",
+      "context": "from the engine, for a parameter it refuses -- an unknown ridge filter, a U-Net path that is not a file.",
+      "translation": "desde el motor, para un parámetro que rechaza -- un filtro de crestas desconocido, una ruta de U-Net que no es un archivo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ortho_view.OrthoPanel.show_canvas#1",
+      "source": "the layer stack to paint; kept for the next repaint.",
+      "source_sha256": "814b44b1267b81a46a367b2d55a5cbd04072043fa479560fdb117d3c4106f498",
+      "context": "the layer stack to paint; kept for the next repaint.",
+      "translation": "la pila de capas que se pinta; se conserva para el siguiente repintado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ortho_view.OrthoPanel.show_canvas#2",
+      "source": "the :class:`~spacr.layers.Canvas` that maps the stack's world coordinates onto this panel's pixels; it also places the crosshair.",
+      "source_sha256": "1a8ff94ae46a51ec3d75332769f72840fcecebfbf639e2ea889759544d98b962",
+      "context": "the :class:`~spacr.layers.Canvas` that maps the stack's world coordinates onto this panel's pixels; it also places the crosshair.",
+      "translation": "el :class:`~spacr.layers.Canvas` que proyecta las coordenadas de mundo de la pila sobre los píxeles de este panel; también coloca la cruz de referencia.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ortho_view.OrthoView.closeEvent#1",
+      "source": "the close event, passed on to the base class after the view leaves the shared selection.",
+      "source_sha256": "da8184ad188bcc4f188f95b9068e18a5a44340a0eff974288250ee0909c39f0e",
+      "context": "the close event, passed on to the base class after the view leaves the shared selection.",
+      "translation": "el evento de cierre, que se pasa a la clase base después de que la vista abandona la selección compartida.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ortho_view.OrthoView.on_linked_selection_changed#1",
+      "source": "the shared :class:`~spacr.selection.Selection`. Only a selection of exactly one key moves the crosshair, onto the centroid of the labels-layer object with that key.",
+      "source_sha256": "1275e49ebfb7a71375217d58cd8141a42082cc838e608ef3901c23fbfc161293",
+      "context": "the shared :class:`~spacr.selection.Selection`. Only a selection of exactly one key moves the crosshair, onto the centroid of the labels-layer object with that key.",
+      "translation": "el :class:`~spacr.selection.Selection` compartido. Solo una selección de exactamente una clave mueve la cruz de referencia, al centroide del objeto de la capa de etiquetas con esa clave.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ortho_view.OrthoView.set_stack#1",
+      "source": "the new layer stack; the view is refitted to it, and a stack with no volume leaves the panels empty with the reason in the status line.",
+      "source_sha256": "89270a9e3cde18d047be0a84e449018a164d708f7b504479a179795acb93d4dc",
+      "context": "the new layer stack; the view is refitted to it, and a stack with no volume leaves the panels empty with the reason in the status line.",
+      "translation": "la nueva pila de capas; la vista se reajusta a ella, y una pila sin volumen deja los paneles vacíos con el motivo en la línea de estado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ortho_view.OrthoView.slice_index#1",
+      "source": "the world axis, one of the view's axis names (``z``, ``y`` or ``x`` by default).",
+      "source_sha256": "40fd82c9b129d10fa7ab42950113aadb74d4bbd7159821f3a1f83602b02570db",
+      "context": "the world axis, one of the view's axis names (``z``, ``y`` or ``x`` by default).",
+      "translation": "el eje de mundo, uno de los nombres de eje de la vista (``z``, ``y`` o ``x`` de forma predeterminada).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.ortho_view.OrthoView.wheelEvent#0",
+      "source": "Zoom all planes around the image position beneath the pointer.",
+      "source_sha256": "c3228911a92fad5b3848b6516e71e5f684827e141ffaf16c0f2cbe16febb7896",
+      "context": "Zoom all image layers around the image position beneath the pointer.",
+      "translation": "Amplía todos los planos alrededor de la posición de la imagen bajo el puntero.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.path_probe.isdir#2",
+      "source": "the path to ask about; passed to :func:`exists` with ``want_dir=True``, so anything falsy is ``False``.",
+      "source_sha256": "fa84645dffb53088727f0c4f64d5b5797fca8ef904bd483246b1d45bcf75a346",
+      "context": "the path to ask about; passed to :func:`exists` with ``want_dir=True``, so anything falsy is ``False``.",
+      "translation": "la ruta por la que se pregunta; se pasa a :func:`exists` con ``want_dir=True``, así que cualquier valor falso da ``False``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.path_probe.known#1",
+      "source": "the path whose cached answer is wanted, looked up by its string form (a falsy path as the empty string).",
+      "source_sha256": "d6a79038e71fa1bce073320e091c4d13f281c3e28867a03e2922c03e79fc1e01",
+      "context": "the path whose cached answer is wanted, looked up by its string form (a falsy path as the empty string).",
+      "translation": "la ruta cuya respuesta en caché se busca, consultada por su forma de cadena (una ruta falsa, como la cadena vacía).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.PlateQueue.find#1",
+      "source": "the :attr:`QueueItem.id` to look for.",
+      "source_sha256": "89a3fadadc6fd5b5f9a8d29730b11fca163a561eb25781909304fac10b410ee3",
+      "context": "the :attr:`QueueItem.id` to look for.",
+      "translation": "el :attr:`QueueItem.id` que se busca.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.PlateQueue.update#1",
+      "source": "the :attr:`QueueItem.id` of the item to patch; an unknown id is ignored.",
+      "source_sha256": "9e677513d6dc27b0085cdaf60ca6b20fb2861613df4937f0a04b24799f598a3c",
+      "context": "the :attr:`QueueItem.id` of the item to patch; an unknown id is ignored.",
+      "translation": "el :attr:`QueueItem.id` del elemento que se modifica; un identificador desconocido se ignora.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.PlateQueue.update#2",
+      "source": "attribute values to set on the item. Names the item does not have are ignored.",
+      "source_sha256": "9c8ab7cdf3a0dc8bf82f8e4f80680a2b3c3aaf77cb6849d62ef2c3848a1a22d4",
+      "context": "attribute values to set on the item. Names the item does not have are ignored.",
+      "translation": "valores de atributos que se asignan en el elemento. Los nombres que el elemento no tiene se ignoran.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#1",
+      "source": "item identifier; :meth:`build` mints eight hex characters.",
+      "source_sha256": "aee6038fb83b4cf94c833050a9432cec3c01b5448c42dbbb57206bbdbce4dbb7",
+      "context": "item identifier; :meth:`build` mints eight hex characters.",
+      "translation": "identificador del elemento; :meth:`build` genera ocho caracteres hexadecimales.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#2",
+      "source": "key of the app whose pipeline runs this plate, resolved by :func:`spacr.qt.bridge.resolve_pipeline_entry`.",
+      "source_sha256": "8747dde9209e1454221d93c0e5e4f8d34bf76a5038356fec8605f76078b93916",
+      "context": "key of the app whose workflow processing sessions this plate, resolved by :func:`spacr.qt.bridge.resolve_pipeline_entry`.",
+      "translation": "clave de la aplicación cuyo flujo de trabajo ejecuta esta placa, resuelta por :func:`spacr.qt.bridge.resolve_pipeline_entry`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#3",
+      "source": "settings dict handed to that pipeline.",
+      "source_sha256": "0d8d8d0616b209c1549f3d102d94949eddcfa5d2e810fb19d9ea5acbbf620201",
+      "context": "settings key-value mapping handed to that workflow.",
+      "translation": "dict de ajustes que se entrega a ese flujo de trabajo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#4",
+      "source": "lifecycle state of the item.",
+      "source_sha256": "2bf73521fd39347ab1bb83d90d4a7a354b8bec36eade5600444270e1f47c6bd2",
+      "context": "lifecycle state of the item.",
+      "translation": "estado del ciclo de vida del elemento.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#5",
+      "source": "epoch seconds when the run started, or ``None``.",
+      "source_sha256": "1c96652970ef28fc1847baa66cdc731e076ee611d44a88271d8c6cd62f989b59",
+      "context": "epoch seconds when the run started, or ``None``.",
+      "translation": "segundos de época en que empezó la ejecución, o ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#6",
+      "source": "epoch seconds when the run finished, or ``None``.",
+      "source_sha256": "84408e2506a13a1d04efdaaee2f109600c68c209d5e0f255b95229b1e27dfb7c",
+      "context": "epoch seconds when the run finished, or ``None``.",
+      "translation": "segundos de época en que terminó la ejecución, o ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#7",
+      "source": "error message of a failed run, or ``None``.",
+      "source_sha256": "91a9aa4ae5bddd0ca90d229acff15c87e2fcc2e1930dd7926d3b7f0946dc245f",
+      "context": "error message of a failed processing session, or ``None``.",
+      "translation": "mensaje de error de una ejecución fallida, o ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#8",
+      "source": "run folder recorded for the item, or ``None``; stored and reloaded with the queue.",
+      "source_sha256": "d6089e2491559616141d6c41d201824d88dc2132f2b4fdf14f1dce91f8777b24",
+      "context": "processing-session folder recorded for the item, or ``None``; stored and reloaded with the work list.",
+      "translation": "carpeta de ejecución registrada para el elemento, o ``None``; se guarda y se recarga con la cola.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem#9",
+      "source": "display label shown for the item.",
+      "source_sha256": "f590650c4466ea7d03a49051e151b4593d4905bbdd60d971cfbf591fb9f5d675",
+      "context": "display label shown for the item.",
+      "translation": "etiqueta que se muestra para el elemento.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem.build#1",
+      "source": "key of the app whose pipeline runs this plate.",
+      "source_sha256": "999a10104ae94cce5072fbfe3f470053d413217fcc8c0d758bd17c5037a13b6a",
+      "context": "key of the app whose workflow processing sessions this plate.",
+      "translation": "clave de la aplicación cuyo flujo de trabajo ejecuta esta placa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.QueueItem.build#2",
+      "source": "settings for the run; copied into the item. Its ``src`` value becomes the label when none is given.",
+      "source_sha256": "bc35b94f60cf32ec75af7b687b86e0b84b4b4c8b40c5416db25108812c8e12f6",
+      "context": "settings for the processing session; copied into the item. Its ``src`` value becomes the label when none is given.",
+      "translation": "ajustes de la ejecución; se copian en el elemento. Su valor ``src`` pasa a ser la etiqueta cuando no se da ninguna.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.default_runner#1",
+      "source": "the queue item to run; its ``app_key`` selects the pipeline, which is called with its ``settings``. An app with no pipeline raises :class:`RuntimeError`.",
+      "source_sha256": "e3cd3e33f0004333d21c1750beca3257a805a3953ec8080a9537bff70836032b",
+      "context": "the work list item to execute; its ``app_key`` selects the workflow, which is called with its ``settings``. An app with no workflow raises :class:`RuntimeError`.",
+      "translation": "el elemento de la cola que se ejecuta; su ``app_key`` selecciona el flujo de trabajo, al que se llama con sus ``settings``. Una aplicación sin flujo de trabajo lanza :class:`RuntimeError`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.plate_queue.run_queue#3",
+      "source": "the queue to drain; its QUEUED items run one at a time and their status, timestamps and errors are written back to it.",
+      "source_sha256": "c29991360ec2f1c21b26208a326b37f73da4d2b3898f94a741df96532a5dea5e",
+      "context": "the work list to drain; its QUEUED items run one at a time and their status, timestamps and errors are written back to it.",
+      "translation": "la cola que se vacía; sus elementos QUEUED se ejecutan de uno en uno y su estado, marcas de tiempo y errores se vuelven a escribir en ella.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences#18",
+      "source": "``sound/music_file``: str, default ``\"\"``. A WAV of the user's own that the music bed plays instead of the synthesized one, and that the Resonance backdrop is driven by. See :func:`get_sound_music_file`.",
+      "source_sha256": "dfdf82ee823bafd7f673895c9696ef3da0639a2487a5cdaffd7a6339d49d6f44",
+      "context": "``sound/music_file``: str, default ``\"\"``. A WAV of the user's own that the music bed plays instead of the synthesized one, and that the Resonance backdrop is driven by. See :func:`get_sound_music_file`.",
+      "translation": "``sound/music_file``: str, predeterminado ``\"\"``. Un WAV propio del usuario que la base musical reproduce en lugar de la sintetizada, y que impulsa el fondo Resonance. Véase :func:`get_sound_music_file`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences#7",
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "source_sha256": "25e6318ffb88ee82ce38c117008edc6106951d7409df1fa2ca5a619945d3b381",
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | uno de los diez temas nocturnos de :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (predeterminado ``\"dark\"``). ``\"system\"`` sigue el esquema de color del sistema operativo, y solo una vez que alguien lo ha elegido: un ``\"system\"`` guardado antes de que el oscuro pasara a ser el predeterminado (2026-09-21) era el antiguo valor predeterminado, no una elección, y se interpreta como ``\"dark\"``; véase :func:`get_theme`. ``\"cell\"`` usa imágenes de fluorescencia y ``\"glass\"`` usa materiales neutros en capas sobre un campo de luz integrado. Un tema nocturno lleva además un fondo y un conjunto de sonidos, que escribe :func:`apply_night_theme` cuando se elige. Space no es un tema seleccionable. Los valores retirados ``space_variant`` y ``space_seed`` se eliminan de un almacén más antiguo la primera vez que se lee el tema; véase :func:`get_theme`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences#9",
+      "source": "``gui_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0]. Scales every size of the interface, not only text, and applies live. See :mod:`spacr.qt.gui_scale`.",
+      "source_sha256": "eeccbe7ee0aa5b83848a946db48b3f74d068c919723dfa65f6050f3d1580f2ba",
+      "context": "``gui_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0]. Scales every size of the interface, not only text, and applies live. See :mod:`spacr.qt.gui_scale`.",
+      "translation": "``gui_scale``: float, 1.0 = 100 % (el valor predeterminado). Limitado a [0.10, 2.0]. Escala todos los tamaños de la interfaz, no solo el texto, y se aplica en vivo. Véase :mod:`spacr.qt.gui_scale`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.ambient_default_palette#2",
+      "source": "an ambient theme name, as offered by :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`; an unknown name gives the global default palette.",
+      "source_sha256": "5a3e2da64b89998f1d56d871fbd229402ca2975a0746bca071e3e267bfe31ed2",
+      "context": "an ambient theme name, as offered by :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`; an unknown name gives the global default palette.",
+      "translation": "un nombre de tema ambiental, como los que ofrece :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`; un nombre desconocido da la paleta predeterminada global.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_night_theme#0",
+      "source": "Write the backdrop and the sound set a night theme comes with.",
+      "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+      "context": "Write the backdrop and the sound set a night theme comes with.",
+      "translation": "Escribe el fondo y el conjunto de sonidos que trae un tema nocturno.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_night_theme#1",
+      "source": "A night theme is one choice that moves three things: the colours, the animation behind them and the set of sounds spaCR would play. So this writes the ambient animation, the ambient palette and the sound set that go with the colours.",
+      "source_sha256": "985c001b33bb86cbbb594976c2420bb3d6d258d6c54800537d8e0f0a5419c028",
+      "context": "A night theme is one choice that moves three things: the colours, the animation behind them and the set of sounds spaCR would play. So this writes the ambient animation, the ambient palette and the sound set that go with the colours.",
+      "translation": "Un tema nocturno es una única elección que mueve tres cosas: los colores, la animación detrás de ellos y el conjunto de sonidos que reproduciría spaCR. Así que esto escribe la animación ambiental, la paleta ambiental y el conjunto de sonidos que acompañan a los colores.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_night_theme#2",
+      "source": "IT DOES NOT SWITCH ANYTHING ON. The sound master stays exactly where the user left it, which on a fresh install and on every install that has never opened the Sound tab is off; all this decides is *which* set would play if it were ever switched on. It leaves the animation master alone in the same way: if the backdrop is off, the stored animation is what comes back when it is switched on again, and :func:`set_ambient_animation` is not used here for exactly that reason -- that setter also switches the backdrop on.",
+      "source_sha256": "0c66875be70f6c978a3c1e1bf7e3a0f52306da16a10a5e50db785c8c974480d7",
+      "context": "It does not switch anything on. The sound master stays exactly where the user left it, which on a fresh install and on every install that has never opened the Sound tab is off; all this decides is *which* set would play if it were ever switched on. It leaves the animation master alone in the same way: if the backdrop is off, the stored animation is what comes back when it is switched on again, and :func:`set_ambient_animation` is not used here for exactly that reason -- that setter also switches the backdrop on.",
+      "translation": "NO ACTIVA NADA. El interruptor general del sonido se queda exactamente donde lo dejó el usuario, que en una instalación nueva y en cualquier instalación que nunca haya abierto la pestaña Sonido es apagado; lo único que esto decide es *qué* conjunto sonaría si alguna vez se activara. Del mismo modo deja en paz el interruptor general de la animación: si el fondo está apagado, la animación guardada es lo que vuelve cuando se activa de nuevo, y :func:`set_ambient_animation` no se usa aquí precisamente por ese motivo -- ese setter también activa el fondo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_night_theme#3",
+      "source": "IT IS A PRESET, NOT AN OVERRIDE. The three values are written once, at the moment the theme is chosen, into the same keys the Animation and Sound controls read and write. Nothing re-imposes them, so a user who picks Nocturne and then changes the animation to Bokeh keeps Bokeh.",
+      "source_sha256": "a8313e70cb10b423b640aaf5fdf95b3604d9dfe50e45e59b9cc45f6c89530c48",
+      "context": "It is a preset, not an override. The three values are written once, at the moment the theme is chosen, into the same structured-data names that the Animation and Sound controls read and write. Nothing re-imposes them, so a user who picks Nocturne and then changes the animation to Bokeh keeps Bokeh.",
+      "translation": "ES UN PRESET, NO UNA IMPOSICIÓN. Los tres valores se escriben una vez, en el momento en que se elige el tema, en las mismas claves que leen y escriben los controles de Animación y Sonido. Nada los vuelve a imponer, así que un usuario que elige Nocturne y luego cambia la animación a Bokeh conserva Bokeh.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_night_theme#4",
+      "source": "AND IT NEVER SWITCHES THE BACKDROP BACK ON. \"No animation\" is stored as the animation NAME (:data:`spacr.qt.widgets.ambient.NO_ANIMATION`), which :func:`get_ambient_enabled` reads, so writing an animation over it would hand a moving backdrop to a user who had turned motion off -- through the Animation control, or through Extra Performance, which turns it off the same way. :func:`backdrop_is_switched_off` is therefore asked first, and when it says yes the two ambient keys are left exactly as they are. The theme still changes the colours and the sound set; it just does not start anything moving. What that costs is small and worth saying: a user who later switches the backdrop on gets the animation they had before, not the one this theme would have brought, and they can pick it on the same control they just used.",
+      "source_sha256": "88253fd81c715bc3353f84e4dd8f60a7cae387be1d7ae754ca0f9fe58c10c0c6",
+      "context": "And it never switches the backdrop back on. \"No animation\" is stored as the animation NAME (:data:`spacr.qt.widgets.ambient.NO_ANIMATION`), which :func:`get_ambient_enabled` reads, so writing an animation over it would hand a moving backdrop to a user who had turned motion off -- through the Animation control, or through Extra Performance, which turns it off the same way. :func:`backdrop_is_switched_off` is therefore asked first, and when it says yes the two ambient keys are left exactly as they are. The theme still changes the colours and the sound set; it just does not start anything moving. What that costs is small and worth saying: a user who later switches the backdrop on gets the animation they had before, not the one this theme would have brought, and they can pick it on the same control they just used.",
+      "translation": "Y NUNCA VUELVE A ACTIVAR EL FONDO. \"No animation\" se guarda como el NOMBRE de la animación (:data:`spacr.qt.widgets.ambient.NO_ANIMATION`), que lee :func:`get_ambient_enabled`, así que escribir una animación encima daría un fondo en movimiento a un usuario que había desactivado el movimiento -- mediante el control Animación, o mediante Extra Performance, que lo desactiva de la misma forma. Por eso se consulta primero :func:`backdrop_is_switched_off`, y cuando responde que sí las dos claves ambientales se dejan exactamente como están. El tema sigue cambiando los colores y el conjunto de sonidos; simplemente no pone nada en movimiento. Lo que esto cuesta es poco y merece decirse: un usuario que más tarde activa el fondo obtiene la animación que tenía antes, no la que habría traído este tema, y puede elegirla en el mismo control que acaba de usar.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_night_theme#5",
+      "source": "one of :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.",
+      "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+      "context": "one of :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.",
+      "translation": "uno de :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.backdrop_is_switched_off#0",
+      "source": "Whether the user has turned the animated backdrop off and left it.",
+      "source_sha256": "a6037cf16d51e096dec89b0fe2833eceade988917d68aadb7139b621cd861fba",
+      "context": "Whether the user has turned the animated backdrop off and left it.",
+      "translation": "Si el usuario ha desactivado el fondo animado y lo ha dejado así.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.backdrop_is_switched_off#1",
+      "source": "The STORED choice, not the live answer: :func:`get_ambient_enabled` also reports ``False`` for ``SPACR_NO_BACKDROP``, which :mod:`spacr.qt.crash_recovery` sets for one process after two failed launches. That is a suppression and not a preference, and treating it as one would silently strip the backdrop out of a theme the user chose during that one run.",
+      "source_sha256": "c8387ed7e90b2edbaf811f57121719b848b262081153029bf779a7c60ccddb1a",
+      "context": "The STORED choice, not the live answer: :func:`get_ambient_enabled` also reports ``False`` for ``SPACR_NO_BACKDROP``, which :mod:`spacr.qt.crash_recovery` sets for one process after two failed launches. That is a suppression and not a preference, and treating it as one would silently strip the backdrop out of a theme the user chose during that one processing session.",
+      "translation": "La elección GUARDADA, no la respuesta en vivo: :func:`get_ambient_enabled` también devuelve ``False`` con ``SPACR_NO_BACKDROP``, que :mod:`spacr.qt.crash_recovery` establece para un proceso tras dos arranques fallidos. Eso es una supresión y no una preferencia, y tratarla como tal quitaría en silencio el fondo de un tema que el usuario eligió durante esa única ejecución.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.backdrop_is_switched_off#2",
+      "source": "``True`` when the Animation control reads \"None\", or when the separate on/off key is off.",
+      "source_sha256": "0229c7be7dbbab697138fdcd60d2291b4dd0f4a074419bcb3a0ea60cbea02ec5",
+      "context": "``True`` when the Animation control reads \"None\", or when the separate on/off key is off.",
+      "translation": "``True`` cuando el control Animación indica \"None\", o cuando la clave de encendido/apagado separada está desactivada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.clear_dashboard_watermark#1",
+      "source": "the Home panel, ``\"runs\"`` or ``\"totals\"`` (the keys of :data:`DASHBOARD_WATERMARKS`); any other name does nothing.",
+      "source_sha256": "8775d926bd6182732a78770a7a57a1b4cf3c1e053c15c926cfdcd4fa40879465",
+      "context": "the Home panel, ``\"runs\"`` or ``\"totals\"`` (the keys of :data:`DASHBOARD_WATERMARKS`); any other name does nothing.",
+      "translation": "el panel de Inicio, ``\"runs\"`` o ``\"totals\"`` (las claves de :data:`DASHBOARD_WATERMARKS`); cualquier otro nombre no hace nada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.clear_figure_style_default#2",
+      "source": "the figure kind, e.g. ``\"volcano\"``, as :func:`spacr.style_base.style_kind` derives it; converted to ``str``.",
+      "source_sha256": "35a857a33002cc2eb7718acafe5c0b6be8775feb740331c37eb040e226ae4be5",
+      "context": "the figure kind, e.g. ``\"volcano\"``, as :func:`spacr.style_base.style_kind` derives it; converted to ``str``.",
+      "translation": "el tipo de figura, p. ej. ``\"volcano\"``, tal como lo deriva :func:`spacr.style_base.style_kind`; convertido a ``str``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.confirm_resource_action#3",
+      "source": "which clean-up to confirm: ``\"ram\"``, ``\"vram\"``, ``\"cpu\"`` or ``\"disk\"``.",
+      "source_sha256": "dc2392803f4517b50a13cb2e1c1f081a2e1fbe10a8e536c3c8305bdd93e87a90",
+      "context": "which clean-up to confirm: ``\"ram\"``, ``\"vram\"``, ``\"cpu\"`` or ``\"disk\"``.",
+      "translation": "qué limpieza se confirma: ``\"ram\"``, ``\"vram\"``, ``\"cpu\"`` o ``\"disk\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.confirm_resource_action#4",
+      "source": "the widget the message box is parented to, or ``None``.",
+      "source_sha256": "8d1608755e784570e8be49de3f3cde9c9f70fb6b69f0d6b25bbaab61c3bb43b0",
+      "context": "the widget the message box is parented to, or ``None``.",
+      "translation": "el widget del que depende el cuadro de mensaje, o ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.explain_every_row#2",
+      "source": "the finished Preferences dialog; every ``QFormLayout`` inside it is walked, and each row whose label is a ``QLabel`` is given a tooltip when one is known.",
+      "source_sha256": "3223c77098934d984b04ea6af72ac1ba019e6db94616effcf58917058ae403b2",
+      "context": "the finished Preferences dialog; every ``QFormLayout`` inside it is walked, and each row whose label is a ``QLabel`` is given a tooltip when one is known.",
+      "translation": "el diálogo de Preferencias ya terminado; se recorre cada ``QFormLayout`` que contiene, y a cada fila cuya etiqueta es un ``QLabel`` se le da una información emergente cuando se conoce una.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.figure_bg_is_transparent#1",
+      "source": "a background colour token; ``\"none\"``, ``\"transparent\"`` and the empty string (after stripping and lower-casing) mean transparent.",
+      "source_sha256": "fa1e4f3572b455450c6898f069d04b513c6099cf3220e9289045125442f04511",
+      "context": "a background colour token; ``\"none\"``, ``\"transparent\"`` and the empty string (after stripping and lower-casing) mean transparent.",
+      "translation": "un token de color de fondo; ``\"none\"``, ``\"transparent\"`` y la cadena vacía (tras quitar espacios y pasar a minúsculas) significan transparente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.figure_color_is_auto#2",
+      "source": "a stored colour token or colour string; converted to ``str`` before comparing with :data:`AUTO_FIGURE_COLOR`.",
+      "source_sha256": "71e55b5a637a9b42ebb93d48aa3793c267880f7eb6f7b82119aeb0e906cd86ff",
+      "context": "a stored colour token or colour string; converted to ``str`` before comparing with :data:`AUTO_FIGURE_COLOR`.",
+      "translation": "un token de color guardado o una cadena de color; se convierte a ``str`` antes de compararlo con :data:`AUTO_FIGURE_COLOR`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_dashboard_watermark#3",
+      "source": "``runs`` or ``totals``.",
+      "source_sha256": "49b4223baf4a47f0b030dfd6ea8cc73cf0fe2e67a23b7c1d3a97b1a21961c0f0",
+      "context": "``runs`` or ``totals``.",
+      "translation": "``runs`` o ``totals``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_folded_panels#0",
+      "source": "Which panels the user left folded, ``{key: True}``, or opened, ``{key: False}``.",
+      "source_sha256": "863a4cbde5cbd49e32971ff91250d1f57dc62919ece182f0e9938823c3a7cc65",
+      "context": "Which panels the user left folded, ``{key: True}``, or opened, ``{key: False}``.",
+      "translation": "Qué paneles dejó plegados el usuario, ``{key: True}``, o abiertos, ``{key: False}``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_folded_panels#1",
+      "source": "False is stored only for a panel that starts folded; see :func:`set_folded_panel`.",
+      "source_sha256": "5f68c31fd76976107184a41483e4c57cd1109c4cedd317f301dba9f9f1378a20",
+      "context": "False is stored only for a panel that starts folded; see :func:`set_folded_panel`.",
+      "translation": "False se guarda solo para un panel que empieza plegado; véase :func:`set_folded_panel`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_gui_scale#0",
+      "source": "Return the saved whole-GUI scale, clamped to supported bounds.",
+      "source_sha256": "5aa7542d83f6badc3d42bc3aeb53a3e226cc74d737da4ba050288744f556e760",
+      "context": "Return the saved whole-GUI scale, clamped to supported bounds.",
+      "translation": "Devuelve la escala guardada de toda la GUI, limitada a los márgenes admitidos.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_gui_scale#1",
+      "source": "Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale` and live by :func:`spacr.qt.gui_scale.set_gui_scale_live`.",
+      "source_sha256": "f5be1dc73529d15cc10ce13ecc03379d00ee0a856aa3aa29f98c1afc87eb405a",
+      "context": "Applied at startup by :func:`spacr.qt.gui_scale.apply_saved_gui_scale` and live by :func:`spacr.qt.gui_scale.set_gui_scale_live`.",
+      "translation": "La aplica al iniciar :func:`spacr.qt.gui_scale.apply_saved_gui_scale` y en vivo :func:`spacr.qt.gui_scale.set_gui_scale_live`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_issue_prompt_mode#1",
+      "source": "one of :data:`ISSUE_PROMPT_MODES`. :data:`DEFAULT_ISSUE_PROMPT_MODE` (``'always'``) when nothing is stored, and also when the only thing stored is the superseded default ``'ask'`` written by a build that did not mark what the user had chosen (:data:`_KEY_ISSUE_PROMPT_CHOSEN`). A choice this build or a later one wrote is returned as it stands, 'ask' included. A stored value that is not recognised reads as ``'ask'``: it was somebody's choice, even if this build cannot read it, so it must neither silence the reporter nor start publishing without a preview.",
+      "source_sha256": "343d0c355027b2da6959bb1bfd5f6f1b3c975f18c9bf39e35601617e43ddfb07",
+      "context": "one of :data:`ISSUE_PROMPT_MODES`. :data:`DEFAULT_ISSUE_PROMPT_MODE` (``'always'``) when nothing is stored, and also when the only thing stored is the superseded default ``'ask'`` written by a build that did not mark what the user had chosen (:data:`_KEY_ISSUE_PROMPT_CHOSEN`). A choice this build or a later one wrote is returned as it stands, 'ask' included. A stored value that is not recognised reads as ``'ask'``: it was somebody's choice, even if this build cannot read it, so it must neither silence the reporter nor start publishing without a preview.",
+      "translation": "uno de :data:`ISSUE_PROMPT_MODES`. :data:`DEFAULT_ISSUE_PROMPT_MODE` (``'always'``) cuando no hay nada guardado, y también cuando lo único guardado es el antiguo valor predeterminado ``'ask'`` escrito por una compilación que no marcaba lo que el usuario había elegido (:data:`_KEY_ISSUE_PROMPT_CHOSEN`). Una elección escrita por esta compilación o una posterior se devuelve tal cual, 'ask' incluido. Un valor guardado que no se reconoce se interpreta como ``'ask'``: fue la elección de alguien, aunque esta compilación no pueda leerla, así que no debe ni silenciar al notificador ni empezar a publicar sin vista previa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_log_file_levels#2",
+      "source": "VERBOSE LOGGING ADDS DEBUG, because otherwise the two settings contradict each other and the one the user did not touch wins. With verbose on, spaCR's loggers emit DEBUG records. Omitting DEBUG from the file handler would build every one of those records and then discard it.",
+      "source_sha256": "aa50baf222523c31bc6a20bd6754c35027eeab6edd334a3c051c795901e97890",
+      "context": "Verbose logging adds DEBUG, because otherwise the two settings contradict each other and the one the user did not touch wins. With verbose on, spaCR's loggers emit DEBUG records. Omitting DEBUG from the file handler would build every one of those records and then discard it.",
+      "translation": "EL REGISTRO DETALLADO AÑADE DEBUG, porque de lo contrario los dos ajustes se contradicen y gana el que el usuario no tocó. Con el modo detallado activado, los registradores de spaCR emiten registros DEBUG. Omitir DEBUG en el manejador de archivos construiría cada uno de esos registros para luego descartarlo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_refresh_news#0",
+      "source": "Whether Home's News panel may ask GitHub for newer releases.",
+      "source_sha256": "2a8346c418124e56f0a72f1b03149b39e073485dd3d4cb87c51c8115ca23dab6",
+      "context": "Whether Home's News panel may ask GitHub for newer releases.",
+      "translation": "Si el panel Noticias de Inicio puede consultar a GitHub si hay versiones más recientes.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_refresh_news#1",
+      "source": "Read by :meth:`spacr.qt.app.MainWindow._refresh_news`, which is the one place that starts the fetch. The bundled ``spacr/resources/release_notes.json`` is drawn either way.",
+      "source_sha256": "ea41667059ff60daea98a6f64d0f0aa58c1b183cbc89b47831e1071bb5183e6b",
+      "context": "Read by :meth:`spacr.qt.app.MainWindow._refresh_news`, which is the one place that starts the fetch. The bundled ``spacr/resources/release_notes.json`` is drawn either way.",
+      "translation": "Lo lee :meth:`spacr.qt.app.MainWindow._refresh_news`, que es el único lugar que inicia la descarga. El ``spacr/resources/release_notes.json`` incluido se muestra en cualquier caso.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_saved_sound_enabled#0",
+      "source": "The stored master sound switch, whatever the mode.",
+      "source_sha256": "77b808ff83b6dc7a3d13bcf6a1d95a1c793c11c1a52ac9bfe0495269fc8507a4",
+      "context": "The stored master sound switch, whatever the mode.",
+      "translation": "El interruptor general de sonido guardado, sea cual sea el modo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_saved_sound_enabled#1",
+      "source": "Ordinary spaCR ignores it (see :func:`get_sound_enabled`) but never erases it, so a user who switched sound on in spaceout finds it on the next time spaceout starts.",
+      "source_sha256": "593db3b0a8fa3869b13e1adf6fb1b2397961fe1ee9099e08f904eb7c46d94eeb",
+      "context": "Ordinary spaCR ignores it (see :func:`get_sound_enabled`) but never erases it, so a user who switched sound on in spaceout finds it on the next time spaceout starts.",
+      "translation": "El spaCR normal lo ignora (véase :func:`get_sound_enabled`) pero nunca lo borra, de modo que un usuario que activó el sonido en spaceout lo encuentra activado la próxima vez que se inicia spaceout.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_saved_sound_enabled#2",
+      "source": "the stored switch, default ``False``.",
+      "source_sha256": "15b48d3b02308b2527016326bf95971d4370dbb314a30cabbaa56763e03414bd",
+      "context": "the stored switch, default ``False``.",
+      "translation": "el interruptor guardado, predeterminado ``False``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_section_layout#2",
+      "source": "the stable category or panel key the layout was saved under with :func:`set_section_layout`; converted to ``str``.",
+      "source_sha256": "20405304f95628606e660c169007fe381d35d5673f6f661d6dbd025eaa8b1d22",
+      "context": "the stable category or panel key the layout was saved under with :func:`set_section_layout`; converted to ``str``.",
+      "translation": "la clave estable de categoría o panel con la que se guardó la disposición mediante :func:`set_section_layout`; convertida a ``str``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_share_diagnostic_logs#0",
+      "source": "Whether an error report saves a redacted copy of the recent log.",
+      "source_sha256": "029054f5bfd5e3c1e0c180fb8c442e22a778e0e28d716f80942fe6285b03e0b8",
+      "context": "Whether an error report saves a redacted copy of the recent log.",
+      "translation": "Si un informe de error guarda una copia censurada del registro reciente.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_share_diagnostic_logs#1",
+      "source": "The copy is written to a file on this computer and the report names that file. The log is never posted to GitHub. Whether a report is sent at all is :func:`get_issue_prompt_mode`.",
+      "source_sha256": "66fc09868b5bc259ec6efcef938dbd7fe8f5a7f1d20f5690bddf50aaed841b8a",
+      "context": "The copy is written to a file on this computer and the report names that file. The log is never posted to GitHub. Whether a report is sent at all is :func:`get_issue_prompt_mode`.",
+      "translation": "La copia se escribe en un archivo de este ordenador y el informe nombra ese archivo. El registro nunca se publica en GitHub. Si se envía o no un informe lo decide :func:`get_issue_prompt_mode`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_enabled#0",
+      "source": "Whether spaCR plays any sound at all. Default ``False``.",
+      "source_sha256": "9deea38a9d2232b9e8c7c02013b12d9c6e3f4a4e047c93b5fc8981ea6d68bab7",
+      "context": "Whether spaCR plays any sound at all. Default ``False``.",
+      "translation": "Si spaCR reproduce algún sonido. Predeterminado ``False``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_enabled#1",
+      "source": "Always ``False`` outside spaceout mode (:func:`sound_is_offered`), whatever is stored: ordinary spaCR has no Sound tab, so a switch the user cannot see must not be able to make a noise.",
+      "source_sha256": "0dfc97e910a47d518e69135c0d98821eba6f693612fd68680093bcb4f25740b2",
+      "context": "Always ``False`` outside spaceout mode (:func:`sound_is_offered`), whatever is stored: ordinary spaCR has no Sound tab, so a switch the user cannot see must not be able to make a noise.",
+      "translation": "Siempre ``False`` fuera del modo spaceout (:func:`sound_is_offered`), sea lo que sea lo guardado: el spaCR normal no tiene pestaña Sonido, así que un interruptor que el usuario no puede ver no debe poder hacer ruido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_enabled#2",
+      "source": "the stored master switch in spaceout mode, else ``False``.",
+      "source_sha256": "adb914152aa6a21b60a041f32339a53549f640151df232b886ef3660fd6b77fc",
+      "context": "the stored master switch in spaceout mode, else ``False``.",
+      "translation": "el interruptor general guardado en el modo spaceout; si no, ``False``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_event_enabled#0",
+      "source": "Whether one event's sound is switched on, apart from the master.",
+      "source_sha256": "13374b33ed19ff346fc111831e2aa8839c9af4d04e320c71fb97e5abff8c75f0",
+      "context": "Whether one event's sound is switched on, apart from the master.",
+      "translation": "Si el sonido de un evento está activado, aparte del interruptor general.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_event_enabled#1",
+      "source": "a key of :data:`SOUND_EVENT_DEFAULTS`.",
+      "source_sha256": "1638f369554b81defc9793cd1c79d63875c5ce646693c513ded1f1a9df86d7e3",
+      "context": "a key of :data:`SOUND_EVENT_DEFAULTS`.",
+      "translation": "una clave de :data:`SOUND_EVENT_DEFAULTS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_event_enabled#2",
+      "source": "the stored switch.",
+      "source_sha256": "7cc3be550f437d07f03312ae1d6e72fdba344e057bf26cb2dbe32f68b553fcc0",
+      "context": "the stored switch.",
+      "translation": "el interruptor guardado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_event_enabled#3",
+      "source": "for an event spaCR has no sound for.",
+      "source_sha256": "efbaad8aad7b014121c75c5e9f9a9c6413c6eac83db70fcaa9ba3e09caea56e5",
+      "context": "for an event spaCR has no sound for.",
+      "translation": "para un evento para el que spaCR no tiene sonido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_music_file#0",
+      "source": "A WAV of the user's own to play as the music bed, or ``\"\"``.",
+      "source_sha256": "9902a9a1f0e895528b9dd88353ba20d1c7262c8bb9cb181dda25c80ae0ba91ff",
+      "context": "A WAV of the user's own to play as the music bed, or ``\"\"``.",
+      "translation": "Un WAV propio del usuario para reproducir como base musical, o ``\"\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_music_file#1",
+      "source": "Empty -- the default -- means spaCR's own synthesized bed. The file is NOT checked here: this is called on the GUI thread on every settings read, and ``spacr.qt.sound`` looks for the file on its audio thread, where a network home directory costs nobody a frame.",
+      "source_sha256": "a369b3eab3431525a8cafa3ac2207def9029fb54f4f245b1b8725dfa1281f227",
+      "context": "Empty -- the default -- means spaCR's own synthesized bed. The file is NOT checked here: this is called on the main GUI execution path on every settings read, and ``spacr.qt.sound`` looks for the file on its audio independent execution path, where a network home directory costs nobody a frame.",
+      "translation": "Vacío -- el valor predeterminado -- significa la base sintetizada propia de spaCR. El archivo NO se comprueba aquí: esto se llama en el hilo de la GUI en cada lectura de ajustes, y ``spacr.qt.sound`` busca el archivo en su hilo de audio, donde un directorio personal en red no le cuesta un fotograma a nadie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_music_file#2",
+      "source": "the stored path, or ``\"\"``.",
+      "source_sha256": "8e3a61a30d613da08e198198d153f88b54141eb79574d945781c5fc86ac5c9cd",
+      "context": "the stored path, or ``\"\"``.",
+      "translation": "la ruta guardada, o ``\"\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_theme#0",
+      "source": "Which sound set plays, validated against the sets that exist.",
+      "source_sha256": "e4b6f3d6f5da9efaaf780895c4ae9047548d16074a47c6b42cf201706b5984df",
+      "context": "Which sound set plays, validated against the sets that exist.",
+      "translation": "Qué conjunto de sonidos suena, validado frente a los conjuntos que existen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_theme#1",
+      "source": "a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`; a stored key that no longer exists reads as the default set.",
+      "source_sha256": "39cdbace557f8b22fdd1aa7656adfbc89e6de13bb9de24384b983c972415d5d4",
+      "context": "a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`; a stored key that no longer exists reads as the default set.",
+      "translation": "una clave de :data:`spacr.qt.sound_synth.SOUND_THEMES`; una clave guardada que ya no existe se interpreta como el conjunto predeterminado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_volume#0",
+      "source": "The master volume, 0 to 1, clamped on read.",
+      "source_sha256": "8820b02f1a990dd73e682fb8ae1a5b3bbed889d127081b8e3dadb86724f4e15c",
+      "context": "The master volume, 0 to 1, clamped on read.",
+      "translation": "El volumen general, de 0 a 1, limitado al leerlo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_volume#1",
+      "source": "the stored fraction, or :data:`DEFAULT_SOUND_VOLUME` when the store holds something that is not a number.",
+      "source_sha256": "2b794d8aa7c11de9475c9daef0020d0fc021f39dc1d72ac8f6ea572e1103db69",
+      "context": "the stored fraction, or :data:`DEFAULT_SOUND_VOLUME` when the store holds something that is not a number.",
+      "translation": "la fracción guardada, o :data:`DEFAULT_SOUND_VOLUME` cuando el almacén contiene algo que no es un número.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_theme#1",
+      "source": "A stored ``\"system\"`` counts only when it was chosen (see :func:`_follow_system_was_chosen`); otherwise it reads as :data:`DEFAULT_THEME`, which is dark. An explicit Light, or any other stored theme, is returned as it is.",
+      "source_sha256": "89a9c1705961320069121aaef54662a514b31d93cd4cb587a6f91bd7cf8becfe",
+      "context": "A stored ``\"system\"`` counts only when it was chosen (see :func:`_follow_system_was_chosen`); otherwise it reads as :data:`DEFAULT_THEME`, which is dark. An explicit Light, or any other stored theme, is returned as it is.",
+      "translation": "Un ``\"system\"`` guardado solo cuenta cuando fue elegido (véase :func:`_follow_system_was_chosen`); de lo contrario se interpreta como :data:`DEFAULT_THEME`, que es el oscuro. Un Claro explícito, o cualquier otro tema guardado, se devuelve tal cual.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_theme#2",
+      "source": "The first read of a store also removes the retired Space theme's ``space_variant`` and ``space_seed`` values from it; see :func:`_forget_the_space_theme_keys`.",
+      "source_sha256": "169e83fb8eb4bd94bc1c4cc7f8db73060416c19e8e3ffb1fe4c8ba23f49ef8c0",
+      "context": "The first read of a store also removes the retired Space theme's ``space_variant`` and ``space_seed`` values from it; see :func:`_forget_the_space_theme_keys`.",
+      "translation": "La primera lectura de un almacén también elimina de él los valores ``space_variant`` y ``space_seed`` del tema Space retirado; véase :func:`_forget_the_space_theme_keys`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_tooltips_enabled#0",
+      "source": "Whether ordinary tooltips appear anywhere in spaCR. Default ``True``.",
+      "source_sha256": "8beaa2688a286522db052b29a1aad131e966a9ec20cc2fd7eb2f28e7fce7504f",
+      "context": "Whether ordinary tooltips appear anywhere in spaCR. Default ``True``.",
+      "translation": "Si aparecen informaciones emergentes normales en cualquier parte de spaCR. Predeterminado ``True``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_tooltips_enabled#1",
+      "source": "The master switch read by :mod:`spacr.qt.tooltip_policy`, the one event filter on ``QApplication`` that decides when every tooltip appears and goes. Cleared, no tooltip is shown at all; the two settings surfaces -- :func:`get_tooltips_box_enabled` and :func:`get_tooltips_bottom_enabled` -- are separate and unaffected.",
+      "source_sha256": "737d5b08b2533d31979d5560d5a3631476613e6029fa5b2708040622c7299ef2",
+      "context": "The master switch read by :mod:`spacr.qt.tooltip_policy`, the one event filter on ``QApplication`` that decides when every tooltip appears and goes. Cleared, no tooltip is shown at all; the two settings surfaces -- :func:`get_tooltips_box_enabled` and :func:`get_tooltips_bottom_enabled` -- are separate and unaffected.",
+      "translation": "El interruptor general que lee :mod:`spacr.qt.tooltip_policy`, el único filtro de eventos en ``QApplication`` que decide cuándo aparece y desaparece cada información emergente. Desmarcado, no se muestra ninguna información emergente; las dos superficies de ajustes -- :func:`get_tooltips_box_enabled` y :func:`get_tooltips_bottom_enabled` -- son independientes y no se ven afectadas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.get_verbose_logging#2",
+      "source": "Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is on. Opening every module took the same time with it on as with it off, measured.",
+      "source_sha256": "afdd451137337dbcdbd5cc511381dc9f04dd6db4a52ebbdfcfc20e447d40dd6b",
+      "context": "Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is on. Opening every module took the same time with it on as with it off, measured.",
+      "translation": "El valor predeterminado es :data:`DEFAULT_VERBOSE_LOGGING`, que está activado. Abrir cada módulo tardó lo mismo con él activado que desactivado, según lo medido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.laptop_mode_note#2",
+      "source": "one of :data:`LAPTOP_MODE_CHOICES`: ``\"automatic\"`` reports what this machine's measurement decides, ``\"on\"`` lists what is turned down, and anything else is described as off.",
+      "source_sha256": "f3294d14cf2142c0f0c580fc9df220f7f2a5dbef3301b0ebb2eae60d3f41c216",
+      "context": "one of :data:`LAPTOP_MODE_CHOICES`: ``\"automatic\"`` reports what this machine's measurement decides, ``\"on\"`` lists what is turned down, and anything else is described as off.",
+      "translation": "uno de :data:`LAPTOP_MODE_CHOICES`: ``\"automatic\"`` informa de lo que decide la medición de esta máquina, ``\"on\"`` enumera lo que se reduce, y cualquier otra cosa se describe como desactivado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.maturity_is_visible#2",
+      "source": "the maturity stage, e.g. ``\"alpha\"`` or ``\"beta\"``; matched case-insensitively, and an empty value or any other stage counts as stable.",
+      "source_sha256": "e70213ada0461d7714d40d101a76dce7d6d355614792b8803c5f94f8b1b5b5f6",
+      "context": "the maturity stage, e.g. ``\"alpha\"`` or ``\"beta\"``; matched case-insensitively, and an empty value or any other stage counts as stable.",
+      "translation": "la etapa de madurez, p. ej. ``\"alpha\"`` o ``\"beta\"``; se compara sin distinguir mayúsculas, y un valor vacío o cualquier otra etapa cuenta como estable.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.mode_warning#1",
+      "source": "one of :data:`SPACR_MODES`; a mode with no entry in :data:`MODE_WARNINGS` gives ``\"\"``.",
+      "source_sha256": "f06abb3c7edac84c9bfef7595a7d0b36ce553dc552109bedc677a73ba8e5355f",
+      "context": "one of :data:`SPACR_MODES`; a mode with no entry in :data:`MODE_WARNINGS` gives ``\"\"``.",
+      "translation": "uno de :data:`SPACR_MODES`; un modo sin entrada en :data:`MODE_WARNINGS` da ``\"\"``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.resolve_effective_theme#1",
+      "source": "Resolves an explicitly chosen ``\"system\"`` to the operating system's colour scheme as Qt reports it (``QStyleHints.colorScheme``), and to dark when Qt can't tell. It does not read the application palette: that is spaCR's own once a theme has been applied, so it would answer with whatever was applied last. Every other value passes through, so callers that only understand light/dark should compare against ``\"light\"`` and treat everything else as dark (Space and Cell are dark themes).",
+      "source_sha256": "d27631fd14c7f8f932c83b33eb500ce85bb0fb76bb50cb9d0a5ac8c0ac4091c9",
+      "context": "Resolves an explicitly chosen ``\"system\"`` to the operating system's colour scheme as Qt reports it (``QStyleHints.colorScheme``), and to dark when Qt can't tell. It does not read the application palette: that is spaCR's own once a theme has been applied, so it would answer with whatever was applied last. Every other value passes through, so callers that only understand light/dark should compare against ``\"light\"`` and treat everything else as dark (Space and Cell are dark themes).",
+      "translation": "Resuelve un ``\"system\"`` elegido explícitamente al esquema de color del sistema operativo tal como lo indica Qt (``QStyleHints.colorScheme``), y a oscuro cuando Qt no lo sabe. No lee la paleta de la aplicación: esa es la propia de spaCR una vez aplicado un tema, así que respondería con lo último que se aplicó. Cualquier otro valor se pasa tal cual, así que quien solo entienda claro/oscuro debe comparar con ``\"light\"`` y tratar todo lo demás como oscuro (Space y Cell son temas oscuros).",
+      "review_basis": "MT draft edited in AI review"
     }
   ]
 }
