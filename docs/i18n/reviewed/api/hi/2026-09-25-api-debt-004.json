@@ -2947,6 +2947,1862 @@
       "context": "Always ``False`` outside spaceout mode (:func:`sound_is_offered`), whatever is stored: ordinary spaCR has no Sound tab, so a switch the user cannot see must not be able to make a noise.",
       "translation": "spaceout मोड के बाहर हमेशा ``False`` (:func:`sound_is_offered`), चाहे जो संग्रहीत हो: सामान्य spaCR में कोई Sound टैब नहीं है, इसलिए जो स्विच उपयोगकर्ता देख नहीं सकता वह कोई आवाज़ नहीं कर पाना चाहिए।",
       "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_enabled#2",
+      "source": "the stored master switch in spaceout mode, else ``False``.",
+      "source_sha256": "adb914152aa6a21b60a041f32339a53549f640151df232b886ef3660fd6b77fc",
+      "context": "the stored master switch in spaceout mode, else ``False``.",
+      "translation": "spaceout मोड में संग्रहीत मुख्य स्विच, अन्यथा ``False``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_event_enabled#0",
+      "source": "Whether one event's sound is switched on, apart from the master.",
+      "source_sha256": "13374b33ed19ff346fc111831e2aa8839c9af4d04e320c71fb97e5abff8c75f0",
+      "context": "Whether one event's sound is switched on, apart from the master.",
+      "translation": "क्या किसी एक इवेंट की ध्वनि चालू है, मुख्य स्विच से अलग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_event_enabled#1",
+      "source": "a key of :data:`SOUND_EVENT_DEFAULTS`.",
+      "source_sha256": "1638f369554b81defc9793cd1c79d63875c5ce646693c513ded1f1a9df86d7e3",
+      "context": "a key of :data:`SOUND_EVENT_DEFAULTS`.",
+      "translation": ":data:`SOUND_EVENT_DEFAULTS` की एक कुंजी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_event_enabled#2",
+      "source": "the stored switch.",
+      "source_sha256": "7cc3be550f437d07f03312ae1d6e72fdba344e057bf26cb2dbe32f68b553fcc0",
+      "context": "the stored switch.",
+      "translation": "संग्रहीत स्विच।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_event_enabled#3",
+      "source": "for an event spaCR has no sound for.",
+      "source_sha256": "efbaad8aad7b014121c75c5e9f9a9c6413c6eac83db70fcaa9ba3e09caea56e5",
+      "context": "for an event spaCR has no sound for.",
+      "translation": "ऐसे इवेंट के लिए जिसकी कोई ध्वनि spaCR में नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_music_file#0",
+      "source": "A WAV of the user's own to play as the music bed, or ``\"\"``.",
+      "source_sha256": "9902a9a1f0e895528b9dd88353ba20d1c7262c8bb9cb181dda25c80ae0ba91ff",
+      "context": "A WAV of the user's own to play as the music bed, or ``\"\"``.",
+      "translation": "संगीत पृष्ठभूमि के रूप में बजाने के लिए उपयोगकर्ता की अपनी WAV फ़ाइल, या ``\"\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_music_file#1",
+      "source": "Empty -- the default -- means spaCR's own synthesized bed. The file is NOT checked here: this is called on the GUI thread on every settings read, and ``spacr.qt.sound`` looks for the file on its audio thread, where a network home directory costs nobody a frame.",
+      "source_sha256": "a369b3eab3431525a8cafa3ac2207def9029fb54f4f245b1b8725dfa1281f227",
+      "context": "Empty -- the default -- means spaCR's own synthesized bed. The file is NOT checked here: this is called on the main GUI execution path on every settings read, and ``spacr.qt.sound`` looks for the file on its audio independent execution path, where a network home directory costs nobody a frame.",
+      "translation": "खाली -- डिफ़ॉल्ट -- का अर्थ spaCR का अपना संश्लेषित संगीत है। फ़ाइल यहाँ नहीं जाँची जाती: इसे हर सेटिंग्स पठन पर GUI थ्रेड पर कॉल किया जाता है, और ``spacr.qt.sound`` फ़ाइल को अपने ऑडियो थ्रेड पर खोजता है, जहाँ नेटवर्क होम निर्देशिका किसी का फ़्रेम नहीं खाती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_music_file#2",
+      "source": "the stored path, or ``\"\"``.",
+      "source_sha256": "8e3a61a30d613da08e198198d153f88b54141eb79574d945781c5fc86ac5c9cd",
+      "context": "the stored path, or ``\"\"``.",
+      "translation": "संग्रहीत पथ, या ``\"\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_theme#0",
+      "source": "Which sound set plays, validated against the sets that exist.",
+      "source_sha256": "e4b6f3d6f5da9efaaf780895c4ae9047548d16074a47c6b42cf201706b5984df",
+      "context": "Which sound set plays, validated against the sets that exist.",
+      "translation": "कौन-सा ध्वनि सेट बजता है, मौजूद सेटों के विरुद्ध सत्यापित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_theme#1",
+      "source": "a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`; a stored key that no longer exists reads as the default set.",
+      "source_sha256": "39cdbace557f8b22fdd1aa7656adfbc89e6de13bb9de24384b983c972415d5d4",
+      "context": "a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`; a stored key that no longer exists reads as the default set.",
+      "translation": ":data:`spacr.qt.sound_synth.SOUND_THEMES` की एक कुंजी; जो संग्रहीत कुंजी अब मौजूद नहीं है वह डिफ़ॉल्ट सेट के रूप में पढ़ी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_volume#0",
+      "source": "The master volume, 0 to 1, clamped on read.",
+      "source_sha256": "8820b02f1a990dd73e682fb8ae1a5b3bbed889d127081b8e3dadb86724f4e15c",
+      "context": "The master volume, 0 to 1, clamped on read.",
+      "translation": "मुख्य वॉल्यूम, 0 से 1, पढ़ते समय सीमित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_sound_volume#1",
+      "source": "the stored fraction, or :data:`DEFAULT_SOUND_VOLUME` when the store holds something that is not a number.",
+      "source_sha256": "2b794d8aa7c11de9475c9daef0020d0fc021f39dc1d72ac8f6ea572e1103db69",
+      "context": "the stored fraction, or :data:`DEFAULT_SOUND_VOLUME` when the store holds something that is not a number.",
+      "translation": "संग्रहीत अंश, या :data:`DEFAULT_SOUND_VOLUME` जब स्टोर में ऐसा कुछ हो जो संख्या नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_theme#1",
+      "source": "A stored ``\"system\"`` counts only when it was chosen (see :func:`_follow_system_was_chosen`); otherwise it reads as :data:`DEFAULT_THEME`, which is dark. An explicit Light, or any other stored theme, is returned as it is.",
+      "source_sha256": "89a9c1705961320069121aaef54662a514b31d93cd4cb587a6f91bd7cf8becfe",
+      "context": "A stored ``\"system\"`` counts only when it was chosen (see :func:`_follow_system_was_chosen`); otherwise it reads as :data:`DEFAULT_THEME`, which is dark. An explicit Light, or any other stored theme, is returned as it is.",
+      "translation": "संग्रहीत ``\"system\"`` केवल तब गिना जाता है जब वह चुना गया हो (:func:`_follow_system_was_chosen` देखें); अन्यथा यह :data:`DEFAULT_THEME` के रूप में पढ़ा जाता है, जो dark है। स्पष्ट Light, या कोई अन्य संग्रहीत थीम, जैसी है वैसी लौटाई जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_theme#2",
+      "source": "The first read of a store also removes the retired Space theme's ``space_variant`` and ``space_seed`` values from it; see :func:`_forget_the_space_theme_keys`.",
+      "source_sha256": "169e83fb8eb4bd94bc1c4cc7f8db73060416c19e8e3ffb1fe4c8ba23f49ef8c0",
+      "context": "The first read of a store also removes the retired Space theme's ``space_variant`` and ``space_seed`` values from it; see :func:`_forget_the_space_theme_keys`.",
+      "translation": "स्टोर का पहला पठन उससे हटाई गई Space थीम के ``space_variant`` और ``space_seed`` मान भी हटाता है; :func:`_forget_the_space_theme_keys` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_tooltips_enabled#0",
+      "source": "Whether ordinary tooltips appear anywhere in spaCR. Default ``True``.",
+      "source_sha256": "8beaa2688a286522db052b29a1aad131e966a9ec20cc2fd7eb2f28e7fce7504f",
+      "context": "Whether ordinary tooltips appear anywhere in spaCR. Default ``True``.",
+      "translation": "क्या सामान्य टूलटिप spaCR में कहीं भी दिखाई देते हैं। डिफ़ॉल्ट ``True``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_tooltips_enabled#1",
+      "source": "The master switch read by :mod:`spacr.qt.tooltip_policy`, the one event filter on ``QApplication`` that decides when every tooltip appears and goes. Cleared, no tooltip is shown at all; the two settings surfaces -- :func:`get_tooltips_box_enabled` and :func:`get_tooltips_bottom_enabled` -- are separate and unaffected.",
+      "source_sha256": "737d5b08b2533d31979d5560d5a3631476613e6029fa5b2708040622c7299ef2",
+      "context": "The master switch read by :mod:`spacr.qt.tooltip_policy`, the one event filter on ``QApplication`` that decides when every tooltip appears and goes. Cleared, no tooltip is shown at all; the two settings surfaces -- :func:`get_tooltips_box_enabled` and :func:`get_tooltips_bottom_enabled` -- are separate and unaffected.",
+      "translation": "वह मुख्य स्विच जिसे :mod:`spacr.qt.tooltip_policy` पढ़ता है, ``QApplication`` पर एकमात्र इवेंट फ़िल्टर जो तय करता है कि हर टूलटिप कब दिखे और कब जाए। बंद होने पर कोई टूलटिप नहीं दिखता; दोनों सेटिंग्स सतहें -- :func:`get_tooltips_box_enabled` और :func:`get_tooltips_bottom_enabled` -- अलग हैं और अप्रभावित रहती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.get_verbose_logging#2",
+      "source": "Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is on. Opening every module took the same time with it on as with it off, measured.",
+      "source_sha256": "afdd451137337dbcdbd5cc511381dc9f04dd6db4a52ebbdfcfc20e447d40dd6b",
+      "context": "Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is on. Opening every module took the same time with it on as with it off, measured.",
+      "translation": "डिफ़ॉल्ट :data:`DEFAULT_VERBOSE_LOGGING` है, जो चालू है। मापने पर हर मॉड्यूल खोलने में इसके चालू और बंद होने पर समान समय लगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.laptop_mode_note#2",
+      "source": "one of :data:`LAPTOP_MODE_CHOICES`: ``\"automatic\"`` reports what this machine's measurement decides, ``\"on\"`` lists what is turned down, and anything else is described as off.",
+      "source_sha256": "f3294d14cf2142c0f0c580fc9df220f7f2a5dbef3301b0ebb2eae60d3f41c216",
+      "context": "one of :data:`LAPTOP_MODE_CHOICES`: ``\"automatic\"`` reports what this machine's measurement decides, ``\"on\"`` lists what is turned down, and anything else is described as off.",
+      "translation": ":data:`LAPTOP_MODE_CHOICES` में से एक: ``\"automatic\"`` बताता है कि इस मशीन का माप क्या तय करता है, ``\"on\"`` सूचीबद्ध करता है कि क्या कम किया जाता है, और बाकी कुछ भी बंद के रूप में वर्णित होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.maturity_is_visible#2",
+      "source": "the maturity stage, e.g. ``\"alpha\"`` or ``\"beta\"``; matched case-insensitively, and an empty value or any other stage counts as stable.",
+      "source_sha256": "e70213ada0461d7714d40d101a76dce7d6d355614792b8803c5f94f8b1b5b5f6",
+      "context": "the maturity stage, e.g. ``\"alpha\"`` or ``\"beta\"``; matched case-insensitively, and an empty value or any other stage counts as stable.",
+      "translation": "परिपक्वता चरण, जैसे ``\"alpha\"`` या ``\"beta\"``; बड़े-छोटे अक्षरों का भेद किए बिना मिलाया जाता है, और खाली मान या कोई अन्य चरण स्थिर माना जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.mode_warning#1",
+      "source": "one of :data:`SPACR_MODES`; a mode with no entry in :data:`MODE_WARNINGS` gives ``\"\"``.",
+      "source_sha256": "f06abb3c7edac84c9bfef7595a7d0b36ce553dc552109bedc677a73ba8e5355f",
+      "context": "one of :data:`SPACR_MODES`; a mode with no entry in :data:`MODE_WARNINGS` gives ``\"\"``.",
+      "translation": ":data:`SPACR_MODES` में से एक; :data:`MODE_WARNINGS` में प्रविष्टि न होने वाला मोड ``\"\"`` देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.resolve_effective_theme#1",
+      "source": "Resolves an explicitly chosen ``\"system\"`` to the operating system's colour scheme as Qt reports it (``QStyleHints.colorScheme``), and to dark when Qt can't tell. It does not read the application palette: that is spaCR's own once a theme has been applied, so it would answer with whatever was applied last. Every other value passes through, so callers that only understand light/dark should compare against ``\"light\"`` and treat everything else as dark (Space and Cell are dark themes).",
+      "source_sha256": "d27631fd14c7f8f932c83b33eb500ce85bb0fb76bb50cb9d0a5ac8c0ac4091c9",
+      "context": "Resolves an explicitly chosen ``\"system\"`` to the operating system's colour scheme as Qt reports it (``QStyleHints.colorScheme``), and to dark when Qt can't tell. It does not read the application palette: that is spaCR's own once a theme has been applied, so it would answer with whatever was applied last. Every other value passes through, so callers that only understand light/dark should compare against ``\"light\"`` and treat everything else as dark (Space and Cell are dark themes).",
+      "translation": "स्पष्ट रूप से चुने गए ``\"system\"`` को ऑपरेटिंग सिस्टम की रंग योजना में हल करता है, जैसा Qt उसे बताता है (``QStyleHints.colorScheme``), और Qt न बता सके तो dark में। यह एप्लिकेशन पैलेट नहीं पढ़ता: थीम लागू होने के बाद वह spaCR का अपना होता है, इसलिए वह वही उत्तर देता जो आख़िरी बार लागू हुआ। हर अन्य मान आगे जाता है, इसलिए जो कॉलर केवल light/dark समझते हैं उन्हें ``\"light\"`` से तुलना करनी चाहिए और बाकी सब को dark मानना चाहिए (Space और Cell dark थीम हैं)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.run_resource_action#1",
+      "source": "which clean-up to run: ``\"ram\"``, ``\"vram\"``, ``\"cpu\"`` or ``\"disk\"``.",
+      "source_sha256": "e0eaa2bbc50775c126ecd305854e1cb2336149b1259437725288bccc157437fe",
+      "context": "which clean-up to run: ``\"ram\"``, ``\"vram\"``, ``\"cpu\"`` or ``\"disk\"``.",
+      "translation": "कौन-सी सफ़ाई चलानी है: ``\"ram\"``, ``\"vram\"``, ``\"cpu\"`` या ``\"disk\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.run_resource_action#2",
+      "source": "the widget the confirmation and result dialogs are parented to, or ``None``.",
+      "source_sha256": "a1e7cd1ac31b9f4b1bfc1eb680044814b4579cb593f8d1b0cdb674e9a59b2314",
+      "context": "the widget the confirmation and result dialogs are parented to, or ``None``.",
+      "translation": "वह विजेट जिसके पुष्टि और परिणाम डायलॉग चाइल्ड हैं, या ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.scaled_px#3",
+      "source": "a size in pixels as designed for a font scale of 1.0.",
+      "source_sha256": "e1a8b778191371ba712e77abd854e8f3efdafa17f457f060018b1209d11e1638",
+      "context": "a size in pixels as designed for a font scale of 1.0.",
+      "translation": "पिक्सेल में आकार, जैसा 1.0 के फ़ॉन्ट पैमाने के लिए डिज़ाइन किया गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_animation#3",
+      "source": "an entry of ``ANIMATION_CHOICES`` from :mod:`spacr.qt.widgets.ambient`; its ``NO_ANIMATION`` entry (``\"none\"``) switches the backdrop off, and any other value raises :class:`ValueError`.",
+      "source_sha256": "71f955c890abbc9bfcfea8b532f00864836b92e04c3fe0de5f16fae236c15b83",
+      "context": "an entry of ``ANIMATION_CHOICES`` from :mod:`spacr.qt.widgets.ambient`; its ``NO_ANIMATION`` entry (``\"none\"``) switches the backdrop off, and any other value raises :class:`ValueError`.",
+      "translation": "``ANIMATION_CHOICES`` की एक प्रविष्टि, :mod:`spacr.qt.widgets.ambient` से; इसकी ``NO_ANIMATION`` प्रविष्टि (``\"none\"``) पृष्ठभूमि बंद करती है, और कोई अन्य मान :class:`ValueError` उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_blur#1",
+      "source": "the blur, in units of eight screen pixels of area averaging (0.0 is as designed); clamped to ``BLUR_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_BLUR``.",
+      "source_sha256": "7d098d51d4bca1619c27c201e3b04d053867cf978eb42be4716dd633175d5c6a",
+      "context": "the blur, in units of eight application view pixels of area averaging (0.0 is as designed); clamped to ``BLUR_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_BLUR``.",
+      "translation": "धुंधलापन, क्षेत्र-औसत के आठ डिस्प्ले पिक्सेल की इकाइयों में (0.0 डिज़ाइन के अनुसार है); ``BLUR_RANGE`` तक सीमित, जो :mod:`spacr.qt.widgets.ambient` से है, और पार्स न हो सकने वाला मान या NaN ``DEFAULT_BLUR`` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_density#1",
+      "source": "the multiplier on each animation's own element count (1.0 is as designed); clamped to ``DENSITY_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_DENSITY``.",
+      "source_sha256": "5ae09a86fba71402b333873e27a01fb8b7116f8599d2c4c0a29c3b73f9ead71d",
+      "context": "the multiplier on each animation's own element count (1.0 is as designed); clamped to ``DENSITY_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_DENSITY``.",
+      "translation": "हर एनिमेशन की अपनी तत्व गिनती पर गुणक (1.0 डिज़ाइन के अनुसार है); ``DENSITY_RANGE`` तक सीमित, जो :mod:`spacr.qt.widgets.ambient` से है, और पार्स न हो सकने वाला मान या NaN ``DEFAULT_DENSITY`` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_drift_direction#1",
+      "source": "the starfield drift direction, one of ``DRIFT_DIRECTIONS`` (``\"up\"``, ``\"down\"`` or ``\"random\"`` when the widget module cannot be imported).",
+      "source_sha256": "d41d68de1090d77e63633608bdbf2c6772020518d23fcf03462198b22e2a2e28",
+      "context": "the starfield drift direction, one of ``DRIFT_DIRECTIONS`` (``\"up\"``, ``\"down\"`` or ``\"random\"`` when the widget module cannot be imported).",
+      "translation": "तारा-क्षेत्र के बहाव की दिशा, ``DRIFT_DIRECTIONS`` में से एक (विजेट मॉड्यूल आयात न हो सके तो ``\"up\"``, ``\"down\"`` या ``\"random\"``)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_enabled#2",
+      "source": "true to turn it on, false to turn it off; stored as a ``bool``.",
+      "source_sha256": "a788d3bcd16c38d10637dc2bdcecf71975c2671c1ff0c21e28e2f4ce1f4a94aa",
+      "context": "true to turn it on, false to turn it off; stored as a ``bool``.",
+      "translation": "चालू करने के लिए सत्य, बंद करने के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_palette#1",
+      "source": "a palette name offered by the current ambient theme.",
+      "source_sha256": "2a4121d0412d614a2eab7eba3e302e8a91f0cffd06d7f24b6bb254ebd6a37e20",
+      "context": "a palette name offered by the current ambient theme.",
+      "translation": "वर्तमान परिवेशी थीम द्वारा प्रस्तुत पैलेट नाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_resolution#1",
+      "source": "the multiplier on each animation's own shading buffer (1.0 is as designed); clamped to ``RESOLUTION_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_RESOLUTION``.",
+      "source_sha256": "4161f79d2065e8c895c4eaa9d073e43ab0dd7c85f6f53266d46a1beb68a31daa",
+      "context": "the multiplier on each animation's own shading buffer (1.0 is as designed); clamped to ``RESOLUTION_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_RESOLUTION``.",
+      "translation": "हर एनिमेशन के अपने शेडिंग बफ़र पर गुणक (1.0 डिज़ाइन के अनुसार है); ``RESOLUTION_RANGE`` तक सीमित, जो :mod:`spacr.qt.widgets.ambient` से है, और पार्स न हो सकने वाला मान या NaN ``DEFAULT_RESOLUTION`` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_size#1",
+      "source": "the multiplier on each animation's own element size (1.0 is as designed); clamped to ``SIZE_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_SIZE``.",
+      "source_sha256": "a91ebafb882c5ef00b32878355e13886e35153861d33b19a7380ed1ee39f1387",
+      "context": "the multiplier on each animation's own element size (1.0 is as designed); clamped to ``SIZE_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_SIZE``.",
+      "translation": "हर एनिमेशन के अपने तत्व आकार पर गुणक (1.0 डिज़ाइन के अनुसार है); ``SIZE_RANGE`` तक सीमित, जो :mod:`spacr.qt.widgets.ambient` से है, और पार्स न हो सकने वाला मान या NaN ``DEFAULT_SIZE`` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_speed#1",
+      "source": "the multiplier on each theme's own motion (1.0 is as designed); clamped to ``SPEED_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_SPEED``.",
+      "source_sha256": "ccbb02e66078b900c96f4ba075aaf35148944df52b819931febb9c50c2d52675",
+      "context": "the multiplier on each theme's own motion (1.0 is as designed); clamped to ``SPEED_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_SPEED``.",
+      "translation": "हर थीम की अपनी गति पर गुणक (1.0 डिज़ाइन के अनुसार है); ``SPEED_RANGE`` तक सीमित, जो :mod:`spacr.qt.widgets.ambient` से है, और पार्स न हो सकने वाला मान या NaN ``DEFAULT_SPEED`` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_theme#2",
+      "source": "an ambient theme name from ``AMBIENT_THEMES``.",
+      "source_sha256": "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
+      "context": "an ambient theme name from ``AMBIENT_THEMES``.",
+      "translation": "``AMBIENT_THEMES`` से एक परिवेशी थीम नाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_cache_ceiling_mb#1",
+      "source": "the most cache spaCR may hold at once, in megabytes; stored as an ``int``.",
+      "source_sha256": "55bd5142a2be9d09fe2c3b5b951c3eba95c879d078ce41b93a6fe814fc7277de",
+      "context": "the most cache spaCR may hold at once, in megabytes; stored as an ``int``.",
+      "translation": "spaCR एक समय में अधिकतम कितना कैश रख सकता है, मेगाबाइट में; ``int`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_cell_variant#1",
+      "source": "one of :data:`spacr.qt.imagery.CELL_VARIANTS`; any other value raises :class:`ValueError`.",
+      "source_sha256": "f13ac300eb9c5d3404a50e1316acd7ea53c08c70aca2eb3bd21066176496bc37",
+      "context": "one of :data:`spacr.qt.imagery.CELL_VARIANTS`; any other value raises :class:`ValueError`.",
+      "translation": ":data:`spacr.qt.imagery.CELL_VARIANTS` में से एक; कोई अन्य मान :class:`ValueError` उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_color_blind_mode#1",
+      "source": "one of :data:`VALID_CB_MODES`; any other value raises :class:`ValueError`.",
+      "source_sha256": "43157d0ce94a7d5d7928dd78565383b58114ed17cbf551ef724073847099b40f",
+      "context": "one of :data:`VALID_CB_MODES`; any other value raises :class:`ValueError`.",
+      "translation": ":data:`VALID_CB_MODES` में से एक; कोई अन्य मान :class:`ValueError` उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_db_browser_editable#2",
+      "source": "true to allow edit mode, false to forbid it; stored as a ``bool``.",
+      "source_sha256": "c0072d664f73e29472150418ee5896ad5ebadafb1bf783ea08db68ebe12ea031",
+      "context": "true to allow edit mode, false to forbid it; stored as a ``bool``.",
+      "translation": "संपादन मोड की अनुमति देने के लिए सत्य, मना करने के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_dock_mode#2",
+      "source": "one of :data:`VALID_DOCK_MODES`, or a retired mode from :data:`RETIRED_DOCK_MODES`, which is stored as its replacement; anything else raises :class:`ValueError`.",
+      "source_sha256": "d97965603f388a61b91662d20ed64e4b6bb2b2657c9c4ad0b5d3936db0084586",
+      "context": "one of :data:`VALID_DOCK_MODES`, or a retired mode from :data:`RETIRED_DOCK_MODES`, which is stored as its replacement; anything else raises :class:`ValueError`.",
+      "translation": ":data:`VALID_DOCK_MODES` में से एक, या :data:`RETIRED_DOCK_MODES` से हटाया गया मोड, जो अपने प्रतिस्थापन के रूप में संग्रहीत होता है; अन्य कुछ भी :class:`ValueError` उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_colors#3",
+      "source": "the background colour token, or :data:`AUTO_FIGURE_COLOR`.",
+      "source_sha256": "64a89602b5615f6327a6b86794d731590968616e959b97ae7d16a3ea296d90c3",
+      "context": "the background colour token, or :data:`AUTO_FIGURE_COLOR`.",
+      "translation": "पृष्ठभूमि रंग टोकन, या :data:`AUTO_FIGURE_COLOR`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_colors#4",
+      "source": "the text colour token, or :data:`AUTO_FIGURE_COLOR`.",
+      "source_sha256": "2f226f07843409d1858c7d8895b973a4767dc47e9f9c04978abdb52aaff0af4a",
+      "context": "the text colour token, or :data:`AUTO_FIGURE_COLOR`.",
+      "translation": "पाठ रंग टोकन, या :data:`AUTO_FIGURE_COLOR`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_dynamic#1",
+      "source": "true to reload an evicted figure from its vector page, false to keep showing its raster; stored as a ``bool``.",
+      "source_sha256": "5c1e01746cc81079fbf090d346bb9f4045768cbb78c46d76554c88dbe5bea594",
+      "context": "true to reload an evicted figure from its vector page, false to keep showing its raster; stored as a ``bool``.",
+      "translation": "हटाए गए चित्र को उसके वेक्टर पेज से फिर लोड करने के लिए सत्य, उसका रास्टर दिखाते रहने के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_format#1",
+      "source": "the figure file format, one of :data:`VALID_FIG_FORMATS`.",
+      "source_sha256": "52b0bafffc3496eb7140f65bc4c5ac11cf99112d1a5053984e338397f105d9c1",
+      "context": "the figure file format, one of :data:`VALID_FIG_FORMATS`.",
+      "translation": "चित्र फ़ाइल फ़ॉर्मैट, :data:`VALID_FIG_FORMATS` में से एक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_grid_size#1",
+      "source": "the tile width in pixels; converted to ``int`` and clamped between ``MIN_CELL_PX`` and ``MAX_CELL_PX`` of :mod:`spacr.qt.widgets.figure_grid_view`.",
+      "source_sha256": "ccceafbd381696a20ec26061ccc90d69f8208315b0dc8e2ea8b73ea86334c4f7",
+      "context": "the tile width in pixels; converted to ``int`` and clamped between ``MIN_CELL_PX`` and ``MAX_CELL_PX`` of :mod:`spacr.qt.widgets.figure_grid_view`.",
+      "translation": "पिक्सेल में टाइल की चौड़ाई; ``int`` में रूपांतरित और ``MIN_CELL_PX`` और ``MAX_CELL_PX`` के बीच सीमित, जो :mod:`spacr.qt.widgets.figure_grid_view` के हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_line_colour#1",
+      "source": "the line colour token, or :data:`AUTO_FIGURE_COLOR` to follow the text colour.",
+      "source_sha256": "92d1a7252697d93843476d11d8292e5902a42502e59a5cd08eec862c65595857",
+      "context": "the line colour token, or :data:`AUTO_FIGURE_COLOR` to follow the text colour.",
+      "translation": "रेखा रंग टोकन, या पाठ रंग का अनुसरण करने के लिए :data:`AUTO_FIGURE_COLOR`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_live_cache#1",
+      "source": "how many of the most recent figures keep their live Figure; converted to ``int``.",
+      "source_sha256": "fc84a8fa5b53bc643361cc107a1e18466c597996a6162f6fe2c5c51f7d6a3b04",
+      "context": "how many of the most recent figures keep their live Figure; converted to ``int``.",
+      "translation": "सबसे हाल के कितने चित्र अपना लाइव Figure रखते हैं; ``int`` में रूपांतरित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_png_dpi#1",
+      "source": "the PNG resolution in dots per inch; converted to ``int`` and checked against :data:`VALID_PNG_DPIS`.",
+      "source_sha256": "d4fb18cf28e69c39949198b92fb8e05b09faf929706bec4920020e5e7b2ab6a3",
+      "context": "the PNG resolution in dots per inch; converted to ``int`` and checked against :data:`VALID_PNG_DPIS`.",
+      "translation": "PNG रिज़ॉल्यूशन, dots per inch में; ``int`` में रूपांतरित और :data:`VALID_PNG_DPIS` के विरुद्ध जाँचा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_style#1",
+      "source": "the general figure settings, ``{setting: value}``; stored as JSON, and ``None`` stores an empty dict.",
+      "source_sha256": "e8a9777b4dc52ee6139f678c1b11f833aab50f49821a53ef1f174b9445fcc040",
+      "context": "the general figure settings, ``{setting: value}``; stored as JSON, and ``None`` stores an empty key-value mapping.",
+      "translation": "सामान्य चित्र सेटिंग्स, ``{setting: value}``; JSON के रूप में संग्रहीत, और ``None`` खाली dict संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_style_default#3",
+      "source": "the ``{field: value}`` style to save for that kind, replacing any previous default; ``None`` saves an empty dict.",
+      "source_sha256": "8a41ce67f9f2327249a690960fda03dd6aef20ea047ac199ad6afeba9b3c9a75",
+      "context": "the ``{field: value}`` style to save for that kind, replacing any previous default; ``None`` saves an empty key-value mapping.",
+      "translation": "उस प्रकार के लिए सहेजी जाने वाली ``{field: value}`` शैली, किसी भी पिछले डिफ़ॉल्ट को बदलते हुए; ``None`` खाली dict सहेजता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_style_per_graph#1",
+      "source": "per-graph overrides, ``{kind: {setting: value}}``; entries whose value is not a non-empty dict are dropped before storing.",
+      "source_sha256": "457a0f78a5a5b6127b7a1137139c3407c64c28120f34d50fb8ea67b23ea974b0",
+      "context": "per-graph overrides, ``{kind: {setting: value}}``; entries whose value is not a non-empty key-value mapping are dropped before storing.",
+      "translation": "प्रति-ग्राफ़ ओवरराइड, ``{kind: {setting: value}}``; जिन प्रविष्टियों का मान गैर-खाली dict नहीं है वे संग्रहीत करने से पहले हटा दी जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_figure_text_size#1",
+      "source": "the figure font size; converted to ``int``, and 0 leaves sizing to Matplotlib.",
+      "source_sha256": "5eeea7a3f328bc0e79d748adaac54d370909eeccfa4a34a821697b18bd131437",
+      "context": "the figure font size; converted to ``int``, and 0 leaves sizing to Matplotlib.",
+      "translation": "चित्र फ़ॉन्ट आकार; ``int`` में रूपांतरित, और 0 आकार तय करना Matplotlib पर छोड़ता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_folded_panel#1",
+      "source": "A PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels default to open, so storing that would grow the dict by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (item 509: the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "source_sha256": "798d232e63aa0da820756129186df9d3bbf8aceded8617bd3fe318500fec424c",
+      "context": "A panel in its default state is removed rather than stored. Most panels default to open, so storing that would grow the key-value mapping by one entry for every panel the user has ever touched and never shrink it. A panel that starts folded (item 509: the advanced PSF, restoration and CLAHE rows) passes ``default_shut=True``, so opening it is what gets stored, as False, and folding it again forgets it.",
+      "translation": "अपनी डिफ़ॉल्ट स्थिति वाला पैनल संग्रहीत करने के बजाय हटा दिया जाता है। अधिकांश पैनल डिफ़ॉल्ट रूप से खुले होते हैं, इसलिए यह संग्रहीत करने से उपयोगकर्ता द्वारा छुए गए हर पैनल के लिए dict में एक प्रविष्टि जुड़ती और कभी घटती नहीं। मुड़ा हुआ शुरू होने वाला पैनल (आइटम 509: उन्नत PSF, पुनर्स्थापन और CLAHE पंक्तियाँ) ``default_shut=True`` देता है, इसलिए उसे खोलना ही False के रूप में संग्रहीत होता है, और फिर से मोड़ने पर वह भुला दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_folded_panel#2",
+      "source": "the panel key, ``\"<module>/<panel>\"``; stripped, and an empty key does nothing.",
+      "source_sha256": "3f01e4ea3126f852f1f5a1de61712793af4da4c8f655e44d344b72133c3bb6e6",
+      "context": "the panel key, ``\"<module>/<panel>\"``; stripped, and an empty key does nothing.",
+      "translation": "पैनल कुंजी, ``\"<module>/<panel>\"``; रिक्त स्थान हटाकर, और खाली कुंजी कुछ नहीं करती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_folded_panel#3",
+      "source": "true to record the panel as folded, false as open.",
+      "source_sha256": "00277203b6819eb7d5d871cbe536bd1bc7d61f38f716d72ae61c19a363f9fa11",
+      "context": "true to record the panel as folded, false as open.",
+      "translation": "पैनल को मुड़ा हुआ दर्ज करने के लिए सत्य, खुला दर्ज करने के लिए असत्य।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_folded_panel#4",
+      "source": "the panel's state when nothing is stored.",
+      "source_sha256": "af3747098f1b1b80a00ef3ae61af98aeb8cb57c89674ac70ddfe6658a630e4b2",
+      "context": "the panel's state when nothing is stored.",
+      "translation": "कुछ संग्रहीत न होने पर पैनल की स्थिति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_font_scale#1",
+      "source": "the UI font scale, 1.0 for the designed size; converted to ``float`` and clamped between :data:`FONT_SCALE_MIN` and :data:`FONT_SCALE_MAX`.",
+      "source_sha256": "fcc28c61d5d55fa714be4a373e8ef0629bad4d15c914b5e859284fa129c30b6b",
+      "context": "the UI font scale, 1.0 for the designed size; converted to ``float`` and clamped between :data:`FONT_SCALE_MIN` and :data:`FONT_SCALE_MAX`.",
+      "translation": "UI फ़ॉन्ट पैमाना, डिज़ाइन आकार के लिए 1.0; ``float`` में रूपांतरित और :data:`FONT_SCALE_MIN` और :data:`FONT_SCALE_MAX` के बीच सीमित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_gui_scale#0",
+      "source": "Persist a whole-GUI scale after clamping it to supported bounds.",
+      "source_sha256": "6b74e7d2bdaca8291243e7aafd655b2799b5f9d5b4512b875fb48959f1eed4f1",
+      "context": "Persist a whole-GUI scale after clamping it to supported bounds.",
+      "translation": "पूरे-GUI का पैमाना समर्थित सीमाओं में सीमित करके संग्रहीत करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_gui_scale#1",
+      "source": "the factor, 1.0 = 100 %. Only stored; drawing it is :func:`spacr.qt.gui_scale.set_gui_scale_live`'s job.",
+      "source_sha256": "7b5b9d488b6cea41a4ced4ba923f36826f6636b596988bfaa87af854ad072702",
+      "context": "the factor, 1.0 = 100 %. Only stored; drawing it is :func:`spacr.qt.gui_scale.set_gui_scale_live`'s job.",
+      "translation": "गुणक, 1.0 = 100 %। केवल संग्रहीत; इसे बनाना :func:`spacr.qt.gui_scale.set_gui_scale_live` का काम है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_hash_inputs#1",
+      "source": "true to hash a run's inputs and outputs for the manifest, false not to; stored as a ``bool``.",
+      "source_sha256": "5582f96042b68a6783ed83e6c598eb6e80fc7da013023aaa8c75ab79e57899ca",
+      "context": "true to hash a processing session's inputs and outputs for the manifest, false not to; stored as a ``bool``.",
+      "translation": "मैनिफ़ेस्ट के लिए रन के इनपुट और आउटपुट का हैश बनाने के लिए सत्य, न बनाने के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_headroom_mb#1",
+      "source": "the memory that must stay free for everything else on the machine, in megabytes; stored as an ``int``.",
+      "source_sha256": "e021eb52fd1c7cbc7f367154d5763ff3bdb6c30c9d798cfe094013be229704ed",
+      "context": "the memory that must stay free for everything else on the machine, in megabytes; stored as an ``int``.",
+      "translation": "वह मेमोरी जो मशीन पर बाकी सब के लिए खाली रहनी चाहिए, मेगाबाइट में; ``int`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_idle_minutes#1",
+      "source": "how long an unused cache entry may sit before it is dropped, in minutes; 0 drops it as soon as nothing uses it. Stored as a ``float``.",
+      "source_sha256": "dfd03d7a405d19b4f74d770ad97857c6a0f2bbd666df16a700a6d53c93423d77",
+      "context": "how long an unused cache entry may sit before it is dropped, in minutes; 0 drops it as soon as nothing uses it. Stored as a ``float``.",
+      "translation": "अप्रयुक्त कैश प्रविष्टि हटाए जाने से पहले कितनी देर रह सकती है, मिनट में; 0 उसे तब हटाता है जैसे ही कोई उसका उपयोग न करे। ``float`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_interface_font_weight#1",
+      "source": "one of :data:`INTERFACE_FONT_WEIGHTS`, matched after stripping and lower-casing.",
+      "source_sha256": "09dad4b1215b84fd4f3e98f2ca5f932c98289a46cd6046f8e2f8d59d33a52a11",
+      "context": "one of :data:`INTERFACE_FONT_WEIGHTS`, matched after stripping and lower-casing.",
+      "translation": ":data:`INTERFACE_FONT_WEIGHTS` में से एक, रिक्त स्थान हटाने और छोटे अक्षरों में बदलने के बाद मिलाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_issue_prompt_mode#0",
+      "source": "Persist the auto-issue behaviour, and that it was chosen.",
+      "source_sha256": "e3384a4adf3e7277fe157b6c651411a04a2edfe2787ba789e0d036eb67ced13f",
+      "context": "Persist the auto-issue behaviour, and that it was chosen.",
+      "translation": "स्वचालित-issue व्यवहार संग्रहीत करें, और यह भी कि इसे चुना गया था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_issue_prompt_mode#1",
+      "source": "The marker is what makes a later 'ask' stick: from here on, 'ask' in the store is an answer somebody gave, not the default of the day written into every profile that opened first-run setup. Every writer goes through this function — the setup slides, the Preferences dialog, the AI Console and the installer's consent page — so all four count as choosing.",
+      "source_sha256": "e79ab6ff8c6f61a89547ec332a47bd05a1b2df1616849c996146a71a3ac1145f",
+      "context": "The marker is what makes a later 'ask' stick: from here on, 'ask' in the store is an answer somebody gave, not the default of the day written into every profile that opened first-run setup. Every writer goes through this function — the setup slides, the Preferences dialog, the AI Console and the installer's consent page — so all four count as choosing.",
+      "translation": "चिह्न ही बाद के 'ask' को टिकाऊ बनाता है: यहाँ से आगे, स्टोर में 'ask' किसी का दिया हुआ उत्तर है, उस दिन का डिफ़ॉल्ट नहीं जो पहली-बार सेटअप खोलने वाली हर प्रोफ़ाइल में लिखा गया। हर लिखने वाला इसी फ़ंक्शन से होकर जाता है — सेटअप स्लाइड, Preferences डायलॉग, AI Console और इंस्टॉलर का सहमति पेज — इसलिए चारों को चुनाव माना जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_language#1",
+      "source": "a UI language code from :data:`spacr.qt.i18n.VALID_LANGUAGE_CODES`; stripped, with ``-`` read as ``_``.",
+      "source_sha256": "cebf6e6449b27da7c4425d3c44d719039ac9d576dc877f349492f6f32a66bba0",
+      "context": "a UI language code from :data:`spacr.qt.i18n.VALID_LANGUAGE_CODES`; stripped, with ``-`` read as ``_``.",
+      "translation": ":data:`spacr.qt.i18n.VALID_LANGUAGE_CODES` से UI भाषा कोड; रिक्त स्थान हटाकर, ``-`` को ``_`` के रूप में पढ़ा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_laptop_mode#1",
+      "source": "one of :data:`LAPTOP_MODE_CHOICES`: ``\"on\"`` selects the Laptop performance level, ``\"off\"`` moves a Laptop level back to the default level, and ``\"automatic\"`` changes nothing.",
+      "source_sha256": "212f21708f373180b12743d315de0530be8104a72d71c5fe83846fe5f4046e68",
+      "context": "one of :data:`LAPTOP_MODE_CHOICES`: ``\"on\"`` selects the Laptop performance level, ``\"off\"`` moves a Laptop level back to the default level, and ``\"automatic\"`` changes nothing.",
+      "translation": ":data:`LAPTOP_MODE_CHOICES` में से एक: ``\"on\"`` Laptop प्रदर्शन स्तर चुनता है, ``\"off\"`` Laptop स्तर को डिफ़ॉल्ट स्तर पर वापस ले जाता है, और ``\"automatic\"`` कुछ नहीं बदलता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_log_levels#1",
+      "source": "the ``logging`` level numbers the log files record; anything other than DEBUG, INFO, WARNING, ERROR and CRITICAL is discarded.",
+      "source_sha256": "a34fcd46574b3bde0849fac65c0bb3f4c4681e3e5e84bcfc44e93e3e7b14ea73",
+      "context": "the ``logging`` level numbers the log files record; anything other than DEBUG, INFO, WARNING, ERROR and CRITICAL is discarded.",
+      "translation": "वे ``logging`` स्तर संख्याएँ जिन्हें लॉग फ़ाइलें दर्ज करती हैं; DEBUG, INFO, WARNING, ERROR और CRITICAL के अलावा कुछ भी त्याग दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_log_levels#2",
+      "source": "the ``logging`` level numbers shown on the console; a level the log files do not keep is dropped.",
+      "source_sha256": "7fc2207f9044f79150cf948b209fed981ef037d9e995f40a492a40dbdbfb1f75",
+      "context": "the ``logging`` level numbers shown on the console; a level the log files do not keep is dropped.",
+      "translation": "कंसोल पर दिखाई जाने वाली ``logging`` स्तर संख्याएँ; जो स्तर लॉग फ़ाइलें नहीं रखतीं वह हटा दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_log_levels#4",
+      "source": "``file_levels`` is the user's own choice, and it is stored as given. While verbose logging is on, the log files keep DEBUG as well, so a console DEBUG switch is kept and the live handlers are given DEBUG. The DEBUG that verbose adds is not written into the stored file levels.",
+      "source_sha256": "989037c6d7001cef95ab4ed87feeac476564e286e4757ac08d15c2b4692d9819",
+      "context": "``file_levels`` is the user's own choice, and it is stored as given. While verbose logging is on, the log files keep DEBUG as well, so a console DEBUG switch is kept and the live handlers are given DEBUG. The DEBUG that verbose adds is not written into the stored file levels.",
+      "translation": "``file_levels`` उपयोगकर्ता का अपना चुनाव है, और जैसा दिया गया वैसा संग्रहीत होता है। विस्तृत लॉगिंग चालू रहने तक लॉग फ़ाइलें DEBUG भी रखती हैं, इसलिए कंसोल DEBUG स्विच रखा जाता है और लाइव हैंडलर को DEBUG दिया जाता है। विस्तृत द्वारा जोड़ा गया DEBUG संग्रहीत फ़ाइल स्तरों में नहीं लिखा जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_montage_columns#1",
+      "source": "cells per row; converted to ``int`` and clamped to :data:`MONTAGE_COLUMNS_RANGE`, and an unparseable value stores :data:`DEFAULT_MONTAGE_COLUMNS`.",
+      "source_sha256": "2ad7264118207421846698d6c669ed6fb4ec064bd4b919abcac727f6f5c10818",
+      "context": "cells per row; converted to ``int`` and clamped to :data:`MONTAGE_COLUMNS_RANGE`, and an unparseable value stores :data:`DEFAULT_MONTAGE_COLUMNS`.",
+      "translation": "प्रति पंक्ति कोशिकाएँ; ``int`` में रूपांतरित और :data:`MONTAGE_COLUMNS_RANGE` तक सीमित, और पार्स न हो सकने वाला मान :data:`DEFAULT_MONTAGE_COLUMNS` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_news_height#1",
+      "source": "the list height in font-scale-independent pixels; negative values store 0, and an unparseable value stores nothing and returns 0.",
+      "source_sha256": "edc2d3f9fae88f4d4e6c214a39cf13525764f74a3548dcd9e5061de49fb38bba",
+      "context": "the list height in font-scale-independent pixels; negative values store 0, and an unparseable value stores nothing and returns 0.",
+      "translation": "फ़ॉन्ट-पैमाने से स्वतंत्र पिक्सेल में सूची की ऊँचाई; ऋणात्मक मान 0 संग्रहीत करते हैं, और पार्स न हो सकने वाला मान कुछ संग्रहीत नहीं करता और 0 लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_object_grid_enabled#1",
+      "source": "true to show the per-object settings as one table, false to list them flat; stored as a ``bool``.",
+      "source_sha256": "c21b45a353d7a1eac19dd337534f86f44093a3e020c5ce872908364e3fb0432b",
+      "context": "true to show the per-object settings as one table, false to list them flat; stored as a ``bool``.",
+      "translation": "प्रति-ऑब्जेक्ट सेटिंग्स को एक तालिका के रूप में दिखाने के लिए सत्य, समतल सूची के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_pane_opacity#1",
+      "source": "the opacity from 0.0 to 1.0, stored as a whole percentage; an unparseable value stores :data:`DEFAULT_PANE_OPACITY_PCT`.",
+      "source_sha256": "f2926b466666dc691c671e16bdd40997d230437472dd948f390605b3bbf5046d",
+      "context": "the opacity from 0.0 to 1.0, stored as a whole percentage; an unparseable value stores :data:`DEFAULT_PANE_OPACITY_PCT`.",
+      "translation": "0.0 से 1.0 तक अपारदर्शिता, पूर्ण प्रतिशत के रूप में संग्रहीत; पार्स न हो सकने वाला मान :data:`DEFAULT_PANE_OPACITY_PCT` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_performance_logging#1",
+      "source": "``off``, ``summary`` or ``detailed``.",
+      "source_sha256": "439db18cc79bde609aa968c21d43274ba179d68b77f2d412ac718107ddb93444",
+      "context": "``off``, ``summary`` or ``detailed``.",
+      "translation": "``off``, ``summary`` या ``detailed``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_popup_backdrop#1",
+      "source": "one of :data:`POPUP_BACKDROPS`, matched after stripping and lower-casing.",
+      "source_sha256": "8cc1ae3eba5f8e5a6f3d8a4e3abaf51dc48b8fcdf6083b17edf5d7b9111cbcc2",
+      "context": "one of :data:`POPUP_BACKDROPS`, matched after stripping and lower-casing.",
+      "translation": ":data:`POPUP_BACKDROPS` में से एक, रिक्त स्थान हटाने और छोटे अक्षरों में बदलने के बाद मिलाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_preload_policy#1",
+      "source": "one of :data:`PRELOAD_POLICIES`, matched after stripping and lower-casing.",
+      "source_sha256": "a502f3c7ccf43feb11707125813a9c969c51bc5e9afd56b33d19c4bbc0f3c00c",
+      "context": "one of :data:`PRELOAD_POLICIES`, matched after stripping and lower-casing.",
+      "translation": ":data:`PRELOAD_POLICIES` में से एक, रिक्त स्थान हटाने और छोटे अक्षरों में बदलने के बाद मिलाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_refresh_news#0",
+      "source": "Persist the News panel's release-refresh opt-out.",
+      "source_sha256": "16ce307b43fb6a5a2fdd4e2a2f04c99413480d3237b51c9d3a7a17c14749bd64",
+      "context": "Persist the News panel's release-refresh opt-out.",
+      "translation": "News पैनल की रिलीज़-ताज़ा करने से बाहर होने की प्राथमिकता संग्रहीत करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_refresh_news#1",
+      "source": "true to let the News panel ask GitHub for newer releases, false to opt out; stored as a ``bool``.",
+      "source_sha256": "d2e79b7489d92895611aa6418288c737e31b44063cda688c5ac2e69b9b25035f",
+      "context": "true to let the News panel ask GitHub for newer releases, false to opt out; stored as a ``bool``.",
+      "translation": "News पैनल को नई रिलीज़ के लिए GitHub से पूछने देने के लिए सत्य, बाहर होने के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_rim_alignment#1",
+      "source": "one of :data:`RIM_ALIGNMENTS`, matched after stripping and lower-casing.",
+      "source_sha256": "05593bbd700f1d3e53bfb1b4fb522804a72e514ab73dfd438bef9a56b970ddc6",
+      "context": "one of :data:`RIM_ALIGNMENTS`, matched after stripping and lower-casing.",
+      "translation": ":data:`RIM_ALIGNMENTS` में से एक, रिक्त स्थान हटाने और छोटे अक्षरों में बदलने के बाद मिलाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_rim_lag#1",
+      "source": "how far the accent closes the gap to the pointer each frame; clamped to :data:`RIM_LAG_RANGE`, and an unparseable value stores :data:`DEFAULT_RIM_LAG`.",
+      "source_sha256": "5783ba7267f35d035dcc82b0e0b28b65172c45e03b42a497b888b3f5b1d3e8f9",
+      "context": "how far the accent closes the gap to the pointer each frame; clamped to :data:`RIM_LAG_RANGE`, and an unparseable value stores :data:`DEFAULT_RIM_LAG`.",
+      "translation": "हर फ़्रेम में एक्सेंट पॉइंटर तक का अंतर कितना कम करता है; :data:`RIM_LAG_RANGE` तक सीमित, और पार्स न हो सकने वाला मान :data:`DEFAULT_RIM_LAG` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_rim_length#1",
+      "source": "how far the lit run reaches along the rim, in pixels; clamped to :data:`RIM_LENGTH_RANGE`, and an unparseable value stores :data:`DEFAULT_RIM_LENGTH`.",
+      "source_sha256": "b87ea4c3bafa2d03460352a9cb5f0f0867878520a61ecac98940155239424be8",
+      "context": "how far the lit run reaches along the rim, in pixels; clamped to :data:`RIM_LENGTH_RANGE`, and an unparseable value stores :data:`DEFAULT_RIM_LENGTH`.",
+      "translation": "प्रकाशित भाग किनारे के साथ कितनी दूर तक पहुँचता है, पिक्सेल में; :data:`RIM_LENGTH_RANGE` तक सीमित, और पार्स न हो सकने वाला मान :data:`DEFAULT_RIM_LENGTH` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_rim_mode#1",
+      "source": "one of :data:`RIM_MODES`, matched after stripping and lower-casing.",
+      "source_sha256": "25e49574876c2bbbb22c13efad7d1b14c53d3a444a14faca1aa41f7f9209926a",
+      "context": "one of :data:`RIM_MODES`, matched after stripping and lower-casing.",
+      "translation": ":data:`RIM_MODES` में से एक, रिक्त स्थान हटाने और छोटे अक्षरों में बदलने के बाद मिलाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_rim_period#1",
+      "source": "seconds for one pulse of ``beat`` or one hue turn of ``rainbow``; clamped to :data:`RIM_PERIOD_RANGE`, and an unparseable value stores :data:`DEFAULT_RIM_PERIOD`.",
+      "source_sha256": "e21a6b551f9b8591e9d92e8685b3c1a8282fd98ed2939bd3f593fd1f85742c3d",
+      "context": "seconds for one pulse of ``beat`` or one hue turn of ``rainbow``; clamped to :data:`RIM_PERIOD_RANGE`, and an unparseable value stores :data:`DEFAULT_RIM_PERIOD`.",
+      "translation": "``beat`` की एक धड़कन या ``rainbow`` के एक रंगत-चक्र के लिए सेकंड; :data:`RIM_PERIOD_RANGE` तक सीमित, और पार्स न हो सकने वाला मान :data:`DEFAULT_RIM_PERIOD` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_save_workspace#2",
+      "source": "``\"off\"``, ``\"reference\"`` or ``\"copy\"``, or anything :func:`spacr.workspace.resolve_mode` accepts (booleans and yes/no aliases); unrecognised values select the default mode.",
+      "source_sha256": "94eeef806edd9928a3ce45b6fb8d8618c657165dbd37414e72c09e1c110b887e",
+      "context": "``\"off\"``, ``\"reference\"`` or ``\"copy\"``, or anything :func:`spacr.workspace.resolve_mode` accepts (booleans and yes/no aliases); unrecognised values select the default mode.",
+      "translation": "``\"off\"``, ``\"reference\"`` या ``\"copy\"``, या कुछ भी जो :func:`spacr.workspace.resolve_mode` स्वीकार करता है (बूलियन और yes/no उपनाम); अपरिचित मान डिफ़ॉल्ट मोड चुनते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_share_diagnostic_logs#1",
+      "source": "true to let an error report save a redacted copy of the recent log, false not to; stored as a ``bool``.",
+      "source_sha256": "38a04bdae153e1ed2bb058d13d48796783909371673c9bc0d80ac8cd95aedd61",
+      "context": "true to let an error report save a redacted copy of the recent log, false not to; stored as a ``bool``.",
+      "translation": "त्रुटि रिपोर्ट को हाल के लॉग की संपादित प्रति सहेजने देने के लिए सत्य, न सहेजने के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_show_alpha#1",
+      "source": "true to show Alpha modules and settings, false to hide them; stored as a ``bool``.",
+      "source_sha256": "bc1cc928b3e85af78082b51e1501f569272a687ec99ff74fc246666925c9d7ef",
+      "context": "true to show Alpha modules and settings, false to hide them; stored as a ``bool``.",
+      "translation": "Alpha मॉड्यूल और सेटिंग्स दिखाने के लिए सत्य, छिपाने के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_show_beta#1",
+      "source": "true to show Beta modules and settings, false to hide them; stored as a ``bool``.",
+      "source_sha256": "1e3629c508cfb1943357d1cf6fa88a87254e474db7075cc62dd02fbd3e07795e",
+      "context": "true to show Beta modules and settings, false to hide them; stored as a ``bool``.",
+      "translation": "Beta मॉड्यूल और सेटिंग्स दिखाने के लिए सत्य, छिपाने के लिए असत्य; ``bool`` के रूप में संग्रहीत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_enabled#0",
+      "source": "Persist the master sound switch.",
+      "source_sha256": "995d3f0ebcfdea50a65d928f93852bd04f83006ce7edb56c51b5999f685315a0",
+      "context": "Persist the master sound switch.",
+      "translation": "मुख्य ध्वनि स्विच संग्रहीत करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_enabled#1",
+      "source": "play sounds when True.",
+      "source_sha256": "ade645d01f72b587b71b5c581868882af653e1f160cb8858a95ecb207f0662a3",
+      "context": "play sounds when True.",
+      "translation": "True होने पर ध्वनियाँ बजाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_event_enabled#0",
+      "source": "Persist one event's switch.",
+      "source_sha256": "0375cc69cea2880f6da49896313dcc204380e5fb4b0b6f323e4c431fd20ba4ee",
+      "context": "Persist one event's switch.",
+      "translation": "एक इवेंट का स्विच संग्रहीत करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_event_enabled#2",
+      "source": "play that event's sound when the master switch is on.",
+      "source_sha256": "a82cf7e488b4730aa9939117f199adf2a187cf3eefdef81e7527485428abcb63",
+      "context": "play that event's sound when the master switch is on.",
+      "translation": "मुख्य स्विच चालू होने पर उस इवेंट की ध्वनि बजाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_music_file#0",
+      "source": "Persist the music file the bed plays.",
+      "source_sha256": "c9f3dc67ce61102cac27832a0183ce25497cd6cc0014b31eacdd7fbf02a61ea5",
+      "context": "Persist the music file the bed plays.",
+      "translation": "वह संगीत फ़ाइल संग्रहीत करें जिसे पृष्ठभूमि बजाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_music_file#1",
+      "source": "a path, or anything empty for spaCR's own music.",
+      "source_sha256": "6591a61ab6090309d0c09c013accd1282145b6fd202e7ce528c05e87961ed9a3",
+      "context": "a path, or anything empty for spaCR's own music.",
+      "translation": "एक पथ, या spaCR के अपने संगीत के लिए कुछ भी खाली।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_music_file#2",
+      "source": "the value stored.",
+      "source_sha256": "5f394032d08ae620c38de90ba72bb5ada96c0f2299755d993b0c993163effa30",
+      "context": "the value stored.",
+      "translation": "संग्रहीत मान।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_theme#0",
+      "source": "Persist the chosen sound set.",
+      "source_sha256": "e04560b6f485b72bf3f561048254e85c66018387450e5297e7a0efecd9a0eaf8",
+      "context": "Persist the chosen sound set.",
+      "translation": "चुना गया ध्वनि सेट संग्रहीत करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_theme#2",
+      "source": "for a key no sound set has.",
+      "source_sha256": "fad2fbe792e882da5e221d3cb341e89a5cf4e79c9f1290c584077d21965ff24f",
+      "context": "for a key no sound set has.",
+      "translation": "ऐसी कुंजी के लिए जो किसी ध्वनि सेट की नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_volume#0",
+      "source": "Persist the master volume.",
+      "source_sha256": "9260ecbd8922fa71a42c2bddbb31e67d24a7a9fc34dcfdd897f8e5f2f7ac8607",
+      "context": "Persist the master volume.",
+      "translation": "मुख्य वॉल्यूम संग्रहीत करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_sound_volume#1",
+      "source": "0 to 1; values outside are clamped.",
+      "source_sha256": "b83c99feb47f378de1c31703a95ab10bf63e1f94628c48e78eb68760191d36bd",
+      "context": "0 to 1; values outside are clamped.",
+      "translation": "0 से 1; बाहर के मान सीमित किए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_spacr_mode#2",
+      "source": "one of :data:`SPACR_MODES`.",
+      "source_sha256": "d10e0caf656b3d032b549e2dc1f45e422cb4b1374337597f812b7a20aec67c57",
+      "context": "one of :data:`SPACR_MODES`.",
+      "translation": ":data:`SPACR_MODES` में से एक।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.preferences.set_spinner_delay#1",
+      "source": "how long background work must run before the spinner shows; clamped between :data:`SPINNER_DELAY_MIN` and :data:`SPINNER_DELAY_MAX`, and an unparseable value or NaN stores :data:`DEFAULT_SPINNER_DELAY`.",
+      "source_sha256": "e584661e8d1938837587eba40d5d57af6e74f6c3fa740c02796af0b4dc3efc5c",
+      "context": "how long background work must run before the spinner shows; clamped between :data:`SPINNER_DELAY_MIN` and :data:`SPINNER_DELAY_MAX`, and an unparseable value or NaN stores :data:`DEFAULT_SPINNER_DELAY`.",
+      "translation": "स्पिनर दिखने से पहले पृष्ठभूमि का काम कितनी देर चलना चाहिए; :data:`SPINNER_DELAY_MIN` और :data:`SPINNER_DELAY_MAX` के बीच सीमित, और पार्स न हो सकने वाला मान या NaN :data:`DEFAULT_SPINNER_DELAY` संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_theme#1",
+      "source": "Choosing ``\"system\"`` also records that it was chosen, so :func:`get_theme` honours it instead of reading it as the default.",
+      "source_sha256": "a71905a226b41f14921f63b7dbc5e95436c356b18d54b7f33aa201625c5b8c66",
+      "context": "Choosing ``\"system\"`` also records that it was chosen, so :func:`get_theme` honours it instead of reading it as the default.",
+      "translation": "``\"system\"`` चुनने पर यह भी दर्ज होता है कि इसे चुना गया था, ताकि :func:`get_theme` इसे डिफ़ॉल्ट के रूप में पढ़ने के बजाय मान्य करे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_theme#2",
+      "source": "one of :data:`VALID_THEMES`.",
+      "source_sha256": "bb39c67ab7759bb907a31d8367b1dfa83c64a4409b6a5d909259d8f29a47b385",
+      "context": "one of :data:`VALID_THEMES`.",
+      "translation": ":data:`VALID_THEMES` में से एक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_theme_choice#1",
+      "source": "Choosing one of the ten night themes also writes that theme's backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+      "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+      "context": "Choosing one of the ten night themes also writes that theme's backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+      "translation": "दस रात्रि थीमों में से एक चुनने पर उस थीम की पृष्ठभूमि और उसका ध्वनि सेट भी लिखे जाते हैं — :func:`apply_night_theme` देखें, जहाँ ऐसा करने का तर्क है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_theme_choice#2",
+      "source": "a token from :func:`theme_choices`; a ``\"cell:<variant>\"`` token sets the Cell theme and that variant. Any other value raises :class:`ValueError`.",
+      "source_sha256": "c3edb9e0a245d68f188c7004be223d6ada8770f38691af029cad359bbef5537a",
+      "context": "a token from :func:`theme_choices`; a ``\"cell:<variant>\"`` token sets the Cell theme and that variant. Any other value raises :class:`ValueError`.",
+      "translation": ":func:`theme_choices` से एक टोकन; ``\"cell:<variant>\"`` टोकन Cell थीम और वह संस्करण सेट करता है। कोई अन्य मान :class:`ValueError` उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_tooltips_enabled#0",
+      "source": "Turn every tooltip on or off, effective immediately.",
+      "source_sha256": "72460b90f69324db67a7eefbca3a328f690825b5df66475908b24be33fb01e10",
+      "context": "Turn every tooltip on or off, effective immediately.",
+      "translation": "हर टूलटिप को चालू या बंद करें, तुरंत प्रभावी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_tooltips_enabled#1",
+      "source": "Drops :mod:`spacr.qt.tooltip_policy`'s cached answer and takes down any tooltip already on screen, so clearing the switch is not followed by one last popup nobody asked for.",
+      "source_sha256": "4ff44d6ce30ba757e408f93dfac20ddcab1d2dfd122a6e2c2c81bcb266ed7d3a",
+      "context": "Drops :mod:`spacr.qt.tooltip_policy`'s cached answer and takes down any tooltip already on application view, so clearing the switch is not followed by one last popup nobody asked for.",
+      "translation": ":mod:`spacr.qt.tooltip_policy` का कैश किया गया उत्तर हटाता है और पहले से दिख रहा कोई भी टूलटिप हटा देता है, ताकि स्विच बंद करने के बाद कोई अंतिम पॉपअप न आए जिसे किसी ने नहीं माँगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.set_workspace_copy_limit_mb#1",
+      "source": "the largest file ``copy`` mode brings in, in megabytes; negative values store 0.0, and an unparseable value stores the workspace default.",
+      "source_sha256": "2467a5d9142ac7edb872aa25fb89baae9364ac439267ca0e9c662ac5a00e962c",
+      "context": "the largest file ``copy`` mode brings in, in megabytes; negative values store 0.0, and an unparseable value stores the workspace default.",
+      "translation": "``copy`` मोड द्वारा लाई जाने वाली सबसे बड़ी फ़ाइल, मेगाबाइट में; ऋणात्मक मान 0.0 संग्रहीत करते हैं, और पार्स न हो सकने वाला मान कार्यक्षेत्र का डिफ़ॉल्ट संग्रहीत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.sound_bed_rests#0",
+      "source": "Whether the current performance level silences the music bed.",
+      "source_sha256": "2706b0239ba7d8714b61d6a7649d11aa135e5019ce071f6656d87571b4623746",
+      "context": "Whether the current performance level silences the music bed.",
+      "translation": "क्या वर्तमान प्रदर्शन स्तर संगीत पृष्ठभूमि को मौन करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.sound_bed_rests#1",
+      "source": "True at the levels named in :data:`SOUND_BED_RESTS_AT`.",
+      "source_sha256": "a319fdf6892d15743bc740f4168099d211bd8bf22e4d1f745515cf7a1f71c4bf",
+      "context": "True at the levels named in :data:`SOUND_BED_RESTS_AT`.",
+      "translation": ":data:`SOUND_BED_RESTS_AT` में नामित स्तरों पर True।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.theme_background_path#2",
+      "source": "an application theme name; only ``\"cell\"`` has a background image.",
+      "source_sha256": "6f5bd69417d90db6d283d653b4ed01725378ccbc899d04197049f426d9505a0a",
+      "context": "an application theme name; only ``\"cell\"`` has a background image.",
+      "translation": "एप्लिकेशन थीम का नाम; केवल ``\"cell\"`` की पृष्ठभूमि छवि है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.theme_background_path#3",
+      "source": "the wanted image width in pixels; 0 or less means the screen size.",
+      "source_sha256": "e5f978a77a2d5b118bb82d8867032b12cecbe295bdb0206cfef8718ef598f9da",
+      "context": "the wanted image width in pixels; 0 or less means the screen size.",
+      "translation": "पिक्सेल में वांछित छवि चौड़ाई; 0 या कम का अर्थ डिस्प्ले का आकार है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.theme_background_path#4",
+      "source": "the wanted image height in pixels; 0 or less means the screen size.",
+      "source_sha256": "08ac6940f88c347913c35bbf88c3e15416332d59931bb96d36a73a3e9a2ffd38",
+      "context": "the wanted image height in pixels; 0 or less means the screen size.",
+      "translation": "पिक्सेल में वांछित छवि ऊँचाई; 0 या कम का अर्थ डिस्प्ले का आकार है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.theme_choices#2",
+      "source": "The ten night themes come last, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and the new family reads as one block down the bottom of the list. Their tokens are their plain keys: a night theme has no variant, so there is nothing to compose into the token the way Cell does.",
+      "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+      "context": "The ten night themes come last, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and the new family reads as one block down the bottom of the list. Their tokens are their plain keys: a night theme has no variant, so there is nothing to compose into the token the way Cell does.",
+      "translation": "दस रात्रि थीम अंत में आती हैं, :data:`spacr.qt.night_themes.NIGHT_THEMES` क्रम में, ताकि एप्लिकेशन की हमेशा से मौजूद चार थीम वहीं रहें जहाँ लौटने वाला उपयोगकर्ता उन्हें खोजता है और नया परिवार सूची के नीचे एक खंड के रूप में पढ़ा जाए। उनके टोकन उनकी सादी कुंजियाँ हैं: रात्रि थीम का कोई संस्करण नहीं होता, इसलिए टोकन में जोड़ने को कुछ नहीं जैसा Cell में होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.theme_description#0",
+      "source": "Return the one-sentence explanation of a :func:`theme_choices` token.",
+      "source_sha256": "1b273b90aa832ca83d4f19a6cb394c66a4f3ae31289e100fdadefdd0a0197815",
+      "context": "Return the one-sentence explanation of a :func:`theme_choices` token.",
+      "translation": ":func:`theme_choices` टोकन की एक-वाक्य व्याख्या लौटाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.theme_description#1",
+      "source": "The ten night themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+      "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+      "context": "The ten night themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+      "translation": "दसों रात्रि थीम में से हर एक के साथ एक वाक्य होता है जो बताता है कि उसके साथ कौन-से रंग, पृष्ठभूमि और ध्वनि सेट आते हैं; Theme नियंत्रण वही वाक्य प्रविष्टि के टूलटिप के रूप में दिखाता है, उसी तरह जैसे Sound set नियंत्रण :attr:`spacr.qt.sound_synth.SoundTheme.description` दिखाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.theme_description#2",
+      "source": "a token from :func:`theme_choices`.",
+      "source_sha256": "25624b8aca57fd6754c1abc1da19c4be33466b8e02f54cf8f638511b505913fa",
+      "context": "a token from :func:`theme_choices`.",
+      "translation": ":func:`theme_choices` से एक टोकन।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences.theme_description#3",
+      "source": "the theme's sentence, or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
+      "source_sha256": "7f79da9e073eecb0cbb1b479f825448439ee774676288f7d1e2dd1f4b9b2ec1f",
+      "context": "the theme's sentence, or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
+      "translation": "थीम का वाक्य, या परिवार से पहले की चार थीम और बिना वाक्य वाले किसी भी टोकन के लिए ``\"\"``। कॉलर परिणाम को :func:`tr` से गुज़ारता है और खाली होने पर कोई टूलटिप सेट नहीं करता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation#0",
+      "source": "Open the Preferences dialog on one tab, at one row.",
+      "source_sha256": "7b974d5520c853398606b48b11845dd33666f229bfcf96fa669534f519b06952",
+      "context": "Open the Preferences dialog on one tab, at one row.",
+      "translation": "Preferences डायलॉग को एक टैब पर, एक पंक्ति पर खोलें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation#1",
+      "source": "A preference result in the Help search field has to land on the row the user asked for, and the dialog it lands in is built by seven thousand lines of procedure with no schema to address. So this module navigates the BUILT dialog, by the two handles the build leaves behind:",
+      "source_sha256": "70de4fdab4c0c095907cf71f3a1d36fb479569fe978bde92add2f2fc33c7c68f",
+      "context": "A preference result in the Help search field has to land on the row the user asked for, and the dialog it lands in is built by seven thousand lines of procedure with no schema to address. So this module navigates the BUILT dialog, by the two handles the build leaves behind:",
+      "translation": "Help खोज फ़ील्ड में प्राथमिकता परिणाम को उसी पंक्ति पर पहुँचना होता है जो उपयोगकर्ता ने माँगी, और जिस डायलॉग में वह पहुँचता है वह सात हज़ार पंक्तियों की प्रक्रिया से बनता है जिसमें पता देने के लिए कोई स्कीमा नहीं। इसलिए यह मॉड्यूल बने हुए डायलॉग में नेविगेट करता है, उन दो हैंडलों से जो निर्माण पीछे छोड़ता है:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation#2",
+      "source": "every page sets an object name -- ``PreferencesTabGeneral``, ``PreferencesTabAnimation`` -- and those names are what ``tools/build_help_search_index.py`` reads out of the same source, so the index and the dialog agree by construction rather than by a second list;",
+      "source_sha256": "b577f909300562e14863708619557ffb1d9ae6f4a9bd0844884af64cff2a7585",
+      "context": "every page sets an object name -- ``PreferencesTabGeneral``, ``PreferencesTabAnimation`` -- and those names are what ``tools/build_help_search_index.py`` reads out of the same source, so the index and the dialog agree by construction rather than by a second list;",
+      "translation": "हर पेज एक ऑब्जेक्ट नाम सेट करता है -- ``PreferencesTabGeneral``, ``PreferencesTabAnimation`` -- और ``tools/build_help_search_index.py`` उसी स्रोत से यही नाम पढ़ता है, इसलिए इंडेक्स और डायलॉग दूसरी सूची से नहीं, बनावट से सहमत हैं;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation#3",
+      "source": "every row's caption goes through :func:`spacr.qt.i18n.tr`, so the English in the index is turned into the displayed caption the same way the dialog turned it, and a Korean interface is matched as well as an English one.",
+      "source_sha256": "654a8ce99b83243b96b4a7a8d41438ac71b6710d46b3f281244f5a33486a6ad1",
+      "context": "every row's caption goes through :func:`spacr.qt.i18n.tr`, so the English in the index is turned into the displayed caption the same way the dialog turned it, and a Korean interface is matched as well as an English one.",
+      "translation": "हर पंक्ति का कैप्शन :func:`spacr.qt.i18n.tr` से होकर जाता है, इसलिए इंडेक्स का अंग्रेज़ी पाठ उसी तरह प्रदर्शित कैप्शन में बदलता है जैसे डायलॉग ने बदला, और कोरियाई इंटरफ़ेस भी अंग्रेज़ी जितनी ही अच्छी तरह मेल खाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation#4",
+      "source": "Matching the DISPLAYED caption against an English literal was the version before this one, and it worked in exactly one language.",
+      "source_sha256": "f6351560c13ac6cefc96cc9e7b81365d242b7c36a7f7b201d574ab2a69634f63",
+      "context": "Matching the DISPLAYED caption against an English literal was the version before this one, and it worked in exactly one language.",
+      "translation": "प्रदर्शित कैप्शन को अंग्रेज़ी लिटरल से मिलाना इससे पहले वाला संस्करण था, और वह ठीक एक भाषा में काम करता था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation#5",
+      "source": "Kept out of ``preferences.py`` on purpose: that module is imported headless, and everything here needs live widgets.",
+      "source_sha256": "986eb005abdc8bc8fc1aac6b5aa59542f3ab8ac22808f87435924cb79b92a816",
+      "context": "Kept out of ``preferences.py`` on purpose: that module is imported headless, and everything here needs live widgets.",
+      "translation": "जानबूझकर ``preferences.py`` से बाहर रखा गया: वह मॉड्यूल हेडलेस आयात होता है, और यहाँ की हर चीज़ को लाइव विजेट चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.page_named#0",
+      "source": "The page whose object name is ``object_name``.",
+      "source_sha256": "696127064d5858c564b3436d11021dc2753de6bb48884920b7b9e741b7d70efe",
+      "context": "The page whose object name is ``object_name``.",
+      "translation": "वह पेज जिसका ऑब्जेक्ट नाम ``object_name`` है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.page_named#1",
+      "source": "the preferences dialog.",
+      "source_sha256": "46741b5ff6455667fc8d9a35efd55e183c9d50ba3751770d27cc15d0cc884812",
+      "context": "the preferences dialog.",
+      "translation": "प्राथमिकता डायलॉग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.page_named#3",
+      "source": "the page widget, or ``None``.",
+      "source_sha256": "ca90656a0b26cc27f4ea16ff60d3741b5f58c4877b65175c6cef44614b1f6c75",
+      "context": "the page widget, or ``None``.",
+      "translation": "पेज विजेट, या ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.reveal_row#0",
+      "source": "Scroll to the row captioned ``label`` and outline it.",
+      "source_sha256": "2d5e54c91aa1b5d6181622555021ef22cd0629387104d814f5e044f345930d98",
+      "context": "Scroll to the row captioned ``label`` and outline it.",
+      "translation": "``label`` शीर्षक वाली पंक्ति तक स्क्रॉल करें और उसकी रूपरेखा बनाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.reveal_row#1",
+      "source": "A STATIC outline for a few seconds rather than anything that moves: a mark that pulses would owe an answer to the Animation preferences, and this one owes none and is not lost on a reader who turned motion off.",
+      "source_sha256": "69922ffa16381a59b17379b6c6c28c173e0ffcd013853b89ef016c5937c3b23f",
+      "context": "A static outline for a few seconds rather than anything that moves: a mark that pulses would owe an answer to the Animation preferences, and this one owes none and is not lost on a reader who turned motion off.",
+      "translation": "कुछ सेकंड के लिए स्थिर रूपरेखा, कुछ हिलने वाला नहीं: धड़कने वाला चिह्न Animation प्राथमिकताओं के प्रति उत्तरदायी होता, और यह किसी के प्रति नहीं है और गति बंद करने वाले पाठक से भी नहीं छूटता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.reveal_row#2",
+      "source": "the preferences page.",
+      "source_sha256": "d2d02aab511dbc8693a56d210f88beda44d268926b6b40c62ac9e05b37486288",
+      "context": "the preferences page.",
+      "translation": "प्राथमिकता पेज।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.reveal_row#3",
+      "source": "the English caption.",
+      "source_sha256": "8409283d8cd493b7a37757915dda78d1b17ce08565c5b2fe72444a525c65ddb6",
+      "context": "the English caption.",
+      "translation": "अंग्रेज़ी कैप्शन।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.reveal_row#4",
+      "source": "True when the row was found.",
+      "source_sha256": "0a4200cd6e06d170f4c5ac7bafbae6417b8de839e7831a7d3701ba1186ecb31c",
+      "context": "True when the row was found.",
+      "translation": "पंक्ति मिलने पर True।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.row_field#0",
+      "source": "The field widget of the row captioned ``label``.",
+      "source_sha256": "87b374a9b9307a5e48b3b4d4579b730e822f2b98b8f0955825bf9b6636e3bb28",
+      "context": "The field widget of the row captioned ``label``.",
+      "translation": "``label`` शीर्षक वाली पंक्ति का फ़ील्ड विजेट।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.row_field#3",
+      "source": "the field widget, or ``None`` when no row carries that caption.",
+      "source_sha256": "dc184fab074bbab1679b0879b1b7281bf20f6b9fb40a7c529bed7c3b66ec15e7",
+      "context": "the field widget, or ``None`` when no row carries that caption.",
+      "translation": "फ़ील्ड विजेट, या उस कैप्शन वाली कोई पंक्ति न होने पर ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.show_tab#0",
+      "source": "Bring the page named ``object_name`` to the front, at row ``label``.",
+      "source_sha256": "bd76cb203bcd48c4451d46a031868907608c415f04e75596402298d7252997e7",
+      "context": "Bring the page named ``object_name`` to the front, at row ``label``.",
+      "translation": "``object_name`` नाम वाले पेज को सामने लाएँ, पंक्ति ``label`` पर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.show_tab#1",
+      "source": "the preferences dialog, already built.",
+      "source_sha256": "bb1fc12e700e62f2db55e6a16d0b663c4487f38e9cd000dc1d73e3189cda3d82",
+      "context": "the preferences dialog, already built.",
+      "translation": "प्राथमिकता डायलॉग, पहले से बना हुआ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.show_tab#2",
+      "source": "the page's object name.",
+      "source_sha256": "b5a3e9e45877d2ef62e98ee70991c7e9c5f7964c7713af4902084ff982f4690e",
+      "context": "the page's object name.",
+      "translation": "पेज का ऑब्जेक्ट नाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.show_tab#3",
+      "source": "the English caption of the row to mark; ``\"\"`` marks none.",
+      "source_sha256": "c4430fcd4e0ebc123243bc1ea63a8e65e1e0763d0c577794b9de68b91826c086",
+      "context": "the English caption of the row to mark; ``\"\"`` marks none.",
+      "translation": "चिह्नित की जाने वाली पंक्ति का अंग्रेज़ी कैप्शन; ``\"\"`` कुछ चिह्नित नहीं करता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.show_tab#4",
+      "source": "True when the page was found and shown.",
+      "source_sha256": "baca1156c9706fdb0b3d1285c8a0be2bdf9484d10c2cda8f949f9891a1396460",
+      "context": "True when the page was found and shown.",
+      "translation": "पेज मिलने और दिखाए जाने पर True।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.tab_widget#0",
+      "source": "The dialog's tab bar.",
+      "source_sha256": "1bc6fdff5919b91dcb9823a40048f38dda7c349943ee77fd9e27fca982eec694",
+      "context": "The dialog's tab bar.",
+      "translation": "डायलॉग की टैब बार।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.tab_widget#2",
+      "source": "the :class:`QTabWidget`, or ``None``.",
+      "source_sha256": "d924bf93cdce2830e04f27c4e305df18aba97c17d3ab782f8d6bf93a9ccb9806",
+      "context": "the :class:`QTabWidget`, or ``None``.",
+      "translation": ":class:`QTabWidget`, या ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prefs.get_last_source#1",
+      "source": "the app key; the value is stored under ``recent/<app_key>/`` in the Qt settings.",
+      "source_sha256": "f3aec231c6866360d5aa0ec7ba217699ce60d2fe90f265ed7c5014cf8c30ee9e",
+      "context": "the app structured-data name; the value is stored under ``recent/<app_key>/`` in the Qt settings.",
+      "translation": "ऐप कुंजी; मान Qt सेटिंग्स में ``recent/<app_key>/`` के अंतर्गत संग्रहीत होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prefs.push_recent_source#2",
+      "source": "the folder to put first; an empty path is ignored. It also becomes the last source.",
+      "source_sha256": "45c253a631111114b76360b68f8dbb8cbb003276be8760f4becc9050ead43b20",
+      "context": "the folder to put first; an empty path is ignored. It also becomes the last source.",
+      "translation": "पहले रखा जाने वाला फ़ोल्डर; खाली पथ अनदेखा किया जाता है। यह अंतिम स्रोत भी बन जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prefs.set_last_source#2",
+      "source": "the folder to remember; an empty path is ignored.",
+      "source_sha256": "90ac20807ee1a0fecb4701df73ea571b58b00e750e964ea438dd8e2801c2527f",
+      "context": "the folder to remember; an empty path is ignored.",
+      "translation": "याद रखा जाने वाला फ़ोल्डर; खाली पथ अनदेखा किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.DiameterPanel.apply#2",
+      "source": "``'cell'``, ``'nucleus'`` or ``'pathogen'``.",
+      "source_sha256": "a715d59dacfacae55dacaa7d59b68b98a8c1ef2af631257bb794682631aecb6c",
+      "context": "``'cell'``, ``'nucleus'`` or ``'pathogen'``.",
+      "translation": "``'cell'``, ``'nucleus'`` या ``'pathogen'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.prerun.diameter_panel#1",
+      "source": "the screen widget whose ``_diameter_panel`` attribute is read.",
+      "source_sha256": "c6cde334e1c318a054eb6e60c9ad8fadb5bffc10ce68d7c388b6769d32adb3f0",
+      "context": "the application view widget whose ``_diameter_panel`` attribute is read.",
+      "translation": "वह पेज विजेट जिसका ``_diameter_panel`` गुण पढ़ा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.qc_banner#1",
+      "source": "the screen widget whose ``_seg_qc_banner`` attribute is read.",
+      "source_sha256": "15379aa8636e9b5f035f79b4edd36d8aa65bad8b36da5245485112a3713c30d4",
+      "context": "the application view widget whose ``_seg_qc_banner`` attribute is read.",
+      "translation": "वह पेज विजेट जिसका ``_seg_qc_banner`` गुण पढ़ा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preview_registry.PreviewSpec#5",
+      "source": "True for the ones ``AppScreen`` already builds. They are declared here so this registry is the single answer to \"which modules have a preview\", and skipped at install time so they do not get a second card.",
+      "source_sha256": "d1c10de2ac4a965d71fa3ec8a0fc99a1f467818fed07ac733f7d3d02f706f0a2",
+      "context": "True for the ones ``AppScreen`` already builds. They are declared here so this registry is the single answer to \"which modules have a preview\", and skipped at install time so they do not get a second card.",
+      "translation": "उनके लिए True जिन्हें ``AppScreen`` पहले से बनाता है। उन्हें यहाँ घोषित किया जाता है ताकि यह रजिस्ट्री \"किन मॉड्यूल का पूर्वावलोकन है\" का एकमात्र उत्तर हो, और इंस्टॉल के समय छोड़ दिया जाता है ताकि उन्हें दूसरा कार्ड न मिले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preview_registry.PreviewSpec#6",
+      "source": "``\"module:function\"`` taking ``(host, card)`` and building the panel into the card, returning it. Given, a preview ATTACHED through this registry builds only its card at install -- ``builder`` is called with ``panel_later=True`` -- and the panel the first time the card is shown or the panel is asked for, so a hidden preview costs a module's open nothing.",
+      "source_sha256": "cce03f00204f5a27234de27180c37476c02d9d9932fcdf581f0875500d0897c6",
+      "context": "``\"module:function\"`` taking ``(host, card)`` and building the panel into the card, returning it. Given, a preview ATTACHED through this registry builds only its card at install -- ``builder`` is called with ``panel_later=True`` -- and the panel the first time the card is shown or the panel is asked for, so a hidden preview costs a module's open nothing.",
+      "translation": "``\"module:function\"`` जो ``(host, card)`` लेकर पैनल को कार्ड में बनाता है और उसे लौटाता है। दिए जाने पर, इस रजिस्ट्री से जोड़ा गया पूर्वावलोकन इंस्टॉल के समय केवल अपना कार्ड बनाता है -- ``builder`` को ``panel_later=True`` के साथ कॉल किया जाता है -- और पैनल तब बनता है जब कार्ड पहली बार दिखाया जाता है या पैनल माँगा जाता है, इसलिए छिपा पूर्वावलोकन मॉड्यूल खोलने पर कोई कीमत नहीं लेता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preview_registry.install#2",
+      "source": "app screen widget; its ``app_key`` attribute selects the declared preview, and the installed host is remembered on it so a second call returns the same one.",
+      "source_sha256": "83e7a4d7515418fa3e8df92057a3a139f107ee2db232fa75188d1d3eadc713e8",
+      "context": "app application view widget; its ``app_key`` attribute selects the declared preview, and the installed host is remembered on it so a second call returns the same one.",
+      "translation": "ऐप पेज विजेट; इसका ``app_key`` गुण घोषित पूर्वावलोकन चुनता है, और स्थापित होस्ट इस पर याद रखा जाता है ताकि दूसरी कॉल वही लौटाए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preview_registry.install_window_hooks#2",
+      "source": "main window whose ``_stack`` screen stack is followed; without one nothing is installed, and a watcher already stored on it is returned instead of a new one.",
+      "source_sha256": "56e666c34fdc82536a2199c59694605bd9c665f73f85e4660dd5617374adae9e",
+      "context": "main window whose ``_stack`` screen stack is followed; without one nothing is installed, and a watcher already stored on it is returned instead of a new one.",
+      "translation": "मुख्य विंडो जिसके ``_stack`` पेज स्टैक का अनुसरण किया जाता है; इसके बिना कुछ स्थापित नहीं होता, और इस पर पहले से संग्रहीत निगरानीकर्ता नए के बजाय लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preview_registry.unregister_preview#1",
+      "source": "app key whose preview declaration is removed; converted with ``str()`` first.",
+      "source_sha256": "a7166de4900960a29f45e92373301e407ed8f47383fb834a3a04c69630d5764d",
+      "context": "app key whose preview declaration is removed; converted with ``str()`` first.",
+      "translation": "वह ऐप कुंजी जिसकी पूर्वावलोकन घोषणा हटाई जाती है; पहले ``str()`` से रूपांतरित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes#0",
+      "source": "Settings templates — named bundles you can reuse and share.",
+      "source_sha256": "c98fa154942a9ccc7627c1f5620a190accc20898b3ac2571d44bee8dec402396",
+      "context": "Settings templates — named bundles you can reuse and share.",
+      "translation": "सेटिंग्स टेम्पलेट — नामित बंडल जिन्हें आप दोबारा उपयोग और साझा कर सकते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes#1",
+      "source": "The historical Recipe API, JSON format and storage paths remain compatible.",
+      "source_sha256": "bd69f73f4586c8eaf88228020024f00f28b9afb27f4bfa3f171c4562792d2526",
+      "context": "The historical Recipe API, JSON format and storage paths remain compatible.",
+      "translation": "ऐतिहासिक Recipe API, JSON फ़ॉर्मैट और भंडारण पथ संगत बने रहते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.Recipe#1",
+      "source": "display name chosen by the user; its slug becomes the file stem when the recipe is saved.",
+      "source_sha256": "1f55f215515dc45849bc76f78e48a540539328c8e07b840b06af6905cc04fe86",
+      "context": "display name chosen by the user; its slug becomes the file stem when the recipe is saved.",
+      "translation": "उपयोगकर्ता द्वारा चुना गया प्रदर्शन नाम; recipe सहेजने पर इसका slug फ़ाइल स्टेम बनता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.Recipe#2",
+      "source": "key of the module the settings belong to; it picks the recipe's subfolder and is checked against the screen on apply.",
+      "source_sha256": "5f8c4b50cd378236f53da86d859498ab7fc76114e307badc96e74bfa2ed744f7",
+      "context": "structured-data name of the module the settings belong to; it picks the recipe's subfolder and is checked against the screen on apply.",
+      "translation": "उस मॉड्यूल की कुंजी जिसकी सेटिंग्स हैं; यह recipe का सबफ़ोल्डर चुनती है और लागू करते समय पेज के विरुद्ध जाँची जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.Recipe#3",
+      "source": "setting key to value mapping written into the screen.",
+      "source_sha256": "5ff31369bc2a8a90b33ad719f4b67b892a035312c12f0cf9102f61c8b3b88105",
+      "context": "setting name to value mapping written into the screen.",
+      "translation": "पेज में लिखी जाने वाली सेटिंग कुंजी से मान की मैपिंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.Recipe#4",
+      "source": "spaCR version the recipe was saved with; filled in on save when empty.",
+      "source_sha256": "0af36f24463b57f4763b3629fd555ec3b98e34709b989ade985498f859186f8b",
+      "context": "spaCR version the recipe was saved with; filled in on save when empty.",
+      "translation": "वह spaCR संस्करण जिसके साथ recipe सहेजी गई; खाली होने पर सहेजते समय भरा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.Recipe#5",
+      "source": "ISO-8601 timestamp of creation, to the second; filled in on save when empty and used to sort listings newest first.",
+      "source_sha256": "94e6c1be846597e976f5200900ccb50351310a30e66459aa81dff55a718283da",
+      "context": "ISO-8601 timestamp of creation, to the second; filled in on save when empty and used to sort listings newest first.",
+      "translation": "निर्माण का ISO-8601 टाइमस्टैम्प, सेकंड तक; खाली होने पर सहेजते समय भरा जाता है और सूचियों को नवीनतम-पहले क्रमबद्ध करने में उपयोग होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.Recipe#6",
+      "source": "free-text notes stored with the recipe.",
+      "source_sha256": "84fdb64ad576216959d8f0390d63e6ec6919d0b8090ee27cae826b2fda256d24",
+      "context": "free-text notes stored with the recipe.",
+      "translation": "recipe के साथ संग्रहीत मुक्त-पाठ टिप्पणियाँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.Recipe#7",
+      "source": "file the recipe was loaded from or saved to; not written into the file itself.",
+      "source_sha256": "16ef8d946ccb8e6123c3790e54a87d21609418faab42c0d02a82c394365532f8",
+      "context": "file the recipe was loaded from or saved to; not written into the file itself.",
+      "translation": "वह फ़ाइल जिससे recipe लोड या जिसमें सहेजी गई; फ़ाइल में स्वयं नहीं लिखी जाती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.Recipe.from_json#1",
+      "source": "the parsed JSON mapping; it must carry an integer ``spacr_recipe`` format version no newer than this build reads and a ``settings`` dict. Missing ``name`` falls back to ``\"Untitled\"``.",
+      "source_sha256": "4b5133a76e6d7f5764488b6d041023ad3d9e94e0dbcf9fd42eb66557b6818361",
+      "context": "the parsed JSON mapping; it must carry an integer ``spacr_recipe`` format version no newer than this build reads and a ``settings`` key-value mapping. Missing ``name`` falls back to ``\"Untitled\"``.",
+      "translation": "पार्स की गई JSON मैपिंग; इसमें ऐसा पूर्णांक ``spacr_recipe`` फ़ॉर्मैट संस्करण होना चाहिए जो इस बिल्ड द्वारा पढ़े जाने वाले से नया न हो, और एक ``settings`` dict। अनुपस्थित ``name`` ``\"Untitled\"`` पर लौटता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.RecipeDialog.set_confirmation_runner#2",
+      "source": "callable given the configured Apply/Cancel ``QMessageBox``; the recipe is applied only when it returns ``QMessageBox.Apply``.",
+      "source_sha256": "284fe050666e5fbf97c6c94e8dd95adc2e4e3fa79565f16bf295c42b94f73df8",
+      "context": "callable given the configured Apply/Cancel ``QMessageBox``; the recipe is applied only when it returns ``QMessageBox.Apply``.",
+      "translation": "कॉल करने योग्य ऑब्जेक्ट जिसे कॉन्फ़िगर किया गया Apply/Cancel ``QMessageBox`` दिया जाता है; recipe केवल तब लागू होती है जब यह ``QMessageBox.Apply`` लौटाए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.apply_recipe#3",
+      "source": "the recipe to apply; its settings are copied, not mutated.",
+      "source_sha256": "a33e52cccb892ebc7f8ad96bf2d414d3d9f22bc812518fc67052c3b6d4babf56",
+      "context": "the recipe to apply; its settings are copied, not mutated.",
+      "translation": "लागू की जाने वाली recipe; इसकी सेटिंग्स कॉपी की जाती हैं, बदली नहीं जातीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.apply_recipe#4",
+      "source": "the module screen to write into; its ``app_key`` must match the recipe's (when both are set) and it must provide ``apply_settings_dict``.",
+      "source_sha256": "a9f02a922acd7b5b677f92166a390d7ade08d51434e69cdd3098b7b7c38073df",
+      "context": "the module application view to write into; its ``app_key`` must match the recipe's (when both are set) and it must provide ``apply_settings_dict``.",
+      "translation": "वह मॉड्यूल पेज जिसमें लिखना है; इसका ``app_key`` recipe से मेल खाना चाहिए (जब दोनों सेट हों) और इसे ``apply_settings_dict`` देना चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.capture_recipe#2",
+      "source": "the module screen to capture; it must have a settings model (``_settings_model``) or :class:`ValueError` is raised, and its ``app_key`` is stored on the recipe.",
+      "source_sha256": "0422143cb61989fa44ecc7e281686a916da5ac98146607d591763fce66099b43",
+      "context": "the module application view to capture; it must have a settings model (``_settings_model``) or :class:`ValueError` is raised, and its ``app_key`` is stored on the recipe.",
+      "translation": "कैप्चर किया जाने वाला मॉड्यूल पेज; इसके पास सेटिंग्स मॉडल (``_settings_model``) होना चाहिए, अन्यथा :class:`ValueError` उठाया जाता है, और इसका ``app_key`` recipe पर संग्रहीत होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.capture_recipe#3",
+      "source": "display name for the recipe; empty gives ``\"Untitled\"``.",
+      "source_sha256": "29ca85a93d3693e9e12e9c6d0154c026c5e28ca09b9737de58476cda2d3e4a19",
+      "context": "display name for the recipe; empty gives ``\"Untitled\"``.",
+      "translation": "recipe का प्रदर्शन नाम; खाली होने पर ``\"Untitled\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.delete_recipe#1",
+      "source": "the recipe whose ``path`` is deleted; an empty or missing path removes nothing.",
+      "source_sha256": "c34572bfaeb5f3e8ccb9163be2a22dad3f1d14176926fc922910f2bc077a6a75",
+      "context": "the recipe whose ``path`` is deleted; an empty or missing path removes nothing.",
+      "translation": "वह recipe जिसका ``path`` हटाया जाता है; खाली या अनुपस्थित पथ कुछ नहीं हटाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.install#0",
+      "source": "Add a Templates button to ``screen``'s settings search strip.",
+      "source_sha256": "ffb2de62f077aedae0980cd1977d68782611c9f786956cea2bbb89f15b40c8da",
+      "context": "Add a Templates button to ``screen``'s settings search strip.",
+      "translation": "``screen`` की सेटिंग्स खोज पट्टी में Templates बटन जोड़ें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.install#2",
+      "source": "the module screen; its ``_settings_search`` strip must provide ``add_trailing_widget``. If the screen already has a ``_recipe_button``, that button is returned unchanged.",
+      "source_sha256": "636237a3782b3318cd6069a36114f9cde2c0147ac034a5062d3cdfe4c7537484",
+      "context": "the module application view; its ``_settings_search`` strip must provide ``add_trailing_widget``. If the application view already has a ``_recipe_button``, that button is returned unchanged.",
+      "translation": "मॉड्यूल पेज; इसकी ``_settings_search`` पट्टी को ``add_trailing_widget`` देना चाहिए। यदि पेज में पहले से ``_recipe_button`` है, तो वह बटन बिना बदलाव के लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.install_help_action#0",
+      "source": "Add **Settings templates…** to the window's Help menu.",
+      "source_sha256": "bfeebad478de3b4e4317e7e5db7abd905a12c14fa2fa24d0e00beae5ddb8866b",
+      "context": "Add **Settings templates…** to the window's Help menu.",
+      "translation": "विंडो के Help मेनू में **Settings templates…** जोड़ें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.install_help_action#2",
+      "source": "the main window; its menu-bar menu titled \"Help\" (``&`` ignored) receives the action, before the first separator.",
+      "source_sha256": "47484e8d0af67aa03ec7adcc6d17e75e087fd1b975efa597bdd35547f260c3ae",
+      "context": "the main window; its menu-bar menu titled \"Help\" (``&`` ignored) receives the action, before the first separator.",
+      "translation": "मुख्य विंडो; इसके मेनू बार का \"Help\" शीर्षक वाला मेनू (``&`` अनदेखा) क्रिया प्राप्त करता है, पहले विभाजक से पहले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.install_window_hooks#2",
+      "source": "the main window; the Help-menu action is added to it and its ``_stack`` screen stack is watched so each shown screen gets a Templates button. Without a ``_stack`` the result is ``None``.",
+      "source_sha256": "d35424b8a9af0ce0dbf1d416dcab00cb31e05673a92e826a22452fda3da09367",
+      "context": "the main window; the Help-menu action is added to it and its ``_stack`` application view stack is watched so each shown application view gets a Templates button. Without a ``_stack`` the result is ``None``.",
+      "translation": "मुख्य विंडो; Help-मेनू क्रिया इसमें जोड़ी जाती है और इसके ``_stack`` पेज स्टैक पर नज़र रखी जाती है ताकि हर दिखाए गए पेज को Templates बटन मिले। ``_stack`` के बिना परिणाम ``None`` है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.load_recipe#1",
+      "source": "path to a recipe JSON file; it is recorded on the returned recipe.",
+      "source_sha256": "8bd6095bfb41462cf82f74f9c4ac416081e478ad2e7a5978edf3bd897593570e",
+      "context": "path to a recipe JSON file; it is recorded on the returned recipe.",
+      "translation": "recipe JSON फ़ाइल का पथ; यह लौटाई गई recipe पर दर्ज होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.recipes.open_recipes#1",
+      "source": "the module screen whose recipes are listed and applied, passed to :class:`RecipeDialog`.",
+      "source_sha256": "f266f69b7c5eb5912e094ab693e80e0557217608604da20323a61be03dc4a0cf",
+      "context": "the module application view whose recipes are listed and applied, passed to :class:`RecipeDialog`.",
+      "translation": "वह मॉड्यूल पेज जिसकी recipes सूचीबद्ध और लागू होती हैं, :class:`RecipeDialog` को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.regex_editor.RegexEditorDialog.resizeEvent#2",
+      "source": "the resize event, passed to the base class first; the labels are then re-fitted to the dialog's new width.",
+      "source_sha256": "31c5121b86b7a2b74e37b7db3cd14183f080c0242a6617c7d69b101c59d36856",
+      "context": "the resize event, passed to the base class first; the labels are then re-fitted to the dialog's new width.",
+      "translation": "आकार बदलने का इवेंट, पहले बेस क्लास को दिया जाता है; फिर लेबलों को डायलॉग की नई चौड़ाई पर फिर से फ़िट किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance#0",
+      "source": "What the Resonance backdrop is driven by, and the plate it draws.",
+      "source_sha256": "e222169ff787cf2894d1894b06153ae2dbcdcf74c845d1b4f26549b9bae9b0f8",
+      "context": "What the Resonance backdrop is driven by, and the plate it draws.",
+      "translation": "Resonance पृष्ठभूमि किससे चलती है, और वह कौन-सी प्लेट बनाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance#1",
+      "source": "Two halves, both Qt-free and both numpy-only, kept together because they are the two ends of one idea: a sound is measured here, and a vibrating plate is solved here, and the backdrop in :class:`spacr.qt.widgets.ambient.ResonanceEngine` is only the painting.",
+      "source_sha256": "84f315a4328a4a5f9345bcaef1c6b7838fe065eda05f8186f681cfa77ee6855e",
+      "context": "Two halves, both Qt-free and both numpy-only, kept together because they are the two ends of one idea: a sound is measured here, and a vibrating plate is solved here, and the backdrop in :class:`spacr.qt.widgets.ambient.ResonanceEngine` is only the painting.",
+      "translation": "दो हिस्से, दोनों Qt-मुक्त और दोनों केवल numpy, साथ रखे गए क्योंकि वे एक ही विचार के दो सिरे हैं: ध्वनि यहाँ मापी जाती है, कंपन करती प्लेट यहाँ हल की जाती है, और :class:`spacr.qt.widgets.ambient.ResonanceEngine` की पृष्ठभूमि केवल चित्रण है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance#2",
+      "source": "**The measurement.** :func:`analyse` turns a rendered WAV into a few hundred kilobytes of envelope, four band energies, a spectral centroid and an onset strength, sixty times a second, and :func:`ensure_analysis` keeps that beside the WAV so it is computed once and read thereafter. :mod:`spacr.qt.sound` does the computing on its own audio thread when it loads the music bed, and records what is playing and when it started (:func:`set_now_playing`); the backdrop reads the small arrays and the clock. **Nothing here listens to the machine.** There is no system-audio capture anywhere in spaCR and there is not going to be: the only sounds this can see are the ones spaCR is playing and the file the user chose.",
+      "source_sha256": "4317e3d3726a8881ad4f9f473d9f6f4d7308c6aaf89cc08c98b8f3c36bc5eba8",
+      "context": "**The measurement.** :func:`analyse` turns a rendered WAV into a few hundred kilobytes of envelope, four band energies, a spectral centroid and an onset strength, sixty times a second, and :func:`ensure_analysis` keeps that beside the WAV so it is computed once and read thereafter. :mod:`spacr.qt.sound` does the computing on its own audio thread when it loads the music bed, and records what is playing and when it started (:func:`set_now_playing`); the backdrop reads the small arrays and the clock. **Nothing here listens to the machine.** There is no system-audio capture anywhere in spaCR and there is not going to be: the only sounds this can see are the ones spaCR is playing and the file the user chose.",
+      "translation": "**माप।** :func:`analyse` रेंडर की गई WAV को कुछ सौ किलोबाइट के आवरण, चार बैंड ऊर्जाओं, एक स्पेक्ट्रल केंद्रक और एक आरंभ-शक्ति में बदलता है, सेकंड में साठ बार, और :func:`ensure_analysis` इसे WAV के बगल में रखता है ताकि यह एक बार गणना हो और फिर पढ़ा जाए। :mod:`spacr.qt.sound` संगीत पृष्ठभूमि लोड करते समय यह गणना अपने ऑडियो थ्रेड पर करता है, और दर्ज करता है कि क्या बज रहा है और कब शुरू हुआ (:func:`set_now_playing`); पृष्ठभूमि छोटे ऐरे और घड़ी पढ़ती है। **यहाँ कुछ भी मशीन को नहीं सुनता।** spaCR में कहीं भी सिस्टम-ऑडियो कैप्चर नहीं है और नहीं होगा: यह केवल वही ध्वनियाँ देख सकता है जो spaCR बजा रहा है और वह फ़ाइल जो उपयोगकर्ता ने चुनी।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance#3",
+      "source": "**The plate.** Chladni figures are what sand does on a plate driven at one of its resonances: it is thrown off the parts that move and comes to rest along the lines that do not, so the figure is the nodal set of a standing wave made visible. For a square plate the classical superposition is",
+      "source_sha256": "b7ccfe6d9315518a7745e8480a5a083086aae10d133d09898459ea6c22bb217f",
+      "context": "**The plate.** Chladni figures are what sand does on a plate driven at one of its resonances: it is thrown off the parts that move and comes to rest along the lines that do not, so the figure is the nodal set of a standing wave made visible. For a square plate the classical superposition is",
+      "translation": "**प्लेट।** Chladni आकृतियाँ वह हैं जो रेत उस प्लेट पर करती है जिसे उसकी किसी अनुनाद आवृत्ति पर चलाया जाता है: वह हिलने वाले भागों से उछलकर हटती है और न हिलने वाली रेखाओं पर टिक जाती है, इसलिए आकृति एक स्थायी तरंग का दृश्य बना नोडल समुच्चय है। वर्गाकार प्लेट के लिए शास्त्रीय अध्यारोपण है",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance#4",
+      "source": "and the sand settles where :math:`w = 0`. Both signs are real families of figures and :data:`MODES` alternates them; see there for what leaving the plus sign out looked like. :func:`lattice` evaluates that field and its gradient on a small grid, and :func:`settle` walks particles down it. Both are separable in x and y, so a whole lattice costs four outer products and a frame costs a handful of array lookups -- which is the only reason a particle field can afford to be a backdrop at all.",
+      "source_sha256": "2eb540bd773978ad7d379f5fe579203208721719a675ace744a51b6bf4073ebd",
+      "context": "and the sand settles where :math:`w = 0`. Both signs are real families of figures and :data:`MODES` alternates them; see there for what leaving the plus sign out looked like. :func:`lattice` evaluates that field and its gradient on a small grid, and :func:`settle` walks particles down it. Both are separable in x and y, so a whole lattice costs four outer products and a frame costs a handful of array lookups -- which is the only reason a particle field can afford to be a backdrop at all.",
+      "translation": "और रेत वहाँ टिकती है जहाँ :math:`w = 0`। दोनों चिह्न आकृतियों के वास्तविक परिवार हैं और :data:`MODES` उन्हें बारी-बारी से लेता है; धन चिह्न छोड़ने पर कैसा दिखता था, इसके लिए वहीं देखें। :func:`lattice` उस क्षेत्र और उसकी प्रवणता को एक छोटे ग्रिड पर गणना करता है, और :func:`settle` कणों को उस पर नीचे चलाता है। दोनों x और y में अलग-अलग किए जा सकते हैं, इसलिए पूरी जाली की लागत चार बाह्य गुणनफल है और एक फ़्रेम की लागत कुछ ऐरे खोजें -- और यही एकमात्र कारण है कि कण क्षेत्र पृष्ठभूमि बनने का खर्च उठा सकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance#5",
+      "source": "WHY A LATTICE AND NOT AN EVALUATION PER PARTICLE. Eight relaxation rounds over 1 300 particles is 10 400 evaluations of eight trigonometric functions each if the field is evaluated where the particle is; on a 128x128 lattice it is four outer products, once, and then 10 400 integer lookups. Measured on this machine, eight rounds over 1 300 particles: 0.61 ms with the lattice against 0.76 ms without it, which is a modest 1.26x -- the point is not the ratio today but that the FIELD's share stops depending on the particle count at all, so density can be raised without the trigonometry following it.",
+      "source_sha256": "0eb0d19dca4dd21b37132d9fe89058dbd8c47234f10aa20b7fb3899f1afc76a3",
+      "context": "Why a lattice and not an evaluation per particle. Eight relaxation rounds over 1 300 particles is 10 400 evaluations of eight trigonometric functions each if the field is evaluated where the particle is; on a 128x128 lattice it is four outer products, once, and then 10 400 integer lookups. Measured on this machine, eight rounds over 1 300 particles: 0.61 ms with the lattice against 0.76 ms without it, which is a modest 1.26x -- the point is not the ratio today but that the FIELD's share stops depending on the particle count at all, so density can be raised without the trigonometry following it.",
+      "translation": "प्रति कण गणना के बजाय जाली क्यों। 1 300 कणों पर आठ विश्रांति चक्र, यदि क्षेत्र वहीं गणना हो जहाँ कण है, तो आठ त्रिकोणमितीय फ़ंक्शनों वाली 10 400 गणनाएँ हैं; 128x128 जाली पर यह एक बार चार बाह्य गुणनफल है, और फिर 10 400 पूर्णांक खोजें। इस मशीन पर मापा गया, 1 300 कणों पर आठ चक्र: जाली के साथ 0.61 ms और उसके बिना 0.76 ms, जो मामूली 1.26x है -- मुद्दा आज का अनुपात नहीं, बल्कि यह है कि क्षेत्र का हिस्सा कण गणना पर बिल्कुल निर्भर नहीं रहता, इसलिए घनत्व ऊँचा किया जा सकता है बिना त्रिकोणमिति के उसके पीछे चले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance#6",
+      "source": "AND WHY THE FIGURE IS RECOMPUTED FROM A FIXED START EVERY FRAME RATHER THAN CARRIED FORWARD. Every ambient engine promises that a frame is a pure function of ``(seed, clock, size)`` -- ``test_the_clock_alone_decides_the _frame`` steps one engine twelve times and jumps another straight to the same clock and demands the same picture, and ``test_the_backdrop_survives_a_run`` shades the same clock on two threads and compares the bytes. A particle simulation carried forward from frame to frame satisfies neither. Relaxation from a seeded start does, costs 0.61 ms, and has the better behaviour besides: the figure always belongs to the sound that is playing now rather than to the last few seconds of it.",
+      "source_sha256": "fe455f082a073f0a63595bca3ffc5c6668f7ff6a6ebe1d49a3777d28918d744c",
+      "context": "And why the figure is recomputed from a fixed start every frame rather than carried forward. Every ambient engine promises that a frame is a pure function of ``(seed, clock, size)`` -- ``test_the_clock_alone_decides_the _frame`` steps one engine twelve times and jumps another straight to the same clock and demands the same picture, and ``test_the_backdrop_survives_a_run`` shades the same clock on two threads and compares the bytes. A particle simulation carried forward from frame to frame satisfies neither. Relaxation from a seeded start does, costs 0.61 ms, and has the better behaviour besides: the figure always belongs to the sound that is playing now rather than to the last few seconds of it.",
+      "translation": "और आकृति आगे ले जाने के बजाय हर फ़्रेम में एक निश्चित आरंभ से फिर से क्यों गणना होती है। हर परिवेशी इंजन वादा करता है कि फ़्रेम ``(seed, clock, size)`` का शुद्ध फ़ंक्शन है -- ``test_the_clock_alone_decides_the _frame`` एक इंजन को बारह बार आगे बढ़ाता है और दूसरे को सीधे उसी घड़ी पर ले जाता है और वही चित्र माँगता है, और ``test_the_backdrop_survives_a_run`` दो थ्रेड पर उसी घड़ी को शेड करके बाइट की तुलना करता है। फ़्रेम-दर-फ़्रेम आगे ले जाया गया कण सिमुलेशन दोनों में से किसी को संतुष्ट नहीं करता। सीड किए गए आरंभ से विश्रांति करती है, 0.61 ms लेती है, और इसका व्यवहार भी बेहतर है: आकृति हमेशा अभी बज रही ध्वनि की होती है, उसके पिछले कुछ सेकंड की नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Moment#0",
+      "source": "One instant of whatever is playing, all of it 0 to 1.",
+      "source_sha256": "df8eba0fd9b8fc7945e106fe27f57ee57c83e6e20fb4ea2c33a13b06a3ebb870",
+      "context": "One instant of whatever is playing, all of it 0 to 1.",
+      "translation": "जो कुछ बज रहा है उसका एक क्षण, सब कुछ 0 से 1।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Moment#1",
+      "source": "overall loudness against the loop's own loudest.",
+      "source_sha256": "f62de8d1e5759f069b3711c364d71b0bb40927693e3b4c864e7a80a8ed5630b1",
+      "context": "overall loudness against the loop's own loudest.",
+      "translation": "लूप के अपने सबसे तेज़ स्तर के सापेक्ष कुल प्रबलता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Moment#2",
+      "source": "energy in each of :data:`BANDS`, each against its own loudest, so a band that is always quiet still says something.",
+      "source_sha256": "974ca0b5a8e8a4de834e927e7e42e460e3b981b6eb6006cef46d5286b6d1ea6e",
+      "context": "energy in each of :data:`BANDS`, each against its own loudest, so a band that is always quiet still says something.",
+      "translation": ":data:`BANDS` में से हर एक में ऊर्जा, हर एक अपने ही सबसे तेज़ स्तर के सापेक्ष, ताकि हमेशा धीमा रहने वाला बैंड भी कुछ कहे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Moment#3",
+      "source": "where the spectrum's centre of mass is, on a log scale between 60 Hz and 8 kHz.",
+      "source_sha256": "5b927e930cc5ef34fe1830fafe17216d6fb510e3226cb27a1f036aa9c5fbaacd",
+      "context": "where the spectrum's centre of mass is, on a log scale between 60 Hz and 8 kHz.",
+      "translation": "स्पेक्ट्रम का द्रव्यमान केंद्र कहाँ है, 60 Hz और 8 kHz के बीच लघुगणकीय पैमाने पर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Moment#4",
+      "source": "spectral flux -- how much of the sound is NEW. This is what a beat looks like when it is measured rather than guessed at from a tempo the visualiser was told.",
+      "source_sha256": "b013b9aebb4928e38ed5654db516926e4b46e92d2edb9887af063021dd594f67",
+      "context": "spectral flux -- how much of the sound is NEW. This is what a beat looks like when it is measured rather than guessed at from a tempo the visualiser was told.",
+      "translation": "स्पेक्ट्रल फ़्लक्स -- ध्वनि का कितना हिस्सा नया है। जब बीट को मापा जाता है, न कि विज़ुअलाइज़र को बताए गए टेम्पो से अनुमानित, तो वह ऐसी ही दिखती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.NowPlaying#0",
+      "source": "What is coming out of the speakers, and when it started.",
+      "source_sha256": "817aa0791aa0a05ff74a0ab363e40e297fb8ff80a3660e9eee49990863ce0491",
+      "context": "What is coming out of the speakers, and when it started.",
+      "translation": "स्पीकरों से क्या निकल रहा है, और कब शुरू हुआ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.NowPlaying#1",
+      "source": "THE CLOCK IS THE WHOLE MECHANISM, and it is worth saying why there is no other. ``QSoundEffect`` has no playback position to ask for, and capturing the machine's audio output is not something a scientific tool should be doing to somebody's computer. So the audio thread records the instant it called ``play()`` and the length of the loop, and the position is arithmetic. Both clocks are real time, so the two drift only by the audio device's own rate error -- tens of parts per million, a millisecond an hour -- and the loop wraps it out anyway.",
+      "source_sha256": "d74fdcd5f78e86cf22c6cbc6ff3db916f86e16d6f5140e63cb939703a99eda78",
+      "context": "The clock is the whole mechanism, and it is worth saying why there is no other. ``QSoundEffect`` has no playback position to ask for, and capturing the machine's audio output is not something a scientific tool should be doing to somebody's computer. So the audio thread records the instant it called ``play()`` and the length of the loop, and the position is arithmetic. Both clocks are real time, so the two drift only by the audio device's own rate error -- tens of parts per million, a millisecond an hour -- and the loop wraps it out anyway.",
+      "translation": "घड़ी ही पूरा तंत्र है, और यह बताने योग्य है कि कोई दूसरा क्यों नहीं। ``QSoundEffect`` के पास पूछने के लिए कोई प्लेबैक स्थिति नहीं है, और मशीन का ऑडियो आउटपुट कैप्चर करना ऐसा काम नहीं जो किसी वैज्ञानिक टूल को किसी के कंप्यूटर के साथ करना चाहिए। इसलिए ऑडियो थ्रेड वह क्षण दर्ज करता है जब उसने ``play()`` कॉल किया और लूप की लंबाई, और स्थिति अंकगणित है। दोनों घड़ियाँ वास्तविक समय हैं, इसलिए दोनों केवल ऑडियो डिवाइस की अपनी दर त्रुटि जितनी खिसकती हैं -- प्रति दस लाख दसियों भाग, एक घंटे में एक मिलीसेकंड -- और लूप वैसे भी इसे समेट लेता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.NowPlaying#2",
+      "source": "path to the ``.resonance.npz`` for what is playing.",
+      "source_sha256": "89681c08cc4dff0e9714c4c7030f8ceb4cbcb6471d5552219ad37e1900bb17fe",
+      "context": "path to the ``.resonance.npz`` for what is playing.",
+      "translation": "जो बज रहा है उसके ``.resonance.npz`` का पथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.NowPlaying#3",
+      "source": ":func:`time.monotonic` at the moment playback began.",
+      "source_sha256": "0ff9d624e5b71e8ac815ba330da9827a567dc426ac5ea6f508710dde217bcbc6",
+      "context": ":func:`time.monotonic` at the moment playback began.",
+      "translation": "प्लेबैक शुरू होने के क्षण :func:`time.monotonic`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.NowPlaying#4",
+      "source": "length of the piece in seconds.",
+      "source_sha256": "299bfdd660b340899b9be165a97310ab3aeb584d25f79f0cd09852809a6cafdd",
+      "context": "length of the piece in seconds.",
+      "translation": "सेकंड में रचना की लंबाई।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.NowPlaying#5",
+      "source": "whether it repeats.",
+      "source_sha256": "5d28b8098447d99efa570d3269a77360869e571591ee01abc8d5ada78bf63d4e",
+      "context": "whether it repeats.",
+      "translation": "क्या यह दोहराता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance#0",
+      "source": "Everything the visualiser knows about one piece of audio.",
+      "source_sha256": "946f5ce43075254d3df6991896ebe3a9f149399394e19a7ecb85925d201b8dae",
+      "context": "Everything the visualiser knows about one piece of audio.",
+      "translation": "ऑडियो के एक टुकड़े के बारे में विज़ुअलाइज़र जो कुछ जानता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance#1",
+      "source": "analysis frames per second.",
+      "source_sha256": "fc5e9ebf9ec648fa60c36f6eab285d21b5179fd54747fc440a8353720c15af46",
+      "context": "analysis frames per second.",
+      "translation": "प्रति सेकंड विश्लेषण फ़्रेम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance#2",
+      "source": "length of the audio in seconds.",
+      "source_sha256": "5d2ca58bb10a1b4c1bd69b0714e8ae57182b86bb518373f774cb93ca66174315",
+      "context": "length of the audio in seconds.",
+      "translation": "सेकंड में ऑडियो की लंबाई।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance#3",
+      "source": "per-frame loudness, 0 to 1.",
+      "source_sha256": "7c643b746eb757e0e28d35c549f6f862247d354d18aecce1e07fe3bb800d450f",
+      "context": "per-frame loudness, 0 to 1.",
+      "translation": "प्रति-फ़्रेम प्रबलता, 0 से 1।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance#4",
+      "source": "``(4, frames)``, each row 0 to 1.",
+      "source_sha256": "4ae00b42f1381df3b33831a76fb175ca3f5b5dd0a52536762a1cc1f9cd76c03a",
+      "context": "``(4, frames)``, each row 0 to 1.",
+      "translation": "``(4, frames)``, हर पंक्ति 0 से 1।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance#5",
+      "source": "per-frame spectral centroid, 0 to 1.",
+      "source_sha256": "0fd9abd13372b844cd1d0b78e30ae3d0da0b696ffb8d10bdee5f14b4d37d085d",
+      "context": "per-frame spectral centroid, 0 to 1.",
+      "translation": "प्रति-फ़्रेम स्पेक्ट्रल केंद्रक, 0 से 1।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance#6",
+      "source": "per-frame spectral flux, 0 to 1.",
+      "source_sha256": "bfbf8a4550b14610a81c69a5e1774610b7be025778dccae7186b7ff3ff55784d",
+      "context": "per-frame spectral flux, 0 to 1.",
+      "translation": "प्रति-फ़्रेम स्पेक्ट्रल फ़्लक्स, 0 से 1।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance#7",
+      "source": "whether the audio repeats seamlessly, which decides whether :meth:`at` wraps or clamps.",
+      "source_sha256": "e79f43306dff68cf007a9b6c3960f2a48220623cead44ee10b485a07a6b761ad",
+      "context": "whether the audio repeats seamlessly, which decides whether :meth:`at` wraps or clamps.",
+      "translation": "क्या ऑडियो बिना जोड़ दिखे दोहराता है, जो तय करता है कि :meth:`at` लपेटता है या सीमित करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance.at#0",
+      "source": "The moment at ``seconds`` into the audio.",
+      "source_sha256": "f102f0b6d171d1351e3d36721a0bdda31cdc51438b990aba0cb196b70f879af4",
+      "context": "The moment at ``seconds`` into the audio.",
+      "translation": "ऑडियो में ``seconds`` पर का क्षण।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance.at#1",
+      "source": "Linear between neighbouring frames, so a 24 fps backdrop reading a 60 fps analysis moves smoothly instead of stepping. A looping piece wraps -- including BETWEEN its last frame and its first, which is the one interpolation a naive clamp gets wrong and the one a listener would hear as a stall every time round.",
+      "source_sha256": "3f50d53b238a2e7b2cd832d8c750f2b023c307b7520cd3ccf3baf7a428134619",
+      "context": "Linear between neighbouring frames, so a 24 fps backdrop reading a 60 fps analysis moves smoothly instead of stepping. A looping piece wraps -- including BETWEEN its last frame and its first, which is the one interpolation a naive clamp gets wrong and the one a listener would hear as a stall every time round.",
+      "translation": "पड़ोसी फ़्रेमों के बीच रैखिक, ताकि 60 fps विश्लेषण पढ़ने वाली 24 fps पृष्ठभूमि सीढ़ीनुमा चलने के बजाय सहज चले। लूप होने वाली रचना लपेटती है -- अपने अंतिम और पहले फ़्रेम के बीच भी, जो वही एक प्रक्षेप है जिसे साधारण सीमांकन गलत करता है और जिसे श्रोता हर चक्कर में ठहराव के रूप में सुनता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance.at#2",
+      "source": "position in the audio.",
+      "source_sha256": "bb83ddc84a13a36ba29b95209f8d68dc04026f890155a33b9ebad8f04477b79a",
+      "context": "position in the audio.",
+      "translation": "ऑडियो में स्थिति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance.at#3",
+      "source": "the interpolated moment.",
+      "source_sha256": "ab355bd62bf7b735be510a609987652f0f1d91fc5599dbf5b0e0c0c82caf0914",
+      "context": "the interpolated moment.",
+      "translation": "प्रक्षेपित क्षण।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.Resonance.frames#0",
+      "source": "How many analysis frames there are.",
+      "source_sha256": "bf6c42cd73418958927ab9495f28cf77328738d9e472472a9fc9ab6464bfbc0f",
+      "context": "How many analysis frames there are.",
+      "translation": "कितने विश्लेषण फ़्रेम हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analyse#0",
+      "source": "Measure what a visualiser needs, frame by frame.",
+      "source_sha256": "1e75be943c4c0827207f0e227ef427df29c37a63cd9f35a6d378b5f149ee845e",
+      "context": "Measure what a visualiser needs, frame by frame.",
+      "translation": "फ़्रेम-दर-फ़्रेम मापें कि विज़ुअलाइज़र को क्या चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analyse#1",
+      "source": "Every row is normalised against its OWN 98th percentile rather than against the loudest thing in the file. A shaker that never rises above -40 dB is still the loudest thing in its own band, and a band scaled by the kick's peak would be a row of zeros -- which is how an audio visualiser ends up with three bars that move and one that does not.",
+      "source_sha256": "72e2bf315682485e4de2651505bd8f8c3c43188831b6b7e9a9a20fd24e1fb64f",
+      "context": "Every row is normalised against its OWN 98th percentile rather than against the loudest thing in the file. A shaker that never rises above -40 dB is still the loudest thing in its own band, and a band scaled by the kick's peak would be a row of zeros -- which is how an audio visualiser ends up with three bars that move and one that does not.",
+      "translation": "हर पंक्ति फ़ाइल की सबसे तेज़ चीज़ के बजाय अपने ही 98वें पर्सेंटाइल के सापेक्ष सामान्यीकृत होती है। जो shaker कभी -40 dB से ऊपर नहीं जाता, वह भी अपने बैंड की सबसे तेज़ चीज़ है, और kick के शिखर से स्केल किया गया बैंड शून्यों की पंक्ति होता -- और इसी तरह ऑडियो विज़ुअलाइज़र में तीन बार हिलते हैं और एक नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analyse#2",
+      "source": "one channel of samples.",
+      "source_sha256": "1f902cee1201fa4114863f72df5e2ff3b6d86d29ffa3ea5f5ba7f198801b5564",
+      "context": "one channel of samples.",
+      "translation": "सैंपल का एक चैनल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analyse#3",
+      "source": "sample rate.",
+      "source_sha256": "7e787b3a559a327267d9a6baf16733ff69b82480877265e07faee86f028e5d51",
+      "context": "sample rate.",
+      "translation": "सैंपल दर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analyse#5",
+      "source": "whether the audio repeats seamlessly.",
+      "source_sha256": "a711d25ebe32aaa44f1efcbe9ef8b0c10274e1c6c7a9ec727f111228b0a170c2",
+      "context": "whether the audio repeats seamlessly.",
+      "translation": "क्या ऑडियो बिना जोड़ दिखे दोहराता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analyse#6",
+      "source": "the measurement.",
+      "source_sha256": "d8e19e765dbe70ad03fd2d444ba5153bca358fbe2981f857e5b0344355a5ba8f",
+      "context": "the measurement.",
+      "translation": "माप।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analysis_path_for#0",
+      "source": "Where the analysis of ``wav_path`` is kept.",
+      "source_sha256": "4af8fd68c61a1aec1e232a3cb14a34b47354a421a611192f0317eadc387bc4fd",
+      "context": "Where the analysis of ``wav_path`` is kept.",
+      "translation": "``wav_path`` का विश्लेषण कहाँ रखा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analysis_path_for#1",
+      "source": "Beside the file by default, which is right for spaCR's OWN rendered bed: it lives in the sound cache already and is swept away with the theme folder when the fingerprint changes.",
+      "source_sha256": "3e9ac356dc7a231ad3ea06ae7e4502ce2ec150ca0f4cb2dfab5b0a79624a3cee",
+      "context": "Beside the file by default, which is right for spaCR's OWN rendered bed: it lives in the sound cache already and is swept away with the theme folder when the fingerprint changes.",
+      "translation": "डिफ़ॉल्ट रूप से फ़ाइल के बगल में, जो spaCR के अपने रेंडर किए गए संगीत के लिए सही है: वह पहले से ध्वनि कैश में रहता है और फ़िंगरप्रिंट बदलने पर थीम फ़ोल्डर के साथ हटा दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analysis_path_for#2",
+      "source": "IT IS WRONG FOR A FILE THE USER CHOSE, and that is what ``out_dir`` is for. Writing a sidecar into somebody's music folder is a scientific tool leaving litter in a directory it was only asked to read from, and the folder may not even be writable. :mod:`spacr.qt.sound` passes the sound cache for a chosen file, and the name carries a hash of the source's absolute path so two files called ``loop.wav`` in different folders are two analyses.",
+      "source_sha256": "d7a0cdaf69106c2deb3eb022917359f63e208f11c58330c6393639be301e66be",
+      "context": "It is wrong for a file the user chose, and that is what ``out_dir`` is for. Writing a sidecar into somebody's music folder is a scientific tool leaving litter in a directory it was only asked to read from, and the folder may not even be writable. :mod:`spacr.qt.sound` passes the sound cache for a chosen file, and the name carries a hash of the source's absolute path so two files called ``loop.wav`` in different folders are two analyses.",
+      "translation": "उपयोगकर्ता द्वारा चुनी गई फ़ाइल के लिए यह गलत है, और ``out_dir`` इसी के लिए है। किसी के संगीत फ़ोल्डर में साइडकार लिखना एक वैज्ञानिक टूल का उस निर्देशिका में कचरा छोड़ना है जिसे उसे केवल पढ़ने को कहा गया था, और फ़ोल्डर लिखने योग्य भी न हो। :mod:`spacr.qt.sound` चुनी गई फ़ाइल के लिए ध्वनि कैश देता है, और नाम में स्रोत के निरपेक्ष पथ का हैश होता है ताकि अलग-अलग फ़ोल्डरों में ``loop.wav`` नाम की दो फ़ाइलें दो विश्लेषण हों।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analysis_path_for#3",
+      "source": "the audio file.",
+      "source_sha256": "4233ff2031e4e448eef16c1f37dd185ced51a2c24688b11f177af6243b2d181d",
+      "context": "the audio file.",
+      "translation": "ऑडियो फ़ाइल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analysis_path_for#4",
+      "source": "a folder to keep the analysis in instead of beside it.",
+      "source_sha256": "7250678ece4147aede150937f9f2bbaa4ebd3adad3dffc8b689e09b03173e613",
+      "context": "a folder to keep the analysis in instead of beside it.",
+      "translation": "विश्लेषण उसके बगल के बजाय रखने के लिए एक फ़ोल्डर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.analysis_path_for#5",
+      "source": "the ``.resonance.npz`` path.",
+      "source_sha256": "7d339d0f342fc97f40742664ef633fb2a23cd0db3f2c08012546ac9122ad5866",
+      "context": "the ``.resonance.npz`` path.",
+      "translation": "``.resonance.npz`` पथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.clear_now_playing#0",
+      "source": "Nothing is playing any more.",
+      "source_sha256": "88d9ce5c4978656f8766fa08886acbf0fd17d958a7df8efb903eecf392af88b4",
+      "context": "Nothing is playing any more.",
+      "translation": "अब कुछ नहीं बज रहा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.ensure_analysis#0",
+      "source": "Analyse ``wav_path`` unless a current analysis is already beside it.",
+      "source_sha256": "a1a8773765dc36236cca037531d9994baaafc37bd4a25bd142a2a97944769329",
+      "context": "Analyse ``wav_path`` unless a current analysis is already beside it.",
+      "translation": "``wav_path`` का विश्लेषण करें, जब तक कि उसके बगल में पहले से वर्तमान विश्लेषण न हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.ensure_analysis#1",
+      "source": "**Never call this from the GUI thread.** It reads a whole file and runs a few thousand FFTs; :mod:`spacr.qt.sound` calls it on the audio thread right after it has rendered or loaded the bed, which is where the rest of that work already is.",
+      "source_sha256": "e761477c01be31150d0545fe05f991c6a6c302630c04024a7fed7244ab25c4f2",
+      "context": "**Never call this from the main GUI execution path.** It reads a whole file and runs a few thousand FFTs; :mod:`spacr.qt.sound` calls it on the audio independent execution path right after it has rendered or loaded the bed, which is where the rest of that work already is.",
+      "translation": "**इसे कभी GUI थ्रेड से कॉल न करें।** यह पूरी फ़ाइल पढ़ता है और कुछ हज़ार FFT चलाता है; :mod:`spacr.qt.sound` इसे संगीत रेंडर या लोड करने के तुरंत बाद ऑडियो थ्रेड पर कॉल करता है, जहाँ उस काम का बाकी हिस्सा पहले से है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.ensure_analysis#2",
+      "source": "The stored analysis carries the source's size and modification time, so a user who replaces their chosen WAV with a different one of the same name is analysed again rather than visualised as the old one.",
+      "source_sha256": "539dbe9fdb468f51ced9f887049b740e07a65ea0c94dfa0fdbc17597f6dc984b",
+      "context": "The stored analysis carries the source's size and modification time, so a user who replaces their chosen WAV with a different one of the same name is analysed again rather than visualised as the old one.",
+      "translation": "संग्रहीत विश्लेषण में स्रोत का आकार और संशोधन समय होता है, इसलिए जो उपयोगकर्ता अपनी चुनी हुई WAV को उसी नाम की दूसरी WAV से बदलता है, उसका फिर से विश्लेषण होता है, न कि पुरानी के रूप में दृश्यांकन।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.ensure_analysis#5",
+      "source": "where to keep the analysis; see :func:`analysis_path_for`.",
+      "source_sha256": "06c3ef83f1fa977558aecd03c1cb37366053b259a0521f32a7f0caf6997b54d6",
+      "context": "where to keep the analysis; see :func:`analysis_path_for`.",
+      "translation": "विश्लेषण कहाँ रखना है; :func:`analysis_path_for` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.ensure_analysis#6",
+      "source": "the analysis path, or ``None`` when the audio could not be read or the analysis could not be written.",
+      "source_sha256": "a23770441a9ad61a27aaa26cddc3cf1e8cbc6270c3af32811a8b2e1e2bc1ee12",
+      "context": "the analysis path, or ``None`` when the audio could not be read or the analysis could not be written.",
+      "translation": "विश्लेषण पथ, या ``None`` जब ऑडियो पढ़ा न जा सके या विश्लेषण लिखा न जा सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.lattice#0",
+      "source": "The plate's displacement and its gradient, on a ``grid`` x ``grid``.",
+      "source_sha256": "da69fc89d08aa9bb937afd8dda0725406836c6f8a4742680e19c178d413900f4",
+      "context": "The plate's displacement and its gradient, on a ``grid`` x ``grid``.",
+      "translation": "प्लेट का विस्थापन और उसकी प्रवणता, ``grid`` x ``grid`` पर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.lattice#1",
+      "source": "Both modes are evaluated and mixed rather than one mode being drawn at a time, because the nodal set of a mixture is a continuous deformation of the nodal sets of its parts: that is what makes one figure MORPH into the next instead of being replaced by it.",
+      "source_sha256": "b63d6ec0842e60ddcfd5330544fa9c65e7958cc11f0cec8c464587ec9f6a9e53",
+      "context": "Both modes are evaluated and mixed rather than one mode being drawn at a time, because the nodal set of a mixture is a continuous deformation of the nodal sets of its parts: that is what makes one figure MORPH into the next instead of being replaced by it.",
+      "translation": "एक बार में एक मोड बनाने के बजाय दोनों मोड गणना करके मिलाए जाते हैं, क्योंकि मिश्रण का नोडल समुच्चय उसके भागों के नोडल समुच्चयों का सतत विरूपण है: यही एक आकृति को अगली में बदलता है, उससे प्रतिस्थापित होने के बजाय।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.lattice#2",
+      "source": "Separable throughout -- every term is a product of one function of x and one of y -- so the whole lattice is eight one-dimensional cosines and four outer products.",
+      "source_sha256": "517d136e20034bbcaf82ca53e75dae50443bf8917d210289be97f9dc15b99ab7",
+      "context": "Separable throughout -- every term is a product of one function of x and one of y -- so the whole lattice is eight one-dimensional cosines and four outer products.",
+      "translation": "पूरी तरह अलग-अलग किया जा सकने वाला -- हर पद x के एक फ़ंक्शन और y के एक फ़ंक्शन का गुणनफल है -- इसलिए पूरी जाली आठ एक-आयामी कोसाइन और चार बाह्य गुणनफल है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.lattice#3",
+      "source": "``(m, n, sign)`` of the drive being left.",
+      "source_sha256": "ed4ef44eb39ad938c0cc135544f1bb1d8326c8e59ab0b388f1df422a49712f69",
+      "context": "``(m, n, sign)`` of the drive being left.",
+      "translation": "छोड़े जा रहे ड्राइव का ``(m, n, sign)``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.lattice#4",
+      "source": "``(m, n, sign)`` of the drive being arrived at.",
+      "source_sha256": "4ad233a8c6e3d79f33be239516ae0a83de8ab7c5ac05b9c0704c2f082d28cdc3",
+      "context": "``(m, n, sign)`` of the drive being arrived at.",
+      "translation": "जिस ड्राइव पर पहुँचा जा रहा है उसका ``(m, n, sign)``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.lattice#6",
+      "source": "lattice edge.",
+      "source_sha256": "d651fb740dd1eca68215965b70b8bc38593c1a32dcfb6dd18ed45ad9f15d5d64",
+      "context": "lattice edge.",
+      "translation": "जाली की भुजा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.lattice#7",
+      "source": "``(w, dw/dx, dw/dy)``, each ``(grid, grid)`` and indexed ``[y, x]``, with ``w`` scaled to -1..1.",
+      "source_sha256": "eab4da528d10eba79df001e9256f68032f66c5a6277970f3f68eae24c64ed08f",
+      "context": "``(w, dw/dx, dw/dy)``, each ``(grid, grid)`` and indexed ``[y, x]``, with ``w`` scaled to -1..1.",
+      "translation": "``(w, dw/dx, dw/dy)``, हर एक ``(grid, grid)`` और ``[y, x]`` से सूचकांकित, ``w`` को -1..1 पर स्केल करके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.resonance.load_analysis#0",
+      "source": "Read an analysis written by :func:`ensure_analysis`, once.",
+      "source_sha256": "b680e3e57b81561fbe31f0eaa891a0d6ace9732a3c73d00942c4d31b2a6ce58e",
+      "context": "Read an analysis written by :func:`ensure_analysis`, once.",
+      "translation": ":func:`ensure_analysis` द्वारा लिखा गया विश्लेषण एक बार पढ़ें।",
+      "review_basis": "written from the English (no current MT draft)"
     }
   ]
 }
