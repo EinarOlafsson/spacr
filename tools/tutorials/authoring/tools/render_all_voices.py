@@ -86,6 +86,10 @@ LOUDNESS_FILTERS = (
     ),
 )
 MAX_RELEASE_TRUE_PEAK_DBFS = -1.0
+
+
+class TruePeakError(RuntimeError):
+    """One track stayed above the decoded true-peak gate after every filter."""
 MASTERING_CONFIG = {
     "filters": list(LOUDNESS_FILTERS),
     "codec": "aac",
@@ -378,6 +382,11 @@ def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
     if (lesson_id, language, voice) == ("79_module_inputs_outputs", "en", "af_heart"):
         # The current 80-scene reference reached -0.0 dBFS after all normal
         # AAC encodes. Keep the decoded peak gate and fingerprint this repair.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("50_run_compare", "hi", "hf_beta"):
+        # The 2026-09-26 Hindi render reached +0.4 dBFS decoded true peak
+        # after all three normal AAC encodes. Same fingerprinted repair as
+        # above; the decoded -1 dBFS gate still decides acceptance.
         result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
     return result
 
@@ -688,7 +697,7 @@ def render_track(
                     f"Could not measure decoded true peak: {staged_m4a}"
                 )
             if decoded_peak > MAX_RELEASE_TRUE_PEAK_DBFS:
-                raise RuntimeError(
+                raise TruePeakError(
                     f"Decoded true peak {decoded_peak:.1f} dBFS exceeds "
                     f"{MAX_RELEASE_TRUE_PEAK_DBFS:.1f} dBFS: {m4a}"
                 )
@@ -805,6 +814,9 @@ def main() -> int:
         .eval()
     )
     rendered = skipped = 0
+    # A track that fails the true-peak gate is left unwritten and reported;
+    # the rest of the matrix still renders and the exit status is nonzero.
+    peak_failures = []
     start_time = time.monotonic()
     for language in selected_languages:
         lang_code, voices = LANGUAGES[language]
@@ -856,21 +868,26 @@ def main() -> int:
                 "loaded_tensor_sha256"
             ] = loaded_voice_sha256
             for lesson in lessons:
-                duration = render_track(
-                    pipeline,
-                    voice,
-                    lesson,
-                    language,
-                    voice_lang_code,
-                    dialect,
-                    speed,
-                    np,
-                    sf,
-                    args.force,
-                    args.repair_peaks,
-                    runtime_identity,
-                    synthesis_voice,
-                )
+                try:
+                    duration = render_track(
+                        pipeline,
+                        voice,
+                        lesson,
+                        language,
+                        voice_lang_code,
+                        dialect,
+                        speed,
+                        np,
+                        sf,
+                        args.force,
+                        args.repair_peaks,
+                        runtime_identity,
+                        synthesis_voice,
+                    )
+                except TruePeakError as error:
+                    peak_failures.append(str(error))
+                    print(f"TRUE PEAK FAIL {error}", flush=True)
+                    continue
                 if duration < 0:
                     skipped += 1
                 else:
@@ -881,8 +898,14 @@ def main() -> int:
                         f"rendered={rendered} elapsed={elapsed / 60:.1f}m",
                         flush=True,
                     )
-    print(f"complete rendered={rendered} skipped={skipped}", flush=True)
-    return 0
+    print(
+        f"complete rendered={rendered} skipped={skipped} "
+        f"peak_failures={len(peak_failures)}",
+        flush=True,
+    )
+    for failure in peak_failures:
+        print(f"TRUE PEAK FAIL {failure}", flush=True)
+    return 1 if peak_failures else 0
 
 
 if __name__ == "__main__":
