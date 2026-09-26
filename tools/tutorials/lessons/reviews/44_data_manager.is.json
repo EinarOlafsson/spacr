@@ -1,34 +1,36 @@
 {
   "lesson": "44_data_manager",
-  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "english_sha256": "e442156c3d5154963bc72ce01be337bb0f19806767d7ebe8eae9e9572eef06ff",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "is",
-  "title": "Data Manager: skoða, hreinsa og flytja raunverulegt dæmi í safn á öruggan hátt",
-  "description": "Skoðaðu skráðar og óskráðar skrár, hættu við og staðfestu nákvæma eyðingu myndútskurða og flyttu einkaeintak af verkefni með varðveisluskrám.",
+  "title": "Data Manager: skoðaðu notkun, hreinsaðu og settu í geymslu",
+  "description": "Farðu yfir geymslupláss verkefnis, forskoðaðu hreinsunaráætlun og færðu verkefni á geymslustað.",
   "objectives": [
-    "Opna Data manager í Help og skoða raunverulega diskanotkun.",
-    "Lesa eyðingaráætlunina, ástæður varðveislu og allan staðfestingarlistann.",
-    "Greina á milli óafturkræfrar eyðingar og flutnings og prófa Cancel.",
-    "Skanna áfangastaðinn aftur og varðveita skráayfirlit, upprunaskrá og sjálfstætt öryggisafrit."
+    "Skoða disknotkun verkefnisins.",
+    "Fara yfir og beita hreinsunaráætlun.",
+    "Færa verkefni í geymslu og skanna það aftur."
   ],
-  "prerequisite": "Notaðu raunverulega External Masks-dæmið með tveimur myndsviðum, 103 mældum hlutum og vistuðum myndritum. Upptakan notar einangrað afrit sem hefur verið sannreynt bæti fyrir bæti; aðeins innan upptökuferlisins vísa upphaflegar algildar slóðir skrásetningarinnar á þetta tímabundna afrit. Allar 131 upprunaskrár eru óbreyttar. Data Manager hefur ekkert eigið gagnaniðurhal, lifandi myndforskoðun, Plot-stýringu eða AI-spjald. Stærðir mæla bæti, ekki vísindaleg gæði. Aðeins úr afritinu er eytt 103 PNG-útskurðum og JSON-sniðskrá þeirra; mælingagagnagrunnurinn og skráð vinnsluuppskrift haldast. Endurgerð er ekki sýnd. Safnflutningur flytur afgang verkefnisins; hann býr ekki til öryggisafrit og tryggir ekki uppfærslu allra eldri algildra slóða. Ytri auðlindaskrár flytjast ekki með.",
+  "prerequisite": "Notaðu lokið spaCR-verkefni og taktu óháð öryggisafrit fyrir hreinsun. Dæmið notar afrit af verkefninu sem External Masks bjó til.",
   "scenes": [
-    "Opnaðu Help og síðan Data manager. Þetta sameiginlega verkfæri sér um verkefnaskrár; það keyrir ekki myndgreiningu. Við notum tímabundið afrit af raunverulega External Masks-dæminu með mælingum og vistuðum myndritum. Varðveittu sjálfstætt öryggisafrit áður en þú prófar hreinsun sjálf.",
-    "Choose project velur rótarmöppu verkefnisins. Eftir skönnun sýnir Usage um níutíu og eitt megabæti í hundrað tuttugu og níu skrám. Registered og Unregistered eru ólík: skrá getur verið til án færslu í skrásetningunni. Flokkar áætlaðir út frá möppum sanna ekki vísindalegt innihald skránna.",
-    "Veldu í Prune hvaða tegundir eigi að skoða. Kveiktur rofi heimilar ekki einn og sér eyðingu. Láttu mælingagagnagrunna og líkanavægi vera óvalin hér og veldu Show what can be deleted. Lestu bæði fyrirhugaðar skrár og ástæður þess að aðrar niðurstöður haldast.",
-    "Þessi áætlun tekur aðeins til útskurðarmöppunnar data: hundrað og þriggja hlutamynda og einnar sniðskrár, ekki hundrað og fjögurra frumna. Hún leggur til að losa um þrjú komma fjögur megabæti. Get it back by tilgreinir Measure, en endurgerð þarf enn upprunaleg inntaksgögn, stillingar og viðeigandi hugbúnað.",
-    "Delete opnar aðra staðfestingu með raunverulegum skráalista. Ekki er hægt að afturkalla eyðinguna. Stækkaðu gluggann og flettu í gegnum slóðirnar áður en þú samþykkir þær. Loka-Delete-hnappurinn er fyrst óvirkur; samþykki og eyðing eru aðskildar aðgerðir.",
-    "Samþykkið virkjar Delete. Ef þú tekur það af verður Delete aftur óvirkt. Í fyrstu sýnikennslunni veljum við Cancel og allar verkefnaskrár haldast óbreyttar. Hættu við ef slóðir, skráafjöldi eða aðferð við endurgerð eru óljós.",
-    "Við opnum sömu sannreyndu áætlun aftur og staðfestum eyðingu aðeins á tímabundna afritinu. Niðurstaðan sýnir þrjú komma fjögur megabæti losuð úr hundrað og fjórum skrám. Hinar tuttugu og fjórar skrárnar utan skrásetningarinnar eru eins bæti fyrir bæti, þar á meðal mælingagagnagrunnurinn og vistuðu myndritin.",
-    "Sjálfvirk endurskönnun sýnir nú eina skráða niðurstöðu sem vantar á diskinn: útskurðarmöppuna sem var eytt af ásetningi. Uppskriftin helst í skrásetningunni með lýsigögnum hreinsunarinnar. Færslan geymir ekki afturköllun og við höfum ekki keyrt Measure aftur til að endurgera útskurðina.",
-    "Archive er annað: það flytur afgang verkefnisins. Veldu tóman áfangastað utan upprunamöppunnar og síðan Show what would move. Eftir hreinsun tekur áætlunin til tuttugu og fimm skráa, um áttatíu og átta megabæta. Lestu uppruna og áfangastað vandlega; þessi skjár áætlar flutning alls verkefnisins.",
-    "Move biður um staðfestingu og No er sjálfgefið val. Fyrst veljum við No og sannreynum að uppruninn sé óbreyttur og áfangastaðurinn tómur. Áætlun og afturkölluð staðfesting flytja ekkert. Ekki líta á áfangastað safnsins sem aukaöryggisafrit.",
-    "Við staðfestum Yes aðeins fyrir þetta einkadæmi. Skrárnar sem eftir eru flytjast á áfangastaðinn. Þar er skrifað skráayfirlit og safnflutningsskrá verður eftir við upprunann. Upprunalega verkefnið sem tímabundna afritið var búið til úr helst alveg óbreytt.",
-    "Veldu áfangastaðinn sem verkefni og skannaðu aftur. Mælingagagnagrunnurinn í safninu er skráður á nýju slóðinni og hver skrá utan skrásetningarinnar er bæti fyrir bæti eins og fyrir flutning. Viðbætt skráayfirlit skýrir nýjan skráafjölda. Eldri færslur og ytri annálar eru ekki sjálfkrafa endurskrifaðir eða fluttir.",
-    "Fyrir sjálfvirkni í Python býður spacr.data_manager upp á scan_project, plan_prune, prune, plan_archive og archive. Skoðaðu áætlunina áður en þú afhendir staðfestingartáknið. Notaðu Database Browser til að skoða mælingar og Report fyrir læsilegt verkefnisyfirlit. Geymdu sjálfstæða öryggisafritið og safnflutningsskrárnar með rannsóknargögnunum."
+    "Opnaðu Help og svo Data manager. Veldu lokið verkefni til að skoða geymslu þess og skipuleggja hreinsun eða geymslu.",
+    "Smelltu á Choose project og veldu rót verkefnisins. Lestu Usage fyrir skrár þess, diskpláss og skráða afurðir.",
+    "Opnaðu Prune og veldu hvaða tegundir afurða koma til greina. Hafðu mælingagagnagrunna og vigta líkana óvalda ef þú vilt halda þeim og smelltu svo á Show what can be deleted.",
+    "Farðu yfir tillögðu skrárnar, plássið sem sparast og upplýsingar um endurheimt. Dæmið velur möppu úrklippa hluta. Haltu inntökum og stillingum sem þarf til að endurgera það sem þú fjarlægir.",
+    "Smelltu á Delete til að fara yfir endanlegan skráalista. Ekki er hægt að afturkalla eyðingu, svo athugaðu slóðirnar og öryggisafritið áður en þú samþykkir áætlunina.",
+    "Notaðu Cancel ef þú vilt halda skránum eða breyta valinu. Þegar listinn er samþykktur verður lokaaðgerðin Delete virk.",
+    "Staðfestu Delete þegar áætlunin er rétt. Lestu í niðurstöðunni fjölda fjarlægðra skráa og plássið sem losnaði.",
+    "Skoðaðu uppfærðu Usage-skönnunina. Fjarlægðar afurðir geta áfram verið skráðar sem vantar ásamt skráðri uppskrift sinni; endurgerðu þær með viðeigandi einingu þegar þörf er á.",
+    "Opnaðu Archive og veldu tóman áfangastað utan upprunaverkefnisins. Smelltu á Show what would move og skoðaðu báðar slóðirnar.",
+    "Smelltu á Move til að fara yfir staðfestinguna. Archive færir verkefnið, svo taktu fyrst hvert það sérstaka öryggisafrit sem þú þarft.",
+    "Staðfestu Yes til að færa verkefnið. Geymdu yfirlitsskrána á áfangastaðnum og geymsluannálinn sem verður eftir á upprunalega staðnum.",
+    "Veldu áfangastaðinn sem verkefni og skannaðu hann aftur. Athugaðu færðu skrárnar og uppfærðu ytri tilvísanir sem vísa enn á gamla staðinn.",
+    "Notaðu Database Browser til að skoða mælingatöflur, Report til að búa til samantekt verkefnis og Data Manager til viðhalds geymslu. Geymdu geymsluskrárnar með gögnum verkefnisins."
   ]
 }
