@@ -3416,21 +3416,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay: बाहरी और कुल स्टेनिंग को स्कोर करें",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "दो स्टेनिंग चैनल मैप करें, स्टेनिंग बेसलाइन चुनें, विश्लेषण चलाएँ और इनवेज़न के निर्णय तथा थ्रेशोल्ड की संवेदनशीलता देखें।",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "माप डेटाबेस चुनें और बाहरी तथा कुल स्टेनिंग मैप करें।",
+        "बेसलाइन वेल और थ्रेशोल्ड नियंत्रण सेट करें, फिर विश्लेषण चलाएँ।",
+        "वितरण, हर वेल के हर (denominator) और सहेजी गई परिणाम तालिकाएँ देखें।"
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "लिंक किया गया कृत्रिम Invasion Assay उदाहरण निकालें और उसका सेटिंग संदर्भ इस्तेमाल करें। डेटाबेस में परजीवियों के 1,800 कृत्रिम माप हैं; स्थितियों के नाम और परिणाम केवल उदाहरण हैं। अपने परीक्षण के लिए एक सत्यापित दो-रंग स्टेनिंग डिज़ाइन इस्तेमाल करें, जिसमें परमीएबिलाइज़ेशन से पहले बाहरी और बाद में कुल स्टेनिंग हो, और प्रतिनिधि इमेज देखें।",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Home से Toxoplasma खोलें, फिर Invasion Assay चुनें। ऐसे माप डेटाबेस से शुरू करें जिसमें बाहरी और कुल स्टेन के लिए परजीवियों की तीव्रता हो। चैनल मैपिंग, थ्रेशोल्ड चुनने और परिणाम देखने का अभ्यास करने के लिए लिंक किया गया कृत्रिम नमूना इस्तेमाल करें।",
           "focus": [
             346,
             50,
@@ -3440,99 +3440,108 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Home से Toxoplasma खोलें, फिर Invasion Assay चुनें। ऐसे माप डेटाबेस से शुरू करें जिसमें बाहरी और कुल स्टेन के लिए परजीवियों की तीव्रता हो। चैनल मैपिंग, थ्रेशोल्ड चुनने और परिणाम देखने का अभ्यास करने के लिए लिंक किया गया कृत्रिम नमूना इस्तेमाल करें।"
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "नमूना निकालें और Source को उसके invasion फ़ोल्डर पर सेट करें, जिसमें measurements/measurements.db है। साथ आया सेटिंग संदर्भ दर्ज करें और उसके Source प्लेसहोल्डर को बदलें। नमूने में बेसलाइन वेल और परीक्षण की दो स्थितियाँ हैं।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "नमूना निकालें और Source को उसके invasion फ़ोल्डर पर सेट करें, जिसमें measurements/मेज़रमेंट्स डॉट डी बी है। साथ आया सेटिंग संदर्भ दर्ज करें और उसके Source प्लेसहोल्डर को बदलें। नमूने में बेसलाइन वेल और परीक्षण की दो स्थितियाँ हैं।"
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Outside channel को एक और Total channel को शून्य पर सेट करें। बाहरी स्टेन परमीएबिलाइज़ेशन से पहले लगाया जाता है; कुल स्टेन उसके बाद। बाहरी स्टेन के लिए पॉज़िटिव परजीवी जुड़े हुए माने जाते हैं, और बाहरी थ्रेशोल्ड पर या उससे नीचे वाले अंदर घुसे हुए। अपने माप इस्तेमाल करते समय अधिग्रहण चैनलों का क्रम जाँचें।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Outside channel को एक और Total channel को शून्य पर सेट करें। बाहरी स्टेन परमीएबिलाइज़ेशन से पहले लगाया जाता है; कुल स्टेन उसके बाद। बाहरी स्टेन के लिए पॉज़िटिव परजीवी जुड़े हुए माने जाते हैं, और बाहरी थ्रेशोल्ड पर या उससे नीचे वाले अंदर घुसे हुए। अपने माप इस्तेमाल करते समय अधिग्रहण चैनलों का क्रम जाँचें।"
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "उदाहरण डेटाबेस के कॉलम से मेल खाने के लिए Intensity statistic में mean चुनें। अपने परीक्षण के लिए स्टेन के अनुकूल उपलब्ध सांख्यिकी चुनें और प्रतिनिधि वस्तुएँ देखें। इस नमूने के लिए Minimum total intensity सौ पर रखें।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "उदाहरण डेटाबेस के कॉलम से मेल खाने के लिए Intensity statistic में mean चुनें। अपने परीक्षण के लिए स्टेन के अनुकूल उपलब्ध सांख्यिकी चुनें और प्रतिनिधि वस्तुएँ देखें। इस नमूने के लिए Minimum total intensity सौ पर रखें।"
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "c1 इस्तेमाल करके Stain baseline wells को कॉलम एक पर सेट करें। ये नेगेटिव-स्टेन माप सीमा तय करते हैं और परीक्षण के हर से बाहर रखे जाते हैं। Pathogen plate metadata में vehicle को कॉलम दो और inhibitor को कॉलम तीन पर मैप करें।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "c1 इस्तेमाल करके Stain baseline wells को कॉलम एक पर सेट करें। ये नेगेटिव-स्टेन माप सीमा तय करते हैं और परीक्षण के हर से बाहर रखे जाते हैं। Pathogen plate metadata में vehicle को कॉलम दो और inhibitor को कॉलम तीन पर मैप करें।"
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Control quantile को शून्य दशमलव नौ नौ पर सेट करें और निश्चित Outside threshold खाली छोड़ें। तब बेसलाइन माप सीमा तय करते हैं, जो इस उदाहरण में लगभग बाईस दशमलव आठ है। वर्गीकरण की व्याख्या करने से पहले आउटपुट में लागू थ्रेशोल्ड जाँचें।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Control quantile को शून्य दशमलव नौ नौ पर सेट करें और निश्चित Outside threshold खाली छोड़ें। तब बेसलाइन माप सीमा तय करते हैं, जो इस उदाहरण में लगभग बाईस दशमलव आठ है। वर्गीकरण की व्याख्या करने से पहले आउटपुट में लागू थ्रेशोल्ड जाँचें।"
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Threshold sensitivity को शून्य दशमलव दो पाँच पर सेट करें। इससे चुने गए थ्रेशोल्ड से पच्चीस प्रतिशत नीचे और ऊपर की सीमाएँ भी जाँची जाती हैं। मिली इनवेज़न दक्षता की सीमा की तुलना करके देखें कि आपका परिणाम थ्रेशोल्ड के चुनाव पर कितना निर्भर है।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Threshold sensitivity को शून्य दशमलव दो पाँच पर सेट करें। इससे चुने गए थ्रेशोल्ड से पच्चीस प्रतिशत नीचे और ऊपर की सीमाएँ भी जाँची जाती हैं। मिली इनवेज़न दक्षता की सीमा की तुलना करके देखें कि आपका परिणाम थ्रेशोल्ड के चुनाव पर कितना निर्भर है।"
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "नमूने के लिए Extracellular class को classify पर सेट करें। जिन वस्तुओं का किसी होस्ट कोशिका से संबंध नहीं है, उनके लिए classify स्टेन का उपयोग करता है, attached उन्हें जुड़ा हुआ मानता है, और exclude उन्हें स्कोर की गई आबादी से हटा देता है। यह सेटिंग अपने होस्ट-कोशिका असाइनमेंट की गुणवत्ता को ध्यान में रखकर चुनें।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "नमूने के लिए Extracellular class को classify पर सेट करें। जिन वस्तुओं का किसी होस्ट कोशिका से संबंध नहीं है, उनके लिए classify स्टेन का उपयोग करता है, attached उन्हें जुड़ा हुआ मानता है, और exclude उन्हें स्कोर की गई आबादी से हटा देता है। यह सेटिंग अपने होस्ट-कोशिका असाइनमेंट की गुणवत्ता को ध्यान में रखकर चुनें।"
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Save चालू रखें और Run पर क्लिक करें। प्रोसेसिंग पूरी होने पर थ्रेशोल्ड वाला चित्र खोलें। यह हर वेल के वितरण और लागू सीमा दिखाता है। किसी प्रयोग में इन वितरणों की तुलना प्रतिनिधि स्टेन की गई इमेज से करें और कमज़ोर बाहरी स्टेनिंग की जाँच करें।",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Save चालू रखें और Run पर क्लिक करें। प्रोसेसिंग पूरी होने पर थ्रेशोल्ड वाला चित्र खोलें। यह हर वेल के वितरण और लागू सीमा दिखाता है। किसी प्रयोग में इन वितरणों की तुलना प्रतिनिधि स्टेन की गई इमेज से करें और कमज़ोर बाहरी स्टेनिंग की जाँच करें।"
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "अगर कोई लेजेंड चित्र से बाहर निकल जाए, तो Figure settings खोलें। axes टैब में Legend position को best पर सेट करें, फिर पुष्टि करें। जाँचें कि लेबल स्क्रीन पर और निर्यात किए गए चित्र, दोनों में दिखते रहें।",
           "focus": [
             1420,
             330,
@@ -3542,33 +3551,36 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "अगर कोई लेजेंड चित्र से बाहर निकल जाए, तो Figure settings खोलें। axes टैब में Legend position को best पर सेट करें, फिर पुष्टि करें। जाँचें कि लेबल स्क्रीन पर और निर्यात किए गए चित्र, दोनों में दिखते रहें।"
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "हर वेल वाला चित्र खोलें। हर बार जुड़े हुए और अंदर घुसे परजीवियों के अंश दिखाता है, और उसके ऊपर स्कोर किए गए परजीवियों की संख्या होती है। बेसलाइन वेल शामिल नहीं होते। वेलों की तुलना करते समय अंशों के साथ गिनती भी पढ़ें।",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "हर वेल वाला चित्र खोलें। हर बार जुड़े हुए और अंदर घुसे परजीवियों के अंश दिखाता है, और उसके ऊपर स्कोर किए गए परजीवियों की संख्या होती है। बेसलाइन वेल शामिल नहीं होते। वेलों की तुलना करते समय अंशों के साथ गिनती भी पढ़ें।"
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "स्थितियों का सारांश खोलें। मिलाकर निकाले गए इनवेज़न अंश की तुलना वेलों के औसत से करें, क्योंकि दोनों में भार अलग तरह से दिया जाता है। स्थितियों की तुलना करने से पहले हर वेल के परिणामों में अंतर जाँचें।",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "स्थितियों का सारांश खोलें। मिलाकर निकाले गए इनवेज़न अंश की तुलना वेलों के औसत से करें, क्योंकि दोनों में भार अलग तरह से दिया जाता है। स्थितियों की तुलना करने से पहले हर वेल के परिणामों में अंतर जाँचें।"
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "सब कुछ Source के अंदर results/analyze_invasion में सहेजा जाता है। parasite_calls.csv में हर परजीवी का निर्णय, field_thresholds.csv में उनके पीछे की सीमाएँ, well_invasion.csv में हर वेल के अंश और condition_summary.csv में मिली-जुली तुलना है। चित्र और सेटिंग इनके साथ रखें, और स्थितियों की तुलना स्वतंत्र दोहरावों में करें।",
           "focus": [
             1510,
             1200,
@@ -3579,7 +3591,8 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "सब कुछ Source के अंदर results/analyze_invasion में सहेजा जाता है। parasite_calls.csv में हर परजीवी का निर्णय, field_thresholds.csv में उनके पीछे की सीमाएँ, well_invasion.csv में हर वेल के अंश और condition_summary.csv में मिली-जुली तुलना है। चित्र और सेटिंग इनके साथ रखें, और स्थितियों की तुलना स्वतंत्र दोहरावों में करें।"
         }
       ],
       "example_files": [
@@ -3588,6 +3601,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3595,21 +3648,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay: हर वैक्यूल में परजीवी गिनें",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "परजीवियों के माप लोड करें, वैक्यूल की पहचान चुनें, विश्लेषण चलाएँ और गिनती के वितरण तथा निर्यात देखें।",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "माप डेटाबेस और उसका वैक्यूल पहचानकर्ता चुनें।",
+        "होस्ट असाइनमेंट और आकार के फ़िल्टर सेट करें, फिर विश्लेषण चलाएँ।",
+        "हर वेल के वितरण पढ़ें और सहेजी गई परिणाम तालिकाएँ खोजें।"
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "लिंक किया गया कृत्रिम Replication Assay उदाहरण निकालें। इसमें एक माप डेटाबेस और एक सेटिंग संदर्भ है, जिसमें बारह वेल के 480 वैक्यूल में परजीवियों की 1,992 पंक्तियाँ हैं। स्थितियों के नाम और माप शिक्षण डेटा हैं। अपने परीक्षण के लिए ऐसे मापे गए परजीवी इस्तेमाल करें जिनके वैक्यूल असाइनमेंट जाँचे गए हों, और स्वतंत्र प्रायोगिक दोहराव रखें।",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Home से Toxoplasma खोलें, फिर Replication Assay चुनें। ऐसे माप डेटाबेस से शुरू करें जिसमें परजीवियों की पंक्तियाँ और उनके वैक्यूल असाइनमेंट हों। लिंक किया गया कृत्रिम उदाहरण सेटिंग का अभ्यास करने और मिलने वाले गिनती वितरण पढ़ने में मदद करता है।",
           "focus": [
             346,
             50,
@@ -3619,121 +3672,132 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Home से Toxoplasma खोलें, फिर Replication Assay चुनें। ऐसे माप डेटाबेस से शुरू करें जिसमें परजीवियों की पंक्तियाँ और उनके वैक्यूल असाइनमेंट हों। लिंक किया गया कृत्रिम उदाहरण सेटिंग का अभ्यास करने और मिलने वाले गिनती वितरण पढ़ने में मदद करता है।"
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "नमूना निकालें और Source को उसके replication फ़ोल्डर पर सेट करें। डेटाबेस measurements के अंदर है। साथ आया सेटिंग संदर्भ दर्ज करें और उसके Source प्लेसहोल्डर को अपने निकाले गए फ़ोल्डर से बदलें। परिणाम लिखने के लिए Save चालू रखें।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "नमूना निकालें और Source को उसके replication फ़ोल्डर पर सेट करें। डेटाबेस measurements के अंदर है। साथ आया सेटिंग संदर्भ दर्ज करें और उसके Source प्लेसहोल्डर को अपने निकाले गए फ़ोल्डर से बदलें। परिणाम लिखने के लिए Save चालू रखें।"
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Vacuole key को vacuole_id पर सेट करें। इससे परजीवी उस वैक्यूल के अनुसार समूहित होते हैं जिसमें वे हैं। नमूने में हर होस्ट-कोशिका समूह में दो वैक्यूल हैं, इसलिए उन गिनतियों को अलग रखने के लिए वैक्यूल पहचानकर्ता इस्तेमाल करें।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Vacuole key को vacuole_id पर सेट करें। इससे परजीवी उस वैक्यूल के अनुसार समूहित होते हैं जिसमें वे हैं। नमूने में हर होस्ट-कोशिका समूह में दो वैक्यूल हैं, इसलिए उन गिनतियों को अलग रखने के लिए वैक्यूल पहचानकर्ता इस्तेमाल करें।"
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "केवल होस्ट कोशिका से जुड़े परजीवियों को शामिल करने के लिए Require host cell चालू करें। अपने डेटा में बिना असाइनमेंट वाली वस्तुओं की समीक्षा करें। इस नमूने के लिए Minimum parasite area को दो सौ और Maximum parasite area को आठ सौ पर सेट करें।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "केवल होस्ट कोशिका से जुड़े परजीवियों को शामिल करने के लिए Require host cell चालू करें। अपने डेटा में बिना असाइनमेंट वाली वस्तुओं की समीक्षा करें। इस नमूने के लिए Minimum parasite area को दो सौ और Maximum parasite area को आठ सौ पर सेट करें।"
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Maximum parasites per vacuole को सोलह पर सेट करें। इससे दो की घात वाली सबसे बड़ी नामित श्रेणी तय होती है। दो की घात वाली इससे बड़ी गिनतियाँ ओवरफ़्लो श्रेणी में जाती हैं, जबकि तीन जैसी गिनतियाँ दो की घात न होने वाली अलग श्रेणी में रहती हैं।",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Maximum parasites per vacuole को सोलह पर सेट करें। इससे दो की घात वाली सबसे बड़ी नामित श्रेणी तय होती है। दो की घात वाली इससे बड़ी गिनतियाँ ओवरफ़्लो श्रेणी में जाती हैं, जबकि तीन जैसी गिनतियाँ दो की घात न होने वाली अलग श्रेणी में रहती हैं।"
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "दो Pathogen types के रूप में vehicle और inhibitor दर्ज करें, और Pathogen plate metadata में उन्हें कॉलम एक और कॉलम दो पर मैप करें। हर समूह में छह अभ्यास वेल हैं। अपने प्रयोग के लिए अपनी प्लेट डिज़ाइन से स्थितियों के नाम और वेल असाइनमेंट दर्ज करें।",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "दो Pathogen types के रूप में vehicle और inhibitor दर्ज करें, और Pathogen plate metadata में उन्हें कॉलम एक और कॉलम दो पर मैप करें। हर समूह में छह अभ्यास वेल हैं। अपने प्रयोग के लिए अपनी प्लेट डिज़ाइन से स्थितियों के नाम और वेल असाइनमेंट दर्ज करें।"
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Source, Vacuole key, फ़िल्टर और Save जाँचें, फिर Run पर क्लिक करें। प्रोसेसिंग पूरी होने तक कंसोल पर नज़र रखें। Figures क्षेत्र वेल और स्थिति के अनुसार वितरण दिखाएगा।",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Source, Vacuole key, फ़िल्टर और Save जाँचें, फिर Run पर क्लिक करें। प्रोसेसिंग पूरी होने तक कंसोल पर नज़र रखें। Figures क्षेत्र वेल और स्थिति के अनुसार वितरण दिखाएगा।"
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "हर वेल वाला चित्र खोलें। हर स्टैक्ड बार परजीवी गिनती की हर श्रेणी में वैक्यूल का अंश दिखाता है। रंगों को लेजेंड की मदद से पढ़ें। इस नमूने में हर वेल में चालीस वैक्यूल हैं और पाँच प्रतिशत दो की घात न होने वाली श्रेणी में आते हैं।",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "हर वेल वाला चित्र खोलें। हर स्टैक्ड बार परजीवी गिनती की हर श्रेणी में वैक्यूल का अंश दिखाता है। रंगों को लेजेंड की मदद से पढ़ें। इस नमूने में हर वेल में चालीस वैक्यूल हैं और पाँच प्रतिशत दो की घात न होने वाली श्रेणी में आते हैं।"
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "लेजेंड समायोजित करने के लिए Figure settings खोलें। अगर लेबल चित्र से बाहर निकलें, तो axes टैब में अंदर वाली Legend position चुनें। इससे केवल प्रस्तुति बदलती है; गणना की गई गिनतियाँ वैसी ही रहती हैं।",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ]
+          ],
+          "speech_text": "लेजेंड समायोजित करने के लिए Figure settings खोलें। अगर लेबल चित्र से बाहर निकलें, तो axes टैब में अंदर वाली Legend position चुनें। इससे केवल प्रस्तुति बदलती है; गणना की गई गिनतियाँ वैसी ही रहती हैं।"
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "मिलाकर बने गिनती वितरणों की तुलना करने के लिए स्थिति वाला चित्र खोलें। इस सारांश के साथ हर वेल के परिणाम भी देखें। किसी प्रयोग का विश्लेषण करते समय सांख्यिकीय तुलना के लिए स्वतंत्र जैविक दोहराव और उपयुक्त प्रायोगिक इकाई इस्तेमाल करें।",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "मिलाकर बने गिनती वितरणों की तुलना करने के लिए स्थिति वाला चित्र खोलें। इस सारांश के साथ हर वेल के परिणाम भी देखें। किसी प्रयोग का विश्लेषण करते समय सांख्यिकीय तुलना के लिए स्वतंत्र जैविक दोहराव और उपयुक्त प्रायोगिक इकाई इस्तेमाल करें।"
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "कंसोल में निर्यात से जुड़ी कोई भी चेतावनी पढ़ें। स्क्रीन वाले दृश्य के साथ-साथ सहेजे गए चित्र भी जाँचें, और ऐसे रंग चुनें जो निर्यात की पृष्ठभूमि पर भी पढ़ने योग्य रहें।",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "कंसोल में निर्यात से जुड़ी कोई भी चेतावनी पढ़ें। स्क्रीन वाले दृश्य के साथ-साथ सहेजे गए चित्र भी जाँचें, और ऐसे रंग चुनें जो निर्यात की पृष्ठभूमि पर भी पढ़ने योग्य रहें।"
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Source के अंदर results/analyze_replication के परिणाम एक-दूसरे पर आधारित हैं। vacuole_counts.csv हर वैक्यूल की गिनती करता है, well_distribution.csv उन गिनतियों को हर वेल के वितरण में बदलता है, और स्थिति वाले सारांश तथा चित्र वेलों को मिलाते हैं। इन्हें सेटिंग और स्रोत डेटाबेस के साथ रखें, ताकि आप किसी भी संख्या का स्रोत खोज सकें।",
           "focus": [
             346,
             170,
@@ -3744,7 +3808,8 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ]
+          ],
+          "speech_text": "Source के अंदर results/analyze_replication के परिणाम एक-दूसरे पर आधारित हैं। vacuole_counts.csv हर वैक्यूल की गिनती करता है, well_distribution.csv उन गिनतियों को हर वेल के वितरण में बदलता है, और स्थिति वाले सारांश तथा चित्र वेलों को मिलाते हैं। इन्हें सेटिंग और स्रोत डेटाबेस के साथ रखें, ताकि आप किसी भी संख्या का स्रोत खोज सकें।"
         }
       ],
       "example_files": [
@@ -3753,6 +3818,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

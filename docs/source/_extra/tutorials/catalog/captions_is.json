@@ -3304,21 +3304,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay: gefðu ytri og heildarlitun stig",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "Tengdu tvær litunarrásir, veldu grunnlínu litunar, keyrðu greininguna og skoðaðu flokkun innrásar og næmi fyrir þröskuldi.",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "Velja mæligagnagrunninn og tengja ytri litun og heildarlitun.",
+        "Stilla grunnlínubrunna og þröskuldsstillingar og keyra svo greininguna.",
+        "Skoða dreifingar, nefnara hvers brunns og vistaðar niðurstöðutöflur."
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "Afþjappaðu tengda tilbúna Invasion Assay-dæmið og notaðu stillingatilvísun þess. Gagnagrunnurinn inniheldur 1.800 tilbúnar mælingar á sníkjudýrum; nöfn skilyrða og niðurstöður eru aðeins til skýringar. Fyrir eigin greiningu skaltu nota staðfesta tveggja lita litunarhönnun með ytri litun fyrir gegndræpismeðferð og heildarlitun á eftir, og skoða dæmigerðar myndir.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Frá Home opnarðu Toxoplasma og velur síðan Invasion Assay. Byrjaðu á mæligagnagrunni sem inniheldur styrk sníkjudýra fyrir ytri litun og heildarlitun. Notaðu tengda tilbúna sýnið til að æfa tengingu rása, val á þröskuldi og skoðun niðurstaðna.",
           "focus": [
             346,
             50,
@@ -3332,7 +3332,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "Afþjappaðu sýnið og stilltu Source á möppuna invasion, sem inniheldur measurements/measurements.db. Sláðu inn meðfylgjandi stillingatilvísun og skiptu út staðgengli hennar fyrir Source. Sýnið inniheldur grunnlínubrunna og tvö greiningarskilyrði.",
           "focus": [
             346,
             170,
@@ -3343,7 +3343,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Stilltu Outside channel á 1 og Total channel á 0. Ytri litunin er sett á fyrir gegndræpismeðferð en heildarlitunin á eftir. Sníkjudýr sem eru jákvæð fyrir ytri litun flokkast sem áföst og þau sem eru við eða undir ytri þröskuldinum sem komin inn. Athugaðu röð myndatökurásanna þegar þú notar eigin mælingar.",
           "focus": [
             346,
             170,
@@ -3354,7 +3354,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "Veldu mean undir Intensity statistic svo það passi við dálkana í dæmagagnagrunninum. Fyrir eigin greiningu velurðu tiltæka tölfræði sem hentar lituninni og skoðar dæmigerða hluti. Haltu Minimum total intensity í 100 fyrir þetta sýni.",
           "focus": [
             346,
             170,
@@ -3365,7 +3365,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "Stilltu Stain baseline wells á dálk 1 með c1. Þessar mælingar án litunar ákvarða mörkin og eru útilokaðar frá nefnurum greiningarinnar. Undir Pathogen plate metadata tengirðu vehicle við dálk 2 og inhibitor við dálk 3.",
           "focus": [
             346,
             170,
@@ -3376,7 +3376,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Stilltu Control quantile á 0,99 og hafðu fasta Outside threshold tóman. Þá ákvarða grunnlínumælingarnar mörkin, um það bil 22,8 í þessu dæmi. Athugaðu þröskuldinn sem var notaður í úttakinu áður en þú túlkar flokkunina.",
           "focus": [
             346,
             170,
@@ -3387,7 +3387,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Stilltu Threshold sensitivity á 0,25. Þá eru líka metin mörk sem liggja 25 prósentum undir og yfir völdum þröskuldi. Berðu saman bilið í skilvirkni innrásar sem fæst til að sjá hversu mikið niðurstaðan veltur á vali þröskuldsins.",
           "focus": [
             346,
             170,
@@ -3398,7 +3398,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "Stilltu Extracellular class á classify fyrir sýnið. Fyrir hluti án tengingar við hýsilfrumu notar classify litunina, attached flokkar þá sem áfasta og exclude fjarlægir þá úr hópnum sem fær stig. Veldu þessa stillingu með hliðsjón af gæðum úthlutunar þinnar á hýsilfrumur.",
           "focus": [
             346,
             170,
@@ -3409,7 +3409,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Hafðu kveikt á Save og smelltu á Run. Opnaðu þröskuldsmyndina þegar vinnslu lýkur. Hún sýnir dreifingu eftir brunnum og mörkin sem voru notuð. Í tilraun berðu þessar dreifingar saman við dæmigerðar litaðar myndir og kannar veika ytri litun.",
           "focus": [
             1685,
             260,
@@ -3420,7 +3420,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "Ef skýringartexti nær út fyrir myndina opnarðu Figure settings. Á flipanum axes stillirðu Legend position á best og staðfestir. Athugaðu að merkingarnar sjáist bæði á skjánum og í útfluttu myndinni.",
           "focus": [
             1420,
             330,
@@ -3434,7 +3434,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "Opnaðu myndina fyrir hvern brunn. Hver súla sýnir hlutföll áfastra sníkjudýra og þeirra sem eru komin inn, með fjölda sníkjudýra sem fengu stig fyrir ofan. Grunnlínubrunnar eru útilokaðir. Lestu fjöldann með hlutföllunum þegar þú berð saman brunna.",
           "focus": [
             1685,
             260,
@@ -3445,7 +3445,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "Opnaðu samantektina eftir skilyrðum. Berðu sameinaða innrásarhlutfallið saman við meðaltal brunnanna, því þau eru vegin á ólíkan hátt. Athugaðu breytileikann í niðurstöðum hvers brunns áður en þú berð saman skilyrði.",
           "focus": [
             1685,
             260,
@@ -3456,7 +3456,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "Allt vistast í results/analyze_invasion innan Source. parasite_calls.csv geymir flokkun hvers sníkjudýrs, field_thresholds.csv mörkin að baki henni, well_invasion.csv hlutföll hvers brunns og condition_summary.csv sameinaða samanburðinn. Geymdu myndir og stillingar með þeim og berðu skilyrði saman yfir óháðar endurtekningar.",
           "focus": [
             1510,
             1200,
@@ -3476,6 +3476,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3483,21 +3523,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay: teldu sníkjudýr í hverri bólu",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "Hlaðu inn mælingum á sníkjudýrum, veldu auðkenni bólunnar, keyrðu greininguna og skoðaðu dreifingu talninga og útflutning.",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "Velja mæligagnagrunn og bóluauðkenni hans.",
+        "Stilla síur fyrir úthlutun á hýsilfrumu og stærð og keyra svo greininguna.",
+        "Lesa dreifingu í hverjum brunni og finna vistaðar niðurstöðutöflur."
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "Afþjappaðu tengda tilbúna Replication Assay-dæmið. Það inniheldur mæligagnagrunn og stillingatilvísun, með 1.992 línum sníkjudýra í 480 bólum í tólf brunnum. Nöfn skilyrða og mælingarnar eru kennslugögn. Fyrir eigin greiningu skaltu nota mæld sníkjudýr með yfirfarinni úthlutun á bólur og óháðar tilraunaendurtekningar.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Frá Home opnarðu Toxoplasma og velur síðan Replication Assay. Byrjaðu á mæligagnagrunni sem inniheldur línur sníkjudýra og úthlutun þeirra á bólur. Tengda tilbúna dæmið gerir þér kleift að æfa stillingarnar og lesa dreifingu talninganna sem fæst.",
           "focus": [
             346,
             50,
@@ -3511,7 +3551,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "Afþjappaðu sýnið og stilltu Source á möppuna replication. Gagnagrunnurinn er inni í measurements. Sláðu inn meðfylgjandi stillingatilvísun og skiptu út staðgengli hennar fyrir Source fyrir afþjöppuðu möppuna þína. Hafðu kveikt á Save til að skrifa niðurstöðurnar.",
           "focus": [
             346,
             170,
@@ -3522,7 +3562,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Stilltu Vacuole key á vacuole_id. Þá eru sníkjudýrin flokkuð eftir bólunni sem þau tilheyra. Sýnið inniheldur tvær bólur í hverjum hópi hýsilfrumna, svo notaðu bóluauðkennið til að halda þessum talningum aðskildum.",
           "focus": [
             346,
             170,
@@ -3533,7 +3573,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Kveiktu á Require host cell til að taka aðeins með sníkjudýr sem tengjast hýsilfrumu. Farðu yfir hluti án úthlutunar þegar þú notar eigin gögn. Fyrir þetta sýni stillirðu Minimum parasite area á 200 og Maximum parasite area á 800.",
           "focus": [
             346,
             170,
@@ -3544,7 +3584,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Stilltu Maximum parasites per vacuole á 16. Þetta ákvarðar stærsta nefnda flokkinn meðal veldanna af tveimur. Stærri veldi af tveimur fara í yfirflæðisflokk, en tölur eins og 3 eru áfram í sérstökum flokki fyrir gildi sem eru ekki veldi af tveimur.",
           "focus": [
             346,
             170,
@@ -3555,7 +3595,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "Sláðu inn vehicle og inhibitor sem Pathogen types tvö og tengdu þau við dálk 1 og dálk 2 í Pathogen plate metadata. Hvor hópur inniheldur sex æfingabrunna. Fyrir þína tilraun slærðu inn nöfn skilyrða og úthlutun brunna úr plötuhönnuninni.",
           "focus": [
             346,
             170,
@@ -3566,7 +3606,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Athugaðu Source, Vacuole key, síurnar og Save og smelltu svo á Run. Fylgstu með stjórnborðinu þar til vinnslu lýkur. Svæðið Figures sýnir dreifingu eftir brunnum og eftir skilyrðum.",
           "focus": [
             1510,
             170,
@@ -3577,7 +3617,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "Opnaðu myndina fyrir hvern brunn. Hver staflaður súla sýnir hlutfall bóla í hverjum flokki eftir fjölda sníkjudýra. Lestu litina með hjálp skýringanna. Í þessu sýni eru 40 bólur í hverjum brunni og 5 prósent falla í flokkinn fyrir gildi sem eru ekki veldi af tveimur.",
           "focus": [
             1510,
             170,
@@ -3588,7 +3628,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "Opnaðu Figure settings til að laga skýringarnar. Á flipanum axes velurðu Legend position inni í myndinni ef merkingarnar ná út fyrir hana. Þetta breytir aðeins framsetningunni og reiknuðu talningarnar haldast óbreyttar.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3599,7 +3639,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "Opnaðu myndina eftir skilyrðum til að bera saman sameinaða dreifingu talninga. Skoðaðu niðurstöður hvers brunns samhliða þessari samantekt. Þegar þú greinir tilraun notarðu óháðar líffræðilegar endurtekningar og viðeigandi tilraunaeiningu fyrir tölfræðilegan samanburð.",
           "focus": [
             1510,
             170,
@@ -3610,7 +3650,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "Lestu allar viðvaranir um útflutning í stjórnborðinu. Athugaðu vistuðu myndirnar jafnt sem birtinguna á skjánum og veldu liti sem eru læsilegir á bakgrunni útflutningsins.",
           "focus": [
             1510,
             1190,
@@ -3621,7 +3661,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Niðurstöðurnar í results/analyze_replication innan Source byggja hver á annarri. vacuole_counts.csv telur hverja bólu, well_distribution.csv breytir talningunum í dreifingu hvers brunns og samantektirnar og myndirnar eftir skilyrðum sameina brunnana. Geymdu þær með stillingunum og upprunagagnagrunninum svo þú getir rakið hverja tölu.",
           "focus": [
             346,
             170,
@@ -3641,6 +3681,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

@@ -3416,21 +3416,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay：对外部染色和总染色打分",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "映射两个染色通道，选择染色基线，运行分析，并检查入侵判定和阈值敏感性。",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "选择测量数据库，并映射外部染色和总染色。",
+        "设置基线孔和阈值控制，然后运行分析。",
+        "检查分布、每孔分母以及保存的结果表。"
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "解压链接的合成Invasion Assay示例，并使用其设置参考。数据库包含1,800条合成的寄生虫测量数据；条件名称和结果仅作示意。对于您自己的检测，请使用经过验证的双色染色设计：通透化之前做外部染色，之后做总染色，并检查有代表性的图像。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "从Home打开Toxoplasma，然后选择Invasion Assay。先准备一个测量数据库，其中包含寄生虫在外部染色和总染色下的强度。使用链接的合成样本练习通道映射、阈值选择和结果检查。",
           "focus": [
             346,
             50,
@@ -3440,99 +3440,108 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Toxoplasma，然后选择Invasion Assay。先准备一个测量数据库，其中包含寄生虫在外部染色和总染色下的强度。使用链接的合成样本练习通道映射、阈值选择和结果检查。"
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "解压样本，把Source设为其中的invasion文件夹，该文件夹包含measurements/measurements.db。输入随附的设置参考，并替换其中Source的占位值。样本包含基线孔和两种检测条件。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "解压样本，把Source设为其中的invasion文件夹，该文件夹包含measurements/测量数据库文件。输入随附的设置参考，并替换其中Source的占位值。样本包含基线孔和两种检测条件。"
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "把Outside channel设为一，Total channel设为零。外部染色在通透化之前进行，总染色在之后进行。外部染色阳性的寄生虫被归为附着，处于外部阈值或低于该阈值的被归为已入侵。使用您自己的测量数据时，请检查采集通道的顺序。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Outside channel设为一，Total channel设为零。外部染色在通透化之前进行，总染色在之后进行。外部染色阳性的寄生虫被归为附着，处于外部阈值或低于该阈值的被归为已入侵。使用您自己的测量数据时，请检查采集通道的顺序。"
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "在Intensity statistic中选择mean，以匹配示例数据库中的列。对于您自己的检测，请选择适合该染色的可用统计量，并检查有代表性的对象。本样本请将Minimum total intensity保持为一百。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "在Intensity statistic中选择mean，以匹配示例数据库中的列。对于您自己的检测，请选择适合该染色的可用统计量，并检查有代表性的对象。本样本请将Minimum total intensity保持为一百。"
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "使用c1，把Stain baseline wells设为第一列。这些阴性染色的测量值用来确定阈值，并从检测的分母中排除。在Pathogen plate metadata中，把vehicle映射到第二列，把inhibitor映射到第三列。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "使用c1，把Stain baseline wells设为第一列。这些阴性染色的测量值用来确定阈值，并从检测的分母中排除。在Pathogen plate metadata中，把vehicle映射到第二列，把inhibitor映射到第三列。"
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "把Control quantile设为零点九九，固定的Outside threshold保持不设。这样由基线测量值决定阈值，本例中约为二十二点八。解释分类结果之前，请在输出中检查实际应用的阈值。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Control quantile设为零点九九，固定的Outside threshold保持不设。这样由基线测量值决定阈值，本例中约为二十二点八。解释分类结果之前，请在输出中检查实际应用的阈值。"
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "把Threshold sensitivity设为零点二五。这样还会评估比所选阈值低和高百分之二十五的阈值。比较得到的入侵效率范围，看看结果在多大程度上取决于阈值的选择。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Threshold sensitivity设为零点二五。这样还会评估比所选阈值低和高百分之二十五的阈值。比较得到的入侵效率范围，看看结果在多大程度上取决于阈值的选择。"
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "对于本样本，把Extracellular class设为classify。对于没有关联宿主细胞的对象，classify依据染色判断，attached把它们归为附着，exclude则把它们从打分群体中移除。请结合宿主细胞分配的质量来选择这项设置。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "对于本样本，把Extracellular class设为classify。对于没有关联宿主细胞的对象，classify依据染色判断，attached把它们归为附着，exclude则把它们从打分群体中移除。请结合宿主细胞分配的质量来选择这项设置。"
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "保持Save开启，然后点击Run。处理完成后，打开阈值图。它显示各孔的分布和实际应用的阈值。在实际实验中，请把这些分布与有代表性的染色图像进行比较，并排查外部染色较弱的情况。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "保持Save开启，然后点击Run。处理完成后，打开阈值图。它显示各孔的分布和实际应用的阈值。在实际实验中，请把这些分布与有代表性的染色图像进行比较，并排查外部染色较弱的情况。"
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "如果图例超出了图的范围，请打开Figure settings。在axes选项卡中，把Legend position设为best，然后确认。检查标签在屏幕上的图和导出的图中都清晰可见。",
           "focus": [
             1420,
             330,
@@ -3542,33 +3551,36 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "如果图例超出了图的范围，请打开Figure settings。在axes选项卡中，把Legend position设为best，然后确认。检查标签在屏幕上的图和导出的图中都清晰可见。"
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "打开每孔图。每根柱子显示附着和已入侵的比例，上方标有已打分的寄生虫数量。基线孔不包括在内。比较各孔时，请同时查看数量和比例。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开每孔图。每根柱子显示附着和已入侵的比例，上方标有已打分的寄生虫数量。基线孔不包括在内。比较各孔时，请同时查看数量和比例。"
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "打开条件汇总。把合并计算的入侵比例与各孔的平均值进行比较，因为两者的加权方式不同。在比较不同条件之前，请检查每孔结果的变异。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开条件汇总。把合并计算的入侵比例与各孔的平均值进行比较，因为两者的加权方式不同。在比较不同条件之前，请检查每孔结果的变异。"
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "所有结果都保存在Source中的results/analyze_invasion里。parasite_calls.csv记录每个寄生虫的判定，field_thresholds.csv记录判定所依据的阈值，well_invasion.csv记录每孔的比例，condition_summary.csv记录合并后的比较。请把图和设置与它们一起保存，并在独立的重复实验之间比较各条件。",
           "focus": [
             1510,
             1200,
@@ -3579,7 +3591,8 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "所有结果都保存在Source中的results/analyze_invasion里。parasite_calls.csv记录每个寄生虫的判定，field_thresholds.csv记录判定所依据的阈值，well_invasion.csv记录每孔的比例，condition_summary.csv记录合并后的比较。请把图和设置与它们一起保存，并在独立的重复实验之间比较各条件。"
         }
       ],
       "example_files": [
@@ -3588,6 +3601,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3595,21 +3648,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay：统计每个液泡中的寄生虫数",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "加载寄生虫测量数据，选择液泡标识，运行分析，并检查计数分布和导出结果。",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "选择测量数据库及其液泡标识符。",
+        "设置宿主分配和大小过滤条件，然后运行分析。",
+        "阅读每孔分布，并找到保存的结果表。"
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "解压链接的合成Replication Assay示例。其中包含一个测量数据库和一份设置参考，共有分布在十二个孔、480个液泡中的1,992行寄生虫数据。条件名称和测量值是教学数据。对于您自己的检测，请使用已检查液泡分配的寄生虫测量数据，并安排独立的实验重复。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "从Home打开Toxoplasma，然后选择Replication Assay。先准备一个包含寄生虫行及其液泡分配的测量数据库。链接的合成示例可以让您练习这些设置，并阅读得到的计数分布。",
           "focus": [
             346,
             50,
@@ -3619,121 +3672,132 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "从主页打开Toxoplasma，然后选择Replication Assay。先准备一个包含寄生虫行及其液泡分配的测量数据库。链接的合成示例可以让您练习这些设置，并阅读得到的计数分布。"
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "解压样本，把Source设为其中的replication文件夹。数据库位于measurements中。输入随附的设置参考，把其中Source的占位值替换为您解压后的文件夹。保持Save开启以写出结果。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "解压样本，把Source设为其中的replication文件夹。数据库位于measurements中。输入随附的设置参考，把其中Source的占位值替换为您解压后的文件夹。保持Save开启以写出结果。"
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "把Vacuole key设为vacuole_id。这样会按照寄生虫所属的液泡进行分组。样本中每个宿主细胞组有两个液泡，所以请使用液泡标识符把这些计数分开。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Vacuole key设为vacuole_id。这样会按照寄生虫所属的液泡进行分组。样本中每个宿主细胞组有两个液泡，所以请使用液泡标识符把这些计数分开。"
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "开启Require host cell，只纳入与宿主细胞关联的寄生虫。使用自己的数据时，请检查未分配的对象。对于本样本，把Minimum parasite area设为二百，把Maximum parasite area设为八百。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "开启Require host cell，只纳入与宿主细胞关联的寄生虫。使用自己的数据时，请检查未分配的对象。对于本样本，把Minimum parasite area设为二百，把Maximum parasite area设为八百。"
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "把Maximum parasites per vacuole设为十六。这设定了按二的幂命名的最大类别。更大的二的幂计数会归入溢出类别，而像三这样的计数则留在单独的非二的幂类别中。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "把Maximum parasites per vacuole设为十六。这设定了按二的幂命名的最大类别。更大的二的幂计数会归入溢出类别，而像三这样的计数则留在单独的非二的幂类别中。"
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "输入vehicle和inhibitor作为两个Pathogen types，并在Pathogen plate metadata中把它们分别映射到第一列和第二列。每组包含六个练习孔。对于您的实验，请根据板布局输入条件名称和孔的分配。",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "输入vehicle和inhibitor作为两个Pathogen types，并在Pathogen plate metadata中把它们分别映射到第一列和第二列。每组包含六个练习孔。对于您的实验，请根据板布局输入条件名称和孔的分配。"
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "检查Source、Vacuole key、过滤条件和Save，然后点击Run。在控制台中跟踪进度，直到处理完成。Figures区域将显示按孔和按条件的分布。",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "检查Source、Vacuole key、过滤条件和Save，然后点击Run。在控制台中跟踪进度，直到处理完成。Figures区域将显示按孔和按条件的分布。"
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "打开每孔图。每根堆叠柱显示各寄生虫计数类别中液泡所占的比例。请对照图例阅读颜色。在本样本中，每孔有四十个液泡，其中百分之五属于非二的幂类别。",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开每孔图。每根堆叠柱显示各寄生虫计数类别中液泡所占的比例。请对照图例阅读颜色。在本样本中，每孔有四十个液泡，其中百分之五属于非二的幂类别。"
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "打开Figure settings调整图例。如果标签超出了图的范围，请在axes选项卡中选择位于图内的Legend position。这只改变呈现方式，计算出的计数保持不变。",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ]
+          ],
+          "speech_text": "打开Figure settings调整图例。如果标签超出了图的范围，请在axes选项卡中选择位于图内的Legend position。这只改变呈现方式，计算出的计数保持不变。"
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "打开按条件的图，比较合并后的计数分布。查看这个汇总的同时，也请检查每孔的结果。分析实验时，请使用独立的生物学重复，并选择合适的实验单位进行统计比较。",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "打开按条件的图，比较合并后的计数分布。查看这个汇总的同时，也请检查每孔的结果。分析实验时，请使用独立的生物学重复，并选择合适的实验单位进行统计比较。"
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "阅读控制台中的任何导出警告。除了屏幕上的显示，也要检查保存的图，并选择在导出背景上仍然清晰可读的颜色。",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "阅读控制台中的任何导出警告。除了屏幕上的显示，也要检查保存的图，并选择在导出背景上仍然清晰可读的颜色。"
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Source中results/analyze_replication里的结果是逐层构建的。vacuole_counts.csv统计每个液泡，well_distribution.csv把这些计数转换为每个孔的分布，而按条件的汇总和图则把各孔合并起来。请把它们与设置和源数据库放在一起，以便追溯任何一个数字。",
           "focus": [
             346,
             170,
@@ -3744,7 +3808,8 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ]
+          ],
+          "speech_text": "Source中results/analyze_replication里的结果是逐层构建的。vacuole_counts.csv统计每个液泡，well_distribution.csv把这些计数转换为每个孔的分布，而按条件的汇总和图则把各孔合并起来。请把它们与设置和源数据库放在一起，以便追溯任何一个数字。"
         }
       ],
       "example_files": [
@@ -3753,6 +3818,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
