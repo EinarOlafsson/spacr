@@ -32,6 +32,8 @@ from PySide6.QtWidgets import (
     QLineEdit,
 )
 
+from ..gil_priority import (_stop_watching_application_events,
+                            _watch_application_events)
 from ..theme import (
     FIELD_FADE_STOPS,
     field_chrome,
@@ -257,10 +259,10 @@ def install_field_fade(app=None) -> bool:
     if app is None:
         return False
     if _filter is not None:
-        app.installEventFilter(_filter)
+        _watch_application_events(app, _filter, (QEvent.Type.Paint,))
         return False
     _filter = _FieldFadeFilter()
-    app.installEventFilter(_filter)
+    _watch_application_events(app, _filter, (QEvent.Type.Paint,))
     return True
 
 
@@ -271,7 +273,7 @@ def uninstall_field_fade(app=None) -> bool:
         return False
     app = app or QApplication.instance()
     if app is not None:
-        app.removeEventFilter(_filter)
+        _stop_watching_application_events(app, _filter)
     _filter = None
     return True
 

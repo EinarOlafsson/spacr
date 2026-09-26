@@ -780,8 +780,10 @@ def detach_all_dialogs(app) -> bool:
                     return False
                 return self._inner.eventFilter(obj, event)
 
+        from .gil_priority import _watch_application_events
+
         _DETACHER = _Filter()
-        app.installEventFilter(_DETACHER)
+        _watch_application_events(app, _DETACHER, _DETACHER._moments)
         _DETACHED_APP = app
         return True
     except Exception:
