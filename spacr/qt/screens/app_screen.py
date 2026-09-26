@@ -1913,6 +1913,12 @@ class AppScreen(QWidget):
         body.setSizes([400, 800])
         outer.addWidget(body, 1)
         self._shell_focus.target(body, "Settings")
+        try:
+            from ..live_zoom import register_text_column
+            register_text_column(self._runtime_wrap)
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not register the right-hand column's text",
+                      exc_info=True)
 
         self._wire_live_preview_autoload()
         if self.app_key == "analyze_plaques":

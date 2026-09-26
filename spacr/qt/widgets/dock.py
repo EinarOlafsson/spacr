@@ -47,8 +47,10 @@ from __future__ import annotations
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 
+from ..i18n import tr
 from ..theme import active_palette
 from .eliding import ElidingPushButton
 
@@ -187,6 +189,12 @@ class Dock(QWidget):
     #: if the longest name needs it. Both scale with the font.
     WIDTH_MIN = 220
     WIDTH_MAX = 320
+
+    #: How far the user may drag the column's edge (item 529), before the
+    #: font scale. Narrower than ``WIDTH_MIN`` is allowed: a long name elides
+    #: rather than pushing the page.
+    DRAG_MIN = 150
+    DRAG_MAX = 520
 
     def __init__(self, rows: Iterable[Row],
                  icon_for: Optional[Callable[[str], object]] = None,
@@ -457,7 +465,57 @@ class Dock(QWidget):
             header.setProperty("open", section in self._open)
             header.style().unpolish(header)
             header.style().polish(header)
-        self.setFixedWidth(self.fitting_width())
+        self.setFixedWidth(self.column_width())
+
+    def column_width(self) -> int:
+        """The width the column wears: the one the user dragged, else fitting.
+
+        Item 529. A width the user chose is kept through every refresh, every
+        hide and show, and every session; with none stored the column fits
+        its longest name, as :meth:`fitting_width` has always done.
+        """
+        try:
+            from ..preferences import get_dock_width
+
+            wanted = get_dock_width()
+        except Exception:                                        # noqa: BLE001
+            wanted = 0
+        if wanted <= 0:
+            return self.fitting_width()
+        return self.clamp_width(wanted)
+
+    def clamp_width(self, width: int) -> int:
+        """``width`` held between :attr:`DRAG_MIN` and :attr:`DRAG_MAX`.
+
+        :param width: logical pixels.
+        """
+        from ..preferences import scaled_px
+
+        return max(scaled_px(self.DRAG_MIN),
+                   min(int(width), scaled_px(self.DRAG_MAX)))
+
+    def set_column_width(self, width: int, *, remember: bool = True) -> int:
+        """Give the column ``width`` within its bounds and maybe remember it.
+
+        :param width: logical pixels; 0 or less goes back to the fitting
+            width and forgets the dragged one.
+        :param remember: store it for the next session.
+        :returns: the width applied.
+        """
+        if width is None or int(width) <= 0:
+            applied = self.fitting_width()
+            stored = 0
+        else:
+            applied = stored = self.clamp_width(width)
+        self.setFixedWidth(applied)
+        if remember:
+            try:
+                from ..preferences import set_dock_width
+
+                set_dock_width(stored)
+            except Exception:                                    # noqa: BLE001
+                pass
+        return applied
 
     def refresh_icons(self) -> None:
         """Re-ask the provider for every row's icon.
@@ -556,3 +614,135 @@ class Dock(QWidget):
         Empty in a healthy layout, and a test asserts that.
         """
         return [r for r in self._rows if r.is_elided()]
+
+
+class DockEdge(QWidget):
+    """The strip along the dock's right edge that drags its width (item 529).
+
+    The maintainer, 2026-09-25: "the user should be able to modify the width
+    of the dock when not hidden". A sibling of the dock's slot rather than a
+    splitter handle, because the dock is a fixed-width layout member and
+    everything that measures it (the drawer, the backdrop, the fitting width)
+    reads that fixed width. Dragging sets it; releasing stores it; a
+    double-click forgets it and the column fits its names again. It is
+    shown and hidden with the dock, so a hidden dock has no edge to catch.
+
+    :param dock: the :class:`Dock` it resizes.
+    :param parent: parent widget; ownership only.
+    """
+
+    #: The grab area, in pixels: the same as a splitter handle's.
+    GRIP_PX = 6
+
+    def __init__(self, dock: "Dock", parent=None):
+        """Build the edge for ``dock``; hidden until the dock is shown."""
+        super().__init__(parent)
+        self._dock = dock
+        self._pressed_x = None
+        self._start_width = 0
+        self.setObjectName("DockEdge")
+        self.setStyleSheet(
+            "QWidget#DockEdge { background: transparent; border: none; }")
+        self.setAttribute(Qt.WA_Hover, True)
+        self.setFixedWidth(self.GRIP_PX)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.setCursor(Qt.SizeHorCursor)
+        self.setAccessibleName(tr("Dock width"))
+        self.retranslate_dynamic_content()
+        self.hide()
+
+    def retranslate_dynamic_content(self, language=None) -> None:
+        """Rewrite the tooltip in ``language``."""
+        self.setToolTip(tr("Drag to make the dock wider or narrower. "
+                           "Double-click to fit it to the names again.",
+                           language))
+
+    def enterEvent(self, event) -> None:                     # noqa: N802
+        """Light the line up under the pointer.
+
+        :param event: the event.
+        """
+        self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:                     # noqa: N802
+        """Put the line back.
+
+        :param event: the event.
+        """
+        self.update()
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event) -> None:                # noqa: N802
+        """Begin a drag from the dock's present width.
+
+        :param event: the event.
+        """
+        if event.button() != Qt.LeftButton:
+            super().mousePressEvent(event)
+            return
+        self._pressed_x = event.globalPosition().x()
+        self._start_width = self._dock.width()
+        self.update()
+        event.accept()
+
+    def mouseMoveEvent(self, event) -> None:                 # noqa: N802
+        """Follow the pointer, within the dock's bounds; stored on release.
+
+        :param event: the event.
+        """
+        if self._pressed_x is None:
+            super().mouseMoveEvent(event)
+            return
+        moved = event.globalPosition().x() - self._pressed_x
+        self._dock.set_column_width(self._dragged_to(moved),
+                                    remember=False)
+        event.accept()
+
+    def mouseReleaseEvent(self, event) -> None:              # noqa: N802
+        """End the drag and remember the width it left.
+
+        :param event: the event.
+        """
+        if self._pressed_x is None:
+            super().mouseReleaseEvent(event)
+            return
+        moved = event.globalPosition().x() - self._pressed_x
+        self._pressed_x = None
+        if moved:
+            self._dock.set_column_width(self._dragged_to(moved))
+        self.update()
+        event.accept()
+
+    def _dragged_to(self, moved: float) -> int:
+        """The width a drag of ``moved`` pixels asks for, never below 1.
+
+        Never 0 or less: to :meth:`Dock.set_column_width` that means
+        "forget the dragged width", and a drag past the left bound is the
+        user asking for the narrowest dock, not the fitting one.
+        """
+        return max(1, int(round(self._start_width + moved)))
+
+    def mouseDoubleClickEvent(self, event) -> None:          # noqa: N802
+        """Forget the dragged width; the column fits its names again.
+
+        :param event: the event.
+        """
+        self._pressed_x = None
+        self._dock.set_column_width(0)
+        self.update()
+        event.accept()
+
+    def paintEvent(self, _event) -> None:                    # noqa: N802
+        """Draw the one-pixel line a splitter handle draws.
+
+        :param _event: the paint event; the whole strip is drawn.
+        """
+        palette = active_palette() or {}
+        hovered = self.underMouse() or self._pressed_x is not None
+        line = QColor(palette.get("accent" if hovered else "border_soft",
+                                  "#4c8dff" if hovered else "#3a3f4b"))
+        painter = QPainter(self)
+        rect = self.rect()
+        painter.fillRect(rect.center().x(), rect.top(), 1, rect.height(), line)
+        painter.end()
