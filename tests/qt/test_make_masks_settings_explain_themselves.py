@@ -199,44 +199,28 @@ def _awaiting_translation(screen) -> set:
     the moment the lane has done one, so the list empties itself rather
     than becoming a permanent hole.
 
-    Owed since 2026-09-22 by item 473 (Make Masks offers every detection
-    method): the detection button, most organelle-method and propagation
-    parameters, and the Image enhancement card; since 2026-09-25 by item
-    508, the card's "Use in Mask generation" button and its percentile
-    clip, logarithm and square-root rows. The Method, Local k,
-    correction, Classes, adaptive Offset and Grow until help have source-bound
-    translations in all nine languages and are no longer excluded here.
-    The Apply and Compare enhancement help also have source-bound translations.
+    Still owed since 2026-09-22 by item 473 (Make Masks offers every
+    detection method): the hysteresis low threshold, the ridge scales and
+    threshold, the U-Net model path, and propagation's minimum distance,
+    seed percentile and stop value. Still owed by item 473's Image
+    enhancement card: the CLAHE tile, gamma, morphology and sharpen help.
 
-    Owed since 2026-09-25 by item 509 (deconvolution infers its own values):
-    the PSF objective, camera, fluorophore and optics fields, and the image
-    pixel help, which no longer says that no calibration is inferred.
-
-    Owed since 2026-09-25 by item 511 (filters are any regionprop): the
-    Filter category's property box.
+    Everything else once listed here -- the detection buttons, the other
+    method and propagation parameters, the rest of the enhancement card,
+    item 509's PSF fields and item 511's Filter property box -- arrived
+    with the catalog lane's 2026-09-25 rebuild (316) and left the list.
     """
-    widgets = [screen._btn_otsu, screen._btn_to_mask]
-    widgets += [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
-                if key != "adaptive_offset"]
+    method = ("hysteresis_low", "ridge_sigmas", "ridge_threshold",
+              "unet_model_path")
+    propagate = ("propagate_min_distance", "propagate_seed_percentile",
+                 "propagate_stop_value")
+    widgets = [widget for key, widget in getattr(screen, "_method_widgets", {}).items()
+               if key in method]
     widgets += [widget for key, widget in getattr(screen, "_propagate_widgets", {}).items()
-                if key != "propagate_stop"]
-    for name in ("_enh_background", "_enh_background_radius",
-                 "_enh_background_scale", "_enh_denoise",
-                 "_enh_denoise_strength", "_enh_gamma", "_enh_clahe",
-                 "_enh_clahe_tile", "_enh_clahe_clip", "_enh_equalize",
-                 "_enh_sharpen", "_enh_sharpen_radius", "_enh_sharpen_amount",
-                 "_enh_morphology", "_enh_morphology_radius", "_enh_split",
-                 "_enh_percentile_clip", "_enh_percentile_low",
-                 "_enh_percentile_high", "_enh_log", "_enh_log_gain",
-                 "_enh_sqrt", "_filter_property"):
+                if key in propagate]
+    for name in ("_enh_clahe_tile", "_enh_gamma", "_enh_morphology",
+                 "_enh_sharpen"):
         widget = getattr(screen, name, None)
-        if widget is not None:
-            widgets.append(widget)
-    psf = getattr(screen, "_psf_controls", None)
-    for name in ("objective", "infer", "camera", "fluorophore", "magnification",
-                 "numerical_aperture", "refractive_index", "emission_nm",
-                 "camera_pixel_um", "image_y", "image_x"):
-        widget = getattr(psf, name, None)
         if widget is not None:
             widgets.append(widget)
     owed = set()

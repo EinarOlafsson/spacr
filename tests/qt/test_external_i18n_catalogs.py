@@ -224,17 +224,12 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 
 
 #: Settings whose tooltips are in spacr.settings but not yet in the generated
-#: catalogs, which only the catalog lane rebuilds. Owed since 2026-09-25 by
-#: item 508: the nineteen enhance_* settings. The list empties itself: a key
-#: the catalogs already carry fails below and must leave it.
-_AWAITING_CATALOG_REBUILD = frozenset({
-    "enhance_background", "enhance_background_radius", "enhance_background_scale",
-    "enhance_denoise", "enhance_denoise_strength",
-    "enhance_percentile_clip", "enhance_percentile_low", "enhance_percentile_high",
-    "enhance_gamma", "enhance_log", "enhance_log_gain", "enhance_sqrt",
-    "enhance_clahe", "enhance_clahe_tile", "enhance_clahe_clip", "enhance_equalize",
-    "enhance_sharpen", "enhance_sharpen_radius", "enhance_sharpen_amount",
-})
+#: catalogs, which only the catalog lane rebuilds. The list empties itself: a
+#: key the catalogs already carry fails below and must leave it. Item 508's
+#: nineteen enhance_* settings arrived with the catalog lane's 2026-09-25
+#: rebuild (316) and left it. Owed since 2026-09-26 by item 493 (Make Masks
+#: splits its fields across GPUs): the two mask GPU keys.
+_AWAITING_CATALOG_REBUILD = frozenset({"mask_parallel", "mask_gpu_indices"})
 
 
 def _assert_setting_tooltip_inventory(sources, en):
@@ -359,7 +354,13 @@ def test_form_labels_and_detector_help_enter_the_runtime_source_inventory():
     from spacr.qt import cpu_modes, organelle_modes
     from spacr.qt.i18n import _ROWS, _TERM_ROWS
 
-    known = set(builder.extract_static_ui_sources()) | set(_ROWS) | set(_TERM_ROWS)
+    # canonical_sources as well as the AST pass: a method name kept exact in
+    # every language ("U-Net", item 316's identity set) is inventoried there
+    # as an identity row, and _looks_translatable keeps it out of the AST
+    # pass on purpose.
+    known = (set(builder.extract_static_ui_sources())
+             | set(builder.canonical_sources()["ui"])
+             | set(_ROWS) | set(_TERM_ROWS))
     assert "Method" in known
     for modes in (cpu_modes, organelle_modes):
         assert set(modes.MODE_LABELS.values()) <= known
@@ -895,7 +896,10 @@ def test_transient_dialogs_translate_when_shown(qapp, monkeypatch):
     from spacr.qt.i18n import install_dialog_translation
     from spacr.qt.i18n_catalogs import ui_text
 
-    source = "Choose folder for the demo dataset"
+    # A folder-picker title the Convert screen still shows. The one used
+    # before, "Choose folder for the demo dataset", left the catalogs with
+    # the retired Demos handlers, and ui_text then returned None.
+    source = "Choose source folder"
     expected = ui_text(source, "de")
     assert expected and expected != source
     monkeypatch.setenv("SPACR_LANGUAGE", "de")
