@@ -69,7 +69,8 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert not panel_sources & sources
     sources.update(panel_sources)
     assert len(sources) == (159 if language == "sv" else 158)
-    for filename, expected in (("form-labels-a", 77), ("sign-in-status", 1),
+    # Instruction 316 retired the one sign-in-status record to _ROWS.
+    for filename, expected in (("form-labels-a", 77), ("sign-in-status", 0),
                                ("enhancement-and-scale", 9),
                                ("organism-identities", 2),
                                ("threshold-and-histogram", 13)):
@@ -84,7 +85,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
             added.remove("Crop size")
         assert not added & sources
         sources.update(added)
-    assert len(sources) == (260 if language == "sv" else 259)
+    assert len(sources) == (259 if language == "sv" else 258)
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     later_sources: set[str] = set()
@@ -102,7 +103,9 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         for record in json.loads(path.read_text())["records"]
     }
     additions = later_sources - earlier_sources
-    assert len(additions) == report["later_distinct_additions"] == 781
+    # 781 -> 780 on 2026-09-25: nightly merge 5c03e8bda removed one retired PSF
+    # help record from 2026-09-23-psf-help.json (11 -> 10 records).
+    assert len(additions) == report["later_distinct_additions"] == 780
     assert hashlib.sha256(json.dumps(sorted(additions), ensure_ascii=False).encode()).hexdigest() == report["added_sources_sha256"]
     assert not sources & additions
     return sources | additions
@@ -116,6 +119,32 @@ def _compact_tooltip_sources(language: str) -> set[str]:
     assert {record["table"] for record in records} == {"setting_tooltips"}
     assert {record["key"] for record in records} == {"annotation_source", "metadata_type"}
     return {record["source"] for record in records}
+
+
+def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int) -> set[str]:
+    """The 2026-09-25 runtime translation debt (instruction 316), one cohort.
+
+    Written and technically reviewed by AI against the English source, with no
+    native-speaker signoff, in 2026-09-25-runtime-debt-*.json. Every source
+    was missing from the catalog before, so the cohort shares no source with
+    any earlier record and the older counts below hold once it is subtracted.
+    """
+    folder = ROOT / "docs/i18n/reviewed/runtime" / language
+    paths = sorted(folder.glob("2026-09-25-runtime-debt-*.json"))
+    first = [record for path in paths if "-second-pass-" not in path.name
+             for record in json.loads(path.read_text())["records"]]
+    # The second pass covers sources added on nightly after the first pass
+    # was prepared (items 509-530); it is optional here so a locale can land
+    # its first pass alone, and it must not overlap the first.
+    second = [record for path in paths if "-second-pass-" in path.name
+              for record in json.loads(path.read_text())["records"]]
+    sources = {record["source"] for record in first}
+    assert len(first) == len(sources) == expected
+    later = {record["source"] for record in second}
+    assert len(second) == len(later) and not later & sources
+    sources |= later
+    assert sources <= reviewed.keys()
+    return sources
 
 
 def test_swedish_example_abbreviation_is_not_a_dotted_identifier() -> None:
@@ -148,8 +177,10 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     ui_sources = {record["source"] for record in ui_refresh["records"]}
     # Item 511 retired four Make Masks filter captions (the fixed bounds'
     # button, ledger, card and placeholder help): 263 -> 259, 260 -> 256.
-    assert len(ui_refresh["records"]) == 259  # Three old threshold/histogram reviews archived.
-    assert len(ui_sources) == 256
+    # Instruction 316 then retired the 17 setup and sign-in captions that
+    # moved to _ROWS (kept under retired_records): 259 -> 242, 256 -> 239.
+    assert len(ui_refresh["records"]) == 242  # Three old threshold/histogram reviews archived.
+    assert len(ui_sources) == 239
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
@@ -172,9 +203,12 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert not normalized_sources & (example_sources | preview_sources)
     download_sources = _new_download_sources("sv", all_reviewed)
     subsequent_sources = _subsequent_review_sources("sv", all_reviewed)
-    older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources
+    # +720/-0 on 2026-09-25: the runtime translation debt cohort (316).
+    debt_sources = _runtime_debt_sources("sv", all_reviewed, 720)
+    assert not debt_sources & (ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources)
+    older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources - debt_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources}
+                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources | debt_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -335,12 +369,14 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(reviewed.keys() - sample_sources) == 367  # +39 scientific sources.
     assert len(reviewed) == 370  # Features, Controls and Quality use compact rows.
     # The new panel cohort also reuses the earlier whole-field model tooltip.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 625  # Item 511 retired four filter captions.
-    assert len(older_all_sources - preview_sources - normalized_sources) == 632  # Item 511 retired four filter captions.
-    assert len(older_all_sources - normalized_sources) == 637
-    assert len(older_all_sources) == 642
-    assert len(all_reviewed.keys() - subsequent_sources) == 653  # Item 511 retired four filter captions.
-    assert len(all_reviewed) == 1694  # 931 - 9 - 4 + 782, less six filter captions item 511 retired.
+    # 316 (71071b6c6) retired 17 setup and sign-in captions to _ROWS: -17 below;
+    # the total also loses its sign-in-status record and a superseded psf-help record.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 608  # Item 511 retired four filter captions.
+    assert len(older_all_sources - preview_sources - normalized_sources) == 615  # Item 511 retired four filter captions.
+    assert len(older_all_sources - normalized_sources) == 620
+    assert len(older_all_sources) == 625
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 636  # Item 511 retired four filter captions.
+    assert len(all_reviewed.keys() - debt_sources) == 1675  # 931 - 9 - 4 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1).
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -363,21 +399,23 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
     refresh_sources = {record["source"] for record in refresh["records"]}
-    # Item 511 retired one filter caption from each of the four slices.
-    assert len(refresh["records"]) == len(refresh_sources) == 75
+    # Item 511 retired one filter caption from each of the four slices, and
+    # instruction 316 retired the setup and sign-in captions that moved to
+    # _ROWS (2, 7, 4 and 4 per slice, kept under retired_records).
+    assert len(refresh["records"]) == len(refresh_sources) == 73
     assert not refresh_sources & _compact_tooltip_sources("fr")
     refresh_sources |= _compact_tooltip_sources("fr")
-    assert len(refresh_sources) == 77
+    assert len(refresh_sources) == 75
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text())
     second_sources = {record["source"] for record in second["records"]}
-    assert len(second["records"]) == len(second_sources) == 71
+    assert len(second["records"]) == len(second_sources) == 64
     assert second_sources <= all_reviewed.keys()
     assert not refresh_sources & second_sources
     refresh_sources |= second_sources
     # Two third-slice and three fourth-slice captions left with the old panel.
-    for filename, expected in (("third", 72), ("fourth", 75)):
+    for filename, expected in (("third", 68), ("fourth", 71)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                                f"2026-09-21-runtime-{filename}-slice.json").read_text())
         added = {record["source"] for record in document["records"]}
@@ -385,7 +423,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         assert added <= all_reviewed.keys()
         assert not added & refresh_sources
         refresh_sources |= added
-    assert len(refresh_sources) == 295  # Three superseded threshold/histogram sources.
+    assert len(refresh_sources) == 278  # Three superseded threshold/histogram sources.
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text())
     action_sources = {record["source"] for record in actions["records"]}
@@ -414,9 +452,12 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert not refresh_sources & (download_sources | example_sources |
                                   preview_sources | normalized_sources)
     subsequent_sources = _subsequent_review_sources("fr", all_reviewed)
-    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources
+    # +720/-0 on 2026-09-25: the runtime translation debt cohort (316).
+    debt_sources = _runtime_debt_sources("fr", all_reviewed, 720)
+    assert not debt_sources & (example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources)
+    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources - debt_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources}
+                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources | debt_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -564,9 +605,10 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - preview_sources - normalized_sources) == 330
     assert len(older_all_sources - normalized_sources) == 335
     assert len(older_all_sources) == 340
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 351
-    assert len(all_reviewed.keys() - subsequent_sources) == 650  # Item 511 retired four filter captions.
-    assert len(all_reviewed) == 1690  # 926 - 9 - 3 + 782, less six filter captions item 511 retired.
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources) == 351
+    # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources) == 633  # Item 511 retired four filter captions.
+    assert len(all_reviewed.keys() - debt_sources) == 1671  # 926 - 9 - 3 + 782, less six filter captions item 511 retired, less 19 (316 retirement 18, psf-help 1).
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

@@ -1021,7 +1021,10 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
     A ``cellpose3:...`` model is segmented by the run's own function,
     :func:`spacr.object._cellpose3_masks`, in the Cellpose 3 backend's
     environment -- so the preview answers with what the run would, and its
-    Cellpose 3 settings and ``[cyto, nucleus]`` input apply here as well.
+    Cellpose 3 settings and ``[cyto, nucleus]`` input apply here as well. A
+    ``cellpose_dino:<path>`` model goes the same way to
+    :func:`spacr.object._cellpose_dino_masks` in the Cellpose-DINO backend,
+    whose flows and cell probability fill the same two views.
     The preview's diameter and thresholds stand in for the object's own.
 
     :param req: the pass; its ``model`` names the backend and model.
@@ -1490,11 +1493,13 @@ _FALLBACK_MODELS = ("cpsam", "cyto3", "cyto2", "nuclei")
 def _is_a_real_model_name(value: str) -> bool:
     """Whether ``value`` names a model spaCR can actually load.
 
-    Three things qualify and nothing else: a retired pre-SAM spelling, which
+    Four things qualify and nothing else: a retired pre-SAM spelling, which
     Cellpose still resolves to cpsam and which a settings file written years
-    ago may hold; a checkpoint that exists on disk; and a ``cellpose3:``
-    value naming a Cellpose 3 model or a checkpoint on disk, which the pass
-    segments in the Cellpose 3 backend (item 503).
+    ago may hold; a checkpoint that exists on disk; a ``cellpose3:`` value
+    naming a Cellpose 3 model or a checkpoint on disk, which the pass
+    segments in the Cellpose 3 backend (item 503); and a ``cellpose_dino:``
+    value naming a checkpoint on disk, which the pass segments in the
+    Cellpose-DINO backend (item 525).
 
     A name that is neither is a typo, and putting it in the combo would let
     the preview run against a model that does not exist.
@@ -1504,12 +1509,16 @@ def _is_a_real_model_name(value: str) -> bool:
         return False
     try:
         from ..._segmentation_backends import (_CELLPOSE3_MODELS,
-                                               _cellpose3_choice)
+                                               _cellpose3_choice,
+                                               _cellpose_dino_choice)
 
         chosen = _cellpose3_choice(name)
         if chosen is not None:
             return (chosen in _CELLPOSE3_MODELS or not chosen
                     or os.path.isfile(os.path.expanduser(chosen)))
+        chosen = _cellpose_dino_choice(name)
+        if chosen is not None:
+            return bool(chosen) and os.path.isfile(os.path.expanduser(chosen))
     except Exception:
         pass
     try:
@@ -1692,18 +1701,24 @@ def _checkpoint_is_missing(model_name: Any) -> bool:
 
     The test is the run's own, so the two cannot come to disagree about what
     counts as a path: a separator in it, or a checkpoint suffix. A
-    ``cellpose3:`` value is tested on what follows the prefix.
+    ``cellpose3:`` value is tested on what follows the prefix. So is a
+    ``cellpose_dino:`` value, which always names a file: one naming nothing,
+    or a file that is not there, is missing.
 
     :param model_name: the model name or path the user picked.
     :returns: True when it names a file that is not there.
     """
     text = str(model_name or "").strip()
     try:
-        from ..._segmentation_backends import _cellpose3_choice
+        from ..._segmentation_backends import (_cellpose3_choice,
+                                               _cellpose_dino_choice)
 
         chosen = _cellpose3_choice(text)
+        dino = _cellpose_dino_choice(text)
     except Exception:
-        chosen = None
+        chosen = dino = None
+    if dino is not None:
+        return not (dino and os.path.isfile(os.path.expanduser(dino)))
     if chosen is not None:
         text = os.path.expanduser(chosen)
     if not text or os.path.isfile(text):
@@ -3408,11 +3423,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         the YOLO well detector, and CellposeModel cannot load it, so offering
         it here would produce a preview that fails on selection. A
         ``cellpose3`` row comes back as ``cellpose3:<name or path>`` and the
-        pass segments it in the Cellpose 3 backend, as the run would.
+        pass segments it in the Cellpose 3 backend, as the run would; a
+        ``cellpose_dino`` row comes back as ``cellpose_dino:<path>`` and goes
+        to the Cellpose-DINO backend the same way.
         """
         from .model_zoo_picker import choose_model
 
-        path = choose_model(self, kinds=("cellpose", "cellpose3"))
+        path = choose_model(self,
+                            kinds=("cellpose", "cellpose3", "cellpose_dino"))
         if not path:
             return
         index = self._model_box.findText(str(path))

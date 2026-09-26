@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Candida: utforsk organismeveiledningen",
+  "description": "Bla gjennom Candida-veiledningen, utforsk gjærdiagrammet og finn tilgjengelige generelle arbeidsflyter for bildeanalyse.",
+  "objectives": [
+    "Åpne siden fra Home og finne de viktigste kontrollene.",
+    "Identifisere tilgjengelige inndata, handlinger og utdata.",
+    "Velge neste tilgjengelige analyse eller referanse."
+  ],
+  "prerequisite": "Åpne Home i spaCR. Veiledningen trenger ingen inndatafiler. Candida-spesifikke analysefliser viser foreløpig Coming soon.",
+  "scenes": [
+    "Fra Home velger du Candida. Veiledningen dekker morfologi, filamentdannelse, biofilm og hvordan gjæren samhandler med vertsceller.",
+    "Les informasjonsruten med modulbeskrivelsene ved siden av, og dra skillelinjen for å gjøre den siden du leser, bredere.",
+    "Diagrammet over knoppskytende gjær fungerer som i de andre veiledningene. Hold pekeren over en komponent for å lese beskrivelsen, velg flere for å holde dem uthevet, og Clear components tilbakestiller utvalget.",
+    "De Candida-spesifikke analyseflisene er merket Coming soon inntil videre, men du kan likevel analysere bildene dine med de generelle verktøyene. Gå tilbake til Home, segmenter dem i Mask og mål dem i Measure, med kanaler og masker som passer arten og eksperimentet ditt.",
+    "For detaljer om gener og proteiner åpnes lenkene til Candida Genome Database og UniProt i nettleseren. Veiledningen trenger ingen inndatafiler og skriver ingen utdata, så når du er klar til å behandle bilder, følger du veiledningen for en kjørbar modul."
+  ]
+}

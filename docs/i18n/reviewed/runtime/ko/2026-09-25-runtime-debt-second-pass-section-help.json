@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Settings read only when an object is segmented by a legacy Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 weights file -- chosen from the model zoo's cellpose3 heading, which writes cellpose3:<model> into the object's model setting. They stay hidden until one is chosen. The object's diameter, flow and cell probability thresholds still apply.",
+      "source": "Settings read only when an object is segmented by a legacy Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 weights file -- chosen from the model zoo's cellpose3 heading, which writes cellpose3:<model> into the object's model setting. They stay hidden until one is chosen. The object's diameter, flow and cell probability thresholds still apply.",
+      "source_sha256": "bb16dfc3cce467afa5bc2d1399699e182c9ce11869a5c80ef7b58161748b27a8",
+      "translation": "기존(레거시) Cellpose 3 모델(cyto, cyto2, cyto3, nuclei 또는 Cellpose 3 가중치 파일)로 객체를 분할할 때만 읽는 설정입니다. 이 모델은 모델 라이브러리의 cellpose3 제목 아래에서 선택하며, 선택하면 객체의 모델 설정에 cellpose3:<model>이 기록됩니다. 모델을 선택하기 전까지 이 설정은 숨겨져 있습니다. 객체의 직경, 흐름 임계값, 세포 확률 임계값은 계속 적용됩니다."
+    },
+    {
+      "table": "categories",
+      "key": "The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.",
+      "source": "The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.",
+      "source_sha256": "18ed875c964abc8cb6f32f6e27fc59d69e6117b66baf69cf124a8c94ea6fd514",
+      "translation": "Make Masks에서 조정하는 이미지 향상 체인으로, 조명 보정 후 정규화 전에 선택한 모든 분할 채널에 그대로 적용됩니다. 배경 제거, PSF, 잡음 제거, 대비 곡선, 선명화를 이 고정된 순서로 수행합니다. 모든 단계는 기본적으로 꺼져 있습니다. 원본 이미지와 측정 강도는 바뀌지 않으며, 마스크 출처 기록에 실행된 단계가 남고, 재개된 실행은 다른 체인으로 만든 입력을 거부합니다."
+    }
+  ]
+}

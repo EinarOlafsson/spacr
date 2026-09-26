@@ -1,20 +1,34 @@
 {
-  "lesson": "05_home", "language": "de",
-  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
-  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Correct image crops, screening, host modules and hovering.", "Preserve English UI labels and all source instructions; caption-only, no new voice."]},
-  "title": "Home und Navigation",
-  "description": "Finden Sie die sechs Core-Schritte, die aktuellen Home-Kategorien und die zugehörigen Werkzeuge innerhalb ihrer Hauptmodule.",
-  "objectives": ["Den Core-Ablauf von Bildern bis zu Regressionsergebnissen nachvollziehen.", "Data, Tools und Assays finden, ohne integrierte Aktionen mit fehlenden Modulen zu verwechseln.", "Herunterladbare echte Datensätze von erzeugten Demos unterscheiden und passende Spezialtutorials finden."],
-  "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung. Die Aufnahme verwendet das dunkle Design und vergrößerte Oberflächentexte.",
+  "lesson": "05_home",
+  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Home-Bildschirm und Navigation",
+  "description": "Öffnen Sie ein Modul über Home, finden Sie die zugehörigen Werkzeuge und Beispieldaten und wählen Sie dann eine Pipeline aus.",
+  "objectives": [
+    "Ein Startmodul für Bilder, Messwerte oder Sequenzier-Reads wählen.",
+    "Zugehörige Werkzeuge und organismusspezifische Assays finden.",
+    "Ein Beispiel laden, Hilfe finden und eine Pipeline-Übersicht öffnen."
+  ],
+  "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung.",
   "scenes": [
-    "Home gliedert spaCR in Core, Data, Tools und Assays. Das sind Kategorien für unterschiedliche Arbeitsabläufe. Zugehörige Werkzeuge können auch innerhalb eines Hauptmoduls liegen; die Home-Schaltflächen bilden daher nicht sämtliche Funktionen ab.",
-    "Core folgt dem Analyseablauf eines Screenings: Mask, Measure, Annotate, Classify, Map Barcodes und Regression. Beginnen Sie bei dem Schritt, der zu Ihren Eingabedaten passt. Wenn bereits passende Messdaten oder Bildausschnitte vorliegen, müssen Sie die Segmentierung nicht wiederholen.",
-    "Data umfasst Import, Run Compare, Experiment Design, Power and Design, Dose Response und Qualitätskontrolle. Import ist außerdem der Einstieg zu Import Images, Format Converter und External Masks. Öffnen Sie zunächst das Hauptmodul, um diese Abläufe zu finden.",
-    "Tools enthält Make Masks, Align and Stitch, Image UMAP, Gate Editor und Graph Builder. Jedes Modul bündelt zusammengehörige Aktionen. Make Masks bietet beispielsweise Modelltraining und Modellvergleich; Graph Builder enthält Plate Viewer und Small Multiples.",
-    "Assays umfasst Plaque Assay, Recruitment, Invasion Assay und Replication Assay. Wählen Sie einen Ablauf passend zum Experiment und den benötigten Eingabedaten. Die Farbe für den Reifegrad eines Moduls ist unabhängig von seiner Kategorie; lesen Sie den Tooltip, bevor Sie sich auf eine experimentelle Funktion verlassen.",
-    "Classify ist ein einziges Modul. Die Einstellung Classifier family wählt zwischen bildbasierter Computer Vision und maschinellem Lernen anhand gemessener Merkmale. Die bisherigen Computer-Vision- und Machine-Learning-Tutorials erläutern weiterhin diese beiden Wege, nicht separate Home-Schaltflächen.",
-    "Die Symbole oben in Classify öffnen Classifier Evaluation, Explain CV Model, Activation, Training Runs und Feature Explorer. Halten Sie den Mauszeiger über ein Symbol, um Namen und Beschreibung zu lesen. Nutzen Sie das verlinkte Spezialtutorial, wenn Sie ein trainiertes Modell oder dessen Ergebnisse untersuchen möchten.",
-    "Die Core-Tutorials verwenden die echten Datensätze von Load test data. Der Download trägt die passenden Eingaben und kompatiblen Einstellungen ein. Die unter Help erzeugten Demos sind eine andere Möglichkeit. In Mask blenden die Schalter Time und 3D die Zeitreihen- und volumetrischen Abläufe ein; Live öffnet die Vorschau.",
-    "Über Help gelangen Sie zurück zu geführten Einführungen und Tutorials. Öffnen Sie das Tutorial zum aktuellen Modul neben der Anwendung und folgen Sie seinen Prüfungen von Daten, Einstellungen und Ergebnissen. Die nächste Lektion zeigt, wie dieselben Abläufe über die Python-API und die Kommandozeile zugänglich sind."
+    "Home ist Ihr Ausgangspunkt. Klicken Sie auf eine Kachel, um ein Modul zu öffnen, oder verwenden Sie die Seitenleiste links. Mit Home in der Seitenleiste kehren Sie hierher zurück. Die Registerkarten Core, Data, Tools und Assays helfen Ihnen, die gewünschte Aufgabe zu finden.",
+    "Beginnen Sie bei Mikroskopbildern mit Mask, um Objekte zu umranden, und extrahieren Sie dann mit Measure deren Merkmale und Ausschnitte. Mit Annotate beschriften Sie Beispielobjekte, und Classify lernt aus diesen Labels, um weitere Objekte zu bewerten. Map Barcodes liest Sequenzierdaten. Regression kombiniert die entstandenen Phänotyp-Scores mit den Guide-Zählungen, um Zusammenhänge zu finden.",
+    "In Data kommen Dateien herein und Ergebnisse werden geprüft. Wenn Sie bereits Bilder, Masken oder Messtabellen haben, bringt Import sie in ein Projekt, das die anderen Module lesen können. Vor einem Experiment plant Experiment Design Ihre Platten; danach zeigt QC die aufgezeichneten Qualitätsprüfungen, und Run Compare stellt zwei Läufe nebeneinander.",
+    "Tools enthält die praktischen Editoren und Explorer. In Make Masks korrigieren Sie Masken, und von dort öffnet sich auch die Cellpose Workbench. Align and Stitch fügt überlappende Bildkacheln zu einem Bild zusammen. Sobald Sie Messwerte haben, können Sie sie mit Image UMAP, Gate Editor und Graph Builder erkunden und darstellen. Die Werkzeugleiste jedes Moduls öffnet dessen zugehörige Werkzeuge.",
+    "Öffnen Sie Assays und wählen Sie Ihren Organismus: Toxoplasma, Plasmodium oder Candida. Wählen Sie dann einen Assay im Menü dieses Organismus. Öffnen Sie zum Beispiel Toxoplasma für die Plaque-Analyse oder für Wirt-Pathogen-Messungen. Folgen Sie dem Tutorial des gewählten Assays, um dessen Bilder, Masken und Messeingaben vorzubereiten.",
+    "Öffnen Sie Classify und wählen Sie über Classifier family Ihre Eingabe. Wählen Sie Computer Vision für Objektbilder oder Tabular Machine Learning für gemessene Merkmalsspalten. Die verlinkten Tutorials führen Sie für jede Familie durch Training, Bewertung und Scoring.",
+    "Ist ein Modell trainiert, hilft Ihnen die Werkzeugleiste von Classify, es zu hinterfragen. Classifier Evaluation zeigt seine Leistung auf zurückgehaltenen Daten, Explain CV Model und Activation zeigen, was seine Entscheidungen bestimmt, Training Runs vergleicht Trainingsverläufe, und Feature Explorer ordnet die Merkmale, die Ihre Gruppen trennen. Fahren Sie mit der Maus über ein Symbol, um seinen Namen zu sehen.",
+    "Um ein Modul auszuprobieren, klicken Sie auf Load test data, sofern vorhanden. Warten Sie, bis der Download abgeschlossen ist, und prüfen Sie dann die ausgefüllten Eingaben und Einstellungen. Klicken Sie in Mask auf Live, um ein Bildfeld zu prüfen, bevor Sie Run drücken. Schalten Sie Time für eine Zeitreihe oder 3D für ein Volumenbild ein.",
+    "Geben Sie den Namen eines Moduls, einer Einstellung oder einer Funktion in das Suchfeld neben Help ein. Hier findet die Suche nach Performance die passende Seite in Preferences. Klicken Sie auf ein Ergebnis, um das Ziel zu öffnen. API-Ergebnisse öffnen die Dokumentation der ausgewählten Funktion.",
+    "Wählen Sie in Preferences ein Performance-Profil für Ihren Computer. Laptop verbraucht weniger Ressourcen; die höheren Profile erlauben mehr Caching und Hintergrundarbeit. Beginnen Sie mit einem bescheidenen Profil, wenn der Arbeitsspeicher begrenzt ist. Ihre Analyseeinstellungen bleiben in jedem Modul unter Ihrer Kontrolle.",
+    "Kehren Sie zu Home zurück und klicken Sie auf Pipeline overviews, um einen Workflow zu wählen. Beginnen Sie mit spaCR screens für einen gepoolten bildbasierten Screen, oder wählen Sie einen Bildanalyse- oder Sequenzierpfad für Ihre Daten. Die nächsten Tutorials zeigen, wie diese Module zusammenhängen, und die Modul-Lektionen führen anschließend durch jede Aufgabe."
   ]
 }

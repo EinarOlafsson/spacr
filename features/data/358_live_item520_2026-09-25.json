@@ -1,0 +1,132 @@
+{
+  "source_commit": "91f25fcf2dca8e304924bd6156b77a0674ff9526",
+  "workflow": 36196152140,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "91f25fcf2dca8e304924bd6156b77a0674ff9526",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 626744575,
+    "media_files": 98
+  },
+  "media_revision": "d2db0911ea22c47dbb4f913bf62a8f173232021b",
+  "cache_key": "item520-20260925-1rjwna77",
+  "refreshed_lessons": [
+    "17_timelapse",
+    "76_ops"
+  ],
+  "hosted_web_lessons": [
+    "17_timelapse",
+    "76_ops",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
+  ],
+  "hosted_web_bytes": {
+    "17_timelapse": 7322576,
+    "76_ops": 7204723,
+    "78_spacr_screens": 6552139,
+    "79_module_inputs_outputs": 84732830,
+    "80_image_analysis_pathways": 16210344,
+    "81_sequencing_pathways": 8567417
+  },
+  "pages_copies_absent": true,
+  "live_catalog_sha256": "0861d893b8a44502fe3165131e1cb66cd4d3b0f6d086f47799ba90b53936d3d4",
+  "catalog_matches_source": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "66f7e1d9a63923c8e40ec7e0cd0386fa01763abbae432318546ac49b03074359"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/07_mask/video/07_mask_silent.mp4",
+      "width": 3840,
+      "time": 29.145564,
+      "expected": 29.427307477835097,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "17_timelapse",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d2db0911ea22c47dbb4f913bf62a8f173232021b/17_timelapse/web/17_timelapse_silent.mp4",
+      "width": 2560,
+      "time": 33.149703,
+      "expected": 33.58018348623234,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "76_ops",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d2db0911ea22c47dbb4f913bf62a8f173232021b/76_ops/web/76_ops_silent.mp4",
+      "width": 2560,
+      "time": 33.14861,
+      "expected": 33.5304353455271,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "79_module_inputs_outputs",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d2db0911ea22c47dbb4f913bf62a8f173232021b/79_module_inputs_outputs/web/79_module_inputs_outputs_silent.mp4",
+      "width": 1920,
+      "time": 22.940735,
+      "expected": 23.06993714349821,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "33_plate_viewer",
+      "requested_quality": "1440p",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d2db0911ea22c47dbb4f913bf62a8f173232021b/33_plate_viewer/video/33_plate_viewer_silent.mp4",
+      "width": 3840,
+      "time": 115.334266,
+      "expected": 115.33333211259348,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "17_timelapse",
+      "requested_quality": "4k",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d2db0911ea22c47dbb4f913bf62a8f173232021b/17_timelapse/video/17_timelapse_silent.mp4",
+      "width": 3840,
+      "time": 33.161114,
+      "expected": 33.402319929719035,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "33_plate_viewer",
+      "requested_quality": "4k",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d2db0911ea22c47dbb4f913bf62a8f173232021b/33_plate_viewer/video/33_plate_viewer_silent.mp4",
+      "width": 3840,
+      "time": 34.137988,
+      "expected": 34.590276753041444,
+      "error": null
+    }
+  ],
+  "passed": true,
+  "note": "Item 520 re-render of 17 and 76 (candidate 1rjwna77)."
+}

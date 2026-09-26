@@ -1,0 +1,218 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_add_nucleus_channel",
+      "source": "Cellpose 3 reads two channels as [cyto, nucleus]. When True, a cell segmented by a Cellpose 3 model also receives the nucleus channel as its second channel, as cyto, cyto2 and cyto3 were trained; when False, the model sees the cell channel alone. Read only for objects whose model is a Cellpose 3 model. Default True.",
+      "source_sha256": "d631089a1ee0864029818d8f9f726458f39b5205411583062033d2a88c93126e",
+      "translation": "Cellpose 3 läser två kanaler som [cyto, nucleus]. När True får en cell som segmenteras av en Cellpose 3-modell även kärnkanalen som sin andra kanal, så som cyto, cyto2 och cyto3 tränades; när False ser modellen enbart cellkanalen. Läses endast för objekt vars modell är en Cellpose 3-modell. Standard True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_augment",
+      "source": "When True, Cellpose 3 averages its prediction over flipped copies of overlapping tiles, which is slower and can steady borderline objects. It stands in for net averaging, which Cellpose 3.1 no longer offers. Read only for objects whose model is a Cellpose 3 model. Default False.",
+      "source_sha256": "080c75e97c3d3b3da9696e73d75b570c4421ef79621a2b6c85ea150e2ce549e7",
+      "translation": "När True medelvärdesbildar Cellpose 3 sin prediktion över speglade kopior av överlappande delrutor, vilket är långsammare och kan stabilisera gränsfallsobjekt. Det ersätter nätmedelvärdesbildningen, som Cellpose 3.1 inte längre erbjuder. Läses endast för objekt vars modell är en Cellpose 3-modell. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_percentile_high",
+      "source": "Upper percentile of Cellpose 3's per-channel normalization: this intensity becomes 1 before the model sees the image. Lowering it brightens dim objects and saturates bright ones. Cellpose 3's models were trained with 99. Read only for Cellpose 3 models. Default 99.0.",
+      "source_sha256": "64e621df61884f1e2b7588a43155ace3ad04e09bbdb8837dff2d56451d081ba4",
+      "translation": "Övre percentil för Cellpose 3:s normalisering per kanal: denna intensitet blir 1 innan modellen ser bilden. Sänks den blir svaga objekt ljusare och ljusa objekt mättade. Cellpose 3:s modeller tränades med 99. Läses endast för Cellpose 3-modeller. Standard 99.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_percentile_low",
+      "source": "Lower percentile of Cellpose 3's per-channel normalization: this intensity becomes 0 before the model sees the image. Raising it darkens more of the background. Cellpose 3's models were trained with 1. Read only for Cellpose 3 models. Default 1.0.",
+      "source_sha256": "1db0aad2167a90e426b06865f541c3798b18e6f1bd6102fe767f84de5db7221e",
+      "translation": "Nedre percentil för Cellpose 3:s normalisering per kanal: denna intensitet blir 0 innan modellen ser bilden. Höjs den blir mer av bakgrunden mörk. Cellpose 3:s modeller tränades med 1. Läses endast för Cellpose 3-modeller. Standard 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_resample",
+      "source": "When True, Cellpose 3 computes flows at the image's original size before building masks, which gives smoother outlines at some cost in time; when False, it builds them at the rescaled size. Read only for objects whose model is a Cellpose 3 model. Default True.",
+      "source_sha256": "98c41f5fd00fa7aa189fa07d648b8ebdceffb00c12a5c26ed0089e4c6adc15c5",
+      "translation": "När True beräknar Cellpose 3 flöden vid bildens ursprungliga storlek innan maskerna byggs, vilket ger jämnare konturer till en viss tidskostnad; när False byggs de vid den omskalade storleken. Läses endast för objekt vars modell är en Cellpose 3-modell. Standard True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_size_model",
+      "source": "When True, a named Cellpose 3 model estimates each image's object diameter with its own size model, which is slower and, on Toxoplasma vacuoles, far less accurate; when False, the object's diameter setting is used, or its magnification default when blank. Read only for Cellpose 3 models. Default False.",
+      "source_sha256": "5699e735e899567e2786bdfc4b627fa8e5f52a295662d323b8a54529131a593b",
+      "translation": "När True uppskattar en namngiven Cellpose 3-modell varje bilds objektdiameter med sin egen storleksmodell, vilket är långsammare och, för Toxoplasma-vakuoler, betydligt mindre exakt; när False används objektets diameterinställning, eller förstoringens standardvärde när den är tom. Läses endast för Cellpose 3-modeller. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background",
+      "source": "Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
+      "source_sha256": "5dd1d7203d14829df4d61e0a8b992e7bbb16028aefb738f7bf8e2d3e06f2b1b4",
+      "translation": "Bakgrundssubtraktion för varje vald segmenteringskanal efter belysningskorrigering och före normalisering, det första steget i förbättringskedjan som Skapa masker (Make Masks) finjusterar. rolling_ball tar bort en anpassad yta med radien nedan och jämnar ut ojämn belysning; tophat behåller det som är ljusare än omgivningen och är snabbare; none är av. Ställ in radien större än det största objektet. En återupptagen körning vägrar Mask-indata som skapats med en annan kedja. Standard 'none'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background_radius",
+      "source": "Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
+      "source_sha256": "a34eda8a367c04d30ce8bd60f479060f44436790f8a141c061c2cc166179c15c",
+      "translation": "Radie i pixlar för den rullande bollen eller top-hat-disken. Gör den större än det största objektet och mindre än den skala som belysningen varierar på; en radie under objektstorleken tar bort objekten tillsammans med bakgrunden. Standard 50."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background_scale",
+      "source": "Fraction of full size the background is estimated at, above 0 and at most 1. The surface is scaled back up before subtraction, so only the estimate is smaller; 1.0 is scikit-image's exact answer and is slow on large fields. Default 0.5.",
+      "source_sha256": "ab8cf3b7e8238fad27bbf7fdf278a283a4415d2bc020c89739fc2445554f988b",
+      "translation": "Andel av full storlek som bakgrunden uppskattas vid, över 0 och högst 1. Ytan skalas upp igen före subtraktionen, så bara uppskattningen blir mindre; 1.0 är det exakta svaret från scikit-image och är långsamt på stora bildfält. Standard 0.5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe",
+      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without blowing out the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+      "source_sha256": "f465bb6876b67694c23711b4799fbf90b9a58525d353c2a759931cec2532ed77",
+      "translation": "Kontrastbegränsad adaptiv histogramutjämning, per delruta i stället för över hela bildfältet. Lyfter fram objekt i ett mörkt hörn utan att bränna ut den ljusa mitten, och förstärker brus i tomma delrutor, vilket klippgränsen begränsar. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe_clip",
+      "source": "CLAHE clip limit, above 0 and at most 1. Higher gives more contrast and more amplified noise in tiles that hold only background; unused unless enhance_clahe is on. Default 0.01.",
+      "source_sha256": "76965f4475f12af7b1956a80a90a18e1d4af145d1f58549e3c9164d5080adabe",
+      "translation": "CLAHE-klippgräns, över 0 och högst 1. Högre ger mer kontrast och mer förstärkt brus i delrutor som bara innehåller bakgrund; används inte om inte enhance_clahe är på. Standard 0.01."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe_tile",
+      "source": "Side of one CLAHE tile in pixels, at least 8. Make it larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself. Default 64.",
+      "source_sha256": "2b49b6e9b3cc896678dfb8d67fd029e85672d6128c140e490950841978bdb83b",
+      "translation": "Sidan på en CLAHE-delruta i pixlar, minst 8. Gör den större än ett objekt och mindre än den skala som belysningen varierar på; en delruta lika stor som ett objekt utjämnar objektet mot sig självt. Standard 64."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_denoise",
+      "source": "Smoothing after background subtraction and the PSF, before the contrast curves. gaussian is a Gaussian filter with the strength as sigma in pixels; median removes speckle and keeps edges; bilateral and nlm (non-local means) keep edges better and are slow on whole fields; tv is total-variation (Chambolle), the edge-preserving smoother offered in place of anisotropic diffusion; none is off. Default 'none'.",
+      "source_sha256": "ee987370df03140f44631dca0ce4164973ae949bc2deebd4658106c7286d9fdc",
+      "translation": "Utjämning efter bakgrundssubtraktionen och PSF:en, före kontrastkurvorna. gaussian är ett gaussiskt filter med styrkan som sigma i pixlar; median tar bort prickbrus och bevarar kanter; bilateral och nlm (icke-lokala medelvärden) bevarar kanter bättre och är långsamma på hela bildfält; tv är totalvariation (Chambolle), den kantbevarande utjämnaren som erbjuds i stället för anisotrop diffusion; none är av. Standard 'none'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_denoise_strength",
+      "source": "How much smoothing, above 0: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, the non-local means cut-off in multiples of the measured noise, or ten times the total-variation weight on 0..1. Default 1.0.",
+      "source_sha256": "968d3d0c77d8aa3ac68feab003ef260bf22ba325135c6a848b990872866258b7",
+      "translation": "Hur mycket utjämning, över 0: Gausskärnans sigma i pixlar, diskradien för median- och bilateralfiltret, gränsen för icke-lokala medelvärden i multiplar av det uppmätta bruset, eller tio gånger totalvariationsvikten på 0..1. Standard 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_equalize",
+      "source": "Global histogram equalisation of each selected channel plane, the strongest of the contrast curves. A field that is mostly background has its background stretched across half the range. Default False.",
+      "source_sha256": "f1c95f6e2047ca41d41bea12188ae4f6cf8126d6ffd647444ca40ea879e56735",
+      "translation": "Global histogramutjämning av varje valt kanalplan, den kraftigaste av kontrastkurvorna. I ett bildfält som till största delen är bakgrund sträcks bakgrunden ut över halva intervallet. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_gamma",
+      "source": "Exponent the intensities are raised to on 0..1, above 0; 1.0 is off. Below 1 lifts the dim end so faint objects rise out of the background; above 1 pushes it down and keeps only the bright ones. Default 1.0.",
+      "source_sha256": "361e660fac3030c578d3a9fc6e68ee7835618b68d7bfa5d1b1914d86e7e2e1bd",
+      "translation": "Exponent som intensiteterna upphöjs till på 0..1, över 0; 1.0 är av. Under 1 lyfts den mörka änden så att svaga objekt framträder ur bakgrunden; över 1 trycks den ned och bara de ljusa behålls. Standard 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_log",
+      "source": "Logarithmic transform on 0..1, log(1 + gain x) / log(1 + gain), applied after gamma. It compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1 does. Default False.",
+      "source_sha256": "4c70381dd320b9d0c270a34b724eef682e8fc9353814df8e34c4bbfe650eced4",
+      "translation": "Logaritmisk transform på 0..1, log(1 + gain x) / log(1 + gain), tillämpad efter gamma. Den komprimerar den ljusa änden och lyfter den mörka, kraftigare nära noll än ett gammavärde under 1 gör. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_log_gain",
+      "source": "Factor the unit-interval intensities are multiplied by before the logarithm, above 0. Larger compresses the bright end harder; as it goes to zero the curve becomes the identity. Unused unless enhance_log is on. Default 10.0.",
+      "source_sha256": "59fc6e3b4f9ee6372e5c861c3dd25ec8c8d516c5371484b3c2cb031301c0dbfe",
+      "translation": "Faktor som intensiteterna i enhetsintervallet multipliceras med före logaritmen, över 0. Större värde komprimerar den ljusa änden hårdare; när den går mot noll blir kurvan identiteten. Används inte om inte enhance_log är på. Standard 10.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_clip",
+      "source": "Clip each selected channel plane to two percentiles of its own intensities before the contrast curves. Removes hot and dead pixels from the range the curves are drawn on without stretching anything, so intensity thresholds keep their units. Default False.",
+      "source_sha256": "ed106e48038ea67f82ac2741d4399464fb21f91e5600c4d1442ab82c5d6ffd38",
+      "translation": "Klipp varje valt kanalplan till två percentiler av dess egna intensiteter före kontrastkurvorna. Tar bort heta och döda pixlar ur intervallet som kurvorna ritas på utan att sträcka något, så att intensitetströsklar behåller sina enheter. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_high",
+      "source": "Upper percentile of the enhancement chain's percentile clip, at most 100 and above the lower percentile. Pixels brighter than this percentile of their own plane are lowered to it. Default 99.0.",
+      "source_sha256": "a686edc681176dcbaa520f43bd984b53d06668693a5968396fabe7a910f97949",
+      "translation": "Övre percentil för förbättringskedjans percentilklippning, högst 100 och över den nedre percentilen. Pixlar som är ljusare än denna percentil av sitt eget plan sänks till den. Standard 99.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_low",
+      "source": "Lower percentile of the enhancement chain's percentile clip, at least 0 and below the upper percentile. Pixels darker than this percentile of their own plane are raised to it. Default 1.0.",
+      "source_sha256": "d5151af6931a0f2ce88769f18f6c6ad74d005d400a785a662c0eaade0a1595df",
+      "translation": "Nedre percentil för förbättringskedjans percentilklippning, minst 0 och under den övre percentilen. Pixlar som är mörkare än denna percentil av sitt eget plan höjs till den. Standard 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen",
+      "source": "Unsharp mask after the contrast curves. Makes edges steeper so a threshold lands on the boundary; too much amount puts a bright rim around every object and a dark moat outside it. Default False.",
+      "source_sha256": "f80e503ae01722b15bcc53b6ff97ab87312256209f10b34ce0621d6518bb9fce",
+      "translation": "Oskarp mask efter kontrastkurvorna. Gör kanterna brantare så att ett tröskelvärde hamnar på gränsen; för hög grad ger en ljus kant runt varje objekt och en mörk vallgrav utanför den. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen_amount",
+      "source": "How much of the unsharp mask is added back, at least 0. One is a normal sharpen; above 2 the halos around objects start to become objects of their own. Default 1.0.",
+      "source_sha256": "ef5a48dfa756047713630b1f2668981c7452b635a5cac757f04d9a03cef3f5d9",
+      "translation": "Hur mycket av den oskarpa masken som läggs tillbaka, minst 0. Ett ger normal skärpning; över 2 börjar halona runt objekten bli egna objekt. Standard 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen_radius",
+      "source": "Blur radius in pixels the unsharp mask is built from, above 0: about the scale of the edges to sharpen. Unused unless enhance_sharpen is on. Default 1.0.",
+      "source_sha256": "755c40375db19b9dfc23c7b410255c16a15e47bb10fb29317cf1bf168205f8df",
+      "translation": "Oskärperadie i pixlar som den oskarpa masken byggs från, över 0: ungefär skalan på de kanter som ska skärpas. Används inte om inte enhance_sharpen är på. Standard 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sqrt",
+      "source": "Square-root transform on 0..1, applied after the logarithm: the curve a gamma of 0.5 draws, offered by name. It lifts the dim end of every selected channel before detection. Default False.",
+      "source_sha256": "5492478078058e15a3b4eba808b57729424b91d24cc59b9019cad84d6007eb2e",
+      "translation": "Kvadratrotstransform på 0..1, tillämpad efter logaritmen: den kurva som ett gammavärde på 0.5 ger, erbjuden under eget namn. Den lyfter den mörka änden i varje vald kanal före detektion. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_filters",
+      "source": "Extra object filters on any scalar scikit-image regionprop, listed per object type, for example {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. An object is kept when min <= value <= max, and a missing side is off. Intensity properties read the object's own raw channel. Applied together with the area and intensity bounds in Mask runs and Live Preview, in the same form Make Masks records its Filter list. Default {}.",
+      "source_sha256": "9d212036814768ba9e81034cb7fb7633b5b4e8db2b20e22381c3201ecbc2ff01",
+      "translation": "Extra objektfilter på valfri skalär regionprop från scikit-image, listade per objekttyp, till exempel {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. Ett objekt behålls när min <= value <= max, och en sida som saknas är avstängd. Intensitetsegenskaper läser objektets egen råkanal. Tillämpas tillsammans med yt- och intensitetsgränserna i Mask-körningar och i direktförhandsvisningen, i samma form som Skapa masker (Make Masks) registrerar sin filterlista. Standard {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_spot_detector",
+      "source": "Which detector finds the sequencing spots each field's reads are called at. 'native' is spaCR's own spot score and the only one this plate was validated with. 'spotnet' is DeepCell's SpotNet, a trained spot detector run in an environment of its own; its positions go through the same bases, calls and assignment to nuclei, and ops_read_threshold no longer applies. SpotNet's models are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be installed from the Model Zoo, and its weights need a free DeepCell access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. It decodes one field at a time. Default 'native'.",
+      "source_sha256": "edda98fd31da19d81f11b2d6e7a2d689841eaa9a7722dd63c497211a698fdddd",
+      "translation": "Vilken detektor som hittar de sekvenseringsfläckar där varje bildfälts sekvensläsningar bestäms. 'native' är spaCR:s egen fläckpoäng och den enda som denna platta validerades med. 'spotnet' är DeepCells SpotNet, en tränad fläckdetektor som körs i en egen miljö; dess positioner går genom samma baser, basanrop och tilldelning till kärnor, och ops_read_threshold gäller inte längre. SpotNets modeller är licensierade ENDAST FÖR ICKE-KOMMERSIELL AKADEMISK ANVÄNDNING, den måste installeras från modellbiblioteket (Model Zoo), och dess vikter kräver en kostnadsfri DeepCell-åtkomsttoken i DEEPCELL_ACCESS_TOKEN eller ~/.spacr/deepcell_token. Den avkodar ett bildfält i taget. Standard 'native'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_fwhm_um",
+      "source": "Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
+      "source_sha256": "8cd70f74d9eb3b2d6adcd9a40610d115ebf39c76c1cc28f532970222b0efe04a",
+      "translation": "Standard None (ej angivet). Gaussisk halvvärdesbredd (FWHM) [Y, X] i mikrometer; båda värdena måste vara positiva och ändliga. Om den inte anges beräknar Masker och Tidsserie 0.51 × emissionsvåglängd / NA från bildens metadata eller psf_objective (520 nm, NA 0.75: 0.354 µm som standard), en approximation av den ideala vidfälts-PSF:en, inte uppmätt upplösning. Mätning kräver att den anges uttryckligen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_image_sampling_um",
+      "source": "Default None (unset). Image pixel spacing [Y, X] in micrometers; both numbers must be positive and finite. Unset with a Gaussian PSF, Mask and timelapse infer it from the first source image's OME/ImageJ calibration, else camera pixel / magnification of psf_objective (6.5 µm / 20 = 0.325 µm by default), and print each value's source. Measure and measured kernels require it explicitly.",
+      "source_sha256": "3d02205c40eae1d7fe29a5a55faa5186693092bd2e541c8bd51fbd30874c1fd2",
+      "translation": "Standard None (ej angivet). Bildens pixelavstånd [Y, X] i mikrometer; båda talen måste vara positiva och ändliga. Om det inte anges och PSF:en är gaussisk härleder Masker och Tidsserie det från den första källbildens OME/ImageJ-kalibrering, annars som kamerapixel / förstoring för psf_objective (6.5 µm / 20 = 0.325 µm som standard), och skriver ut källan till varje värde. Mätning och uppmätta kärnor kräver att det anges uttryckligen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_objective",
+      "source": "Objective used to infer PSF calibration that is left unset: auto reads magnification, numerical aperture, immersion and pixel size from the first source image's OME metadata and otherwise assumes a 20x/0.75 air objective; a table row such as 10x/0.30 air, 40x/0.95 air, 60x/1.40 oil or 100x/1.45 oil uses that objective's values, with a 6.5 µm camera pixel and 520 nm emission unless the metadata says otherwise. Explicit psf_image_sampling_um and psf_fwhm_um always win. Default auto.",
+      "source_sha256": "f19fbe9131eb425633e0949d28055117c8df9e5a7a21100dbe2adec220098d19",
+      "translation": "Objektiv som används för att härleda PSF-kalibrering som inte har angetts: auto läser förstoring, numerisk apertur, immersion och pixelstorlek från den första källbildens OME-metadata och antar annars ett 20x/0.75-luftobjektiv; en tabellrad som 10x/0.30 luft, 40x/0.95 luft, 60x/1.40 olja eller 100x/1.45 olja använder det objektivets värden, med en kamerapixel på 6.5 µm och emission vid 520 nm om inte metadata anger annat. Uttryckligt angivna psf_image_sampling_um och psf_fwhm_um har alltid företräde. Standard auto."
+    }
+  ]
+}

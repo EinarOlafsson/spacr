@@ -123,6 +123,13 @@ _REPORTS_BEING_FILED: dict = {}
 #: so a report that has not come back inside two minutes is not coming back.
 REPORT_IN_FLIGHT_SECONDS = 120.0
 
+#: How long an automatic report waits for spaCR AI to finish explaining the
+#: error it is about, so the report can carry the answer. Short enough that
+#: the wait plus the posting (`gh auth token` 8 s, API calls 20 s each) stays
+#: inside :data:`REPORT_IN_FLIGHT_SECONDS`, so the same crash cannot be filed
+#: twice while one report is still waiting.
+AI_ANSWER_WAIT_SECONDS = 60.0
+
 #: Edge of the gear beside "Copy console", in logical pixels before the
 #: interface scale. Named rather than written twice, because the size is
 #: now set once at construction and re-derived from this number whenever
@@ -1906,6 +1913,12 @@ class AppScreen(QWidget):
         body.setSizes([400, 800])
         outer.addWidget(body, 1)
         self._shell_focus.target(body, "Settings")
+        try:
+            from ..live_zoom import register_text_column
+            register_text_column(self._runtime_wrap)
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not register the right-hand column's text",
+                      exc_info=True)
 
         self._wire_live_preview_autoload()
         if self.app_key == "analyze_plaques":
@@ -8270,9 +8283,10 @@ class AppScreen(QWidget):
         :func:`~spacr.qt.ai.issue_report.build_report`, and it is sent with
         the redaction the preview applies by default
         (:func:`~spacr.qt.ai.issue_report.public_report`). spaCR AI's
-        analysis is attached only when the AI has already answered this
-        error. A provider that failed leaves no analysis
-        (``ai_explanation_of``).
+        analysis is attached when the AI has answered this error. When it is
+        still answering, filing waits for the answer, for at most
+        :data:`AI_ANSWER_WAIT_SECONDS` (:meth:`_wait_for_the_ai_then_file`).
+        A provider that failed leaves no analysis (``ai_explanation_of``).
 
         One crash is filed once. A fingerprint this profile has filed before
         is not filed again, nor is one still being filed. A fingerprint that
@@ -8299,6 +8313,88 @@ class AppScreen(QWidget):
             self._console.append_notice(
                 "[issue] This error is being reported already.\n")
             return
+        if self._the_ai_is_still_explaining(tb):
+            self._wait_for_the_ai_then_file(tb, fingerprint)
+            return
+        self._post_the_report(tb, fingerprint)
+
+    def _the_ai_is_still_explaining(self, tb: str) -> bool:
+        """Whether spaCR AI is answering THIS error right now.
+
+        The run ends a moment after the error reaches the AI, so an automatic
+        report filed at once went out before the answer nearly every time --
+        the analysis the report exists to carry was missing from almost all
+        of them.
+
+        :param tb: the traceback the report is about.
+        :returns: True while a stream is running for ``tb`` and no answer to
+            it has been kept yet.
+        """
+        console = self._console
+        if getattr(console, "_ai_worker", None) is None:
+            return False
+        asked = getattr(console, "_ai_error_traceback", "") or ""
+        if not asked or asked.strip() != (tb or "").strip():
+            return False
+        try:
+            return not console.ai_explanation_of(tb)
+        except Exception:                                    # noqa: BLE001
+            return False
+
+    def _wait_for_the_ai_then_file(self, tb: str, fingerprint: str) -> None:
+        """File when spaCR AI's answer lands, or after a bounded wait.
+
+        The fingerprint is marked in flight for the wait, so a second failure
+        with the same crash does not start a second report meanwhile.
+
+        :param tb: the traceback the report is about.
+        :param fingerprint: its fingerprint.
+        """
+        _REPORTS_BEING_FILED[fingerprint] = time.monotonic()
+        self._report_waiting_for_the_ai = (tb, fingerprint)
+        timer = getattr(self, "_ai_answer_timer", None)
+        if timer is None:
+            timer = QTimer(self)
+            timer.setSingleShot(True)
+            timer.timeout.connect(self._file_the_waiting_report)
+            self._ai_answer_timer = timer
+        if not getattr(self, "_listening_for_the_ai", False):
+            self._console.ai_stream_finished.connect(
+                self._file_the_waiting_report)
+            self._listening_for_the_ai = True
+        timer.start(int(AI_ANSWER_WAIT_SECONDS * 1000))
+        self._console.append_notice(
+            "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the "
+            "report carries it…\n", seconds=int(AI_ANSWER_WAIT_SECONDS))
+
+    def _file_the_waiting_report(self) -> None:
+        """File the report that was waiting for the AI. Runs once per wait."""
+        waiting = getattr(self, "_report_waiting_for_the_ai", None)
+        self._report_waiting_for_the_ai = None
+        timer = getattr(self, "_ai_answer_timer", None)
+        if timer is not None:
+            timer.stop()
+        if getattr(self, "_listening_for_the_ai", False):
+            self._listening_for_the_ai = False
+            try:
+                self._console.ai_stream_finished.disconnect(
+                    self._file_the_waiting_report)
+            except (RuntimeError, TypeError):
+                LOG.debug("the AI answer signal was already gone",
+                          exc_info=True)
+        if waiting is None:
+            return
+        tb, fingerprint = waiting
+        self._post_the_report(tb, fingerprint)
+
+    def _post_the_report(self, tb: str, fingerprint: str) -> None:
+        """Build, redact and post the report on the background runner.
+
+        :param tb: the traceback the report is about.
+        :param fingerprint: its fingerprint.
+        """
+        from ..ai import issue_report
+
         try:
             analysis = self._console.ai_explanation_of(tb)
         except Exception:                                    # noqa: BLE001

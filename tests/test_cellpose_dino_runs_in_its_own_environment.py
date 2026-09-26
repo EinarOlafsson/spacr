@@ -32,6 +32,7 @@ import spacr.object as O
 from spacr import model_zoo as zoo
 from spacr.spacr_cellpose import parse_cellpose4_output
 import tests.test_object_tstack_wiring as _wiring
+import tests.test_cellpose_3_models_are_usable as _cp3
 
 _base_settings = _wiring._base_settings
 _write_npz = _wiring._write_npz
@@ -483,3 +484,88 @@ def test_a_dino_row_downloads_and_names_its_backend():
     assert zoo._backend_for(row) == "cellpose_dino"
     assert zoo.source_of(row) == "bioimage.io"
     assert "cellpose_dino" in zoo.KINDS
+
+
+# ===========================================================================
+# 6. v2, the previews and the magnifier take the same route (525, second pass)
+# ===========================================================================
+
+@pytest.mark.parametrize("value, settings, route", [
+    ("cellpose_dino:/m/w", None, "cellpose_dino"),
+    ("CELLPOSE_DINO:/m/w", None, "cellpose_dino"),
+    ("cellpose_dino:/m/w", {"segmentation_backend": "cellpose3"},
+     "cellpose_dino"),
+    ("cellpose3:cyto3", None, "cellpose3"),
+    ("cyto2", {"segmentation_backend": "cellpose3"}, "cellpose3"),
+    ("cpsam", None, None),
+])
+def test_the_route_table_has_a_cellpose_dino_row(value, settings, route):
+    """A ``cellpose_dino:`` value answers the DINO row whatever
+    ``segmentation_backend`` says -- in V1 the prefix wins too."""
+    answer = O._prefixed_model_route(value, settings)
+    if route is None:
+        assert answer is None
+    elif route == "cellpose_dino":
+        assert answer == ("cellpose_dino", O._cellpose_dino_masks)
+    else:
+        assert answer == ("cellpose3", O._cellpose3_masks)
+
+
+def test_the_dino_masks_function_makes_v1s_sam_call():
+    model = _cp3._InputDependentCellpose3()
+    images = [np.ones((12, 12, 2), np.float32),
+              np.ones((12, 12), np.float32)]
+    masks, flows, probability = O._cellpose_dino_masks(
+        model, images, {"cell_diameter": 40, "cell_flow_threshold": 0.6,
+                        "cell_cellprob_threshold": -1.0},
+        "cell", min_size=9, default_diameter=90, batch_size=8,
+        probabilities=True)
+    [call] = model.calls
+    assert call["shapes"] == [(12, 12, 2), (12, 12, 1)]
+    assert call["batch_size"] == 2 and call["normalize"] is False
+    assert call["channel_axis"] == -1 and call["min_size"] == 9
+    assert call["diameter"] == 40.0 and call["resample"] is True
+    assert (call["flow_threshold"], call["cellprob_threshold"]) == (0.6, -1.0)
+    assert len(masks) == len(flows) == len(probability) == 2
+    assert probability[0].shape == (12, 12)
+    O._cellpose_dino_masks(model, images[:1], {}, "pathogen", min_size=1,
+                           default_diameter=30)
+    assert model.calls[1]["resample"] is False
+    assert model.calls[1]["diameter"] is None
+
+
+def test_v2_segments_a_cellpose_dino_model_exactly_as_v1_does(tmp_path,
+                                                             monkeypatch):
+    """Same field, same checkpoint: V1's saved mask and v2's appended mask
+    plane are one array, from one ``eval`` call with the same images and
+    keywords (the Cellpose 3 twin of this test explains the layout)."""
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+
+    seen, model = _cp3._spy_on_both_pipelines(monkeypatch)
+    value = "cellpose_dino:/m/cellposedino_vit_b"
+    v1_src = tmp_path / "v1" / "masks"
+    settings = set_default_settings_preprocess_generate_masks(
+        _base_settings(v1_src, cell_model_name=value, cell_diameter=44))
+
+    stacks = _cp3._v2_stack(tmp_path / "v2", _cp3._field())
+    _cp3._run_v2(stacks, settings)
+    [v2_call] = model.calls
+    v2_saved = np.load(stacks[0].path)
+
+    v1_src.mkdir(parents=True)
+    handed = model.images[0][0]
+    v1_stack = np.stack([handed[..., 1], handed[..., 0]], axis=-1)
+    np.savez(v1_src / "batch1.npz", data=v1_stack[None],
+             filenames=np.array(["plate1_A01_1.npy"]))
+    O.generate_cellpose_masks_sam(str(v1_src), dict(settings), "cell")
+    v1_call = model.calls[1]
+
+    assert [s["name"] for s in seen] == ["cellpose_dino"] * 2
+    assert [s["model_name"] for s in seen] == [value] * 2
+    assert v1_call == v2_call
+    assert v2_call["normalize"] is False and v2_call["diameter"] == 44.0
+    assert v2_call["shapes"] == [(32, 32, 2)]
+    v1_mask = np.load(v1_src / "cell_mask_stack" / "plate1_A01_1.npy")
+    assert v1_mask.dtype == v2_saved.dtype == np.uint16
+    np.testing.assert_array_equal(v1_mask, v2_saved[..., -1])
+    assert v1_mask.max() >= 2

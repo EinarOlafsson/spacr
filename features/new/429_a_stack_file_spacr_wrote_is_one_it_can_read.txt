@@ -2,7 +2,12 @@
 A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
 ================================================================================
 
-Status:    Implementation complete on nightly, updated 2026-09-24.
+Status:    DONE here (re-verified 2026-09-25, 93 regression checks pass on
+           nightly a93f937d2); remaining: (a) docs lane -- the consolidated
+           API-page/translation pass for the changed public docstrings
+           (handed off in #325); (b) the reporter (jak18015) confirming on
+           his macOS external volume, which no machine here can reproduce.
+           Implementation complete on nightly, updated 2026-09-24.
            Original Mask/Measure/sidecar/regex/pickle fixes are integrated.
            The three recorded runtime follow-ups are now fixed: converted
            folder reruns, wrong-field streamed crops and visible importer
@@ -377,3 +382,15 @@ replaced it with mappings for newly added inputs. Two real conversion/archive
 regressions reproduced that loss. The log now triggers refusal before writes,
 with the same separate-raw-folder/cellvoyager guidance. All 51 conversion
 checks pass (32.09s); all existing data/log bytes remain intact on refusal.
+
+2026-09-25 -- RE-VERIFIED, NOTHING IMPLEMENTABLE LEFT HERE
+Six regression files on nightly a93f937d2, 93 passed (31.6 s):
+test_a_failed_regex_conversion_never_renumbers_wells,
+test_a_rerun_trusts_nothing_a_killed_run_left,
+test_a_stack_file_spacr_wrote_is_one_it_can_read,
+test_auto_conversion_preserves_existing_wells,
+test_measure_takes_no_macos_sidecar_for_a_field,
+test_spacr_masks_load_without_unpickling.
+Every code follow-up recorded above is closed. What remains is not code:
+the docs lane's translation of the changed docstrings, and a confirming run
+by the reporter on a real macOS volume.
