@@ -2653,7 +2653,12 @@ def _watershed_split(binary, intensity):
 
 
 def _postprocess_masks(masks, min_size=10, max_size=None, remove_border=False):
-    """Return each label mask with size filtering and optional border-object removal."""
+    """Return each label mask with size filtering and optional border-object removal.
+
+    The survivors are renumbered 1..N by value, through a lookup table, not
+    by connectivity: ``label(mask > 0)`` made touching objects one object,
+    the same merge item 588 removed from hole filling.
+    """
     processed = []
     for mask in masks:
         mask = mask.copy()
@@ -2676,7 +2681,11 @@ def _postprocess_masks(masks, min_size=10, max_size=None, remove_border=False):
                 elif max_size is not None and prop.area > max_size:
                     mask[mask == prop.label] = 0
 
-        mask = sk_label(mask > 0)
+        values = np.unique(mask)
+        values = values[values > 0]
+        lookup = np.zeros(int(values.max()) + 1 if values.size else 1, dtype=np.int32)
+        lookup[values] = np.arange(1, values.size + 1, dtype=np.int32)
+        mask = lookup[np.where(mask > 0, mask, 0)]
         processed.append(mask)
 
     return processed

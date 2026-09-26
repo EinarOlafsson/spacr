@@ -1263,16 +1263,28 @@ def divide_object(mask: np.ndarray, p0, p1,
 def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
     """Fill enclosed background pixels, optionally retaining primary identities.
 
+    Holes are filled per object by :func:`fill_label_holes`, never by
+    filling the foreground and labelling it again: that joined every pair of
+    touching cells into one object (item 588).
+
     :param mask: label image to fill.
-    :param preserve_ids: fill per object without merging or renumbering labels.
-        Requires exact uint16-compatible IDs; default retains binary relabeling.
+    :param preserve_ids: validate the ids as exact primary IDs first
+        (uint16-compatible, via :func:`canonical_labels`). Either way every
+        id is kept. By default a mask with a single foreground value -- a
+        brush-painted binary mask, which carries no ids -- is numbered by
+        connectivity first, as :func:`canonical_labels` numbers it.
     """
     if preserve_ids:
-        return _fill_label_holes(canonical_labels(mask, preserve_ids=True))
-    binary = mask > 0
-    filled = _ndimage().binary_fill_holes(binary)
-    labeled, _ = _ndimage().label(filled)
-    return labeled.astype(mask.dtype)
+        return fill_label_holes(canonical_labels(mask, preserve_ids=True))
+    m = np.asarray(mask)
+    labels = m
+    if m.dtype == bool or not np.issubdtype(m.dtype, np.integer):
+        labels = canonical_labels(m)
+    elif m.size and m.any():
+        top = int(m.max())
+        if int(np.min(m, where=m > 0, initial=top)) == top:
+            labels = canonical_labels(m)
+    return _fit_label_width(fill_label_holes(labels), m)
 
 
 def relabel_objects(mask: np.ndarray) -> np.ndarray:
@@ -3255,27 +3267,60 @@ def _grow_markers(blurred, markers, *, stop, stop_value, stop_algorithm,
     if keep_markers:
         labels[markers > 0] = markers[markers > 0]
     if fill_holes:
-        labels = _fill_label_holes(labels)
+        labels = fill_label_holes(labels)
     return PropagateResult(_drop_small_labels(labels, min_area, relabel=relabel),
                            seeds, level)
 
 
-def _fill_label_holes(labels: np.ndarray) -> np.ndarray:
-    """Close the holes inside each object, without joining two of them.
+def fill_label_holes(labels: np.ndarray) -> np.ndarray:
+    """Close the holes inside each object, keeping every id it already had.
 
-    ``binary_fill_holes`` over the whole foreground would fill the gap
-    BETWEEN two objects that happen to ring a piece of background, so the
-    holes are filled per label and written back only where nothing else has
-    a claim.
+    THE ONE HOLE FILLER FOR LABEL IMAGES. :func:`fill_holes`, the
+    propagation step above and :func:`spacr.utils.fill_holes_in_mask` (the
+    Cellpose ``fill_in`` step) all come here. Filling the binary foreground
+    and labelling it afresh with ``ndimage.label`` is what this replaces: it
+    makes every pair of TOUCHING objects one object, so a field of 74
+    adjacent cells came back as 8 (item 588). Here nothing is relabelled.
+
+    ``binary_fill_holes`` over the whole foreground would also fill the gap
+    BETWEEN objects that happen to ring a piece of background, so each label
+    is filled on its own and written back only onto background: a hole never
+    overwrites another object's pixels. Each label is filled inside its own
+    bounding box (:func:`scipy.ndimage.find_objects`), which is exact --
+    background on the edge of the box touches the outside of the box, where
+    this label has no pixels, so it can never be one of its holes -- and
+    keeps a 2048 x 2048 field of hundreds of objects to a fraction of a
+    second. Smaller boxes claim first, so a hole inside a ring that itself
+    sits inside another ring goes to the inner one.
+
+    :param labels: a 2-D (or N-D) non-negative integer label image. A
+        boolean mask is labelled by connectivity first, since it carries no
+        ids to keep.
+    :returns: an array of the input's dtype (``int32`` for a boolean input)
+        in which every object keeps its id and its holes carry that id.
     """
     ndimage = _ndimage()
-    out = np.asarray(labels, dtype=np.int32).copy()
-    background = out == 0
-    for value in np.unique(out):
-        if value == 0:
-            continue
-        filled = ndimage.binary_fill_holes(out == value)
-        out[filled & background] = value
+    arr = np.asarray(labels)
+    if arr.dtype == bool:
+        arr, _count = ndimage.label(arr)
+        arr = arr.astype(np.int32)
+    out = arr.copy()
+    if not out.size or not out.any():
+        return out
+    if not np.issubdtype(out.dtype, np.integer):
+        raise ValueError("fill_label_holes needs an integer label image.")
+    boxes = ndimage.find_objects(out)
+    order = sorted(
+        (index for index, box in enumerate(boxes) if box is not None),
+        key=lambda index: int(np.prod([s.stop - s.start for s in boxes[index]])))
+    for index in order:
+        box = boxes[index]
+        value = index + 1
+        window = out[box]
+        own = window == value
+        holes = ndimage.binary_fill_holes(own) & ~own & (window == 0)
+        if holes.any():
+            window[holes] = value
     return out
 
 
