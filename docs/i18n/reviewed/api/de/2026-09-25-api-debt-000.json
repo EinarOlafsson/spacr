@@ -1909,6 +1909,1950 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
+      "label": "spacr.flowview.model.RunGraph.from_dict#1",
+      "source": "mapping with the ``run_id``, ``started_at``, ``nodes``, ``edges``, ``spacr_version`` and ``settings_digest`` keys :meth:`to_dict` writes; every key is required and a missing one raises ``KeyError``.",
+      "source_sha256": "3b5ba898bc62fe999c7b1d76e29999e9035e64c1d367e7882bfdbb2ef34e324b",
+      "context": "mapping with the ``run_id``, ``started_at``, ``nodes``, ``edges``, ``spacr_version`` and ``settings_digest`` structured-data names :meth:`to_dict` writes; every structured-data name is required and a missing one throws ``KeyError``.",
+      "translation": "Mapping mit den Schlüsseln ``run_id``, ``started_at``, ``nodes``, ``edges``, ``spacr_version`` und ``settings_digest``, die :meth:`to_dict` schreibt; jeder Schlüssel ist erforderlich, und ein fehlender löst ``KeyError`` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.flowview.model.RunGraph.from_json#1",
+      "source": "JSON text (``str``, ``bytes`` or ``bytearray``) as written by :meth:`to_json`; it is decoded with ``json.loads`` and passed to :meth:`from_dict`.",
+      "source_sha256": "30f7471736f3768a2796e1b82645ad5b5227bf8fc4235dea7a388fe278320297",
+      "context": "JSON text (``str``, ``bytes`` or ``bytearray``) as written by :meth:`to_json`; it is decoded with ``json.loads`` and passed to :meth:`from_dict`.",
+      "translation": "JSON-Text (``str``, ``bytes`` oder ``bytearray``), wie von :meth:`to_json` geschrieben; er wird mit ``json.loads`` dekodiert und an :meth:`from_dict` übergeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.flowview.panel.FlowGraphicsView.wheelEvent#1",
+      "source": "the wheel event; only its vertical ``angleDelta`` is read, and it is accepted when the zoom changed and ignored otherwise.",
+      "source_sha256": "992661fcc4c66b93e325dc0c7f297f7edb2defaf8849a7cfb6b7bbd0ca332528",
+      "context": "the wheel event; only its vertical ``angleDelta`` is read, and it is accepted when the zoom changed and ignored otherwise.",
+      "translation": "das Mausradereignis; nur sein vertikales ``angleDelta`` wird gelesen, und es wird akzeptiert, wenn sich der Zoom geändert hat, andernfalls ignoriert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.flowview.panel.FlowGraphicsView.zoom_by#1",
+      "source": "vertical wheel angle delta; only its sign is used (positive zooms in by ``ZOOM_STEP``, negative zooms out, zero does nothing), with the zoom held within ``MIN_ZOOM`` to ``MAX_ZOOM``.",
+      "source_sha256": "169c7284c6b7b0f2c9d3fbb52aa52d5cd2759aa797e89e89687a7414a9130e47",
+      "context": "vertical wheel angle delta; only its sign is used (positive zooms in by ``ZOOM_STEP``, negative zooms out, zero does nothing), with the zoom held within ``MIN_ZOOM`` to ``MAX_ZOOM``.",
+      "translation": "vertikales Delta des Radwinkels; nur sein Vorzeichen wird verwendet (positiv vergrößert um ``ZOOM_STEP``, negativ verkleinert, null bewirkt nichts), wobei der Zoom zwischen ``MIN_ZOOM`` und ``MAX_ZOOM`` gehalten wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.flowview.panel.FlowViewPanel.closeEvent#1",
+      "source": "the close event; it is passed on unchanged to the base-class handler.",
+      "source_sha256": "1480ca97cb9b6e881ab25a55234b82c3a9c7ab434321a9a27d85e25b2155678b",
+      "context": "the close event; it is passed on unchanged to the base-class handler.",
+      "translation": "das Schließereignis; es wird unverändert an den Handler der Basisklasse weitergereicht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.flowview.panel.FlowViewPanel.set_user_height#2",
+      "source": "requested panel height in pixels; converted with ``int`` and raised to ``INSPECTOR_MIN_HEIGHT`` plus the grip height when smaller.",
+      "source_sha256": "49bdf16dbfec19792019363177f6253b8304eab7362b6e36bd1c9d2e09b1284e",
+      "context": "requested panel height in pixels; converted with ``int`` and raised to ``INSPECTOR_MIN_HEIGHT`` plus the grip height when smaller.",
+      "translation": "angeforderte Panelhöhe in Pixeln; mit ``int`` umgewandelt und, falls kleiner, auf ``INSPECTOR_MIN_HEIGHT`` plus die Höhe des Griffs angehoben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.flowview.panel.inspector_text#1",
+      "source": "the graph node to describe; its label, identifier, kind, state, timings, progress, parameters, metrics and error are written one field per line, with ``—`` for values not yet known.",
+      "source_sha256": "129d7de2c1811b8ec4a805aba71c7ef74be8cd8268dcdf8b9dee3fa9195d54be",
+      "context": "the graph node to describe; its label, identifier, kind, state, timings, progress, parameters, metrics and error are written one field per line, with ``—`` for values not yet known.",
+      "translation": "der zu beschreibende Graphknoten; Label, Kennung, Art, Zustand, Zeitangaben, Fortschritt, Parameter, Metriken und Fehler werden je ein Feld pro Zeile geschrieben, mit ``—`` für noch unbekannte Werte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.foreign.plan_import#18",
+      "source": "the filename convention their images AND masks are named by -- any of Mask's ``metadata_type`` values. ``None`` or ``'auto'`` reads plate / well / field from the folders, as before. See :func:`spacr.convert.scan`.",
+      "source_sha256": "ab47a93fa1a0aece48bf4a97906eb579064561274a0281d5b4f11588dc70b9c8",
+      "context": "the filename convention their images AND masks are named by -- any of Mask's ``metadata_type`` values. ``None`` or ``'auto'`` reads laboratory microplate / microplate sample position / microscope field of view from the folders, as before. See :func:`spacr.convert.scan`.",
+      "translation": "die Dateinamenkonvention, nach der ihre Bilder UND Masken benannt sind -- einer der ``metadata_type``-Werte von Mask. ``None`` oder ``'auto'`` liest Platte / Well / Sichtfeld wie bisher aus den Ordnern. Siehe :func:`spacr.convert.scan`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.foreign.plan_import#19",
+      "source": "the pattern for ``metadata_type='custom'``.",
+      "source_sha256": "c1e01b74109915f60092631777802f1dd2e4ff3395ecaedbe568d1e4f85a5b52",
+      "context": "the pattern for ``metadata_type='custom'``.",
+      "translation": "das Muster für ``metadata_type='custom'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.gene_facts.Segment#1",
+      "source": "``signal peptide`` or ``transmembrane``.",
+      "source_sha256": "693580ce079aa50572b342cfe9cf6b4f3760103cf680f3cd07a0076be7631a98",
+      "context": "``signal peptide`` or ``transmembrane``.",
+      "translation": "``signal peptide`` oder ``transmembrane``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.host_pathogen#0",
+      "source": "Vacuole recruitment and replication with explicit host-cell denominators.",
+      "source_sha256": "f659b8661a62c30567ba656b416a8b4a861d0c0c88b3c7d196ceee03a6dc1ff8",
+      "context": "Vacuole recruitment and replication with explicit host-cell denominators.",
+      "translation": "Vakuolenrekrutierung und Replikation mit expliziten Wirtszell-Nennern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.analyze_host_pathogen#0",
+      "source": "Analyze measured projects and save a unified, source-separated report.",
+      "source_sha256": "a2099ebcd38a976a383e1b382fd01b3e3c3092e6cbddec8d5a00faaa54ac29e7",
+      "context": "Analyze measured projects and save a unified, source-separated report.",
+      "translation": "Analysiert gemessene Projekte und speichert einen einheitlichen Bericht mit getrennten Quellen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.analyze_host_pathogen#1",
+      "source": "hp_* settings from :func:`default_settings`; src accepts a project, measurements.db, or a list of either. Each canonical DB path is a distinct source identity, even when plate/field IDs repeat.",
+      "source_sha256": "0519872324fa548a0b80a48ea9d02673de8ee5a3063678319a1a93fd93bfe230",
+      "context": "hp_* settings from :func:`default_settings`; src accepts a project, measurements.db, or a list of either. Each canonical DB path is a distinct source identity, even when laboratory microplate/microscope field of view IDs repeat.",
+      "translation": "hp_*-Einstellungen aus :func:`default_settings`; src akzeptiert ein Projekt, measurements.db oder eine Liste aus beidem. Jeder kanonische DB-Pfad ist eine eigene Quellidentität, auch wenn sich Platten-/Sichtfeld-IDs wiederholen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.analyze_host_pathogen#2",
+      "source": "combined DataFrames from :func:`summarize_tables` and settings. CSV files and the exact settings JSON are written to the first project's results/host_pathogen directory when save is true. Host infection fractions describe retained measured cells. Run Measure with uninfected=True to include uninfected hosts in that denominator; previously discarded hosts cannot be reconstructed from these tables.",
+      "source_sha256": "de7a6e0a3bca77b0519d05a4e6841d099e7c4f894c3c065911654ab0a4bfeec9",
+      "context": "combined DataFrames from :func:`summarize_tables` and settings. CSV files and the exact settings JSON are written to the first project's results/host_pathogen directory when save is true. Host infection fractions describe retained measured cells. Run Measure with uninfected=True to include uninfected hosts in that denominator; previously discarded hosts cannot be reconstructed from these tables.",
+      "translation": "kombinierte DataFrames aus :func:`summarize_tables` sowie die Einstellungen. CSV-Dateien und das exakte Einstellungs-JSON werden in das Verzeichnis results/host_pathogen des ersten Projekts geschrieben, wenn save wahr ist. Die Infektionsanteile der Wirtszellen beschreiben beibehaltene gemessene Zellen. Führen Sie Measure mit uninfected=True aus, um nicht infizierte Wirtszellen in diesen Nenner aufzunehmen; zuvor verworfene Wirtszellen lassen sich aus diesen Tabellen nicht rekonstruieren.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.default_settings#0",
+      "source": "Apply Host–Pathogen defaults; replication requires explicit count inputs.",
+      "source_sha256": "d222fb7632cd9acf10ab7cb2aaa49fdf67d3d678033abbe1f0ac985a33d88f4d",
+      "context": "Apply Host–Pathogen defaults; replication requires explicit count inputs.",
+      "translation": "Wendet Host–Pathogen-Standardwerte an; die Replikation erfordert explizite Zähleingaben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.default_settings#1",
+      "source": "optional overrides, copied without modifying the caller.",
+      "source_sha256": "f8927a4645d41c43df3940adfa3c2be95c49509a1d6c105fc5b13688f667259e",
+      "context": "optional overrides, copied without modifying the caller.",
+      "translation": "optionale Überschreibungen, kopiert, ohne das Objekt des Aufrufers zu verändern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.default_settings#2",
+      "source": "settings with independent mutable defaults.",
+      "source_sha256": "3518ec9a573cfd2b8ec848ca6ff6fb49620f530a6cf01f5d2f54459187c0cba9",
+      "context": "settings with independent mutable defaults.",
+      "translation": "Einstellungen mit unabhängigen, veränderbaren Standardwerten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#0",
+      "source": "Join per-vacuole signals to host references and retain every host cell.",
+      "source_sha256": "32cb6713565e9bf1ba73d05f5716173c6fe3fedd5299ff8de1152fa3d8ac82a9",
+      "context": "Join per-vacuole signals to host references and retain every host cell.",
+      "translation": "Verknüpft Signale pro Vakuole mit Wirtsreferenzen und behält jede Wirtszelle bei.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#1",
+      "source": "one row per host, including uninfected cells.",
+      "source_sha256": "9e4f009f94f38df80aaf662573b4fcd8ff3730ec08a88c9569e9360c5629d561",
+      "context": "one row per host, including uninfected cells.",
+      "translation": "eine Zeile pro Wirtszelle, einschließlich nicht infizierter Zellen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#2",
+      "source": "one row per segmented vacuole, with object_label/cell_id.",
+      "source_sha256": "f83c14af97a285657ba1118e0031144a5b2abb1cc70531bdd730ec46d3bf39dc",
+      "context": "one row per segmented vacuole, with object_label/cell_id.",
+      "translation": "eine Zeile pro segmentierter Vakuole, mit object_label/cell_id.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#3",
+      "source": "one row per host reference compartment, object_label identifying its host, with channel mean-intensity columns.",
+      "source_sha256": "e800c2bf3096eb81d9d8f46d220638d177af5b5ce3f5c3df23166b585f7bd596",
+      "context": "one row per host reference compartment, object_label identifying its host, with image data channel mean-intensity columns.",
+      "translation": "eine Zeile pro Referenzkompartiment der Wirtszelle, wobei object_label die Wirtszelle identifiziert, mit Spalten der mittleren Kanalintensität.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#4",
+      "source": "optional independently segmented parasites with an explicit parent-vacuole column; never infer parentage from cell ID.",
+      "source_sha256": "357283e2cc7dfc66051ec3bbabe804606bbb8ac2b0df3240ebb6ce8358df9952",
+      "context": "optional independently segmented parasites with an explicit parent-vacuole column; never infer parentage from cell ID.",
+      "translation": "optionale unabhängig segmentierte Parasiten mit einer expliziten Spalte für die Elternvakuole; die Zugehörigkeit wird niemals aus der Zell-ID abgeleitet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#5",
+      "source": "hp_* options. Marker thresholds apply to vacuole/reference ratios. Threshold channel keys must be integer indices or their JSON string form; duplicate aliases are rejected. A count column or parasite table is required for replication; otherwise counts remain missing. These two inputs are mutually exclusive.",
+      "source_sha256": "727339531ac3bbc4a83c03f3b4759906db0041ad765d78fae8122330b3f1e273",
+      "context": "hp_* options. Marker thresholds apply to vacuole/reference ratios. Threshold channel structured-data names must be integer indices or their JSON string form; duplicate aliases are rejected. A count column or parasite table is required for replication; otherwise counts remain missing. These two inputs are mutually exclusive.",
+      "translation": "hp_*-Optionen. Marker-Schwellenwerte gelten für Verhältnisse von Vakuole zu Referenz. Die Kanalschlüssel der Schwellenwerte müssen ganzzahlige Indizes oder deren JSON-Zeichenkettenform sein; doppelte Aliase werden abgelehnt. Für die Replikation ist eine Zählspalte oder eine Parasitentabelle erforderlich; andernfalls bleiben die Zählungen fehlend. Diese beiden Eingaben schließen sich gegenseitig aus.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#6",
+      "source": "experiment/acquisition identity, preserved in every output.",
+      "source_sha256": "d336c912476209abc42ab47b4f263e1a5e00c97cb0b167a8be3ce96520af3529",
+      "context": "experiment/acquisition identity, preserved in every output.",
+      "translation": "Identität von Experiment/Aufnahme, in jeder Ausgabe beibehalten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#7",
+      "source": "dict of vacuoles, cells, wells, marker_states and orphan_parasites DataFrames. Missing references and invalid denominators stay unknown; extracellular or unlinked vacuoles do not inflate host infection rates.",
+      "source_sha256": "cd23e71d0cbc04fdc701c709b24d032e53e42992da0ddcf6a61451a0b58af549",
+      "context": "key-value mapping of vacuoles, cells, microplate sample positions, marker_states and orphan_parasites DataFrames. Missing references and invalid denominators stay unknown; extracellular or unlinked vacuoles do not inflate host infection rates.",
+      "translation": "Wörterbuch mit den DataFrames für Vakuolen, Zellen, Wells, marker_states und orphan_parasites. Fehlende Referenzen und ungültige Nenner bleiben unbekannt; extrazelluläre oder nicht verknüpfte Vakuolen blähen die Infektionsraten der Wirtszellen nicht auf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.summarize_tables#8",
+      "source": "ambiguous identities, missing columns or invalid policy.",
+      "source_sha256": "70c12bd33ac370b1d5b19d7ada0c9f085e1d0aa74d41ab823f9dad610018da98",
+      "context": "ambiguous identities, missing columns or invalid policy.",
+      "translation": "mehrdeutige Identitäten, fehlende Spalten oder ungültige Richtlinie.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.vacuole_links#0",
+      "source": "Link each child label only when one vacuole covers most of its pixels.",
+      "source_sha256": "8343d901c669a34b850e650f8f0f9f16ee47f050d2c5ad8433cdd1dc4d84e18b",
+      "context": "Link each child label only when one vacuole covers most of its pixels.",
+      "translation": "Verknüpft jedes Kind-Label nur dann, wenn eine einzige Vakuole die meisten seiner Pixel abdeckt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.vacuole_links#1",
+      "source": "integer parasite/object mask, zero background.",
+      "source_sha256": "92dc7f608232bb0c61891d036f7992f7cad4651f0705ec134701469febaf1969",
+      "context": "integer parasite/object mask, zero background.",
+      "translation": "ganzzahlige Parasiten-/Objektmaske, Hintergrund null.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.vacuole_links#2",
+      "source": "co-registered integer whole-vacuole mask.",
+      "source_sha256": "78b1e67667fe46d6f096af943075aade6dc9187a7115ff9f1361da3b6fd0d5e1",
+      "context": "co-registered integer whole-vacuole mask.",
+      "translation": "koregistrierte ganzzahlige Maske der gesamten Vakuole.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen.vacuole_links#3",
+      "source": "label, pathogen_id and pathogen_overlap_fraction columns. A parent must cover strictly more than half the child; ties, outside objects and ambiguous overlaps retain missing parent identities. This geometric link does not assign biological meaning to an object.",
+      "source_sha256": "83424bee49f8df3551f4340a9f11180bc2942945233e0b4b322bd59a25a8e9c4",
+      "context": "label, pathogen_id and pathogen_overlap_fraction columns. A parent must cover strictly more than half the child; ties, outside objects and ambiguous overlaps retain missing parent identities. This geometric link does not assign biological meaning to an object.",
+      "translation": "Spalten label, pathogen_id und pathogen_overlap_fraction. Ein Elternobjekt muss strikt mehr als die Hälfte des Kindobjekts abdecken; bei Gleichstand, bei Objekten außerhalb und bei mehrdeutigen Überlappungen bleibt die Elternidentität fehlend. Diese geometrische Verknüpfung weist einem Objekt keine biologische Bedeutung zu.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example#0",
+      "source": "Deterministic synthetic Host–Pathogen project with independently known truth.",
+      "source_sha256": "6cfba2fa0d72b327517fc9e816c6fcdf62f91bbc654cb753d88b748e649d46db",
+      "context": "Deterministic synthetic Host–Pathogen project with independently known truth.",
+      "translation": "Deterministisches synthetisches Host–Pathogen-Projekt mit unabhängig bekannter Grundwahrheit.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.build_example#0",
+      "source": "Create a ready-to-run synthetic project, preserving existing user files.",
+      "source_sha256": "a2672e0cbbe6ffad531adadf664ac89b04d1e260e20ee11a92d402a28575d32c",
+      "context": "Create a ready-to-run synthetic project, preserving existing user files.",
+      "translation": "Erstellt ein sofort ausführbares synthetisches Projekt und bewahrt dabei vorhandene Benutzerdateien.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.build_example#1",
+      "source": "new/empty project directory or this complete cached sample.",
+      "source_sha256": "837eebd60f2b6d1236a1f178dbf5f252933a2c8e9f5e8b7bd4db2a78c07b963c",
+      "context": "new/empty project directory or this complete cached sample.",
+      "translation": "neues/leeres Projektverzeichnis oder genau dieses vollständige zwischengespeicherte Beispiel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.build_example#2",
+      "source": "optional callable receiving completed and total field counts.",
+      "source_sha256": "a5781bd9916a9e9d69c7c0e0aa439048d3ff1233de2eb830d76e361a22a7d518",
+      "context": "optional callable receiving completed and total field counts.",
+      "translation": "optionales Callable, das die Anzahl der abgeschlossenen und aller Sichtfelder erhält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.build_example#3",
+      "source": "optional callable; True aborts before the next field/commit.",
+      "source_sha256": "c33b431312a2bbf922c2baa789d484ce47c3586825560afd4502d8035ccb79ed",
+      "context": "optional callable; True aborts before the next field/commit.",
+      "translation": "optionales Callable; True bricht vor dem nächsten Sichtfeld/Commit ab.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.build_example#4",
+      "source": "absolute project Path. A complete cached copy is reused unchanged.",
+      "source_sha256": "ce0423c9c0e3ab38c731cdf58d4cc55ddebbde3c52d779b6ff8d9486fc174873",
+      "context": "absolute project Path. A complete cached copy is reused unchanged.",
+      "translation": "absoluter Projektpfad (Path). Eine vollständige zwischengespeicherte Kopie wird unverändert wiederverwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.build_example#5",
+      "source": "a nonempty destination is not a complete sample.",
+      "source_sha256": "68a974109a047d4a7d0e342e1046193112f7a3041a17ec4eafff6ba2314a15b7",
+      "context": "a nonempty destination is not a complete sample.",
+      "translation": "ein nicht leeres Ziel ist kein vollständiges Beispiel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.build_example#6",
+      "source": "generation was cancelled; no partial project is published.",
+      "source_sha256": "aa2305660b057f55060ed4f89ace5c66da02c31ffe7583a9179f7a1eee3581e1",
+      "context": "generation was cancelled; no partial project is published.",
+      "translation": "die Erzeugung wurde abgebrochen; es wird kein Teilprojekt veröffentlicht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.example_folder#0",
+      "source": "Return the private cache directory for the synthetic example.",
+      "source_sha256": "df47585f94a2c349dfd7e9972cfd63579333257d0cc3db3da2e87d59da40e088",
+      "context": "Return the private cache directory for the synthetic example.",
+      "translation": "Gibt das private Cache-Verzeichnis für das synthetische Beispiel zurück.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.is_present#0",
+      "source": "Recognize a complete generated project without replacing user modifications.",
+      "source_sha256": "f4ebbbd2adf97b3493e0b6750a728d35335947d676a6c8b17c2a67cdf4c76138",
+      "context": "Recognize a complete generated project without replacing user modifications.",
+      "translation": "Erkennt ein vollständig erzeugtes Projekt, ohne Änderungen des Benutzers zu ersetzen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.is_present#1",
+      "source": "candidate synthetic project directory.",
+      "source_sha256": "dd6cd5f56601d84efcaee2fdca9446d90c9774f68a9917788af7600b5f5e4340",
+      "context": "candidate synthetic project directory.",
+      "translation": "Kandidat für ein synthetisches Projektverzeichnis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.is_present#2",
+      "source": "True when its manifest version, synthetic marker, listed files and nonempty measurement database are present. File contents are not compared with the original recipe, so user edits remain intact.",
+      "source_sha256": "7733e9ad3dbc4ca8c6c138e5268f1b9a4b25bf7e4283930f461e4361640ff741",
+      "context": "True when its manifest version, synthetic marker, listed files and nonempty measurement database are present. File contents are not compared with the original recipe, so user edits remain intact.",
+      "translation": "True, wenn Manifest-Version, synthetische Markierung, aufgelistete Dateien und eine nicht leere Messdatenbank vorhanden sind. Dateiinhalte werden nicht mit dem ursprünglichen Rezept verglichen, sodass Änderungen des Benutzers erhalten bleiben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.main#0",
+      "source": "Build the sample from the command line without requiring Qt or network.",
+      "source_sha256": "44e902da78d8eb5deee1c63b0c0eca743dd39b339652a9729c50a112f6091708",
+      "context": "Build the sample from the command line without requiring Qt or network.",
+      "translation": "Erstellt das Beispiel über die Kommandozeile, ohne Qt oder Netzwerk zu benötigen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.main#1",
+      "source": "optional argument list; None reads the process arguments.",
+      "source_sha256": "7b1c754a1d4f19b9a38f8c4ad2a9f6f95ce6ccfae3a4b46aa59d16751601d47f",
+      "context": "optional argument list; None reads the process arguments.",
+      "translation": "optionale Argumentliste; bei None werden die Prozessargumente gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_example.main#2",
+      "source": "zero after printing the generated or reused project directory.",
+      "source_sha256": "b0d78d5dd5e7ee0364c6ffcd490848f9295109f1ccef77a19ccbd6c823d4b4c5",
+      "context": "zero after printing the generated or reused project directory.",
+      "translation": "null, nachdem das erzeugte oder wiederverwendete Projektverzeichnis ausgegeben wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview#0",
+      "source": "Read-only, bounded field previews using the Host–Pathogen analysis engine.",
+      "source_sha256": "35839ade4f889bdbc7bbf2beca638031ed257730440da7ad448391c8a6d1c2ea",
+      "context": "Read-only, bounded field previews using the Host–Pathogen analysis engine.",
+      "translation": "Schreibgeschützte, begrenzte Sichtfeld-Vorschauen mit der Host–Pathogen-Analyse-Engine.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_field#0",
+      "source": "Analyze one measured field without modifying source or result files.",
+      "source_sha256": "06c02f18687c9930962966640ebc2f21205e62e3397b5eeca60b46626f4dca1d",
+      "context": "Analyze one measured field without modifying source or result files.",
+      "translation": "Analysiert ein gemessenes Sichtfeld, ohne Quell- oder Ergebnisdateien zu verändern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_field#1",
+      "source": "current Host–Pathogen settings, shared with the full run.",
+      "source_sha256": "6ec7ceeddc0c82f2dbe619736dac3e111de222e4e3e96b7897a0d372bee4a22b",
+      "context": "current Host–Pathogen settings, shared with the full run.",
+      "translation": "aktuelle Host–Pathogen-Einstellungen, gemeinsam mit dem vollständigen Lauf genutzt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_field#2",
+      "source": "one record returned by :func:`preview_fields`.",
+      "source_sha256": "c05e0a97b4c24b18069e91af2a89bcd54e5cfc37360a14d75baedf68cec1e3b6",
+      "context": "one record returned by :func:`preview_fields`.",
+      "translation": "ein von :func:`preview_fields` zurückgegebener Datensatz.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_field#3",
+      "source": "optional explicit host/vacuole/parasite mask plane indices. Missing entries use a valid merged-plane manifest; absent metadata never silently chooses mask planes. A negative index disables that overlay.",
+      "source_sha256": "3955f99bee8b348661d91b4e3040e9ab7134236de8194432a9880818d79b6ccb",
+      "context": "optional explicit host/vacuole/parasite mask image layer indices. Missing entries use a valid merged-image layer manifest; absent metadata never silently chooses mask image layers. A negative index disables that overlay.",
+      "translation": "optionale explizite Indizes der Maskenebenen für Wirtszelle/Vakuole/Parasit. Fehlende Einträge verwenden ein gültiges Manifest der zusammengeführten Ebenen; fehlende Metadaten wählen niemals stillschweigend Maskenebenen aus. Ein negativer Index deaktiviert diese Überlagerung.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_field#4",
+      "source": "intensity plane shown as grayscale, display-only.",
+      "source_sha256": "6071bd3526f135ff9bf724f9a910657893359338991323dc6bb703bf8362928d",
+      "context": "intensity image layer shown as grayscale, display-only.",
+      "translation": "Intensitätsebene, als Graustufen angezeigt, nur zur Anzeige.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_field#5",
+      "source": "refuse fields exceeding this many rows in any input table.",
+      "source_sha256": "ae1470288551b8677b0fac88ed5a937fec174a69a344e6f607b0aeffff0585e3",
+      "context": "refuse fields exceeding this many rows in any input table.",
+      "translation": "Sichtfelder ablehnen, die in einer beliebigen Eingabetabelle mehr als diese Anzahl an Zeilen haben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_field#6",
+      "source": "real analysis tables, display image/masks and explicit image notes. Infection denominators cover this field only, including uninfected hosts.",
+      "source_sha256": "687d3a2ee72faa5cbd06591935c5f9d35f8fd028c181250c55205f0a35548521",
+      "context": "real analysis tables, display image/masks and explicit image notes. Infection denominators cover this microscope field of view only, including uninfected hosts.",
+      "translation": "echte Analysetabellen, Anzeigebild/-masken und explizite Bildhinweise. Die Infektionsnenner umfassen nur dieses Sichtfeld, einschließlich nicht infizierter Wirtszellen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_fields#0",
+      "source": "List at most ``limit`` measured fields, in stable source/identity order.",
+      "source_sha256": "1e5a9fdec3e4e81602a488c0278ae4d9849efaea47c3163df20169496de733a4",
+      "context": "List at most ``limit`` measured fields, in stable source/identity order.",
+      "translation": "Listet höchstens ``limit`` gemessene Sichtfelder in stabiler Reihenfolge nach Quelle/Identität auf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_fields#1",
+      "source": "Host–Pathogen settings; src is a project, database or list.",
+      "source_sha256": "c9e4b8d3b7cf6d160073ed2ca6bfac40d534e33f4bfdaff7de0ef48fb3a264b4",
+      "context": "Host–Pathogen settings; src is a project, database or list.",
+      "translation": "Host–Pathogen-Einstellungen; src ist ein Projekt, eine Datenbank oder eine Liste.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_fields#2",
+      "source": "positive maximum number of fields offered by the preview.",
+      "source_sha256": "de40eb57c8e5a44f28a74746c159acbd43fca6202c167745cb184f07cd0800f7",
+      "context": "positive maximum number of fields offered by the preview.",
+      "translation": "positive Höchstzahl der Sichtfelder, die die Vorschau anbietet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.host_pathogen_preview.preview_fields#3",
+      "source": "field records and a boolean saying whether additional fields exist. Database connections are read-only; no migration or analysis is written.",
+      "source_sha256": "56b3ae9dcbbb1024b1f9bc3b419a9a219567b7629858cca28eeab22999ea05c7",
+      "context": "field records and a boolean saying whether additional fields exist. Database connections are read-only; no migration or analysis is written.",
+      "translation": "Sichtfeld-Datensätze und ein boolescher Wert, der angibt, ob weitere Sichtfelder existieren. Datenbankverbindungen sind schreibgeschützt; es wird weder eine Migration noch eine Analyse geschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.hyperparam.load_search_data#2",
+      "source": "``'umap'``, ``'ml_analyze'`` or ``'classify'``.",
+      "source_sha256": "d4a95fdf2aaca65446ad51cbb87b3d2355862da78e5a9447af3894617e2f389a",
+      "context": "``'umap'``, ``'ml_analyze'`` or ``'classify'``.",
+      "translation": "``'umap'``, ``'ml_analyze'`` oder ``'classify'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.hyperparam.sklearn_cv_fit_fn#5",
+      "source": "``'accuracy'``, ``'roc_auc'`` or ``'f1'``.",
+      "source_sha256": "da1be932a9a5cf43a0926666457755eedeb188d201a341d8a3f54c32076b34e5",
+      "context": "``'accuracy'``, ``'roc_auc'`` or ``'f1'``.",
+      "translation": "``'accuracy'``, ``'roc_auc'`` oder ``'f1'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.illumination.SegmentationIlluminationSession.correct#1",
+      "source": "identifier of the raw field, compared as a string; a field already corrected or marked complete raises :class:`IlluminationError`.",
+      "source_sha256": "f082b9f232436bdf38e6a5ce146f101375f31d77602f0bcd1fa6cfa767d07f74",
+      "context": "identifier of the raw field, compared as a string; a field already corrected or marked complete raises :class:`IlluminationError`.",
+      "translation": "Kennung des Roh-Sichtfelds, als Zeichenkette verglichen; ein bereits korrigiertes oder als abgeschlossen markiertes Sichtfeld löst :class:`IlluminationError` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.SegmentationIlluminationSession.correct#2",
+      "source": "raw field intensities, ``(Y, X, C)`` or ``(Z, Y, X, C)``; a copy is corrected and the input is left unchanged.",
+      "source_sha256": "5b6a6ce261263cab79db1dcde3373e9137b3ce9381aa27620cbe4f9901f23e26",
+      "context": "raw field intensities, ``(Y, X, C)`` or ``(Z, Y, X, C)``; a copy is corrected and the input is left unchanged.",
+      "translation": "Rohintensitäten des Sichtfelds, ``(Y, X, C)`` oder ``(Z, Y, X, C)``; eine Kopie wird korrigiert, die Eingabe bleibt unverändert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.SegmentationIlluminationSession.correct#3",
+      "source": "the :class:`spacr.measure_hooks.PreprocessingContext` passed to the prepared corrector; its file name selects the plate's model.",
+      "source_sha256": "36cad1ed12eb5415f1740341bb37c1b62fe0b670c1ac316f9f8454fbde87eceb",
+      "context": "the :class:`spacr.measure_hooks.PreprocessingContext` passed to the prepared corrector; its file name selects the plate's model.",
+      "translation": "der :class:`spacr.measure_hooks.PreprocessingContext`, der an den vorbereiteten Korrektor übergeben wird; sein Dateiname wählt das Modell der Platte aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.SegmentationIlluminationSession.finish#1",
+      "source": "identifiers of every field the run should have completed; the set, compared as strings, must equal the completed set exactly or :class:`IlluminationError` is raised.",
+      "source_sha256": "ca48add798bc23f7d6e46115edca7045c4f6ff791b82ff27ab3262b8bb639a70",
+      "context": "identifiers of every field the processing session should have completed; the set, compared as strings, must equal the completed set exactly or :class:`IlluminationError` is raised.",
+      "translation": "Kennungen aller Sichtfelder, die der Verarbeitungslauf abgeschlossen haben sollte; die Menge, als Zeichenketten verglichen, muss exakt der abgeschlossenen Menge entsprechen, sonst wird :class:`IlluminationError` ausgelöst.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.SegmentationIlluminationSession.mark_completed#1",
+      "source": "identifier of a field already passed to :meth:`correct`, compared as a string; an uncorrected field raises :class:`IlluminationError`.",
+      "source_sha256": "bb493c83524ed9a3089cf1223358d7d831b0fbb45f6f0198f71399f92e9b4669",
+      "context": "identifier of a field already passed to :meth:`correct`, compared as a string; an uncorrected field raises :class:`IlluminationError`.",
+      "translation": "Kennung eines Sichtfelds, das bereits an :meth:`correct` übergeben wurde, als Zeichenkette verglichen; ein nicht korrigiertes Sichtfeld löst :class:`IlluminationError` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.load_segmentation_illumination_resume#2",
+      "source": "run settings; ``illumination_correction`` must be true, and ``illumination_model`` (when set), ``illumination_on_missing`` and ``verbose`` are read.",
+      "source_sha256": "c2133c650939c6122a1cfd9f1d61b91f0875942d39725c282c277fb0d079c393",
+      "context": "processing-session settings; ``illumination_correction`` must be true, and ``illumination_model`` (when set), ``illumination_on_missing`` and ``verbose`` are read.",
+      "translation": "Einstellungen des Verarbeitungslaufs; ``illumination_correction`` muss wahr sein, und ``illumination_model`` (falls gesetzt), ``illumination_on_missing`` und ``verbose`` werden gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.load_segmentation_illumination_resume#3",
+      "source": "path of the prior segmentation application record (JSON); its ``model_path`` is resolved relative to this file's folder when not absolute.",
+      "source_sha256": "fece75e1bc2ee61f754ef7d4fca5065f06376e5372f68d2b83d10507d15002e6",
+      "context": "path of the prior segmentation application record (JSON); its ``model_path`` is resolved relative to this file's folder when not absolute.",
+      "translation": "Pfad des früheren Segmentierungs-Anwendungsdatensatzes (JSON); sein ``model_path`` wird, falls nicht absolut, relativ zum Ordner dieser Datei aufgelöst.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.load_segmentation_illumination_resume#4",
+      "source": "segmentation pipeline style, ``'v1'`` or ``'v2'`` (case-insensitive); any other value raises :class:`IlluminationError`.",
+      "source_sha256": "b8ed27627beb6e7f2b015cafa78bd0429f1819fb686e67c27adde1f30d1d6595",
+      "context": "segmentation workflow style, ``'v1'`` or ``'v2'`` (case-insensitive); any other value raises :class:`IlluminationError`.",
+      "translation": "Stil der Segmentierungspipeline, ``'v1'`` oder ``'v2'`` (ohne Beachtung der Groß-/Kleinschreibung); jeder andere Wert löst :class:`IlluminationError` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.load_segmentation_illumination_resume#5",
+      "source": "identifiers of the mask fields already on disk; the record's completed-field set must equal them exactly.",
+      "source_sha256": "d6d00b532a79b47b1842fa12f5677f74973a4fc03b68b101bf7bf9594a1687cb",
+      "context": "identifiers of the mask microscope fields of view already on disk; the record's completed-microscope field of view set must equal them exactly.",
+      "translation": "Kennungen der Masken-Sichtfelder, die bereits auf dem Datenträger liegen; die Menge der abgeschlossenen Sichtfelder im Datensatz muss ihnen exakt entsprechen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.prepare_segmentation_illumination#2",
+      "source": "run settings carrying the illumination controls read by :func:`prepare_illumination_model`, and ``src`` when ``src`` is not given.",
+      "source_sha256": "14430899bfc617a7b8b044b0fb788ec94f4775951e9ef54070f2c9688703d150",
+      "context": "processing-session settings carrying the illumination controls read by :func:`prepare_illumination_model`, and ``src`` when ``src`` is not given.",
+      "translation": "Einstellungen des Verarbeitungslaufs mit den Beleuchtungsparametern, die :func:`prepare_illumination_model` liest, und ``src``, wenn ``src`` nicht angegeben ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.validate_segmentation_illumination_resume#2",
+      "source": "the loaded model and corrector whose model path and digest the record must name.",
+      "source_sha256": "64a215e91456ee31fe700cf74e6fb2cdd0bb1c573a89680455daa70f6a2cd89d",
+      "context": "the loaded model and corrector whose model path and digest the record must name.",
+      "translation": "das geladene Modell und der Korrektor, deren Modellpfad und Digest der Datensatz nennen muss.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.validate_segmentation_illumination_resume#3",
+      "source": "path of the prior segmentation application record (JSON) to read.",
+      "source_sha256": "cadc2fc361bc0a3952fa4a38a401809d52be1002708b0baf9a64f48d9253b439",
+      "context": "path of the prior segmentation application record (JSON) to read.",
+      "translation": "Pfad des zu lesenden früheren Segmentierungs-Anwendungsdatensatzes (JSON).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.validate_segmentation_illumination_resume#4",
+      "source": "segmentation pipeline style the record must match, ``'v1'`` or ``'v2'`` (case-insensitive).",
+      "source_sha256": "5fadea551c30376f84ec591cdaf80ad5b4ab83e22ff45aa4c93164f990cb3ef5",
+      "context": "segmentation workflow style the record must match, ``'v1'`` or ``'v2'`` (case-insensitive).",
+      "translation": "Stil der Segmentierungspipeline, dem der Datensatz entsprechen muss, ``'v1'`` oder ``'v2'`` (ohne Beachtung der Groß-/Kleinschreibung).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.illumination.validate_segmentation_illumination_resume#5",
+      "source": "identifiers of the mask fields already on disk; the record's completed-field set, compared as strings, must equal them exactly.",
+      "source_sha256": "762bd54b8561c05f73b8dc0c940059ff4c51c9457419548e0e872560a60fe98c",
+      "context": "identifiers of the mask microscope fields of view already on disk; the record's completed-microscope field of view set, compared as strings, must equal them exactly.",
+      "translation": "Kennungen der Masken-Sichtfelder, die bereits auf dem Datenträger liegen; die Menge der abgeschlossenen Sichtfelder im Datensatz muss ihnen, als Zeichenketten verglichen, exakt entsprechen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_import.ImportPlan.with_mapping#1",
+      "source": "further answers as ``{token position: {value: index}}``; for each position they are added to, and override, the answers this plan already holds.",
+      "source_sha256": "8c5fc7fb54945919346fd34b6915c7c223ed080078d70eb6aecba23a63604e50",
+      "context": "further answers as ``{token position: {value: index}}``; for each position they are added to, and override, the answers this plan already holds.",
+      "translation": "weitere Antworten als ``{token position: {value: index}}``; für jede Position werden sie zu den Antworten, die dieser Plan bereits enthält, hinzugefügt und überschreiben diese.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_import.canonical_name#2",
+      "source": "one resolved file's axes, read by the keys ``plate``, ``well``, ``t``, ``field``, ``z`` and ``channel``; a missing well becomes ``A01`` and a missing or zero index becomes 1.",
+      "source_sha256": "cb040eb01178f9ed3f42138dd2147c394b9f4c43019a54b8d96c62ba940e9b48",
+      "context": "one resolved file's axes, read by the keys ``plate``, ``well``, ``t``, ``field``, ``z`` and ``channel``; a missing well becomes ``A01`` and a missing or zero index becomes 1.",
+      "translation": "die Achsen einer aufgelösten Datei, gelesen über die Schlüssel ``plate``, ``well``, ``t``, ``field``, ``z`` und ``channel``; ein fehlendes Well wird zu ``A01``, und ein fehlender oder Null-Index wird zu 1.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_import.canonical_name#3",
+      "source": "the plate name used when ``entry`` has no ``plate`` key.",
+      "source_sha256": "22352c66871c762acaa245ced98dfcd222a611e52e4d227d3fb903e53df6eb08",
+      "context": "the plate name used when ``entry`` has no ``plate`` key.",
+      "translation": "der Plattenname, der verwendet wird, wenn ``entry`` keinen Schlüssel ``plate`` hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_import.load_plan#3",
+      "source": "the JSON file written by :func:`save_plan`; its ``root`` and ``mapping`` keys are read and the rest is ignored.",
+      "source_sha256": "8ef7b142e0190559a260372f6c1fee96981b31a7a6e412afd4f60f4c93ca007e",
+      "context": "the JSON file written by :func:`save_plan`; its ``root`` and ``mapping`` structured-data names are read and the rest is ignored.",
+      "translation": "die von :func:`save_plan` geschriebene JSON-Datei; ihre Schlüssel ``root`` und ``mapping`` werden gelesen, der Rest wird ignoriert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_import.save_plan#2",
+      "source": "the plan to save.",
+      "source_sha256": "c7e2cf1fed24255adfb59f818993b14576221c7299ab9e3ddcb6c5587dc621ad",
+      "context": "the plan to save.",
+      "translation": "der zu speichernde Plan.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_import.save_plan#3",
+      "source": "the JSON file to write; missing parent folders are created and an existing file is overwritten.",
+      "source_sha256": "e9fdc798c314ef0814daec42ebad28e32e45b5837a498497ade4607a026b4b7b",
+      "context": "the JSON file to write; missing parent folders are created and an existing file is overwritten.",
+      "translation": "die zu schreibende JSON-Datei; fehlende übergeordnete Ordner werden erstellt, und eine vorhandene Datei wird überschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_import.tokenise#2",
+      "source": "the file or folder name to split; every character that is not an ASCII letter or a digit is dropped.",
+      "source_sha256": "bf1d9213062db7f66af212900c9fe7d7643d6f56122be97b0954802fe667184c",
+      "context": "the file or folder name to split; every character that is not an ASCII letter or a digit is dropped.",
+      "translation": "der zu zerlegende Datei- oder Ordnername; jedes Zeichen, das weder ein ASCII-Buchstabe noch eine Ziffer ist, wird verworfen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality#0",
+      "source": "Auditable image-quality screening before segmentation, using raw intensities.",
+      "source_sha256": "7bdc0835ac2f57f9a499540bb8882a2e02e8a32d803a3b56ed3a73d8657a717e",
+      "context": "Auditable image-quality screening before segmentation, using raw intensities.",
+      "translation": "Nachvollziehbare Prüfung der Bildqualität vor der Segmentierung anhand der Rohintensitäten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.assess_image#0",
+      "source": "Measure focus, saturation and nonfinite pixels on unnormalized channels.",
+      "source_sha256": "8b4f02a62739041fd0a29a104650ce647ec37bcbb0100d940b887b256467ab9a",
+      "context": "Measure focus, saturation and nonfinite pixels on unnormalized channels.",
+      "translation": "Misst Fokus, Sättigung und nicht endliche Pixel auf nicht normalisierten Kanälen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.assess_image#1",
+      "source": "YX, YXC or leading-dimensions plus YXC array.",
+      "source_sha256": "f4f26b210e6766e5df0860034fec529ccb5b9052d499eb5e417a406f39850c1c",
+      "context": "YX, YXC or leading-dimensions plus YXC array.",
+      "translation": "YX-, YXC-Array oder Array mit führenden Dimensionen plus YXC.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.assess_image#2",
+      "source": "image_qc_* policy, validated before use.",
+      "source_sha256": "8ec11c88b23ff87971cabd56eba29ceca2e0f89375cffc1d18dab6e93a6aea0c",
+      "context": "image_qc_* policy, validated before use.",
+      "translation": "image_qc_*-Richtlinie, vor der Verwendung validiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.assess_image#3",
+      "source": "optional acquisition-channel labels for stored C planes.",
+      "source_sha256": "e264d92d52d4c9d8481bae123ce186551092574454f0c98e665bafbfc94205b0",
+      "context": "optional acquisition-image data channel labels for stored C image layers.",
+      "translation": "optionale Aufnahmekanal-Labels für die gespeicherten C Ebenen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.assess_image#4",
+      "source": "one metric/reason record per selected channel. Focus is the best plane's Laplacian variance in raw intensity units squared, avoiding rejection solely because a z stack includes out-of-focus planes. Saturation uses an explicit acquisition level or integer dtype ceiling; it never uses the brightest observed pixel. Object counts are not read.",
+      "source_sha256": "8781682c5982d8c0fe640f6f60fb96eb7c5ca71374c6412a2438b22bb9ee872a",
+      "context": "one metric/reason record per selected image data channel. Focus is the best image layer's Laplacian variance in raw intensity units squared, avoiding rejection solely because a z stack includes out-of-focus image layers. Saturation uses an explicit acquisition level or integer dtype ceiling; it never uses the brightest observed pixel. Object counts are not read.",
+      "translation": "ein Metrik-/Begründungsdatensatz pro ausgewähltem Kanal. Der Fokus ist die Laplace-Varianz der besten Ebene in quadrierten Rohintensitätseinheiten; so wird eine Ablehnung allein deshalb vermieden, weil ein z-Stapel unscharfe Ebenen enthält. Die Sättigung verwendet einen expliziten Aufnahmepegel oder die Obergrenze des ganzzahligen dtype; sie verwendet nie das hellste beobachtete Pixel. Objektzahlen werden nicht gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.assess_image#5",
+      "source": "channels, shape or saturation calibration are unavailable.",
+      "source_sha256": "734ae0266c1b4281f3801b765d41c35b7e9fa91c17da5e23f2a537f0f506ddff",
+      "context": "channels, shape or saturation calibration are unavailable.",
+      "translation": "Kanäle, Form oder Sättigungskalibrierung sind nicht verfügbar.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.image_quality.ensure_no_retained_measurements#0",
+      "source": "Refuse exclusions that would leave previously measured fields in reports.",
+      "source_sha256": "e6c5a284897d6c07a2c89c72f978aacc9950ea98f11c686a1245d3e57e02d076",
+      "context": "Refuse exclusions that would leave previously measured fields in reports.",
+      "translation": "Lehnt Ausschlüsse ab, die zuvor gemessene Sichtfelder in Berichten zurücklassen würden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.ensure_no_retained_measurements#1",
+      "source": "Existing results are never deleted. Re-screening an analyzed project needs a fresh project if excluded fields already have measurement rows.",
+      "source_sha256": "2bb5543270c6dee3ce015b7713d8acc8e2d7429f18a95c2a9e7c99d9d9110575",
+      "context": "Existing results are never deleted. Re-screening an analyzed project needs a fresh project if excluded fields already have measurement rows.",
+      "translation": "Vorhandene Ergebnisse werden nie gelöscht. Eine erneute Prüfung eines bereits analysierten Projekts erfordert ein neues Projekt, wenn ausgeschlossene Sichtfelder bereits Messzeilen haben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.ensure_no_retained_measurements#2",
+      "source": "project folder containing measurements/measurements.db.",
+      "source_sha256": "7b38266f365c6f3711dc1db9cd34b7c0f63617f9a2097e77141087b8fb1e7f86",
+      "context": "project folder containing measurements/measurements.db.",
+      "translation": "Projektordner, der measurements/measurements.db enthält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.ensure_no_retained_measurements#3",
+      "source": "rejected field filenames, also matched without extensions.",
+      "source_sha256": "127de35f65cb9cb1f419d5eb4e0a8b13f87a5d29c3867427e1ecea07bb96e6b1",
+      "context": "rejected field filenames, also matched without extensions.",
+      "translation": "Dateinamen abgelehnter Sichtfelder, auch ohne Erweiterung abgeglichen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.ensure_no_retained_measurements#4",
+      "source": "None if no existing measurement row matches a rejected field.",
+      "source_sha256": "2ed410f3edb310bf23bbd12a47ae6f3a0736c07394cd02aa8d6591e0cf18b76b",
+      "context": "None if no existing measurement row matches a rejected field.",
+      "translation": "None, wenn keine vorhandene Messzeile zu einem abgelehnten Sichtfeld passt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.ensure_no_retained_measurements#5",
+      "source": "a table's file_name column contains a rejected identity.",
+      "source_sha256": "67040430ebcfdd3fdb4ffc73fd4a221d9627f9e97a2101adb94a6df6cf7275cf",
+      "context": "a table's file_name column contains a rejected identity.",
+      "translation": "die Spalte file_name einer Tabelle enthält eine abgelehnte Identität.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.excluded_fields#0",
+      "source": "Read the active saved exclusion policy for downstream field consumers.",
+      "source_sha256": "ccd64f9690eb862b0890839b0f8a5b3f463a9f2f5c54f577d3f528fb1abf1b04",
+      "context": "Read the active saved exclusion policy for downstream field consumers.",
+      "translation": "Liest die aktive gespeicherte Ausschlussrichtlinie für nachgelagerte Verbraucher von Sichtfeldern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.excluded_fields#1",
+      "source": "project folder whose qc/image_quality.json is authoritative.",
+      "source_sha256": "3ddea8a8f70d261c25a4a1729ff2baa79dd3974faa85539a30bd431524dd515d",
+      "context": "project folder whose qc/image_quality.json is authoritative.",
+      "translation": "Projektordner, dessen qc/image_quality.json maßgeblich ist.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.image_quality.excluded_fields#2",
+      "source": "excluded NPY basenames, or an empty set when no policy is active.",
+      "source_sha256": "c6149d014d55b288cd95dd0653f1666c8beca2d844dee093daa88f8cb1080f3e",
+      "context": "excluded NPY basenames, or an empty set when no policy is active.",
+      "translation": "ausgeschlossene NPY-Basisnamen oder eine leere Menge, wenn keine Richtlinie aktiv ist.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.image_quality.excluded_fields#3",
+      "source": "a saved report has an unsupported or invalid schema.",
+      "source_sha256": "729fc004f50612a7e18c5db3d683351db934925f08e9518c36f23d0e078251f0",
+      "context": "a saved report has an unsupported or invalid schema.",
+      "translation": "ein gespeicherter Bericht hat ein nicht unterstütztes oder ungültiges Schema.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.image_quality.filter_batch#0",
+      "source": "Remove policy-excluded fields without substituting empty label images.",
+      "source_sha256": "d7c65a291d6a8acfcfb08f1ac33c015823ba7b139b024a3be9b794f564326fbe",
+      "context": "Remove policy-excluded microscope fields of view without substituting empty label images.",
+      "translation": "Entfernt durch die Richtlinie ausgeschlossene Sichtfelder, ohne sie durch leere Labelbilder zu ersetzen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.filter_batch#1",
+      "source": "normalized image batch with its original field axis.",
+      "source_sha256": "4d431da34827be525484c6e24f9d430ab86041571757d2268fe69b5af5f219c2",
+      "context": "normalized image batch with its original microscope field of view axis.",
+      "translation": "normalisierter Bildstapel mit seiner ursprünglichen Sichtfeldachse.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.filter_batch#2",
+      "source": "matching basenames in batch order.",
+      "source_sha256": "c2948571e7846e7e6d86879d73b638c54859c5a48900b245790d5ad37c262fb9",
+      "context": "matching basenames in batch order.",
+      "translation": "zugehörige Basisnamen in Stapelreihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.filter_batch#3",
+      "source": "current run settings carrying image_qc_excluded_fields.",
+      "source_sha256": "31690a3bfbc57d42d1babb79737a113a6ddf231e8a06567585ad3889bde4af6c",
+      "context": "current processing-session settings carrying image_qc_excluded_fields.",
+      "translation": "aktuelle Einstellungen des Verarbeitungslaufs mit image_qc_excluded_fields.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.filter_batch#4",
+      "source": "filtered batch and matching filenames in their original order.",
+      "source_sha256": "84454a354d6025e3f1fa7f7b0b4a44a87103097954ff6aa26afc721f26f31a2a",
+      "context": "filtered batch and matching filenames in their original order.",
+      "translation": "gefilterter Stapel und zugehörige Dateinamen in ihrer ursprünglichen Reihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.quality_policy#0",
+      "source": "Validate a saved per-channel policy without inspecting any image.",
+      "source_sha256": "c33816246556f8f881be3790683d92f017369949e2083c793f0b297e398ce131",
+      "context": "Validate a saved per-image data channel policy without inspecting any image.",
+      "translation": "Validiert eine gespeicherte kanalweise Richtlinie, ohne ein Bild zu untersuchen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.quality_policy#1",
+      "source": "Mask settings containing image_qc_* options.",
+      "source_sha256": "7e195d0a17faf5e6d78a75d1d302d6d4cb5221acf0e7886023f49869126a3ddf",
+      "context": "Mask settings containing image_qc_* options.",
+      "translation": "Mask-Einstellungen mit image_qc_*-Optionen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.quality_policy#2",
+      "source": "JSON-serializable policy; empty channel list means every channel.",
+      "source_sha256": "c5c9db5be2d00433d8b42378194ef595c43e5ce88ef0da80fc9f4a6285423463",
+      "context": "JSON-serializable policy; empty channel list means every channel.",
+      "translation": "JSON-serialisierbare Richtlinie; eine leere Kanalliste bedeutet jeden Kanal.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.quality_policy#3",
+      "source": "unsupported mode, invalid channel or invalid threshold.",
+      "source_sha256": "702ced7e80f0b6dce61af079e4bde14fd9a7186fbf46f207c66a247b9667427f",
+      "context": "unsupported mode, invalid channel or invalid threshold.",
+      "translation": "nicht unterstützter Modus, ungültiger Kanal oder ungültiger Schwellenwert.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.image_quality.screen_fields#0",
+      "source": "Save a field/channel report and return fields explicitly excluded by policy.",
+      "source_sha256": "2e6582f8ea5837914fb9845e7f9a0a71ab5d4aeee7d2cdda88b045c01fa2c5a0",
+      "context": "Save a microscope field of view/channel report and return microscope fields of view explicitly excluded by policy.",
+      "translation": "Speichert einen Bericht pro Sichtfeld/Kanal und gibt die Sichtfelder zurück, die von der Richtlinie explizit ausgeschlossen werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.screen_fields#1",
+      "source": "project folder; reports go to qc/image_quality.json and .csv.",
+      "source_sha256": "00bb669a780ec6e14e0d3a33dd8910d51507efa0e6bc33e00ffef155bc7b4ccb",
+      "context": "project folder; reports go to qc/image_quality.json and .csv.",
+      "translation": "Projektordner; Berichte werden nach qc/image_quality.json und .csv geschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.screen_fields#2",
+      "source": "Mask settings; mode off clears a previously active policy.",
+      "source_sha256": "19062aa273312b686a482b8290c9cef3ae2a650ad95b7bc022c940f16cc0dd37",
+      "context": "Mask settings; mode off clears a previously active policy.",
+      "translation": "Mask-Einstellungen; der Modus off hebt eine zuvor aktive Richtlinie auf.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.screen_fields#3",
+      "source": "optional iterable of raw NPY paths; defaults to root/stack.",
+      "source_sha256": "b547afea3ce4f8717514bd30494d592c942957b1d17f89532d3a0ffce63ea3d3",
+      "context": "optional iterable of raw NPY paths; defaults to root/stack.",
+      "translation": "optionales Iterable von Roh-NPY-Pfaden; standardmäßig root/stack.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.screen_fields#4",
+      "source": "optional acquisition-channel labels for supplied arrays.",
+      "source_sha256": "994d842b7cf54977e38dc935d5df502ab153a7bcd199bd605cfc0d53fe32fd42",
+      "context": "optional acquisition-image data channel labels for supplied arrays.",
+      "translation": "optionale Aufnahmekanal-Labels für die übergebenen Arrays.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.screen_fields#5",
+      "source": "excluded basenames, empty in report-only or off mode. Inputs are never deleted or rewritten. Report and exact policy precede exclusion.",
+      "source_sha256": "83beb671f089cee48e41f7d675a861a3eab3f8a58b600edd578c02b21a4a2755",
+      "context": "excluded basenames, empty in report-only or off mode. Inputs are never deleted or rewritten. Report and exact policy precede exclusion.",
+      "translation": "ausgeschlossene Basisnamen, leer im Modus report-only oder off. Eingaben werden nie gelöscht oder neu geschrieben. Bericht und exakte Richtlinie werden vor dem Ausschluss festgehalten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_quality.screen_fields#6",
+      "source": "enabled screening has no raw fields or invalid calibration.",
+      "source_sha256": "448575db4ac4b303a78afa65bf94607c502cca1cbff9193ba2fe201297279b5f",
+      "context": "enabled screening has no raw fields or invalid calibration.",
+      "translation": "die aktivierte Prüfung hat keine Roh-Sichtfelder oder eine ungültige Kalibrierung.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_stitch.arrangement_of#1",
+      "source": "zero-based position of the tile in acquisition order.",
+      "source_sha256": "f37a481c2f725b87bbc59b691696aca9f87a248673a93b8d28c00e3e177ee797",
+      "context": "zero-based position of the microscope image field in acquisition order.",
+      "translation": "nullbasierte Position der Kachel in der Aufnahmereihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_stitch.arrangement_of#2",
+      "source": "number of rows in the grid; used by the column-wise arrangements.",
+      "source_sha256": "b3f3d34e1b029828c51daa541fe58288238871192f4becea089e802a425ab14f",
+      "context": "number of rows in the grid; used by the column-wise arrangements.",
+      "translation": "Anzahl der Zeilen im Raster; von den spaltenweisen Anordnungen verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_stitch.arrangement_of#3",
+      "source": "number of columns in the grid; used by the row-wise arrangements.",
+      "source_sha256": "6612dfdca98873ccae05947fd82e8d99262656343ba1c89141c7b68b350bf76d",
+      "context": "number of columns in the grid; used by the row-wise arrangements.",
+      "translation": "Anzahl der Spalten im Raster; von den zeilenweisen Anordnungen verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_stitch.arrangement_of#4",
+      "source": "tile order, one of ``\"row_major\"``, ``\"serpentine_rows\"``, ``\"column_major\"`` or ``\"serpentine_columns\"``; anything else raises :class:`ValueError`.",
+      "source_sha256": "f5b2ba0e633f602a9a55a4ed944ee1cd5980e175cf526445ec28f4a7905997ce",
+      "context": "tile order, one of ``\"row_major\"``, ``\"serpentine_rows\"``, ``\"column_major\"`` or ``\"serpentine_columns\"``; anything else raises :class:`ValueError`.",
+      "translation": "Kachelreihenfolge, eine von ``\"row_major\"``, ``\"serpentine_rows\"``, ``\"column_major\"`` oder ``\"serpentine_columns\"``; alles andere löst :class:`ValueError` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_stitch.grid_shape#2",
+      "source": "number of tiles in the field; zero or less gives ``(0, 0)``, a prime count gives a single row.",
+      "source_sha256": "e684ef1bd91c6a830a110b803a774be465b9af398ae0f227db4ffc0d26bfdc0a",
+      "context": "number of tiles in the microscope field of view; zero or less gives ``(0, 0)``, a prime count gives a single row.",
+      "translation": "Anzahl der Kacheln im Sichtfeld; null oder weniger ergibt ``(0, 0)``, eine Primzahl ergibt eine einzige Zeile.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.image_stitch.read_stage_positions#3",
+      "source": "tile TIFF paths (``str`` or path-like), each opened with ``tifffile`` and read for its OME stage position and pixel size.",
+      "source_sha256": "f0a84fffe25f5bc724667467918a38309b67376e0ed0cdf7d8b25b3c5633237f",
+      "context": "tile TIFF paths (``str`` or path-like), each opened with ``tifffile`` and read for its OME stage position and pixel size.",
+      "translation": "TIFF-Pfade der Kacheln (``str`` oder pfadartig), jeweils mit ``tifffile`` geöffnet und auf ihre OME-Tischposition und Pixelgröße ausgelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#0",
+      "source": "Import's test data: one set of fields, written in every format and naming.",
+      "source_sha256": "bd56f53b0efe2bfc3accb7a37c09e8b8f4aab7e15dddc7db61767fd2789be25e",
+      "context": "Import's test data: one set of fields, written in every format and naming.",
+      "translation": "Testdaten von Import: ein Satz von Sichtfeldern, in jedem Format und jeder Benennung geschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#1",
+      "source": "A small set of fields from the toxo_mito example plate, converted into the container formats spaCR reads and renamed into every filename convention Mask's ``metadata_type`` offers, published together with their masks and a measurements database. Importing any variant should give back exactly the wells, fields and channels the fields started as, and the manifest says what those are.",
+      "source_sha256": "ce630d788202601fd381fefebd73d0bcd04bb5cfdbafecdbb2925437c8774e99",
+      "context": "A small set of microscope fields of view from the toxo_mito example laboratory microplate, converted into the container formats spaCR reads and renamed into every filename convention Mask's ``metadata_type`` offers, published together with their masks and a measurements database. Importing any variant should give back exactly the microplate sample positions, microscope fields of view and image data channels the microscope fields of view started as, and the manifest says what those are.",
+      "translation": "Ein kleiner Satz von Sichtfeldern aus der Beispielplatte toxo_mito, konvertiert in die Containerformate, die spaCR liest, und umbenannt in jede Dateinamenkonvention, die ``metadata_type`` von Mask anbietet, zusammen mit ihren Masken und einer Messdatenbank veröffentlicht. Der Import jeder Variante sollte genau die Wells, Sichtfelder und Kanäle zurückliefern, mit denen die Sichtfelder begonnen haben, und das Manifest gibt an, welche das sind.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#10",
+      "source": "This module imports nothing from Qt, so the round-trip test and the builder can use it headless.",
+      "source_sha256": "cacc21d6ebb5974df300e8f95837dd6d4a336c545bd97ff2af27a6794b844ac3",
+      "context": "This module imports nothing from Qt, so the round-trip test and the builder can use it headless.",
+      "translation": "Dieses Modul importiert nichts aus Qt, sodass der Round-Trip-Test und das Build-Werkzeug es ohne grafische Oberfläche verwenden können.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#2",
+      "source": "WHAT IS PUBLISHED. :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it, under ``import_example/``:",
+      "source_sha256": "a8f41243265f4b5b51f5ad8a4a9db6fe74ab606a482cc9dfc5b7e5e0089a02f6",
+      "context": "What is published. :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it, under ``import_example/``:",
+      "translation": "WAS VERÖFFENTLICHT WIRD. :data:`IMPORT_EXAMPLE_REPO` enthält ein Archiv. Darin, unter ``import_example/``:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#3",
+      "source": "``variants/<key>/plate1/`` -- the SAME twelve planes (wells E01 and E02, fields 9 and 10, three channels, cropped from the toxo_mito plate) written once per variant: once per filename convention, once as Zeiss CZI, once as OME-TIFF and once as an ImageJ TIFF stack;",
+      "source_sha256": "9f1e7c21fd5148bca36bb89fed16fcf3e37fe70906d74c378c211ba55c6a621e",
+      "context": "``variants/<key>/plate1/`` -- the SAME twelve image layers (microplate sample positions E01 and E02, microscope fields of view 9 and 10, three image data channels, cropped from the toxo_mito laboratory microplate) written once per variant: once per filename convention, once as Zeiss CZI, once as OME-TIFF and once as an ImageJ TIFF stack;",
+      "translation": "``variants/<key>/plate1/`` -- DIESELBEN zwölf Ebenen (Wells E01 und E02, Sichtfelder 9 und 10, drei Kanäle, aus der Platte toxo_mito ausgeschnitten), einmal pro Variante geschrieben: einmal pro Dateinamenkonvention, einmal als Zeiss CZI, einmal als OME-TIFF und einmal als ImageJ-TIFF-Stapel;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#4",
+      "source": "``variants/<key>/masks/{cell,nucleus,pathogen}/`` -- the Mask run's label images for exactly those fields, named the way that variant names images;",
+      "source_sha256": "730e92f17c5c888ddc74d8d923ec8d012eaeb443a937973ab69860b9ccbe8fc2",
+      "context": "``variants/<key>/masks/{cell,nucleus,pathogen}/`` -- the Mask run's label images for exactly those microscope fields of view, named the way that variant names images;",
+      "translation": "``variants/<key>/masks/{cell,nucleus,pathogen}/`` -- die Labelbilder des Mask-Laufs für genau diese Sichtfelder, so benannt, wie diese Variante Bilder benennt;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#5",
+      "source": "``variants/<key>/measurements.db`` -- the Measure rows of exactly the cells in those masks, keyed by that variant's own file names, as a collaborator's table would be;",
+      "source_sha256": "273f347d5ad8e77755cc1827f2dd463ed69686d5d5508ac7e005f401979dcbf5",
+      "context": "``variants/<key>/measurements.db`` -- the Measure rows of exactly the cells in those masks, keyed by that variant's own file names, as a collaborator's table would be;",
+      "translation": "``variants/<key>/measurements.db`` -- die Measure-Zeilen genau der Zellen in diesen Masken, mit den eigenen Dateinamen dieser Variante als Schlüssel, wie es die Tabelle eines Kooperationspartners wäre;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#6",
+      "source": "``reference/measurements.db`` -- the same rows as spaCR wrote them;",
+      "source_sha256": "f14ba67b86ba633d0cb56539e29cb3f6176624d84cc1b446754cb29c2ddf9915",
+      "context": "``reference/measurements.db`` -- the same rows as spaCR wrote them;",
+      "translation": "``reference/measurements.db`` -- dieselben Zeilen, so wie spaCR sie geschrieben hat;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#7",
+      "source": "``variants/nikon_nd2`` and ``variants/leica_lif`` -- PUBLIC SAMPLE FILES, because no open library writes ND2 or LIF. They are other people's images under CC BY 4.0, with no masks, and they go through the Format Converter;",
+      "source_sha256": "6611f98d21980274185a656992ec9e8d30a0b96d8ceff712ae0bf2062b7a8cb1",
+      "context": "``variants/nikon_nd2`` and ``variants/leica_lif`` -- public sample files, because no open library writes ND2 or LIF. They are other people's images under CC BY 4.0, with no masks, and they go through the Format Converter;",
+      "translation": "``variants/nikon_nd2`` und ``variants/leica_lif`` -- ÖFFENTLICHE BEISPIELDATEIEN, weil keine offene Bibliothek ND2 oder LIF schreibt. Es sind Bilder anderer Leute unter CC BY 4.0, ohne Masken, und sie laufen über den Format Converter;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#8",
+      "source": "``manifest.csv`` -- one row per image file stating the well, field, channel, z and t it truly is. The LAST member of the archive, so a transfer that died part-way leaves no manifest and reads as absent.",
+      "source_sha256": "f4bc017472f5e2c106f317270894415221f28e17db2c4c53f9d66836b1f03c73",
+      "context": "``manifest.csv`` -- one row per image file stating the microplate sample position, microscope field of view, image data channel, z and t it truly is. The LAST member of the archive, so a transfer that died part-way leaves no manifest and reads as absent.",
+      "translation": "``manifest.csv`` -- eine Zeile pro Bilddatei mit Angabe von Well, Sichtfeld, Kanal, z und t, die sie tatsächlich ist. Das LETZTE Element des Archivs, sodass eine unterwegs abgebrochene Übertragung kein Manifest hinterlässt und als nicht vorhanden gilt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.import_examples#9",
+      "source": "THE REGISTRY IS HERE AND NOT IN THE ARCHIVE. :data:`IMPORT_VARIANTS` is what the Import screen offers before anything is downloaded, and what ``tools/build_import_example.py`` writes. One list for both is what keeps a button from naming a folder the archive does not have.",
+      "source_sha256": "f200e4f1a1322aaa087cf9c43ac96e647dbee47a97b4f2d167e95bb43f229df5",
+      "context": "The registry is here and not in the archive. :data:`IMPORT_VARIANTS` is what the Import screen offers before anything is downloaded, and what ``tools/build_import_example.py`` writes. One list for both is what keeps a button from naming a folder the archive does not have.",
+      "translation": "DIE REGISTRY LIEGT HIER UND NICHT IM ARCHIV. :data:`IMPORT_VARIANTS` ist das, was die Import-Ansicht anbietet, bevor etwas heruntergeladen wird, und das, was ``tools/build_import_example.py`` schreibt. Eine einzige Liste für beides verhindert, dass eine Schaltfläche einen Ordner nennt, den das Archiv nicht hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.infection.write_infection_report#0",
+      "source": "Write the infection report beside the database it came from.",
+      "source_sha256": "b2e80c6e268ddb318470ae7a1fdac362421ad203ba9605d25984101a0bdb8cdd",
+      "context": "Write the infection report beside the database it came from.",
+      "translation": "Schreibt den Infektionsbericht neben die Datenbank, aus der er stammt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.infection.write_infection_report#1",
+      "source": "A MEASURE RUN EMITS THE REPORT, so anyone who has measured a plate already has it. There is no button and no screen, and nothing has to be asked for -- which is the point, because the runs that most need these numbers are the ones that would never have thought to ask.",
+      "source_sha256": "b38580f69db89f036c156f421195dc1ff3e986c5214f11863bca2986ff6ff45f",
+      "context": "A measure run emits the report, so anyone who has measured a plate already has it. There is no button and no screen, and nothing has to be asked for -- which is the point, because the runs that most need these numbers are the ones that would never have thought to ask.",
+      "translation": "EIN MEASURE-LAUF ERZEUGT DEN BERICHT, sodass jeder, der eine Platte gemessen hat, ihn bereits hat. Es gibt keine Schaltfläche und keine Ansicht, und nichts muss angefordert werden -- genau darum geht es, denn die Läufe, die diese Zahlen am dringendsten brauchen, sind die, bei denen nie jemand auf die Idee gekommen wäre, danach zu fragen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.infection.write_infection_report#2",
+      "source": "NOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A plate with no cell table, or none of the columns the metrics need, gives an empty report, and an empty CSV beside a database is a file that invites somebody to wonder what went wrong. The answer is None instead.",
+      "source_sha256": "693a9b900d1febe91eb3ec51adc7f2ee8f4e53a6a229c069668107b9b229f321",
+      "context": "Nothing is written when there is nothing to say. A laboratory microplate with no cell table, or none of the columns the metrics need, gives an empty report, and an empty CSV beside a database is a file that invites somebody to wonder what went wrong. The answer is None instead.",
+      "translation": "ES WIRD NICHTS GESCHRIEBEN, WENN ES NICHTS ZU SAGEN GIBT. Eine Platte ohne Zelltabelle oder ohne eine der Spalten, die die Metriken benötigen, ergibt einen leeren Bericht, und eine leere CSV neben einer Datenbank ist eine Datei, die jemanden fragen lässt, was schiefgelaufen ist. Die Antwort ist stattdessen None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.infection.write_infection_report#3",
+      "source": "Written to a dot-name in the same folder and renamed over the target, so a reader never sees half a file.",
+      "source_sha256": "def604dc994bf8041995fbb1315fa4989be0e84b2ed6696425927b85fc9d2c85",
+      "context": "Written to a dot-name in the same folder and renamed over the target, so a reader never sees half a file.",
+      "translation": "Wird unter einem Punktnamen im selben Ordner geschrieben und über das Ziel umbenannt, sodass ein Leser nie eine halbe Datei sieht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.infection.write_infection_report#6",
+      "source": "where to write it; the default is :data:`REPORT_NAME` beside ``db_path``.",
+      "source_sha256": "3cc0060a0a6ff874bd2c5a124577388d2b0f4a30d0ed109ace242f7fde45a90b",
+      "context": "where to write it; the default is :data:`REPORT_NAME` beside ``db_path``.",
+      "translation": "wohin geschrieben wird; Standard ist :data:`REPORT_NAME` neben ``db_path``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.infection.write_infection_report#7",
+      "source": "the path written, or None when the report is empty.",
+      "source_sha256": "9919dc659d1ba921ab07c6cca2ea2363be73c873d110f6a07195de51dde42c5c",
+      "context": "the path written, or None when the report is empty.",
+      "translation": "der geschriebene Pfad oder None, wenn der Bericht leer ist.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation#0",
+      "source": "Optional deterministic multi-view phenotype classification.",
+      "source_sha256": "6763e87ba74c8c06d9e6cc555f54b6eb91ac2b43dd03432c5e4ba64fe0ae02c8",
+      "context": "Optional deterministic multi-view phenotype classification.",
+      "translation": "Optionale deterministische Multi-View-Klassifizierung von Phänotypen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.predict_augmented#0",
+      "source": "Average probabilities or vote across selected image orientations.",
+      "source_sha256": "e68a88ee0f0c7bd86f4b8a72eb8825aaeda1667fb0d871c786452f866ac4668b",
+      "context": "Average probabilities or vote across selected image orientations.",
+      "translation": "Mittelt Wahrscheinlichkeiten oder stimmt über ausgewählte Bildorientierungen ab.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.predict_augmented#1",
+      "source": "evaluation-mode callable returning binary or multiclass logits.",
+      "source_sha256": "35f17063c665275b30d2b84a1b10feefd455a8cd183c4376de7fdf6a1bd89a38",
+      "context": "evaluation-mode callable returning binary or multiclass logits.",
+      "translation": "Callable im Evaluierungsmodus, das binäre oder Mehrklassen-Logits zurückgibt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.predict_augmented#2",
+      "source": "NCHW tensor; input pixels are never modified in place.",
+      "source_sha256": "15e66c52260988c74d062752bd9176fa45d663ed4c6df656b9d4d6b98efb31b9",
+      "context": "NCHW tensor; input pixels are never modified in place.",
+      "translation": "NCHW-Tensor; Eingabepixel werden nie an Ort und Stelle verändert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.predict_augmented#3",
+      "source": "tta_* options and optional binary score_threshold.",
+      "source_sha256": "17ef291cd3ef464aa5a41dce708bfa5d0ea8ba455cc7293137893bb439d44834",
+      "context": "tta_* options and optional binary score_threshold.",
+      "translation": "tta_*-Optionen und optionaler binärer score_threshold.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.predict_augmented#4",
+      "source": "score tensor, selected class tensor and named diagnostic tensors. Binary scores remain positive-class probabilities; multiclass scores refer to the selected class. prediction_std is the population standard deviation of that same class's probability across views. Agreement is the fraction of view labels matching the selected label, not calibrated confidence. Majority ties prefer mean probability, then lowest index.",
+      "source_sha256": "6a6cbca62abe3a7a79aff34ade8c9b3c4b52ae4e12872fa937f8f2e96fc61bc8",
+      "context": "score tensor, selected class tensor and named diagnostic tensors. Binary scores remain positive-class probabilities; multiclass scores refer to the selected class. prediction_std is the population standard deviation of that same class's probability across views. Agreement is the fraction of view labels matching the selected label, not calibrated confidence. Majority ties prefer mean probability, then lowest index.",
+      "translation": "Score-Tensor, Tensor der ausgewählten Klasse und benannte Diagnose-Tensoren. Binäre Scores bleiben Wahrscheinlichkeiten der positiven Klasse; Mehrklassen-Scores beziehen sich auf die ausgewählte Klasse. prediction_std ist die Populationsstandardabweichung der Wahrscheinlichkeit genau dieser Klasse über die Ansichten hinweg. Die Übereinstimmung ist der Anteil der Ansichtslabels, die dem ausgewählten Label entsprechen, keine kalibrierte Konfidenz. Bei Gleichstand in der Mehrheitsentscheidung wird die mittlere Wahrscheinlichkeit bevorzugt, dann der niedrigste Index.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.predict_augmented#5",
+      "source": "invalid aggregation, thresholds or model output shape.",
+      "source_sha256": "5c73376fc5e5fca66ac798c732196e34a0d5b3512e7e44cb745a7f9461f0b669",
+      "context": "invalid aggregation, thresholds or model output shape.",
+      "translation": "ungültige Aggregation, ungültige Schwellenwerte oder ungültige Form der Modellausgabe.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.transforms_for#0",
+      "source": "Return distinct right-angle rotations/reflections, with identity first.",
+      "source_sha256": "8e6298d7d62b266ce3dc585a1d6c1f081679e70eb14c3b8a8019a711134b1a00",
+      "context": "Return distinct right-angle rotations/reflections, with identity first.",
+      "translation": "Gibt unterschiedliche rechtwinklige Rotationen/Spiegelungen zurück, mit der Identität zuerst.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.transforms_for#1",
+      "source": "mapping containing the optional tta_* switches.",
+      "source_sha256": "9f6866955cedfee2c978da1df591d0f3b96841b9ce75aedb3467063156eb4091",
+      "context": "mapping containing the optional tta_* switches.",
+      "translation": "Mapping mit den optionalen tta_*-Schaltern.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.inference_augmentation.transforms_for#2",
+      "source": "(quarter-turns, horizontal-reflection) pairs; at most eight. Both flips together also include their composed 180-degree rotation.",
+      "source_sha256": "b31c33e436dc011da02b48e6f155ecc449570af2e140d5a2252d5eaee28e580c",
+      "context": "(quarter-turns, horizontal-reflection) pairs; at most eight. Both flips together also include their composed 180-degree rotation.",
+      "translation": "Paare (Vierteldrehungen, horizontale Spiegelung); höchstens acht. Beide Spiegelungen zusammen schließen auch ihre zusammengesetzte 180-Grad-Rotation ein.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.install_cleanup.InstallRecord#3",
+      "source": "``\"windows\"``, ``\"macos\"`` or ``\"linux\"``.",
+      "source_sha256": "ff7fedafdb1fa06c2ca7c8dfe44bf29ad8a1db243d844d4b0ee4f5051809d587",
+      "context": "``\"windows\"``, ``\"macos\"`` or ``\"linux\"``.",
+      "translation": "``\"windows\"``, ``\"macos\"`` oder ``\"linux\"``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.io.NoClassDataset#5",
+      "source": "``declared_uint8_v1`` uses shared crop decoding; ``stored_pil_v1`` preserves untagged historical checkpoints.",
+      "source_sha256": "3c1e35f1a5ab04a8a5f31c69a9d13fddaaf4656bdf0e652b01166b8aeeb138ab",
+      "context": "``declared_uint8_v1`` uses shared extracted image region decoding; ``stored_pil_v1`` preserves untagged historical checkpoints.",
+      "translation": "``declared_uint8_v1`` verwendet die gemeinsame Dekodierung von Bildausschnitten; ``stored_pil_v1`` bewahrt nicht markierte historische Checkpoints.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.TarImageDataset#2",
+      "source": "New datasets default to declared channel order and uint8 narrowing through the shared crop decoder. Inference must pass the model's recorded policy; untagged older checkpoints use ``stored_pil_v1`` to preserve their pixels.",
+      "source_sha256": "2fb27c654099afae19ca8d0416c9240a9bab71622ab28c980f21bc438374637e",
+      "context": "New datasets default to declared channel order and uint8 narrowing through the shared extracted image region decoder. Inference must pass the model's recorded policy; untagged older checkpoints use ``stored_pil_v1`` to preserve their pixels.",
+      "translation": "Neue Datensätze verwenden standardmäßig die deklarierte Kanalreihenfolge und die Einengung auf uint8 über den gemeinsamen Bildausschnitt-Decoder. Bei der Inferenz muss die aufgezeichnete Richtlinie des Modells übergeben werden; nicht markierte ältere Checkpoints verwenden ``stored_pil_v1``, um ihre Pixel zu bewahren.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.TarImageDataset#5",
+      "source": "``declared_uint8_v1`` (default), or ``stored_pil_v1`` for historical model inputs.",
+      "source_sha256": "00dd12874d48429ce668c7fab905b677bc027b14b846eb5b2d2c2fb8e07ecb06",
+      "context": "``declared_uint8_v1`` (default), or ``stored_pil_v1`` for historical model inputs.",
+      "translation": "``declared_uint8_v1`` (Standard) oder ``stored_pil_v1`` für historische Modelleingaben.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.io.class_sampling_weights#3",
+      "source": "``'weighted_sampler'`` or ``'sqrt_weighted_sampler'``.",
+      "source_sha256": "bad7d8756d6e986c46d7f60ee7639a51a2dd0ee513d8eafc6b90fb624cc3d032",
+      "context": "``'weighted_sampler'`` or ``'sqrt_weighted_sampler'``.",
+      "translation": "``'weighted_sampler'`` oder ``'sqrt_weighted_sampler'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.io.concatenate_and_normalize#6",
+      "source": "optional PSF session from ``spacr.psf_pipeline``. Uses the same complete-set publication; cancellation leaves its provenance incomplete and prevents reuse of partially processed data.",
+      "source_sha256": "7b60c9125c109b14524d6e7802a402d4846422aa88381dd18a1a8d8ed0e82291",
+      "context": "optional PSF session from ``spacr.psf_pipeline``. Uses the same complete-set publication; cancellation leaves its provenance incomplete and prevents reuse of partially processed data.",
+      "translation": "optionale PSF-Sitzung aus ``spacr.psf_pipeline``. Verwendet dieselbe Veröffentlichung vollständiger Sätze; ein Abbruch lässt ihre Herkunftsangaben unvollständig und verhindert die Wiederverwendung teilweise verarbeiteter Daten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.convert_separate_files_to_yokogawa#7",
+      "source": "when a file the regex matches carries a ``fieldID``, ``timeID``, ``chanID`` or ``sliceID`` that is not a whole number (before anything is written), or cannot be read and converted. The message names the file, and in the second case says how many converted files were written before the conversion stopped; ``rename_log.csv`` is written only when every file converted.",
+      "source_sha256": "8fbe60a931198cabdfce6c552af8bc59966edf8aa48686ae71f16fad312d46f9",
+      "context": "when a file the regex matches carries a ``fieldID``, ``timeID``, ``chanID`` or ``sliceID`` that is not a whole number (before anything is written), or cannot be read and converted. The message names the file, and in the second case says how many converted files were written before the conversion stopped; ``rename_log.csv`` is written only when every file converted.",
+      "translation": "wenn eine Datei, auf die der reguläre Ausdruck passt, eine ``fieldID``, ``timeID``, ``chanID`` oder ``sliceID`` enthält, die keine ganze Zahl ist (bevor etwas geschrieben wird), oder nicht gelesen und konvertiert werden kann. Die Meldung nennt die Datei und gibt im zweiten Fall an, wie viele konvertierte Dateien geschrieben wurden, bevor die Konvertierung abbrach; ``rename_log.csv`` wird nur geschrieben, wenn jede Datei konvertiert wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.convert_to_yokogawa#5",
+      "source": "If the folder already contains Yokogawa-named converted images or a previous ``rename_log.csv``. The check runs before writing any image or log, including after the converted images have been moved into ``orig/``. Read an already converted folder with ``metadata_type='cellvoyager'``, or retry raw conversion in a separate folder containing only the original inputs.",
+      "source_sha256": "4c799cea55327dd59541243ef22cab8f8b69c1e2adf36e4f465701ea8af70dda",
+      "context": "If the folder already contains Yokogawa-named converted images or a previous ``rename_log.csv``. The check executes before writing any image or log, including after the converted images have been moved into ``orig/``. Read an already converted folder with ``metadata_type='cellvoyager'``, or retry raw conversion in a separate folder containing only the original inputs.",
+      "translation": "Wenn der Ordner bereits Yokogawa-benannte konvertierte Bilder oder ein früheres ``rename_log.csv`` enthält. Die Prüfung läuft, bevor irgendein Bild oder Protokoll geschrieben wird, auch nachdem die konvertierten Bilder nach ``orig/`` verschoben wurden. Lesen Sie einen bereits konvertierten Ordner mit ``metadata_type='cellvoyager'`` oder wiederholen Sie die Rohkonvertierung in einem separaten Ordner, der nur die ursprünglichen Eingaben enthält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.generate_cv_loaders#17",
+      "source": "crop decoding policy recorded on each loader; defaults to declared channel order and high-byte uint8 narrowing.",
+      "source_sha256": "8b43c9604e7ffe3693012e51a8fa36a44b595b7f2296da1c83601d3b54b362bf",
+      "context": "extracted image region decoding policy recorded on each loader; defaults to declared channel order and high-byte uint8 narrowing.",
+      "translation": "Dekodierungsrichtlinie für Bildausschnitte, die auf jedem Loader aufgezeichnet wird; standardmäßig deklarierte Kanalreihenfolge und Einengung auf uint8 über das höherwertige Byte.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.generate_dataset#2",
+      "source": "``crop_source`` chooses where the images come from. ``'png'`` (and ``'auto'`` wherever a crop folder exists) is the behaviour above, unchanged for uniform source formats: files are byte-copied into the tar with their format marker. Mixed formats are decoded into declared uint8 copies in the archive only. ``'merged'`` (and ``'auto'`` on a project with no crop folder) cuts every crop out of ``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be built with no PNG folder on disk at all, and is rebuilt at the *current* crop settings rather than whatever the folder was generated with. The members are named exactly as the PNG folder would have named them, so everything that parses a crop file name downstream -- fold grouping, ``prcfo``, the prediction merge -- keeps working either way.",
+      "source_sha256": "3f234ba95717918c0bce94ecb8c447417f1028ab17a4ee9cddaa150b1c3a11ab",
+      "context": "``crop_source`` chooses where the images come from. ``'png'`` (and ``'auto'`` wherever an extracted image region folder exists) is the behaviour above, unchanged for uniform source formats: files are byte-copied into the tar with their format marker. Mixed formats are decoded into declared uint8 copies in the archive only. ``'merged'`` (and ``'auto'`` on a project with no extracted-image-region folder) cuts every extracted image region out of ``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be built with no PNG folder on disk at all, and is rebuilt at the *current* extracted-image-region settings rather than whatever the folder was generated with. The members are named exactly as the PNG folder would have named them, so everything that parses an extracted image region file name downstream -- fold grouping, ``prcfo``, the prediction merge -- keeps working either way.",
+      "translation": "``crop_source`` bestimmt, woher die Bilder kommen. ``'png'`` (und ``'auto'``, wo immer ein Bildausschnitt-Ordner existiert) ist das oben beschriebene Verhalten, unverändert bei einheitlichen Quellformaten: Die Dateien werden bytegenau mit ihrer Formatmarkierung in das Tar kopiert. Gemischte Formate werden nur im Archiv zu deklarierten uint8-Kopien dekodiert. ``'merged'`` (und ``'auto'`` bei einem Projekt ohne Bildausschnitt-Ordner) schneidet stattdessen jeden Bildausschnitt aus ``merged/*.npy`` über :mod:`spacr.crops` aus, sodass das Tar ganz ohne PNG-Ordner auf dem Datenträger erstellt werden kann und mit den *aktuellen* Bildausschnitt-Einstellungen neu aufgebaut wird statt mit denen, mit denen der Ordner erzeugt wurde. Die Elemente werden genau so benannt, wie der PNG-Ordner sie benannt hätte, sodass alles, was nachgelagert einen Bildausschnitt-Dateinamen parst -- die Fold-Gruppierung, ``prcfo``, das Zusammenführen der Vorhersagen --, in beiden Fällen weiter funktioniert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.generate_dataset_from_lists#2",
+      "source": "Each destination class folder is stamped before it is filled. Uniform source formats keep their original bytes and marker. Mixed source formats are decoded into declared uint8 crops in the destination only, so no generated folder silently loses its channel-order record.",
+      "source_sha256": "1d8d5d0d92012b36545e2f46f956605ce5bf4da82ae5215ea9f9e054536ec7a7",
+      "context": "Each destination class folder is stamped before it is filled. Uniform source formats keep their original bytes and marker. Mixed source formats are decoded into declared uint8 extracted image regions in the destination only, so no generated folder silently loses its channel-order record.",
+      "translation": "Jeder Zielklassenordner wird gestempelt, bevor er gefüllt wird. Einheitliche Quellformate behalten ihre ursprünglichen Bytes und ihre Markierung. Gemischte Quellformate werden nur im Ziel zu deklarierten uint8-Bildausschnitten dekodiert, sodass kein erzeugter Ordner stillschweigend seine Angabe zur Kanalreihenfolge verliert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.generate_training_dataset#10",
+      "source": "``dataset_mode``: ``'metadata'``, ``'annotation'`` or ``'measurement'``.",
+      "source_sha256": "12c4c33a4db202982b8238c2c30923bd8de8197d2e1684ba3daf67d1244a8d17",
+      "context": "``dataset_mode``: ``'metadata'``, ``'annotation'`` or ``'measurement'``.",
+      "translation": "``dataset_mode``: ``'metadata'``, ``'annotation'`` oder ``'measurement'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.io.make_class_balance_sampler#5",
+      "source": "``(sampler, per_sample_weights)``, or ``(None, None)``.",
+      "source_sha256": "24b2ccc64da6b2d23eb7a9c236355b2e845a1b6bc789ca01ae9c0a7da7d9011b",
+      "context": "``(sampler, per_sample_weights)``, or ``(None, None)``.",
+      "translation": "``(sampler, per_sample_weights)`` oder ``(None, None)``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.mark_crop_output_folder#2",
+      "source": "``fmt=None`` inherits the format from ``source_folder``. Byte-for-byte copies retain their source format: formats 1 and 3 use declared order, while format 2 needs channel reversal when read by a declared-order model.",
+      "source_sha256": "7703a2d979025a51900c0f083dd850b1a8de482b62e069a0ec749294679307c8",
+      "context": "``fmt=None`` inherits the format from ``source_folder``. Byte-for-byte copies retain their source format: formats 1 and 3 use declared order, while format 2 needs channel reversal when read by a declared-order model.",
+      "translation": "``fmt=None`` übernimmt das Format von ``source_folder``. Byte-für-Byte-Kopien behalten ihr Quellformat: Die Formate 1 und 3 verwenden die deklarierte Reihenfolge, während Format 2 eine Kanalumkehr benötigt, wenn es von einem Modell mit deklarierter Reihenfolge gelesen wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.open_crop_source#7",
+      "source": "a :class:`spacr.crops.CropSource`, or None.",
+      "source_sha256": "9ffcbb8cd13f3d91a70eb552c84ea46c54f682e2f08d749ac2203b3aa0934737",
+      "context": "a :class:`spacr.crops.CropSource`, or None.",
+      "translation": "ein :class:`spacr.crops.CropSource` oder None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#2",
+      "source": "Running it again on a plate folder it has already processed resumes rather than starting over. Raw images an earlier run moved into ``orig/`` are read from there, and only the fields ``stack/`` lacks are built. Every ``stack/*.npy`` and ``masks/*.npz`` an earlier run left is checked before it is reused: a file cut short is renamed to ``<name>.damaged``, named in the log, and built again, a field stack from the raw images or channel folders and an archive from ``stack/``. A field stack with nothing left to build it from is recorded as a failure, so the run ends incomplete instead of quietly short of that field, and an archive with nothing left to build it from stops the run with an error that names it. When no field can be built at all, the error says what the folder does hold. In ``test_mode`` a plate whose raw images are gone is sampled from its ``stack/`` instead.",
+      "source_sha256": "e0b4f88c95f256c5431b20b0ae14c186ab132a4d8d0491a1d63535a9828b9031",
+      "context": "Executing it again on a laboratory microplate folder it has already processed resumes rather than starting over. Raw images an earlier run moved into ``orig/`` are read from there, and only the microscope fields of view ``stack/`` lacks are built. Every ``stack/*.npy`` and ``masks/*.npz`` an earlier run left is checked before it is reused: a file cut short is renamed to ``<name>.damaged``, named in the log, and built again, a microscope field of view stack from the raw images or image data channel folders and an archive from ``stack/``. A microscope field of view stack with nothing left to build it from is recorded as a failure, so the processing session ends incomplete instead of quietly short of that microscope field of view, and an archive with nothing left to build it from stops the processing session with an error that names it. When no microscope field of view can be built at all, the error says what the folder does hold. In ``test_mode`` a laboratory microplate whose raw images are gone is sampled from its ``stack/`` instead.",
+      "translation": "Ein erneutes Ausführen auf einem bereits verarbeiteten Plattenordner setzt die Arbeit fort, statt von vorn zu beginnen. Rohbilder, die ein früherer Lauf nach ``orig/`` verschoben hat, werden von dort gelesen, und nur die Sichtfelder, die in ``stack/`` fehlen, werden erstellt. Jede ``stack/*.npy``- und ``masks/*.npz``-Datei, die ein früherer Lauf hinterlassen hat, wird vor der Wiederverwendung geprüft: Eine abgeschnittene Datei wird in ``<name>.damaged`` umbenannt, im Protokoll genannt und neu erstellt, ein Sichtfeldstapel aus den Rohbildern oder Kanalordnern und ein Archiv aus ``stack/``. Ein Sichtfeldstapel, für den nichts mehr zum Erstellen übrig ist, wird als Fehlschlag verbucht, sodass der Lauf unvollständig endet, statt stillschweigend ohne dieses Sichtfeld, und ein Archiv, für das nichts mehr zum Erstellen übrig ist, beendet den Lauf mit einem Fehler, der es nennt. Wenn überhaupt kein Sichtfeld erstellt werden kann, gibt der Fehler an, was der Ordner tatsächlich enthält. Im ``test_mode`` wird für eine Platte, deren Rohbilder fehlen, stattdessen aus ihrem ``stack/`` eine Stichprobe gezogen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#9",
+      "source": "``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` and each object's ``*_background`` and ``*_signal_to_noise`` values. Every organelle slot the run enables uses its own pair, e.g. ``organelleb_background``.",
+      "source_sha256": "cdd0b8c3efbfe6bf476deff04e36fe8861ad85e1a21d586f3c503290ed9b0ceb",
+      "context": "``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` and each object's ``*_background`` and ``*_signal_to_noise`` values. Every organelle slot the run enables uses its own pair, e.g. ``organelleb_background``.",
+      "translation": "``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` sowie die Werte ``*_background`` und ``*_signal_to_noise`` jedes Objekts. Jeder Organellen-Slot, den der Lauf aktiviert, verwendet sein eigenes Paar, z. B. ``organelleb_background``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.lineage.LineageNode.find#1",
+      "source": "shared object key to look for, compared as a string with each node's :attr:`key` in depth-first order; the first match wins.",
+      "source_sha256": "3a906973e4789215ef3e9ff046e34fd86aab085c9a4b2465315dc4bd88fb50fb",
+      "context": "shared object key to look for, compared as a string with each node's :attr:`key` in depth-first order; the first match wins.",
+      "translation": "gemeinsamer Objektschlüssel, nach dem gesucht wird, als Zeichenkette mit dem :attr:`key` jedes Knotens in Tiefensuche-Reihenfolge verglichen; der erste Treffer gewinnt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.lineage.describe_forest#2",
+      "source": "root nodes as returned by :func:`build_forest`. The first root's table is taken as the root table; an empty forest gets a sentence saying there is nothing to show.",
+      "source_sha256": "40ddcda7a5231481d50d6a3468f1397e1d6f572d96f18d8c11b7ae4e71d47407",
+      "context": "root nodes as returned by :func:`build_forest`. The first root's table is taken as the root table; an empty forest gets a sentence saying there is nothing to show.",
+      "translation": "Wurzelknoten, wie von :func:`build_forest` zurückgegeben. Die Tabelle der ersten Wurzel wird als Wurzeltabelle genommen; ein leerer Wald erhält einen Satz, der besagt, dass es nichts anzuzeigen gibt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.lineage.field_key#2",
+      "source": "an object-table row carrying every column of :data:`spacr.schema.FIELD_KEY_COLUMNS`; their values are joined with the schema key separator.",
+      "source_sha256": "1e4807567ed457abdfb735a0c8f46e4475565b2004b81e8b88e16e8f54fd5c79",
+      "context": "an object-table row carrying every column of :data:`spacr.schema.FIELD_KEY_COLUMNS`; their values are joined with the schema structured-data name separator.",
+      "translation": "eine Zeile einer Objekttabelle mit allen Spalten aus :data:`spacr.schema.FIELD_KEY_COLUMNS`; ihre Werte werden mit dem Schlüsseltrennzeichen des Schemas verbunden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.lineage.forest_key_collisions#2",
+      "source": "root nodes as returned by :func:`build_forest`; each root's :meth:`LineageNode.key_collisions` are merged into one mapping.",
+      "source_sha256": "295a477aa2b22db07ce230844becbd44d9edf6fc7fef73a316a4805912bed2a2",
+      "context": "root nodes as returned by :func:`build_forest`; each root's :meth:`LineageNode.key_collisions` are merged into one mapping.",
+      "translation": "Wurzelknoten, wie von :func:`build_forest` zurückgegeben; die :meth:`LineageNode.key_collisions` jeder Wurzel werden zu einem Mapping zusammengeführt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.lineage.lineage_frame#2",
+      "source": "root nodes as returned by :func:`build_forest`, flattened depth-first in order; roots get an empty ``parent_key`` and depth 0.",
+      "source_sha256": "5a6e881c5df32a94325279c3d061882dfd3787708dfc5e5c71fae4cb1fe78318",
+      "context": "root nodes as returned by :func:`build_forest`, flattened depth-first in order; roots get an empty ``parent_key`` and depth 0.",
+      "translation": "Wurzelknoten, wie von :func:`build_forest` zurückgegeben, in Tiefensuche-Reihenfolge abgeflacht; Wurzeln erhalten einen leeren ``parent_key`` und die Tiefe 0.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.lineage.orphans#2",
+      "source": "``{table name: rows}``. The ``root`` table is required; each other table in :data:`LINEAGE_TABLES` that is present and has a parent-link column is checked, and anything else is ignored.",
+      "source_sha256": "39be16ccdff7e5500a0dd4ff6daff73969f696969b108e560d5f39f0bc6a95dd",
+      "context": "``{table name: rows}``. The ``root`` table is required; each other table in :data:`LINEAGE_TABLES` that is present and has a parent-link column is checked, and anything else is ignored.",
+      "translation": "``{table name: rows}``. Die ``root``-Tabelle ist erforderlich; jede andere Tabelle aus :data:`LINEAGE_TABLES`, die vorhanden ist und eine Spalte mit Elternverknüpfung hat, wird geprüft, alles andere wird ignoriert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.logging_util.clamp_console_to_file#2",
+      "source": "numeric logging levels requested for the console.",
+      "source_sha256": "bc1df6b7cf21d858292f55e0e8d9a07e8d6ee1afcb25f67312cca15f2655682c",
+      "context": "numeric logging levels requested for the console.",
+      "translation": "numerische Logging-Stufen, die für die Konsole angefordert werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.logging_util.clamp_console_to_file#3",
+      "source": "numeric logging levels the log file records; only levels in both sets are kept.",
+      "source_sha256": "5f2ca6103b21d2b776d9ed0a3f41c6d6c37e2111a954d4513ce6c0be9f997a45",
+      "context": "numeric logging levels the log file records; only levels in both sets are kept.",
+      "translation": "numerische Logging-Stufen, die die Protokolldatei aufzeichnet; nur Stufen, die in beiden Mengen vorkommen, bleiben erhalten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.logging_util.normalise_levels#1",
+      "source": "numeric logging levels (anything ``int()`` accepts); values other than DEBUG, INFO, WARNING, ERROR and CRITICAL are dropped.",
+      "source_sha256": "e8ffd27e2238e2a7613b8b5db8f09e4951428895cee67f68a081138cd11d2dfd",
+      "context": "numeric logging levels (anything ``int()`` accepts); values other than DEBUG, INFO, WARNING, ERROR and CRITICAL are dropped.",
+      "translation": "numerische Logging-Stufen (alles, was ``int()`` akzeptiert); andere Werte als DEBUG, INFO, WARNING, ERROR und CRITICAL werden verworfen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.logging_util.set_timing_threshold_ms#2",
+      "source": "threshold in milliseconds, converted with ``int()``; negative values are clamped to 0.",
+      "source_sha256": "39ead174a5455067c1de93aee352679e062afcd59df9acc83057552719d05649",
+      "context": "threshold in milliseconds, converted with ``int()``; negative values are clamped to 0.",
+      "translation": "Schwellenwert in Millisekunden, mit ``int()`` umgewandelt; negative Werte werden auf 0 begrenzt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.mask_io.load_mask#5",
+      "source": "stored labels cannot be represented exactly as uint16.",
+      "source_sha256": "8f3631ca698a7ac14eb54cd0b20abde5cd39da0c11afa51a83bb13944cd74480",
+      "context": "stored labels cannot be represented exactly as uint16.",
+      "translation": "gespeicherte Labels lassen sich nicht exakt als uint16 darstellen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.mask_io.save_mask#5",
+      "source": "labels are nonfinite, negative, fractional or will not fit in uint16, or ``fmt`` names a format this module cannot write.",
+      "source_sha256": "414bc524d6f63989bfe4932317003f589c7113acb64a2f456e04c17b7eeb3301",
+      "context": "labels are nonfinite, negative, fractional or will not fit in uint16, or ``fmt`` names a format this module cannot write.",
+      "translation": "Labels sind nicht endlich, negativ, gebrochen oder passen nicht in uint16, oder ``fmt`` nennt ein Format, das dieses Modul nicht schreiben kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.measure_crop#4",
+      "source": "``psf_measurement_source`` — original (default) uses the normal rescaled/preprocessed intensities; processed adds an explicitly calibrated PSF before quantitative features. The immutable kernel reaches every worker. Source images and exported crops stay unchanged. Field provenance is saved in ``intensity_rescale``; incompatible existing PSF measurements are refused before any rows are appended.",
+      "source_sha256": "4087a34207b4e68d07756e7776e46daec0dba3fbab45e193c8439293c16521b0",
+      "context": "``psf_measurement_source`` — original (default) uses the normal rescaled/preprocessed intensities; processed adds an explicitly calibrated PSF before quantitative features. The immutable kernel reaches every worker. Source images and exported extracted image regions stay unchanged. microscope field of view provenance is saved in ``intensity_rescale``; incompatible existing PSF measurements are refused before any rows are appended.",
+      "translation": "``psf_measurement_source`` — original (Standard) verwendet die normalen reskalierten/vorverarbeiteten Intensitäten; processed wendet vor den quantitativen Merkmalen eine explizit kalibrierte PSF an. Der unveränderliche Kernel erreicht jeden Worker. Quellbilder und exportierte Bildausschnitte bleiben unverändert. Die Herkunft pro Sichtfeld wird in ``intensity_rescale`` gespeichert; inkompatible vorhandene PSF-Messungen werden abgelehnt, bevor Zeilen angehängt werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.process_meassure_crop_results#2",
+      "source": "Completed Measure job tuples, passed unchanged to :func:`process_measure_crop_results` after a ``DeprecationWarning``.",
+      "source_sha256": "de9380919c086bd88843ca44295b5827463c9be19e79a23ccce7ac06bf6a705d",
+      "context": "Completed Measure job tuples, passed unchanged to :func:`process_measure_crop_results` after a ``DeprecationWarning``.",
+      "translation": "abgeschlossene Measure-Auftragstupel, unverändert an :func:`process_measure_crop_results` übergeben, nachdem eine ``DeprecationWarning`` ausgegeben wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.process_meassure_crop_results#3",
+      "source": "Resolved Measure settings, passed unchanged; ``src`` identifies the output root.",
+      "source_sha256": "b6ac4abe3f728c797f73ebe47847264da8616c1e8a8a2c46ea59207b7222b6d0",
+      "context": "Resolved Measure settings, passed unchanged; ``src`` identifies the output root.",
+      "translation": "aufgelöste Measure-Einstellungen, unverändert übergeben; ``src`` bezeichnet das Ausgabe-Wurzelverzeichnis.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.spatial_column_names#2",
+      "source": "neighbourhood radius; truncated with ``int()`` for the ``neighbors_within_<r>`` name. The other four names do not depend on it.",
+      "source_sha256": "45da3cae010b33c5325ce27fa8c234110da14075c691738a07c43ad938058dd2",
+      "context": "neighbourhood radius; truncated with ``int()`` for the ``neighbors_within_<r>`` name. The other four names do not depend on it.",
+      "translation": "Nachbarschaftsradius; mit ``int()`` abgeschnitten für den Namen ``neighbors_within_<r>``. Die anderen vier Namen hängen nicht davon ab.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.measure.spatial_column_names#3",
+      "source": "list of five column names.",
+      "source_sha256": "8c4f73062509b7bacbdb00f21ac46589fba9718b6cec73f74a9b6f4a3bff6eae",
+      "context": "list of five column names.",
+      "translation": "Liste mit fünf Spaltennamen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.QuasiBinomial.variance#1",
+      "source": "fitted mean probabilities, scalar or array; the binomial variance of ``mu`` is multiplied by ``dispersion``.",
+      "source_sha256": "47307fb934b234d81b2a3a16a0ddf2d4af1a4e1b795d6f837ab14ed191de229f",
+      "context": "fitted mean probabilities, scalar or array; the binomial variance of ``mu`` is multiplied by ``dispersion``.",
+      "translation": "angepasste mittlere Wahrscheinlichkeiten, Skalar oder Array; die Binomialvarianz von ``mu`` wird mit ``dispersion`` multipliziert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.apply_transformation#3",
+      "source": "A ``FunctionTransformer`` or ``None``.",
+      "source_sha256": "967db48946a14f635a8238a12bb6b1c3cdb5834ddd82032afd76bc74eb7963fa",
+      "context": "A ``FunctionTransformer`` or ``None``.",
+      "translation": "Ein ``FunctionTransformer`` oder ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.beta_logit#3",
+      "source": "proportions in ``[0, 1]``, array-like; converted to a float array. Non-finite entries pass through unchanged. When any finite value is at or beyond 0 or 1 the finite values are squeezed with ``(y * (n - 1) + 0.5) / n`` before the logit.",
+      "source_sha256": "e055b4f05194b613e13386adef535ae4c3b7a3f6d3dd4b0f7987d95b384948a9",
+      "context": "proportions in ``[0, 1]``, array-like; converted to a float array. Non-finite entries pass through unchanged. When any finite value is at or beyond 0 or 1 the finite values are squeezed with ``(y * (n - 1) + 0.5) / n`` before the logit.",
+      "translation": "Anteile in ``[0, 1]``, array-artig; in ein Float-Array umgewandelt. Nicht endliche Einträge werden unverändert durchgereicht. Liegt irgendein endlicher Wert bei oder jenseits von 0 oder 1, werden die endlichen Werte vor dem Logit mit ``(y * (n - 1) + 0.5) / n`` gestaucht.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.check_normality#1",
+      "source": "numeric values, array-like; non-finite values are dropped and fewer than 3 remaining values returns ``False`` without testing.",
+      "source_sha256": "a7e988178febe32039b982e44eff8db393ab3b4244eeb454287d78809ca15dcc",
+      "context": "numeric values, array-like; non-finite values are dropped and fewer than 3 remaining values returns ``False`` without testing.",
+      "translation": "numerische Werte, array-artig; nicht endliche Werte werden verworfen, und bei weniger als 3 verbleibenden Werten wird ohne Test ``False`` zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.check_normality#2",
+      "source": "name printed in the verbose messages only.",
+      "source_sha256": "52fcde956c83a1cfab5b906d1ce7619bccdfc631bf258ae107eecb7c6a00d695",
+      "context": "name printed in the verbose messages only.",
+      "translation": "Name, der nur in den ausführlichen Meldungen ausgegeben wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.check_normality#3",
+      "source": "print the test statistic, P value and verdict.",
+      "source_sha256": "d4f9a8dc5d8a2ec0c75dc6d1144bcf161e170847f53df615494547e4ca9e88eb",
+      "context": "print the test statistic, P value and verdict.",
+      "translation": "die Teststatistik, den P-Wert und das Urteil ausgeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.check_normality#4",
+      "source": "``True`` when the Shapiro-Wilk P value exceeds 0.05.",
+      "source_sha256": "4a3f6b4bda5bde68bed6a90e475f98ba803bccd02a87136cd1152e1a5c6f5afd",
+      "context": "``True`` when the Shapiro-Wilk P value exceeds 0.05.",
+      "translation": "``True``, wenn der Shapiro-Wilk-P-Wert 0.05 übersteigt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs#2",
+      "source": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
+      "source_sha256": "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821",
+      "context": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
+      "translation": "Folge von Mappings mit den Tabellenpfaden ``'score'`` und ``'count'`` (jeder darf leer sein), wie von :func:`normalize_regression_input_pairs` zurückgegeben. Der Eintrag ``'plate'`` jedes Mappings wird mit dem aufgelösten Plattenlabel überschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.ml_analysis#15",
+      "source": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` or ``'xgboost'``.",
+      "source_sha256": "22fc522f1c2ac3d487d20188309dc89014b2f817f104e90c75c2afb60f47fa79",
+      "context": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` or ``'xgboost'``.",
+      "translation": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` oder ``'xgboost'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#2",
+      "source": "regression settings dictionary. ``paired_data`` is read when present, otherwise the legacy ``score_data`` and ``count_data`` lists; the dictionary is updated in place with the normalised ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.",
+      "source_sha256": "ea4caf4fe78a7f31987e94d1ce87ac096c07961b570fb75f72922c83f17499a1",
+      "context": "regression settings key-value mapping. ``paired_data`` is read when present, otherwise the legacy ``score_data`` and ``count_data`` lists; the key-value mapping is updated in place with the normalised ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.",
+      "translation": "Wörterbuch der Regressionseinstellungen. ``paired_data`` wird gelesen, wenn vorhanden, andernfalls die Legacy-Listen ``score_data`` und ``count_data``; das Wörterbuch wird an Ort und Stelle mit dem normalisierten ``paired_data`` und den deduplizierten Listen ``score_data``/``count_data`` aktualisiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#3",
+      "source": "``(pairs, migrated)``, where ``migrated`` is ``True`` when the rows came from the legacy lists.",
+      "source_sha256": "399983aa21b9c52ad243eaac474fe8e555ad56ac932bfcb79719b19a092c159f",
+      "context": "``(pairs, migrated)``, where ``migrated`` is ``True`` when the rows came from the legacy lists.",
+      "translation": "``(pairs, migrated)``, wobei ``migrated`` ``True`` ist, wenn die Zeilen aus den Legacy-Listen stammen.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#4",
+      "source": "when ``paired_data`` is malformed or there is not at least one score path and one count path.",
+      "source_sha256": "2cc092022d5830df41736fda3a8bf041c76d92843b2ec28135c1e285634c1f2e",
+      "context": "when ``paired_data`` is malformed or there is not at least one score path and one count path.",
+      "translation": "wenn ``paired_data`` fehlerhaft ist oder es nicht mindestens einen Score-Pfad und einen Count-Pfad gibt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.process_scores#6",
+      "source": "``'mean'``, ``'median'``, ``'quantile'`` or None.",
+      "source_sha256": "044324eba9c2c880950f0bd95c606449547aadfcb17a96e0211b4719e6af0a01",
+      "context": "``'mean'``, ``'median'``, ``'quantile'`` or None.",
+      "translation": "``'mean'``, ``'median'``, ``'quantile'`` oder None.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.ml.regression_levels#6",
+      "source": "long-format DataFrame of gRNA/gene fractions and the dependent variable, passed to :func:`regression` for every level.",
+      "source_sha256": "639b0a04146c2d6e1946c980de18b03bd1077f65dc8528fe58046e49d1a964a3",
+      "context": "long-format DataFrame of gRNA/gene fractions and the dependent variable, passed to :func:`regression` for every level.",
+      "translation": "DataFrame im Langformat mit gRNA-/Genanteilen und der abhängigen Variable, für jede Ebene an :func:`regression` übergeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.regression_levels#7",
+      "source": "path passed to :func:`regression`, which derives the volcano-plot filename from it.",
+      "source_sha256": "1f21690043b56df7a9e4f31d90e98e28836284ff53d8ceb4fcebcda20c4a0b21",
+      "context": "path passed to :func:`regression`, which derives the volcano-plot filename from it.",
+      "translation": "Pfad, der an :func:`regression` übergeben wird, das daraus den Dateinamen des Vulkan-Plots ableitet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#5",
+      "source": "the analysis table (a DataFrame); its distinct well and guide counts, and the permutation block column when present, size the design.",
+      "source_sha256": "2dfe2442a63303585fb09dae9268bef7550ebddb95d44233838bb02af0fd4545",
+      "context": "the analysis table (a DataFrame); its distinct well and guide counts, and the permutation block column when present, size the design.",
+      "translation": "die Analysetabelle (ein DataFrame); die Anzahl ihrer unterschiedlichen Wells und Guides und, falls vorhanden, die Spalte der Permutationsblöcke bestimmen die Größe des Designs.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#6",
+      "source": "run settings; ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` and ``guide_permutation_block`` are read. It is not modified.",
+      "source_sha256": "532fa4cf5719f72f3716568e4b1d5c0186d70d955a7d8132cac3570a58111513",
+      "context": "processing-session settings; ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` and ``guide_permutation_block`` are read. It is not modified.",
+      "translation": "Einstellungen des Verarbeitungslaufs; gelesen werden ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` und ``guide_permutation_block``. Sie werden nicht verändert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#7",
+      "source": "column whose distinct values count the wells.",
+      "source_sha256": "7af55eade1e926647ceba08e1b000ca1cec55282cda1e0c4ee820a2344bcd91f",
+      "context": "column whose distinct values count the microplate sample positions.",
+      "translation": "Spalte, anhand deren unterschiedlicher Werte die Wells gezählt werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#8",
+      "source": "column whose distinct values count the guides.",
+      "source_sha256": "696091efd44adb3766450e54782f6ce0d0ed963e04b2af5893730550aedd3d73",
+      "context": "column whose distinct values count the guides.",
+      "translation": "Spalte, anhand deren unterschiedlicher Werte die Guides gezählt werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#3",
+      "source": "run settings mapping, or ``None`` (treated as empty); only ``analysis_mode`` and ``regression_type`` are read.",
+      "source_sha256": "0645f4952e135eec7abd130057a80e8035b248abcfc1a74dda67e72df2991e40",
+      "context": "processing-session settings mapping, or ``None`` (treated as empty); only ``analysis_mode`` and ``regression_type`` are read.",
+      "translation": "Mapping der Einstellungen des Verarbeitungslaufs oder ``None`` (als leer behandelt); nur ``analysis_mode`` und ``regression_type`` werden gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#4",
+      "source": "``'guide_permutation'``, ``'auto'`` when no regression type is set, or the regression type as a string.",
+      "source_sha256": "4888abbe38d96a9fb8918b6efae7f4eb235e8b4fa20c4a3b86124592c2ef2239",
+      "context": "``'guide_permutation'``, ``'auto'`` when no regression type is set, or the regression type as a string.",
+      "translation": "``'guide_permutation'``, ``'auto'``, wenn kein Regressionstyp gesetzt ist, oder der Regressionstyp als Zeichenkette.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#3",
+      "source": "the design DataFrame, or ``None`` (returns ``False``); its ``screenID`` column is compared as strings.",
+      "source_sha256": "a3909c7de7af8a9ce5890c1fa56221df63486b3a5201af9991a97c9c68f6eb24",
+      "context": "the design DataFrame, or ``None`` (returns ``False``); its ``screenID`` column is compared as strings.",
+      "translation": "das Design-DataFrame oder ``None`` (liefert ``False``); seine Spalte ``screenID`` wird als Zeichenketten verglichen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_compare.segment_with_cellpose#2",
+      "source": "Model and device dependencies are loaded on demand for this call. Cellpose versions without a separate ``invert`` argument receive that setting in the normalization dictionary. Inversion requires normalization on those versions; other normalization options are retained.",
+      "source_sha256": "d16913d52b4af0f77301c908519ad3cbfefa3f1acea4694caec16f22ed618688",
+      "context": "Model and device dependencies are loaded on demand for this call. Cellpose versions without a separate ``invert`` argument receive that setting in the normalization key-value mapping. Inversion requires normalization on those versions; other normalization options are retained.",
+      "translation": "Modell- und Geräteabhängigkeiten werden für diesen Aufruf bei Bedarf geladen. Cellpose-Versionen ohne eigenes ``invert``-Argument erhalten diese Einstellung im Normalisierungs-Wörterbuch. Die Inversion erfordert bei diesen Versionen eine Normalisierung; andere Normalisierungsoptionen bleiben erhalten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#0",
+      "source": "Every Cellpose model bioimage.io publishes, as zoo rows.",
+      "source_sha256": "40bbc828ca6bb9422a56265a37e26bdf500feddeac22c8bd2b5290ff6a8d723b",
+      "context": "Every Cellpose model bioimage.io publishes, as zoo rows.",
+      "translation": "Jedes Cellpose-Modell, das bioimage.io veröffentlicht, als Zoo-Zeilen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#1",
+      "source": "Read from bioimage.io's own collection, so the category cannot go stale the way a typed list would. Three kinds of row:",
+      "source_sha256": "5512c0857eebb4920d977c9ac7f780bec6c86ae21a4a735c571e8b3397e2189e",
+      "context": "Read from bioimage.io's own collection, so the category cannot go stale the way a typed list would. Three kinds of row:",
+      "translation": "Liest aus der eigenen Sammlung von bioimage.io, sodass die Kategorie nicht veralten kann, wie es eine eingetippte Liste würde. Drei Arten von Zeilen:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#2",
+      "source": "a Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4 loads: a ``cellpose`` row that downloads its weights;",
+      "source_sha256": "e64c97c9f820cc0e082b915628fd57745f8f4c2762d267301976001ca2d11507",
+      "context": "a Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4 loads: a ``cellpose`` row that downloads its weights;",
+      "translation": "ein Cellpose-SAM- oder Cellpose-DINO-Modell, das das eigene Cellpose 4 von spaCR lädt: eine ``cellpose``-Zeile, die seine Gewichte herunterlädt;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#3",
+      "source": "a Cellpose 3-format checkpoint: a ``cellpose3`` row that downloads its weights for the Cellpose 3 backend, which runs it as it runs cyto3;",
+      "source_sha256": "c52e22ab1bbcac6ad22f94ec2574844c5dced32dbe04d1b01f57dc84ca61444b",
+      "context": "a Cellpose 3-format checkpoint: a ``cellpose3`` row that downloads its weights for the Cellpose 3 backend, which runs it as it runs cyto3;",
+      "translation": "ein Checkpoint im Cellpose-3-Format: eine ``cellpose3``-Zeile, die seine Gewichte für das Cellpose-3-Backend herunterlädt, das ihn so ausführt, wie es cyto3 ausführt;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#4",
+      "source": "one of either that spaCR cannot run, which says why in its first note (:func:`_bioimageio_cannot_run`) and offers nothing to download.",
+      "source_sha256": "ad50dca06055bfc8e0d41c5b9f1df4ef5a0fdee4114d02821dd8ff7db0eab28f",
+      "context": "one of either that spaCR cannot run, which says why in its first note (:func:`_bioimageio_cannot_run`) and offers nothing to download.",
+      "translation": "eines von beiden, das spaCR nicht ausführen kann; es nennt den Grund in seiner ersten Notiz (:func:`_bioimageio_cannot_run`) und bietet nichts zum Herunterladen an.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#5",
+      "source": "Each weights file is checked against the SHA-256 its manifest publishes, and carries the licence the uploader chose and what it was trained on.",
+      "source_sha256": "cc4ca3efe1d33fd2ba80ce3273fe7e0fb639e37f0d7bb312c7fd9e8039afbfa4",
+      "context": "Each weights file is checked against the SHA-256 its manifest publishes, and carries the licence the uploader chose and what it was trained on.",
+      "translation": "Jede Gewichtsdatei wird gegen den SHA-256-Wert geprüft, den ihr Manifest veröffentlicht, und trägt die Lizenz, die der Uploader gewählt hat, sowie die Angabe, worauf sie trainiert wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#6",
+      "source": "Best effort and never raises: no network, a slow mirror or a changed schema all mean fewer rows, never a zoo that fails to open. With ``allow_network`` the collection is refreshed once it is a day old, and the weights files are measured, so a stand-in file is refused before anyone downloads it.",
+      "source_sha256": "41f60abad1c8eeb69f037f50a679e580ebcd044eff7749c7e09987e92f61f71f",
+      "context": "Best effort and never throws: no network, a slow mirror or a changed schema all mean fewer rows, never a zoo that fails to open. With ``allow_network`` the collection is refreshed once it is a day old, and the weights files are measured, so a stand-in file is refused before anyone downloads it.",
+      "translation": "Nach bestem Bemühen und löst nie eine Ausnahme aus: kein Netzwerk, ein langsamer Mirror oder ein geändertes Schema bedeuten alle nur weniger Zeilen, nie einen Zoo, der sich nicht öffnen lässt. Mit ``allow_network`` wird die Sammlung aktualisiert, sobald sie einen Tag alt ist, und die Gewichtsdateien werden vermessen, sodass eine Platzhalterdatei abgelehnt wird, bevor jemand sie herunterlädt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.model_zoo.classify_kind#4",
+      "source": "``'cellpose'``, ``'classifier'`` or None.",
+      "source_sha256": "cb72f7ebc1358d815574c8bd7a319721fc3a646d261fb4267c012515b47100a9",
+      "context": "``'cellpose'``, ``'classifier'`` or None.",
+      "translation": "``'cellpose'``, ``'classifier'`` oder None.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks#2",
+      "source": "Whole-plate motility analysis runs through :func:`spacr.core.preprocess_generate_masks` after frame merging, rather than within this per-object generator.",
+      "source_sha256": "650d6f22a7d33e0587989e0f7d2ed5bc1b3f0bb1bb041e049826a55f734213cc",
+      "context": "Whole-plate motility analysis executes through :func:`spacr.core.preprocess_generate_masks` after frame merging, rather than within this per-object generator.",
+      "translation": "Die Motilitätsanalyse der ganzen Platte läuft nach dem Zusammenführen der Frames über :func:`spacr.core.preprocess_generate_masks`, nicht innerhalb dieses objektweisen Generators.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#1",
+      "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series. Whole-plate motility analysis belongs to :func:`spacr.core.preprocess_generate_masks` after all object masks have been merged with their images; this generator does not run it.",
+      "source_sha256": "46ab8da3c52e5e9e3ce2eac6c3b1093e7700f9951b9664dc0118d885cb508040",
+      "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series. Whole-plate motility analysis belongs to :func:`spacr.core.preprocess_generate_masks` after all object masks have been merged with their images; this generator does not run it.",
+      "translation": "Lädt das vortrainierte Modell ``cpsam`` — oder, wenn ``<object_type>_model_name`` (oder ``pathogen_model``) einen vom Benutzer trainierten Checkpoint nennt, diesen Checkpoint —, durchläuft jede vorab in Stapel gepackte ``.npz``-Datei, wendet umfangsbasierte Zusammenführung und Flächen-/Randfilterung auf 2-D-Masken an und filtert Objekte optional nach ihrer absoluten mittleren Intensität im Originalbild ihres eigenen Kanals. Anschließend verfolgt sie optional Zeitraffer-Objekte, speichert ``.npy``-Masken pro Bild und schreibt Objektzahlen in die SQLite-Datenbank des Laufs. Zeitstapel-Archive müssen unabhängig von der deklarierten Position der Zeitachse einen Dateinamen pro Zeitpunkt enthalten; jeder Rohdateiname bezeichnet das ``(Z, Y, X, C)``-Volumen dieses Zeitpunkts oder sein ``(Y, X, C)``-Bild bei einer flachen ``TYX``-Serie. Die Motilitätsanalyse der ganzen Platte gehört zu :func:`spacr.core.preprocess_generate_masks`, nachdem alle Objektmasken mit ihren Bildern zusammengeführt wurden; dieser Generator führt sie nicht aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "source": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same.",
+      "source_sha256": "42def4f4e810fa598323cc7fdbd455915764d7944e457a30a384f482d09f80e1",
+      "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same.",
+      "translation": "Ein Objekt, dessen Modelleinstellung ``cellpose3:<model or weights path>`` lautet, oder jedes Objekt, wenn ``segmentation_backend`` ``'cellpose3'`` ist, wird von ``_cellpose3_masks`` in der eigenen Umgebung des Cellpose-3-Backends segmentiert; was es zurückgibt, durchläuft dieselben Codezeilen wie ein Cellpose-SAM-Ergebnis, sodass die gespeicherten Masken und die Datenbankzeilen auf dieselbe Weise geschrieben werden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#6",
+      "source": "optional exclusive worker assignment of NPZ paths under ``src``. One model is reused across the assignment; ``None`` keeps the ordinary whole-directory run. An empty assignment loads no model.",
+      "source_sha256": "335d782f7f2796f7aa6e5dc88248a42c5e9ed4fbd7f58c4e57659d513258ab5d",
+      "context": "optional exclusive worker assignment of NPZ paths under ``src``. One model is reused across the assignment; ``None`` keeps the ordinary whole-directory run. An empty assignment loads no model.",
+      "translation": "optionale exklusive Worker-Zuweisung von NPZ-Pfaden unter ``src``. Ein Modell wird für die gesamte Zuweisung wiederverwendet; ``None`` behält den gewöhnlichen Lauf über das ganze Verzeichnis bei. Eine leere Zuweisung lädt kein Modell.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#7",
+      "source": "optional callable receiving the archive path after its selected fields have completed. Failed archives are not reported.",
+      "source_sha256": "e0353f797a2deca5e3e0e188d33b11f8b983a8a71119d4a90f139249c54a35a9",
+      "context": "optional callable receiving the archive path after its selected fields have completed. Failed archives are not reported.",
+      "translation": "optionales Callable, das den Archivpfad erhält, nachdem dessen ausgewählte Sichtfelder abgeschlossen sind. Fehlgeschlagene Archive werden nicht gemeldet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#8",
+      "source": "False lets a parallel coordinator run shared QC once after every worker finishes, instead of writing reports from each worker.",
+      "source_sha256": "7490cab6cdcf8d211548283b8a53ba6904fa0a270f553c593f3c231a4eb212bf",
+      "context": "False lets a parallel coordinator run shared QC once after every worker finishes, instead of writing reports from each worker.",
+      "translation": "False lässt einen parallelen Koordinator die gemeinsame QC einmal ausführen, nachdem jeder Worker fertig ist, statt Berichte von jedem Worker schreiben zu lassen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#2",
+      "source": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability. Retain the stain-specific count regressor without loading or fitting it.",
+      "source_sha256": "d662a3ce69e8b037b03499dcb3956673a3b841c37a6093913f9a6a6d4ee358ec",
+      "context": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability. Retain the stain-specific count regressor without loading or fitting it.",
+      "translation": "Zählwerte behalten ihre Regressionswerte. Anzeigeklassen verwenden :func:`bin_parasite_count`; ein Regressor liefert keine Klassenwahrscheinlichkeit. Bewahrt den färbungsspezifischen Zähl-Regressor, ohne ihn zu laden oder anzupassen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object_roles.anchor_column#2",
+      "source": "``'object_label'`` or ``'cell_id'``.",
+      "source_sha256": "e6ad8af38130e05a4142b2fa88c010e3b1b4529cdc1614d8bc8d1fde9fea8acc",
+      "context": "``'object_label'`` or ``'cell_id'``.",
+      "translation": "``'object_label'`` oder ``'cell_id'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.object_settings_table.column_label#2",
+      "source": "an object name from :data:`OBJECT_ORDER`, e.g. ``\"cell\"`` or ``\"organelleb\"``. Organelle slots get their numbered label; any other name has underscores turned into spaces and is capitalised.",
+      "source_sha256": "48dbe30e7210ef857c80ac30c34af5e5f07bf73f40822d84f86777fa42ac30b7",
+      "context": "an object name from :data:`OBJECT_ORDER`, e.g. ``\"cell\"`` or ``\"organelleb\"``. Organelle slots get their numbered label; any other name has underscores turned into spaces and is capitalised.",
+      "translation": "ein Objektname aus :data:`OBJECT_ORDER`, z. B. ``\"cell\"`` oder ``\"organelleb\"``. Organellen-Slots erhalten ihr nummeriertes Label; bei jedem anderen Namen werden Unterstriche in Leerzeichen umgewandelt und der Anfangsbuchstabe großgeschrieben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object_settings_table.families#1",
+      "source": "flat settings names such as ``\"cell_min_area\"``; names that do not start with a known object followed by ``_`` are skipped.",
+      "source_sha256": "48ca8f1be0ee90c3e4987ecd9f057e84034c5f20a15878cf47fc2a982b276f46",
+      "context": "flat settings names such as ``\"cell_min_area\"``; names that do not start with a known object followed by ``_`` are skipped.",
+      "translation": "flache Einstellungsnamen wie ``\"cell_min_area\"``; Namen, die nicht mit einem bekannten Objekt gefolgt von ``_`` beginnen, werden übersprungen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object_settings_table.questions#2",
+      "source": "flat settings names such as ``\"cell_diameter\"``; names that do not start with a known object followed by ``_`` are skipped.",
+      "source_sha256": "a3921a465c655d43c8302f1ed4b447f501f713a624d04e2ff36161ec2f4dfcbe",
+      "context": "flat settings names such as ``\"cell_diameter\"``; names that do not start with a known object followed by ``_`` are skipped.",
+      "translation": "flache Einstellungsnamen wie ``\"cell_diameter\"``; Namen, die nicht mit einem bekannten Objekt gefolgt von ``_`` beginnen, werden übersprungen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.object_settings_table.to_table#3",
+      "source": "a flat settings dict, e.g. Mask's settings; it is only read.",
+      "source_sha256": "1fa60d8078cf610153b02640a95ea90a4d897df294d36424c1076b93e51aadae",
+      "context": "a flat settings key-value mapping, e.g. Mask's settings; it is only read.",
+      "translation": "ein flaches Einstellungs-Wörterbuch, z. B. die Einstellungen von Mask; es wird nur gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.omero.AnnotationPlan#1",
+      "source": ":data:`ACTION_CREATE`, :data:`ACTION_UPDATE` or :data:`ACTION_UNCHANGED`.",
+      "source_sha256": "6172da5340229d441fddef17e253c6be66613100f7d9a6c284298689a469ab8a",
+      "context": ":data:`ACTION_CREATE`, :data:`ACTION_UPDATE` or :data:`ACTION_UNCHANGED`.",
+      "translation": ":data:`ACTION_CREATE`, :data:`ACTION_UPDATE` oder :data:`ACTION_UNCHANGED`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.ops_phenotype.Alignment.apply#2",
+      "source": "source-frame coordinates, an array of shape (N, 2) (converted to float), in the same axis order the alignment was fitted with.",
+      "source_sha256": "0d3c7d79da490e8c64999f29c1db0186d73096decc8c5b91362c78219d7a813d",
+      "context": "source-frame coordinates, an array of shape (N, 2) (converted to float), in the same axis order the alignment was fitted with.",
+      "translation": "Koordinaten im Quellbezugssystem, ein Array der Form (N, 2) (in Float umgewandelt), in derselben Achsenreihenfolge, mit der die Ausrichtung angepasst wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.OrganelleType.morphology_for#1",
+      "source": "the expected object diameter in pixels, or None. Only used by size-split types: at or above ``RING_RESOLVABLE_PX`` (15) gives the large morphology, below it or None the small one.",
+      "source_sha256": "8fcfb618b536e422f27b3c1302868d6690ffbe190cfa896165da505d44d1c3d9",
+      "context": "the expected object diameter in pixels, or None. Only used by size-split types: at or above ``RING_RESOLVABLE_PX`` (15) gives the large morphology, below it or None the small one.",
+      "translation": "der erwartete Objektdurchmesser in Pixeln oder None. Nur von Typen mit Größenaufteilung verwendet: bei oder über ``RING_RESOLVABLE_PX`` (15) ergibt sich die große Morphologie, darunter oder bei None die kleine.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.active_organelle_roles#2",
+      "source": "a run settings mapping; its slot count is read as in :func:`organelle_count`.",
+      "source_sha256": "c8f9e166856015c3181476a0e13c6f06a3401cc722d662bbe94291c1e5b035e3",
+      "context": "a processing-session settings mapping; its slot count is read as in :func:`organelle_count`.",
+      "translation": "ein Mapping der Einstellungen des Verarbeitungslaufs; seine Slot-Anzahl wird wie in :func:`organelle_count` gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.declared_organelle_roles#2",
+      "source": "a run settings mapping; its slot count and the slot prefixes of its keys are both read.",
+      "source_sha256": "f2394412334dd7a257b7c6e0d9827e1d4cd69202b0f61cb26d40b5115bbae31d",
+      "context": "a processing-session settings mapping; its slot count and the slot prefixes of its structured-data names are both read.",
+      "translation": "ein Mapping der Einstellungen des Verarbeitungslaufs; sowohl seine Slot-Anzahl als auch die Slot-Präfixe seiner Schlüssel werden gelesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.is_basic#1",
+      "source": "a settings key, compared as a string against ``BASIC_SETTINGS``.",
+      "source_sha256": "f9de51ae81e919adfa64a8fe86ed018d6ba7805b90d5c676716febca46e8b472",
+      "context": "a setting name, compared as a string against ``BASIC_SETTINGS``.",
+      "translation": "ein Einstellungsschlüssel, als Zeichenkette mit ``BASIC_SETTINGS`` verglichen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.organelle_slot_is_active#2",
+      "source": "any settings key; a key belonging to no slot counts as active.",
+      "source_sha256": "ebe956b4f53b9c116849b6a328627d1dd45ebd1adad61bb2040c80de68836063",
+      "context": "any setting name; a structured-data name belonging to no slot counts as active.",
+      "translation": "ein beliebiger Einstellungsschlüssel; ein Schlüssel, der zu keinem Slot gehört, gilt als aktiv.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.organelle_slot_is_active#3",
+      "source": "the run settings mapping whose slot count decides which slots are active.",
+      "source_sha256": "17fca419121f58354b462a2fea9fd3a0a28015bb16e7952be511f43df7ebfcbb",
+      "context": "the processing-session settings mapping whose slot count decides which slots are active.",
+      "translation": "das Mapping der Einstellungen des Verarbeitungslaufs, dessen Slot-Anzahl entscheidet, welche Slots aktiv sind.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.organelle_slot_label#1",
+      "source": "a slot prefix such as ``'organelle'`` or ``'organelleb'``; anything else raises :class:`ValueError`.",
+      "source_sha256": "5a439fbff82400aaa106a8203c9ae8f42948281d5daa99c0b9209647b2be9b73",
+      "context": "a slot prefix such as ``'organelle'`` or ``'organelleb'``; anything else raises :class:`ValueError`.",
+      "translation": "ein Slot-Präfix wie ``'organelle'`` oder ``'organelleb'``; alles andere löst :class:`ValueError` aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.primary_setting#2",
+      "source": "any settings key, e.g. ``'organelleb_channel'``, which becomes ``'organelle_channel'``.",
+      "source_sha256": "e8d502f35056765b897841b981591a77d83b9bb3f3588c5104e12e82b626f02e",
+      "context": "any setting name, e.g. ``'organelleb_channel'``, which becomes ``'organelle_channel'``.",
+      "translation": "ein beliebiger Einstellungsschlüssel, z. B. ``'organelleb_channel'``, der zu ``'organelle_channel'`` wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.organelle_types.resolve_type#1",
+      "source": "the preset name, matched case-insensitively after stripping whitespace; None or empty means ``DEFAULT_TYPE`` (``custom``).",
+      "source_sha256": "117896d02268cd46d68820ec7c3fdc2a056ce18cfb47bb90a35d2dbb5f03cbf5",
+      "context": "the preset name, matched case-insensitively after stripping whitespace; None or empty means ``DEFAULT_TYPE`` (``custom``).",
+      "translation": "der Name der Voreinstellung, nach Entfernen von Leerraum ohne Beachtung der Groß-/Kleinschreibung abgeglichen; None oder leer bedeutet ``DEFAULT_TYPE`` (``custom``).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.ModuleGraph.next_of#1",
+      "source": "a module key; a key with no outgoing edge, or not in the graph, gives an empty tuple.",
+      "source_sha256": "adf6f68a739695873d90223581f025540749b1b9e059781998c3947e66d0b7ab",
+      "context": "a module key; a key with no outgoing edge, or not in the graph, gives an empty tuple.",
+      "translation": "ein Modulschlüssel; ein Schlüssel ohne ausgehende Kante oder außerhalb des Graphen ergibt ein leeres Tupel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.ModuleGraph.next_of#2",
+      "source": "the consumer module keys, sorted.",
+      "source_sha256": "d5b445b4c8e99af4dcd5fc811866d03914a85786f82013b9d0585d589d3a8300",
+      "context": "the consumer module keys, sorted.",
+      "translation": "die Schlüssel der konsumierenden Module, sortiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.ModuleGraph.previous_of#1",
+      "source": "a module key; a key with no incoming edge, or not in the graph, gives an empty tuple.",
+      "source_sha256": "161f9689c5ad732d4e216f6aa1a5230894e69479c9a337c9eb76654fe999fe75",
+      "context": "a module key; a key with no incoming edge, or not in the graph, gives an empty tuple.",
+      "translation": "ein Modulschlüssel; ein Schlüssel ohne eingehende Kante oder außerhalb des Graphen ergibt ein leeres Tupel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.ModuleGraph.previous_of#2",
+      "source": "the producer module keys, sorted.",
+      "source_sha256": "fac8ad687f0721d1cf457e3f9aa8651fe2927c965097c7d80241760817da47a8",
+      "context": "the producer module keys, sorted.",
+      "translation": "die Schlüssel der erzeugenden Module, sortiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.Node#16",
+      "source": ":data:`STATE_CURRENT`, :data:`STATE_STALE` or :data:`STATE_MISSING`.",
+      "source_sha256": "231b5e462efdf24ff28675c9c70b1c11c89fc7eeb7e4025996877711cd1ffc9f",
+      "context": ":data:`STATE_CURRENT`, :data:`STATE_STALE` or :data:`STATE_MISSING`.",
+      "translation": ":data:`STATE_CURRENT`, :data:`STATE_STALE` oder :data:`STATE_MISSING`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.PipelineGraph.downstream#2",
+      "source": "the registry id of the starting node. The start itself is not included, and an id with no edges gives an empty tuple.",
+      "source_sha256": "55ed99be99f2a3a149c03e4c5a9f43359815a57da4a716affa4945e757f66801",
+      "context": "the registry id of the starting node. The start itself is not included, and an id with no edges gives an empty tuple.",
+      "translation": "die Registry-ID des Startknotens. Der Start selbst ist nicht enthalten, und eine ID ohne Kanten ergibt ein leeres Tupel.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.PipelineGraph.downstream#3",
+      "source": "the reachable nodes, ordered by depth, then newest first, then id.",
+      "source_sha256": "a9ab84a34165bc8843c08fb22f4734dd7beddf820ad4e366792a6350a283fb49",
+      "context": "the reachable nodes, ordered by depth, then newest first, then id.",
+      "translation": "die erreichbaren Knoten, sortiert nach Tiefe, dann die neuesten zuerst, dann nach ID.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.PipelineGraph.node#1",
+      "source": "the registry id to look up.",
+      "source_sha256": "f1c15b699bc108b4eca9b51a0a6d5c9258458a7ca58704ae5e77cf35bcd21816",
+      "context": "the registry id to look up.",
+      "translation": "die nachzuschlagende Registry-ID.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.PipelineGraph.upstream#2",
+      "source": "the ancestor nodes, ordered by depth, then newest first, then id.",
+      "source_sha256": "088ee7eee7764281056f9128cdb74a64861edf3927e1f06d75a60eb814d62e48",
+      "context": "the ancestor nodes, ordered by depth, then newest first, then id.",
+      "translation": "die Vorfahrenknoten, sortiert nach Tiefe, dann die neuesten zuerst, dann nach ID.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
       "label": "spacr.qt.cpu_modes#3",
       "source": "Maxima + propagate finds bright centres in a blurred image and uses them as markers for a watershed on inverted intensity. A per-seed intensity cut then trims each basin, or a common intensity mask limits the watershed. This can separate touching objects when they have distinct detected centres; it does not implement CellProfiler's distance/intensity propagation cost. The seed count is measured before hole filling and area filtering, so it can exceed the number of surviving labels. See :func:`spacr.qt.mask_engine.maxima_propagate_instances` for all four rules.",
       "source_sha256": "825888e34c3da8a736e2a1cc34fc43d69468863110204c6ebb9b3fe4a74b1f68",
