@@ -1,31 +1,33 @@
 {
   "lesson": "53_prediction_profiler",
-  "english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
   "review": {
-    "kind": "Editorial translation from frozen English; synthetic-data, no-refitting, range and noncausal boundaries preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "pt-BR",
-  "title": "Perfil de previsões",
-  "description": "Importe um modelo ajustado a dados sintéticos e verifique como valores mantidos fixos e opções do gráfico afetam suas previsões.",
+  "title": "Prediction Profiler: explorar um modelo ajustado",
+  "description": "Carregue os coeficientes de um modelo, varie uma entrada mantendo as outras fixas e inspecione as respostas previstas.",
   "objectives": [
-    "Abrir Prediction Profiler dentro de Regression e importar coeficientes adequados.",
-    "Distinguir ajuste, ligação inversa, intervalos presumidos e resolução do gráfico.",
-    "Comparar as entradas, alterar valores fixos e restaurar os pontos médios."
+    "Carregar os coeficientes com a função de ligação correta.",
+    "Varrer uma entrada e ajustar os valores fixos.",
+    "Inspecionar as curvas de resposta e a sensibilidade."
   ],
-  "prerequisite": "Extraia o exemplo SYNTHETIC em uma pasta nova. Ele inclui 121 observações construídas, coeficientes de um ajuste OLS real com statsmodels, manifesto e script reproduzível. Não há validação biológica nem em dados reservados. A interface importa feature/coefficient e Intercept; não ajusta o modelo nem lê as observações. Use identity. A importação presume duas linhas com intervalos 0..1 e valores fixos 0.5. A classificação usa 0.05..0.95; a curva cobre 0..1. Foram verificados 338 valores das curvas e doze da classificação. Efeitos marginais de permutação não substituem um modelo preditivo ajustado conjuntamente. API: spacr.profiler.from_coefficients, profile, sensitivity. ProfilerScreen.set_model/set_design são interfaces programáticas, não seletores de arquivos. Não se afirmam intervalos de confiança, causalidade, publicação ou aprovação de escuta.",
+  "prerequisite": "Baixe o exemplo sintético de coeficientes ou use os coeficientes de um modelo ajustado adequado. Faça corresponder a função de ligação e a codificação das entradas. O caminho com arquivo de coeficientes supõe faixas de entrada de zero a um; efeitos marginais separados não substituem um modelo de previsão ajustado em conjunto.",
   "scenes": [
-    "Abra Regression e depois Prediction Profiler nas ferramentas aninhadas. Esta aula usa um exemplo didático claramente identificado como sintético, não resultados de triagem biológica. Examinamos um modelo ajustado variando uma entrada e mantendo a outra fixa. O perfilador lê o modelo; não treina outro.",
-    "Baixe e extraia o exemplo anexo; depois use Browse para abrir o arquivo de coeficientes OLS sintéticos. Ele contém um intercepto e dois coeficientes de entrada ajustados. O arquivo compactado também inclui as observações e o script de preparação. Os coeficientes vieram de um ajuste real por mínimos quadrados a dados construídos, não de resultados de regressão inventados.",
-    "Mantenha Link em identity, pois este exemplo foi ajustado por mínimos quadrados ordinários. Outras funções de ligação pertencem a outras famílias de modelos; mudar o seletor não converte nem treina novamente o modelo original. Uma curva plausível na escala de resposta errada continua errada. Use sempre a função de ligação do ajuste.",
-    "Leia a mensagem de status: nenhuma matriz de delineamento foi fornecida, então a importação do arquivo presume que cada entrada varia de zero a um. Nossas entradas sintéticas têm esse intervalo, mas as suas podem não ter. A classificação usa os percentis cinco e noventa e cinco; Moves by não é a diferença entre os extremos completos da curva.",
-    "A entrada A está selecionada para a varredura. Mova o controle deslizante de B do ponto médio até um. A resposta prevista diminui porque B tem um coeficiente ajustado negativo. Isso muda o cenário com valores fixos, não os dados de treinamento nem os coeficientes. Leia os extremos numéricos, além de observar o formato da linha.",
-    "Mova B para zero e compare novamente. A resposta aumenta. O gráfico reajusta sua escala vertical; linhas aparentemente paralelas podem representar níveis de resposta diferentes. São previsões de um modelo presumido, não evidências de que alterar B causaria um efeito experimental.",
-    "Reset held values devolve os controles aos pontos médios dos intervalos presumidos: um meio neste caso. O modelo não é ajustado novamente. Ao importar apenas os coeficientes, esse ponto médio não é uma mediana medida nos dados originais: esses dados nunca foram carregados no perfilador.",
-    "Selecione B na lista ordenada. Agora B varia no eixo horizontal e A fica fixo em um meio. A curva descendente corresponde ao coeficiente negativo de B. A lista classifica a sensibilidade do modelo; não é um teste de significância, um intervalo de confiança nem uma lista de achados biológicos validados.",
-    "Altere Points de sessenta e um para onze. Isso escolhe quantas posições são avaliadas para desenhar a curva; não muda o tamanho da amostra nem a qualidade do ajuste. Nosso exemplo linear mantém os mesmos extremos. Mais pontos no gráfico não acrescentam observações, não reduzem a incerteza nem melhoram um modelo já ajustado.",
-    "Com B ainda selecionado, mova A para um e examine os novos extremos da resposta; depois restaure os valores. No seu trabalho, use coeficientes de um modelo ajustado adequado e confira sua função de ligação, intercepto, codificação e intervalos. Não substitua um modelo preditivo ajustado conjuntamente por efeitos separados de testes de permutação."
+    "Abra Regression e depois Prediction Profiler para explorar as respostas previstas por um modelo ajustado. O exemplo indicado usa dados sintéticos.",
+    "Baixe e descompacte o exemplo e depois use Browse para ir até o CSV sintético de coeficientes OLS. Inclua o intercepto ao fornecer seus próprios coeficientes ajustados.",
+    "Defina Link como a função usada pelo modelo ajustado. Mantenha identity neste exemplo de mínimos quadrados ordinários.",
+    "Confira as informações de faixa depois de carregar. O caminho com arquivo de coeficientes supõe que cada entrada vai de zero a um. Confirme que isso corresponde ao uso pretendido antes de interpretar as curvas.",
+    "Selecione Input A para a varredura. Mova o controle deslizante de Input B, que está fixo, para um e inspecione a curva de resposta resultante.",
+    "Mova B para zero e compare os valores de resposta. Observe a escala do eixo além da linha, porque o gráfico pode mudar de escala.",
+    "Clique em Reset held values para devolver os controles deslizantes ao ponto médio das faixas supostas, um meio neste exemplo.",
+    "Selecione Input B na lista ordenada para varrer B mantendo A fixo. A ordenação resume a sensibilidade do modelo nas faixas de entrada configuradas.",
+    "Mude Points para escolher quantas posições são avaliadas ao longo da curva. Onze dá uma grade mais grossa que sessenta e um, sem mudar o modelo ajustado.",
+    "Ajuste os valores fixos para explorar outros cenários e redefina-os ao terminar. Interprete as curvas como previsões do modelo e avalie os efeitos experimentais reais com dados adequados."
   ]
 }
