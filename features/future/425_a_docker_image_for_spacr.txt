@@ -4,7 +4,12 @@ A DOCKER IMAGE FOR spaCR
 
 Filed as 416 on 2026-09-18; renumbered 2026-09-19 because 416 also names features/new/416_an_update_removes_every_older_spacr_first.txt.
 
-Status:    BUILT AND PUBLISHED; real GPU execution remains unproven.
+Status:    DONE 2026-09-26. Built, published, and GPU execution proven:
+           the published ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4
+           (manifest sha256:2863e27d...) ran a real Cellpose-SAM mask
+           generation on an RTX 3090 through `--gpus all`, 45x faster warm
+           than the same image on CPU, with the same 48 objects. See the
+           last note and 425_cuda_image_gpu_execution_2026-09-26.json.
            Verified 2026-09-23: both images passed the 1.5.0.9 release's
            build, CPU pipeline smoke and publication jobs on September22.
            Anonymous registry reads retrieve both versioned manifests and
@@ -503,3 +508,60 @@ weights mounted read-only on /models from ~/.cellpose/models.
   mean IoU of matches 0.871, 20 predicted and 5 truth objects unmatched.
 The GPU run of the same probe is queued through tools/gpu_turn.sh
 (label 425-docker-gpu); results follow in the next note.
+
+2026-09-26 — GPU EXECUTION PROVEN IN THE PUBLISHED CUDA IMAGE. ITEM DONE.
+Run through `tools/gpu_turn.sh 425-docker-gpu bash run_gpu.sh` (queued 10:40,
+started 18:42:22 after the shared card's queue drained, FINISH rc=0 at
+18:44:43). Every container was
+  docker run --rm --gpus all --memory 24g --user 1000:1000 \
+    -v ~/.cache/spacr/example_data/make_masks_toxo_pv:/data:ro \
+    -v ~/.cellpose/models:/models:ro -v <scratch>/out_gpu:/out \
+    ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4 <command>
+
+Inside the container:
+  nvidia-smi -L            GPU 0: NVIDIA GeForce RTX 3090
+  spacr --version          1.5.1.0
+  torch                    2.6.0+cu124, CUDA 12.4, cuda.is_available() True,
+                           device "NVIDIA GeForce RTX 3090", sm_86, cuDNN 9.1
+  smoke_pipeline.py        7/7 checks passed
+  spacr-doctor             12 passed, 2 warnings, 0 failed. gpu: PASS "1 CUDA
+                           device(s) usable: NVIDIA GeForce RTX 3090 (driver
+                           580.178.04, torch CUDA 12.4)". The warnings are no
+                           DISPLAY (expected headless) and the czi extra
+                           missing pylibCZIrw (declared optional).
+
+The same Cellpose-SAM probe as the CPU baseline above (spaCR's
+segment_with_cellpose, stock cpsam, plate1_A02_12.tif), same image:
+
+                         GPU (--gpus all)       CPU (no --gpus, 16 CPUs)
+  spaCR accelerator      cuda:0, bf16 weights   cpu, float32 weights
+  cold, incl. model load 39.5 s                 641.1 s     (16x)
+  warm                   15.0 s                 683.5 s     (45x)
+  peak CUDA memory       1768 MB                --
+  objects found          48                     48
+  vs 33-object truth     28 matched at IoU>=0.5, mean IoU 0.871 (both)
+
+GPU and CPU masks agree object for object: all 48 pair at IoU>=0.5, mean
+IoU 0.994, worst 0.937, none unmatched, 99.94% foreground pixel agreement.
+The residue is bfloat16 against float32 weights, which is what
+spacr.accelerator.cellpose_kwargs chooses on each device. The CPU timing was
+taken on a shared, loaded machine and is an upper bound rather than a
+benchmark; the GPU speed-up is not in doubt at 45x.
+
+The 20 predicted objects without a truth partner are a model-quality
+question for stock cpsam on this field (the curated mask is the vacuole
+model's training label), not a container question, and they are identical on
+both devices.
+
+NOTHING IN THE DOCKERFILES OR ENTRYPOINT NEEDED CHANGING. The GPU path worked
+first time: the nvidia runtime injects the driver, the cu124 torch wheel
+drives a 580 driver, the non-root UID 1000 reads a host model folder mounted
+read-only on /models, and Cellpose loads cpsam from there without a
+download. The one practical finding is outside the image: `docker pull` has
+no resume, and on this box's link the 4.05 GB venv layer failed twice with
+"unexpected EOF"; the digest-verified resumable fetch described in the
+previous note is the workaround.
+
+Nothing was built, pushed or published by this work. Receipt:
+features/data/425_cuda_image_gpu_execution_2026-09-26.json.
+Every point of the original WHAT IS LEFT list is now closed.
