@@ -1279,7 +1279,7 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
             "the whole plate is like this seg_qc already demotes it to a "
             "warning, because it is the assay and not a defect",
             "size or probability filters removing most of what was found "
-            "(cell_min_area, the *_cellprob_threshold thresholds)",
+            "(an area row in object_filters, the *_cellprob_threshold thresholds)",
             "a field that is largely outside the well",
         ),
         fix=(
@@ -1333,8 +1333,9 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
         ),
         fix=(
             "Inspect raw images and boundaries; check focus and model settings. "
-            "Measure diameter if the backend uses it. Adjust <object>_min_area "
-            "only after confirming that excluded specks are not real objects."
+            "Measure diameter if the backend uses it. Raise the object's area "
+            "minimum in object_filters only after confirming that excluded "
+            "specks are not real objects."
         ),
     ),
     FLAG_LOW_COUNT: FlagGuidance(
@@ -1428,7 +1429,7 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
         ),
         fix=(
             "Review raw images and assay controls before changing "
-            "<object>_min_area / <object>_max_area; filtering may remove a "
+            "the object's area bounds in object_filters; filtering may remove a "
             "real biological population. "
             f"{ILLUMINATION_ADVICE}"
         ),
@@ -1768,7 +1769,7 @@ def _gradient_findings(
                         f"Compare the experimental layout and controls first. "
                         f"{ILLUMINATION_ADVICE} Inspect raw images with their "
                         f"mask overlays before adjusting <object>_cellprob_threshold, "
-                        f"<object>_min_area or the model's diameter setting."
+                        f"the object's area row in object_filters or the model's diameter setting."
                     ),
                     plate=plate,
                     object_type=object_type,

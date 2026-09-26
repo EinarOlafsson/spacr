@@ -5,48 +5,6 @@
   "records": [
     {
       "table": "setting_tooltips",
-      "key": "cell_min_intensity",
-      "source_sha256": "68aad2538c67164612d23f8d32c17f003acda8738d497e0b1b944f57f3d4bb7c",
-      "source": "Delete cell objects whose mean pixel intensity in cell_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Entfernt Zellobjekte, deren über das gesamte Objekt gemittelte Pixelintensität im eigenen Kanal cell_channel unter diesem Wert liegt. Die Intensität wird in den Rohwerteinheiten des Originalbildes gemessen. Objekte mit einem Mittelwert genau am Grenzwert bleiben erhalten. Erhöhen Sie den Grenzwert, um lichtschwache Objekte auszuschließen. Wird nach der Segmentierung sowohl in Mask-Durchläufen als auch in Live Preview angewendet. 0 deaktiviert nur diesen Grenzwert. Standardwert: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_max_intensity",
-      "source_sha256": "f94400c9c8d7904d7bbb51e08e54eeca8bf537f9cd6c2c2337df04a7893ba5e5",
-      "source": "Delete cell objects whose mean pixel intensity in cell_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Entfernt Zellobjekte, deren über das gesamte Objekt gemittelte Pixelintensität im eigenen Kanal cell_channel über diesem Wert liegt. Die Intensität wird in den Rohwerteinheiten des Originalbildes gemessen. Objekte mit einem Mittelwert genau am Grenzwert bleiben erhalten. Senken Sie einen positiven Grenzwert, um mehr helle Objekte auszuschließen. Wird nach der Segmentierung sowohl in Mask-Durchläufen als auch in Live Preview angewendet. 0 deaktiviert nur diesen Grenzwert. Standardwert: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_min_intensity",
-      "source_sha256": "49e3fbe983ff2bd7ecc6b7ec3023f35a57ba7ccaff37f61ad33eadabce30a02b",
-      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Entfernt Zellkernobjekte, deren über das gesamte Objekt gemittelte Pixelintensität im eigenen Kanal nucleus_channel unter diesem Wert liegt. Die Intensität wird in den Rohwerteinheiten des Originalbildes gemessen. Objekte mit einem Mittelwert genau am Grenzwert bleiben erhalten. Erhöhen Sie den Grenzwert, um lichtschwache Objekte auszuschließen. Wird nach der Segmentierung sowohl in Mask-Durchläufen als auch in Live Preview angewendet. 0 deaktiviert nur diesen Grenzwert. Standardwert: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_max_intensity",
-      "source_sha256": "e545f1e4ae2b0768ad5965e3a194dba4a20fc56dc2fed02e37246e74c163c3af",
-      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Entfernt Zellkernobjekte, deren über das gesamte Objekt gemittelte Pixelintensität im eigenen Kanal nucleus_channel über diesem Wert liegt. Die Intensität wird in den Rohwerteinheiten des Originalbildes gemessen. Objekte mit einem Mittelwert genau am Grenzwert bleiben erhalten. Senken Sie einen positiven Grenzwert, um mehr helle Objekte auszuschließen. Wird nach der Segmentierung sowohl in Mask-Durchläufen als auch in Live Preview angewendet. 0 deaktiviert nur diesen Grenzwert. Standardwert: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_min_intensity",
-      "source_sha256": "6edf30d7b7cabc061a168cb5d37e2e9ea66314683277b8f034f469288ce8ce27",
-      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Entfernt Pathogenobjekte, deren über das gesamte Objekt gemittelte Pixelintensität im eigenen Kanal pathogen_channel unter diesem Wert liegt. Die Intensität wird in den Rohwerteinheiten des Originalbildes gemessen. Objekte mit einem Mittelwert genau am Grenzwert bleiben erhalten. Erhöhen Sie den Grenzwert, um lichtschwache Objekte auszuschließen. Wird nach der Segmentierung sowohl in Mask-Durchläufen als auch in Live Preview angewendet. 0 deaktiviert nur diesen Grenzwert. Standardwert: 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_max_intensity",
-      "source_sha256": "a412cdbc074156beeb0642913f4d3255982c7b10ce4a64886dd84cf86bc563e3",
-      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Entfernt Pathogenobjekte, deren über das gesamte Objekt gemittelte Pixelintensität im eigenen Kanal pathogen_channel über diesem Wert liegt. Die Intensität wird in den Rohwerteinheiten des Originalbildes gemessen. Objekte mit einem Mittelwert genau am Grenzwert bleiben erhalten. Senken Sie einen positiven Grenzwert, um mehr helle Objekte auszuschließen. Wird nach der Segmentierung sowohl in Mask-Durchläufen als auch in Live Preview angewendet. 0 deaktiviert nur diesen Grenzwert. Standardwert: 0."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "organelle_min_intensity",
       "source_sha256": "4204fd9d295fa76231ccc7847b8fc750e95ac51d154c93f28a133a8163f34fed",
       "source": "Delete organelle objects whose mean pixel intensity in organelle_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",

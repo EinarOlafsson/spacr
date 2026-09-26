@@ -1,7 +1,9 @@
 FILTERS ARE ANY scikit-image REGIONPROP, ADDED BY THE USER
 
 Status: DONE 2026-09-25 (engine, Make Masks list, object_filters setting;
-        see BUILT below). Filed 2026-09-24.
+        see BUILT below). Filed 2026-09-24. The old per-object bounds were
+        retired into object_filters rows the same day, by the maintainer's
+        decision (see the last note).
 Owner: Claude (item 511 worktree).
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
@@ -92,3 +94,128 @@ NEW tr() STRINGS (make_masks.py): "Add a filter"; "Remove"; "no minimum";
   measures pixel values, and no intensity image is open, so it cannot filter
   this mask." Retired captions (reviewed records deleted): Min/Max area (px),
   the old Filter subtitle, button and ledger tooltips, and placeholder.
+
+
+--------------------------------------------------------------------------------
+2026-09-25 -- DECISION APPLIED: THE OLD PER-OBJECT BOUNDS ARE RETIRED
+--------------------------------------------------------------------------------
+
+The maintainer, 2026-09-25: "RETIRE Mask's old per-object {obj}_min_area,
+_max_area, _min_intensity, _max_intensity settings from the form; saved
+settings that carry them are migrated into object_filters rows on load
+(511's legacy_filters already does the conversion -- make it the load path).
+... the pipeline still honours old saved values via migration."
+
+SCOPE. The twelve keys {cell,nucleus,pathogen}_{min,max}_{area,intensity}.
+The organelle family (organelle_min_area and the slots' *_min_area, and
+organelle*_min/max_intensity) is NOT retired: the organelle segmenters use
+organelle_min_area as a segmentation parameter (spacr/object.py, the
+remove_small_objects calls in the classical routes), not only as a filter.
+Say if the organelle bounds should follow.
+
+THE LOAD PATH, one fold, spacr/settings.py _fold_object_bounds:
+  * each retired key present is popped and handed to
+    mask_engine.legacy_filters (0 = off, as before); the rows are appended
+    to that object's object_filters list. A row the file already has for
+    the same property wins (a filter list is the later spelling).
+  * a value that is not a finite number >= 0 is LEFT in place, unmigrated,
+    so the run, the doctor and the Live preview refuse it as they did
+    (_validated_intensity_bounds); moving it would have made it "off".
+  * called from set_default_settings_preprocess_generate_masks (every Mask
+    run and every script that still passes the old names), the CLI/batch
+    loader (cli._under_todays_names, with the doctor's message), the Qt
+    form's load (app_screen._translate_legacy_setting_keys) and the Live
+    preview's apply_settings.
+  * the twelve are SEMANTIC_FOLD_MEANINGS entries and RETIRED_SETTINGS ->
+    "object_filters", so the doctor says "'cell_min_area' was folded into
+    'object_filters'" and what the value becomes.
+
+THE REGISTRIES. Removed from the Mask defaults, expected_types, the
+tooltips and the Cell/Nucleus/Pathogen categories. object_filters' tooltip
+now says area and intensity_mean are rows there, that an area minimum is
+also Cellpose's min_size, and that an old file's bounds become rows. The
+three *_min_size (Measure) tooltips pointed at the retired keys and now
+point at the object_filters area row. seg_qc's four fix texts likewise.
+
+THE READERS, moved:
+  * settings._get_object_settings: Cellpose min_size =
+    mask_engine.object_filter_area_floor(settings, obj) (the minimum of the
+    object's area row; new function next to settings_filters, with
+    parse_object_filters split out of settings_filters).
+  * core.py:282 (the v2 path's min_size) -- the same one line. (493's file;
+    one-line hunk.)
+  * the Live preview (spacr/qt/widgets/live_preview.py; 525b's file, three
+    small hunks): its per-compartment Min/Max area and Min/Max intensity
+    controls for cell, nucleus and pathogen now read (_bound_from_filters)
+    and write (_bounds_into_filters) those objects' area / intensity_mean
+    rows of object_filters, so propagation sends object_filters and never
+    a retired key. Organelle controls unchanged.
+  * make_masks_help: the Make Masks min-area control's help points at
+    object_filters.
+  * NOT moved, on purpose: the role-generic f-string reads
+    settings.get(f'{object_type}_min_area', 0) and friends in
+    spacr/object.py (merge_split_filter_masks, generate_cellpose_masks_sam),
+    spacr/pipeline_v2.py and the Live preview's _apply_size_filter. The
+    organelle slots still go through them; for cell/nucleus/pathogen the key
+    is folded away before they run, so they read 0 and the object_filters
+    row does the work.
+  * spacr/object.py:1168 (3-D branch): a list of object_filters with no
+    intensity property crashed zip(masks, None). A pre-existing 511 bug
+    (any area-only filter list in a volumetric run) that the migration made
+    reachable from an old cell_min_area; now an intensity-free filter gets
+    None planes. NOTE the behaviour change: an old cell_min_area in a
+    volumetric/3-D run used to be skipped (the 2-D filter step is skipped
+    there); as an area row it now judges each 3-D label by voxel count.
+
+DOCS TABLES AND GENERATED FILES.
+  * setting animations: the nine max-area and mean-bound animations of
+    cell, nucleus and pathogen had no live key left and were removed (GIFs,
+    manifest, generator specs, docs/source/setting_animations.rst via
+    --docs-only), as 391 removed eight. The three min-area animations keep
+    their slugs and now name *_min_size; cell's also carries
+    object_filters. 87 -> 78 animations, 107 -> 96 keys.
+  * reviewed runtime translations: 91 records (labels and tooltips of the
+    retired mean bounds, all in */2026-09-15-mask-mean-bounds.json) deleted,
+    per tools/check_reviewed_runtime_evidence.py ("the English is gone;
+    DELETE"). The EN catalog rows in spacr/qt/i18n_catalogs are the
+    translation lane's to drop.
+  * tools/build_setting_consumer_map.py: the twelve pinned as catalog_only
+    and CATALOG_ONLY_UNREAD, with the reason (catalog rows remain; the
+    generic f-string reads expand to them; no literal read is left).
+    setting_api_targets.py was NOT regenerated (its only drift is other
+    lanes').
+  * docs/source/_generated/settings_flow.rst and settings_flow_index.py
+    regenerated (tools/settings_flow.py --rst).
+
+TESTS. New in tests/test_object_filters_are_any_regionprop.py: the keys are
+gone from every registry; an old CSV is migrated into rows on load (and
+the doctor names object_filters); a script passing old names to the Mask
+defaults is folded and Cellpose min_size comes from the row; an existing
+row wins; an unusable value is left for the run to refuse; a migrated file
+filters exactly as the old bounds did (merge_split_filter_masks vs the
+legacy _filter_objects). tests/test_settings_full_coverage.py: min_size
+from the area row. Updated honestly, each with a dated note: expected-types
+pin (catalog_only), categories (KEYS_RETIRED), tooltip census (742 -> 734,
+-8, none of the twelve left), tooltip contract, dead-settings/doctor typo
+example, Live preview tests (read the rows back), mask intensity contract,
+animations (counts, organelle-only mean-bound scenes, a test that the nine
+are gone), two settings-tables, object grid examples (min_area ->
+background).
+
+RESULTS, one capped offscreen CPU process, 80 files:
+  before, on this worktree's base (b315c0342), the 62 files that name the
+    keys or pin the registries: 1940 passed / 5 failed (2 i18n caption
+    ratchet, 2 settings-flow artefacts stale, 1 ops_spot_detector tooltip
+    over 600 chars -- none from this item);
+  after, 80 files (the 62, plus the reviewed-translation, animation and
+    audit files a retirement touches): 2535 passed / 5 failed / 27 skipped
+    (the last five failures of the full run, in the zoom and audit files,
+    were fixed and those two files re-run: 31 passed).
+    The 5: the same two i18n caption ratchet tests and the ops_spot_detector
+    tooltip, and test_runtime_i18n_syntax sv/fr, whose failing counts are
+    of 2026-09-21 files this item did not touch (the 511 build note records
+    them red on nightly then). The settings-flow artefacts are green again
+    after regeneration.
+LEFT: the EN catalog rows (and nine languages' catalog rows) for the twelve
+keys are the translation lane's to drop; whether the organelle bounds should
+be retired the same way is the maintainer's call.

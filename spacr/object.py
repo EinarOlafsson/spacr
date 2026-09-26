@@ -1165,7 +1165,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                         np.asarray(mask).copy(), plane,
                         min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1],
                         filters=object_filters)
-                        for mask, plane in zip(masks, filter_images)]
+                        for mask, plane in zip(
+                            masks, filter_images if filter_images is not None
+                            else [None] * len(masks))]
             
             if timelapse:
                 if settings['plot']:

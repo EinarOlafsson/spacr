@@ -5,48 +5,6 @@
   "records": [
     {
       "table": "setting_tooltips",
-      "key": "cell_min_intensity",
-      "source_sha256": "68aad2538c67164612d23f8d32c17f003acda8738d497e0b1b944f57f3d4bb7c",
-      "source": "Delete cell objects whose mean pixel intensity in cell_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "उन कोशिका ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल cell_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_max_intensity",
-      "source_sha256": "f94400c9c8d7904d7bbb51e08e54eeca8bf537f9cd6c2c2337df04a7893ba5e5",
-      "source": "Delete cell objects whose mean pixel intensity in cell_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "उन कोशिका ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल cell_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_min_intensity",
-      "source_sha256": "49e3fbe983ff2bd7ecc6b7ec3023f35a57ba7ccaff37f61ad33eadabce30a02b",
-      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "उन नाभिक ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल nucleus_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_max_intensity",
-      "source_sha256": "e545f1e4ae2b0768ad5965e3a194dba4a20fc56dc2fed02e37246e74c163c3af",
-      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "उन नाभिक ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल nucleus_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_min_intensity",
-      "source_sha256": "6edf30d7b7cabc061a168cb5d37e2e9ea66314683277b8f034f469288ce8ce27",
-      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "उन रोगजनक ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से कम है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल pathogen_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। कमज़ोर संकेत वाले ऑब्जेक्ट हटाने के लिए इस सीमा को बढ़ाएँ। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_max_intensity",
-      "source_sha256": "a412cdbc074156beeb0642913f4d3255982c7b10ce4a64886dd84cf86bc563e3",
-      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "उन रोगजनक ऑब्जेक्टों को हटाता है जिनकी औसत पिक्सेल तीव्रता इस मान से अधिक है। यह औसत पूरे ऑब्जेक्ट के पिक्सेलों से, उसके अपने चैनल pathogen_channel में, मूल छवि की कच्ची इकाइयों में निकाला जाता है। सीमा के बराबर औसत वाले ऑब्जेक्ट बने रहते हैं। अधिक संख्या में चमकीले ऑब्जेक्ट हटाने के लिए किसी धनात्मक सीमा को कम करें। Mask चलाते समय और Live Preview में, दोनों जगह सेगमेंटेशन के बाद लागू होता है। 0 केवल इस सीमा को बंद करता है। डिफ़ॉल्ट 0।"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "organelle_min_intensity",
       "source_sha256": "4204fd9d295fa76231ccc7847b8fc750e95ac51d154c93f28a133a8163f34fed",
       "source": "Delete organelle objects whose mean pixel intensity in organelle_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
@@ -198,48 +156,6 @@
       "source_sha256": "f323684fb56f27512bbcaf78af533f94645b617d4d94cfbe9623ed6bca2bcaa5",
       "source": "The umbrella over the settings that are one decision applied to several objects — what is done to the pixels before segmentation, which detected objects are kept by area, mean intensity in their own channel and border filters, and whether touching labels are merged by their shared perimeter. Each group is broken down per object, so the same choice for cells and for nuclei sits side by side instead of under two unrelated headings. Nothing here needs touching on a first run.",
       "translation": "यह समूह उन सेटिंगों को एक जगह रखता है जिनमें एक ही निर्णय कई ऑब्जेक्ट प्रकारों पर लागू होता है — सेगमेंटेशन से पहले पिक्सेलों पर क्या किया जाता है; क्षेत्रफल, हर ऑब्जेक्ट के अपने चैनल में औसत तीव्रता और किनारों से संबंधित फ़िल्टरों के आधार पर कौन से पहचाने गए ऑब्जेक्ट रखे जाते हैं; और क्या आपस में छूने वाले लेबल उनकी साझा परिमिति के आधार पर जोड़े जाते हैं। हर समूह ऑब्जेक्ट प्रकार के अनुसार विभाजित है, इसलिए कोशिकाओं और नाभिकों के लिए एक जैसे विकल्प दो असंबंधित शीर्षकों के नीचे रहने के बजाय साथ-साथ दिखाई देते हैं। पहली बार चलाते समय यहाँ कुछ भी बदलना आवश्यक नहीं है।"
-    },
-    {
-      "table": "setting_labels",
-      "key": "cell_min_intensity",
-      "source_sha256": "b68dd69e77c7d29f9cfbce12120c02d5f276ded1ef95be72c9707a231ca1da20",
-      "source": "Cell min intensity",
-      "translation": "कोशिका की न्यूनतम तीव्रता"
-    },
-    {
-      "table": "setting_labels",
-      "key": "cell_max_intensity",
-      "source_sha256": "bbb79089090e99292c8bc1278fda189cfaf7756ca7927660dbb9d83df656532b",
-      "source": "Cell max intensity",
-      "translation": "कोशिका की अधिकतम तीव्रता"
-    },
-    {
-      "table": "setting_labels",
-      "key": "nucleus_min_intensity",
-      "source_sha256": "438e489b5b23d47278c1722786288223ea5aa6f3750aa2de2a005099190a7fcc",
-      "source": "Nucleus min intensity",
-      "translation": "नाभिक की न्यूनतम तीव्रता"
-    },
-    {
-      "table": "setting_labels",
-      "key": "nucleus_max_intensity",
-      "source_sha256": "d368b0ff375ab4026a6344d3b3af967f29fd7ee8696d32aabc4b20ad936d0ec3",
-      "source": "Nucleus max intensity",
-      "translation": "नाभिक की अधिकतम तीव्रता"
-    },
-    {
-      "table": "setting_labels",
-      "key": "pathogen_min_intensity",
-      "source_sha256": "aca7095fd0b18d9668efe62254f505d5f4c94dd99c5a139770ec525bafdc8f68",
-      "source": "Pathogen min intensity",
-      "translation": "रोगजनक की न्यूनतम तीव्रता"
-    },
-    {
-      "table": "setting_labels",
-      "key": "pathogen_max_intensity",
-      "source_sha256": "80852ead2ab46166386e6fc734b7213f6c20937040439d288e60798082a6295c",
-      "source": "Pathogen max intensity",
-      "translation": "रोगजनक की अधिकतम तीव्रता"
     },
     {
       "table": "setting_labels",

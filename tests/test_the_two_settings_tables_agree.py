@@ -304,8 +304,11 @@ def test_the_mask_factory_keeps_the_values_an_old_file_set():
     assert withdrawn_setting_reason("cell_min_object_area") is not None
     assert "cell_minimum_area_to_split" not in old_file
     assert "cell_min_split_area" not in old_file
-    assert old_file["cell_min_intensity"] == 0.0
-    assert old_file["cell_max_intensity"] == 0.0
+    # Item 511, 2026-09-25: the per-object mean bounds were retired into
+    # object_filters rows, and a file that never set them gains none.
+    assert "cell_min_intensity" not in old_file
+    assert "cell_max_intensity" not in old_file
+    assert old_file["object_filters"] == {}
     for dead in ("cell_FT", "cell_CP_prob",
                  "nucleus_Signal_to_noise", "organellez_min_size"):
         assert dead not in old_file, f"{dead} was left behind"
