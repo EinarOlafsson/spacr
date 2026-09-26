@@ -663,9 +663,10 @@ class _MasksConsole(QWidget):
     message repeated on every mouse move reads once.
 
     STREAMED OUTPUT. A backend worker's progress bars (tqdm redrawing itself
-    with ``\r`` during Cellpose 3 restoration, segmentation or a model
-    download) and an install's pip lines arrive faster than anyone reads, on
-    threads that must not wait. :meth:`stream` keeps only the newest state
+    with a carriage return, ``\\r``, during Cellpose 3 restoration,
+    segmentation or a model download) and an install's pip lines arrive
+    faster than anyone reads, on threads that must not wait.
+    :meth:`stream` keeps only the newest state
     and draws it on the progress line at most every :attr:`STREAM_MS`
     milliseconds; a bar's finished state goes into the scrollback once. The
     console listens to every worker from the moment it is built
