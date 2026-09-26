@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
+  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -13,22 +13,24 @@
   "title": "Addestrare un modello Cellpose",
   "description": "Prepara coppie immagine-maschera, perfeziona un modello di segmentazione in Cellpose Workbench e applica il checkpoint salvato.",
   "objectives": [
-    "Caricare immagini e le corrispondenti maschere di etichette degli oggetti.",
-    "Scegliere il modello di partenza, le impostazioni di addestramento e la cartella di output.",
-    "Avviare l’addestramento, trovare il checkpoint e provarlo su immagini separate."
+    "Esaminare in Make Masks le immagini e le corrispondenti maschere di etichette degli oggetti.",
+    "Scegliere la cartella di addestramento, il modello di partenza, il piano di addestramento e la posizione di output.",
+    "Avviare l’addestramento, trovare il checkpoint e applicarlo a immagini separate."
   ],
-  "prerequisite": "Scarica ed estrai l’esempio collegato con sei coppie, oppure prepara le tue immagini e le corrispondenti maschere di etichette intere. Esamina e correggi le maschere in Make Masks prima dell’addestramento.",
+  "prerequisite": "Scarica ed estrai l’esempio collegato: sei immagini di addestramento con le loro maschere, più tre immagini separate per Apply. Oppure prepara le tue immagini e le corrispondenti maschere di etichette intere, ed esaminale in Make Masks prima dell’addestramento.",
   "scenes": [
-    "Da Home, apri Tools e poi Make Masks. Apri Cellpose Workbench dalla sua barra degli strumenti e scegli la scheda Train. Addestrerai a partire dalle immagini e dalle loro maschere di etichette degli oggetti, poi userai il modello salvato in Apply.",
-    "Estrai l’esempio collegato e imposta Source sulla sua cartella di addestramento. La cartella contiene sei immagini e una sottocartella masks. Lascia vuoto mask source per usare quella sottocartella, oppure scegli una cartella separata con le tue maschere.",
-    "Ogni immagine ha bisogno di una maschera corrispondente con la stessa altezza e larghezza. I valori della maschera identificano gli oggetti: zero è lo sfondo e ogni oggetto ha il proprio intero positivo. Esamina i contorni in Make Masks e correggi le etichette prima di usarle per l’addestramento.",
-    "Per questo esempio in scala di grigi, lascia vuota la selezione dei canali. Per un’immagine multicanale, seleziona fino a tre indici di canale che partono da zero, per esempio zero e due per il primo e il terzo canale. Imposta channel axis se il rilevamento automatico non individua la dimensione dei canali.",
-    "Scegli un modello di base. Quello predefinito, cpsam, parte da Cellpose-SAM; il percorso di un checkpoint continua l’addestramento di un modello esistente. Inserisci un nome per il modello e scegli Save path per l’output, oppure lascialo vuoto per salvare all’interno del progetto.",
-    "Imposta il numero di epoche e la dimensione del lotto. Per una prima prova rapida, usa due epoche e dimensione del lotto uno. Più epoche danno al modello più aggiornamenti, e lotti più grandi usano più memoria. Il tasso di apprendimento controlla l’entità degli aggiornamenti; parti dal valore predefinito mostrato.",
-    "Lascia attiva la normalizzazione con il primo e il novantanovesimo percentile come punto di partenza. Questi valori controllano l’intervallo di intensità usato per ogni canale. Scale range controlla la variazione della dimensione delle immagini durante l’addestramento. Minimum training masks esclude le immagini con troppo pochi oggetti etichettati.",
-    "Per seguire la perdita di validazione, scegli una cartella separata di immagini di validazione e le relative maschere. Tieni questi campi separati dagli input di addestramento. Lascia vuote le cartelle di validazione se non hai un insieme separato.",
-    "Controlla le cartelle di input, il nome del modello e la posizione di output, poi premi Run. Segui l’avanzamento dell’addestramento nella console. Al termine, la console indica il percorso del checkpoint da usare per la segmentazione.",
-    "Se hai indicato un Save path, guarda nella sua sottocartella models. Con la posizione predefinita, il checkpoint si trova nella cartella di origine, in models, cellpose_model, models. Conserva il checkpoint insieme alle impostazioni di addestramento.",
-    "Apri Apply e scegli una cartella di immagini separata. Verifica che Custom model punti al checkpoint desiderato, poi esamina un’anteprima prima di elaborare tutta la cartella. Apply scrive le maschere accanto a quelle immagini, in una sottocartella masks. Usa campi etichettati separati per valutare i risultati."
+    "Da Home, apri Tools e poi Make Masks. Apri Cellpose Workbench dalla sua barra degli strumenti; si apre sulla scheda Train. Addestrerai a partire dalle immagini e dalle loro maschere di etichette degli oggetti, poi userai il modello salvato in Apply.",
+    "Estrai l’esempio collegato. La sua cartella training contiene sei immagini e una sottocartella masks, e la sua cartella apply contiene tre immagini separate per dopo. Fai clic sul pulsante della cartella accanto a Image source folder e scegli training. Lascia vuoto Mask source folder per usare la sottocartella masks, oppure scegli un’altra cartella di maschere.",
+    "Ogni immagine ha bisogno di una maschera con la stessa altezza e larghezza. Zero è lo sfondo, e ogni oggetto ha il proprio numero positivo. Apri la cartella di addestramento in Make Masks per esaminare le etichette e correggerle prima dell’addestramento. Questa immagine ha novantacinque cellule etichettate.",
+    "Questo esempio è in scala di grigi, quindi lascia vuoto Channels. Per un’immagine multicanale, aggiungi fino a tre numeri di canale che partono da zero, per esempio zero e due per il primo e il terzo canale. Imposta Channel axis solo se il rilevamento automatico non trova la dimensione dei canali.",
+    "Lascia Base model su cpsam per partire da Cellpose-SAM, oppure inserisci il percorso di un checkpoint per continuare l’addestramento di un modello precedente. Inserisci un Model name; qui è tutorial cells. Lascia vuoto Checkpoint folder per salvare nella cartella di origine, oppure scegli un’altra cartella.",
+    "Imposta N epochs e Batch size. Questa prova rapida usa dieci epoche con dimensione del lotto uno. Più epoche danno al modello più aggiornamenti, e lotti più grandi usano più memoria. Per iniziare, mantieni il tasso di apprendimento mostrato.",
+    "Lascia attivo Normalize, con il primo e il novantanovesimo percentile come punto di partenza. Questi fissano l’intervallo di intensità usato per ogni canale. Scale range varia la dimensione delle immagini durante l’addestramento, e Min train masks salta le immagini con meno oggetti etichettati.",
+    "Per seguire la perdita di validazione, scegli una Validation image folder separata e la relativa Validation mask folder. Non riutilizzare mai lì immagini di addestramento. Lascia entrambe vuote se non hai un insieme etichettato separato, come in questo esempio.",
+    "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento. Su questa GPU, dieci epoche su sei immagini sono terminate in meno di un minuto.",
+    "Al termine dell’addestramento, la console indica il percorso del checkpoint. Con la posizione predefinita si trova nella cartella di origine, in models, cellpose model, models. Il nome del file aggiunge al nome del modello l’architettura e il numero di epoche. Conservalo insieme alle impostazioni di addestramento.",
+    "Apri la scheda Apply. Custom model ora punta al checkpoint che hai addestrato. Imposta Source sulla cartella apply dell’esempio, le cui immagini provengono da pozzetti non usati per l’addestramento. Imposta Channels su zero e Percentiles su due e novantanove. Disattiva Fill in perché le cellule che si toccano restino separate, e attiva Save e Verbose.",
+    "Apri Live preview, scegli un’immagine e premi Run preview, con lo stesso canale e gli stessi percentili. L’immagine viene segmentata con il tuo checkpoint, che qui trova settantasei cellule. Regola le impostazioni qui prima di elaborare tutta la cartella.",
+    "Premi Run. Apply scrive una maschera per immagine in una sottocartella masks accanto a quelle immagini, e Verbose mostra ogni risultato come figura. Qui le tre maschere contengono settantasei, quarantotto e cinquantacinque cellule. Prima di usare un modello su un intero esperimento, confronta le sue maschere con campi etichettati separatamente."
   ]
 }
