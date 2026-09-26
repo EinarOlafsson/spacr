@@ -1677,13 +1677,6 @@
       "source_sha256": "2101981815b22ee585dad03bf51b66c5b891059e6f812fc8f02b52aeddf10a30",
       "text": "The measurements database for ``source``, or \"\".\n\nAccepts the database itself and the project folder above it, which are\nthe two things the UMAP screen's source box actually holds. A path\nthat resolves to nothing returns \"\", and the folded screen then opens\non its own Browse button rather than on a path that is not there."
     },
-    "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8": {
-      "source_blocks_sha256": [
-        "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8"
-      ],
-      "source_sha256": "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8",
-      "text": "Closing the window is Cancel; it never leaves a thread behind."
-    },
     "21760110c4f8407ae154477c64a74f3d993268b26a5d9b41fb9bd36e0c32b368": {
       "source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
@@ -2345,13 +2338,6 @@
       ],
       "source_sha256": "2c67a372bf3a9378212fde56d7caf8d01372706243440a0ebcc68e2cb7d8ffc0",
       "text": "Return the item with ``item_id`` or None."
-    },
-    "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2": {
-      "source_blocks_sha256": [
-        "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2"
-      ],
-      "source_sha256": "2c90c65efcd6ed5d7baa5d7c7e4e22507a03bd4ce83b269042ac25da27b066b2",
-      "text": "A repository-safe folder name."
     },
     "2ce28e3b2f3f6a2f91722026b5199f4a421511ac9a106f6ac9c596a704ea6d3f": {
       "source_blocks_sha256": [
@@ -4755,13 +4741,6 @@
       ],
       "source_sha256": "4ed6431e0952240a643d56e29b50577dd49de8f97fcfd6064e35e84b07f3a813",
       "text": "Return the pipeline function that runs a given app, or None if the\napp is interactive-only (annotate / make_masks) or unknown.\n\nEach returned entry point is wrapped with\n:func:`spacr.qt.verbose_logger.log_call` so that when the user has\n\"Verbose logging\" enabled, every pipeline invocation emits an\nentry-and-return trace in the console. Zero cost when verbose is\noff (the wrapper is a single attribute check).\n\nThe result is also stamped with the app key (:func:`_tag`) so the\nrun registry can say *which module* is running. Note that none of\nthese are stamped :func:`pausable` — see :class:`PauseGate`."
-    },
-    "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f": {
-      "source_blocks_sha256": [
-        "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f"
-      ],
-      "source_sha256": "4ed9135742e8e0082e45f10914404644cd02c3b1535b50925cb17497c07e652f",
-      "text": "The model card, carrying the same table every spaCR model card uses."
     },
     "4efbec2b1cafd81399fa8d0b230380647282ec74a05bd952180f06b5e0dbb1c3": {
       "source_blocks_sha256": [
@@ -7873,15 +7852,6 @@
       "source_sha256": "82d423c4b464b113f9501473bbc8db9736aae5f493e2e641e56e6cc839a20e9d",
       "text": "Turn the field fade on or off.\n\nFlushed immediately and the paint hook's cache dropped, so the very\nnext repaint honours it. Re-applying the stylesheet\n(:func:`apply_preferences_to_app`) is what makes it land on fields\nthat are already on screen."
     },
-    "8366578bef186f62c70621b11bea7b58e2d89e535c6f32c41f4109f583b566f5": {
-      "source_blocks_sha256": [
-        "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
-        "a9811efa3218389a542df438bde224e4aa170536982cbc236f6d9fcc40ec429d",
-        "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528"
-      ],
-      "source_sha256": "8366578bef186f62c70621b11bea7b58e2d89e535c6f32c41f4109f583b566f5",
-      "text": "Adapt a count regressor to the object-head prediction interface.\n\n:param regressor: model with ``predict(crops)`` returning one finite,\n    nonnegative count per crop, shaped ``(N,)`` or ``(N, 1)``. The\n    caller selects this model's stain through ``classify_objects``'s\n    ``channels`` argument; separate models can use the same labels.\n\nCounts retain their regression values. Display classes use\n:func:`bin_parasite_count`; a regressor supplies no class probability."
-    },
     "8387e07e7d4262cf22f4be99458432a5ed5b6159fb15236479340ea2a67436c6": {
       "source_blocks_sha256": [
         "8387e07e7d4262cf22f4be99458432a5ed5b6159fb15236479340ea2a67436c6"
@@ -8224,13 +8194,6 @@
       "source_sha256": "8912175e4837f80cd49253e8d4e4d2bf54c1ec1bdda9571bf221efd859b79d49",
       "text": "Re-elide the path when the panel changes width."
     },
-    "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee": {
-      "source_blocks_sha256": [
-        "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee"
-      ],
-      "source_sha256": "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee",
-      "text": "Where the project is written. ``None`` puts it beside the files."
-    },
     "891e2007842dbc1450c3908cc39baef7ec0681b1a559c0bbd53584558f91ebd4": {
       "source_blocks_sha256": [
         "891e2007842dbc1450c3908cc39baef7ec0681b1a559c0bbd53584558f91ebd4"
@@ -8323,28 +8286,12 @@
       "source_sha256": "8aa7307d21ad6bec65eafd26340dba35cb8b5c1c3e06064fbed15967c7c839f6",
       "text": "A closed region on a two-parameter scatter.\n\nThe shape a real population needs: cell clouds are not rectangles, and\napproximating one with a bounding box is how the corner debris gets counted\nas cells."
     },
-    "8ac6823a2bd46e4edef31d7c4ca4259c98b50b9c011d6ffd9338582272ba1efb": {
-      "source_blocks_sha256": [
-        "12294613eedc9f398efc6df7689b7ac0febf65077df8621a5ec5e6e8c9b7506f",
-        "4013aee4bc4714b7c42237d83f5082e4521344916b8c62616362dcbb3c51d25d",
-        "087bb2cae59e0d5cd10e3a3d5f849470e3dd46edc263206dda0b8cb828b33c8c"
-      ],
-      "source_sha256": "8ac6823a2bd46e4edef31d7c4ca4259c98b50b9c011d6ffd9338582272ba1efb",
-      "text": "Cellpose models published on bioimage.io, or an empty list.\n\nTwo kinds of row. A Cellpose-SAM or Cellpose-DINO model, which spaCR's\nown Cellpose 4 loads, is a ``cellpose`` row pointing at its bioimage.io\npage. A Cellpose 3-format checkpoint is a ``cellpose3`` row that\ndownloads the weights file itself, checked against the SHA-256 the\nmanifest publishes, for the Cellpose 3 backend to run.\n\nBest effort and never raises: no network, a slow mirror or a changed\nschema all mean \"no extra rows\", never a zoo that fails to open. The\nresponse is cached so opening the dialog repeatedly is not repeatedly a\nnetwork call."
-    },
     "8accbfdb3409cec88df744b0a726f785f6685ba0e94127ba7bdb6032065e85a2": {
       "source_blocks_sha256": [
         "8accbfdb3409cec88df744b0a726f785f6685ba0e94127ba7bdb6032065e85a2"
       ],
       "source_sha256": "8accbfdb3409cec88df744b0a726f785f6685ba0e94127ba7bdb6032065e85a2",
       "text": "Return ``(translated, total)`` for an iterable of source strings."
-    },
-    "8ad2799c7c42ce12b04afef13c477355b0248674c7285a99aa8751695afdabdb": {
-      "source_blocks_sha256": [
-        "8ad2799c7c42ce12b04afef13c477355b0248674c7285a99aa8751695afdabdb"
-      ],
-      "source_sha256": "8ad2799c7c42ce12b04afef13c477355b0248674c7285a99aa8751695afdabdb",
-      "text": "Whether one heading is on."
     },
     "8aec841a236b2a1e55c3febb898feef024d662287238611a091994c8490b0550": {
       "source_blocks_sha256": [
@@ -8465,18 +8412,6 @@
       ],
       "source_sha256": "8c7a33d701b7eb34e5dec8d9310a7b192c6fc78415f36b4a492e14fcd9707641",
       "text": "Return (QThread, StreamWorker) — connect signals, then start().\n\nIMPORTANT: pass a `parent` (typically the panel that owns this\nstream). Without a Qt parent the QThread's C++ object gets tied\nexclusively to Python's refcount — and dropping the ref while\nQThread.isRunning() is still True (which happens in the tiny\nwindow between worker.run returning and thread.finished firing)\ntriggers Qt's `QThread: Destroyed while thread is still running /\nAborted` crash. A parent keeps the C++ object alive until\ndeleteLater runs.\n\nCallers must ALSO keep a Python reference to the worker until\nthe stream truly finishes (see ConsolePanel._retire).\n\nTwo wiring details are load-bearing; both are the same contract\n:func:`spacr.qt.bridge.make_thread` documents, and this function used\nto get them wrong:\n\n* ``worker.finished -> thread.quit`` is a **DirectConnection**. The\n  QThread object is created here, on the GUI thread, so it is\n  GUI-affine — a queued ``quit()`` is posted to the *GUI* thread's\n  event queue, not to the worker's. Measured: with a queued\n  connection, a GUI thread that goes straight into ``thread.wait()``\n  (which is exactly what ``ConsolePanel.shutdown`` and every \"drain\n  before closing\" path does) waits out its whole timeout on a worker\n  that has already finished, because the event that would stop the\n  thread is sitting behind the wait. ``QThread::quit`` is explicitly\n  thread-safe, so calling it inline from the worker thread is correct.\n* There is deliberately **no** ``worker.deleteLater``. The worker's\n  affinity is the worker thread, so a deferred delete is posted into a\n  loop that is stopping, while the panel drops the object's last\n  Python reference from the GUI thread — two owners, one object.\n  ``bridge.make_thread``'s ownership essay records the gdb trace\n  (``QThread -> sendPostedEvents -> ~QObject -> Sbk_GetPyOverride``)\n  and the measurement: 3 crashes in 8 runs. A PySide6 object built in\n  Python is already owned by Python; ``ConsolePanel``/``AIChatPanel``\n  hold it in ``_retired`` until the thread has exited and free it\n  there, on the thread that holds it."
-    },
-    "8ca337ae36217466a0e32bc24e1b184941486f4fd46e19093a21b7900e75ef30": {
-      "source_blocks_sha256": [
-        "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
-        "ca5785ac0717472dbfcaeb659f83dd4c87fc66cf07e07144bd9646c374492c1c",
-        "d41090b8a1d003c8ccd6882bdcdb5673fa80c27e1316f018e7c756c6401666d3",
-        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
-        "d7734b2dfd0dd8f5c2a75d0635146d09bd449793a6bac1e3e02c7794066fac10",
-        "47120d9d09af827a3b1c685c1a179509dd3ee6449ac4eaf29f04d8bc3a5b08f1"
-      ],
-      "source_sha256": "8ca337ae36217466a0e32bc24e1b184941486f4fd46e19093a21b7900e75ef30",
-      "text": "Pairs of labels that look like one object cut in two.\n\nTHE RULE, and it is deliberately conservative: two labels are a\ncandidate when they touch, and the boundary they share is at least\n``share`` of the smaller one's perimeter. A cell lying against another\ncell shares a little of its edge; a cell the segmenter cut down the\nmiddle shares most of it.\n\nThis finds candidates. It does not merge them -- :func:`merge_halves`\ndoes, and only when asked, because a wrong merge destroys two objects\nto make one.\n\n:param mask: the label image.\n:param share: the fraction of the smaller object's perimeter that must\n    be shared. 0.25 was chosen as the default and is measured in the\n    tests rather than argued for here.\n:returns: pairs ``(low id, high id)``, each pair once."
     },
     "8d2e969d230c4d237b0fefdb2c86df3581b322067716302a1eecbb95e46a4245": {
       "source_blocks_sha256": [
@@ -9640,13 +9575,6 @@
       "source_sha256": "a22d2d56c478dd2f3def2ff3e1efdc66a6b6c97fc73afb47007353e77c76ea2a",
       "text": "Open the model zoo for one object and store what it returns.\n\n:returns: True when a model was chosen. Cancelling leaves the cell\n    alone rather than clearing it -- a cancelled dialog is not an\n    instruction to forget the model already set."
     },
-    "a25c1749540c43a65a7a493f31a21f2db9266f0485f10326a0ccc75278b9c4b3": {
-      "source_blocks_sha256": [
-        "a25c1749540c43a65a7a493f31a21f2db9266f0485f10326a0ccc75278b9c4b3"
-      ],
-      "source_sha256": "a25c1749540c43a65a7a493f31a21f2db9266f0485f10326a0ccc75278b9c4b3",
-      "text": "Put ``pattern`` in the regex box and sort the known files again."
-    },
     "a2ade4882eef10261a9c246d7656f062393957db862b8c109d4aa7efc1c863bf": {
       "source_blocks_sha256": [
         "22f23301e260323bcd285268fb1c0b92835087d9b663d0a78904c8cecfec97ea",
@@ -10123,13 +10051,6 @@
       ],
       "source_sha256": "aae01f5774fb1d0416865de9880318f99e62e185c9f769e72cd026e7b366e991",
       "text": "Scale every column's speed, preserving their relative rates."
-    },
-    "aae93763f08685ea6ba797c34565a03a99d86bf520a2e42a96a75fd018027016": {
-      "source_blocks_sha256": [
-        "aae93763f08685ea6ba797c34565a03a99d86bf520a2e42a96a75fd018027016"
-      ],
-      "source_sha256": "aae93763f08685ea6ba797c34565a03a99d86bf520a2e42a96a75fd018027016",
-      "text": "The entry a row currently stands for, honouring its version pick."
     },
     "aaee1573094c049fdd36f2dd8216688d55b8744d64141cdc678c2ce27439f479": {
       "source_blocks_sha256": [
@@ -10679,24 +10600,6 @@
       "source_sha256": "b1eadb17c576ea07871044606d13730cd8e2800a446c9fe64532ab1811f09535",
       "text": "Take a new source for the input table's attached databases.\n\nThe same shape as :meth:`set_frame_provider`, and for the same reason:\nthe tab re-reads the rows rather than holding a copy of them."
     },
-    "b1f66fe6ac882876d13f5b17d8edfb65c519ad00febd8bfb2a63a87cae017900": {
-      "source_blocks_sha256": [
-        "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
-        "890927b19cc2e4998b7dbf5ed0df59699e421076bcb4535b1d47f4ce431dd443",
-        "e8d6c5584c2f179a2423042417706a66f5e3b2f64582e7bb536ec63f09401cb9",
-        "5c1667fcb52a5ce87a50d76ad516e5ca20fafe0066d7fc1d234c15d3af6bb10d",
-        "f81c772296c9f3ccdbfa2781789840f558db0d6d4f8b332c6c3dca9b7d17094e",
-        "581b8398dd8ddd85afdfcb3fbf7ddf2fa03a6e7ae80dc80f59cd9780e8ca841d",
-        "a54acb1a88a2451e5243ef7cdca718a781b3af5f7b5a9f98e1263f26a3509da1",
-        "0250aae25c4e2a7b06cbd177b961e88a4b72a6a2d07502e29c5659625929e54f",
-        "9faa26138d5798f10e8d3ca69aa1c3e1d17c509ba4e3040290d92e4306aae889",
-        "ffc3dc38394a964a91d3ae5361b315a8fced1b7ff2ca0f0ff5e0504a28928d1b",
-        "171b772850f6bca42b7aebaf8e72ff5d3639fac8f21d1bca151d5aff78717fdf",
-        "5a8d3ff4074b24a813b65570c7651770b635dbfb0f22b1f4818e506e3f4c7f02"
-      ],
-      "source_sha256": "b1f66fe6ac882876d13f5b17d8edfb65c519ad00febd8bfb2a63a87cae017900",
-      "text": "Classify every object of a mask that already exists.\n\n:param image: the field, ``(H, W)`` or ``(H, W, planes)``.\n:param mask: its labels. Not modified; any mask returned is a new one.\n:param head: something with ``predict(crops)`` returning a class per\n    crop, or ``(class, probability)`` per crop. None reports geometry\n    only, which is what is useful before a head is trained.\n:param channels: which planes the head sees, in order. Defaults to\n    every plane the image has.\n:param size: resize each crop to ``size x size`` for the head.\n:param shape: ``bounding_box`` or ``object``; see\n    :func:`spacr.crop_source.crop_object`.\n:param padding: pixels of context around each object.\n:param remove_artifacts: return a mask with whatever the head called\n    an artifact erased. OFF by default: a false artifact is a deleted\n    object, so this is a decision the caller makes rather than a\n    default they inherit.\n:param merge_split: merge pairs :func:`split_candidates` finds. Acts on\n    segmenter-split objects only -- an object cut by the field's edge\n    has its other half in the next field and is left alone.\n:param artifact_class: which class name means \"not a real object\", for\n    ``remove_artifacts``. A parameter rather than a constant because a\n    head trained on somebody else's labels may spell it differently,\n    and a removal that silently matches nothing is worse than one that\n    cannot be configured.\n:returns: ``{\"objects\": rows, \"mask\": mask, \"merged\": pairs,\n    \"removed\": ids}``. ``mask`` is the mask as it stands after the\n    options asked for; with none of them it is the mask passed in."
-    },
     "b20b336f18c57b2eebf14d518b72f644e57f480ae2424df4e39f843f23485101": {
       "source_blocks_sha256": [
         "a33e7d8521cba5f3d503e731f79d1b627ff030d3e150e9cd64f3d8427b97c99d",
@@ -10985,13 +10888,6 @@
       ],
       "source_sha256": "b634d1f4633cf76b65ebd4121f142c5761ef57ffa3f980a4b2d91780e51b7923",
       "text": "A folder with images in it. Pairs are found later, not required here.\n\n:param path: the dropped file or folder.\n:returns: True when this handler can use ``path`` as-is."
-    },
-    "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6": {
-      "source_blocks_sha256": [
-        "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6"
-      ],
-      "source_sha256": "b648c429d84399716da6d90149e87772b001a1662de4f7df13bec936451a25e6",
-      "text": "Upload a checkpoint and its card. Returns the model page URL."
     },
     "b6778284853f123c1501c29997f26e10f095edc5dd623b2f6f0378c6805946c6": {
       "source_blocks_sha256": [
@@ -11681,17 +11577,6 @@
       ],
       "source_sha256": "c11e4e3b0c60cba01cbe22a5ee808f5c884acad350054f3b6da4a1c92c36eaef",
       "text": "Reach the run first; fold it away second. Returns the new state.\n\nThe console provides the interaction model. A heading that is not\nalready at the top of the\nviewport is a request to GO THERE, whatever its state -- a first click\nthat hid the very section the user was reaching for spends the gesture\non the opposite of what it looked like. Only a heading already at the\ntop has nowhere left to navigate to, and there folding is the one\nthing the gesture can still mean, on a second click exactly where the\nuser's hand already is."
-    },
-    "c12c02f0398824eb4d2277ab3d3852bcba0c941ac4455c5de1eedad99d5a9c27": {
-      "source_blocks_sha256": [
-        "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
-        "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
-        "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
-        "49134a948e9a69ac96249006bfa64a432e3acb85a137d5fa39999b9378b435b2",
-        "df1ba0be843a1bfb128c975f5fa764f8002f024fa8cc4a122e6ca4e3ce2114a9"
-      ],
-      "source_sha256": "c12c02f0398824eb4d2277ab3d3852bcba0c941ac4455c5de1eedad99d5a9c27",
-      "text": "Put a predicted parasite count in the bin a report shows it in.\n\nTHE BIN IS A DISPLAY CHOICE, NOT A TRAINED ONE. The head predicts how\nmany parasites it sees; this is only how that number is shown. That\nmatters because the rule below can change -- or be replaced by a different one\nper report -- without retraining anything.\n\nTIES GO DOWN, and 12 is the case: it is four from 8 and four from 16.\nA vacuole of 12 has finished eight and is partway to sixteen, so it is\nreported as the round it has completed rather than the one it has\nnot.\n\n:param count: how many parasites the head counted.\n:returns: one of ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` or\n    ``\">16\"``."
     },
     "c12dccf260215f7fac1a7b54e06bf01569805fd1ed9df3a656a5ecb215095d16": {
       "source_blocks_sha256": [
@@ -12986,13 +12871,6 @@
       "source_sha256": "d402d7473b30a8301d8b4d2698445dddf7adbc10072b230c001a5988a6360f61",
       "text": "Wire the walkthroughs into a live main window.\n\nCalled once from :func:`spacr.qt.shortcuts.install`."
     },
-    "d426cb79ff90c67e71e038592eaed34461089aad774a7c382e6c46a5ed757a33": {
-      "source_blocks_sha256": [
-        "d426cb79ff90c67e71e038592eaed34461089aad774a7c382e6c46a5ed757a33"
-      ],
-      "source_sha256": "d426cb79ff90c67e71e038592eaed34461089aad774a7c382e6c46a5ed757a33",
-      "text": "The label for one source, for a test or a tooltip retarget."
-    },
     "d468e942c03619b8275459b76ee1def384aa7618ce19ae21eee00f951298457c": {
       "source_blocks_sha256": [
         "66360ac52775e41aa769fed04d878add265925d69345c84d056d20d8afc9970c",
@@ -13666,20 +13544,6 @@
       ],
       "source_sha256": "dec2dd3419a7e0764f18ed626458c6aa3f3e51fdc6f1516c1b70763677c525c5",
       "text": "``spacr-download`` — fetch spaCR's published example data, with no GUI.\n\nEvery example dataset spaCR publishes has, until now, been reachable only by\npressing a button inside the application: \"Load test data\", \"Load example\ndata\", the screen-data picker. That is fine on a laptop and useless on a\ncluster, where the data has to be on disk BEFORE a batch job starts and there\nis no display to press a button on. This is that download as a command.\n\nWHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches\nthe three example sets -- Mask, Measure, Annotate/Classify -- which come to\nabout 1.1 GB. It does NOT fetch the published TSG101 screen, which is 33 GB.\nA command that spent 33 GB of somebody's quota because they typed its name\nwith no arguments would be a bug however well documented, so the screen is\nopt-in, is asked for in pieces, and is confirmed before it starts. The pieces\nare :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about\n0.5 GB and four crop folders of about 8 GB, any subset of which can be named.\n\nNOTHING IS DOWNLOADED THAT CANNOT FIRST BE PRICED. ``--list`` prints every\npiece with its size and whether it is already on disk, and the total the\ncurrent selection would cost, without opening a socket. ``--dry-run`` is the\nsame listing for the same reason: a user deciding what to spend an hour of\nnetwork on should be able to see the bill first.\n\nImporting this module must stay light -- no Qt, no torch, no matplotlib -- so\n``spacr-download --help`` answers instantly on a login node with a cold NFS\ncache. That is why the download primitives live in\n:mod:`spacr.example_archives` rather than in :mod:`spacr.qt.hf_download`, which\nimports PySide6 at module scope. ``tests/test_cli_download.py`` pins it.\n\nUsage::\n\n    spacr-download                            # every example set (~1.1 GB)\n    spacr-download --list                     # what exists, what is here\n    spacr-download measure annotate           # two of the three\n    spacr-download --screen measurements      # the four databases (~2.1 GB)\n    spacr-download --screen crops --plate 1   # one plate of crops (~8.9 GB)\n    spacr-download all --yes                  # everything, screen included\n\nExit codes (a job that exits 0 having downloaded nothing is the classic\nfootgun, so these are exact)::\n\n  0  everything asked for is on disk, or a confirmation was declined\n  1  a download failed; the pieces that succeeded are still on disk\n  2  bad arguments, not enough disk space, or a large download that could not\n     be confirmed because nothing was there to confirm it"
-    },
-    "df12cfe94d478be8d3b4c74dfc6428bece7c442f149d6010c6754a9a551789aa": {
-      "source_blocks_sha256": [
-        "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
-        "8f231b55b0d7eaf23e0e5e9322e2b13aec786979241d389863e6fff104221aca",
-        "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
-        "3d1da2379b8c57640df73c47a43b78f4486924f16f6e5495eb5f92521e17b4a0",
-        "4be790be28eebf6c3fa55b8c8348aed98402b198a24d74abb58039b6058236ae",
-        "bb13df85f32d337ace2290ec188394602429aa063d98400ceabd80ce744b033f",
-        "13b87365d96535e6f1e93c020369e93eb7fb70eea156341ffedbeb8e2a7bc7ad",
-        "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021"
-      ],
-      "source_sha256": "df12cfe94d478be8d3b4c74dfc6428bece7c442f149d6010c6754a9a551789aa",
-      "text": "Say what each object in a mask is, after any segmenter has made it.\n\nSegmentation answers \"where is there an object\"; this answers\n\"what is it\". The two are kept apart on purpose: the same classification\nmust be available whether spaCR segmented the field a moment ago or is\nhanded a mask Cellpose wrote last week.\n\nTWO WAYS IN:\n\n* :func:`segment_and_classify` takes a segmentation backend and its\n  options, segments, and classifies what it made.\n* :func:`classify_objects` takes an image and a mask that already exists\n  and classifies it as it stands. Nothing is re-segmented.\n\nWHAT A HEAD IS. A head is a trained classifier: it is handed a batch of\ncrops and returns a class and a probability for each. It is a protocol\nrather than a base class, so a torch module, a scikit-learn estimator or a\nstub in a test are all equally a head. Two are planned -- parasites per\nvacuole, and what each object is -- and the PV one is three heads in\npractice, trained on Hoechst, the parasite stain and CellMask separately,\nso a plate counts from whichever stain it has.\n\nWHAT THIS MODULE DECIDES WITHOUT A HEAD, because geometry is not a matter\nof opinion: whether an object touches the image border, and which pairs of\nlabels look like one object the segmenter cut in two. Those are the \"cut\"\nclasses, and the two kinds are told apart because only a segmenter-split object can be merged where it\nstands, because the other half of a border object is in the next field.\n\nIDS ARE NEVER RENUMBERED. Everything here keys on the label ids the mask\narrived with, and every mask it returns keeps them. `canonical_labels` in\n`mask_engine` says what renumbering costs: the measurements, the crops and\nthe tracks are all keyed on those ids."
     },
     "df3e4dfe2686414a4a94eac8c53aa2df93461da80276562fb0ec8b92862156b5": {
       "source_blocks_sha256": [
@@ -14722,15 +14586,6 @@
       ],
       "source_sha256": "eeb898c3b58e8f1690e099bfa6205233f203fa0b4b1d32ba95def26315a2877a",
       "text": "Rebuild from :meth:`to_dict`; unknown keys ignored, missing keys\ndefaulted, so a QC pass written by another build still opens."
-    },
-    "eeb973a7a5e6e2e847f49ed1cb2f4008a9e4066030e8349c3b3a7e48cedb218a": {
-      "source_blocks_sha256": [
-        "057c99b79c92462cf0e94a7b6ecfdb6449ead70a7144aa49062e0039f81e577c",
-        "51b916dde9a63bac8309e0cfef217b874842759245fa276ae7e1f50f90d4fc82",
-        "52deb80d95b0c20520dbe2a029ad6a4248144df9adf3bbcacc04982a4d45e546"
-      ],
-      "source_sha256": "eeb973a7a5e6e2e847f49ed1cb2f4008a9e4066030e8349c3b3a7e48cedb218a",
-      "text": "Apply a plane manifest and reject explicit conflicting mask indices.\n\nA manifest is authoritative for the folder it accompanies. Defaults are\nreplaced automatically; a non-``None`` value the caller explicitly\nsupplied must agree or the run stops before measuring a wrong plane.\nLegacy folders without a manifest return an unchanged copy.\n\nEvery organelle slot the manifest records gets its plane, and every\nslot ``settings`` carries is set to the manifest's answer. A slot that\nneither names is left out of the copy rather than set to ``None``.\nThe cell, nucleus and pathogen keys are always set, so a plane the\nmanifest does not record is switched off."
     },
     "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f": {
       "source_blocks_sha256": [
