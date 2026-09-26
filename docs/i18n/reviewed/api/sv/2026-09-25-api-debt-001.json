@@ -906,7 +906,9 @@
       "source_sha256": "42def4f4e810fa598323cc7fdbd455915764d7944e457a30a384f482d09f80e1",
       "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same.",
       "translation": "Ett objekt vars modellinställning lyder ``cellpose3:<model or weights path>``, eller vilket objekt som helst när ``segmentation_backend`` är ``'cellpose3'``, segmenteras av ``_cellpose3_masks`` i Cellpose 3-backendens egen miljö; det som den returnerar går in i samma rader som ett Cellpose-SAM-resultat, så att de sparade maskerna och databasraderna skrivs på samma sätt.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#6",
@@ -3834,7 +3836,9 @@
       "source_sha256": "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "Den tar plackbilder, mappar med sådana, båda blandade, och i figurläget en artikels PDF. Före den här hanteraren fick Plaque Assay policyn från Make Masks, som vägrade en mapp som den inte kunde använda med formuleringen från Make Masks.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple#0",
@@ -3890,7 +3894,9 @@
       "source_sha256": "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
       "context": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
       "translation": "En plackbild, en PDF eller en mapp med plackbilder eller PDFs i.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message#0",

@@ -1786,7 +1786,9 @@
       "source_sha256": "28aeefdb811ae70f189dee69d6e8fcf4688b426e67235601a9d0c5f3e567652b",
       "context": "The button is placed with the other actions, before the Magnifier and the settings toggle, so that pair stays together at the end of the row whatever is added after them.",
       "translation": "Knappen placeras bland de andra åtgärderna, före förstoringsglaset och inställningsreglaget, så att det paret stannar tillsammans i slutet av raden oavsett vad som läggs till efter dem.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter#0",
@@ -2322,7 +2324,9 @@
       "source_sha256": "da7ed3a577519a636daa1c049ec9a397e29f7f6452c19eb74bb9093e94f41618",
       "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it.",
       "translation": "En ``cellpose3:<name or path>``-modell -- en standardmodell i Cellpose 3 eller en Cellpose 3-kontrollpunkt från bioimage.io -- är inte alls en Cellpose 4-modell: Cellpose 4 skulle läsa in en sådan kontrollpunkt och segmentera nonsens med den. Den läses in av :func:`_backend_model`, i Cellpose 3-backendens egen miljö, på samma sätt som Mask-genereringen läser in den.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.load_cellpose_model#4",

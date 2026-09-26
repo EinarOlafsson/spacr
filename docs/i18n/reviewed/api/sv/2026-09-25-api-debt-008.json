@@ -474,7 +474,9 @@
       "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
       "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
       "translation": "Öppna Home > Toxoplasma och välj Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay eller Replication Assay. Den valda modulen tillhandahåller sina indataväljare, inställningar, förhandsvisning och Run-kontroller. Använd dess Test data-kontroll när ett exempel finns tillgängligt. Plaque Assay börjar med bilder; de andra analyserna använder motsvarande mättabeller och objektrelationer. Följ varje moduls indatahjälp innan du kör, och öppna sedan resultaten i dess valda utdatamapp. Starplast öppnar ett separat program för att utforska kunskapskartan över Toxoplasma; dess första start erbjuder installation.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#4",
@@ -490,7 +492,9 @@
       "source_sha256": "c3bc62cd105aef79f366dd9c8afe25460673628ae96f782fb4fcc23cd35c9992",
       "context": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, image data channels and masks for your experiment.",
       "translation": "Öppna Home > Plasmodium för att bläddra bland ämnen om blodstadier, leverstadier, motilitet och respons på substanser. Utforska diagrammet över apikomplexer och följ länkarna till PlasmoDB eller UniProt för organismspecifik information. Analysrutorna visar för närvarande Coming soon och är inaktiverade; den här sidan har ingen körbar Plasmodium-specifik analys och skriver inga resultat. För att arbeta med bilder nu, gå tillbaka till Home och använd de allmänna modulerna för segmentering och mätning med bilder, kanaler och masker som passar ditt experiment.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#6",
@@ -506,7 +510,9 @@
       "source_sha256": "a7e6d6572b1fff456a0ccd0a0ea28f37a96cb23c1e5df4cc52f699f626828a6f",
       "context": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging image data channels suited to your species and experimental readout.",
       "translation": "Öppna Home > Candida för att bläddra bland ämnen om morfologi, filamentering, biofilm och interaktion med värdceller. Utforska diagrammet över knoppande jäst och följ länkarna till Candida Genome Database eller UniProt för information om gener och proteiner. Analysrutorna visar för närvarande Coming soon och är inaktiverade; den här sidan kräver inga data och skriver inga analysfiler. För ett tillgängligt bildarbetsflöde, gå tillbaka till Home och välj de allmänna modulerna för segmentering och mätning, med masker och bildkanaler som passar din art och din experimentella avläsning.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep.sweepable#2",
@@ -1749,12 +1755,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3",
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#4",
       "source": "the module's settings dict (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
       "source_sha256": "96135371fed57deda24a9362d148af2f2570a1b1dfd6da9138a9e4502a0a3e7d",
       "context": "the module's settings key-value mapping (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
       "translation": "modulens inställnings-dict (``None`` behandlas som tom); en kopia behålls för vägarna Pre och Post.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3"
     },
     {
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview#0",
