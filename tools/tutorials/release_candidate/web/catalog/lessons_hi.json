@@ -509,26 +509,27 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home स्क्रीन और नेविगेशन",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Home से कोई मॉड्यूल खोलें, उसके संबंधित टूल और उदाहरण डेटा खोजें, फिर अपनाने के लिए एक पाइपलाइन चुनें।",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "इमेज, माप या सीक्वेंसिंग रीड के लिए शुरुआती मॉड्यूल चुनें।",
+        "संबंधित टूल और जीव-विशिष्ट परीक्षण खोजें।",
+        "एक उदाहरण लोड करें, सहायता खोजें और पाइपलाइन का अवलोकन खोलें।"
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "spaCR इंस्टॉल करें और डेस्कटॉप ऐप्लिकेशन खोलें।",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
-          "hold_after": 0.7
+          "narration": "Home आपका शुरुआती बिंदु है। कोई मॉड्यूल खोलने के लिए किसी टाइल पर क्लिक करें, या बाईं ओर की साइडबार इस्तेमाल करें। यहाँ लौटने के लिए साइडबार में Home पर क्लिक करें। Core, Data, Tools और Assays टैब आपको वह काम खोजने में मदद करते हैं जो आप करना चाहते हैं।",
+          "hold_after": 0.7,
+          "speech_text": "Home आपका शुरुआती बिंदु है। कोई मॉड्यूल खोलने के लिए किसी टाइल पर क्लिक करें, या बाईं ओर की साइडबार इस्तेमाल करें। यहाँ लौटने के लिए साइडबार में Home पर क्लिक करें। Core, Data, Tools और Assays टैब आपको वह काम खोजने में मदद करते हैं जो आप करना चाहते हैं।"
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "माइक्रोस्कोप इमेज के लिए पहले Mask से वस्तुओं की रूपरेखा बनाएँ, फिर Measure से उनकी विशेषताएँ और क्रॉप निकालें। Annotate से आप उदाहरण वस्तुओं पर लेबल लगा सकते हैं, और Classify उन लेबल से सीखकर और वस्तुओं को स्कोर देता है। Map Barcodes सीक्वेंसिंग डेटा पढ़ता है। Regression मिलने वाले फ़ीनोटाइप स्कोर और गाइड गिनती को मिलाकर संबंध खोजता है।",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -545,11 +546,12 @@
             "41_classify",
             "12_map_barcodes",
             "13_regression"
-          ]
+          ],
+          "speech_text": "माइक्रोस्कोप इमेज के लिए पहले Mask से वस्तुओं की रूपरेखा बनाएँ, फिर Measure से उनकी विशेषताएँ और क्रॉप निकालें। Annotate से आप उदाहरण वस्तुओं पर लेबल लगा सकते हैं, और Classify उन लेबल से सीखकर और वस्तुओं को स्कोर देता है। Map Barcodes सीक्वेंसिंग डेटा पढ़ता है। Regression मिलने वाले फ़ीनोटाइप स्कोर और गाइड गिनती को मिलाकर संबंध खोजता है।"
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Data में फ़ाइलें आती हैं और परिणाम जाँचे जाते हैं। अगर आपके पास पहले से इमेज, मास्क या माप की तालिकाएँ हैं, तो Import उन्हें ऐसे प्रोजेक्ट में लाता है जिसे बाकी मॉड्यूल पढ़ सकें। प्रयोग से पहले Experiment Design आपकी प्लेटों की रूपरेखा बनाता है; बाद में QC दर्ज की गई गुणवत्ता जाँच दिखाता है और Run Compare दो रन को साथ-साथ रखता है।",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -565,11 +567,12 @@
             "35_converter",
             "31_external_masks",
             "77_embeddings"
-          ]
+          ],
+          "speech_text": "Data में फ़ाइलें आती हैं और परिणाम जाँचे जाते हैं। अगर आपके पास पहले से इमेज, मास्क या माप की तालिकाएँ हैं, तो Import उन्हें ऐसे प्रोजेक्ट में लाता है जिसे बाकी मॉड्यूल पढ़ सकें। प्रयोग से पहले Experiment Design आपकी प्लेटों की रूपरेखा बनाता है; बाद में QC दर्ज की गई गुणवत्ता जाँच दिखाता है और Run Compare दो रन को साथ-साथ रखता है।"
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools में काम करने वाले एडिटर और एक्सप्लोरर हैं। Make Masks में आप मास्क सुधारते हैं, और वहीं से Cellpose Workbench भी खुलता है। Align and Stitch एक-दूसरे पर चढ़ी इमेज टाइलों को जोड़कर एक चित्र बनाता है। माप मिल जाने के बाद Image UMAP, Gate Editor और Graph Builder से आप उन्हें खोज और प्लॉट कर सकते हैं। हर मॉड्यूल का टूलबार उसके संबंधित टूल खोलता है।",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -584,11 +587,12 @@
             "15_image_umap",
             "64_gate_editor",
             "58_graph_builder"
-          ]
+          ],
+          "speech_text": "Tools में काम करने वाले एडिटर और एक्सप्लोरर हैं। Make Masks में आप मास्क सुधारते हैं, और वहीं से सेल पोज़ Workbench भी खुलता है। Align and Stitch एक-दूसरे पर चढ़ी इमेज टाइलों को जोड़कर एक चित्र बनाता है। माप मिल जाने के बाद Image यू मैप, गेट एडिटर और Graph Builder से आप उन्हें खोज और प्लॉट कर सकते हैं। हर मॉड्यूल का टूलबार उसके संबंधित टूल खोलता है।"
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Assays खोलें और अपना जीव चुनें: Toxoplasma, Plasmodium या Candida। फिर उस जीव के मेन्यू से कोई परीक्षण चुनें। उदाहरण के लिए, प्लाक विश्लेषण या होस्ट और रोगजनक के माप के लिए Toxoplasma खोलें। चुने गए परीक्षण की इमेज, मास्क और माप इनपुट तैयार करने के लिए उसका ट्यूटोरियल देखें।",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -600,21 +604,23 @@
             "25_recruitment",
             "26_invasion",
             "27_replication"
-          ]
+          ],
+          "speech_text": "Assays खोलें और अपना जीव चुनें: Toxoplasma, Plasmodium या Candida। फिर उस जीव के मेन्यू से कोई परीक्षण चुनें। उदाहरण के लिए, प्लाक विश्लेषण या होस्ट और रोगजनक के माप के लिए Toxoplasma खोलें। चुने गए परीक्षण की इमेज, मास्क और माप इनपुट तैयार करने के लिए उसका ट्यूटोरियल देखें।"
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Classify खोलें और अपना इनपुट चुनने के लिए Classifier family इस्तेमाल करें। वस्तुओं की इमेज के लिए Computer Vision चुनें, या मापी गई विशेषताओं के कॉलम के लिए Tabular Machine Learning चुनें। लिंक किए गए ट्यूटोरियल हर परिवार के लिए प्रशिक्षण, मूल्यांकन और स्कोरिंग समझाते हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "speech_text": "Classify खोलें और अपना इनपुट चुनने के लिए Classifier family इस्तेमाल करें। वस्तुओं की इमेज के लिए Computer Vision चुनें, या मापी गई विशेषताओं के कॉलम के लिए Tabular Machine Learning चुनें। लिंक किए गए ट्यूटोरियल हर परिवार के लिए प्रशिक्षण, मूल्यांकन और स्कोरिंग समझाते हैं।"
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "मॉडल प्रशिक्षित हो जाने के बाद Classify का टूलबार उसे परखने में मदद करता है। Classifier Evaluation दिखाता है कि अलग रखे गए डेटा पर उसने कैसा किया, Explain CV Model और Activation दिखाते हैं कि उसके फ़ैसले किन बातों से तय होते हैं, Training Runs प्रशिक्षण के इतिहास की तुलना करता है, और Feature Explorer उन विशेषताओं को क्रम देता है जो आपके समूहों को अलग करती हैं। किसी आइकन का नाम देखने के लिए उस पर माउस रखें।",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -623,30 +629,34 @@
             "16_activation",
             "28_training_runs",
             "65_feature_explorer"
-          ]
+          ],
+          "speech_text": "मॉडल प्रशिक्षित हो जाने के बाद Classify का टूलबार उसे परखने में मदद करता है। Classifier Evaluation दिखाता है कि अलग रखे गए डेटा पर उसने कैसा किया, Explain CV Model और Activation दिखाते हैं कि उसके फ़ैसले किन बातों से तय होते हैं, Training Runs प्रशिक्षण के इतिहास की तुलना करता है, और Feature Explorer उन विशेषताओं को क्रम देता है जो आपके समूहों को अलग करती हैं। किसी आइकन का नाम देखने के लिए उस पर माउस रखें।"
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "किसी मॉड्यूल को आज़माने के लिए, उपलब्ध होने पर Load test data पर क्लिक करें। डाउनलोड पूरा होने तक प्रतीक्षा करें, फिर भरे गए इनपुट और सेटिंग देखें। Mask में Run दबाने से पहले किसी फ़ील्ड को देखने के लिए Live पर क्लिक करें। टाइम सीरीज़ के लिए Time, या वॉल्यूमेट्रिक इमेज के लिए 3D चालू करें।",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "17_timelapse"
-          ]
+          ],
+          "speech_text": "किसी मॉड्यूल को आज़माने के लिए, उपलब्ध होने पर Load test data पर क्लिक करें। डाउनलोड पूरा होने तक प्रतीक्षा करें, फिर भरे गए इनपुट और सेटिंग देखें। Mask में Run दबाने से पहले किसी फ़ील्ड को देखने के लिए Live पर क्लिक करें। टाइम सीरीज़ के लिए Time, या वॉल्यूमेट्रिक इमेज के लिए थ्री डी चालू करें।"
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
-          "hold_after": 0.7
+          "narration": "Help के पास वाले खोज फ़ील्ड में किसी मॉड्यूल, सेटिंग या फ़ंक्शन का नाम लिखें। यहाँ Performance खोजने पर Preferences का मिलता-जुलता पेज मिलता है। किसी परिणाम पर क्लिक करके उसका गंतव्य खोलें। API परिणाम चुने गए फ़ंक्शन का दस्तावेज़ खोलते हैं।",
+          "hold_after": 0.7,
+          "speech_text": "Help के पास वाले खोज फ़ील्ड में किसी मॉड्यूल, सेटिंग या फ़ंक्शन का नाम लिखें। यहाँ Performance खोजने पर Preferences का मिलता-जुलता पेज मिलता है। किसी परिणाम पर क्लिक करके उसका गंतव्य खोलें। API परिणाम चुने गए फ़ंक्शन का दस्तावेज़ खोलते हैं।"
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
-          "hold_after": 0.7
+          "narration": "Preferences में अपने कंप्यूटर के लिए कोई Performance प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल ज़्यादा कैशिंग और पृष्ठभूमि का काम करने देती हैं। अगर मेमोरी सीमित है, तो साधारण प्रोफ़ाइल से शुरू करें। हर मॉड्यूल में आपकी विश्लेषण सेटिंग आपके ही नियंत्रण में रहती हैं।",
+          "hold_after": 0.7,
+          "speech_text": "Preferences में अपने कंप्यूटर के लिए कोई Performance प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल ज़्यादा कैशिंग और पृष्ठभूमि का काम करने देती हैं। अगर मेमोरी सीमित है, तो साधारण प्रोफ़ाइल से शुरू करें। हर मॉड्यूल में आपकी विश्लेषण सेटिंग आपके ही नियंत्रण में रहती हैं।"
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Home पर लौटें और कोई वर्कफ़्लो चुनने के लिए Pipeline overviews पर क्लिक करें। पूल की गई, इमेज पर आधारित स्क्रीन के लिए spaCR screens से शुरू करें, या अपने डेटा के लिए इमेज विश्लेषण या सीक्वेंसिंग का रास्ता चुनें। अगले ट्यूटोरियल दिखाते हैं कि ये मॉड्यूल कैसे जुड़ते हैं, और फिर मॉड्यूल के पाठ हर काम को चरण-दर-चरण समझाते हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -658,12 +668,53 @@
             180,
             499,
             96
-          ]
+          ],
+          "speech_text": "Home पर लौटें और कोई वर्कफ़्लो चुनने के लिए Pipeline overviews पर क्लिक करें। पूल की गई, इमेज पर आधारित स्क्रीन के लिए स्पेकर screens से शुरू करें, या अपने डेटा के लिए इमेज विश्लेषण या सीक्वेंसिंग का रास्ता चुनें। अगले ट्यूटोरियल दिखाते हैं कि ये मॉड्यूल कैसे जुड़ते हैं, और फिर मॉड्यूल के पाठ हर काम को चरण-दर-चरण समझाते हैं।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1674,59 +1725,64 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: लेबल संपादित करें और प्रशिक्षण इमेज तैयार करें",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "इमेज और मास्क के जोड़े खोलें, वस्तुओं को देखें और संपादित करें, माप सहेजें और प्रशिक्षण के लिए जोड़ीदार क्रॉप बनाएँ।",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "मेल खाते इंस्टेंस मास्क के साथ इमेज खोलें और मैग्निफ़ायर में वस्तुएँ देखें।",
+        "जोड़ीदार फ़ील्ड मापें और वस्तुओं की विशेषताओं का डेटाबेस सहेजें।",
+        "Undo, ड्रॉइंग, विभाजन और आकार फ़िल्टर से लेबल सुधारें।",
+        "सुधारे गए मास्क सहेजें और प्रशिक्षण के लिए इमेज-मास्क क्रॉप बनाएँ।"
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "दो-आयामी इमेज का एक फ़ोल्डर तैयार करें, जिसके masks सबफ़ोल्डर में मेल खाती इंस्टेंस-लेबल TIFF फ़ाइलें हों। हर मास्क इमेज फ़ाइल के मूल नाम का उपयोग करता है। संपादन और रीक्रॉप का अभ्यास करते समय किसी प्रति पर काम करें। उदाहरण में Measure के डाउनलोड होने वाले माइक्रोस्कोपी प्रोजेक्ट की ER इमेज और कोशिका मास्क इस्तेमाल होते हैं।",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Home से Tools में Make Masks खोलें। अलग-अलग इमेज मास्क देखने और सुधारने के लिए यह एडिटर चुनें। कोई संपादन टूल चुनने से पहले जोड़ीदार इमेज और लेबल वाला फ़ोल्डर खोलें।",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ]
+          ],
+          "speech_text": "Home से Tools में Make Masks खोलें। अलग-अलग इमेज मास्क देखने और सुधारने के लिए यह एडिटर चुनें। कोई संपादन टूल चुनने से पहले जोड़ीदार इमेज और लेबल वाला फ़ोल्डर खोलें।"
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "इमेज फ़ोल्डर चुनें। इस उदाहरण के लिए Measure नमूने की ER तीव्रता इमेज और उनसे मेल खाते कोशिका मास्क इस्तेमाल करें। इमेज और मास्क के आयाम बराबर रखें और उनके फ़ाइल नाम जोड़ीदार रखें।",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "इमेज फ़ोल्डर चुनें। इस उदाहरण के लिए Measure नमूने की ER तीव्रता इमेज और उनसे मेल खाते कोशिका मास्क इस्तेमाल करें। इमेज और मास्क के आयाम बराबर रखें और उनके फ़ाइल नाम जोड़ीदार रखें।"
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
-          "hold_after": 0.7
+          "narration": "एडिटर masks सबफ़ोल्डर से इमेज और उसका मेल खाता मास्क लोड करता है। रंगीन लेबल अलग-अलग वस्तुओं की पहचान करते हैं। जाँचें कि रूपरेखाएँ इमेज की सीमाओं के साथ चलती हैं। अगर साथ वाला मास्क नहीं है, तो खाली मास्क से शुरू करें और ज़रूरी वस्तुएँ बनाएँ।",
+          "hold_after": 0.7,
+          "speech_text": "एडिटर masks सबफ़ोल्डर से इमेज और उसका मेल खाता मास्क लोड करता है। रंगीन लेबल अलग-अलग वस्तुओं की पहचान करते हैं। जाँचें कि रूपरेखाएँ इमेज की सीमाओं के साथ चलती हैं। अगर साथ वाला मास्क नहीं है, तो खाली मास्क से शुरू करें और ज़रूरी वस्तुएँ बनाएँ।"
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
-          "hold_after": 0.7
+          "narration": "Magnifier settings खोलें। पॉइंटर के आसपास थ्रेशोल्ड पर आधारित वस्तुओं का पूर्वावलोकन देखने के लिए Otsu और Region under the mouse चुनें। जब थ्रेशोल्ड आपकी वस्तुओं को ठीक से अलग न करे, तो मॉडल पर आधारित मोड चुनें।",
+          "hold_after": 0.7,
+          "speech_text": "Magnifier settings खोलें। पॉइंटर के आसपास थ्रेशोल्ड पर आधारित वस्तुओं का पूर्वावलोकन देखने के लिए Otsu और Region under the mouse चुनें। जब थ्रेशोल्ड आपकी वस्तुओं को ठीक से अलग न करे, तो मॉडल पर आधारित मोड चुनें।"
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Magnifier चालू करें और किसी वस्तु पर माउस रखकर उसका पूर्वावलोकन बड़ा करें। प्रस्तावित रूपरेखाएँ देखने के लिए कई वस्तुओं पर से गुज़रें। रूपरेखा वाली वस्तुएँ सही लगें तो उन्हें जोड़ने के लिए क्लिक करें, या संपादन जारी रखने के लिए Magnifier बंद करें।",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
+          ],
+          "speech_text": "Magnifier चालू करें और किसी वस्तु पर माउस रखकर उसका पूर्वावलोकन बड़ा करें। प्रस्तावित रूपरेखाएँ देखने के लिए कई वस्तुओं पर से गुज़रें। रूपरेखा वाली वस्तुएँ सही लगें तो उन्हें जोड़ने के लिए क्लिक करें, या संपादन जारी रखने के लिए Magnifier बंद करें।"
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "इमेज और मास्क के जोड़े मापने के लिए Features पर क्लिक करें। हर फ़ील्ड के लिए एक पंक्ति जोड़ें और तीव्रता इमेज तथा मेल खाते वस्तु मास्क चुनें। अगर फ़ाइल नाम का स्वचालित मिलान कुछ फ़ाइलें बिना असाइनमेंट के छोड़ दे, तो मैनुअल असाइनमेंट जाँचें।",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1736,11 +1792,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "इमेज और मास्क के जोड़े मापने के लिए Features पर क्लिक करें। हर फ़ील्ड के लिए एक पंक्ति जोड़ें और तीव्रता इमेज तथा मेल खाते वस्तु मास्क चुनें। अगर फ़ाइल नाम का स्वचालित मिलान कुछ फ़ाइलें बिना असाइनमेंट के छोड़ दे, तो मैनुअल असाइनमेंट जाँचें।"
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "हर पंक्ति में Channel 1 में ER तीव्रता इमेज और Cell mask में उसकी मेल खाती लेबल इमेज चुनें। दूसरे फ़ील्ड के लिए भी यही करें। फ़्लोरेसेंस मापने के लिए मूल तीव्रता इमेज इस्तेमाल करें।",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1750,11 +1807,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "हर पंक्ति में Channel 1 में ER तीव्रता इमेज और Cell mask में उसकी मेल खाती लेबल इमेज चुनें। दूसरे फ़ील्ड के लिए भी यही करें। फ़्लोरेसेंस मापने के लिए मूल तीव्रता इमेज इस्तेमाल करें।"
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "दोनों पंक्तियाँ देखें, फिर माप की सेटिंग चुनें। यह उदाहरण एक वर्कर, एक पिक्सेल का न्यूनतम कोशिका आकार और बिना सहेजे PNG क्रॉप इस्तेमाल करता है। जब आपके प्रयोग के लिए ठीक हो, तो छोटी वस्तुओं को बाहर रखने के लिए आकार की सीमा बढ़ाएँ। Measure पर क्लिक करें।",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1764,11 +1822,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "दोनों पंक्तियाँ देखें, फिर माप की सेटिंग चुनें। यह उदाहरण एक वर्कर, एक पिक्सेल का न्यूनतम कोशिका आकार और बिना सहेजे PNG क्रॉप इस्तेमाल करता है। जब आपके प्रयोग के लिए ठीक हो, तो छोटी वस्तुओं को बाहर रखने के लिए आकार की सीमा बढ़ाएँ। Measure पर क्लिक करें।"
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "माप पूरा होने पर आउटपुट फ़ोल्डर खोलें। measurements फ़ोल्डर में measurements.db है, जिसमें दोनों फ़ील्ड की वस्तुओं की विशेषताएँ हैं। डेटाबेस को उसकी स्रोत इमेज, मास्क और सेटिंग के साथ रखें, फिर संपादन पर लौटने के लिए Features बंद करें।",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1778,67 +1837,77 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "माप पूरा होने पर आउटपुट फ़ोल्डर खोलें। measurements फ़ोल्डर में मेज़रमेंट्स डॉट डी बी है, जिसमें दोनों फ़ील्ड की वस्तुओं की विशेषताएँ हैं। डेटाबेस को उसकी स्रोत इमेज, मास्क और सेटिंग के साथ रखें, फिर संपादन पर लौटने के लिए Features बंद करें।"
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "सुधार के हिसाब से टूल चुनें। Brush पिक्सेल जोड़ता है, Erase पिक्सेल हटाता है और Erase object पूरा लेबल हटाता है। Draw रूपरेखा वाली वस्तु जोड़ता है; Divide एक वस्तु को दो में बाँटता है। बदलाव करने से पहले सीमाएँ देखने में Zoom मदद करता है।",
           "hold_after": 0.7,
           "focus": [
             345,
             195,
             2500,
             65
-          ]
+          ],
+          "speech_text": "सुधार के हिसाब से टूल चुनें। Brush पिक्सेल जोड़ता है, Erase पिक्सेल हटाता है और Erase object पूरा लेबल हटाता है। Draw रूपरेखा वाली वस्तु जोड़ता है; Divide एक वस्तु को दो में बाँटता है। बदलाव करने से पहले सीमाएँ देखने में Zoom मदद करता है।"
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
-          "hold_after": 0.7
+          "narration": "Erase object चुनें और जिस वस्तु को हटाना है उसके अंदर क्लिक करें। अपडेट हुई रूपरेखा और वस्तुओं की गिनती जाँचें। इसे किसी अनचाहे लेबल के लिए इस्तेमाल करें, जैसे मलबा या कोई वस्तु जो आपके विश्लेषण के मानदंडों से बाहर है।",
+          "hold_after": 0.7,
+          "speech_text": "Erase object चुनें और जिस वस्तु को हटाना है उसके अंदर क्लिक करें। अपडेट हुई रूपरेखा और वस्तुओं की गिनती जाँचें। इसे किसी अनचाहे लेबल के लिए इस्तेमाल करें, जैसे मलबा या कोई वस्तु जो आपके विश्लेषण के मानदंडों से बाहर है।"
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
-          "hold_after": 0.7
+          "narration": "हटाने को वापस लाने के लिए Undo पर क्लिक करें। Redo उसे फिर से लागू करता है। इन इतिहास नियंत्रणों से किसी संपादन की तुलना पिछले मास्क से करें, फिर उस संस्करण पर लौटें जिसे आप रखना चाहते हैं।",
+          "hold_after": 0.7,
+          "speech_text": "हटाने को वापस लाने के लिए Undo पर क्लिक करें। Redo उसे फिर से लागू करता है। इन इतिहास नियंत्रणों से किसी संपादन की तुलना पिछले मास्क से करें, फिर उस संस्करण पर लौटें जिसे आप रखना चाहते हैं।"
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
-          "hold_after": 0.7
+          "narration": "Draw चुनें और किसी छूटी हुई वस्तु के चारों ओर बंद सीमा बनाएँ। एडिटर उसे नए लेबल से भर देता है। इस अभ्यास चरण में रूपरेखा पृष्ठभूमि में है, इसलिए सहेजने से पहले उसे Undo करें। प्रशिक्षण डेटा के लिए वस्तु की असली सीमा बनाएँ।",
+          "hold_after": 0.7,
+          "speech_text": "Draw चुनें और किसी छूटी हुई वस्तु के चारों ओर बंद सीमा बनाएँ। एडिटर उसे नए लेबल से भर देता है। इस अभ्यास चरण में रूपरेखा पृष्ठभूमि में है, इसलिए सहेजने से पहले उसे Undo करें। प्रशिक्षण डेटा के लिए वस्तु की असली सीमा बनाएँ।"
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
-          "hold_after": 0.7
+          "narration": "जब छूती हुई दो वस्तुओं का एक ही लेबल हो, तो Divide इस्तेमाल करें। पूरे जुड़े हुए हिस्से के आर-पार एक कट बनाएँ और अलग हुए लेबल देखें। अगर कट किसी एक ही वस्तु को काट दे या गलत सीमा छोड़ दे, तो विभाजन को Undo करें।",
+          "hold_after": 0.7,
+          "speech_text": "जब छूती हुई दो वस्तुओं का एक ही लेबल हो, तो Divide इस्तेमाल करें। पूरे जुड़े हुए हिस्से के आर-पार एक कट बनाएँ और अलग हुए लेबल देखें। अगर कट किसी एक ही वस्तु को काट दे या गलत सीमा छोड़ दे, तो विभाजन को Undo करें।"
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
-          "hold_after": 0.7
+          "narration": "धुंधली संरचनाएँ आसानी से देखने के लिए Display percentiles समायोजित करें। ये नियंत्रण केवल इमेज का दृश्य बदलते हैं; मूल तीव्रता मान और लेबल वैसे ही रहते हैं। फ़ील्ड की तुलना करते समय एक जैसा दृश्य फिर से लगाएँ।",
+          "hold_after": 0.7,
+          "speech_text": "धुंधली संरचनाएँ आसानी से देखने के लिए Display percentiles समायोजित करें। ये नियंत्रण केवल इमेज का दृश्य बदलते हैं; मूल तीव्रता मान और लेबल वैसे ही रहते हैं। फ़ील्ड की तुलना करते समय एक जैसा दृश्य फिर से लगाएँ।"
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
-          "hold_after": 0.7
+          "narration": "वस्तुओं का न्यूनतम और अधिकतम क्षेत्रफल तय करें, फिर इन सीमाओं से बाहर के लेबल हटाने के लिए Filter दबाएँ। अपनी वस्तुओं के अनुकूल सीमाएँ चुनें और देखें कि क्या हटाया गया। फ़िल्टर मास्क को बदलता है, इसलिए अगर सीमा उपयोगी वस्तुएँ हटा दे तो Undo इस्तेमाल करें।",
+          "hold_after": 0.7,
+          "speech_text": "वस्तुओं का न्यूनतम और अधिकतम क्षेत्रफल तय करें, फिर इन सीमाओं से बाहर के लेबल हटाने के लिए Filter दबाएँ। अपनी वस्तुओं के अनुकूल सीमाएँ चुनें और देखें कि क्या हटाया गया। फ़िल्टर मास्क को बदलता है, इसलिए अगर सीमा उपयोगी वस्तुएँ हटा दे तो Undo इस्तेमाल करें।"
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
-          "hold_after": 0.7
+          "narration": "संपादनों की समीक्षा के बाद Save mask पर क्लिक करें। ज़रूरत हो तो दूसरे फ़ील्ड पर जाने से पहले आकार सीमाएँ शून्य करके बंद करें। स्रोत इमेज सुरक्षित रखें और सहेजा गया सुधार रिकॉर्ड संपादित मास्क के साथ रखें।",
+          "hold_after": 0.7,
+          "speech_text": "संपादनों की समीक्षा के बाद Save mask पर क्लिक करें। ज़रूरत हो तो दूसरे फ़ील्ड पर जाने से पहले आकार सीमाएँ शून्य करके बंद करें। स्रोत इमेज सुरक्षित रखें और सहेजा गया सुधार रिकॉर्ड संपादित मास्क के साथ रखें।"
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "हेडर में मास्क के बाकी टूल हैं। जब आप वेट चुन रहे हों, Model Zoo उन्हें खोजता है और Model Compare मास्क के दो सेट साथ-साथ रखता है। जब और उदाहरण सुधारने हों, तो Curate और Open in napari आपको फिर से संपादन में ले जाते हैं।",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ]
+          ],
+          "speech_text": "हेडर में मास्क के बाकी टूल हैं। जब आप वेट चुन रहे हों, Model Zoo उन्हें खोजता है और Model Compare मास्क के दो सेट साथ-साथ रखता है। जब और उदाहरण सुधारने हों, तो Curate और Open in napari आपको फिर से संपादन में ले जाते हैं।"
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "हेडर से Model Compare, Model Zoo, Curate और Open in napari भी खुलते हैं। मास्क को साथ-साथ देखने के लिए Model Compare, वेट चुनने के लिए Model Zoo, और और उदाहरणों की समीक्षा या संपादन के लिए क्यूरेशन टूल इस्तेमाल करें।",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1846,59 +1915,108 @@
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ]
+          ],
+          "speech_text": "हेडर से Model Compare, Model Zoo, Curate और Open in napari भी खुलते हैं। मास्क को साथ-साथ देखने के लिए Model Compare, वेट चुनने के लिए Model Zoo, और और उदाहरणों की समीक्षा या संपादन के लिए क्यूरेशन टूल इस्तेमाल करें।"
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
-          "hold_after": 0.7
+          "narration": "Recrop चुनें और जिन वस्तुओं को आप छोटे प्रशिक्षण फ़ील्ड में चाहते हैं उनके चारों ओर एक बॉक्स खींचें। इससे एक नई इमेज और उसका मेल खाता मास्क लिखा जाता है। सीमा से कटी वस्तुएँ हटा दी जाती हैं, इसलिए पूरी वस्तुओं के आसपास जगह छोड़ें और क्रॉप देखें।",
+          "hold_after": 0.7,
+          "speech_text": "Recrop चुनें और जिन वस्तुओं को आप छोटे प्रशिक्षण फ़ील्ड में चाहते हैं उनके चारों ओर एक बॉक्स खींचें। इससे एक नई इमेज और उसका मेल खाता मास्क लिखा जाता है। सीमा से कटी वस्तुएँ हटा दी जाती हैं, इसलिए पूरी वस्तुओं के आसपास जगह छोड़ें और क्रॉप देखें।"
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "नया क्रॉप खोलने के लिए Next पर क्लिक करें। मूल इमेज और मास्क वापस पाने के लिए recropped_originals में रखे जाते हैं। क्रॉप को अपने प्रशिक्षण डेटासेट में जोड़ने से पहले उसकी और उसके लेबल की समीक्षा करें।",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "नया क्रॉप खोलने के लिए Next पर क्लिक करें। मूल इमेज और मास्क वापस पाने के लिए recropped_originals में रखे जाते हैं। क्रॉप को अपने प्रशिक्षण डेटासेट में जोड़ने से पहले उसकी और उसके लेबल की समीक्षा करें।"
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
-          "hold_after": 0.7
+          "narration": "मौजूदा फ़ील्ड में वस्तुएँ पहचानने के लिए Cellpose मॉडल चुनें और उसकी सेटिंग देखें। यह उदाहरण cpsam, चालू नॉर्मलाइज़ेशन, शून्य का सेल-प्रोबेबिलिटी थ्रेशोल्ड और शून्य दशमलव चार का फ़्लो थ्रेशोल्ड इस्तेमाल करता है। जाँचें कि पहचान मौजूदा लेबल की जगह लेगी या उनमें जुड़ेगी।",
+          "hold_after": 0.7,
+          "speech_text": "मौजूदा फ़ील्ड में वस्तुएँ पहचानने के लिए सेल पोज़ मॉडल चुनें और उसकी सेटिंग देखें। यह उदाहरण cpsam, चालू नॉर्मलाइज़ेशन, शून्य का सेल-प्रोबेबिलिटी थ्रेशोल्ड और शून्य दशमलव चार का फ़्लो थ्रेशोल्ड इस्तेमाल करता है। जाँचें कि पहचान मौजूदा लेबल की जगह लेगी या उनमें जुड़ेगी।"
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
-          "hold_after": 0.7
+          "narration": "Object detection पर क्लिक करें और मिली रूपरेखाओं की तुलना इमेज से करें। यहाँ मॉडल बीच वाली कोशिका की जगह ऊपर बाईं ओर की अधूरी वस्तु चुनता है। उस बदलाव को Undo करें और दोबारा कोशिश करने से पहले मॉडल की सेटिंग बदलें।",
+          "hold_after": 0.7,
+          "speech_text": "Object detection पर क्लिक करें और मिली रूपरेखाओं की तुलना इमेज से करें। यहाँ मॉडल बीच वाली कोशिका की जगह ऊपर बाईं ओर की अधूरी वस्तु चुनता है। उस बदलाव को Undo करें और दोबारा कोशिश करने से पहले मॉडल की सेटिंग बदलें।"
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
-          "hold_after": 0.7
+          "narration": "फ़ोरग्राउंड स्कोर मैप देखने के लिए Cell probability खोलें। इससे पता चलता है कि मॉडल किन क्षेत्रों का समर्थन करता है। उपयोगी हो तो फ़ोरग्राउंड थ्रेशोल्ड बदलें, फिर नया परिणाम पाने के लिए पहचान दोबारा चलाएँ।",
+          "hold_after": 0.7,
+          "speech_text": "फ़ोरग्राउंड स्कोर मैप देखने के लिए Cell probability खोलें। इससे पता चलता है कि मॉडल किन क्षेत्रों का समर्थन करता है। उपयोगी हो तो फ़ोरग्राउंड थ्रेशोल्ड बदलें, फिर नया परिणाम पाने के लिए पहचान दोबारा चलाएँ।"
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
-          "hold_after": 0.7
+          "narration": "दिशा वाला दृश्य देखने के लिए Flows खोलें। फ़्लो-संगति थ्रेशोल्ड तय करता है कि कौन-सी पहचानी गई वस्तुएँ रखी जाएँ: कम मान ज़्यादा सख़्त हैं, और शून्य यह जाँच बंद कर देता है। हर सेटिंग बदलने के बाद अंतिम मास्क की तुलना करें।",
+          "hold_after": 0.7,
+          "speech_text": "दिशा वाला दृश्य देखने के लिए Flows खोलें। फ़्लो-संगति थ्रेशोल्ड तय करता है कि कौन-सी पहचानी गई वस्तुएँ रखी जाएँ: कम मान ज़्यादा सख़्त हैं, और शून्य यह जाँच बंद कर देता है। हर सेटिंग बदलने के बाद अंतिम मास्क की तुलना करें।"
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
-          "hold_after": 0.7
+          "narration": "Undo पहचान से पहले के लेबल वापस लाता है। जो मास्क इमेज के साथ सबसे अच्छा मेल खाता है उसे रखें, फिर सहेजें। बाकी फ़ील्ड पर आगे बढ़ें और प्रशिक्षण में शामिल करने से पहले हर परिणाम देखें।",
+          "hold_after": 0.7,
+          "speech_text": "Undo पहचान से पहले के लेबल वापस लाता है। जो मास्क इमेज के साथ सबसे अच्छा मेल खाता है उसे रखें, फिर सहेजें। बाकी फ़ील्ड पर आगे बढ़ें और प्रशिक्षण में शामिल करने से पहले हर परिणाम देखें।"
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "सुधारी गई इमेज और एक ही मूल नाम वाले मास्क साथ रखें। उन जोड़ों से सीखने के लिए Train Cellpose इस्तेमाल करें, या माप निकालने के लिए Features या Measure पर लौटें। संबंधित ट्यूटोरियल हर अगला कदम दिखाते हैं।",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
-          ]
+          ],
+          "speech_text": "सुधारी गई इमेज और एक ही मूल नाम वाले मास्क साथ रखें। उन जोड़ों से सीखने के लिए Train सेल पोज़ इस्तेमाल करें, या माप निकालने के लिए Features या Measure पर लौटें। संबंधित ट्यूटोरियल हर अगला कदम दिखाते हैं।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -2113,20 +2231,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "टाइम सीरीज़ में वस्तुओं को जोड़ें, उनके ट्रैक देखें और ट्रैक की गई इमेज को माप के लिए तैयार करें।",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Track preview में उदाहरण इमेज और मास्क लोड करें।",
+        "ओवरलैप समायोजित करें और फ़्रेमों के बीच वस्तुओं की पहचान देखें।",
+        "टाइम सीरीज़ के लिए Mask रन सेट करें और उसके ट्रैक किए गए आउटपुट खोजें।"
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "SYNTHETIC_timelapse_preview.zip डाउनलोड करके निकालें। शिक्षण उदाहरण में कोशिका इमेज के आठ फ़्रेम और उनसे मेल खाती लेबल इमेज हैं। अपने डेटा पर पूरे Mask रन के लिए समय के क्रम में माइक्रोस्कोपी इमेज तैयार करें और अधिग्रहण अंतराल दर्ज करें।",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "Home से Mask खोलें और ट्रैकिंग चालू करने के लिए ऊपर दाईं ओर Timelapse आइकन पर क्लिक करें। लगातार इमेज के बीच वस्तुओं को जोड़ने के लिए Timelapse इस्तेमाल करें। पहले हम Track preview में लिंक किया गया उदाहरण आज़माएँगे, फिर अपनी इमेज सीक्वेंस को प्रोसेस करने की सेटिंग देखेंगे।",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -2137,54 +2255,60 @@
           "related_lessons": [
             "07_mask",
             "18_motility"
-          ]
+          ],
+          "speech_text": "Home से Mask खोलें और ट्रैकिंग चालू करने के लिए ऊपर दाईं ओर Timelapse आइकन पर क्लिक करें। लगातार इमेज के बीच वस्तुओं को जोड़ने के लिए Timelapse इस्तेमाल करें। पहले हम Track preview में लिंक किया गया उदाहरण आज़माएँगे, फिर अपनी इमेज सीक्वेंस को प्रोसेस करने की सेटिंग देखेंगे।"
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "नीचे दिया गया उदाहरण आर्काइव डाउनलोड करके निकालें, फिर Actions शीर्षक के दाईं ओर Track preview पर क्लिक करें। आर्काइव में आठ फ़्रेम की एक इमेज सीक्वेंस और उससे मेल खाती मास्क सीक्वेंस है। दोनों फ़ोल्डर साथ रखें, ताकि आप मेल खाती इमेज और लेबल चुन सकें।",
           "hold_after": 0.7,
           "focus": [
             360,
             230,
             3480,
             1900
-          ]
+          ],
+          "speech_text": "नीचे दिया गया उदाहरण आर्काइव डाउनलोड करके निकालें, फिर Actions शीर्षक के दाईं ओर Track preview पर क्लिक करें। आर्काइव में आठ फ़्रेम की एक इमेज सीक्वेंस और उससे मेल खाती मास्क सीक्वेंस है। दोनों फ़ोल्डर साथ रखें, ताकि आप मेल खाती इमेज और लेबल चुन सकें।"
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
-          "hold_after": 0.7
+          "narration": "इमेज फ़ोल्डर के रूप में image_sequences, फिर field_A01 चुनें। चैनल शून्य चुनें: हर उदाहरण इमेज में कोशिका तीव्रता का एक ही चैनल है। Frames previewed को आठ और Fields को एक पर सेट करें।",
+          "hold_after": 0.7,
+          "speech_text": "इमेज फ़ोल्डर के रूप में image_sequences, फिर field_A01 चुनें। चैनल शून्य चुनें: हर उदाहरण इमेज में कोशिका तीव्रता का एक ही चैनल है। Frames previewed को आठ और Fields को एक पर सेट करें।"
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
-          "hold_after": 0.7
+          "narration": "Masks पर क्लिक करें और label_sequences, फिर field_A01 चुनें। हर लेबल संबंधित इमेज में एक वस्तु की पहचान करता है। शुरू में Keep only full-length tracks बंद रहने दें, ताकि आप सीक्वेंस के बीच में शुरू या खत्म होने वाले ट्रैक भी देख सकें।",
+          "hold_after": 0.7,
+          "speech_text": "Masks पर क्लिक करें और label_sequences, फिर field_A01 चुनें। हर लेबल संबंधित इमेज में एक वस्तु की पहचान करता है। शुरू में Keep only full-length tracks बंद रहने दें, ताकि आप सीक्वेंस के बीच में शुरू या खत्म होने वाले ट्रैक भी देख सकें।"
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "ओवरलैप थ्रेशोल्ड को शून्य दशमलव एक पर सेट करें और Run preview पर क्लिक करें। यह थ्रेशोल्ड तय करता है कि पास-पास के मास्क को जोड़ने के लिए वे कितने ओवरलैप हों। रंगीन वस्तु पहचान और ट्रैक-लंबाई का सारांश देखें। उदाहरण सोलह ट्रैक बनाता है, जो सभी आठ फ़्रेमों में फैले हैं।",
           "hold_after": 0.7,
           "focus": [
             379,
             307,
             3432,
             958
-          ]
+          ],
+          "speech_text": "ओवरलैप थ्रेशोल्ड को शून्य दशमलव एक पर सेट करें और Run preview पर क्लिक करें। यह थ्रेशोल्ड तय करता है कि पास-पास के मास्क को जोड़ने के लिए वे कितने ओवरलैप हों। रंगीन वस्तु पहचान और ट्रैक-लंबाई का सारांश देखें। उदाहरण सोलह ट्रैक बनाता है, जो सभी आठ फ़्रेमों में फैले हैं।"
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "अगर वस्तुएँ छोटे ट्रैक में टूट जाएँ या गलत पड़ोसियों से जुड़ जाएँ, तो ओवरलैप थ्रेशोल्ड बदलें। ऊँचा थ्रेशोल्ड ज़्यादा ओवरलैप माँगता है। बदलने के बाद पूर्वावलोकन पूरा होने दें और अंतिम मान देखने के लिए Re-link पर क्लिक करें। परिणाम स्वीकार करने से पहले कई फ़्रेमों में आगे-पीछे जाकर देखें।",
           "hold_after": 0.7,
           "focus": [
             379,
             307,
             3432,
             958
-          ]
+          ],
+          "speech_text": "अगर वस्तुएँ छोटे ट्रैक में टूट जाएँ या गलत पड़ोसियों से जुड़ जाएँ, तो ओवरलैप थ्रेशोल्ड बदलें। ऊँचा थ्रेशोल्ड ज़्यादा ओवरलैप माँगता है। बदलने के बाद पूर्वावलोकन पूरा होने दें और अंतिम मान देखने के लिए Re-link पर क्लिक करें। परिणाम स्वीकार करने से पहले कई फ़्रेमों में आगे-पीछे जाकर देखें।"
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "सीक्वेंस में एक ही वस्तु का पीछा करने के लिए फ़्रेम स्लाइडर इस्तेमाल करें। Play बदलता है कि आप फ़्रेम कितनी तेज़ी से देखते हैं। बाद में गति मापने के लिए असली अधिग्रहण अंतराल अलग से दर्ज रखें।",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2196,67 +2320,113 @@
             "08_measure",
             "18_motility",
             "06_api"
-          ]
+          ],
+          "speech_text": "सीक्वेंस में एक ही वस्तु का पीछा करने के लिए फ़्रेम स्लाइडर इस्तेमाल करें। Play बदलता है कि आप फ़्रेम कितनी तेज़ी से देखते हैं। बाद में गति मापने के लिए असली अधिग्रहण अंतराल अलग से दर्ज रखें।"
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "अपनी इमेज पर पूरे रन के लिए Mask में Source और तीव्रता चैनल सेट करें। यह रिकॉर्डिंग आठ फ़्रेम की एक छोटी कृत्रिम सीक्वेंस की सेटिंग आयात करती है। हर फ़ील्ड के समय बिंदु क्रम में रखें। फ़्रेम सीमाएँ एक शुरुआत और एक बाहर रखे गए अंत का उपयोग करती हैं: शून्य से आठ पहले आठ फ़्रेम चुनता है।",
           "hold_after": 0.7,
           "focus": [
             340,
             230,
             1160,
             1900
-          ]
+          ],
+          "speech_text": "अपनी इमेज पर पूरे रन के लिए Mask में Source और तीव्रता चैनल सेट करें। यह रिकॉर्डिंग आठ फ़्रेम की एक छोटी कृत्रिम सीक्वेंस की सेटिंग आयात करती है। हर फ़ील्ड के समय बिंदु क्रम में रखें। फ़्रेम सीमाएँ एक शुरुआत और एक बाहर रखे गए अंत का उपयोग करती हैं: शून्य से आठ पहले आठ फ़्रेम चुनता है।"
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "ट्रैक करने के लिए वस्तु और ट्रैकिंग मोड चुनें। ओवरलैप मोड, iou, पास-पास के फ़्रेमों में वस्तुओं के मास्क से उन्हें जोड़ता है। पहले एक छोटी सीक्वेंस देखें और ऐसा मोड चुनें जो इस बात के अनुकूल हो कि आपकी वस्तुएँ फ़्रेमों के बीच कितनी दूर जाती हैं।",
           "hold_after": 0.7,
           "focus": [
             340,
             1480,
             1160,
             640
-          ]
+          ],
+          "speech_text": "ट्रैक करने के लिए वस्तु और ट्रैकिंग मोड चुनें। ओवरलैप मोड, iou, पास-पास के फ़्रेमों में वस्तुओं के मास्क से उन्हें जोड़ता है। पहले एक छोटी सीक्वेंस देखें और ऐसा मोड चुनें जो इस बात के अनुकूल हो कि आपकी वस्तुएँ फ़्रेमों के बीच कितनी दूर जाती हैं।"
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "पाइपलाइन की सफ़ाई के दौरान इनपुट इमेज बनाए रखने के लिए Keep original images चालू करें। अपने डेटा के लिए सेगमेंटेशन मॉडल और चैनल सेट करें, और पूरी सीक्वेंस प्रोसेस करने से पहले पूर्वावलोकन जाँचें।",
           "hold_after": 0.7,
           "focus": [
             340,
             1260,
             1160,
             160
-          ]
+          ],
+          "speech_text": "पाइपलाइन की सफ़ाई के दौरान इनपुट इमेज बनाए रखने के लिए Keep original images चालू करें। अपने डेटा के लिए सेगमेंटेशन मॉडल और चैनल सेट करें, और पूरी सीक्वेंस प्रोसेस करने से पहले पूर्वावलोकन जाँचें।"
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "बनाए गए चित्र देखने के लिए Plot चालू करें, फिर Run पर क्लिक करें। कंसोल में प्रगति देखें और पूरा होने तक प्रतीक्षा करें। बड़े प्रयोग को प्रोसेस करने से पहले मास्क और ट्रैक पहचान जाँचने के लिए छोटी सीक्वेंस से शुरू करें।",
           "hold_after": 0.7,
           "focus": [
             340,
             1100,
             1160,
             140
-          ]
+          ],
+          "speech_text": "बनाए गए चित्र देखने के लिए Plot चालू करें, फिर Run पर क्लिक करें। कंसोल में प्रगति देखें और पूरा होने तक प्रतीक्षा करें। बड़े प्रयोग को प्रोसेस करने से पहले मास्क और ट्रैक पहचान जाँचने के लिए छोटी सीक्वेंस से शुरू करें।"
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "आउटपुट चित्रों में तीव्रता और लेबल की परतें देखें। रन प्रोजेक्ट फ़ोल्डर के अंदर ट्रैक किए गए ऐरे merged में और ट्रैक तालिकाएँ tracks में सहेजता है। उन ट्रैकों से वस्तुओं की विशेषताएँ और गति निकालने के लिए Measure और फिर Motility पर आगे बढ़ें।",
           "hold_after": 0.7,
           "focus": [
             366,
             171,
             3458,
             1797
-          ]
+          ],
+          "speech_text": "आउटपुट चित्रों में तीव्रता और लेबल की परतें देखें। रन प्रोजेक्ट फ़ोल्डर के अंदर ट्रैक किए गए ऐरे merged में और ट्रैक तालिकाएँ tracks में सहेजता है। उन ट्रैकों से वस्तुओं की विशेषताएँ और गति निकालने के लिए Measure और फिर Motility पर आगे बढ़ें।"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

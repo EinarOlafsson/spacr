@@ -458,26 +458,26 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home-skjárinn og leiðsögn",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Opnaðu einingu frá Home, finndu tengd verkfæri hennar og sýnigögn og veldu svo greiningarferli til að fylgja.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Velja upphafseiningu fyrir myndir, mælingar eða raðgreiningarlestra.",
+        "Finna tengd verkfæri og greiningar fyrir einstakar lífverur.",
+        "Hlaða inn dæmi, finna hjálp og opna yfirlit yfir greiningarferli."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "Settu upp spaCR og opnaðu skjáborðsforritið.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home er upphafsstaðurinn. Smelltu á reit til að opna einingu, eða notaðu hliðarstikuna vinstra megin. Smelltu á Home í hliðarstikunni til að koma aftur hingað. Flipinn Core, Data, Tools og Assays hjálpa þér að finna verkið sem þú vilt vinna.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "Fyrir smásjármyndir byrjarðu á Mask til að afmarka hluti og notar svo Measure til að draga út eiginleika þeirra og útskurði. Með Annotate merkirðu dæmihluti og Classify lærir af merkingunum til að gefa fleiri hlutum stig. Map Barcodes les raðgreiningargögn. Regression tengir svipgerðarstigin sem fást við talningu leiðsagnar-RNA til að finna tengsl.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -498,7 +498,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Í Data koma skrár inn og niðurstöður eru athugaðar. Ef þú ert þegar með myndir, grímur eða mælitöflur færir Import þær inn í verkefni sem hinar einingarnar geta lesið. Fyrir tilraun skipuleggur Experiment Design plöturnar; eftir hana sýnir QC skráðar gæðaathuganir og Run Compare setur tvær keyrslur hlið við hlið.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -518,7 +518,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools geymir verklegu ritlana og könnunartólin. Í Make Masks lagarðu grímur og þaðan opnast líka Cellpose Workbench. Align and Stitch skeytir saman myndreitum sem skarast í eina mynd. Þegar mælingar liggja fyrir geturðu kannað þær og teiknað með Image UMAP, Gate Editor og Graph Builder. Verkfærastika hverrar einingar opnar tengd verkfæri hennar.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -537,7 +537,7 @@
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Opnaðu Assays og veldu lífveruna þína: Toxoplasma, Plasmodium eða Candida. Veldu svo greiningu í valmynd þeirrar lífveru. Opnaðu til dæmis Toxoplasma fyrir greiningu á skellum eða mælingar á hýsli og sýkli. Fylgdu kennslu valinnar greiningar til að undirbúa myndir hennar, grímur og mæliinntak.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -553,7 +553,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Opnaðu Classify og veldu inntakið með Classifier family. Veldu Computer Vision fyrir myndir af hlutum eða Tabular Machine Learning fyrir dálka með mældum eiginleikum. Tengdu kennslurnar leiða þig í gegnum þjálfun, mat og stigagjöf fyrir hvora fjölskyldu.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -563,7 +563,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "Þegar líkan hefur verið þjálfað hjálpar verkfærastika Classify þér að rýna í það. Classifier Evaluation sýnir hvernig því gekk á gögnum sem haldið var til hliðar, Explain CV Model og Activation sýna hvað ræður niðurstöðum þess, Training Runs ber saman þjálfunarsögu og Feature Explorer raðar þeim eiginleikum sem aðgreina hópana. Haltu bendlinum yfir tákni til að sjá heiti þess.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -576,7 +576,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "Til að prófa einingu smellirðu á Load test data þegar það er í boði. Bíddu þar til niðurhalinu lýkur og farðu svo yfir útfyllt inntök og stillingar. Í Mask smellirðu á Live til að skoða sjónsvið áður en þú ýtir á Run. Kveiktu á Time fyrir tímaröð eða 3D fyrir rúmmálsmynd.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -585,17 +585,17 @@
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "narration": "Sláðu inn heiti einingar, stillingar eða falls í leitarreitinn við hliðina á Help. Hér finnur leit að Performance samsvarandi síðu í Preferences. Smelltu á niðurstöðu til að opna áfangastað hennar. API-niðurstöður opna skjölun valins falls.",
           "hold_after": 0.7
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "narration": "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
           "hold_after": 0.7
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Farðu aftur í Home og smelltu á Pipeline overviews til að velja verkferli. Byrjaðu á spaCR screens fyrir samsafnaða myndgreiningarskimun, eða veldu leið fyrir myndgreiningu eða raðgreiningu sem hentar gögnunum þínum. Næstu kennslur sýna hvernig þessar einingar tengjast og kennslur einstakra eininga fara síðan í gegnum hvert verk.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -613,6 +613,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1623,22 +1663,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: breyttu merkingum og undirbúðu þjálfunarmyndir",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Opnaðu pör af myndum og grímum, skoðaðu og breyttu hlutum, vistaðu mælingar og búðu til pöruð þjálfunarúrklipp.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Opna myndir með samsvarandi tilvikagrímum og skoða hluti í stækkunarglerinu.",
+        "Mæla pöruð sjónsvið og vista gagnagrunn með eiginleikum hluta.",
+        "Leiðrétta merkingar með Undo, teikningu, skiptingu og stærðarsíum.",
+        "Vista yfirfarnar grímur og búa til úrklipp af myndum og grímum til þjálfunar."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "Útbúðu möppu með tvívíðum myndum og samsvarandi TIFF-skrám með tilvikamerkingum í undirmöppu sem heitir masks. Hver gríma notar sama nafnstofn og myndskráin. Vinndu í afriti þegar þú æfir breytingar og nýja skurði. Dæmið notar ER-myndir og frumugrímur úr niðurhalanlegu smásjárverkefni Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Frá Home opnarðu Make Masks undir Tools. Veldu þennan ritil til að skoða og leiðrétta grímur einstakra mynda. Opnaðu möppuna með pöruðum myndum og merkingum áður en þú velur breytingartól.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1646,7 +1686,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Veldu myndamöppuna. Í þessu dæmi notarðu ER-styrkleikamyndirnar og samsvarandi frumugrímur úr Measure-sýninu. Hafðu stærð myndar og grímu þá sömu og skráarheitin pöruð.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1654,17 +1694,17 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "narration": "Ritillinn hleður inn myndinni og samsvarandi grímu úr undirmöppunni masks. Litaðar merkingar auðkenna einstaka hluti. Athugaðu hvort útlínurnar fylgi mörkunum í myndinni. Ef fylgigrímu vantar byrjarðu með tóma grímu og teiknar hlutina sem þú þarft.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Opnaðu Magnifier settings. Veldu Otsu og Region under the mouse til að forskoða hluti sem fást með þröskuldi í kringum bendilinn. Veldu líkanatengdan hátt þegar þröskuldurinn aðgreinir hlutina ekki vel.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Kveiktu á Magnifier og haltu bendlinum yfir hlut til að stækka forskoðunina. Farðu yfir nokkra hluti til að skoða tillögur að útlínum. Smelltu til að bæta afmörkuðu hlutunum við þegar þeir líta rétt út, eða slökktu á Magnifier til að halda áfram að breyta.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -1675,7 +1715,7 @@
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Smelltu á Features til að mæla pör af myndum og grímum. Bættu við röð fyrir hvert sjónsvið og veldu styrkleikamyndirnar og samsvarandi hlutagrímur. Athugaðu handvirka úthlutun ef sjálfvirk pörun skráarheita skilur skrár eftir án úthlutunar.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1689,7 +1729,7 @@
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "Í hverri röð velurðu ER-styrkleikamyndina í Channel 1 og samsvarandi merkingamynd í Cell mask. Endurtaktu fyrir annað sjónsviðið. Notaðu upprunalegu styrkleikamyndirnar til að mæla flúrljómun.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1703,7 +1743,7 @@
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "Farðu yfir báðar raðirnar og veldu svo mælistillingarnar. Þetta dæmi notar eitt vinnsluferli, minnstu frumustærð upp á einn díl og engin vistuð PNG-úrklipp. Hækkaðu stærðarmörkin til að útiloka litla hluti þegar það hentar tilrauninni. Smelltu á Measure.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1717,7 +1757,7 @@
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "Þegar mælingu lýkur opnarðu úttaksmöppuna. Mappan measurements inniheldur measurements.db með eiginleikum hlutanna úr báðum sjónsviðum. Geymdu gagnagrunninn með upprunamyndum hans, grímum og stillingum og lokaðu svo Features til að fara aftur í breytingar.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1731,7 +1771,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "Veldu tólið sem hentar leiðréttingunni. Brush bætir við dílum, Erase fjarlægir díla og Erase object fjarlægir heila merkingu. Draw bætir við afmörkuðum hlut; Divide skiptir einum í tvennt. Zoom hjálpar þér að skoða mörkin áður en þú breytir.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1742,42 +1782,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "narration": "Veldu Erase object og smelltu inni í hlutnum sem þú vilt fjarlægja. Athugaðu uppfærða útlínu og fjölda hluta. Notaðu þetta fyrir óæskilega merkingu, til dæmis frumuleifar eða hlut sem fellur utan greiningarviðmiða þinna.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "narration": "Smelltu á Undo til að afturkalla eyðinguna. Redo beitir henni aftur. Notaðu þessar sögustýringar til að bera breytingu saman við fyrri grímu og farðu svo aftur í þá útgáfu sem þú vilt halda.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "narration": "Veldu Draw og teiknaðu lokuð mörk utan um hlut sem vantar. Ritillinn fyllir hann með nýrri merkingu. Í þessu æfingaskrefi er útlínan í bakgrunninum, svo afturkallaðu hana áður en þú vistar. Fyrir þjálfunargögn teiknarðu raunveruleg mörk hlutarins.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "narration": "Notaðu Divide þegar tveir hlutir sem snertast deila einni merkingu. Teiknaðu skurð þvert yfir allt samtengda svæðið og skoðaðu aðskildu merkingarnar. Afturkallaðu skiptinguna ef hún sker í gegnum einn hlut eða skilur eftir röng mörk.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "narration": "Stilltu Display percentiles svo auðveldara sé að skoða daufa byggingu. Þessar stýringar breyta aðeins birtingunni og halda óunnum styrkleikagildum og merkingum óbreyttum. Farðu aftur í samræmda birtingu þegar þú berð saman sjónsvið.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "Stilltu minnsta og stærsta flatarmál hluta og ýttu svo á Filter til að fjarlægja merkingar utan þeirra marka. Veldu mörk sem henta hlutunum þínum og skoðaðu hvað var fjarlægt. Sían breytir grímunni, svo notaðu Undo ef mörkin fjarlægja gagnlega hluti.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "Þegar þú hefur farið yfir breytingarnar smellirðu á Save mask. Ef þörf krefur seturðu stærðarmörkin aftur á núll til að gera þau óvirk áður en þú ferð í annað sjónsvið. Varðveittu upprunamyndirnar og geymdu vistuðu yfirferðarskrána með breyttu grímunum.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "Hausinn geymir restina af grímutólunum. Þegar þú velur vigtir finnur Model Zoo þær og Model Compare setur tvö grímusett hlið við hlið. Þegar fleiri dæmi þarf að laga fara Curate og Open in napari með þig aftur í breytingar.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1787,7 +1827,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "Hausinn opnar líka Model Compare, Model Zoo, Curate og Open in napari. Notaðu Model Compare til að skoða grímur hlið við hlið, Model Zoo til að velja vigtir og yfirferðartólin til að fara yfir eða breyta fleiri dæmum.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1799,12 +1839,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "narration": "Veldu Recrop og dragðu kassa utan um hlutina sem þú vilt hafa í minna þjálfunarsviði. Þá er skrifuð ný mynd og samsvarandi gríma. Hlutum sem jaðarinn sker er sleppt, svo skildu eftir pláss í kringum heila hluti og skoðaðu úrklippið.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Smelltu á Next til að opna nýja úrklippið. Upprunalega myndin og gríman eru geymdar í recropped_originals svo hægt sé að endurheimta þær. Farðu yfir úrklippið og merkingar þess áður en þú bætir því við þjálfunargagnasafnið.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1812,32 +1852,32 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "Til að greina hluti í núverandi sjónsviði velurðu Cellpose-líkanið og ferð yfir stillingar þess. Þetta dæmi notar cpsam, kveikt á stöðlun, þröskuld frumulíkinda 0 og flæðisþröskuld 0,4. Athugaðu hvort greiningarnar komi í stað merkinga sem fyrir eru eða bætist við þær.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Smelltu á Object detection og berðu útlínurnar sem fást saman við myndina. Hér velur líkanið hálfa hlutinn efst til vinstri í stað frumunnar í miðjunni. Afturkallaðu þau skipti og stilltu líkanið áður en þú reynir aftur.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "narration": "Opnaðu Cell probability til að skoða forgrunnsstigakortið. Notaðu það til að sjá hvaða svæði líkanið styður. Breyttu forgrunnsþröskuldinum þegar það hjálpar og keyrðu greininguna aftur til að fá nýja niðurstöðu.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "narration": "Opnaðu Flows til að skoða stefnuyfirlitið. Þröskuldur flæðissamræmis ræður því hvaða greindu hlutum er haldið: lægri gildi eru strangari og 0 slekkur á þessari athugun. Berðu saman lokagrímurnar eftir hverja stillingabreytingu.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo endurheimtir merkingarnar frá því fyrir greininguna. Haltu grímunni sem fylgir myndinni best og vistaðu hana. Haltu áfram í gegnum sjónsviðin sem eftir eru og skoðaðu hverja niðurstöðu áður en þú tekur hana með í þjálfun.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "Hafðu yfirfarnar myndir og grímur með sama nafnstofni saman. Notaðu Train Cellpose til að læra af þessum pörum, eða farðu aftur í Features eða Measure til að draga út mælingar. Tengdu kennslurnar sýna hvert næsta skref.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1848,6 +1888,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -2062,20 +2142,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "Tengdu hluti yfir tímaröð, skoðaðu ferla þeirra og undirbúðu raktar myndir fyrir mælingu.",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Hlaða dæmamyndunum og grímunum inn í Track preview.",
+        "Stilla skörun og skoða auðkenni hluta milli ramma.",
+        "Setja upp Mask-keyrslu fyrir tímaraðir og finna úttak hennar með rakningu."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "Sæktu og afþjappaðu SYNTHETIC_timelapse_preview.zip. Kennsludæmið inniheldur átta ramma af frumumyndum og samsvarandi merkingamyndir. Fyrir fulla Mask-keyrslu á eigin gögnum útbýrðu smásjármyndir í tímaröð og skráir tímabilið milli mynda.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "Frá Home opnarðu Mask og smellir á Timelapse-táknið efst til hægri til að kveikja á rakningu. Notaðu Timelapse til að tengja hluti milli samliggjandi mynda. Fyrst prófum við tengda dæmið í Track preview og förum síðan yfir stillingarnar til að vinna úr þinni eigin myndaröð.",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -2090,7 +2170,7 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "Sæktu og afþjappaðu dæmasafnið hér fyrir neðan og smelltu svo á Track preview hægra megin við fyrirsögnina Actions. Safnið inniheldur myndaröð og samsvarandi grímuröð með átta römmum. Hafðu báðar möppurnar saman svo þú getir valið myndir og merkingar sem eiga saman.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -2101,17 +2181,17 @@
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "narration": "Veldu image_sequences og síðan field_A01 sem myndamöppu. Veldu rás 0: hver dæmamynd inniheldur eina rás fyrir styrk frumna. Stilltu Frames previewed á 8 og Fields á 1.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "narration": "Smelltu á Masks og veldu label_sequences og síðan field_A01. Hver merking auðkennir hlut í samsvarandi mynd. Hafðu slökkt á Keep only full-length tracks í fyrstu svo þú getir skoðað ferla sem byrja eða enda innan raðarinnar.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "Stilltu skörunarþröskuldinn á 0,1 og smelltu á Run preview. Þröskuldurinn ræður því hversu mikið aðliggjandi grímur þurfa að skarast til að tengjast. Skoðaðu lituðu auðkenni hlutanna og yfirlitið yfir lengd ferla. Dæmið gefur sextán ferla sem ná yfir alla átta rammana.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2122,7 +2202,7 @@
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "Stilltu skörunarþröskuldinn ef hlutir brotna upp í stutta ferla eða tengjast röngum nágrönnum. Hærri þröskuldur krefst meiri skörunar. Eftir breytinguna bíðurðu þar til forskoðuninni lýkur og smellir á Re-link til að skoða lokagildið. Flettu í gegnum nokkra ramma áður en þú samþykkir niðurstöðuna.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2133,7 +2213,7 @@
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "Notaðu rammasleðann til að fylgja sama hlut í gegnum röðina. Play breytir því hversu hratt rammarnir birtast. Skráðu raunverulegt tímabil milli mynda sérstaklega fyrir hraðamælingar síðar.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2149,7 +2229,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "Fyrir fulla keyrslu á eigin myndum stillirðu Source og styrkleikarásirnar í Mask. Þessi upptaka flytur inn stillingar lítillar gervimyndaraðar með átta römmum. Haltu tímapunktum hvers sjónsviðs í réttri röð. Rammamörk nota upphaf og útilokaðan endi: 0 til 8 velur fyrstu átta rammana.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2160,7 +2240,7 @@
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "Veldu hlutinn sem á að rekja og rakningarháttinn. Skörunarhátturinn iou tengir hluti með grímum þeirra í aðliggjandi römmum. Skoðaðu fyrst stutta röð og veldu hátt sem hentar því hversu langt hlutirnir færast milli ramma.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2171,7 +2251,7 @@
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "Kveiktu á Keep original images til að halda inntaksmyndunum meðan greiningarferlið hreinsar til. Stilltu aðgreiningarlíkanið og rásirnar fyrir gögnin þín og athugaðu forskoðunina áður en þú vinnur úr allri röðinni.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2182,7 +2262,7 @@
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "Kveiktu á Plot til að skoða myndritin sem verða til og smelltu svo á Run. Fylgstu með framvindunni í stjórnborðinu og bíddu þar til keyrslunni lýkur. Byrjaðu á stuttri röð svo þú getir athugað grímur og auðkenni ferla áður en þú vinnur úr stærri tilraun.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2193,7 +2273,7 @@
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "Skoðaðu styrk- og merkingalögin í úttaksmyndunum. Keyrslan vistar röktu fylkin í merged og ferlatöflurnar í tracks undir verkefnismöppunni. Haltu áfram í Measure og svo Motility til að reikna eiginleika hluta og hreyfingu út frá ferlunum.",
           "hold_after": 0.7,
           "focus": [
             366,
@@ -2206,6 +2286,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

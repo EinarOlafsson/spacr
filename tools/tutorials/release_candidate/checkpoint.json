@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-iij8lm0r",
-  "manifest_sha256": "bc65001ccf02eceb6df9d83a7d683e91c807d13a54191250d0e6f6854d8a6724",
+  "private_candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-1dgypni8",
+  "manifest_sha256": "b64186aff40fbe589ae35a6ef68ec61999d9ee483c25cb17a168da16927165cb",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -14,73 +14,73 @@
     },
     {
       "path": "web/catalog/captions_da.json",
-      "sha256": "0bfc4ba0c7ddbea6a6c5c401866850b74d71be042ff1ec19339abeb6062480cb",
-      "bytes": 563817
+      "sha256": "129ffbee5687a438d8c80921b3d4c76ba81be7c67a8f6c555413d71eb138ea03",
+      "bytes": 567786
     },
     {
       "path": "web/catalog/captions_de.json",
-      "sha256": "a42561f0f872a9a5136ef13e99a4b6d1c9fa9134cbd2eb711bdb2a1a226a568f",
-      "bytes": 565835
+      "sha256": "306dede6a1af82e40e34b7786f3fd718c505bf3238571ccc11f1bdcdb97156ba",
+      "bytes": 571494
     },
     {
       "path": "web/catalog/captions_is.json",
-      "sha256": "d616cd5df0797c40144e665f5ed063d37a4f9a496d13a43e3071863357bd7429",
-      "bytes": 564408
+      "sha256": "ab2d80ba96e3f64d310261b1717832c1b5a8c2671fa54f389ebf455969320bb8",
+      "bytes": 568379
     },
     {
       "path": "web/catalog/captions_ko.json",
-      "sha256": "25a362d56fc6b1b2a2a56129fd9529e491686299560aa595836a7d2cdc97678a",
-      "bytes": 566611
+      "sha256": "f45dbb9bc9efd47b54f94f1aba9111de84fdce9f62c4e7e3816ac498f562157d",
+      "bytes": 572155
     },
     {
       "path": "web/catalog/captions_nb.json",
-      "sha256": "19e83f0b8c1ab9bd213d465da03c37db1b1194177ba9848f00991b607925bf0a",
-      "bytes": 563697
+      "sha256": "32f13b84804ed00036057f82bd9b7ad2e4a9f1cf03025aa17cae37aa91de2c09",
+      "bytes": 567436
     },
     {
       "path": "web/catalog/captions_sv.json",
-      "sha256": "b1ae864e43b7682b9f771606ae9758bc5778da91f337f336a882b6dd65d77e57",
-      "bytes": 564069
+      "sha256": "56fa689df139e3e423078c20b4f09dcb256c5b54a717228edbab1398888edcb1",
+      "bytes": 568020
     },
     {
       "path": "web/catalog/lessons_en.json",
-      "sha256": "f7483a32cfb7a0beb94a13c52d3b4304c58f4338a1a53c4bb054f40fdcce6dfb",
-      "bytes": 564780
+      "sha256": "db3f5b3cb09f4307fe984e8536fd582e5954a3c0d51170321fa145b473b59740",
+      "bytes": 567099
     },
     {
       "path": "web/catalog/lessons_es.json",
-      "sha256": "60dc698b1297e5f307abc6e03c59b9ca6db916f9d1ab37f983505da65303e768",
-      "bytes": 583114
+      "sha256": "b5ecbde18e8851705515a7c52fcac12ee337beb0f4fa7a34d43ccf16198f9754",
+      "bytes": 603759
     },
     {
       "path": "web/catalog/lessons_fr.json",
-      "sha256": "50110267b569c7a4402f3ea47a76f30d55939862ad58fbd495a2059f008a9516",
-      "bytes": 585263
+      "sha256": "937e530b44b29aba89138318ee2330a3d5606abc58f8a66c678f148289866a4d",
+      "bytes": 607397
     },
     {
       "path": "web/catalog/lessons_hi.json",
-      "sha256": "e05a3635d219feb41e91ea9d39aeb4b152c3092b60abf738d28b14561de6dbcb",
-      "bytes": 621149
+      "sha256": "fcacb3d0690270391c42c202ad21a6c79f82f574c690a621b2b747e7bafe2304",
+      "bytes": 674228
     },
     {
       "path": "web/catalog/lessons_it.json",
-      "sha256": "90afb0910e047c7e90d9f096b102d18a98d1d8c13e3a0f5dc2a0c7e233ee94c1",
-      "bytes": 582460
+      "sha256": "323ec71c2a98c4a3fc622f1610372ec124b8daa6309158f83aaa9e7eb7cecc98",
+      "bytes": 602956
     },
     {
       "path": "web/catalog/lessons_ja.json",
-      "sha256": "3b6eec95353fdd366e3aba49c69848f42e1e8456392c24dda7ac2c0d6c29c11c",
-      "bytes": 590866
+      "sha256": "8f2a40a037fb69b3a45f54c69483042a978961d51b7bebe6cdf8ca6652c02337",
+      "bytes": 616282
     },
     {
       "path": "web/catalog/lessons_pt-BR.json",
-      "sha256": "9b431e272567b4e5f3bcd7c5270b0acc806f5ec2e9e9592a2df24fc4930c41ee",
-      "bytes": 582232
+      "sha256": "8c88b3e5473aa9e8992018d6e1ab8bc9bf7a574eb25042d2e07a1a28ba7d079d",
+      "bytes": 602423
     },
     {
       "path": "web/catalog/lessons_zh-CN.json",
-      "sha256": "02d51d4d8d359d87979b0539212d378acc4d2ff5250383eed013e0876ecba17d",
-      "bytes": 576493
+      "sha256": "f8a6056441afef252e2335b44c09c0b88dae764a90c2321800b00d5450eebd9a",
+      "bytes": 590428
     },
     {
       "path": "web/examples/Agreement_artificial_labels_real_crops.zip",
@@ -259,13 +259,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "cf42ad31e5ad8d7eb9a1530dd0f37ae29ba85d4b3829ba50c2d1e5de7b73562e",
-      "bytes": 15613
+      "sha256": "32fd3db33d3a6a97241447c7b6c439f04d745624122af08c3defa8151cf2eef1",
+      "bytes": 15617
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "cf50d188fa521ea375c5aadea9539caf35ba0364cb723dad038be1c5cc29fac4",
-      "bytes": 458007
+      "sha256": "ba30a2a85e3aea307a40a55c19cc70450416c61c95688159a030736bf3309af0",
+      "bytes": 459262
     },
     {
       "path": "web/logo_spacr.png",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "82c7b68e381137bbfbb390ae9fbf5f9a797fe108716b6a8b4d13a7f224fcbe00",
+      "sha256": "3fcef42895c2a77e85ed88caa0e2abd5b9e3bc9e1202fcd806b35fffa995aa9b",
       "bytes": 16356
     },
     {
@@ -306,11 +306,6 @@
       "path": "web/production/05_home/poster.jpg",
       "sha256": "8d940e201b10443c61a15a279c5696f8a1dd2700adc3f9957a63a198eddc3dcc",
       "bytes": 165093
-    },
-    {
-      "path": "web/production/05_home/video/05_home_silent.mp4",
-      "sha256": "e097ecbaaa7e27e76493bc1d576538ddf600b9f2521e3404bd72064ca884a103",
-      "bytes": 6051800
     },
     {
       "path": "web/production/06_api/poster.jpg",
@@ -396,11 +391,6 @@
       "path": "web/production/14_make_masks/poster.jpg",
       "sha256": "07c141a624339ac3f68a8882bcf19a1adedc415dbd63d83f340076e7375cd1a5",
       "bytes": 130186
-    },
-    {
-      "path": "web/production/14_make_masks/video/14_make_masks_silent.mp4",
-      "sha256": "70ab1b45eeb1d3b1cb4bf35ab8d3521e5b1d2411def8d255b4e3ac04d93fc176",
-      "bytes": 24818797
     },
     {
       "path": "web/production/15_image_umap/poster.jpg",
@@ -1084,8 +1074,8 @@
     },
     {
       "path": "web/translation-compatibility.json",
-      "sha256": "29bf7a40a9d6ba2f79a6826906fb66daef870d957e53f62f30e6dbf50f136c02",
-      "bytes": 189679
+      "sha256": "541499197c62aec22493925d27a50d0e7212418d2b78601bb7d57730caf88585",
+      "bytes": 181140
     },
     {
       "path": "web/voice_catalog.js",
@@ -1094,13 +1084,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "bc65001ccf02eceb6df9d83a7d683e91c807d13a54191250d0e6f6854d8a6724",
-      "bytes": 351235
+      "sha256": "b64186aff40fbe589ae35a6ef68ec61999d9ee483c25cb17a168da16927165cb",
+      "bytes": 370639
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "31d55a4f958b560a76cf05f8450fbbdf075416a04c714e8e123ba1287c1c93a0",
-      "bytes": 104650
+      "sha256": "953b75019f814b51477490bb7dab0ef6438a600841c8e6a9bca30d006372886b",
+      "bytes": 104820
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -1117,10 +1107,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "candidate-install71-20260925-iij8lm0r",
-    "tag": "tutorials-install71-20260925-iij8lm0r",
-    "commit": "006b95c49dde2403ad7674aa4b3f2501351416ec",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/006b95c49dde2403ad7674aa4b3f2501351416ec"
+    "branch": "candidate-voices-b2-20260925-1dgypni8",
+    "tag": "tutorials-voices-b2-20260925-1dgypni8",
+    "commit": "9575040605aa5b2857ee20b2c12175e0bf86a450",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/9575040605aa5b2857ee20b2c12175e0bf86a450"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }

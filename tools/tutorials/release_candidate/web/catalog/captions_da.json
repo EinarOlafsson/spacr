@@ -458,26 +458,26 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home-skærmen og navigation",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Åbn et modul fra Home, find dets relaterede værktøjer og eksempeldata, og vælg derefter en pipeline at følge.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Vælge et startmodul til billeder, målinger eller sekventeringslæsninger.",
+        "Finde relaterede værktøjer og organismespecifikke analyser.",
+        "Indlæse et eksempel, finde hjælp og åbne en pipelineoversigt."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "Installer spaCR, og åbn skrivebordsprogrammet.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home er dit udgangspunkt. Klik på en flise for at åbne et modul, eller brug sidepanelet til venstre. Klik på Home i sidepanelet for at vende tilbage hertil. Fanerne Core, Data, Tools og Assays hjælper dig med at finde den opgave, du vil udføre.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "Til mikroskopbilleder begynder du med Mask for at afgrænse objekter og derefter Measure for at udtrække deres egenskaber og udsnit. Med Annotate mærker du eksempelobjekter, og Classify lærer af mærkerne for at give flere objekter en score. Map Barcodes læser sekventeringsdata. Regression kombinerer de resulterende fænotypescorer med guidetællingerne for at finde sammenhænge.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -498,7 +498,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "I Data kommer filer ind, og resultater kontrolleres. Hvis du allerede har billeder, masker eller måletabeller, henter Import dem ind i et projekt, som de andre moduler kan læse. Før et eksperiment planlægger Experiment Design dine plader; bagefter viser QC de registrerede kvalitetskontroller, og Run Compare stiller to kørsler side om side.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -518,7 +518,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools samler de praktiske editorer og udforskere. I Make Masks retter du masker, og derfra åbnes også Cellpose Workbench. Align and Stitch sætter overlappende billedfliser sammen til ét billede. Når du har målinger, kan du udforske og plotte dem med Image UMAP, Gate Editor og Graph Builder. Hvert moduls værktøjslinje åbner de relaterede værktøjer.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -537,7 +537,7 @@
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Åbn Assays, og vælg din organisme: Toxoplasma, Plasmodium eller Candida. Vælg derefter en analyse i den pågældende organismes menu. Åbn for eksempel Toxoplasma til plaqueanalyse eller målinger af vært og patogen. Følg vejledningen for den valgte analyse for at forberede dens billeder, masker og måleinput.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -553,7 +553,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Åbn Classify, og vælg dit input med Classifier family. Vælg Computer Vision til objektbilleder eller Tabular Machine Learning til kolonner med målte egenskaber. De linkede vejledninger fører dig gennem træning, evaluering og scoring for hver familie.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -563,7 +563,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "Når en model er trænet, hjælper værktøjslinjen i Classify dig med at undersøge den. Classifier Evaluation viser, hvordan den klarede sig på tilbageholdte data, Explain CV Model og Activation viser, hvad der styrer dens afgørelser, Training Runs sammenligner træningshistorik, og Feature Explorer rangerer de egenskaber, der adskiller dine grupper. Hold markøren over et ikon for at se dets navn.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -576,7 +576,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "For at prøve et modul klikker du på Load test data, når det findes. Vent, til downloaden er færdig, og gennemgå derefter de udfyldte input og indstillinger. I Mask klikker du på Live for at undersøge et synsfelt, før du trykker på Run. Slå Time til for en tidsserie eller 3D for et volumenbillede.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -585,17 +585,17 @@
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "narration": "Skriv navnet på et modul, en indstilling eller en funktion i søgefeltet ved siden af Help. Her finder en søgning efter Performance den tilsvarende side i Preferences. Klik på et resultat for at åbne dets destination. API-resultater åbner dokumentationen for den valgte funktion.",
           "hold_after": 0.7
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "narration": "I Preferences vælger du en Performance-profil til din computer. Laptop bruger færre ressourcer; de højere profiler tillader mere caching og baggrundsarbejde. Start med en beskeden profil, hvis hukommelsen er begrænset. Dine analyseindstillinger forbliver under din kontrol i hvert modul.",
           "hold_after": 0.7
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Vend tilbage til Home, og klik på Pipeline overviews for at vælge et workflow. Begynd med spaCR screens til en poolet billedbaseret screening, eller vælg en vej for billedanalyse eller sekventering til dine data. De næste vejledninger viser, hvordan modulerne hænger sammen, og modullektionerne gennemgår derefter hver opgave.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -613,6 +613,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1623,22 +1663,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: rediger labels og forbered træningsbilleder",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Åbn billed- og maskepar, undersøg og rediger objekter, gem målinger, og opret parrede træningsudsnit.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Åbne billeder med matchende instansmasker og undersøge objekter i forstørrelsesglasset.",
+        "Måle parrede synsfelter og gemme en database med objektegenskaber.",
+        "Rette labels med Undo, tegning, deling og størrelsesfiltre.",
+        "Gemme kuraterede masker og oprette billed- og maskeudsnit til træning."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "Forbered en mappe med todimensionelle billeder og matchende TIFF-filer med instanslabels i en undermappe ved navn masks. Hver maske bruger billedfilens navnestamme. Arbejd på en kopi, når du øver redigering og genbeskæring. Eksemplet bruger ER-billeder og cellemasker fra Measures downloadbare mikroskopiprojekt.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Fra Home åbner du Make Masks under Tools. Vælg denne editor til at undersøge og rette enkelte billedmasker. Åbn mappen med parrede billeder og labels, før du vælger et redigeringsværktøj.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1646,7 +1686,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Vælg billedmappen. I dette eksempel bruger du ER-intensitetsbillederne og de tilsvarende cellemasker fra Measure-eksemplet. Hold billed- og maskedimensionerne ens og filnavnene parret.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1654,17 +1694,17 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "narration": "Editoren indlæser billedet og den matchende maske fra undermappen masks. Farvede labels identificerer de enkelte objekter. Kontrollér, at konturerne følger grænserne i billedet. Hvis en tilhørende maske mangler, starter du med en tom maske og tegner de objekter, du har brug for.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Åbn Magnifier settings. Vælg Otsu og Region under the mouse for at se en forhåndsvisning af tærskelbaserede objekter omkring markøren. Vælg en modelbaseret tilstand, når tærskling ikke adskiller dine objekter godt.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Slå Magnifier til, og hold markøren over et objekt for at forstørre forhåndsvisningen. Bevæg dig hen over flere objekter for at undersøge de foreslåede konturer. Klik for at tilføje de afgrænsede objekter, når de ser rigtige ud, eller slå Magnifier fra for at fortsætte redigeringen.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -1675,7 +1715,7 @@
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Klik på Features for at måle billed- og maskepar. Tilføj en række for hvert synsfelt, og vælg intensitetsbillederne og de tilsvarende objektmasker. Kontrollér de manuelle tildelinger, hvis den automatiske matchning af filnavne efterlader filer uden tildeling.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1689,7 +1729,7 @@
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "I hver række vælger du ER-intensitetsbilledet i Channel 1 og det matchende labelbillede i Cell mask. Gentag for det andet synsfelt. Brug de oprindelige intensitetsbilleder til at måle fluorescens.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1703,7 +1743,7 @@
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "Gennemgå begge rækker, og vælg derefter måleindstillingerne. Dette eksempel bruger én arbejdsproces, en mindste cellestørrelse på én pixel og ingen gemte PNG-udsnit. Hæv størrelsesgrænsen for at udelukke små objekter, når det passer til dit eksperiment. Klik på Measure.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1717,7 +1757,7 @@
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "Når målingen er færdig, åbner du outputmappen. Mappen measurements indeholder measurements.db med objektegenskaberne for begge synsfelter. Opbevar databasen sammen med kildebillederne, maskerne og indstillingerne, og luk derefter Features for at vende tilbage til redigeringen.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1731,7 +1771,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "Vælg det værktøj, der passer til rettelsen. Brush tilføjer pixels, Erase fjerner pixels, og Erase object fjerner en hel label. Draw tilføjer et afgrænset objekt; Divide deler et. Zoom hjælper dig med at undersøge grænserne, før du ændrer noget.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1742,42 +1782,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "narration": "Vælg Erase object, og klik inden i det objekt, du vil fjerne. Kontrollér den opdaterede kontur og antallet af objekter. Brug det til en uønsket label, for eksempel snavs eller et objekt uden for dine analysekriterier.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "narration": "Klik på Undo for at gendanne sletningen. Redo anvender den igen. Brug disse historikkontroller til at sammenligne en ændring med den forrige maske, og vend derefter tilbage til den version, du vil beholde.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "narration": "Vælg Draw, og tegn en lukket grænse rundt om et manglende objekt. Editoren fylder det med en ny label. I dette øvetrin ligger konturen i baggrunden, så fortryd den, før du gemmer. Til træningsdata tegner du objektets faktiske grænse.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "narration": "Brug Divide, når to objekter, der rører hinanden, deler én label. Tegn et snit hen over hele det sammenhængende område, og undersøg de adskilte labels. Fortryd delingen, hvis den skærer gennem et enkelt objekt eller efterlader en forkert grænse.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "narration": "Justér Display percentiles, så svage strukturer bliver lettere at undersøge. Disse kontroller ændrer kun visningen og bevarer de rå intensitetsværdier og labels. Vend tilbage til en ensartet visning, når du sammenligner synsfelter.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "Angiv mindste og største objektareal, og tryk derefter på Filter for at fjerne labels uden for grænserne. Vælg grænser, der passer til dine objekter, og undersøg, hvad der blev fjernet. Filteret ændrer masken, så brug Undo, hvis grænsen fjerner nyttige objekter.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "Når du har gennemgået ændringerne, klikker du på Save mask. Nulstil om nødvendigt størrelsesgrænserne til nul for at slå dem fra, før du går videre til et andet synsfelt. Bevar kildebillederne, og opbevar den gemte kurateringspost sammen med de redigerede masker.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "Headeren rummer resten af maskeværktøjerne. Når du vælger vægte, finder Model Zoo dem, og Model Compare stiller to sæt masker side om side. Når flere eksempler skal rettes, fører Curate og Open in napari dig tilbage til redigeringen.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1787,7 +1827,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "Headeren åbner også Model Compare, Model Zoo, Curate og Open in napari. Brug Model Compare til at undersøge masker side om side, Model Zoo til at vælge vægte og kurateringsværktøjerne til at gennemgå eller redigere flere eksempler.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1799,12 +1839,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "narration": "Vælg Recrop, og træk en boks rundt om de objekter, du vil have med i et mindre træningsfelt. Det skriver et nyt billede og en matchende maske. Objekter, der skæres af kanten, kasseres, så lad der være plads omkring hele objekter, og undersøg udsnittet.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Klik på Next for at åbne det nye udsnit. Det oprindelige billede og den oprindelige maske gemmes i recropped_originals, så de kan gendannes. Gennemgå udsnittet og dets labels, før du føjer det til dit træningsdatasæt.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1812,32 +1852,32 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "For at finde objekter i det aktuelle synsfelt vælger du Cellpose-modellen og gennemgår dens indstillinger. Dette eksempel bruger cpsam, normalisering slået til, en tærskel for cellesandsynlighed på 0 og en flowtærskel på 0,4. Kontrollér, om detektionerne erstatter eksisterende labels eller føjes til dem.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Klik på Object detection, og sammenlign de resulterende konturer med billedet. Her vælger modellen det delvise objekt øverst til venstre i stedet for den centrale celle. Fortryd erstatningen, og justér modelindstillingerne, før du prøver igen.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "narration": "Åbn Cell probability for at undersøge forgrundens scorekort. Brug det til at se, hvilke områder modellen understøtter. Skift forgrundstærsklen, når det er nyttigt, og kør derefter detektionen igen for at få et nyt resultat.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "narration": "Åbn Flows for at undersøge retningsvisningen. Tærsklen for flowkonsistens styrer, hvilke detekterede objekter der bevares: lavere værdier er strengere, og 0 slår kontrollen fra. Sammenlign de endelige masker efter hver ændring af indstillingerne.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo gendanner labels fra før detektionen. Behold den maske, der bedst følger billedet, og gem den. Fortsæt gennem de resterende synsfelter, og undersøg hvert resultat, før du tager det med i træningen.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "Hold kuraterede billeder og masker med samme navnestamme sammen. Brug Train Cellpose til at lære af parrene, eller vend tilbage til Features eller Measure for at udtrække målinger. De relaterede vejledninger viser hvert næste trin.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1848,6 +1888,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -2062,20 +2142,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "Forbind objekter gennem en tidsserie, undersøg deres spor, og forbered de sporede billeder til måling.",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Indlæse eksempelbillederne og -maskerne i Track preview.",
+        "Justere overlappet og undersøge objekternes identitet på tværs af billedrammer.",
+        "Opsætte en Mask-kørsel for tidsserier og finde dens sporede output."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "Download og udpak SYNTHETIC_timelapse_preview.zip. Undervisningseksemplet indeholder otte billedrammer med cellebilleder og matchende labelbilleder. Til en fuld Mask-kørsel på dine egne data forbereder du tidsordnede mikroskopibilleder og noterer optagelsesintervallet.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "Fra Home åbner du Mask og klikker på Timelapse-ikonet øverst til højre for at slå sporing til. Brug Timelapse til at forbinde objekter på tværs af på hinanden følgende billeder. Først prøver vi det linkede eksempel i Track preview og gennemgår derefter indstillingerne til at behandle din egen billedsekvens.",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -2090,7 +2170,7 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "Download og udpak eksempelarkivet nedenfor, og klik derefter på Track preview til højre for overskriften Actions. Arkivet indeholder en billedsekvens og en matchende maskesekvens med otte billedrammer. Hold begge mapper samlet, så du kan vælge billeder og labels, der hører sammen.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -2101,17 +2181,17 @@
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "narration": "Vælg image_sequences og derefter field_A01 som billedmappe. Vælg kanal 0: hvert eksempelbillede indeholder én kanal med celleintensitet. Sæt Frames previewed til 8 og Fields til 1.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "narration": "Klik på Masks, og vælg label_sequences og derefter field_A01. Hver label identificerer et objekt i det tilsvarende billede. Lad Keep only full-length tracks være slået fra i starten, så du kan undersøge spor, der begynder eller slutter inde i sekvensen.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "Sæt overlapstærsklen til 0,1, og klik på Run preview. Tærsklen styrer, hvor meget tilstødende masker skal overlappe for at blive forbundet. Undersøg de farvede objektidentiteter og oversigten over sporlængder. Eksemplet giver seksten spor, der strækker sig over alle otte billedrammer.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2122,7 +2202,7 @@
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "Justér overlapstærsklen, hvis objekter deles op i korte spor eller forbindes med de forkerte naboer. En højere tærskel kræver mere overlap. Når du har ændret den, venter du, til forhåndsvisningen er færdig, og klikker på Re-link for at undersøge den endelige værdi. Bladr gennem flere billedrammer, før du accepterer resultatet.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2133,7 +2213,7 @@
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "Brug skyderen for billedrammer til at følge det samme objekt gennem sekvensen. Play ændrer, hvor hurtigt du ser billedrammerne. Notér det faktiske optagelsesinterval separat til senere hastighedsmålinger.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2149,7 +2229,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "Til en fuld kørsel på dine egne billeder angiver du Source og intensitetskanalerne i Mask. Denne optagelse importerer indstillingerne for en lille syntetisk sekvens med otte billedrammer. Hold hvert synsfelts tidspunkter i rækkefølge. Rammegrænser bruger en start og en udelukket slutning: 0 til 8 vælger de første otte billedrammer.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2160,7 +2240,7 @@
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "Vælg det objekt, der skal spores, og sporingstilstanden. Overlapstilstanden iou forbinder objekter ved hjælp af deres masker i tilstødende billedrammer. Undersøg først en kort sekvens, og vælg en tilstand, der passer til, hvor langt dine objekter bevæger sig mellem billedrammerne.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2171,7 +2251,7 @@
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "Slå Keep original images til for at beholde inputbillederne under oprydningen i pipelinen. Angiv segmenteringsmodel og kanaler til dine data, og kontrollér forhåndsvisningen, før du behandler hele sekvensen.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2182,7 +2262,7 @@
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "Slå Plot til for at undersøge de genererede figurer, og klik derefter på Run. Følg forløbet i konsollen, og vent, til kørslen er færdig. Begynd med en kort sekvens, så du kan kontrollere masker og sporidentiteter, før du behandler et større eksperiment.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2193,7 +2273,7 @@
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "Undersøg intensitets- og labellagene i outputfigurerne. Kørslen gemmer de sporede arrays i merged og sportabellerne i tracks i projektmappen. Fortsæt til Measure og derefter Motility for at beregne objektegenskaber og bevægelse ud fra disse spor.",
           "hold_after": 0.7,
           "focus": [
             366,
@@ -2206,6 +2286,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

@@ -509,26 +509,27 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home界面与导航",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "从Home打开模块，找到相关工具和示例数据，然后选择要遵循的流程。",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "为图像、测量数据或测序读段选择起始模块。",
+        "找到相关工具和特定生物的检测。",
+        "加载示例、查找帮助并打开流程概览。"
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "安装spaCR并打开桌面应用程序。",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
-          "hold_after": 0.7
+          "narration": "Home是您的起点。点击一个磁贴打开模块，或使用左侧的侧边栏。点击侧边栏中的Home即可回到这里。Core、Data、Tools和Assays选项卡帮助您找到想要完成的任务。",
+          "hold_after": 0.7,
+          "speech_text": "主页是您的起点。点击一个磁贴打开模块，或使用左侧的侧边栏。点击侧边栏中的主页即可回到这里。Core、Data、Tools和Assays选项卡帮助您找到想要完成的任务。"
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -545,11 +546,12 @@
             "41_classify",
             "12_map_barcodes",
             "13_regression"
-          ]
+          ],
+          "speech_text": "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。"
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -565,11 +567,12 @@
             "35_converter",
             "31_external_masks",
             "77_embeddings"
-          ]
+          ],
+          "speech_text": "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。"
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开Cellpose Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image UMAP、Gate Editor和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -584,11 +587,12 @@
             "15_image_umap",
             "64_gate_editor",
             "58_graph_builder"
-          ]
+          ],
+          "speech_text": "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开塞尔波斯 Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image 优麦普、门控编辑器和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。"
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "打开Assays并选择您的生物：Toxoplasma、Plasmodium或Candida。然后从该生物的菜单中选择一种检测。例如，打开Toxoplasma进行噬斑分析或宿主与病原体测量。按照所选检测的教程准备图像、掩膜和测量输入。",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -600,21 +604,23 @@
             "25_recruitment",
             "26_invasion",
             "27_replication"
-          ]
+          ],
+          "speech_text": "打开Assays并选择您的生物：Toxoplasma、Plasmodium或Candida。然后从该生物的菜单中选择一种检测。例如，打开Toxoplasma进行噬斑分析或宿主与病原体测量。按照所选检测的教程准备图像、掩膜和测量输入。"
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "speech_text": "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。"
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -623,30 +629,34 @@
             "16_activation",
             "28_training_runs",
             "65_feature_explorer"
-          ]
+          ],
+          "speech_text": "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。"
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开3D。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "17_timelapse"
-          ]
+          ],
+          "speech_text": "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开三维。"
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
-          "hold_after": 0.7
+          "narration": "在Help旁边的搜索框中输入模块、设置或函数的名称。这里搜索Performance会找到对应的Preferences页面。点击结果即可打开相应位置。API结果会打开所选函数的文档。",
+          "hold_after": 0.7,
+          "speech_text": "在Help旁边的搜索框中输入模块、设置或函数的名称。这里搜索Performance会找到对应的Preferences页面。点击结果即可打开相应位置。API结果会打开所选函数的文档。"
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
-          "hold_after": 0.7
+          "narration": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
+          "hold_after": 0.7,
+          "speech_text": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。"
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "回到Home，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从spaCR screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -658,12 +668,53 @@
             180,
             499,
             96
-          ]
+          ],
+          "speech_text": "回到主页，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从斯佩克尔 screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1674,59 +1725,64 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks：编辑标签并准备训练图像",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "打开图像与掩膜对，检查并编辑对象，保存测量数据，并创建成对的训练裁剪图。",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "打开带有对应实例掩膜的图像，并在放大镜中检查对象。",
+        "测量成对的视野，并保存对象特征数据库。",
+        "用Undo、绘制、分割和大小过滤修正标签。",
+        "保存整理好的掩膜，并创建用于训练的图像与掩膜裁剪图。"
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "准备一个二维图像文件夹，并在masks子文件夹中放入对应的实例标签TIFF。每个掩膜使用图像文件的基本名。练习编辑和重新裁剪时请使用副本。示例使用Measure可下载显微项目中的ER图像和细胞掩膜。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "从Home打开Tools中的Make Masks。选择这个编辑器来检查和修正单张图像的掩膜。在选择编辑工具之前，先打开包含成对图像和标签的文件夹。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ]
+          ],
+          "speech_text": "从主页打开Tools中的Make Masks。选择这个编辑器来检查和修正单张图像的掩膜。在选择编辑工具之前，先打开包含成对图像和标签的文件夹。"
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "选择图像文件夹。本例使用Measure示例中的ER强度图像及对应的细胞掩膜。保持图像与掩膜尺寸一致，文件名一一对应。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "选择图像文件夹。本例使用Measure示例中的ER强度图像及对应的细胞掩膜。保持图像与掩膜尺寸一致，文件名一一对应。"
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
-          "hold_after": 0.7
+          "narration": "编辑器从masks子文件夹加载图像及其对应的掩膜。彩色标签表示各个对象。检查轮廓是否贴合图像中的边界。如果缺少配套的掩膜，就从空白掩膜开始，绘制您需要的对象。",
+          "hold_after": 0.7,
+          "speech_text": "编辑器从masks子文件夹加载图像及其对应的掩膜。彩色标签表示各个对象。检查轮廓是否贴合图像中的边界。如果缺少配套的掩膜，就从空白掩膜开始，绘制您需要的对象。"
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
-          "hold_after": 0.7
+          "narration": "打开Magnifier settings。选择Otsu和Region under the mouse，即可预览指针周围基于阈值得到的对象。如果阈值无法很好地分开您的对象，请选择基于模型的模式。",
+          "hold_after": 0.7,
+          "speech_text": "打开Magnifier settings。选择Otsu和Region under the mouse，即可预览指针周围基于阈值得到的对象。如果阈值无法很好地分开您的对象，请选择基于模型的模式。"
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "打开Magnifier，把指针悬停在对象上即可放大预览。在多个对象上移动，检查建议的轮廓。轮廓看起来正确时，点击即可添加这些对象；要继续编辑，请关闭Magnifier。",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
+          ],
+          "speech_text": "打开Magnifier，把指针悬停在对象上即可放大预览。在多个对象上移动，检查建议的轮廓。轮廓看起来正确时，点击即可添加这些对象；要继续编辑，请关闭Magnifier。"
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "点击Features测量图像与掩膜对。为每个视野添加一行，并选择强度图像和对应的对象掩膜。如果按文件名自动匹配后仍有文件未分配，请检查手动分配。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1736,11 +1792,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "点击Features测量图像与掩膜对。为每个视野添加一行，并选择强度图像和对应的对象掩膜。如果按文件名自动匹配后仍有文件未分配，请检查手动分配。"
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "在每一行中，于Channel 1选择ER强度图像，于Cell mask选择对应的标签图像。对第二个视野重复同样操作。测量荧光时请使用原始强度图像。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1750,11 +1807,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "在每一行中，于Channel 1选择ER强度图像，于Cell mask选择对应的标签图像。对第二个视野重复同样操作。测量荧光时请使用原始强度图像。"
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "检查两行后，选择测量设置。本例使用一个工作进程、一像素的最小细胞大小，并且不保存PNG裁剪图。如果适合您的实验，可以提高大小下限以排除小对象。点击Measure。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1764,11 +1822,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "检查两行后，选择测量设置。本例使用一个工作进程、一像素的最小细胞大小，并且不保存PNG裁剪图。如果适合您的实验，可以提高大小下限以排除小对象。点击Measure。"
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "测量完成后，打开输出文件夹。measurements文件夹中有measurements.db，其中包含两个视野的对象特征。把数据库与其源图像、掩膜和设置放在一起，然后关闭Features返回编辑。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1778,67 +1837,77 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "测量完成后，打开输出文件夹。measurements文件夹中有测量数据库文件，其中包含两个视野的对象特征。把数据库与其源图像、掩膜和设置放在一起，然后关闭Features返回编辑。"
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "根据要做的修正选择工具。Brush添加像素，Erase删除像素，Erase object删除整个标签。Draw添加一个勾勒出的对象；Divide把一个对象分开。修改之前，可以用Zoom检查边界。",
           "hold_after": 0.7,
           "focus": [
             345,
             195,
             2500,
             65
-          ]
+          ],
+          "speech_text": "根据要做的修正选择工具。Brush添加像素，Erase删除像素，Erase object删除整个标签。Draw添加一个勾勒出的对象；Divide把一个对象分开。修改之前，可以用Zoom检查边界。"
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
-          "hold_after": 0.7
+          "narration": "选择Erase object，然后在要删除的对象内部点击。检查更新后的轮廓和对象数量。这适用于不需要的标签，例如碎片或不符合分析标准的对象。",
+          "hold_after": 0.7,
+          "speech_text": "选择Erase object，然后在要删除的对象内部点击。检查更新后的轮廓和对象数量。这适用于不需要的标签，例如碎片或不符合分析标准的对象。"
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
-          "hold_after": 0.7
+          "narration": "点击Undo恢复被删除的对象。Redo会再次执行删除。使用这些历史控件比较编辑前后的掩膜，然后回到您想保留的版本。",
+          "hold_after": 0.7,
+          "speech_text": "点击Undo恢复被删除的对象。Redo会再次执行删除。使用这些历史控件比较编辑前后的掩膜，然后回到您想保留的版本。"
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
-          "hold_after": 0.7
+          "narration": "选择Draw，围绕一个遗漏的对象画出闭合边界。编辑器会用新标签填充它。在这个练习步骤中，轮廓画在背景上，所以保存前请撤销它。制作训练数据时，请沿对象的真实边界描画。",
+          "hold_after": 0.7,
+          "speech_text": "选择Draw，围绕一个遗漏的对象画出闭合边界。编辑器会用新标签填充它。在这个练习步骤中，轮廓画在背景上，所以保存前请撤销它。制作训练数据时，请沿对象的真实边界描画。"
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
-          "hold_after": 0.7
+          "narration": "当两个相互接触的对象共用一个标签时，使用Divide。画一条穿过整个相连区域的切线，然后检查分开后的标签。如果切线穿过了单个对象或留下错误的边界，请撤销这次分割。",
+          "hold_after": 0.7,
+          "speech_text": "当两个相互接触的对象共用一个标签时，使用Divide。画一条穿过整个相连区域的切线，然后检查分开后的标签。如果切线穿过了单个对象或留下错误的边界，请撤销这次分割。"
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
-          "hold_after": 0.7
+          "narration": "调整Display percentiles，让暗淡的结构更容易检查。这些控件只改变显示，原始强度值和标签保持不变。比较不同视野时，请恢复一致的显示设置。",
+          "hold_after": 0.7,
+          "speech_text": "调整Display percentiles，让暗淡的结构更容易检查。这些控件只改变显示，原始强度值和标签保持不变。比较不同视野时，请恢复一致的显示设置。"
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
-          "hold_after": 0.7
+          "narration": "设置对象的最小和最大面积，然后按Filter删除超出范围的标签。选择适合您对象的范围，并检查删除了哪些对象。过滤会修改掩膜，如果阈值删掉了有用的对象，请使用Undo。",
+          "hold_after": 0.7,
+          "speech_text": "设置对象的最小和最大面积，然后按Filter删除超出范围的标签。选择适合您对象的范围，并检查删除了哪些对象。过滤会修改掩膜，如果阈值删掉了有用的对象，请使用Undo。"
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
-          "hold_after": 0.7
+          "narration": "检查完编辑后，点击Save mask。如有需要，在切换到其他视野之前，把大小范围重设为零以禁用它们。保留源图像，并把保存的整理记录与编辑后的掩膜放在一起。",
+          "hold_after": 0.7,
+          "speech_text": "检查完编辑后，点击Save mask。如有需要，在切换到其他视野之前，把大小范围重设为零以禁用它们。保留源图像，并把保存的整理记录与编辑后的掩膜放在一起。"
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "标题栏中还有其余的掩膜工具。选择权重时，Model Zoo帮您找到权重，Model Compare把两组掩膜并排比较。还有更多示例需要修正时，Curate和Open in napari会带您回到编辑。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ]
+          ],
+          "speech_text": "标题栏中还有其余的掩膜工具。选择权重时，Model Zoo帮您找到权重，Model Compare把两组掩膜并排比较。还有更多示例需要修正时，Curate和Open in napari会带您回到编辑。"
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "标题栏还可以打开Model Compare、Model Zoo、Curate和Open in napari。用Model Compare并排检查掩膜，用Model Zoo选择权重，用整理工具审阅或编辑更多示例。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1846,59 +1915,108 @@
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ]
+          ],
+          "speech_text": "标题栏还可以打开Model Compare、Model Zoo、Curate和Open in napari。用Model Compare并排检查掩膜，用Model Zoo选择权重，用整理工具审阅或编辑更多示例。"
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
-          "hold_after": 0.7
+          "narration": "选择Recrop，拖出一个方框，框住您想放进较小训练视野中的对象。这会写出一张新图像和对应的掩膜。被边界切到的对象会被丢弃，所以请在完整对象周围留出空间，并检查裁剪结果。",
+          "hold_after": 0.7,
+          "speech_text": "选择Recrop，拖出一个方框，框住您想放进较小训练视野中的对象。这会写出一张新图像和对应的掩膜。被边界切到的对象会被丢弃，所以请在完整对象周围留出空间，并检查裁剪结果。"
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "点击Next打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "点击Next打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。"
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
-          "hold_after": 0.7
+          "narration": "要在当前视野中检测对象，请选择Cellpose模型并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。",
+          "hold_after": 0.7,
+          "speech_text": "要在当前视野中检测对象，请选择塞尔波斯模型并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。"
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
-          "hold_after": 0.7
+          "narration": "点击Object detection，把得到的轮廓与图像进行比较。这里模型选中了左上角的不完整对象，而不是中央的细胞。撤销这次替换，调整模型设置后再试一次。",
+          "hold_after": 0.7,
+          "speech_text": "点击Object detection，把得到的轮廓与图像进行比较。这里模型选中了左上角的不完整对象，而不是中央的细胞。撤销这次替换，调整模型设置后再试一次。"
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
-          "hold_after": 0.7
+          "narration": "打开Cell probability检查前景得分图。可以借此看出模型支持哪些区域。必要时调整前景阈值，然后再次运行检测以得到新结果。",
+          "hold_after": 0.7,
+          "speech_text": "打开Cell probability检查前景得分图。可以借此看出模型支持哪些区域。必要时调整前景阈值，然后再次运行检测以得到新结果。"
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
-          "hold_after": 0.7
+          "narration": "打开Flows检查方向视图。流一致性阈值决定保留哪些检测到的对象：数值越低越严格，设为零则关闭此项检查。每次更改设置后，都要比较最终的掩膜。",
+          "hold_after": 0.7,
+          "speech_text": "打开Flows检查方向视图。流一致性阈值决定保留哪些检测到的对象：数值越低越严格，设为零则关闭此项检查。每次更改设置后，都要比较最终的掩膜。"
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
-          "hold_after": 0.7
+          "narration": "Undo会恢复检测之前的标签。保留最贴合图像的掩膜，然后保存。继续处理其余视野，在纳入训练之前检查每个结果。",
+          "hold_after": 0.7,
+          "speech_text": "Undo会恢复检测之前的标签。保留最贴合图像的掩膜，然后保存。继续处理其余视野，在纳入训练之前检查每个结果。"
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "把整理好的图像和同名掩膜放在一起。使用Train Cellpose从这些图像对中学习，或者回到Features或Measure提取测量数据。相关教程会介绍每个后续步骤。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
-          ]
+          ],
+          "speech_text": "把整理好的图像和同名掩膜放在一起。使用Train 塞尔波斯从这些图像对中学习，或者回到Features或Measure提取测量数据。相关教程会介绍每个后续步骤。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -2113,20 +2231,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "在时间序列中关联对象，检查它们的轨迹，并为测量准备已跟踪的图像。",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "在Track preview中加载示例图像和掩膜。",
+        "调整重叠并检查各帧之间的对象身份。",
+        "配置用于时间序列的Mask运行，并找到其跟踪输出。"
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "下载并解压SYNTHETIC_timelapse_preview.zip。这个教学示例包含八帧细胞图像及对应的标签图像。若要对自己的数据完整运行Mask，请准备按时间顺序排列的显微图像，并记录采集间隔。",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "从Home打开Mask，点击右上角的Timelapse图标开启跟踪。Timelapse用于在连续图像之间关联对象。我们先在Track preview中试用链接的示例，然后再查看处理您自己的图像序列所需的设置。",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -2137,54 +2255,60 @@
           "related_lessons": [
             "07_mask",
             "18_motility"
-          ]
+          ],
+          "speech_text": "从主页打开Mask，点击右上角的Timelapse图标开启跟踪。Timelapse用于在连续图像之间关联对象。我们先在Track preview中试用链接的示例，然后再查看处理您自己的图像序列所需的设置。"
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "下载并解压下方的示例压缩包，然后点击Actions标题右侧的Track preview。压缩包包含一个八帧的图像序列和对应的掩膜序列。请把两个文件夹放在一起，以便选择相互对应的图像和标签。",
           "hold_after": 0.7,
           "focus": [
             360,
             230,
             3480,
             1900
-          ]
+          ],
+          "speech_text": "下载并解压下方的示例压缩包，然后点击Actions标题右侧的Track preview。压缩包包含一个八帧的图像序列和对应的掩膜序列。请把两个文件夹放在一起，以便选择相互对应的图像和标签。"
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
-          "hold_after": 0.7
+          "narration": "选择image_sequences，再选择field_A01作为图像文件夹。选择通道零：每张示例图像只包含一个细胞强度通道。把Frames previewed设为八，Fields设为一。",
+          "hold_after": 0.7,
+          "speech_text": "选择image_sequences，再选择field_A01作为图像文件夹。选择通道零：每张示例图像只包含一个细胞强度通道。把Frames previewed设为八，Fields设为一。"
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
-          "hold_after": 0.7
+          "narration": "点击Masks，选择label_sequences，再选择field_A01。每个标签标识对应图像中的一个对象。一开始请保持Keep only full-length tracks关闭，以便检查在序列中途开始或结束的轨迹。",
+          "hold_after": 0.7,
+          "speech_text": "点击Masks，选择label_sequences，再选择field_A01。每个标签标识对应图像中的一个对象。一开始请保持Keep only full-length tracks关闭，以便检查在序列中途开始或结束的轨迹。"
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "把重叠阈值设为零点一，然后点击Run preview。这个阈值控制相邻掩膜需要重叠多少才会被关联。检查彩色的对象身份和轨迹长度汇总。这个示例产生十六条轨迹，覆盖全部八帧。",
           "hold_after": 0.7,
           "focus": [
             379,
             307,
             3432,
             958
-          ]
+          ],
+          "speech_text": "把重叠阈值设为零点一，然后点击Run preview。这个阈值控制相邻掩膜需要重叠多少才会被关联。检查彩色的对象身份和轨迹长度汇总。这个示例产生十六条轨迹，覆盖全部八帧。"
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "如果对象被拆成短轨迹，或关联到了错误的邻近对象，请调整重叠阈值。阈值越高，要求的重叠越多。修改后，等待预览完成，再点击Re-link检查最终数值。接受结果之前，请来回查看几帧。",
           "hold_after": 0.7,
           "focus": [
             379,
             307,
             3432,
             958
-          ]
+          ],
+          "speech_text": "如果对象被拆成短轨迹，或关联到了错误的邻近对象，请调整重叠阈值。阈值越高，要求的重叠越多。修改后，等待预览完成，再点击Re-link检查最终数值。接受结果之前，请来回查看几帧。"
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "使用帧滑块在整个序列中跟随同一个对象。Play改变浏览帧的速度。请另外记录实际的采集间隔，以便之后测量速度。",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2196,67 +2320,113 @@
             "08_measure",
             "18_motility",
             "06_api"
-          ]
+          ],
+          "speech_text": "使用帧滑块在整个序列中跟随同一个对象。Play改变浏览帧的速度。请另外记录实际的采集间隔，以便之后测量速度。"
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这段录制导入了一个八帧小型合成序列的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。",
           "hold_after": 0.7,
           "focus": [
             340,
             230,
             1160,
             1900
-          ]
+          ],
+          "speech_text": "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这段录制导入了一个八帧小型合成序列的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。"
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "选择要跟踪的对象和跟踪模式。重叠模式iou利用相邻帧中的掩膜关联对象。先检查一段短序列，再根据对象在帧与帧之间移动的距离选择合适的模式。",
           "hold_after": 0.7,
           "focus": [
             340,
             1480,
             1160,
             640
-          ]
+          ],
+          "speech_text": "选择要跟踪的对象和跟踪模式。重叠模式iou利用相邻帧中的掩膜关联对象。先检查一段短序列，再根据对象在帧与帧之间移动的距离选择合适的模式。"
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "打开Keep original images，以便在流程清理期间保留输入图像。为您的数据设置分割模型和通道，并在处理完整序列之前检查预览。",
           "hold_after": 0.7,
           "focus": [
             340,
             1260,
             1160,
             160
-          ]
+          ],
+          "speech_text": "打开Keep original images，以便在流程清理期间保留输入图像。为您的数据设置分割模型和通道，并在处理完整序列之前检查预览。"
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "打开Plot以便检查生成的图，然后点击Run。在控制台中查看进度并等待完成。先从短序列开始，这样可以在处理更大的实验之前检查掩膜和轨迹身份。",
           "hold_after": 0.7,
           "focus": [
             340,
             1100,
             1160,
             140
-          ]
+          ],
+          "speech_text": "打开Plot以便检查生成的图，然后点击Run。在控制台中查看进度并等待完成。先从短序列开始，这样可以在处理更大的实验之前检查掩膜和轨迹身份。"
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "在输出图中检查强度层和标签层。运行结果会保存在项目文件夹中：已跟踪的数组在merged中，轨迹表在tracks中。继续使用Measure，然后使用Motility，从这些轨迹中计算对象特征和运动。",
           "hold_after": 0.7,
           "focus": [
             366,
             171,
             3458,
             1797
-          ]
+          ],
+          "speech_text": "在输出图中检查强度层和标签层。运行结果会保存在项目文件夹中：已跟踪的数组在merged中，轨迹表在tracks中。继续使用Measure，然后使用Motility，从这些轨迹中计算对象特征和运动。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

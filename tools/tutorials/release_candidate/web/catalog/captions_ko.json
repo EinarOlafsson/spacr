@@ -458,26 +458,26 @@
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home 화면과 탐색",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Home에서 모듈을 열고 관련 도구와 예제 데이터를 찾은 뒤 따라갈 파이프라인을 고릅니다.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "이미지, 측정값, 시퀀싱 리드에 맞는 시작 모듈을 고릅니다.",
+        "관련 도구와 생물별 분석을 찾습니다.",
+        "예제를 불러오고 도움말을 찾고 파이프라인 개요를 엽니다."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "spaCR을 설치하고 데스크톱 애플리케이션을 여세요.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home이 출발점입니다. 타일을 클릭해 모듈을 열거나 왼쪽 사이드바를 사용하세요. 사이드바에서 Home을 클릭하면 여기로 돌아옵니다. Core, Data, Tools, Assays 탭이 원하는 작업을 찾도록 도와줍니다.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "현미경 이미지라면 먼저 Mask로 객체의 윤곽을 잡고, 이어서 Measure로 특징과 잘라낸 이미지를 추출하세요. Annotate로 예시 객체에 라벨을 붙이면 Classify가 그 라벨로 학습해 더 많은 객체에 점수를 매깁니다. Map Barcodes는 시퀀싱 데이터를 읽습니다. Regression은 이렇게 얻은 표현형 점수와 가이드 카운트를 결합해 연관성을 찾습니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -498,7 +498,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Data는 파일을 들여오고 결과를 확인하는 곳입니다. 이미지, 마스크, 측정 테이블이 이미 있다면 Import가 다른 모듈이 읽을 수 있는 프로젝트로 가져옵니다. 실험 전에는 Experiment Design으로 플레이트를 배치하고, 실험 후에는 QC가 기록된 품질 검사를 보여 주며 Run Compare가 두 실행을 나란히 비교합니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -518,7 +518,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools에는 직접 다루는 편집기와 탐색기가 모여 있습니다. Make Masks에서는 마스크를 수정하고, 여기서 Cellpose Workbench도 열 수 있습니다. Align and Stitch는 겹치는 이미지 타일을 하나의 그림으로 이어 붙입니다. 측정값이 생기면 Image UMAP, Gate Editor, Graph Builder로 탐색하고 그래프를 그릴 수 있습니다. 각 모듈의 도구 모음은 관련 도구를 엽니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -537,7 +537,7 @@
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Assays를 열고 생물을 고르세요: Toxoplasma, Plasmodium, Candida. 그런 다음 그 생물의 메뉴에서 분석을 선택하세요. 예를 들어 플라크 분석이나 숙주-병원체 측정에는 Toxoplasma를 여세요. 선택한 분석의 튜토리얼을 따라 이미지, 마스크, 측정 입력을 준비하세요.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -553,7 +553,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Classify를 열고 Classifier family로 입력을 고르세요. 객체 이미지에는 Computer Vision을, 측정된 특징 열에는 Tabular Machine Learning을 선택하세요. 연결된 튜토리얼이 각 방식의 학습, 평가, 점수 매기기를 안내합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -563,7 +563,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "모델을 학습시킨 뒤에는 Classify 도구 모음으로 모델을 점검할 수 있습니다. Classifier Evaluation은 따로 남겨 둔 데이터에서의 성능을 보여 주고, Explain CV Model과 Activation은 판단을 이끄는 요인을 보여 줍니다. Training Runs는 학습 기록을 비교하고, Feature Explorer는 그룹을 구분하는 특징의 순위를 매깁니다. 아이콘에 포인터를 올리면 이름이 표시됩니다.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -576,7 +576,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "모듈을 시험해 보려면 Load test data가 있을 때 클릭하세요. 다운로드가 끝날 때까지 기다린 뒤 채워진 입력과 설정을 검토하세요. Mask에서는 Run을 누르기 전에 Live를 클릭해 시야를 확인하세요. 시계열에는 Time을, 부피 이미지에는 3D를 켜세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -585,17 +585,17 @@
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "narration": "Help 옆의 검색 창에 모듈, 설정, 함수 이름을 입력하세요. 여기서는 Performance를 검색하면 해당 Preferences 페이지가 나옵니다. 결과를 클릭하면 그 위치가 열립니다. API 결과는 선택한 함수의 문서를 엽니다.",
           "hold_after": 0.7
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "narration": "Preferences에서 컴퓨터에 맞는 Performance 프로필을 고르세요. Laptop은 자원을 적게 쓰고, 더 높은 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 부족하다면 적당한 프로필로 시작하세요. 분석 설정은 각 모듈에서 여전히 직접 관리합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Home으로 돌아가 Pipeline overviews를 클릭해 워크플로를 고르세요. 풀링된 이미지 기반 스크린이라면 spaCR screens로 시작하고, 아니면 데이터에 맞는 이미지 분석 또는 시퀀싱 경로를 고르세요. 다음 튜토리얼에서 이 모듈들이 어떻게 연결되는지 보여 주고, 이어서 각 모듈 강의가 작업을 하나씩 안내합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -613,6 +613,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1623,22 +1663,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: 라벨 편집과 학습 이미지 준비",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "이미지와 마스크 쌍을 열어 객체를 검토·편집하고, 측정값을 저장하고, 학습용 짝 크롭을 만듭니다.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "일치하는 인스턴스 마스크와 함께 이미지를 열고 돋보기로 객체를 검토합니다.",
+        "짝지은 시야를 측정하고 객체 특징 데이터베이스를 저장합니다.",
+        "Undo, 그리기, 분할, 크기 필터로 라벨을 수정합니다.",
+        "정리한 마스크를 저장하고 학습용 이미지-마스크 크롭을 만듭니다."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "2차원 이미지 폴더를 준비하고, masks 하위 폴더에 일치하는 인스턴스 라벨 TIFF를 두세요. 각 마스크는 이미지 파일의 기본 이름을 사용합니다. 편집과 다시 자르기를 연습할 때는 사본으로 작업하세요. 예제에서는 Measure에서 내려받을 수 있는 현미경 프로젝트의 ER 이미지와 세포 마스크를 사용합니다.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Home에서 Tools의 Make Masks를 여세요. 개별 이미지 마스크를 검토하고 수정하려면 이 편집기를 선택합니다. 편집 도구를 고르기 전에 짝지은 이미지와 라벨이 있는 폴더를 여세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1646,7 +1686,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "이미지 폴더를 선택하세요. 이 예제에서는 Measure 샘플의 ER 강도 이미지와 이에 대응하는 세포 마스크를 사용합니다. 이미지와 마스크의 크기를 같게 하고 파일 이름을 짝지어 두세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1654,17 +1694,17 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "narration": "편집기가 이미지와 masks 하위 폴더의 일치하는 마스크를 불러옵니다. 색이 있는 라벨이 개별 객체를 나타냅니다. 윤곽이 이미지의 경계를 따라가는지 확인하세요. 짝이 되는 마스크가 없으면 빈 마스크에서 시작해 필요한 객체를 그리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Magnifier settings를 여세요. Otsu와 Region under the mouse를 선택하면 포인터 주변에서 임곗값 기반 객체를 미리 볼 수 있습니다. 임곗값으로 객체가 잘 분리되지 않으면 모델 기반 모드를 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Magnifier를 켜고 객체 위에 포인터를 올리면 미리 보기가 확대됩니다. 여러 객체 위로 옮겨 가며 제안된 윤곽을 검토하세요. 윤곽이 맞아 보이면 클릭해 객체를 추가하고, 계속 편집하려면 Magnifier를 끄세요.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -1675,7 +1715,7 @@
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Features를 클릭해 이미지-마스크 쌍을 측정하세요. 시야마다 행을 하나씩 추가하고 강도 이미지와 대응하는 객체 마스크를 고르세요. 파일 이름 자동 매칭 후에도 배정되지 않은 파일이 있으면 수동 배정을 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1689,7 +1729,7 @@
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "각 행에서 Channel 1에는 ER 강도 이미지를, Cell mask에는 일치하는 라벨 이미지를 선택하세요. 두 번째 시야에도 같은 작업을 반복하세요. 형광을 측정할 때는 원본 강도 이미지를 사용하세요.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1703,7 +1743,7 @@
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "두 행을 검토한 뒤 측정 설정을 고르세요. 이 예제는 작업자 하나, 최소 세포 크기 1픽셀, PNG 크롭 저장 안 함을 사용합니다. 실험에 맞다면 크기 하한을 높여 작은 객체를 제외하세요. Measure를 클릭하세요.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1717,7 +1757,7 @@
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "측정이 끝나면 출력 폴더를 여세요. measurements 폴더에는 두 시야의 객체 특징이 담긴 measurements.db가 있습니다. 데이터베이스를 원본 이미지, 마스크, 설정과 함께 보관한 뒤 Features를 닫고 편집으로 돌아가세요.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1731,7 +1771,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "수정할 내용에 맞는 도구를 고르세요. Brush는 픽셀을 추가하고, Erase는 픽셀을 지우며, Erase object는 라벨 전체를 제거합니다. Draw는 윤곽을 그린 객체를 추가하고, Divide는 객체 하나를 나눕니다. 변경하기 전에 Zoom으로 경계를 살펴볼 수 있습니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1742,42 +1782,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "narration": "Erase object를 선택하고 제거할 객체 안쪽을 클릭하세요. 업데이트된 윤곽과 객체 수를 확인하세요. 세포 잔해나 분석 기준을 벗어난 객체처럼 원하지 않는 라벨에 사용합니다.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "narration": "Undo를 클릭하면 삭제가 취소됩니다. Redo를 누르면 다시 적용됩니다. 이 기록 도구로 편집 전후의 마스크를 비교한 다음, 남기고 싶은 버전으로 돌아가세요.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "narration": "Draw를 선택하고 빠진 객체 주위에 닫힌 경계를 그리세요. 편집기가 그 안을 새 라벨로 채웁니다. 이 연습 단계에서는 윤곽이 배경에 있으므로 저장하기 전에 취소하세요. 학습 데이터에서는 객체의 실제 경계를 따라 그리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "narration": "맞닿은 두 객체가 한 라벨을 공유할 때는 Divide를 사용하세요. 붙어 있는 영역 전체를 가로지르는 절단선을 그리고 분리된 라벨을 확인하세요. 하나의 객체를 자르거나 경계가 잘못 남으면 분할을 취소하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "narration": "Display percentiles를 조정하면 희미한 구조를 살펴보기 쉬워집니다. 이 설정은 표시만 바꾸며 원래 강도 값과 라벨은 그대로 유지됩니다. 시야를 비교할 때는 일관된 표시로 되돌리세요.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "객체의 최소·최대 면적을 설정한 뒤 Filter를 눌러 범위를 벗어난 라벨을 제거하세요. 객체에 맞는 범위를 고르고 무엇이 제거되었는지 확인하세요. 필터는 마스크를 바꾸므로, 유용한 객체까지 지워졌다면 Undo를 사용하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "편집을 검토한 뒤 Save mask를 클릭하세요. 필요하면 다른 시야로 넘어가기 전에 크기 범위를 0으로 되돌려 끄세요. 원본 이미지를 보존하고, 저장된 정리 기록을 편집한 마스크와 함께 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "헤더에는 나머지 마스크 도구가 모여 있습니다. 가중치를 고를 때는 Model Zoo가 찾아 주고, Model Compare가 두 마스크 세트를 나란히 보여 줍니다. 더 고칠 예제가 있으면 Curate와 Open in napari로 다시 편집할 수 있습니다.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1787,7 +1827,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "헤더에서 Model Compare, Model Zoo, Curate, Open in napari도 열 수 있습니다. 마스크를 나란히 검토하려면 Model Compare를, 가중치를 고르려면 Model Zoo를, 더 많은 예제를 검토하거나 편집하려면 정리 도구를 사용하세요.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1799,12 +1839,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "narration": "Recrop을 선택하고 더 작은 학습 시야에 넣을 객체 주위로 상자를 드래그하세요. 새 이미지와 일치하는 마스크가 저장됩니다. 경계에 걸려 잘린 객체는 제외되므로, 완전한 객체 주위에 여백을 두고 크롭을 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Next를 클릭해 새 크롭을 여세요. 원래 이미지와 마스크는 복구할 수 있도록 recropped_originals에 보관됩니다. 학습 데이터셋에 추가하기 전에 크롭과 라벨을 검토하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1812,32 +1852,32 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "현재 시야에서 객체를 검출하려면 Cellpose 모델을 선택하고 설정을 검토하세요. 이 예제는 cpsam, 정규화 켜짐, 세포 확률 임곗값 0, 흐름 임곗값 0.4를 사용합니다. 검출 결과가 기존 라벨을 대체하는지 추가되는지 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Object detection을 클릭하고 결과 윤곽을 이미지와 비교하세요. 여기서는 모델이 가운데 세포 대신 왼쪽 위의 일부만 보이는 객체를 선택합니다. 그 대체를 취소하고 모델 설정을 조정한 뒤 다시 시도하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "narration": "Cell probability를 열어 전경 점수 지도를 확인하세요. 모델이 어떤 영역을 뒷받침하는지 볼 수 있습니다. 필요하면 전경 임곗값을 바꾸고 검출을 다시 실행해 새 결과를 얻으세요.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "narration": "Flows를 열어 방향 보기를 확인하세요. 흐름 일관성 임곗값은 검출된 객체 가운데 어떤 것을 남길지 결정합니다. 값이 낮을수록 더 엄격하며, 0이면 이 검사가 꺼집니다. 설정을 바꿀 때마다 최종 마스크를 비교하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo를 누르면 검출 전의 라벨로 돌아갑니다. 이미지와 가장 잘 맞는 마스크를 남기고 저장하세요. 나머지 시야도 이어서 진행하며, 학습에 포함하기 전에 각 결과를 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "정리한 이미지와 같은 기본 이름의 마스크를 함께 보관하세요. 그 쌍으로 학습하려면 Train Cellpose를 사용하고, 측정값을 추출하려면 Features나 Measure로 돌아가세요. 관련 튜토리얼에서 각 다음 단계를 보여 줍니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1848,6 +1888,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -2062,20 +2142,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "시계열에서 객체를 연결하고 궤적을 검토한 뒤 추적된 이미지를 측정할 수 있게 준비합니다.",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Track preview에서 예제 이미지와 마스크를 불러옵니다.",
+        "겹침을 조정하고 프레임 사이의 객체 식별을 확인합니다.",
+        "시계열용 Mask 실행을 설정하고 추적 결과를 찾습니다."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "SYNTHETIC_timelapse_preview.zip을 내려받아 압축을 푸세요. 교육용 예제에는 세포 이미지 8프레임과 일치하는 라벨 이미지가 들어 있습니다. 자신의 데이터로 Mask를 끝까지 실행하려면 시간 순서대로 정리한 현미경 이미지를 준비하고 촬영 간격을 기록해 두세요.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "Home에서 Mask를 열고 오른쪽 위의 Timelapse 아이콘을 클릭해 추적을 켜세요. Timelapse는 연속된 이미지 사이에서 객체를 연결합니다. 먼저 Track preview에서 연결된 예제를 시험해 보고, 이어서 자신의 이미지 시퀀스를 처리하기 위한 설정을 살펴보겠습니다.",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -2090,7 +2170,7 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "아래 예제 압축 파일을 내려받아 풀고 Actions 제목 오른쪽의 Track preview를 클릭하세요. 압축 파일에는 8프레임짜리 이미지 시퀀스와 이에 대응하는 마스크 시퀀스가 들어 있습니다. 서로 대응하는 이미지와 라벨을 고를 수 있도록 두 폴더를 함께 두세요.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -2101,17 +2181,17 @@
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "narration": "이미지 폴더로 image_sequences, 이어서 field_A01을 선택하세요. 채널은 0을 선택합니다. 각 예제 이미지에는 세포 강도 채널이 하나만 있습니다. Frames previewed는 8로, Fields는 1로 설정하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "narration": "Masks를 클릭하고 label_sequences, 이어서 field_A01을 선택하세요. 각 라벨은 대응하는 이미지에서 객체 하나를 나타냅니다. 시퀀스 중간에 시작하거나 끝나는 궤적도 볼 수 있도록 처음에는 Keep only full-length tracks를 꺼 두세요.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "겹침 임곗값을 0.1로 설정하고 Run preview를 클릭하세요. 이 임곗값은 인접한 마스크가 얼마나 겹쳐야 연결되는지를 정합니다. 색으로 구분된 객체 식별과 궤적 길이 요약을 확인하세요. 이 예제에서는 8프레임 전체에 걸친 궤적 16개가 만들어집니다.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2122,7 +2202,7 @@
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "객체가 짧은 궤적으로 쪼개지거나 엉뚱한 이웃과 연결되면 겹침 임곗값을 조정하세요. 임곗값이 높을수록 더 많이 겹쳐야 합니다. 값을 바꾼 뒤에는 미리 보기가 끝날 때까지 기다렸다가 Re-link를 클릭해 최종 값으로 확인하세요. 결과를 받아들이기 전에 여러 프레임을 넘겨 보세요.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2133,7 +2213,7 @@
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "프레임 슬라이더로 시퀀스 전체에서 같은 객체를 따라가세요. Play는 프레임을 보는 속도를 바꿉니다. 나중에 속도를 측정할 수 있도록 실제 촬영 간격은 따로 기록해 두세요.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2149,7 +2229,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "자신의 이미지로 전체 실행을 하려면 Mask에서 Source와 강도 채널을 설정하세요. 이 녹화에서는 8프레임짜리 작은 합성 시퀀스의 설정을 가져옵니다. 각 시야의 시점을 순서대로 유지하세요. 프레임 범위는 시작과 포함되지 않는 끝으로 지정합니다. 0부터 8까지라고 하면 처음 8프레임이 선택됩니다.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2160,7 +2240,7 @@
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "추적할 객체와 추적 모드를 고르세요. 겹침 모드인 iou는 인접한 프레임의 마스크를 사용해 객체를 연결합니다. 먼저 짧은 시퀀스로 확인하고, 객체가 프레임 사이에서 얼마나 움직이는지에 맞는 모드를 고르세요.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2171,7 +2251,7 @@
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "Keep original images를 켜면 파이프라인 정리 과정에서도 입력 이미지가 남습니다. 데이터에 맞게 분할 모델과 채널을 설정하고, 전체 시퀀스를 처리하기 전에 미리 보기를 확인하세요.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2182,7 +2262,7 @@
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "Plot을 켜서 생성되는 그림을 확인할 수 있게 한 뒤 Run을 클릭하세요. 콘솔에서 진행 상황을 보며 완료될 때까지 기다리세요. 큰 실험을 처리하기 전에 마스크와 궤적 식별을 확인할 수 있도록 짧은 시퀀스로 시작하세요.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2193,7 +2273,7 @@
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "출력 그림에서 강도 평면과 라벨 평면을 확인하세요. 실행 결과는 프로젝트 폴더 아래 merged에 추적된 배열로, tracks에 궤적 표로 저장됩니다. 이 궤적에서 객체 특징과 움직임을 계산하려면 Measure, 이어서 Motility로 넘어가세요.",
           "hold_after": 0.7,
           "focus": [
             366,
@@ -2206,6 +2286,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
