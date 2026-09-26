@@ -1,0 +1,77 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "scope": "2026-09-26 native recapture from the neutral root (item 447): current GUI layout moved the controls, so the spotlights are re-measured on the new frames. Narration, captions and scene/visual IDs are unchanged; null keeps the authored spotlight.",
+  "recapture": {
+    "capture_module": "profiler_current_20260926",
+    "frames": {
+      "01_regression_host": "9e94454d06890b4f1513d788195fea7fa003c27b81608e75fe6b9e5d7b990b2e",
+      "03_explicit_synthetic_coefficients_picker": "3edcf05433bbd1185e5601b5b95379bd9ede61a269333e70ce483f750a2222db",
+      "05_link_options_keep_identity": "e45baace6d63ae3ae8bee93b2cd012d1aa9c0dd568e7d60f9ed8688ec1b1fe3b",
+      "04_loaded_identity_model": "75475638751bbdc43e944885f2a9dbe04804fa2742dcc8917dc7d4a47160ae12",
+      "06_hold_b_at_one": "f84cc6776481c45d3bdc0a562db83f9f7742fd439578b37fe8b058c7c6f970e1",
+      "07_hold_b_at_zero": "19b885ffc4ea6a574c7f8d30ee90ae52843de1299642a39006c71bd54807a3c0",
+      "08_reset_midpoints": "2418dedecbefe25e0fb443f89c642c68c00f2e5fa669ed28b50b830409e2f5cc",
+      "09_sweep_second_input": "4a2a38b31934fc6e51f5b5b7446bc1355b8935ec8adc9262775f10ef1347d24b",
+      "10_eleven_grid_points": "33773435ddfbbfcc4504d225e9a55ba6e5a4c3a563a1d3281b594001ca12ff9c",
+      "11_hold_a_at_one": "43dd01840e8e519f99a414c4936b44fff5af32f69a9f37408dff39580ebc2fef"
+    }
+  },
+  "scenes": {
+    "01_regression_host": [
+      340,
+      40,
+      3470,
+      200
+    ],
+    "03_explicit_synthetic_coefficients_picker": null,
+    "05_link_options_keep_identity": [
+      3330,
+      370,
+      490,
+      80
+    ],
+    "04_loaded_identity_model": [
+      355,
+      385,
+      3465,
+      95
+    ],
+    "06_hold_b_at_one": [
+      2165,
+      483,
+      1652,
+      1572
+    ],
+    "07_hold_b_at_zero": [
+      2165,
+      483,
+      1652,
+      1572
+    ],
+    "08_reset_midpoints": [
+      2165,
+      1908,
+      1652,
+      203
+    ],
+    "09_sweep_second_input": [
+      355,
+      483,
+      3462,
+      592
+    ],
+    "10_eleven_grid_points": [
+      2165,
+      380,
+      1652,
+      1675
+    ],
+    "11_hold_a_at_one": [
+      2165,
+      483,
+      1652,
+      1628
+    ]
+  }
+}

@@ -61,6 +61,12 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_
         if (overrides.get('english_sha256') != canonical
                 or set(overrides.get('scenes', {})) != {s['visual'] for s in lesson['scenes']}):
             raise ValueError('Visual-only focus map must match the exact lesson and every scene')
+    # A recapture changes layout, not prose. Its spotlights may replace the
+    # authored ones only when pinned to this capture's exact frame bytes, so
+    # the English lesson (and every translation review bound to it) is unchanged.
+    recapture = overrides.get('recapture') if overrides is not None else None
+    if recapture is not None and recapture.get('capture_module') != capture_module:
+        raise ValueError('Recapture focus map names a different capture')
     catalog_path = stage / 'catalog/lessons_en.json'
     baseline = REPO / 'docs/source/_extra/tutorials/catalog'
     catalog = read(catalog_path if catalog_path.exists() else baseline / 'lessons_en.json')
@@ -108,8 +114,10 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_
             visual['focus'] = union([b['rect'] for b in frame['buttons']
                                      if b['name'] == scene['focus_buttons']])
         if overrides is not None:
-            if 'focus' in visual:
+            if recapture is None and 'focus' in visual:
                 raise ValueError('A visual-only focus map cannot override an authored focus')
+            if recapture is not None and recapture.get('frames', {}).get(scene['visual']) != frame['sha256']:
+                raise ValueError(f'Recapture focus is bound to different frame bytes: {scene["visual"]}')
             region = overrides['scenes'][scene['visual']]
             if region is not None:
                 visual['focus'] = region

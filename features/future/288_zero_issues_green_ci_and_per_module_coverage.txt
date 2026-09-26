@@ -5493,3 +5493,41 @@ Left: whether the whole suite is green and every module clears the gate
 can only be said by a completed CI run, and none has completed since
 09-24. Non-network tests that show a MainWindow still make a real GitHub
 releases request on a fresh runner; 2dc355d93 makes that safe, not absent.
+
+--------------------------------------------------------------------------------
+2026-09-25 CI TRIAGE (moved here from its own file, which reused number 288)
+--------------------------------------------------------------------------------
+
+288 CI triage, 2026-09-25
+=========================
+
+Run: 36020180024 (tests, nightly, 2026-09-24 15:26, head 27d524689), the
+newest completed nightly run that was not cancelled; the ten newest
+completed runs were all cancelled. Worked on nightly c2def6baa. Every
+file below was run alone at HEAD first, via tools/run_capped.sh 8G with
+QT_QPA_PLATFORM=offscreen. Nothing pushed.
+
+Job(s)                        | Test                                                                 | Cause                                                              | Outcome
+------------------------------|----------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------
+Fast, Cov0, MinDeps           | test_every_kept_figure_goes_through_one_writer (2 tests)             | _mask_workers saved headless worker figures with bare savefig      | fixed a290a9b5e
+Fast, Cov5, MinDeps           | test_one_visual_system_not_twelve::no_figure_outside_house_style     | _mask_workers show hook used plt.figure(n) to look figures up      | fixed 042bae723
+Fast, Cov5, Cov6              | test_the_volcano_y_axis_is_continuous::family_labels..., test_cov_13_hits::family_precedence... | pandas 3 keeps NaN through astype(str), so the regex got a float  | fixed 3c43b877d (checked against pandas 3.0.6 in scratch)
+Fast, Cov9, MinDeps           | test_the_settings_flow_artefacts_are_current (2 tests)               | page and index were stale (motility dict(...) step, 'rejections')  | fixed 22f1056e4 (regenerated)
+Network, Cov6                 | test_installer_archive_page::download_entry_points_match...          | the 1.5.1.0 release commit fbb78e1fc reached main only             | fixed d161b4f9e
+Fast, Cov2, MinDeps           | test_docstring_correctness (3 count asserts, now 9635/11651/9)       | public callable and API counts moved                               | pin, not mine
+Fast, Cov7, MinDeps           | test_api_i18n_extractor (2 tests, 11651 vs 11528, 32 vs 23)          | API surface count moved                                            | pin, not mine
+local only                    | test_documentation_i18n::api_catalog_inventory[en] (11651 vs 11538)  | API catalog count ratchet                                          | pin, not mine
+Cov5, Qt2                     | tests/qt/test_i18n_caption_ratchet (2 tests)                         | new captions missing from en.UI_SOURCES (i18n_catalogs)            | pin, not mine (i18n lane)
+Fast, Cov4, MinDeps           | test_readme_presentation::feature_catalog_curated                    | README prose 1806 words, ceiling 1750 (citing-papers list, 9-24)   | left for the maintainer/docs lane
+Cov0 -> Coverage gate         | tests/qt/test_cov_qt_app (3 tests, workers killed by SIGABRT)        | not reproduced: 111 passed alone                                   | left: xdist/order-dependent
+Qt1                           | test_cov_r5_qt_widgets_qc_field_browser, test_gate_console_sizing    | teardown on a deleted WA_DeleteOnClose dialog; not reproduced      | left: order-dependent
+Qt2                           | tests/qt/test_annotate_uncovered_paths (4 setup/teardown errors)     | Shiboken.delete then qtbot close; not reproduced (PySide6 6.10 and 6.11.2) | left: order-dependent
+
+Also seen when checking d161b4f9e, and not caused by it:
+tests/test_packaging_metadata.py fails twice because CITATION.cff's version
+DOI and the conda recipe still name 1.5.0.9 while setup.py says 1.5.1.0.
+That is release metadata (Zenodo DOI, sdist sha256), so it is left for the
+maintainer.
+
+Nothing here touches the feature owners' files (make_masks, detect_chain,
+psf_controls, point_spread, model_zoo*, _segmentation_backends, ops_engine).

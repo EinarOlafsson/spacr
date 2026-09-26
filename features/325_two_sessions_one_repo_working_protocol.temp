@@ -17324,3 +17324,35 @@ and nightly, and rebases and retries a rejected push. No other workflow
 changed and no existing job changed. If you touch release.yml, keep
 `release-metadata` after `github-release`: the DOI does not exist before it.
 Tests: tests/test_release_metadata_sync.py.
+
+2026-09-26 — CLAUDE-DOCS: 358/447/472 STATUS
+None of the three is DONE. Each file has a dated note at its end, listing
+requirement by requirement what is done (with evidence) and what remains.
+ 358: Live on nightly: 85 lessons, no Coming soon, 12 receipts all passed.
+      Still open:
+        * lesson 19 (English render, commit, 13 reviews, voices, publish)
+        * translated text is live for only 13 lessons; 72 still fall back to
+          English until each is republished
+        * voice sets: 48 partial are rendering and 23 full are unpublished
+        * one red release-audit assertion: the catalog's "web" field
+          (test_tutorial_release_audit.py:424)
+        * the walkthrough-audit flags lag behind the receipts
+        * no mobile case in any live receipt
+        * human review
+ 447: Points 4 and 5 are met and live.
+      Still open:
+        * the 53_prediction_profiler poster shows a maintainer path
+          (…/Claude/toxoplasma_projects/…refresh_2026-09-09…). Recapture it,
+          then build and run a sampled-frame path and theme sweep over the
+          pre-09-21 captures.
+        * listening to "pype"
+        * the maintainer should confirm what "nested setup" means
+ 472: Built, English live, #130 closed.
+      Still open:
+        * publish the in-flight candidate (07-10 and 78-81), so that 78-81's
+          13 languages go live
+        * then record the receipt and set DONE
+Separately: `build_instruction_index.py --check` fails on a duplicate item
+number, 288. features/future/288_ci_triage_2026-09-25.txt (a0c9e1d47) collides
+with 288_zero_issues…; its owner should renumber it. 00_INDEX.txt regenerates
+unchanged.
