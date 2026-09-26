@@ -134,7 +134,9 @@ def served(tmp_path):
         server.server_close()
 
 
-def test_a_slow_seek_holds_narration_and_keeps_playing(served):
+@pytest.mark.parametrize('start', ['playing', 'paused'])
+def test_a_slow_seek_holds_narration_and_keeps_playing(served, start):
+    """seekTo() also starts a paused lesson; that play must not release the hold."""
     from playwright.sync_api import sync_playwright
     url, handler = served
     with sync_playwright() as engine:
@@ -159,6 +161,9 @@ def test_a_slow_seek_holds_narration_and_keeps_playing(served):
         page.evaluate('elements.video.muted = true; elements.video.play()')
         page.wait_for_function('!elements.video.paused && !elements.video.seeking && '
                                'elements.video.readyState >= 3 && !elements.audio.paused', timeout=60000)
+        if start == 'paused':
+            page.evaluate('elements.video.pause()')
+            page.wait_for_function('elements.video.paused && elements.audio.paused')
         target = page.evaluate('chapterData[2].start')
         page.evaluate('() => { window.__seeks = 0; window.__trace = []; }')
         page.evaluate('(seconds) => seekTo(seconds)', target)
@@ -178,8 +183,9 @@ def test_a_slow_seek_holds_narration_and_keeps_playing(served):
     assert loading, 'The throttled media host must actually produce a loading picture'
     # While the picture was loading, narration stayed at the chapter start.
     assert max(row['audio'] for row in loading) - target < 0.3, (target, loading[-1])
-    # The viewer's play state never changed; only the narration was held.
-    assert not any(row['videoPaused'] for row in trace), 'the video play state was changed'
+    # The viewer's play state never changed after the seek started it; only
+    # the narration was held.
+    assert not any(row['videoPaused'] for row in trace[3:]), 'the video play state was changed'
     # Correct once, then wait: no chase of a moving narration clock.
     assert seeks <= 2, seeks
     assert not final['paused'] and not final['audioPaused'], final
