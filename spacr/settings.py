@@ -1846,6 +1846,7 @@ RENAMED_SETTINGS = {
     "img_size": "crop_size",
     "straightness_filter": "drop_straight_tracks",
     "zscore_thresh": "track_outlier_zscore",
+    "complevel": "comp_level",
 }
 
 #: What each SEMANTIC fold does with an old value, in the words the doctor
