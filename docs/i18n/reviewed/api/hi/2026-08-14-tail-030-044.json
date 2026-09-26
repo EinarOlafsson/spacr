@@ -114,11 +114,12 @@
       "translation": "जब ``role`` थ्रेशोल्ड के किसी नियंत्रण बिंदु को नामित न करे।"
     },
     {
-      "label": "spacr.qt.widgets.gate_spec.gate_from_dict#1",
+      "label": "spacr.qt.widgets.gate_spec.gate_from_dict#2",
       "source_sha256": "f1cbef77189978e9396ef621aba5e12c30c11591d3ee23c3366026212afb52e7",
       "source": "on an unknown or missing ``kind``, naming what was found — a gate file written by a newer build must fail with a sentence rather than a ``KeyError``.",
       "context": "on an unknown or missing ``kind``, naming what was found — a data-selection boundary file written by a newer build must fail with a sentence rather than a ``KeyError``.",
-      "translation": "अज्ञात या अनुपस्थित ``kind`` मिलने पर पाए गए मान का नाम बताएँ—नए build से लिखी डेटा-चयन सीमा फ़ाइल को ``KeyError`` के बजाय स्पष्ट sentence के साथ fail होना चाहिए।"
+      "translation": "अज्ञात या अनुपस्थित ``kind`` मिलने पर पाए गए मान का नाम बताएँ—नए build से लिखी डेटा-चयन सीमा फ़ाइल को ``KeyError`` के बजाय स्पष्ट sentence के साथ fail होना चाहिए।",
+      "rebound_from": "spacr.qt.widgets.gate_spec.gate_from_dict#1"
     }
   ]
 }

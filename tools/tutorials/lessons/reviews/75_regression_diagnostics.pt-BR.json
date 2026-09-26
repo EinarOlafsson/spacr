@@ -1,21 +1,33 @@
 {
-  "lesson": "75_regression_diagnostics", "language": "pt-BR",
-  "english_sha256": "636adada0750d87b67747ee847c26351442e9bb4bd9d98063728b6c302af4b33",
-  "review": {"kind": "Editorial translation checked against English, real diagnostic figures and recorded run settings", "native_speaker_signoff": false, "corrections": ["Distinguish the hypothetical simultaneous fit from the actual permutation analysis.", "Preserve guide/design counts, empirical p-value resolution and all interpretive cautions."]},
-  "title": "Regression Diagnostics: leia as evidências por trás dos resultados",
-  "description": "Abra os diagnósticos de uma análise real do exemplo de triagem, diferencie os avisos sobre o desenho dos resultados de permutação e reconheça os limites de uma execução curta de demonstração.",
-  "objectives": ["Abrir Diagnostics dentro de Regression e conferir a pasta de resultados examinada.", "Interpretar identificabilidade, presença de guias e inferência no contexto da análise escolhida.", "Reconhecer a ausência de resíduos ajustados e a resolução limitada das permutações sem inventar um ajuste de modelo."],
-  "prerequisite": "Complete o exemplo Regression com seus quatro pares de tabelas de pontuações e contagens disponíveis para download. A gravação examina uma análise não paramétrica limitada a 199 permutações, um mínimo de dois poços e resultados por guia e por gene. Demonstra o programa e a interpretação dos diagnósticos, não uma inferência definitiva para descoberta de efeitos.",
+  "lesson": "75_regression_diagnostics",
+  "english_sha256": "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Regression Diagnostics: inspecionar os relatórios de análise salvos",
+  "description": "Abra os relatórios de delineamento e de inferência de uma execução concluída, inspecione o suporte e as dependências e use o que encontrar ao escolher a próxima análise.",
+  "objectives": [
+    "Abrir a pasta de diagnóstico da execução de Regression desejada.",
+    "Ler os resumos de suporte do delineamento, identificabilidade e inferência.",
+    "Manter os diagnósticos com as configurações e executar de novo após mudar uma análise."
+  ],
+  "prerequisite": "Conclua o exemplo de Regression com os quatro pares de pontuações e contagens. A execução por permutações ilustrada usa 199 permutações e um mínimo de dois poços. Mantenha juntas as configurações e as famílias de resultados ao interpretar os painéis de diagnóstico.",
   "scenes": [
-    "Dentro de Regression, passe o cursor sobre Diagnostics e abra-o depois que a análise terminar. Esse botão lê resultados salvos; não ajusta outro modelo. Ele abre a pasta de diagnósticos mais recente do projeto, então confira o caminho se houver várias execuções.",
-    "O gerenciador de arquivos do sistema mostra os arquivos reais da análise do exemplo baixado. Aqui o formato escolhido para figuras foi PNG. A pasta contém identificabilidade do desenho, diagnósticos do desenho e da inferência, uma tabela-resumo e uma tabela de pares de guias colineares.",
-    "O desenho tem seiscentos e seis poços, setecentos e noventa e três parâmetros e posto quinhentos e noventa e nove. Não é possível identificar um coeficiente simultâneo único para cada guia. Esse aviso explica por que usamos permutações; não significa que um modelo simultâneo foi ajustado com sucesso.",
-    "A presença das guias é desigual: trezentas e cinquenta e cinco aparecem em apenas um poço nesse desenho. Uma presença escassa limita o que o experimento pode estabelecer. Examine a cobertura antes dos efeitos e diferencie o desenho completo da família filtrada de guias realmente testadas.",
-    "O painel do desenho ajuda a localizar presença insuficiente e dependências entre preditores de guias. Guias que sempre aparecem juntas são difíceis de distinguir estatisticamente. Examine pares específicos na tabela de colinearidade, em vez de tratar um indicador de aviso como explicação completa.",
-    "O painel de inferência resume quatrocentos e trinta e quatro testes por guia: distribuição dos valores p, comparação com uma hipótese nula uniforme e descobertas em diferentes limiares ajustados. Esta execução curta não tem descobertas no limiar exibido. Um aviso de calibração pede investigação, não comprova efeitos biológicos.",
-    "Usamos somente cento e noventa e nove permutações para manter a demonstração curta. O menor valor p empírico possível é, portanto, zero vírgula zero zero cinco. Essa resolução pode ser insuficiente após a correção de testes múltiplos; planeje uma quantidade adequada de permutações para a análise real.",
-    "Esta execução por permutação não tem painel de resíduos ajustados porque não ajustou o modelo de regressão simultâneo. A comparação de valores p que acabamos de ver não é um diagnóstico de resíduos. Outros modos podem escrever esses painéis quando fornecem valores observados e ajustados.",
-    "O resumo registra as avaliações de cada painel e a pior avaliação do conjunto. Leia cada uma no contexto, em vez de interpretar o indicador geral como erro do programa. A API Python de diagnósticos de regressão escreve os mesmos tipos de painéis a partir dos dados recebidos.",
-    "Volte a Regression para investigar as entradas ou mudar deliberadamente uma escolha da análise. Uma mudança exige nova execução e novos diagnósticos; abrir essa pasta nunca atualiza resultados antigos. O tutorial Regression apresenta dados, console, resultados interativos e assistência."
+    "Na tela Home, abra Regression. Depois que uma análise terminar, clique em Diagnostics. Confira o caminho da pasta: este atalho abre a pasta de diagnósticos mais recente que encontra no projeto.",
+    "Leia os arquivos de diagnóstico dessa pasta em ordem: primeiro a identificabilidade do delineamento, depois os diagnósticos do delineamento com os pares de guias colineares, em seguida os diagnósticos de inferência e, por último, o resumo que junta tudo.",
+    "Comece por Design identifiability. Compare o número de poços, o número de parâmetros e o posto do delineamento. Este exemplo tem mais parâmetros do que o posto comporta, então não consegue identificar um coeficiente simultâneo único para cada guia.",
+    "Inspecione o suporte de cada guia entre os poços. O exemplo inclui muitas guias presentes em um único poço. Diferencie o delineamento completo da família filtrada de guias que foram de fato testadas.",
+    "Abra Design diagnostics e a tabela de pares colineares. Identifique os preditores que sempre aparecem juntos ou que têm suporte fraco antes de atribuir efeitos a eles separadamente.",
+    "Abra Inference diagnostics. Inspecione a distribuição dos valores P, a comparação com a hipótese nula e as descobertas em diferentes limiares ajustados. Este exemplo não tem descobertas no limiar exibido.",
+    "Confira o número de permutações ao interpretar os valores P. Com cento e noventa e nove permutações, o menor valor P empírico possível é zero vírgula zero zero cinco. Planeje a resolução necessária para a sua correção de testes múltiplos.",
+    "Uma análise por permutações não produz resíduos ajustados de um modelo de regressão simultâneo. Procure os painéis de resíduos ao usar um modo que forneça valores observados e ajustados.",
+    "Leia o resumo junto com os painéis individuais. A avaliação geral reflete a pior avaliação entre os painéis, então abra o relatório correspondente para entender o motivo.",
+    "Volte a Regression para revisar as entradas ou as configurações da análise de forma deliberada. Execute a análise revisada e inspecione os novos diagnósticos. Mantenha separadas as pastas de saída anteriores para que cada relatório continue associado às suas configurações."
   ]
 }

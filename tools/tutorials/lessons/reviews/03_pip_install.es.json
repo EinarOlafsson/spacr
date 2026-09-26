@@ -1,32 +1,34 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
   "review": {
-    "kind": "Parent editorial translation against frozen English, actual clean public installation and installed-package native capture",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "es",
   "title": "Instalar spaCR con pip",
-  "description": "Crea un entorno Python aislado, instala el paquete público, verifica sus dependencias y abre la aplicación Qt instalada.",
+  "description": "Crea un entorno de Python aislado, instala el paquete público, verifica sus dependencias y abre la aplicación Qt instalada.",
   "objectives": [
-    "Mantener las dependencias de spaCR en un entorno Python dedicado.",
-    "Verificar el paquete instalado, Qt y las advertencias de funciones opcionales.",
-    "Abrir Home y actualizar deliberadamente el entorno correcto."
+    "Crear y activar un entorno virtual de Python.",
+    "Instalar spaCR y comprobar sus dependencias.",
+    "Abrir la aplicación y actualizar el entorno previsto."
   ],
-  "prerequisite": "Este tutorial verifica spaCR 1.5.0.5 de PyPI en Linux con Python 3.12.13, no una instalación editable. Las tarjetas de comandos son instrucciones, no salidas de terminal grabadas; aquí no se ejecutaron los comandos de Windows ni macOS. La instalación limpia terminó antes de grabar las comprobaciones. Las dependencias básicas actuales incluyen Qt. Doctor muestra una advertencia opcional de CZI y omite expresamente la prueba de asignación en GPU. La captura usa --no-setup, un perfil oscuro privado con escala de fuente 1.5 y un recorrido ya descartado. Demuestra que Home abre y cierra normalmente, no que funcionen todos los módulos, formatos opcionales, cálculos GPU u otras plataformas.",
+  "prerequisite": "Instala Python 3.12 y abre una terminal. Usa el comando de activación de tu sistema operativo y tu shell.",
   "scenes": [
-    "Instala spaCR en su propio entorno Python. Esta demostración usa Python tres punto doce en Linux y la versión pública de PyPI, no un repositorio de código. Comprueba python, dos guiones, version antes de elegir el intérprete del entorno.",
-    "Crea un entorno virtual nuevo con el comando de tu plataforma. Aquí punto venv es una carpeta nueva dentro de tu directorio de trabajo. Python tres punto doce debe estar instalado previamente; este comando crea un entorno, no instala Python.",
-    "Activa ese entorno con el comando de tu shell. PowerShell, Command Prompt, bash y zsh usan comandos de activación diferentes. Si PowerShell bloquea el script, usa Command Prompt o llama directamente al Python del entorno; no debilites la seguridad de todo el equipo.",
-    "Ejecuta python, guion m, pip, dos guiones, version. Su ubicación debe estar dentro del entorno elegido. Esta terminal real muestra la ruta privada más larga usada en la grabación. Usar python, guion m, pip vincula la instalación de paquetes a ese intérprete.",
-    "Actualiza pip e instala spacr. Fijar uno punto cinco punto cero punto cinco reproduce la versión de este tutorial. La instalación limpia terminó antes de estas comprobaciones grabadas. Reserva tiempo y espacio para las dependencias científicas; las dependencias básicas actuales ya incluyen los componentes de escritorio Qt.",
-    "Comprueba la versión instalada de spaCR, la de Qt y la ruta del paquete. Aquí las tres proceden del entorno nuevo. Poder importar no demuestra que funcionen todos los formatos o análisis opcionales, ni que se abra la ventana.",
-    "Ejecuta python, guion m, pip check. No broken requirements significa que las declaraciones de dependencias instaladas son coherentes. Si aparece un conflicto, resuélvelo antes de continuar; una comprobación correcta no valida científicamente un análisis.",
-    "Ejecuta spacr-doctor y lee tanto las advertencias como los resultados satisfactorios. Esta instalación muestra una advertencia opcional de CZI y su comando de reparación. La grabación usa la opción no gpu probe, precedida de dos guiones: detecta el dispositivo, pero no prueba una asignación en GPU. Las comprobaciones omitidas no son comprobaciones superadas.",
-    "Abre spacr desde el mismo entorno activado. El primer inicio normal puede mostrar preguntas de configuración. Esta verificación limitada usa expresamente la opción no setup, precedida de dos guiones, y un perfil preparado para grabar; no demuestra cómo responder a esas preguntas.",
-    "Esta es la ventana Home real del paquete wheel instalado, con los seis módulos principales y los grupos Data, Tools y Assays. Abrió y cerró normalmente sin iniciar un análisis. Continúa con Home para aprender la navegación, las herramientas anidadas y los tutoriales de módulos.",
-    "Para actualizar, cierra spaCR y activa el entorno que quieras cambiar. Actualiza el paquete, repite pip check y spacr-doctor y registra la versión resultante con tu análisis. Las actualizaciones pueden cambiar dependencias y comportamiento; no modifiques silenciosamente un entorno que sustenta trabajo en curso."
+    "Abre una terminal y comprueba tu versión de Python. Este recorrido usa Python tres punto doce. Mantén spaCR en un entorno virtual dedicado para que sus paquetes sean fáciles de gestionar.",
+    "Crea un entorno virtual llamado punto venv con el comando de tu sistema operativo. Así se crea una carpeta que contiene el entorno de Python que usarás para spaCR.",
+    "Activa punto venv con el comando de tu shell. PowerShell y el Símbolo del sistema de Windows usan comandos de activación distintos; macOS y Linux suelen usar el comando de shell que se muestra aquí.",
+    "Ejecuta python guion m pip guion guion version. Comprueba que la ruta mostrada pertenece a punto venv. Usa python guion m pip en los comandos de instalación para que pip use este intérprete.",
+    "Actualiza pip y después instala spacr. Espera a que los paquetes científicos terminen de descargarse e instalarse. El paquete actual incluye los componentes de escritorio necesarios para abrir la aplicación.",
+    "Comprueba la versión instalada de spaCR y la ubicación del paquete con el comando que se muestra. Guarda la versión junto con tus notas de análisis.",
+    "Ejecuta python guion m pip check. Si informa de requisitos en conflicto, resuélvelos antes de usar el entorno.",
+    "Ejecuta spacr-doctor para revisar la instalación y ver si falta alguna función opcional. Aplica la reparación sugerida solo para los formatos o las capacidades que necesites.",
+    "Abre spacr desde el entorno activado. En el primer inicio, sigue las indicaciones de configuración y elige tus preferencias.",
+    "Home se abre con las categorías Core, Data, Tools y Assays. Continúa con el tutorial de Home para encontrar un módulo, cargar datos de ejemplo y abrir una vista general de un flujo de trabajo.",
+    "Para actualizar, cierra spaCR y activa este entorno. Actualiza el paquete y vuelve a comprobar su versión y sus dependencias. Conserva el entorno anterior si lo necesitas para un análisis en curso."
   ]
 }

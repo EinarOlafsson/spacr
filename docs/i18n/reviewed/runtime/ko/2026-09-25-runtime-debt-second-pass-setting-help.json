@@ -1,0 +1,218 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_add_nucleus_channel",
+      "source": "Cellpose 3 reads two channels as [cyto, nucleus]. When True, a cell segmented by a Cellpose 3 model also receives the nucleus channel as its second channel, as cyto, cyto2 and cyto3 were trained; when False, the model sees the cell channel alone. Read only for objects whose model is a Cellpose 3 model. Default True.",
+      "source_sha256": "d631089a1ee0864029818d8f9f726458f39b5205411583062033d2a88c93126e",
+      "translation": "Cellpose 3은 두 채널을 [cyto, nucleus]로 읽습니다. True이면 Cellpose 3 모델로 분할하는 세포에 핵 채널도 두 번째 채널로 전달하며, 이는 cyto, cyto2, cyto3가 학습된 방식과 같습니다. False이면 모델은 세포 채널만 봅니다. 모델이 Cellpose 3 모델인 객체에서만 읽습니다. 기본값 True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_augment",
+      "source": "When True, Cellpose 3 averages its prediction over flipped copies of overlapping tiles, which is slower and can steady borderline objects. It stands in for net averaging, which Cellpose 3.1 no longer offers. Read only for objects whose model is a Cellpose 3 model. Default False.",
+      "source_sha256": "080c75e97c3d3b3da9696e73d75b570c4421ef79621a2b6c85ea150e2ce549e7",
+      "translation": "True이면 Cellpose 3이 겹치는 타일을 뒤집은 사본들에 대해 예측을 평균하므로, 느려지지만 경계에 걸친 객체가 안정될 수 있습니다. Cellpose 3.1에서 더 이상 제공하지 않는 네트워크 평균화를 대신합니다. 모델이 Cellpose 3 모델인 객체에서만 읽습니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_percentile_high",
+      "source": "Upper percentile of Cellpose 3's per-channel normalization: this intensity becomes 1 before the model sees the image. Lowering it brightens dim objects and saturates bright ones. Cellpose 3's models were trained with 99. Read only for Cellpose 3 models. Default 99.0.",
+      "source_sha256": "64e621df61884f1e2b7588a43155ace3ad04e09bbdb8837dff2d56451d081ba4",
+      "translation": "Cellpose 3의 채널별 정규화에 쓰는 상한 백분위수로, 모델이 이미지를 보기 전에 이 강도가 1이 됩니다. 낮추면 어두운 객체가 밝아지고 밝은 객체는 포화됩니다. Cellpose 3 모델은 99로 학습되었습니다. Cellpose 3 모델에서만 읽습니다. 기본값 99.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_percentile_low",
+      "source": "Lower percentile of Cellpose 3's per-channel normalization: this intensity becomes 0 before the model sees the image. Raising it darkens more of the background. Cellpose 3's models were trained with 1. Read only for Cellpose 3 models. Default 1.0.",
+      "source_sha256": "1db0aad2167a90e426b06865f541c3798b18e6f1bd6102fe767f84de5db7221e",
+      "translation": "Cellpose 3의 채널별 정규화에 쓰는 하한 백분위수로, 모델이 이미지를 보기 전에 이 강도가 0이 됩니다. 높이면 배경이 더 많이 어두워집니다. Cellpose 3 모델은 1로 학습되었습니다. Cellpose 3 모델에서만 읽습니다. 기본값 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_resample",
+      "source": "When True, Cellpose 3 computes flows at the image's original size before building masks, which gives smoother outlines at some cost in time; when False, it builds them at the rescaled size. Read only for objects whose model is a Cellpose 3 model. Default True.",
+      "source_sha256": "98c41f5fd00fa7aa189fa07d648b8ebdceffb00c12a5c26ed0089e4c6adc15c5",
+      "translation": "True이면 Cellpose 3이 마스크를 만들기 전에 이미지의 원래 크기에서 흐름을 계산하므로, 시간이 조금 더 들지만 윤곽선이 더 매끄러워집니다. False이면 크기를 조정한 상태에서 만듭니다. 모델이 Cellpose 3 모델인 객체에서만 읽습니다. 기본값 True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_size_model",
+      "source": "When True, a named Cellpose 3 model estimates each image's object diameter with its own size model, which is slower and, on Toxoplasma vacuoles, far less accurate; when False, the object's diameter setting is used, or its magnification default when blank. Read only for Cellpose 3 models. Default False.",
+      "source_sha256": "5699e735e899567e2786bdfc4b627fa8e5f52a295662d323b8a54529131a593b",
+      "translation": "True이면 이름이 지정된 Cellpose 3 모델이 자체 크기 모델로 각 이미지의 객체 직경을 추정하는데, 이는 더 느리고 Toxoplasma 공포에서는 정확도가 훨씬 낮습니다. False이면 객체의 직경 설정을 사용하고, 비어 있으면 배율 기본값을 사용합니다. Cellpose 3 모델에서만 읽습니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background",
+      "source": "Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
+      "source_sha256": "5dd1d7203d14829df4d61e0a8b992e7bbb16028aefb738f7bf8e2d3e06f2b1b4",
+      "translation": "조명 보정 후 정규화 전에 선택한 모든 분할 채널에 적용하는 배경 제거로, Make Masks에서 조정하는 향상 체인의 첫 단계입니다. rolling_ball은 아래 반지름으로 맞춘 표면을 제거하여 고르지 않은 조명을 평탄화하고, tophat은 주변보다 밝은 것만 남기며 더 빠릅니다. none은 끔입니다. 반지름은 가장 큰 객체보다 크게 설정하세요. 재개된 실행은 다른 체인으로 만든 Mask 입력을 거부합니다. 기본값 'none'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background_radius",
+      "source": "Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
+      "source_sha256": "a34eda8a367c04d30ce8bd60f479060f44436790f8a141c061c2cc166179c15c",
+      "translation": "롤링 볼 또는 톱햇 원판의 반지름(픽셀)입니다. 가장 큰 객체보다 크고 조명이 변하는 스케일보다 작게 설정하세요. 반지름이 객체 크기보다 작으면 배경과 함께 객체도 제거됩니다. 기본값 50."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background_scale",
+      "source": "Fraction of full size the background is estimated at, above 0 and at most 1. The surface is scaled back up before subtraction, so only the estimate is smaller; 1.0 is scikit-image's exact answer and is slow on large fields. Default 0.5.",
+      "source_sha256": "ab8cf3b7e8238fad27bbf7fdf278a283a4415d2bc020c89739fc2445554f988b",
+      "translation": "배경을 추정할 크기를 전체 크기에 대한 비율로 정하며, 0보다 크고 1 이하입니다. 표면은 빼기 전에 원래 크기로 다시 확대되므로 작아지는 것은 추정뿐입니다. 1.0은 scikit-image의 정확한 결과이며 큰 시야에서는 느립니다. 기본값 0.5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe",
+      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without blowing out the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+      "source_sha256": "f465bb6876b67694c23711b4799fbf90b9a58525d353c2a759931cec2532ed77",
+      "translation": "전체 시야가 아니라 타일별로 수행하는 대비 제한 적응 히스토그램 평활화입니다. 밝은 중앙부를 포화시키지 않고 어두운 구석의 객체를 드러내며, 빈 타일에서는 잡음을 증폭하는데 이는 클립 한계로 제한됩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe_clip",
+      "source": "CLAHE clip limit, above 0 and at most 1. Higher gives more contrast and more amplified noise in tiles that hold only background; unused unless enhance_clahe is on. Default 0.01.",
+      "source_sha256": "76965f4475f12af7b1956a80a90a18e1d4af145d1f58549e3c9164d5080adabe",
+      "translation": "CLAHE 클립 한계로, 0보다 크고 1 이하입니다. 높을수록 대비가 커지고 배경만 있는 타일에서 잡음이 더 증폭됩니다. enhance_clahe가 켜져 있지 않으면 사용하지 않습니다. 기본값 0.01."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe_tile",
+      "source": "Side of one CLAHE tile in pixels, at least 8. Make it larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself. Default 64.",
+      "source_sha256": "2b49b6e9b3cc896678dfb8d67fd029e85672d6128c140e490950841978bdb83b",
+      "translation": "CLAHE 타일 한 변의 길이(픽셀)로, 8 이상입니다. 객체 하나보다 크고 조명이 변하는 스케일보다 작게 설정하세요. 객체 하나 크기의 타일은 객체를 자기 자신에 대해 평활화합니다. 기본값 64."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_denoise",
+      "source": "Smoothing after background subtraction and the PSF, before the contrast curves. gaussian is a Gaussian filter with the strength as sigma in pixels; median removes speckle and keeps edges; bilateral and nlm (non-local means) keep edges better and are slow on whole fields; tv is total-variation (Chambolle), the edge-preserving smoother offered in place of anisotropic diffusion; none is off. Default 'none'.",
+      "source_sha256": "ee987370df03140f44631dca0ce4164973ae949bc2deebd4658106c7286d9fdc",
+      "translation": "배경 제거와 PSF 다음, 대비 곡선 전에 적용하는 평활화입니다. gaussian은 강도를 시그마(픽셀)로 쓰는 가우스 필터이고, median은 반점 잡음을 없애면서 가장자리를 유지하며, bilateral과 nlm(비국소 평균)은 가장자리를 더 잘 유지하지만 시야 전체에서는 느립니다. tv는 총변동(Chambolle) 평활화로, 비등방성 확산 대신 제공하는 가장자리 보존 평활화입니다. none은 끔입니다. 기본값 'none'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_denoise_strength",
+      "source": "How much smoothing, above 0: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, the non-local means cut-off in multiples of the measured noise, or ten times the total-variation weight on 0..1. Default 1.0.",
+      "source_sha256": "968d3d0c77d8aa3ac68feab003ef260bf22ba325135c6a848b990872866258b7",
+      "translation": "평활화 정도로, 0보다 커야 합니다. 가우스의 시그마(픽셀), 중앙값 및 양방향 필터의 원판 반지름, 측정된 잡음의 배수로 나타낸 비국소 평균의 컷오프, 또는 0..1 범위 총변동 가중치의 10배입니다. 기본값 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_equalize",
+      "source": "Global histogram equalisation of each selected channel plane, the strongest of the contrast curves. A field that is mostly background has its background stretched across half the range. Default False.",
+      "source_sha256": "f1c95f6e2047ca41d41bea12188ae4f6cf8126d6ffd647444ca40ea879e56735",
+      "translation": "선택한 각 채널 평면에 적용하는 전역 히스토그램 평활화로, 대비 곡선 중 가장 강합니다. 대부분이 배경인 시야는 배경이 범위의 절반에 걸쳐 늘어납니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_gamma",
+      "source": "Exponent the intensities are raised to on 0..1, above 0; 1.0 is off. Below 1 lifts the dim end so faint objects rise out of the background; above 1 pushes it down and keeps only the bright ones. Default 1.0.",
+      "source_sha256": "361e660fac3030c578d3a9fc6e68ee7835618b68d7bfa5d1b1914d86e7e2e1bd",
+      "translation": "0..1 범위의 강도를 거듭제곱하는 지수로, 0보다 커야 하며 1.0이면 꺼집니다. 1보다 작으면 어두운 쪽을 끌어올려 희미한 객체가 배경에서 드러나고, 1보다 크면 어두운 쪽을 눌러 밝은 객체만 남깁니다. 기본값 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_log",
+      "source": "Logarithmic transform on 0..1, log(1 + gain x) / log(1 + gain), applied after gamma. It compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1 does. Default False.",
+      "source_sha256": "4c70381dd320b9d0c270a34b724eef682e8fc9353814df8e34c4bbfe650eced4",
+      "translation": "0..1 범위의 로그 변환 log(1 + gain x) / log(1 + gain)으로, 감마 다음에 적용됩니다. 밝은 쪽을 압축하고 어두운 쪽을 끌어올리며, 0 근처에서는 1보다 작은 감마보다 더 강하게 작용합니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_log_gain",
+      "source": "Factor the unit-interval intensities are multiplied by before the logarithm, above 0. Larger compresses the bright end harder; as it goes to zero the curve becomes the identity. Unused unless enhance_log is on. Default 10.0.",
+      "source_sha256": "59fc6e3b4f9ee6372e5c861c3dd25ec8c8d516c5371484b3c2cb031301c0dbfe",
+      "translation": "로그 변환 전에 0..1 구간의 강도에 곱하는 계수로, 0보다 커야 합니다. 클수록 밝은 쪽을 더 강하게 압축하며, 0에 가까워질수록 곡선은 항등 함수가 됩니다. enhance_log가 켜져 있지 않으면 사용하지 않습니다. 기본값 10.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_clip",
+      "source": "Clip each selected channel plane to two percentiles of its own intensities before the contrast curves. Removes hot and dead pixels from the range the curves are drawn on without stretching anything, so intensity thresholds keep their units. Default False.",
+      "source_sha256": "ed106e48038ea67f82ac2741d4399464fb21f91e5600c4d1442ab82c5d6ffd38",
+      "translation": "대비 곡선 전에 선택한 각 채널 평면을 자체 강도의 두 백분위수로 클리핑합니다. 아무것도 늘리지 않고 곡선이 그려지는 범위에서 핫 픽셀과 데드 픽셀을 제거하므로 강도 임계값의 단위가 유지됩니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_high",
+      "source": "Upper percentile of the enhancement chain's percentile clip, at most 100 and above the lower percentile. Pixels brighter than this percentile of their own plane are lowered to it. Default 99.0.",
+      "source_sha256": "a686edc681176dcbaa520f43bd984b53d06668693a5968396fabe7a910f97949",
+      "translation": "향상 체인의 백분위수 클리핑에 쓰는 상한 백분위수로, 100 이하이고 하한 백분위수보다 커야 합니다. 해당 평면에서 이 백분위수보다 밝은 픽셀은 이 값까지 낮춥니다. 기본값 99.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_low",
+      "source": "Lower percentile of the enhancement chain's percentile clip, at least 0 and below the upper percentile. Pixels darker than this percentile of their own plane are raised to it. Default 1.0.",
+      "source_sha256": "d5151af6931a0f2ce88769f18f6c6ad74d005d400a785a662c0eaade0a1595df",
+      "translation": "향상 체인의 백분위수 클리핑에 쓰는 하한 백분위수로, 0 이상이고 상한 백분위수보다 작아야 합니다. 해당 평면에서 이 백분위수보다 어두운 픽셀은 이 값까지 올립니다. 기본값 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen",
+      "source": "Unsharp mask after the contrast curves. Makes edges steeper so a threshold lands on the boundary; too much amount puts a bright rim around every object and a dark moat outside it. Default False.",
+      "source_sha256": "f80e503ae01722b15bcc53b6ff97ab87312256209f10b34ce0621d6518bb9fce",
+      "translation": "대비 곡선 다음에 적용하는 언샤프 마스크입니다. 가장자리를 가파르게 만들어 임계값이 경계에 놓이게 합니다. 강도가 너무 크면 모든 객체 둘레에 밝은 테두리가, 그 바깥에 어두운 고랑이 생깁니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen_amount",
+      "source": "How much of the unsharp mask is added back, at least 0. One is a normal sharpen; above 2 the halos around objects start to become objects of their own. Default 1.0.",
+      "source_sha256": "ef5a48dfa756047713630b1f2668981c7452b635a5cac757f04d9a03cef3f5d9",
+      "translation": "언샤프 마스크를 얼마나 다시 더할지 정하며, 0 이상입니다. 1은 일반적인 선명화이며, 2를 넘으면 객체 주변의 후광이 별도의 객체가 되기 시작합니다. 기본값 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen_radius",
+      "source": "Blur radius in pixels the unsharp mask is built from, above 0: about the scale of the edges to sharpen. Unused unless enhance_sharpen is on. Default 1.0.",
+      "source_sha256": "755c40375db19b9dfc23c7b410255c16a15e47bb10fb29317cf1bf168205f8df",
+      "translation": "언샤프 마스크를 만드는 블러 반지름(픽셀)으로, 0보다 커야 합니다. 대략 선명하게 할 가장자리의 스케일입니다. enhance_sharpen이 켜져 있지 않으면 사용하지 않습니다. 기본값 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sqrt",
+      "source": "Square-root transform on 0..1, applied after the logarithm: the curve a gamma of 0.5 draws, offered by name. It lifts the dim end of every selected channel before detection. Default False.",
+      "source_sha256": "5492478078058e15a3b4eba808b57729424b91d24cc59b9019cad84d6007eb2e",
+      "translation": "0..1 범위의 제곱근 변환으로, 로그 변환 다음에 적용됩니다. 감마 0.5가 그리는 곡선을 이름으로 제공한 것입니다. 검출 전에 선택한 모든 채널의 어두운 쪽을 끌어올립니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_filters",
+      "source": "Extra object filters on any scalar scikit-image regionprop, listed per object type, for example {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. An object is kept when min <= value <= max, and a missing side is off. Intensity properties read the object's own raw channel. Applied together with the area and intensity bounds in Mask runs and Live Preview, in the same form Make Masks records its Filter list. Default {}.",
+      "source_sha256": "9d212036814768ba9e81034cb7fb7633b5b4e8db2b20e22381c3201ecbc2ff01",
+      "translation": "객체 유형별로 나열하는, 임의의 스칼라 scikit-image regionprop에 대한 추가 객체 필터입니다. 예: {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. min <= value <= max이면 객체를 유지하며, 비어 있는 쪽은 꺼집니다. 강도 속성은 객체 자체의 원시 채널을 읽습니다. Mask 실행과 실시간 미리보기에서 면적 및 강도 범위와 함께 적용되며, Make Masks가 필터 목록을 기록하는 것과 같은 형식입니다. 기본값 {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_spot_detector",
+      "source": "Which detector finds the sequencing spots each field's reads are called at. 'native' is spaCR's own spot score and the only one this plate was validated with. 'spotnet' is DeepCell's SpotNet, a trained spot detector run in an environment of its own; its positions go through the same bases, calls and assignment to nuclei, and ops_read_threshold no longer applies. SpotNet's models are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be installed from the Model Zoo, and its weights need a free DeepCell access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. It decodes one field at a time. Default 'native'.",
+      "source_sha256": "edda98fd31da19d81f11b2d6e7a2d689841eaa9a7722dd63c497211a698fdddd",
+      "translation": "각 시야의 판독 결과를 결정할 시퀀싱 스폿을 찾는 검출기입니다. 'native'는 spaCR 자체의 스폿 점수이며 이 플레이트를 검증한 유일한 검출기입니다. 'spotnet'은 DeepCell의 SpotNet으로, 자체 환경에서 실행되는 학습된 스폿 검출기입니다. 그 위치는 동일한 염기 판정, 판독 호출, 핵 할당 과정을 거치며, ops_read_threshold는 더 이상 적용되지 않습니다. SpotNet의 모델은 비상업적 학술 용도로만(NON-COMMERCIAL ACADEMIC USE ONLY) 라이선스되며, 모델 라이브러리에서 설치해야 하고, 가중치를 받으려면 DEEPCELL_ACCESS_TOKEN 또는 ~/.spacr/deepcell_token에 무료 DeepCell 액세스 토큰이 있어야 합니다. 한 번에 한 시야씩 디코딩합니다. 기본값 'native'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_fwhm_um",
+      "source": "Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
+      "source_sha256": "8cd70f74d9eb3b2d6adcd9a40610d115ebf39c76c1cc28f532970222b0efe04a",
+      "translation": "기본값 None(설정 안 함). 가우스 반치전폭 [Y, X](마이크로미터)이며, 두 값 모두 양의 유한값이어야 합니다. 설정하지 않으면 Mask와 timelapse 모듈은 이미지 메타데이터나 psf_objective에서 0.51 × 방출 파장 / NA를 계산합니다(기본적으로 520 nm, NA 0.75: 0.354 µm). 이는 이상적인 광시야 PSF의 근사이며 측정된 해상도가 아닙니다. Measure 모듈에서는 명시적으로 지정해야 합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_image_sampling_um",
+      "source": "Default None (unset). Image pixel spacing [Y, X] in micrometers; both numbers must be positive and finite. Unset with a Gaussian PSF, Mask and timelapse infer it from the first source image's OME/ImageJ calibration, else camera pixel / magnification of psf_objective (6.5 µm / 20 = 0.325 µm by default), and print each value's source. Measure and measured kernels require it explicitly.",
+      "source_sha256": "3d02205c40eae1d7fe29a5a55faa5186693092bd2e541c8bd51fbd30874c1fd2",
+      "translation": "기본값 None(설정 안 함). 이미지 픽셀 간격 [Y, X](마이크로미터)이며, 두 수 모두 양의 유한값이어야 합니다. 가우스 PSF에서 설정하지 않으면 Mask와 timelapse 모듈은 첫 번째 원본 이미지의 OME/ImageJ 보정에서, 없으면 psf_objective의 카메라 픽셀 / 배율에서 값을 추론하고(기본적으로 6.5 µm / 20 = 0.325 µm) 각 값의 출처를 출력합니다. Measure 모듈과 측정된 커널에서는 명시적으로 지정해야 합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_objective",
+      "source": "Objective used to infer PSF calibration that is left unset: auto reads magnification, numerical aperture, immersion and pixel size from the first source image's OME metadata and otherwise assumes a 20x/0.75 air objective; a table row such as 10x/0.30 air, 40x/0.95 air, 60x/1.40 oil or 100x/1.45 oil uses that objective's values, with a 6.5 µm camera pixel and 520 nm emission unless the metadata says otherwise. Explicit psf_image_sampling_um and psf_fwhm_um always win. Default auto.",
+      "source_sha256": "f19fbe9131eb425633e0949d28055117c8df9e5a7a21100dbe2adec220098d19",
+      "translation": "설정하지 않은 PSF 보정을 추론하는 데 쓰는 대물렌즈입니다. auto는 첫 번째 원본 이미지의 OME 메타데이터에서 배율, 개구수, 침지 매질, 픽셀 크기를 읽고, 없으면 20x/0.75 공기 대물렌즈로 가정합니다. 10x/0.30 air, 40x/0.95 air, 60x/1.40 oil, 100x/1.45 oil 같은 표의 행을 선택하면 그 대물렌즈의 값을 사용하며, 메타데이터에 달리 적혀 있지 않으면 6.5 µm 카메라 픽셀과 520 nm 방출 파장을 씁니다. 명시적인 psf_image_sampling_um과 psf_fwhm_um이 항상 우선합니다. 기본값 auto."
+    }
+  ]
+}

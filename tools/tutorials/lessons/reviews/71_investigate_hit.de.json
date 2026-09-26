@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Investigate Hit: ein Regression-Gen bis zu den gemessenen Zellen zurückverfolgen",
+  "description": "Senden Sie ein Gen aus Hit List an Investigate Hit, fügen Sie Messdatenbank, Zellvorhersagen und Guide-Anteile hinzu und lesen Sie dann die Belege auf Well-Ebene.",
+  "objectives": [
+    "Einen Regression-Lauf in Hit List öffnen, q-Werte prüfen und ein Gen an Investigate Hit senden.",
+    "Messdatenbank, Zellvorhersagen, Guide-Anteile und Score-Spalte wählen.",
+    "Die Tabs für Belege, Wells, Guides und Schwellenwerte lesen und die gespeicherten Tabellen finden."
+  ],
+  "prerequisite": "Entpacken Sie Investigate_Hit_real_screen_example.zip. Alles darin stammt aus einem einzigen echten Screen: dem Regression-Lauf auf den Testdaten von Regression (die Einstellungen aus dem Regression-Tutorial), den passenden CV-Vorhersagen pro Zelle und einer Messdatenbank mit den echten Form-, Größen- und Intensitätsmessungen derselben Zellen. Damit der Download klein bleibt, enthält die Datenbank 52 Wells: alle analysierten Wells mit einem Guide für Gen 225160 und zu jedem drei Wells ohne ihn von derselben Platte. Kein Gen in diesem schnellen Regression-Lauf erfüllt q ≤ 0,05. Behandeln Sie die Untersuchung als durchgerechnetes Beispiel, nicht als bestätigten Hit.",
+  "scenes": [
+    "Öffnen Sie von Home aus Regression. Investigate Hit beginnt mit einem abgeschlossenen Regression-Lauf. Es fragt, ob die gemessenen Zellen in den Wells hinter einem Gen anders aussehen als Zellen in Wells ohne dieses Gen.",
+    "Wählen Sie Hits, um Hit List zu öffnen. Entpacken Sie zuerst das Beispielarchiv. Es enthält einen Regression-Lauf auf den Testdaten, die passenden CV-Vorhersagen pro Zelle und eine Messdatenbank für dieselben Zellen. Alle drei stammen aus einem einzigen echten Screen.",
+    "Klicken Sie auf Browse und wählen Sie den Ordner guide_permutation in regression_run, results. Das ist die Ausgabe des Testdatenlaufs aus dem Regression-Tutorial.",
+    "Hit List ordnet 325 Gene. Lesen Sie Effekt, P-Wert und q-Wert jeder Zeile zusammen, dazu die Anzahl der Guides und wie viele davon übereinstimmen.",
+    "Setzen Sie Max q auf 0,05. Die Tabelle leert sich, weil in diesem Lauf kein Gen einen q-Wert von höchstens 0,05 erreicht. Mit 199 Permutationen ist der kleinstmögliche P-Wert 0,005, und der niedrigste q-Wert liegt bei etwa 0,27. Was folgt, prüft daher einen gerankten Kandidaten, keinen bestätigten Hit.",
+    "Setzen Sie Max q wieder auf 1, suchen Sie nach 225160 und wählen Sie seine Zeile. Es hat einen Effekt von 0,34, einen q-Wert von 0,27 und drei Guides, die alle in dieselbe Richtung zeigen.",
+    "Klicken Sie auf Investigate selected. Investigate Hit öffnet sich mit dem Ergebnisordner, dem Gen, seinen drei Guides und einer positiven Effektrichtung, die bereits aus dieser Zeile übernommen sind.",
+    "Klicken Sie neben Measurements database auf Browse und wählen Sie measurements.db aus dem Beispiel. Sie enthält Form, Größe und mittlere Kanalintensität für 8.915 Zellen in 52 Wells.",
+    "Wählen Sie für Existing CV predictions cv_predictions.csv. Jede Zeile ist der gespeicherte CV-Score einer Zelle, verknüpft mit demselben gemessenen Objekt. Klicken Sie auf den Pfad und drücken Sie Enter, damit die Score-Spalten eingelesen werden, und behalten Sie pred als Phänotyp-Score-Spalte.",
+    "Wählen Sie für Well/guide fractions regression_data.csv im selben Ergebnisordner. Diese Tabelle hat Regression geschrieben. Sie gibt den Anteil jedes Guides in jedem analysierten Well an.",
+    "Lassen Sie Independent morphology features leer. Das Modul verwendet dann die 13 numerischen Zellmessungen der Datenbank und lässt Kennungen, Guide-Anteile und den CV-Score weg, sodass diese Prüfung den Score nicht wiederverwendet. Geben Sie für Ihre eigene Datenbank nur Messspalten ohne fehlende Werte an.",
+    "Klicken Sie auf Investigate hit. Das Modell wird angepasst, während jeweils eine Platte zurückgehalten wird, sodass keine Zelle von einem Modell bewertet wird, das auf ihrer eigenen Platte trainiert wurde. Der Guide-Anteil eines Wells legt nur die Ausgangserwartung für dessen Zellen fest. Er kennzeichnet nie eine Zelle als Trägerin des Guides. Dieses Beispiel dauert einige Minuten.",
+    "Evidence zeigt das Ergebnis. Ziel-Wells haben eine hit-ähnliche Prävalenz, die nur 0,01 über der von Kontroll-Wells liegt. Das Well-Bootstrap-Intervall reicht von minus 0,04 bis plus 0,06, und der P-Wert der blockierten Permutation liegt bei etwa 0,63. Die Zellen stützen diesen Kandidaten nicht.",
+    "Wells listet für jedes Well Guide-Anteil, mittlere hit-ähnliche Wahrscheinlichkeit, Prävalenz und Zellzahl auf. Jedes Well zählt als eine unabhängige Einheit; der Vergleich verwendet also 13 Ziel-Wells und 39 Kontroll-Wells, nicht einzelne Zellen.",
+    "Guides zeigt jeden Ziel-Guide einzeln. Ihre Dosis-Wirkungs-Verläufe zeigen in verschiedene Richtungen – ein weiterer Grund, dieses Gen nicht als Hit zu behandeln.",
+    "Threshold sensitivity wiederholt den Vergleich bei Wahrscheinlichkeitsgrenzen von 0,5 bis 0,9. Bei jeder Grenze bleibt der Unterschied nahe 0,01; die Schlussfolgerung hängt also nicht von der Grenze ab.",
+    "Candidate cells ordnet die Zellen nach hit-ähnlicher Wahrscheinlichkeit, mit dem ursprünglichen Score und dem Fold, der jede Zelle bewertet hat. Diese Wahrscheinlichkeiten beschreiben hit-ähnliche Morphologie, nicht, welchen Guide eine Zelle trug. Übernehmen Sie Zuordnungen nur dann in die Annotation, wenn die Belege auf Well-Ebene überzeugen. Undo macht eine Übernahme rückgängig.",
+    "Die Tabellen werden im Ergebnisordner unter hit_investigation und dann 225160 gespeichert. Sie enthalten diese Einbettung und ein Manifest, und jeder Lauf wird außerdem als neue Version in der Datenbank abgelegt. Das Beispiel hat keine Ausschnittbilder, daher bleibt die Prüfgalerie leer. Untersuchen Sie als Nächstes ein Gen, das in einem Regression-Lauf mit mehr Permutationen Ihre Schwelle erreicht."
+  ]
+}

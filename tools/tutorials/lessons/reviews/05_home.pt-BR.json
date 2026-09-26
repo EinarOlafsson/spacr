@@ -1,20 +1,34 @@
 {
-  "lesson": "05_home", "language": "pt-BR",
-  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
-  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Use Brazilian Portuguese while retaining English GUI names.", "Correct recortes de imagens, module hosting, assay names and hover instructions.", "Retain every source sentence rather than accepting fluent omissions."]},
+  "lesson": "05_home",
+  "english_sha256": "63d9c5df087686dfdcab76b19809465c2f21940a0cf63c565d485985259215e5",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
   "title": "Tela Home e navegação",
-  "description": "Encontre as seis etapas de Core, explore as categorias atuais de Home e localize as ferramentas integradas aos respectivos módulos principais.",
-  "objectives": ["Seguir o fluxo de Core, das imagens aos resultados da regressão.", "Encontrar Data, Tools e Assays sem confundir uma ação integrada com um módulo ausente.", "Distinguir os dados reais disponíveis para download das demonstrações geradas e encontrar os tutoriais especializados correspondentes."],
-  "prerequisite": "Instale o spaCR e abra o aplicativo de desktop. A gravação usa o tema escuro e texto ampliado na interface.",
+  "description": "Abra um módulo pela tela Home, encontre as ferramentas relacionadas e os dados de exemplo e escolha um pipeline para seguir.",
+  "objectives": [
+    "Escolher um módulo inicial para imagens, medições ou leituras de sequenciamento.",
+    "Encontrar as ferramentas relacionadas e os ensaios específicos de cada organismo.",
+    "Carregar um exemplo, encontrar ajuda e abrir a visão geral de um pipeline."
+  ],
+  "prerequisite": "Instale o spaCR e abra o aplicativo de desktop.",
   "scenes": [
-    "A tela Home organiza o spaCR em Core, Data, Tools e Assays. Essas são categorias de fluxo de trabalho. Ferramentas relacionadas também podem ficar dentro de um módulo principal, portanto os botões de Home não representam todos os recursos disponíveis.",
-    "Core segue o fluxo de análise da triagem: Mask, Measure, Annotate, Classify, Map Barcodes e Regression. Comece na etapa adequada aos seus dados de entrada. Não é necessário repetir a segmentação se você já tiver medições ou recortes de imagens compatíveis.",
-    "Data reúne Import, Run Compare, Experiment Design, Power and Design, Dose Response e controle de qualidade. Import também dá acesso a Import Images, Format Converter e External Masks. Abra primeiro o módulo principal para encontrar esses fluxos de trabalho.",
-    "Tools contém Make Masks, Align and Stitch, Image UMAP, Gate Editor e Graph Builder. Cada módulo reúne ações relacionadas. Por exemplo, Make Masks inclui treinamento e comparação de modelos, enquanto Graph Builder inclui Plate Viewer e Small Multiples.",
-    "Assays agrupa Plaque Assay, Recruitment, Invasion Assay e Replication Assay. Escolha um fluxo de trabalho adequado ao experimento e aos dados que ele exige. A cor que indica a maturidade de um módulo é independente da categoria; leia a dica de ferramenta antes de confiar em um recurso experimental.",
-    "Classify é um único módulo. A configuração Classifier family permite escolher visão computacional baseada em imagens ou aprendizado de máquina a partir de características medidas. Os tutoriais anteriores de visão computacional e aprendizado de máquina continuam como guias específicos dessas duas opções, e não de botões separados de Home.",
-    "Os ícones na parte superior de Classify abrem Classifier Evaluation, Explain CV Model, Activation, Training Runs e Feature Explorer. Passe o cursor sobre cada ícone para ver o nome e a descrição. Use o tutorial especializado vinculado quando quiser examinar um modelo treinado ou seus resultados.",
-    "Os tutoriais de Core usam os dados reais oferecidos por Load test data. O download preenche as entradas relevantes e as configurações compatíveis. As demonstrações geradas no menu Help são outra opção. Em Mask, os controles Time e 3D mostram os fluxos temporais e volumétricos; Live abre a prévia.",
-    "Use Help para voltar às visitas guiadas e aos tutoriais. Mantenha o tutorial do módulo atual ao lado do aplicativo e siga suas verificações dos dados, das configurações e dos resultados. A próxima lição mostra como acessar os mesmos fluxos de trabalho pela API Python e pela linha de comando."
+    "A tela Home é o seu ponto de partida. Clique em um bloco para abrir um módulo ou use a barra lateral à esquerda. Clique em Home na barra lateral para voltar aqui. As abas Core, Data, Tools e Assays ajudam você a encontrar a tarefa que quer fazer.",
+    "Para imagens de microscópio, comece com Mask para contornar os objetos e depois use Measure para extrair suas características e recortes. Annotate permite rotular objetos de exemplo, e Classify aprende com esses rótulos para pontuar mais objetos. Map Barcodes lê dados de sequenciamento. Regression combina as pontuações de fenótipo resultantes com as contagens de guias para encontrar associações.",
+    "Data é onde os arquivos entram e os resultados são conferidos. Se você já tem imagens, máscaras ou tabelas de medições, Import as traz para um projeto que os outros módulos conseguem ler. Antes de um experimento, Experiment Design organiza suas placas; depois, QC mostra as verificações de qualidade registradas e Run Compare coloca duas execuções lado a lado.",
+    "Tools reúne os editores e exploradores práticos. Em Make Masks você corrige máscaras, e por ali também se abre o Cellpose Workbench. Align and Stitch junta blocos de imagem sobrepostos em uma única imagem. Quando você tem medições, Image UMAP, Gate Editor e Graph Builder permitem explorá-las e representá-las em gráficos. A barra de ferramentas de cada módulo abre suas ferramentas relacionadas.",
+    "Abra Assays e escolha seu organismo: Toxoplasma, Plasmodium ou Candida. Depois escolha um ensaio no menu desse organismo. Por exemplo, abra Toxoplasma para a análise de placas de lise ou para medições de hospedeiro e patógeno. Siga o tutorial do ensaio escolhido para preparar as imagens, as máscaras e as medições de entrada.",
+    "Abra Classify e use Classifier family para escolher sua entrada. Selecione Computer Vision para imagens de objetos, ou Tabular Machine Learning para colunas de características medidas. Os tutoriais vinculados conduzem você pelo treinamento, pela avaliação e pela pontuação de cada família.",
+    "Depois que um modelo é treinado, a barra de ferramentas de Classify ajuda você a examiná-lo. Classifier Evaluation mostra como ele se saiu com dados reservados, Explain CV Model e Activation mostram o que orienta as decisões, Training Runs compara históricos de treinamento e Feature Explorer ordena as características que separam seus grupos. Passe o cursor sobre um ícone para ver o nome.",
+    "Para experimentar um módulo, clique em Load test data quando estiver disponível. Aguarde o download terminar e confira as entradas e as configurações preenchidas. Em Mask, clique em Live para inspecionar um campo antes de apertar Run. Ative Time para uma série temporal ou 3D para uma imagem volumétrica.",
+    "Digite o nome de um módulo, de uma configuração ou de uma função no campo de busca ao lado de Help. Aqui, a busca por Performance encontra a página correspondente de Preferences. Clique em um resultado para abrir o destino. Os resultados de API abrem a documentação da função selecionada.",
+    "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo.",
+    "Volte à tela Home e clique em Pipeline overviews para escolher um fluxo de trabalho. Comece com spaCR screens para uma triagem agrupada baseada em imagens, ou escolha um caminho de análise de imagens ou de sequenciamento para os seus dados. Os próximos tutoriais mostram como esses módulos se conectam, e as lições de cada módulo percorrem depois cada tarefa."
   ]
 }

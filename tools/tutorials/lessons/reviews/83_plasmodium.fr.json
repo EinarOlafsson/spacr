@@ -1,0 +1,28 @@
+{
+  "lesson": "83_plasmodium",
+  "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Plasmodium : explorer le guide de l’organisme",
+  "description": "Parcourez le guide Plasmodium, explorez le schéma cellulaire et trouvez les workflows généraux d’analyse d’images disponibles.",
+  "objectives": [
+    "Ouvrir la page depuis Home et trouver ses principales commandes.",
+    "Identifier les entrées, actions et sorties disponibles.",
+    "Choisir l’analyse ou la référence disponible suivante."
+  ],
+  "prerequisite": "Ouvrez Home dans spaCR. Le guide ne nécessite aucun fichier d’entrée. Les tuiles d’essais propres à Plasmodium affichent pour l’instant Coming soon.",
+  "scenes": [
+    "Plasmodium a son propre guide. Depuis Home, choisissez Plasmodium pour découvrir l’organisme, ses compartiments cellulaires et les essais prévus pour lui.",
+    "Le panneau d’information raconte l’histoire du parasite par sections, du stade sanguin et du stade hépatique jusqu’à la motilité. Faites glisser le séparateur pour gagner de la place à côté des tuiles des modules.",
+    "Sur le schéma d’apicomplexe, survolez un compartiment pour savoir ce qu’il est. Sélectionnez-en plusieurs pour les mettre en évidence ensemble ; Clear components rétablit la vue.",
+    "Les tuiles d’essais sont encore marquées Coming soon et ne peuvent pas être ouvertes, mais leurs descriptions indiquent ce que chacune mesurera. Pour analyser dès aujourd’hui des images de Plasmodium, revenez à Home et ouvrez Mask ou Measure avec vos propres images et des réglages de canaux adaptés.",
+    "Pour aller plus loin, les liens PlasmoDB et UniProt ouvrent des ressources sur l’organisme dans votre navigateur. Rien ici ne demande de jeu de données ni de Run, et le guide n’écrit aucun fichier."
+  ]
+}

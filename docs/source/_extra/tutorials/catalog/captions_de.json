@@ -81,56 +81,67 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation mit Conda",
+      "title": "spaCR mit Conda installieren",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installieren Sie das offizielle conda-forge-Paket in einer eigenen Umgebung, prüfen Sie die tatsächliche Kanalversion und erkennen Sie Abweichungen von den aktuellen Modul-Tutorials.",
+      "description": "Erstellen Sie eine Conda-Umgebung, installieren Sie spaCR aus conda-forge und starten Sie die Anwendung.",
       "objectives": [
         "Eine eigene Conda-Umgebung erstellen und aktivieren.",
-        "Das installierte Kanalpaket, Qt und die Diagnoseergebnisse prüfen.",
-        "Bei veralteter Kanaloberfläche den neueren pip- oder Desktop-Installer verwenden."
+        "spaCR aus conda-forge installieren.",
+        "spaCR öffnen und bei Bedarf dieselbe Umgebung aktualisieren."
       ],
-      "prerequisite": "Ein Conda-kompatibler Paketmanager muss bereits installiert sein. Diese Aufnahme überprüft am 10. September 2026 unter Linux spaCR 1.5.0.4 aus conda-forge mit Python 3.12.14 und Qt 6.11.2. Die Neuinstallation verwendet einen neuen privaten Präfix, ausschließlich conda-forge und die festgelegte Kanalversion; die Befehlskarten erläutern das entsprechende Vorgehen mit benannter Umgebung und stellen keine Installationsausgabe nach. Die tatsächliche Oberfläche hat noch Home (63), nicht die neue verschachtelte Struktur von PyPI/Installer 1.5.0.5. spacr-doctor hat seinen kleinen CUDA-Speicherallokationstest bestanden, warnt aber vor fehlender optionaler CZI-Unterstützung; das ist weder ein Geschwindigkeitsvergleich noch die Prüfung aller Analysen oder Formate. Die native Aufnahme verwendet ein privates dunkles Profil mit Schriftfaktor 1.5, bereits geschlossener Einführung und unveränderten Vorladevorgaben, ohne das nicht unterstützte Flag --no-setup. Andere Plattformen wurden nicht getestet. Ursprünglicher und veröffentlichter Sprechertext unterscheiden sich; unveränderte Audioübernahme wird nicht behauptet.",
+      "prerequisite": "Installieren Sie Conda oder Miniforge und öffnen Sie ein Terminal, in dem der Befehl conda verfügbar ist.",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "Verwenden Sie für spaCR eine eigene Conda-Umgebung und prüfen Sie, welche Version der Kanal tatsächlich anbietet. Zum Aufnahmezeitpunkt installiert conda-forge Version eins Punkt fünf Punkt null Punkt vier. PyPI und der Desktop-Installer bieten bereits eins Punkt fünf Punkt null Punkt fünf; diese Versionsangaben sind nicht austauschbar.",
+          "narration": "Öffnen Sie ein Terminal mit Conda. Sie erstellen eine Umgebung für spaCR, installieren das conda-forge-Paket und starten die Anwendung aus dieser Umgebung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "Erstellen Sie mit dem angezeigten Befehl eine Umgebung namens spacr-conda mit Python 3.12 und spaCR aus conda-forge. Wählen Sie einen anderen Namen, wenn Sie diesen bereits für eine andere Umgebung verwenden.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_conda",
-          "narration": "Öffnen Sie eine für Conda eingerichtete Shell und erstellen Sie eine neue Umgebung mit Python drei Punkt zwölf. Die Befehlskarte verwendet den Namen spacr-conda. Falls er schon existiert, wählen Sie einen anderen unbenutzten Namen und trennen Sie diese Umgebung von laufenden Analysen.",
+          "narration": "Conda löst die Umgebung auf und listet den Paketplan auf. Prüfen Sie ihn, geben Sie y ein, um zuzustimmen, und warten Sie, bis Download und Installation abgeschlossen sind.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_conda",
-          "narration": "Aktivieren Sie die Umgebung und geben Sie sys Punkt prefix aus, um die Herkunft von Python zu bestätigen. Die tatsächliche Prüfung verwendet statt des kurzen Beispielnamens einen längeren privaten Präfix. Die Eingabeaufforderung allein beweist nicht, dass der gewünschte Interpreter verwendet wird.",
+          "narration": "Aktivieren Sie spacr-conda. Führen Sie den angezeigten Python-Befehl aus, um den Pfad der Umgebung zu sehen, und prüfen Sie, dass es die soeben erstellte Umgebung ist.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_conda",
-          "narration": "Installieren Sie das Paket mit ausdrücklicher Angabe von conda-forge und prüfen Sie Version und Kanal anschließend mit conda list spacr. Unsere aufgezeichnete Installation verwendete ausschließlich conda-forge und eine festgelegte Kanalversion. Sie war vor den Prüfbildern abgeschlossen; die Karten sind Anweisungen, keine erfundene Terminalausgabe.",
+          "narration": "Führen Sie conda list spacr aus, um die installierte Version zu sehen und zu bestätigen, dass sie aus conda-forge stammt. Werden Python und spaCR mit einem Befehl installiert, kann Conda alle Pakete gemeinsam auflösen – das geht viel schneller, als spaCR zu einer bestehenden Umgebung hinzuzufügen.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Prüfen Sie spaCR-Version, Qt-Version und Paketpfad in der installierten Umgebung. Hier ist das Paket in Version eins Punkt fünf Punkt null Punkt vier aktiv und Qt lässt sich importieren. Das identifiziert das aktive Paket, bestätigt aber nicht jeden wissenschaftlichen Ablauf oder jedes optionale Format.",
+          "narration": "Prüfen Sie die installierte spaCR-Version und den Speicherort des Pakets. Notieren Sie diese Version bei Ihren Analysenotizen, damit Sie später zur selben Umgebung zurückkehren können.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus und lesen Sie auch die Warnungen. Hier gelingt der kleine GPU-Speicherallokationstest, während für die optionale CZI-Unterstützung eine Abhängigkeit fehlt. Übersprungene Prüfungen sind keine bestandenen Prüfungen. Der Reparaturvorschlag betrifft diese Funktion; beurteilen Sie Änderungen an der Umgebung vorab, besonders beim Mischen von Paketmanagern.",
+          "narration": "Führen Sie spacr-doctor aus, um die Installation zu prüfen. Hier meldet es, dass vispy, eine Kernabhängigkeit, fehlt, und zeigt den Befehl an, der es installiert. Führen Sie diesen Befehl aus und starten Sie spacr-doctor dann erneut. Folgen Sie weiteren vorgeschlagenen Schritten nur für die Dateiformate oder Funktionen, die Sie benötigen.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Das installierte Conda-Paket öffnet und schließt normal, zeigt aber seine ältere Home mit dreiundsechzig Kacheln. Die neue verschachtelte Modulstruktur fehlt. Eine erfolgreiche Installation bedeutet nicht automatisch, dass jeder Bildschirm den Tutorials einer neueren Version entspricht.",
-          "hold_after": 0.7
+          "narration": "Geben Sie spacr ein, um die Anwendung zu starten. Treffen Sie die Auswahl beim ersten Start und fahren Sie dann mit dem Home-Tutorial fort, um Module und ihre Beispieldaten zu finden.",
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "Für die neuere verschachtelte Oberfläche der überarbeiteten Modul-Tutorials verwenden Sie die aktuelle Lektion zu pip oder Platform installers in einer separaten Umgebung. Benötigen Sie den Conda-Kanal, dokumentieren Sie seine tatsächliche Version und prüfen Sie erneut auf Aktualisierungen. Bewahren Sie die für eine laufende Analyse verwendete Version.",
+          "narration": "Um später zu aktualisieren, schließen Sie spaCR, aktivieren diese Umgebung und aktualisieren das conda-forge-Paket. Gibt es in conda-forge keinen neueren Build, meldet Conda, dass alle angeforderten Pakete bereits installiert sind. Prüfen Sie anschließend die installierte Version; die Lektionen zu pip und zum Installer behandeln die anderen Installationswege.",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
@@ -138,7 +149,52 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -148,145 +204,202 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Eine isolierte Python-Umgebung anlegen, das öffentliche Paket installieren, Abhängigkeiten prüfen und die installierte Qt-Anwendung starten.",
+      "description": "Erstellen Sie eine isolierte Python-Umgebung, installieren Sie das öffentliche Paket, prüfen Sie seine Abhängigkeiten und starten Sie die installierte Qt-Anwendung.",
       "objectives": [
-        "Die Abhängigkeiten von spaCR in einer eigenen Python-Umgebung halten.",
-        "Installiertes Paket, Qt und Warnungen zu optionalen Funktionen prüfen.",
-        "Home öffnen und gezielt die richtige Umgebung aktualisieren."
+        "Eine virtuelle Python-Umgebung erstellen und aktivieren.",
+        "spaCR installieren und seine Abhängigkeiten prüfen.",
+        "Die Anwendung starten und die vorgesehene Umgebung aktualisieren."
       ],
-      "prerequisite": "Diese Lektion prüft spaCR 1.5.0.5 von PyPI unter Linux mit Python 3.12.13, keine editierbare Installation eines Checkouts. Die Befehlskarten sind Anleitungen, keine aufgezeichneten Terminalausgaben; Windows- und macOS-Befehle wurden hier nicht ausgeführt. Die Neuinstallation war vor den aufgezeichneten Prüfungen abgeschlossen. Die aktuellen Basisabhängigkeiten enthalten Qt. Doctor meldet eine optionale CZI-Warnung; die GPU-Speicherbelegungsprobe wird ausdrücklich ausgelassen. Die GUI-Aufnahme verwendet --no-setup, ein privates dunkles Profil mit Schriftfaktor 1.5 und eine bereits geschlossene Tour. Sie belegt normales Öffnen und Schließen von Home, nicht sämtliche Module, optionalen Formate, GPU-Berechnungen oder andere Plattformen.",
+      "prerequisite": "Installieren Sie Python 3.12 und öffnen Sie ein Terminal. Verwenden Sie den Aktivierungsbefehl für Ihr Betriebssystem und Ihre Shell.",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "Installieren Sie spaCR in einer eigenen Python-Umgebung. Diese Demonstration verwendet Python 3.12 unter Linux und die öffentliche PyPI-Version, keinen Quellcode-Checkout. Prüfen Sie python --version, bevor Sie den Interpreter für Ihre Umgebung auswählen.",
+          "narration": "Öffnen Sie ein Terminal und prüfen Sie Ihre Python-Version. Diese Anleitung verwendet Python 3.12. Halten Sie spaCR in einer eigenen virtuellen Umgebung, damit sich seine Pakete leicht verwalten lassen.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_environment",
-          "narration": "Erstellen Sie mit dem Befehl für Ihre Plattform eine neue virtuelle Umgebung. Hier ist .venv ein neuer Ordner im Arbeitsverzeichnis. Python 3.12 muss bereits installiert sein: Der Befehl erstellt eine Umgebung, installiert aber nicht Python selbst.",
+          "narration": "Erstellen Sie mit dem Befehl für Ihr Betriebssystem eine virtuelle Umgebung namens .venv. Dadurch entsteht ein Ordner mit der Python-Umgebung, die Sie für spaCR verwenden.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_environment",
-          "narration": "Aktivieren Sie die Umgebung mit dem Befehl für Ihre Shell. PowerShell, Command Prompt, bash und zsh benötigen unterschiedliche Aktivierungsbefehle. Blockiert PowerShell das Skript, verwenden Sie Command Prompt oder rufen Sie Python aus der Umgebung direkt auf; schwächen Sie nicht die Sicherheitsregeln des gesamten Rechners.",
+          "narration": "Aktivieren Sie .venv mit dem Befehl für Ihre Shell. Windows PowerShell und die Eingabeaufforderung haben unterschiedliche Aktivierungsbefehle; macOS und Linux verwenden meist den hier gezeigten Shell-Befehl.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pip_environment",
-          "narration": "Führen Sie python -m pip --version aus. Der angegebene Speicherort sollte innerhalb der gewählten Umgebung liegen. Dieses echte Terminal zeigt den längeren privaten Aufnahmepfad. Mit python -m pip ist die Paketinstallation an diesen Interpreter gebunden.",
+          "narration": "Führen Sie python -m pip --version aus. Prüfen Sie, dass der angezeigte Pfad zu .venv gehört. Verwenden Sie python -m pip für die Installationsbefehle, damit pip diesen Interpreter nutzt.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_package",
-          "narration": "Aktualisieren Sie pip und installieren Sie spacr. Mit der Festlegung auf 1.5.0.5 erhalten Sie die Version dieser Lektion. Die Neuinstallation war vor diesen aufgezeichneten Prüfungen abgeschlossen. Planen Sie Zeit und Speicherplatz für wissenschaftliche Abhängigkeiten ein; die aktuellen Basisabhängigkeiten enthalten bereits die Qt-Desktop-Komponenten.",
+          "narration": "Aktualisieren Sie pip und installieren Sie dann spacr. Warten Sie, bis die wissenschaftlichen Pakete heruntergeladen und installiert sind. Das aktuelle Paket enthält die Desktop-Komponenten, die zum Öffnen der Anwendung nötig sind.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Prüfen Sie die installierte spaCR-Version, die Qt-Version und den Paketpfad. Hier stammen alle drei aus der neuen Umgebung. Ein erfolgreicher Import beweist weder, dass jedes optionale Format oder jede Analyse funktioniert, noch dass sich das Fenster öffnen lässt.",
+          "narration": "Prüfen Sie mit dem angezeigten Befehl die installierte spaCR-Version und den Speicherort des Pakets. Speichern Sie die Version bei Ihren Analysenotizen.",
           "hold_after": 0.7
         },
         {
           "visual": "04_dependency_check",
-          "narration": "Führen Sie python -m pip check aus. No broken requirements bedeutet, dass die deklarierten Abhängigkeiten der installierten Pakete zusammenpassen. Beheben Sie gemeldete Konflikte vor dem Fortfahren. Eine erfolgreiche Prüfung ist keine wissenschaftliche Validierung einer Analyse.",
+          "narration": "Führen Sie python -m pip check aus. Meldet es widersprüchliche Anforderungen, lösen Sie diese Konflikte, bevor Sie die Umgebung verwenden.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus und lesen Sie auch die Warnungen. Diese Installation meldet eine optionale CZI-Warnung samt Reparaturbefehl. Für die Aufnahme wird --no-gpu-probe verwendet: Das Gerät wird erkannt, aber keine GPU-Speicherbelegung erprobt. Übersprungene Prüfungen sind keine bestandenen Prüfungen.",
+          "narration": "Führen Sie spacr-doctor aus, um die Installation zu prüfen und fehlende optionale Funktionen zu sehen. Folgen Sie der vorgeschlagenen Reparatur nur für die Formate oder Fähigkeiten, die Sie benötigen.",
           "hold_after": 0.7
         },
         {
           "visual": "10_launch_commands",
-          "narration": "Starten Sie spacr aus derselben aktivierten Umgebung. Beim normalen ersten Start können Einrichtungsfragen erscheinen. Diese begrenzte Überprüfung nutzt ausdrücklich --no-setup und ein vorbereitetes Aufnahmeprofil; sie zeigt nicht die Beantwortung dieser Fragen.",
+          "narration": "Starten Sie spacr aus der aktivierten Umgebung. Folgen Sie beim ersten Start den Einrichtungsaufforderungen und wählen Sie Ihre Einstellungen.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Dies ist das echte Home-Fenster des installierten Wheels mit sechs Kernmodulen und den Gruppen Data, Tools und Assays. Es wurde ohne Analyse normal geöffnet und geschlossen. Fahren Sie mit Home fort, um Navigation, verschachtelte Werkzeuge und die Modultutorials kennenzulernen.",
+          "narration": "Home öffnet sich mit den Kategorien Core, Data, Tools und Assays. Fahren Sie mit dem Home-Tutorial fort, um ein Modul zu finden, Beispieldaten zu laden und eine Pipeline-Übersicht zu öffnen.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "Schließen Sie spaCR vor einem Update und aktivieren Sie die Umgebung, die Sie ändern möchten. Aktualisieren Sie das Paket, wiederholen Sie pip check und spacr-doctor und dokumentieren Sie die neue Version zusammen mit Ihrer Analyse. Updates können Abhängigkeiten und Verhalten ändern; verändern Sie eine für laufende Arbeiten verwendete Umgebung nicht stillschweigend.",
+          "narration": "Zum Aktualisieren schließen Sie spaCR und aktivieren diese Umgebung. Aktualisieren Sie das Paket und prüfen Sie dann Version und Abhängigkeiten erneut. Behalten Sie die vorherige Umgebung, wenn Sie sie für eine laufende Analyse brauchen.",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Installationsprogramme nach Plattform",
+      "title": "spaCR mit einem Desktop-Installer installieren",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Wählen Sie einen offiziellen Installer, verstehen Sie die automatische Beschleunigerauswahl und freiwilligen Datenschutzoptionen und prüfen Sie die tatsächlich installierte Linux-Laufzeitumgebung.",
+      "description": "Laden Sie den Installer für Ihr Betriebssystem herunter, schließen Sie die Einrichtung ab und öffnen Sie spaCR.",
       "objectives": [
-        "Den offiziellen Installer für das Betriebssystem auswählen.",
-        "Automatische Beschleunigung von der ausdrücklichen CPU-only-Wahl unterscheiden.",
-        "Datenschutzoptionen, installierte Versionen und Diagnosewarnungen lesen."
+        "Den Installer für Ihr Betriebssystem herunterladen und ausführen.",
+        "Eine Beschleunigungsoption und die Einstellungen für den ersten Start wählen.",
+        "spaCR öffnen und Installationsprotokolle finden, wenn die Einrichtung Aufmerksamkeit braucht."
       ],
-      "prerequisite": "Diese Aufnahme überprüft am 10. September 2026 den mit seiner Prüfsumme abgeglichenen öffentlichen Linux-x86-64-Online-Installer für spaCR 1.5.0.5 mit Python 3.12.13, Qt 6.11.2 und Torch 2.14.0+cu132. Die echte Installation war vor diesen Prüfbildern abgeschlossen. Sie verwendete neue private Laufzeit- und Starterverzeichnisse, vorhandene grafische Systembibliotheken, --skip-system-deps und --no-launch; bestehende Umgebungen oder Systemabhängigkeiten wurden nicht verändert. Vier Referenzkarten sind Anweisungen, keine aufgezeichneten Windows/macOS-Installationen oder erfundenen Terminalausgaben. Windows/macOS-Hinweise wurden nur anhand des aktuellen Installer-Quellcodes geprüft. Die GUI-Aufnahme verwendet ein privates dunkles Profil mit Schriftfaktor 1.5, bereits geschlossener Einführung, Vorladen bei Bedarf und --no-setup; dieses Flag umgeht die separate Datenschutzfrage nicht. Mit der echten Escape-Taste wird der Dialog abgelehnt und alles Freiwillige bleibt aus; die privaten Einstellungen wurden anschließend ausgelesen. Doctor lief mit --no-gpu-probe; Speicherallokation, Geschwindigkeit, Analysen und andere Plattformen werden nicht als geprüft bezeichnet. Fehlgeschlagene Aufnahmeversuche bleiben erhalten und gelten nicht als Anwendungsfehler.",
+      "prerequisite": "Laden Sie den offiziellen Installer für Ihr Betriebssystem herunter und planen Sie Speicherplatz für die Anwendung und ihre wissenschaftlichen Abhängigkeiten ein.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Verwenden Sie die offizielle spaCR-Veröffentlichung auf GitHub und wählen Sie den Installer für Ihr Betriebssystem. Die Online-Installer laden eine private Python-Laufzeit und wissenschaftliche Abhängigkeiten herunter; eine vorhandene Conda-Umgebung ist nicht nötig. In diesem Linux-Beispiel haben wir die heruntergeladene Datei vor dem Start mit der veröffentlichten Prüfsumme abgeglichen.",
+          "narration": "Öffnen Sie das offizielle spaCR-Release auf GitHub und laden Sie unter Assets den Installer für Ihr Betriebssystem herunter. Diese Online-Installer laden während der Einrichtung die Python-Laufzeit und die wissenschaftlichen Pakete herunter. Bewahren Sie SHA256SUMS.txt aus demselben Release auf, wenn Sie den Download prüfen möchten.",
           "hold_after": 0.7
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "Wählen Sie unter Windows die ausführbare Online-Setup-Datei. Der aktuelle Installer-Quellcode wählt automatische Beschleunigung vor; für reinen CPU-Betrieb lässt sich diese optionale Komponente abwählen. Die Karte erklärt diese Wahl, ist aber weder eine Windows-Installationsaufnahme noch ein Kompatibilitätstest auf Ihrem Computer.",
+          "narration": "Führen Sie unter Windows das Setup-Programm aus und folgen Sie den Anweisungen. Lassen Sie die automatische Beschleunigung ausgewählt, um die auf Ihrem Computer erkannte unterstützte Hardware zu nutzen, oder wählen Sie den reinen CPU-Betrieb, wenn Sie diesen benötigen.",
           "hold_after": 0.7
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "Wählen Sie unter macOS das universelle Online-Paket für Intel und Apple silicon. Fehlt die Laufzeit, startet der App-Starter die Einrichtung für den jeweiligen Benutzer. Prüfen Sie vor dem Bestätigen von Sicherheitsmeldungen die offizielle Quelle und planen Sie Zeit für Downloads ein. Dies sind anhand des Quellcodes geprüfte Hinweise, keine ausgeführte macOS-Installation.",
+          "narration": "Öffnen Sie unter macOS das Universal-Paket und folgen Sie dem Installer. Starten Sie spaCR über den Programmstarter und lassen Sie die Downloads beim ersten Start abschließen. Lesen Sie jede Sicherheitsabfrage und prüfen Sie, dass das Paket aus dem offiziellen Release stammt.",
           "hold_after": 0.7
         },
         {
           "visual": "11_linux_commands",
-          "narration": "Machen Sie unter Linux die geprüfte Datei ausführbar und starten Sie sie aus ihrem Ordner. Die automatische Beschleunigerauswahl ist jetzt Standard; fordern Sie bei Bedarf ausdrücklich CPU an. Unser isolierter Lauf nutzte vorhandene Systembibliotheken und private Pfade und demonstriert daher nicht die Installation von Systemabhängigkeiten.",
+          "narration": "Machen Sie unter Linux den heruntergeladenen Installer ausführbar und starten Sie ihn in einem Terminal. Die automatische Beschleunigung wählt ein unterstütztes Backend. Die Hilfe nennt --torch-backend cpu für den reinen CPU-Betrieb und --skip-system-deps für Computer, auf denen die Qt-Grafikbibliotheken bereits vorhanden sind.",
           "hold_after": 0.7
         },
         {
           "visual": "02_installer_backend",
-          "narration": "Lesen Sie das tatsächliche Installationsprofil, statt aus einem erfolgreichen Start auf das Backend zu schließen. Hier wurde auto angefordert und CUDA auf NVIDIA-Hardware ausgewählt. Der installierte Torch-Build verwendet CUDA dreizehn Punkt zwei. Das identifiziert die Auswahl, ist aber kein GPU-Geschwindigkeitstest.",
+          "narration": "Nach der Einrichtung hält das Installationsprofil das gewählte Backend fest. Sehen Sie dort nach, wenn Sie prüfen möchten, ob die Laufzeit die CPU oder einen unterstützten Beschleuniger verwendet.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Prüfen Sie Paketversion, Qt-Import und Paketpfad. Diese private Laufzeit enthält spaCR eins Punkt fünf Punkt null Punkt fünf. Die Dateien stammen aus der Installation, nicht aus einem bearbeitbaren Quellcode-Checkout. Erfolgreiche Importe validieren nicht jede Analyse oder jedes optionale Dateiformat.",
+          "narration": "Prüfen Sie die installierte spaCR-Version. Notieren Sie sie bei Ihren Analysenotizen, besonders wenn Sie die Anwendung später aktualisieren.",
           "hold_after": 0.7
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "Der echte erste Start fragt nach freiwilligem Diagnoseteilen, öffentlichen Fehlermeldungen und Kontoeinrichtung. Meldungen wären öffentlich; lesen Sie die Erklärung. Die Aufnahme lehnt den Dialog mit Escape ab, entsprechend Skip, keep all off. Es werden keine Konten verbunden, und die ausgelesenen privaten Einstellungen bestätigen, dass Teilen und Meldeaktionen ausgeschaltet bleiben.",
+          "narration": "Die Einrichtung fragt nach dem optionalen Teilen von Diagnosedaten und der Einrichtung eines Kontos. Antworten Sie nur bei den gewünschten Optionen mit y; n, die Voreinstellung, lässt jede Option ausgeschaltet. Der Windows-Installer zeigt dieselben Auswahlmöglichkeiten als Kontrollkästchen.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Nach dieser Wahl öffnet die installierte Anwendung ihre aktuelle Home mit einundzwanzig Kacheln und sechs Kernmodulen. Das Fenster schließt auch normal. Lernen Sie die verschachtelten Abläufe und Beispieldaten in der Home-Lektion kennen; Home allein zu öffnen ist kein Analysetest.",
+          "narration": "Wenn Home geöffnet ist, fahren Sie mit dem Home-Tutorial fort. Es zeigt, wie Sie ein Modul öffnen, Testdaten finden und eine Pipeline für Ihr Experiment wählen.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "05_doctor",
-          "narration": "Führen Sie spacr-doctor aus der installierten Laufzeit aus und lesen Sie Warnungen ebenso wie bestandene Prüfungen. Hier bestätigt es das Installer-Backend, warnt aber vor einer fehlenden optionalen CZI-Abhängigkeit. GPU-Allokation, Datenbank und Einstellungen wurden nicht geprüft. Übersprungen heißt nicht bestanden; bewerten Sie die vorgeschlagene Reparatur vor einer Umgebungsänderung.",
+          "narration": "Wenn der Start oder ein Dateiformat Probleme macht, führen Sie spacr-doctor aus der installierten Laufzeit aus. Es listet jede Prüfung mit einer vorgeschlagenen Lösung auf. Bei dieser reinen CPU-Installation schlägt die GPU-Prüfung erwartungsgemäß fehl, und die PATH-Prüfung markiert den eigenen spacr-Starter des Installers, der dieselbe Laufzeit startet; hier muss also keines von beiden geändert werden.",
           "hold_after": 0.7
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "Bewahren Sie install Punkt log und install-profile Punkt json aus dem gewählten Installationsverzeichnis zur Fehlersuche auf. Prüfen Sie Protokolle vor dem Teilen auf private Informationen. Dokumentieren Sie die Version jeder Analyse und aktualisieren Sie bewusst. Die Lektionen zu pip und Conda erläutern die anderen Installationswege mit getrennten Umgebungen.",
+          "narration": "Bei Installationsproblemen finden Sie install.log und install-profile.json im Installationsverzeichnis. Prüfen Sie die Protokolle, bevor Sie sie mit einer Supportanfrage teilen. Geben Sie Ihr Betriebssystem und Ihre spaCR-Version an, damit sich das Problem leichter diagnostizieren lässt.",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
@@ -294,7 +407,52 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
@@ -9397,18 +9555,134 @@
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 71,
-      "app_key": "investigate_hit",
-      "series": 5,
       "slug": "investigate_hit",
-      "section": "Results and quality control",
-      "host_app_key": "regression"
+      "title": "Investigate Hit: ein Regression-Gen bis zu den gemessenen Zellen zurückverfolgen",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Senden Sie ein Gen aus Hit List an Investigate Hit, fügen Sie Messdatenbank, Zellvorhersagen und Guide-Anteile hinzu und lesen Sie dann die Belege auf Well-Ebene.",
+      "objectives": [
+        "Einen Regression-Lauf in Hit List öffnen, q-Werte prüfen und ein Gen an Investigate Hit senden.",
+        "Messdatenbank, Zellvorhersagen, Guide-Anteile und Score-Spalte wählen.",
+        "Die Tabs für Belege, Wells, Guides und Schwellenwerte lesen und die gespeicherten Tabellen finden."
+      ],
+      "prerequisite": "Entpacken Sie Investigate_Hit_real_screen_example.zip. Alles darin stammt aus einem einzigen echten Screen: dem Regression-Lauf auf den Testdaten von Regression (die Einstellungen aus dem Regression-Tutorial), den passenden CV-Vorhersagen pro Zelle und einer Messdatenbank mit den echten Form-, Größen- und Intensitätsmessungen derselben Zellen. Damit der Download klein bleibt, enthält die Datenbank 52 Wells: alle analysierten Wells mit einem Guide für Gen 225160 und zu jedem drei Wells ohne ihn von derselben Platte. Kein Gen in diesem schnellen Regression-Lauf erfüllt q ≤ 0,05. Behandeln Sie die Untersuchung als durchgerechnetes Beispiel, nicht als bestätigten Hit.",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "Öffnen Sie von Home aus Regression. Investigate Hit beginnt mit einem abgeschlossenen Regression-Lauf. Es fragt, ob die gemessenen Zellen in den Wells hinter einem Gen anders aussehen als Zellen in Wells ohne dieses Gen.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Wählen Sie Hits, um Hit List zu öffnen. Entpacken Sie zuerst das Beispielarchiv. Es enthält einen Regression-Lauf auf den Testdaten, die passenden CV-Vorhersagen pro Zelle und eine Messdatenbank für dieselben Zellen. Alle drei stammen aus einem einzigen echten Screen.",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Klicken Sie auf Browse und wählen Sie den Ordner guide_permutation in regression_run, results. Das ist die Ausgabe des Testdatenlaufs aus dem Regression-Tutorial.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List ordnet 325 Gene. Lesen Sie Effekt, P-Wert und q-Wert jeder Zeile zusammen, dazu die Anzahl der Guides und wie viele davon übereinstimmen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Setzen Sie Max q auf 0,05. Die Tabelle leert sich, weil in diesem Lauf kein Gen einen q-Wert von höchstens 0,05 erreicht. Mit 199 Permutationen ist der kleinstmögliche P-Wert 0,005, und der niedrigste q-Wert liegt bei etwa 0,27. Was folgt, prüft daher einen gerankten Kandidaten, keinen bestätigten Hit.",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Setzen Sie Max q wieder auf 1, suchen Sie nach 225160 und wählen Sie seine Zeile. Es hat einen Effekt von 0,34, einen q-Wert von 0,27 und drei Guides, die alle in dieselbe Richtung zeigen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Klicken Sie auf Investigate selected. Investigate Hit öffnet sich mit dem Ergebnisordner, dem Gen, seinen drei Guides und einer positiven Effektrichtung, die bereits aus dieser Zeile übernommen sind.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "Klicken Sie neben Measurements database auf Browse und wählen Sie measurements.db aus dem Beispiel. Sie enthält Form, Größe und mittlere Kanalintensität für 8.915 Zellen in 52 Wells.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "Wählen Sie für Existing CV predictions cv_predictions.csv. Jede Zeile ist der gespeicherte CV-Score einer Zelle, verknüpft mit demselben gemessenen Objekt. Klicken Sie auf den Pfad und drücken Sie Enter, damit die Score-Spalten eingelesen werden, und behalten Sie pred als Phänotyp-Score-Spalte.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "Wählen Sie für Well/guide fractions regression_data.csv im selben Ergebnisordner. Diese Tabelle hat Regression geschrieben. Sie gibt den Anteil jedes Guides in jedem analysierten Well an.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Lassen Sie Independent morphology features leer. Das Modul verwendet dann die 13 numerischen Zellmessungen der Datenbank und lässt Kennungen, Guide-Anteile und den CV-Score weg, sodass diese Prüfung den Score nicht wiederverwendet. Geben Sie für Ihre eigene Datenbank nur Messspalten ohne fehlende Werte an.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_running",
+          "narration": "Klicken Sie auf Investigate hit. Das Modell wird angepasst, während jeweils eine Platte zurückgehalten wird, sodass keine Zelle von einem Modell bewertet wird, das auf ihrer eigenen Platte trainiert wurde. Der Guide-Anteil eines Wells legt nur die Ausgangserwartung für dessen Zellen fest. Er kennzeichnet nie eine Zelle als Trägerin des Guides. Dieses Beispiel dauert einige Minuten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence zeigt das Ergebnis. Ziel-Wells haben eine hit-ähnliche Prävalenz, die nur 0,01 über der von Kontroll-Wells liegt. Das Well-Bootstrap-Intervall reicht von minus 0,04 bis plus 0,06, und der P-Wert der blockierten Permutation liegt bei etwa 0,63. Die Zellen stützen diesen Kandidaten nicht.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells listet für jedes Well Guide-Anteil, mittlere hit-ähnliche Wahrscheinlichkeit, Prävalenz und Zellzahl auf. Jedes Well zählt als eine unabhängige Einheit; der Vergleich verwendet also 13 Ziel-Wells und 39 Kontroll-Wells, nicht einzelne Zellen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides zeigt jeden Ziel-Guide einzeln. Ihre Dosis-Wirkungs-Verläufe zeigen in verschiedene Richtungen – ein weiterer Grund, dieses Gen nicht als Hit zu behandeln.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity wiederholt den Vergleich bei Wahrscheinlichkeitsgrenzen von 0,5 bis 0,9. Bei jeder Grenze bleibt der Unterschied nahe 0,01; die Schlussfolgerung hängt also nicht von der Grenze ab.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells ordnet die Zellen nach hit-ähnlicher Wahrscheinlichkeit, mit dem ursprünglichen Score und dem Fold, der jede Zelle bewertet hat. Diese Wahrscheinlichkeiten beschreiben hit-ähnliche Morphologie, nicht, welchen Guide eine Zelle trug. Übernehmen Sie Zuordnungen nur dann in die Annotation, wenn die Belege auf Well-Ebene überzeugen. Undo macht eine Übernahme rückgängig.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "Die Tabellen werden im Ergebnisordner unter hit_investigation und dann 225160 gespeichert. Sie enthalten diese Einbettung und ein Manifest, und jeder Lauf wird außerdem als neue Version in der Datenbank abgelegt. Das Beispiel hat keine Ausschnittbilder, daher bleibt die Prüfgalerie leer. Untersuchen Sie als Nächstes ein Gen, das in einem Regression-Lauf mit mehr Permutationen Ihre Schwelle erreicht.",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",

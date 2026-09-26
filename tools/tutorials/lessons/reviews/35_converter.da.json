@@ -1,33 +1,35 @@
 {
   "lesson": "35_converter",
+  "english_sha256": "ebc9da9b1151232bc9d3f3ef39943821bd6d61b512039da9278febd7d3afaebe",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "da",
-  "english_sha256": "1421e92b000cf817acdc77701e253d0dc5f85cae67edcd6abb0c5058935d24eb",
-  "review": {"kind": "Editorial caption translation checked against English and the actual captured workflow", "native_speaker_signoff": false},
-  "title": "Format Converter: kontrollér identiteter, før virkelige billeder skrives",
-  "description": "Åbn Format Converter via Import, forhåndsvis to virkelige billedtilknytninger, skriv til en særskilt destination, og kontrollér genbrug via kontrolpunktet uden at ændre originalerne.",
+  "title": "Format Converter: forhåndsvis og konvertér billedfiler",
+  "description": "Vælg en kildemappe, kontrollér målnavne og kanaltildelinger, konvertér derefter billederne, og genoptag afsluttet arbejde.",
   "objectives": [
-    "Skeln mellem konvertering af billedformater og import af målinger og labelmasker.",
-    "Kontrollér kilde-, mål- og optagelsesidentiteter, før der skrives.",
-    "Gem kildebilleder, tilknytnings-CSV og kontrolpunkt for billedfelter sammen.",
-    "Fortolk en Resume-kørsel uden skrivning korrekt uden at behandle den som en garanti for pixelintegritet."
+    "Vælge kilde- og målmapper med det rigtige optagelseslayout.",
+    "Forhåndsvise målnavne, synsfelter og kanaltildelinger.",
+    "Konvertere filerne og bruge Resume til afsluttede synsfelter."
   ],
-  "prerequisite": "Genbrug de to enkeltkanals-TIFF'er, der blev klargjort fra virkelige, målte billeder i Import Project-tutorialen. Hver af dem er det præcise andet billedplan fra sit oprindelige array; de neutrale filnavne fov01_C1.tif og fov02_C1.tif indeholder ikke længere de oprindelige plade- eller brøndidentiteter. Dette bevidst afgrænsede eksempel demonstrerer konvertering af todimensionale TIFF'er, ikke leverandørspecifikke indlæsningsfunktioner, flerkanalsoptagelser, Z-projektion eller tidsserier. Format Converter har ingen særskilt funktion til at downloade et eksempel og ingen Plot-, Live preview- eller AI-kontrol.",
+  "prerequisite": "Forbered en mappe med understøttede billedfiler, og bevar deres optagelsesmetadata. Du kan øve dig med de to TIFF-billeder fra vejledningen til Import Project. Angiv layout og håndtering af Z efter din egen optagelse.",
   "scenes": [
-    "Åbn Import fra kategorien Data på Home, og vælg derefter Format Converter blandt de indlejrede værktøjer. Det konverterer billedformater og filnavne. Import Project løser en anden opgave: at samle billeder, labelmasker og måletabeller. Bland ikke den overordnede skærms kontroller sammen med kontrollerne i den indlejrede konverter.",
-    "Fanen Format Converter har sine egne kontroller for Source, Destination, Preview og Convert. Forhåndsvisningen er en kilde-til-mål-tabel, ikke en live-forhåndsvisning af mikroskopibilleder eller segmentering. Destinationen i den overordnede Import-visning og Import-knappen under fanen tilhører den anden arbejdsgang.",
-    "Vælg en kildemappe, ikke et enkelt billede. Dette eksempel genbruger de to virkelige enkeltkanals-TIFF'er fra Import-tutorialen. Deres pixels kommer fra målte mikroskopibilleder, men de neutrale feltnavne er demonstrationsnavne, ikke de oprindelige optagelseskoordinater.",
-    "Vælg en ny, tom destinationsmappe adskilt fra kilden. Bevar de oprindelige billeder og deres oprindelsesdokumentation uændret. Konverteringen opretter nye TIFF'er og en tilknytningsfil; den rekonstruerer ikke eksperimentelle metadata, der blev fjernet, da disse demonstrationsfiler fik deres navne.",
-    "Indstil Layout til images directly in src, fordi begge filer ligger direkte i én mappe. Brug de indekserede pladenavne plate1, plate2, … under Plate names, og lad Resume være slået fra ved denne første kørsel. Ved en virkelig mappestruktur med plader og brønde skal du vælge det tilsvarende layout og kontrollere de resulterende tilknytninger i stedet for at kopiere dette valg af en flad mappe.",
-    "Bevar hvert Z-plan med Keep every plane (one file per Z). Valgene Max-project Z (planes are discarded) og First plane only (planes are discarded) kasserer bevidst Z-information; ingen af dem demonstreres her. Hver inputfil indeholder én todimensional kanal, så denne optagelse fastslår ikke, hvordan en bestemt leverandørfil, tidsserie eller flerkanalsoptagelse vil blive fortolket.",
-    "Tryk på konverterens Preview-knap. Den faktiske plan viser to outputfiler fra to kildefiler, og destinationen forbliver tom. Undersøg hele kilde-til-mål-tilknytningen før Convert; en færdig forhåndsvisning er ikke bevis for, at dens brønd- og kanaltilknytninger passer til dit forsøg.",
-    "Her bruger de genererede navne plate1, brønd A01, felt 1 og 2 samt kanal 1. Det er tildelte demonstrationsidentiteter. Kildebillederne stammer oprindeligt fra optagelser i forskellige brønde, så denne tilknytning må ikke præsenteres som genskabte plademetadata eller bruges til at sammenlægge deres behandlinger.",
-    "Kontrollér kolonnerne From field og From channel sammen med de genererede navne. TIFF-filens eneste plan har arrayindeks 0, selv om dets bevarede pixels blev udtrukket fra kanalindeks 1 i det oprindelige array med syv planer. Kanal 1 i outputfilnavnet er derimod 1-baseret; disse tre nummereringskontekster er ikke indbyrdes udskiftelige.",
-    "Forhåndsvisningstabellen er skrivebeskyttet. Hvis identiteterne er forkerte, skal du rette kildestrukturen eller konverteringsindstillingerne og forhåndsvise igen; der er ingen redigering pr. række eller særskilte serie- og tidsvælgere på denne skærm. Hav de oprindelige metadata til rådighed, når du gennemgår automatiske tildelinger.",
-    "Tryk på Convert, og læs oversigten. Denne faktiske kørsel skriver to nye TIFF'er uden mislykkede eller oversprungne tilknytninger. Vi sammenligner uafhængigt hver outputpixel, arrayets form og datatypen med kilden og kontrollerer kilde-, felt- og kanalidentiteter i tilknytningsfilen. Originalerne forbliver uændrede.",
-    "Gem conversion_map.csv sammen med de konverterede billeder og det oprindelige optagelsesmanifest. Tilknytningen bevarer kilde- og målstier, tildelte identiteter, kildekanalmetadata og konverteringsstatus. En særskilt kørselsstatusfil registrerer handlingen, og et skjult feltkontrolpunkt understøtter senere Resume.",
-    "Slå Resume til, og tryk på Convert igen med samme kilde, plan og destination. Programmet kontrollerer det kompatible feltkontrolpunkt og læsbare TIFF-metadata, før færdige felter genbruges. Det sammenligner ikke hver pixel med den oprindelige kilde; beskriv ikke Resume som en fuldstændig kontrol for dataskader.",
-    "Den anden kørsel angiver nul konverterede filer og to allerede eksisterende mål. Det er forventet her: Begge planlagte outputfiler findes og er uændrede. Tabellen viser stadig forhåndsvisningens status planned, så læs handlingsoversigten og tilknytningsfilen for det faktiske resultat, ikke kun denne tabelkolonne.",
-    "Rul i oversigten for at se, at to færdige felter blev genoptaget. Den seneste post i kørselsloggen angiver empty, fordi ingen kilde skulle konverteres; den første post med complete er stadig bevaret. Vi accepterer kun dette konkrete resultat uden skrivning, efter at begge genbrugte outputfiler og deres nøjagtige identiteter er kontrolleret uafhængigt.",
-    "I Python læser spacr.convert.scan kildebeskrivelserne, plan opbygger de gennemgåede tilknytninger, og convert skriver outputfilerne. convert_folder er indgangspunktet for en dictionary med indstillinger. Hold konvertering adskilt fra segmentering og måling, og validér dimensionerne i dine egne optagelser, før du sender billederne videre til Mask eller Measure."
+    "Fra Home åbner du Import Project og vælger Format Converter. Brug det til at forberede billedfiler og filnavne til næste analysetrin.",
+    "Konverteren arbejder i én retning: fra Source via Preview til Destination. Preview viser, hvor hver kildefil havner, før noget skrives, så du kan kontrollere tildelingerne; Convert skriver dem derefter.",
+    "Vælg den mappe, der indeholder dine kildebilleder. Dette eksempel bruger to TIFF-filer med én kanal. Hav de oprindelige optagelsesmetadata ved hånden, når du kontrollerer de konverterede navne.",
+    "Vælg en ny målmappe. Konverteren skriver de nye billeder dertil sammen med en tilknytningsfil; opbevar dine originale billeder separat.",
+    "Indstil Layout, så det passer til dine mapper. Til eksemplets flade mappe vælger du muligheden med billeder direkte i kilden og den regel for pladenavne, du har brug for. Til et mappetræ pr. plade og brønd vælger du det tilsvarende layout.",
+    "Vælg, hvordan Z-planer skal håndteres. Behold alle planer, når du har brug for hele stakken, brug maksimumsprojektion til et projiceret billede, eller vælg det første plan, når det er det tilsigtede input. Dette eksempel har ét plan pr. fil.",
+    "Tryk på Preview. Undersøg hver tildeling fra kilde til mål, herunder plade, brønd, synsfelt og kanal. Indekserede navne er tildelte identiteter; brug de oprindelige metadata til at bekræfte, hvilke forsøgsbetingelser de repræsenterer.",
+    "Gennemgå From field og From channel sammen med målnavnene. Kanalindeks i arrays og kanalnumre i filnavne kan følge forskellige konventioner. Kontrollér, at hvert mål indeholder det billedplan, du vil analysere.",
+    "Hvis en tilknytning er forkert, ændrer du kildelayoutet eller konverteringsindstillingerne og forhåndsviser igen. Forhåndsvisningstabellen er skrivebeskyttet.",
+    "Tryk på Convert, og læs slutoversigten over konverterede, mislykkede og oversprungne filer. Åbn et konverteret billede for at kontrollere dets dimensioner og kanaler, før du fortsætter til segmentering eller måling.",
+    "Opbevar conversion_map.csv sammen med de konverterede billeder. Den registrerer kilde- og målstier, tildelte identiteter og konverteringsstatus. Opbevar de oprindelige optagelsesmetadata ved siden af.",
+    "Til en senere kørsel med samme kilde, plan og mål slår du Resume til. Kompatible afsluttede synsfelter kan genbruges. Læs oversigten for at se, hvilke filer der blev konverteret, og hvilke der allerede fandtes."
   ]
 }

@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "cellpose3_add_nucleus_channel",
+      "source": "Cellpose3 add nucleus channel",
+      "source_sha256": "281f21340bc8ecc60425405ab1111a2193cc3881eaab48a46912979db46c14da",
+      "translation": "Cellpose3-Kernkanal hinzufügen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose3_augment",
+      "source": "Cellpose3 augment",
+      "source_sha256": "f0c481079922872836a81dba31405c1e60941b19fcd42aefc9bf9ffece7067c4",
+      "translation": "Cellpose3-Augmentierung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose3_percentile_high",
+      "source": "Cellpose3 percentile high",
+      "source_sha256": "687e83784478388df9bbc851593febe2f1cbde9eb874b0586c254119ffff0803",
+      "translation": "Cellpose3-Perzentil oben"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose3_percentile_low",
+      "source": "Cellpose3 percentile low",
+      "source_sha256": "d1a010a7ced2454e1f5a032ea60425bc496d593a4cefd7a668bc26f8fc60906c",
+      "translation": "Cellpose3-Perzentil unten"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose3_resample",
+      "source": "Cellpose3 resample",
+      "source_sha256": "02463bf2729203163cdcc6803a3f848b80e80d2fafa6a64867d87ba536dc3e7c",
+      "translation": "Cellpose3-Neuabtastung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose3_size_model",
+      "source": "Cellpose3 size model",
+      "source_sha256": "2a8bab44b6581a2d75eb5cba1974a74e76a8f8fc7c409f6e51863e561ee3af7f",
+      "translation": "Cellpose3-Größenmodell"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_background",
+      "source": "Enhance background",
+      "source_sha256": "23e0762501de554afc9c903cf9045a8c06597025b6ee99b15721b1d4e94880e4",
+      "translation": "Hintergrundsubtraktion"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_background_radius",
+      "source": "Enhance background radius",
+      "source_sha256": "1ca411cc8eb5966c4356ff860824fdad6e31318f505769463eb046c3ee2c430b",
+      "translation": "Hintergrundradius"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_background_scale",
+      "source": "Enhance background scale",
+      "source_sha256": "90f0599e73e8ae42d9a8e70c6417deb8e67d055c565a0890e915ade09aa1436c",
+      "translation": "Hintergrundskalierung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_clahe",
+      "source": "Enhance clahe",
+      "source_sha256": "060c7e5c10bad523be29639f249a8074b83bc1e765fc3316bfd59ad6985125f8",
+      "translation": "CLAHE anwenden"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_clahe_clip",
+      "source": "Enhance clahe clip",
+      "source_sha256": "655ac5c9183d663f820571f075e8a3669a514b2469f6fe0e4fe78749be681132",
+      "translation": "CLAHE-Begrenzungswert"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_clahe_tile",
+      "source": "Enhance clahe tile",
+      "source_sha256": "75527f637387c603dcbd0143d639f246a24fa0f129bc4225b9a9220faad9eb45",
+      "translation": "CLAHE-Kachel"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_denoise",
+      "source": "Enhance denoise",
+      "source_sha256": "0f6059179271b9c4915def28151caf0eff876fe8ac49890aaeb6f42947e7aa8a",
+      "translation": "Entrauschen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_denoise_strength",
+      "source": "Enhance denoise strength",
+      "source_sha256": "bec1c12db024da77ec1235e0e17c9383094f1cd8440f7db5521c4e511cbdb62e",
+      "translation": "Stärke der Rauschunterdrückung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_equalize",
+      "source": "Enhance equalize",
+      "source_sha256": "995bcdedfea7bbab38b9ac280ce6ca85c5c70f253994af68b9210b0179ce2ba9",
+      "translation": "Histogrammausgleich"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_gamma",
+      "source": "Enhance gamma",
+      "source_sha256": "be3db532446e350e480d86290562cbfb5ff5c5fb5110227ede95230742221374",
+      "translation": "Gammakorrektur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_log",
+      "source": "Enhance log",
+      "source_sha256": "d80fd630ad981d4903ab7c23470221cb50b92c47fd99a1b8e7b7d7f839a91224",
+      "translation": "Logarithmische Kurve"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_log_gain",
+      "source": "Enhance log gain",
+      "source_sha256": "2bb8995662102dda8c2c188897875392d4fa915f6f898dd65aedd2ddf4f46cac",
+      "translation": "Logarithmus-Verstärkung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_percentile_clip",
+      "source": "Enhance percentile clip",
+      "source_sha256": "c32445694503c49c9677e59b19351c081ad5abc24268ce860f87888e047c0fc3",
+      "translation": "Perzentil-Clipping"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_percentile_high",
+      "source": "Enhance percentile high",
+      "source_sha256": "2c0a0f0106dcb71c721cbdb1cdfe21c7cba8967642e081c8938b80c0b710e523",
+      "translation": "Oberes Clip-Perzentil"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_percentile_low",
+      "source": "Enhance percentile low",
+      "source_sha256": "e2e273e9e301cbc94e01b362c86d2132c6c6e08174fd8e6d95d6b2690eb20dc3",
+      "translation": "Unteres Clip-Perzentil"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_sharpen",
+      "source": "Enhance sharpen",
+      "source_sha256": "2c03a113eb413d2c9505a0f4157e4d070636b618bf9e6281b3bb38aaca562118",
+      "translation": "Schärfen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_sharpen_amount",
+      "source": "Enhance sharpen amount",
+      "source_sha256": "b35f8af84f739068e5ccaca21456302f3a4699ba908ba467ad74c3936aba2416",
+      "translation": "Schärfungsstärke"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_sharpen_radius",
+      "source": "Enhance sharpen radius",
+      "source_sha256": "8eb6170ad860b6acd71edc2264f8c8ec076a206582b8a91e76385af4dff6f630",
+      "translation": "Schärfungsradius"
+    },
+    {
+      "table": "setting_labels",
+      "key": "enhance_sqrt",
+      "source": "Enhance sqrt",
+      "source_sha256": "51b6863b9246a2af9402748e7ced43512b0e7730ec454bfc1a61998863baa22b",
+      "translation": "Quadratwurzelkurve"
+    },
+    {
+      "table": "setting_labels",
+      "key": "object_filters",
+      "source": "Object filters",
+      "source_sha256": "e482ac8565a966b5a105d4f5b9afd2532ad1b9f06fbdae1bf5f1207e0d03dd64",
+      "translation": "Objektfilter"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_spot_detector",
+      "source": "Ops spot detector",
+      "source_sha256": "bf942604db37df59f460bd311d04555ec146ce80a05dda21dd7a26094731295a",
+      "translation": "OPS-Spotdetektor"
+    },
+    {
+      "table": "setting_labels",
+      "key": "psf_objective",
+      "source": "Psf objective",
+      "source_sha256": "35c04c7b111ec08f246d8cc9fc88478e93ae51478cd7e6f0826bb8bcbde9b8fd",
+      "translation": "PSF-Objektiv"
+    }
+  ]
+}
