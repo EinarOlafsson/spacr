@@ -30,7 +30,7 @@ _categories_wait_to_be_opened = False
 
 _a_window_is_opening_a_screen = False
 _last_breath_at = 0.0
-BREATH_AFTER_S = 0.1
+BREATH_AFTER_S = 0.15
 _SECOND_PASS_AFTER_S = 0.1
 
 
