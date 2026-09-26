@@ -32,6 +32,7 @@ import spacr.object as O
 from spacr import model_zoo as zoo
 from spacr.spacr_cellpose import parse_cellpose4_output
 import tests.test_object_tstack_wiring as _wiring
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 _base_settings = _wiring._base_settings
 _write_npz = _wiring._write_npz
@@ -638,7 +639,10 @@ class _FakeOmniModel:
         self.calls = []
         type(self).built.append(self)
 
-    def eval(self, x, **kwargs):
+    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
+        if channel_axis is not MISSING_CHANNEL_AXIS:
+            kwargs["channel_axis"] = channel_axis
         self.calls.append(dict(kwargs, shape=np.shape(x)))
         h, w = np.shape(x)[:2]
         return (_known_labels((h, w)),
