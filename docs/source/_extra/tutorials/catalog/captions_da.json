@@ -81,56 +81,67 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation med Conda",
+      "title": "Installer spaCR med Conda",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installer den officielle conda-forge-pakke i et separat miljø, kontroller kanalens faktiske version, og genkend forskelle fra de aktuelle modulvejledninger.",
+      "description": "Opret et Conda-miljø, installer spaCR fra conda-forge, og start programmet.",
       "objectives": [
-        "Opret og aktiver et separat Conda-miljø.",
-        "Kontroller kanalpakken, Qt og diagnoseresultaterne.",
-        "Vælg nyere pip eller skrivebordsinstallationsprogrammet, når kanalen stadig har den gamle brugerflade."
+        "Oprette og aktivere et dedikeret Conda-miljø.",
+        "Installere spaCR fra conda-forge.",
+        "Åbne spaCR og opdatere det samme miljø efter behov."
       ],
-      "prerequisite": "En Conda-kompatibel pakkehåndtering skal være installeret. Optagelsen kontrollerer spaCR 1.5.0.4 fra conda-forge på Linux med Python 3.12.14 og Qt 6.11.2 den 10. september 2026. Den rene installation bruger et nyt privat præfiks, kun conda-forge og en fastlagt kanalversion; kommandokortene viser den tilsvarende fremgangsmåde med et navngivet miljø, ikke genafspillet installationsoutput. Den faktiske brugerflade har stadig Home (63), ikke den nye indlejrede struktur i PyPI/installationsprogram 1.5.0.5. Standardkørslen af spacr-doctor bestod sin lille CUDA-hukommelsesallokeringstest, men advarede om valgfri CZI-understøttelse; dette er hverken en hastighedsmåling eller kontrol af alle analyser og formater. Den ægte optagelse bruger en privat mørk profil, skriftskala 1.5, allerede lukket introduktion og uændrede standarder for forudindlæsning, uden det ikke-understøttede flag --no-setup. Andre platforme er ikke testet. Den oprindelige og udgivne fortælling er forskellige, så uændret genbrug af lyd hævdes ikke.",
+      "prerequisite": "Installer Conda eller Miniforge, og åbn derefter en terminal, hvor kommandoen conda er tilgængelig.",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "Brug et separat Conda-miljø til spaCR, og kontroller, hvilken udgave kanalen faktisk tilbyder. Ved denne optagelse installerer conda-forge en punkt fem punkt nul punkt fire. PyPI og skrivebordsinstallationsprogrammet tilbyder allerede en punkt fem punkt nul punkt fem; versionerne er ikke indbyrdes udskiftelige.",
+          "narration": "Åbn en terminal med Conda. Du opretter et miljø til spaCR, installerer conda-forge-pakken og starter programmet fra det miljø.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "Opret et miljø med navnet spacr-conda med Python 3.12 og spaCR fra conda-forge ved hjælp af den viste kommando. Vælg et andet navn, hvis du allerede bruger det navn til et andet miljø.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_conda",
-          "narration": "Åbn en kommandoskal med Conda, og opret et nyt miljø med Python tre punkt tolv. Kommandokortet bruger navnet spacr-conda. Vælg et andet ubrugt navn, hvis det allerede findes, og hold miljøet adskilt fra igangværende analyser.",
+          "narration": "Conda løser miljøet og viser pakkeplanen. Gennemgå den, skriv y for at acceptere, og vent derefter, til download og installation er færdige.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_conda",
-          "narration": "Aktiver miljøet, og udskriv sys punkt prefix for at kontrollere, hvor Python hører til. Den faktiske kontrol bruger et længere privat præfiks i stedet for det korte eksempelnavn. Terminalprompten alene beviser ikke, at den ønskede fortolker bruges.",
+          "narration": "Aktivér spacr-conda. Kør den viste Python-kommando for at se miljøets sti, og kontrollér, at det er det miljø, du lige har oprettet.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_conda",
-          "narration": "Installer pakken med conda-forge angivet som kanal, og brug derefter conda list spacr til at se version og kanal. Den optagede installation brugte kun conda-forge og låste kanalversionen. Installationen var færdig inden kontrolbillederne; kortene er instruktioner, ikke opdigtet terminaloutput.",
+          "narration": "Kør conda list spacr for at se den installerede version og bekræfte, at den kommer fra conda-forge. Når Python og spaCR installeres med én kommando, kan Conda løse alle pakker samlet, hvilket er meget hurtigere end at tilføje spaCR til et eksisterende miljø.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Kontroller spaCR-version, Qt-version og pakkens placering i det installerede miljø. Her er pakken en punkt fem punkt nul punkt fire, og Qt importeres korrekt. Det viser, hvilken pakke der er aktiv, ikke at alle videnskabelige arbejdsgange eller valgfrie formater er valideret.",
+          "narration": "Kontrollér den installerede spaCR-version og pakkens placering. Gem versionen sammen med dine analysenoter, så du senere kan vende tilbage til det samme miljø.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Kør spacr-doctor, og læs også advarslerne. Den lille GPU-hukommelsesallokeringstest lykkes her, mens den valgfrie CZI-understøttelse mangler en afhængighed. Oversprungne kontroller er ikke beståede. Den foreslåede reparation vedrører den funktion; vurder miljøændringer før anvendelse, især ved blanding af pakkehåndteringer.",
+          "narration": "Kør spacr-doctor for at kontrollere installationen. Her rapporterer det, at vispy, en central afhængighed, mangler, og viser kommandoen, der installerer den. Kør den kommando, og kør derefter spacr-doctor igen. Følg kun andre foreslåede trin for de filformater eller funktioner, du har brug for.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Den installerede Conda-pakke åbner og lukker normalt, men viser sin ældre Home med treogtres felter. Den har ikke den nye indlejrede modulstruktur. Antag ikke, at en vellykket installation betyder, at alle skærmbilleder passer til vejledninger for en nyere udgave.",
-          "hold_after": 0.7
+          "narration": "Skriv spacr for at starte programmet. Gennemfør valgene ved første opstart, og fortsæt derefter med Home-vejledningen for at finde moduler og deres eksempeldata.",
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "Til den nyere indlejrede brugerflade i de opdaterede modulvejledninger skal du bruge den aktuelle pip- eller Platform installers-lektion i et separat miljø. Har du brug for Conda-kanalen, så registrer den faktiske udgave, og kontroller igen for opdateringer. Bevar den version, der bruges til en igangværende analyse.",
+          "narration": "For at opdatere senere lukker du spaCR, aktiverer dette miljø og opdaterer conda-forge-pakken. Når conda-forge ikke har en nyere build, melder Conda, at alle anmodede pakker allerede er installeret. Kontrollér derefter den installerede version; lektionerne om pip og installationsprogrammet dækker de andre installationsmåder.",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
@@ -138,7 +149,52 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -148,145 +204,202 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Opret et isoleret Python-miljø, installer den offentlige pakke, kontroller afhængighederne, og start den installerede Qt-app.",
+      "description": "Opret et isoleret Python-miljø, installer den offentlige pakke, kontrollér dens afhængigheder, og start det installerede Qt-program.",
       "objectives": [
-        "Holde spaCRs afhængigheder i et særskilt Python-miljø.",
-        "Kontrollere den installerede pakke, Qt og advarsler om valgfrie funktioner.",
-        "Åbne Home og bevidst opdatere det rigtige miljø."
+        "Oprette og aktivere et virtuelt Python-miljø.",
+        "Installere spaCR og kontrollere dets afhængigheder.",
+        "Starte programmet og opdatere det tilsigtede miljø."
       ],
-      "prerequisite": "Lektionen verificerer spaCR 1.5.0.5 fra PyPI på Linux med Python 3.12.13, ikke en redigerbar installation fra kildekoden. Kommandokortene er vejledning, ikke optaget terminaloutput; Windows- og macOS-kommandoerne blev ikke kørt her. Den rene installation var afsluttet før de optagne kontroller. De aktuelle basisafhængigheder omfatter Qt. Doctor viser en advarsel om valgfri CZI-understøttelse; GPU-allokeringstesten springes udtrykkeligt over. GUI-optagelsen bruger --no-setup, en privat mørk profil med skriftskala 1.5 og en allerede lukket rundvisning. Den dokumenterer normal åbning og lukning af Home, ikke alle moduler, valgfrie formater, GPU-beregninger eller andre platforme.",
+      "prerequisite": "Installer Python 3.12, og åbn en terminal. Brug aktiveringskommandoen til dit styresystem og din shell.",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "Installer spaCR i sit eget Python-miljø. Demonstrationen bruger Python 3.12 på Linux og den offentlige PyPI-udgivelse, ikke en kopi af kildekoderepositoriet. Kontroller python --version, før du vælger fortolkeren til miljøet.",
+          "narration": "Åbn en terminal, og kontrollér din Python-version. Denne gennemgang bruger Python 3.12. Hold spaCR i et dedikeret virtuelt miljø, så pakkerne er nemme at administrere.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_environment",
-          "narration": "Opret et nyt virtuelt miljø med kommandoen til din platform. Her er .venv en ny mappe i arbejdsmappen. Python 3.12 skal allerede være installeret; kommandoen opretter et miljø, ikke selve Python.",
+          "narration": "Opret et virtuelt miljø med navnet .venv med kommandoen til dit styresystem. Det opretter en mappe med det Python-miljø, du skal bruge til spaCR.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_environment",
-          "narration": "Aktiver miljøet med kommandoen til din shell. PowerShell, Command Prompt, bash og zsh bruger forskellige aktiveringskommandoer. Hvis PowerShell blokerer scriptet, kan du bruge Command Prompt eller kalde miljøets Python direkte; svæk ikke sikkerheden for hele computeren.",
+          "narration": "Aktivér .venv med kommandoen til din shell. Windows PowerShell og Kommandoprompt har forskellige aktiveringskommandoer; macOS og Linux bruger normalt den shell-kommando, der vises her.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pip_environment",
-          "narration": "Kør python -m pip --version. Placeringen skal være inde i det valgte miljø. Denne rigtige terminal viser den længere private sti, der blev brugt til optagelsen. Med python -m pip knyttes pakkeinstallationen til den pågældende fortolker.",
+          "narration": "Kør python -m pip --version. Kontrollér, at den viste sti hører til .venv. Brug python -m pip til installationskommandoerne, så pip bruger denne fortolker.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_package",
-          "narration": "Opdater pip, og installer derefter spacr. Fastlås 1.5.0.5 for at bruge samme udgivelse som lektionen. Den rene installation var afsluttet før disse optagne kontroller. Afsæt tid og diskplads til videnskabelige afhængigheder; de aktuelle basisafhængigheder omfatter allerede Qt-komponenterne til skrivebordet.",
+          "narration": "Opgrader pip, og installer derefter spacr. Vent, til de videnskabelige pakker er downloadet og installeret. Den aktuelle pakke indeholder de skrivebordskomponenter, der skal til for at åbne programmet.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Kontroller den installerede spaCR-version, Qt-versionen og pakkens sti. Her kommer alle tre fra det nye miljø. En vellykket import beviser ikke, at alle valgfrie formater eller analyser virker, og heller ikke at vinduet kan åbnes.",
+          "narration": "Kontrollér den installerede spaCR-version og pakkens placering med den viste kommando. Gem versionen sammen med dine analysenoter.",
           "hold_after": 0.7
         },
         {
           "visual": "04_dependency_check",
-          "narration": "Kør python -m pip check. No broken requirements betyder, at de installerede afhængighedserklæringer er forenelige. Løs eventuelle konflikter, før du fortsætter; en bestået kontrol er ikke en videnskabelig validering af analysen.",
+          "narration": "Kør python -m pip check. Hvis den rapporterer modstridende krav, skal du løse konflikterne, før du bruger miljøet.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Kør spacr-doctor, og læs både advarsler og beståede kontroller. Denne installation har en advarsel om valgfri CZI-understøttelse og viser reparationskommandoen. Optagelsen bruger --no-gpu-probe: Enheden findes, men GPU-hukommelsesallokering testes ikke. Oversprungne kontroller er ikke beståede kontroller.",
+          "narration": "Kør spacr-doctor for at undersøge installationen og se eventuelle manglende valgfrie funktioner. Følg kun den foreslåede reparation for de formater eller funktioner, du har brug for.",
           "hold_after": 0.7
         },
         {
           "visual": "10_launch_commands",
-          "narration": "Start spacr fra det samme aktiverede miljø. Ved en normal første start kan der komme opsætningsspørgsmål. Denne afgrænsede kontrol bruger udtrykkeligt --no-setup og en forberedt optagelsesprofil; den viser ikke svar på spørgsmålene.",
+          "narration": "Start spacr fra det aktiverede miljø. Ved første opstart følger du opsætningsvejledningen og vælger dine indstillinger.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Dette er det rigtige Home-vindue fra den installerede wheel-pakke med seks kernemoduler og grupperne Data, Tools og Assays. Det åbnede og lukkede normalt uden at starte en analyse. Fortsæt med Home for navigation, indlejrede værktøjer og modultutorials.",
+          "narration": "Home åbner med kategorierne Core, Data, Tools og Assays. Fortsæt med Home-vejledningen for at finde et modul, indlæse eksempeldata og åbne en pipelineoversigt.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "Luk spaCR før en opdatering, og aktiver det miljø, du vil ændre. Opdater pakken, gentag pip check og spacr-doctor, og dokumenter den nye version sammen med analysen. Opdateringer kan ændre afhængigheder og adfærd; ændr ikke ubemærket et miljø, der bruges til igangværende arbejde.",
+          "narration": "For at opdatere lukker du spaCR og aktiverer dette miljø. Opgrader pakken, og kontrollér derefter version og afhængigheder igen. Behold det tidligere miljø, hvis du har brug for det til en igangværende analyse.",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Installationsprogrammer til forskellige platforme",
+      "title": "Installer spaCR med et installationsprogram",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Vælg et officielt installationsprogram, forstå automatisk valg af accelerator og frivillige privatlivsvalg, og kontroller det faktisk installerede Linux-miljø.",
+      "description": "Download installationsprogrammet til dit styresystem, gennemfør opsætningen, og åbn spaCR.",
       "objectives": [
-        "Vælge det officielle installationsprogram til operativsystemet.",
-        "Skelne automatisk acceleration fra et udtrykkeligt valg af kun CPU.",
-        "Læse privatlivsvalg, installerede versioner og diagnostiske advarsler."
+        "Downloade og køre installationsprogrammet til dit styresystem.",
+        "Vælge en accelerationsindstilling og indstillinger for første opstart.",
+        "Åbne spaCR og finde installationslogfilerne, hvis opsætningen kræver opmærksomhed."
       ],
-      "prerequisite": "Optagelsen kontrollerer den offentlige Linux x86-64-onlineinstallation af spaCR 1.5.0.5, sammenholdt med kontrolsummen den 10. september 2026, med Python 3.12.13, Qt 6.11.2 og Torch 2.14.0+cu132. Den virkelige installation var færdig før kontrolbillederne. Den brugte nye private mapper til kørselsmiljø og startprogram, eksisterende grafiske systembiblioteker, --skip-system-deps og --no-launch; ingen eksisterende miljøer eller systemafhængigheder blev ændret. Fire referencekort er instruktioner, ikke optagede Windows/macOS-installationer eller opdigtet terminaloutput. Windows/macOS-vejledningen er kun kontrolleret mod installationsprogrammets aktuelle kildekode. GUI-optagelsen bruger en privat mørk profil, skriftskala 1.5, allerede lukket introduktion, forudindlæsning efter behov og --no-setup, som ikke springer det separate privatlivsspørgsmål over. Det afvises med den virkelige Escape-tast, så alle frivillige valg er slået fra; de private indstillinger er læst tilbage for at bekræfte det. Doctor brugte --no-gpu-probe; allokering, hastighed, analyser eller andre platforme hævdes ikke valideret. Fejlslagne optagelsesforsøg bevares og tælles ikke som programfejl.",
+      "prerequisite": "Download det officielle installationsprogram til dit styresystem, og sørg for plads til programmet og dets videnskabelige afhængigheder.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Brug spaCRs officielle udgivelse på GitHub, og vælg installationsprogrammet til dit operativsystem. Onlineinstallationsprogrammerne henter et privat Python-miljø og videnskabelige afhængigheder; et eksisterende Conda-miljø er ikke nødvendigt. I dette Linux-eksempel sammenholdt vi den hentede fil med udgivelsens kontrolsum før kørsel.",
+          "narration": "Åbn den officielle spaCR-udgivelse på GitHub, og download installationsprogrammet til dit styresystem under Assets. Disse onlineinstallationsprogrammer downloader Python-kørselsmiljøet og de videnskabelige pakker under opsætningen. Gem SHA256SUMS.txt fra samme udgivelse, hvis du vil verificere downloaden.",
           "hold_after": 0.7
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "På Windows vælges den eksekverbare onlineinstallationsfil. Den aktuelle kildekode har automatisk acceleration valgt på forhånd; fjern markeringen ved den frivillige komponent, hvis du kun vil bruge CPU. Kortet forklarer valget, men er hverken en Windows-installationsoptagelse eller en kompatibilitetstest på din computer.",
+          "narration": "På Windows kører du installationsprogrammet og følger anvisningerne. Lad automatisk acceleration være valgt for at bruge den understøttede hardware, der findes på computeren, eller vælg kun CPU, hvis det er det, du har brug for.",
           "hold_after": 0.7
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "På macOS vælges den universelle onlinepakke til Intel og Apple silicon. Appens startprogram begynder opsætning for den enkelte bruger, hvis kørselsmiljøet mangler. Kontroller den officielle kilde før godkendelse af sikkerhedsadvarsler, og giv tid til downloads. Det er vejledning kontrolleret i kildekoden, ikke en gennemført macOS-installation.",
+          "narration": "På macOS åbner du universalpakken og følger installationsprogrammet. Start spaCR fra programstarteren, og lad downloadene ved første opstart blive færdige. Læs eventuelle sikkerhedsmeddelelser, og bekræft, at pakken kommer fra den officielle udgivelse.",
           "hold_after": 0.7
         },
         {
           "visual": "11_linux_commands",
-          "narration": "På Linux skal du gøre den kontrollerede fil eksekverbar og køre den fra dens mappe. Automatisk valg af accelerator er nu standard; vælg CPU udtrykkeligt, hvis du har brug for det. Vores isolerede kørsel genbrugte systembiblioteker og private stier og demonstrerede derfor ikke installation af systemafhængigheder.",
+          "narration": "På Linux gør du det downloadede installationsprogram eksekverbart og kører det derefter fra en terminal. Automatisk acceleration vælger en understøttet backend. Hjælpen viser --torch-backend cpu til kørsel kun på CPU og --skip-system-deps til computere, der allerede har Qt-grafikbibliotekerne.",
           "hold_after": 0.7
         },
         {
           "visual": "02_installer_backend",
-          "narration": "Læs den faktiske installationsprofil i stedet for at udlede beregningsmotoren af en vellykket start. Her var ønsket auto, og den valgte motor er CUDA på NVIDIA-hardware. Den installerede Torch-udgave er bygget med CUDA tretten punkt to. Det identificerer valget, men er ikke en GPU-hastighedsmåling.",
+          "narration": "Efter opsætningen registrerer installationsprofilen den valgte backend. Se der, når du vil bekræfte, om kørselsmiljøet bruger CPU'en eller en understøttet accelerator.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Kontroller pakkeversionen, import af Qt og pakkestien. Dette private kørselsmiljø indeholder spaCR en punkt fem punkt nul punkt fem. Filerne stammer fra installationen, ikke en redigerbar kildekodekopi. Vellykkede importer validerer ikke alle analyser eller valgfrie filformater.",
+          "narration": "Kontrollér den installerede spaCR-version. Gem den sammen med dine analysenoter, især når du opdaterer programmet senere.",
           "hold_after": 0.7
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "Den rigtige første start spørger om frivillig deling af diagnostik, offentlige fejlrapporter og kontoopsætning. Rapporter ville være offentlige, så læs forklaringen. Optagelsen afviser dialogen med Escape, svarende til Skip, keep all off. Ingen konti forbindes, og de private indstillinger bekræfter, at deling og rapporthandlinger forbliver slået fra.",
+          "narration": "Opsætningen spørger om valgfri deling af diagnosticering og om kontoopsætning. Svar kun y til de muligheder, du ønsker; n, standardvalget, holder hver mulighed slået fra. Installationsprogrammet til Windows viser de samme valg som afkrydsningsfelter.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Efter valget åbner den installerede app sin aktuelle Home med enogtyve felter og seks kernemoduler. Vinduet lukker også normalt. Fortsæt med Home-lektionen om indlejrede arbejdsgange og eksempeldata; at åbne Home er ikke i sig selv en analysetest.",
+          "narration": "Når Home åbner, fortsætter du med Home-vejledningen. Den viser, hvordan du åbner et modul, finder testdata og vælger en pipeline til dit eksperiment.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "05_doctor",
-          "narration": "Kør spacr-doctor fra det installerede miljø, og læs både advarsler og beståede kontroller. Her bekræftes installationsprogrammets motor, men der advares om en manglende valgfri CZI-afhængighed. GPU-allokering, database og indstillinger blev sprunget over. En oversprunget kontrol er ikke bestået; vurder reparationen før ændring af miljøet.",
+          "narration": "Hvis opstarten eller et filformat kræver opmærksomhed, kører du spacr-doctor fra det installerede kørselsmiljø. Det viser hver kontrol med en foreslået løsning. På denne installation, der kun bruger CPU, fejler GPU-kontrollen som forventet, og PATH-kontrollen markerer installationsprogrammets egen spacr-starter, som starter det samme kørselsmiljø, så ingen af dem skal ændres her.",
           "hold_after": 0.7
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "Gem install punkt log og install-profile punkt json fra den valgte installationsmappe til fejlsøgning. Kontroller logfiler for private oplysninger, før du deler dem. Registrer versionen for hver analyse, og opdater bevidst. Lektionerne om pip og Conda beskriver de andre installationsveje med separate miljøer.",
+          "narration": "Ved installationsproblemer finder du install.log og install-profile.json i installationsmappen. Gennemgå logfilerne, før du deler dem i en supportanmodning. Angiv dit styresystem og din spaCR-version, så problemet bliver lettere at diagnosticere.",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
@@ -294,7 +407,52 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
@@ -1932,13 +2090,13 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then open Track preview. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
           "hold_after": 0.7,
           "focus": [
             360,
             230,
-            3460,
-            1760
+            3480,
+            1900
           ]
         },
         {
@@ -9397,18 +9555,134 @@
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne vejledning er endnu ikke tilgængelig. Se de andre vejledninger imens.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 71,
-      "app_key": "investigate_hit",
-      "series": 5,
       "slug": "investigate_hit",
-      "section": "Results and quality control",
-      "host_app_key": "regression"
+      "title": "Investigate Hit: spor et gen fra Regression tilbage til de målte celler",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Send et gen fra Hit List til Investigate Hit, tilføj måledatabasen, celleprædiktionerne og guideandelene, og læs derefter evidensen på brøndniveau.",
+      "objectives": [
+        "Åbne en Regression-kørsel i Hit List, kontrollere q-værdier og sende ét gen til Investigate Hit.",
+        "Vælge måledatabase, celleprædiktioner, guideandele og scorekolonne.",
+        "Læse fanerne for evidens, brønde, guides og tærskel og finde de gemte tabeller."
+      ],
+      "prerequisite": "Udpak Investigate_Hit_real_screen_example.zip. Alt i den stammer fra én og samme reelle screening: Regression-kørslen på Regressions testdata (indstillingerne fra Regression-vejledningen), de tilsvarende CV-prædiktioner pr. celle og en måledatabase med de faktiske målinger af form, størrelse og intensitet for de samme celler. For at holde downloaden lille indeholder databasen 52 brønde: alle analyserede brønde med en guide til gen 225160 og, for hver af dem, tre brønde uden den fra samme plade. Intet gen i denne hurtige Regression-kørsel opfylder q ≤ 0,05. Betragt undersøgelsen som et gennemregnet eksempel, ikke som et bekræftet hit.",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "Fra Home åbner du Regression. Investigate Hit tager udgangspunkt i en afsluttet Regression-kørsel. Det spørger, om de målte celler i brøndene bag ét gen ser anderledes ud end celler i brønde uden det gen.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Vælg Hits for at åbne Hit List. Udpak først eksempelarkivet. Det indeholder en Regression-kørsel på testdataene, de tilsvarende CV-prædiktioner pr. celle og en måledatabase for de samme celler. Alle tre stammer fra én og samme reelle screening.",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Klik på Browse, og vælg mappen guide_permutation i regression_run, results. Det er outputtet fra testdatakørslen i Regression-vejledningen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List rangerer 325 gener. Læs effekt, P-værdi og q-værdi for hver række samlet, sammen med antallet af guides og hvor mange af dem, der er enige.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Sæt Max q til 0,05. Tabellen tømmes, fordi intet gen i denne kørsel har en q-værdi på højst 0,05. Med 199 permutationer er den mindst mulige P-værdi 0,005, og den laveste q-værdi er omkring 0,27. Det, der følger, undersøger derfor en rangeret kandidat, ikke et bekræftet hit.",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Sæt Max q tilbage til 1, søg efter 225160, og markér dets række. Det har en effekt på 0,34, en q-værdi på 0,27 og tre guides, der alle peger i samme retning.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Klik på Investigate selected. Investigate Hit åbner med resultatmappen, genet, dets tre guides og en positiv effektretning allerede udfyldt fra rækken.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "Ved siden af Measurements database klikker du på Browse og vælger measurements.db fra eksemplet. Den indeholder form, størrelse og gennemsnitlig kanalintensitet for 8.915 celler i 52 brønde.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "Til Existing CV predictions vælger du cv_predictions.csv. Hver række er én celles gemte CV-score, knyttet til det samme målte objekt. Klik på stien, og tryk på Enter, så scorekolonnerne indlæses, og behold derefter pred som fænotypescorekolonne.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "Til Well/guide fractions vælger du regression_data.csv i den samme resultatmappe. Den tabel er skrevet af Regression. Den angiver hver guides andel i hver analyseret brønd.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Lad Independent morphology features stå tomt. Modulet bruger så databasens 13 numeriske cellemålinger og udelader identifikatorer, guideandele og CV-scoren, så kontrollen ikke genbruger scoren. Til din egen database angiver du kun målekolonner uden manglende værdier.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_running",
+          "narration": "Klik på Investigate hit. Modellen tilpasses med én plade holdt ude ad gangen, så ingen celle scores af en model, der er trænet på dens egen plade. En brønds guideandel fastlægger kun udgangsforventningen for brøndens celler. Den markerer aldrig en celle som bærer af guiden. Eksemplet tager et par minutter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence viser resultatet. Målbrøndene har en hit-lignende prævalens, der kun er 0,01 højere end i kontrolbrøndene. Bootstrapintervallet pr. brønd går fra minus 0,04 til plus 0,06, og P-værdien for den blokerede permutation er omkring 0,63. Cellerne understøtter ikke denne kandidat.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells viser hver brønds guideandel, gennemsnitlige hit-lignende sandsynlighed, prævalens og celleantal. Hver brønd tæller som én uafhængig enhed, så sammenligningen bruger 13 målbrønde og 39 kontrolbrønde, ikke enkeltceller.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides viser hver målguide for sig. Deres dosis-respons-forløb peger i forskellige retninger, hvilket er endnu en grund til ikke at behandle genet som et hit.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity gentager sammenligningen ved sandsynlighedsgrænser fra 0,5 til 0,9. Ved hver grænse forbliver forskellen tæt på 0,01, så konklusionen afhænger ikke af grænsen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells rangerer cellerne efter hit-lignende sandsynlighed med den oprindelige score og den fold, der scorede hver celle. Disse sandsynligheder beskriver hit-lignende morfologi, ikke hvilken guide en celle bar. Overfør kun vurderinger til annotering, når evidensen på brøndniveau er overbevisende. Undo fortryder en overførsel.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "Tabellerne gemmes i resultatmappen under hit_investigation og derefter 225160. De indeholder denne indlejring og et manifest, og hver kørsel gemmes desuden som en ny version i databasen. Eksemplet har ingen udsnitsbilleder, så gennemgangsgalleriet forbliver tomt. Undersøg derefter et gen, der klarer din tærskel i en Regression-kørsel med flere permutationer.",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",

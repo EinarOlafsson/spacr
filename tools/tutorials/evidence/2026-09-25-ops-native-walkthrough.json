@@ -225,11 +225,11 @@
     "verify_staged_lesson --web-rendition passed (2560x1440)"
   ],
   "published": false,
-  "media_status": "Accepted immutable media; Pages source prepared; live deployment requires separate verification.",
+  "media_status": "Accepted immutable media (item 520 re-render); Pages source prepared; live deployment requires separate verification.",
   "publication": {
-    "candidate": "release-candidate-append-31kkmyz_",
-    "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
-    "tag": "tutorials-hosted-20260925-31kkmyz_",
+    "candidate": "release-candidate-append-1rjwna77",
+    "commit": "d2db0911ea22c47dbb4f913bf62a8f173232021b",
+    "tag": "tutorials-item520-20260925-1rjwna77",
     "readback_files": 650,
     "web_copy_hosted_on_media_revision": true,
     "narration": "English af_heart only; other voices fall back to English",
@@ -251,5 +251,16 @@
       "verify_staged_lesson --web-rendition passed"
     ],
     "scene_10_console": "Downloading the test data into /tmp/spacr-tutorials/profile/.cache/spacr/example_data/ops_screen\nOPS test data ready: /tmp/spacr-tutorials/profile/.cache/spacr/example_data/ops_screen\n→ Starting ops (run_ops) with src=None + 16 settings…\nRecording reproducibility input hashes…\nReproducibility manifest: /tmp/spacr-tutorials/profile/.spacr/runs/2026-09-25_195722_82ef960e__ops\nOPS: A1 stitch: 2 of 333 placed  1/1 edges  residual median 0.00 px  max 0.00 px  canvas 2,747 x 1,489 (layout says 26,820 x 26,820); 2 of 2 in the solved component, 2.8 s\n"
-  }
+  },
+  "superseded_publications": [
+    {
+      "candidate": "release-candidate-append-31kkmyz_",
+      "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+      "tag": "tutorials-hosted-20260925-31kkmyz_",
+      "readback_files": 650,
+      "web_copy_hosted_on_media_revision": true,
+      "narration": "English af_heart only; other voices fall back to English",
+      "all_ready_local_and_hosted_playback": true
+    }
+  ]
 }

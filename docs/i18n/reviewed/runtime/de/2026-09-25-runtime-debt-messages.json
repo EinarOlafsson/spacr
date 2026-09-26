@@ -1,0 +1,1695 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
+      "translation": "'bundled' ist das historische, mitgelieferte Plaque-Modell. Es wird beibehalten, damit ein alter Lauf reproduziert werden kann; auf Literaturbildern übersieht es etwa ein Drittel der Plaques. toxoplasma_plaque_v2 ist das aktuelle Modell."
+    },
+    {
+      "table": "ui",
+      "key": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
+      "source": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
+      "source_sha256": "6bb03c4c83ee5abfe966cec2eb0878d7f3c36ffc82070615ad7f4abfef8afe6d",
+      "translation": "Eine .pt- oder .pth-Datei mit einem Modell, das einen Kanal aufnimmt und einen Kanal mit Logits zurückgibt. AUFWENDIG: Die Datei wird geladen und das Netz ausgeführt, was auf einer CPU Sekunden pro Kasten und Minuten pro Bildfeld dauert."
+    },
+    {
+      "table": "ui",
+      "key": "A DOI, PMID or PMC id is fetched from Europe PMC with its figure legends; a PDF is read page by page. The figures go into a new folder, with their legends in legends.csv, and the preview switches to it.",
+      "source": "A DOI, PMID or PMC id is fetched from Europe PMC with its figure legends; a PDF is read page by page. The figures go into a new folder, with their legends in legends.csv, and the preview switches to it.",
+      "source_sha256": "8b35f0dcfec09c9bcdcf099b0a734c48750291dd9ca2fbe89723a061a84f82b1",
+      "translation": "Eine DOI, PMID oder PMC-ID wird mit ihren Abbildungslegenden aus Europe PMC abgerufen; ein PDF wird Seite für Seite gelesen. Die Abbildungen kommen in einen neuen Ordner, ihre Legenden in legends.csv, und die Vorschau wechselt dorthin."
+    },
+    {
+      "table": "ui",
+      "key": "A generic budding-yeast cell from SwissBioPics. Hover for a UniProt location description and check several compartments to keep them highlighted. This is a cell schematic, not a Candida species identification or a depiction of every yeast, pseudohyphal and hyphal form.",
+      "source": "A generic budding-yeast cell from SwissBioPics. Hover for a UniProt location description and check several compartments to keep them highlighted. This is a cell schematic, not a Candida species identification or a depiction of every yeast, pseudohyphal and hyphal form.",
+      "source_sha256": "475fac0541ac25e66b7c598b168e50b642143c9a5bb2d9d251603fa5be0171c1",
+      "translation": "Eine generische Zelle einer knospenden Hefe aus SwissBioPics. Bewegen Sie den Mauszeiger darüber, um eine UniProt-Beschreibung der Lokalisation zu sehen, und aktivieren Sie mehrere Kompartimente, damit sie hervorgehoben bleiben. Dies ist ein Zellschema, keine Identifizierung einer Candida-Art und keine Darstellung jeder Hefe-, Pseudohyphen- und Hyphenform."
+    },
+    {
+      "table": "ui",
+      "key": "A growing bud is an asexual reproductive structure, as in yeast or a hydra, that consists of an outgrowth capable of developing into a new individual.",
+      "source": "A growing bud is an asexual reproductive structure, as in yeast or a hydra, that consists of an outgrowth capable of developing into a new individual.",
+      "source_sha256": "203afa6a0410015be528e35ce8e3a885ef992a75f8995173344b3f0a535ca31b",
+      "translation": "Eine wachsende Knospe ist eine ungeschlechtliche Fortpflanzungsstruktur, wie bei Hefe oder Hydra, die aus einem Auswuchs besteht, der sich zu einem neuen Individuum entwickeln kann."
+    },
+    {
+      "table": "ui",
+      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source_sha256": "c090c47c506dae6de2c1805553b5a319be3d942bcad5b0a36793c316bf4789a7",
+      "translation": "Ein gemeinsamer Zellbauplan der Apicomplexa, mit der SwissBioPics-Grafik, die auch in Starplast verwendet wird. Fahren Sie mit der Maus darüber für eine UniProt-Lokalisationsbeschreibung und markieren Sie mehrere Kompartimente, um sie hervorgehoben zu lassen. Parasitenform und Organellenorganisation variieren je nach Art und Lebenszyklusstadium; dies ist keine Rekonstruktion des Blutstadiums. Toxoplasma-hyperLOPIT-Zuordnungen werden nicht auf Plasmodium übertragen."
+    },
+    {
+      "table": "ui",
+      "key": "A suggestion run is going; judge its suggestions when it has finished.",
+      "source": "A suggestion run is going; judge its suggestions when it has finished.",
+      "source_sha256": "b4066ee79304cdf3128bb3caa69b69ea212cb8a16666e9b04312050fe2300067",
+      "translation": "Ein Vorschlagslauf ist aktiv; beurteilen Sie seine Vorschläge, wenn er fertig ist."
+    },
+    {
+      "table": "ui",
+      "key": "A template is this module's settings under a name you chose. Save one when a plate is set up the way you want it; apply it next time instead of retyping.",
+      "source": "A template is this module's settings under a name you chose. Save one when a plate is set up the way you want it; apply it next time instead of retyping.",
+      "source_sha256": "618f7f8a5b0918ff977313cc4b6337576019ad75e01050e8fae4aba93c179c0d",
+      "translation": "Eine Vorlage sind die Einstellungen dieses Moduls unter einem von Ihnen gewählten Namen. Speichern Sie eine, wenn eine Platte wie gewünscht eingerichtet ist; wenden Sie sie beim nächsten Mal an, statt alles neu einzugeben."
+    },
+    {
+      "table": "ui",
+      "key": "Add back a high-pass copy of the image, which makes edges steeper and helps a threshold land on the boundary rather than in the halo. Too much amount puts a bright rim around every object and a dark moat outside it.",
+      "source": "Add back a high-pass copy of the image, which makes edges steeper and helps a threshold land on the boundary rather than in the halo. Too much amount puts a bright rim around every object and a dark moat outside it.",
+      "source_sha256": "0339730f143445b4f4f8ce4f10e566a3577b5291e8a26b1955ae92cf33596bbc",
+      "translation": "Eine Hochpasskopie des Bildes wieder hinzufügen; das macht Kanten steiler und hilft, dass ein Schwellenwert auf der Grenze statt im Halo landet. Eine zu hohe Stärke legt einen hellen Rand um jedes Objekt und einen dunklen Graben außerhalb davon."
+    },
+    {
+      "table": "ui",
+      "key": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "source_sha256": "c374731b1b2c4eec70eb888649b01ba12d6b48523762ee67263e16d45f3af320",
+      "translation": "Alle acht Plasmodium-Module auf dieser Seite sind geplant. Ihre Beschreibungen definieren beabsichtigte Messwerte, keine verfügbaren Analysepipelines. PlasmoDB und UniProt liefern Genom- und Proteinkontext für die Wahl von Markern und die Interpretation der Ergebnisse. Die Apicomplexa-Illustration ist nützlich, um mit Toxoplasma gemeinsame Kompartimente zu besprechen, belegt aber nicht, dass ein Protein in beiden Organismen dieselbe Lokalisation hat."
+    },
+    {
+      "table": "ui",
+      "key": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "source_sha256": "f3daa1382843e31a232a9ecc036eba4b9ae12183a86a6f0b22dfe2fd6285368b",
+      "translation": "Reaktion auf Antimykotika ist ein vorgeschlagener Konzentrations-Wirkungs-Workflow für Pilzwachstum und -morphologie. In Kombination mit Morphologie oder Biofilm ließe sich beschreiben, welche Bildmerkmale sich während der Behandlung ändern. Alle acht Candida-Module sind derzeit geplant, und ihre Kacheln sind als Demnächst verfügbar markiert. Die Candida Genome Database und UniProt liefern Gen- und Proteinannotationen zur Unterstützung der Markerwahl und Interpretation."
+    },
+    {
+      "table": "ui",
+      "key": "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
+      "source": "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
+      "source_sha256": "4f7d1ccf5c5c273c5cdd3b5fcf4f86d3cf79768b7ea378ac035863195d35f42e",
+      "translation": "Wird auf das angewendet, was der Detektor gefunden hat, nicht auf das Bild. Öffnen löscht, was dünner als der Radius ist, und trennt so zwei durch eine Brücke verbundene Objekte; Schließen füllt, was dünner ist, und verbindet so ein in Stücke zerbrochenes Objekt."
+    },
+    {
+      "table": "ui",
+      "key": "Candida yeasts can live on the skin and mucosal surfaces. Some species cause superficial or invasive candidiasis. Candida albicans can form budding yeasts, germ tubes and hyphae; these forms are not shared by every Candida species. Imaging can quantify morphology, biofilm growth and interactions with host cells.",
+      "source": "Candida yeasts can live on the skin and mucosal surfaces. Some species cause superficial or invasive candidiasis. Candida albicans can form budding yeasts, germ tubes and hyphae; these forms are not shared by every Candida species. Imaging can quantify morphology, biofilm growth and interactions with host cells.",
+      "source_sha256": "24ab59d5f5fefb45667da9ee7132d2df81e797cff75e277fd64a5203881d47cd",
+      "translation": "Candida-Hefen können auf der Haut und auf Schleimhautoberflächen leben. Einige Arten verursachen oberflächliche oder invasive Candidosen. Candida albicans kann knospende Hefen, Keimschläuche und Hyphen bilden; diese Formen teilen nicht alle Candida-Arten. Bildgebung kann Morphologie, Biofilmwachstum und Wechselwirkungen mit Wirtszellen quantifizieren."
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose 3 restoration finished in {seconds} s.",
+      "source": "Cellpose 3 restoration finished in {seconds} s.",
+      "source_sha256": "f928b7f4f5b86aeac6a3c212f9b01cc759ef0806d776678e64e9781a3921b9ab",
+      "translation": "Cellpose-3-Restaurierung in {seconds} s abgeschlossen."
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose 3 restoration is running on the whole field…",
+      "source": "Cellpose 3 restoration is running on the whole field…",
+      "source_sha256": "858445f033705820cf0d8207dccee51cb4cb06f9d1f023312121a5bf32a18823",
+      "translation": "Cellpose-3-Restaurierung läuft auf dem ganzen Bildfeld…"
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose 3 with Diameter 0 first estimates the object size and rescales the whole field to it. On a 1994 x 1994 Toxoplasma field on the CPU that took 153 s and guessed 16 px for vacuoles of 44 px; with Diameter 44 it took 12 s. Set Diameter to the objects' size in pixels to skip the estimate.",
+      "source": "Cellpose 3 with Diameter 0 first estimates the object size and rescales the whole field to it. On a 1994 x 1994 Toxoplasma field on the CPU that took 153 s and guessed 16 px for vacuoles of 44 px; with Diameter 44 it took 12 s. Set Diameter to the objects' size in pixels to skip the estimate.",
+      "source_sha256": "193934dedcea4d163f8b79cdac49948ff05f54d2d83d0df37375bc6cda42ec1f",
+      "translation": "Cellpose 3 mit Durchmesser 0 schätzt zuerst die Objektgröße und skaliert das ganze Bildfeld darauf. Bei einem Toxoplasma-Bildfeld von 1994 x 1994 auf der CPU dauerte das 153 s und schätzte 16 px für Vakuolen von 44 px; mit Durchmesser 44 dauerte es 12 s. Setzen Sie Durchmesser auf die Objektgröße in Pixeln, um die Schätzung zu überspringen."
+    },
+    {
+      "table": "ui",
+      "key": "Changes re-propose the conditions at once from the text already read. The second reading needs a new Run preview.",
+      "source": "Changes re-propose the conditions at once from the text already read. The second reading needs a new Run preview.",
+      "source_sha256": "e3f60caf58127d3b3665351b20550755b92755040523277415980233146a10c1",
+      "translation": "Änderungen schlagen die Bedingungen sofort aus dem bereits gelesenen Text neu vor. Die zweite Lesung erfordert ein erneutes Vorschau ausführen."
+    },
+    {
+      "table": "ui",
+      "key": "Channel {channel}: ratio {ratio}, {state}.",
+      "source": "Channel {channel}: ratio {ratio}, {state}.",
+      "source_sha256": "8bc2cf5d1ecc4deb9c2ac4173360ad669161e751bdb158689aa5c4754a7fa536",
+      "translation": "Kanal {channel}: Verhältnis {ratio}, {state}."
+    },
+    {
+      "table": "ui",
+      "key": "Checking the installed Starplast version and PyPI…",
+      "source": "Checking the installed Starplast version and PyPI…",
+      "source_sha256": "48a0895ff04ff436502899a7660a0a6db27e5817120aeabb4e6c7c8cead566a9",
+      "translation": "Installierte Starplast-Version und PyPI werden geprüft…"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measured field. Counts and infection fractions refer only to this field.",
+      "source": "Choose a measured field. Counts and infection fractions refer only to this field.",
+      "source_sha256": "e8219f64a6db3ac866b1daa655bdb6adb602de40a77780ff1b6676bf387cfc6f",
+      "translation": "Wählen Sie ein gemessenes Bildfeld. Zählungen und Infektionsanteile beziehen sich nur auf dieses Bildfeld."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measured project in the source setting first.",
+      "source": "Choose a measured project in the source setting first.",
+      "source_sha256": "7e9b0968d294896a849ccd47d24d36a32f903bd6316eb54c208964e611751df4",
+      "translation": "Wählen Sie zuerst in der Einstellung Quelle ein gemessenes Projekt."
+    },
+    {
+      "table": "ui",
+      "key": "Click a well on the figure or a row in the table.",
+      "source": "Click a well on the figure or a row in the table.",
+      "source_sha256": "834b51840ae2426f3d278cfec39d3e40066c333a5e35a1a738bbf489a73e9462",
+      "translation": "Klicken Sie auf ein Well in der Abbildung oder eine Zeile in der Tabelle."
+    },
+    {
+      "table": "ui",
+      "key": "Close this window. A measurement already running is stopped.",
+      "source": "Close this window. A measurement already running is stopped.",
+      "source_sha256": "056d13b9f4d7bdb5b487fbf39a1dab4e8c122bf216a4978704bdf094fc034a45",
+      "translation": "Dieses Fenster schließen. Eine bereits laufende Messung wird gestoppt."
+    },
+    {
+      "table": "ui",
+      "key": "Conditions proposed again with the new text settings.",
+      "source": "Conditions proposed again with the new text settings.",
+      "source_sha256": "bb4daa9b799d8439a89e614ec12bb0aba7f569c95d14531798eeda490017be2b",
+      "translation": "Bedingungen mit den neuen Texteinstellungen erneut vorgeschlagen."
+    },
+    {
+      "table": "ui",
+      "key": "Confirm annotations is on: the run measures ONLY the images ticked OK below and saved with Save annotations. Every other image is left out.",
+      "source": "Confirm annotations is on: the run measures ONLY the images ticked OK below and saved with Save annotations. Every other image is left out.",
+      "source_sha256": "8fff31178a07d5528a442d39b5204b4d221d9679eda0f0bdfed3f2a8c33c25e2",
+      "translation": "Annotationen bestätigen ist aktiv: Der Lauf misst NUR die Bilder, die unten mit OK markiert und mit Annotationen speichern gespeichert wurden. Alle anderen Bilder werden ausgelassen."
+    },
+    {
+      "table": "ui",
+      "key": "Confirm every suggestion on this page you have not judged yet. Undoable with U.",
+      "source": "Confirm every suggestion on this page you have not judged yet. Undoable with U.",
+      "source_sha256": "9d843e85bacbd5ce2e25ec5aaadbe3196bcb7f205e5c973670e9b72173ceaa9f",
+      "translation": "Jeden noch nicht beurteilten Vorschlag auf dieser Seite bestätigen. Mit U rückgängig zu machen."
+    },
+    {
+      "table": "ui",
+      "key": "Cut an object with two centres in two, at the ridge between them, on the distance to the background. It is the Otsu category's own split offered to every other method. The Otsu mode is not affected by this box and keeps using its own: applying both would join what Otsu had just separated and cut it again.",
+      "source": "Cut an object with two centres in two, at the ridge between them, on the distance to the background. It is the Otsu category's own split offered to every other method. The Otsu mode is not affected by this box and keeps using its own: applying both would join what Otsu had just separated and cut it again.",
+      "source_sha256": "669c789a02614f85ef84871f5d12468bbb596ee197c145d6a02f13d1ce01a0db",
+      "translation": "Ein Objekt mit zwei Zentren am Grat zwischen ihnen in zwei teilen, anhand des Abstands zum Hintergrund. Dies ist die eigene Teilung der Kategorie Otsu, angeboten für jedes andere Verfahren. Der Modus Otsu ist von diesem Kästchen nicht betroffen und verwendet weiter seine eigene: Beide anzuwenden würde verbinden, was Otsu gerade getrennt hat, und es erneut schneiden."
+    },
+    {
+      "table": "ui",
+      "key": "Detector inference sizes, comma separated. Each size is asked and the boxes are merged.",
+      "source": "Detector inference sizes, comma separated. Each size is asked and the boxes are merged.",
+      "source_sha256": "ccec41d74767cb4f684669a800cf16d1487d41031a7314cf9a29a6013f73a045",
+      "translation": "Inferenzgrößen des Detektors, kommagetrennt. Jede Größe wird abgefragt, und die Rahmen werden zusammengeführt."
+    },
+    {
+      "table": "ui",
+      "key": "Display plane changed; Run preview to read it.",
+      "source": "Display plane changed; Run preview to read it.",
+      "source_sha256": "40127a0d0270aa6520147c2fa87bfa55ee41f81cdfa243bb12212034d30d666e",
+      "translation": "Anzeigeebene geändert; Vorschau ausführen, um sie zu lesen."
+    },
+    {
+      "table": "ui",
+      "key": "Done: {total} plaques in the {n} well(s) segmented so far.",
+      "source": "Done: {total} plaques in the {n} well(s) segmented so far.",
+      "source_sha256": "6ad5d6491eb5ceab60002eef5ce746b44f212661e971a0e13c97f548c30d72d1",
+      "translation": "Fertig: {total} Plaques in den bisher {n} segmentierten Well(s)."
+    },
+    {
+      "table": "ui",
+      "key": "Double-click to enter a value for this well. Clear it to use the settings or detected ruler.",
+      "source": "Double-click to enter a value for this well. Clear it to use the settings or detected ruler.",
+      "source_sha256": "ddce5102e6335594c198916c741ec76f1622a8d61b48eedd26955c5c357dac7b",
+      "translation": "Doppelklicken, um einen Wert für dieses Well einzugeben. Leeren, um die Einstellungen oder den erkannten Maßstab zu verwenden."
+    },
+    {
+      "table": "ui",
+      "key": "Download about 390 MB from a published optical pooled screen: two sequencing fields of one well, all eleven cycles, and the guide library. The source, output folder, library and plate are filled in, so Run is the next action. There are no phenotype images, so the phenotype step is skipped. Cached afterwards.",
+      "source": "Download about 390 MB from a published optical pooled screen: two sequencing fields of one well, all eleven cycles, and the guide library. The source, output folder, library and plate are filled in, so Run is the next action. There are no phenotype images, so the phenotype step is skipped. Cached afterwards.",
+      "source_sha256": "2920fb228e9e251d2323fdb653a317fdcb0cdbc7c357d7d1d7172c5853660c2c",
+      "translation": "Etwa 390 MB aus einem veröffentlichten Optical Pooled Screen herunterladen: zwei Sequenzierungsbildfelder eines Wells, alle elf Zyklen und die Guide-Bibliothek. Quelle, Ausgabeordner, Bibliothek und Platte werden ausgefüllt, sodass Run der nächste Schritt ist. Es gibt keine Phänotypbilder, daher wird der Phänotypschritt übersprungen. Danach zwischengespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Download about {size} MB of real THP-1 RNF213 microscopy: two fields with host and vacuole masks, 164 measured hosts and 97 vacuoles. Automatic masks were reconciled by Measure; they are not manual ground truth. RNF213 recruitment uses channel 1. Individual-parasite counts are unavailable, so replication remains unknown. Settings are filled in; choose Live or Run. Cached after the first download.",
+      "source": "Download about {size} MB of real THP-1 RNF213 microscopy: two fields with host and vacuole masks, 164 measured hosts and 97 vacuoles. Automatic masks were reconciled by Measure; they are not manual ground truth. RNF213 recruitment uses channel 1. Individual-parasite counts are unavailable, so replication remains unknown. Settings are filled in; choose Live or Run. Cached after the first download.",
+      "source_sha256": "aeb9b0f0b5d78a83297364441af49999b43656bc57e4b7ee072ebdef6b5e8b8c",
+      "translation": "Etwa {size} MB echte THP-1-RNF213-Mikroskopiedaten herunterladen: zwei Bildfelder mit Wirts- und Vakuolenmasken, 164 gemessene Wirtszellen und 97 Vakuolen. Die automatischen Masken wurden von Measure abgeglichen; sie sind keine manuelle Ground Truth. Die RNF213-Rekrutierung verwendet Kanal 1. Zählungen einzelner Parasiten sind nicht verfügbar, daher bleibt die Replikation unbekannt. Die Einstellungen sind ausgefüllt; wählen Sie Live oder Ausführen. Nach dem ersten Download zwischengespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Download nine overlapping tiles from a published optical pooled screen (about 200 MB) and fill in the tile folder, grid, order and overlap, so Plan can be pressed straight away. Cached after the first download.",
+      "source": "Download nine overlapping tiles from a published optical pooled screen (about 200 MB) and fill in the tile folder, grid, order and overlap, so Plan can be pressed straight away. Cached after the first download.",
+      "source_sha256": "5901c3daf0639ea126ecdd9cd1acc94533d4b26b676e4fd89d8d33ff93f7986f",
+      "translation": "Neun überlappende Kacheln aus einem veröffentlichten Optical Pooled Screen (etwa 200 MB) herunterladen und Kachelordner, Raster, Reihenfolge und Überlappung ausfüllen, sodass Plan sofort gedrückt werden kann. Nach dem ersten Download zwischengespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Drag a line on the image to measure it in image pixels, and in microns when the pixel size is known: Pixels per µm in the settings' Scale & Time, or a well's own value in the Wells table. Right-click with Ruler selected to clear the line. Turn Ruler off to pan or to pick a well.",
+      "source": "Drag a line on the image to measure it in image pixels, and in microns when the pixel size is known: Pixels per µm in the settings' Scale & Time, or a well's own value in the Wells table. Right-click with Ruler selected to clear the line. Turn Ruler off to pan or to pick a well.",
+      "source_sha256": "b7abb7c33cb703a1d5b350a38e33f4dc7e0976dc891a17a9a80c4469fb07dc3a",
+      "translation": "Ziehen Sie eine Linie auf dem Bild, um sie in Bildpixeln zu messen, und in Mikrometern, wenn die Pixelgröße bekannt ist: Pixel pro µm unter Maßstab und Zeit in den Einstellungen oder der eigene Wert eines Wells in der Tabelle Wells. Rechtsklicken Sie bei ausgewähltem Lineal, um die Linie zu löschen. Schalten Sie das Lineal aus, um die Ansicht zu verschieben oder ein Well zu wählen."
+    },
+    {
+      "table": "ui",
+      "key": "Drop a folder of images anywhere on this window or type a path into the Source field below. Use Load test data when available, or open Pipeline overviews on Home to choose a walkthrough.",
+      "source": "Drop a folder of images anywhere on this window or type a path into the Source field below. Use Load test data when available, or open Pipeline overviews on Home to choose a walkthrough.",
+      "source_sha256": "f1e9cb52705ac84cbef59af48a0a5e308458f59ae3f6bfc078e480c1970a5aa8",
+      "translation": "Ziehen Sie einen Bildordner an eine beliebige Stelle dieses Fensters oder geben Sie unten im Feld Quelle einen Pfad ein. Verwenden Sie Testdaten laden, falls verfügbar, oder öffnen Sie Pipeline-Übersichten auf Home, um eine Anleitung zu wählen."
+    },
+    {
+      "table": "ui",
+      "key": "Enter a finite positive scale, or a nonnegative formation time in hours. Clear the cell to restore its default.",
+      "source": "Enter a finite positive scale, or a nonnegative formation time in hours. Clear the cell to restore its default.",
+      "source_sha256": "31aee6a54ceaece6c14a4784978fb115ae32e2f0aac5ffe577919ee0cff88bd8",
+      "translation": "Geben Sie einen endlichen positiven Maßstab oder eine nicht negative Bildungsdauer in Stunden ein. Leeren Sie die Zelle, um ihren Standard wiederherzustellen."
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "source_sha256": "b4a8acea49fc2990a3ba506c91ffd1d86f8049dd25e2fb8e4774c09b37444de8",
+      "translation": "Invasion von Epithelzellen soll extrazelluläre Pilze von solchen unterscheiden, die von Epithelzellen internalisiert wurden. Phagozytose wird die Aufnahme durch Phagozyten messen. Beide erfordern eine Möglichkeit, Kontakt von Internalisierung zu unterscheiden, etwa eine geeignete differenzielle Markierung oder räumliche Information. Geben Sie die Wirtszellpopulation und die Pilzmorphologie zusammen mit dem Aufnahme-Messwert an."
+    },
+    {
+      "table": "ui",
+      "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
+      "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
+      "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
+      "translation": "Das Histogramm innerhalb jeder Kachel statt über das ganze Bildfeld ausgleichen, mit einer Grenze, wie stark eine einzelne Stufe gestreckt werden darf. So treten Objekte in einer dunklen Ecke hervor, ohne dass die helle Mitte überstrahlt. Es verstärkt auch das Rauschen in leeren Kacheln; dafür gibt es das Clip-Limit."
+    },
+    {
+      "table": "ui",
+      "key": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source_sha256": "7da76b8536419eaa9c117468cb3f56e9f610b29dd9d1274c793d2d13824dc10b",
+      "translation": "Erkunden Sie die Apicomplexa-Zelle mit den Toxoplasma-hyperLOPIT-Labels von Starplast. Fahren Sie mit der Maus darüber für eine Lokalisationsbeschreibung, markieren Sie mehrere Kompartimente, um sie hervorgehoben zu lassen, oder setzen Sie sie mit Auswahl löschen zurück. Mehrere Klassen teilen sich eine Form; dichte Granula verwenden die allgemeine Form zytoplasmatischer Granula. Ribosomen, Proteasomen, apikale Klassen und gemischte Endomembranvesikel haben hier keine passende Form. Die Illustration zeigt Kompartimentnamen, keine Proteinmessungen."
+    },
+    {
+      "table": "ui",
+      "key": "Fetch a paper's figures and legends by DOI, PMID, PMC id or PDF into a new folder, and preview them.",
+      "source": "Fetch a paper's figures and legends by DOI, PMID, PMC id or PDF into a new folder, and preview them.",
+      "source_sha256": "a593d94a95009b101a5556f3aede187bf776c07d478bfdf0349e25adccd37995",
+      "translation": "Abbildungen und Legenden einer Publikation per DOI, PMID, PMC-ID oder PDF in einen neuen Ordner abrufen und in der Vorschau anzeigen."
+    },
+    {
+      "table": "ui",
+      "key": "Figure mode needs {names}. Press Install to put them in an environment of their own, so spaCR's own packages are not changed. Plaque mode works without them.",
+      "source": "Figure mode needs {names}. Press Install to put them in an environment of their own, so spaCR's own packages are not changed. Plaque mode works without them.",
+      "source_sha256": "c5892f9456ffb22ffd1cdfecb63def855a0253537d10f5ebb3997f42f34188c0",
+      "translation": "Der Abbildungsmodus benötigt {names}. Klicken Sie auf Installieren, um sie in eine eigene Umgebung zu installieren, damit die Pakete von spaCR selbst nicht verändert werden. Der Plaque-Modus funktioniert ohne sie."
+    },
+    {
+      "table": "ui",
+      "key": "Figure mode: a folder of published figures. The run finds the plaque images in each figure, reads the text around them to name each condition, and segments the plaques.",
+      "source": "Figure mode: a folder of published figures. The run finds the plaque images in each figure, reads the text around them to name each condition, and segments the plaques.",
+      "source_sha256": "ca8883b49b24e9d1841ef68366f00a489bcd6cfb717415a974796a55b794024f",
+      "translation": "Abbildungsmodus: ein Ordner mit veröffentlichten Abbildungen. Der Lauf findet die Plaque-Bilder in jeder Abbildung, liest den umgebenden Text, um jede Bedingung zu benennen, und segmentiert die Plaques."
+    },
+    {
+      "table": "ui",
+      "key": "Filamentation is planned to quantify the frequency and extent of filament growth. Germ tube formation will focus on early outgrowth from individual cells, and Morphology will distinguish yeast, pseudohyphal and hyphal forms where those categories apply. These related modules address different points in a morphological transition. Use species-appropriate reference images and record the growth conditions when comparing their results.",
+      "source": "Filamentation is planned to quantify the frequency and extent of filament growth. Germ tube formation will focus on early outgrowth from individual cells, and Morphology will distinguish yeast, pseudohyphal and hyphal forms where those categories apply. These related modules address different points in a morphological transition. Use species-appropriate reference images and record the growth conditions when comparing their results.",
+      "source_sha256": "c0d0799870cfcd44454a19ebefa479bbcb18446c52269e975e996441b19b6979",
+      "translation": "Filamentbildung soll Häufigkeit und Ausmaß des Filamentwachstums quantifizieren. Keimschlauchbildung wird sich auf den frühen Auswuchs einzelner Zellen konzentrieren, und Morphologie wird Hefe-, Pseudohyphen- und Hyphenformen unterscheiden, sofern diese Kategorien zutreffen. Diese verwandten Module betreffen unterschiedliche Punkte eines morphologischen Übergangs. Verwenden Sie artgerechte Referenzbilder und erfassen Sie die Wachstumsbedingungen, wenn Sie ihre Ergebnisse vergleichen."
+    },
+    {
+      "table": "ui",
+      "key": "Find the plaques in every well found on this figure, one after another. Cancel stops after the well in progress.",
+      "source": "Find the plaques in every well found on this figure, one after another. Cancel stops after the well in progress.",
+      "source_sha256": "a88b9147659e2eefd8629e82e0aba4635bfff2c02458d33b4e33ba2a5f64cb91",
+      "translation": "Die Plaques in allen auf dieser Abbildung gefundenen Wells nacheinander finden. Abbrechen stoppt nach dem gerade bearbeiteten Well."
+    },
+    {
+      "table": "ui",
+      "key": "Find the plaques in the highlighted well with the plaque settings.",
+      "source": "Find the plaques in the highlighted well with the plaque settings.",
+      "source_sha256": "66b57f9728fcbfe35ac78b40f1e4df77f85d472293ebb8688473a18f8a60e468",
+      "translation": "Die Plaques im hervorgehobenen Well mit den Plaque-Einstellungen finden."
+    },
+    {
+      "table": "ui",
+      "key": "Finding plaques in well {n} ({k} of {total})…",
+      "source": "Finding plaques in well {n} ({k} of {total})…",
+      "source_sha256": "886a7fbaddb1adf3a87a6682f8cdd5704ee241c61785311ead004f16c4318b81",
+      "translation": "Plaques in Well {n} werden gesucht ({k} von {total})…"
+    },
+    {
+      "table": "ui",
+      "key": "Finish or stop the active analyses before updating spaCR.",
+      "source": "Finish or stop the active analyses before updating spaCR.",
+      "source_sha256": "6f52966404dcf63b89a08b074f3bce1f3c356f2b7a7256165343c56486eeb3b3",
+      "translation": "Beenden oder stoppen Sie die laufenden Analysen, bevor Sie spaCR aktualisieren."
+    },
+    {
+      "table": "ui",
+      "key": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
+      "source": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
+      "source_sha256": "69b290e0d6c71dfe9ff67646482b0d6e03a1b609d9408b638511995918e232c8",
+      "translation": "Das Histogramm der ganzen Region auf einmal abflachen, sodass jedes Helligkeitsband dieselbe Zahl von Pixeln erhält. Dies ist der stärkste der Kontrastschritte und derjenige, der die Daten am wenigsten respektiert: Bei einem Bildfeld, das überwiegend Hintergrund ist, wird der Hintergrund über die halbe Skala gestreckt."
+    },
+    {
+      "table": "ui",
+      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "source_sha256": "ebfb1c9811c74671d5842f0a8f7a663cdad6815e6a0622cb58809571a838e266",
+      "translation": "Gametozytenreife ist ein vorgeschlagener Workflow für stadien- und geschlechtsassoziierte Bildmerkmale, sofern geeignete Marker und Referenzannotationen vorliegen. Bildanalyse der Arzneimittelreaktion wird Wachstum und Morphologie mit der Konzentration in Beziehung setzen. Erfassen Sie Art, Ausgangsstadium und Expositionsdauer zusammen mit diesen Messungen: Andernfalls können Veränderungen in der Stadienzusammensetzung mit Veränderungen der Parasitenzahl verwechselt werden."
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur applied before the centres are found, in pixels. It is what makes ONE object have ONE centre: a raw object has a dozen maxima in its own noise. About a third of the object radius is a starting point. This is NOT the Image enhancement card's denoise, which has already run by now; leave that one off unless the field is genuinely noisy, or the two blurs compound.",
+      "source": "Gaussian blur applied before the centres are found, in pixels. It is what makes ONE object have ONE centre: a raw object has a dozen maxima in its own noise. About a third of the object radius is a starting point. This is NOT the Image enhancement card's denoise, which has already run by now; leave that one off unless the field is genuinely noisy, or the two blurs compound.",
+      "source_sha256": "06eb9ebba669a76c1a3bcfb308f187362aecaf47a9575ba60f9f95b23847a003",
+      "translation": "Gaußsche Unschärfe, die vor dem Finden der Zentren angewandt wird, in Pixeln. Sie sorgt dafür, dass EIN Objekt EIN Zentrum hat: Ein unbearbeitetes Objekt hat ein Dutzend Maxima in seinem eigenen Rauschen. Etwa ein Drittel des Objektradius ist ein Ausgangspunkt. Dies ist NICHT die Rauschunterdrückung der Karte Bildverbesserung, die zu diesem Zeitpunkt bereits gelaufen ist; lassen Sie diese aus, sofern das Bildfeld nicht wirklich verrauscht ist, sonst addieren sich die beiden Unschärfen."
+    },
+    {
+      "table": "ui",
+      "key": "Grow a watershed from each blob centre instead of stamping a disk whose radius comes from that blob's own scale. Turn it off when single spots are being fragmented.",
+      "source": "Grow a watershed from each blob centre instead of stamping a disk whose radius comes from that blob's own scale. Turn it off when single spots are being fragmented.",
+      "source_sha256": "88ed8dedec53a8f4bd3263f294ecc4024d869e110a711dbbc4ae7c3b32459bcc",
+      "translation": "Von jedem Blob-Zentrum aus eine Wasserscheide wachsen lassen, statt eine Scheibe zu stempeln, deren Radius aus der eigenen Skala des Blobs stammt. Schalten Sie es aus, wenn einzelne Spots fragmentiert werden."
+    },
+    {
+      "table": "ui",
+      "key": "Heavy: {steps}. A whole-image run shows progress and can be cancelled.",
+      "source": "Heavy: {steps}. A whole-image run shows progress and can be cancelled.",
+      "source_sha256": "16cd5be6d425518f67894f7529082c45f092a0ca366ca0c9a6add516ce377629",
+      "translation": "Aufwendig: {steps}. Ein Lauf auf dem ganzen Bild zeigt den Fortschritt und kann abgebrochen werden."
+    },
+    {
+      "table": "ui",
+      "key": "Hold {key} and scroll to zoom; drag the image to pan.",
+      "source": "Hold {key} and scroll to zoom; drag the image to pan.",
+      "source_sha256": "814139d31c784795809101a78c304d2922fbb1f2bd790c231dc7bae6bc780e17",
+      "translation": "Halten Sie {key} gedrückt und scrollen Sie zum Zoomen; ziehen Sie das Bild zum Verschieben."
+    },
+    {
+      "table": "ui",
+      "key": "Holes inside an object smaller than this are filled, so an object dimmer in the middle than at its rim does not come back as a ring. 0 leaves every hole where it is.",
+      "source": "Holes inside an object smaller than this are filled, so an object dimmer in the middle than at its rim does not come back as a ring. 0 leaves every hole where it is.",
+      "source_sha256": "42bbdb7a4414a353f00cf9829baf4a5e974ad3e4d9c4067b37ff182fa4e05130",
+      "translation": "Löcher in einem Objekt, die kleiner als dieser Wert sind, werden gefüllt, damit ein Objekt, das in der Mitte dunkler ist als am Rand, nicht als Ring zurückkommt. 0 lässt jedes Loch, wie es ist."
+    },
+    {
+      "table": "ui",
+      "key": "Hover a button to see which microscope format and file naming it tests. The first press downloads every variant at once, about 285 MB; later presses open from the cache. Nothing is written into a project until you press Import.",
+      "source": "Hover a button to see which microscope format and file naming it tests. The first press downloads every variant at once, about 285 MB; later presses open from the cache. Nothing is written into a project until you press Import.",
+      "source_sha256": "ac8f14928476e5f81fc53edfce161070a7089b7f4ce2f5b58bb6e137ab52a694",
+      "translation": "Bewegen Sie den Mauszeiger über eine Schaltfläche, um zu sehen, welches Mikroskopformat und welche Dateibenennung sie testet. Der erste Klick lädt alle Varianten auf einmal herunter, etwa 285 MB; spätere Klicks öffnen sie aus dem Cache. In ein Projekt wird erst geschrieben, wenn Sie Import drücken."
+    },
+    {
+      "table": "ui",
+      "key": "How bright a maximum has to be to count as a centre. Read as a percentile of the blurred image by default, so one setting suits any exposure: 90 means the top tenth of the pixels. This and the distance together decide HOW MANY objects there will be, and the status line says how many centres were found.",
+      "source": "How bright a maximum has to be to count as a centre. Read as a percentile of the blurred image by default, so one setting suits any exposure: 90 means the top tenth of the pixels. This and the distance together decide HOW MANY objects there will be, and the status line says how many centres were found.",
+      "source_sha256": "5551ca5fe0443a79b0ab4f4b9d5c6161453f5a9d8e9c30c14e321af30f5b463c",
+      "translation": "Wie hell ein Maximum sein muss, um als Zentrum zu gelten. Standardmäßig als Perzentil des weichgezeichneten Bildes gelesen, sodass eine Einstellung zu jeder Belichtung passt: 90 bedeutet das oberste Zehntel der Pixel. Dieser Wert und der Abstand bestimmen zusammen, WIE VIELE Objekte es geben wird, und die Statuszeile zeigt, wie viele Zentren gefunden wurden."
+    },
+    {
+      "table": "ui",
+      "key": "How many scales are evaluated between the two sigmas. More resolves a wider spread of spot sizes and costs one filter pass each; 3 to 5 is enough when the spots are all one size.",
+      "source": "How many scales are evaluated between the two sigmas. More resolves a wider spread of spot sizes and costs one filter pass each; 3 to 5 is enough when the spots are all one size.",
+      "source_sha256": "0e48b1771d6e219e96ddce5fedef5d2b05fd2ec1d4502683b787b1b3f3343564",
+      "translation": "Wie viele Skalen zwischen den beiden Sigmas ausgewertet werden. Mehr erfasst eine größere Streuung von Spotgrößen und kostet je einen Filterdurchlauf; 3 bis 5 genügen, wenn alle Spots gleich groß sind."
+    },
+    {
+      "table": "ui",
+      "key": "How much contrast a tile may be given, 0 to 1. Higher is more contrast and more amplified noise in tiles that hold only background.",
+      "source": "How much contrast a tile may be given, 0 to 1. Higher is more contrast and more amplified noise in tiles that hold only background.",
+      "source_sha256": "10e6fef8648b33ee761b72f2ef9d41502ae507bca950ecb28e57edb52d02699f",
+      "translation": "Wie viel Kontrast eine Kachel erhalten darf, 0 bis 1. Höher bedeutet mehr Kontrast und stärker verstärktes Rauschen in Kacheln, die nur Hintergrund enthalten."
+    },
+    {
+      "table": "ui",
+      "key": "How much of the mask is added back. 1 is a normal sharpen; above 2 the halos start to become objects of their own.",
+      "source": "How much of the mask is added back. 1 is a normal sharpen; above 2 the halos start to become objects of their own.",
+      "source_sha256": "9a982ae188adf5aea2c3fe3f7eabcca00598495eb56c3bd42605c31b03fb85c9",
+      "translation": "Wie viel der Maske wieder hinzugefügt wird. 1 ist normales Schärfen; über 2 werden die Halos zu eigenen Objekten."
+    },
+    {
+      "table": "ui",
+      "key": "How much smoothing: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the noise it measures.",
+      "source": "How much smoothing: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the noise it measures.",
+      "source_sha256": "877e6b6c22442b7eecf81378407b3d34164459f0400b02f2f6b2cec13fa03cb8",
+      "translation": "Wie stark geglättet wird: das Sigma des Gaußfilters in Pixeln, der Scheibenradius des Median- bzw. bilateralen Filters oder der Grenzwert von Non-Local Means in Vielfachen des gemessenen Rauschens."
+    },
+    {
+      "table": "ui",
+      "key": "How the filter's response becomes a foreground. Otsu takes one level for the whole region; Adaptive uses the block size and offset above and keeps faint filaments in dim corners, at the cost of background elsewhere.",
+      "source": "How the filter's response becomes a foreground. Otsu takes one level for the whole region; Adaptive uses the block size and offset above and keeps faint filaments in dim corners, at the cost of background elsewhere.",
+      "source_sha256": "81d19907e3f8b56bf41513627d72b09bf9dca2ac8f2b988e2e746596dd968f9f",
+      "translation": "Wie die Antwort des Filters zu einem Vordergrund wird. Otsu nimmt einen Schwellenwert für die ganze Region; Adaptiv verwendet die Blockgröße und den Offset oben und behält schwache Filamente in dunklen Ecken, auf Kosten von Hintergrund an anderer Stelle."
+    },
+    {
+      "table": "ui",
+      "key": "ImageJ TIFF stack, three channels per file, named like E01/field009.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are read from inside the file.",
+      "source": "ImageJ TIFF stack, three channels per file, named like E01/field009.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are read from inside the file.",
+      "source_sha256": "d64eeb17a5adfcc3f3826efc2f554667233cc572f025a67acc2b211c8a9e86a0",
+      "translation": "ImageJ-TIFF-Stapel, drei Kanäle pro Datei, benannt wie E01/field009.tif. Benennung: auto. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nDie Kanäle werden aus der Datei selbst gelesen."
+    },
+    {
+      "table": "ui",
+      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
+      "translation": "Wählen Sie in Mask den Bildordner Ihrer Zeitreihe. Aktivieren Sie Zeitraffer und konfigurieren Sie dann die Zeitmetadaten und die Tracking-Einstellungen."
+    },
+    {
+      "table": "ui",
+      "key": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
+      "source": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
+      "source_sha256": "7ed2bb7ea88c6fb425a176ad59d85cdbee427d2060ffcb6af3dcd952bf2ecb1e",
+      "translation": "Den Plaque-Abbildungsleser (YOLO und RapidOCR) in eine eigene Umgebung unter ~/.spacr/backends installieren; die Pakete von spaCR selbst werden nicht verändert."
+    },
+    {
+      "table": "ui",
+      "key": "Judge them one at a time: click or press Y to confirm a suggestion, right-click or press N to reject it.",
+      "source": "Judge them one at a time: click or press Y to confirm a suggestion, right-click or press N to reject it.",
+      "source_sha256": "3aa6b31bbb38aa074acc77129d76e7f50439d1f49e809055e33d75b43f1a8a02",
+      "translation": "Beurteilen Sie sie einzeln: Klicken oder Y drücken, um einen Vorschlag zu bestätigen; Rechtsklick oder N drücken, um ihn abzulehnen."
+    },
+    {
+      "table": "ui",
+      "key": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "source": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+      "source_sha256": "283550e02f8c5608b7f1e9510902dc4c8737514c63c807853fe6332ef8bed217",
+      "translation": "Nicht infizierte Zellen in Measure behalten. Stellen Sie Masken ganzer Vakuolen, Referenzintensitäten der Wirtszellen und optional explizite Zuordnungen von Parasit zu Vakuole bereit; die Wirtszellidentität allein definiert keine Vakuole."
+    },
+    {
+      "table": "ui",
+      "key": "Label the centre line of the network instead of the filled filaments, so a measured area tracks network LENGTH rather than filament thickness. Leave it off to measure filament mass.",
+      "source": "Label the centre line of the network instead of the filled filaments, so a measured area tracks network LENGTH rather than filament thickness. Leave it off to measure filament mass.",
+      "source_sha256": "af8a18ebce8fe92254914bba3cdf4bbee4a21e0b8c37c17892c1cefe587ea604",
+      "translation": "Die Mittellinie des Netzwerks statt der gefüllten Filamente als Label setzen, sodass eine gemessene Fläche die LÄNGE des Netzwerks statt der Filamentdicke abbildet. Lassen Sie es aus, um die Filamentmasse zu messen."
+    },
+    {
+      "table": "ui",
+      "key": "Lay this session's masks and the field over one another, with an opacity and a stacking order for each, in a third panel. The last {count} masks are kept.",
+      "source": "Lay this session's masks and the field over one another, with an opacity and a stacking order for each, in a third panel. The last {count} masks are kept.",
+      "source_sha256": "4971d9a015d7695cb6ff7f5424c098535afdeed419a3bc525e59762ffaba93e7",
+      "translation": "Die Masken dieser Sitzung und das Bildfeld übereinanderlegen, jeweils mit Deckkraft und Stapelreihenfolge, in einem dritten Panel. Die letzten {count} Masken werden behalten."
+    },
+    {
+      "table": "ui",
+      "key": "Leave out maxima within one minimum distance of the frame. An object the edge cuts has its centre in the wrong place, so what grows from it is the wrong shape.",
+      "source": "Leave out maxima within one minimum distance of the frame. An object the edge cuts has its centre in the wrong place, so what grows from it is the wrong shape.",
+      "source_sha256": "667f6a21e49f54defa839e980722f246b4ab53ce11816c55121fc4222302c8b4",
+      "translation": "Maxima auslassen, die weniger als einen Mindestabstand vom Bildrand entfernt sind. Bei einem vom Rand angeschnittenen Objekt liegt das Zentrum an der falschen Stelle, sodass das daraus Gewachsene die falsche Form hat."
+    },
+    {
+      "table": "ui",
+      "key": "Leica LIF (public samples), named like A01/FRAP.lif. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes LIF, so these are public sample files by Sean Warren and Michael Goelzer, CC BY 4.0: time series, a z-stack and a tile scan. They have no masks, so they go through the Format Converter.",
+      "source": "Leica LIF (public samples), named like A01/FRAP.lif. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes LIF, so these are public sample files by Sean Warren and Michael Goelzer, CC BY 4.0: time series, a z-stack and a tile scan. They have no masks, so they go through the Format Converter.",
+      "source_sha256": "a2d14ccfb2aa62e37b5bec4d9fbf60a86358d1d582186c21cd4ec7d81a1add5d",
+      "translation": "Leica LIF (öffentliche Beispiele), benannt wie A01/FRAP.lif. Benennung: auto. Füllt den Format Converter: nur Bilder, danach Vorschauen.\n\nKeine offene Bibliothek schreibt LIF, daher sind dies öffentliche Beispieldateien von Sean Warren und Michael Goelzer, CC BY 4.0: Zeitreihen, ein Z-Stapel und ein Kachelscan. Sie haben keine Masken und durchlaufen daher den Format Converter."
+    },
+    {
+      "table": "ui",
+      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "source_sha256": "ae13b680adfb10492d7bda64d4b0f36ce4765cf0b32bd763df25fb690455fac1",
+      "translation": "Wachstum im Leberstadium soll Anzahl und Größe der Parasiten in Hepatozyten messen. Sporozoitenbeweglichkeit wird sich auf Gleittrajektorien oder -spuren konzentrieren, während Zelldurchquerung die Verletzung von Wirtszellen entlang der Parasitenwege behandelt. Durchquerung, produktive Invasion und anschließendes Wachstum sind unterschiedliche Ergebnisse: Ihre Bildmarker, Beobachtungszeitpunkte und Nenner müssen getrennt definiert werden."
+    },
+    {
+      "table": "ui",
+      "key": "Load a measured project, then Run preview.",
+      "source": "Load a measured project, then Run preview.",
+      "source_sha256": "213f69afe66895cb64445fc3ccc41eedabd90e202dcc03fa048bfdce3dc19ad3",
+      "translation": "Laden Sie ein gemessenes Projekt, dann Vorschau ausführen."
+    },
+    {
+      "table": "ui",
+      "key": "Load the selected Cellpose 3 restoration weights on the GPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source": "Load the selected Cellpose 3 restoration weights on the GPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source_sha256": "983b1140c41fea019628c18673f36a595bc5e11eacd2efe86c4186ff22ffecc3",
+      "translation": "Die gewählten Cellpose-3-Restaurierungsgewichte auf die GPU laden. Bei der ersten Verwendung werden eventuell Gewichte heruntergeladen. Die erfasste Paketversion, der Checkpoint-Hash und der Durchmesser werden mit der angewandten Verbesserung aufgezeichnet."
+    },
+    {
+      "table": "ui",
+      "key": "Mean detected box width and height; verify that the box contains the complete well.",
+      "source": "Mean detected box width and height; verify that the box contains the complete well.",
+      "source_sha256": "b2a5b6123512b88e6fc89e243ed2740fc2b8c894e4a004b3c57fae68f2449ddb",
+      "translation": "Mittlere erkannte Rahmenbreite und -höhe; prüfen Sie, ob der Rahmen das vollständige Well enthält."
+    },
+    {
+      "table": "ui",
+      "key": "Merged mask plane: Auto uses recorded plane metadata; -1 hides this mask. Choose a plane explicitly for older projects.",
+      "source": "Merged mask plane: Auto uses recorded plane metadata; -1 hides this mask. Choose a plane explicitly for older projects.",
+      "source_sha256": "c2809cbf7f1316ba1a38d1a8c5b461db6dcbce362936fe169e7cdb53fff6c1ab",
+      "translation": "Ebene der zusammengeführten Maske: Auto verwendet aufgezeichnete Ebenen-Metadaten; -1 blendet diese Maske aus. Wählen Sie bei älteren Projekten explizit eine Ebene."
+    },
+    {
+      "table": "ui",
+      "key": "Montage loading cancelled; the current disk operation may finish.",
+      "source": "Montage loading cancelled; the current disk operation may finish.",
+      "source_sha256": "191df9b0b8c069e590ee37a70f7e36a55021e7f2062a69b80cec73b1dc1d241c",
+      "translation": "Laden der Montage abgebrochen; der aktuelle Datenträgervorgang wird ggf. noch beendet."
+    },
+    {
+      "table": "ui",
+      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
+      "translation": "Benennen Sie diese Vorlage — so, wie Sie sie laut nennen würden, etwa „Toxo PVM, 40×“:"
+    },
+    {
+      "table": "ui",
+      "key": "Nikon ND2 (public sample), named like A01/WellA01_ChannelBF_Seq0001.nd2. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes ND2, so this is a public sample file by Maxime Woringer, CC BY 4.0: one brightfield plane, renamed the way NIS-Elements JOBS names a well-plate acquisition. It has no masks, so it goes through the Format Converter.",
+      "source": "Nikon ND2 (public sample), named like A01/WellA01_ChannelBF_Seq0001.nd2. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes ND2, so this is a public sample file by Maxime Woringer, CC BY 4.0: one brightfield plane, renamed the way NIS-Elements JOBS names a well-plate acquisition. It has no masks, so it goes through the Format Converter.",
+      "source_sha256": "d3fd70e009fd1196bf8807e28b5a7b052460b663476a23cdcc5c19a9675146c1",
+      "translation": "Nikon ND2 (öffentliches Beispiel), benannt wie A01/WellA01_ChannelBF_Seq0001.nd2. Benennung: auto. Füllt den Format Converter: nur Bilder, danach Vorschauen.\n\nKeine offene Bibliothek schreibt ND2, daher ist dies eine öffentliche Beispieldatei von Maxime Woringer, CC BY 4.0: eine Hellfeldebene, so umbenannt, wie NIS-Elements JOBS eine Well-Platten-Aufnahme benennt. Sie hat keine Masken und durchläuft daher den Format Converter."
+    },
+    {
+      "table": "ui",
+      "key": "No cell probability map: {objects} came from a method that does not make one. Only Cellpose does.",
+      "source": "No cell probability map: {objects} came from a method that does not make one. Only Cellpose does.",
+      "source_sha256": "9ac662e5e5c016318825d86a0f26cb44d34e95a5e0c51a93a3a481b1d60c4d6c",
+      "translation": "Keine Zellwahrscheinlichkeitskarte: {objects} stammen aus einem Verfahren, das keine erzeugt. Nur Cellpose tut das."
+    },
+    {
+      "table": "ui",
+      "key": "No templates yet for this module. Set the settings up the way you want them, then use “Save current settings…”.",
+      "source": "No templates yet for this module. Set the settings up the way you want them, then use “Save current settings…”.",
+      "source_sha256": "c22001e6cbf9732ca51ff28d155a3028143c6d72071dd95c8dca855bfb704d0d",
+      "translation": "Noch keine Vorlagen für dieses Modul. Richten Sie die Einstellungen wie gewünscht ein und verwenden Sie dann „Aktuelle Einstellungen speichern…“."
+    },
+    {
+      "table": "ui",
+      "key": "No two centres closer together than this, so one object cannot become two. About one object radius. Raise it when objects are being split, lower it when two touching objects come back as one.",
+      "source": "No two centres closer together than this, so one object cannot become two. About one object radius. Raise it when objects are being split, lower it when two touching objects come back as one.",
+      "source_sha256": "0748a5dfd7ee63bf4b0acdcc661876aafc617f007277a60e3bbf58057a833578",
+      "translation": "Keine zwei Zentren liegen näher beieinander als dieser Wert, damit aus einem Objekt nicht zwei werden. Etwa ein Objektradius. Erhöhen Sie ihn, wenn Objekte geteilt werden, und senken Sie ihn, wenn zwei sich berührende Objekte als eines zurückkommen."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to save: run the preview on a figure first.",
+      "source": "Nothing to save: run the preview on a figure first.",
+      "source_sha256": "0eafa724eb2a081bc14d15cae7ce17c680b719462ffb51539a6f9357c7918c0a",
+      "translation": "Nichts zu speichern: Führen Sie zuerst die Vorschau für eine Abbildung aus."
+    },
+    {
+      "table": "ui",
+      "key": "OME-TIFF, one plane per file, named like slide--S00/chamber--U00--V04/field--X08--Y00/image--L00--S00--U00--V04--J20--E00--O00--X08--Y00--T00--Z00--C00.ome.tif. Naming: leica_matrix_screener. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe Matrix Screener names a field by its X/Y position, not a number, so fields are numbered in order.",
+      "source": "OME-TIFF, one plane per file, named like slide--S00/chamber--U00--V04/field--X08--Y00/image--L00--S00--U00--V04--J20--E00--O00--X08--Y00--T00--Z00--C00.ome.tif. Naming: leica_matrix_screener. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe Matrix Screener names a field by its X/Y position, not a number, so fields are numbered in order.",
+      "source_sha256": "0d67485373e19f3edabc383c80d0d50aa1259c39ba8d52a6e30d9074ad5af2b5",
+      "translation": "OME-TIFF, eine Ebene pro Datei, benannt wie slide--S00/chamber--U00--V04/field--X08--Y00/image--L00--S00--U00--V04--J20--E00--O00--X08--Y00--T00--Z00--C00.ome.tif. Benennung: leica_matrix_screener. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nDer Matrix Screener benennt ein Bildfeld nach seiner X/Y-Position, nicht nach einer Nummer, daher werden die Bildfelder der Reihe nach nummeriert."
+    },
+    {
+      "table": "ui",
+      "key": "OME-TIFF, three channels per file, named like E01/field009.ome.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are read from inside the file.",
+      "source": "OME-TIFF, three channels per file, named like E01/field009.ome.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are read from inside the file.",
+      "source_sha256": "2e292ba7355b5651f357eac8fa1ffba09b00e2bfc95661155c52df944d4f1969",
+      "translation": "OME-TIFF, drei Kanäle pro Datei, benannt wie E01/field009.ome.tif. Benennung: auto. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nDie Kanäle werden aus der Datei selbst gelesen."
+    },
+    {
+      "table": "ui",
+      "key": "Off by default, so the volume stays wherever a spin leaves it. On, every spin ends square-on to the nearest face.",
+      "source": "Off by default, so the volume stays wherever a spin leaves it. On, every spin ends square-on to the nearest face.",
+      "source_sha256": "8ecb14fb8720526f5e07fa93616541e76e997014cf18abb8c2afa9f5c92c73e8",
+      "translation": "Standardmäßig aus, sodass das Volumen dort bleibt, wo eine Drehung es lässt. Wenn an, endet jede Drehung frontal zur nächsten Fläche."
+    },
+    {
+      "table": "ui",
+      "key": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
+      "source": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
+      "source_sha256": "4f436b775efc5f19fa3f9d156204b22867db2541b0e5c60134a67dda255020a4",
+      "translation": "Standardmäßig an. Die mitgelieferten Versionshinweise eines Builds enden beim Release vor seinem eigenen; ist dies aktiv, liest spaCR daher einmal täglich in einem Hintergrund-Thread, nachdem Home gezeichnet ist, die öffentliche Release-Liste von GitHub und zeigt alles Neuere oben in News an. Es wird nichts gesendet und keine Anmeldung vorgenommen. Aus zeigt nur die in diesem Build mitgelieferten Hinweise."
+    },
+    {
+      "table": "ui",
+      "key": "On the CPU a whole field takes tens of seconds and the magnifier box about a second.",
+      "source": "On the CPU a whole field takes tens of seconds and the magnifier box about a second.",
+      "source_sha256": "7cff3030d58533a61b689cadca4478e11e4b3fe6f21751d5d8ddb7568b057041",
+      "translation": "Auf der CPU dauert ein ganzes Bildfeld einige zehn Sekunden und der Lupenrahmen etwa eine Sekunde."
+    },
+    {
+      "table": "ui",
+      "key": "On: the number above is a percentile of this image. Off: it is an absolute intensity, which is what to use when the same setting must mean the same thing across fields of different exposure.",
+      "source": "On: the number above is a percentile of this image. Off: it is an absolute intensity, which is what to use when the same setting must mean the same thing across fields of different exposure.",
+      "source_sha256": "f15f7a70684e6a1911bbcc6746acf5bb849149fd6143862809bfa9a05b2ec303",
+      "translation": "Ein: Die Zahl oben ist ein Perzentil dieses Bildes. Aus: Sie ist eine absolute Intensität; diese verwenden Sie, wenn dieselbe Einstellung über Bildfelder unterschiedlicher Belichtung hinweg dasselbe bedeuten muss."
+    },
+    {
+      "table": "ui",
+      "key": "Only pieces holding a pixel above this survive at all, and they then grow outward down to the weak level. Read as a percentile below 1.0, as an absolute intensity above it.",
+      "source": "Only pieces holding a pixel above this survive at all, and they then grow outward down to the weak level. Read as a percentile below 1.0, as an absolute intensity above it.",
+      "source_sha256": "3ba3da240630eaee371e7ebdf5fd375b5a48017b505f6a62ca58e4ac6bee0812",
+      "translation": "Nur Teile mit mindestens einem Pixel über diesem Wert bleiben überhaupt erhalten und wachsen dann nach außen bis zur schwachen Schwelle. Unter 1.0 als Perzentil gelesen, darüber als absolute Intensität."
+    },
+    {
+      "table": "ui",
+      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
+      "translation": "Öffnen Sie in Annotate ein Projekt mit Bildausschnitten. Testdaten laden liefert ein Beispiel. Wählen Sie die Annotationsspalte und weisen Sie repräsentativen Objekten Labels zu."
+    },
+    {
+      "table": "ui",
+      "key": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
+      "source": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
+      "source_sha256": "0d906f1d1ba73882206ff7639f594549513c7be78bf3eed1b97dd65e7d02c044",
+      "translation": "Öffnen Sie zuerst ein Modul mit Einstellungsbereich — eine Vorlage ist ein Bündel der Einstellungen eines Moduls."
+    },
+    {
+      "table": "ui",
+      "key": "Optional steps applied to what the detector reads, in one fixed order. The image on disk is never changed.",
+      "source": "Optional steps applied to what the detector reads, in one fixed order. The image on disk is never changed.",
+      "source_sha256": "777b110466de72b37f94ea4053415cc860d38653aca88527de958e55afefe8e5",
+      "translation": "Optionale Schritte, die in einer festen Reihenfolge auf das angewandt werden, was der Detektor liest. Das Bild auf dem Datenträger wird nie verändert."
+    },
+    {
+      "table": "ui",
+      "key": "Page {page} of {pages} · crops {first}–{last} of {total}",
+      "source": "Page {page} of {pages} · crops {first}–{last} of {total}",
+      "source_sha256": "13a84834690ff1ee7da1857dbf306138a3e096b3524b6260ea3bf6b2795a5003",
+      "translation": "Seite {page} von {pages} · Bildausschnitte {first}–{last} von {total}"
+    },
+    {
+      "table": "ui",
+      "key": "Panel {letters} was read in {name}, but no legend is known for this figure. Paste the figure legend, or annotate by hand.",
+      "source": "Panel {letters} was read in {name}, but no legend is known for this figure. Paste the figure legend, or annotate by hand.",
+      "source_sha256": "1137981fa023bfda81567633fd2eee30bba3778c7b79e1ad7ba6d97592ac0fd0",
+      "translation": "Panel {letters} wurde in {name} gelesen, aber für diese Abbildung ist keine Legende bekannt. Fügen Sie die Abbildungslegende ein oder annotieren Sie von Hand."
+    },
+    {
+      "table": "ui",
+      "key": "Paste the figure legend, or annotate by hand",
+      "source": "Paste the figure legend, or annotate by hand",
+      "source_sha256": "46f99bbe7054352d0a4f1db11d9375a37c89e37d8685bcacf09820e66cc19b36",
+      "translation": "Abbildungslegende einfügen oder von Hand annotieren"
+    },
+    {
+      "table": "ui",
+      "key": "Pixels above this are kept only where they connect to a seed above the strong level. Under 1.0 it is read as a fraction and becomes that percentile of the region (0.2 is the 20th); 1.0 and above is an absolute intensity.",
+      "source": "Pixels above this are kept only where they connect to a seed above the strong level. Under 1.0 it is read as a fraction and becomes that percentile of the region (0.2 is the 20th); 1.0 and above is an absolute intensity.",
+      "source_sha256": "3dff937aeba7cf080ee6081d57585fe1f0c999384e5982568daf8a98322243bd",
+      "translation": "Pixel über diesem Wert werden nur behalten, wo sie mit einem Seed über dem starken Schwellenwert verbunden sind. Unter 1.0 wird der Wert als Anteil gelesen und wird zu diesem Perzentil der Region (0.2 ist das 20.); ab 1.0 ist er eine absolute Intensität."
+    },
+    {
+      "table": "ui",
+      "key": "Plaque mode reads cropped plaque images; Figure mode reads published figures. The settings below and the live preview follow this switch.",
+      "source": "Plaque mode reads cropped plaque images; Figure mode reads published figures. The settings below and the live preview follow this switch.",
+      "source_sha256": "15cf8f30c81c3131a9feafad9cab3450065d6ef8f20f0febd8d86d207018afea",
+      "translation": "Der Plaque-Modus liest zugeschnittene Plaque-Bilder; der Abbildungsmodus liest veröffentlichte Abbildungen. Die Einstellungen unten und die Live-Vorschau folgen diesem Schalter."
+    },
+    {
+      "table": "ui",
+      "key": "Plaque mode: a folder of cropped plaque images. Every image is segmented, and the run writes a table of per-image values and a table of per-plaque values.",
+      "source": "Plaque mode: a folder of cropped plaque images. Every image is segmented, and the run writes a table of per-image values and a table of per-plaque values.",
+      "source_sha256": "4417f98df4e545236d71569673ec788be0a4041b92f1483d5301f1190f8d056d",
+      "translation": "Plaque-Modus: ein Ordner mit zugeschnittenen Plaque-Bildern. Jedes Bild wird segmentiert, und der Lauf schreibt eine Tabelle mit Werten pro Bild und eine Tabelle mit Werten pro Plaque."
+    },
+    {
+      "table": "ui",
+      "key": "Plasmodium parasites cause malaria. Their life cycle includes mosquito and vertebrate hosts, with liver and blood stages in humans. Microscopy distinguishes parasite forms in infected red blood cells. Image-based studies can measure infection frequency, stage progression, motility and responses to compounds.",
+      "source": "Plasmodium parasites cause malaria. Their life cycle includes mosquito and vertebrate hosts, with liver and blood stages in humans. Microscopy distinguishes parasite forms in infected red blood cells. Image-based studies can measure infection frequency, stage progression, motility and responses to compounds.",
+      "source_sha256": "f76d2b4ceb6fa9cddf64019fa4d1ee46d3ab0c5ea23da25c9029da33d6c23c49",
+      "translation": "Plasmodium-Parasiten verursachen Malaria. Ihr Lebenszyklus umfasst Mücken und Wirbeltiere als Wirte, mit Leber- und Blutstadien beim Menschen. Die Mikroskopie unterscheidet Parasitenformen in infizierten roten Blutkörperchen. Bildbasierte Studien können Infektionshäufigkeit, Stadienfortschritt, Motilität und Reaktionen auf Wirkstoffe messen."
+    },
+    {
+      "table": "ui",
+      "key": "Pseudo wells from condition/folder column",
+      "source": "Pseudo wells from condition/folder column",
+      "source_sha256": "8f0e6280c16f48abbfb9b139dac5ae2bbbfec0c4c8fb3b44d2d951a9956636ad",
+      "translation": "Pseudo-Wells aus Bedingungs-/Ordnerspalte"
+    },
+    {
+      "table": "ui",
+      "key": "Reading crops for montage {number} of {total}…",
+      "source": "Reading crops for montage {number} of {total}…",
+      "source_sha256": "efef070e3d81706158fb0371a31b9bbb5b716eab42406d3d33fa7de332f7a3c7",
+      "translation": "Bildausschnitte für Montage {number} von {total} werden gelesen…"
+    },
+    {
+      "table": "ui",
+      "key": "Reading database {number} of {total}: {name}",
+      "source": "Reading database {number} of {total}: {name}",
+      "source_sha256": "ede72e9f8b3b13a52e8e578e995dd5be54386d0c88a0aebe0e4bbef19c208293",
+      "translation": "Datenbank {number} von {total} wird gelesen: {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Reject every suggestion on this page you have not judged yet. Undoable with U.",
+      "source": "Reject every suggestion on this page you have not judged yet. Undoable with U.",
+      "source_sha256": "2c865b362d15ffd1bb49b7fac6641d7d42ecd9b3d12035b426b41e971e205c5c",
+      "translation": "Jeden noch nicht beurteilten Vorschlag auf dieser Seite ablehnen. Mit U rückgängig zu machen."
+    },
+    {
+      "table": "ui",
+      "key": "Replication Assay counts parasites per vacuole, providing a readout of intracellular growth at the sampled time. Plaque Assay measures cleared areas across a host-cell monolayer and therefore integrates multiple rounds of infection and growth. A smaller plaque can reflect more than one defect: compare the plaque result with invasion and replication measurements before assigning it to a particular step.",
+      "source": "Replication Assay counts parasites per vacuole, providing a readout of intracellular growth at the sampled time. Plaque Assay measures cleared areas across a host-cell monolayer and therefore integrates multiple rounds of infection and growth. A smaller plaque can reflect more than one defect: compare the plaque result with invasion and replication measurements before assigning it to a particular step.",
+      "source_sha256": "372d09712e3836fe8a682381f2c90bbee0391dfe4238d19f13ba38fe30179171",
+      "translation": "Replication Assay zählt Parasiten pro Vakuole und liefert einen Messwert des intrazellulären Wachstums zum Probenahmezeitpunkt. Plaque Assay misst freigelegte Flächen in einem Wirtszellmonolayer und integriert daher mehrere Infektions- und Wachstumsrunden. Ein kleinerer Plaque kann mehr als einen Defekt widerspiegeln: Vergleichen Sie das Plaque-Ergebnis mit Invasions- und Replikationsmessungen, bevor Sie es einem bestimmten Schritt zuordnen."
+    },
+    {
+      "table": "ui",
+      "key": "Resolving crop paths for database {number} of {total} ({rows} objects)…",
+      "source": "Resolving crop paths for database {number} of {total} ({rows} objects)…",
+      "source_sha256": "6a890d3d1f06a0c4c325f46781fa793fc78cad0ed7871dfaa2d9565748401856",
+      "translation": "Pfade der Bildausschnitte für Datenbank {number} von {total} ({rows} Objekte) werden aufgelöst…"
+    },
+    {
+      "table": "ui",
+      "key": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source": "Resting the pointer on a button, a field or a column header for two seconds shows a small label saying what it is. The label stays while the pointer is on it and leaves a second after the pointer goes. Cleared, no tooltip appears anywhere in spaCR.",
+      "source_sha256": "501f3f68b7b360a1ec9c45d1f4393adc7b726cf5d0a63dcd59f305d42789accd",
+      "translation": "Wenn der Mauszeiger zwei Sekunden auf einer Schaltfläche, einem Feld oder einem Spaltenkopf ruht, erscheint ein kleines Label, das sagt, was es ist. Das Label bleibt, solange der Mauszeiger darauf ist, und verschwindet eine Sekunde, nachdem er es verlassen hat. Deaktiviert erscheint nirgends in spaCR ein Tooltip."
+    },
+    {
+      "table": "ui",
+      "key": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
+      "source": "Restoration ready: {model} on {device}; original intensities retained for measurements.",
+      "source_sha256": "85f568bd32906370d0fa5772855a856fa6f854b9d10c87557110b6ad54cbc950",
+      "translation": "Restaurierung bereit: {model} auf {device}; ursprüngliche Intensitäten bleiben für Messungen erhalten."
+    },
+    {
+      "table": "ui",
+      "key": "Right canvas: outline overlay · label masks · Cellpose flows · cell probability",
+      "source": "Right canvas: outline overlay · label masks · Cellpose flows · cell probability",
+      "source_sha256": "be4dd6040cabb705a5e9b501b45a7652576cd448ba15f1c2e5ebf53417d0955a",
+      "translation": "Rechte Fläche: Umriss-Overlay · Labelmasken · Cellpose-Flows · Zellwahrscheinlichkeit"
+    },
+    {
+      "table": "ui",
+      "key": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+      "source": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+      "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
+      "translation": "Das unter Erkennungsmethode gewählte CPU-Verfahren auf das ganze Bild anwenden und das Gefundene labeln, unter Beachtung der obigen Mindestfläche. Alles, was das Verfahren liest, gehört zu dieser Kategorie: der Algorithmus der Schwelle, die Korrektur, die Glättung, welche Seite das Objekt ist, das Füllen von Löchern, das Trennen eines sich berührenden Paars und das Verwerfen dessen, was der Bildrand abschneidet. Ist Cellpose oder ein Backend gewählt, greift diese Schaltfläche auf Otsu zurück, da diese ihre eigene Schaltfläche Objekterkennung haben."
+    },
+    {
+      "table": "ui",
+      "key": "Save the picture as it is drawn here, at its full size: the outlines and well boxes keep the line weights and colours chosen for them.",
+      "source": "Save the picture as it is drawn here, at its full size: the outlines and well boxes keep the line weights and colours chosen for them.",
+      "source_sha256": "d8489aa62282116687b69c66325d52dfc8c825f10f3f314fcdd372b50bec94e8",
+      "translation": "Das Bild so speichern, wie es hier gezeichnet ist, in voller Größe: Umrisse und Well-Rahmen behalten die für sie gewählten Linienstärken und Farben."
+    },
+    {
+      "table": "ui",
+      "key": "Scale this preview's controls, text and pictures, from 10 % to 200 %, without changing the rest of spaCR. It applies straight away and is remembered for this preview. Double-click the percentage to go back to 100 %; Ctrl+Alt+0 resets every scale.",
+      "source": "Scale this preview's controls, text and pictures, from 10 % to 200 %, without changing the rest of spaCR. It applies straight away and is remembered for this preview. Double-click the percentage to go back to 100 %; Ctrl+Alt+0 resets every scale.",
+      "source_sha256": "8d47675d325064379990f28ec86b719f071b85cb423ee0c523a7afff946653ac",
+      "translation": "Bedienelemente, Text und Bilder dieser Vorschau von 10 % bis 200 % skalieren, ohne den Rest von spaCR zu verändern. Die Änderung gilt sofort und wird für diese Vorschau gespeichert. Doppelklicken Sie auf den Prozentwert, um zu 100 % zurückzukehren; Strg+Alt+0 setzt alle Skalierungen zurück."
+    },
+    {
+      "table": "ui",
+      "key": "Scroll to zoom, drag to pan. Both pictures move together.",
+      "source": "Scroll to zoom, drag to pan. Both pictures move together.",
+      "source_sha256": "056301de5846be94a09cedc21b6cbad9202853f2de06c3b62398620e4395a195",
+      "translation": "Scrollen zum Zoomen, Ziehen zum Verschieben. Beide Bilder bewegen sich gemeinsam."
+    },
+    {
+      "table": "ui",
+      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
+      "translation": "Wählen Sie ein Projekt mit zusammengeführten Bildern und Masken. Testdaten laden liefert ein Beispiel. Prüfen Sie vor dem Messen die Bild- und Labelkanäle."
+    },
+    {
+      "table": "ui",
+      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
+      "translation": "Wählen Sie Ihre FASTQ-Dateien und die passenden Barcode-Referenzen. Testdaten laden liefert ein Beispiel. Prüfen Sie vor dem Mapping die Spalten-, Zeilen- und Guide-Referenzen."
+    },
+    {
+      "table": "ui",
+      "key": "Show newer releases than this build in Home's News panel",
+      "source": "Show newer releases than this build in Home's News panel",
+      "source_sha256": "42110f9ec3498b62bd3f4477d67f3c4adb06398147c6b6015748dfdf51eab127",
+      "translation": "Neuere Releases als diesen Build im News-Bereich von Home anzeigen"
+    },
+    {
+      "table": "ui",
+      "key": "Showing the enhanced image the detector reads.",
+      "source": "Showing the enhanced image the detector reads.",
+      "source_sha256": "b77925ef9eb90e2ab8c5739a09e1c9cdbd0da0516fddddd2b08fe2afe001add6",
+      "translation": "Das verbesserte Bild wird angezeigt, das der Detektor liest."
+    },
+    {
+      "table": "ui",
+      "key": "Showing the first 50 measured fields; choose a narrower source for other fields.",
+      "source": "Showing the first 50 measured fields; choose a narrower source for other fields.",
+      "source_sha256": "06bb7aaf5428f5af981a6374bbe41665de694475147594de32434c77deb84d00",
+      "translation": "Die ersten 50 gemessenen Bildfelder werden angezeigt; wählen Sie für andere Bildfelder eine engere Quelle."
+    },
+    {
+      "table": "ui",
+      "key": "Smooth the noise before the contrast step amplifies it. Gaussian is a blur and softens edges with the noise; Median removes speckle and keeps edges; Bilateral and Non-local means keep edges better still and are much slower. HEAVY: non-local means is minutes on a whole 2,000 px field, and seconds on a magnifier box.",
+      "source": "Smooth the noise before the contrast step amplifies it. Gaussian is a blur and softens edges with the noise; Median removes speckle and keeps edges; Bilateral and Non-local means keep edges better still and are much slower. HEAVY: non-local means is minutes on a whole 2,000 px field, and seconds on a magnifier box.",
+      "source_sha256": "6ffa933ec8b3ad14e5f1dd788b1a2955ad26446b460536bbe643cc0ca4b472f6",
+      "translation": "Das Rauschen glätten, bevor der Kontrastschritt es verstärkt. Gaussian ist eine Unschärfe und weicht Kanten zusammen mit dem Rauschen auf; Median entfernt Sprenkel und erhält Kanten; Bilateral und Non-local means erhalten Kanten noch besser und sind viel langsamer. AUFWENDIG: Non-local means dauert auf einem ganzen Bildfeld von 2,000 px Minuten und auf einem Lupenrahmen Sekunden."
+    },
+    {
+      "table": "ui",
+      "key": "Spin about {axis} only: a drag turns the volume about that measurement's axis and leaves it where it is on screen.",
+      "source": "Spin about {axis} only: a drag turns the volume about that measurement's axis and leaves it where it is on screen.",
+      "source_sha256": "038fc5eae4ccd903146954f46304dd7d82b50df3b495da9405ceda7c937d6829",
+      "translation": "Nur um {axis} drehen: Ziehen dreht das Volumen um die Achse dieser Messgröße und lässt es an seiner Position auf dem Bildschirm."
+    },
+    {
+      "table": "ui",
+      "key": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
+      "translation": "Starplast {installed} ist installiert. Version {latest} ist auf PyPI verfügbar. Vor dem Öffnen über pip aktualisieren?"
+    },
+    {
+      "table": "ui",
+      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
+      "translation": "Beginnen Sie mit einem Bildprojekt. Verwenden Sie Testdaten laden in Mask für ein Beispiel oder wählen Sie Ihren Bildordner. Prüfen Sie vor dem Ausführen die Kanalzuordnungen."
+    },
+    {
+      "table": "ui",
+      "key": "Stop this montage and queued selections after the current read finishes.",
+      "source": "Stop this montage and queued selections after the current read finishes.",
+      "source_sha256": "3864a8c7159432852cd9b7ceb65e734357dff8ece7c85ea8d42432691f02ed91",
+      "translation": "Diese Montage und die eingereihten Auswahlen stoppen, sobald der aktuelle Lesevorgang abgeschlossen ist."
+    },
+    {
+      "table": "ui",
+      "key": "Subtract the slowly varying background before anything else. Rolling ball fits a surface of the radius below and takes it away, which is what flattens uneven illumination; Top-hat keeps only what is brighter than its surroundings within that radius and is much faster. Set the radius comfortably LARGER than the largest object: a radius under the object size eats the objects with the background. The background is ESTIMATED on a smaller copy, at the scale below, because a background is by definition what varies slowly across the field and so is the one thing that survives being looked at smaller.",
+      "source": "Subtract the slowly varying background before anything else. Rolling ball fits a surface of the radius below and takes it away, which is what flattens uneven illumination; Top-hat keeps only what is brighter than its surroundings within that radius and is much faster. Set the radius comfortably LARGER than the largest object: a radius under the object size eats the objects with the background. The background is ESTIMATED on a smaller copy, at the scale below, because a background is by definition what varies slowly across the field and so is the one thing that survives being looked at smaller.",
+      "source_sha256": "8072ce2dd3ccd3237578483c16315414c45a3f17b669c4a98e64b60a98ba44df",
+      "translation": "Den langsam variierenden Hintergrund vor allem anderen subtrahieren. Rolling ball passt eine Oberfläche mit dem unten angegebenen Radius an und zieht sie ab, was ungleichmäßige Beleuchtung ausgleicht; Top-hat behält nur, was innerhalb dieses Radius heller als seine Umgebung ist, und ist viel schneller. Setzen Sie den Radius deutlich GRÖSSER als das größte Objekt: Ein Radius unter der Objektgröße entfernt die Objekte mit dem Hintergrund. Der Hintergrund wird auf einer verkleinerten Kopie im unten angegebenen Maßstab GESCHÄTZT, denn ein Hintergrund ist per Definition das, was über das Bildfeld langsam variiert, und damit das Einzige, das eine verkleinerte Betrachtung übersteht."
+    },
+    {
+      "table": "ui",
+      "key": "Suggested crops wear a ? badge. Click one or press Y to confirm it; right-click or press N to reject it; U undoes.",
+      "source": "Suggested crops wear a ? badge. Click one or press Y to confirm it; right-click or press N to reject it; U undoes.",
+      "source_sha256": "1e61ef713334fdded4798f9aa4d34f7f1474d20032903f5cbafaba2ec671aeb1",
+      "translation": "Vorgeschlagene Bildausschnitte tragen ein ?-Abzeichen. Klicken oder Y drücken zum Bestätigen; Rechtsklick oder N zum Ablehnen; U macht rückgängig."
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field split near half and half. The level is the mean intensity, which is as crude as it sounds and is here as a baseline to judge the others against.",
+      "source": "Suits a field split near half and half. The level is the mean intensity, which is as crude as it sounds and is here as a baseline to judge the others against.",
+      "source_sha256": "b2d1e0995ca8ba85d92f66435a9c33a8584cfd864f0b7e82340b93ead604ab74",
+      "translation": "Eignet sich für ein Bildfeld, das etwa zur Hälfte geteilt ist. Die Schwelle ist die mittlere Intensität, was so grob ist, wie es klingt; sie dient als Basislinie, an der die anderen gemessen werden."
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field whose objects are a small, bright minority -- Li minimises the cross entropy between the field and its thresholded self rather than assuming two equal populations, so it holds up where Otsu drifts into the background.",
+      "source": "Suits a field whose objects are a small, bright minority -- Li minimises the cross entropy between the field and its thresholded self rather than assuming two equal populations, so it holds up where Otsu drifts into the background.",
+      "source_sha256": "65705185f14ec3ddc7bf79350d2c82ac508c78e01940f86bee1d8527bd4a3ec0",
+      "translation": "Eignet sich für ein Bildfeld, dessen Objekte eine kleine, helle Minderheit sind -- Li minimiert die Kreuzentropie zwischen dem Bildfeld und seiner schwellenwertbehandelten Version, statt zwei gleich große Populationen anzunehmen, und hält daher stand, wo Otsu in den Hintergrund abdriftet."
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field with ONE dominant peak and a shoulder -- mostly background with faint objects on it. The level is geometric: the point on the histogram furthest from the line between the peak and the far end.",
+      "source": "Suits a field with ONE dominant peak and a shoulder -- mostly background with faint objects on it. The level is geometric: the point on the histogram furthest from the line between the peak and the far end.",
+      "source_sha256": "d634a2894f735c83da58d62139a32736fd10ec3161cd23a41b98e6d8490f324b",
+      "translation": "Eignet sich für ein Bildfeld mit EINEM dominanten Peak und einer Schulter -- überwiegend Hintergrund mit schwachen Objekten darauf. Der Schwellenwert ist geometrisch: der Punkt des Histogramms, der am weitesten von der Linie zwischen dem Peak und dem fernen Ende entfernt ist."
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field with THREE or more populations -- background, a dim halo and bright objects -- where one level between all of them is a compromise that fits none. Set the class count and which class is the foreground.",
+      "source": "Suits a field with THREE or more populations -- background, a dim halo and bright objects -- where one level between all of them is a compromise that fits none. Set the class count and which class is the foreground.",
+      "source_sha256": "e428624a771706422ed4e9a77a8622fe1f41b390c7781ffd35bb430c52ed1d3c",
+      "translation": "Eignet sich für ein Bildfeld mit DREI oder mehr Populationen -- Hintergrund, ein schwacher Halo und helle Objekte --, bei denen ein einziger Schwellenwert zwischen allen ein Kompromiss ist, der keiner passt. Legen Sie die Klassenzahl fest und welche Klasse der Vordergrund ist."
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field with a long bright tail and little else; Yen maximises an entropy criterion and tends to cut higher than Otsu, keeping only the confident pixels.",
+      "source": "Suits a field with a long bright tail and little else; Yen maximises an entropy criterion and tends to cut higher than Otsu, keeping only the confident pixels.",
+      "source_sha256": "9e629744cdd02b8c6fd5a1115c831d38ff52844d80b077145f112be1269f52e0",
+      "translation": "Eignet sich für ein Bildfeld mit einem langen hellen Ausläufer und wenig sonst; Yen maximiert ein Entropiekriterium und schneidet meist höher als Otsu, sodass nur die sicheren Pixel bleiben."
+    },
+    {
+      "table": "ui",
+      "key": "Suits a field with two clear populations -- objects and background, with a valley between them in the histogram. It is the right first try and the wrong one for a field that is mostly background, where Li or Triangle cut better.",
+      "source": "Suits a field with two clear populations -- objects and background, with a valley between them in the histogram. It is the right first try and the wrong one for a field that is mostly background, where Li or Triangle cut better.",
+      "source_sha256": "4e20c248b6d31a950b95231d889150ca0cca62e606e076b2339e7f6f266643bf",
+      "translation": "Eignet sich für ein Bildfeld mit zwei klaren Populationen -- Objekte und Hintergrund, mit einem Tal dazwischen im Histogramm. Es ist der richtige erste Versuch und der falsche für ein Bildfeld, das überwiegend Hintergrund ist; dort trennen Li oder Triangle besser."
+    },
+    {
+      "table": "ui",
+      "key": "Suits a histogram with two clear humps and a real valley between them; the level is the bottom of the valley. It refuses a histogram it cannot smooth into two humps, and says so rather than guessing.",
+      "source": "Suits a histogram with two clear humps and a real valley between them; the level is the bottom of the valley. It refuses a histogram it cannot smooth into two humps, and says so rather than guessing.",
+      "source_sha256": "19382cf0e6f5187ddabf193c65a4c9807d953c0b9c5d22ca9cc3a731b6ba30e0",
+      "translation": "Eignet sich für ein Histogramm mit zwei deutlichen Buckeln und einem echten Tal dazwischen; der Schwellenwert ist der Talboden. Ein Histogramm, das es nicht zu zwei Buckeln glätten kann, lehnt es ab und meldet dies, statt zu raten."
+    },
+    {
+      "table": "ui",
+      "key": "Suits cells and nuclei of the kind Cellpose was trained on, and is the only method here that knows what an object looks like rather than only how bright it is. It is slow without a GPU.",
+      "source": "Suits cells and nuclei of the kind Cellpose was trained on, and is the only method here that knows what an object looks like rather than only how bright it is. It is slow without a GPU.",
+      "source_sha256": "475dcb06505e12d220661571d87db14a30f42f0a9be8b7bf99d3a802cf01f4eb",
+      "translation": "Eignet sich für Zellen und Zellkerne der Art, auf die Cellpose trainiert wurde, und ist hier das einzige Verfahren, das weiß, wie ein Objekt aussieht, statt nur, wie hell es ist. Ohne GPU ist es langsam."
+    },
+    {
+      "table": "ui",
+      "key": "Suits much what Otsu suits and is the classic Ridler-Calvard iteration: the level settles where it is the mean of the two means either side of it. A reasonable second opinion when Otsu looks wrong.",
+      "source": "Suits much what Otsu suits and is the classic Ridler-Calvard iteration: the level settles where it is the mean of the two means either side of it. A reasonable second opinion when Otsu looks wrong.",
+      "source_sha256": "81633ad262bb73acb3f7ededfb04e04adb8d975345d976af315c6dfee8ea71d8",
+      "translation": "Eignet sich für ungefähr dasselbe wie Otsu und ist die klassische Ridler-Calvard-Iteration: Der Schwellenwert pendelt sich dort ein, wo er der Mittelwert der beiden Mittelwerte zu seinen beiden Seiten ist. Eine brauchbare zweite Meinung, wenn Otsu falsch aussieht."
+    },
+    {
+      "table": "ui",
+      "key": "Suits small round spots and puncta and hollow rings with a dark middle.",
+      "source": "Suits small round spots and puncta and hollow rings with a dark middle.",
+      "source_sha256": "742fccad190a6cee397a5835d8f9efc1fb639b4feeab1e44b2c2a7567a9b7963",
+      "translation": "Eignet sich für kleine runde Spots und Puncta sowie hohle Ringe mit dunkler Mitte."
+    },
+    {
+      "table": "ui",
+      "key": "Suits small round spots and puncta, filaments, tubules and networks, solid blobby objects and hollow rings with a dark middle.",
+      "source": "Suits small round spots and puncta, filaments, tubules and networks, solid blobby objects and hollow rings with a dark middle.",
+      "source_sha256": "b5d419029dc7f01ff46fa49a6dfe880ea4bc211d67f6fb6bc371351196713ca9",
+      "translation": "Eignet sich für kleine runde Spots und Puncta, Filamente, Tubuli und Netzwerke, kompakte klumpige Objekte und hohle Ringe mit dunkler Mitte."
+    },
+    {
+      "table": "ui",
+      "key": "Suits touching round objects with a bright centre -- nuclei, vacuoles, colonies. Each centre becomes one object, and two that touch come apart at the ridge between them rather than at a level.",
+      "source": "Suits touching round objects with a bright centre -- nuclei, vacuoles, colonies. Each centre becomes one object, and two that touch come apart at the ridge between them rather than at a level.",
+      "source_sha256": "6cb7767f2e36ec8693dd47e9648bdf6fa804faa3402939128df101b5ead623ff",
+      "translation": "Eignet sich für sich berührende runde Objekte mit hellem Zentrum -- Zellkerne, Vakuolen, Kolonien. Jedes Zentrum wird zu einem Objekt, und zwei, die sich berühren, werden am Grat zwischen ihnen getrennt statt an einem Schwellenwert."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E - 01(fld 9 wv DAPI - DAPI).tif. Naming: incell. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are named by filter, so their order is the order of the names.",
+      "source": "TIFF, named like E - 01(fld 9 wv DAPI - DAPI).tif. Naming: incell. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nChannels are named by filter, so their order is the order of the names.",
+      "source_sha256": "ab0a2724d1eeaffd6107da7f4b5271898c462d9f3d1d8dca5aa1aaa421e2420b",
+      "translation": "TIFF, benannt wie E - 01(fld 9 wv DAPI - DAPI).tif. Benennung: incell. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nDie Kanäle sind nach Filter benannt, daher ist ihre Reihenfolge die Reihenfolge der Namen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/Pos008_t000_z00_ch00.tif. Naming: leica_lasx_series_time. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E01/Pos008_t000_z00_ch00.tif. Naming: leica_lasx_series_time. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "70d69a88eaee771ac0f5a32b9a75859af62221503511266aa1db6ac6e0b9f93f",
+      "translation": "TIFF, benannt wie E01/Pos008_t000_z00_ch00.tif. Benennung: leica_lasx_series_time. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/Series009_z00_ch00.tif. Naming: leica_lasx_series. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nA series export carries no well, so the well comes from the folder.",
+      "source": "TIFF, named like E01/Series009_z00_ch00.tif. Naming: leica_lasx_series. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nA series export carries no well, so the well comes from the folder.",
+      "source_sha256": "32195c62e87ae8f31381119ac9db2d70162f870bec75ef7173beb484fab1d7c5",
+      "translation": "TIFF, benannt wie E01/Series009_z00_ch00.tif. Benennung: leica_lasx_series. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nEin Serienexport enthält kein Well, daher stammt das Well aus dem Ordner."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/fov09_ch1.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nNo convention: the well is the folder and the channel is the ch token. Fields are numbered in order, because a folder layout states no field numbers to keep.",
+      "source": "TIFF, named like E01/fov09_ch1.tif. Naming: auto. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nNo convention: the well is the folder and the channel is the ch token. Fields are numbered in order, because a folder layout states no field numbers to keep.",
+      "source_sha256": "2cdea6ecad794dae8123ed2a117e4b510f6604a63180d75529f5fd6b5420454c",
+      "translation": "TIFF, benannt wie E01/fov09_ch1.tif. Benennung: auto. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nKeine Konvention: Das Well ist der Ordner, der Kanal ist das Token ch. Bildfelder werden der Reihe nach nummeriert, da eine Ordnerstruktur keine zu übernehmenden Bildfeldnummern angibt."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/img_channel000_position008_time000000000_z000.tif. Naming: micromanager_mda. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E01/img_channel000_position008_time000000000_z000.tif. Naming: micromanager_mda. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "b807f58b7fda7430c7d6bcae3a6d5249295c423faacea75d1e2f3678743fde48",
+      "translation": "TIFF, benannt wie E01/img_channel000_position008_time000000000_z000.tif. Benennung: micromanager_mda. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01/plate1_S00001_T00009_C00001.tiff. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E01/plate1_S00001_T00009_C00001.tiff. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "979f39ef12f764b4797cb55965bb8a8ad891031c62fae5c4b61c6a70faca0031",
+      "translation": "TIFF, benannt wie E01/plate1_S00001_T00009_C00001.tiff. Benennung: zeiss_zen_split_tiles. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E01xy09c1.tif. Naming: nikon_nis_xy. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E01xy09c1.tif. Naming: nikon_nis_xy. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "2550cfe3d6abfcba07e065e850b3c19f54a5fa401f14adeb7a79a097a137ad3a",
+      "translation": "TIFF, benannt wie E01xy09c1.tif. Benennung: nikon_nis_xy. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like E1_01_1_9_DAPI_001.tif. Naming: cytation. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like E1_01_1_9_DAPI_001.tif. Naming: cytation. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "ff71663a41c6b388118bf3087fac4eaf9d15d343d032e9969a8a34fb89322ea4",
+      "translation": "TIFF, benannt wie E1_01_1_9_DAPI_001.tif. Benennung: cytation. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like Images/r05c01f09p01-ch1sk1fk1fl1.tiff. Naming: opera_phenix. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nHarmony writes row and column numbers, never a well name: r05c01 is E01.",
+      "source": "TIFF, named like Images/r05c01f09p01-ch1sk1fk1fl1.tiff. Naming: opera_phenix. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nHarmony writes row and column numbers, never a well name: r05c01 is E01.",
+      "source_sha256": "8c54a1e797a8378f9ee51069e2900a039401cdac500014fc9a3e73512a475ef4",
+      "translation": "TIFF, benannt wie Images/r05c01f09p01-ch1sk1fk1fl1.tiff. Benennung: opera_phenix. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nHarmony schreibt Zeilen- und Spaltennummern, nie einen Well-Namen: r05c01 ist E01."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like TimePoint_1/plate1_E01_s9_w1<GUID>.TIF. Naming: imagexpress. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like TimePoint_1/plate1_E01_s9_w1<GUID>.TIF. Naming: imagexpress. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "cb72130b51b04d2f5ee7684150ca324911691ba65fc47eaa69eb434bbd36d930",
+      "translation": "TIFF, benannt wie TimePoint_1/plate1_E01_s9_w1<GUID>.TIF. Benennung: imagexpress. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like W0097F0009T0001Z000C1.tif. Naming: cq1. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe CQ1 writes a well INDEX over 24 columns: W0097 is E01.",
+      "source": "TIFF, named like W0097F0009T0001Z000C1.tif. Naming: cq1. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nThe CQ1 writes a well INDEX over 24 columns: W0097 is E01.",
+      "source_sha256": "4ab2962e3061964d89960218f2bc2ae65bb486a1b6b29752f7b5994fd381e4bf",
+      "translation": "TIFF, benannt wie W0097F0009T0001Z000C1.tif. Benennung: cq1. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nDer CQ1 schreibt einen Well-INDEX über 24 Spalten: W0097 ist E01."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like WellE01_ChannelDAPI_Seq0009.tif. Naming: nikon_jobs. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like WellE01_ChannelDAPI_Seq0009.tif. Naming: nikon_jobs. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "c208ac0e58cc0340a8a323bec26f529d8cff8d2382c6453acf0a483da7376b8e",
+      "translation": "TIFF, benannt wie WellE01_ChannelDAPI_Seq0009.tif. Benennung: nikon_jobs. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like data/E1--W00097--P00009--Z00000--T00000--DAPI.tif. Naming: scanr. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like data/E1--W00097--P00009--Z00000--T00000--DAPI.tif. Naming: scanr. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "442aae7f49a87703e5c2182b17c243baaa341ddd88ea8c78c448ed783e7ddd62",
+      "translation": "TIFF, benannt wie data/E1--W00097--P00009--Z00000--T00000--DAPI.tif. Benennung: scanr. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like plate1_E01_T0001F009L01A01Z01C01.tif. Naming: cellvoyager. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like plate1_E01_T0001F009L01A01Z01C01.tif. Naming: cellvoyager. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "3cb521e9f24f324fa9343c786302cb1a6b047c5605f511927afb76bb111efd02",
+      "translation": "TIFF, benannt wie plate1_E01_T0001F009L01A01Z01C01.tif. Benennung: cellvoyager. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like plate1_E01f08d0.TIF. Naming: arrayscan. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nFields and dyes count from zero: f08d0 is field 9, channel 1.",
+      "source": "TIFF, named like plate1_E01f08d0.TIF. Naming: arrayscan. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nFields and dyes count from zero: f08d0 is field 9, channel 1.",
+      "source_sha256": "b4364bc236806d4a762de70e581b5c76eced4870719998a30d78fbea2b4b3def",
+      "translation": "TIFF, benannt wie plate1_E01f08d0.TIF. Benennung: arrayscan. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nBildfelder und Farbstoffe werden ab null gezählt: f08d0 ist Bildfeld 9, Kanal 1."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like plate1i3t001E01f08d0.TIF. Naming: arrayscan_kinetic. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like plate1i3t001E01f08d0.TIF. Naming: arrayscan_kinetic. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "d8b3c87967831d183dc539dc53baf9ee07ad067f5266e67a4dee3e19000d0280",
+      "translation": "TIFF, benannt wie plate1i3t001E01f08d0.TIF. Benennung: arrayscan_kinetic. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like scan_R_p1_z1_0_E01f09d0.tif. Naming: evos. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like scan_R_p1_z1_0_E01f09d0.tif. Naming: evos. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "b7e895f87f1aed2954574280d0a85c17f0cbfd927be77213a8e8d4b92cf9d8b5",
+      "translation": "TIFF, benannt wie scan_R_p1_z1_0_E01f09d0.tif. Benennung: evos. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "TIFF, named like toxo-plate1__E01__site09__DAPI.tif. Naming: custom with the pattern (?P<plateID>[^_]+)__(?P<wellID>[A-Z]\\d{2})__site(?P<fieldID>\\d+)__(?P<chanID>[A-Za-z0-9]+). Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source": "TIFF, named like toxo-plate1__E01__site09__DAPI.tif. Naming: custom with the pattern (?P<plateID>[^_]+)__(?P<wellID>[A-Z]\\d{2})__site(?P<fieldID>\\d+)__(?P<chanID>[A-Za-z0-9]+). Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.",
+      "source_sha256": "fbad4a5ebe2ed30a12233c22eac36873a526516d22aa21e7e615a8f8f67ad17a",
+      "translation": "TIFF, benannt wie toxo-plate1__E01__site09__DAPI.tif. Benennung: custom mit dem Muster (?P<plateID>[^_]+)__(?P<wellID>[A-Z]\\d{2})__site(?P<fieldID>\\d+)__(?P<chanID>[A-Za-z0-9]+). Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen."
+    },
+    {
+      "table": "ui",
+      "key": "Template format {version} is newer than this spaCR understands (it reads up to {supported}).",
+      "source": "Template format {version} is newer than this spaCR understands (it reads up to {supported}).",
+      "source_sha256": "99593bdd296cb59743a8c08f4965b4bb8eec0850491ced26a8b16e7470daca39",
+      "translation": "Vorlagenformat {version} ist neuer, als diese spaCR-Version versteht (sie liest bis {supported})."
+    },
+    {
+      "table": "ui",
+      "key": "Test data ready: nine tiles in {path}. Press Plan.",
+      "source": "Test data ready: nine tiles in {path}. Press Plan.",
+      "source_sha256": "a4f58ee4b2fbd6349bb803ac9cc9f6b052d8ae25c50cc58fa5a9775138fb4554",
+      "translation": "Testdaten bereit: neun Kacheln in {path}. Klicken Sie auf Plan."
+    },
+    {
+      "table": "ui",
+      "key": "That outline encloses nothing: drag around the objects to keep.",
+      "source": "That outline encloses nothing: drag around the objects to keep.",
+      "source_sha256": "ccdff9ceb617385593286f756c3c7f40f9962819ac58bb4d67299a701a3910db",
+      "translation": "Dieser Umriss umschließt nichts: Ziehen Sie um die Objekte, die behalten werden sollen."
+    },
+    {
+      "table": "ui",
+      "key": "That template is for the {module} module.",
+      "source": "That template is for the {module} module.",
+      "source_sha256": "7799c7a402047b8a98679b068f19c85dc598038b97c61dfcb44ce788ff493ee3",
+      "translation": "Diese Vorlage ist für das Modul {module}."
+    },
+    {
+      "table": "ui",
+      "key": "The Cellpose checkpoint that segments the plaques: a model zoo key, 'bundled' (the historical packaged model), or a path.",
+      "source": "The Cellpose checkpoint that segments the plaques: a model zoo key, 'bundled' (the historical packaged model), or a path.",
+      "source_sha256": "b9b81cdf61bd582e5d30a2ea62e8951398f8160ac60fdf77df78c6f1720d8bda",
+      "translation": "Der Cellpose-Checkpoint, der die Plaques segmentiert: ein Model-Zoo-Schlüssel, 'bundled' (das historische mitgelieferte Modell) oder ein Pfad."
+    },
+    {
+      "table": "ui",
+      "key": "The Golgi apparatus is a series of flattened, cisternal membranes and similar vesicles usually arranged in close apposition to each other to form stacks. In mammalian cells, the Golgi apparatus is juxtanuclear, often pericentriolar. The stacks are connected laterally by tubules to create a perinuclear ribbon structure, the 'Golgi ribbon'. In plants and lower animal cells, the Golgi exists as many copies of discrete stacks dispersed throughout the cytoplasm. The Golgi is a polarized structure with, in most higher eukaryotic cells, a cis-face associated with a tubular reticular network of membranes facing the endoplasmic reticulum, the cis-Golgi network (CGN), a medial area of disk-shaped flattened cisternae, and a trans-face associated with another tubular reticular membrane network, the trans-Golgi network (TGN) directed toward the plasma membrane and compartments of the endocytic pathway. The Golgi apparatus receives the entire output of de novo synthesized polypeptides from the ER, and functions to posttranslationally process and sort them within vesicles destined to their proper final destination (e.g. plasma membrane, endosomes, lysosomes).",
+      "source": "The Golgi apparatus is a series of flattened, cisternal membranes and similar vesicles usually arranged in close apposition to each other to form stacks. In mammalian cells, the Golgi apparatus is juxtanuclear, often pericentriolar. The stacks are connected laterally by tubules to create a perinuclear ribbon structure, the 'Golgi ribbon'. In plants and lower animal cells, the Golgi exists as many copies of discrete stacks dispersed throughout the cytoplasm. The Golgi is a polarized structure with, in most higher eukaryotic cells, a cis-face associated with a tubular reticular network of membranes facing the endoplasmic reticulum, the cis-Golgi network (CGN), a medial area of disk-shaped flattened cisternae, and a trans-face associated with another tubular reticular membrane network, the trans-Golgi network (TGN) directed toward the plasma membrane and compartments of the endocytic pathway. The Golgi apparatus receives the entire output of de novo synthesized polypeptides from the ER, and functions to posttranslationally process and sort them within vesicles destined to their proper final destination (e.g. plasma membrane, endosomes, lysosomes).",
+      "source_sha256": "3e662333077bbbd2edf52fa0660cc59ac2311e1c944125f7893b286eeb4f304b",
+      "translation": "Der Golgi-Apparat ist eine Reihe abgeflachter, zisternaler Membranen und ähnlicher Vesikel, die meist dicht aneinanderliegend zu Stapeln angeordnet sind. In Säugetierzellen liegt der Golgi-Apparat kernnah, oft pericentriolär. Die Stapel sind seitlich durch Tubuli verbunden und bilden eine perinukleäre Bandstruktur, das 'Golgi ribbon'. In Pflanzen und Zellen niederer Tiere liegt der Golgi als viele Kopien einzelner, im Zytoplasma verteilter Stapel vor. Der Golgi ist eine polarisierte Struktur mit – in den meisten höheren eukaryotischen Zellen – einer cis-Seite, die mit einem dem endoplasmatischen Retikulum zugewandten tubulär-retikulären Membrannetzwerk assoziiert ist, dem cis-Golgi-Netzwerk (CGN), einem medialen Bereich scheibenförmiger abgeflachter Zisternen und einer trans-Seite, die mit einem weiteren tubulär-retikulären Membrannetzwerk assoziiert ist, dem trans-Golgi-Netzwerk (TGN), das zur Plasmamembran und zu Kompartimenten des endozytischen Wegs gerichtet ist. Der Golgi-Apparat empfängt die gesamte Produktion neu synthetisierter Polypeptide aus dem ER und prozessiert und sortiert sie posttranslational in Vesikeln, die für ihren jeweiligen Bestimmungsort vorgesehen sind (z. B. Plasmamembran, Endosomen, Lysosomen)."
+    },
+    {
+      "table": "ui",
+      "key": "The apicoplast is a plastid found in some apicocomplexan parasites which is a non-photosynthetic plastid relict. Apicoplasts do not contain thylakoids; it is not yet clear if they contain internal membranes.",
+      "source": "The apicoplast is a plastid found in some apicocomplexan parasites which is a non-photosynthetic plastid relict. Apicoplasts do not contain thylakoids; it is not yet clear if they contain internal membranes.",
+      "source_sha256": "b418233635b337ed504e9b42447b7c5647ed4b971c213ff586016243216a375e",
+      "translation": "Der Apicoplast ist ein Plastid, der in einigen Apicomplexa-Parasiten vorkommt und ein nicht photosynthetisches Plastidenrelikt ist. Apicoplasten enthalten keine Thylakoide; ob sie innere Membranen enthalten, ist noch nicht geklärt."
+    },
+    {
+      "table": "ui",
+      "key": "The ball's or the top-hat disk's radius, in pixels. Larger than the largest object and smaller than the scale the illumination itself varies on.",
+      "source": "The ball's or the top-hat disk's radius, in pixels. Larger than the largest object and smaller than the scale the illumination itself varies on.",
+      "source_sha256": "6caf6289c74356ef9328c18af69a39095ea9b4cc7917843380cfb4556061d3b2",
+      "translation": "Der Radius der Kugel bzw. der Top-Hat-Scheibe in Pixeln. Größer als das größte Objekt und kleiner als die Skala, auf der die Beleuchtung selbst schwankt."
+    },
+    {
+      "table": "ui",
+      "key": "The blob response a spot has to reach to be kept. Lower it to find fainter spots and more noise. DoG reads this one too: it has no threshold of its own.",
+      "source": "The blob response a spot has to reach to be kept. Lower it to find fainter spots and more noise. DoG reads this one too: it has no threshold of its own.",
+      "source_sha256": "31e329e61a9389de306ee71b8951da61ded631d6f5ef9ae888622ef9564a886d",
+      "translation": "Die Blob-Antwort, die ein Spot erreichen muss, um behalten zu werden. Senken Sie den Wert, um schwächere Spots und mehr Rauschen zu finden. DoG liest diesen Wert ebenfalls: Es hat keinen eigenen Schwellenwert."
+    },
+    {
+      "table": "ui",
+      "key": "The blur the mask is built from, in pixels: about the scale of the edges to sharpen.",
+      "source": "The blur the mask is built from, in pixels: about the scale of the edges to sharpen.",
+      "source_sha256": "5cf8548059451b1438878d1a070874cf2cd2f74f1b5b3e1238842c134ca83b52",
+      "translation": "Die Unschärfe, aus der die Maske gebildet wird, in Pixeln: etwa die Skala der zu schärfenden Kanten."
+    },
+    {
+      "table": "ui",
+      "key": "The bud neck is a constriction between the mother and the daughter cell (bud) in an organism that reproduces by budding. This structure comprises the septin ring, an hourglass-shaped collar around the mother-bud neck, which splits into two rings flanking the division plane at cytokinesis and that acts as a diffusion barrier to maintain polarity factors in the bud and as a scaffold to recruit actomyosin contractile ring components.",
+      "source": "The bud neck is a constriction between the mother and the daughter cell (bud) in an organism that reproduces by budding. This structure comprises the septin ring, an hourglass-shaped collar around the mother-bud neck, which splits into two rings flanking the division plane at cytokinesis and that acts as a diffusion barrier to maintain polarity factors in the bud and as a scaffold to recruit actomyosin contractile ring components.",
+      "source_sha256": "a875c8381bfc9e1dbd642538eb979c5adac7a35f180a463457781764d208e279",
+      "translation": "Der Knospenhals ist eine Einschnürung zwischen Mutter- und Tochterzelle (Knospe) bei einem Organismus, der sich durch Knospung vermehrt. Diese Struktur umfasst den Septinring, einen sanduhrförmigen Kragen um den Hals zwischen Mutterzelle und Knospe, der sich bei der Zytokinese in zwei Ringe beiderseits der Teilungsebene aufspaltet und als Diffusionsbarriere dient, um Polaritätsfaktoren in der Knospe zu halten, sowie als Gerüst, um Komponenten des kontraktilen Aktomyosinrings zu rekrutieren."
+    },
+    {
+      "table": "ui",
+      "key": "The cell membrane is the selectively permeable membrane which separates the cytoplasm from its surroundings. Known as the cell inner membrane in prokaryotes with 2 membranes.",
+      "source": "The cell membrane is the selectively permeable membrane which separates the cytoplasm from its surroundings. Known as the cell inner membrane in prokaryotes with 2 membranes.",
+      "source_sha256": "5706adbcf52abc28d190b303ee76ba7df5ae0f5dacad437f1b08e68fc1d9c9c0",
+      "translation": "Die Zellmembran ist die selektiv permeable Membran, die das Zytoplasma von seiner Umgebung trennt. Bei Prokaryoten mit 2 Membranen als innere Zellmembran bezeichnet."
+    },
+    {
+      "table": "ui",
+      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source_sha256": "ebb593b82afa1a40521a11f6e0d27f24059ad63ef3a0aff1c5cffefb33ed1e10",
+      "translation": "Das Kompartimentdiagramm verbindet Bildgebungsphänotypen mit dem subzellulären Vokabular von Starplast. ToxoDB liefert Gen- und Genomkontext, UniProt liefert Proteinannotationen. Der hyperLOPIT-Atlas liefert experimentelle Lokalisationsbelege für Toxoplasma-Proteine; ein hier hervorgehobenes Organell ist eine Orientierung zu diesem Vokabular, keine Vorhersage für ein gewähltes Gen und kein Beweis für die Ursache eines Phänotyps."
+    },
+    {
+      "table": "ui",
+      "key": "The complex and rigid layer surrounding the cell. Cell walls are found in bacteria, archaea, fungi, plants, and algae. The cell wall envelopes the inner or plasma membrane in all bacteria and is surrounded by the outer membrane in bacteria with 2 membranes (Gram-negative). Bacterial cell walls contain peptidoglycan while those of archaea are not made of peptidoglycan, but some archaea may contain pseudopeptidoglycan, which is composed of N-acetyltalosaminuronic acid, instead of N-acetyl muramic acid in peptidoglycan. The plant cell wall is made of fibrils of cellulose embedded in a matrix of several other kinds of polymers such as pectin and lignin. Algal cell walls are usually composed of cellulose, glycoproteins, sporopollenin, calcium and various polysaccharides such as manosyl, xylanes, alginic acid. Diatom cell walls (or frustules) contain silica. The cell wall plays a role in cell shape, cell stability and development, and protection against environmental dangers.",
+      "source": "The complex and rigid layer surrounding the cell. Cell walls are found in bacteria, archaea, fungi, plants, and algae. The cell wall envelopes the inner or plasma membrane in all bacteria and is surrounded by the outer membrane in bacteria with 2 membranes (Gram-negative). Bacterial cell walls contain peptidoglycan while those of archaea are not made of peptidoglycan, but some archaea may contain pseudopeptidoglycan, which is composed of N-acetyltalosaminuronic acid, instead of N-acetyl muramic acid in peptidoglycan. The plant cell wall is made of fibrils of cellulose embedded in a matrix of several other kinds of polymers such as pectin and lignin. Algal cell walls are usually composed of cellulose, glycoproteins, sporopollenin, calcium and various polysaccharides such as manosyl, xylanes, alginic acid. Diatom cell walls (or frustules) contain silica. The cell wall plays a role in cell shape, cell stability and development, and protection against environmental dangers.",
+      "source_sha256": "4bb205dcdef3f135fb3ac7d994c4c262392e07bfa09d939151db4a121784fac5",
+      "translation": "Die komplexe und starre Schicht, die die Zelle umgibt. Zellwände kommen bei Bakterien, Archaeen, Pilzen, Pflanzen und Algen vor. Die Zellwand umhüllt bei allen Bakterien die innere oder Plasmamembran und ist bei Bakterien mit 2 Membranen (gramnegativ) von der äußeren Membran umgeben. Bakterielle Zellwände enthalten Peptidoglykan, während die der Archaeen nicht aus Peptidoglykan bestehen; einige Archaeen können jedoch Pseudopeptidoglykan enthalten, das statt N-Acetylmuraminsäure wie im Peptidoglykan aus N-Acetyltalosaminuronsäure besteht. Die pflanzliche Zellwand besteht aus Cellulosefibrillen, die in eine Matrix aus mehreren anderen Polymerarten wie Pektin und Lignin eingebettet sind. Zellwände von Algen bestehen meist aus Cellulose, Glykoproteinen, Sporopollenin, Calcium und verschiedenen Polysacchariden wie Mannosyl, Xylanen und Alginsäure. Die Zellwände von Diatomeen (Frusteln) enthalten Siliciumdioxid. Die Zellwand spielt eine Rolle für Zellform, Zellstabilität und Entwicklung sowie beim Schutz vor Umweltgefahren."
+    },
+    {
+      "table": "ui",
+      "key": "The cytoskeleton is a dynamic three-dimensional filamentous structure in the cytoplasm. Its roles include maintenance of cell shape, cell movement (in eukaryotes), cytokinesis, and the organization of organelles or organelle-like structures within the cell. The cytoskeleton includes microfilaments (actin-like proteins), microtubules (tubulin-like proteins), the intermediate filaments (mostly in eukaryotes) and the MinD-ParA proteins, which appear to be unique to prokaryotes.",
+      "source": "The cytoskeleton is a dynamic three-dimensional filamentous structure in the cytoplasm. Its roles include maintenance of cell shape, cell movement (in eukaryotes), cytokinesis, and the organization of organelles or organelle-like structures within the cell. The cytoskeleton includes microfilaments (actin-like proteins), microtubules (tubulin-like proteins), the intermediate filaments (mostly in eukaryotes) and the MinD-ParA proteins, which appear to be unique to prokaryotes.",
+      "source_sha256": "8e42563cd84dd1069e27dac11d938ed339b9f9b21d4a9e931a849f5a6bc11b8b",
+      "translation": "Das Zytoskelett ist eine dynamische dreidimensionale filamentöse Struktur im Zytoplasma. Zu seinen Aufgaben gehören die Aufrechterhaltung der Zellform, die Zellbewegung (bei Eukaryoten), die Zytokinese und die Organisation von Organellen oder organellenartigen Strukturen in der Zelle. Das Zytoskelett umfasst Mikrofilamente (aktinähnliche Proteine), Mikrotubuli (tubulinähnliche Proteine), die Intermediärfilamente (überwiegend bei Eukaryoten) und die MinD-ParA-Proteine, die offenbar nur bei Prokaryoten vorkommen."
+    },
+    {
+      "table": "ui",
+      "key": "The detector {key} is not on this machine yet. Download it here, or the run downloads it.",
+      "source": "The detector {key} is not on this machine yet. Download it here, or the run downloads it.",
+      "source_sha256": "b397bc50064e6f7d581025ad2296f1d7223d2788ff3c534fd67caa1a2fc0844c",
+      "translation": "Der Detektor {key} ist noch nicht auf diesem Rechner. Laden Sie ihn hier herunter, oder der Lauf lädt ihn herunter."
+    },
+    {
+      "table": "ui",
+      "key": "The disk the detection is closed and opened with after it is thresholded. Raise it to smooth ragged outlines, lower it to keep fine detail. The Adaptive mode also pre-smooths with half of it; the network methods close with half of it.",
+      "source": "The disk the detection is closed and opened with after it is thresholded. Raise it to smooth ragged outlines, lower it to keep fine detail. The Adaptive mode also pre-smooths with half of it; the network methods close with half of it.",
+      "source_sha256": "f035045f389700bf0cedd087b3a97a6271bb5e0232279d8910150c3c618b10e3",
+      "translation": "Die Scheibe, mit der die Detektion nach der Schwellenwertbildung geschlossen und geöffnet wird. Erhöhen Sie sie, um ausgefranste Umrisse zu glätten, senken Sie sie, um feine Details zu erhalten. Der Modus Adaptiv glättet zudem vorab mit der Hälfte davon; die Netzwerkverfahren schließen mit der Hälfte davon."
+    },
+    {
+      "table": "ui",
+      "key": "The disk the opening or closing uses, in pixels. It is a length: a bridge narrower than twice this is broken, a gap narrower than twice this is filled.",
+      "source": "The disk the opening or closing uses, in pixels. It is a length: a bridge narrower than twice this is broken, a gap narrower than twice this is filled.",
+      "source_sha256": "79b2d611b1086b10bcf5bb90c6c0c9fb1909fd34a74566ba67ee09107b4e00d4",
+      "translation": "Die Scheibe, die das Öffnen oder Schließen verwendet, in Pixeln. Sie ist eine Länge: Eine Brücke schmaler als das Doppelte wird getrennt, eine Lücke schmaler als das Doppelte wird gefüllt."
+    },
+    {
+      "table": "ui",
+      "key": "The endoplasmic reticulum (ER) is an extensive network of membrane tubules, vesicles and flattened cisternae (sac-like structures) found throughout the eukaryotic cell, especially those responsible for the production of hormones and other secretory products. The membrane is a continuation of the outer nuclear membrane, it encloses the cytosol cisternal spaces (or internal lumen), which are continuous with the nuclear periplasmic space. The ER sustains many general functions, including protein synthesis, protein modification, protein folding, insertion of membrane proteins, sequestration of calcium, production of phospholipids and steroids and transport of proteins destined for membranes and secretion.",
+      "source": "The endoplasmic reticulum (ER) is an extensive network of membrane tubules, vesicles and flattened cisternae (sac-like structures) found throughout the eukaryotic cell, especially those responsible for the production of hormones and other secretory products. The membrane is a continuation of the outer nuclear membrane, it encloses the cytosol cisternal spaces (or internal lumen), which are continuous with the nuclear periplasmic space. The ER sustains many general functions, including protein synthesis, protein modification, protein folding, insertion of membrane proteins, sequestration of calcium, production of phospholipids and steroids and transport of proteins destined for membranes and secretion.",
+      "source_sha256": "42a2a41db912172638d66a238a18c6d2765f185254cc5a19b77d600f494d8749",
+      "translation": "Das endoplasmatische Retikulum (ER) ist ein ausgedehntes Netzwerk aus Membrantubuli, Vesikeln und abgeflachten Zisternen (sackartigen Strukturen), das in der gesamten eukaryotischen Zelle vorkommt, besonders in Zellen, die Hormone und andere sekretorische Produkte herstellen. Die Membran ist eine Fortsetzung der äußeren Kernmembran; sie umschließt die zisternalen Räume (oder das innere Lumen), die mit dem perinukleären Raum zusammenhängen. Das ER erfüllt viele allgemeine Funktionen, darunter Proteinsynthese, Proteinmodifikation, Proteinfaltung, Einbau von Membranproteinen, Sequestrierung von Calcium, Produktion von Phospholipiden und Steroiden sowie Transport von Proteinen, die für Membranen und Sekretion bestimmt sind."
+    },
+    {
+      "table": "ui",
+      "key": "The exponent the intensities are raised to on 0..1. Below 1 lifts the dim end, so faint objects rise out of the background; above 1 pushes it down and leaves only the bright ones. 1.00 is off.",
+      "source": "The exponent the intensities are raised to on 0..1. Below 1 lifts the dim end, so faint objects rise out of the background; above 1 pushes it down and leaves only the bright ones. 1.00 is off.",
+      "source_sha256": "06d31bce86f08f89ec7bcc36cfe426d217835f49cbc3758eadea3295328192a1",
+      "translation": "Der Exponent, mit dem die Intensitäten auf 0..1 potenziert werden. Unter 1 hebt das dunkle Ende an, sodass schwache Objekte aus dem Hintergrund hervortreten; über 1 drückt es herab und lässt nur die hellen übrig. 1.00 ist aus."
+    },
+    {
+      "table": "ui",
+      "key": "The inner membrane complex, found in apicocomplexan parasites, is composed of flattened membrane cisternae closely associated to the cell membrane. Together, the cell membrane and the IMC form a triple lipid bilayer called the pellicle (or cell wall).",
+      "source": "The inner membrane complex, found in apicocomplexan parasites, is composed of flattened membrane cisternae closely associated to the cell membrane. Together, the cell membrane and the IMC form a triple lipid bilayer called the pellicle (or cell wall).",
+      "source_sha256": "a466c2233ba23afe3d051f2f0f87a9f8aaa1547c84a4b73ff808c915ccf3fa19",
+      "translation": "Der innere Membrankomplex, der in Apicomplexa-Parasiten vorkommt, besteht aus abgeflachten Membranzisternen, die eng mit der Zellmembran verbunden sind. Zusammen bilden die Zellmembran und der IMC eine dreifache Lipiddoppelschicht, die Pellikula (oder Zellwand) genannt wird."
+    },
+    {
+      "table": "ui",
+      "key": "The larger of the two Gaussians, in pixels. Scales step up from the low sigma by a factor of 1.6 until this bound, so a wider gap covers more spot sizes and costs more passes.",
+      "source": "The larger of the two Gaussians, in pixels. Scales step up from the low sigma by a factor of 1.6 until this bound, so a wider gap covers more spot sizes and costs more passes.",
+      "source_sha256": "ca024dc5776911502c335841cab79f46c0c878e6f21a353812f316c517838284",
+      "translation": "Die größere der beiden Gaußfunktionen, in Pixeln. Die Skalen steigen vom unteren Sigma in Faktoren von 1.6 bis zu dieser Grenze, sodass ein größerer Abstand mehr Spotgrößen abdeckt und mehr Durchläufe kostet."
+    },
+    {
+      "table": "ui",
+      "key": "The largest scale searched, in pixels. Raise it to catch large puncta; the filter runs once per scale, so it costs time.",
+      "source": "The largest scale searched, in pixels. Raise it to catch large puncta; the filter runs once per scale, so it costs time.",
+      "source_sha256": "559ee91dd83a46fb4cec5c2ad07ea914bedec6fb03635423fdaf7da0464c5076",
+      "translation": "Die größte durchsuchte Skala, in Pixeln. Erhöhen Sie den Wert, um große Puncta zu erfassen; der Filter läuft einmal pro Skala und kostet daher Zeit."
+    },
+    {
+      "table": "ui",
+      "key": "The line weight of the boxes drawn around the wells the detector found in a figure, in image pixels. Automatic picks a width from the figure's size: 2 px, and one more for every 400 px of its longer side. The highlighted well's box is drawn twice as wide. Remembered between sessions.",
+      "source": "The line weight of the boxes drawn around the wells the detector found in a figure, in image pixels. Automatic picks a width from the figure's size: 2 px, and one more for every 400 px of its longer side. The highlighted well's box is drawn twice as wide. Remembered between sessions.",
+      "source_sha256": "b3354191473c67b31cef9bd609a55e214decc7ff1d35c0d48964c83f6a67171d",
+      "translation": "Die Linienstärke der Kästen, die um die vom Detektor in einer Abbildung gefundenen Wells gezeichnet werden, in Bildpixeln. Automatisch wählt eine Breite nach der Größe der Abbildung: 2 px und ein weiteres für je 400 px ihrer längeren Seite. Der Kasten des hervorgehobenen Wells wird doppelt so breit gezeichnet. Wird zwischen Sitzungen gespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "The line weight of the well boxes is set there too.",
+      "source": "The line weight of the well boxes is set there too.",
+      "source_sha256": "8f1859d6b6b84dd5d38cbe3f0427f14ec54959fbf684266710559806738d591f",
+      "translation": "Die Linienstärke der Well-Rahmen wird dort ebenfalls eingestellt."
+    },
+    {
+      "table": "ui",
+      "key": "The membrane surrounding a mitochondrion. This term is used when it is not known if the protein is found in or associated with the inner or outer mitochondrial membrane.",
+      "source": "The membrane surrounding a mitochondrion. This term is used when it is not known if the protein is found in or associated with the inner or outer mitochondrial membrane.",
+      "source_sha256": "b7f9a22f5e667431cbb71d3afa5e1c1ae1e3d1a30f5f5b1bf853bce072411d09",
+      "translation": "Die Membran, die ein Mitochondrium umgibt. Dieser Begriff wird verwendet, wenn nicht bekannt ist, ob sich das Protein in der inneren oder äußeren Mitochondrienmembran befindet oder mit ihr assoziiert ist."
+    },
+    {
+      "table": "ui",
+      "key": "The microneme is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Micronemes are the smallest, they are involved in the early stages of invasion.",
+      "source": "The microneme is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Micronemes are the smallest, they are involved in the early stages of invasion.",
+      "source_sha256": "e1bb87c762b432b4adc084303309c0e53df97223179cb17071b6c3e68b49fb58",
+      "translation": "Das Mikronem ist ein Organell von Apicomplexa-Parasiten. Die Apicomplexa sind nach dem einzigartigen Satz morphologisch unterschiedlicher sekretorischer Organellen benannt (als Apikalkomplex bezeichnet) – Mikroneme, Rhoptrien und dichte Granula –, deren aufeinanderfolgende Sekretion für die Invasion von Wirtszellen erforderlich ist. Mikroneme sind die kleinsten; sie sind an den frühen Phasen der Invasion beteiligt."
+    },
+    {
+      "table": "ui",
+      "key": "The mitochondrion is a semiautonomous, self-reproducing organelle that occurs in the cytoplasm of all cells of most, but not all, eukaryotes. Each mitochondrion is surrounded by a double limiting membrane. The inner membrane is highly invaginated, and its projections are called cristae. Mitochondria are the sites of the reactions of oxidative phosphorylation, which result in the formation of ATP. The size and coding capacity of the mitochondrial DNA varies considerably in different organisms, and encodes rRNAs, tRNAs and essential mitochondrial proteins.",
+      "source": "The mitochondrion is a semiautonomous, self-reproducing organelle that occurs in the cytoplasm of all cells of most, but not all, eukaryotes. Each mitochondrion is surrounded by a double limiting membrane. The inner membrane is highly invaginated, and its projections are called cristae. Mitochondria are the sites of the reactions of oxidative phosphorylation, which result in the formation of ATP. The size and coding capacity of the mitochondrial DNA varies considerably in different organisms, and encodes rRNAs, tRNAs and essential mitochondrial proteins.",
+      "source_sha256": "cdc568a428864e4e9bb50305e36c6d2856d01ee924c222f58ad7c77297c86172",
+      "translation": "Das Mitochondrium ist ein semiautonomes, sich selbst vermehrendes Organell, das im Zytoplasma aller Zellen der meisten, aber nicht aller Eukaryoten vorkommt. Jedes Mitochondrium ist von einer doppelten Grenzmembran umgeben. Die innere Membran ist stark eingestülpt; ihre Fortsätze heißen Cristae. Mitochondrien sind der Ort der Reaktionen der oxidativen Phosphorylierung, die zur Bildung von ATP führen. Größe und Kodierungskapazität der mitochondrialen DNA variieren zwischen Organismen erheblich; sie kodiert rRNAs, tRNAs und essenzielle mitochondriale Proteine."
+    },
+    {
+      "table": "ui",
+      "key": "The nucleolus is a non-membrane bound nuclear compartment found in eukaryotic cells which is the site of ribosome biogenesis. The interphase nucleolus is organized around the tandemly repeated genes for preribosomal RNA (rRNA). It is composed of at least 2 sub-compartments: the dense fibrillar component (DFC, also called pars fibrosa) and the granular component (GC or pars granulosa). The DFC contains newly synthesized preribosomal RNA and a collection of proteins; the GC is made up of nearly completed preribosomal particles destined for the cytoplasm. In most metazoans, but generally not in lower eukaryotes, a third component, the fibrillar center (FC), can be seen. Plant and animal nuclei can contain more than one nucleolus.",
+      "source": "The nucleolus is a non-membrane bound nuclear compartment found in eukaryotic cells which is the site of ribosome biogenesis. The interphase nucleolus is organized around the tandemly repeated genes for preribosomal RNA (rRNA). It is composed of at least 2 sub-compartments: the dense fibrillar component (DFC, also called pars fibrosa) and the granular component (GC or pars granulosa). The DFC contains newly synthesized preribosomal RNA and a collection of proteins; the GC is made up of nearly completed preribosomal particles destined for the cytoplasm. In most metazoans, but generally not in lower eukaryotes, a third component, the fibrillar center (FC), can be seen. Plant and animal nuclei can contain more than one nucleolus.",
+      "source_sha256": "36235a9feb79a30bb944b0726cb9c082582847917a49b5c7a8e73e30a2e0ba77",
+      "translation": "Der Nukleolus ist ein nicht membranumschlossenes Kernkompartiment eukaryotischer Zellen und der Ort der Ribosomenbiogenese. Der Interphase-Nukleolus ist um die tandemartig wiederholten Gene für präribosomale RNA (rRNA) organisiert. Er besteht aus mindestens 2 Subkompartimenten: der dichten fibrillären Komponente (DFC, auch pars fibrosa) und der granulären Komponente (GC oder pars granulosa). Die DFC enthält neu synthetisierte präribosomale RNA und eine Reihe von Proteinen; die GC besteht aus nahezu fertigen präribosomalen Partikeln, die für das Zytoplasma bestimmt sind. Bei den meisten Metazoen, aber im Allgemeinen nicht bei niederen Eukaryoten, ist eine dritte Komponente sichtbar, das fibrilläre Zentrum (FC). Pflanzliche und tierische Zellkerne können mehr als einen Nukleolus enthalten."
+    },
+    {
+      "table": "ui",
+      "key": "The nucleus is the most obvious organelle in any eukaryotic cell. It is a membrane-bound organelle surrounded by double membranes which contains most of the cell's genetic material. It communicates with the surrounding cytosol via numerous nuclear pores.",
+      "source": "The nucleus is the most obvious organelle in any eukaryotic cell. It is a membrane-bound organelle surrounded by double membranes which contains most of the cell's genetic material. It communicates with the surrounding cytosol via numerous nuclear pores.",
+      "source_sha256": "9ca1f1e5da086d63d20ae99bacb6f1a450ffe6fcdf472e855d9ab18fc89fcf8e",
+      "translation": "Der Zellkern ist die auffälligste Organelle jeder eukaryotischen Zelle. Er ist eine membranumschlossene Organelle mit einer Doppelmembran, die den größten Teil des genetischen Materials der Zelle enthält. Über zahlreiche Kernporen steht er mit dem umgebenden Cytosol in Verbindung."
+    },
+    {
+      "table": "ui",
+      "key": "The number the rule above reads: a fraction from 0 to 1 for the per-centre rule, an intensity for the absolute one, a percentile from 0 to 100 for the third. Not read when a threshold algorithm provides the level.",
+      "source": "The number the rule above reads: a fraction from 0 to 1 for the per-centre rule, an intensity for the absolute one, a percentile from 0 to 100 for the third. Not read when a threshold algorithm provides the level.",
+      "source_sha256": "ff9544cb849cac428396de70637ec11d859ca13dd315e9caa0078bdef2fbb5b6",
+      "translation": "Die Zahl, die die Regel oben liest: ein Anteil von 0 bis 1 für die Regel pro Zentrum, eine Intensität für die absolute Regel, ein Perzentil von 0 bis 100 für die dritte. Wird nicht gelesen, wenn ein Schwellenwertalgorithmus den Schwellenwert liefert."
+    },
+    {
+      "table": "ui",
+      "key": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "source_sha256": "3db2af90e552d9f1ff09084d9fcc2467ba0a8907b230de616dd7257c8a266014",
+      "translation": "Das geplante Modul Austritt wird sich auf die Ruptur der Vakuole und den Austritt der Parasiten konzentrieren; Gleitbewegung wird extrazelluläre Spuren und Bewegung quantifizieren. Umwandlung zu Bradyzoiten wird Stadienmarker und Zystenwand-Messwerte behandeln, während Wirtszellschädigung den Verlust des Monolayers beschreibt. Dies sind vorgeschlagene Workflows, daher sind ihre Kacheln als Demnächst verfügbar markiert. Fixierte Bilder, Zeitreihen und stadienspezifische Marker beantworten unterschiedliche Fragen und sollten passend zum beabsichtigten Messwert gewählt werden."
+    },
+    {
+      "table": "ui",
+      "key": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
+      "source": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
+      "source_sha256": "6e0c370bb9d95162771a35b59788beb7866ce81eb66ce6a73d44196cc8ff72d3",
+      "translation": "Die Einstellungen der Vorschau, in zwei Tabs: Abbildung (Finden der Plaque-Wells und Lesen der Abbildung) und Plaque-Detektion (das Plaque-Modell und seine Schwellenwerte)."
+    },
+    {
+      "table": "ui",
+      "key": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "source_sha256": "77f3167fe2cb6f5c77b1e1b654a69b6404b54a6ad078b463adfa86b873a8e483",
+      "translation": "Das vorgeschlagene Modul Adhäsion wird Pilzzellen zählen, die mit einer Wirtszelloberfläche assoziiert sind. Biofilm wird sich auf kollektives Wachstum konzentrieren, einschließlich bedeckter Fläche und Dicke, wenn die Aufnahme Tiefeninformation enthält. Ein einzelnes zweidimensionales Bildfeld kann die Oberflächenbedeckung beschreiben, aber allein keine Biofilmdicke belegen. Wählen Sie Einzelebenen- oder volumetrische Bildgebung passend zum Endpunkt."
+    },
+    {
+      "table": "ui",
+      "key": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "source_sha256": "1ed3b2e9fa86adf509f980a162693fab21484b44ddb9780c3f59e54f573546e6",
+      "translation": "Das vorgeschlagene Modul Parasitämie wird infizierte rote Blutkörperchen im Verhältnis zur gesamten Erythrozytenpopulation zählen. Bestimmung der Blutstadien wird Ringe, Trophozoiten und Schizonten trennen, sodass eine Verschiebung der Stadienzusammensetzung zusammen mit der Infektionshäufigkeit untersucht werden kann. Merozoiteninvasion wird sich auf den Eintritt in rote Blutkörperchen konzentrieren. Zusammen würden diese Messwerte helfen, weniger neu infizierte Zellen von einer veränderten Entwicklung bereits darin befindlicher Parasiten zu unterscheiden."
+    },
+    {
+      "table": "ui",
+      "key": "The rhoptry is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Rhoptries are twin, membrane-bound, pear-shaped organelles that secrete proteins through their elongated necks at the apical tip of the parasite.",
+      "source": "The rhoptry is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Rhoptries are twin, membrane-bound, pear-shaped organelles that secrete proteins through their elongated necks at the apical tip of the parasite.",
+      "source_sha256": "662de8ae1c0d39e9016f937712b1d42ca107d52cb62b62211714dd4ed94109e8",
+      "translation": "Die Rhoptrie ist ein Organell von Apicomplexa-Parasiten. Die Apicomplexa sind nach dem einzigartigen Satz morphologisch unterschiedlicher sekretorischer Organellen benannt (als Apikalkomplex bezeichnet) – Mikroneme, Rhoptrien und dichte Granula –, deren aufeinanderfolgende Sekretion für die Invasion von Wirtszellen erforderlich ist. Rhoptrien sind paarige, membranumschlossene, birnenförmige Organellen, die Proteine über ihre verlängerten Hälse an der apikalen Spitze des Parasiten sezernieren."
+    },
+    {
+      "table": "ui",
+      "key": "The scales the filter looks for, in pixels, separated by commas; each should be about the half-width of a filament. Add a larger value for thick bundles and keep the small ones for fine tubules. Runtime grows with the list.",
+      "source": "The scales the filter looks for, in pixels, separated by commas; each should be about the half-width of a filament. Add a larger value for thick bundles and keep the small ones for fine tubules. Runtime grows with the list.",
+      "source_sha256": "31e20632fba33f8380f0e1307c255e4abb932fcffd6e417b093c9478fbf38ade",
+      "translation": "Die Skalen in Pixeln, nach denen der Filter sucht, durch Kommas getrennt; jede sollte etwa die halbe Breite eines Filaments sein. Fügen Sie für dicke Bündel einen größeren Wert hinzu und behalten Sie die kleinen für feine Tubuli. Die Laufzeit wächst mit der Liste."
+    },
+    {
+      "table": "ui",
+      "key": "The second reading changed: press Run preview to read the figure again.",
+      "source": "The second reading changed: press Run preview to read the figure again.",
+      "source_sha256": "c17d7841420e80fccc25797c2cd9889470defa3ee50768fd34a4532194b90364",
+      "translation": "Die zweite Lesung hat sich geändert: Klicken Sie auf Vorschau ausführen, um die Abbildung erneut zu lesen."
+    },
+    {
+      "table": "ui",
+      "key": "The side of one tile, in pixels. Comfortably larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself.",
+      "source": "The side of one tile, in pixels. Comfortably larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself.",
+      "source_sha256": "e06f724c273503648709fcf95234306da12f793623dd1f460cbb1ff28ba65565",
+      "translation": "Die Seitenlänge einer Kachel in Pixeln. Deutlich größer als ein Objekt und kleiner als die Skala, auf der die Beleuchtung schwankt; eine Kachel von der Größe eines Objekts gleicht das Objekt gegen sich selbst aus."
+    },
+    {
+      "table": "ui",
+      "key": "The sign-in ended without success (exit code {code}). What it said is above.",
+      "source": "The sign-in ended without success (exit code {code}). What it said is above.",
+      "source_sha256": "14731e3cf29c4710986edea6da0aedf0c94b46250c70cb046805daf57584c7cc",
+      "translation": "Die Anmeldung wurde ohne Erfolg beendet (Exit-Code {code}). Die Ausgabe steht oben."
+    },
+    {
+      "table": "ui",
+      "key": "The smaller of the two Gaussians, in pixels: the finest detail kept. Raise it to suppress noise.",
+      "source": "The smaller of the two Gaussians, in pixels: the finest detail kept. Raise it to suppress noise.",
+      "source_sha256": "1abe289bd9357b6a5452cd00d4a7d1e633b00c6579d6e6acb27f28a8a11d3986",
+      "translation": "Die kleinere der beiden Gaußfunktionen, in Pixeln: das feinste erhaltene Detail. Erhöhen Sie den Wert, um Rauschen zu unterdrücken."
+    },
+    {
+      "table": "ui",
+      "key": "The smallest scale searched, in pixels; a blob's radius is about sigma times the square root of two, so 1 finds roughly 1.4 px puncta. Raise it to ignore single-pixel noise.",
+      "source": "The smallest scale searched, in pixels; a blob's radius is about sigma times the square root of two, so 1 finds roughly 1.4 px puncta. Raise it to ignore single-pixel noise.",
+      "source_sha256": "55c667806ec54d3b62021bb4c796a28d0ebd4a988cd5604b2945e58df5571ef6",
+      "translation": "Die kleinste durchsuchte Skala, in Pixeln; der Radius eines Blobs beträgt etwa Sigma mal Wurzel aus zwei, sodass 1 Puncta von etwa 1.4 px findet. Erhöhen Sie den Wert, um Rauschen einzelner Pixel zu ignorieren."
+    },
+    {
+      "table": "ui",
+      "key": "The square the local threshold is measured in, centred on each pixel; the engine forces it odd. A few times the object diameter is the starting point: too small and the middle of a large object becomes its own background, too large and it is a whole-field threshold again.",
+      "source": "The square the local threshold is measured in, centred on each pixel; the engine forces it odd. A few times the object diameter is the starting point: too small and the middle of a large object becomes its own background, too large and it is a whole-field threshold again.",
+      "source_sha256": "ac09d5e48a5633b5e0b28d02385c5bfc0d607a530bf124c2d10478c93b5172d8",
+      "translation": "Das Quadrat, in dem der lokale Schwellenwert gemessen wird, zentriert auf jedem Pixel; die Engine macht es ungerade. Ein Mehrfaches des Objektdurchmessers ist der Ausgangspunkt: zu klein, und die Mitte eines großen Objekts wird zu ihrem eigenen Hintergrund; zu groß, und es ist wieder ein Schwellenwert für das ganze Bildfeld."
+    },
+    {
+      "table": "ui",
+      "key": "The table shows the first 500 vacuoles; field totals include every measured vacuole.",
+      "source": "The table shows the first 500 vacuoles; field totals include every measured vacuole.",
+      "source_sha256": "b5873115d7a0ca6c28a3fb8833fdff4da2d5a40b0a9665d54f0cb26b442f2040",
+      "translation": "Die Tabelle zeigt die ersten 500 Vakuolen; die Summen des Bildfelds umfassen jede gemessene Vakuole."
+    },
+    {
+      "table": "ui",
+      "key": "The update check could not finish. Opening the installed version.\n\n{error}",
+      "source": "The update check could not finish. Opening the installed version.\n\n{error}",
+      "source_sha256": "c2d7ebc0604c999957ae81912b90b3fe1359a165c44d3c4a12cf7f24d3b83e9f",
+      "translation": "Die Updateprüfung konnte nicht abgeschlossen werden. Die installierte Version wird geöffnet.\n\n{error}"
+    },
+    {
+      "table": "ui",
+      "key": "The update is installed, but the current settings could not be saved for restart. Keep this window open until you have saved your work, then restart spaCR.",
+      "source": "The update is installed, but the current settings could not be saved for restart. Keep this window open until you have saved your work, then restart spaCR.",
+      "source_sha256": "ada9dc0bbf2dfcbf4ba2cbf7ba772784cf8944db1c3e065c9adc1b7149ae6ab4",
+      "translation": "Das Update ist installiert, aber die aktuellen Einstellungen konnten für den Neustart nicht gespeichert werden. Lassen Sie dieses Fenster offen, bis Sie Ihre Arbeit gespeichert haben, und starten Sie dann spaCR neu."
+    },
+    {
+      "table": "ui",
+      "key": "The update is installed. Restart was deferred while work finishes shutting down; restart spaCR after it stops.",
+      "source": "The update is installed. Restart was deferred while work finishes shutting down; restart spaCR after it stops.",
+      "source_sha256": "fcf717a4512601f0bf659c42c5ce7740d68c14bd60a55350071cf51fb15820c4",
+      "translation": "Das Update ist installiert. Der Neustart wurde verschoben, während laufende Arbeit beendet wird; starten Sie spaCR danach neu."
+    },
+    {
+      "table": "ui",
+      "key": "The vacuole is a generally large fluid-filled membrane-bound compartment in the cytoplasm. The precise form and function of vacuoles may vary between phyla. Plant vacuoles are among the best characterized. They differ in terms of their lumenal contents and processing enzymes, as well as on the basis of the type of integral proteins in their membranes (tonoplast intrinsic proteins, TIPs). Examples include the lytic vacuole, the storage vacuole and the lutoid. One important function of plant vacuoles is the maintenance of hydrostatic pressure. Other eukaryotes employ vacuoles for a variety of purposes, including storage (as in the yeast lysosome/vacuole), secretion and phagocytosis. In Protozoa, contractile vacuoles can be used to discharge water from the cytoplasm to the external environment.",
+      "source": "The vacuole is a generally large fluid-filled membrane-bound compartment in the cytoplasm. The precise form and function of vacuoles may vary between phyla. Plant vacuoles are among the best characterized. They differ in terms of their lumenal contents and processing enzymes, as well as on the basis of the type of integral proteins in their membranes (tonoplast intrinsic proteins, TIPs). Examples include the lytic vacuole, the storage vacuole and the lutoid. One important function of plant vacuoles is the maintenance of hydrostatic pressure. Other eukaryotes employ vacuoles for a variety of purposes, including storage (as in the yeast lysosome/vacuole), secretion and phagocytosis. In Protozoa, contractile vacuoles can be used to discharge water from the cytoplasm to the external environment.",
+      "source_sha256": "ecd87a574eb09afc34e14e28313f0c6f2c1be77f5bf9f54577026385ddcade65",
+      "translation": "Die Vakuole ist ein meist großes, flüssigkeitsgefülltes, membranumschlossenes Kompartiment im Zytoplasma. Genaue Form und Funktion von Vakuolen können sich zwischen Stämmen unterscheiden. Pflanzliche Vakuolen gehören zu den am besten charakterisierten. Sie unterscheiden sich in ihrem luminalen Inhalt und ihren prozessierenden Enzymen sowie in der Art der integralen Proteine ihrer Membranen (Tonoplast Intrinsic Proteins, TIPs). Beispiele sind die lytische Vakuole, die Speichervakuole und der Lutoid. Eine wichtige Funktion pflanzlicher Vakuolen ist die Aufrechterhaltung des hydrostatischen Drucks. Andere Eukaryoten nutzen Vakuolen für verschiedene Zwecke, darunter Speicherung (wie beim Lysosom/der Vakuole der Hefe), Sekretion und Phagozytose. Bei Protozoen können kontraktile Vakuolen Wasser aus dem Zytoplasma in die äußere Umgebung abgeben."
+    },
+    {
+      "table": "ui",
+      "key": "The width of each plaque outline, in image pixels. It is drawn on the image itself, so it keeps its share of the picture at any zoom and in a saved picture. Remembered between sessions.",
+      "source": "The width of each plaque outline, in image pixels. It is drawn on the image itself, so it keeps its share of the picture at any zoom and in a saved picture. Remembered between sessions.",
+      "source_sha256": "41f7c75c237b7e1a35bdfed7a60b2f686ee40f7ba91e015d87250c268c915504",
+      "translation": "Die Breite jedes Plaque-Umrisses in Bildpixeln. Er wird in das Bild selbst gezeichnet und behält daher bei jedem Zoom und in einem gespeicherten Bild seinen Anteil am Bild. Wird zwischen Sitzungen gespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "The {names} masks need fresh QC; their old cards are excluded from current findings.",
+      "source": "The {names} masks need fresh QC; their old cards are excluded from current findings.",
+      "source_sha256": "11c42569516b2290df4ac27d21b5f992e5017033c30772d0c237a41d3e10495e",
+      "translation": "Die Masken {names} benötigen eine neue QC; ihre alten Karten sind von den aktuellen Befunden ausgeschlossen."
+    },
+    {
+      "table": "ui",
+      "key": "This crop is not a suggestion; a number key labels it.",
+      "source": "This crop is not a suggestion; a number key labels it.",
+      "source_sha256": "6a0f535c6a191552c2807236c031912fc8e3fb8543f2eb34e1db2f8d8405edb8",
+      "translation": "Dieser Bildausschnitt ist kein Vorschlag; eine Zifferntaste weist ihm ein Label zu."
+    },
+    {
+      "table": "ui",
+      "key": "This field: {hosts} hosts, {infected} infected, {vacuoles} vacuoles, {orphans} orphan parasites. The host denominator includes measured uninfected cells; this is not a whole-plate rate.",
+      "source": "This field: {hosts} hosts, {infected} infected, {vacuoles} vacuoles, {orphans} orphan parasites. The host denominator includes measured uninfected cells; this is not a whole-plate rate.",
+      "source_sha256": "cc2937246b306243642d5a6dd28e43ad1e8822395dbcc65284f5929b07bd1fde",
+      "translation": "Dieses Bildfeld: {hosts} Wirtszellen, {infected} infiziert, {vacuoles} Vakuolen, {orphans} verwaiste Parasiten. Der Nenner der Wirtszellen schließt gemessene nicht infizierte Zellen ein; dies ist keine Rate für die ganze Platte."
+    },
+    {
+      "table": "ui",
+      "key": "This page: {suggested} suggested · {confirmed} confirmed · {rejected} rejected · {left} left. Whole column: {tleft} left to judge · {tconfirmed} confirmed · {trejected} rejected.",
+      "source": "This page: {suggested} suggested · {confirmed} confirmed · {rejected} rejected · {left} left. Whole column: {tleft} left to judge · {tconfirmed} confirmed · {trejected} rejected.",
+      "source_sha256": "a9ea00a33e3af334faad692063d0225ea1ecfcc85c5225c4aef63eeac63fc867",
+      "translation": "Diese Seite: {suggested} vorgeschlagen · {confirmed} bestätigt · {rejected} abgelehnt · {left} offen. Ganze Spalte: {tleft} noch zu beurteilen · {tconfirmed} bestätigt · {trejected} abgelehnt."
+    },
+    {
+      "table": "ui",
+      "key": "This spaCR runs from the source checkout at {path}. Update that checkout with git pull to receive source changes. No package upgrade was performed.",
+      "source": "This spaCR runs from the source checkout at {path}. Update that checkout with git pull to receive source changes. No package upgrade was performed.",
+      "source_sha256": "6d28131b180f1280c0264901ef525a4a49e388053792395f2a34219ea7d758fb",
+      "translation": "Dieses spaCR läuft aus dem Quell-Checkout unter {path}. Aktualisieren Sie diesen Checkout mit git pull, um Quelländerungen zu erhalten. Es wurde kein Paket-Upgrade durchgeführt."
+    },
+    {
+      "table": "ui",
+      "key": "This template is for the {source} module, not {target}.",
+      "source": "This template is for the {source} module, not {target}.",
+      "source_sha256": "78861e57609ff9dd2a26eaea6368e5d3cf50a30a8910a7c2f03d7ea2845a2f1c",
+      "translation": "Diese Vorlage ist für das Modul {source}, nicht {target}."
+    },
+    {
+      "table": "ui",
+      "key": "This template was saved with spaCR {made}; you are running {now}. Settings that changed meaning or name in between are applied as written.",
+      "source": "This template was saved with spaCR {made}; you are running {now}. Settings that changed meaning or name in between are applied as written.",
+      "source_sha256": "4e662dd8dd35be3ab960cc7e118deceff082810fc157d3c6a2594a53c0933eb2",
+      "translation": "Diese Vorlage wurde mit spaCR {made} gespeichert; Sie verwenden {now}. Einstellungen, deren Bedeutung oder Name sich dazwischen geändert hat, werden so angewandt, wie sie gespeichert sind."
+    },
+    {
+      "table": "ui",
+      "key": "Through the view — an outline drawn on the 3D view at any angle, extended straight through the volume",
+      "source": "Through the view — an outline drawn on the 3D view at any angle, extended straight through the volume",
+      "source_sha256": "b6c4206698f63f90c0769b5d4aabca4af422b53113b50f2d82144f9690fffb5b",
+      "translation": "Durch die Ansicht — ein Umriss, in beliebigem Winkel auf die 3D-Ansicht gezeichnet und gerade durch das Volumen verlängert"
+    },
+    {
+      "table": "ui",
+      "key": "Tick the masks and images to lay over one another. The top row is drawn on top; the arrows move a row up or down the stack.",
+      "source": "Tick the masks and images to lay over one another. The top row is drawn on top; the arrows move a row up or down the stack.",
+      "source_sha256": "e173285b6cdee643da4d8ba163c28914aae32dbd43fb89d06014ec2c7cd56aeb",
+      "translation": "Markieren Sie die Masken und Bilder, die übereinandergelegt werden sollen. Die oberste Zeile wird zuoberst gezeichnet; die Pfeile verschieben eine Zeile im Stapel nach oben oder unten."
+    },
+    {
+      "table": "ui",
+      "key": "Toxoplasma gondii is an intracellular protozoan parasite that causes toxoplasmosis in humans and other warm-blooded animals. Its rapidly growing tachyzoites and persistent tissue cysts represent different stages of infection. Imaging can follow entry into host cells, replication within vacuoles, and damage to a cell monolayer.",
+      "source": "Toxoplasma gondii is an intracellular protozoan parasite that causes toxoplasmosis in humans and other warm-blooded animals. Its rapidly growing tachyzoites and persistent tissue cysts represent different stages of infection. Imaging can follow entry into host cells, replication within vacuoles, and damage to a cell monolayer.",
+      "source_sha256": "9e77a47c2a0f2418d8480640f12fb3e406527c0dfccf9cacefebea0fa29d8b6c",
+      "translation": "Toxoplasma gondii ist ein intrazellulärer protozoischer Parasit, der bei Menschen und anderen warmblütigen Tieren Toxoplasmose verursacht. Seine schnell wachsenden Tachyzoiten und persistierenden Gewebezysten stellen unterschiedliche Infektionsstadien dar. Die Bildgebung kann den Eintritt in Wirtszellen, die Replikation in Vakuolen und die Schädigung eines Zellmonolayers verfolgen."
+    },
+    {
+      "table": "ui",
+      "key": "Turn the volume freely: drag sideways and up and down at once, and it stays wherever you let go.",
+      "source": "Turn the volume freely: drag sideways and up and down at once, and it stays wherever you let go.",
+      "source_sha256": "8ac3074fdd099c8971f32e8aad94363672db27186e887bf2d5060968d8cde80c",
+      "translation": "Das Volumen frei drehen: Gleichzeitig seitwärts und auf und ab ziehen; es bleibt dort, wo Sie loslassen."
+    },
+    {
+      "table": "ui",
+      "key": "Unknown measurements are not negative calls.",
+      "source": "Unknown measurements are not negative calls.",
+      "source_sha256": "f6dd316006dfd74afd91171432d774184627f8d1d4ed43ff8625696f5f802b4a",
+      "translation": "Unbekannte Messwerte sind keine negativen Einstufungen."
+    },
+    {
+      "table": "ui",
+      "key": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source_sha256": "e457bc3cf0b529f5fc157c1fadd1fa1a6e14824255bbd1aad7ab0fd2fb6b4473",
+      "translation": "Starplast über pip aus PyPI in seiner separaten Umgebung unter {path} aktualisieren. Schließen Sie vor dem Aktualisieren alle laufenden Starplast-Fenster. Starplast ist im Alpha-Stadium; Downloads und Speicherbedarf hängen von der Version ab. Die Pakete von spaCR werden nicht verändert."
+    },
+    {
+      "table": "ui",
+      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
+      "translation": "Verwenden Sie Testdaten laden in einem Modul, um dessen Beispielprojekt zu laden. Die Pipeline-Übersichten auf Home erklären, wo Sie beginnen und wie die Module einander Daten übergeben."
+    },
+    {
+      "table": "ui",
+      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
+      "translation": "Verwenden Sie Measure, um Bildausschnitte von Objekten zu exportieren. Wählen Sie das Projekt mit den zusammengeführten Bildern und Masken, aktivieren Sie dann das Speichern der Bildausschnitte und wählen Sie den Objekttyp."
+    },
+    {
+      "table": "ui",
+      "key": "Vacuole {vacuole}; host {host}; parasites {count}.",
+      "source": "Vacuole {vacuole}; host {host}; parasites {count}.",
+      "source_sha256": "4d27a759351e8f38dff7c281aaf80d12e182c8a5a9e4ff4e1d5d1b935a5f1f37",
+      "translation": "Vakuole {vacuole}; Wirtszelle {host}; Parasiten {count}."
+    },
+    {
+      "table": "ui",
+      "key": "What fraction of full size the background is measured at. The surface is then scaled back up and subtracted from the full-size image, so only the ESTIMATE is smaller. On one 1,994 px field a rolling ball at radius 50 takes 14.5 s at 1.00 and about 1 s at 0.50. 1.00 is scikit-image's own answer exactly, for when you want it and will wait; lower it further on a very large field, and raise it if the surface is missing illumination that changes over a short distance.",
+      "source": "What fraction of full size the background is measured at. The surface is then scaled back up and subtracted from the full-size image, so only the ESTIMATE is smaller. On one 1,994 px field a rolling ball at radius 50 takes 14.5 s at 1.00 and about 1 s at 0.50. 1.00 is scikit-image's own answer exactly, for when you want it and will wait; lower it further on a very large field, and raise it if the surface is missing illumination that changes over a short distance.",
+      "source_sha256": "be2ff2263247ec9473244e140893b58a165469d123a890e76c1ff0dc86b7907b",
+      "translation": "Bei welchem Bruchteil der vollen Größe der Hintergrund gemessen wird. Die Oberfläche wird dann wieder hochskaliert und vom Bild in voller Größe subtrahiert, sodass nur die SCHÄTZUNG kleiner ist. Auf einem Bildfeld von 1,994 px dauert ein Rolling Ball mit Radius 50 bei 1.00 14.5 s und bei 0.50 etwa 1 s. 1.00 entspricht exakt dem Ergebnis von scikit-image, wenn Sie das wollen und warten; senken Sie den Wert bei sehr großen Bildfeldern weiter und erhöhen Sie ihn, wenn der Oberfläche Beleuchtung entgeht, die sich über kurze Distanz ändert."
+    },
+    {
+      "table": "ui",
+      "key": "When on, the run measures only the images ticked OK and saved here.",
+      "source": "When on, the run measures only the images ticked OK and saved here.",
+      "source_sha256": "dc732981bcf105141b1988c8ba432928470c4869207a218b341fb16f90eba45c",
+      "translation": "Wenn aktiv, misst der Lauf nur die Bilder, die hier mit OK markiert und gespeichert wurden."
+    },
+    {
+      "table": "ui",
+      "key": "Where the network's output is cut. Lower it to recover faint branches along with false positives; raise it to keep only confident pixels, which tends to break weak connections.",
+      "source": "Where the network's output is cut. Lower it to recover faint branches along with false positives; raise it to keep only confident pixels, which tends to break weak connections.",
+      "source_sha256": "fb085af6ec751dccfa540ab4ca098b46357de61ed667f170157b4c8a90f9593d",
+      "translation": "Wo die Ausgabe des Netzwerks abgeschnitten wird. Senken Sie den Wert, um schwache Verzweigungen samt falsch positiver Pixel zurückzugewinnen; erhöhen Sie ihn, um nur sichere Pixel zu behalten, was schwache Verbindungen eher trennt."
+    },
+    {
+      "table": "ui",
+      "key": "Which global threshold provides the floor, when the rule above is a threshold algorithm's level. The same algorithms the Method box offers on their own.",
+      "source": "Which global threshold provides the floor, when the rule above is a threshold algorithm's level. The same algorithms the Method box offers on their own.",
+      "source_sha256": "d15089516a16771ab05c9a70486354cc6b17d5dd59d2d553df2ff3cde34b8a0f",
+      "translation": "Welcher globale Schwellenwert die Untergrenze liefert, wenn die Regel oben die Schwelle eines Schwellenwertverfahrens ist. Dieselben Verfahren, die das Feld Methode auch einzeln anbietet."
+    },
+    {
+      "table": "ui",
+      "key": "Which vesselness filter measures how tube-like each pixel's neighbourhood is. Frangi is the usual choice; Sato responds more to bright tubes, Meijering to thin neurite-like ones.",
+      "source": "Which vesselness filter measures how tube-like each pixel's neighbourhood is. Frangi is the usual choice; Sato responds more to bright tubes, Meijering to thin neurite-like ones.",
+      "source_sha256": "878fa3debab7d72047fb840b80db07cf5baa7e44565d954d5440d8047e25464e",
+      "translation": "Welcher Vesselness-Filter misst, wie röhrenförmig die Umgebung jedes Pixels ist. Frangi ist die übliche Wahl; Sato spricht stärker auf helle Röhren an, Meijering auf dünne, neuritenartige."
+    },
+    {
+      "table": "ui",
+      "key": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
+      "source": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
+      "source_sha256": "d8229a4be8729ffabea08e0fcef6064cffc85a7787d02f745473556d886e6738",
+      "translation": "Die Bedingungen und OK-Markierungen in figure_annotations.csv im Quellordner schreiben. Der Lauf im Abbildungsmodus liest diese Datei."
+    },
+    {
+      "table": "ui",
+      "key": "Write the values tuned here into the settings the run reads.",
+      "source": "Write the values tuned here into the settings the run reads.",
+      "source_sha256": "60dcec1d9ed96dec5eded21f0d0fa694f5b248762915868a6695ff690d4d4c81",
+      "translation": "Die hier abgestimmten Werte in die Einstellungen schreiben, die der Lauf liest."
+    },
+    {
+      "table": "ui",
+      "key": "Zeiss CZI, one plane per file, named like E01/plate1_S00001_T00009_C00001.czi. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nWritten with pylibCZIrw, each file carrying its channel name in the CZI metadata. The scene index is not a well name, so the well comes from the folder.",
+      "source": "Zeiss CZI, one plane per file, named like E01/plate1_S00001_T00009_C00001.czi. Naming: zeiss_zen_split_tiles. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nWritten with pylibCZIrw, each file carrying its channel name in the CZI metadata. The scene index is not a well name, so the well comes from the folder.",
+      "source_sha256": "4e4db4f46e7b4882f42afa2303fef3f430e2dce3f04180c0c17eace2491ae377",
+      "translation": "Zeiss CZI, eine Ebene pro Datei, benannt wie E01/plate1_S00001_T00009_C00001.czi. Benennung: zeiss_zen_split_tiles. Füllt die Ansicht Import: Bilder, Zell-/Zellkern-/Pathogenmasken und eine Messwerttabelle, danach Vorschauen.\n\nMit pylibCZIrw geschrieben; jede Datei trägt ihren Kanalnamen in den CZI-Metadaten. Der Szenenindex ist kein Well-Name, daher stammt das Well aus dem Ordner."
+    },
+    {
+      "table": "ui",
+      "key": "comma-separated regular expressions, e.g. ^\\d+$, μm",
+      "source": "comma-separated regular expressions, e.g. ^\\d+$, μm",
+      "source_sha256": "52f6e89ffff3a5d4bfc05adb6e160d729964f22141e7a80f7b60c0d32abacc9e",
+      "translation": "kommagetrennte reguläre Ausdrücke, z. B. ^\\d+$, μm"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR settings template (*.json);;All files (*)",
+      "source": "spaCR settings template (*.json);;All files (*)",
+      "source_sha256": "3d266d93552cc353f5bb8643bedcfd7c7cc3a580c80add225e59bafb8f083160",
+      "translation": "spaCR-Einstellungsvorlage (*.json);;Alle Dateien (*)"
+    },
+    {
+      "table": "ui",
+      "key": "{count} setting(s) in this template are not in this module any more and will be ignored: {shown}{more}.",
+      "source": "{count} setting(s) in this template are not in this module any more and will be ignored: {shown}{more}.",
+      "source_sha256": "402e38ac9f3dee45163550d8e1b2479d5970fc04cf520599bdd79fb13004eaaf",
+      "translation": "{count} Einstellung(en) in dieser Vorlage gibt es in diesem Modul nicht mehr; sie werden ignoriert: {shown}{more}."
+    },
+    {
+      "table": "ui",
+      "key": "{done} Every suggestion on this page is judged; Enter loads the next page.",
+      "source": "{done} Every suggestion on this page is judged; Enter loads the next page.",
+      "source_sha256": "569fc0133b3dbc13db66ef4215fc30b8c81dbfaa40025fe2da48082a7fa64406",
+      "translation": "{done} Jeder Vorschlag auf dieser Seite ist beurteilt; Enter lädt die nächste Seite."
+    },
+    {
+      "table": "ui",
+      "key": "{key} is neither a checkpoint file nor a model zoo detector.",
+      "source": "{key} is neither a checkpoint file nor a model zoo detector.",
+      "source_sha256": "55a725deab4c0302de9dda221eb0c1941dfee214986010ec957b17f50808e769",
+      "translation": "{key} ist weder eine Checkpoint-Datei noch ein Detektor aus dem Model Zoo."
+    },
+    {
+      "table": "ui",
+      "key": "{method} ({how}){inverted}{centres} found {n} object(s) — {combine}d into the mask",
+      "source": "{method} ({how}){inverted}{centres} found {n} object(s) — {combine}d into the mask",
+      "source_sha256": "6e783e9dbdb6ce5b8a7ddd499be86f2cac69598fab952b7263e1368600192596",
+      "translation": "{method} ({how}){inverted}{centres} fand {n} Objekt(e) — per {combine} in die Maske übernommen"
+    },
+    {
+      "table": "ui",
+      "key": "{method}{centres} found no objects — the mask is unchanged. Lower the minimum area, or try the other side.",
+      "source": "{method}{centres} found no objects — the mask is unchanged. Lower the minimum area, or try the other side.",
+      "source_sha256": "39ca382368fab2a84a8c766b04a7bb0b8c6c9952e91a6b53f578dc207f44f79a",
+      "translation": "{method}{centres} fand keine Objekte — die Maske ist unverändert. Senken Sie die Mindestfläche oder versuchen Sie die andere Seite."
+    },
+    {
+      "table": "ui",
+      "key": "{module} needs the Python package {package}, which is not installed here.",
+      "source": "{module} needs the Python package {package}, which is not installed here.",
+      "source_sha256": "8999b6e232faac97d0c1fcba95e2cabdbb81deb06eb1e40b741461784d0a640a",
+      "translation": "{module} benötigt das Python-Paket {package}, das hier nicht installiert ist."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is signing in. Its sign-in page opens in your browser; if it asks for a code, paste it below and press Send.",
+      "source": "{name} is signing in. Its sign-in page opens in your browser; if it asks for a code, paste it below and press Send.",
+      "source_sha256": "eec7cd5e9ce0a95f2ff8476419bbd1696b2a3cb95ddaa632bb09ea01e9f27fbe",
+      "translation": "{name} meldet sich an. Die Anmeldeseite öffnet sich in Ihrem Browser; falls ein Code verlangt wird, fügen Sie ihn unten ein und klicken Sie auf Senden."
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {count} plaques, mean area {area:.0f} px.",
+      "source": "{name}: {count} plaques, mean area {area:.0f} px.",
+      "source_sha256": "9ebecc62d81786164136917d7d4b83bf4a9ec3afd7ae19825085f4f83a55702e",
+      "translation": "{name}: {count} Plaques, mittlere Fläche {area:.0f} px."
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {regions} plaque wells found, {words} words read. Click a well, then Plaque preview, or Find plaques in all wells.",
+      "source": "{name}: {regions} plaque wells found, {words} words read. Click a well, then Plaque preview, or Find plaques in all wells.",
+      "source_sha256": "0e5ba4788c5ee974d65446c37e546da1c7766b39403c467f52766f351968e839",
+      "translation": "{name}: {regions} Plaque-Wells gefunden, {words} Wörter gelesen. Klicken Sie auf ein Well, dann auf Plaque-Vorschau oder Plaques in allen Vertiefungen finden."
+    },
+    {
+      "table": "ui",
+      "key": "{n} rejected suggestions were handed to this round's fit: a rejection is an example of the other class.",
+      "source": "{n} rejected suggestions were handed to this round's fit: a rejection is an example of the other class.",
+      "source_sha256": "ef4d4bf1ff8d454c6b31ff1f643c6083993b403085e624ed6da84ffe17776018",
+      "translation": "{n} abgelehnte Vorschläge gingen in die Anpassung dieser Runde ein: Eine Ablehnung ist ein Beispiel der anderen Klasse."
+    },
+    {
+      "table": "ui",
+      "key": "{paper}: {n} figures, {m} with legends (licence {licence}), in {path}.",
+      "source": "{paper}: {n} figures, {m} with legends (licence {licence}), in {path}.",
+      "source_sha256": "870a50738e7def3643fb71bd772bc2274d4d9dd902212e61f8a17e5f561a2d0c",
+      "translation": "{paper}: {n} Abbildungen, {m} mit Legenden (Lizenz {licence}), in {path}."
+    }
+  ]
+}

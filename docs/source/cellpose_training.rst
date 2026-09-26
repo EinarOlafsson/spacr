@@ -9,6 +9,8 @@ To follow along, download the
 `six example image/mask pairs <tutorials/examples/Cellpose_training_images_masks.zip>`__
 and extract them. Set Source to the extracted ``training`` folder. Review the
 supplied cell masks in Make Masks, then follow the settings and Run steps below.
+The archive's ``apply`` folder holds three more images from wells that are not
+in the training set; use it to try the trained checkpoint in Apply.
 
 Prepare images and masks
 ------------------------
@@ -93,9 +95,10 @@ the console reports the saved checkpoint path. With the default output
 location, checkpoints are under ``<src>/models/cellpose_model/models``.
 With a chosen ``save_path``, they are under ``<save_path>/models``.
 
-Open **Apply**, select a separate image folder and check that **Custom model**
-points to the checkpoint you want. Inspect a preview before processing the
-folder. Apply writes label masks into that image folder's ``masks`` subfolder.
+Open **Apply**, select a separate image folder, such as the example's ``apply``
+folder, and check that **Custom model** points to the checkpoint you want.
+Turn on **Save**, which is off by default. Inspect a preview before processing
+the folder. Apply writes label masks into that image folder's ``masks`` subfolder.
 Use separate labelled images to evaluate segmentation before applying the
 model to an entire experiment.
 

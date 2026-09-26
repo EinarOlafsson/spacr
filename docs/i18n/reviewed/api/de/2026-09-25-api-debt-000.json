@@ -1,0 +1,960 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.cpu_modes#3",
+      "source": "Maxima + propagate finds bright centres in a blurred image and uses them as markers for a watershed on inverted intensity. A per-seed intensity cut then trims each basin, or a common intensity mask limits the watershed. This can separate touching objects when they have distinct detected centres; it does not implement CellProfiler's distance/intensity propagation cost. The seed count is measured before hole filling and area filtering, so it can exceed the number of surviving labels. See :func:`spacr.qt.mask_engine.maxima_propagate_instances` for all four rules.",
+      "source_sha256": "825888e34c3da8a736e2a1cc34fc43d69468863110204c6ebb9b3fe4a74b1f68",
+      "context": "Maxima + propagate finds bright centres in a blurred image and uses them as markers for a watershed on inverted intensity. A per-seed intensity cut then trims each basin, or a common intensity mask limits the watershed. This can separate touching objects when they have distinct detected centres; it does not implement CellProfiler's distance/intensity propagation cost. The seed count is measured before hole filling and area filtering, so it can exceed the number of surviving labels. See :func:`spacr.qt.mask_engine.maxima_propagate_instances` for all four rules.",
+      "translation": "Der Modus Maxima + propagate findet helle Zentren in einem geglätteten Bild und verwendet sie als Marker für eine Wasserscheide auf der invertierten Intensität. Anschließend beschneidet ein Intensitätsschnitt pro Saatpunkt jedes Becken, oder eine gemeinsame Intensitätsmaske begrenzt die Wasserscheide. Dadurch lassen sich einander berührende Objekte trennen, wenn für sie getrennte Zentren erkannt wurden; die Distanz-/Intensitäts-Ausbreitungskosten von CellProfiler implementiert der Modus nicht. Die Anzahl der Saatpunkte wird vor dem Füllen von Löchern und der Flächenfilterung gemessen und kann daher die Anzahl der verbleibenden Labels übersteigen. Siehe :func:`spacr.qt.mask_engine.maxima_propagate_instances` für alle vier Regeln.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes#4",
+      "source": "WHAT IS NOT HERE, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested crop. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
+      "source_sha256": "4288a6aafe7cfcc155385e59e3aaff0dc88c435d9f0fc20979690afd09b78dcb",
+      "context": "What is not here, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested extracted image region. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
+      "translation": "WAS HIER FEHLT, UND WARUM. Lokale MITTELWERT- und lokale GAUSS-Schwellenwertbildung werden nicht erneut angeboten: Sie entsprechen dem Modus Adaptiver Schwellenwert, der den ``adaptive``-Zweig der Organellen-Engine mit einer Blockgröße und einem Offset ausführt. Lokales OTSU wird ebenfalls nicht erneut angeboten: Es ist der Schalter \"Lokaler Schwellenwert (ungleichmäßige Beleuchtung)\" im einfachen Otsu-Modus, den die Ganzbilderkennung verwendet. Andere benannte Schwellenwerte ignorieren gespeicherte Einstellungen für Lokales Otsu und die Klassenanzahl; allein Multi-Otsu verwendet in beiden Geltungsbereichen die ausgewählte Klassenanzahl und das ausgewählte Band. Einfaches Otsu behält seine bisherige Vorverarbeitung der Lupe bei, während die anderen Schwellenwerte die Ganzbild-Engine auf den angeforderten Bildausschnitt anwenden. Niblack verwendet ``T = m - k*s``; Sauvola verwendet ``T = m*(1 + k*(s/R - 1))``, wobei ``m`` und ``s`` der lokale Mittelwert und die lokale Standardabweichung sind. Die Engine liefert float32-Werte, ohne deren Wertebereich umzuskalieren, daher ist das standardmäßige Sauvola-``R`` von scikit-image gleich 1. Diese Formeln unterscheiden sich, und eine Änderung der Intensitätsskala kann das Ergebnis von Sauvola verändern.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#0",
+      "source": "Everything the CPU modes read, as one hashable value.",
+      "source_sha256": "fbd1b57e408158db1604856372782d60eaebee43838b2bba36b566e82d34d146",
+      "context": "Everything the CPU modes read, as one hashable value.",
+      "translation": "Alles, was die CPU-Modi lesen, als ein einziger hashbarer Wert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#1",
+      "source": "One tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams` is one: it rides on the magnifier's request key, and a mode that falls back to another must still find its own settings in it.",
+      "source_sha256": "7c4015cf3b18c910d0e8e06482a68da43b6dcc8fb3403f14b0ab89d5b36551b8",
+      "context": "One tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams` is one: it rides on the magnifier's request structured-data name, and a mode that falls back to another must still find its own settings in it.",
+      "translation": "Ein einziges Tupel aus demselben Grund, aus dem auch :class:`spacr.qt.organelle_modes.MethodParams` eines ist: Es wird im Schlüssel der Lupenanfrage mitgeführt, und ein Modus, der auf einen anderen zurückfällt, muss darin trotzdem seine eigenen Einstellungen finden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#10",
+      "source": "which global threshold provides the floor under the ``threshold`` stop rule.",
+      "source_sha256": "151e17a76d129c7e118173c4c6cb3f54bb474926ff447c477c8b79f44aa41b12",
+      "context": "which global threshold provides the floor under the ``threshold`` stop rule.",
+      "translation": "welcher globale Schwellenwert die Untergrenze für die Stoppregel ``threshold`` liefert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#11",
+      "source": "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting.",
+      "source_sha256": "5b5c5ca8e52733f3975c7f6cc08badd55d59cddf47663ba3148844b4c7035f26",
+      "context": "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting.",
+      "translation": "``intensity``- oder ``distance``-Wasserscheide für sekundäre Objekte; die Maxima-Erkennung ignoriert diese Einstellung.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#2",
+      "source": "dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background.",
+      "source_sha256": "45d560208748d72ea7429bd0f301a277fa3300a89044d2b63c87756cbee1eb85",
+      "context": "dimensionless local contrast weight; default 0.2 for both modes. Niblack uses ``T = m - k*s``: increasing k lowers the threshold, admitting more bright pixels and fewer dark pixels. Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats without range rescaling, giving scikit-image's default ``R = 1``. Its response to k depends on the local mean m and deviation s; positive k does not guarantee rejection of a flat background.",
+      "translation": "dimensionsloses lokales Kontrastgewicht; Standardwert 0.2 für beide Modi. Niblack verwendet ``T = m - k*s``: Eine Erhöhung von k senkt den Schwellenwert und lässt mehr helle Pixel und weniger dunkle Pixel zu. Sauvola verwendet ``T = m*(1 + k*(s/R - 1))``. Die Engine übergibt Gleitkommawerte ohne Umskalierung des Wertebereichs, womit der Standardwert ``R = 1`` von scikit-image gilt. Die Wirkung von k hängt vom lokalen Mittelwert m und der Abweichung s ab; ein positives k garantiert nicht, dass ein flacher Hintergrund verworfen wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#3",
+      "source": "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound.",
+      "source_sha256": "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
+      "context": "the Gaussian blur before the maxima are found, in pixels. separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the microscope field of view is genuinely noisy, or the two blurs compound.",
+      "translation": "die Gaußsche Unschärfe vor der Suche nach den Maxima, in Pixeln. GETRENNT VOM ENTRAUSCHEN DER BILDVERBESSERUNGSKETTE, das bereits gelaufen ist, wenn ein Detektor das Bild sieht: Diese Unschärfe gibt es, weil die Unschärfe, die einem Objekt ein einziges Zentrum gibt, meist weit stärker ist als die Unschärfe, durch die man den RAND des Objekts messen möchte, und die Ausbreitung misst den Rand auf demselben geglätteten Bild. Lassen Sie das Entrauschen der Kette ausgeschaltet, sofern das Sichtfeld nicht wirklich verrauscht ist, sonst summieren sich die beiden Unschärfen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#4",
+      "source": "the smallest gap between two seeds, in pixels; about one object radius.",
+      "source_sha256": "967a42f4926266b77a09a1b16b5340d7ee81f282da9fc09730d77510862a145c",
+      "context": "the smallest gap between two seeds, in pixels; about one object radius.",
+      "translation": "der kleinste Abstand zwischen zwei Saatpunkten, in Pixeln; etwa ein Objektradius.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#5",
+      "source": "how bright a maximum must be to be a seed.",
+      "source_sha256": "d4b9f30070980ea3ce6abb60557f3b0c3c9bac18ed586ec662314f8ab829851f",
+      "context": "how bright a maximum must be to be a seed.",
+      "translation": "wie hell ein Maximum sein muss, um ein Saatpunkt zu sein.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#6",
+      "source": "read the seed level as a percentile of the blurred image rather than as an absolute intensity.",
+      "source_sha256": "f257b5f597bdf4c4b933c5f23b7789a866f2b5a0c94bc0a3e731b9ae34b32e33",
+      "context": "read the seed level as a percentile of the blurred image rather than as an absolute intensity.",
+      "translation": "die Saatpunktschwelle als Perzentil des geglätteten Bildes statt als absolute Intensität lesen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#8",
+      "source": "a key of :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.",
+      "source_sha256": "d286e31d307a43bef4d7b3ee6749f6b264e4f57734b27e9774291a65030dcef1",
+      "context": "a key of :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.",
+      "translation": "ein Schlüssel aus :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#9",
+      "source": "the fraction, intensity or percentile the stop rule reads.",
+      "source_sha256": "0585c2133c1a07f2f6964ff752c0d00cb07438abd78bdd7057134391c5e6323d",
+      "context": "the fraction, intensity or percentile the stop rule reads.",
+      "translation": "der Anteil, die Intensität oder das Perzentil, das die Stoppregel ausliest.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.engine_algorithm#0",
+      "source": "The name :mod:`spacr.qt.mask_engine` knows ``mode`` by.",
+      "source_sha256": "3e1eae45f98d8ad0726e1ee80196ef4245becea8d22d8f4578fefd7d8129b772",
+      "context": "The name :mod:`spacr.qt.mask_engine` knows ``mode`` by.",
+      "translation": "Der Name, unter dem :mod:`spacr.qt.mask_engine` ``mode`` kennt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.engine_algorithm#1",
+      "source": "Multi-Otsu is asked for by a class count rather than by name, so it maps back to ``otsu``; the engine's ``classes`` parameter is what makes it multi-level. Everything else is its own name.",
+      "source_sha256": "a43331146c2ebfdcef88ce35443595b9785371cfbc4f51f867187114df0e1340",
+      "context": "Multi-Otsu is asked for by a class count rather than by name, so it maps back to ``otsu``; the engine's ``classes`` parameter is what makes it multi-level. Everything else is its own name.",
+      "translation": "Multi-Otsu wird über eine Klassenanzahl statt über einen Namen angefordert und wird daher wieder ``otsu`` zugeordnet; erst der Parameter ``classes`` der Engine macht es mehrstufig. Alles andere trägt seinen eigenen Namen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.engine_algorithm#2",
+      "source": "the detector mode key to map to an engine algorithm.",
+      "source_sha256": "7778e21eaa66d3857902cc5c661a68c0005f05f7dc1117baea72e13a48ba7079",
+      "context": "the detector mode key to map to an engine algorithm.",
+      "translation": "der Schlüssel des Detektormodus, der einem Engine-Algorithmus zugeordnet werden soll.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.guidance#0",
+      "source": "What ``mode`` suits, as one sentence a picker can show.",
+      "source_sha256": "ddf7010085aa92c7b6872792fadfb3dfa21d03ddec409082f0dd5626d8b9ec88",
+      "context": "What ``mode`` suits, as one sentence a picker can show.",
+      "translation": "Wofür sich ``mode`` eignet, als ein Satz, den eine Auswahlliste anzeigen kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.guidance#1",
+      "source": "the detector mode key, such as ``otsu`` or ``li``.",
+      "source_sha256": "49f72c308ec6c35aab077a12a3dc04b542b7980e278202970bb134ad7c85b52c",
+      "context": "the detector mode key, such as ``otsu`` or ``li``.",
+      "translation": "der Schlüssel des Detektormodus, etwa ``otsu`` oder ``li``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#0",
+      "source": "Grow objects out of the local maxima of ``image``.",
+      "source_sha256": "c910a95b9bdd8de1b7a36b023e5ae9f14fcf6c3c4a1cbb387dcd32b8b83f0b90",
+      "context": "Grow objects out of the local maxima of ``image``.",
+      "translation": "Objekte aus den lokalen Maxima von ``image`` wachsen lassen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#1",
+      "source": "A thin wrapper on :func:`spacr.qt.mask_engine.maxima_propagate_instances`, so the screen has one place to turn its controls into that call's keywords.",
+      "source_sha256": "cdea70c8ddff7f69d67f8c6785bf57be477528104538221f761d5587b262a87d",
+      "context": "A thin wrapper on :func:`spacr.qt.mask_engine.maxima_propagate_instances`, so the application view has one place to turn its controls into that call's keywords.",
+      "translation": "Ein dünner Wrapper um :func:`spacr.qt.mask_engine.maxima_propagate_instances`, damit die Ansicht eine einzige Stelle hat, an der sie ihre Steuerelemente in die Schlüsselwortargumente dieses Aufrufs umsetzt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#2",
+      "source": "the 2-D field or region, already through the chain.",
+      "source_sha256": "e267dbda139293dc9d445c2f7e637f7c5d2d3153e60436ff06158cc8c3486253",
+      "context": "the 2-D field or region, already through the chain.",
+      "translation": "das 2-D-Sichtfeld oder die Region, die bereits die Kette durchlaufen hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#3",
+      "source": "the settings as the panel holds them.",
+      "source_sha256": "6c19a3745f9cc82e43302c57f4be4b95ceb5709a47c04ef7dbbe51c1fd576cb8",
+      "context": "the settings as the panel holds them.",
+      "translation": "die Einstellungen, wie das Panel sie hält.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#4",
+      "source": "the smallest object to keep, in pixels.",
+      "source_sha256": "7b84ac670e29463bc8c8686feb80e01f05e951280f0f2c84e7a1fe6d14868ec5",
+      "context": "the smallest object to keep, in pixels.",
+      "translation": "das kleinste beizubehaltende Objekt, in Pixeln.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.propagate#5",
+      "source": "close the holes inside each grown object.",
+      "source_sha256": "a3da86f2927526d8e83b5916ef19ba4c568471ffb30a6da45bed9576158ba530",
+      "context": "close the holes inside each grown object.",
+      "translation": "die Löcher innerhalb jedes gewachsenen Objekts schließen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.provenance#0",
+      "source": "The parameters this mode actually read, for a mask's ledger entry.",
+      "source_sha256": "6f64fb7e98ebeb348e713ad431d9520cdceae2cf626c18b99899d03dc58efb44",
+      "context": "The parameters this mode actually read, for a mask's ledger entry.",
+      "translation": "Die Parameter, die dieser Modus tatsächlich liest, für den Protokolleintrag einer Maske.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.provenance#2",
+      "source": "the CPU-mode settings carried by the detection request.",
+      "source_sha256": "e67bb95ca456966be8be567b6d9744ec6043b373b30e4c79f335f18283e89e17",
+      "context": "the CPU-mode settings carried by the detection request.",
+      "translation": "die CPU-Modus-Einstellungen, die die Erkennungsanfrage mitführt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.provenance#3",
+      "source": "``{field: value}``, JSON-safe; empty for a mode that reads none of them -- a global threshold reads only the Otsu category's own settings, which the entry already carries.",
+      "source_sha256": "7e7c95b3cedd164bd0395985d5e378f7337eff05230bfc0ff92818256a7a7c98",
+      "context": "``{field: value}``, JSON-safe; empty for a mode that reads none of them -- a global threshold reads only the Otsu category's own settings, which the entry already carries.",
+      "translation": "``{field: value}``, JSON-sicher; leer für einen Modus, der keinen davon liest -- ein globaler Schwellenwert liest nur die eigenen Einstellungen der Otsu-Kategorie, die der Eintrag bereits enthält.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#0",
+      "source": "Grow secondary labels from the existing primary-mask identities.",
+      "source_sha256": "adf87bec82eb800815c74984292dd5c552a3ac211577ad9a39c60503023cc55b",
+      "context": "Grow secondary labels from the existing primary-mask identities.",
+      "translation": "Sekundäre Labels aus den vorhandenen Identitäten der Primärmaske wachsen lassen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#1",
+      "source": "prepared 2-D field or magnifier crop.",
+      "source_sha256": "cd0598712b7a59cef3707bb458d34bfdd600512138f6785ac1d9d0a3eda5b7f2",
+      "context": "prepared 2-D microscope field of view or magnifier extracted image region.",
+      "translation": "vorbereitetes 2-D-Sichtfeld oder Bildausschnitt der Lupe.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#2",
+      "source": "matching integer primary labels; no seeds are detected.",
+      "source_sha256": "9bc51a9c87b18cdfe22306abc1cbeeda418792f885edf8a3885d24a6118b8de0",
+      "context": "matching integer primary labels; no seeds are detected.",
+      "translation": "passende ganzzahlige Primärlabels; es werden keine Saatpunkte erkannt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#3",
+      "source": "shared growth settings; centre-finding settings are ignored.",
+      "source_sha256": "42085411df62ac35d7960ac43bee3bb21f574110b4f3754abb537ab82560233e",
+      "context": "shared growth settings; centre-finding settings are ignored.",
+      "translation": "gemeinsame Wachstumseinstellungen; Einstellungen zur Zentrumssuche werden ignoriert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#4",
+      "source": "minimum grown area, including the primary footprint.",
+      "source_sha256": "9f65d5fff853d9cb210465f8f8da2ea9859f5aa6a844f3e2b00bff22f7b23c69",
+      "context": "minimum grown area, including the primary footprint.",
+      "translation": "minimale gewachsene Fläche, einschließlich der Fläche des Primärobjekts.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#5",
+      "source": "fill holes per label before the area filter.",
+      "source_sha256": "bce8408f365f1e0bf8cd5c2c7ad2db5dce5cb6c5c5877d1abeea1329e71d9cc9",
+      "context": "fill holes per label before the area filter.",
+      "translation": "Löcher pro Label vor dem Flächenfilter füllen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.cpu_modes.secondary#6",
+      "source": "mask_engine.SecondaryResult with exact IDs and relationship diagnostics.",
+      "source_sha256": "d46db1254a5f003d3c13cf38329f2107ea0e01c8f3ea691a68b87ca9bbb376d0",
+      "context": "mask_engine.SecondaryResult with exact IDs and relationship diagnostics.",
+      "translation": "mask_engine.SecondaryResult mit genauen IDs und Beziehungsdiagnostik.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.CropThumbnails.drop_cache_budget_entry#1",
+      "source": "cache key of the entry to evict, an ``(abspath, mtime_ns, size, px)`` tuple; an unknown key is ignored and ``False`` is returned.",
+      "source_sha256": "0ced8e4f8e2918146fa1de35793688676938e46e9f2264f7a87eb203ece43d9d",
+      "context": "cache structured-data name of the entry to evict, an ``(abspath, mtime_ns, size, px)`` tuple; an unknown structured-data name is ignored and ``False`` is returned.",
+      "translation": "Cache-Schlüssel des zu entfernenden Eintrags, ein ``(abspath, mtime_ns, size, px)``-Tupel; ein unbekannter Schlüssel wird ignoriert, und ``False`` wird zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.CropThumbnails.peek#2",
+      "source": "path of the crop image; an empty value returns ``None``.",
+      "source_sha256": "ccdbbf147d895762a947f66df4f83d150b15285132f44e66849937a5d40dd4ee",
+      "context": "path of the extracted image region image; an empty value returns ``None``.",
+      "translation": "Pfad des Bildausschnitts; bei einem leeren Wert wird ``None`` zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.CropThumbnails.pixmap#1",
+      "source": "path of the crop image to decode; an empty value returns ``None``.",
+      "source_sha256": "e2d4145afa475ef6f46cd6ed9d8539ff411252c4a26321d8648ec2639b2732a1",
+      "context": "path of the extracted image region image to decode; an empty value returns ``None``.",
+      "translation": "Pfad des zu dekodierenden Bildausschnitts; bei einem leeren Wert wird ``None`` zurückgegeben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.CropThumbnails.prime#2",
+      "source": "path of the crop image to decode and cache, as for :meth:`pixmap`.",
+      "source_sha256": "8bff16b6be6d3ef981d2f6e6ea32738e4c324d2f787665b88a2985b64ee15076",
+      "context": "path of the extracted image region image to decode and cache, as for :meth:`pixmap`.",
+      "translation": "Pfad des Bildausschnitts, der dekodiert und zwischengespeichert werden soll, wie bei :meth:`pixmap`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.resolve_crop_path#2",
+      "source": "crop path as stored in ``png_list``; returned unchanged when it is empty or already exists as a file.",
+      "source_sha256": "e2d5f33ad649851dee388a53a2b7f2a2621dd8c9337e9c5c6be95448afb3df93",
+      "context": "extracted-image-region path as stored in ``png_list``; returned unchanged when it is empty or already exists as a file.",
+      "translation": "Pfad des Bildausschnitts, wie in ``png_list`` gespeichert; wird unverändert zurückgegeben, wenn er leer ist oder bereits als Datei existiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushPanel.closeEvent#1",
+      "source": "the close event, passed on to the base class after painting stops and the panel unsubscribes from the layer stack and the session.",
+      "source_sha256": "52e963f19e425080083ea99a28dc49c0ba1592e4aec314aa87237d47d46ace8d",
+      "context": "the close event, passed on to the base class after painting stops and the panel unsubscribes from the layer stack and the session.",
+      "translation": "das Schließereignis; es wird an die Basisklasse weitergegeben, nachdem das Malen beendet ist und sich das Panel vom Ebenenstapel und von der Sitzung abgemeldet hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.key#1",
+      "source": "the canvas that received the key press; not used.",
+      "source_sha256": "60d0ce8ab7c024833af9f5b52da7eada489612802b473088d884529f681ad208",
+      "context": "the canvas that received the key press; not used.",
+      "translation": "die Zeichenfläche, die den Tastendruck empfangen hat; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.key#2",
+      "source": "the key event; Backspace or Delete undo, and its text ``[`` or ``]`` shrinks or grows the radius by a factor of 1.5 (never below 0.5).",
+      "source_sha256": "c17b17336d821f9665235972d6ba42f84910a2b47293a80542176b13e636e0f8",
+      "context": "the key event; Backspace or Delete undo, and its text ``[`` or ``]`` shrinks or grows the radius by a factor of 1.5 (never below 0.5).",
+      "translation": "das Tastenereignis; Backspace oder Delete machen einen Strich rückgängig, und sein Text ``[`` oder ``]`` verkleinert bzw. vergrößert den Radius um den Faktor 1.5 (nie unter 0.5).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.move#2",
+      "source": "the canvas that received the motion; not used.",
+      "source_sha256": "f576b0bf3adee09c973fde38d9c8feae9e37cc9806c040d85765ae36b797c163",
+      "context": "the canvas that received the motion; not used.",
+      "translation": "die Zeichenfläche, die die Bewegung empfangen hat; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.move#3",
+      "source": "world coordinate under the pointer, where the next dab is laid.",
+      "source_sha256": "7b42688c733b7c5104fda452f1ea61ad81dc6940c50f12032473ec5b6b67e649",
+      "context": "world coordinate under the pointer, where the next dab is laid.",
+      "translation": "Weltkoordinate unter dem Zeiger, an der der nächste Pinselabdruck gesetzt wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.move#4",
+      "source": "the mouse move event; its held buttons are read, and nothing is painted unless the left or right button is down.",
+      "source_sha256": "1c055f4f5e0d54f1ff6b62ad08af8652237640f2e399ad763cd973958a98d353",
+      "context": "the mouse move event; its held buttons are read, and nothing is painted unless the left or right button is down.",
+      "translation": "das Mausbewegungsereignis; die gedrückten Maustasten werden ausgelesen, und es wird nichts gemalt, solange nicht die linke oder rechte Taste gedrückt ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.press#1",
+      "source": "the canvas that received the press; not used.",
+      "source_sha256": "c216f4fcd4a9e0f666a8d63649f2390ec8602987a19e303bdbfead37839a25ce",
+      "context": "the canvas that received the press; not used.",
+      "translation": "die Zeichenfläche, die das Drücken empfangen hat; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.press#2",
+      "source": "world coordinate under the pointer, where the first dab is laid.",
+      "source_sha256": "222887cbfb011fa97325ff5f9a25801f3aa0e52a98ff1c28d9034be3bb920bd8",
+      "context": "world coordinate under the pointer, where the first dab is laid.",
+      "translation": "Weltkoordinate unter dem Zeiger, an der der erste Pinselabdruck gesetzt wird.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.press#3",
+      "source": "the mouse press event; its button picks painting (left) or erasing (right), and any other button is ignored.",
+      "source_sha256": "ae28e594c0334ae65b600566e91feee16eb78bbec12e36333c05afd535f3274b",
+      "context": "the mouse press event; its button picks painting (left) or erasing (right), and any other button is ignored.",
+      "translation": "das Ereignis beim Drücken einer Maustaste; die Taste wählt Malen (links) oder Radieren (rechts), jede andere Taste wird ignoriert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.release#1",
+      "source": "the canvas that received the release; not used.",
+      "source_sha256": "edd06fbf08e60f2260531ce9f33fd7dbdf15c5e3229037c1c447a2601c6fe9da",
+      "context": "the canvas that received the release; not used.",
+      "translation": "die Zeichenfläche, die das Loslassen empfangen hat; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.release#2",
+      "source": "world coordinate under the pointer; not used.",
+      "source_sha256": "d67ebd803121a6b2b2e1b55786a965e72fc828c9a0db4311f1b4c00a14f62a6a",
+      "context": "world coordinate under the pointer; not used.",
+      "translation": "Weltkoordinate unter dem Zeiger; nicht verwendet.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.BrushTool.release#3",
+      "source": "the mouse release event; not used.",
+      "source_sha256": "1af7d067b20083aa52a54383b417c88094411bb881223d1b8f82b1f8470642fb",
+      "context": "the mouse release event; not used.",
+      "translation": "das Ereignis beim Loslassen der Maustaste; nicht verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.TrackCurationPanel.load#2",
+      "source": "tracks CSV to read; its ``.curation.json`` ledger beside it is read back if present. A read or validation failure is shown in the status line and returns ``None``.",
+      "source_sha256": "76500062ec10a693d2aa7d28c57effa88e8c387121f68dea8e88ba82c1b2dad2",
+      "context": "tracks CSV to read; its ``.curation.json`` ledger beside it is read back if present. A read or validation failure is shown in the status line and returns ``None``.",
+      "translation": "zu lesende Tracks-CSV; das daneben liegende ``.curation.json``-Protokoll wird, falls vorhanden, ebenfalls eingelesen. Ein Lese- oder Validierungsfehler wird in der Statuszeile angezeigt und liefert ``None``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.curation_tool.TrackCurationPanel.set_tracks#1",
+      "source": "track table to curate; it must contain ``frame`` and ``track_id`` and is copied by :class:`spacr.curation.TrackCuration`.",
+      "source_sha256": "13aaf1c03017e1ede6c26f7727ccbbe2455f6b1486db721c3797eac6b459cb9f",
+      "context": "track table to curate; it must contain ``frame`` and ``track_id`` and is copied by :class:`spacr.curation.TrackCuration`.",
+      "translation": "zu kuratierende Track-Tabelle; sie muss ``frame`` und ``track_id`` enthalten und wird von :class:`spacr.curation.TrackCuration` kopiert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain#4",
+      "source": "Background subtraction precedes PSF processing, deep restoration and denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, restoration, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
+      "source_sha256": "3004073872942b886eb0b0d00b2dbde8c19201a5b48dc5d593429eaf06373898",
+      "context": "Background subtraction precedes PSF processing, deep restoration and denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, restoration, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector.",
+      "translation": "Die Hintergrundsubtraktion erfolgt vor der PSF-Verarbeitung, der Deep-Learning-Restaurierung und der Entrauschung. Die Entrauschung erfolgt vor der Kontrastanpassung, damit das Rauschen nicht verstärkt wird; die Kontrastanpassung erfolgt vor dem Schärfen, damit dessen Halos nicht gestreckt werden. Die Morphologie erfolgt vor dem Aufteilen, weil sie verändert, welche Pixel miteinander verbunden sind. :func:`prepare` führt Hintergrund, PSF, Restaurierung, Entrauschung, Kontrast und Schärfen aus; :func:`finish` führt nach dem ausgewählten Detektor Morphologie und Aufteilung aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain#6",
+      "source": "The contrast stage is itself a fixed sequence of curves through one trip to the unit interval, :data:`CONTRAST_ORDER`",
+      "source_sha256": "2efd8bbf5a1a9ae4fefcfd1c60325297d3ebbd64253dcf1d56db4a9c0cf18a72",
+      "context": "The contrast stage is itself a fixed sequence of curves through one trip to the unit interval, :data:`CONTRAST_ORDER`",
+      "translation": "Die Kontraststufe ist selbst eine feste Folge von Kurven mit einem einzigen Durchgang durch das Einheitsintervall, :data:`CONTRAST_ORDER`",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain#7",
+      "source": "The clip runs first so that a hot pixel cannot define the interval the curves are drawn on; the curves are monotone, so their order only changes the shape of the composite curve and never which pixel is brighter.",
+      "source_sha256": "59cab59d8b17f5c6fd627785a698593a7f40a9078ee879f8df9b5242d05d6c1c",
+      "context": "The clip runs first so that a hot pixel cannot define the interval the curves are drawn on; the curves are monotone, so their order only changes the shape of the composite curve and never which pixel is brighter.",
+      "translation": "Das Clipping wird zuerst ausgeführt, damit ein heißes Pixel nicht das Intervall festlegen kann, auf dem die Kurven gezeichnet werden; die Kurven sind monoton, daher ändert ihre Reihenfolge nur die Form der zusammengesetzten Kurve und nie, welches Pixel heller ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain#8",
+      "source": "THE SAME CHAIN REACHES MASK GENERATION. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` key per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask pipelines and the Mask Live preview apply to every selected segmentation channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate run's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
+      "source_sha256": "70e64ca0b72f05175a26ba1386fa2282c6f6d73249836c192107aea0adf96ed5",
+      "context": "The same chain reaches mask generation. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
+      "translation": "DIESELBE KETTE ERREICHT DIE MASKENERZEUGUNG. Die Bildschritte -- alles vor ``detect`` -- werden von :func:`chain_settings` als Mask-Einstellungen geschrieben, ein ``enhance_<field>``-Schlüssel pro :data:`SETTINGS_FIELDS`-Eintrag, und von :func:`spacr.psf_pipeline.prepare_chain` zurückgelesen, das die V1- und V2-Mask-Pipelines und die Mask-Live-Vorschau nach der Beleuchtungskorrektur und vor der Normalisierung auf jeden ausgewählten Segmentierungskanal anwenden, in dem Stadium, in dem die PSF bereits angewendet wurde. Morphologie und Aufteilung wirken auf die Labels eines Detektors und gehören allein zu Make Masks; die Cellpose-Labels eines Verarbeitungslaufs über eine Mikroplatte werden durch sie nicht umgeformt. Die Mask-Einstellungen ``remove_background``, ``background`` und ``signal_to_noise`` sind Intensitätsuntergrenzen pro Kanal, die anschließend von der Normalisierung angewendet werden, und :func:`spacr.object._preprocess_batch` ist das eigene Rolling Ball und CLAHE der Organellen-Batches; keines von beiden wird hier konfiguriert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#0",
+      "source": "One pre- and post-detection chain, as a value a request can carry.",
+      "source_sha256": "264f88b244ad0f3358e15f83e115cd158f78bba25f33b21e021ef93063233a37",
+      "context": "One pre- and post-detection chain, as a value a request can carry.",
+      "translation": "Eine Kette vor und nach der Erkennung, als Wert, den eine Anfrage mitführen kann.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#1",
+      "source": "An immutable tuple including any captured PSF kernel, so it is hashable and goes into the magnifier's request key: the same box under two different chains is two different questions and must not be answered from one cached result.",
+      "source_sha256": "2c33f9e7a66ed32201858ba3082e3c7ecfeb7a91cf55aec246e15316ba92a5ec",
+      "context": "An immutable tuple including any captured PSF kernel, so it is hashable and goes into the magnifier's request key: the same box under two different chains is two different questions and must not be answered from one cached result.",
+      "translation": "Ein unveränderliches Tupel einschließlich eines gegebenenfalls erfassten PSF-Kernels, daher ist es hashbar und geht in den Anfrageschlüssel der Lupe ein: Derselbe Kasten unter zwei verschiedenen Ketten ergibt zwei verschiedene Fragen, die nicht aus einem einzigen zwischengespeicherten Ergebnis beantwortet werden dürfen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#10",
+      "source": "the side of one CLAHE tile, in pixels.",
+      "source_sha256": "89d121b52760d0ec4a20108d43753c07cd9dd6d7767e9f7c0a3cb6ad54bd419b",
+      "context": "the side of one CLAHE tile, in pixels.",
+      "translation": "die Seitenlänge einer CLAHE-Kachel, in Pixeln.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#11",
+      "source": "CLAHE's clip limit, 0..1. Higher is more contrast and more amplified noise.",
+      "source_sha256": "6e1cd226462538a354054da1a4adfdc97e6ce15f48ad67d766b2d742565f87dd",
+      "context": "CLAHE's clip limit, 0..1. Higher is more contrast and more amplified noise.",
+      "translation": "Clip-Limit von CLAHE, 0..1. Höher bedeutet mehr Kontrast und stärker verstärktes Rauschen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#14",
+      "source": "the blur radius the mask is built from, in pixels: about the scale of the edges to sharpen.",
+      "source_sha256": "69fdf4382f355c44834915bf15910d5ebd9f5dd2947705de5496110694912be7",
+      "context": "the blur radius the mask is built from, in pixels: about the scale of the edges to sharpen.",
+      "translation": "der Unschärferadius, aus dem die Maske aufgebaut wird, in Pixeln: etwa die Größenordnung der zu schärfenden Kanten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#15",
+      "source": "how much of the mask is added back.",
+      "source_sha256": "6308c394745f5ae94e3e66619b465c839640e51f78b535e2f6fb6e9945f04dbb",
+      "context": "how much of the mask is added back.",
+      "translation": "wie viel von der Maske wieder hinzugefügt wird.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#16",
+      "source": "one of :data:`MORPHOLOGY_OPS`, applied to what was detected. ``open`` separates objects joined by a thin bridge, ``close`` joins objects broken into pieces, ``open_close`` does both in that order.",
+      "source_sha256": "6a37a1882422e9457f95e67a01a795bf608267ba17dd45ef0c53e26989fc0607",
+      "context": "one of :data:`MORPHOLOGY_OPS`, applied to what was detected. ``open`` separates objects joined by a thin bridge, ``close`` joins objects broken into pieces, ``open_close`` does both in that order.",
+      "translation": "ein Eintrag aus :data:`MORPHOLOGY_OPS`, angewendet auf das Erkannte. ``open`` trennt Objekte, die durch eine dünne Brücke verbunden sind, ``close`` verbindet in Stücke zerfallene Objekte, ``open_close`` macht beides in dieser Reihenfolge.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#18",
+      "source": "a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's \"Split objects that touch\", offered to every other method.",
+      "source_sha256": "a3540c0286531774dd6d53541390eae48d16e3d80e8f8905ae93e29eba0eee42",
+      "context": "a distance-transform watershed on what was detected, cutting an object with two centres in two. It is the Otsu mode's \"Split objects that touch\", offered to every other method.",
+      "translation": "eine Wasserscheide auf Basis der Distanztransformation, angewendet auf das Erkannte, die ein Objekt mit zwei Zentren in zwei Objekte teilt. Es ist das \"Split objects that touch\" des Otsu-Modus, angeboten für jede andere Methode.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#19",
+      "source": "``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default.",
+      "source_sha256": "582d0aea6b500af4bf3dae4f1b296e5201be452cc821434c027c92039fa72870",
+      "context": "``none``, ``convolve`` or ``deconvolve``. Runs after background subtraction and before denoising. Off by default.",
+      "translation": "``none``, ``convolve`` oder ``deconvolve``. Läuft nach der Hintergrundsubtraktion und vor dem Entrauschen. Standardmäßig aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#2",
+      "source": "Every field's default is the step switched off, so :data:`NO_CHAIN` is \"detect the image as it is\" and an old session that knows nothing about this chain keeps behaving as it did.",
+      "source_sha256": "247b69142f5c228609738770f88a63d6c9b658786500cdc07ad3e142aabd30e9",
+      "context": "Every microscope field of view's default is the step switched off, so :data:`NO_CHAIN` is \"detect the image as it is\" and an old session that knows nothing about this chain keeps behaving as it did.",
+      "translation": "Der Standardwert jedes Felds ist der ausgeschaltete Schritt, daher bedeutet :data:`NO_CHAIN` \"das Bild so erkennen, wie es ist\", und eine alte Sitzung, die nichts von dieser Kette weiß, verhält sich weiterhin wie bisher.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#20",
+      "source": "immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection.",
+      "source_sha256": "0e8716155b6532f58c0ab4d28206675dccb02b862f5de4e425338f00e9aafad0",
+      "context": "immutable calibrated two-dimensional kernel. Required when PSF processing is enabled; missing/invalid kernels stop detection.",
+      "translation": "unveränderlicher kalibrierter zweidimensionaler Kernel. Erforderlich, wenn die PSF-Verarbeitung aktiviert ist; fehlende/ungültige Kernel stoppen die Erkennung.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#21",
+      "source": "image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed.",
+      "source_sha256": "e7eff7834d85b753d9d9e475a4d0298e3e67258808f287273de55f63b9c1bc13",
+      "context": "image pixel spacing in YX order, in micrometers. Must match the kernel; no implicit resampling is performed.",
+      "translation": "Pixelabstand des Bildes in YX-Reihenfolge, in Mikrometern. Muss zum Kernel passen; es wird kein implizites Resampling durchgeführt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#22",
+      "source": "Richardson–Lucy iterations, 1..200.",
+      "source_sha256": "6e8a4e94b179c0c84a8cd16d0f67d2a78454439b561176d3291da7990edc4529",
+      "context": "Richardson–Lucy iterations, 1..200.",
+      "translation": "Richardson–Lucy-Iterationen, 1..200.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#23",
+      "source": "actionable loading/validation error when no kernel is ready.",
+      "source_sha256": "80ab1df81b2e457c6e065fa6e0579a3d20795d3b6117225dd8fb2f9a7b6fbd02",
+      "context": "actionable loading/validation error when no kernel is ready.",
+      "translation": "Lade-/Validierungsfehler mit Handlungshinweis, wenn kein Kernel bereit ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#24",
+      "source": "enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker.",
+      "source_sha256": "04fdb610368ef19f051aec34259df3625fb24ccd8c952395ca31b3ea1832d2ea",
+      "context": "enable isolated Cellpose 3 restoration after PSF and before classical denoising. Off by default. Run preparation on a worker.",
+      "translation": "aktiviert die isolierte Cellpose-3-Restaurierung nach PSF und vor dem klassischen Entrauschen. Standardmäßig aus. Führen Sie die Vorbereitung in einem Worker aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#25",
+      "source": "immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence.",
+      "source_sha256": "db7eb7861437c20eaf34bd2e44948972602a8c9e8096179c1b5a33ed3c1476c8",
+      "context": "immutable loaded model identity and diameter in pixels. Model output uses normalized units, not calibrated fluorescence.",
+      "translation": "unveränderliche Identität des geladenen Modells und Durchmesser in Pixeln. Die Modellausgabe verwendet normalisierte Einheiten, keine kalibrierte Fluoreszenz.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#26",
+      "source": "loading error shown instead of silently using unprocessed data when restoration was explicitly requested.",
+      "source_sha256": "62e8057429a3352e58c1a1ed018e999823f95b6f7fc6660709fbe472054d9c07",
+      "context": "loading error shown instead of silently using unprocessed data when restoration was explicitly requested.",
+      "translation": "Ladefehler, der angezeigt wird, statt stillschweigend unverarbeitete Daten zu verwenden, wenn die Restaurierung ausdrücklich angefordert wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#27",
+      "source": "clip each plane to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched.",
+      "source_sha256": "34d93c323000d212ef45308489c0b1b4ea06705f28a78eef299c218417b1d4e4",
+      "context": "clip each image layer to two percentiles of its own intensities before the contrast curves, so a hot pixel or a dead one cannot define the interval the curves are drawn on. The intensities keep their units; nothing is stretched.",
+      "translation": "jede Bildebene vor den Kontrastkurven auf zwei Perzentile ihrer eigenen Intensitäten beschneiden, damit ein heißes oder ein totes Pixel nicht das Intervall festlegen kann, auf dem die Kurven gezeichnet werden. Die Intensitäten behalten ihre Einheiten; nichts wird gestreckt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#28",
+      "source": "the lower percentile, 0..100.",
+      "source_sha256": "319fe2e56ebb10bb5a76952296df1ca7ca8ab50388d57446ff0c0a9b50d496cd",
+      "context": "the lower percentile, 0..100.",
+      "translation": "das untere Perzentil, 0..100.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#29",
+      "source": "the upper percentile, 0..100, above the lower.",
+      "source_sha256": "8768404b72c8a060354a0a76aa54eaa9b8be299027c66e7790cc445faccf6771",
+      "context": "the upper percentile, 0..100, above the lower.",
+      "translation": "das obere Perzentil, 0..100, über dem unteren.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#30",
+      "source": "a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero.",
+      "source_sha256": "1c359c114bdc7a0113a8f06c8eaa40712fd48da02ebc950726ce0479b6fc7003",
+      "context": "a logarithmic transform on 0..1, ``log(1 + gain·x) / log(1 + gain)``: it compresses the bright end and lifts the dim one, more strongly than a gamma below 1 does near zero.",
+      "translation": "eine logarithmische Transformation auf 0..1, ``log(1 + gain·x) / log(1 + gain)``: Sie komprimiert das helle Ende und hebt das dunkle an, und zwar nahe null stärker, als es ein Gamma unter 1 tut.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#31",
+      "source": "the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity.",
+      "source_sha256": "d017d2392ac013b6fdea03eef73677408c201cd0ff4e6cc282193b25008a5b0b",
+      "context": "the factor the unit-interval intensities are scaled by before the logarithm. Larger compresses harder; as it goes to zero the curve goes to the identity.",
+      "translation": "der Faktor, mit dem die Intensitäten im Einheitsintervall vor dem Logarithmus skaliert werden. Größere Werte komprimieren stärker; geht er gegen null, geht die Kurve in die Identität über.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#32",
+      "source": "a square root on 0..1, the curve gamma 0.5 draws, offered by name.",
+      "source_sha256": "30fe4dd5ffe1fe015340b348a92038ba7824f94255176bd22bb261ae831d2442",
+      "context": "a square root on 0..1, the curve gamma 0.5 draws, offered by name.",
+      "translation": "eine Quadratwurzel auf 0..1, also die Kurve, die Gamma 0.5 zeichnet, unter eigenem Namen angeboten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#4",
+      "source": "the ball's or the top-hat disk's radius, in pixels. Set it comfortably larger than the largest object: a radius under the object size eats the objects along with the background.",
+      "source_sha256": "a7e6629de96d48105c1bf9460384bc8c3d3db4adf6365e5f9e4acfa15f02a32b",
+      "context": "the ball's or the top-hat disk's radius, in pixels. Set it comfortably larger than the largest object: a radius under the object size eats the objects along with the background.",
+      "translation": "der Radius der Kugel bzw. der Top-Hat-Scheibe, in Pixeln. Wählen Sie ihn deutlich größer als das größte Objekt: Ein Radius unterhalb der Objektgröße trägt die Objekte zusammen mit dem Hintergrund ab.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#5",
+      "source": "the fraction of full size the background is ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what that buys and what it costs; 1.0 is scikit-image's own answer, exactly.",
+      "source_sha256": "f5e94d4344bb19092161759f54067acd8c166f71ad628ab7c3c01b86b7e55f01",
+      "context": "the fraction of full size the background is ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what that buys and what it costs; 1.0 is scikit-image's own answer, exactly.",
+      "translation": "der Anteil der vollen Größe, bei dem der Hintergrund GESCHÄTZT wird, 0.1 bis 1.0. Siehe :func:`background_surface` dazu, was das bringt und was es kostet; 1.0 ist exakt das eigene Ergebnis von scikit-image.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#7",
+      "source": "the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the estimated noise.",
+      "source_sha256": "057d5d2989d5948831ba1dfdc404ef118c6d402a7cd1125e4dd830114ba255ac",
+      "context": "the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, or the non-local means' cut-off in multiples of the estimated noise.",
+      "translation": "das Sigma des Gauß-Filters in Pixeln, der Scheibenradius des Median- bzw. des bilateralen Filters oder der Grenzwert des Non-Local-Means-Filters in Vielfachen des geschätzten Rauschens.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#8",
+      "source": "the exponent the intensities are raised to on 0..1. Below 1 lifts the dim end (faint objects become visible), above 1 pushes it down. 1.0 is off.",
+      "source_sha256": "21f80c67790e294845a53b1de63897e563e940f4e747c80693d7db30800571c9",
+      "context": "the exponent the intensities are raised to on 0..1. Below 1 lifts the dim end (faint objects become visible), above 1 pushes it down. 1.0 is off.",
+      "translation": "der Exponent, mit dem die Intensitäten auf 0..1 potenziert werden. Unter 1 hebt er das dunkle Ende an (schwache Objekte werden sichtbar), über 1 drückt er es nach unten. 1.0 bedeutet aus.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.Chain#9",
+      "source": "contrast-limited adaptive histogram equalisation.",
+      "source_sha256": "22e42ef441e05a10d9475d26fb0f6a04b1b40993ce59d8710acdf03c3068fdb7",
+      "context": "contrast-limited adaptive histogram equalisation.",
+      "translation": "kontrastbegrenzter adaptiver Histogrammausgleich.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.chain_settings#0",
+      "source": "The chain's image steps as the Mask settings that apply them.",
+      "source_sha256": "1b45ab50ab75e7fa1fdc6516329c95d7cb539e2600303cfe0bcbf23d55d3bd7d",
+      "context": "The chain's image steps as the Mask settings that apply them.",
+      "translation": "Die Bildschritte der Kette als die Mask-Einstellungen, die sie anwenden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.chain_settings#1",
+      "source": "One ``enhance_<field>`` per :data:`SETTINGS_FIELDS` entry, each cast to the plain type its default has, so the mapping is what a settings file holds and what :func:`spacr.psf_pipeline.prepare_chain` reads back into an equal chain. :data:`NO_CHAIN` gives the defaults, which is what a settings file that knows nothing about the chain means.",
+      "source_sha256": "a64ede9484d807433e171c89a941e69940d0a009910c2146d924e2a66ff759ee",
+      "context": "One ``enhance_<field>`` per :data:`SETTINGS_FIELDS` entry, each cast to the plain type its default has, so the mapping is what a settings file holds and what :func:`spacr.psf_pipeline.prepare_chain` reads back into an equal chain. :data:`NO_CHAIN` gives the defaults, which is what a settings file that knows nothing about the chain means.",
+      "translation": "Ein ``enhance_<field>`` pro :data:`SETTINGS_FIELDS`-Eintrag, jeweils in den einfachen Typ seines Standardwerts umgewandelt, sodass die Zuordnung dem entspricht, was eine Einstellungsdatei enthält und was :func:`spacr.psf_pipeline.prepare_chain` in eine gleichwertige Kette zurückliest. :data:`NO_CHAIN` ergibt die Standardwerte, und genau das bedeutet eine Einstellungsdatei, die nichts von der Kette weiß.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.chain_settings#2",
+      "source": "the chain to write out.",
+      "source_sha256": "f3eca690ff2c7375642dbe5ca7d32585818a5384c4d6c718da8ce55a3f776561",
+      "context": "the chain to write out.",
+      "translation": "die zu schreibende Kette.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.chain_settings#3",
+      "source": "setting name to plain value, in :data:`SETTINGS_FIELDS` order.",
+      "source_sha256": "0c19d56c5b8c752c1d72134ff163d6184926aaad2e5b374e87fb6ed73e78f4c4",
+      "context": "setting name to plain value, in :data:`SETTINGS_FIELDS` order.",
+      "translation": "Einstellungsname zu einfachem Wert, in der Reihenfolge von :data:`SETTINGS_FIELDS`.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.describe#0",
+      "source": "The switched-on steps in one line, for a status line or a tooltip.",
+      "source_sha256": "1310cde820dd4c2f6276a378d7bdec574955265692a995d1120db95fac2436f9",
+      "context": "The switched-on steps in one line, for a status line or a tooltip.",
+      "translation": "Die eingeschalteten Schritte in einer Zeile, für eine Statuszeile oder einen Tooltip.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.describe#1",
+      "source": "the configured pre- and post-detection steps to inspect.",
+      "source_sha256": "3cd3fa280d102849ed5c2164e9908729cb41df32d5a2c41c11d50b921c27e7e6",
+      "context": "the configured pre- and post-detection steps to inspect.",
+      "translation": "die konfigurierten Schritte vor und nach der Erkennung, die untersucht werden sollen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.describe#2",
+      "source": "whether to include the screen's initial percentile stretch before the steps in the chain.",
+      "source_sha256": "e65c15d1d9b70c33ce6935ffa8d99e28b960f61a91377e9b2c0b2534f16dc8a8",
+      "context": "whether to include the screen's initial percentile stretch before the steps in the chain.",
+      "translation": "ob die anfängliche Perzentilstreckung der Ansicht vor den Schritten der Kette einbezogen werden soll.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.describe#3",
+      "source": "the steps separated by arrows, or an empty string when the chain does nothing.",
+      "source_sha256": "fa2adc5c3d5a21854d82cf67c9adbc5bf228e8441f84c59953308396f1dff1d9",
+      "context": "the steps separated by arrows, or an empty string when the chain does nothing.",
+      "translation": "die Schritte, durch Pfeile getrennt, oder eine leere Zeichenkette, wenn die Kette nichts tut.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#0",
+      "source": "What the detector labelled, opened or closed and then split.",
+      "source_sha256": "637d7e636fe6d5268cfcd52391253a0a58df9297d8c0590e175173ba4d892e2f",
+      "context": "What the detector labelled, opened or closed and then split.",
+      "translation": "Die Labels des Detektors, geöffnet oder geschlossen und anschließend aufgeteilt.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#1",
+      "source": "Morphology and the split are both questions about WHICH PIXELS ARE ONE OBJECT, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
+      "source_sha256": "983d5f61da3db274bb7942b08147ae61e3879b0445ba6e0326394dad0c41fe46",
+      "context": "Morphology and the split are both questions about which pixels are one object, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
+      "translation": "Morphologie und Aufteilung sind beide Fragen danach, WELCHE PIXEL EIN OBJEKT SIND, daher werden beide an die Erkennung als Ganzes gestellt: Die Labels werden als Vordergrund gelesen, umgeformt und erneut gelabelt. Die IDs ändern sich daher, was hier nichts kostet -- Make Masks nummeriert jedes Objekt neu, das es in eine Maske einfügt (:func:`spacr.qt.mask_engine._paste_region_objects`).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#4",
+      "source": "the image the detector read, used as the watershed's landscape where it is given.",
+      "source_sha256": "35e83f62514d84a0c2c633c99901e8ec782a590980f733b5de7fc4d305016781",
+      "context": "the image the detector read, used as the watershed's landscape where it is given.",
+      "translation": "das Bild, das der Detektor gelesen hat; wird, sofern angegeben, als Landschaft der Wasserscheide verwendet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.finish#5",
+      "source": "``labels`` itself when neither step is switched on.",
+      "source_sha256": "26e5b6660eaf66f67c537489c9905469491f4708aaadc4816b96e46466b82f89",
+      "context": "``labels`` itself when neither step is switched on.",
+      "translation": "``labels`` selbst, wenn keiner der beiden Schritte eingeschaltet ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.heavy_steps#0",
+      "source": "The switched-on steps slow enough to warn about, in words.",
+      "source_sha256": "c199ef46944374ded9e80d47c23e76cedfe5aa97005e1d32b72feca877ec603e",
+      "context": "The switched-on steps slow enough to warn about, in words.",
+      "translation": "Die eingeschalteten Schritte, die langsam genug für eine Warnung sind, in Worten.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.heavy_steps#2",
+      "source": "the names, in :data:`CHAIN_ORDER`; empty when nothing switched on is heavy.",
+      "source_sha256": "6095c005e582c5e1bb94b096ebfeba8e2a106b01c429163922c55aa5fcd590b9",
+      "context": "the names, in :data:`CHAIN_ORDER`; empty when nothing switched on is heavy.",
+      "translation": "die Namen, in der Reihenfolge von :data:`CHAIN_ORDER`; leer, wenn nichts Eingeschaltetes aufwendig ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.is_active#0",
+      "source": "Whether any step of the chain is switched on.",
+      "source_sha256": "f0abba164c99919060b9f2ddaa7e24f1b01ad5d1c4e99209a5f94069fbce415e",
+      "context": "Whether any step of the chain is switched on.",
+      "translation": "Ob irgendein Schritt der Kette eingeschaltet ist.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.post_active#0",
+      "source": "Whether :func:`finish` would change what the detector labelled.",
+      "source_sha256": "122c8baf0b948d230c1fdec2feaff0c5a30f72a053a0e692261e5e5eacc8adfc",
+      "context": "Whether :func:`finish` would change what the detector labelled.",
+      "translation": "Ob :func:`finish` das ändern würde, was der Detektor gelabelt hat.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.pre_active#0",
+      "source": "Whether :func:`prepare` would change the image at all.",
+      "source_sha256": "014ce410a8dfc551da334b49ada7d04e3cdc096859eb860e6ef808cd4f790648",
+      "context": "Whether :func:`prepare` would change the image at all.",
+      "translation": "Ob :func:`prepare` das Bild überhaupt ändern würde.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.pre_active#1",
+      "source": "Asked before a copy is made: a chain with nothing switched on must hand the detector the very array it would have had, not a float copy of it.",
+      "source_sha256": "73d9edc6490613a0b4e7beb82f97caeacc0adabef7b1bb65837545d8a6ba1181",
+      "context": "Asked before a copy is made: a chain with nothing switched on must hand the detector the very array it would have had, not a float copy of it.",
+      "translation": "Wird abgefragt, bevor eine Kopie erstellt wird: Eine Kette, in der nichts eingeschaltet ist, muss dem Detektor genau das Array übergeben, das er sonst erhalten hätte, keine Float-Kopie davon.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#0",
+      "source": "The image a detector is to read, with optional cooperative cancellation.",
+      "source_sha256": "569df97fb769e210c50e9f7de22a23ce9d21693887f832e1f33df49c22dd3642",
+      "context": "The image a detector is to read, with optional cooperative cancellation.",
+      "translation": "Das Bild, das ein Detektor lesen soll, mit optionalem kooperativem Abbruch.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#1",
+      "source": "Background, PSF, deep restoration, denoise, contrast, then sharpen -- :data:`CHAIN_ORDER`, whose docstring says why that order and not another. The percentile stretch is the screen's, applied to the whole field before ``image`` was cut from it.",
+      "source_sha256": "7d0cfd1adcab56d6e984c1a999338ba299a6c6a77ff7a7cd6b20fb2e57a201e8",
+      "context": "Background, PSF, deep restoration, denoise, contrast, then sharpen -- :data:`CHAIN_ORDER`, whose docstring says why that order and not another. The percentile stretch is the screen's, applied to the whole field before ``image`` was cut from it.",
+      "translation": "Hintergrund, PSF, Deep-Learning-Restaurierung, Entrauschen, Kontrast, dann Schärfen -- :data:`CHAIN_ORDER`, dessen Docstring erklärt, warum diese Reihenfolge und keine andere. Die Perzentilstreckung ist die der Ansicht und wird auf das gesamte Feld angewendet, bevor ``image`` daraus ausgeschnitten wurde.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#2",
+      "source": "Legacy filter failures are logged and skipped unless ``strict`` is set. PSF/restoration failures and cancellation propagate so detection cannot silently use an unprocessed image when an explicitly calibrated operation was requested. This is reached from a mouse-move (the readout under the cursor) and from the magnifier, so an exception here is one per mouse event: a missing optional package filled the console with tracebacks once (PyWavelets, 2026-09-22) and made the screen unusable. The detector then reads the image as far as the chain got, and the log says which step was dropped. A plate run passes ``strict=True``: a mask made from an image a step was silently dropped from would be presented as the mask the settings asked for.",
+      "source_sha256": "37fdc255641082249ff7a9485efa68af91922cf5cd0e83eb5d56fadce234b1b9",
+      "context": "Legacy filter failures are logged and skipped unless ``strict`` is set. PSF/restoration failures and cancellation propagate so detection cannot silently use an unprocessed image when an explicitly calibrated operation was requested. This is reached from a mouse-move (the readout under the cursor) and from the magnifier, so an exception here is one per mouse event: a missing optional package filled the console with tracebacks once (PyWavelets, 2026-09-22) and made the screen unusable. The detector then reads the image as far as the chain got, and the log says which step was dropped. A plate run passes ``strict=True``: a mask made from an image a step was silently dropped from would be presented as the mask the settings asked for.",
+      "translation": "Fehler älterer Filter werden protokolliert und übersprungen, sofern ``strict`` nicht gesetzt ist. PSF-/Restaurierungsfehler und Abbrüche werden weitergereicht, damit die Erkennung nicht stillschweigend ein unverarbeitetes Bild verwenden kann, wenn eine ausdrücklich kalibrierte Operation angefordert wurde. Diese Stelle wird bei einer Mausbewegung (der Anzeige unter dem Cursor) und von der Lupe aus erreicht, daher entsteht eine Ausnahme hier einmal pro Mausereignis: Ein fehlendes optionales Paket hat einmal die Konsole mit Tracebacks gefüllt (PyWavelets, 2026-09-22) und die Ansicht unbrauchbar gemacht. Der Detektor liest dann das Bild in dem Zustand, bis zu dem die Kette gekommen ist, und das Protokoll gibt an, welcher Schritt ausgelassen wurde. Ein Verarbeitungslauf über eine Mikroplatte übergibt ``strict=True``: Eine Maske aus einem Bild, bei dem ein Schritt stillschweigend ausgelassen wurde, würde als die Maske präsentiert, die die Einstellungen angefordert haben.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare#3",
+      "source": "the field, or the magnifier's box region cut from it. Never modified.",
+      "source_sha256": "deea43efa4d59fa4f506620103fbf3a0bb8cf271219440f7e88769b1887ec90c",
+      "context": "the field, or the magnifier's box region cut from it. Never modified.",
+      "translation": "das Feld oder der daraus ausgeschnittene Kastenbereich der Lupe. Wird nie verändert.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#0",
+      "source": "Install the application-wide tooltip filter. Idempotent.",
+      "source_sha256": "37cd103a757b68df3b8333cfd8dba473ebcf712efda96513fa9e95a2dcc6a108",
+      "context": "Install the application-wide tooltip filter. Idempotent.",
+      "translation": "Installiert den anwendungsweiten Tooltip-Filter. Idempotent.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#1",
+      "source": "the QApplication; defaults to the running instance.",
+      "source_sha256": "a3393d9d64731c60abd540ae37ad9cecf0930943d98a5c68ccabafb24faa2027",
+      "context": "the QApplication; defaults to the running instance.",
+      "translation": "die QApplication; standardmäßig die laufende Instanz.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.install_tooltip_policy#2",
+      "source": "``True`` if a filter was installed by this call.",
+      "source_sha256": "8c27290a2cb17c912a3ebf2f0a3d8bd8e10292555be5fc0a4d1545affd5291cc",
+      "context": "``True`` if a filter was installed by this call.",
+      "translation": "``True``, wenn dieser Aufruf einen Filter installiert hat.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.tooltip_policy.uninstall_tooltip_policy#0",
+      "source": "Remove the filter. ``True`` if there was one.",
+      "source_sha256": "82a9b1d95e8e3853a196ee5dec5508deaa42169b20b0c060c4690d9c52272fe4",
+      "context": "Remove the filter. ``True`` if there was one.",
+      "translation": "Entfernt den Filter. ``True``, wenn einer vorhanden war.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.GateSet.mask#1",
+      "source": "the measurements to test; it must carry every column the chain reads.",
+      "source_sha256": "51da20405f06620d1b72995fb1a5d3fd60706169373507bbcacf3d10feb56b1f",
+      "context": "the measurements to test; it must carry every column the chain reads.",
+      "translation": "die zu prüfenden Messwerte; sie müssen jede Spalte enthalten, die die Kette liest.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.GateSet.mask#2",
+      "source": "the gate whose chain is applied.",
+      "source_sha256": "39865ad7143ceeff37c78617d57ff0ebc34eb3acd2d4d7a7ee7164933a309e8f",
+      "context": "the data-selection boundary whose chain is applied.",
+      "translation": "das Gate, dessen Kette angewendet wird.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#0",
+      "source": "Open (or raise) the overlay settings, applied live.",
+      "source_sha256": "6d5851b55bbd0a0bb31519586be76a4945120b6d0d46739a8b9dc7d30f39a953",
+      "context": "Open (or raise) the overlay settings, applied live.",
+      "translation": "Öffnet die Overlay-Einstellungen oder holt sie in den Vordergrund; Änderungen wirken sofort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#1",
+      "source": "Non-modal, because what it answers is how the picture beside it looks.",
+      "source_sha256": "781131914582d812dc5057d3b0f345d1488386f956032fe3126cd766b3e058e8",
+      "context": "Non-modal, because what it answers is how the picture beside it looks.",
+      "translation": "Nicht modal, denn der Dialog beantwortet die Frage, wie das Bild daneben aussieht.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.scale_qss#0",
+      "source": "Scale the pixel sizes in a style sheet by ``factor``.",
+      "source_sha256": "3650a28b1ea4685d4ec0a2b5fcdd580784f991c0d632c181f0c0f2b3746753c5",
+      "context": "Scale the pixel sizes in a style sheet by ``factor``.",
+      "translation": "Skaliert die Pixelgrößen in einem Stylesheet um ``factor``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.scale_qss#2",
+      "source": "the scale; 1.0 returns ``text`` unchanged (unless ``sizes_only``).",
+      "source_sha256": "68e5a4c7f5df6ff31e30e79c62dcda1fb74b712e4ff7ac5e5b2772985d60fca2",
+      "context": "the scale; 1.0 returns ``text`` unchanged (unless ``sizes_only``).",
+      "translation": "der Skalierungsfaktor; bei 1.0 wird ``text`` unverändert zurückgegeben (außer mit ``sizes_only``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.SortableTableItem.setData#2",
+      "source": "the Qt item data role; only ``DisplayRole`` and ``EditRole`` refresh the sort key, which then comes from :data:`SORT_KEY_ROLE` when set and from the text otherwise.",
+      "source_sha256": "5fb3fe140184f7bb85761e2f4406c47a9cb44169a40c0cc0d60eec479d6c128f",
+      "context": "the Qt item data role; only ``DisplayRole`` and ``EditRole`` refresh the sort key, which then comes from :data:`SORT_KEY_ROLE` when set and from the text otherwise.",
+      "translation": "die Datenrolle des Qt-Elements; nur ``DisplayRole`` und ``EditRole`` aktualisieren den Sortierschlüssel, der dann aus :data:`SORT_KEY_ROLE` stammt, sofern gesetzt, und andernfalls aus dem Text.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.SortableTableItem.setData#3",
+      "source": "the data stored for ``role``.",
+      "source_sha256": "f4742e6c85fa0688c178769b9fe92e05292893e7e893a7178bac0991a0b14f5d",
+      "context": "the data stored for ``role``.",
+      "translation": "die für ``role`` gespeicherten Daten.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

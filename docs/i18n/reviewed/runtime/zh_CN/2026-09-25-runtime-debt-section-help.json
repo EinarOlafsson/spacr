@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source_sha256": "98e442532c56044e2aca2f66f22cf008ca9c149676e55c0ab3211bc2dafd6b65",
+      "translation": "Cellpose 4 微调使用 AdamW。建议从 100 个轮次、学习率 0.00001、权重衰减 0.1 和小批量大小 1 开始。"
+    },
+    {
+      "table": "categories",
+      "key": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source_sha256": "13105e7ae7024e883b3f8dca9456225007943d9b2c11c4ab35ac3d71949a3cf2",
+      "translation": "选择带有明确父空泡关联的单个寄生虫表，或每个空泡上的实测计数列。不要同时提供两者。没有计数输入时，复制保持为未测量，而不会根据募集或宿主身份推断。"
+    },
+    {
+      "table": "categories",
+      "key": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source_sha256": "28d5ad28bdefea580a16d38e4739bbc5bb55822f453670d5546e875e1e2ccece",
+      "translation": "选择直接寄生虫计数，或旧版基于宿主汇总面积的代理指标。基于完整空泡的深度学习分类器即将推出，在有训练好的模型之前无法运行。"
+    },
+    {
+      "table": "categories",
+      "key": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source_sha256": "f9f27be334385474852d77b130f190a56369e08640b1909b3bdfb8b5336c8f8a",
+      "translation": "选择训练权重的保存位置，以及是否保留中间轮次的检查点。"
+    },
+    {
+      "table": "categories",
+      "key": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source_sha256": "942a690aaf94696a0c0e39a77f0f5237ff323c230926d67e8188f27ea1a20ff8",
+      "translation": "将每个空泡的标记强度与其宿主参考区室比较，并用明确的比值阈值对联合标记状态进行分类。请用实验对照校准阈值；缺失或无效的参考值保持为未知。"
+    },
+    {
+      "table": "categories",
+      "key": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source_sha256": "181a6d6dcb6feafb389528d1881bbfd2799b37f890843e2dc0b6f2540235cbce",
+      "translation": "为旧版复制估计配置面积分箱和比例。它合并宿主内的病原体面积，既不是直接的寄生虫计数，也不是实测的三维体积。"
+    },
+    {
+      "table": "categories",
+      "key": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source_sha256": "90d1efbd2c76c9df20d6b7209f50ff0b73f1a49592c17f22d1d78bef1ea3632f",
+      "translation": "控制稀疏视野过滤、数据集大小以及 Cellpose 的在线随机尺度增强，而不创建重复图像。"
+    },
+    {
+      "table": "categories",
+      "key": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source_sha256": "438ffe2486a47178e78c2753cbe756d3d9ab35e7556c9b9e036c487953b9d812",
+      "translation": "微调标准 Cellpose-SAM 或已有检查点；为新训练的模型另行命名。"
+    },
+    {
+      "table": "categories",
+      "key": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source_sha256": "d9cce8c2fdd211143c253bf43bcd68377a010872613fe0279ad95295a987c4ea",
+      "translation": "表型预测时可选的旋转和翻转。通过平均或投票合并预测，保留原始预测，并标记不一致以供审查。所有增强开关默认关闭；一致率衡量的是方向稳定性，而非校准后的置信度或生物学准确性。"
+    },
+    {
+      "table": "categories",
+      "key": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source_sha256": "9fc32374a0b052ef77ce0ec86653b68a05edfbb17ed4d142c7cfa2aa013cad01",
+      "translation": "将显微图像与整数对象标签掩膜配对，并可另外提供独立的验证集。"
+    },
+    {
+      "table": "categories",
+      "key": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source_sha256": "6e08ff71703b82990f1492044eb89a24852852501e9e15c2b604022bdbd52b0b",
+      "translation": "在分割前按各通道的对焦、饱和与非有限像素标准筛查原始视野。可选择仅报告的审查，或明确保存的排除；请针对该次采集校准阈值。筛查默认关闭，且绝不会因对象数少而排除图像。"
+    }
+  ]
+}

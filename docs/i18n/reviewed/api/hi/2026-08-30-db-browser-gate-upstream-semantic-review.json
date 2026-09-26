@@ -551,39 +551,44 @@
       "translation": "``regression_type='mixed'`` एक बार फिट होता है और एक एंट्री लौटाता है, ``'gene'``: उस मॉडल में पहले ही दोनों स्तर हैं, जीन को फ़िक्स्ड इफेक्ट के रूप में और गाइड को जीन में नेस्टेड रैंडम इफेक्ट के रूप में। इसका गाइड आउटपुट BLUPs है, यही कारण है कि इसे दो टेस्टिंग फेमिलीज़ में नहीं बांटा जा सकता।"
     },
     {
-      "label": "spacr.ml.regression_levels#6",
+      "label": "spacr.ml.regression_levels#8",
       "source": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
       "context": "``'both'`` (default), ``'grna'`` or ``'gene'``.",
       "source_sha256": "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
-      "translation": "``'both'`` (डिफ़ॉल्ट), ``'grna'`` या ``'gene'``."
-    },
-    {
-      "label": "spacr.ml.regression_levels#7",
-      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
-      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
-      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
-      "translation": "प्रोसेसिंग-सत्र फ़ोल्डर। एक से अधिक फ़िट होने पर प्रत्येक स्तर के FIGURES ``<dst>/<level>/`` में जाते हैं, ताकि वे एक-दूसरे को ओवरराइट न करें; तालिकाएँ ``<dst>`` में रहती हैं, जहाँ हर उपभोक्ता उन्हें खोजता है।"
-    },
-    {
-      "label": "spacr.ml.regression_levels#8",
-      "source": "passed straight through to :func:`regression`.",
-      "context": "passed straight through to :func:`regression`.",
-      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
-      "translation": "सीधे :func:`regression` में पास किया गया।"
+      "translation": "``'both'`` (डिफ़ॉल्ट), ``'grna'`` या ``'gene'``.",
+      "rebound_from": "spacr.ml.regression_levels#6"
     },
     {
       "label": "spacr.ml.regression_levels#9",
-      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
-      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
-      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
-      "translation": "``dict`` जो फ़िट क्रम में स्तर को ``(model, coef_df, regression_type)`` से मैप करता है।"
+      "source": "the run folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
+      "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
+      "translation": "प्रोसेसिंग-सत्र फ़ोल्डर। एक से अधिक फ़िट होने पर प्रत्येक स्तर के FIGURES ``<dst>/<level>/`` में जाते हैं, ताकि वे एक-दूसरे को ओवरराइट न करें; तालिकाएँ ``<dst>`` में रहती हैं, जहाँ हर उपभोक्ता उन्हें खोजता है।",
+      "rebound_from": "spacr.ml.regression_levels#7"
     },
     {
       "label": "spacr.ml.regression_levels#10",
+      "source": "passed straight through to :func:`regression`.",
+      "context": "passed straight through to :func:`regression`.",
+      "source_sha256": "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
+      "translation": "सीधे :func:`regression` में पास किया गया।",
+      "rebound_from": "spacr.ml.regression_levels#8"
+    },
+    {
+      "label": "spacr.ml.regression_levels#11",
+      "source": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "context": "``dict`` mapping level to ``(model, coef_df, regression_type)``, in fit order.",
+      "source_sha256": "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
+      "translation": "``dict`` जो फ़िट क्रम में स्तर को ``(model, coef_df, regression_type)`` से मैप करता है।",
+      "rebound_from": "spacr.ml.regression_levels#9"
+    },
+    {
+      "label": "spacr.ml.regression_levels#12",
       "source": "for a level that is not one of :data:`LEVEL_CHOICES`.",
       "context": "for a level that is not one of :data:`LEVEL_CHOICES`.",
       "source_sha256": "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342",
-      "translation": "ऐसे स्तर के लिए जो :data:`LEVEL_CHOICES` में से एक नहीं है।"
+      "translation": "ऐसे स्तर के लिए जो :data:`LEVEL_CHOICES` में से एक नहीं है।",
+      "rebound_from": "spacr.ml.regression_levels#10"
     },
     {
       "label": "spacr.ml.resolve_auto_inference#0",
@@ -621,11 +626,12 @@
       "translation": "``inference='auto'`` के अलावा कुछ भी बिना बदले लौटाया जाता है, इसलिए कोई स्पष्ट चयन कभी भी अधिलेखित नहीं होता।"
     },
     {
-      "label": "spacr.ml.resolve_auto_inference#5",
+      "label": "spacr.ml.resolve_auto_inference#9",
       "source": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
       "context": "``(analysis_mode, reason)``. ``reason`` is a sentence naming the counts, suitable for the log and for the Methods section.",
       "source_sha256": "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92",
-      "translation": "``(analysis_mode, reason)``। ``reason`` वह वाक्य है जो गणनाओं का नाम करता है, लॉग और मेथड्स अनुभाग के लिए उपयुक्त।"
+      "translation": "``(analysis_mode, reason)``। ``reason`` वह वाक्य है जो गणनाओं का नाम करता है, लॉग और मेथड्स अनुभाग के लिए उपयुक्त।",
+      "rebound_from": "spacr.ml.resolve_auto_inference#5"
     },
     {
       "label": "spacr.ml.results_folder_kind#0",

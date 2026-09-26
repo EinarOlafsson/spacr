@@ -174,21 +174,27 @@
       "label": "spacr.model_zoo.bioimageio_entries#0",
       "source": "Cellpose models published on bioimage.io, or an empty list.",
       "source_sha256": "12294613eedc9f398efc6df7689b7ac0febf65077df8621a5ec5e6e8c9b7506f",
-      "translation": "Auf bioimage.io veröffentlichte Cellpose-Modelle oder eine leere Liste."
+      "translation": "Auf bioimage.io veröffentlichte Cellpose-Modelle oder eine leere Liste.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Two kinds of row. A Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4 loads, is a ``cellpose`` row pointing at its bioimage.io page. A Cellpose 3-format checkpoint is a ``cellpose3`` row that downloads the weights file itself, checked against the SHA-256 the manifest publishes, for the Cellpose 3 backend to execute.",
       "label": "spacr.model_zoo.bioimageio_entries#1",
       "source": "Two kinds of row. A Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4 loads, is a ``cellpose`` row pointing at its bioimage.io page. A Cellpose 3-format checkpoint is a ``cellpose3`` row that downloads the weights file itself, checked against the SHA-256 the manifest publishes, for the Cellpose 3 backend to run.",
       "source_sha256": "4013aee4bc4714b7c42237d83f5082e4521344916b8c62616362dcbb3c51d25d",
-      "translation": "Es gibt zwei Arten von Einträgen. Ein von der Cellpose 4-Version in spaCR ladbares Modell vom Typ Cellpose-SAM oder Cellpose-DINO erhält einen ``cellpose``-Eintrag mit Verweis auf seine bioimage.io-Seite. Ein Checkpoint im Format von Cellpose 3 erhält einen ``cellpose3``-Eintrag, der die Gewichtsdatei selbst herunterlädt und anhand der im Manifest veröffentlichten SHA-256-Prüfsumme prüft, damit das Backend von Cellpose 3 sie ausführen kann."
+      "translation": "Es gibt zwei Arten von Einträgen. Ein von der Cellpose 4-Version in spaCR ladbares Modell vom Typ Cellpose-SAM oder Cellpose-DINO erhält einen ``cellpose``-Eintrag mit Verweis auf seine bioimage.io-Seite. Ein Checkpoint im Format von Cellpose 3 erhält einen ``cellpose3``-Eintrag, der die Gewichtsdatei selbst herunterlädt und anhand der im Manifest veröffentlichten SHA-256-Prüfsumme prüft, damit das Backend von Cellpose 3 sie ausführen kann.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Best effort and never throws: no network, a slow mirror or a changed schema all mean \"no extra rows\", never a zoo that fails to open. The response is cached so opening the dialog repeatedly is not repeatedly a network call.",
       "label": "spacr.model_zoo.bioimageio_entries#2",
       "source": "Best effort and never raises: no network, a slow mirror or a changed schema all mean \"no extra rows\", never a zoo that fails to open. The response is cached so opening the dialog repeatedly is not repeatedly a network call.",
       "source_sha256": "087bb2cae59e0d5cd10e3a3d5f849470e3dd46edc263206dda0b8cb828b33c8c",
-      "translation": "Fehler werden abgefangen: Fehlendes Netzwerk, ein langsamer Spiegelserver oder ein geändertes Schema bedeuten lediglich \"no extra rows\", also keine zusätzlichen Einträge. Der Modellkatalog lässt sich weiterhin öffnen. Die Antwort wird zwischengespeichert, damit wiederholtes Öffnen des Dialogs nicht jedes Mal eine Netzwerkanfrage auslöst."
+      "translation": "Fehler werden abgefangen: Fehlendes Netzwerk, ein langsamer Spiegelserver oder ein geändertes Schema bedeuten lediglich \"no extra rows\", also keine zusätzlichen Einträge. Der Modellkatalog lässt sich weiterhin öffnen. Die Antwort wird zwischengespeichert, damit wiederholtes Öffnen des Dialogs nicht jedes Mal eine Netzwerkanfrage auslöst.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unvetted models uploaded by spaCR users, or an empty list.",
