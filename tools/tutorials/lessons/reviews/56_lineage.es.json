@@ -1,33 +1,37 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "es",
-  "title": "Lineage: identidades de contención y recortes del padre verificados",
-  "description": "Revisar relaciones guardadas, límites de visualización y el recorte del padre sin aceptar la sustitución incorrecta de imágenes hijas.",
+  "title": "Lineage: recorrer objetos padre y su contenido",
+  "description": "Abre las relaciones padre-hijo guardadas, selecciona una familia y revisa en Annotate el recorte de la célula padre correspondiente.",
   "objectives": [
-    "Abrir Lineage dentro de Database Browser y construir el árbol real.",
-    "Distinguir recuentos completos, familias visibles e identidades con tipo.",
-    "Reconocer la sustitución incorrecta e inspeccionar solo el padre verificado.",
-    "Usar el zoom nativo y distinguir la exportación Python de los controles gráficos."
+    "Cargar mediciones y desplegar las relaciones padre-hijo.",
+    "Seleccionar objetos comprobando el campo y el tipo de objeto.",
+    "Abrir el recorte de la célula padre correspondiente y obtener la jerarquía completa con Python."
   ],
-  "prerequisite": "Use el ejemplo descargado de Annotate con mediciones y recortes celulares correspondientes. El archivo Graph Builder contiene la base exacta sin imágenes; el de Lineage contiene el CSV de la API y la revisión, no otra base. No use la sustitución actual para identificar o etiquetar hijos sin imagen.",
+  "prerequisite": "Descarga el ejemplo completo de Annotate con su base de datos de mediciones y los recortes de células correspondientes. El archivo solo de base de datos de Graph Builder no puede aportar imágenes. Este ejemplo solo incluye recortes de células: usa un doble clic en la célula padre para revisar un recorte. La acción actual Open crops sobre una familia puede sustituir los recortes hijo que faltan por recortes de células no relacionadas; evita esa acción con este ejemplo.",
   "scenes": [
-    "Busque Database Browser en Help y abra su herramienta anidada Lineage. Aquí lineage significa contención guardada: qué objetos pertenecen al interior de qué células. No es una historia de divisiones, ascendencia genética ni una nueva segmentación. Los controles de base que rodean la vista pertenecen al módulo anfitrión.",
-    "Abra measurements punto db del ejemplo real de Annotate y construya el árbol. Usamos una copia privada sin cambios. Ensanche Object y el separador si las etiquetas quedan estrechas. Los números se repiten entre campos y tipos de objeto; un número solo no identifica un objeto.",
-    "La fuente completa contiene dos mil trescientas cuarenta y una células, dos mil seiscientos ochenta y dos núcleos y dos mil ciento setenta y ocho objetos en la tabla pathogen. Solo aparecen dos mil familias: trescientas cuarenta y una quedan fuera de la vista, no se borran de la base.",
-    "El resumen dice que ninguna célula está vacía porque un núcleo también cuenta como hijo. No significa que todas tengan un objeto de la tabla pathogen: mil ciento sesenta y ocho no lo tienen. Que no haya hijos sin asignar solo indica que sus padres registrados existen, no que la segmentación sea biológicamente correcta.",
-    "Expanda un padre para ver sus hijos. En este campo, la célula tres contiene el núcleo cinco y el objeto pathogen uno según los vínculos guardados. Son identidades con tipo, no números intercambiables. Seleccionar un hijo solo es distinto de seleccionar toda la familia.",
-    "Select with contents publica el padre y sus hijos. Seleccionar un padre junto con uno de sus hijos no requiere duplicar ese hijo. Las claves conservan campo y tipo de objeto, aunque su columna está oculta. Publicar una identidad no demuestra que exista un recorte correspondiente.",
-    "Las familias grandes requieren inspección, no interpretación biológica automática. El ejemplo incluye una familia con treinta y tres objetos en total. La contención puede reflejar errores de segmentación o adquisición. El árbol informa relaciones guardadas, sin validar recuentos extraños como descubrimientos.",
-    "Un clic en el encabezado ordena las familias visibles sin cambiar su contención. Sigue vigente el límite de dos mil padres. Comprobamos cada identidad visible, cada vínculo parental y toda la jerarquía. Una vista reordenada o truncada no es una tabla de mediciones editada.",
-    "Open crops necesita Annotate como visor de imágenes. El mensaje pide abrir Annotate primero. Un visor ausente es distinto de una imagen faltante. Cargue el proyecto correspondiente antes de pedir recortes, no otra ejecución con números casualmente parecidos.",
-    "El proyecto descargado aporta recortes celulares reales. El archivo que solo contiene la base no incluye esas imágenes. Usamos el ejemplo completo correspondiente y preservamos todos los recortes originales. Abrir la fuente no entrena un clasificador ni establece nuevas etiquetas.",
-    "Esta versión tiene una limitación seria. Abrir la familia de tres objetos muestra la célula tres y después las células cinco y uno, ajenas a la solicitud, en vez del núcleo y el objeto pathogen. La fuente solo tiene recortes de células. Rechace la sustitución: no los etiquete como los hijos ausentes. El tutorial no repara el fallo.",
-    "La alternativa verificada es más limitada: vuelva a Lineage y haga doble clic únicamente en la célula padre. A diferencia de Open crops, envía solo el padre y no su familia. Annotate muestra exactamente ese recorte. Verificamos identidad y bytes originales, sin implicar compatibilidad con recortes hijos.",
-    "Mantenga Mayús y haga clic en la miniatura del padre para ampliar su vista previa sin asignar una clase. Escape vuelve a la cuadrícula. Esto facilita la inspección, pero no crea resolución adicional. Use el gesto correcto: un clic izquierdo normal anota, no activa el zoom mostrado.",
-    "Build tree actualiza la vista. En Python, read_object_tables, build_forest y lineage_frame ofrecen la misma estructura. El CSV enlazado contiene los siete mil doscientos un nodos, incluidas familias omitidas de la vista. Lo escribió la API, no un botón de exportación de Lineage, y no es validación biológica."
+    "Desde Home, abre Database Browser y luego Lineage. Usa el árbol para ver qué objetos medidos están guardados dentro de cada célula padre.",
+    "Ve con Browse a measurements.db del ejemplo de Annotate y haz clic en Build tree. Ensancha la columna Object y el divisor para leer las etiquetas. Identifica cada objeto por su campo y su tipo, además de por su número.",
+    "Esta base de datos contiene dos mil trescientas cuarenta y una células. El árbol muestra hasta dos mil familias padre. Usa la exportación con Python que verás más adelante en esta lección cuando necesites todas las familias.",
+    "Lee el resumen que hay encima del árbol. Un núcleo cuenta como hijo, así que una célula con contenido puede no tener ningún objeto patógeno. Usa los tipos de hijo para interpretar cada familia.",
+    "Despliega un padre para ver sus hijos. Aquí la célula tres contiene el núcleo cinco y el patógeno uno. Elige el tipo de objeto concreto que quieres revisar.",
+    "Usa Select with contents para seleccionar a la vez el padre y sus hijos. Las identidades seleccionadas incluyen su campo y su tipo de objeto. Selecciona solo un hijo cuando únicamente necesites ese objeto.",
+    "Despliega una familia grande para revisar su contenido. Este ejemplo incluye una familia con treinta y tres objetos. Revisa las imágenes correspondientes cuando un recuento parezca inusual.",
+    "Haz clic en un encabezado de columna para ordenar las familias mostradas. La ordenación mantiene las relaciones guardadas y el límite de visualización de dos mil padres.",
+    "Para ver recortes, abre primero Annotate y carga el proyecto de ejemplo correspondiente. Si ves el mensaje que pide Annotate, ábrelo antes de pedir imágenes desde Lineage.",
+    "Usa el proyecto descargado completo, que incluye los recortes de células. Mantén juntas la base de datos y las imágenes de la misma ejecución para que coincidan las identidades de los objetos.",
+    "Evita Open crops sobre una familia entera en este ejemplo. Los recortes de núcleos y patógenos que faltan pueden sustituirse por recortes de células no relacionadas. Vuelve al árbol y elige solo la célula padre.",
+    "Haz doble clic en la célula padre en Lineage. Annotate abre el recorte de célula correspondiente a ese padre. Este es el recorte disponible en el ejemplo descargado.",
+    "Haz clic con Shift en la miniatura del padre para ampliar su vista previa y luego pulsa Escape para volver. Un clic izquierdo normal asigna una clase de anotación, así que usa Shift cuando solo quieras revisar.",
+    "Haz clic en Build tree para actualizar la vista. Para la jerarquía completa en Python, usa read_object_tables, build_forest y lineage_frame, y guarda la tabla como CSV. El CSV de ejemplo enlazado contiene los siete mil doscientos un nodos."
   ]
 }
