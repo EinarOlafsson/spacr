@@ -1148,6 +1148,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 493, 2026-09-26: the parallel GPU mask controls, their greyed-out
 # reasons, the Cluster Distribution profile and the per-GPU progress line.
 # 569, 2026-09-26: the Show alpha features switch and its tooltip.
+# 548, 2026-09-26: the folder-watch progress line on Make Masks.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Show alpha features',
     'Show the settings, controls, screens and models built from the '
@@ -1167,6 +1168,7 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'starting',
     'stopped',
     '{done}/{total} {role} batches done, {failed} failed',
+    'Watching: {done} analysed, {waiting} waiting, {failed} failed',
 })
 
 

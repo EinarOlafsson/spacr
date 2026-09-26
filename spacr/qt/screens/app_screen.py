@@ -4433,6 +4433,25 @@ class AppScreen(QWidget):
         self._gpu_progress.setVisible(
             _is_alpha_visible("widgets", self._gpu_progress.objectName()))
 
+    def _show_watch_progress(self, chunk: str) -> None:
+        """Show how many fields a folder watch has analysed, awaits and lost.
+
+        :param chunk: worker output; text without a folder-watch count line
+            leaves the label unchanged.
+        """
+        from ..bridge import _watch_folder_progress
+        from ..i18n import tr
+
+        report = _watch_folder_progress(chunk)
+        if report is None:
+            return
+        self._watch_progress.setText(tr(
+            "Watching: {done} analysed, {waiting} waiting, {failed} failed"
+        ).format(**report))
+        from ..preferences import _is_alpha_visible
+        self._watch_progress.setVisible(
+            _is_alpha_visible("widgets", self._watch_progress.objectName()))
+
     def _lay_out_setting_row(self, section, label, widget) -> None:
         """Put one setting on ``section``'s form: its label, then its field.
 
@@ -7549,6 +7568,10 @@ class AppScreen(QWidget):
         self._gpu_progress.setObjectName("MaskGpuProgress")
         self._gpu_progress.setVisible(False)
         row.addWidget(self._gpu_progress)
+        self._watch_progress = QLabel()
+        self._watch_progress.setObjectName("WatchFolderProgress")
+        self._watch_progress.setVisible(False)
+        row.addWidget(self._watch_progress)
 
         from ..widgets import AiToggleLabel
 
@@ -8314,6 +8337,8 @@ class AppScreen(QWidget):
         self._progress.setVisible(True)
         self._gpu_progress.clear()
         self._gpu_progress.setVisible(False)
+        self._watch_progress.clear()
+        self._watch_progress.setVisible(False)
 
         import time as _time
         self._run_started_at = _time.time()
@@ -8341,6 +8366,7 @@ class AppScreen(QWidget):
         self._worker = worker
         worker.line_ready.connect(self._console.append_stdout)
         worker.line_ready.connect(self._show_mask_gpu_progress)
+        worker.line_ready.connect(self._show_watch_progress)
         worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
         worker.result_ready.connect(self._on_pipeline_result)

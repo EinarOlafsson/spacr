@@ -20277,6 +20277,35 @@
     "qualname": "get_default_generate_activation_map_settings"
    }
   ],
+  "mask_parallel": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mask_parallel",
+    "line": 644,
+    "module": "spacr._mask_workers",
+    "nested": false,
+    "qualname": "_parallel_mask_plan"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mask_parallel",
+    "line": 265,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mask_parallel",
+    "line": 1125,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
   "mask_src": [
    {
     "form": "subscript",
@@ -52189,6 +52218,108 @@
     "qualname": "plan_4d_from_settings"
    }
   ],
+  "watch_folder": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_folder",
+    "line": 260,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_folder",
+    "line": 1127,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
+  "watch_idle_minutes": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_idle_minutes",
+    "line": 1132,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
+  "watch_measure_settings": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_measure_settings",
+    "line": 955,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "_watch_measure_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_measure_settings",
+    "line": 1129,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
+  "watch_pipeline": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_pipeline",
+    "line": 986,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "_watch_analyse_field"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_pipeline",
+    "line": 1136,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "_watch_check_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_pipeline",
+    "line": 1128,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
+  "watch_poll_seconds": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_poll_seconds",
+    "line": 1131,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
+  "watch_settle_seconds": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "watch_settle_seconds",
+    "line": 1130,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
   "weight_decay": [
    {
     "form": "keyword",
@@ -52676,7 +52807,7 @@
  "nested_consumers_only": 0,
  "no_consumer_found": 136,
  "setting_count": 1078,
- "target_count": 856,
+ "target_count": 860,
  "targets": {
   "CP_prob": {
    "exact": true,
@@ -54422,6 +54553,11 @@
    "exact": true,
    "module": "spacr.deep_spacr",
    "symbol": "generate_activation_map"
+  },
+  "mask_parallel": {
+   "exact": true,
+   "module": "spacr.core",
+   "symbol": "preprocess_generate_masks"
   },
   "mask_src": {
    "exact": true,
@@ -56877,6 +57013,21 @@
    "exact": true,
    "module": "spacr.measure",
    "symbol": "resolve_measurement_spacing"
+  },
+  "watch_folder": {
+   "exact": true,
+   "module": "spacr.core",
+   "symbol": "preprocess_generate_masks"
+  },
+  "watch_measure_settings": {
+   "exact": false,
+   "module": "spacr.core",
+   "symbol": ""
+  },
+  "watch_pipeline": {
+   "exact": false,
+   "module": "spacr.core",
+   "symbol": ""
   },
   "weight_decay": {
    "exact": true,
