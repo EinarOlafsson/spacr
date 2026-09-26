@@ -204,7 +204,9 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     download_sources = _new_download_sources("sv", all_reviewed)
     subsequent_sources = _subsequent_review_sources("sv", all_reviewed)
     # +720/-0 on 2026-09-25: the runtime translation debt cohort (316).
-    debt_sources = _runtime_debt_sources("sv", all_reviewed, 720)
+    # 720 -> 712 on 2026-09-25 (474): eight organism-page paragraphs were
+    # rewritten when twenty proposals became live or Coming soon tiles.
+    debt_sources = _runtime_debt_sources("sv", all_reviewed, 712)
     assert not debt_sources & (ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources)
     older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources - debt_sources
     reviewed = {source: value for source, value in all_reviewed.items()
@@ -453,7 +455,9 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
                                   preview_sources | normalized_sources)
     subsequent_sources = _subsequent_review_sources("fr", all_reviewed)
     # +720/-0 on 2026-09-25: the runtime translation debt cohort (316).
-    debt_sources = _runtime_debt_sources("fr", all_reviewed, 720)
+    # 720 -> 712 on 2026-09-25 (474): eight organism-page paragraphs were
+    # rewritten when twenty proposals became live or Coming soon tiles.
+    debt_sources = _runtime_debt_sources("fr", all_reviewed, 712)
     assert not debt_sources & (example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources)
     older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources - debt_sources
     reviewed = {source: value for source, value in all_reviewed.items()

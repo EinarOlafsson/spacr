@@ -2154,7 +2154,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # pairs_match and read_label_mask; model_share_dialog's
     # contribute_masks_tooltip and ContributeMasksDialog (constructor, use,
     # source, target, upload); MakeMasksScreen.contribute_images_and_masks.
-    assert len(callables) == len(by_symbol) == 9_732
+    # +3 more with item 474: organisms.workflow, organism_screen.open_workflow
+    # and OrganismScreen.open_workflow.
+    assert len(callables) == len(by_symbol) == 9_735
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2219,10 +2221,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # and +17 function, +23 method, +1 constructor, +2 inherited, +4
         # namedtuple with the 47 from 03a02c3b8.
         # Item 528: +5 function, +5 method, +1 constructor.
-        "function": 4_341,
+        # Item 474: +2 function, +1 method.
+        "function": 4_343,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_204,
+        "method": 4_205,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         "constructor": 449,
@@ -2275,7 +2278,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # which is what those two buckets are for.
         # 9,522 -> 9,630 -> 9,640 -> 9,687 on 2026-09-25, as the total.
         # 9,716 -> 9,727 with item 528's eleven, as the total.
-        "autoapi": 9_727,
+        "autoapi": 9_730,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2323,7 +2326,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
     # 9,534 -> 9,642 -> 9,652 -> 9,699 on 2026-09-25: +108, +10, +47.
     # 9,728 -> 9,739 with item 528's eleven, one prose variant each.
-    assert sum(item.variant_count for item in callables) == 9_739
+    assert sum(item.variant_count for item in callables) == 9_742
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
