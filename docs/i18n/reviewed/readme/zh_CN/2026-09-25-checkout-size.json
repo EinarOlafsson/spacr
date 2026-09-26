@@ -5,9 +5,9 @@
   "records": [
     {
       "label": "dated-clone-and-current-checkout-size",
-      "source_sha256": "532d05298d46b2636fd88859d93b603d52329b70dddcce2957eb3aa0189c58f2",
-      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1934 MB checkout (measured 2026-09-25), excluding Git history. Download sizes and times vary with the branch.",
-      "translation": "在 2026-09-15 的测量中，完整克隆下载了 5.8 GB。向浅克隆添加 ``--filter=blob:none`` 没有减少其测得的下载量。nightly 中受 Git 跟踪的文件检出后共占 1934 MB（2026-09-25 测量），不含 Git 历史。下载大小和耗时随分支而变化。"
+      "source_sha256": "b3899d17bfd5dec48abac58b8a5d0a6c187c491db4117b7b280e1929ba4d1103",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1642 MB checkout (measured 2026-09-25), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "在 2026-09-15 的测量中，完整克隆下载了 5.8 GB。向浅克隆添加 ``--filter=blob:none`` 没有减少其测得的下载量。nightly 中受 Git 跟踪的文件检出后共占 1642 MB（2026-09-25 测量），不含 Git 历史。下载大小和耗时随分支而变化。"
     }
   ]
 }
