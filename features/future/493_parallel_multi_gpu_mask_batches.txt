@@ -1,8 +1,9 @@
 493 — PARALLEL MULTI-GPU MASK BATCHES
 ====================================
-Status: IN PROGRESS, requested2026-09-23. Manifest, device allocation, process
-workers and resume helpers implemented; pipeline/control integration and real
-multi-GPU validation remain open.
+Status: IMPLEMENTED AS ALPHA, requested2026-09-23. Pipeline, Mask Generation
+and Cluster Distribution controls are wired; output matches the single-GPU run
+byte for byte on plate1. Validation on a machine with two physical GPUs remains
+open (this machine has one).
 Scope: Cluster Distribution and Mask Generation. Filed for later work;
 this request does not add a prerequisite to the1.5.1.0release plan.
 
@@ -196,3 +197,40 @@ cells while the source arrays and raw receipts remain valid.125checks pass,
 including actual adjustment, merged arrays, QC count/CSV, interruption/restart,
 source symlinks and invalid overrides. Parallel pipeline/control dispatch
 still needs wiring; these additions keep the ordinary default path unchanged.
+
+2026-09-26 — Pipeline dispatch, controls and single-card acceptance
+preprocess_generate_masks dispatches each object role to the process workers
+when mask_parallel is on and two or more GPUs are visible (or named in
+mask_gpu_indices). Preparation runs once. Shared QC, cell adjustment (written
+to masks/adjusted_cell_mask_stack, raw cell masks kept) and the merge run once,
+after every worker finishes. A per-role ledger (.mask-workers-<role>.json)
+resumes only unfinished archives and refuses masks from different settings.
+Parallel is refused for timelapse and t_stack runs. With fewer than two GPUs
+the ordinary single-device path runs unchanged. mask_parallel defaults off.
+Controls: mask_parallel and mask_gpu_indices are in Mask's Runtime & Reliability group;
+both are greyed, with the reason on hover, when fewer than two compatible
+CUDA/ROCm GPUs are visible, and the GPU list is greyed while mask_parallel is
+off. Timelapse keeps both hidden. Cluster Distribution has a Mask-only checkbox
+that submits mask_parallel on with a blank GPU list, so the job uses the GPUs
+its scheduler allocates. A progress label under the run shows overall and
+per-GPU archive counts.
+Acceptance on real plate1 (13 fields, cell/nucleus/pathogen, Cellpose-SAM,
+one RTX 3090, each run a separate gpu_turn.sh turn): nightly, this branch
+serial and this branch parallel. The parallel run had two worker processes
+sharing the one card via a patched device table. merged/, cell, nucleus and
+pathogen mask stacks were byte-identical across all three (parallel adjusted
+cells equal serial in-place cells). measurements.db rows were identical apart
+from run IDs and timestamps (object_counts rows arrive in worker-completion
+order). All three ledgers finalized 7/7 archives. Wall time: nightly 482 s,
+serial 446 s, parallel 728 s. Two workers on one card are slower, so this is
+not a speed measurement.
+Tests: 28 pipeline tests (real spawned CPU workers: serial equality, exactly-
+once writes, interrupted-worker resume, changed-settings refusal, core
+dispatch) and 7 Qt control tests pass with CUDA_VISIBLE_DEVICES=''. The ten
+new captions wait in _AWAITING_CATALOG_REBUILD for the catalog lane.
+Still open: step 5 on two or more physical GPUs (simultaneous execution on
+distinct devices, mixed memory limits, no use of unselected devices), and
+resolved-model contracts for backends other than Cellpose.
+ALPHA: settings mask_parallel, mask_gpu_indices; widgets: the mask_parallel
+and mask_gpu_indices controls in Mask Generation, the Cluster Distribution
+checkbox DistributedAllocatedGpus, the progress label MaskGpuProgress.
