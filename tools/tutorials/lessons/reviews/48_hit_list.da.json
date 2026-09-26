@@ -1,29 +1,34 @@
 {
   "lesson": "48_hit_list",
-  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "da",
-  "title": "Hit List: undersøg kandidater i et tydeligt eksternt hjælpevindue",
-  "description": "Brug uændrede Regression-resultater til de rigtige Hit List-filtre og eksporter med en tydeligt forklaret omvej uden om det skjulte panel.",
+  "title": "Hit List: filtrér kandidater, og eksportér en kortliste",
+  "description": "Indlæs Regression-resultater, filtrér efter q-værdi, antal guides og overensstemmelse, og eksportér derefter de valgte kandidater.",
   "objectives": [
-    "Skeln mellem den defekte indbyggede genvej og det eksterne hjælpeprogram.",
-    "Fortolk rangerede kandidater uden at kalde dem signifikante fund.",
-    "Filtrer, gendan og eksporter de faktiske rækker."
+    "Åbne eksemplets Regression-resultater med det medfølgende hjælpescript.",
+    "Filtrere kandidater og læse deres effekter og guideoverensstemmelse.",
+    "Eksportere de valgte rækker som CSV, Markdown eller HTML."
   ],
-  "prerequisite": "Udpak Hit_List_real_results_companion.zip, aktivér spaCR-miljøet, kør python hit_list_companion.py, og vælg results med Browse. Programmet bruger uændret HitListScreen; det reparerer ikke navigationen og forbinder ikke Investigate. Arkivet indeholder oprindelige resultater, ikke et helt projekt: 325 gener, 434 guiderækker og ingen gener med q <= .05. Standardiserede marginale effekter er ikke samtidigt estimerede multivariable koefficienter. Manglende intervaller er utilgængelige. n_obs=0 angiver ikke den reelle brøndstøtte: wells_with_gene i results_gene.csv går fra 2 til 48. Metadatajoins, penaliseret rangering og Investigate er ikke med. Ingen træning, ny regression, GPU eller forespørgsel til en AI-udbyder kræves. API: spacr.hits.build_hit_list og HitList.filter/write_csv/to_markdown/to_html.",
+  "prerequisite": "Udpak Hit_List_real_results_companion.zip, og aktivér dit spaCR-miljø. Den nuværende genvej Hits i Regression viser ikke panelet; kør i stedet python hit_list_companion.py, og brug Browse til at gå til den udpakkede resultatmappe. Hjælpescriptet er ikke forbundet med Investigate. Brug wells_with_gene fra results_gene.csv til antallet af understøttende brønde: den eksporterede n_obs=0 er ikke den faktiske understøttelse. Eksemplet indeholder ingen gener, der opfylder q <= 0.05.",
   "scenes": [
-    "Hit List hører under Regression. I denne version vælger et klik på Hits en side i et skjult panel, så listen ikke vises. Tutorialen viser begrænsningen åbent. Det næste vindue er et eksternt hjælpeprogram, ikke bevis for at den indbyggede genvej er rettet.",
-    "Udpak det linkede eksempel, aktivér dit spaCR-miljø, og kør det medfølgende Hit List-hjælpescript. Det mærkede vindue åbner spaCRs eksisterende widget uden at ændre beregningerne. Klik Browse, og vælg results. Regressionen køres ikke igen, og Investigate-integrationen er ikke tilsluttet her.",
-    "Det oprindelige eksempel indlæser 325 gener. Dobbeltklik på kolonnegrænserne, hvis værdier er beskåret. Læs effektretning, rå P, korrigeret q og guideoverensstemmelse hver for sig. Manglende konfidensintervaller er utilgængelige. Effekterne er standardiserede marginale effekter; nul i den eksporterede observationskolonne er ikke det faktiske antal understøttende brønde.",
-    "Sæt Max q til 0,05. Ingen gener bliver tilbage, fordi den mindste gen-q-værdi er cirka 0,271. En tom filtreret tabel betyder ikke importfejl. Gendan Max q til én for at få alle kandidater tilbage, uden at erklære dem for fund.",
-    "Minimum guides på to beholder 117 gener med mindst to testede guiderækker. Det tæller tilgængelig evidens, ikke alle guider oprindeligt designet til biblioteket. Filteret ændrer den viste delmængde uden at genberegne korrektionen for multiple test.",
-    "Minimum agreement på én beholder derefter 57 gener, hvor alle testede guider har samme fortegn som geneffekten. Enighed beviser hverken signifikans eller kausalitet. Resuméet angiver stadig nul signifikante gener understøttet af enige guider, selv om disse kandidater har enige guider.",
-    "Hide controls fjerner én kontrolrække og efterlader 56 kandidater. Gendan den før eksporten. At skjule kontroller tilpasser ikke modellen igen og ændrer ikke korrektionsfamilien; bevar deres identiteter i fortolkningen.",
-    "Når de andre filtre er nulstillet, viser Direction up positive effekter. En mindste absolut effekt på 0,1 efterlader 16 rækker. Det er illustrative visningsvalg, ikke anbefalede grænser. Gendan retning og effekt før søgning eller sammenligning af en anden delmængde.",
-    "Søg efter en registreret identifikator for at undersøge en faktisk række. En søgning uden træffere giver en tom tabel; den kendte identifikator gendanner rækken, og en tom søgning hele populationen. Filtreringen er reversibel. Annotationsimport og Investigate kræver egne kontroller.",
-    "Til eksport vælges igen to guider, fuld overensstemmelse, kontroller inkluderet og tom søgning. Alle tre eksporter indeholder de samme 57 kandidater her. Markdown og HTML afrunder tal; CSV bevarer numeriske detaljer. Gem filtrene separat, da filerne ikke registrerer alle indstillinger.",
-    "Nulstil filtrene for at få alle 325 gener tilbage. Hold eksporterede delmængder adskilt fra uændrede originaler, og kald ikke ikke-signifikante kandidater validerede fund. Python har samme læser og filtre; kontrollér hvert formats rækkegrænse ved større lister."
+    "Fra Home åbner du Regression og vælger Hits. Hvis panelet forbliver skjult, bruger du hjælpescriptet, der følger med lektionen, til at åbne Hit List.",
+    "Udpak det linkede eksempel, og aktivér dit spaCR-miljø. Kør python hit_list_companion.py. I hjælpescriptets vindue klikker du på Browse og vælger den udpakkede resultatmappe.",
+    "Eksemplet indlæser 325 gener. Gør kolonnerne bredere for at læse effekt, P, q og guideoverensstemmelse. Effekterne er standardiserede marginale effekter. For antallet af understøttende brønde læser du wells_with_gene i results_gene.csv; et eksporteret observationsantal på 0 betyder, at understøttelsen ikke er tilgængelig.",
+    "Sæt Max q til 0,05. Ingen gener i eksemplet består, så tabellen bliver tom. Sæt Max q tilbage til 1 for at gennemse alle kandidater.",
+    "Sæt Minimum guides til 2. Der er 117 gener tilbage med mindst to testede guiderækker. Filteret bevarer de oprindelige q-værdier.",
+    "Sæt Minimum agreement til 1. Der er 57 kandidater tilbage, hvor alle testede guides deler genets effektfortegn. Læs overensstemmelsen sammen med q: disse kandidater når stadig ikke signifikansgrænsen.",
+    "Slå Hide controls til for at fjerne kontrolrækken fra visningen, så der er 56 kandidater tilbage. Slå det fra igen for at medtage rækken i den senere eksport.",
+    "Ryd de andre filtre, vælg Direction up, og sæt Minimum absolute effect til 0,1. Der er 16 rækker tilbage. Vælg tærskler til din analyse, og gendan derefter disse kontroller før næste trin.",
+    "Skriv et id i Search for at finde dets række. En søgning uden træf tømmer tabellen. Ryd Search for at gendanne det aktuelle filtrerede udvalg.",
+    "Til eksport indstiller du to guides, fuld overensstemmelse, kontroller medtaget og tom søgning. Eksportér de 57 valgte rækker som CSV, Markdown eller HTML. CSV bevarer de numeriske detaljer. Gem filtervalgene sammen med dine filer.",
+    "Ryd filtrene for at vende tilbage til alle 325 gener. Hold kortlisteeksporter adskilt fra de oprindelige resultater. I Python bruger du build_hit_list, derefter filter og skrivefunktionerne til CSV, Markdown eller HTML; kontrollér rækkegrænsen for hvert format."
   ]
 }
