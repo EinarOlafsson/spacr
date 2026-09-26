@@ -1,7 +1,8 @@
 A "SHOW ALPHA FEATURES" PREFERENCE, OFF BY DEFAULT, HIDES EVERYTHING BUILT FROM THE FUTURE LIST
 
-Status: OPEN, filed 2026-09-26. Not started.
-Owner: unassigned. Standing rule recorded in features/README.md.
+Status: DONE 2026-09-26. Switch, one registry, gate on every surface, 426
+        and 493 registered, registry-walk and guard tests pass.
+Owner: Claude. Standing rule recorded in features/README.md.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "These should all be in future features and there should be a preference
@@ -32,3 +33,70 @@ DONE WHEN
 With the switch off, none of the registered alpha settings/widgets/rows are
 visible anywhere in the GUI; turning it on shows them at once; runs with
 saved alpha settings still work headless; the guard test holds the rule.
+
+2026-09-26 -- BUILT
+The switch: Preferences -> Modules -> Module visibility -> "Show alpha
+features" (object name ShowAlphaFutureFeatures), key
+prefs/show_alpha_features, default off (_get/_set_show_alpha_features in
+spacr/qt/preferences.py). It is separate from the older "Show Alpha modules
+and settings" switch, which is about a module's maturity stage and defaults
+on; flipping that one would have hidden Queue, Batch, Database Browser and
+ten other released modules. Save/OK applies it live: MainWindow.refresh_theme
+calls _refresh_alpha_visibility on every open screen and walks the window for
+registered widgets; a screen opened later is gated as it joins the stack.
+Save and Reset find the switch by object name, so they work whether the
+Modules page is built when the dialog opens or later (item 284).
+
+The registry: spacr.settings.ALPHA_FEATURES = {item: {kind: names}}, kinds
+in ALPHA_KINDS: settings, choices ({key: (values,)}), widgets (Qt object
+names of buttons, checkboxes, labels, QActions, panels), apps (module keys:
+tile, sidebar, menu, palette, Help), models (Model Zoo key, name or family
+stem). Helpers _alpha_names / _alpha_choices / _is_alpha there; the gate is
+spacr.qt.preferences._is_alpha_visible(kind, name, choice) and
+_apply_alpha_widgets(root). The helpers are underscored ON PURPOSE: a public
+name joins the API documentation inventory, whose catalogs only the docs lane
+regenerates (the en API catalog ratchet failed at 11,828 vs 11,816 with them
+public). The registry constants carry no docstring for the same reason; the
+explanation lives in _alpha_names. Making them public is a docs-lane change.
+No existing docstring was edited, so no catalog hash moved.
+
+Where the gate is applied:
+  settings  AppScreen rows hidden (the widget and its value stay, so the run
+            still gets them); left out of the settings search index, so not
+            searchable and not in the "N settings" count; the object rule is
+            told they are hidden (_rows_the_filters_hide); Help search's
+            setting rows skip them.
+  choices   the combo entry is hidden in the list and disabled, not removed,
+            so a settings file that chose it still loads and runs.
+  widgets   _apply_alpha_widgets hides the named widgets/actions and restores
+            only the ones it hid.
+  apps      app_is_visible (sidebar, Home, spaCR menu, command palette, Help).
+  models    ModelZooScreen rows and the Model Zoo picker (_model_is_alpha_hidden).
+Headless and CLI runs never consult the registry.
+
+Registered now:
+  426  settings timeflows_model; choices timelapse_mode='timeflows'.
+  493  settings mask_parallel, mask_gpu_indices; widgets
+       DistributedAllocatedGpus, MaskGpuProgress (its owner shows the
+       progress line only through the gate).
+
+HOW A FUTURE FEATURE REGISTERS: add one entry to ALPHA_FEATURES in
+spacr/settings.py keyed by its item number, listing what it adds by kind,
+and say so in the item note. Promotion out of alpha is deleting that entry.
+A widget needs a setObjectName; a dropdown entry is named by its value.
+
+Tests: tests/qt/test_alpha_features_gate.py. It walks the registry: each
+setting and dropdown entry is found on a real settings screen and asserted
+hidden (row, search index, search result) with the switch off, shown after
+the switch goes on and _refresh_alpha_visibility runs, hidden again, and still
+in collect(); every widget name hidden/restored and checked to exist as a
+setObjectName in spacr/; the real Cluster Distribution checkbox and GPU
+progress line; apps and zoo rows through a stand-in registration. The guard
+fails when a features/future item's Status headline says built, implemented
+or done and it has no registry entry; 59, 404, 405, 407, 423, 424, 425, 474,
+475, 476, 489, 490, 491 and 501 are exempt as "released before the alpha rule
+of 2026-09-26". The Status HEADLINE (first line) is what is read: 370 and 411
+mention "done"/"implemented" in the narration under an open status.
+The two new captions wait in the caption ratchet's _AWAITING_CATALOG_REBUILD
+for the catalog lane. The Help index is built once a session, so its setting
+rows follow the switch from the next launch, as its module rows already do.
