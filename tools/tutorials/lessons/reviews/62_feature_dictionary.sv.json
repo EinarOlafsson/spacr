@@ -1,20 +1,32 @@
 {
-  "lesson": "62_feature_dictionary", "language": "sv",
-  "english_sha256": "1e20922e62908000209a58019ff7d20436c5ce4a7e846c14865c6d48df2c49d7",
-  "review": {"kind": "Parent editorial rewrite checked against frozen English and actual GUI; corrected mean-intensity, unit-inference and lookup terminology; caption-only locale", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Feature Dictionary: slå upp betydelser, enheter och beräkningsfunktioner",
-  "description": "Använd den faktiska ordlistan under Help för att hitta definitioner, avgränsa dem efter begrepp och objekt och skilja allmän dokumentation från mätningar som finns i ett projekt.",
-  "objectives": ["Hitta ordlistan under Help och sök efter en idé eller ett mätnamn.", "Använd de faktiska begrepps- och objektfiltren utan att ändra projektdata.", "Läs enheter, beräkningsfunktioner och förbehåll, inklusive skillnaden mellan area och volym.", "Kopiera definitionstext och skilj uppslagspanelen från en projektspecifik Python-export."],
-  "prerequisite": "Inget projekt, ingen nedladdning och ingen modell behövs: Lektionen visar inbyggda definitioner. Inga mätningar, diagram, AI-förfrågningar, GPU-jobb eller filexporter utförs. Exempelkolumnerna finns i den verkliga mätdatabasen från Database Browser, men ordlistan läser inte in databasen här. Panelen listar för närvarande hundratals namn på organellroller; vanlig rullning visar funktionerna och anmärkningarna nedanför. Text kopieras bara till urklipp på inspelningens privata skrivbord.",
+  "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Feature Dictionary: hitta definitioner och enheter",
+  "description": "Sök på mätningsnamn eller begrepp, läs definitionen och enheterna och kopiera användbar referenstext.",
+  "objectives": [
+    "Hitta en definition efter namn eller begrepp.",
+    "Begränsa resultaten med begrepps- och objektfilter.",
+    "Läsa enheter och anteckningar och sedan kopiera definitionen."
+  ],
+  "prerequisite": "Ha ett mätkolumnnamn till hands, eller börja med en idé som storlek eller intensitet. Den inbyggda ordlistan kan öppnas utan att ett projekt är inläst.",
   "scenes": [
-    "Öppna Help och sedan Feature Dictionary. Fönstret slår upp inbyggda mätdefinitioner; det är varken ett eget arbetsflöde på Home eller en analys som ska köras. Inga data eller modeller behöver laddas ned.",
-    "Skriv en idé som size. Resultaten uppdateras medan du skriver, och Area visar sin definition. Antalet gäller matchande definitioner, inte uppmätta celler eller kolumner som har bekräftats finnas i projektet.",
-    "De faktiska listrutorna filtrerar efter begrepp och objekttyp. Här ger intensity och cell tretton definitioner. Filtren begränsar ordlistan, inte bilddata eller analysinställningar. Välj Any concept och Any object igen före nästa sökning.",
-    "Sök efter medelintensiteten i cellens kanal ett med det exakta kolumnnamnet på skärmen. Posten Mean intensity förklarar pixelstatistiken och dess enheter. En namnsökning hämtar dokumentation; den granskar inte kolumnens värden och bevisar inte att kolumnen finns i det aktuella projektet.",
-    "Rulla ned till Channel, Module och Computed by. Hänvisningen identifierar mätningens implementation, inklusive funktionen för utökade regionegenskaper. Ordlistan slår upp definitionen; den beräknar inte mätningen på nytt. Python-API:erna för uppslag finns i modulen feature_dict.",
-    "Slå nu upp cell_area. Läs villkoren under Unit: En tvådimensionell analys rapporterar pixelarea, medan samma namn representerar volym i tre dimensioner. Fältet measurement_units på raden avgör om volymen anges i kubiska bildpixelenheter eller kubikmikrometer. Dra inte slutsatser om fysiska enheter enbart från kolumnnamnet.",
-    "Läs också Note, inte bara huvuddefinitionen. Ett tredimensionellt värde som redan uttrycks i fysiska enheter ska inte räknas om igen. För projektspecifik dokumentation undersöker Python-funktionerna describe_database och export_dictionary databasen och tolkar dess registrerade mätenheter; de är inte knappar i den här panelen.",
-    "En sökning utan träff visar ingen definition. Det betyder att ordlistan inte hittade en matchning, inte att data inte kan innehålla en egen egenskap. Försök med ett känt namn eller en bredare idé; saknad dokumentation är inte ett vetenskapligt resultat.",
-    "Återgå till Area, markera detaljtexten och kopiera den. Inspelningen kontrollerar den faktiskt kopierade markeringen. Gränssnittet har ingen Run- eller Export-åtgärd: Att kopiera text är inte samma sak som att skapa en projektspecifik ordlistefil med Python. Stäng fönstret när du är klar; ingen analys har ändrats."
+    "Öppna Help och sedan Feature Dictionary. Använd fönstret när du vill förstå en mätkolumn i en resultattabell eller ett diagram.",
+    "Skriv size i sökfältet och välj Area bland resultaten. Definitionen visas till höger, och träfflistan uppdateras medan du skriver.",
+    "Välj ett begrepp och en objekttyp för att begränsa definitionerna. Prova intensity och cell. Återställ väljarna till Any concept och Any object för en bredare sökning.",
+    "Sök efter cell_channel_1_mean_intensity och välj Mean intensity. Läs statistiken och enheterna för att förstå vad kolumnen beskriver.",
+    "Rulla ned till Channel, Module och Computed by för fler detaljer. Använd den angivna beräkningsfunktionen som utgångspunkt i API-referensen.",
+    "Slå upp cell_area och läs Unit. I tvådimensionella mätningar anger den en area, i tredimensionella en volym. Kontrollera måttenheterna som registrerats i ditt projekt innan du räknar om värden.",
+    "Läs Note för förbehåll, till exempel värden som redan anges i fysiska enheter. För en ordlista över kolumnerna som faktiskt finns i en databas använder du describe_database och export_dictionary från Python.",
+    "Om ingen definition matchar rensar du filtren och provar ett bredare ord eller det exakta kolumnnamnet. Egna egenskaper kan behöva dokumentation från arbetsflödet som skapade dem.",
+    "Markera definitionstexten och kopiera den till dina anteckningar. Använd Pythons exportfunktioner när du behöver en projektspecifik ordlistefil, och gå sedan tillbaka till tabellen eller diagrammet."
   ]
 }
