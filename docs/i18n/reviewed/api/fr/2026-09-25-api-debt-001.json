@@ -4715,6 +4715,94 @@
       "context": "recorded or current Measure settings.",
       "translation": "réglages Measure enregistrés ou actuels.",
       "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.measurement_resume_settings#2",
+      "source": "keep a recorded kernel identity without reopening its file.",
+      "source_sha256": "be572c63aff8cfd1d9607704b5487ee0ae6f0e51e7650e494f6841a618680b05",
+      "context": "keep a recorded kernel identity without reopening its file.",
+      "translation": "conserver une identité de noyau enregistrée sans rouvrir son fichier.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.measurement_resume_settings#3",
+      "source": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
+      "source_sha256": "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667",
+      "context": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
+      "translation": "nouveaux réglages, sans les paramètres PSF inactifs et avec une seule signature de matériel capturé. Les mesures héritées ont la signature d’origine None.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#0",
+      "source": "Capture a calibrated kernel only for explicitly processed measurements.",
+      "source_sha256": "784f1a0c55d4f637bc9f2613b7ca874cf3560af55044ec9b719b31e0d5e7a18d",
+      "context": "Capture a calibrated kernel only for explicitly processed measurements.",
+      "translation": "Capture un noyau étalonné uniquement pour des mesures explicitement traitées.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#1",
+      "source": "PSF settings plus ``psf_measurement_source``: ``original`` (default; standard Measure intensities without PSF) or ``processed``. Processed requires convolution/deconvolution and explicit YX or ZYX sampling. Original retains stored PSF parameters without applying them.",
+      "source_sha256": "9e81c642fb0f2a429400d81c83865b68e9ac85ca95f2c8f37a6e46589a0a5091",
+      "context": "PSF settings plus ``psf_measurement_source``: ``original`` (default; standard Measure intensities without PSF) or ``processed``. Processed requires convolution/deconvolution and explicit YX or ZYX sampling. Original retains stored PSF parameters without applying them.",
+      "translation": "réglages PSF plus ``psf_measurement_source`` : ``original`` (par défaut ; intensités Measure standard sans PSF) ou ``processed``. Le mode processed nécessite une convolution/déconvolution et un échantillonnage YX ou ZYX explicite. Le mode original conserve les paramètres PSF stockés sans les appliquer.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#2",
+      "source": "immutable PSFPlan or None. The caller's settings are unchanged.",
+      "source_sha256": "14bba570e8023b33456ed6c207891fc476a8793b86cc3917aeb69a3af6fd5344",
+      "context": "immutable PSFPlan or None. The caller's settings are unchanged.",
+      "translation": "PSFPlan immuable ou None. Les réglages de l’appelant restent inchangés.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.prepare_measurement_psf#3",
+      "source": "for an invalid source, disabled processing when requested, or invalid calibrated kernel settings.",
+      "source_sha256": "eb4bda556360c7610a298ee7216bb71e19452f25589ed05fa34da2a43f947cd2",
+      "context": "for an invalid source, disabled processing when requested, or invalid calibrated kernel settings.",
+      "translation": "pour une source invalide, un traitement désactivé alors qu’il est demandé, ou des réglages de noyau étalonné invalides.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#0",
+      "source": "Refuse to mix incompatible intensity sources even when resume is off.",
+      "source_sha256": "14008cc31231f6f830a2ed20f4b7a254afd4b4d64ba5883f4a9bed44ee6f0470",
+      "context": "Refuse to mix incompatible intensity sources even when resume is off.",
+      "translation": "Refuse de mélanger des sources d’intensité incompatibles, même lorsque la reprise est désactivée.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#1",
+      "source": "current run settings, before its database snapshot is saved.",
+      "source_sha256": "a1335b87f8f104165b7a0c5916f7a2554d0474f73ac0d2ac3784a5078d38ac92",
+      "context": "current processing-session settings, before its database snapshot is saved.",
+      "translation": "réglages de l’exécution en cours, avant l’enregistrement de son instantané dans la base de données.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#2",
+      "source": "measurement database; absence means a new project.",
+      "source_sha256": "d988ebc6184ffafee2ca265ffefb02276a08e79b4b4d59f66324ccf1f8db9a9e",
+      "context": "measurement database; absence means a new project.",
+      "translation": "base de données de mesures ; son absence signifie un nouveau projet.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#3",
+      "source": "captured plan for this run.",
+      "source_sha256": "712e9fae80b9712a6327aeff258c1044b4a256ec279171e21af621151883ed8a",
+      "context": "captured plan for this run.",
+      "translation": "plan capturé pour cette exécution.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.psf_measurement.validate_measurement_psf_history#4",
+      "source": "when existing measurement rows use another PSF identity or cannot be proved to use the requested processed intensities.",
+      "source_sha256": "3d90e9593f4b403295109241dc9ed376a223bdc8cc874458554d87112bf3b125",
+      "context": "when existing measurement rows use another PSF identity or cannot be proved to use the requested processed intensities.",
+      "translation": "lorsque des lignes de mesure existantes utilisent une autre identité PSF, ou qu’il est impossible de prouver qu’elles utilisent les intensités traitées demandées.",
+      "review_basis": "MT draft edited in AI review"
     }
   ]
 }
