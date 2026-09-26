@@ -2,7 +2,7 @@
 spaCR FEATURES -- NEW, AND FUTURE
 ================================================================================
 
-Regenerated 2026-09-25 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-09-26 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/future/*.txt
@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-500 in features/new, 22 in features/future. NEITHER LIST BLOCKS A RELEASE.
+501 in features/new, 22 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -613,3 +613,4 @@ NEW FEATURES
   528  COMMUNITY IMAGES AND MASKS UPLOAD FROM MAKE MASKS
   529  THE DOCK AND THE RIGHT-HAND PANELS CAN BE RESIZED, AND CTRL+SCROLL SIZES THEIR TEXT
   530  SPACEOUT: FRACTAL THEME CHANGES TAKE EFFECT WITHOUT A RESTART
+  532  HOW GOOD EACH SEGMENTATION STRATEGY IS
