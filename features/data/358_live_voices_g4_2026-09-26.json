@@ -1,0 +1,1416 @@
+{
+  "source_commit": "543e9ea3e44a18c1f28bc5bfe16c1c0249de5c1a",
+  "workflow": 36269072488,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "543e9ea3e44a18c1f28bc5bfe16c1c0249de5c1a",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 625182517,
+    "media_files": 104
+  },
+  "candidate": "release-candidate-append-0ws6a_j_",
+  "media_revision": "6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f",
+  "cache_key": "voices-g4-20260926-0ws6a_j_",
+  "refreshed_lessons": [
+    "53_prediction_profiler",
+    "71_investigate_hit",
+    "85_host_pathogen",
+    "60_pca",
+    "59_anndata_export",
+    "61_tabulate",
+    "62_feature_dictionary",
+    "63_small_multiples",
+    "64_gate_editor",
+    "65_feature_explorer",
+    "66_outliers",
+    "67_experiment_design",
+    "68_power_design",
+    "69_dose_response",
+    "70_explain_cv",
+    "72_volcano_explorer",
+    "73_parameter_sweep",
+    "74_import_images",
+    "75_regression_diagnostics",
+    "76_ops",
+    "77_embeddings",
+    "82_toxoplasma",
+    "83_plasmodium",
+    "84_candida"
+  ],
+  "narration_voices": {
+    "53_prediction_profiler": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "71_investigate_hit": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "85_host_pathogen": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "60_pca": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "59_anndata_export": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "61_tabulate": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "62_feature_dictionary": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "63_small_multiples": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "64_gate_editor": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "65_feature_explorer": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "66_outliers": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "67_experiment_design": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "68_power_design": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "69_dose_response": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "70_explain_cv": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "72_volcano_explorer": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "73_parameter_sweep": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "74_import_images": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "75_regression_diagnostics": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "76_ops": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "77_embeddings": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "82_toxoplasma": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "83_plasmodium": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "84_candida": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    }
+  },
+  "hosted_web_lessons": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "05_home",
+    "07_mask",
+    "08_measure",
+    "09_annotate",
+    "10_classify_cv",
+    "11_classify_ml",
+    "12_map_barcodes",
+    "13_regression",
+    "14_make_masks",
+    "15_image_umap",
+    "16_activation",
+    "17_timelapse",
+    "18_motility",
+    "19_train_cellpose",
+    "20_cellpose_masks",
+    "21_model_compare",
+    "22_model_zoo",
+    "23_agreement",
+    "24_plaque",
+    "25_recruitment",
+    "26_invasion",
+    "27_replication",
+    "28_training_runs",
+    "29_report",
+    "30_plate_queue",
+    "31_external_masks",
+    "32_align_stitch",
+    "33_plate_viewer",
+    "34_database",
+    "35_converter",
+    "36_import",
+    "37_batch",
+    "38_distributed_jobs",
+    "39_classifier_evaluation",
+    "40_run_history",
+    "41_classify",
+    "42_curate",
+    "43_illumination",
+    "44_data_manager",
+    "45_project_browser",
+    "46_napari_bridge",
+    "47_barcode_qc",
+    "48_hit_list",
+    "49_methods_results",
+    "50_run_compare",
+    "51_control_charts",
+    "52_pipeline_graph",
+    "53_prediction_profiler",
+    "54_qc_dashboard",
+    "55_image_scatter",
+    "56_lineage",
+    "57_layer_viewer",
+    "58_graph_builder",
+    "59_anndata_export",
+    "60_pca",
+    "61_tabulate",
+    "62_feature_dictionary",
+    "63_small_multiples",
+    "64_gate_editor",
+    "65_feature_explorer",
+    "66_outliers",
+    "67_experiment_design",
+    "68_power_design",
+    "69_dose_response",
+    "70_explain_cv",
+    "71_investigate_hit",
+    "72_volcano_explorer",
+    "73_parameter_sweep",
+    "74_import_images",
+    "75_regression_diagnostics",
+    "76_ops",
+    "77_embeddings",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways",
+    "82_toxoplasma",
+    "83_plasmodium",
+    "84_candida",
+    "85_host_pathogen"
+  ],
+  "hosted_web_bytes": {
+    "02_conda_install": 3743210,
+    "03_pip_install": 5405952,
+    "04_platform_installers": 6279964,
+    "05_home": 6051800,
+    "07_mask": 3445912,
+    "08_measure": 3472378,
+    "09_annotate": 6693480,
+    "10_classify_cv": 2190031,
+    "11_classify_ml": 2203371,
+    "12_map_barcodes": 3336475,
+    "13_regression": 4980181,
+    "14_make_masks": 24818797,
+    "15_image_umap": 3729809,
+    "16_activation": 3203029,
+    "17_timelapse": 7322576,
+    "18_motility": 2331902,
+    "19_train_cellpose": 9804449,
+    "20_cellpose_masks": 3187354,
+    "21_model_compare": 1476423,
+    "22_model_zoo": 8513282,
+    "23_agreement": 1906751,
+    "24_plaque": 8358010,
+    "25_recruitment": 10450402,
+    "26_invasion": 7448334,
+    "27_replication": 6023172,
+    "28_training_runs": 11336983,
+    "29_report": 5646171,
+    "30_plate_queue": 3802766,
+    "31_external_masks": 10781005,
+    "32_align_stitch": 5989281,
+    "33_plate_viewer": 6861968,
+    "34_database": 5564815,
+    "35_converter": 8699538,
+    "36_import": 10506351,
+    "37_batch": 7362450,
+    "38_distributed_jobs": 3847580,
+    "39_classifier_evaluation": 9716924,
+    "40_run_history": 4997129,
+    "41_classify": 1937285,
+    "42_curate": 4378881,
+    "43_illumination": 5154020,
+    "44_data_manager": 7568628,
+    "45_project_browser": 3732980,
+    "46_napari_bridge": 3226704,
+    "47_barcode_qc": 6024828,
+    "48_hit_list": 8723500,
+    "49_methods_results": 6043856,
+    "50_run_compare": 2678494,
+    "51_control_charts": 5142063,
+    "52_pipeline_graph": 3383958,
+    "53_prediction_profiler": 2609036,
+    "54_qc_dashboard": 8645288,
+    "55_image_scatter": 4936143,
+    "56_lineage": 7781860,
+    "57_layer_viewer": 8078333,
+    "58_graph_builder": 6637440,
+    "59_anndata_export": 10736405,
+    "60_pca": 12828163,
+    "61_tabulate": 9875874,
+    "62_feature_dictionary": 13179316,
+    "63_small_multiples": 15447275,
+    "64_gate_editor": 13712603,
+    "65_feature_explorer": 10998230,
+    "66_outliers": 13567995,
+    "67_experiment_design": 7501284,
+    "68_power_design": 12620522,
+    "69_dose_response": 6900570,
+    "70_explain_cv": 7056817,
+    "71_investigate_hit": 13708815,
+    "72_volcano_explorer": 5243344,
+    "73_parameter_sweep": 8013276,
+    "74_import_images": 7243076,
+    "75_regression_diagnostics": 4974087,
+    "76_ops": 7204723,
+    "77_embeddings": 5250103,
+    "78_spacr_screens": 6552139,
+    "79_module_inputs_outputs": 84732830,
+    "80_image_analysis_pathways": 16210344,
+    "81_sequencing_pathways": 8567417,
+    "82_toxoplasma": 5723551,
+    "83_plasmodium": 3622826,
+    "84_candida": 3781933,
+    "85_host_pathogen": 8038135
+  },
+  "pages_copies_absent": true,
+  "live_catalog_sha256": "b2b4b5de9164025b12df7be169592e00878dd54f6b0a4ca409fb80bd0a45e933",
+  "catalog_matches_candidate": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "463ffad643d4b8def31151f818a2a4edd47a77663a87660557ce1ae9d1c12848"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "nightly/",
+      "lesson": "53_prediction_profiler",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f/53_prediction_profiler/web/53_prediction_profiler_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/3da86f6a-f4d3-471c-8ae2-0f2659d492ac",
+      "width": 2560,
+      "time": 19.497184,
+      "expected": 19.424906620740764,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "71_investigate_hit",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f/71_investigate_hit/web/71_investigate_hit_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/5236c18d-bada-4ff9-94aa-2eee0aa7508b",
+      "width": 2560,
+      "time": 27.505529,
+      "expected": 27.444899627252813,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "85_host_pathogen",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f/85_host_pathogen/web/85_host_pathogen_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/644b047f-21f3-4470-aeb8-b96c03bac60e",
+      "width": 2560,
+      "time": 27.717078,
+      "expected": 27.635671086747163,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "60_pca",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f/60_pca/web/60_pca_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/868a5340-0528-416d-9dee-f14d8c74ee8a",
+      "width": 2560,
+      "time": 24.992553,
+      "expected": 24.947912146824468,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "53_prediction_profiler",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f/53_prediction_profiler/web/53_prediction_profiler_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/eeeedbf6-fed1-4d56-beb5-65d042d180b4",
+      "width": 2560,
+      "time": 19.457535,
+      "expected": 19.376440725637885,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "71_investigate_hit",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f/71_investigate_hit/web/71_investigate_hit_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/99b99874-e420-466c-b4e4-cf5ec469c5ea",
+      "width": 2560,
+      "time": 27.466765,
+      "expected": 27.43298039610696,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "85_host_pathogen",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f/85_host_pathogen/web/85_host_pathogen_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/2500ab9c-c585-4296-bb88-4cb33e1bac1b",
+      "width": 2560,
+      "time": 27.698967,
+      "expected": 27.60777847886433,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "60_pca",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/6f4d66cfe606cf284a3ae5e6beb7e69a8fbe444f/60_pca/web/60_pca_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/8a582f14-388b-4ad1-8613-10f4dea002a3",
+      "width": 2560,
+      "time": 25.067341,
+      "expected": 24.99986369406774,
+      "error": null
+    }
+  ],
+  "passed": true
+}
