@@ -78,6 +78,29 @@ def plate_ramp(target: str = "screen"):
     return ramp
 
 
+def score_ramp(target: str = "screen"):
+    """Create the diverging color map used for signed plate scores.
+
+    A hit score (SSMD, robust z, B-score) is signed about the negative
+    control, which is what a diverging map is for. The ends are the house
+    ``down`` and ``up`` colours (:data:`spacr.figures.style.ROLES`), so a
+    well scored below the control reads rust and one above it green, the
+    same as on a volcano.
+
+    :param target: ``"print"`` centres on a near-white; every other value on
+        the light grey of the screen plate ramp.
+    :returns: A color map with a transparent bad-value color.
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+
+    middle = "#F7F7F7" if target == "print" else "#E8EDEE"
+    ramp = LinearSegmentedColormap.from_list(
+        f"spacr_score_{target}", [Palette.RUST, Palette.CORAL, middle,
+                                  "#8FC2A2", Palette.GREEN])
+    ramp.set_bad("none")
+    return ramp
+
+
 
 def plate_names(frame) -> List[str]:
     """Return distinct nonempty plate identifiers in first-occurrence order.
@@ -427,7 +450,8 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
                  min_max="allq", min_count=0, cmap=None,
                  target: Optional[str] = None, width: float = WIDTH,
                  plates: Optional[Sequence[str]] = None,
-                 limits: Optional[Tuple[float, float]] = None):
+                 limits: Optional[Tuple[float, float]] = None,
+                 outline: Optional[str] = None):
     """Every plate of a screen as one figure, on one colour scale.
 
     :param frame: long-format frame with a ``prc`` column and ``variable``.
@@ -449,6 +473,9 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
         plate to a tile computes :func:`shared_limits` over every plate once
         and passes the same pair to each figure, so splitting the small
         multiple up does not silently give each plate its own scale again.
+    :param outline: a column of ``frame``; every well whose mean of it is
+        above zero gets a square outline in the ink colour. A hit call drawn
+        on the score it was called from, without a second figure.
     :returns: ``(figure, Panel)``. With no matrix the panel has ``drawn=False``
         plus its missing requirements and reason. Otherwise its caption
         records the actual aggregation, well counts, and shared limits.
@@ -473,6 +500,13 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
         measured = [int(np.isfinite(m).sum()) for m in matrices]
         vmin, vmax = (float(limits[0]), float(limits[1])) if limits \
             else shared_limits(matrices, min_max)
+        marks = [None] * len(matrices)
+        if outline and outline in frame.columns:
+            _marked, outlined, _shape = well_matrices(
+                frame, outline, grouping="mean", min_count=min_count,
+                plates=names)
+            marks = [m if m.shape == matrix.shape else None
+                     for m, matrix in zip(outlined, matrices)]
         rows, columns = small_multiple_layout(
             len(matrices), n_columns / max(n_rows, 1))
 
@@ -497,6 +531,8 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
                        name=str(name), row_labels=column == 0,
                        column_labels=row == rows - 1
                        or index + columns >= len(matrices))
+            if marks[index] is not None:
+                _outline_wells(ax, marks[index], ink)
             if image is None:
                 image = ax.images[0]
 
@@ -515,8 +551,28 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
                 f"scale ({vmin:.3g} to {vmax:.3g}) so the same colour is the "
                 f"same number on every plate. {sum(measured)} wells were "
                 f"measured; the {blank} that were not are left as a neutral "
-                f"wash and are excluded from the scale."),
+                f"wash and are excluded from the scale."
+                + (f" {sum(int(np.nansum(m > 0)) for m in marks if m is not None)}"
+                   f" well(s) marked by {outline} are outlined."
+                   if outline else "")),
             needs=("prc", variable))
+
+
+def _outline_wells(ax, marks: np.ndarray, ink: str) -> None:
+    """Draw a square outline round every well whose mark is above zero.
+
+    :param ax: the plate's axes, in well units as :func:`draw_plate` sets it.
+    :param marks: per-well matrix; NaN and non-positive wells are unmarked.
+    :param ink: outline colour.
+    :returns: ``None``; patches are added to ``ax``.
+    """
+    from matplotlib.patches import Rectangle
+
+    inset = 0.1
+    for r, c in zip(*np.nonzero(np.nan_to_num(marks) > 0)):
+        ax.add_patch(Rectangle((c + inset, r + inset), 1 - 2 * inset,
+                               1 - 2 * inset, fill=False, edgecolor=ink,
+                               linewidth=WEIGHTS["data"] * 0.6, zorder=3))
 
 
 def _named(cmap):
@@ -569,5 +625,6 @@ def _colour_bar(figure, image, variable: str, ink: str, width: float,
 
 __all__ = ["BAR", "EMPTY_WASH_ALPHA", "MARGIN", "TARGET_ASPECT", "WIDTH",
            "build_plates", "draw_plate", "full_plate_grid",
-           "plate_figure_name", "plate_names", "plate_ramp", "shared_limits",
+           "plate_figure_name", "plate_names", "plate_ramp", "score_ramp",
+           "shared_limits",
            "small_multiple_layout", "well_matrices"]

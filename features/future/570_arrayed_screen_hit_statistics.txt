@@ -1,6 +1,9 @@
 ARRAYED-SCREEN HIT STATISTICS: SSMD, ROBUST Z AGAINST NEGATIVE CONTROLS, B-SCORE
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26. Statistics, report writer and the
+Control Charts option are built and tested against hand-computed values, R's
+medpolish example and pycytominer's RobustMAD. Still open: the DONE WHEN run
+on a public arrayed screen with known hits (no such dataset on this machine).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -19,3 +22,50 @@ DONE WHEN
     On a public arrayed screen with known hits, hit rankings match reference
     implementations (e.g. cellHTS2 / pycytominer) and plots render per
     plate.
+
+2026-09-26 — Built as an alpha option of Control Charts
+    Statistics live in spacr/sp_stats.py (no new module): mad, robust_z_scores
+    (median/1.4826 MAD of the negative control, Zhang's z*),
+    ssmd_unreplicated (mm, umvue, robust SSMD*) and ssmd_replicated (mm,
+    umvue, robust, on paired differences to the plate's negative median),
+    median_polish (a port of R stats::medpolish: same sweep order, eps 0.01,
+    maxiter 10), b_scores (effects fitted on the sample wells so a control
+    column is not a column effect; residual / scaled MAD as cellHTS2 does),
+    call_hits (both/up/down), screen_wells (wells located by the plate_qc
+    reader; controls by a column and its levels or by well_spec positions
+    such as c1, r1, A01), score_screen / score_arrayed_screen (per-plate or
+    pooled negative reference; B-score always fitted per plate, pooled scope
+    uses one screen-wide scale), treatment_ssmd (replicate SSMD per
+    treatment), hit_table (ranked), hit_heatmap and write_hit_report.
+    Per-plate Z' in the plate summary comes from control_chart.zprime_frame,
+    the function the Z' chart uses. Heatmaps are the house small multiple
+    (figures/plates.build_plates, new outline= option and score_ramp, a
+    rust-to-green diverging map symmetric about zero, hits outlined) written
+    through spacr.plot.save_figure. write_hit_report writes hit_table.csv,
+    hit_scores_wells.csv, hit_plates.csv, hit_treatments.csv (with a
+    treatment column) and hit_heatmap_<ssmd|robust_z|b_score>.
+    Screen: Control Charts gains a "Score hits" toggle and its options (call
+    by SSMD/robust z/B-score, threshold, direction, SSMD estimator,
+    per-plate or pooled reference, treatment column), a Hits section with
+    the summary and ranked table, and an Export hits button. It scores on
+    its own job runner, so a two-plate screen too short to chart is still
+    scored. It reuses the form's control column and negative/positive picks.
+    Checks: robust z, SSMD (all three estimators, both designs) against
+    values worked by hand; both UMVUEs unbiased by simulation; median polish
+    reproduces R's ?medpolish deaths example exactly (overall 8, rows
+    6 -1 0 2 -8, columns 0 -1 0, the printed residuals); robust z equals
+    scipy's normal-scaled MAD and pycytominer 1.7.1 RobustMAD to 1.5e-6
+    (run from the downloaded wheel; the test skips where pycytominer is not
+    installed); B-score removes a planted row and column gradient (Spearman
+    with column and row under 0.1, fitted slopes 1.5 and 0.8 recovered) and
+    keeps the planted hit, where robust z calls over 100 gradient wells;
+    planted up/down hits called exactly and ranked first by every method.
+    Still open: DONE WHEN's comparison on a public arrayed screen with known
+    hits against cellHTS2 (R/Bioconductor, not installable here).
+ALPHA: widgets ControlChartHitPanel (the whole hit-scoring option in the
+Control Charts controls: ControlChartHitScore, ControlChartHitRankBy,
+ControlChartHitThreshold, ControlChartHitDirection, ControlChartHitEstimator,
+ControlChartHitScope, ControlChartHitTreatment), ControlChartHitsSection (the
+Hits output section), ControlChartExportHits (the Export hits button). No
+settings keys. Names exported as control_chart.HIT_ALPHA_WIDGETS; 569's
+registry was not on nightly when this was built, so they wait for it.
