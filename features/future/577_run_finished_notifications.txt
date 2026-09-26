@@ -1,0 +1,20 @@
+RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    Notify when a long run (or a GPU-queue job) finishes or fails, by email,
+    Slack webhook or ntfy, with a short QC summary (fields processed,
+    failures, key numbers) and a link/path to the report; configured in
+    Preferences.
+
+DONE WHEN
+    A finished and a failed run each send one notification with the summary
+    (tested against a local mock server).

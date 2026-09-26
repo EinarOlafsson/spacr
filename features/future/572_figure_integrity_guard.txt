@@ -1,0 +1,21 @@
+FIGURE-INTEGRITY GUARD: DISPLAY RANGES, SATURATION, LOSSY FORMATS, PROVENANCE
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/how-to-avoid-image-data-mishandling-and-misconducts-a-commentary/47877
+
+WHAT TO BUILD
+    When exporting image figures and montages, warn when panels meant for
+    comparison use different display ranges, when pixels are saturated, when
+    a lossy format is chosen for quantitative images, and stamp provenance
+    (source files, display settings, processing steps, spaCR version) into
+    the exported file's metadata and a sidecar.
+
+DONE WHEN
+    Exports with mismatched ranges or saturation raise the warning; the
+    provenance sidecar reproduces the panel from the source files.

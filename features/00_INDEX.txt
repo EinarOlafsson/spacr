@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-503 in features/new, 57 in features/future. NEITHER LIST BLOCKS A RELEASE.
+504 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -213,6 +213,60 @@ FUTURE FEATURES
 
   568  SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
        568_segmentation_uncertainty_maps.txt
+
+  570  ARRAYED-SCREEN HIT STATISTICS: SSMD, ROBUST Z AGAINST NEGATIVE CONTROLS, B-SCORE
+       570_arrayed_screen_hit_statistics.txt
+
+  571  TIME-TO-EVENT ANALYSIS: KAPLAN-MEIER AND COX FOR EGRESS, LYSIS, HOST DEATH
+       571_time_to_event_analysis.txt
+
+  572  FIGURE-INTEGRITY GUARD: DISPLAY RANGES, SATURATION, LOSSY FORMATS, PROVENANCE
+       572_figure_integrity_guard.txt
+
+  573  PRE-REGISTERED ANALYSIS LOCK: HASH SETTINGS AND GATES BEFORE UNBLINDING
+       573_preregistered_analysis_lock.txt
+
+  574  METADATA AND ARCHIVE PACKAGES: MIHCSME/REMBI, IDR AND BIOIMAGE ARCHIVE
+       574_mihcsme_rembi_metadata_and_archive_packages.txt
+
+  575  EXPORT A RECORDED RUN AS A NEXTFLOW OR SNAKEMAKE WORKFLOW
+       575_nextflow_snakemake_export.txt
+
+  576  A POSTGRES OR DUCKDB/PARQUET MEASUREMENT BACKEND
+       576_postgres_duckdb_parquet_backend.txt
+
+  577  RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY
+       577_run_finished_notifications.txt
+
+  578  SEGMENTATION PARAMETER-ROBUSTNESS REPORT
+       578_segmentation_robustness_report.txt
+
+  579  ONE-CLICK ZENODO ARCHIVE OF A RUN, WITH A DOI
+       579_one_click_zenodo_archive_of_a_run.txt
+
+  580  CROSS-SESSION INTENSITY CALIBRATION FROM BEADS OR REFERENCE WELLS
+       580_cross_session_intensity_calibration.txt
+
+  581  EXPORT FOR R (SingleCellExperiment) AND TIDY PARQUET
+       581_r_and_parquet_export.txt
+
+  582  A PLUGIN AND RECIPE CATALOGUE BROWSER
+       582_plugin_and_recipe_catalogue.txt
+
+  583  LIMS / PLATE-BARCODE LINKAGE
+       583_lims_plate_barcode_linkage.txt
+
+  584  A CHEMISTRY-AWARE HIT VIEW: SMILES, RDKIT CLUSTERING, SAR TABLES
+       584_chemistry_aware_hit_view.txt
+
+  585  A SAMPLE-SIZE PLANNER FOR ARRAYED ASSAYS
+       585_sample_size_planner_for_arrayed_assays.txt
+
+  586  APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
+       586_apptainer_singularity_images.txt
+
+  587  AN OFFLINE / AIR-GAPPED INSTALLER
+       587_offline_air_gapped_installer.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -721,3 +775,4 @@ NEW FEATURES
   531  SPACEOUT: THE FRACTAL SUPERSAMPLING SETTING DOES SOMETHING
   532  HOW GOOD EACH SEGMENTATION STRATEGY IS
   533  THE DIAMETER ESTIMATE MOVES INTO THE MODEL ZOO POPUP
+  569  A "SHOW ALPHA FEATURES" PREFERENCE, OFF BY DEFAULT, HIDES EVERYTHING BUILT FROM THE FUTURE LIST

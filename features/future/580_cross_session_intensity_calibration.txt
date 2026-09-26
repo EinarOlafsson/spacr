@@ -1,0 +1,20 @@
+CROSS-SESSION INTENSITY CALIBRATION FROM BEADS OR REFERENCE WELLS
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/normalization-of-fluorescence-intensity-to-compare-different-images/82444
+
+WHAT TO BUILD
+    Calibrate image intensities across imaging sessions/days using
+    fluorescent beads or reference wells imaged each session, applied at the
+    image level before measurement (today's batch correction works on tables
+    only), recorded in provenance.
+
+DONE WHEN
+    On two sessions of the same reference sample with different exposure,
+    calibrated intensities agree within a stated tolerance.

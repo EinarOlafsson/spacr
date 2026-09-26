@@ -1,0 +1,19 @@
+LIMS / PLATE-BARCODE LINKAGE
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    Link plates to sample metadata (strain, compound, concentration,
+    passage, operator) by plate barcode from a CSV or a LIMS API, filling
+    spaCR's plate maps automatically and checking for mismatches.
+
+DONE WHEN
+    A plate imported with a barcode gets its plate map filled from the CSV;
+    a mismatch is reported.

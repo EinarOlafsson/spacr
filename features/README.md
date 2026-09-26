@@ -34,3 +34,12 @@ The word "instruction" survives in `tools/build_instruction_index.py` and in
 prose inside older files. The tool works on the new folders; the name is the
 only thing left over, and renaming it was not worth the churn while CI was
 being brought green.
+
+## Alpha features (the maintainer's rule, 2026-09-26)
+
+Everything built from `features/future/` ships as an ALPHA feature: its
+settings, buttons, menu entries, screens and model-zoo rows are hidden unless
+the user turns on **Preferences -> Show alpha features** (off by default).
+Items in `features/new/` ship visible as before. When a future item is built,
+register everything it adds with the alpha gate (see item 569) and say so in
+the item's note; promoting a feature out of alpha is the maintainer's call.

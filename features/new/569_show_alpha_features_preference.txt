@@ -1,0 +1,34 @@
+A "SHOW ALPHA FEATURES" PREFERENCE, OFF BY DEFAULT, HIDES EVERYTHING BUILT FROM THE FUTURE LIST
+
+Status: OPEN, filed 2026-09-26. Not started.
+Owner: unassigned. Standing rule recorded in features/README.md.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "These should all be in future features and there should be a preference
+    called show alpha features, that is off by default. If on then these
+    settings features are user fasting other wise hidden by default. This goes
+    for all implemented items on the future features list from now on."
+
+WHAT TO BUILD
+  1. A Preferences switch "Show alpha features", off by default, stored like
+     the other preferences, applying live (no restart) to every open screen.
+  2. ONE alpha gate that every future-list feature registers with: settings
+     keys (hidden from the settings form, search and category counts, and
+     their saved values still honoured by headless/CLI runs), buttons and menu
+     entries, whole screens/tiles, Model Zoo rows, preview modes and dropdown
+     entries. A single helper (e.g. `is_alpha_visible()` plus a registry
+     `ALPHA_FEATURES = {item: [settings, widgets, ...]}`) so a feature is
+     marked in one place and promoted by deleting its registration.
+  3. Apply it now to the future-list work that is built but not yet released
+     as a normal feature: 426's `timelapse_mode='timeflows'` and
+     `timeflows_model`; 493's multi-GPU selection; and to every future item
+     built from now on (534-568 and later).
+  4. A test that walks the registry and asserts each registered element is
+     hidden with the switch off and shown with it on, and a guard test that
+     fails when a feature file in features/future is marked built but
+     registers nothing with the gate.
+
+DONE WHEN
+With the switch off, none of the registered alpha settings/widgets/rows are
+visible anywhere in the GUI; turning it on shows them at once; runs with
+saved alpha settings still work headless; the guard test holds the rule.
