@@ -8193,7 +8193,7 @@ class MakeMasksScreen(QWidget):
         an action: it stays lit for as long as the settings are on
         screen. The tools wider than the window scroll; the pair does
         not, so the way back to the settings is never scrolled out of
-        sight (item 419, the maintainer's choice of 2026-09-25). A
+        sight. A
         stretch after the last tool keeps the tools against the left
         edge, above the settings they sit over.
 

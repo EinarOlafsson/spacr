@@ -548,8 +548,8 @@ def scaled_font_sheet(sheet: str, ratio: float) -> str:
 class ColumnTextScale(QObject):
     """Ctrl + wheel over a module screen's right-hand column sizes its text.
 
-    Item 529. The maintainer: "for the pannels to the right holding ctrl and
-    scrolling should increase or decrease the font size."
+    Holding Ctrl and turning the wheel over any panel in that column makes
+    its text larger or smaller.
 
     ONE SIZE FOR EVERY COLUMN, persisted in
     :func:`spacr.qt.preferences.get_runtime_text_scale`. It multiplies the
