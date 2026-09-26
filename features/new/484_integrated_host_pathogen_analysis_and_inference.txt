@@ -1,7 +1,8 @@
 484 — INTEGRATED HOST–PATHOGEN ANALYSIS AND INFERENCE
 ===================================================
-Status: IMPLEMENTED, 2026-09-23. Optional assay bundles explicitly skipped.
-The user-owned whole-vacuole classifier remains labelled coming soon.
+Status: DONE 2026-09-25 (parts 1-5 built 2026-09-23; part 6 skipped as the
+request allows). The whole-vacuole classifier is the maintainer's model and
+stays labelled coming soon until its weights exist.
 
 Requested work, in implementation order:
 1. Fix recruitment auxiliary ratios so every output retains its channel;
@@ -139,3 +140,18 @@ preview checks pass with92.39%module coverage; a separate JSON roundtrip check
 proves integer/string key equivalence. Added invalid identity/time/count and
 host-mismatch checks so ambiguous inputs cannot silently alter denominators.
 No new settings or API signatures; summarize_tables parameter prose updated.
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2: tests/test_host_pathogen.py,
+test_host_pathogen_example.py, test_image_quality_screening.py and
+tests/qt/test_host_pathogen_registration.py, 63 passed. Parts 1-5 are built
+and tested; part 6 was skipped with the reason the request asked for (no
+validated recruitment bundle with staining/threshold metadata exists).
+Remaining, each outside this item's reach:
+  * the whole-vacuole deep-learning replication route -- blocked on the
+    maintainer's model ("User is building that model; never invent trained
+    weights"); the route stays labelled coming soon;
+  * a ready-to-run recruitment bundle -- needs a calibrated assay bundle
+    (maintainer data), not wiring;
+  * legacy Recruitment feature parity is not asserted; retiring the old
+    submodule is the maintainer's call.

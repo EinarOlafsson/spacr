@@ -1,6 +1,7 @@
 A LINE RULER IN IMAGE EDITING AND MASK PREVIEWS
 
-Status: IMPLEMENTED — validated 2026-09-22; see verification notes below.
+Status: DONE 2026-09-25. Validated 2026-09-22; since 2026-09-25 the ruler also reads
+the micron spacing an opened file's header states (see the last note).
 Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
 
 REQUEST
@@ -23,3 +24,26 @@ scrolls at laptop height instead of compressing its text; right-button help
 follows the active tool.208 focused checks pass in40.67s;68 affected checks
 pass after the shortcut layout change in13.23s. Reviewed actual MainWindow
 1366x768 and paired preview1100x700 renders, each showing a100px line.
+
+2026-09-25 — THE RULER READS THE SPACING A FILE STATES; CLOSED
+What remained of the ACCEPTANCE: "calibrated physical length when valid
+pixel spacing is available". On 2026-09-22 nothing in spaCR read a pixel
+size from an image, so both hosts cleared calibration on every field. Item
+509 has since added spacr.point_spread.image_optics_metadata, which reads
+only what a TIFF header states (OME PhysicalSizeX/Y, an ImageJ micron
+calibration, centimetre resolution tags). ImageRuler.calibrate_from_file
+now takes that stated size and nothing else: a magnification in the file
+name, the objective table and the defaults never calibrate the ruler. It
+clears first, so a file that states nothing stays in pixels, and it refuses
+when the header's (Y, X) is not the displayed array's (a resampled or
+cropped display is not measured with the file's pixels). Make Masks calls it
+when a field is installed (_apply_loaded_pair), the Mask Generation live
+preview when an image is loaded (_install_loaded_image); set_spacing is
+unchanged for explicit calibration and Plaque keeps its own.
+Tests: tests/qt/test_image_ruler.py, 12 passed (three new: header-only
+calibration with rectangular pixels, name token ignored, shape mismatch
+refused; the live preview; Make Masks). No new captions.
+Note: tests/test_docstring_correctness.py's callable-inventory pin reads
+11,725 against a pinned 11,710; the one new public method is one of those
+fifteen, the other fourteen were already on nightly a93f937d2. The pin is
+left to the docs lane that owns it.

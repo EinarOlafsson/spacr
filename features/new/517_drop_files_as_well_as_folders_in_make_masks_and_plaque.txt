@@ -1,7 +1,7 @@
 DROP FILES AS WELL AS FOLDERS IN MAKE MASKS AND PLAQUE ASSAY
 
-Status: DONE 2026-09-25 (implemented, tests pass; awaiting the maintainer's
-check in the real app). Filed 2026-09-25.
+Status: DONE 2026-09-25 (implemented, tests pass, on nightly as 69b1483b6, 9baaac630,
+checked 2026-09-25; awaiting the maintainer's check in the real app). Filed 2026-09-25.
 Owner: unassigned. Related: 137 (drag images in), 396 (Make Masks curates a
 queue), 468 (plaque and figure modes).
 

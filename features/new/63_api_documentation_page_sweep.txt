@@ -1221,3 +1221,44 @@ test that skips without `SPACR_DOCS_BUILT`, so that the next person does
 not write it a third time. The two detectors answer different questions --
 one reads docstrings, one reads the pages the reader gets -- and today only
 one of them is in the repository.
+
+2026-09-25 -- THE RENDERED-PAGE SCAN IS IN tests/ NOW
+--------------------------------------------------------------------------------
+DONE. `tests/test_rendered_docs_show_no_markup_leak.py` is the scan the
+2026-09-19 note left in an agent scratch directory, written a third and last
+time where the next person will find it, beside the source detector
+(`tests/test_docstring_inline_markup_renders.py`).
+
+How it decides, as the 2026-09-19 rewrite settled it: the standard library's
+HTML parser drops everything inside <pre>, <code>, <tt>, <samp>, <kbd>,
+<script> and <style>, and what remains is searched for a double-backtick
+RUN (closed or not -- the unclosed install_hint_for shape is exactly what
+the first scan missed), a role marker's opening (`:class:` + backtick,
+closed or not) and a field marker part-way through a line (`:raises X:`,
+`:param top:`). No docutils, no Sphinx: it reads the pages the reader gets.
+
+Three tests:
+  test_the_scan_finds_every_shape_and_skips_code  -- always runs. A control
+      page carrying the 2026-09-19 control's shapes: nested-in-bold (literal
+      and role), bad-literal-edge (``plate1``..``plate4``, ``lru_cache``s),
+      the unclosed install_hint_for literal, two stray fields -- 7 leaks,
+      plus a highlighted <pre> sample, a real literal, <tt>, <kbd>,
+      <script>, <style> and prose colons ("1:2 at 10:30", "note:") that
+      must not count. 7 found, none of the decoys.
+  test_a_clean_page_is_clean                      -- always runs.
+  test_no_built_page_shows_rest_markup_as_text    -- skips unless
+      SPACR_DOCS_BUILT is set, the convention
+      test_tooltip_api_links_resolve.py already uses, because
+      docs/_build/html is untracked and whatever is on disk is whoever's
+      last local build.
+
+Checked against a real build, the stale one in the main checkout
+(docs/_build/html, built 2026-09-10, before the 2026-09-14 sweep): 50 leaks
+on 33 of 1,080 pages (45 double-backtick, 5 role-marker), e.g.
+api/spacr/anndata_export "Never ``obsp``." and api/spacr/ml
+"(..``'HC3' for classical standard errors." -- the sweep's own shapes, so
+the scan sees what it is for on real Sphinx output, not only on the
+control. A fresh build of today's tree was not made in this pass; the
+2026-09-19 build's 0 leaks is the last full measurement.
+
+Run: tests/test_rendered_docs_show_no_markup_leak.py 2 passed, 1 skipped.
