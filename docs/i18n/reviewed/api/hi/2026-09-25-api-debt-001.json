@@ -1,0 +1,1616 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.measure.spatial_column_names#3",
+      "source": "list of five column names.",
+      "source_sha256": "8c4f73062509b7bacbdb00f21ac46589fba9718b6cec73f74a9b6f4a3bff6eae",
+      "context": "list of five column names.",
+      "translation": "पाँच स्तंभ नामों की सूची।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#0",
+      "source": "Write the table out as the folders the Mask module leaves behind.",
+      "source_sha256": "1bc0f9f16cdf085ffcdbb5fa13f1ccc50e61bd2a585788b6d941de69beb45611",
+      "context": "Write the table out as the folders the Mask module leaves behind.",
+      "translation": "तालिका को उन फ़ोल्डरों के रूप में लिखें जो Mask मॉड्यूल पीछे छोड़ता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#1",
+      "source": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the plane-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
+      "source_sha256": "9e2408d10fc55d9d3733ae711b7e57e09051ee0a9cfaa3170139ec21f81592e7",
+      "context": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the image layer-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
+      "translation": "FEATURES बटन Measure में बस इतना ही जोड़ता है: यह हाथ से चुनी गई फ़ाइलों की तालिका को ``stack/``, ``masks/`` और ``merged/`` में ठीक वैसे बदलता है जैसे :func:`spacr.core.preprocess_generate_masks` उन्हें छोड़ता, समतल-लेआउट मैनिफ़ेस्ट तक, ताकि इसके बाद का रन एक सामान्य Measure रन हो, न कि कोई दूसरा कोड पथ जिसे इसके साथ तालमेल में रखना पड़े।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#2",
+      "source": "a :class:`FieldTable` whose :meth:`FieldTable.problems` is empty.",
+      "source_sha256": "3797f94f44aad1b0305816bdc07b217251cd3585a52d7e3305c07877cf683c3f",
+      "context": "a :class:`FieldTable` whose :meth:`FieldTable.problems` is empty.",
+      "translation": "एक :class:`FieldTable` जिसका :meth:`FieldTable.problems` खाली है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#3",
+      "source": "the project root to write. It is created if it does not exist.",
+      "source_sha256": "1292f84af2a80b4fe5b9ff9cbc6d750ed6a9b1d7db1365a877db2efb6e23a744",
+      "context": "the project root to write. It is created if it does not exist.",
+      "translation": "लिखा जाने वाला परियोजना रूट। मौजूद न होने पर बनाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure.write_field_table_project#5",
+      "source": "if the table is incomplete, or if any file breaks the uint16 array contract ``measure_crop`` reads. Nothing is written past the field that failed.",
+      "source_sha256": "9293ba95bb1d0fafee02c1c7d238c46c8b82be9fac0f7781b553f3d69b02beca",
+      "context": "if the table is incomplete, or if any file breaks the uint16 array contract ``measure_crop`` reads. Nothing is written past the field that failed.",
+      "translation": "यदि तालिका अधूरी है, या कोई फ़ाइल उस uint16 ऐरे अनुबंध को तोड़ती है जिसे ``measure_crop`` पढ़ता है। विफल फ़ील्ड के बाद कुछ भी नहीं लिखा जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.QuasiBinomial.variance#1",
+      "source": "fitted mean probabilities, scalar or array; the binomial variance of ``mu`` is multiplied by ``dispersion``.",
+      "source_sha256": "47307fb934b234d81b2a3a16a0ddf2d4af1a4e1b795d6f837ab14ed191de229f",
+      "context": "fitted mean probabilities, scalar or array; the binomial variance of ``mu`` is multiplied by ``dispersion``.",
+      "translation": "फ़िट की गई माध्य प्रायिकताएँ, अदिश या ऐरे; ``mu`` के द्विपद प्रसरण को ``dispersion`` से गुणा किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.apply_transformation#3",
+      "source": "A ``FunctionTransformer`` or ``None``.",
+      "source_sha256": "967db48946a14f635a8238a12bb6b1c3cdb5834ddd82032afd76bc74eb7963fa",
+      "context": "A ``FunctionTransformer`` or ``None``.",
+      "translation": "एक ``FunctionTransformer`` या ``None``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.ml.beta_logit#3",
+      "source": "proportions in ``[0, 1]``, array-like; converted to a float array. Non-finite entries pass through unchanged. When any finite value is at or beyond 0 or 1 the finite values are squeezed with ``(y * (n - 1) + 0.5) / n`` before the logit.",
+      "source_sha256": "e055b4f05194b613e13386adef535ae4c3b7a3f6d3dd4b0f7987d95b384948a9",
+      "context": "proportions in ``[0, 1]``, array-like; converted to a float array. Non-finite entries pass through unchanged. When any finite value is at or beyond 0 or 1 the finite values are squeezed with ``(y * (n - 1) + 0.5) / n`` before the logit.",
+      "translation": "``[0, 1]`` में अनुपात, ऐरे-जैसे; float ऐरे में रूपांतरित किए जाते हैं। अपरिमित प्रविष्टियाँ बिना बदलाव के आगे जाती हैं। जब कोई परिमित मान 0 या 1 पर या उससे परे हो, तो logit से पहले परिमित मानों को ``(y * (n - 1) + 0.5) / n`` से भीतर दबाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.check_normality#1",
+      "source": "numeric values, array-like; non-finite values are dropped and fewer than 3 remaining values returns ``False`` without testing.",
+      "source_sha256": "a7e988178febe32039b982e44eff8db393ab3b4244eeb454287d78809ca15dcc",
+      "context": "numeric values, array-like; non-finite values are dropped and fewer than 3 remaining values returns ``False`` without testing.",
+      "translation": "संख्यात्मक मान, ऐरे-जैसे; अपरिमित मान हटा दिए जाते हैं और 3 से कम मान बचने पर परीक्षण के बिना ``False`` लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.check_normality#2",
+      "source": "name printed in the verbose messages only.",
+      "source_sha256": "52fcde956c83a1cfab5b906d1ce7619bccdfc631bf258ae107eecb7c6a00d695",
+      "context": "name printed in the verbose messages only.",
+      "translation": "केवल विस्तृत संदेशों में छापा जाने वाला नाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.check_normality#3",
+      "source": "print the test statistic, P value and verdict.",
+      "source_sha256": "d4f9a8dc5d8a2ec0c75dc6d1144bcf161e170847f53df615494547e4ca9e88eb",
+      "context": "print the test statistic, P value and verdict.",
+      "translation": "परीक्षण सांख्यिकी, P मान और निर्णय छापें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.check_normality#4",
+      "source": "``True`` when the Shapiro-Wilk P value exceeds 0.05.",
+      "source_sha256": "4a3f6b4bda5bde68bed6a90e475f98ba803bccd02a87136cd1152e1a5c6f5afd",
+      "context": "``True`` when the Shapiro-Wilk P value exceeds 0.05.",
+      "translation": "``True`` जब Shapiro-Wilk P मान 0.05 से अधिक हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs#2",
+      "source": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
+      "source_sha256": "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821",
+      "context": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
+      "translation": "``'score'`` और ``'count'`` तालिका पथों वाली मैपिंग का अनुक्रम (कोई भी खाली हो सकता है), जैसा :func:`normalize_regression_input_pairs` लौटाता है। हर मैपिंग का ``'plate'`` हल किए गए प्लेट लेबल से अधिलेखित किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.ml_analysis#15",
+      "source": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` or ``'xgboost'``.",
+      "source_sha256": "22fc522f1c2ac3d487d20188309dc89014b2f817f104e90c75c2afb60f47fa79",
+      "context": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` or ``'xgboost'``.",
+      "translation": "``'random_forest'``, ``'logistic_regression'``, ``'gradient_boosting'`` या ``'xgboost'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#2",
+      "source": "regression settings dictionary. ``paired_data`` is read when present, otherwise the legacy ``score_data`` and ``count_data`` lists; the dictionary is updated in place with the normalised ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.",
+      "source_sha256": "ea4caf4fe78a7f31987e94d1ce87ac096c07961b570fb75f72922c83f17499a1",
+      "context": "regression settings key-value mapping. ``paired_data`` is read when present, otherwise the legacy ``score_data`` and ``count_data`` lists; the key-value mapping is updated in place with the normalised ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.",
+      "translation": "रिग्रेशन सेटिंग्स डिक्शनरी। ``paired_data`` मौजूद होने पर पढ़ा जाता है, अन्यथा पुरानी ``score_data`` और ``count_data`` सूचियाँ; डिक्शनरी को उसी जगह सामान्यीकृत ``paired_data`` और दोहराव-रहित ``score_data``/``count_data`` सूचियों से अद्यतन किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#3",
+      "source": "``(pairs, migrated)``, where ``migrated`` is ``True`` when the rows came from the legacy lists.",
+      "source_sha256": "399983aa21b9c52ad243eaac474fe8e555ad56ac932bfcb79719b19a092c159f",
+      "context": "``(pairs, migrated)``, where ``migrated`` is ``True`` when the rows came from the legacy lists.",
+      "translation": "``(pairs, migrated)``, जहाँ ``migrated`` ``True`` होता है जब पंक्तियाँ पुरानी सूचियों से आई हों।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs#4",
+      "source": "when ``paired_data`` is malformed or there is not at least one score path and one count path.",
+      "source_sha256": "2cc092022d5830df41736fda3a8bf041c76d92843b2ec28135c1e285634c1f2e",
+      "context": "when ``paired_data`` is malformed or there is not at least one score path and one count path.",
+      "translation": "जब ``paired_data`` विकृत हो या कम से कम एक स्कोर पथ और एक गिनती पथ न हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.process_scores#6",
+      "source": "``'mean'``, ``'median'``, ``'quantile'`` or None.",
+      "source_sha256": "044324eba9c2c880950f0bd95c606449547aadfcb17a96e0211b4719e6af0a01",
+      "context": "``'mean'``, ``'median'``, ``'quantile'`` or None.",
+      "translation": "``'mean'``, ``'median'``, ``'quantile'`` या None।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.regression_levels#6",
+      "source": "long-format DataFrame of gRNA/gene fractions and the dependent variable, passed to :func:`regression` for every level.",
+      "source_sha256": "639b0a04146c2d6e1946c980de18b03bd1077f65dc8528fe58046e49d1a964a3",
+      "context": "long-format DataFrame of gRNA/gene fractions and the dependent variable, passed to :func:`regression` for every level.",
+      "translation": "gRNA/जीन अंशों और आश्रित चर वाला लंबे फ़ॉर्मैट का DataFrame, जो हर स्तर के लिए :func:`regression` को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.regression_levels#7",
+      "source": "path passed to :func:`regression`, which derives the volcano-plot filename from it.",
+      "source_sha256": "1f21690043b56df7a9e4f31d90e98e28836284ff53d8ceb4fcebcda20c4a0b21",
+      "context": "path passed to :func:`regression`, which derives the volcano-plot filename from it.",
+      "translation": ":func:`regression` को दिया जाने वाला पथ, जिससे वह volcano प्लॉट का फ़ाइल नाम निकालता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#5",
+      "source": "the analysis table (a DataFrame); its distinct well and guide counts, and the permutation block column when present, size the design.",
+      "source_sha256": "2dfe2442a63303585fb09dae9268bef7550ebddb95d44233838bb02af0fd4545",
+      "context": "the analysis table (a DataFrame); its distinct well and guide counts, and the permutation block column when present, size the design.",
+      "translation": "विश्लेषण तालिका (एक DataFrame); इसके भिन्न वेल और गाइड की गिनतियाँ, और मौजूद होने पर क्रमचय ब्लॉक स्तंभ, डिज़ाइन का आकार तय करते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#6",
+      "source": "run settings; ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` and ``guide_permutation_block`` are read. It is not modified.",
+      "source_sha256": "532fa4cf5719f72f3716568e4b1d5c0186d70d955a7d8132cac3570a58111513",
+      "context": "processing-session settings; ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` and ``guide_permutation_block`` are read. It is not modified.",
+      "translation": "रन सेटिंग्स; ``inference``, ``analysis_mode``, ``analysis_unit``, ``agg_type`` और ``guide_permutation_block`` पढ़े जाते हैं। इसे संशोधित नहीं किया जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#7",
+      "source": "column whose distinct values count the wells.",
+      "source_sha256": "7af55eade1e926647ceba08e1b000ca1cec55282cda1e0c4ee820a2344bcd91f",
+      "context": "column whose distinct values count the microplate sample positions.",
+      "translation": "वह स्तंभ जिसके भिन्न मान वेल गिनते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.resolve_auto_inference#8",
+      "source": "column whose distinct values count the guides.",
+      "source_sha256": "696091efd44adb3766450e54782f6ce0d0ed963e04b2af5893730550aedd3d73",
+      "context": "column whose distinct values count the guides.",
+      "translation": "वह स्तंभ जिसके भिन्न मान गाइड गिनते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#3",
+      "source": "run settings mapping, or ``None`` (treated as empty); only ``analysis_mode`` and ``regression_type`` are read.",
+      "source_sha256": "0645f4952e135eec7abd130057a80e8035b248abcfc1a74dda67e72df2991e40",
+      "context": "processing-session settings mapping, or ``None`` (treated as empty); only ``analysis_mode`` and ``regression_type`` are read.",
+      "translation": "रन सेटिंग्स मैपिंग, या ``None`` (खाली माना जाता है); केवल ``analysis_mode`` और ``regression_type`` पढ़े जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.results_folder_kind#4",
+      "source": "``'guide_permutation'``, ``'auto'`` when no regression type is set, or the regression type as a string.",
+      "source_sha256": "4888abbe38d96a9fb8918b6efae7f4eb235e8b4fa20c4a3b86124592c2ef2239",
+      "context": "``'guide_permutation'``, ``'auto'`` when no regression type is set, or the regression type as a string.",
+      "translation": "``'guide_permutation'``, कोई रिग्रेशन प्रकार सेट न होने पर ``'auto'``, या स्ट्रिंग के रूप में रिग्रेशन प्रकार।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.screen_is_blockable#3",
+      "source": "the design DataFrame, or ``None`` (returns ``False``); its ``screenID`` column is compared as strings.",
+      "source_sha256": "a3909c7de7af8a9ce5890c1fa56221df63486b3a5201af9991a97c9c68f6eb24",
+      "context": "the design DataFrame, or ``None`` (returns ``False``); its ``screenID`` column is compared as strings.",
+      "translation": "डिज़ाइन DataFrame, या ``None`` (``False`` लौटाता है); इसके ``screenID`` स्तंभ की तुलना स्ट्रिंग के रूप में की जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ml.write_plot#3",
+      "source": "a ``FastPlot``, or None.",
+      "source_sha256": "f985d07300e5a01ca1da09e8ed203786b3a41a1d523364f540d31c0d4903a0d0",
+      "context": "a ``FastPlot``, or None.",
+      "translation": "एक ``FastPlot``, या None।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_compare.segment_with_cellpose#2",
+      "source": "Model and device dependencies are loaded on demand for this call. Cellpose versions without a separate ``invert`` argument receive that setting in the normalization dictionary. Inversion requires normalization on those versions; other normalization options are retained.",
+      "source_sha256": "d16913d52b4af0f77301c908519ad3cbfefa3f1acea4694caec16f22ed618688",
+      "context": "Model and device dependencies are loaded on demand for this call. Cellpose versions without a separate ``invert`` argument receive that setting in the normalization key-value mapping. Inversion requires normalization on those versions; other normalization options are retained.",
+      "translation": "इस कॉल के लिए मॉडल और डिवाइस निर्भरताएँ माँग पर लोड की जाती हैं। जिन Cellpose संस्करणों में अलग ``invert`` तर्क नहीं है, उन्हें यह सेटिंग सामान्यीकरण डिक्शनरी में मिलती है। उन संस्करणों पर उलटने के लिए सामान्यीकरण आवश्यक है; अन्य सामान्यीकरण विकल्प बनाए रखे जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry#17",
+      "source": "the licence the model or package is published under, as its publisher states it (an SPDX identifier where there is one), or ``''`` when none is recorded.",
+      "source_sha256": "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+      "context": "the licence the model or package is published under, as its publisher states it (an SPDX identifier where there is one), or ``''`` when none is recorded.",
+      "translation": "वह लाइसेंस जिसके अंतर्गत मॉडल या पैकेज प्रकाशित है, जैसा उसका प्रकाशक बताता है (जहाँ उपलब्ध हो वहाँ SPDX पहचानकर्ता), या कोई दर्ज न होने पर ``''``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry.model_card_url#0",
+      "source": "The Hugging Face page for this model, derived from its download uri.",
+      "source_sha256": "3cecf04f719ddfc2894e372b74cc978c2264dcddb6c149372c60d6e46db3414c",
+      "context": "The Hugging Face page for this model, derived from its download uri.",
+      "translation": "इस मॉडल का Hugging Face पेज, उसके डाउनलोड uri से निकाला गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.ModelEntry.model_card_url#1",
+      "source": "A checksum and a metrics table are not enough on their own: the reader wants the page that says what the model was trained on and shows its training curves. Derived rather than declared, so every Hugging Face entry has one without a per-entry field to forget.",
+      "source_sha256": "cabe6d97969a6fa83dd75838579883f11780a8d8c923fb962fa650d672ac26da",
+      "context": "A checksum and a metrics table are not enough on their own: the reader wants the page that says what the model was trained on and shows its training curves. Derived rather than declared, so every Hugging Face entry has one without a per-entry field to forget.",
+      "translation": "अकेले चेकसम और मेट्रिक्स तालिका पर्याप्त नहीं हैं: पाठक वह पेज चाहता है जो बताए कि मॉडल किस पर प्रशिक्षित हुआ और उसके प्रशिक्षण वक्र दिखाए। घोषित नहीं बल्कि निकाला जाता है, ताकि हर Hugging Face प्रविष्टि के पास यह हो, बिना किसी प्रति-प्रविष्टि फ़ील्ड के जिसे भूला जा सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#0",
+      "source": "Every Cellpose model bioimage.io publishes, as zoo rows.",
+      "source_sha256": "40bbc828ca6bb9422a56265a37e26bdf500feddeac22c8bd2b5290ff6a8d723b",
+      "context": "Every Cellpose model bioimage.io publishes, as zoo rows.",
+      "translation": "bioimage.io द्वारा प्रकाशित हर Cellpose मॉडल, zoo पंक्तियों के रूप में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#1",
+      "source": "Read from bioimage.io's own collection, so the category cannot go stale the way a typed list would. Three kinds of row:",
+      "source_sha256": "5512c0857eebb4920d977c9ac7f780bec6c86ae21a4a735c571e8b3397e2189e",
+      "context": "Read from bioimage.io's own collection, so the category cannot go stale the way a typed list would. Three kinds of row:",
+      "translation": "bioimage.io के अपने संग्रह से पढ़ा जाता है, ताकि श्रेणी उस तरह पुरानी न पड़े जैसे हाथ से लिखी सूची पड़ती। तीन प्रकार की पंक्तियाँ:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#2",
+      "source": "a Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4 loads: a ``cellpose`` row that downloads its weights;",
+      "source_sha256": "e64c97c9f820cc0e082b915628fd57745f8f4c2762d267301976001ca2d11507",
+      "context": "a Cellpose-SAM or Cellpose-DINO model, which spaCR's own Cellpose 4 loads: a ``cellpose`` row that downloads its weights;",
+      "translation": "Cellpose-SAM या Cellpose-DINO मॉडल, जिसे spaCR का अपना Cellpose 4 लोड करता है: एक ``cellpose`` पंक्ति जो उसके वेट डाउनलोड करती है;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#3",
+      "source": "a Cellpose 3-format checkpoint: a ``cellpose3`` row that downloads its weights for the Cellpose 3 backend, which runs it as it runs cyto3;",
+      "source_sha256": "c52e22ab1bbcac6ad22f94ec2574844c5dced32dbe04d1b01f57dc84ca61444b",
+      "context": "a Cellpose 3-format checkpoint: a ``cellpose3`` row that downloads its weights for the Cellpose 3 backend, which runs it as it runs cyto3;",
+      "translation": "Cellpose 3-फ़ॉर्मैट चेकपॉइंट: एक ``cellpose3`` पंक्ति जो Cellpose 3 बैकएंड के लिए उसके वेट डाउनलोड करती है, जो उसे वैसे ही चलाता है जैसे cyto3 को;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#4",
+      "source": "one of either that spaCR cannot run, which says why in its first note (:func:`_bioimageio_cannot_run`) and offers nothing to download.",
+      "source_sha256": "ad50dca06055bfc8e0d41c5b9f1df4ef5a0fdee4114d02821dd8ff7db0eab28f",
+      "context": "one of either that spaCR cannot run, which says why in its first note (:func:`_bioimageio_cannot_run`) and offers nothing to download.",
+      "translation": "इन दोनों में से कोई ऐसा जिसे spaCR नहीं चला सकता, जो अपनी पहली टिप्पणी में कारण बताता है (:func:`_bioimageio_cannot_run`) और डाउनलोड के लिए कुछ नहीं देता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#5",
+      "source": "Each weights file is checked against the SHA-256 its manifest publishes, and carries the licence the uploader chose and what it was trained on.",
+      "source_sha256": "cc4ca3efe1d33fd2ba80ce3273fe7e0fb639e37f0d7bb312c7fd9e8039afbfa4",
+      "context": "Each weights file is checked against the SHA-256 its manifest publishes, and carries the licence the uploader chose and what it was trained on.",
+      "translation": "हर वेट फ़ाइल को उसके मैनिफ़ेस्ट में प्रकाशित SHA-256 के विरुद्ध जाँचा जाता है, और उसके साथ अपलोडर द्वारा चुना गया लाइसेंस और यह जानकारी होती है कि वह किस पर प्रशिक्षित हुआ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.bioimageio_entries#6",
+      "source": "Best effort and never raises: no network, a slow mirror or a changed schema all mean fewer rows, never a zoo that fails to open. With ``allow_network`` the collection is refreshed once it is a day old, and the weights files are measured, so a stand-in file is refused before anyone downloads it.",
+      "source_sha256": "41f60abad1c8eeb69f037f50a679e580ebcd044eff7749c7e09987e92f61f71f",
+      "context": "Best effort and never throws: no network, a slow mirror or a changed schema all mean fewer rows, never a zoo that fails to open. With ``allow_network`` the collection is refreshed once it is a day old, and the weights files are measured, so a stand-in file is refused before anyone downloads it.",
+      "translation": "सर्वोत्तम प्रयास और कभी त्रुटि नहीं उठाता: नेटवर्क न होना, धीमा मिरर या बदला हुआ स्कीमा, इन सबका अर्थ कम पंक्तियाँ हैं, कभी ऐसा zoo नहीं जो खुलने में विफल हो। ``allow_network`` के साथ संग्रह एक दिन पुराना होने पर ताज़ा किया जाता है, और वेट फ़ाइलों को मापा जाता है, ताकि किसी के डाउनलोड करने से पहले ही स्थानापन्न फ़ाइल अस्वीकार हो जाए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.classify_kind#4",
+      "source": "``'cellpose'``, ``'classifier'`` or None.",
+      "source_sha256": "cb72f7ebc1358d815574c8bd7a319721fc3a646d261fb4267c012515b47100a9",
+      "context": "``'cellpose'``, ``'classifier'`` or None.",
+      "translation": "``'cellpose'``, ``'classifier'`` या None।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.community_entries#0",
+      "source": "Unvetted models uploaded by spaCR users, or an empty list.",
+      "source_sha256": "3f8d93eb9b2d2460875a1858e8632b77035401139aadd552fe264a1ef580465a",
+      "context": "Unvetted models uploaded by spaCR users, or an empty list.",
+      "translation": "spaCR उपयोगकर्ताओं द्वारा अपलोड किए गए बिना जाँचे मॉडल, या खाली सूची।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.community_entries#1",
+      "source": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
+      "source_sha256": "d39c9c27d783d1465ee8471afbd90ca487c1a59c4f04ba350dade9fe77ac2ee1",
+      "context": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
+      "translation": "ये केवल तभी दिखाए जाते हैं जब उपयोगकर्ता इन्हें माँगे, क्योंकि मापे गए चेकपॉइंट के बगल में रखा बिना समीक्षा वाला चेकपॉइंट पाठक को दोनों को एक जैसा मानने के लिए प्रेरित करता है। हर पंक्ति में :data:`COMMUNITY_WARNING` होता है, और चेकसम अपलोडर के अपने सबमिशन रिकॉर्ड से आता है -- यह सिद्ध करता है कि अपलोड के बाद फ़ाइल नहीं बदली, यह नहीं कि वह अच्छी है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.community_entries#2",
+      "source": "Cache-first for the same reason as the bioimage.io listing: catalogue() must not reach the network.",
+      "source_sha256": "5552cf72c97edff934644d246b39decae0bb18e86a602f20f67a6a35ca62aebb",
+      "context": "Cache-first for the same reason as the bioimage.io listing: catalogue() must not reach the network.",
+      "translation": "bioimage.io सूची वाले कारण से ही पहले कैश: catalogue() को नेटवर्क तक नहीं पहुँचना चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.entries_from_sources#0",
+      "source": "The rows belonging to the headings that are on, in the given order.",
+      "source_sha256": "ce40c7898b5b6cd32f4dc53651316e0be8842d53de9464c6a259bec17c1ca6c2",
+      "context": "The rows belonging to the headings that are on, in the given order.",
+      "translation": "चालू शीर्षकों से संबंधित पंक्तियाँ, दिए गए क्रम में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.entries_from_sources#1",
+      "source": "the rows to filter.",
+      "source_sha256": "29f568dba5dc31fd2dd9b087e532f78a64618ba2aeebff414aab94c06ea09f56",
+      "context": "the rows to filter.",
+      "translation": "फ़िल्टर की जाने वाली पंक्तियाँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.entries_from_sources#2",
+      "source": "the headings currently on.",
+      "source_sha256": "f75c82e8b4b886a8c6eb2210377f0fbdbf1f4293031e3f4cd028a239e70b7305",
+      "context": "the headings currently on.",
+      "translation": "वर्तमान में चालू शीर्षक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.entry_from_file#4",
+      "source": "``'local'`` or ``'bundled'``.",
+      "source_sha256": "818372e82f4d5f3467d4ecbe209f9a46ef06d344a3e08aff0648856f7b9ffaaa",
+      "context": "``'local'`` or ``'bundled'``.",
+      "translation": "``'local'`` या ``'bundled'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.model_zoo.group_by_source#0",
+      "source": "Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.",
+      "source_sha256": "9343baba1544caf7e62ccc464d512618e0de13c12345c503ecd7272d6a151612",
+      "context": "Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.",
+      "translation": "सूची को :data:`ZOO_SOURCES` में विभाजित करें, हर स्रोत का क्रम बनाए रखते हुए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.group_by_source#1",
+      "source": "Every heading is present even when it has no rows, so a caller drawing the strip does not have to know which of the five happened to be empty this time.",
+      "source_sha256": "569af7bf4247981e75f97f270201cec4c5df3af9eba75d6b7d7dd73afd03fac8",
+      "context": "Every heading is present even when it has no rows, so a caller drawing the strip does not have to know which of the five happened to be empty this time.",
+      "translation": "हर शीर्षक मौजूद रहता है, भले ही उसमें कोई पंक्ति न हो, ताकि पट्टी बनाने वाले कॉलर को यह न जानना पड़े कि इस बार पाँच में से कौन-सा खाली था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.group_by_source#2",
+      "source": "the rows to split.",
+      "source_sha256": "5ee4bb21be85bd2ad0528716e555609fba10b60d0bef011bea17665dfe3e2e11",
+      "context": "the rows to split.",
+      "translation": "विभाजित की जाने वाली पंक्तियाँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.group_by_source#3",
+      "source": "heading -> rows, in :data:`ZOO_SOURCES` order.",
+      "source_sha256": "a3ff8d8f50ee67901cd178b71115655e6ff19666ea14d8ae1ecb6757e6742d69",
+      "context": "heading -> rows, in :data:`ZOO_SOURCES` order.",
+      "translation": "शीर्षक -> पंक्तियाँ, :data:`ZOO_SOURCES` क्रम में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.installable_backend_entries#0",
+      "source": "Every optional segmentation backend, in whatever state it is here.",
+      "source_sha256": "2dad6e2a409441275a53d9a859b204ce6ef9619484fea6495717c2d1380a4883",
+      "context": "Every optional segmentation backend, in whatever state it is here.",
+      "translation": "हर वैकल्पिक सेगमेंटेशन बैकएंड, यहाँ वह जिस भी स्थिति में हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.installable_backend_entries#1",
+      "source": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
+      "source_sha256": "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84",
+      "context": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
+      "translation": "zoo से अनुपस्थित बैकएंड किसी को नहीं सिखाता कि वह मौजूद है, इसलिए हर एक सूचीबद्ध किया जाता है, और उसका ``source`` बताता है कि वह किस स्थिति में है -- ``installed``, ``installable``, ``installing`` या ``not installable here`` -- पहली टिप्पणी के रूप में कारण और पंक्ति पर उसके लाइसेंस के साथ। किसी एक को इंस्टॉल करने से ``~/.spacr/backends`` के अंतर्गत उसका अपना एनवायरनमेंट बनता है और spaCR का अपना एनवायरनमेंट अछूता रहता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#0",
+      "source": "The model's scorecard as an HTML table, for a tooltip.",
+      "source_sha256": "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
+      "context": "The model's scorecard as an HTML table, for a tooltip.",
+      "translation": "मॉडल का स्कोरकार्ड HTML तालिका के रूप में, टूलटिप के लिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#1",
+      "source": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
+      "source_sha256": "3127ce8df40eaf57f7cd93dea6f22d66c9c47921b1a66a4b3c1af979325c79f5",
+      "context": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
+      "translation": "पहले टूलटिप गद्य का एक अनुच्छेद दिखाता था, और दो मॉडलों की तुलना करने वाले पाठक को दो संख्याएँ खोजने के लिए दो अनुच्छेद पढ़ने पड़ते थे। मॉडल कार्ड द्वारा छापी जाने वाली वही तालिका एक नज़र में उत्तर देती है। जब कोई प्रविष्टि कोई मेट्रिक प्रकाशित नहीं करती तो गद्य पर लौटता है, क्योंकि खाली तालिका एक वाक्य से बदतर है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#2",
+      "source": "Metrics that hold none of the scorecard's keys -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
+      "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
+      "translation": "जिन मेट्रिक्स में स्कोरकार्ड की कोई कुंजी नहीं है -- कोई मुक्त-रूप टिप्पणी, अपने ही नाम से कोई प्रशिक्षण loss -- वे भी स्कोरकार्ड नहीं हैं, और वे भी कुछ नहीं लौटाते: ग्यारह \"not recorded\" पंक्तियों वाली तालिका उस दो-पंक्ति टिप्पणी की जगह ले लेती जिसमें कुछ कहा गया था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#3",
+      "source": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
+      "context": "a catalogue entry, or anything with ``metrics`` and a name.",
+      "translation": "कैटलॉग प्रविष्टि, या ``metrics`` और नाम वाली कोई भी चीज़।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.scorecard_html#4",
+      "source": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
+      "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
+      "translation": "HTML तालिका, या दिखाने को कोई स्कोरकार्ड न होने पर ``\"\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.source_of#0",
+      "source": "Which of :data:`ZOO_SOURCES` this row belongs under.",
+      "source_sha256": "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
+      "context": "Which of :data:`ZOO_SOURCES` this row belongs under.",
+      "translation": "यह पंक्ति :data:`ZOO_SOURCES` में से किसके अंतर्गत आती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.source_of#1",
+      "source": "Decided FROM THE ROW, never from a list of names kept somewhere else: a hand-written list goes stale the first time a model is added, and the failure it produces is a model that is in the catalogue and under no heading, which is a model nobody can see.",
+      "source_sha256": "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
+      "context": "Decided from the row, never from a list of names kept somewhere else: a hand-written list goes stale the first time a model is added, and the failure it produces is a model that is in the catalogue and under no heading, which is a model nobody can see.",
+      "translation": "पंक्ति से ही तय किया जाता है, कहीं और रखी नामों की सूची से कभी नहीं: हाथ से लिखी सूची पहला मॉडल जुड़ते ही पुरानी पड़ जाती है, और उससे होने वाली विफलता ऐसा मॉडल है जो कैटलॉग में है पर किसी शीर्षक के अंतर्गत नहीं, यानी ऐसा मॉडल जिसे कोई नहीं देख सकता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.source_of#2",
+      "source": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that runs them.",
+      "source_sha256": "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
+      "context": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that executes them.",
+      "translation": "परीक्षणों का क्रम ही नियम है, और यह एक जगह मायने रखता है: bioimage.io पर प्रकाशित Cellpose 3 चेकपॉइंट bioimage.io पंक्ति है, Cellpose 3 पंक्ति नहीं। ``cellpose3`` का अर्थ बैकएंड के अपने मॉडल हैं -- cyto, cyto2, cyto3, nuclei -- और उन्हें चलाने वाला बैकएंड पैकेज।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.source_of#3",
+      "source": "A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
+      "source_sha256": "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
+      "context": "A row that matches nothing is filed under ``spaCR`` and said out loud. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
+      "translation": "किसी से मेल न खाने वाली पंक्ति ``spaCR`` के अंतर्गत दर्ज की जाती है और यह स्पष्ट रूप से बताया जाता है। यह छठा शीर्षक नहीं बल्कि फ़ॉलबैक है, क्योंकि गलत शीर्षक के अंतर्गत मॉडल एक असुविधा है और बिना शीर्षक का मॉडल एक बग है जिसे उपयोगकर्ता गायब मॉडल के रूप में अनुभव करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.source_of#4",
+      "source": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
+      "source_sha256": "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
+      "context": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
+      "translation": "कोई भी zoo पंक्ति -- एक :class:`ModelEntry`, या ``kind``, ``source`` और ``uri`` वाली कोई भी चीज़।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.source_of#5",
+      "source": "one of :data:`ZOO_SOURCES`.",
+      "source_sha256": "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec",
+      "context": "one of :data:`ZOO_SOURCES`.",
+      "translation": ":data:`ZOO_SOURCES` में से एक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.stock_cellpose_entries#0",
+      "source": "Every model the installed Cellpose can fetch for itself.",
+      "source_sha256": "3413d54520dbbf73561affe9e8fb675855a81d96ee46b80fd7244a0f335b15c7",
+      "context": "Every model the installed Cellpose can fetch for itself.",
+      "translation": "हर वह मॉडल जिसे इंस्टॉल किया गया Cellpose स्वयं प्राप्त कर सकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.model_zoo.stock_cellpose_entries#1",
+      "source": "These are not spaCR's files and carry no checksum of ours: Cellpose downloads and verifies them, and the name IS the path -- passing \"cpsam\" to Cellpose resolves it. They are listed so that the zoo answers \"what can I segment with\" rather than \"what has Einar trained\", which is the question a new user actually has.",
+      "source_sha256": "562dc59f42e75e2dff8502e60b00f58d17571d012575869480bb7350d7387348",
+      "context": "These are not spaCR's files and carry no checksum of ours: Cellpose downloads and verifies them, and the name IS the path -- passing \"cpsam\" to Cellpose resolves it. They are listed so that the zoo answers \"what can I segment with\" rather than \"what has Einar trained\", which is the question a new user actually has.",
+      "translation": "ये spaCR की फ़ाइलें नहीं हैं और इनमें हमारा कोई चेकसम नहीं है: Cellpose इन्हें डाउनलोड और सत्यापित करता है, और नाम ही पथ है -- Cellpose को \"cpsam\" देने पर वह इसे हल कर लेता है। इन्हें इसलिए सूचीबद्ध किया जाता है ताकि zoo \"मैं किससे सेगमेंट कर सकता हूँ\" का उत्तर दे, न कि \"what has Einar trained\" का, क्योंकि नए उपयोगकर्ता का वास्तविक प्रश्न पहला है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks#2",
+      "source": "Whole-plate motility analysis runs through :func:`spacr.core.preprocess_generate_masks` after frame merging, rather than within this per-object generator.",
+      "source_sha256": "650d6f22a7d33e0587989e0f7d2ed5bc1b3f0bb1bb041e049826a55f734213cc",
+      "context": "Whole-plate motility analysis executes through :func:`spacr.core.preprocess_generate_masks` after frame merging, rather than within this per-object generator.",
+      "translation": "पूरी प्लेट का गतिशीलता विश्लेषण इस प्रति-ऑब्जेक्ट जनरेटर के भीतर नहीं, बल्कि फ़्रेम मर्ज होने के बाद :func:`spacr.core.preprocess_generate_masks` के माध्यम से चलता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#1",
+      "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series. Whole-plate motility analysis belongs to :func:`spacr.core.preprocess_generate_masks` after all object masks have been merged with their images; this generator does not run it.",
+      "source_sha256": "46ab8da3c52e5e9e3ce2eac6c3b1093e7700f9951b9664dc0118d885cb508040",
+      "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series. Whole-plate motility analysis belongs to :func:`spacr.core.preprocess_generate_masks` after all object masks have been merged with their images; this generator does not run it.",
+      "translation": "``cpsam`` पूर्व-प्रशिक्षित मॉडल लोड करता है — या, जब ``<object_type>_model_name`` (या ``pathogen_model``) उपयोगकर्ता द्वारा प्रशिक्षित किसी चेकपॉइंट का नाम देता है, तो वह चेकपॉइंट — हर पहले से बैच की गई ``.npz`` फ़ाइल पर पुनरावृत्ति करता है, 2-D मास्क पर परिधि विलय और क्षेत्रफल/सीमा फ़िल्टरिंग लागू करता है, और वैकल्पिक रूप से मूल अपने-चैनल छवि में उनकी निरपेक्ष माध्य तीव्रता के अनुसार ऑब्जेक्ट फ़िल्टर करता है। फिर यह वैकल्पिक रूप से टाइमलैप्स ऑब्जेक्ट ट्रैक करता है, प्रति-छवि ``.npy`` मास्क सहेजता है, और प्रति-ऑब्जेक्ट गिनतियाँ रन के SQLite डेटाबेस में दर्ज करता है। समय-स्टैक आर्काइव में प्रति समय-बिंदु एक फ़ाइल नाम होना चाहिए, घोषित समय-अक्ष स्थिति चाहे जो हो; हर कच्चा फ़ाइल नाम उस समय-बिंदु के ``(Z, Y, X, C)`` आयतन की, या उसकी ``(Y, X, C)`` छवि की (समतल ``TYX`` श्रृंखला के लिए) पहचान करता है। पूरी प्लेट का गतिशीलता विश्लेषण :func:`spacr.core.preprocess_generate_masks` का काम है, सभी ऑब्जेक्ट मास्क उनकी छवियों के साथ मर्ज होने के बाद; यह जनरेटर उसे नहीं चलाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#2",
+      "source": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same.",
+      "source_sha256": "42def4f4e810fa598323cc7fdbd455915764d7944e457a30a384f482d09f80e1",
+      "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same.",
+      "translation": "जिस ऑब्जेक्ट की मॉडल सेटिंग ``cellpose3:<model or weights path>`` है, या ``segmentation_backend`` के ``'cellpose3'`` होने पर कोई भी ऑब्जेक्ट, Cellpose 3 बैकएंड के अपने एनवायरनमेंट में ``_cellpose3_masks`` द्वारा सेगमेंट किया जाता है; जो यह लौटाता है वह Cellpose-SAM परिणाम वाली ही पंक्तियों में जाता है, इसलिए सहेजे गए मास्क और डेटाबेस पंक्तियाँ एक ही तरह लिखी जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#6",
+      "source": "optional exclusive worker assignment of NPZ paths under ``src``. One model is reused across the assignment; ``None`` keeps the ordinary whole-directory run. An empty assignment loads no model.",
+      "source_sha256": "335d782f7f2796f7aa6e5dc88248a42c5e9ed4fbd7f58c4e57659d513258ab5d",
+      "context": "optional exclusive worker assignment of NPZ paths under ``src``. One model is reused across the assignment; ``None`` keeps the ordinary whole-directory run. An empty assignment loads no model.",
+      "translation": "``src`` के अंतर्गत NPZ पथों का वैकल्पिक अनन्य वर्कर असाइनमेंट। पूरे असाइनमेंट में एक ही मॉडल का पुनः उपयोग होता है; ``None`` सामान्य पूरी-निर्देशिका रन बनाए रखता है। खाली असाइनमेंट कोई मॉडल लोड नहीं करता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#7",
+      "source": "optional callable receiving the archive path after its selected fields have completed. Failed archives are not reported.",
+      "source_sha256": "e0353f797a2deca5e3e0e188d33b11f8b983a8a71119d4a90f139249c54a35a9",
+      "context": "optional callable receiving the archive path after its selected fields have completed. Failed archives are not reported.",
+      "translation": "वैकल्पिक कॉल करने योग्य ऑब्जेक्ट जो आर्काइव के चुने गए फ़ील्ड पूरे होने के बाद उसका पथ प्राप्त करता है। विफल आर्काइव रिपोर्ट नहीं किए जाते।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#8",
+      "source": "False lets a parallel coordinator run shared QC once after every worker finishes, instead of writing reports from each worker.",
+      "source_sha256": "7490cab6cdcf8d211548283b8a53ba6904fa0a270f553c593f3c231a4eb212bf",
+      "context": "False lets a parallel coordinator run shared QC once after every worker finishes, instead of writing reports from each worker.",
+      "translation": "False समानांतर समन्वयक को हर वर्कर से रिपोर्ट लिखवाने के बजाय, सभी वर्कर समाप्त होने के बाद साझा QC एक बार चलाने देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier#0",
+      "source": "Say what each object in a mask is, after any segmenter has made it.",
+      "source_sha256": "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
+      "context": "Say what each object in a mask is, after any segmenter has made it.",
+      "translation": "किसी भी सेगमेंटर द्वारा बनाए जाने के बाद, मास्क में हर ऑब्जेक्ट क्या है, यह बताएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier#1",
+      "source": "Segmentation answers \"where is there an object\"; this answers \"what is it\". The two are kept apart on purpose: the same classification must be available whether spaCR segmented the field a moment ago or is handed a mask Cellpose wrote last week.",
+      "source_sha256": "8f231b55b0d7eaf23e0e5e9322e2b13aec786979241d389863e6fff104221aca",
+      "context": "Segmentation answers \"where is there an object\"; this answers \"what is it\". The two are kept apart on purpose: the same classification must be available whether spaCR segmented the microscope field of view a moment ago or is handed a mask Cellpose wrote last week.",
+      "translation": "सेगमेंटेशन उत्तर देता है \"ऑब्जेक्ट कहाँ है\"; यह उत्तर देता है \"what is it\"। दोनों को जानबूझकर अलग रखा गया है: वही वर्गीकरण उपलब्ध होना चाहिए, चाहे spaCR ने अभी फ़ील्ड सेगमेंट किया हो या उसे वह मास्क दिया जाए जिसे Cellpose ने पिछले सप्ताह लिखा था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier#2",
+      "source": "TWO WAYS IN:",
+      "source_sha256": "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
+      "context": "Two ways in:",
+      "translation": "प्रवेश के दो रास्ते:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier#3",
+      "source": ":func:`segment_and_classify` takes a segmentation backend and its options, segments, and classifies what it made.",
+      "source_sha256": "3d1da2379b8c57640df73c47a43b78f4486924f16f6e5495eb5f92521e17b4a0",
+      "context": ":func:`segment_and_classify` takes a segmentation backend and its options, segments, and classifies what it made.",
+      "translation": ":func:`segment_and_classify` एक सेगमेंटेशन बैकएंड और उसके विकल्प लेता है, सेगमेंट करता है, और जो बनाया उसे वर्गीकृत करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier#4",
+      "source": ":func:`classify_objects` takes an image and a mask that already exists and classifies it as it stands. Nothing is re-segmented.",
+      "source_sha256": "4be790be28eebf6c3fa55b8c8348aed98402b198a24d74abb58039b6058236ae",
+      "context": ":func:`classify_objects` takes an image and a mask that already exists and classifies it as it stands. Nothing is re-segmented.",
+      "translation": ":func:`classify_objects` एक छवि और पहले से मौजूद मास्क लेता है और उसे जैसा है वैसा ही वर्गीकृत करता है। कुछ भी फिर से सेगमेंट नहीं किया जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier#5",
+      "source": "WHAT A HEAD IS. A head is a trained classifier: it is handed a batch of crops and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
+      "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe",
+      "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
+      "translation": "हेड क्या है। हेड एक प्रशिक्षित क्लासिफ़ायर है: उसे क्रॉप का एक बैच दिया जाता है और वह हर एक के लिए एक वर्ग और एक प्रायिकता लौटाता है। यह बेस क्लास नहीं बल्कि एक प्रोटोकॉल है, इसलिए torch मॉड्यूल या scikit-learn एस्टिमेटर के चारों ओर बना एडैप्टर इसे दे सकता है। दो अनुप्रयोग नियोजित हैं -- प्रति रिक्तिका परजीवी, और हर ऑब्जेक्ट क्या है -- और PV वाला व्यवहार में तीन हेड है, जो Hoechst, परजीवी रंजक और CellMask पर अलग-अलग प्रशिक्षित हैं, ताकि कोई प्लेट जो भी रंजक उसमें है उससे गिन सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier#6",
+      "source": "Geometry reports border contact and suggests pairs that may have been split by a segmenter. A shared boundary is a heuristic, not proof that two labels belong to one biological object. Border contact and split candidates are reported separately; automatic merging excludes either object touching the field edge. Merge accuracy still requires independently labelled examples.",
+      "source_sha256": "129ed0b73a6f49367bd70f620441e8069dfd5dfc0119699c1032dced1f839b0f",
+      "context": "Geometry reports border contact and suggests pairs that may have been split by a segmenter. A shared boundary is a heuristic, not proof that two labels belong to one biological object. Border contact and split candidates are reported separately; automatic merging excludes either object touching the microscope field of view edge. Merge accuracy still requires independently labelled examples.",
+      "translation": "ज्यामिति सीमा-संपर्क रिपोर्ट करती है और उन जोड़ियों का सुझाव देती है जिन्हें किसी सेगमेंटर ने विभाजित कर दिया हो सकता है। साझा सीमा एक अनुमानी संकेत है, यह प्रमाण नहीं कि दो लेबल एक ही जैविक ऑब्जेक्ट के हैं। सीमा-संपर्क और विभाजन-उम्मीदवार अलग-अलग रिपोर्ट किए जाते हैं; स्वचालित विलय फ़ील्ड के किनारे को छूने वाले किसी भी ऑब्जेक्ट को बाहर रखता है। विलय की सटीकता के लिए अब भी स्वतंत्र रूप से लेबल किए गए उदाहरण आवश्यक हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier#7",
+      "source": "IDS ARE NEVER RENUMBERED. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the crops and the tracks are all keyed on those ids.",
+      "source_sha256": "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021",
+      "context": "Ids are never renumbered. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the extracted image regions and the tracks are all keyed on those ids.",
+      "translation": "ID कभी फिर से क्रमांकित नहीं किए जाते। यहाँ सब कुछ उन्हीं लेबल id पर आधारित है जिनके साथ मास्क आया, और यह जो भी मास्क लौटाता है वह उन्हें बनाए रखता है। `canonical_labels`, जो `mask_engine` में है, बताता है कि फिर से क्रमांकित करने की क्या कीमत है: मापन, क्रॉप और ट्रैक सभी उन्हीं id पर आधारित हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#0",
+      "source": "Adapt a count regressor to the object-head prediction interface.",
+      "source_sha256": "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
+      "context": "Adapt a count regressor to the object-head prediction interface.",
+      "translation": "गिनती रिग्रेसर को ऑब्जेक्ट-हेड भविष्यवाणी इंटरफ़ेस के अनुरूप ढालें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#1",
+      "source": "model with ``predict(crops)`` returning one finite, nonnegative count per crop, shaped ``(N,)`` or ``(N, 1)``. The caller selects this model's stain through ``classify_objects``'s ``channels`` argument; separate models can use the same labels.",
+      "source_sha256": "a9811efa3218389a542df438bde224e4aa170536982cbc236f6d9fcc40ec429d",
+      "context": "model with ``predict(crops)`` returning one finite, nonnegative count per extracted image region, shaped ``(N,)`` or ``(N, 1)``. The caller selects this model's stain through ``classify_objects``'s ``channels`` argument; separate models can use the same labels.",
+      "translation": "``predict(crops)`` वाला मॉडल जो प्रति क्रॉप एक परिमित, गैर-ऋणात्मक गिनती लौटाता है, ``(N,)`` या ``(N, 1)`` आकार में। कॉलर इस मॉडल का रंजक ``classify_objects`` के ``channels`` तर्क के माध्यम से चुनता है; अलग-अलग मॉडल एक ही लेबल का उपयोग कर सकते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead#2",
+      "source": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability. Retain the stain-specific count regressor without loading or fitting it.",
+      "source_sha256": "d662a3ce69e8b037b03499dcb3956673a3b841c37a6093913f9a6a6d4ee358ec",
+      "context": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability. Retain the stain-specific count regressor without loading or fitting it.",
+      "translation": "गिनतियाँ अपने रिग्रेशन मान बनाए रखती हैं। प्रदर्शन वर्ग :func:`bin_parasite_count` का उपयोग करते हैं; रिग्रेसर कोई वर्ग प्रायिकता नहीं देता। रंजक-विशिष्ट गिनती रिग्रेसर को लोड या फ़िट किए बिना रखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#0",
+      "source": "Return unrounded counts and display classes for a crop batch.",
+      "source_sha256": "15fac29b7ff3d2147d0bc5b2f38a82850bef65f9d2da23a6ebd336639115d3e4",
+      "context": "Return unrounded counts and display classes for an extracted image region batch.",
+      "translation": "क्रॉप बैच के लिए बिना गोल की गई गिनतियाँ और प्रदर्शन वर्ग लौटाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#1",
+      "source": "channel-selected crops in object order.",
+      "source_sha256": "cb7de26fdc328bc9c54b8f5c3729d7988410d3d3132181233cd0cc0220ead1ec",
+      "context": "channel-selected extracted image regions in object order.",
+      "translation": "ऑब्जेक्ट क्रम में चैनल-चयनित क्रॉप।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#2",
+      "source": "one count, display class and absent probability per crop.",
+      "source_sha256": "4ad3e812878a50fd6dcc9e80d2d2a65d15e97b18ec44b3b2ba69c068f62e9b07",
+      "context": "one count, display class and absent probability per extracted image region.",
+      "translation": "प्रति क्रॉप एक गिनती, प्रदर्शन वर्ग और अनुपस्थित प्रायिकता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.ParasiteCountHead.predict#3",
+      "source": "predictions have the wrong shape or invalid counts.",
+      "source_sha256": "8718d2158b5b298da83cb7b2f7f8f446e5caddfe80b49a52e717bcfa01421fb5",
+      "context": "predictions have the wrong shape or invalid counts.",
+      "translation": "भविष्यवाणियों का आकार गलत है या गिनतियाँ अमान्य हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.bin_parasite_count#0",
+      "source": "Put a predicted parasite count in the bin a report shows it in.",
+      "source_sha256": "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
+      "context": "Put a predicted parasite count in the bin a report shows it in.",
+      "translation": "अनुमानित परजीवी गिनती को उस बिन में रखें जिसमें रिपोर्ट उसे दिखाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.bin_parasite_count#1",
+      "source": "THE BIN IS A DISPLAY CHOICE, NOT A TRAINED ONE. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
+      "source_sha256": "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
+      "context": "The bin is a display choice, not a trained one. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
+      "translation": "बिन एक प्रदर्शन विकल्प है, प्रशिक्षित नहीं। हेड अनुमान लगाता है कि उसे कितने परजीवी दिखते हैं; यह केवल उस संख्या को दिखाने का तरीका है। यह इसलिए मायने रखता है कि नीचे का नियम बदल सकता है -- या हर रिपोर्ट के लिए किसी अलग नियम से बदला जा सकता है -- बिना कुछ भी दोबारा प्रशिक्षित किए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.bin_parasite_count#2",
+      "source": "TIES GO DOWN, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
+      "source_sha256": "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
+      "context": "Ties go down, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
+      "translation": "बराबरी नीचे जाती है, और 12 ऐसा ही मामला है: यह 8 से चार दूर है और 16 से भी चार। 12 वाली रिक्तिका आठ पूरे कर चुकी है और सोलह की ओर आधे रास्ते में है, इसलिए इसे उस दौर के रूप में रिपोर्ट किया जाता है जो पूरा हुआ, न कि जो नहीं हुआ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.bin_parasite_count#3",
+      "source": "finite, nonnegative count, including fractional predictions.",
+      "source_sha256": "e41691590f9d9f184a8bd552290beb1f77a5b6f61c77eca82dd0d1b14c6dd4eb",
+      "context": "finite, nonnegative count, including fractional predictions.",
+      "translation": "परिमित, गैर-ऋणात्मक गिनती, भिन्नात्मक भविष्यवाणियों सहित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.bin_parasite_count#4",
+      "source": "one of ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` or ``\">16\"``.",
+      "source_sha256": "df1ba0be843a1bfb128c975f5fa764f8002f024fa8cc4a122e6ca4e3ce2114a9",
+      "context": "one of ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` or ``\">16\"``.",
+      "translation": "``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` या ``\">16\"`` में से एक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.bin_parasite_count#5",
+      "source": "the count is negative or not finite.",
+      "source_sha256": "991a0729433e5f7596ebf142a790f353413cb27e3ed6dc013c8be2a200fa63da",
+      "context": "the count is negative or not finite.",
+      "translation": "गिनती ऋणात्मक या अपरिमित है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#0",
+      "source": "Classify every object of a mask that already exists.",
+      "source_sha256": "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
+      "context": "Classify every object of a mask that already exists.",
+      "translation": "पहले से मौजूद मास्क के हर ऑब्जेक्ट को वर्गीकृत करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#1",
+      "source": "the field, ``(H, W)`` or ``(H, W, planes)``.",
+      "source_sha256": "890927b19cc2e4998b7dbf5ed0df59699e421076bcb4535b1d47f4ce431dd443",
+      "context": "the field, ``(H, W)`` or ``(H, W, planes)``.",
+      "translation": "फ़ील्ड, ``(H, W)`` या ``(H, W, planes)``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#10",
+      "source": "which class name means \"not a real object\", for ``remove_artifacts``. A parameter rather than a constant because a head trained on somebody else's labels may spell it differently, and a removal that silently matches nothing is worse than one that cannot be configured.",
+      "source_sha256": "171b772850f6bca42b7aebaf8e72ff5d3639fac8f21d1bca151d5aff78717fdf",
+      "context": "which class name means \"not a real object\", for ``remove_artifacts``. A parameter rather than a constant because a head trained on somebody else's labels may spell it differently, and a removal that silently matches nothing is worse than one that cannot be configured.",
+      "translation": "``remove_artifacts`` के लिए, कौन-सा वर्ग नाम \"not a real object\" का अर्थ रखता है। यह स्थिरांक नहीं बल्कि पैरामीटर है, क्योंकि किसी और के लेबलों पर प्रशिक्षित हेड इसकी वर्तनी अलग रख सकता है, और चुपचाप किसी से मेल न खाने वाला हटाना ऐसे हटाने से बदतर है जिसे कॉन्फ़िगर न किया जा सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#11",
+      "source": "dictionary containing ``objects`` (per-label rows), ``crops`` (label-keyed arrays), a new ``mask``, ``merged`` pairs, ``removed`` ids and ``removed_count``. Rows and crops describe objects after merging but before removal, retaining evidence for deleted objects. ``label_map`` maps every original id to its final surviving id, or zero for a removed object. Default mask values and dtype are unchanged. Geometry candidates are not validated biological splits.",
+      "source_sha256": "79a254eed21e83033f5c890823cd8a78d0d2aecaa6a9a6c4e3c7b787539dba94",
+      "context": "key-value mapping containing ``objects`` (per-label rows), ``crops`` (label-keyed arrays), a new ``mask``, ``merged`` pairs, ``removed`` ids and ``removed_count``. Rows and extracted image regions describe objects after merging but before removal, retaining evidence for deleted objects. ``label_map`` maps every original id to its final surviving id, or zero for a removed object. Default mask values and dtype are unchanged. Geometry candidates are not validated biological splits.",
+      "translation": "डिक्शनरी जिसमें ``objects`` (प्रति-लेबल पंक्तियाँ), ``crops`` (लेबल-कुंजी वाले ऐरे), एक नया ``mask``, ``merged`` जोड़े, ``removed`` id और ``removed_count`` होते हैं। पंक्तियाँ और क्रॉप विलय के बाद पर हटाने से पहले के ऑब्जेक्ट का वर्णन करते हैं, जिससे हटाए गए ऑब्जेक्ट का साक्ष्य बना रहता है। ``label_map`` हर मूल id को उसकी अंतिम बची हुई id पर, या हटाए गए ऑब्जेक्ट के लिए शून्य पर मैप करता है। डिफ़ॉल्ट मास्क मान और dtype अपरिवर्तित रहते हैं। ज्यामितीय उम्मीदवार सत्यापित जैविक विभाजन नहीं हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#12",
+      "source": "invalid image/mask geometry, crop settings or head output, or artifact removal requested without a head.",
+      "source_sha256": "db295d18127249c3fe247f0502d71a650b6f0ada8567066c4e63a3b36d2e0154",
+      "context": "invalid image/mask geometry, extracted-image-region settings or head output, or artifact removal requested without a head.",
+      "translation": "अमान्य छवि/मास्क ज्यामिति, क्रॉप सेटिंग्स या हेड आउटपुट, या बिना हेड के आर्टिफ़ैक्ट हटाने का अनुरोध।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#2",
+      "source": "its labels. Not modified; any mask returned is a new one.",
+      "source_sha256": "e8d6c5584c2f179a2423042417706a66f5e3b2f64582e7bb536ec63f09401cb9",
+      "context": "its labels. Not modified; any mask returned is a new one.",
+      "translation": "उसके लेबल। संशोधित नहीं होता; लौटाया गया कोई भी मास्क नया होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#3",
+      "source": "something with ``predict(crops)`` returning a class per crop, ``(class, probability)`` pairs, or dictionaries containing ``class``, optional ``probability`` and optional regression ``count``. None reports geometry and crops without making predictions.",
+      "source_sha256": "947ec5d89ff2a68da266ef787f2a462e2eb73e59249729a048fdd6fb77caaebc",
+      "context": "something with ``predict(crops)`` returning a class per extracted image region, ``(class, probability)`` pairs, or key-value mappings containing ``class``, optional ``probability`` and optional regression ``count``. None reports geometry and extracted image regions without making predictions.",
+      "translation": "``predict(crops)`` वाली कोई चीज़ जो प्रति क्रॉप एक वर्ग, ``(class, probability)`` जोड़े, या ``class``, वैकल्पिक ``probability`` और वैकल्पिक रिग्रेशन ``count`` वाली डिक्शनरी लौटाती है। None भविष्यवाणी किए बिना ज्यामिति और क्रॉप रिपोर्ट करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#4",
+      "source": "which planes the head sees, in order. Defaults to every plane the image has.",
+      "source_sha256": "f81c772296c9f3ccdbfa2781789840f558db0d6d4f8b332c6c3dca9b7d17094e",
+      "context": "which image layers the head sees, in order. Defaults to every image layer the image has.",
+      "translation": "हेड कौन-से समतल देखता है, क्रम में। डिफ़ॉल्ट छवि का हर समतल है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#5",
+      "source": "resize each crop to ``size x size`` for the head.",
+      "source_sha256": "581b8398dd8ddd85afdfcb3fbf7ddf2fa03a6e7ae80dc80f59cd9780e8ca841d",
+      "context": "resize each extracted image region to ``size x size`` for the head.",
+      "translation": "हेड के लिए हर क्रॉप का आकार ``size x size`` करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#6",
+      "source": "``bounding_box`` or ``object``; see :func:`spacr.crop_source.crop_object`.",
+      "source_sha256": "a54acb1a88a2451e5243ef7cdca718a781b3af5f7b5a9f98e1263f26a3509da1",
+      "context": "``bounding_box`` or ``object``; see :func:`spacr.crop_source.crop_object`.",
+      "translation": "``bounding_box`` या ``object``; :func:`spacr.crop_source.crop_object` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#7",
+      "source": "pixels of context around each object.",
+      "source_sha256": "0250aae25c4e2a7b06cbd177b961e88a4b72a6a2d07502e29c5659625929e54f",
+      "context": "pixels of context around each object.",
+      "translation": "हर ऑब्जेक्ट के आसपास संदर्भ के पिक्सेल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#8",
+      "source": "return a mask with whatever the head called an artifact erased. OFF by default: a false artifact is a deleted object, so this is a decision the caller makes rather than a default they inherit.",
+      "source_sha256": "9faa26138d5798f10e8d3ca69aa1c3e1d17c509ba4e3040290d92e4306aae889",
+      "context": "return a mask with whatever the head called an artifact erased. OFF by default: a false artifact is a deleted object, so this is a decision the caller makes rather than a default they inherit.",
+      "translation": "वह मास्क लौटाएँ जिसमें से वह सब मिटा दिया गया हो जिसे हेड ने आर्टिफ़ैक्ट कहा। डिफ़ॉल्ट रूप से बंद: गलत आर्टिफ़ैक्ट एक हटाया गया ऑब्जेक्ट है, इसलिए यह निर्णय कॉलर लेता है, विरासत में मिला डिफ़ॉल्ट नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.classify_objects#9",
+      "source": "merge pairs :func:`split_candidates` finds, excluding any pair with either object touching the field edge. This optional geometry rule can mistake adjacent objects for a segmentation split.",
+      "source_sha256": "9bc661d2036dad4a77d730f453b1634ada97aad4d87f9af4640f37bb17b4094b",
+      "context": "merge pairs :func:`split_candidates` finds, excluding any pair with either object touching the microscope field of view edge. This optional geometry rule can mistake adjacent objects for a segmentation split.",
+      "translation": ":func:`split_candidates` द्वारा पाई गई जोड़ियों को मिलाएँ, उन जोड़ियों को छोड़कर जिनका कोई भी ऑब्जेक्ट फ़ील्ड के किनारे को छूता हो। यह वैकल्पिक ज्यामितीय नियम आसन्न ऑब्जेक्ट को सेगमेंटेशन विभाजन समझने की भूल कर सकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.describe_objects#0",
+      "source": "What can be said about every object without a trained head at all.",
+      "source_sha256": "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
+      "context": "What can be said about every object without a trained head at all.",
+      "translation": "प्रशिक्षित हेड के बिना हर ऑब्जेक्ट के बारे में क्या कहा जा सकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.describe_objects#1",
+      "source": "the label image.",
+      "source_sha256": "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+      "context": "the label image.",
+      "translation": "लेबल छवि।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.describe_objects#2",
+      "source": "one row per object -- ``label``, ``area``, ``touches_border`` and ``split_with`` (the ids it may be one object with).",
+      "source_sha256": "d59fb15adbbd6d2fff0fbf1a2f2c4e2afcf5381b5b15d855902236421db9c0a3",
+      "context": "one row per object -- ``label``, ``area``, ``touches_border`` and ``split_with`` (the ids it may be one object with).",
+      "translation": "प्रति ऑब्जेक्ट एक पंक्ति -- ``label``, ``area``, ``touches_border`` और ``split_with`` (वे id जिनके साथ यह एक ही ऑब्जेक्ट हो सकता है)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#0",
+      "source": "Join each pair into one object, keeping the lower id.",
+      "source_sha256": "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
+      "context": "Join each pair into one object, keeping the lower id.",
+      "translation": "हर जोड़ी को एक ऑब्जेक्ट में जोड़ें, छोटी id रखते हुए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#1",
+      "source": "The lower id survives so that a merge is stable however the pairs are ordered, and so the object keeps the id that measurements and tracks already know it by wherever that is the lower one.",
+      "source_sha256": "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
+      "context": "The lower id survives so that a merge is stable however the pairs are ordered, and so the object keeps the id that measurements and tracks already know it by wherever that is the lower one.",
+      "translation": "छोटी id बची रहती है ताकि विलय स्थिर रहे, जोड़ियाँ किसी भी क्रम में हों, और ताकि जहाँ भी वही छोटी हो, ऑब्जेक्ट वही id रखे जिससे मापन और ट्रैक उसे पहले से जानते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#3",
+      "source": "pairs of ids, as :func:`split_candidates` returns them.",
+      "source_sha256": "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
+      "context": "pairs of ids, as :func:`split_candidates` returns them.",
+      "translation": "id की जोड़ियाँ, जैसे :func:`split_candidates` उन्हें लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#4",
+      "source": "a NEW mask; the one passed in is not touched.",
+      "source_sha256": "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb",
+      "context": "a NEW mask; the one passed in is not touched.",
+      "translation": "एक नया मास्क; दिया गया मास्क छुआ नहीं जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves#5",
+      "source": "a pair names background, an absent id, or a noninteger.",
+      "source_sha256": "66f07fb9777f4334c03c941cfe80b72e994a48e8301c51fb7356d9af8e955d67",
+      "context": "a pair names background, an absent id, or a noninteger.",
+      "translation": "कोई जोड़ी पृष्ठभूमि, अनुपस्थित id या गैर-पूर्णांक का नाम देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.remove_labels#0",
+      "source": "Take objects out of a mask without renumbering what is left.",
+      "source_sha256": "e5bb6008ae3835eb73ecba8d680e1a9909e5f64eb164d47e2453c59d55c0f5c9",
+      "context": "Take objects out of a mask without renumbering what is left.",
+      "translation": "बचे हुए को फिर से क्रमांकित किए बिना मास्क से ऑब्जेक्ट हटाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.remove_labels#2",
+      "source": "the ids to erase.",
+      "source_sha256": "ebbd5667e52f78168127395921ab9703ea8e5b810a638709eaecbb944524c9b8",
+      "context": "the ids to erase.",
+      "translation": "मिटाई जाने वाली id।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.remove_labels#3",
+      "source": "a NEW mask with those ids set to background.",
+      "source_sha256": "17d253bcef05cd94f47ed9e0a17d79042337d7775758bdae1df108d35361646c",
+      "context": "a NEW mask with those ids set to background.",
+      "translation": "एक नया मास्क जिसमें वे id पृष्ठभूमि पर सेट हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#0",
+      "source": "Segment a field with any backend, then classify what it found.",
+      "source_sha256": "216c67b3ee07adb30c8b3c77c8c3659cfb26c2e38e4eab300b85a58a1db05d83",
+      "context": "Segment a field with any backend, then classify what it found.",
+      "translation": "किसी भी बैकएंड से फ़ील्ड सेगमेंट करें, फिर जो मिला उसे वर्गीकृत करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#1",
+      "source": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it, which is what items 404, 405, 423 and 446 built. This function therefore wraps a model without knowing which model it has.",
+      "source_sha256": "2ed9d5992e6c9b2ae9a468bea3fb29f6bb0e91d5a8a19b4db431ff0bd0149d15",
+      "context": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it, which is what items 404, 405, 423 and 446 built. This function therefore wraps a model without knowing which model it has.",
+      "translation": "बैकएंड Cellpose के ``eval`` वाली कोई भी चीज़ है -- Cellpose-SAM, Cellpose 3, DINOCell और SAMCell सभी इसका उत्तर देते हैं, और आइटम 404, 405, 423 और 446 ने यही बनाया। इसलिए यह फ़ंक्शन किसी मॉडल को यह जाने बिना लपेटता है कि वह कौन-सा मॉडल है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#2",
+      "source": "the segmenter.",
+      "source_sha256": "7eb6d52f58ee170b1a1dedc982c4ea49c869732d4ef1ed9b60a2f2f96a9ee036",
+      "context": "the segmenter.",
+      "translation": "सेगमेंटर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#3",
+      "source": "one field.",
+      "source_sha256": "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+      "context": "one field.",
+      "translation": "एक फ़ील्ड।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#4",
+      "source": "passed to the backend's ``eval``.",
+      "source_sha256": "9ca276ff0d7fdba2d330b465fc9b8ffc91754279e24e71adfa918449c7651d0c",
+      "context": "passed to the backend's ``eval``.",
+      "translation": "बैकएंड के ``eval`` को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#5",
+      "source": "passed to :func:`classify_objects`.",
+      "source_sha256": "7e654e613e7425fcaee50327ebe5fcc5a1b3288f721867771d8f58f7aabdc086",
+      "context": "passed to :func:`classify_objects`.",
+      "translation": ":func:`classify_objects` को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#6",
+      "source": "what :func:`classify_objects` returns, with the mask the backend produced under ``\"mask\"`` when no option changed it.",
+      "source_sha256": "32325e18e6b638a8df38be9096ae7441a20ec4af343ada8b98780dbead0b5160",
+      "context": "what :func:`classify_objects` returns, with the mask the backend produced under ``\"mask\"`` when no option changed it.",
+      "translation": "जो :func:`classify_objects` लौटाता है, और जब किसी विकल्प ने उसे न बदला हो तो ``\"mask\"`` के अंतर्गत बैकएंड द्वारा बनाया गया मास्क।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.split_candidates#0",
+      "source": "Pairs of labels that look like one object cut in two.",
+      "source_sha256": "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
+      "context": "Pairs of labels that look like one object cut in two.",
+      "translation": "लेबलों की जोड़ियाँ जो दो भागों में कटे एक ऑब्जेक्ट जैसी दिखती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.split_candidates#1",
+      "source": "The rule is a geometry heuristic: two labels are a candidate when they touch, and the boundary they share is at least ``share`` of the smaller one's perimeter. A cell lying against another cell shares a little of its edge; a cell the segmenter cut down the middle shares most of it.",
+      "source_sha256": "f4ed0019ec49b1b9944bea1a58b86072d739acc1897fb3ae4a0c5036dd9e89ca",
+      "context": "The rule is a geometry heuristic: two labels are a candidate when they touch, and the boundary they share is at least ``share`` of the smaller one's perimeter. A cell lying against another cell shares a little of its edge; a cell the segmenter cut down the middle shares most of it.",
+      "translation": "नियम एक ज्यामितीय अनुमान है: दो लेबल उम्मीदवार हैं जब वे एक-दूसरे को छूते हैं, और उनकी साझा सीमा छोटे वाले की परिधि का कम से कम ``share`` हो। दूसरी कोशिका से सटी कोशिका अपने किनारे का थोड़ा हिस्सा साझा करती है; जिस कोशिका को सेगमेंटर ने बीच से काटा, वह अधिकांश साझा करती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.split_candidates#2",
+      "source": "This finds candidates. It does not merge them -- :func:`merge_halves` does, and only when asked, because a wrong merge destroys two objects to make one.",
+      "source_sha256": "d41090b8a1d003c8ccd6882bdcdb5673fa80c27e1316f018e7c756c6401666d3",
+      "context": "This finds candidates. It does not merge them -- :func:`merge_halves` does, and only when asked, because a wrong merge destroys two objects to make one.",
+      "translation": "यह उम्मीदवार खोजता है। यह उन्हें मिलाता नहीं -- :func:`merge_halves` मिलाता है, और केवल माँगे जाने पर, क्योंकि गलत विलय एक बनाने के लिए दो ऑब्जेक्ट नष्ट करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.split_candidates#4",
+      "source": "fraction of the smaller perimeter that must be shared, between zero and one. Shared pixels are counted on the lower-id label, with orthogonal adjacency. The default 0.25 has synthetic checks but no measured biological merge precision.",
+      "source_sha256": "c8750570bc5ffb0606d0e43498088387f9a8f109b3beb3530ed6dd42fcbfabfd",
+      "context": "fraction of the smaller perimeter that must be shared, between zero and one. Shared pixels are counted on the lower-id label, with orthogonal adjacency. The default 0.25 has synthetic checks but no measured biological merge precision.",
+      "translation": "छोटी परिधि का वह अंश जो साझा होना चाहिए, शून्य और एक के बीच। साझा पिक्सेल छोटी id वाले लेबल पर, लंबवत आसन्नता के साथ गिने जाते हैं। डिफ़ॉल्ट 0.25 के कृत्रिम परीक्षण हैं, पर कोई मापी गई जैविक विलय परिशुद्धता नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.split_candidates#5",
+      "source": "pairs ``(low id, high id)``, each pair once.",
+      "source_sha256": "47120d9d09af827a3b1c685c1a179509dd3ee6449ac4eaf29f04d8bc3a5b08f1",
+      "context": "pairs ``(low id, high id)``, each pair once.",
+      "translation": "``(low id, high id)`` जोड़े, हर जोड़ा एक बार।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.touches_border#0",
+      "source": "Whether object ``label`` runs into the edge of the field.",
+      "source_sha256": "3ba31413a237ecdda26396e14b6e5a75c36c2e58ead75807f0a5a3ff51afac65",
+      "context": "Whether object ``label`` runs into the edge of the microscope field of view.",
+      "translation": "क्या ऑब्जेक्ट ``label`` फ़ील्ड के किनारे तक पहुँचता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.touches_border#2",
+      "source": "the object.",
+      "source_sha256": "c8e6b91d94735aa30860824b70435b3046e25ac333b8b721e8986ba7e0ab219d",
+      "context": "the object.",
+      "translation": "ऑब्जेक्ट।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.touches_border#3",
+      "source": "True when any of its pixels is in the first or last row or column, which is what makes it a cut object nothing here can mend.",
+      "source_sha256": "7d1f2039fbe6b0b9e9a351a7aecb2317b774f544d7ec2324196989cf17a04896",
+      "context": "True when any of its pixels is in the first or last row or column, which is what makes it a cut object nothing here can mend.",
+      "translation": "True, जब उसका कोई भी पिक्सेल पहली या अंतिम पंक्ति या स्तंभ में हो, जो उसे ऐसा कटा हुआ ऑब्जेक्ट बनाता है जिसे यहाँ कुछ भी ठीक नहीं कर सकता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_roles.anchor_column#2",
+      "source": "``'object_label'`` or ``'cell_id'``.",
+      "source_sha256": "e6ad8af38130e05a4142b2fa88c010e3b1b4529cdc1614d8bc8d1fde9fea8acc",
+      "context": "``'object_label'`` or ``'cell_id'``.",
+      "translation": "``'object_label'`` या ``'cell_id'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_settings_table.column_label#2",
+      "source": "an object name from :data:`OBJECT_ORDER`, e.g. ``\"cell\"`` or ``\"organelleb\"``. Organelle slots get their numbered label; any other name has underscores turned into spaces and is capitalised.",
+      "source_sha256": "48dbe30e7210ef857c80ac30c34af5e5f07bf73f40822d84f86777fa42ac30b7",
+      "context": "an object name from :data:`OBJECT_ORDER`, e.g. ``\"cell\"`` or ``\"organelleb\"``. Organelle slots get their numbered label; any other name has underscores turned into spaces and is capitalised.",
+      "translation": ":data:`OBJECT_ORDER` से एक ऑब्जेक्ट नाम, जैसे ``\"cell\"`` या ``\"organelleb\"``। कोशिकांग स्लॉट को उनका क्रमांकित लेबल मिलता है; किसी अन्य नाम में अंडरस्कोर को रिक्त स्थान में बदला जाता है और पहला अक्षर बड़ा किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_settings_table.families#1",
+      "source": "flat settings names such as ``\"cell_min_area\"``; names that do not start with a known object followed by ``_`` are skipped.",
+      "source_sha256": "48ca8f1be0ee90c3e4987ecd9f057e84034c5f20a15878cf47fc2a982b276f46",
+      "context": "flat settings names such as ``\"cell_min_area\"``; names that do not start with a known object followed by ``_`` are skipped.",
+      "translation": "समतल सेटिंग नाम, जैसे ``\"cell_min_area\"``; जो नाम किसी ज्ञात ऑब्जेक्ट और उसके बाद ``_`` से शुरू नहीं होते, छोड़ दिए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_settings_table.questions#2",
+      "source": "flat settings names such as ``\"cell_diameter\"``; names that do not start with a known object followed by ``_`` are skipped.",
+      "source_sha256": "a3921a465c655d43c8302f1ed4b447f501f713a624d04e2ff36161ec2f4dfcbe",
+      "context": "flat settings names such as ``\"cell_diameter\"``; names that do not start with a known object followed by ``_`` are skipped.",
+      "translation": "समतल सेटिंग नाम, जैसे ``\"cell_diameter\"``; जो नाम किसी ज्ञात ऑब्जेक्ट और उसके बाद ``_`` से शुरू नहीं होते, छोड़ दिए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_settings_table.to_table#3",
+      "source": "a flat settings dict, e.g. Mask's settings; it is only read.",
+      "source_sha256": "1fa60d8078cf610153b02640a95ea90a4d897df294d36424c1076b93e51aadae",
+      "context": "a flat settings key-value mapping, e.g. Mask's settings; it is only read.",
+      "translation": "समतल सेटिंग्स dict, जैसे Mask की सेटिंग्स; इसे केवल पढ़ा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ome_zarr.write_ome_zarr#11",
+      "source": "``\"mean\"`` or ``\"stride\"``.",
+      "source_sha256": "3b0d32bec7216da43d7ea3f6e5d9254401455b8272e4c885c84b1d8d2f28edbf",
+      "context": "``\"mean\"`` or ``\"stride\"``.",
+      "translation": "``\"mean\"`` या ``\"stride\"``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.omero.AnnotationPlan#1",
+      "source": ":data:`ACTION_CREATE`, :data:`ACTION_UPDATE` or :data:`ACTION_UNCHANGED`.",
+      "source_sha256": "6172da5340229d441fddef17e253c6be66613100f7d9a6c284298689a469ab8a",
+      "context": ":data:`ACTION_CREATE`, :data:`ACTION_UPDATE` or :data:`ACTION_UNCHANGED`.",
+      "translation": ":data:`ACTION_CREATE`, :data:`ACTION_UPDATE` या :data:`ACTION_UNCHANGED`।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.omero.ContainerListing#1",
+      "source": "``'Dataset'`` or ``'Plate'``.",
+      "source_sha256": "d0864b90f84aacce4a32e066f29323798d43f8bf4ec63ae647bef862de9c950a",
+      "context": "``'Dataset'`` or ``'Plate'``.",
+      "translation": "``'Dataset'`` या ``'Plate'``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.omero.plan_annotation#5",
+      "source": ":data:`REPLACE` or :data:`APPEND`.",
+      "source_sha256": "8ec0f2c186817737a35e480b6e8cc107b3bd1ae7733b969d700e22eb2bbcea10",
+      "context": ":data:`REPLACE` or :data:`APPEND`.",
+      "translation": ":data:`REPLACE` या :data:`APPEND`।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.ops_engine#1",
+      "source": "One call takes each well from its tile files to the tables of ``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the well frame; ``ops_phenotype``, where each field of the high-magnification phenotype acquisition lands on that frame and which tile covers it; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the well; ``ops_barcodes``, one row per nucleus whose attributed reads agree; and, when asked for, ``ops_reads``, one row per read per cycle behind those barcodes.",
+      "source_sha256": "cc03c06e1f1ace75bb3961455cc32b527512139a68406ab2d1802824d4b77ff4",
+      "context": "One call takes each microplate sample position from its microscope image field files to the tables of ``measurements.db``: ``ops_geometry``, where each nuclear microscope image field sits in the microplate sample position frame; ``ops_phenotype``, where each microscope field of view of the high-magnification phenotype acquisition lands on that frame and which microscope image field covers it; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the microplate sample position; ``ops_barcodes``, one row per nucleus whose attributed reads agree; and, when asked for, ``ops_reads``, one row per read per cycle behind those barcodes.",
+      "translation": "एक कॉल हर वेल को उसकी टाइल फ़ाइलों से ``measurements.db`` की तालिकाओं तक ले जाती है: ``ops_geometry``, जहाँ हर नाभिकीय टाइल वेल फ़्रेम में स्थित है; ``ops_phenotype``, जहाँ उच्च-आवर्धन फ़ीनोटाइप अधिग्रहण का हर फ़ील्ड उस फ़्रेम पर पड़ता है और कौन-सी टाइल उसे ढकती है; ``ops_objects``, प्रति नाभिक एक पंक्ति, संयोजित नाभिकीय मानचित्र पर सेगमेंट की गई और पूरे वेल के लिए एक बार क्रमांकित; ``ops_barcodes``, प्रति नाभिक एक पंक्ति जिसके आरोपित रीड सहमत हों; और, माँगे जाने पर, ``ops_reads``, उन बारकोड के पीछे प्रति चक्र प्रति रीड एक पंक्ति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_engine#2",
+      "source": "A file that cannot be read costs one cycle of the field it belongs to and is listed in the report; it does not cost the well.",
+      "source_sha256": "b476341a8c65bf90238d61ea67b7726f80fd216ebc6f614a3794d748540a5cd8",
+      "context": "A file that cannot be read costs one cycle of the microscope field of view it belongs to and is listed in the report; it does not cost the microplate sample position.",
+      "translation": "जो फ़ाइल पढ़ी नहीं जा सकती, उससे उसके फ़ील्ड का एक चक्र जाता है और वह रिपोर्ट में सूचीबद्ध होती है; उससे पूरा वेल नहीं जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_engine.run_ops#0",
+      "source": "Stitch, place, segment and decode the wells of one sequencing acquisition.",
+      "source_sha256": "5b698f781f00fdf4f81d71558d838168b5557a1be12f862fe52f433b71d88869",
+      "context": "Stitch, place, segment and decode the microplate sample positions of one sequencing acquisition.",
+      "translation": "एक सीक्वेंसिंग अधिग्रहण के वेल को स्टिच करें, स्थापित करें, सेगमेंट करें और डिकोड करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_engine.run_ops#1",
+      "source": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing tiles, searched recursively; ``phenotype_source``, the folder of the high-magnification phenotype acquisition, which the ``phenotype`` phase places on the stitched well and which an empty value skips; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields decode at once; ``cellpose_model`` and ``cellpose_diameter``; ``ops_library``, a guide library CSV the ``library`` keyword overrides; and the five measured numbers ``ops_base_channels``, ``ops_read_threshold``, ``ops_raster_overlap``, ``ops_window_overlap`` and ``ops_footprint``, each of which falls back to the value this plate was validated at. ``ops_store_reads`` writes ``ops_reads``.",
+      "source_sha256": "f3e2948cc34155b832dd5d14cc0f906e7ca29f826ac0a2dc94223f412cf717ac",
+      "context": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing microscope image fields, searched recursively; ``phenotype_source``, the folder of the high-magnification phenotype acquisition, which the ``phenotype`` phase places on the stitched well and which an empty value skips; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many microscope fields of view decode at once; ``cellpose_model`` and ``cellpose_diameter``; ``ops_library``, a guide library CSV the ``library`` keyword overrides; and the five measured numbers ``ops_base_channels``, ``ops_read_threshold``, ``ops_raster_overlap``, ``ops_window_overlap`` and ``ops_footprint``, each of which falls back to the value this laboratory microplate was validated at. ``ops_store_reads`` writes ``ops_reads``.",
+      "translation": "OPS सेटिंग्स। यहाँ पढ़ी जाती हैं: ``genotype_source``, सीक्वेंसिंग टाइलों का फ़ोल्डर, पुनरावर्ती रूप से खोजा जाता है; ``phenotype_source``, उच्च-आवर्धन फ़ीनोटाइप अधिग्रहण का फ़ोल्डर, जिसे ``phenotype`` चरण स्टिच किए गए वेल पर रखता है और खाली मान होने पर छोड़ दिया जाता है; ``dst_root``, जहाँ ``measurements.db`` और प्रति-वेल रिपोर्ट जाती हैं, खाली होने पर स्रोत फ़ोल्डर; ``plate``, खाली होने पर स्रोत फ़ोल्डर का नाम; ``ops_gpu``; ``n_workers``, कितने फ़ील्ड एक साथ डिकोड होते हैं; ``cellpose_model`` और ``cellpose_diameter``; ``ops_library``, एक गाइड लाइब्रेरी CSV जिसे ``library`` कीवर्ड ओवरराइड करता है; और पाँच मापी गई संख्याएँ ``ops_base_channels``, ``ops_read_threshold``, ``ops_raster_overlap``, ``ops_window_overlap`` और ``ops_footprint``, जिनमें से हर एक उस मान पर लौटती है जिस पर यह प्लेट सत्यापित की गई थी। ``ops_store_reads`` ``ops_reads`` लिखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_engine.run_ops#2",
+      "source": "EITHER FOLDER MAY BE A PARENT OF BOTH HALVES, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the plate, rather than filing 1,281 phenotype fields and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
+      "source_sha256": "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
+      "context": "Either folder may be a parent of both halves, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the laboratory microplate, rather than filing 1,281 phenotype microscope fields of view and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
+      "translation": "कोई भी फ़ोल्डर दोनों हिस्सों का पैरेंट हो सकता है, और हर सेटिंग फिर भी अपना हिस्सा पढ़ती है: ``genotype_source`` केवल चक्र वाले नामों को सूचीबद्ध करता है और ``phenotype_source`` केवल बिना चक्र वाले नामों को, और जिस फ़ीनोटाइप अधिग्रहण में चक्र वाले नाम हों उसके लिए उन पर लौटता है। इसलिए दोनों को ``20200202_6W-LaC024A`` की ओर इंगित करने से प्लेट चलती है, बजाय इसके कि 1,281 फ़ीनोटाइप फ़ील्ड और 333 सीक्वेंसिंग फ़ील्ड एक ही अधिग्रहण के रूप में दर्ज हों -- :func:`_index_tiles` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_engine.run_ops#4",
+      "source": "any of ``\"stitch\"``, ``\"phenotype\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a well can be stitched once and decoded again.",
+      "source_sha256": "72925891ddf63f8f77a2a8f1a9409c8bb8f11ef14081338ddda5c20bfd474ffb",
+      "context": "any of ``\"stitch\"``, ``\"phenotype\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a microplate sample position can be stitched once and decoded again.",
+      "translation": "``\"stitch\"``, ``\"phenotype\"``, ``\"objects\"`` और ``\"decode\"`` में से कोई भी, उसी क्रम में चलाए जाते हैं। छोड़ा गया चरण जो उसे चाहिए वह डेटाबेस से पढ़ता है, इसलिए किसी वेल को एक बार स्टिच करके फिर से डिकोड किया जा सकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_engine.run_ops#5",
+      "source": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide. Overrides the ``ops_library`` setting.",
+      "source_sha256": "96d5aca3f0fd28c67172a9c271a9603bf34553c4920d4de0c0adcbfd4dd833c6",
+      "context": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide. Overrides the ``ops_library`` setting.",
+      "translation": "गाइड बारकोड, अनुक्रम के रूप में या ``prefix``, ``barcode`` या ``sequence`` स्तंभ वाली CSV के पथ के रूप में। दिए जाने पर हर बारकोड को उसके निकटतम गाइड पर भी मैप किया जाता है। ``ops_library`` सेटिंग को ओवरराइड करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_objects.PlateObject#6",
+      "source": "``(top, left, bottom, right)`` in well-frame pixels, every one of them inclusive, as :class:`WindowObject` carries them.",
+      "source_sha256": "88d5364796cdc7adab3820e68030d6222f109ff808bd0779677590426c56bbe8",
+      "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them inclusive, as :class:`WindowObject` carries them.",
+      "translation": "वेल-फ़्रेम पिक्सेल में ``(top, left, bottom, right)``, सभी समावेशी, जैसे :class:`WindowObject` उन्हें रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_objects.WindowObject#7",
+      "source": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
+      "source_sha256": "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d",
+      "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
+      "translation": "वेल-फ़्रेम पिक्सेल में ``(top, left, bottom, right)``, सभी समावेशी -- ``bottom`` और ``right`` वह अंतिम पंक्ति और स्तंभ हैं जिन पर मास्क है, इसलिए इसकी ऊँचाई ``bottom - top + 1`` है। यह docstring 2026-09-19 तक अनन्य कहता था जबकि कोड हमेशा समावेशी रहा है (`_label_extents` ``np.maximum`` से घटाता है), जिससे इससे विस्तार मापने वाले हर व्यक्ति को हर दिशा में एक पिक्सेल का नुकसान हुआ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_objects.unseen_records#0",
+      "source": "One record per group no window saw whole, for a run report.",
+      "source_sha256": "aa3af479bf02b15d887b422b7f050964b59d96e774b4081cf7a1fdeea6c605fc",
+      "context": "One record per group no window saw whole, for a run report.",
+      "translation": "हर उस समूह के लिए एक रिकॉर्ड जिसे किसी विंडो ने पूरा नहीं देखा, रन रिपोर्ट के लिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_objects.unseen_records#1",
+      "source": "WHY THIS IS NOT THE REFUSAL MESSAGE. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the run raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
+      "source_sha256": "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
+      "context": "Why this is not the refusal message. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the processing session raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
+      "translation": "यह इनकार संदेश क्यों नहीं है। :func:`_unseen_report` सबसे बड़े समूह और उपाय का नाम देता है, जो एक पंक्ति पढ़ने वाले ऑपरेटर को चाहिए। वेल A1 के रन से बस इतना ही बचा था: 54 समूह हटाए गए और रिपोर्ट ने एक बॉक्स और एक गिनती रखी, इसलिए रन ने जो प्रश्न उठाया -- क्या ये बिना समकक्ष वाले Cellpose टुकड़े हैं, या ऐसी कटी हुई आकृतियाँ जिनका पूरा अवलोकन जोड़ से छूट गया? -- उसका उत्तर बाद में वेल को फिर से सेगमेंट किए बिना नहीं दिया जा सकता था। ये रिकॉर्ड उस उत्तर का सस्ता आधा हिस्सा हैं, जो अवलोकनों के स्मृति में रहते ही लिखे जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_objects.unseen_records#2",
+      "source": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty well frame around it is a fragment.",
+      "source_sha256": "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
+      "context": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty microplate sample position frame around it is a fragment.",
+      "translation": "दूसरा आधा :func:`spacr.ops_engine.run_ops` का है, जो हर बॉक्स की तुलना उन ऑब्जेक्ट से करता है जिन्हें क्रमांकित किया गया था: जिस इनकार के ऊपर कोई क्रमांकित ऑब्जेक्ट हो, वह छूटा हुआ जोड़ है, और जिसके चारों ओर खाली वेल फ़्रेम हो, वह एक टुकड़ा है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_objects.unseen_records#3",
+      "source": "from :func:`sew` -- every group, not only the refused ones; the ones with a complete observation are skipped here.",
+      "source_sha256": "8c871e97eef9c0ca7360f208441b7b3403d39654f2842a579ae59bcdad7c8f8a",
+      "context": "from :func:`sew` -- every group, not only the refused ones; the ones with a complete observation are skipped here.",
+      "translation": ":func:`sew` से -- हर समूह, केवल अस्वीकृत नहीं; जिनका पूरा अवलोकन है वे यहाँ छोड़ दिए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_objects.unseen_records#4",
+      "source": "one dict per refused group, in the order the groups came, each carrying the group's box in well-frame pixels, its centre, how many observations it holds and from how many windows, the largest window side it spans (0 when it spans none), and the summed and largest clipped areas.",
+      "source_sha256": "0de04fab1bc8ef29f800f743247f9248ff279af91f559d429500dbc4bf5939f4",
+      "context": "one key-value mapping per refused group, in the order the groups came, each carrying the group's box in well-frame pixels, its centre, how many observations it holds and from how many windows, the largest window side it spans (0 when it spans none), and the summed and largest clipped areas.",
+      "translation": "प्रति अस्वीकृत समूह एक dict, समूहों के आने के क्रम में, हर एक में वेल-फ़्रेम पिक्सेल में समूह का बॉक्स, उसका केंद्र, उसमें कितने अवलोकन हैं और कितनी विंडो से, वह जिस सबसे बड़ी विंडो भुजा को पार करता है (कोई न हो तो 0), और कटे हुए क्षेत्रफलों का योग और सबसे बड़ा क्षेत्रफल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_phenotype.Alignment.apply#2",
+      "source": "source-frame coordinates, an array of shape (N, 2) (converted to float), in the same axis order the alignment was fitted with.",
+      "source_sha256": "0d3c7d79da490e8c64999f29c1db0186d73096decc8c5b91362c78219d7a813d",
+      "context": "source-frame coordinates, an array of shape (N, 2) (converted to float), in the same axis order the alignment was fitted with.",
+      "translation": "स्रोत-फ़्रेम निर्देशांक, (N, 2) आकार का ऐरे (float में रूपांतरित), उसी अक्ष क्रम में जिसमें संरेखण फ़िट किया गया था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_register.register_edge#5",
+      "source": "\"vertical\" or \"horizontal\".",
+      "source_sha256": "81dbecac6a83350a04997e04a796a89ad6a8e9e0784d534730ea8a3e0ec8adba",
+      "context": "\"vertical\" or \"horizontal\".",
+      "translation": "\"vertical\" या \"horizontal\"।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#0",
+      "source": "The intensities a call was made on, the barcode, and the margin per cycle.",
+      "source_sha256": "7e18804ddf09662611c83786850181c60d716599521454b2daa329a463591318",
+      "context": "The intensities a call was made on, the barcode, and the margin per cycle.",
+      "translation": "वे तीव्रताएँ जिन पर कॉल किया गया, बारकोड, और प्रति चक्र मार्जिन।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#1",
+      "source": ":func:`call_reads` is this, with the per-cycle margins reduced to their minimum. The three pieces are separated because the ``ops_reads`` table of 372's storage contract is one row per read PER CYCLE -- base, quality and the per-channel intensity -- and a caller that only gets the barcode and one number per read has to redo the normalisation to write it. Redoing it is what makes a stored intensity disagree with the call beside it.",
+      "source_sha256": "575750b43b7c7bb13cd467c1de75292cc9beb1fbf3b58cdfc3c1093ee3602e3b",
+      "context": ":func:`call_reads` is this, with the per-cycle margins reduced to their minimum. The three pieces are separated because the ``ops_reads`` table of 372's storage contract is one row per read per cycle -- base, quality and the per-image data channel intensity -- and a caller that only gets the barcode and one number per read has to redo the normalisation to write it. Redoing it is what makes a stored intensity disagree with the call beside it.",
+      "translation": ":func:`call_reads` यही है, बस प्रति-चक्र मार्जिन को उनके न्यूनतम तक घटाकर। तीनों भाग इसलिए अलग रखे गए हैं कि 372 के भंडारण अनुबंध की ``ops_reads`` तालिका प्रति रीड प्रति चक्र एक पंक्ति है -- बेस, गुणवत्ता और प्रति-चैनल तीव्रता -- और जिस कॉलर को केवल बारकोड और प्रति रीड एक संख्या मिलती है, उसे इसे लिखने के लिए सामान्यीकरण फिर से करना पड़ता है। इसे फिर से करने से ही संग्रहीत तीव्रता अपने बगल की कॉल से असहमत हो जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#2",
+      "source": "``(N, cycles, channels)`` from :func:`extract_bases`.",
+      "source_sha256": "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
+      "context": "``(N, cycles, channels)`` from :func:`extract_bases`.",
+      "translation": "``(N, cycles, channels)``, :func:`extract_bases` से।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#3",
+      "source": "the letter for each channel, in channel order.",
+      "source_sha256": "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
+      "context": "the letter for each channel, in channel order.",
+      "translation": "हर चैनल का अक्षर, चैनल क्रम में।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#4",
+      "source": "undo cross-talk after normalising.",
+      "source_sha256": "1c8cd59800d9716e5062cee6d69f93185ecc0164029164274935c7c6760a805b",
+      "context": "undo cross-talk after normalising.",
+      "translation": "सामान्यीकरण के बाद क्रॉस-टॉक हटाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#5",
+      "source": "passed to :func:`compensate_crosstalk`.",
+      "source_sha256": "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+      "context": "passed to :func:`compensate_crosstalk`.",
+      "translation": ":func:`compensate_crosstalk` को दिया जाता है।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#6",
+      "source": "divide each cycle's channels by their median over the reads first.",
+      "source_sha256": "9e9a869c99a1fbafbcedcc87a758b397bf7ae9a1fb9a7d172b6837ca23732039",
+      "context": "divide each cycle's channels by their median over the reads first.",
+      "translation": "पहले हर चक्र के चैनलों को रीड पर उनकी माध्यिका से विभाजित करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#7",
+      "source": "let the compensation's multiply run on the card.",
+      "source_sha256": "245c0d8abd82ab136bc2c05b86cfc16d8c2ffb92ea09d1d7020641d0162257a8",
+      "context": "let the compensation's multiply run on the card.",
+      "translation": "क्षतिपूर्ति के गुणन को ग्राफ़िक्स कार्ड पर चलने दें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sbs.called_bases#8",
+      "source": "``(data, barcodes, margin)`` -- ``(N, cycles, channels)`` float32 intensities AFTER normalisation and any compensation, so they are the numbers the winner was picked from rather than the raw ones; one barcode string per read; and ``(N, cycles)`` float32 margins, NaN for a cycle that was not measured and whose letter is therefore ``N``.",
+      "source_sha256": "f4b272b5a0535aa103cb22daaeeaa15753351a2efcea4723b662a9afdfb34a4d",
+      "context": "``(data, barcodes, margin)`` -- ``(N, cycles, channels)`` float32 intensities AFTER normalisation and any compensation, so they are the numbers the winner was picked from rather than the raw ones; one barcode string per read; and ``(N, cycles)`` float32 margins, NaN for a cycle that was not measured and whose letter is therefore ``N``.",
+      "translation": "``(data, barcodes, margin)`` -- सामान्यीकरण और किसी भी क्षतिपूर्ति के बाद की ``(N, cycles, channels)`` float32 तीव्रताएँ, इसलिए ये वही संख्याएँ हैं जिनसे विजेता चुना गया, कच्ची नहीं; प्रति रीड एक बारकोड स्ट्रिंग; और ``(N, cycles)`` float32 मार्जिन, उस चक्र के लिए NaN जो मापा नहीं गया और जिसका अक्षर इसलिए ``N`` है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_store#1",
+      "source": "The storage contract has two halves. In ``measurements.db``, which is authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads`` and ``ops_barcodes``. Beside it, as a cache: parquet copies of ``ops_reads`` and ``ops_barcodes``, written in the same step with their row counts asserted equal, so the sidecar cannot drift from the authority unnoticed.",
+      "source_sha256": "55ef06ddc342e014f703016360557706621f2a2a9930b21ca762f5c755f96b5a",
+      "context": "The storage contract has two halves. In ``measurements.db``, which is authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads`` and ``ops_barcodes``. Beside it, as a cache: parquet copies of ``ops_reads`` and ``ops_barcodes``, written in the same step with their row counts asserted equal, so the sidecar cannot drift from the authority unnoticed.",
+      "translation": "भंडारण अनुबंध के दो हिस्से हैं। ``measurements.db`` में, जो प्रामाणिक है: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads`` और ``ops_barcodes``। उसके बगल में, कैश के रूप में: ``ops_reads`` और ``ops_barcodes`` की parquet प्रतियाँ, उसी चरण में लिखी जाती हैं और उनकी पंक्ति गिनतियों के बराबर होने की जाँच की जाती है, ताकि साइडकार बिना पता चले प्रामाणिक स्रोत से अलग न हो सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.OrganelleType.morphology_for#1",
+      "source": "the expected object diameter in pixels, or None. Only used by size-split types: at or above ``RING_RESOLVABLE_PX`` (15) gives the large morphology, below it or None the small one.",
+      "source_sha256": "8fcfb618b536e422f27b3c1302868d6690ffbe190cfa896165da505d44d1c3d9",
+      "context": "the expected object diameter in pixels, or None. Only used by size-split types: at or above ``RING_RESOLVABLE_PX`` (15) gives the large morphology, below it or None the small one.",
+      "translation": "पिक्सेल में अपेक्षित ऑब्जेक्ट व्यास, या None। केवल आकार-विभाजित प्रकारों द्वारा उपयोग किया जाता है: ``RING_RESOLVABLE_PX`` (15) या उससे ऊपर बड़ी आकृति देता है, उससे नीचे या None छोटी आकृति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.active_organelle_roles#2",
+      "source": "a run settings mapping; its slot count is read as in :func:`organelle_count`.",
+      "source_sha256": "c8f9e166856015c3181476a0e13c6f06a3401cc722d662bbe94291c1e5b035e3",
+      "context": "a processing-session settings mapping; its slot count is read as in :func:`organelle_count`.",
+      "translation": "रन सेटिंग्स मैपिंग; इसकी स्लॉट संख्या :func:`organelle_count` की तरह पढ़ी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.declared_organelle_roles#2",
+      "source": "a run settings mapping; its slot count and the slot prefixes of its keys are both read.",
+      "source_sha256": "f2394412334dd7a257b7c6e0d9827e1d4cd69202b0f61cb26d40b5115bbae31d",
+      "context": "a processing-session settings mapping; its slot count and the slot prefixes of its structured-data names are both read.",
+      "translation": "रन सेटिंग्स मैपिंग; इसकी स्लॉट संख्या और इसकी कुंजियों के स्लॉट उपसर्ग दोनों पढ़े जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.is_basic#1",
+      "source": "a settings key, compared as a string against ``BASIC_SETTINGS``.",
+      "source_sha256": "f9de51ae81e919adfa64a8fe86ed018d6ba7805b90d5c676716febca46e8b472",
+      "context": "a setting name, compared as a string against ``BASIC_SETTINGS``.",
+      "translation": "सेटिंग्स कुंजी, जिसकी स्ट्रिंग के रूप में ``BASIC_SETTINGS`` से तुलना की जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.method_guidance#0",
+      "source": "What ``method`` suits, as one sentence a picker can show.",
+      "source_sha256": "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
+      "context": "What ``method`` suits, as one sentence a picker can show.",
+      "translation": "``method`` किसके लिए उपयुक्त है, एक वाक्य के रूप में जिसे चयनकर्ता दिखा सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.method_guidance#1",
+      "source": "an ``organelle_method`` value.",
+      "source_sha256": "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+      "context": "an ``organelle_method`` value.",
+      "translation": "एक ``organelle_method`` मान।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.method_guidance#2",
+      "source": "an English sentence naming the shapes the method is legal for, or a sentence saying it belongs to no morphology. Not translated: a caller showing it passes it through ``tr``.",
+      "source_sha256": "5c5851cde60e02f4922dbd97e6444fdfcc0fad59b7d7628f9b247d71041a1be4",
+      "context": "an English sentence naming the shapes the method is legal for, or a sentence saying it belongs to no morphology. Not translated: a caller showing it passes it through ``tr``.",
+      "translation": "एक अंग्रेज़ी वाक्य जो उन आकृतियों का नाम देता है जिनके लिए विधि मान्य है, या एक वाक्य जो बताता है कि वह किसी आकृति की नहीं है। अनुवादित नहीं: इसे दिखाने वाला कॉलर इसे ``tr`` से गुज़ारता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.morphologies_for_method#0",
+      "source": "The shapes ``method`` is a legal detector for.",
+      "source_sha256": "627c16b2454560ff11ba25c55097abc29f278aa4dbe53df916d4713dc28568e4",
+      "context": "The shapes ``method`` is a legal detector for.",
+      "translation": "वे आकृतियाँ जिनके लिए ``method`` एक मान्य डिटेक्टर है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.morphologies_for_method#1",
+      "source": "Read out of :data:`LEGAL_METHODS`, so this answer and the validator's cannot come apart.",
+      "source_sha256": "4d19ec217ae5b94f6be4c57d2b9357673165b5d11419a2aa97e824e2c72042cf",
+      "context": "Read out of :data:`LEGAL_METHODS`, so this answer and the validator's cannot come apart.",
+      "translation": ":data:`LEGAL_METHODS` से पढ़ा जाता है, ताकि यह उत्तर और सत्यापक का उत्तर अलग न हो सकें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.morphologies_for_method#3",
+      "source": "the morphology names, in :data:`LEGAL_METHODS` order; empty for a method no morphology allows.",
+      "source_sha256": "5b8ae676ad4999461bc716d6b375db20ffeaa5f2f0a4b84633d4afefb6be3392",
+      "context": "the morphology names, in :data:`LEGAL_METHODS` order; empty for a method no morphology allows.",
+      "translation": "आकृति नाम, :data:`LEGAL_METHODS` क्रम में; ऐसी विधि के लिए खाली जिसकी कोई आकृति अनुमति नहीं देती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.organelle_slot_is_active#2",
+      "source": "any settings key; a key belonging to no slot counts as active.",
+      "source_sha256": "ebe956b4f53b9c116849b6a328627d1dd45ebd1adad61bb2040c80de68836063",
+      "context": "any setting name; a structured-data name belonging to no slot counts as active.",
+      "translation": "कोई भी सेटिंग्स कुंजी; किसी स्लॉट से संबंधित न होने वाली कुंजी सक्रिय मानी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.organelle_slot_is_active#3",
+      "source": "the run settings mapping whose slot count decides which slots are active.",
+      "source_sha256": "17fca419121f58354b462a2fea9fd3a0a28015bb16e7952be511f43df7ebfcbb",
+      "context": "the processing-session settings mapping whose slot count decides which slots are active.",
+      "translation": "वह रन सेटिंग्स मैपिंग जिसकी स्लॉट संख्या तय करती है कि कौन-से स्लॉट सक्रिय हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.organelle_slot_label#1",
+      "source": "a slot prefix such as ``'organelle'`` or ``'organelleb'``; anything else raises :class:`ValueError`.",
+      "source_sha256": "5a439fbff82400aaa106a8203c9ae8f42948281d5daa99c0b9209647b2be9b73",
+      "context": "a slot prefix such as ``'organelle'`` or ``'organelleb'``; anything else raises :class:`ValueError`.",
+      "translation": "स्लॉट उपसर्ग, जैसे ``'organelle'`` या ``'organelleb'``; अन्य कोई भी मान :class:`ValueError` उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.primary_setting#2",
+      "source": "any settings key, e.g. ``'organelleb_channel'``, which becomes ``'organelle_channel'``.",
+      "source_sha256": "e8d502f35056765b897841b981591a77d83b9bb3f3588c5104e12e82b626f02e",
+      "context": "any setting name, e.g. ``'organelleb_channel'``, which becomes ``'organelle_channel'``.",
+      "translation": "कोई भी सेटिंग्स कुंजी, जैसे ``'organelleb_channel'``, जो ``'organelle_channel'`` बन जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.organelle_types.resolve_type#1",
+      "source": "the preset name, matched case-insensitively after stripping whitespace; None or empty means ``DEFAULT_TYPE`` (``custom``).",
+      "source_sha256": "117896d02268cd46d68820ec7c3fdc2a056ce18cfb47bb90a35d2dbb5f03cbf5",
+      "context": "the preset name, matched case-insensitively after stripping whitespace; None or empty means ``DEFAULT_TYPE`` (``custom``).",
+      "translation": "प्रीसेट नाम, रिक्त स्थान हटाने के बाद बड़े-छोटे अक्षरों का भेद किए बिना मिलाया जाता है; None या खाली का अर्थ ``DEFAULT_TYPE`` (``custom``) है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.picture_settings.drop_retired#3",
+      "source": "A RENAMED key is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a key this panel offers. The new name wins when a blob carries both.",
+      "source_sha256": "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a",
+      "context": "A renamed structured-data name is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a structured-data name this panel offers. The new name wins when a blob carries both.",
+      "translation": "नाम बदली गई कुंजी हटाई नहीं जाती, बल्कि स्थानांतरित की जाती है: 2026-09-19 को ``img_size`` ``crop_size`` बन गया, और आकार चुनने वाला सहेजा गया रन उसे बनाए रखता है। नाम-परिवर्तन :func:`spacr.settings.surviving_setting_name` से पढ़ा जाता है, जो सेटिंग्स फ़ाइलों द्वारा उपयोग किया जाने वाला रिज़ॉल्वर है, और केवल उसी कुंजी पर लागू होता है जिसे यह पैनल प्रस्तुत करता है। जब किसी ब्लॉब में दोनों हों, तो नया नाम जीतता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.ModuleGraph.next_of#1",
+      "source": "a module key; a key with no outgoing edge, or not in the graph, gives an empty tuple.",
+      "source_sha256": "adf6f68a739695873d90223581f025540749b1b9e059781998c3947e66d0b7ab",
+      "context": "a module key; a key with no outgoing edge, or not in the graph, gives an empty tuple.",
+      "translation": "मॉड्यूल कुंजी; बिना बाहर जाने वाले किनारे वाली, या ग्राफ़ में न होने वाली कुंजी खाली टपल देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.ModuleGraph.next_of#2",
+      "source": "the consumer module keys, sorted.",
+      "source_sha256": "d5b445b4c8e99af4dcd5fc811866d03914a85786f82013b9d0585d589d3a8300",
+      "context": "the consumer module keys, sorted.",
+      "translation": "उपभोक्ता मॉड्यूल कुंजियाँ, क्रमबद्ध।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.ModuleGraph.previous_of#1",
+      "source": "a module key; a key with no incoming edge, or not in the graph, gives an empty tuple.",
+      "source_sha256": "161f9689c5ad732d4e216f6aa1a5230894e69479c9a337c9eb76654fe999fe75",
+      "context": "a module key; a key with no incoming edge, or not in the graph, gives an empty tuple.",
+      "translation": "मॉड्यूल कुंजी; बिना आने वाले किनारे वाली, या ग्राफ़ में न होने वाली कुंजी खाली टपल देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.ModuleGraph.previous_of#2",
+      "source": "the producer module keys, sorted.",
+      "source_sha256": "fac8ad687f0721d1cf457e3f9aa8651fe2927c965097c7d80241760817da47a8",
+      "context": "the producer module keys, sorted.",
+      "translation": "उत्पादक मॉड्यूल कुंजियाँ, क्रमबद्ध।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.Node#16",
+      "source": ":data:`STATE_CURRENT`, :data:`STATE_STALE` or :data:`STATE_MISSING`.",
+      "source_sha256": "231b5e462efdf24ff28675c9c70b1c11c89fc7eeb7e4025996877711cd1ffc9f",
+      "context": ":data:`STATE_CURRENT`, :data:`STATE_STALE` or :data:`STATE_MISSING`.",
+      "translation": ":data:`STATE_CURRENT`, :data:`STATE_STALE` या :data:`STATE_MISSING`।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.pipeline_graph.PipelineGraph.downstream#2",
+      "source": "the registry id of the starting node. The start itself is not included, and an id with no edges gives an empty tuple.",
+      "source_sha256": "55ed99be99f2a3a149c03e4c5a9f43359815a57da4a716affa4945e757f66801",
+      "context": "the registry id of the starting node. The start itself is not included, and an id with no edges gives an empty tuple.",
+      "translation": "आरंभिक नोड की रजिस्ट्री id। आरंभ स्वयं शामिल नहीं है, और बिना किनारों वाली id खाली टपल देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.PipelineGraph.downstream#3",
+      "source": "the reachable nodes, ordered by depth, then newest first, then id.",
+      "source_sha256": "a9ab84a34165bc8843c08fb22f4734dd7beddf820ad4e366792a6350a283fb49",
+      "context": "the reachable nodes, ordered by depth, then newest first, then id.",
+      "translation": "पहुँच योग्य नोड, गहराई के अनुसार, फिर नवीनतम पहले, फिर id के अनुसार क्रमबद्ध।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.PipelineGraph.node#1",
+      "source": "the registry id to look up.",
+      "source_sha256": "f1c15b699bc108b4eca9b51a0a6d5c9258458a7ca58704ae5e77cf35bcd21816",
+      "context": "the registry id to look up.",
+      "translation": "खोजी जाने वाली रजिस्ट्री id।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.PipelineGraph.upstream#2",
+      "source": "the ancestor nodes, ordered by depth, then newest first, then id.",
+      "source_sha256": "088ee7eee7764281056f9128cdb74a64861edf3927e1f06d75a60eb814d62e48",
+      "context": "the ancestor nodes, ordered by depth, then newest first, then id.",
+      "translation": "पूर्वज नोड, गहराई के अनुसार, फिर नवीनतम पहले, फिर id के अनुसार क्रमबद्ध।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_graph.to_dot#2",
+      "source": "the pipeline graph to render. Each node is labelled with its module, kind and path basename and filled by state; dangling edges are drawn dashed red.",
+      "source_sha256": "74ab5c1394f888384bf100ea232de79dfc1c5069bc41652339f49be0163df880",
+      "context": "the workflow graph to render. Each node is labelled with its module, kind and path basename and filled by state; dangling edges are drawn dashed red.",
+      "translation": "रेंडर किया जाने वाला पाइपलाइन ग्राफ़। हर नोड पर उसके मॉड्यूल, प्रकार और पथ बेसनेम का लेबल होता है और वह स्थिति के अनुसार भरा जाता है; लटकते किनारे लाल डैश वाली रेखा से बनाए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#10",
+      "source": "optional captured PSF session. Processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image channels stay raw; only the appended labels depend on PSF processing.",
+      "source_sha256": "f28bcb7e35ec757d7e33bfb5eb99b9e0cce20e687ca74e7f55ae1f5299995ce6",
+      "context": "optional captured PSF session. Processes selected intensities after illumination and before normalization, padding or Cellpose. Stored image data channels stay raw; only the appended labels depend on PSF processing.",
+      "translation": "वैकल्पिक कैप्चर किया गया PSF सत्र। प्रदीप्ति के बाद और सामान्यीकरण, पैडिंग या Cellpose से पहले चुनी गई तीव्रताओं को संसाधित करता है। संग्रहीत छवि चैनल कच्चे रहते हैं; केवल जोड़े गए लेबल PSF प्रसंस्करण पर निर्भर करते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque.detect_wells#1",
+      "source": "the field, as an ``H x W x 3`` array in **RGB** channel order -- what :func:`cellpose.io.imread` returns for a colour image. It is converted to BGR here, because that is the order ultralytics reads an array in and therefore the order these detectors were trained in. A greyscale or otherwise non-three-channel array is passed through untouched, and so is a file path, which ultralytics decodes itself.",
+      "source_sha256": "777215af6def59557036109addcc321ba273230d561c8754b082e7162b478b82",
+      "context": "the microscope field of view, as an ``H x W x 3`` array in **RGB** image data channel order -- what :func:`cellpose.io.imread` returns for a colour image. It is converted to BGR here, because that is the order ultralytics reads an array in and therefore the order these detectors were trained in. A greyscale or otherwise non-three-image data channel array is passed through untouched, and so is a file path, which ultralytics decodes itself.",
+      "translation": "फ़ील्ड, **RGB** चैनल क्रम में ``H x W x 3`` ऐरे के रूप में -- जो :func:`cellpose.io.imread` रंगीन छवि के लिए लौटाता है। इसे यहाँ BGR में बदला जाता है, क्योंकि ultralytics ऐरे को इसी क्रम में पढ़ता है और इसलिए ये डिटेक्टर इसी क्रम में प्रशिक्षित हुए थे। ग्रेस्केल या अन्यथा गैर-तीन-चैनल ऐरे बिना छुए आगे भेजा जाता है, और फ़ाइल पथ भी, जिसे ultralytics स्वयं डिकोड करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque.plaque_flow_outputs#0",
+      "source": "The flow picture and cell probability out of a Cellpose result.",
+      "source_sha256": "ff678a377be07ae2f7566549283c82a6a28a699b59a0691a5b1a26c54721abb7",
+      "context": "The flow picture and cell probability out of a Cellpose result.",
+      "translation": "Cellpose परिणाम से प्रवाह चित्र और कोशिका प्रायिकता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque.plaque_flow_outputs#1",
+      "source": "Cellpose's ``eval`` returns ``(masks, flows, styles)``, and ``flows`` is a list whose first entry is the flow field already drawn as an RGB image (direction as hue, strength as brightness, the picture the Cellpose GUI shows) and whose third is the cell-probability map, in logits. Either can be a torch tensor on the device the model ran on, so both go through :func:`_host_array`. A result that has no flows -- a stub, or a model that returned only masks -- gives ``None`` for both.",
+      "source_sha256": "63d07741c51f4e84d99b8470ca25486536fe64c8950fbad7f6f0d4ec5d0a533c",
+      "context": "Cellpose's ``eval`` returns ``(masks, flows, styles)``, and ``flows`` is a list whose first entry is the flow microscope field of view already drawn as an RGB image (direction as hue, strength as brightness, the picture the Cellpose GUI shows) and whose third is the cell-probability map, in logits. Either can be a torch tensor on the device the model ran on, so both go through :func:`_host_array`. A result that has no flows -- a stub, or a model that returned only masks -- gives ``None`` for both.",
+      "translation": "Cellpose का ``eval`` ``(masks, flows, styles)`` लौटाता है, और ``flows`` एक सूची है जिसकी पहली प्रविष्टि पहले से RGB छवि के रूप में बना प्रवाह क्षेत्र है (दिशा रंग के रूप में, शक्ति चमक के रूप में, वही चित्र जो Cellpose GUI दिखाता है) और तीसरी प्रविष्टि कोशिका-प्रायिकता मानचित्र है, logits में। कोई भी उस डिवाइस पर torch टेंसर हो सकता है जिस पर मॉडल चला, इसलिए दोनों :func:`_host_array` से होकर जाते हैं। जिस परिणाम में कोई प्रवाह नहीं -- एक स्टब, या ऐसा मॉडल जिसने केवल मास्क लौटाए -- दोनों के लिए ``None`` देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque.plaque_flow_outputs#2",
+      "source": "what ``model.eval`` returned.",
+      "source_sha256": "05e76fd90d82aa3e6e48ed7d8edb8327972f7fcf6113ca223115f34271c77fa5",
+      "context": "what ``model.eval`` returned.",
+      "translation": "जो ``model.eval`` ने लौटाया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque.segment_plaque_image#0",
+      "source": "Segment one plaque image the way both Plaque mode's preview and run do.",
+      "source_sha256": "3f3c16f278e7348ccad383b17e8ce06d1112dec5461f68b48fbe2390973c2b42",
+      "context": "Segment one plaque image the way both Plaque mode's preview and run do.",
+      "translation": "एक प्लाक छवि को उसी तरह सेगमेंट करें जैसे Plaque मोड का पूर्वावलोकन और रन दोनों करते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.plaque.segment_plaque_image#1",
+      "source": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit crop that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
+      "source_sha256": "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
+      "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
+      "translation": "छवि Cellpose को जैसी है वैसी ही जाती है, RGB या ग्रे, और Cellpose उसे सामान्यीकृत करता है। इसे रन के ऐतिहासिक लोडर (``_load_normalized_images_and_labels``, ``background=200`` के साथ) से नहीं भेजा जाता: 8-bit क्रॉप पर वह लोडर हर पिक्सेल को 1.0 पर संतृप्त कर देता था -- ``malnio__2.tif`` पर मापा गया, हर चैनल में min = max = 1.0 -- इसलिए रन को कोई प्लाक नहीं मिला जबकि छवि को जैसी है वैसी पढ़ने वाले पूर्वावलोकन को 67 मिले। दोनों के लिए एक ही फ़ंक्शन उन्हें फिर से असहमत होने से रोकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
