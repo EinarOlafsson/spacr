@@ -1,6 +1,6 @@
 MAKE MASKS LEVELS WITH AN INTERACTIVE HISTOGRAM
 
-Status: IMPLEMENTED — validated 2026-09-22; see verification notes below.
+Status: DONE 2026-09-25. Validated 2026-09-22; documented and translated (checked 2026-09-25).
 Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
 
 REQUEST
@@ -22,3 +22,13 @@ constant/nonfinite fields are explained. Changing field/inversion closes the
 old editor. No source pixels or existing labels change.52 focused checks
 pass in14.73s; all4 new interaction checks pass again after the layout fix.
 Reviewed the themed560x520 dialog: graph and controls no longer overlap.
+
+2026-09-25 — CLOSED
+Re-checked on nightly a93f937d2: tests/qt/test_make_masks_levels.py and
+test_make_masks_detects_on_the_normalized_image.py, 13 passed (offscreen).
+The last ACCEPTANCE line ("document every new setting") is met:
+docs/source/make_masks.rst, "Display, Levels and intensity units", explains
+Levels…, Reset levels and Detect on the normalized image, including which
+of them reach the detector. The dialog's captions ('Levels', 'Levels…',
+'Reset levels', 'Detect on the normalized image', 'Could not calculate
+levels: {error}') have exact rows in all nine catalogs. Nothing remains.

@@ -1,8 +1,10 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
-Status: IN PROGRESS. Engine, Make Masks, Mask, Measure and Mask Live preview
-validated2026-09-23; real measured3DPSF application validated2026-09-24.
-Documentation remains; instrument-specific optical accuracy is not claimed.
+Status: DONE 2026-09-25. Engine, Make Masks, Mask, Measure and Mask Live preview
+validated 2026-09-23; real measured 3D PSF application validated 2026-09-24;
+guide in docs/source/point_spread.rst. Owed to the docs lane: 509's optics
+inference in that guide, the PSF captions' catalog rows and a tutorial/animation.
+Instrument-specific optical accuracy is not claimed.
 
 Let users modify images using a measured PSF or a calculated approximate PSF,
 first in Make Masks enhancement, then in Mask generation and Measure after
@@ -235,3 +237,19 @@ expected ready/error state without rewriting kernel bytes. Cancelled file
 selection preserves the prior path; closed controls ignore late publication.
 Existing background/cancellation/Compare/Apply tests remain enabled.20checks
 pass; controls coverage98.65%including branches. No runtime/settings change.
+
+2026-09-25 — CLOSED
+The remaining "measured optical PSF / application acceptance" is the
+2026-09-24 note above: a real public bead volume and its measured PSF
+(doi:10.5281/zenodo.14203207), sampling mismatch refused, 10-iteration
+Richardson-Lucy on CPU in 28.07 s; receipt features/data/490_measured_psf_
+application_2026-09-24.json and tools/verify_measured_psf.py are on
+nightly. Re-checked on nightly a93f937d2 (offscreen): tests/qt/test_make_
+masks_psf.py, test_make_masks_psf_infers_and_folds.py, test_make_masks_
+restoration.py, tests/test_psf_optics_inference.py and
+test_psf_mask_pipeline.py, 71 passed. docs/source/point_spread.rst (411)
+covers convolution vs deconvolution, measured kernels, Mask batches and
+Live preview. What stays, all docs lane: the guide does not yet describe
+509's objective/camera/fluorophore inference and Infer button; the PSF
+captions 509 added are still on _awaiting_translation; a PSF tutorial/
+animation. No optical-resolution or biological-improvement claim is made.
