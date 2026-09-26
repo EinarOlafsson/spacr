@@ -296,3 +296,176 @@ def test_the_dialog_still_fits_a_small_screen(dialog):
     dialog.resize(dialog.minimumWidth(), 600)
     assert dialog.sizeHint().height() <= 900, (
         f"the dialog wants {dialog.sizeHint().height()} px of height")
+
+
+# --------------------------------------------------------------------------
+# 284: a tab nobody is looking at keeps its page out of the first show
+# --------------------------------------------------------------------------
+
+def _open(dialog, qtbot):
+    from PySide6.QtWidgets import QApplication
+
+    dialog.show()
+    qtbot.waitExposed(dialog)
+    QApplication.processEvents()
+    return dialog
+
+
+def _tabs_with_their_page(dialog) -> set:
+    """The tabs whose page is in the window rather than waiting outside it."""
+    tabs = _tabs(dialog)
+    return {tabs.tabText(i) for i in range(tabs.count())
+            if tabs.widget(i).widget().objectName().startswith(
+                "PreferencesTab")}
+
+
+def test_the_first_show_carries_only_the_open_tabs_page(dialog, qtbot):
+    """The other pages are why the show took 400-550 ms under load."""
+    speed = dialog.findChild(QSlider, "AmbientSpeed")
+    _open(dialog, qtbot)
+    assert _tabs_with_their_page(dialog) == {"General"}
+    assert dialog.findChild(QSlider, "AmbientSpeed") is None
+    assert not dialog.isAncestorOf(speed)
+    assert speed.value() > 0, "the waiting control is gone, not waiting"
+
+
+def test_choosing_a_tab_brings_its_page_back(dialog, qtbot):
+    speed = dialog.findChild(QSlider, "AmbientSpeed")
+    _open(dialog, qtbot)
+    _tabs(dialog).setCurrentIndex(EXPECTED_TABS.index("Animation"))
+    assert _tabs_with_their_page(dialog) == {"General", "Animation"}
+    assert dialog.findChild(QSlider, "AmbientSpeed") is speed
+    assert _tab_of(dialog, "AmbientSpeed") == "Animation"
+    assert speed.isVisible()
+
+
+def test_it_opens_with_the_page_of_the_tab_it_was_opened_on(dialog, qtbot):
+    """The help search opens Preferences on a named tab before showing it."""
+    _tabs(dialog).setCurrentIndex(EXPECTED_TABS.index("Figures"))
+    _open(dialog, qtbot)
+    assert _tabs_with_their_page(dialog) == {"Figures"}
+
+
+def test_a_waiting_tab_asks_for_all_the_room_a_tab_is_given(dialog, qtbot):
+    """So the window opens no narrower or shorter than the pages allow."""
+    _open(dialog, qtbot)
+    scroll = _tabs(dialog).widget(EXPECTED_TABS.index("Figures"))
+    line = scroll.fontMetrics().height()
+    hint = scroll.sizeHint()
+    assert (hint.width(), hint.height()) == (36 * line, 24 * line)
+
+
+def test_save_writes_what_a_never_opened_tab_holds(
+        dialog, qtbot, _isolated_qsettings):
+    """Changed and unchanged controls on pages that never came back."""
+    from spacr.qt import preferences as prefs
+
+    blur_before = prefs.get_ambient_blur()
+    speed = dialog.findChild(QSlider, "AmbientSpeed")
+    alpha = dialog.findChild(QWidget, "ShowAlphaFeatures")
+    _open(dialog, qtbot)
+    speed.setValue(150)
+    alpha.setChecked(not alpha.isChecked())
+    wanted_alpha = alpha.isChecked()
+
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+
+    assert _tabs_with_their_page(dialog) == {"General"}
+    assert prefs.get_ambient_speed() == pytest.approx(1.5)
+    assert prefs.get_show_alpha() is wanted_alpha
+    assert prefs.get_ambient_blur() == pytest.approx(blur_before)
+
+
+def test_reset_reaches_a_never_opened_tab(qtbot, qt_theme_applied,
+                                          _isolated_qsettings):
+    from spacr.qt import preferences as prefs
+
+    prefs.set_ambient_speed(1.5)
+    dlg = prefs.PreferencesDialog()
+    qtbot.addWidget(dlg)
+    speed = dlg.findChild(QSlider, "AmbientSpeed")
+    assert speed.value() == 150
+    _open(dlg, qtbot)
+    dlg.findChild(QPushButton, "PreferencesReset").click()
+    default = speed.value()
+    assert default != 150
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    assert prefs.get_ambient_speed() == pytest.approx(default / 100.0)
+
+
+def test_cancel_keeps_a_change_on_a_never_opened_tab_out(
+        dialog, qtbot, _isolated_qsettings):
+    from spacr.qt import preferences as prefs
+
+    before = prefs.get_ambient_speed()
+    speed = dialog.findChild(QSlider, "AmbientSpeed")
+    _open(dialog, qtbot)
+    speed.setValue(170)
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Cancel).click()
+    assert prefs.get_ambient_speed() == pytest.approx(before)
+
+
+def test_a_page_coming_back_is_translated(dialog, qtbot, monkeypatch):
+    """The first-show language pass walked the window without it."""
+    from spacr.qt import i18n
+
+    seen = []
+    real = i18n.retranslate_widget_tree
+
+    def _record(root, *args, **kwargs):
+        seen.append(root)
+        return real(root, *args, **kwargs)
+
+    monkeypatch.setattr(i18n, "retranslate_widget_tree", _record)
+    _open(dialog, qtbot)
+    tabs = _tabs(dialog)
+    tabs.setCurrentIndex(EXPECTED_TABS.index("Logging"))
+    assert tabs.widget(tabs.currentIndex()).widget() in seen
+
+
+def test_a_page_still_waiting_goes_with_the_dialog(qtbot, qt_theme_applied):
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QApplication
+    from shiboken6 import isValid
+
+    from spacr.qt.preferences import PreferencesDialog
+
+    dlg = PreferencesDialog()
+    page = dlg.findChild(QWidget, "PreferencesTabFigures")
+    _open(dlg, qtbot)
+    assert page.parentWidget() is None
+    dlg.hide()
+    dlg.deleteLater()
+    for _ in range(3):
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        QApplication.processEvents()
+    assert not isValid(page)
+
+
+def test_a_late_part_of_a_glassed_dialog_is_glassed_too(qtbot):
+    from PySide6.QtWidgets import QDialog, QFrame, QVBoxLayout
+
+    from spacr.qt.theme import TRANSPARENT_PROPERTY
+    from spacr.qt.widgets import glass
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    SetupCard(dialog)
+    part = QWidget()
+    column = QVBoxLayout(part)
+    holder = QFrame()
+    button = QPushButton("Cancel")
+    column.addWidget(holder)
+    column.addWidget(button)
+
+    assert glass._glass_a_part_that_came_later(dialog, part) == 0
+    assert part.property(TRANSPARENT_PROPERTY) is None
+
+    dialog.setProperty(glass.GLASSED, True)
+    QVBoxLayout(dialog).addWidget(part)
+    assert glass._glass_a_part_that_came_later(dialog, part) >= 2
+    assert part.property(TRANSPARENT_PROPERTY) is True
+    assert holder.property(TRANSPARENT_PROPERTY) is True
+    assert button.property(TRANSPARENT_PROPERTY) is None
+    assert button.property(glass.SPINS) is True
