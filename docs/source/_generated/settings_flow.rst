@@ -1364,7 +1364,8 @@ cell_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
@@ -1481,7 +1482,8 @@ cell_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_get_object_settings`` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
@@ -1520,7 +1522,8 @@ cell_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
@@ -3758,7 +3761,8 @@ cytoplasm_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
@@ -3849,7 +3853,8 @@ cytoplasm_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
@@ -3875,7 +3880,8 @@ cytoplasm_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
@@ -11182,7 +11188,8 @@ nucleus_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
@@ -11299,7 +11306,8 @@ nucleus_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_get_object_settings`` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
@@ -11329,7 +11337,8 @@ nucleus_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
@@ -12422,7 +12431,8 @@ organelle_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
@@ -12578,7 +12588,8 @@ organelle_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
@@ -12667,7 +12678,8 @@ organelle_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
@@ -13915,7 +13927,8 @@ pathogen_cellprob_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
@@ -14043,7 +14056,8 @@ pathogen_diameter
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_get_object_settings`` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
@@ -14073,7 +14087,8 @@ pathogen_flow_threshold
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
-| ``_cellpose_dino_masks`` **-- reads it**
+| ``_prefixed_masks``
+|     ``_cellpose_dino_masks`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
