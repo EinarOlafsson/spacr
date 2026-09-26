@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-503 in features/new, 39 in features/future. NEITHER LIST BLOCKS A RELEASE.
+503 in features/new, 57 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -159,6 +159,60 @@ FUTURE FEATURES
 
   550  LOAD AND SAVE DATA ON CLOUD STORAGE (S3 AND OTHERS)
        550_cloud_storage_access.txt
+
+  551  STARDIST AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
+       551_stardist_backend.txt
+
+  552  INSTANSEG AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
+       552_instanseg_backend.txt
+
+  553  OMNIPOSE AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
+       553_omnipose_backend.txt
+
+  554  SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
+       554_spotiflow_spot_detection.txt
+
+  555  CLICK- AND BOX-PROMPTED SEGMENTATION (micro-SAM) IN MAKE MASKS
+       555_prompt_based_sam_in_make_masks.txt
+
+  556  SAM2 VIDEO PROPAGATION: SEGMENT ONCE, FOLLOW EACH OBJECT OVER FRAMES
+       556_sam2_timelapse_propagation.txt
+
+  557  SELF-SUPERVISED DENOISING TRAINED ON THE USER'S OWN IMAGES (Noise2Void / CAREamics)
+       557_self_supervised_denoising.txt
+
+  558  VIRTUAL STAINING: PREDICT A FLUORESCENT CHANNEL FROM BRIGHTFIELD/PHASE
+       558_virtual_staining.txt
+
+  559  DEEP-LEARNING IMAGE QC: OUT-OF-FOCUS, SATURATION, DEBRIS, EMPTY FIELDS
+       559_deep_learning_image_qc.txt
+
+  560  FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
+       560_foundation_model_embeddings.txt
+
+  561  SELF-SUPERVISED PRETRAINING (DINO) ON THE USER'S OWN UNLABELLED CROPS
+       561_dino_pretraining_on_own_crops.txt
+
+  562  WEAKLY SUPERVISED MULTIPLE-INSTANCE LEARNING: WELL LABELS -> WHICH CELLS RESPOND
+       562_multiple_instance_learning.txt
+
+  563  ANOMALY / NOVELTY DETECTION AGAINST NEGATIVE CONTROLS
+       563_anomaly_detection_vs_controls.txt
+
+  564  GENERATIVE COUNTERFACTUALS: MORPH A CONTROL CELL TOWARD A HIT PHENOTYPE
+       564_generative_counterfactuals.txt
+
+  565  GPU SIMILARITY SEARCH: "FIND CELLS LIKE THIS" OVER MILLIONS OF CROPS
+       565_similarity_search_find_cells_like_this.txt
+
+  566  GPU MEASUREMENT: cuCIM REGIONPROPS, HARALICK ON CuPy
+       566_gpu_measurement.txt
+
+  567  DEEP-LEARNING EVENT DETECTION ON TRACKS: MITOSIS, EGRESS, INVASION, HOST DEATH
+       567_deep_event_detection_on_tracks.txt
+
+  568  SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
+       568_segmentation_uncertainty_maps.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

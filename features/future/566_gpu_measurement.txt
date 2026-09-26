@@ -1,0 +1,21 @@
+GPU MEASUREMENT: cuCIM REGIONPROPS, HARALICK ON CuPy
+
+Status: FILED 2026-09-26. Not started.
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/speed-of-cellprofiler/97573
+
+WHAT TO BUILD
+    Move the heavy per-object measurements (regionprops, intensity,
+    texture/Haralick, Zernike) to the GPU with cuCIM/CuPy when available,
+    falling back to CPU; identical numbers within float tolerance.
+
+DONE WHEN
+    Measure on a real plate gives the same values as CPU within tolerance
+    and is several times faster on the GPU.
