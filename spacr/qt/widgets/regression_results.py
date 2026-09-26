@@ -35,6 +35,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
+from ..i18n import tr
+
 LOG = logging.getLogger(__name__)
 
 #: How the effect-size cut is measured, and how wide, on a run nobody has
@@ -201,7 +203,7 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
     return [candidate for _, _, group in runs for candidate in group]
 
 
-def read_run_tables(tables):
+def read_run_tables(tables, progress=None):
     """Read a run's primary table, and any LEVEL it left in a sibling file.
 
     ``results.csv`` is meant to hold every level a run produced -- a fitted
@@ -221,12 +223,21 @@ def read_run_tables(tables):
 
     :param tables: candidate paths, primary first, as
         :func:`find_results_tables` returns them.
+    :param progress: optional ``progress(done, total, name)``, called before
+        each file is read. ``total`` counts the primary table and every
+        sibling beside it, so it is an upper bound: a sibling whose level the
+        primary already carries is counted and not read.
     :returns: ``(frame, found, merged)`` -- the table, the path it came from,
         and the sibling paths folded into it.
     """
     import pandas as pd
 
     found = tables[0]
+    home = os.path.dirname(found)
+    total = 1 + sum(1 for sibling in tables[1:]
+                    if os.path.dirname(sibling) == home)
+    if progress is not None:
+        progress(1, total, os.path.basename(found))
     frame = pd.read_csv(found)
     merged = []
     have = set()
@@ -239,15 +250,18 @@ def read_run_tables(tables):
             have = {str(v) for v in pd.Series(coefficient_levels(frame)).unique()}
         except Exception:                                    # noqa: BLE001
             have = set()
-    home = os.path.dirname(found)
+    done = 1
     for sibling in tables[1:]:
         if os.path.dirname(sibling) != home:
             continue
+        done += 1
         name = os.path.basename(sibling)
         wants = ("gene" if "gene" in name else
                  "grna" if "grna" in name else "")
         if not wants or wants in have:
             continue
+        if progress is not None:
+            progress(done, total, name)
         try:
             extra = pd.read_csv(sibling)
         except Exception:                                    # noqa: BLE001
@@ -631,6 +645,10 @@ class RegressionResultsPanel(QWidget):
     #: so whichever screen owns those does.
     refit_requested = Signal(object)
 
+    _load_progress_relayed = Signal(int, int, int, int, str)
+
+    LOAD_STEPS = 3
+
     def __init__(self, parent=None, external_volcano: bool = False):
         """Initialize the regression results panel.
 
@@ -896,8 +914,10 @@ class RegressionResultsPanel(QWidget):
         from ..job_runner import JobRunner
 
         self._loading = False
+        self._load_generation = 0
         self._load_jobs = JobRunner(self, threaded=True, app_key="results")
         self._load_jobs.job_failed.connect(self._on_load_job_failed)
+        self._load_progress_relayed.connect(self._on_load_progress)
         #: None, "gene" or "grna" -- which rows EVERY tab draws. One piece of
         #: state, read by every draw path: see :meth:`refresh_views`.
         self._level = self._default_level()
@@ -1621,6 +1641,7 @@ class RegressionResultsPanel(QWidget):
         :param loading: whether a run is being read right now.
         """
         self._loading = bool(loading)
+        self._load_generation = getattr(self, "_load_generation", 0) + 1
         button = getattr(self, "_load_button", None)
         if button is None:
             return
@@ -1673,21 +1694,91 @@ class RegressionResultsPanel(QWidget):
                      "no folder to search. Use “Load results…”.")
             return False
         self._set_loading(True)
-        self.say(f"Reading the run in {os.path.basename(str(path)) or path}…")
+        generation = self._load_generation
+        self._on_load_progress(generation, 1, 0, 0,
+                               os.path.basename(str(path)) or str(path))
         started = self._load_jobs.submit(
-            lambda: self._read_run(path),
+            lambda: self._read_run(
+                path, progress=lambda step, done, total, name:
+                self._relay_load_progress(generation, step, done, total,
+                                          name)),
             self._finish_load)
         if not started:
             self._set_loading(False)
         return bool(started)
 
+    def _relay_load_progress(self, generation, step, done, total,
+                             name) -> None:
+        """Called BY THE WORKER. Emits one stage of the load, and nothing else.
+
+        Guarded the way `JobRunner._relay` is: a panel closed while a read is
+        still running takes its C++ half with it, and the emit then raises
+        ``RuntimeError`` inside the worker.
+        """
+        try:
+            self._load_progress_relayed.emit(int(generation), int(step),
+                                             int(done), int(total), str(name))
+        except RuntimeError:
+            pass
+
+    def _load_stage_text(self, step, done=0, total=0, name="") -> str:
+        """The sentence for one stage of a load, counted against the stages.
+
+        :param step: 1 searching, 2 reading, 3 building the views.
+        :param done: for the reading step, the file being read; else 0.
+        :param total: for the reading step, the files beside the run's
+            primary table, counted with it; else 0.
+        :param name: the folder searched, the file read, or the row count.
+        """
+        steps = self.LOAD_STEPS
+        if step == 1:
+            return tr("Step {step} of {steps}: searching {folder} for a "
+                      "results table…", step=1, steps=steps, folder=name)
+        if step == 2:
+            return tr("Step {step} of {steps}: reading {name} (file {done} "
+                      "of {total})…", step=2, steps=steps, name=name,
+                      done=done, total=total)
+        return tr("Step {step} of {steps}: building the table, plots and "
+                  "diagnostics for {rows} rows…", step=3, steps=steps,
+                  rows=name)
+
+    def _on_load_progress(self, generation, step, done, total,
+                          name) -> None:
+        """Say which stage of the load is running. Always on the GUI thread.
+
+        A stage from a load that has since finished, failed or been cancelled
+        is dropped: the generation it carries is no longer the current one,
+        and a late "reading results.csv" must not overwrite the sentence that
+        says the load was cancelled.
+        """
+        if generation != self._load_generation or not self._loading:
+            return
+        self.say(self._load_stage_text(step, done, total, name))
+
+    def _say_building(self, frame) -> None:
+        """Announce step 3 and paint it before the GUI thread is busy.
+
+        Building the views runs on the GUI thread, so the sentence is painted
+        at once rather than queued behind the work it announces.
+        """
+        self.say(self._load_stage_text(3, name=f"{len(frame):,}"))
+        try:
+            self._source.repaint()
+        except RuntimeError:
+            pass
+
     @staticmethod
-    def _read_run(path):
+    def _read_run(path, progress=None):
         """THE WORKER HALF. Touches no widget; returns what the GUI needs.
 
         Returns a dict rather than raising, because a JobRunner job that
         raises loses the detail on the way back across the thread boundary --
         the same reason `_merge_worker` returns its outcome.
+
+        :param path: the folder or table to load.
+        :param progress: optional ``progress(step, done, total, name)``,
+            called as the read reaches each file; see
+            :meth:`_load_stage_text`.
         """
         import pandas as pd
 
@@ -1701,8 +1792,13 @@ class RegressionResultsPanel(QWidget):
                 f"Searched {searched} and found none of "
                 f"{', '.join(RESULT_FILENAMES)} in it or in any folder up to "
                 f"{MAX_SEARCH_DEPTH} deep.")}
+        reading = None
+        if progress is not None:
+            def reading(done, total, name):
+                """Pass one file of the read on as step 2."""
+                progress(2, done, total, name)
         try:
-            frame, found, merged = read_run_tables(tables)
+            frame, found, merged = read_run_tables(tables, progress=reading)
         except Exception as error:  # noqa: BLE001 - report, do not raise
             return {"error": f"Could not read {tables[0]}: {error}"}
         return {"frame": frame, "found": found, "searched": searched,
@@ -1718,6 +1814,7 @@ class RegressionResultsPanel(QWidget):
         elif outcome.get("error"):
             self.say(str(outcome["error"]))
         else:
+            self._say_building(outcome["frame"])
             ok = self._apply_loaded_run(
                 outcome["frame"], outcome["found"], outcome["searched"],
                 outcome["tables"])

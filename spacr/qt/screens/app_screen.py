@@ -864,6 +864,12 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
     would load with the annotation field still on its default and the run
     would annotate what the file had turned off.
 
+    AND ONE SEED: a file written before `image_source` existed carries
+    `crop_source` alone, and the run seeds the one from the other
+    (`settings_model._image_source_seeded_from_crop_source`, which mirrors
+    `deep_spacr_defaults`), so the panel does the same before any value
+    reaches a widget.
+
     :param settings: a settings dict, not modified.
     :returns: a new dict with retired keys renamed.
     """
@@ -882,7 +888,9 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
             out.setdefault(name, value)
     from spacr.settings import _fold_toxoplasma
 
-    return _fold_toxoplasma(out)
+    from .settings_model import _image_source_seeded_from_crop_source
+
+    return _image_source_seeded_from_crop_source(_fold_toxoplasma(out))
 
 
 def _surviving_name_of(key: str):

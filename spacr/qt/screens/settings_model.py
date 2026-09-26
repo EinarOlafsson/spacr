@@ -788,6 +788,35 @@ def _image_source_the_panel_offers(value) -> str:
     return resolved if resolved in offered else offered[0]
 
 
+def _image_source_seeded_from_crop_source(values):
+    """``values`` with the ``image_source`` a file that predates it means.
+
+    MIRRORS THE HEADLESS SEED. `settings.deep_spacr_defaults` runs
+    ``setdefault('image_source', settings.get('crop_source') ...)``, so a
+    settings file written before ``image_source`` existed -- ``crop_source``
+    alone -- streams when it says ``'on_demand'``. ``crop_source`` is hidden
+    on the training panel, so without this the same file opened the combo on
+    LOAD IMAGES and the panel and the run disagreed about what it meant.
+
+    THE NEWER KEY WINS, as it does headlessly: a file carrying
+    ``image_source`` is left as it is, and so is one whose ``crop_source`` is
+    empty. The seeded value is resolved to the mode the panel offers, so a
+    retired spelling selects its mode rather than matching no item.
+
+    :param values: a settings mapping from a file or another screen; not
+        modified.
+    :returns: ``values`` itself when there is nothing to seed, else a copy
+        with ``image_source`` set.
+    """
+    if not values or "image_source" in values \
+            or not values.get("crop_source"):
+        return values
+    seeded = dict(values)
+    seeded["image_source"] = _image_source_the_panel_offers(
+        values["crop_source"])
+    return seeded
+
+
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "umap": {
         "reduction_method": ["umap", "tsne", "pca", "isomap", "spectral"],
@@ -8306,6 +8335,9 @@ class SettingsWidgets:
 
         shipped = resolve_default_settings(app_key)
         current_values = {str(k): v for k, v in (current or {}).items()}
+        if "image_source" in shipped:
+            current_values = _image_source_seeded_from_crop_source(
+                current_values)
         deciding = dict(shipped)
         deciding.update(current_values)
         from spacr.organelle_types import (NUMBER_OF_ORGANELLES,
