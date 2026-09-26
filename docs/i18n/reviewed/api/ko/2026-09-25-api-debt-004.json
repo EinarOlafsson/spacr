@@ -2674,7 +2674,9 @@
       "source_sha256": "7901c5b1ff077fc23be6f70cea27611f39b1a78524c0d860f81f146a094623ce",
       "context": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
       "translation": "분할 설정입니다. ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold``, ``cellprob`` 를 읽으며, 각각 기본값이 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#2",

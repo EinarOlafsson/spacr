@@ -269,7 +269,7 @@ def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
     yields black panels and white-on-white text, which is worse than a
     consistent dark page. That is why the print style works on a copy and
     never on the figure the gallery or a canvas is showing: a print page is
-    written where the user asked, never beside a gallery PNG, so the pixmap
+    written to the path the user chose, never beside a gallery PNG, so the pixmap
     swap in :meth:`FigureQueue._request_pdf_refinement` can never pick one up.
 
     Returns True if the page was written.

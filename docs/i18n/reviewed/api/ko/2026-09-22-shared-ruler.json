@@ -27,7 +27,9 @@
       "label": "spacr.qt.widgets.image_ruler.ImageRuler#2",
       "source": "Hosts pass their widget-to-image mapping to :meth:`handle` and inverse mapping to :meth:`paint`. Zoom and pan never change the measured length. Pixel units are always shown. Physical units require explicit, validated calibration through :meth:`set_spacing`; camera magnification is never guessed. Right-click clears while the tool is active. Start with no line, no calibration and drawing disabled.",
       "source_sha256": "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c",
-      "translation": "호스트는 위젯에서 이미지로의 매핑을 :meth:`handle`에, 역방향 매핑을 :meth:`paint`에 전달합니다. 확대와 이동은 측정 길이를 변경하지 않습니다. 픽셀 단위는 항상 표시됩니다. 물리 단위에는 :meth:`set_spacing`을 통한 명시적이고 검증된 보정이 필요하며 카메라 배율을 추정하지 않습니다. 도구가 활성화된 동안 오른쪽 클릭하면 선을 지웁니다. 초기에는 선과 보정이 없고 그리기가 비활성화되어 있습니다."
+      "translation": "호스트는 위젯에서 이미지로의 매핑을 :meth:`handle`에, 역방향 매핑을 :meth:`paint`에 전달합니다. 확대와 이동은 측정 길이를 변경하지 않습니다. 픽셀 단위는 항상 표시됩니다. 물리 단위에는 :meth:`set_spacing`을 통한 명시적이고 검증된 보정이 필요하며 카메라 배율을 추정하지 않습니다. 도구가 활성화된 동안 오른쪽 클릭하면 선을 지웁니다. 초기에는 선과 보정이 없고 그리기가 비활성화되어 있습니다.",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Remove the line without changing tool activation or calibration.",

@@ -362,7 +362,9 @@
       "source_sha256": "2b7407611fc209fb0443dac29a62c5dafbe648ac0402c0045057d5ae4cc12929",
       "context": "image paths sorted by name; empty when there are none.",
       "translation": "chemins d’images triés par nom ; vide lorsqu’il n’y en a aucun.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_box#0",
@@ -4650,7 +4652,9 @@
       "source_sha256": "7901c5b1ff077fc23be6f70cea27611f39b1a78524c0d860f81f146a094623ce",
       "context": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
       "translation": "réglages de segmentation ; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` et ``cellprob`` sont lus, chacun avec une valeur par défaut.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#2",

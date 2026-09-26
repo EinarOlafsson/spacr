@@ -4714,7 +4714,9 @@
       "source_sha256": "40374c0333bcf5d0c12d6cd6f4418a7e2cf844bd649a11bd9829ee9554176695",
       "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has its first PDF read the way a dropped one is, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
       "translation": "Posée une fois par source et par mode, et seulement lorsque la vue est affichée à l’écran. Un ``src`` qui désigne un PDF, ou un dossier de PDFs, en mode Figure -- déjà, ou après que la réponse y a basculé -- voit son premier PDF lu comme l’est un fichier déposé, de sorte que l’aperçu et l’exécution reçoivent le dossier de figures de l’article plutôt qu’un PDF qu’ils ne peuvent pas ouvrir.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.check_the_src#3",

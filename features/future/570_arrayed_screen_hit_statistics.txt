@@ -72,6 +72,6 @@ spacr/settings.py after merging nightly (569's registry); the same names
 are exported as control_chart.HIT_ALPHA_WIDGETS, and a screen test checks
 they hide with Show alpha features off and return with it on. The sixteen
 new tr() captions wait in _AWAITING_CATALOG_REBUILD for the catalog lane;
-the API surface pins move 11,816 -> 11,842 (callables 9,789 -> 9,814),
+the API surface pins move 11,834 -> 11,860 (callables 9,807 -> 9,832),
 each addition named where the pin is, and the documentation locale
 catalogs are not regenerated here.

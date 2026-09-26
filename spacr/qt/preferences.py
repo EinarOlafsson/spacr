@@ -4872,9 +4872,8 @@ def _get_show_alpha_features() -> bool:
     """Whether features built from the future list are shown (default off).
 
     Separate from :func:`get_show_alpha`, which is about a module's
-    maturity stage. This one is the maintainer's rule of 2026-09-26 (item
-    569): everything registered in ``spacr.settings.ALPHA_FEATURES`` is
-    hidden until the user turns it on.
+    maturity stage. This one hides everything registered in
+    ``spacr.settings.ALPHA_FEATURES`` until the user turns it on.
     """
     return _as_bool(
         _settings().value(_KEY_SHOW_ALPHA_FEATURES,

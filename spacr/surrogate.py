@@ -1057,7 +1057,9 @@ def rank_feature_importance(model: Any, x: pd.DataFrame, y: Any, *,
         root = os.path.abspath(os.path.expanduser(str(destination)))
         os.makedirs(root, exist_ok=True)
         csv_path = os.path.join(root, "feature_importance.csv")
-        table.to_csv(csv_path, index=False)
+        from .tabular import write_table
+
+        write_table(table, csv_path)
         paths["importance"] = csv_path
         plotted = [m for m in ("gain", "permutation", "shap")
                    if m in table and table[m].notna().any()]

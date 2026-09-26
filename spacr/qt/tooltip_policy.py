@@ -238,8 +238,8 @@ class _TooltipFilter(QObject):
         Qt does not deliver the ``ToolTip`` event the moment the pointer
         stops: the style's ``SH_ToolTip_WakeUpDelay`` -- around 700 ms with
         Fusion -- has already gone by. Adding the full two seconds on top
-        of that would make the total 2.7 s, which is not the number the
-        maintainer asked for. So the style's delay is subtracted, and what
+        of that would make the total 2.7 s, not the two seconds this
+        policy sets. So the style's delay is subtracted, and what
         the reader experiences is two seconds from resting to reading.
         """
         already = 0

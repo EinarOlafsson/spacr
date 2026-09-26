@@ -167,9 +167,8 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
         the values already present in the annotation column, in order, which
         is what the retrain encoded them from.
     :param withhold_rejected: leave out every crop whose suggestion the
-        annotator REJECTED (a negative ``<column>_verdict``). The maintainer,
-        2026-09-25 (item 512): a rejected crop is not suggested again in a
-        later round. It still trains as an example of the other class
+        annotator REJECTED (a negative ``<column>_verdict``), so a rejected
+        crop is not suggested again in a later round. It still trains as an example of the other class
         (:func:`rejected_suggestions`); it is only not proposed.
     :returns: a :class:`Suggestions`; its frame is empty when nothing has been
         scored, and ``note`` says why.

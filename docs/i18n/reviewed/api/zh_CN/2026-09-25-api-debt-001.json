@@ -906,7 +906,9 @@
       "source_sha256": "42def4f4e810fa598323cc7fdbd455915764d7944e457a30a384f482d09f80e1",
       "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same.",
       "translation": "模型设置为 ``cellpose3:<model or weights path>`` 的对象，或者当 ``segmentation_backend`` 为 ``'cellpose3'`` 时的任何对象，都由 ``_cellpose3_masks`` 在 Cellpose 3 后端自己的环境中进行分割；其返回结果与 Cellpose-SAM 的结果进入相同的处理流程，因此保存的掩膜和数据库行的写入方式相同。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#6",
@@ -4674,7 +4676,9 @@
       "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
       "translation": "用于调整后掩膜的可选独立文件夹。None 保留以往的原地修改行为。使用独立文件夹时，所有源掩膜保持字节级不变，并且每次调用都会从源文件重建每个选定的视野，包括中断的工作之后。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.check_mask_folder#3",

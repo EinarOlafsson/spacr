@@ -3060,7 +3060,7 @@ class AppScreen(QWidget):
     def _follow_the_organelle_count(self, *_args) -> None:
         """Answer a committed ``number_of_organelles`` without a reload.
 
-        Instruction 356, case 2. Lowering the count only hides slots, and
+        Lowering the count only hides slots, and
         raising it within the slots already built only shows them, so both
         are the in-place pass a channel gets. Raising it past them builds
         the new slots' controls and lays them out in the headings already

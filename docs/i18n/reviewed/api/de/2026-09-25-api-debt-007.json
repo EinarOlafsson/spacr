@@ -1245,12 +1245,13 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3",
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#4",
       "source": "the module's settings dict (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
       "source_sha256": "96135371fed57deda24a9362d148af2f2570a1b1dfd6da9138a9e4502a0a3e7d",
       "context": "the module's settings key-value mapping (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
       "translation": "das Einstellungswörterbuch des Moduls (``None`` wird als leer behandelt); eine Kopie wird für die Routen Pre und Post aufbewahrt.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3"
     },
     {
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview#0",
@@ -4706,7 +4707,9 @@
       "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
       "translation": "optionaler separater Ordner für angepasste Masken. None bewahrt das historische Verhalten der Änderung an Ort und Stelle. Ein separater Ordner hält alle Quellmasken byte-identisch, und jedes ausgewählte Sichtfeld wird bei jedem Aufruf aus seiner Quelle neu aufgebaut, auch nach unterbrochener Arbeit.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.check_mask_folder#3",

@@ -2514,7 +2514,9 @@
       "source_sha256": "28aeefdb811ae70f189dee69d6e8fcf4688b426e67235601a9d0c5f3e567652b",
       "context": "The button is placed with the other actions, before the Magnifier and the settings toggle, so that pair stays together at the end of the row whatever is added after them.",
       "translation": "Hnappurinn er settur með hinum aðgerðunum, á undan Magnifier og stillingarofanum, svo það par haldist saman í enda raðarinnar hvað sem bætt er við á eftir þeim.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter#0",
@@ -3050,7 +3052,9 @@
       "source_sha256": "da7ed3a577519a636daa1c049ec9a397e29f7f6452c19eb74bb9093e94f41618",
       "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it.",
       "translation": "``cellpose3:<name or path>`` líkan -- staðlað Cellpose 3-líkan eða bioimage.io Cellpose 3-vistunarpunktur -- er alls ekki Cellpose 4-líkan: Cellpose 4 myndi hlaða slíkum vistunarpunkti og hluta vitleysu með honum. Því er hlaðið af :func:`_backend_model`, í eigin umhverfi Cellpose 3-bakendans, eins og grímugerð hleður því.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.load_cellpose_model#4",
@@ -3721,7 +3725,7 @@
       "source": "Toxoplasma",
       "source_sha256": "3ff5936a6dc0cecc6db54a2188e880f2e27a3e40bb4462514d23ef2293825b1d",
       "context": "Toxoplasma",
-      "translation": "Lífveran Toxoplasma",
+      "translation": "Toxoplasma",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -3730,14 +3734,16 @@
       "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
       "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
       "translation": "Opnaðu Home > Toxoplasma og veldu Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay eða Replication Assay. Valin eining leggur til inntaksvalglugga sína, stillingar, forsýn og Run-stýringar. Notaðu Test data-stýringu hennar þegar dæmi er tiltækt. Plaque Assay byrjar á myndum; hinar mælingarnar nota samsvarandi mælitöflur og tengsl hluta. Fylgdu inntakshjálp hverrar einingar fyrir keyrslu, og opnaðu síðan niðurstöðurnar í valinni úttaksmöppu hennar. Starplast opnar sérstakt forrit til að skoða þekkingarkort Toxoplasma; fyrsta ræsing þess býður uppsetningu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#4",
       "source": "Plasmodium",
       "source_sha256": "8843da7eb78c64330b37365265b1adf8e7e176ae2bec0d9d68b4f16add016584",
       "context": "Plasmodium",
-      "translation": "Lífveran Plasmodium",
+      "translation": "Plasmodium",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -3746,14 +3752,16 @@
       "source_sha256": "c3bc62cd105aef79f366dd9c8afe25460673628ae96f782fb4fcc23cd35c9992",
       "context": "Open Home > Plasmodium to browse blood-stage, liver-stage, motility and compound-response topics. Explore the apicomplexan diagram and follow the PlasmoDB or UniProt links for organism-specific information. The assay tiles currently say Coming soon and are disabled; this page has no runnable Plasmodium-specific analysis and writes no results. To work with images now, return to Home and use the general segmentation and measurement modules with appropriate images, image data channels and masks for your experiment.",
       "translation": "Opnaðu Home > Plasmodium til að skoða efni um blóðstig, lifrarstig, hreyfanleika og svörun við efnasamböndum. Skoðaðu skýringarmynd gródýrsins og fylgdu tenglunum á PlasmoDB eða UniProt fyrir upplýsingar sem eru sértækar fyrir lífveruna. Mælingareitirnir segja nú Kemur bráðlega og eru óvirkir; þessi síða hefur enga keyranlega greiningu sem er sértæk fyrir Plasmodium og skrifar engar niðurstöður. Til að vinna með myndir núna, farðu aftur í Home og notaðu almennu hlutunar- og mælingaeiningarnar með viðeigandi myndum, rásum og grímum fyrir tilraunina þína.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#6",
       "source": "Candida",
       "source_sha256": "693e86c368aece52b6b8d6464ca2eb70b2e81f54788003647a11d4cd2faf0a4f",
       "context": "Candida",
-      "translation": "Lífveran Candida",
+      "translation": "Candida",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -3762,7 +3770,9 @@
       "source_sha256": "a7e6d6572b1fff456a0ccd0a0ea28f37a96cb23c1e5df4cc52f699f626828a6f",
       "context": "Open Home > Candida to browse morphology, filamentation, biofilm and host-cell interaction topics. Explore the budding-yeast diagram and follow the Candida Genome Database or UniProt links for gene and protein information. The assay tiles currently say Coming soon and are disabled; this page requires no data and writes no analysis files. For an available image workflow, return to Home and select the general segmentation and measurement modules, choosing masks and imaging image data channels suited to your species and experimental readout.",
       "translation": "Opnaðu Home > Candida til að skoða efni um formgerð, þráðmyndun, líffilmu og samspil við hýsilfrumur. Skoðaðu skýringarmynd verðandi gersins og fylgdu tenglunum á Candida Genome Database eða UniProt fyrir upplýsingar um gen og prótein. Mælingareitirnir segja nú Kemur bráðlega og eru óvirkir; þessi síða krefst engra gagna og skrifar engar greiningarskrár. Fyrir tiltækt myndvinnsluflæði, farðu aftur í Home og veldu almennu hlutunar- og mælingaeiningarnar, og veldu grímur og myndrásir sem henta tegundinni þinni og mæliútkomu tilraunarinnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep.sweepable#2",
@@ -4778,7 +4788,9 @@
       "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
       "translation": "valfrjáls sérstök mappa fyrir aðlagaðar grímur. None heldur eldri hegðun þar sem breytt er á staðnum. Sérstök mappa heldur öllum upprunagrímum bæti fyrir bæti óbreyttum, og hvert valið sjónsvið er endurbyggt úr uppruna sínum við hvert kall, líka eftir vinnu sem var rofin.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.check_mask_folder#3",
