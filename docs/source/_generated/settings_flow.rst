@@ -21,7 +21,7 @@ CP_prob
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-CP_probability:
 
@@ -35,7 +35,7 @@ CP_probability
 | :py:func:`~spacr.submodules.test_cellpose_model` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_test_cellpose_model_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.submodules.apply_cellpose_model`, :py:func:`~spacr.submodules.test_cellpose_model`.
+Read by ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``apply_cellpose_model``, ``test_cellpose_model``.
 
 .. _setting-flow-FT:
 
@@ -49,7 +49,7 @@ FT
 | :py:func:`~spacr.submodules.test_cellpose_model` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_test_cellpose_model_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.submodules.apply_cellpose_model`, :py:func:`~spacr.submodules.test_cellpose_model`.
+Read by ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``apply_cellpose_model``, ``test_cellpose_model``.
 
 .. _setting-flow-Signal_to_noise:
 
@@ -70,7 +70,7 @@ Signal_to_noise
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``_normalize_img_batch``, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``_normalize_img_batch``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-_default_diameter:
 
@@ -89,7 +89,7 @@ _plot_theme
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | ``_on_run`` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, ``_on_run``.
+Read by ``generate_image_umap``, ``_on_run``.
 
 .. _setting-flow-_psf_measurement_signature:
 
@@ -142,7 +142,7 @@ _regression_folder
 |         ``_write_fit_resources`` **-- reads it**
 |         ``_write_regression_panel_packages`` **-- reads it**
 
-Read by ``_perform_regression_set_paths``, ``_write_fit_resources``, ``_write_regression_panel_packages``, :py:func:`~spacr.ml.perform_regression`.
+Read by ``_perform_regression_set_paths``, ``_write_fit_resources``, ``_write_regression_panel_packages``, ``perform_regression``.
 
 .. _setting-flow-_regression_frame:
 
@@ -152,7 +152,7 @@ _regression_frame
 | ``_perform_regression``
 |     :py:func:`~spacr.ml.perform_regression` **-- reads it**
 
-Read by :py:func:`~spacr.ml.perform_regression`.
+Read by ``perform_regression``.
 
 .. _setting-flow-_regression_stage:
 
@@ -171,7 +171,7 @@ _regression_stage
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_write_regression_panel_packages`` **-- reads it**
 
-Read by ``_stage``, ``_write_regression_panel_packages``, :py:func:`~spacr.ml.perform_regression`.
+Read by ``_stage``, ``_write_regression_panel_packages``, ``perform_regression``.
 
 .. _setting-flow-_well_geometry:
 
@@ -184,7 +184,7 @@ _well_geometry
 |     ``_plaque_well_diameter`` **-- reads it**
 |     :py:func:`~spacr.submodules.split_wells` **-- reads it**
 
-Read by ``_plaque_scale_for``, ``_plaque_well_diameter``, :py:func:`~spacr.submodules.split_wells`.
+Read by ``_plaque_scale_for``, ``_plaque_well_diameter``, ``split_wells``.
 
 .. _setting-flow-abs:
 
@@ -202,7 +202,7 @@ activation_db
 
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 
-Read by :py:func:`~spacr.plot.plot_region`.
+Read by ``plot_region``.
 
 .. _setting-flow-activation_mode:
 
@@ -211,7 +211,7 @@ activation_mode
 
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 
-Read by :py:func:`~spacr.plot.plot_region`.
+Read by ``plot_region``.
 
 .. _setting-flow-adjust_cells:
 
@@ -227,7 +227,7 @@ adjust_cells
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
 |     ``_seed_the_model(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`.
+Read by ``preprocess_generate_masks``, ``apply_settings``.
 
 .. _setting-flow-affinity:
 
@@ -236,7 +236,7 @@ affinity
 
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``reduction_and_clustering``.
 
 .. _setting-flow-agg_type:
 
@@ -259,7 +259,7 @@ agg_type
 | :py:func:`~spacr.qt.widgets.sweep_runs.record_run` **-- reads it**
 | :py:func:`~spacr.settings_advisor.refusals` **-- reads it**
 
-Read by ``_perform_regression``, ``_run_guide_permutation_analysis``, :py:func:`~spacr.ml.resolve_auto_inference`, ``_preparation_key``, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`, ``_resolve_regression_analysis_choices``, :py:func:`~spacr.settings_advisor.refusals`.
+Read by ``_perform_regression``, ``_run_guide_permutation_analysis``, ``resolve_auto_inference``, ``_preparation_key``, ``_run_settings_row``, ``record_run``, ``_resolve_regression_analysis_choices``, ``refusals``.
 
 .. _setting-flow-allow_spacr_targets:
 
@@ -268,7 +268,7 @@ allow_spacr_targets
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-alpha:
 
@@ -290,7 +290,7 @@ alpha
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.refit.refit_settings` **-- reads it**
 
-Read by ``_call_level_hits``, ``_perform_regression``, ``_reconcile_random_row_column_effects``, ``_reject_impossible_probabilities``, :py:func:`~spacr.refit.refit_settings`.
+Read by ``_call_level_hits``, ``_perform_regression``, ``_reconcile_random_row_column_effects``, ``_reject_impossible_probabilities``, ``refit_settings``.
 
 .. _setting-flow-amsgrad:
 
@@ -316,7 +316,7 @@ amsgrad
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-analysis_excluded_wells:
 
@@ -336,7 +336,7 @@ analysis_excluded_wells
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sequencing.graph_sequencing_stats`.
+Read by ``graph_sequencing_stats``.
 
 .. _setting-flow-analysis_mode:
 
@@ -366,7 +366,7 @@ analysis_mode
 | :py:func:`~spacr.settings.permutation_is_certain` **-- reads it**
 | :py:func:`~spacr.settings_advisor.refusals` **-- reads it**
 
-Read by ``_perform_regression``, ``_perform_regression_read_data``, :py:func:`~spacr.ml.resolve_auto_inference`, :py:func:`~spacr.ml.results_folder_kind`, ``_it_will_permute``, ``_analysis_path``, ``_permuted``, :py:func:`~spacr.refit.destination`, ``_resolve_regression_analysis_choices``, :py:func:`~spacr.settings.get_setting_dependencies`, :py:func:`~spacr.settings.permutation_active`, :py:func:`~spacr.settings.permutation_is_certain`, :py:func:`~spacr.settings_advisor.refusals`.
+Read by ``_perform_regression``, ``_perform_regression_read_data``, ``resolve_auto_inference``, ``results_folder_kind``, ``_it_will_permute``, ``_analysis_path``, ``_permuted``, ``destination``, ``_resolve_regression_analysis_choices``, ``get_setting_dependencies``, ``permutation_active``, ``permutation_is_certain``, ``refusals``.
 
 .. _setting-flow-analysis_unit:
 
@@ -390,7 +390,7 @@ analysis_unit
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 | :py:func:`~spacr.settings_advisor.refusals` **-- reads it**
 
-Read by ``_run_guide_permutation_analysis``, :py:func:`~spacr.ml.resolve_auto_inference`, ``_preparation_key``, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`, ``_resolve_regression_analysis_choices``, :py:func:`~spacr.settings.get_setting_dependencies`, :py:func:`~spacr.settings_advisor.refusals`.
+Read by ``_run_guide_permutation_analysis``, ``resolve_auto_inference``, ``_preparation_key``, ``_run_settings_row``, ``record_run``, ``_resolve_regression_analysis_choices``, ``get_setting_dependencies``, ``refusals``.
 
 .. _setting-flow-analyze_clusters:
 
@@ -401,7 +401,7 @@ analyze_clusters
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-anisotropy:
 
@@ -432,7 +432,7 @@ anisotropy
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.measure.resolve_measurement_spacing`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.zstack.plan_4d_from_settings`, :py:func:`~spacr.zstack.plan_from_settings`.
+Read by ``resolve_measurement_spacing``, ``get_measure_crop_settings``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-anndata_compression:
 
@@ -444,7 +444,7 @@ HDF5 compression for X and the layers. 'gzip' (default) typically halves the fil
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-anndata_compute_umap:
 
@@ -456,7 +456,7 @@ Compute obsm['X_umap'] during the export, through the same reducer the UMAP app 
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-anndata_dtype:
 
@@ -468,7 +468,7 @@ dtype of X. Default 'float32' - the scanpy convention and half the memory of flo
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-anndata_nan_policy:
 
@@ -480,7 +480,7 @@ What happens to missing values in X: 'keep' (default; AnnData stores them, scanp
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-anndata_out:
 
@@ -492,7 +492,7 @@ Path of the .h5ad file to write. An existing file at this path is overwritten, a
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-anndata_register_artifact:
 
@@ -504,7 +504,7 @@ Record the written file with spacr.artifacts, so a re-run of Measure marks the e
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-anndata_row_limit:
 
@@ -516,7 +516,7 @@ Maximum number of objects exported after filtering. 0 disables the limit. When a
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-anndata_single_table:
 
@@ -528,7 +528,7 @@ Export this one object table instead of the join, one row per object of that typ
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-anndata_tables:
 
@@ -540,7 +540,7 @@ Object tables joined into the cell-anchored export. Dropping a table drops its f
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
 
-Read by :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`.
+Read by ``anndata_export_settings``, ``run_anndata_export``.
 
 .. _setting-flow-annotated_classes:
 
@@ -599,7 +599,7 @@ annotation_column
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 | :py:func:`~spacr.submodules.count_phenotypes` **-- reads it**
 
-Read by ``_rules_from_annotation``, :py:func:`~spacr.classify_classes.annotation_column_of`, :py:func:`~spacr.classify_classes.fold_into_classes`, :py:func:`~spacr.hyperparam.load_search_data`, :py:func:`~spacr.io.generate_training_dataset`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.settings.set_annotate_default_settings`, :py:func:`~spacr.submodules.count_phenotypes`, :py:func:`~spacr.training_basis.resolve_basis`.
+Read by ``_rules_from_annotation``, ``annotation_column_of``, ``fold_into_classes``, ``load_search_data``, ``generate_training_dataset``, ``generate_ml_scores``, ``set_annotate_default_settings``, ``count_phenotypes``, ``resolve_basis``.
 
 .. _setting-flow-annotation_columns:
 
@@ -612,7 +612,7 @@ annotation_columns
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 
-Read by ``_rules_from_annotation``, :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``_rules_from_annotation``, ``generate_training_dataset``.
 
 .. _setting-flow-annotation_source:
 
@@ -644,7 +644,7 @@ annotation_source
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_trial_settings``, :py:func:`~spacr.parameter_sweep.settings_for_trial`, ``_fold_toxoplasma``.
+Read by ``_trial_settings``, ``settings_for_trial``, ``_fold_toxoplasma``.
 
 .. _setting-flow-annotation_values:
 
@@ -657,7 +657,7 @@ annotation_values
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 
-Read by ``_rules_from_annotation``, :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``_rules_from_annotation``, ``generate_training_dataset``.
 
 .. _setting-flow-apply_model_to_dataset:
 
@@ -684,7 +684,7 @@ apply_model_to_dataset
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.deep_spacr`, ``_check_required_paths``.
+Read by ``deep_spacr``, ``_check_required_paths``.
 
 .. _setting-flow-at:
 
@@ -693,7 +693,7 @@ at
 
 | :py:func:`~spacr.profiler.profile_by` **-- reads it**
 
-Read by :py:func:`~spacr.profiler.profile_by`.
+Read by ``profile_by``.
 
 .. _setting-flow-attribution_baseline:
 
@@ -706,7 +706,7 @@ attribution_baseline
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 | :py:func:`~spacr.hyperparam.run_search_for_app` **-- reads it**
 
-Read by :py:func:`~spacr.hyperparam.run_search_for_app`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``run_search_for_app``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-attribution_steps:
 
@@ -719,7 +719,7 @@ attribution_steps
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 | :py:func:`~spacr.hyperparam.run_search_for_app` **-- reads it**
 
-Read by :py:func:`~spacr.hyperparam.run_search_for_app`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``run_search_for_app``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-augment:
 
@@ -748,7 +748,7 @@ augment
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, ``train_test_model``, ``get_train_test_model_settings``, ``train_cellpose``.
 
 .. _setting-flow-average_attn_weights:
 
@@ -765,7 +765,7 @@ average_attn_weights
 |     ``original(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_ask_for_attention_weights``, ``_wrap``, :py:func:`~spacr.attribution.forward`.
+Read by ``_ask_for_attention_weights``, ``_wrap``, ``forward``.
 
 .. _setting-flow-avg_cells_per_well:
 
@@ -779,7 +779,7 @@ avg_cells_per_well
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-avg_genes_per_well:
 
@@ -793,7 +793,7 @@ avg_genes_per_well
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-avg_reads_per_gene:
 
@@ -807,7 +807,7 @@ avg_reads_per_gene
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-axes.edgecolor:
 
@@ -816,7 +816,7 @@ axes.edgecolor
 
 | :py:func:`~spacr.figure_style.rc_params` **-- reads it**
 
-Read by :py:func:`~spacr.figure_style.rc_params`.
+Read by ``rc_params``.
 
 .. _setting-flow-axes.prop_cycle:
 
@@ -825,7 +825,7 @@ axes.prop_cycle
 
 | :py:func:`~spacr.figure_style.rc_params` **-- reads it**
 
-Read by :py:func:`~spacr.figure_style.rc_params`.
+Read by ``rc_params``.
 
 .. _setting-flow-background:
 
@@ -846,7 +846,7 @@ background
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``_normalize_img_batch``, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``_normalize_img_batch``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-background_correction:
 
@@ -859,7 +859,7 @@ background_correction
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-balance_to_smallest:
 
@@ -871,7 +871,7 @@ balance_to_smallest
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``generate_training_dataset``.
 
 .. _setting-flow-band_rows:
 
@@ -880,7 +880,7 @@ band_rows
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-barcode_mismatches:
 
@@ -891,7 +891,7 @@ barcode_mismatches
 
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``generate_barecode_mapping``.
 
 .. _setting-flow-barcode_qc:
 
@@ -921,7 +921,7 @@ barcode_set
 |     :py:func:`~spacr.settings.barcode_set_from_settings` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.barcode_set_from_settings`.
+Read by ``barcode_set_from_settings``.
 
 .. _setting-flow-base_model:
 
@@ -933,7 +933,7 @@ base_model
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-baselines:
 
@@ -967,7 +967,7 @@ batch_column
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.batch_correction.correction_kwargs`.
+Read by ``correction_kwargs``.
 
 .. _setting-flow-batch_combat_mean_only:
 
@@ -985,7 +985,7 @@ batch_combat_mean_only
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, ``_perform_regression``, :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``_perform_regression``, ``generate_ml_scores``.
 
 .. _setting-flow-batch_control_column:
 
@@ -1011,7 +1011,7 @@ batch_control_column
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings_advisor.refusals` **-- reads it**
 
-Read by :py:func:`~spacr.batch_correction.correction_kwargs`, :py:func:`~spacr.settings_advisor.refusals`.
+Read by ``correction_kwargs``, ``refusals``.
 
 .. _setting-flow-batch_control_values:
 
@@ -1036,7 +1036,7 @@ batch_control_values
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.batch_correction.correction_kwargs`.
+Read by ``correction_kwargs``.
 
 .. _setting-flow-batch_correction:
 
@@ -1063,7 +1063,7 @@ batch_correction
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 | :py:func:`~spacr.settings_advisor.refusals` **-- reads it**
 
-Read by :py:func:`~spacr.batch_correction.correction_kwargs`, ``_perform_regression``, :py:func:`~spacr.settings.get_setting_dependencies`, :py:func:`~spacr.settings_advisor.refusals`.
+Read by ``correction_kwargs``, ``_perform_regression``, ``get_setting_dependencies``, ``refusals``.
 
 .. _setting-flow-batch_covariate_column:
 
@@ -1082,7 +1082,7 @@ batch_covariate_column
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings_advisor.refusals` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, ``_perform_regression``, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.settings_advisor.refusals`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``_perform_regression``, ``generate_ml_scores``, ``refusals``.
 
 .. _setting-flow-batch_fields:
 
@@ -1095,7 +1095,7 @@ batch_fields
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-batch_min_samples:
 
@@ -1120,7 +1120,7 @@ batch_min_samples
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.batch_correction.correction_kwargs`.
+Read by ``correction_kwargs``.
 
 .. _setting-flow-batch_missing_control:
 
@@ -1145,7 +1145,7 @@ batch_missing_control
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.batch_correction.correction_kwargs`.
+Read by ``correction_kwargs``.
 
 .. _setting-flow-batch_size:
 
@@ -1199,7 +1199,7 @@ batch_size
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_inner_loader``, :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, ``_concatenate_and_normalize_impl``, ``_rebuild_stacks_from_raw``, :py:func:`~spacr.io.preprocess_img_data`, ``_cellpose_z_segment_fn``, ``_segment``, ``_segment_cellpose``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, :py:func:`~spacr.submodules.apply_cellpose_model`, :py:func:`~spacr.submodules.test_cellpose_model`, :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``_cross_validate_model``, ``_inner_loader``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``_concatenate_and_normalize_impl``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_cellpose_z_segment_fn``, ``_segment``, ``_segment_cellpose``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``apply_cellpose_model``, ``test_cellpose_model``, ``train_cellpose``.
 
 .. _setting-flow-bimodality_cutoff:
 
@@ -1225,7 +1225,7 @@ black_background
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-blend:
 
@@ -1236,7 +1236,7 @@ blend
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.write_stack` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, ``_work``, :py:func:`~spacr.qt.screens.align.write_stack`.
+Read by ``align_folder``, ``_work``, ``write_stack``.
 
 .. _setting-flow-bounding_box:
 
@@ -1248,7 +1248,7 @@ bounding_box
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset` **-- reads it**
 | :py:func:`~spacr.stream_dataset.stream_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.stream_dataset.stream_dataset`.
+Read by ``generate_annotation_dataset``, ``stream_dataset``.
 
 .. _setting-flow-bystander_measurements:
 
@@ -1265,7 +1265,7 @@ bystander_measurements
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_morphological_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_morphological_measurements``, ``get_measure_crop_settings``.
 
 .. _setting-flow-bystander_reach_in_diameters:
 
@@ -1282,7 +1282,7 @@ bystander_reach_in_diameters
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_morphological_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_morphological_measurements``, ``get_measure_crop_settings``.
 
 .. _setting-flow-calculate_correlation:
 
@@ -1299,7 +1299,7 @@ calculate_correlation
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_intensity_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_intensity_measurements``, ``get_measure_crop_settings``.
 
 .. _setting-flow-calibrate_fraction_threshold:
 
@@ -1329,7 +1329,7 @@ cam_type
 |     :py:func:`~spacr.utils.activation_maps_to_database` **-- reads it**
 | ``_applicable_activation_space`` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, ``_applicable_activation_space``, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.utils.activation_correlations_to_database`, :py:func:`~spacr.utils.activation_maps_to_database`.
+Read by ``generate_activation_map``, ``_applicable_activation_space``, ``get_default_generate_activation_map_settings``, ``activation_correlations_to_database``, ``activation_maps_to_database``.
 
 .. _setting-flow-cell_background:
 
@@ -1369,7 +1369,7 @@ cell_cellprob_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``preprocess_generate_masks``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-cell_chann_dim:
 
@@ -1380,7 +1380,7 @@ cell_chann_dim
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-cell_channel:
 
@@ -1438,7 +1438,7 @@ cell_channel
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.diameter.channels_from_settings`, ``_get_lists_for_normalization``, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.plot.plot_region`, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, :py:func:`~spacr.timelapse.automated_motility_assay`, :py:func:`~spacr.utils.dense_mask_channel_positions`, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_describe_objects``.
 
 .. _setting-flow-cell_csv:
 
@@ -1454,7 +1454,7 @@ cell_csv
 |     :py:func:`~spacr.settings.barcode_set_from_settings` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.barcode_set_from_settings`.
+Read by ``barcode_set_from_settings``.
 
 .. _setting-flow-cell_diameter:
 
@@ -1494,7 +1494,7 @@ cell_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_get_object_settings``, ``_describe_objects``.
 
 .. _setting-flow-cell_dim:
 
@@ -1503,7 +1503,7 @@ cell_dim
 
 | :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`.
+Read by ``annotate_crops``.
 
 .. _setting-flow-cell_flow_threshold:
 
@@ -1525,7 +1525,7 @@ cell_flow_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``preprocess_generate_masks``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-cell_intensity_range:
 
@@ -1536,7 +1536,7 @@ cell_intensity_range
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-cell_loc:
 
@@ -1547,7 +1547,7 @@ cell_loc
 
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
+Read by ``annotate_filter_vision``.
 
 .. _setting-flow-cell_mask_dim:
 
@@ -1604,7 +1604,7 @@ cell_mask_dim
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.mask_dims_from_settings`, ``_crop_shape_overrides``, ``_intensity_measurements``, ``_measure_crop_core``, ``_morphological_measurements``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, ``_describe_objects``.
+Read by ``mask_dims_from_settings``, ``_crop_shape_overrides``, ``_intensity_measurements``, ``_measure_crop_core``, ``_morphological_measurements``, ``measure_crop``, ``plot_merged``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-cell_max_area:
 
@@ -1619,7 +1619,7 @@ cell_max_area
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-cell_max_intensity:
 
@@ -1635,7 +1635,7 @@ cell_max_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-cell_max_size:
 
@@ -1653,7 +1653,7 @@ cell_max_size
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``filter_selection``, ``_measure_crop_core``, ``get_measure_crop_settings``.
 
 .. _setting-flow-cell_method:
 
@@ -1700,7 +1700,7 @@ cell_min_area
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.object.merge_split_filter_masks`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``merge_split_filter_masks``, ``get_measure_crop_settings``.
 
 .. _setting-flow-cell_min_intensity:
 
@@ -1716,7 +1716,7 @@ cell_min_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-cell_min_size:
 
@@ -1749,7 +1749,7 @@ cell_min_size
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_describe_objects``.
+Read by ``filter_selection``, ``_measure_crop_core``, ``get_measure_crop_settings``, ``_describe_objects``.
 
 .. _setting-flow-cell_model_name:
 
@@ -1767,7 +1767,7 @@ cell_model_name
 |     ``_get_object_settings`` **-- reads it**
 | ``_get_object_settings`` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_get_object_settings``, ``_get_object_settings``.
+Read by ``preprocess_generate_masks``, ``_get_object_settings``, ``_get_object_settings``.
 
 .. _setting-flow-cell_morphology:
 
@@ -1777,7 +1777,7 @@ cell_morphology
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`.
+Read by ``organelle_morphology_now``.
 
 .. _setting-flow-cell_outlier_mads:
 
@@ -1791,7 +1791,7 @@ cell_outlier_mads
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.outlier_filter.apply`.
+Read by ``apply``.
 
 .. _setting-flow-cell_perimeter_fraction:
 
@@ -1808,7 +1808,7 @@ cell_perimeter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-cell_perimiter_fraction:
 
@@ -1823,7 +1823,7 @@ cell_perimiter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-cell_plate_metadata:
 
@@ -1844,7 +1844,7 @@ cell_plate_metadata
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_data_from_db`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``plot_data_from_db``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_recruitment``, ``analyze_replication``.
 
 .. _setting-flow-cell_remove_border:
 
@@ -1871,7 +1871,7 @@ cell_remove_border_objects
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-cell_resample:
 
@@ -1929,7 +1929,7 @@ cell_size_range
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-cell_type:
 
@@ -1947,7 +1947,7 @@ cell_type
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`.
+Read by ``organelle_morphology_now``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``.
 
 .. _setting-flow-cell_types:
 
@@ -1968,7 +1968,7 @@ cell_types
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_data_from_db`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``plot_data_from_db``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_recruitment``, ``analyze_replication``.
 
 .. _setting-flow-cellcellpose_:
 
@@ -1980,7 +1980,7 @@ cellcellpose_
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``preprocess_img_data``.
 
 .. _setting-flow-cellcellpose__channel:
 
@@ -2000,7 +2000,7 @@ cellcellpose__channel
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object_roles.organelle_settings_view`, ``_get_cellpose_channels``.
+Read by ``_fill_cellpose_channel_positions``, ``generate_cellpose_masks``, ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-cellorganelle_:
 
@@ -2010,7 +2010,7 @@ cellorganelle_
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object_roles.organelle_settings_view`.
+Read by ``organelle_settings_view``.
 
 .. _setting-flow-cellpose3_add_nucleus_channel:
 
@@ -2134,7 +2134,7 @@ Expected nucleus diameter in pixels for the segmentation of each stitched well. 
 |     ``_objects`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_objects``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_objects``, ``ops_defaults``.
 
 .. _setting-flow-cellpose_model:
 
@@ -2148,7 +2148,7 @@ Which Cellpose model segments the nuclei of each stitched well. 'cpsam' runs the
 |         ``_cellpose_model`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_cellpose_model``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_cellpose_model``, ``ops_defaults``.
 
 .. _setting-flow-cellpose_nucleus_channel:
 
@@ -2177,7 +2177,7 @@ cellpose_organelle_channel
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.object_roles.organelle_settings_view`.
+Read by ``generate_organelle_masks_sam``, ``organelle_settings_view``.
 
 .. _setting-flow-cellpose_pathogen_channel:
 
@@ -2204,7 +2204,7 @@ cellprob
 | :py:func:`~spacr.qt.widgets.timelapse_preview.segment_sequence`
 |     :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`.
+Read by ``segment_frame``.
 
 .. _setting-flow-cellremove_background_:
 
@@ -2231,7 +2231,7 @@ cells
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`, :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
+Read by ``generate_screen_graphs``, ``annotate_filter_vision``.
 
 .. _setting-flow-cells_per_well:
 
@@ -2242,7 +2242,7 @@ cells_per_well
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-change_plate:
 
@@ -2260,7 +2260,7 @@ change_plate
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``.
 
 .. _setting-flow-channel:
 
@@ -2272,7 +2272,7 @@ channel
 | :py:func:`~spacr.qt.widgets.timelapse_preview.segment_sequence`
 |     :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`.
+Read by ``segment_frame``.
 
 .. _setting-flow-channel_arrays:
 
@@ -2284,7 +2284,7 @@ channel_arrays
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset` **-- reads it**
 | :py:func:`~spacr.stream_dataset.stream_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.stream_dataset.stream_dataset`.
+Read by ``generate_annotation_dataset``, ``stream_dataset``.
 
 .. _setting-flow-channel_axis:
 
@@ -2308,7 +2308,7 @@ channel_dims
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-channel_of_interest:
 
@@ -2321,7 +2321,7 @@ channel_of_interest
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``generate_ml_scores``, ``plot_data_from_db``, ``analyze_recruitment``.
 
 .. _setting-flow-channels:
 
@@ -2386,7 +2386,7 @@ channels
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr._v1_v2_bridge.v2_channels_from_settings`, :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.foreign.run_import`, :py:func:`~spacr.hyperparam.load_activation_data`, :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.prepare_illumination_model`, :py:func:`~spacr.io.preprocess_img_data`, ``_measure_crop_core``, ``_morphological_measurements``, ``_with_distances``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.plot.plot_region`, :py:func:`~spacr.qt.widgets.motility_preview.apply_settings`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.set_annotate_default_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, ``_cellpose_training_arrays``, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.timelapse.automated_motility_assay`, ``_check_channels``, :py:func:`~spacr.validate.describe_plan`.
+Read by ``v2_channels_from_settings``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``preprocess_img_data``, ``_measure_crop_core``, ``_morphological_measurements``, ``_with_distances``, ``measure_crop``, ``plot_region``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_channels``, ``describe_plan``.
 
 .. _setting-flow-checkpoint_path:
 
@@ -2399,7 +2399,7 @@ checkpoint_path
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.umap_checkpoint_path` **-- reads it**
 
-Read by :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.hyperparam.umap_checkpoint_path`.
+Read by ``convert_folder``, ``umap_checkpoint_path``.
 
 .. _setting-flow-chunk_size:
 
@@ -2410,7 +2410,7 @@ chunk_size
 
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``generate_barecode_mapping``.
 
 .. _setting-flow-circularize:
 
@@ -2422,7 +2422,7 @@ circularize
 | :py:func:`~spacr.submodules.apply_cellpose_model` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.submodules.apply_cellpose_model`.
+Read by ``get_default_apply_cellpose_model_settings``, ``apply_cellpose_model``.
 
 .. _setting-flow-class_balance:
 
@@ -2448,7 +2448,7 @@ class_balance
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_inner_loader``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_inner_loader``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-class_column:
 
@@ -2460,7 +2460,7 @@ class_column
 | :py:func:`~spacr.submodules.analyze_class_proportion` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`.
+Read by ``analyze_class_proportion``, ``analyze_endodyogeny``.
 
 .. _setting-flow-class_folder_names:
 
@@ -2508,7 +2508,7 @@ class_folder_names
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_record_generated_folder_names``, :py:func:`~spacr.classify_classes.folder_names`, :py:func:`~spacr.classify_classes.normalize_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_record_generated_folder_names``, ``folder_names``, ``normalize_settings``, ``get_train_test_model_settings``.
 
 .. _setting-flow-class_metadata:
 
@@ -2524,7 +2524,7 @@ class_metadata
 |                 :py:func:`~spacr.classify_classes.fold_into_classes` **-- reads it**
 |                     :py:func:`~spacr.classify_classes.class_metadata_of` **-- reads it**
 
-Read by :py:func:`~spacr.classify_classes.class_metadata_of`, :py:func:`~spacr.classify_classes.fold_into_classes`, :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``class_metadata_of``, ``fold_into_classes``, ``generate_training_dataset``.
 
 .. _setting-flow-class_names:
 
@@ -2534,7 +2534,7 @@ class_names
 | :py:func:`~spacr.classify_classes.normalize_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.classify_classes.normalize_settings`.
+Read by ``normalize_settings``.
 
 .. _setting-flow-classes:
 
@@ -2621,7 +2621,7 @@ classes
 | ``_threshold_histogram`` **-- reads it**
 | :py:func:`~spacr.qt.settings_pack.settings_from_pack` **-- reads it**
 
-Read by ``_record_generated_folder_names``, :py:func:`~spacr.classify_classes.annotation_column_of`, :py:func:`~spacr.classify_classes.class_metadata_of`, :py:func:`~spacr.classify_classes.class_names`, :py:func:`~spacr.classify_classes.class_rules`, :py:func:`~spacr.classify_classes.folder_names`, :py:func:`~spacr.classify_classes.normalize_settings`, ``_cross_validate_model``, ``_class_column``, ``_describe_classifier_training``, ``_migrate_control_wells``, ``_cpu_detect``, ``_otsu_description``, ``_threshold_histogram``, :py:func:`~spacr.qt.settings_pack.settings_from_pack`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_record_generated_folder_names``, ``annotation_column_of``, ``class_metadata_of``, ``class_names``, ``class_rules``, ``folder_names``, ``normalize_settings``, ``_cross_validate_model``, ``_class_column``, ``_describe_classifier_training``, ``_migrate_control_wells``, ``_cpu_detect``, ``_otsu_description``, ``_threshold_histogram``, ``settings_from_pack``, ``get_train_test_model_settings``.
 
 .. _setting-flow-classifier_accuracy:
 
@@ -2635,7 +2635,7 @@ classifier_accuracy
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-classifier_evaluation:
 
@@ -2698,7 +2698,7 @@ classifier_family
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.hyperparam.run_search_for_app` **-- reads it**
 
-Read by :py:func:`~spacr.classify.resolve_family`, ``_fresh_collector``, :py:func:`~spacr.hyperparam.run_search_for_app`.
+Read by ``resolve_family``, ``_fresh_collector``, ``run_search_for_app``.
 
 .. _setting-flow-clustering:
 
@@ -2710,7 +2710,7 @@ clustering
 | ``_compute_umap`` **-- reads it**
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by ``_compute_umap``, :py:func:`~spacr.core.generate_image_umap`.
+Read by ``_compute_umap``, ``generate_image_umap``.
 
 .. _setting-flow-cmap:
 
@@ -2740,7 +2740,7 @@ cmap
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_concatenate_and_normalize_impl``, :py:func:`~spacr.io.preprocess_img_data`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.plot.plot_merged`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`, :py:func:`~spacr.submodules.generate_score_heatmap`, :py:func:`~spacr.toxo.generate_score_heatmap`.
+Read by ``preprocess_generate_masks``, ``_concatenate_and_normalize_impl``, ``preprocess_img_data``, ``generate_ml_scores``, ``plot_merged``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``, ``generate_score_heatmap``, ``generate_score_heatmap``.
 
 .. _setting-flow-col_to_compare:
 
@@ -2754,7 +2754,7 @@ col_to_compare
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``load_search_data``.
 
 .. _setting-flow-collision_max_distance:
 
@@ -2766,7 +2766,7 @@ How many substituted bases still count as a barcode collision. 1 catches the pai
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-color:
 
@@ -2787,7 +2787,7 @@ color_by
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.reducer_hyperparameter_search` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``.
 
 .. _setting-flow-columnID:
 
@@ -2800,7 +2800,7 @@ columnID
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``generate_score_heatmap``.
 
 .. _setting-flow-column_csv:
 
@@ -2814,7 +2814,7 @@ column_csv
 | :py:func:`~spacr.sequencing_qc.barcode_qc`
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by ``_run_barcode_qc``, :py:func:`~spacr.sequencing.generate_barecode_mapping`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``_run_barcode_qc``, ``generate_barecode_mapping``, ``barcode_qc_defaults``.
 
 .. _setting-flow-column_map:
 
@@ -2839,7 +2839,7 @@ column_map
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.foreign.import_project`, ``_check_required_paths``.
+Read by ``import_project``, ``_check_required_paths``.
 
 .. _setting-flow-comp_level:
 
@@ -2850,7 +2850,7 @@ comp_level
 
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``generate_barecode_mapping``.
 
 .. _setting-flow-comp_type:
 
@@ -2861,7 +2861,7 @@ comp_type
 
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``generate_barecode_mapping``.
 
 .. _setting-flow-compartment:
 
@@ -2879,7 +2879,7 @@ compartment
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``.
 
 .. _setting-flow-confirm_annotations:
 
@@ -2895,7 +2895,7 @@ confirm_annotations
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
 |         ``text_options_from_settings(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.qt.widgets.plaque_preview.prepare_figure_review`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_analyze_plaque_figures``.
+Read by ``prepare_figure_review``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
 .. _setting-flow-consolidate:
 
@@ -2908,7 +2908,7 @@ consolidate
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-control_quantile:
 
@@ -2921,7 +2921,7 @@ control_quantile
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-control_sgrnas:
 
@@ -2934,7 +2934,7 @@ control_sgrnas
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``generate_score_heatmap``.
 
 .. _setting-flow-controls:
 
@@ -2943,7 +2943,7 @@ controls
 
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`.
+Read by ``generate_screen_graphs``.
 
 .. _setting-flow-controls_loc:
 
@@ -2952,7 +2952,7 @@ controls_loc
 
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`.
+Read by ``generate_screen_graphs``.
 
 .. _setting-flow-coordinate_columns:
 
@@ -2963,7 +2963,7 @@ coordinate_columns
 
 | :py:func:`~spacr.crop_source.validate` **-- reads it**
 
-Read by :py:func:`~spacr.crop_source.validate`.
+Read by ``validate``.
 
 .. _setting-flow-correction:
 
@@ -2984,7 +2984,7 @@ correlation
 | :py:func:`~spacr.deep_spacr.generate_activation_map` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``generate_activation_map``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-count_data:
 
@@ -3041,7 +3041,7 @@ count_data
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``_perform_regression_set_paths``, ``_screen_figure_folders``, :py:func:`~spacr.ml.minimum_cell_simulation`, :py:func:`~spacr.ml.normalize_regression_input_pairs`, ``_preparation_key``, ``_first_count_file``, ``_count_files_of``, ``_first_usable_count_path``, :py:func:`~spacr.sequencing.graph_sequencing_stats`, :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`, ``_describe_regression_plan``.
+Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``_perform_regression_set_paths``, ``_screen_figure_folders``, ``minimum_cell_simulation``, ``normalize_regression_input_pairs``, ``_preparation_key``, ``_first_count_file``, ``_count_files_of``, ``_first_usable_count_path``, ``graph_sequencing_stats``, ``barcode_qc``, ``barcode_qc_defaults``, ``_describe_regression_plan``.
 
 .. _setting-flow-count_grna_column:
 
@@ -3192,7 +3192,7 @@ crop_mode
 |         ``_describe_outputs`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.crop_spec_from_settings`, ``_crop_shape_overrides``, ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.qt.widgets.measure_preview.apply_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_check_app_specific``, ``_describe_outputs``, :py:func:`~spacr.validate.describe_plan`, :py:func:`~spacr.validate.describe_resources`.
+Read by ``crop_spec_from_settings``, ``_crop_shape_overrides``, ``_measure_crop_core``, ``measure_crop``, ``apply_settings``, ``get_measure_crop_settings``, ``_check_app_specific``, ``_describe_outputs``, ``describe_plan``, ``describe_resources``.
 
 .. _setting-flow-crop_shape:
 
@@ -3204,7 +3204,7 @@ crop_shape
 | :py:func:`~spacr.crop_source.crops_from_merged` **-- reads it**
 | :py:func:`~spacr.crop_source.validate` **-- reads it**
 
-Read by :py:func:`~spacr.crop_source.crops_from_merged`, :py:func:`~spacr.crop_source.validate`.
+Read by ``crops_from_merged``, ``validate``.
 
 .. _setting-flow-crop_size:
 
@@ -3215,7 +3215,7 @@ crop_size
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-crop_source:
 
@@ -3245,7 +3245,7 @@ crop_source
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.crop_source.resolve_source`, :py:func:`~spacr.crops.resolve_crop_source`, :py:func:`~spacr.io.open_crop_source`, :py:func:`~spacr.picture_settings.bounding_box_only`, ``_streaming``, :py:func:`~spacr.settings.get_setting_dependencies`, :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``resolve_source``, ``resolve_crop_source``, ``open_crop_source``, ``bounding_box_only``, ``_streaming``, ``get_setting_dependencies``, ``set_annotate_default_settings``.
 
 .. _setting-flow-crops:
 
@@ -3254,7 +3254,7 @@ crops
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-cross_validation:
 
@@ -3265,7 +3265,7 @@ cross_validation
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-cross_validation_enabled:
 
@@ -3287,7 +3287,7 @@ cross_validation_enabled
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-cross_validation_folds:
 
@@ -3315,7 +3315,7 @@ cross_validation_folds
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`, ``_fit``, :py:func:`~spacr.hyperparam.classify_cv_fit_fn`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``train_test_model``, ``_fit``, ``classify_cv_fit_fn``, ``get_train_test_model_settings``.
 
 .. _setting-flow-csv:
 
@@ -3328,7 +3328,7 @@ csv
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``generate_score_heatmap``.
 
 .. _setting-flow-csv_name:
 
@@ -3341,7 +3341,7 @@ csv_name
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``generate_score_heatmap``.
 
 .. _setting-flow-csv_path:
 
@@ -3351,7 +3351,7 @@ csv_path
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 | :py:func:`~spacr.utils.add_column_to_database` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.utils.add_column_to_database`.
+Read by ``generate_ml_scores``, ``add_column_to_database``.
 
 .. _setting-flow-csvs:
 
@@ -3360,7 +3360,7 @@ csvs
 
 | :py:func:`~spacr.plot.graph_importance` **-- reads it**
 
-Read by :py:func:`~spacr.plot.graph_importance`.
+Read by ``graph_importance``.
 
 .. _setting-flow-custom_model:
 
@@ -3388,7 +3388,7 @@ custom_model
 | :py:func:`~spacr.spacr_cellpose.identify_masks_finetune` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_plaques` **-- reads it**
 
-Read by :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, :py:func:`~spacr.submodules.analyze_plaques`, ``_check_required_paths``.
+Read by ``identify_masks_finetune``, ``analyze_plaques``, ``_check_required_paths``.
 
 .. _setting-flow-custom_model_path:
 
@@ -3416,7 +3416,7 @@ custom_model_path
 | :py:func:`~spacr.model_check.check_model`
 |     :py:func:`~spacr.model_check.resolve_model_source` **-- reads it**
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.model_check.resolve_model_source`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``resolve_model_source``, ``get_train_test_model_settings``.
 
 .. _setting-flow-custom_regex:
 
@@ -3477,7 +3477,7 @@ custom_regex
 |                 ``_candidate_patterns`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_rebuild_stacks_from_raw``, :py:func:`~spacr.io.preprocess_img_data`, ``_on_measure_clicked``, ``_candidate_patterns``.
+Read by ``preprocess_generate_masks``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_on_measure_clicked``, ``_candidate_patterns``.
 
 .. _setting-flow-cv_best_model_path:
 
@@ -3497,7 +3497,7 @@ cv_best_model_path
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.deep_spacr`.
+Read by ``_cross_validate_model``, ``deep_spacr``.
 
 .. _setting-flow-cv_csv:
 
@@ -3510,7 +3510,7 @@ cv_csv
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``generate_score_heatmap``.
 
 .. _setting-flow-cv_group_by:
 
@@ -3547,7 +3547,7 @@ cv_group_by
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_model`, :py:func:`~spacr.deep_spacr.train_test_model`, ``_fit``, :py:func:`~spacr.hyperparam.classify_cv_fit_fn`, :py:func:`~spacr.hyperparam.run_search_for_app`, :py:func:`~spacr.io.generate_training_dataset`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``_cross_validate_model``, ``train_model``, ``train_test_model``, ``_fit``, ``classify_cv_fit_fn``, ``run_search_for_app``, ``generate_training_dataset``, ``generate_ml_scores``, ``get_train_test_model_settings``, ``set_annotate_default_settings``.
 
 .. _setting-flow-cv_results_path:
 
@@ -3567,7 +3567,7 @@ cv_results_path
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.deep_spacr`.
+Read by ``_cross_validate_model``, ``deep_spacr``.
 
 .. _setting-flow-cytoplasm:
 
@@ -3599,7 +3599,7 @@ cytoplasm
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, ``_morphological_measurements``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_describe_objects``.
+Read by ``_measure_crop_core``, ``_morphological_measurements``, ``measure_crop``, ``get_measure_crop_settings``, ``_describe_objects``.
 
 .. _setting-flow-cytoplasm_background:
 
@@ -3634,7 +3634,7 @@ cytoplasm_cellprob_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-cytoplasm_channel:
 
@@ -3680,7 +3680,7 @@ cytoplasm_channel
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.diameter.channels_from_settings`, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-cytoplasm_csv:
 
@@ -3696,7 +3696,7 @@ cytoplasm_csv
 |     :py:func:`~spacr.settings.barcode_set_from_settings` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.barcode_set_from_settings`.
+Read by ``barcode_set_from_settings``.
 
 .. _setting-flow-cytoplasm_diameter:
 
@@ -3731,7 +3731,7 @@ cytoplasm_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_describe_objects``.
 
 .. _setting-flow-cytoplasm_flow_threshold:
 
@@ -3751,7 +3751,7 @@ cytoplasm_flow_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-cytoplasm_mask_dim:
 
@@ -3787,7 +3787,7 @@ cytoplasm_mask_dim
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.mask_dims_from_settings`, ``_measure_crop_core``, ``_morphological_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, ``_describe_objects``.
+Read by ``mask_dims_from_settings``, ``_measure_crop_core``, ``_morphological_measurements``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-cytoplasm_max_area:
 
@@ -3802,7 +3802,7 @@ cytoplasm_max_area
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-cytoplasm_max_intensity:
 
@@ -3818,7 +3818,7 @@ cytoplasm_max_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-cytoplasm_max_size:
 
@@ -3828,7 +3828,7 @@ cytoplasm_max_size
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`
 |     :py:func:`~spacr.annotation_dataset.filter_selection` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`.
+Read by ``filter_selection``.
 
 .. _setting-flow-cytoplasm_method:
 
@@ -3875,7 +3875,7 @@ cytoplasm_min_area
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.object.merge_split_filter_masks`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``merge_split_filter_masks``, ``get_measure_crop_settings``.
 
 .. _setting-flow-cytoplasm_min_intensity:
 
@@ -3891,7 +3891,7 @@ cytoplasm_min_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-cytoplasm_min_size:
 
@@ -3924,7 +3924,7 @@ cytoplasm_min_size
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_describe_objects``.
+Read by ``filter_selection``, ``_measure_crop_core``, ``get_measure_crop_settings``, ``_describe_objects``.
 
 .. _setting-flow-cytoplasm_model_name:
 
@@ -3950,7 +3950,7 @@ cytoplasm_morphology
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`.
+Read by ``organelle_morphology_now``.
 
 .. _setting-flow-cytoplasm_outlier_mads:
 
@@ -3964,7 +3964,7 @@ cytoplasm_outlier_mads
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.outlier_filter.apply`.
+Read by ``apply``.
 
 .. _setting-flow-cytoplasm_perimeter_fraction:
 
@@ -3979,7 +3979,7 @@ cytoplasm_perimeter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-cytoplasm_perimiter_fraction:
 
@@ -3994,7 +3994,7 @@ cytoplasm_perimiter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-cytoplasm_remove_border:
 
@@ -4019,7 +4019,7 @@ cytoplasm_remove_border_objects
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-cytoplasm_resample:
 
@@ -4065,7 +4065,7 @@ cytoplasm_type
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`.
+Read by ``organelle_morphology_now``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``.
 
 .. _setting-flow-cytoplasmcellpose_:
 
@@ -4077,7 +4077,7 @@ cytoplasmcellpose_
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``preprocess_img_data``.
 
 .. _setting-flow-cytoplasmcellpose__channel:
 
@@ -4097,7 +4097,7 @@ cytoplasmcellpose__channel
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object_roles.organelle_settings_view`, ``_get_cellpose_channels``.
+Read by ``_fill_cellpose_channel_positions``, ``generate_cellpose_masks``, ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-cytoplasmorganelle_:
 
@@ -4107,7 +4107,7 @@ cytoplasmorganelle_
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object_roles.organelle_settings_view`.
+Read by ``organelle_settings_view``.
 
 .. _setting-flow-cytoplasmremove_background_:
 
@@ -4138,7 +4138,7 @@ data_column
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.graph_importance`, :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``generate_score_heatmap``.
 
 .. _setting-flow-data_column_cv:
 
@@ -4151,7 +4151,7 @@ data_column_cv
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``generate_score_heatmap``.
 
 .. _setting-flow-database:
 
@@ -4161,7 +4161,7 @@ database
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset` **-- reads it**
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.plot.plot_data_from_db`.
+Read by ``generate_annotation_dataset``, ``plot_data_from_db``.
 
 .. _setting-flow-dataset:
 
@@ -4177,7 +4177,7 @@ dataset
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_activation_data` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.hyperparam.load_activation_data`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.utils.activation_correlations_to_database`, :py:func:`~spacr.utils.activation_maps_to_database`.
+Read by ``generate_activation_map``, ``load_activation_data``, ``get_default_generate_activation_map_settings``, ``activation_correlations_to_database``, ``activation_maps_to_database``.
 
 .. _setting-flow-dataset_mode:
 
@@ -4214,7 +4214,7 @@ dataset_mode
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 
-Read by :py:func:`~spacr.training_basis.normalize_settings`, :py:func:`~spacr.training_basis.resolve_basis`.
+Read by ``normalize_settings``, ``resolve_basis``.
 
 .. _setting-flow-db_path:
 
@@ -4232,7 +4232,7 @@ db_path
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 | :py:func:`~spacr.utils.add_column_to_database` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.hit_investigation.investigate_hit`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.qt.screens.align.write_stack`, :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`, :py:func:`~spacr.utils.add_column_to_database`.
+Read by ``align_folder``, ``convert_folder``, ``investigate_hit``, ``generate_ml_scores``, ``write_stack``, ``explain_cv_default_settings``, ``run_explain_cv``, ``add_column_to_database``.
 
 .. _setting-flow-db_table_name:
 
@@ -4243,7 +4243,7 @@ db_table_name
 
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``automated_motility_assay``.
 
 .. _setting-flow-delete_intermediate:
 
@@ -4256,7 +4256,7 @@ delete_intermediate
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-dependent_variable:
 
@@ -4303,7 +4303,7 @@ dependent_variable
 |         ``_describe_regression_plan`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``_show_response_distribution``, ``_write_regression_panel_packages``, :py:func:`~spacr.ml.minimum_cell_simulation`, ``_preparation_key``, ``_make_screen``, :py:func:`~spacr.qt.screens.parameter_sweep.apply_settings`, :py:func:`~spacr.qt.widgets.measurement_scan_panel.column_run_settings`, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`, ``_describe_regression_plan``.
+Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``_show_response_distribution``, ``_write_regression_panel_packages``, ``minimum_cell_simulation``, ``_preparation_key``, ``_make_screen``, ``apply_settings``, ``column_run_settings``, ``_run_settings_row``, ``record_run``, ``_describe_regression_plan``.
 
 .. _setting-flow-deterministic:
 
@@ -4330,7 +4330,7 @@ deterministic
 | :py:func:`~spacr.sequencing.generate_barecode_mapping`
 |     :py:func:`~spacr.runctx.run_context` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.runctx.run_context`.
+Read by ``train_test_model``, ``run_context``.
 
 .. _setting-flow-device:
 
@@ -4387,7 +4387,7 @@ dialate_png_ratios
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.crop_spec_from_settings`, ``_crop_shape_overrides``, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_check_app_specific``.
+Read by ``crop_spec_from_settings``, ``_crop_shape_overrides``, ``_measure_crop_core``, ``get_measure_crop_settings``, ``_check_app_specific``.
 
 .. _setting-flow-dialate_pngs:
 
@@ -4435,7 +4435,7 @@ dialate_pngs
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.crop_spec_from_settings`, ``_crop_shape_overrides``, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_check_app_specific``.
+Read by ``crop_spec_from_settings``, ``_crop_shape_overrides``, ``_measure_crop_core``, ``get_measure_crop_settings``, ``_check_app_specific``.
 
 .. _setting-flow-diameter:
 
@@ -4456,7 +4456,7 @@ diameter
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``_describe_cellpose_training``, ``_on_detect_cellpose``, :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``_describe_cellpose_training``, ``_on_detect_cellpose``, ``segment_frame``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-diameter_estimate_n_fields:
 
@@ -4476,7 +4476,7 @@ dims
 
 | :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`.
+Read by ``annotate_crops``.
 
 .. _setting-flow-distance_gaussian_sigma:
 
@@ -4494,7 +4494,7 @@ distance_gaussian_sigma
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_intensity_measurements``, ``_measure_intensity_distance``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_intensity_measurements``, ``_measure_intensity_distance``, ``get_measure_crop_settings``.
 
 .. _setting-flow-dot_size:
 
@@ -4506,7 +4506,7 @@ dot_size
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.reducer_hyperparameter_search` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``.
 
 .. _setting-flow-drop_straight_tracks:
 
@@ -4519,7 +4519,7 @@ drop_straight_tracks
 | :py:func:`~spacr.timelapse.automated_motility_assay`
 |     ``_compute_velocities_and_well_summary`` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.motility_preview.apply_settings`, ``_compute_velocities_and_well_summary``.
+Read by ``apply_settings``, ``_compute_velocities_and_well_summary``.
 
 .. _setting-flow-dropout_rate:
 
@@ -4546,7 +4546,7 @@ dropout_rate
 |         ``trainer(...)  [UNRESOLVED]``
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.torch_artifacts.build_model_from_configuration`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``, ``build_model_from_configuration``.
 
 .. _setting-flow-dry_run:
 
@@ -4563,7 +4563,7 @@ dry_run
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``preprocess_generate_masks``, ``measure_crop``, ``get_measure_crop_settings``.
 
 .. _setting-flow-dst:
 
@@ -4603,7 +4603,7 @@ dst
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.align.align_folder`, :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.convert.convert_folder`, ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.external_masks.plan_external_masks`, :py:func:`~spacr.foreign.import_project`, :py:func:`~spacr.hit_investigation.investigate_hit`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.run_compare.plates_of`, :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`, ``_segment_plaque_folder``, :py:func:`~spacr.submodules.analyze_plaques`, :py:func:`~spacr.submodules.generate_score_heatmap`, :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``align_folder``, ``generate_annotation_dataset``, ``convert_folder``, ``_cross_validate_model``, ``train_test_model``, ``plan_external_masks``, ``import_project``, ``investigate_hit``, ``plot_data_from_db``, ``plates_of``, ``barcode_qc``, ``barcode_qc_defaults``, ``_segment_plaque_folder``, ``analyze_plaques``, ``generate_score_heatmap``, ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-dst_root:
 
@@ -4615,7 +4615,7 @@ Where measurements.db and each well's ops_report.json are written. Empty writes 
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``run_ops``, ``ops_defaults``.
 
 .. _setting-flow-early_exaggeration:
 
@@ -4624,7 +4624,7 @@ early_exaggeration
 
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``reduction_and_clustering``.
 
 .. _setting-flow-early_stopping_patience:
 
@@ -4650,7 +4650,7 @@ early_stopping_patience
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-edge_image:
 
@@ -4661,7 +4661,7 @@ edge_image
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-edge_thickness:
 
@@ -4672,7 +4672,7 @@ edge_thickness
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-edge_transparency:
 
@@ -4683,7 +4683,7 @@ edge_transparency
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-embedding_by_controls:
 
@@ -4694,7 +4694,7 @@ embedding_by_controls
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-endian:
 
@@ -4712,7 +4712,7 @@ engine
 
 | :py:func:`~spacr.tabular.read_table` **-- reads it**
 
-Read by :py:func:`~spacr.tabular.read_table`.
+Read by ``read_table``.
 
 .. _setting-flow-enhance_background:
 
@@ -5811,7 +5811,7 @@ epochs
 | :py:func:`~spacr.model_zoo.entry_from_file`
 |     ``_describe_classifier_training`` **-- reads it**
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.flowview.classify_blueprint.classify_graph`, ``_describe_classifier_training``, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``classify_graph``, ``_describe_classifier_training``, ``get_train_test_model_settings``.
 
 .. _setting-flow-eps:
 
@@ -5823,7 +5823,7 @@ eps
 | ``_compute_umap`` **-- reads it**
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by ``_compute_umap``, :py:func:`~spacr.core.generate_image_umap`.
+Read by ``_compute_umap``, ``generate_image_umap``.
 
 .. _setting-flow-error_bar_type:
 
@@ -5832,7 +5832,7 @@ error_bar_type
 
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`.
+Read by ``generate_screen_graphs``.
 
 .. _setting-flow-evaluation_bins:
 
@@ -5898,7 +5898,7 @@ evaluation_fail_on_leakage
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`.
+Read by ``_cross_validate_model``, ``train_test_model``.
 
 .. _setting-flow-examples_to_plot:
 
@@ -5912,7 +5912,7 @@ examples_to_plot
 |         :py:func:`~spacr.object.generate_organelle_masks_sam` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.object.generate_organelle_masks_sam`.
+Read by ``preprocess_generate_masks``, ``generate_organelle_masks_sam``.
 
 .. _setting-flow-exclude:
 
@@ -5927,7 +5927,7 @@ exclude
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`, :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``load_search_data``, ``generate_ml_scores``.
 
 .. _setting-flow-exclude_conditions:
 
@@ -5939,7 +5939,7 @@ exclude_conditions
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.reducer_hyperparameter_search` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``.
 
 .. _setting-flow-exclude_grnas:
 
@@ -5968,7 +5968,7 @@ exclude_rows
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``load_search_data``.
 
 .. _setting-flow-exclude_starved_wells:
 
@@ -5980,7 +5980,7 @@ Leave starved wells out of the population the threshold is derived and swept ove
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-exclude_wells:
 
@@ -5990,7 +5990,7 @@ exclude_wells
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`
 |     :py:func:`~spacr.annotation_dataset.filter_selection` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`.
+Read by ``filter_selection``.
 
 .. _setting-flow-expected_sha256:
 
@@ -5999,7 +5999,7 @@ expected_sha256
 
 | :py:func:`~spacr.model_zoo.install` **-- reads it**
 
-Read by :py:func:`~spacr.model_zoo.install`.
+Read by ``install``.
 
 .. _setting-flow-experiment:
 
@@ -6018,7 +6018,7 @@ experiment
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.foreign.run_import`, :py:func:`~spacr.io.generate_dataset`, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``run_import``, ``generate_dataset``, ``_measure_crop_core``, ``get_measure_crop_settings``.
 
 .. _setting-flow-export_tiffs:
 
@@ -6027,7 +6027,7 @@ export_tiffs
 
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 
-Read by :py:func:`~spacr.plot.plot_region`.
+Read by ``plot_region``.
 
 .. _setting-flow-extracellular_class:
 
@@ -6040,7 +6040,7 @@ extracellular_class
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-extract_channels:
 
@@ -6049,7 +6049,7 @@ extract_channels
 
 | :py:func:`~spacr.crop_source.crops_from_merged` **-- reads it**
 
-Read by :py:func:`~spacr.crop_source.crops_from_merged`.
+Read by ``crops_from_merged``.
 
 .. _setting-flow-factory:
 
@@ -6058,7 +6058,7 @@ factory
 
 | :py:func:`~spacr.qt.app_catalog.register_kwargs` **-- reads it**
 
-Read by :py:func:`~spacr.qt.app_catalog.register_kwargs`.
+Read by ``register_kwargs``.
 
 .. _setting-flow-fdr_alpha:
 
@@ -6084,7 +6084,7 @@ fdr_alpha
 | :py:func:`~spacr.refit.refit_settings` **-- reads it**
 | :py:func:`~spacr.trial_metrics.summarise_trial` **-- reads it**
 
-Read by ``_call_level_hits``, ``_perform_regression``, ``_reject_impossible_probabilities``, ``_run_guide_permutation_analysis``, ``_write_regression_panel_packages``, :py:func:`~spacr.parameter_sweep.run_sweep`, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`, :py:func:`~spacr.refit.refit_settings`, :py:func:`~spacr.trial_metrics.summarise_trial`.
+Read by ``_call_level_hits``, ``_perform_regression``, ``_reject_impossible_probabilities``, ``_run_guide_permutation_analysis``, ``_write_regression_panel_packages``, ``run_sweep``, ``_run_settings_row``, ``record_run``, ``refit_settings``, ``summarise_trial``.
 
 .. _setting-flow-feather:
 
@@ -6093,7 +6093,7 @@ feather
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-feature_importance:
 
@@ -6107,7 +6107,7 @@ feature_importance
 | :py:func:`~spacr.submodules.interpret_vision_model` **-- reads it**
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.submodules.interpret_vision_model`.
+Read by ``interpret_vision_model``, ``interpret_vision_model``.
 
 .. _setting-flow-feature_mask:
 
@@ -6130,7 +6130,7 @@ fields
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``preprocess_img_data``.
 
 .. _setting-flow-figure.autolayout:
 
@@ -6139,7 +6139,7 @@ figure.autolayout
 
 | :py:func:`~spacr.figure_style.rc_params` **-- reads it**
 
-Read by :py:func:`~spacr.figure_style.rc_params`.
+Read by ``rc_params``.
 
 .. _setting-flow-figure.figsize:
 
@@ -6148,7 +6148,7 @@ figure.figsize
 
 | :py:func:`~spacr.figure_style.rc_params` **-- reads it**
 
-Read by :py:func:`~spacr.figure_style.rc_params`.
+Read by ``rc_params``.
 
 .. _setting-flow-figure_confidence:
 
@@ -6166,7 +6166,7 @@ figure_confidence
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
 |         ``text_options_from_settings(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.qt.widgets.plaque_preview.detect_figure`, :py:func:`~spacr.qt.widgets.plaque_preview.figure_pass`, :py:func:`~spacr.qt.widgets.plaque_preview.seed_well_boxes`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_analyze_plaque_figures``.
+Read by ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
 .. _setting-flow-figure_detector:
 
@@ -6184,7 +6184,7 @@ figure_detector
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
 |         ``text_options_from_settings(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.qt.widgets.plaque_preview.detect_figure`, :py:func:`~spacr.qt.widgets.plaque_preview.figure_pass`, :py:func:`~spacr.qt.widgets.plaque_preview.seed_well_boxes`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_analyze_plaque_figures``.
+Read by ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
 .. _setting-flow-figure_imgsz:
 
@@ -6202,7 +6202,7 @@ figure_imgsz
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
 |         ``text_options_from_settings(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.qt.widgets.plaque_preview.detect_figure`, :py:func:`~spacr.qt.widgets.plaque_preview.figure_pass`, :py:func:`~spacr.qt.widgets.plaque_preview.seed_well_boxes`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_analyze_plaque_figures``.
+Read by ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
 .. _setting-flow-figure_read_text:
 
@@ -6219,7 +6219,7 @@ figure_read_text
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
 |         ``text_options_from_settings(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.qt.widgets.plaque_preview.detect_figure`, :py:func:`~spacr.qt.widgets.plaque_preview.figure_pass`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_analyze_plaque_figures``.
+Read by ``detect_figure``, ``figure_pass``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
 .. _setting-flow-figuresize:
 
@@ -6239,7 +6239,7 @@ figuresize
 |     ``display(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.preprocess_generate_masks`, ``_concatenate_and_normalize_impl``, :py:func:`~spacr.io.preprocess_img_data`, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``generate_image_umap``, ``preprocess_generate_masks``, ``_concatenate_and_normalize_impl``, ``preprocess_img_data``, ``plot_merged``, ``analyze_recruitment``.
 
 .. _setting-flow-file_metadata:
 
@@ -6252,7 +6252,7 @@ file_metadata
 |     :py:func:`~spacr.io.generate_dataset` **-- reads it**
 |         ``_dataset_crop_refs`` **-- reads it**
 
-Read by ``_dataset_crop_refs``, :py:func:`~spacr.io.generate_dataset`.
+Read by ``_dataset_crop_refs``, ``generate_dataset``.
 
 .. _setting-flow-file_type:
 
@@ -6264,7 +6264,7 @@ file_type
 | :py:func:`~spacr.crop_source.select_crops` **-- reads it**
 | :py:func:`~spacr.crop_source.validate` **-- reads it**
 
-Read by :py:func:`~spacr.crop_source.select_crops`, :py:func:`~spacr.crop_source.validate`.
+Read by ``select_crops``, ``validate``.
 
 .. _setting-flow-fill_in:
 
@@ -6277,7 +6277,7 @@ fill_in
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``get_analyze_plaque_settings``, ``identify_masks_finetune``.
 
 .. _setting-flow-fill_na:
 
@@ -6288,7 +6288,7 @@ fill_na
 
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``generate_barecode_mapping``.
 
 .. _setting-flow-filter:
 
@@ -6299,7 +6299,7 @@ filter
 
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks`.
+Read by ``generate_cellpose_masks``.
 
 .. _setting-flow-filter_1:
 
@@ -6311,7 +6311,7 @@ filter_1
 | :py:func:`~spacr.submodules.analyze_percent_positive` **-- reads it**
 |     :py:func:`~spacr.settings.default_settings_analyze_percent_positive` **-- reads it**
 
-Read by :py:func:`~spacr.settings.default_settings_analyze_percent_positive`, :py:func:`~spacr.submodules.analyze_percent_positive`.
+Read by ``default_settings_analyze_percent_positive``, ``analyze_percent_positive``.
 
 .. _setting-flow-filter_by:
 
@@ -6325,7 +6325,7 @@ filter_by
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``load_search_data``.
 
 .. _setting-flow-filter_column:
 
@@ -6347,7 +6347,7 @@ filter_column
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`, ``_perform_regression``, ``_preparation_key``, :py:func:`~spacr.sequencing.graph_sequencing_stats`.
+Read by ``annotate_filter_vision``, ``_perform_regression``, ``_preparation_key``, ``graph_sequencing_stats``.
 
 .. _setting-flow-filter_min_max:
 
@@ -6359,7 +6359,7 @@ filter_min_max
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_merged`.
+Read by ``plot_merged``.
 
 .. _setting-flow-filter_value:
 
@@ -6393,7 +6393,7 @@ flow_threshold
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``segment_frame``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-focal_alpha:
 
@@ -6419,7 +6419,7 @@ focal_alpha
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-focal_gamma:
 
@@ -6445,7 +6445,7 @@ focal_gamma
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-folders:
 
@@ -6458,7 +6458,7 @@ folders
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``generate_score_heatmap``.
 
 .. _setting-flow-font.sans-serif:
 
@@ -6467,7 +6467,7 @@ font.sans-serif
 
 | :py:func:`~spacr.style_base.font_rc` **-- reads it**
 
-Read by :py:func:`~spacr.style_base.font_rc`.
+Read by ``font_rc``.
 
 .. _setting-flow-foreground_class:
 
@@ -6491,7 +6491,7 @@ fps
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.ambient.install_ambient` **-- reads it**
 
-Read by :py:func:`~spacr.io.preprocess_img_data`, :py:func:`~spacr.qt.widgets.ambient.install_ambient`.
+Read by ``preprocess_img_data``, ``install_ambient``.
 
 .. _setting-flow-fraction_grna:
 
@@ -6504,7 +6504,7 @@ fraction_grna
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``generate_score_heatmap``.
 
 .. _setting-flow-fraction_threshold:
 
@@ -6523,7 +6523,7 @@ fraction_threshold
 | ``_run_settings_row`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.sweep_runs.record_run` **-- reads it**
 
-Read by ``_draw_the_threshold_sweep``, ``_perform_regression``, ``_preparation_key``, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`.
+Read by ``_draw_the_threshold_sweep``, ``_perform_regression``, ``_preparation_key``, ``_run_settings_row``, ``record_run``.
 
 .. _setting-flow-frame_interval_s:
 
@@ -6539,7 +6539,7 @@ frame_interval_s
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``plan_4d_from_settings``.
 
 .. _setting-flow-from_scratch:
 
@@ -6551,7 +6551,7 @@ from_scratch
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-gene_column:
 
@@ -6560,7 +6560,7 @@ gene_column
 
 | :py:func:`~spacr.cell_montage.select_montage_per_guide` **-- reads it**
 
-Read by :py:func:`~spacr.cell_montage.select_montage_per_guide`.
+Read by ``select_montage_per_guide``.
 
 .. _setting-flow-gene_ineq_coeff:
 
@@ -6574,7 +6574,7 @@ gene_ineq_coeff
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-generate_full_dataset:
 
@@ -6585,7 +6585,7 @@ generate_full_dataset
 
 | :py:func:`~spacr.deep_spacr.deep_spacr` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.deep_spacr`.
+Read by ``deep_spacr``.
 
 .. _setting-flow-generate_training_dataset:
 
@@ -6612,7 +6612,7 @@ generate_training_dataset
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.deep_spacr`, ``_check_required_paths``.
+Read by ``deep_spacr``, ``_check_required_paths``.
 
 .. _setting-flow-genotype_source:
 
@@ -6624,7 +6624,7 @@ The folder holding the low-magnification sequencing acquisition that carries the
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``run_ops``, ``ops_defaults``.
 
 .. _setting-flow-gpu:
 
@@ -6638,7 +6638,7 @@ gpu
 | :py:func:`~spacr.qt.widgets.preview_contract.preview_cellpose_model` **-- reads it**
 | ``_choose_model`` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.qt.screens.make_masks.load_cellpose_model`, :py:func:`~spacr.qt.widgets.preview_contract.preview_cellpose_model`, ``_choose_model``.
+Read by ``generate_image_umap``, ``load_cellpose_model``, ``preview_cellpose_model``, ``_choose_model``.
 
 .. _setting-flow-gradient_accumulation_steps:
 
@@ -6677,7 +6677,7 @@ gradient_accumulation_steps
 | :py:func:`~spacr.settings.set_default_train_test_model`
 |     ``_fold_gradient_accumulation`` **-- reads it**
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, ``_fold_gradient_accumulation``, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``_fold_gradient_accumulation``, ``get_train_test_model_settings``.
 
 .. _setting-flow-graph_name:
 
@@ -6687,7 +6687,7 @@ graph_name
 | :py:func:`~spacr.plot.plot_data_from_csv` **-- reads it**
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 
-Read by :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`.
+Read by ``plot_data_from_csv``, ``plot_data_from_db``.
 
 .. _setting-flow-graph_type:
 
@@ -6699,7 +6699,7 @@ graph_type
 | :py:func:`~spacr.plot.plot_data_from_csv` **-- reads it**
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`, :py:func:`~spacr.plot.graph_importance`, :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`.
+Read by ``generate_screen_graphs``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``.
 
 .. _setting-flow-grayscale:
 
@@ -6715,7 +6715,7 @@ grayscale
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``_describe_cellpose_training``, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``_describe_cellpose_training``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-grid:
 
@@ -6726,7 +6726,7 @@ grid
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.build_plan` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, ``_work``, :py:func:`~spacr.qt.screens.align.build_plan`.
+Read by ``align_folder``, ``_work``, ``build_plan``.
 
 .. _setting-flow-grid.color:
 
@@ -6735,7 +6735,7 @@ grid.color
 
 | :py:func:`~spacr.figure_style.rc_params` **-- reads it**
 
-Read by :py:func:`~spacr.figure_style.rc_params`.
+Read by ``rc_params``.
 
 .. _setting-flow-grna_csv:
 
@@ -6749,7 +6749,7 @@ grna_csv
 | :py:func:`~spacr.sequencing_qc.barcode_qc`
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by ``_run_barcode_qc``, :py:func:`~spacr.sequencing.generate_barecode_mapping`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``_run_barcode_qc``, ``generate_barecode_mapping``, ``barcode_qc_defaults``.
 
 .. _setting-flow-grna_statistic:
 
@@ -6767,7 +6767,7 @@ grna_statistic
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.run_recommendations.recommend` **-- reads it**
 
-Read by ``_run_guide_permutation_analysis``, ``_say_what_the_permutation_will_do``, :py:func:`~spacr.run_recommendations.recommend`.
+Read by ``_run_guide_permutation_analysis``, ``_say_what_the_permutation_will_do``, ``recommend``.
 
 .. _setting-flow-group_by_class:
 
@@ -6778,7 +6778,7 @@ group_by_class
 
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_endodyogeny`.
+Read by ``analyze_endodyogeny``.
 
 .. _setting-flow-group_by_well:
 
@@ -6787,7 +6787,7 @@ group_by_well
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-group_column:
 
@@ -6806,7 +6806,7 @@ group_column
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``.
 
 .. _setting-flow-group_lasso_lambda:
 
@@ -6835,7 +6835,7 @@ grouping
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-grouping_column:
 
@@ -6846,7 +6846,7 @@ grouping_column
 | :py:func:`~spacr.plot.plot_data_from_csv` **-- reads it**
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 
-Read by :py:func:`~spacr.plot.graph_importance`, :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`.
+Read by ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``.
 
 .. _setting-flow-guide_column:
 
@@ -6855,7 +6855,7 @@ guide_column
 
 | :py:func:`~spacr.cell_montage.select_montage_per_guide` **-- reads it**
 
-Read by :py:func:`~spacr.cell_montage.select_montage_per_guide`.
+Read by ``select_montage_per_guide``.
 
 .. _setting-flow-guide_fractions_file:
 
@@ -6866,7 +6866,7 @@ Sequencing-derived table with one fraction per well and guide. Duplicate well-gu
 
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``investigate_hit``.
 
 .. _setting-flow-guide_min_wells:
 
@@ -6902,7 +6902,7 @@ guide_nuisance_columns
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.run_recommendations.recommend` **-- reads it**
 
-Read by ``_run_guide_permutation_analysis``, ``_usable_nuisance_columns``, :py:func:`~spacr.run_recommendations.recommend`.
+Read by ``_run_guide_permutation_analysis``, ``_usable_nuisance_columns``, ``recommend``.
 
 .. _setting-flow-guide_permutation_batch_size:
 
@@ -6942,7 +6942,7 @@ guide_permutation_block
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_diagnostic_screen_design``, ``_identifiability_warning``, ``_report_exchangeability``, ``_run_guide_permutation_analysis``, ``_usable_nuisance_columns``, :py:func:`~spacr.ml.resolve_auto_inference`, ``_say_what_the_permutation_will_do``.
+Read by ``_diagnostic_screen_design``, ``_identifiability_warning``, ``_report_exchangeability``, ``_run_guide_permutation_analysis``, ``_usable_nuisance_columns``, ``resolve_auto_inference``, ``_say_what_the_permutation_will_do``.
 
 .. _setting-flow-guide_permutation_gene_level:
 
@@ -7005,7 +7005,7 @@ guide_permutations
 | ``_run_settings_row`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.sweep_runs.record_run` **-- reads it**
 
-Read by ``_run_guide_permutation_analysis``, ``_say_what_the_permutation_will_do``, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`.
+Read by ``_run_guide_permutation_analysis``, ``_say_what_the_permutation_will_do``, ``_run_settings_row``, ``record_run``.
 
 .. _setting-flow-guide_presence_threshold:
 
@@ -7049,7 +7049,7 @@ hash_inputs
 | ``_on_run`` **-- reads it**
 | :py:func:`~spacr.run_journal.hashing_enabled` **-- reads it**
 
-Read by :py:func:`~spacr.cli.cmd_validate`, ``_on_run``, :py:func:`~spacr.run_journal.hashing_enabled`.
+Read by ``cmd_validate``, ``_on_run``, ``hashing_enabled``.
 
 .. _setting-flow-headers:
 
@@ -7069,7 +7069,7 @@ heatmap_feature
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-hi_pct:
 
@@ -7081,7 +7081,7 @@ hi_pct
 | :py:func:`~spacr.qt.widgets.timelapse_preview.segment_sequence`
 |     :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`.
+Read by ``segment_frame``.
 
 .. _setting-flow-hinge_n_boot:
 
@@ -7126,7 +7126,7 @@ Number of well-level bootstrap resamples used for the prevalence-difference conf
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_direction:
 
@@ -7156,7 +7156,7 @@ Positive ranks larger phenotype scores first; negative ranks smaller scores firs
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`, ``_check_app_specific``.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``, ``_check_app_specific``.
 
 .. _setting-flow-hit_effect:
 
@@ -7168,7 +7168,7 @@ Effect estimate copied from the exact source result for provenance and display. 
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_fdr:
 
@@ -7180,7 +7180,7 @@ Adjusted P value copied from the selected regression hit. It records source evid
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_feature_columns:
 
@@ -7192,7 +7192,7 @@ Independent measured morphology features used by the weak-supervision model. Def
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_gallery_per_stratum:
 
@@ -7204,7 +7204,7 @@ Maximum blinded-review examples drawn from high, borderline, low and control-fal
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_guide_agreement:
 
@@ -7216,7 +7216,7 @@ Agreement among guides supporting the selected hit, copied from the regression r
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_include_original_score:
 
@@ -7228,7 +7228,7 @@ Add the original CV phenotype score to model features. Default False preserves a
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_n_guides:
 
@@ -7240,7 +7240,7 @@ Number of distinct guides supporting the selected hit in the source regression. 
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_permutations:
 
@@ -7252,7 +7252,7 @@ Number of plate-aware well-label permutations used for the enrichment P value. M
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_phenotype:
 
@@ -7263,7 +7263,7 @@ Human-readable phenotype copied from the source regression, including the direct
 
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``investigate_hit``.
 
 .. _setting-flow-hit_pipeline_permutations:
 
@@ -7275,7 +7275,7 @@ Guide-fraction and well-label null iterations that repeat grouped cross-fitting 
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_probability_threshold:
 
@@ -7287,7 +7287,7 @@ Probability boundary for review calls and optional promotion. It is never a geno
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_random_seed:
 
@@ -7299,7 +7299,7 @@ Seed for grouped cross-fitting, bootstrap intervals and plate-aware permutations
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_split_by:
 
@@ -7311,7 +7311,7 @@ Cross-fitting unit: auto prefers held-out plates when the design supports them a
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_store_database:
 
@@ -7323,7 +7323,7 @@ Store this attribution as a new versioned database run. Disabling it writes port
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-hit_well_support:
 
@@ -7335,7 +7335,7 @@ Number of independent wells supporting the selected hit in the source regression
 | :py:func:`~spacr.hit_investigation.investigate_hit` **-- reads it**
 |     :py:func:`~spacr.hit_investigation.hit_investigation_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``.
 
 .. _setting-flow-holdout_plate:
 
@@ -7346,7 +7346,7 @@ holdout_plate
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-homogeneity:
 
@@ -7363,7 +7363,7 @@ homogeneity
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_intensity_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_intensity_measurements``, ``get_measure_crop_settings``.
 
 .. _setting-flow-homogeneity_distances:
 
@@ -7380,7 +7380,7 @@ homogeneity_distances
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_intensity_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_intensity_measurements``, ``get_measure_crop_settings``.
 
 .. _setting-flow-hp_count_column:
 
@@ -7391,7 +7391,7 @@ Optional measured count column on each vacuole. Nonnegative integer counts are a
 
 | :py:func:`~spacr.host_pathogen.summarize_tables` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.summarize_tables`.
+Read by ``summarize_tables``.
 
 .. _setting-flow-hp_marker_channels:
 
@@ -7402,7 +7402,7 @@ Zero-based intensity channels whose vacuole-to-host-reference ratios are reporte
 
 | :py:func:`~spacr.host_pathogen.summarize_tables` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.summarize_tables`.
+Read by ``summarize_tables``.
 
 .. _setting-flow-hp_marker_thresholds:
 
@@ -7413,7 +7413,7 @@ Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the c
 
 | :py:func:`~spacr.host_pathogen.summarize_tables` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.summarize_tables`.
+Read by ``summarize_tables``.
 
 .. _setting-flow-hp_parasite_parent:
 
@@ -7424,7 +7424,7 @@ Parent-vacuole label column in the selected parasite table. Host cell IDs cannot
 
 | :py:func:`~spacr.host_pathogen.summarize_tables` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.summarize_tables`.
+Read by ``summarize_tables``.
 
 .. _setting-flow-hp_parasite_table:
 
@@ -7437,7 +7437,7 @@ Optional table containing one row per segmented parasite and an explicit parent-
 | ``_field_image`` **-- reads it**
 | :py:func:`~spacr.host_pathogen_preview.preview_field` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.analyze_host_pathogen`, ``_field_image``, :py:func:`~spacr.host_pathogen_preview.preview_field`.
+Read by ``analyze_host_pathogen``, ``_field_image``, ``preview_field``.
 
 .. _setting-flow-hp_reference_prefix:
 
@@ -7448,7 +7448,7 @@ Prefix of reference-channel mean intensities. Missing or nonpositive reference v
 
 | :py:func:`~spacr.host_pathogen.summarize_tables` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.summarize_tables`.
+Read by ``summarize_tables``.
 
 .. _setting-flow-hp_reference_table:
 
@@ -7460,7 +7460,7 @@ Select the per-host compartment used for recruitment-ratio denominators. Its obj
 | :py:func:`~spacr.host_pathogen.analyze_host_pathogen` **-- reads it**
 | :py:func:`~spacr.host_pathogen_preview.preview_field` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.analyze_host_pathogen`, :py:func:`~spacr.host_pathogen_preview.preview_field`.
+Read by ``analyze_host_pathogen``, ``preview_field``.
 
 .. _setting-flow-hp_vacuole_prefix:
 
@@ -7471,7 +7471,7 @@ Select the measured intensity column family used as the numerator of each recrui
 
 | :py:func:`~spacr.host_pathogen.summarize_tables` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.summarize_tables`.
+Read by ``summarize_tables``.
 
 .. _setting-flow-hp_vacuole_table:
 
@@ -7485,7 +7485,7 @@ Measurement table with one object per whole vacuole and a cell_id link to its ho
 | :py:func:`~spacr.host_pathogen_preview.preview_field` **-- reads it**
 | :py:func:`~spacr.host_pathogen_preview.preview_fields` **-- reads it**
 
-Read by :py:func:`~spacr.host_pathogen.analyze_host_pathogen`, ``_field_image``, :py:func:`~spacr.host_pathogen_preview.preview_field`, :py:func:`~spacr.host_pathogen_preview.preview_fields`.
+Read by ``analyze_host_pathogen``, ``_field_image``, ``preview_field``, ``preview_fields``.
 
 .. _setting-flow-huber_t:
 
@@ -7514,7 +7514,7 @@ id
 |     :py:func:`~spacr.ome_zarr.require_codec` **-- reads it**
 |         ``get_codec(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.ome_zarr.require_codec`.
+Read by ``require_codec``.
 
 .. _setting-flow-ig_baseline:
 
@@ -7526,7 +7526,7 @@ ig_baseline
 | :py:func:`~spacr.deep_spacr.generate_activation_map`
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-ig_steps:
 
@@ -7538,7 +7538,7 @@ ig_steps
 | :py:func:`~spacr.deep_spacr.generate_activation_map`
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-illumination_correction:
 
@@ -7568,7 +7568,7 @@ Estimate the uneven illumination of the microscope from the fields themselves an
 |     ``_illumination`` **-- reads it**
 |     ``len(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.load_segmentation_illumination_resume`, :py:func:`~spacr.illumination.prepare_illumination_model`, :py:func:`~spacr.illumination.validate_measurement_illumination_inputs`, ``_resume_normalized_archives``, :py:func:`~spacr.io.preprocess_img_data`, ``_illumination``.
+Read by ``preprocess_generate_masks``, ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_model``, ``validate_measurement_illumination_inputs``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_illumination``.
 
 .. _setting-flow-illumination_dark:
 
@@ -7590,7 +7590,7 @@ Camera dark offset in raw counts, subtracted before the gain is applied. Leave a
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.prepare_illumination_model`.
+Read by ``illumination_settings``, ``prepare_illumination_model``.
 
 .. _setting-flow-illumination_degree:
 
@@ -7612,7 +7612,7 @@ Order of the fitted illumination surface. 4 gives fifteen terms, enough for a la
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.prepare_illumination_model`.
+Read by ``illumination_settings``, ``prepare_illumination_model``.
 
 .. _setting-flow-illumination_estimator:
 
@@ -7637,7 +7637,7 @@ How the smooth field is fitted to the across-field median: 'polynomial' fits a l
 |     ``_illumination`` **-- reads it**
 |     ``len(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.prepare_illumination_model`, ``_illumination``.
+Read by ``illumination_settings``, ``prepare_illumination_model``, ``_illumination``.
 
 .. _setting-flow-illumination_max_fields:
 
@@ -7659,7 +7659,7 @@ How many fields per plate the estimate reads, sampled evenly across the plate. M
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.prepare_illumination_model`.
+Read by ``illumination_settings``, ``prepare_illumination_model``.
 
 .. _setting-flow-illumination_model:
 
@@ -7686,7 +7686,7 @@ Path to an illumination model saved earlier. Empty means estimate a fresh one fr
 |     ``_illumination`` **-- reads it**
 |     ``len(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.load_segmentation_illumination_resume`, :py:func:`~spacr.illumination.prepare_illumination_model`, ``_illumination``.
+Read by ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_model``, ``_illumination``.
 
 .. _setting-flow-illumination_on_missing:
 
@@ -7710,7 +7710,7 @@ What to do with a field whose plate the model does not cover: 'error' fails that
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.load_segmentation_illumination_resume`, :py:func:`~spacr.illumination.prepare_illumination_correction`, :py:func:`~spacr.illumination.prepare_illumination_model`.
+Read by ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_correction``, ``prepare_illumination_model``.
 
 .. _setting-flow-illumination_per_plate:
 
@@ -7732,7 +7732,7 @@ Estimate one illumination field per plate rather than one for every plate togeth
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.prepare_illumination_model`.
+Read by ``illumination_settings``, ``prepare_illumination_model``.
 
 .. _setting-flow-illumination_qc:
 
@@ -7754,7 +7754,7 @@ Write the QC figure beside the model: the estimated field as an image, the inten
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.prepare_illumination_model`.
+Read by ``illumination_settings``, ``prepare_illumination_model``.
 
 .. _setting-flow-image_key:
 
@@ -7763,7 +7763,7 @@ image_key
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-image_nr:
 
@@ -7774,7 +7774,7 @@ image_nr
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-image_qc_excluded_fields:
 
@@ -7792,7 +7792,7 @@ image_qc_excluded_fields
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     :py:func:`~spacr.image_quality.filter_batch` **-- reads it**
 
-Read by ``_generate_masks_in_parallel``, :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.image_quality.filter_batch`.
+Read by ``_generate_masks_in_parallel``, ``preprocess_generate_masks``, ``filter_batch``.
 
 .. _setting-flow-image_qc_mode:
 
@@ -7805,7 +7805,7 @@ image_qc_mode
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-image_size:
 
@@ -7840,7 +7840,7 @@ image_size
 |     ``_describe_classifier_training`` **-- reads it**
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 
-Read by :py:func:`~spacr.crop_source.crops_from_merged`, :py:func:`~spacr.crop_source.validate`, ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.hyperparam.load_activation_data`, ``_describe_classifier_training``, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.torch_artifacts.build_model_from_configuration`.
+Read by ``crops_from_merged``, ``validate``, ``_cross_validate_model``, ``_fit_one``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``load_activation_data``, ``_describe_classifier_training``, ``get_default_generate_activation_map_settings``, ``get_train_test_model_settings``, ``build_model_from_configuration``.
 
 .. _setting-flow-image_source:
 
@@ -7852,7 +7852,7 @@ image_source
 | ``_streaming`` **-- reads it**
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_streaming``, :py:func:`~spacr.settings.get_setting_dependencies`.
+Read by ``_streaming``, ``get_setting_dependencies``.
 
 .. _setting-flow-image_type:
 
@@ -7863,7 +7863,7 @@ image_type
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-images:
 
@@ -7872,7 +7872,7 @@ images
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-img_src:
 
@@ -7893,7 +7893,7 @@ img_zoom
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-include_all:
 
@@ -7905,7 +7905,7 @@ include_all
 | :py:func:`~spacr.submodules.interpret_vision_model` **-- reads it**
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.interpret_vision_model`.
+Read by ``interpret_vision_model``.
 
 .. _setting-flow-indent:
 
@@ -7914,7 +7914,7 @@ indent
 
 | :py:func:`~spacr.macro.to_json` **-- reads it**
 
-Read by :py:func:`~spacr.macro.to_json`.
+Read by ``to_json``.
 
 .. _setting-flow-independent_variable_layout:
 
@@ -8054,7 +8054,7 @@ infection_intensity_qc
 |         ``dict(...)  [UNRESOLVED]``
 |         ``qc_func(...)  [UNRESOLVED]``
 
-Read by ``_apply_infection_intensity_qc``, :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``_apply_infection_intensity_qc``, ``automated_motility_assay``.
 
 .. _setting-flow-infection_intensity_qc_graphs:
 
@@ -8138,7 +8138,7 @@ infection_intensity_strategy
 |         ``qc_func(...)  [UNRESOLVED]``
 |     ``_make_intensity_motility_panel`` **-- reads it**
 
-Read by ``_apply_infection_intensity_qc``, ``_infection_qc_pca_clustering``, ``_make_intensity_motility_panel``, :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``_apply_infection_intensity_qc``, ``_infection_qc_pca_clustering``, ``_make_intensity_motility_panel``, ``automated_motility_assay``.
 
 .. _setting-flow-infection_intensity_threshold:
 
@@ -8271,7 +8271,7 @@ infection_xgb_ambiguous_high
 | ``_infection_qc_xgboost`` **-- reads it**
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``_infection_qc_xgboost``, :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``_infection_qc_xgboost``, ``automated_motility_assay``.
 
 .. _setting-flow-infection_xgb_ambiguous_low:
 
@@ -8283,7 +8283,7 @@ infection_xgb_ambiguous_low
 | ``_infection_qc_xgboost`` **-- reads it**
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``_infection_qc_xgboost``, :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``_infection_qc_xgboost``, ``automated_motility_assay``.
 
 .. _setting-flow-infection_xgb_colsample_bytree:
 
@@ -8315,7 +8315,7 @@ infection_xgb_drop_ambiguous
 | ``_infection_qc_xgboost`` **-- reads it**
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``_infection_qc_xgboost``, :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``_infection_qc_xgboost``, ``automated_motility_assay``.
 
 .. _setting-flow-infection_xgb_importance:
 
@@ -8398,7 +8398,7 @@ infection_xgb_n_jobs
 |     :py:func:`~spacr.qt.bridge.apply_worker_budget` **-- reads it**
 | ``_infection_qc_xgboost`` **-- reads it**
 
-Read by :py:func:`~spacr.qt.bridge.apply_worker_budget`, ``_infection_qc_xgboost``.
+Read by ``apply_worker_budget``, ``_infection_qc_xgboost``.
 
 .. _setting-flow-infection_xgb_proba_column:
 
@@ -8411,7 +8411,7 @@ infection_xgb_proba_column
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 |     ``_make_intensity_motility_panel`` **-- reads it**
 
-Read by ``_make_intensity_motility_panel``, ``_plot_xgb_prob_qc``, :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``_make_intensity_motility_panel``, ``_plot_xgb_prob_qc``, ``automated_motility_assay``.
 
 .. _setting-flow-infection_xgb_proba_threshold:
 
@@ -8494,7 +8494,7 @@ inference
 | :py:func:`~spacr.settings.permutation_is_certain` **-- reads it**
 | :py:func:`~spacr.settings_advisor.refusals` **-- reads it**
 
-Read by ``_perform_regression``, :py:func:`~spacr.ml.resolve_auto_inference`, ``_it_will_permute``, ``_permuted``, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`, :py:func:`~spacr.run_recommendations.recommend`, ``_is_nonparametric``, ``_resolve_regression_analysis_choices``, :py:func:`~spacr.settings.get_setting_dependencies`, :py:func:`~spacr.settings.permutation_active`, :py:func:`~spacr.settings.permutation_is_certain`, :py:func:`~spacr.settings_advisor.refusals`.
+Read by ``_perform_regression``, ``resolve_auto_inference``, ``_it_will_permute``, ``_permuted``, ``_run_settings_row``, ``record_run``, ``recommend``, ``_is_nonparametric``, ``_resolve_regression_analysis_choices``, ``get_setting_dependencies``, ``permutation_active``, ``permutation_is_certain``, ``refusals``.
 
 .. _setting-flow-inflation_warn:
 
@@ -8534,7 +8534,7 @@ init_weights
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-input_mean:
 
@@ -8549,7 +8549,7 @@ input_mean
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_activation_data` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.hyperparam.load_activation_data`.
+Read by ``apply_model_to_tar``, ``generate_activation_map``, ``load_activation_data``.
 
 .. _setting-flow-input_pair_audit:
 
@@ -8578,7 +8578,7 @@ input_statistics
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_activation_data` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.hyperparam.load_activation_data`.
+Read by ``apply_model_to_tar``, ``generate_activation_map``, ``load_activation_data``.
 
 .. _setting-flow-input_std:
 
@@ -8593,7 +8593,7 @@ input_std
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_activation_data` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.hyperparam.load_activation_data`.
+Read by ``apply_model_to_tar``, ``generate_activation_map``, ``load_activation_data``.
 
 .. _setting-flow-inputs:
 
@@ -8621,7 +8621,7 @@ Image and external label-mask files or folders to import. The preview groups the
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.external_masks.plan_external_masks`, ``_check_required_paths``.
+Read by ``plan_external_masks``, ``_check_required_paths``.
 
 .. _setting-flow-intensity_statistic:
 
@@ -8634,7 +8634,7 @@ intensity_statistic
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-intercept:
 
@@ -8650,7 +8650,7 @@ intercept
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_perform_regression``, :py:func:`~spacr.settings.get_setting_dependencies`.
+Read by ``_perform_regression``, ``get_setting_dependencies``.
 
 .. _setting-flow-intercept_value:
 
@@ -8691,7 +8691,7 @@ intermedeate_save
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-invert:
 
@@ -8705,7 +8705,7 @@ invert
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-invert_dependent_variable:
 
@@ -8732,7 +8732,7 @@ isomap_n_neighbors
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-isomap_path_method:
 
@@ -8743,7 +8743,7 @@ isomap_path_method
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-keep_groups:
 
@@ -8752,7 +8752,7 @@ keep_groups
 
 | :py:func:`~spacr.plot.plot_data_from_csv` **-- reads it**
 
-Read by :py:func:`~spacr.plot.plot_data_from_csv`.
+Read by ``plot_data_from_csv``.
 
 .. _setting-flow-keep_intermediate:
 
@@ -8765,7 +8765,7 @@ keep_intermediate
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-keep_npz:
 
@@ -8778,7 +8778,7 @@ keep_npz
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-keep_original_images:
 
@@ -8791,7 +8791,7 @@ keep_original_images
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-l1_ratio:
 
@@ -8820,7 +8820,7 @@ label
 | :py:func:`~spacr.crops.extract_crop` **-- reads it**
 |     ``replace(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.extract_crop`.
+Read by ``extract_crop``.
 
 .. _setting-flow-label_key:
 
@@ -8829,7 +8829,7 @@ label_key
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-label_smoothing:
 
@@ -8855,7 +8855,7 @@ label_smoothing
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-lasso_n_boot:
 
@@ -8901,7 +8901,7 @@ Naming-layout hint used to read plate, well, field, channel, Z, and time identif
 |     :py:func:`~spacr.external_masks.plan_external_masks` **-- reads it**
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.external_masks.plan_external_masks`, :py:func:`~spacr.foreign.import_project`.
+Read by ``convert_folder``, ``plan_external_masks``, ``import_project``.
 
 .. _setting-flow-leakage_audit_train_test:
 
@@ -8920,7 +8920,7 @@ leakage_audit_train_test
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.train_test_model`.
+Read by ``train_test_model``.
 
 .. _setting-flow-leakage_hash_content:
 
@@ -8942,7 +8942,7 @@ leakage_hash_content
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`.
+Read by ``_cross_validate_model``, ``train_test_model``.
 
 .. _setting-flow-leakage_require_identity:
 
@@ -8964,7 +8964,7 @@ leakage_require_identity
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`.
+Read by ``_cross_validate_model``, ``train_test_model``.
 
 .. _setting-flow-learning_rate:
 
@@ -8994,7 +8994,7 @@ learning_rate
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.submodules.train_cellpose`, :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``generate_ml_scores``, ``get_train_test_model_settings``, ``train_cellpose``, ``reduction_and_clustering``.
 
 .. _setting-flow-legacy_volcano:
 
@@ -9043,7 +9043,7 @@ level
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.cell_montage.select_montage_per_guide`, ``_perform_regression``, ``_run_guide_permutation_analysis``, ``_announce_the_fit``, ``_say_what_the_permutation_will_do``, :py:func:`~spacr.qt.screens.settings_model.section_explainer`, :py:func:`~spacr.qt.screens.settings_model.section_explainer_html`, ``_why_no_rows_at``, :py:func:`~spacr.refit.refit_settings`, ``_resolve_regression_analysis_choices``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``select_montage_per_guide``, ``_perform_regression``, ``_run_guide_permutation_analysis``, ``_announce_the_fit``, ``_say_what_the_permutation_will_do``, ``section_explainer``, ``section_explainer_html``, ``_why_no_rows_at``, ``refit_settings``, ``_resolve_regression_analysis_choices``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``.
 
 .. _setting-flow-lines.marker:
 
@@ -9052,7 +9052,7 @@ lines.marker
 
 | :py:func:`~spacr.figure_style.rc_params` **-- reads it**
 
-Read by :py:func:`~spacr.figure_style.rc_params`.
+Read by ``rc_params``.
 
 .. _setting-flow-lo_pct:
 
@@ -9064,7 +9064,7 @@ lo_pct
 | :py:func:`~spacr.qt.widgets.timelapse_preview.segment_sequence`
 |     :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`.
+Read by ``segment_frame``.
 
 .. _setting-flow-local:
 
@@ -9091,7 +9091,7 @@ location_column
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by ``_rules_from_metadata``, :py:func:`~spacr.hyperparam.load_search_data`, :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``_rules_from_metadata``, ``load_search_data``, ``generate_ml_scores``.
 
 .. _setting-flow-log_data:
 
@@ -9105,7 +9105,7 @@ log_data
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``load_search_data``.
 
 .. _setting-flow-log_x:
 
@@ -9126,7 +9126,7 @@ log_x
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.sequencing.graph_sequencing_stats`.
+Read by ``plot_data_from_csv``, ``graph_sequencing_stats``.
 
 .. _setting-flow-log_y:
 
@@ -9147,7 +9147,7 @@ log_y
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.sequencing.graph_sequencing_stats`.
+Read by ``plot_data_from_csv``, ``graph_sequencing_stats``.
 
 .. _setting-flow-logit_adjust_tau:
 
@@ -9173,7 +9173,7 @@ logit_adjust_tau
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-loss_type:
 
@@ -9199,7 +9199,7 @@ loss_type
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-lower_percentile:
 
@@ -9225,7 +9225,7 @@ lower_threshold
 
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
+Read by ``annotate_filter_vision``.
 
 .. _setting-flow-magnification:
 
@@ -9268,7 +9268,7 @@ make_adjusted_panel
 
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``automated_motility_assay``.
 
 .. _setting-flow-make_mask_panel:
 
@@ -9277,7 +9277,7 @@ make_mask_panel
 
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``automated_motility_assay``.
 
 .. _setting-flow-manders_thresholds:
 
@@ -9289,7 +9289,7 @@ manders_thresholds
 | :py:func:`~spacr.deep_spacr.generate_activation_map` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``generate_activation_map``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-map_name:
 
@@ -9298,7 +9298,7 @@ map_name
 
 | :py:func:`~spacr.convert.convert_folder` **-- reads it**
 
-Read by :py:func:`~spacr.convert.convert_folder`.
+Read by ``convert_folder``.
 
 .. _setting-flow-mask_dims:
 
@@ -9308,7 +9308,7 @@ mask_dims
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_activation_data` **-- reads it**
 
-Read by :py:func:`~spacr.hyperparam.load_activation_data`.
+Read by ``load_activation_data``.
 
 .. _setting-flow-mask_gpu_indices:
 
@@ -9336,7 +9336,7 @@ mask_parallel
 |         ``_parallel_mask_plan`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_parallel_mask_plan``, :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``_parallel_mask_plan``, ``preprocess_generate_masks``.
 
 .. _setting-flow-mask_src:
 
@@ -9348,7 +9348,7 @@ mask_src
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-masks:
 
@@ -9365,7 +9365,7 @@ masks
 | :py:func:`~spacr.submodules.analyze_plaques` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.foreign.import_project`, :py:func:`~spacr.io.preprocess_img_data`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.submodules.analyze_plaques`.
+Read by ``preprocess_generate_masks``, ``import_project``, ``preprocess_img_data``, ``get_analyze_plaque_settings``, ``analyze_plaques``.
 
 .. _setting-flow-match_column:
 
@@ -9375,7 +9375,7 @@ match_column
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 | :py:func:`~spacr.utils.add_column_to_database` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.utils.add_column_to_database`.
+Read by ``generate_ml_scores``, ``add_column_to_database``.
 
 .. _setting-flow-max_area:
 
@@ -9386,7 +9386,7 @@ max_area
 
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_endodyogeny`.
+Read by ``analyze_endodyogeny``.
 
 .. _setting-flow-max_bins:
 
@@ -9397,7 +9397,7 @@ max_bins
 
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_endodyogeny`.
+Read by ``analyze_endodyogeny``.
 
 .. _setting-flow-max_buffer_bytes:
 
@@ -9408,7 +9408,7 @@ max_buffer_bytes
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.write_stack` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, ``_work``, :py:func:`~spacr.qt.screens.align.write_stack`.
+Read by ``align_folder``, ``_work``, ``write_stack``.
 
 .. _setting-flow-max_displacement:
 
@@ -9420,7 +9420,7 @@ max_displacement
 | :py:func:`~spacr.qt.widgets.motility_preview.apply_settings` **-- reads it**
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.motility_preview.apply_settings`, :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``apply_settings``, ``automated_motility_assay``.
 
 .. _setting-flow-max_distance:
 
@@ -9429,7 +9429,7 @@ max_distance
 
 | :py:func:`~spacr.timeflows_validation.temporal_assignment_policy` **-- reads it**
 
-Read by :py:func:`~spacr.timeflows_validation.temporal_assignment_policy`.
+Read by ``temporal_assignment_policy``.
 
 .. _setting-flow-max_failure_rate:
 
@@ -9443,7 +9443,7 @@ max_failure_rate
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``get_measure_crop_settings``.
 
 .. _setting-flow-max_iter:
 
@@ -9452,7 +9452,7 @@ max_iter
 
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``reduction_and_clustering``.
 
 .. _setting-flow-max_objects:
 
@@ -9462,7 +9462,7 @@ max_objects
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`
 |     :py:func:`~spacr.annotation_dataset.filter_selection` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`.
+Read by ``filter_selection``.
 
 .. _setting-flow-max_parasite_area:
 
@@ -9497,7 +9497,7 @@ max_parasite_area
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`, ``_check_app_specific``.
+Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_invasion``, ``analyze_replication``, ``_check_app_specific``.
 
 .. _setting-flow-max_parasites_per_vacuole:
 
@@ -9529,7 +9529,7 @@ max_parasites_per_vacuole
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_replication`, ``_check_app_specific``.
+Read by ``_set_analyze_replication_defaults``, ``analyze_replication``, ``_check_app_specific``.
 
 .. _setting-flow-max_shift:
 
@@ -9538,7 +9538,7 @@ max_shift
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-max_train_images:
 
@@ -9550,7 +9550,7 @@ max_train_images
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-max_workers:
 
@@ -9559,7 +9559,7 @@ max_workers
 
 | :py:func:`~spacr.sim.run_multiple_simulations` **-- reads it**
 
-Read by :py:func:`~spacr.sim.run_multiple_simulations`.
+Read by ``run_multiple_simulations``.
 
 .. _setting-flow-measure:
 
@@ -9570,7 +9570,7 @@ Measure morphology, intensity and spatial relationships for labeled objects, and
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-measurement:
 
@@ -9581,7 +9581,7 @@ measurement
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-measurement_object:
 
@@ -9590,7 +9590,7 @@ measurement_object
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-measurement_table:
 
@@ -9599,7 +9599,7 @@ measurement_table
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-measurements:
 
@@ -9608,7 +9608,7 @@ measurements
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-merge_edge_pathogen_cells:
 
@@ -9624,7 +9624,7 @@ merge_edge_pathogen_cells
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``get_measure_crop_settings``.
 
 .. _setting-flow-merge_pathogens:
 
@@ -9652,7 +9652,7 @@ merged_folder
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset` **-- reads it**
 | :py:func:`~spacr.stream_dataset.stream_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.stream_dataset.stream_dataset`.
+Read by ``generate_annotation_dataset``, ``stream_dataset``.
 
 .. _setting-flow-merged_path:
 
@@ -9662,7 +9662,7 @@ merged_path
 | :py:func:`~spacr.crops.extract_crop` **-- reads it**
 |     ``replace(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.extract_crop`.
+Read by ``extract_crop``.
 
 .. _setting-flow-metadata_files:
 
@@ -9687,7 +9687,7 @@ metadata_rules
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``generate_training_dataset``.
 
 .. _setting-flow-metadata_type:
 
@@ -9751,7 +9751,7 @@ metadata_type
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_rebuild_stacks_from_raw``, :py:func:`~spacr.io.preprocess_img_data`, ``_on_measure_clicked``, :py:func:`~spacr.settings.get_setting_dependencies`, ``_candidate_patterns``, ``_check_src``.
+Read by ``preprocess_generate_masks``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_on_measure_clicked``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
 
 .. _setting-flow-metadata_type_by:
 
@@ -9775,7 +9775,7 @@ metric
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.reducer_hyperparameter_search` **-- reads it**
 
-Read by ``_compute_umap``, :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`.
+Read by ``_compute_umap``, ``generate_image_umap``, ``reducer_hyperparameter_search``.
 
 .. _setting-flow-min_area_bin:
 
@@ -9786,7 +9786,7 @@ min_area_bin
 
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_endodyogeny`.
+Read by ``analyze_endodyogeny``.
 
 .. _setting-flow-min_cells_per_well:
 
@@ -9804,7 +9804,7 @@ min_cells_per_well
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_perform_regression``, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.ml.minimum_cell_simulation`, ``_preparation_key``.
+Read by ``_perform_regression``, ``generate_ml_scores``, ``minimum_cell_simulation``, ``_preparation_key``.
 
 .. _setting-flow-min_confidence:
 
@@ -9815,7 +9815,7 @@ min_confidence
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.build_plan` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, ``_work``, :py:func:`~spacr.qt.screens.align.build_plan`.
+Read by ``align_folder``, ``_work``, ``build_plan``.
 
 .. _setting-flow-min_control_objects:
 
@@ -9828,7 +9828,7 @@ min_control_objects
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-min_dist:
 
@@ -9840,7 +9840,7 @@ min_dist
 | ``_compute_umap`` **-- reads it**
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by ``_compute_umap``, :py:func:`~spacr.core.generate_image_umap`.
+Read by ``_compute_umap``, ``generate_image_umap``.
 
 .. _setting-flow-min_max:
 
@@ -9851,7 +9851,7 @@ min_max
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-min_objects_for_bimodality:
 
@@ -9904,7 +9904,7 @@ min_overlap_px
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-min_parasite_area:
 
@@ -9939,7 +9939,7 @@ min_parasite_area
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`, ``_check_app_specific``.
+Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_invasion``, ``analyze_replication``, ``_check_app_specific``.
 
 .. _setting-flow-min_parasites_per_well:
 
@@ -9965,7 +9965,7 @@ Absolute read floor below which a well is called starved and left out of the thr
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-min_samples:
 
@@ -9977,7 +9977,7 @@ min_samples
 | ``_compute_umap`` **-- reads it**
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by ``_compute_umap``, :py:func:`~spacr.core.generate_image_umap`.
+Read by ``_compute_umap``, ``generate_image_umap``.
 
 .. _setting-flow-min_successor:
 
@@ -9986,7 +9986,7 @@ min_successor
 
 | :py:func:`~spacr.timeflows_validation.temporal_assignment_policy` **-- reads it**
 
-Read by :py:func:`~spacr.timeflows_validation.temporal_assignment_policy`.
+Read by ``temporal_assignment_policy``.
 
 .. _setting-flow-min_total_intensity:
 
@@ -9999,7 +9999,7 @@ min_total_intensity
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-min_train_masks:
 
@@ -10011,7 +10011,7 @@ min_train_masks
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-minima:
 
@@ -10020,7 +10020,7 @@ minima
 
 | :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`.
+Read by ``annotate_crops``.
 
 .. _setting-flow-mix:
 
@@ -10032,7 +10032,7 @@ mix
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.reducer_hyperparameter_search` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``.
 
 .. _setting-flow-mixed_control_wells:
 
@@ -10050,7 +10050,7 @@ mixed_control_wells
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.well_spec.control_block_wells`.
+Read by ``control_block_wells``.
 
 .. _setting-flow-mixed_precision:
 
@@ -10078,7 +10078,7 @@ mixed_precision
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.train_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``train_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-mode:
 
@@ -10092,7 +10092,7 @@ mode
 | ``_primary_request_values`` **-- reads it**
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.barcode_search.propose_map_barcodes_settings`, :py:func:`~spacr.plot.plot_region`, ``_primary_request_values``, :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``propose_map_barcodes_settings``, ``plot_region``, ``_primary_request_values``, ``generate_barecode_mapping``.
 
 .. _setting-flow-model:
 
@@ -10106,7 +10106,7 @@ model
 | :py:func:`~spacr.qt.widgets.timelapse_preview.segment_sequence`
 |     :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame` **-- reads it**
 
-Read by :py:func:`~spacr.model_zoo.config_for`, :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`.
+Read by ``config_for``, ``segment_frame``.
 
 .. _setting-flow-model_data_layout:
 
@@ -10138,7 +10138,7 @@ model_name
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 | :py:func:`~spacr.torch_artifacts.load_model_artifact` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, :py:func:`~spacr.submodules.train_cellpose`, :py:func:`~spacr.torch_artifacts.build_model_from_configuration`, :py:func:`~spacr.torch_artifacts.load_model_artifact`.
+Read by ``get_analyze_plaque_settings``, ``identify_masks_finetune``, ``train_cellpose``, ``build_model_from_configuration``, ``load_model_artifact``.
 
 .. _setting-flow-model_path:
 
@@ -10158,7 +10158,7 @@ model_path
 | :py:func:`~spacr.submodules.test_cellpose_model` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_test_cellpose_model_settings` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.deep_spacr`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.hyperparam.load_activation_data`, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.submodules.apply_cellpose_model`, :py:func:`~spacr.submodules.test_cellpose_model`.
+Read by ``apply_model_to_tar``, ``deep_spacr``, ``generate_activation_map``, ``load_activation_data``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``apply_cellpose_model``, ``test_cellpose_model``.
 
 .. _setting-flow-model_plate_position:
 
@@ -10179,7 +10179,7 @@ model_plate_position
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_call_level_hits``, ``_perform_regression``, ``_reconcile_random_row_column_effects``, :py:func:`~spacr.qt.screens.settings_model.section_explainer`, :py:func:`~spacr.qt.screens.settings_model.section_explainer_html`.
+Read by ``_call_level_hits``, ``_perform_regression``, ``_reconcile_random_row_column_effects``, ``section_explainer``, ``section_explainer_html``.
 
 .. _setting-flow-model_type:
 
@@ -10222,7 +10222,7 @@ model_type
 | :py:func:`~spacr.model_zoo.entry_from_file`
 |     ``_describe_classifier_training`` **-- reads it**
 
-Read by :py:func:`~spacr.classify.resolve_ml_model_type`, ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.flowview.classify_blueprint.classify_graph`, :py:func:`~spacr.hyperparam.load_activation_data`, :py:func:`~spacr.model_check.resolve_model_source`, ``_describe_classifier_training``, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``resolve_ml_model_type``, ``_cross_validate_model``, ``_fit_one``, ``generate_activation_map``, ``train_test_model``, ``classify_graph``, ``load_activation_data``, ``resolve_model_source``, ``_describe_classifier_training``, ``get_default_generate_activation_map_settings``, ``get_train_test_model_settings``.
 
 .. _setting-flow-model_type_ml:
 
@@ -10244,7 +10244,7 @@ model_type_ml
 | :py:func:`~spacr.hyperparam.run_search_for_app` **-- reads it**
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.classify.resolve_ml_model_type`, :py:func:`~spacr.hyperparam.run_search_for_app`, :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``resolve_ml_model_type``, ``run_search_for_app``, ``generate_ml_scores``.
 
 .. _setting-flow-motility_analysis:
 
@@ -10257,7 +10257,7 @@ motility_analysis
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-motility_origin_xlim:
 
@@ -10314,7 +10314,7 @@ multilabel
 
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 
-Read by :py:func:`~spacr.torch_artifacts.build_model_from_configuration`.
+Read by ``build_model_from_configuration``.
 
 .. _setting-flow-multiple_testing_method:
 
@@ -10336,7 +10336,7 @@ multiple_testing_method
 | :py:func:`~spacr.qt.widgets.sweep_runs.record_run` **-- reads it**
 | :py:func:`~spacr.refit.refit_settings` **-- reads it**
 
-Read by ``_call_level_hits``, ``_perform_regression``, ``_run_guide_permutation_analysis``, ``_on_refit``, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`, :py:func:`~spacr.refit.refit_settings`.
+Read by ``_call_level_hits``, ``_perform_regression``, ``_run_guide_permutation_analysis``, ``_on_refit``, ``_run_settings_row``, ``record_run``, ``refit_settings``.
 
 .. _setting-flow-n_components:
 
@@ -10354,7 +10354,7 @@ n_components
 | :py:func:`~spacr.hyperparam.umap_search` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_default_umap_embed``, ``_fit``, :py:func:`~spacr.hyperparam.embed_fn`, :py:func:`~spacr.hyperparam.umap_search`.
+Read by ``_default_umap_embed``, ``_fit``, ``embed_fn``, ``umap_search``.
 
 .. _setting-flow-n_epochs:
 
@@ -10368,7 +10368,7 @@ n_epochs
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_describe_cellpose_training``, :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``_describe_cellpose_training``, ``train_cellpose``.
 
 .. _setting-flow-n_estimators:
 
@@ -10379,7 +10379,7 @@ n_estimators
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-n_jobs:
 
@@ -10446,7 +10446,7 @@ n_jobs
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by ``_compute_umap``, :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.core.reducer_hyperparameter_search`, ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.hyperparam.run_search_for_app`, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.qt.bridge.apply_worker_budget`, :py:func:`~spacr.sequencing.generate_barecode_mapping`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.timelapse.automated_motility_assay`, :py:func:`~spacr.utils.reduction_and_clustering`, ``_describe_workload``, :py:func:`~spacr.validate.describe_resources`.
+Read by ``_compute_umap``, ``generate_image_umap``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``run_search_for_app``, ``measure_crop``, ``generate_ml_scores``, ``interpret_vision_model``, ``generate_organelle_masks_sam``, ``apply_worker_budget``, ``generate_barecode_mapping``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``interpret_vision_model``, ``automated_motility_assay``, ``reduction_and_clustering``, ``_describe_workload``, ``describe_resources``.
 
 .. _setting-flow-n_neighbors:
 
@@ -10464,7 +10464,7 @@ n_neighbors
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by ``_compute_umap``, :py:func:`~spacr.core.generate_image_umap`, ``_fit``, :py:func:`~spacr.hyperparam.umap_search`, :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``_compute_umap``, ``generate_image_umap``, ``_fit``, ``umap_search``, ``reduction_and_clustering``.
 
 .. _setting-flow-n_repeats:
 
@@ -10475,7 +10475,7 @@ n_repeats
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-n_samples:
 
@@ -10504,7 +10504,7 @@ n_top_examples
 
 | :py:func:`~spacr.deep_spacr.deep_spacr` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.deep_spacr`.
+Read by ``deep_spacr``.
 
 .. _setting-flow-n_workers:
 
@@ -10519,7 +10519,7 @@ How many parallel workers to use. More is faster until the disk becomes the limi
 | :py:func:`~spacr.qt.bridge.make_thread`
 |     :py:func:`~spacr.qt.bridge.apply_worker_budget` **-- reads it**
 
-Read by ``_decode``, :py:func:`~spacr.ops_settings.ops_defaults`, :py:func:`~spacr.qt.bridge.apply_worker_budget`.
+Read by ``_decode``, ``ops_defaults``, ``apply_worker_budget``.
 
 .. _setting-flow-name:
 
@@ -10531,7 +10531,7 @@ name
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 | :py:func:`~spacr.sim.run_and_save` **-- reads it**
 
-Read by :py:func:`~spacr.model_zoo.config_for`, :py:func:`~spacr.plot.plot_region`, :py:func:`~spacr.sim.run_and_save`.
+Read by ``config_for``, ``plot_region``, ``run_and_save``.
 
 .. _setting-flow-need_weights:
 
@@ -10548,7 +10548,7 @@ need_weights
 |     ``original(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_ask_for_attention_weights``, ``_wrap``, :py:func:`~spacr.attribution.forward`.
+Read by ``_ask_for_attention_weights``, ``_wrap``, ``forward``.
 
 .. _setting-flow-neg:
 
@@ -10562,7 +10562,7 @@ neg
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``load_search_data``.
 
 .. _setting-flow-negative_control_id:
 
@@ -10581,7 +10581,7 @@ negative_control_id
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.hyperparam.load_search_data`, ``_perform_regression``, ``_run_guide_permutation_analysis``, :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``load_search_data``, ``_perform_regression``, ``_run_guide_permutation_analysis``, ``generate_ml_scores``.
 
 .. _setting-flow-negative_control_wells:
 
@@ -10599,7 +10599,7 @@ negative_control_wells
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.well_spec.control_block_wells`.
+Read by ``control_block_wells``.
 
 .. _setting-flow-negative_mean:
 
@@ -10614,7 +10614,7 @@ negative_mean
 |         ``append(...)  [UNRESOLVED]``
 | :py:func:`~spacr.sim.validate_and_adjust_beta_params` **-- reads it**
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`, :py:func:`~spacr.sim.validate_and_adjust_beta_params`.
+Read by ``generate_parameters``, ``run_simulation``, ``validate_and_adjust_beta_params``.
 
 .. _setting-flow-negative_variance:
 
@@ -10629,7 +10629,7 @@ negative_variance
 |         ``append(...)  [UNRESOLVED]``
 | :py:func:`~spacr.sim.validate_and_adjust_beta_params` **-- reads it**
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`, :py:func:`~spacr.sim.validate_and_adjust_beta_params`.
+Read by ``generate_parameters``, ``run_simulation``, ``validate_and_adjust_beta_params``.
 
 .. _setting-flow-neighbour_radius:
 
@@ -10640,7 +10640,7 @@ neighbour_radius
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.build_plan` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, ``_work``, :py:func:`~spacr.qt.screens.align.build_plan`.
+Read by ``align_folder``, ``_work``, ``build_plan``.
 
 .. _setting-flow-nested_cv_inner_folds:
 
@@ -10694,7 +10694,7 @@ non_power_of_two_warn
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_replication`, ``_check_app_specific``.
+Read by ``_set_analyze_replication_defaults``, ``analyze_replication``, ``_check_app_specific``.
 
 .. _setting-flow-nontargeting_control_grnas:
 
@@ -10723,7 +10723,7 @@ normalise
 | :py:func:`~spacr.qt.widgets.timelapse_preview.segment_sequence`
 |     :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.timelapse_preview.segment_frame`.
+Read by ``segment_frame``.
 
 .. _setting-flow-normalise_fraction:
 
@@ -10752,7 +10752,7 @@ normalization_percentiles
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_merged`.
+Read by ``plot_merged``.
 
 .. _setting-flow-normalize:
 
@@ -10838,7 +10838,7 @@ normalize
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.crops.crop_spec_from_settings`, ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, ``_crop_shape_overrides``, :py:func:`~spacr.io.preprocess_img_data`, ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.model_compare.segment_with_cellpose`, :py:func:`~spacr.plot.plot_merged`, ``_crop_choice_warnings``, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`, :py:func:`~spacr.qt.widgets.measure_preview.apply_settings`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, ``__init__``, :py:func:`~spacr.submodules.train_cellpose`, ``_check_app_specific``.
+Read by ``preprocess_generate_masks``, ``crop_spec_from_settings``, ``_cross_validate_model``, ``_fit_one``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``_crop_shape_overrides``, ``preprocess_img_data``, ``_measure_crop_core``, ``measure_crop``, ``segment_with_cellpose``, ``plot_merged``, ``_crop_choice_warnings``, ``apply_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``__init__``, ``train_cellpose``, ``_check_app_specific``.
 
 .. _setting-flow-normalize_by:
 
@@ -10886,7 +10886,7 @@ normalize_by
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.crop_spec_from_settings`, ``_crop_shape_overrides``, ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_check_app_specific``.
+Read by ``crop_spec_from_settings``, ``_crop_shape_overrides``, ``_measure_crop_core``, ``measure_crop``, ``get_measure_crop_settings``, ``_check_app_specific``.
 
 .. _setting-flow-normalize_channels:
 
@@ -10897,7 +10897,7 @@ normalize_channels
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-normalize_input:
 
@@ -10911,7 +10911,7 @@ normalize_input
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_activation_data` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.hyperparam.load_activation_data`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``generate_activation_map``, ``load_activation_data``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-nr:
 
@@ -10929,7 +10929,7 @@ nr
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 
-Read by ``_concatenate_and_normalize_impl``, :py:func:`~spacr.io.preprocess_img_data`, :py:func:`~spacr.plot.plot_merged`.
+Read by ``_concatenate_and_normalize_impl``, ``preprocess_img_data``, ``plot_merged``.
 
 .. _setting-flow-nr_classes:
 
@@ -10939,7 +10939,7 @@ nr_classes
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``generate_training_dataset``.
 
 .. _setting-flow-nr_plates:
 
@@ -10953,7 +10953,7 @@ nr_plates
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-nt_samples:
 
@@ -10997,7 +10997,7 @@ nuclei_limit
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.read_and_preprocess_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`, :py:func:`~spacr.io.generate_training_dataset`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.ml.read_and_preprocess_data`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.submodules.read_and_preprocess_data`.
+Read by ``generate_screen_graphs``, ``generate_training_dataset``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``plot_data_from_db``, ``plot_merged``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_recruitment``, ``interpret_vision_model``, ``read_and_preprocess_data``.
 
 .. _setting-flow-nucleus_background:
 
@@ -11037,7 +11037,7 @@ nucleus_cellprob_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-nucleus_chann_dim:
 
@@ -11048,7 +11048,7 @@ nucleus_chann_dim
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-nucleus_channel:
 
@@ -11106,7 +11106,7 @@ nucleus_channel
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.diameter.channels_from_settings`, ``_get_lists_for_normalization``, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.plot.plot_region`, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, :py:func:`~spacr.timelapse.automated_motility_assay`, :py:func:`~spacr.utils.dense_mask_channel_positions`, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_describe_objects``.
 
 .. _setting-flow-nucleus_csv:
 
@@ -11122,7 +11122,7 @@ nucleus_csv
 |     :py:func:`~spacr.settings.barcode_set_from_settings` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.barcode_set_from_settings`.
+Read by ``barcode_set_from_settings``.
 
 .. _setting-flow-nucleus_diameter:
 
@@ -11162,7 +11162,7 @@ nucleus_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_get_object_settings``, ``_describe_objects``.
 
 .. _setting-flow-nucleus_flow_threshold:
 
@@ -11184,7 +11184,7 @@ nucleus_flow_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-nucleus_intensity_range:
 
@@ -11195,7 +11195,7 @@ nucleus_intensity_range
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-nucleus_mask_dim:
 
@@ -11252,7 +11252,7 @@ nucleus_mask_dim
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.mask_dims_from_settings`, ``_crop_shape_overrides``, ``_intensity_measurements``, ``_measure_crop_core``, ``_morphological_measurements``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, ``_describe_objects``.
+Read by ``mask_dims_from_settings``, ``_crop_shape_overrides``, ``_intensity_measurements``, ``_measure_crop_core``, ``_morphological_measurements``, ``measure_crop``, ``plot_merged``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-nucleus_max_area:
 
@@ -11267,7 +11267,7 @@ nucleus_max_area
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-nucleus_max_intensity:
 
@@ -11283,7 +11283,7 @@ nucleus_max_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-nucleus_max_size:
 
@@ -11301,7 +11301,7 @@ nucleus_max_size
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``filter_selection``, ``_measure_crop_core``, ``get_measure_crop_settings``.
 
 .. _setting-flow-nucleus_method:
 
@@ -11348,7 +11348,7 @@ nucleus_min_area
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.object.merge_split_filter_masks`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``merge_split_filter_masks``, ``get_measure_crop_settings``.
 
 .. _setting-flow-nucleus_min_intensity:
 
@@ -11364,7 +11364,7 @@ nucleus_min_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-nucleus_min_size:
 
@@ -11397,7 +11397,7 @@ nucleus_min_size
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_describe_objects``.
+Read by ``filter_selection``, ``_measure_crop_core``, ``measure_crop``, ``get_measure_crop_settings``, ``_describe_objects``.
 
 .. _setting-flow-nucleus_model_name:
 
@@ -11425,7 +11425,7 @@ nucleus_morphology
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`.
+Read by ``organelle_morphology_now``.
 
 .. _setting-flow-nucleus_outlier_mads:
 
@@ -11439,7 +11439,7 @@ nucleus_outlier_mads
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.outlier_filter.apply`.
+Read by ``apply``.
 
 .. _setting-flow-nucleus_perimeter_fraction:
 
@@ -11456,7 +11456,7 @@ nucleus_perimeter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-nucleus_perimiter_fraction:
 
@@ -11471,7 +11471,7 @@ nucleus_perimiter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-nucleus_remove_border:
 
@@ -11498,7 +11498,7 @@ nucleus_remove_border_objects
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-nucleus_resample:
 
@@ -11556,7 +11556,7 @@ nucleus_size_range
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-nucleus_type:
 
@@ -11574,7 +11574,7 @@ nucleus_type
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`.
+Read by ``organelle_morphology_now``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``.
 
 .. _setting-flow-nucleuscellpose_:
 
@@ -11586,7 +11586,7 @@ nucleuscellpose_
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``preprocess_img_data``.
 
 .. _setting-flow-nucleuscellpose__channel:
 
@@ -11606,7 +11606,7 @@ nucleuscellpose__channel
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object_roles.organelle_settings_view`, ``_get_cellpose_channels``.
+Read by ``_fill_cellpose_channel_positions``, ``generate_cellpose_masks``, ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-nucleusorganelle_:
 
@@ -11616,7 +11616,7 @@ nucleusorganelle_
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object_roles.organelle_settings_view`.
+Read by ``organelle_settings_view``.
 
 .. _setting-flow-nucleusremove_background_:
 
@@ -11640,7 +11640,7 @@ num_classes
 
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 
-Read by :py:func:`~spacr.torch_artifacts.build_model_from_configuration`.
+Read by ``build_model_from_configuration``.
 
 .. _setting-flow-number_of_active_genes:
 
@@ -11654,7 +11654,7 @@ number_of_active_genes
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-number_of_control_genes:
 
@@ -11664,7 +11664,7 @@ number_of_control_genes
 | :py:func:`~spacr.sim.run_and_save`
 |     :py:func:`~spacr.sim.run_simulation` **-- reads it**
 
-Read by :py:func:`~spacr.sim.run_simulation`.
+Read by ``run_simulation``.
 
 .. _setting-flow-number_of_genes:
 
@@ -11678,7 +11678,7 @@ number_of_genes
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-number_of_organelles:
 
@@ -11800,7 +11800,7 @@ number_of_organelles
 |             :py:func:`~spacr.organelle_types.active_organelle_roles`
 |                 :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
 
-Read by :py:func:`~spacr.organelle_types.organelle_count`, :py:func:`~spacr.qt.widgets.measure_preview.apply_settings`.
+Read by ``organelle_count``, ``apply_settings``.
 
 .. _setting-flow-object:
 
@@ -11809,7 +11809,7 @@ object
 
 | :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`.
+Read by ``annotate_crops``.
 
 .. _setting-flow-object_array:
 
@@ -11824,7 +11824,7 @@ object_array
 | :py:func:`~spacr.crop_source.validate` **-- reads it**
 | :py:func:`~spacr.stream_dataset.stream_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.crop_source.crops_from_merged`, :py:func:`~spacr.crop_source.validate`, :py:func:`~spacr.stream_dataset.stream_dataset`.
+Read by ``filter_selection``, ``generate_annotation_dataset``, ``crops_from_merged``, ``validate``, ``stream_dataset``.
 
 .. _setting-flow-object_distance_intensity:
 
@@ -11842,7 +11842,7 @@ object_distance_intensity
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_morphological_measurements``, ``_with_distances``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_morphological_measurements``, ``_with_distances``, ``get_measure_crop_settings``.
 
 .. _setting-flow-object_distance_maxima:
 
@@ -11860,7 +11860,7 @@ object_distance_maxima
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_morphological_measurements``, ``_with_distances``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_morphological_measurements``, ``_with_distances``, ``get_measure_crop_settings``.
 
 .. _setting-flow-object_distances:
 
@@ -11881,7 +11881,7 @@ object_distances
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_morphological_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`.
+Read by ``_morphological_measurements``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``.
 
 .. _setting-flow-object_filters:
 
@@ -11936,7 +11936,7 @@ object_filters
 | ``_bound_from_filters``
 |     :py:func:`~spacr.qt.mask_engine.settings_filters` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.qt.mask_engine.settings_filters`, ``_fold_object_bounds``.
+Read by ``generate_organelle_masks_sam``, ``settings_filters``, ``_fold_object_bounds``.
 
 .. _setting-flow-object_size:
 
@@ -11947,7 +11947,7 @@ object_size
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-object_type:
 
@@ -11963,7 +11963,7 @@ object_type
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_activation_data` **-- reads it**
 
-Read by :py:func:`~spacr.crops.extract_crop`, :py:func:`~spacr.hyperparam.load_activation_data`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``extract_crop``, ``load_activation_data``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-occlusion_stride:
 
@@ -11975,7 +11975,7 @@ occlusion_stride
 | :py:func:`~spacr.deep_spacr.generate_activation_map`
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-occlusion_window:
 
@@ -11987,7 +11987,7 @@ occlusion_window
 | :py:func:`~spacr.deep_spacr.generate_activation_map`
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-offset_start:
 
@@ -11999,7 +11999,7 @@ offset_start
 | :py:func:`~spacr.barcode_search.propose_map_barcodes_settings` **-- reads it**
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.barcode_search.propose_map_barcodes_settings`, :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``propose_map_barcodes_settings``, ``generate_barecode_mapping``.
 
 .. _setting-flow-on_conflict:
 
@@ -12008,7 +12008,7 @@ on_conflict
 
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`.
+Read by ``import_project``.
 
 .. _setting-flow-on_error:
 
@@ -12023,7 +12023,7 @@ What a failed unit of work does to the run, checked at every batch boundary (fie
 | ``_defaults`` **-- reads it**
 | :py:func:`~spacr.runctx.resolve_error_policy` **-- reads it**
 
-Read by ``_error_policy``, ``_defaults``, :py:func:`~spacr.runctx.resolve_error_policy`.
+Read by ``_error_policy``, ``_defaults``, ``resolve_error_policy``.
 
 .. _setting-flow-on_error_attempts:
 
@@ -12038,7 +12038,7 @@ Total attempts per unit when on_error='retry', including the first. Bounded on p
 | ``_defaults`` **-- reads it**
 | :py:func:`~spacr.runctx.resolve_error_policy` **-- reads it**
 
-Read by ``_error_policy``, ``_defaults``, :py:func:`~spacr.runctx.resolve_error_policy`.
+Read by ``_error_policy``, ``_defaults``, ``resolve_error_policy``.
 
 .. _setting-flow-on_error_backoff:
 
@@ -12050,7 +12050,7 @@ Seconds to wait before the second attempt when on_error='retry', doubled before 
 | ``_defaults`` **-- reads it**
 | :py:func:`~spacr.runctx.resolve_error_policy` **-- reads it**
 
-Read by ``_defaults``, :py:func:`~spacr.runctx.resolve_error_policy`.
+Read by ``_defaults``, ``resolve_error_policy``.
 
 .. _setting-flow-ops_base_channels:
 
@@ -12064,7 +12064,7 @@ Which channels carry the four bases, in the order G, T, A, C, separated by comma
 |         ``_base_channels`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_base_channels``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_base_channels``, ``ops_defaults``.
 
 .. _setting-flow-ops_footprint:
 
@@ -12077,7 +12077,7 @@ How far beyond a nucleus's boundary a read may lie and still be counted as that 
 |     ``_decode`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_decode``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_decode``, ``ops_defaults``.
 
 .. _setting-flow-ops_gpu:
 
@@ -12089,7 +12089,7 @@ Let this run use the graphics card where spaCR finds a usable one: the tile regi
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``run_ops``, ``ops_defaults``.
 
 .. _setting-flow-ops_library:
 
@@ -12101,7 +12101,7 @@ A CSV of guide barcodes, with the column holding them named prefix, barcode or s
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``run_ops``, ``ops_defaults``.
 
 .. _setting-flow-ops_raster_overlap:
 
@@ -12114,7 +12114,7 @@ How far neighbouring sequencing tiles overlap on the microscope's raster, in pix
 |     ``_stitch`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_stitch``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_stitch``, ``ops_defaults``.
 
 .. _setting-flow-ops_read_threshold:
 
@@ -12127,7 +12127,7 @@ How much brighter than its surroundings a spot must be to be counted as a read. 
 |     ``_decode`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_decode``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_decode``, ``ops_defaults``.
 
 .. _setting-flow-ops_spot_detector:
 
@@ -12142,7 +12142,7 @@ Which detector finds the sequencing spots. 'native' is spaCR's own spot score, t
 |     ``_spot_detector`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_spot_detector``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_spot_detector``, ``ops_defaults``.
 
 .. _setting-flow-ops_store_reads:
 
@@ -12155,7 +12155,7 @@ Write every read behind the barcodes into the ops_reads table: one row per read 
 |     ``_decode`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_decode``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_decode``, ``ops_defaults``.
 
 .. _setting-flow-ops_window_overlap:
 
@@ -12168,7 +12168,7 @@ How far the segmentation windows overlap each other, in pixels. A nucleus is onl
 |     ``_objects`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_objects``, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``_objects``, ``ops_defaults``.
 
 .. _setting-flow-optimizer_type:
 
@@ -12194,7 +12194,7 @@ optimizer_type
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-order:
 
@@ -12206,7 +12206,7 @@ order
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.build_plan` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, ``_v3_codec_chain``, ``_work``, :py:func:`~spacr.qt.screens.align.build_plan`.
+Read by ``align_folder``, ``_v3_codec_chain``, ``_work``, ``build_plan``.
 
 .. _setting-flow-organelle_adaptive_block_size:
 
@@ -12278,7 +12278,7 @@ organelle_cellprob_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-organelle_channel:
 
@@ -12329,7 +12329,7 @@ organelle_channel
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.diameter.channels_from_settings`, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-organelle_clahe:
 
@@ -12375,7 +12375,7 @@ organelle_csv
 |     :py:func:`~spacr.settings.barcode_set_from_settings` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.barcode_set_from_settings`.
+Read by ``barcode_set_from_settings``.
 
 .. _setting-flow-organelle_diameter:
 
@@ -12450,7 +12450,7 @@ organelle_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_morphology_of_organelle_type``, ``_build_object_settings``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.organelle_types.apply_preset`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_describe_objects``.
+Read by ``_morphology_of_organelle_type``, ``_build_object_settings``, ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``generate_cellpose_masks_sam``, ``apply_preset``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_describe_objects``.
 
 .. _setting-flow-organelle_dog_sigma_high:
 
@@ -12523,7 +12523,7 @@ organelle_flow_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-organelle_hysteresis_high:
 
@@ -12696,7 +12696,7 @@ organelle_mask_dim
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.mask_dims_from_settings`, ``_crop_shape_overrides``, ``_measure_crop_core``, ``_morphological_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, ``_describe_objects``.
+Read by ``mask_dims_from_settings``, ``_crop_shape_overrides``, ``_measure_crop_core``, ``_morphological_measurements``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-organelle_mask_within_cells:
 
@@ -12710,7 +12710,7 @@ organelle_mask_within_cells
 |         :py:func:`~spacr.object.generate_organelle_masks_sam` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_organelle_masks_sam`.
+Read by ``generate_organelle_masks_sam``.
 
 .. _setting-flow-organelle_max_area:
 
@@ -12728,7 +12728,7 @@ organelle_max_area
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_build_object_settings``, :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``_build_object_settings``, ``merge_split_filter_masks``.
 
 .. _setting-flow-organelle_max_intensity:
 
@@ -12746,7 +12746,7 @@ organelle_max_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-organelle_max_size:
 
@@ -12756,7 +12756,7 @@ organelle_max_size
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`
 |     :py:func:`~spacr.annotation_dataset.filter_selection` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`.
+Read by ``filter_selection``.
 
 .. _setting-flow-organelle_method:
 
@@ -12789,7 +12789,7 @@ organelle_method
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_segment_single_image``, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.organelle_types.preset_for`, :py:func:`~spacr.plot.plot_organelle_output`, :py:func:`~spacr.settings.get_setting_dependencies`, ``_describe_objects``.
+Read by ``_segment_single_image``, ``generate_organelle_masks_sam``, ``preset_for``, ``plot_organelle_output``, ``get_setting_dependencies``, ``_describe_objects``.
 
 .. _setting-flow-organelle_min_area:
 
@@ -12821,7 +12821,7 @@ organelle_min_area
 |     ``_segment_ring`` **-- reads it**
 |     ``_segment_spots`` **-- reads it**
 
-Read by ``_measure_crop_core``, ``_build_object_settings``, ``_network_hysteresis``, ``_network_ridge``, ``_segment_irregular``, ``_segment_network``, ``_segment_ring``, ``_segment_spots``, ``_segment_unet``, :py:func:`~spacr.object.merge_split_filter_masks`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``_build_object_settings``, ``_network_hysteresis``, ``_network_ridge``, ``_segment_irregular``, ``_segment_network``, ``_segment_ring``, ``_segment_spots``, ``_segment_unet``, ``merge_split_filter_masks``, ``get_measure_crop_settings``.
 
 .. _setting-flow-organelle_min_intensity:
 
@@ -12839,7 +12839,7 @@ organelle_min_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-organelle_min_size:
 
@@ -12869,7 +12869,7 @@ organelle_min_size
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, ``_measure_crop_core``, ``_describe_objects``.
+Read by ``filter_selection``, ``_measure_crop_core``, ``_describe_objects``.
 
 .. _setting-flow-organelle_model_name:
 
@@ -12889,7 +12889,7 @@ organelle_model_name
 |     ``_get_object_settings`` **-- reads it**
 | ``_get_object_settings`` **-- reads it**
 
-Read by ``_build_object_settings``, :py:func:`~spacr.object.generate_organelle_masks_sam`, ``_get_object_settings``, ``_get_object_settings``.
+Read by ``_build_object_settings``, ``generate_organelle_masks_sam``, ``_get_object_settings``, ``_get_object_settings``.
 
 .. _setting-flow-organelle_morph_radius:
 
@@ -12927,7 +12927,7 @@ organelle_morphology
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by ``_segment_single_image``, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.plot.plot_organelle_output`, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`.
+Read by ``_segment_single_image``, ``generate_organelle_masks_sam``, ``plot_organelle_output``, ``organelle_morphology_now``.
 
 .. _setting-flow-organelle_network_threshold:
 
@@ -12954,7 +12954,7 @@ organelle_outlier_mads
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.outlier_filter.apply`.
+Read by ``apply``.
 
 .. _setting-flow-organelle_perimeter_fraction:
 
@@ -12971,7 +12971,7 @@ organelle_perimeter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-organelle_perimiter_fraction:
 
@@ -12986,7 +12986,7 @@ organelle_perimiter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-organelle_remove_border:
 
@@ -13002,7 +13002,7 @@ organelle_remove_border
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by ``_build_object_settings``, :py:func:`~spacr.object.generate_organelle_masks_sam`, ``_apply_size_filter``.
+Read by ``_build_object_settings``, ``generate_organelle_masks_sam``, ``_apply_size_filter``.
 
 .. _setting-flow-organelle_remove_border_objects:
 
@@ -13020,7 +13020,7 @@ organelle_remove_border_objects
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_organelle_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-organelle_resample:
 
@@ -13279,7 +13279,7 @@ organelle_type
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_morphology_of_organelle_type``, :py:func:`~spacr.organelle_types.apply_preset`, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`.
+Read by ``_morphology_of_organelle_type``, ``apply_preset``, ``organelle_morphology_now``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``.
 
 .. _setting-flow-organelle_unet_model_path:
 
@@ -13333,7 +13333,7 @@ organellecellpose_
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``preprocess_img_data``.
 
 .. _setting-flow-organellecellpose__channel:
 
@@ -13353,7 +13353,7 @@ organellecellpose__channel
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object_roles.organelle_settings_view`, ``_get_cellpose_channels``.
+Read by ``_fill_cellpose_channel_positions``, ``generate_cellpose_masks``, ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-organelleorganelle_:
 
@@ -13363,7 +13363,7 @@ organelleorganelle_
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object_roles.organelle_settings_view`.
+Read by ``organelle_settings_view``.
 
 .. _setting-flow-organelleremove_background_:
 
@@ -13405,7 +13405,7 @@ outline
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-outline_color:
 
@@ -13417,7 +13417,7 @@ outline_color
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_merged`.
+Read by ``plot_merged``.
 
 .. _setting-flow-outline_palette:
 
@@ -13431,7 +13431,7 @@ outline_palette
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``preprocess_generate_masks``, ``analyze_recruitment``.
 
 .. _setting-flow-outline_sigma:
 
@@ -13442,7 +13442,7 @@ outline_sigma
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-outline_thickness:
 
@@ -13454,7 +13454,7 @@ outline_thickness
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_merged`.
+Read by ``plot_merged``.
 
 .. _setting-flow-outline_threshold_factor:
 
@@ -13465,7 +13465,7 @@ outline_threshold_factor
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-outline_width:
 
@@ -13476,7 +13476,7 @@ outline_width
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-outside_channel:
 
@@ -13489,7 +13489,7 @@ outside_channel
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-outside_threshold:
 
@@ -13503,7 +13503,7 @@ outside_threshold
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_invasion_field_thresholds``, ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_invasion_field_thresholds``, ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-outside_threshold_method:
 
@@ -13528,7 +13528,7 @@ overlap
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.build_plan` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, ``_work``, :py:func:`~spacr.qt.screens.align.build_plan`.
+Read by ``align_folder``, ``_work``, ``build_plan``.
 
 .. _setting-flow-overlay:
 
@@ -13542,7 +13542,7 @@ overlay
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``generate_activation_map``, ``plot_merged``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-overlay_chans:
 
@@ -13554,7 +13554,7 @@ overlay_chans
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_merged`.
+Read by ``plot_merged``.
 
 .. _setting-flow-overwrite:
 
@@ -13572,7 +13572,7 @@ Allow the importer to replace files in an existing destination project. Leave th
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.write_stack` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.external_masks.run_external_masks`, :py:func:`~spacr.foreign.import_project`, ``_work``, :py:func:`~spacr.qt.screens.align.write_stack`.
+Read by ``align_folder``, ``convert_folder``, ``run_external_masks``, ``import_project``, ``_work``, ``write_stack``.
 
 .. _setting-flow-p_threshold_alpha:
 
@@ -13652,7 +13652,7 @@ paired_data
 |         ``_describe_regression_plan`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_perform_regression``, ``_perform_regression_read_data``, :py:func:`~spacr.ml.normalize_regression_input_pairs`, ``_first_count_file``, ``_count_files_of``, :py:func:`~spacr.qt.widgets.measurement_scan_panel.column_run_settings`, ``_describe_regression_plan``.
+Read by ``_perform_regression``, ``_perform_regression_read_data``, ``normalize_regression_input_pairs``, ``_first_count_file``, ``_count_files_of``, ``column_run_settings``, ``_describe_regression_plan``.
 
 .. _setting-flow-parasite_count_column:
 
@@ -13666,7 +13666,7 @@ parasite_count_column
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``_set_analyze_replication_defaults``, ``analyze_replication``.
 
 .. _setting-flow-parasite_table:
 
@@ -13683,7 +13683,7 @@ parasite_table
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_invasion``, ``analyze_replication``.
 
 .. _setting-flow-path:
 
@@ -13693,7 +13693,7 @@ path
 | :py:func:`~spacr.batch.resume_queue` **-- reads it**
 | :py:func:`~spacr.qt.widgets.timelapse_preview.movie_field_payload` **-- reads it**
 
-Read by :py:func:`~spacr.batch.resume_queue`, :py:func:`~spacr.qt.widgets.timelapse_preview.movie_field_payload`.
+Read by ``resume_queue``, ``movie_field_payload``.
 
 .. _setting-flow-path_column:
 
@@ -13707,7 +13707,7 @@ path_column
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`, :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``, ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-path_method:
 
@@ -13716,7 +13716,7 @@ path_method
 
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``reduction_and_clustering``.
 
 .. _setting-flow-path_string:
 
@@ -13730,7 +13730,7 @@ path_string
 |     :py:func:`~spacr.io.generate_dataset` **-- reads it**
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.crop_source.select_crops`, :py:func:`~spacr.io.generate_dataset`, :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``select_crops``, ``generate_dataset``, ``generate_training_dataset``.
 
 .. _setting-flow-pathogen_background:
 
@@ -13770,7 +13770,7 @@ pathogen_cellprob_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-pathogen_chann_dim:
 
@@ -13781,7 +13781,7 @@ pathogen_chann_dim
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-pathogen_channel:
 
@@ -13850,7 +13850,7 @@ pathogen_channel
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 |     ``_make_intensity_motility_panel`` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.diameter.channels_from_settings`, ``_get_lists_for_normalization``, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.plot.plot_region`, :py:func:`~spacr.qt.widgets.live_preview.apply_settings`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, ``_make_intensity_motility_panel``, :py:func:`~spacr.timelapse.automated_motility_assay`, :py:func:`~spacr.utils.dense_mask_channel_positions`, ``_check_app_specific``, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_batch``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_make_intensity_motility_panel``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_check_app_specific``, ``_describe_objects``.
 
 .. _setting-flow-pathogen_csv:
 
@@ -13866,7 +13866,7 @@ pathogen_csv
 |     :py:func:`~spacr.settings.barcode_set_from_settings` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.barcode_set_from_settings`.
+Read by ``barcode_set_from_settings``.
 
 .. _setting-flow-pathogen_diameter:
 
@@ -13906,7 +13906,7 @@ pathogen_diameter
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, ``_backend_preview_pass``, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, ``_get_object_settings``, ``_describe_objects``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``organelle_morphology_now``, ``_backend_preview_pass``, ``apply_settings``, ``_get_object_settings``, ``_describe_objects``.
 
 .. _setting-flow-pathogen_flow_threshold:
 
@@ -13928,7 +13928,7 @@ pathogen_flow_threshold
 | ``_backend_mask_settings`` **-- reads it**
 | ``_backend_preview_pass`` **-- reads it**
 
-Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_backend_mask_settings``, ``_backend_preview_pass``.
+Read by ``_cellpose3_eval_settings``, ``_cellpose_dino_masks``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_backend_mask_settings``, ``_backend_preview_pass``.
 
 .. _setting-flow-pathogen_intensity_range:
 
@@ -13939,7 +13939,7 @@ pathogen_intensity_range
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-pathogen_limit:
 
@@ -13965,7 +13965,7 @@ pathogen_limit
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.read_and_preprocess_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`, :py:func:`~spacr.io.generate_training_dataset`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.ml.read_and_preprocess_data`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.submodules.read_and_preprocess_data`.
+Read by ``generate_screen_graphs``, ``generate_training_dataset``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``plot_data_from_db``, ``plot_merged``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_recruitment``, ``interpret_vision_model``, ``read_and_preprocess_data``.
 
 .. _setting-flow-pathogen_loc:
 
@@ -13976,7 +13976,7 @@ pathogen_loc
 
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
+Read by ``annotate_filter_vision``.
 
 .. _setting-flow-pathogen_mask_dim:
 
@@ -14033,7 +14033,7 @@ pathogen_mask_dim
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.crops.mask_dims_from_settings`, ``_crop_shape_overrides``, ``_intensity_measurements``, ``_measure_crop_core``, ``_morphological_measurements``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`, ``_describe_objects``.
+Read by ``mask_dims_from_settings``, ``_crop_shape_overrides``, ``_intensity_measurements``, ``_measure_crop_core``, ``_morphological_measurements``, ``measure_crop``, ``plot_merged``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-pathogen_max_area:
 
@@ -14048,7 +14048,7 @@ pathogen_max_area
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-pathogen_max_intensity:
 
@@ -14064,7 +14064,7 @@ pathogen_max_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-pathogen_max_size:
 
@@ -14082,7 +14082,7 @@ pathogen_max_size
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``filter_selection``, ``_measure_crop_core``, ``get_measure_crop_settings``.
 
 .. _setting-flow-pathogen_method:
 
@@ -14129,7 +14129,7 @@ pathogen_min_area
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.object.merge_split_filter_masks`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``merge_split_filter_masks``, ``get_measure_crop_settings``.
 
 .. _setting-flow-pathogen_min_intensity:
 
@@ -14145,7 +14145,7 @@ pathogen_min_intensity
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-pathogen_min_size:
 
@@ -14178,7 +14178,7 @@ pathogen_min_size
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`, ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_describe_objects``.
+Read by ``filter_selection``, ``_measure_crop_core``, ``measure_crop``, ``get_measure_crop_settings``, ``_describe_objects``.
 
 .. _setting-flow-pathogen_model:
 
@@ -14218,7 +14218,7 @@ pathogen_model
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_check_app_specific``, ``_describe_objects``.
+Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_check_app_specific``, ``_describe_objects``.
 
 .. _setting-flow-pathogen_model_name:
 
@@ -14246,7 +14246,7 @@ pathogen_morphology
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`.
+Read by ``organelle_morphology_now``.
 
 .. _setting-flow-pathogen_outlier_mads:
 
@@ -14260,7 +14260,7 @@ pathogen_outlier_mads
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.outlier_filter.apply`.
+Read by ``apply``.
 
 .. _setting-flow-pathogen_perimeter_fraction:
 
@@ -14277,7 +14277,7 @@ pathogen_perimeter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-pathogen_perimiter_fraction:
 
@@ -14292,7 +14292,7 @@ pathogen_perimiter_fraction
 |             :py:func:`~spacr.object.merge_split_filter_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`.
+Read by ``merge_split_filter_masks``.
 
 .. _setting-flow-pathogen_plate_metadata:
 
@@ -14313,7 +14313,7 @@ pathogen_plate_metadata
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_data_from_db`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``plot_data_from_db``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_recruitment``, ``analyze_replication``.
 
 .. _setting-flow-pathogen_remove_border:
 
@@ -14340,7 +14340,7 @@ pathogen_remove_border_objects
 |         ``dict(...)  [UNRESOLVED]``
 | ``_apply_size_filter`` **-- reads it**
 
-Read by :py:func:`~spacr.object.merge_split_filter_masks`, ``_apply_size_filter``.
+Read by ``merge_split_filter_masks``, ``_apply_size_filter``.
 
 .. _setting-flow-pathogen_resample:
 
@@ -14398,7 +14398,7 @@ pathogen_size_range
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-pathogen_type:
 
@@ -14416,7 +14416,7 @@ pathogen_type
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.settings_model.organelle_morphology_now`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`.
+Read by ``organelle_morphology_now``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``.
 
 .. _setting-flow-pathogen_types:
 
@@ -14437,7 +14437,7 @@ pathogen_types
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_data_from_db`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``plot_data_from_db``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_recruitment``, ``analyze_replication``.
 
 .. _setting-flow-pathogencellpose_:
 
@@ -14449,7 +14449,7 @@ pathogencellpose_
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``preprocess_img_data``.
 
 .. _setting-flow-pathogencellpose__channel:
 
@@ -14469,7 +14469,7 @@ pathogencellpose__channel
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object_roles.organelle_settings_view`, ``_get_cellpose_channels``.
+Read by ``_fill_cellpose_channel_positions``, ``generate_cellpose_masks``, ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-pathogenorganelle_:
 
@@ -14479,7 +14479,7 @@ pathogenorganelle_
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object_roles.organelle_settings_view`.
+Read by ``organelle_settings_view``.
 
 .. _setting-flow-pathogenremove_background_:
 
@@ -14505,7 +14505,7 @@ pathogens
 
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
+Read by ``annotate_filter_vision``.
 
 .. _setting-flow-pca_svd_solver:
 
@@ -14516,7 +14516,7 @@ pca_svd_solver
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-pca_whiten:
 
@@ -14527,7 +14527,7 @@ pca_whiten
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-pen:
 
@@ -14559,7 +14559,7 @@ percentiles
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_region`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.settings.set_annotate_default_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, ``__init__``, :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``plot_region``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``__init__``, ``train_cellpose``.
 
 .. _setting-flow-permutation_importance:
 
@@ -14573,7 +14573,7 @@ permutation_importance
 | :py:func:`~spacr.submodules.interpret_vision_model` **-- reads it**
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.submodules.interpret_vision_model`.
+Read by ``interpret_vision_model``, ``interpret_vision_model``.
 
 .. _setting-flow-perplexity:
 
@@ -14582,7 +14582,7 @@ perplexity
 
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``reduction_and_clustering``.
 
 .. _setting-flow-phenotype_source:
 
@@ -14594,7 +14594,7 @@ The folder holding the high-magnification phenotype acquisition of the same well
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``run_ops``, ``ops_defaults``.
 
 .. _setting-flow-photometric:
 
@@ -14603,7 +14603,7 @@ photometric
 
 | :py:func:`~spacr.tiff_io.write_tiff` **-- reads it**
 
-Read by :py:func:`~spacr.tiff_io.write_tiff`.
+Read by ``write_tiff``.
 
 .. _setting-flow-pin_memory:
 
@@ -14630,7 +14630,7 @@ pin_memory
 |         ``trainer(...)  [UNRESOLVED]``
 | ``__init__`` **-- reads it**
 
-Read by ``_cross_validate_model``, ``_inner_loader``, :py:func:`~spacr.deep_spacr.train_test_model`, ``__init__``, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_inner_loader``, ``train_test_model``, ``__init__``, ``get_train_test_model_settings``.
 
 .. _setting-flow-pipeline_style:
 
@@ -14643,7 +14643,7 @@ pipeline_style
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-pixels_per_um:
 
@@ -14655,7 +14655,7 @@ pixels_per_um
 | :py:func:`~spacr.qt.widgets.motility_preview.apply_settings` **-- reads it**
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.motility_preview.apply_settings`, :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``apply_settings``, ``automated_motility_assay``.
 
 .. _setting-flow-planarconfig:
 
@@ -14664,7 +14664,7 @@ planarconfig
 
 | :py:func:`~spacr.tiff_io.write_tiff` **-- reads it**
 
-Read by :py:func:`~spacr.tiff_io.write_tiff`.
+Read by ``write_tiff``.
 
 .. _setting-flow-plaque_estimate_growth:
 
@@ -14677,7 +14677,7 @@ plaque_estimate_growth
 |     :py:func:`~spacr.plaque_growth.estimates_from_settings` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.plaque_growth.estimates_from_settings`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.submodules.analyze_plaques`.
+Read by ``estimates_from_settings``, ``get_analyze_plaque_settings``, ``analyze_plaques``.
 
 .. _setting-flow-plaque_formation_hours:
 
@@ -14693,7 +14693,7 @@ plaque_formation_hours
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
 |         ``text_options_from_settings(...)  [UNRESOLVED]``
 
-Read by ``_growth_values``, :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_analyze_plaque_figures``, :py:func:`~spacr.submodules.analyze_plaques`.
+Read by ``_growth_values``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``, ``analyze_plaques``.
 
 .. _setting-flow-plaque_growth_reference_hours:
 
@@ -14706,7 +14706,7 @@ plaque_growth_reference_hours
 |     :py:func:`~spacr.plaque_growth.estimates_from_settings` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.plaque_growth.estimates_from_settings`, :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``estimates_from_settings``, ``get_analyze_plaque_settings``.
 
 .. _setting-flow-plaque_growth_reference_um:
 
@@ -14719,7 +14719,7 @@ plaque_growth_reference_um
 |     :py:func:`~spacr.plaque_growth.estimates_from_settings` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.plaque_growth.estimates_from_settings`, :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``estimates_from_settings``, ``get_analyze_plaque_settings``.
 
 .. _setting-flow-plaque_mode:
 
@@ -14731,7 +14731,7 @@ plaque_mode
 | :py:func:`~spacr.submodules.analyze_plaques` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.submodules.analyze_plaques`.
+Read by ``get_analyze_plaque_settings``, ``analyze_plaques``.
 
 .. _setting-flow-plaque_model:
 
@@ -14760,7 +14760,7 @@ plaque_model
 |     ``_resolve_plaque_model``
 |         ``_requested_plaque_model`` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.plaque_preview.resolve_plaque_model`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_requested_plaque_model``, :py:func:`~spacr.submodules.analyze_plaques`.
+Read by ``resolve_plaque_model``, ``get_analyze_plaque_settings``, ``_requested_plaque_model``, ``analyze_plaques``.
 
 .. _setting-flow-plaque_pixels_per_um:
 
@@ -14776,7 +14776,7 @@ plaque_pixels_per_um
 |         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_plaque_scale_for`` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_analyze_plaque_figures``, ``_plaque_scale_for``.
+Read by ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``, ``_plaque_scale_for``.
 
 .. _setting-flow-plate:
 
@@ -14788,7 +14788,7 @@ plate
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.ops_engine.run_ops`, :py:func:`~spacr.ops_settings.ops_defaults`.
+Read by ``run_ops``, ``ops_defaults``.
 
 .. _setting-flow-plateID:
 
@@ -14802,7 +14802,7 @@ plateID
 |     :py:func:`~spacr.submodules.generate_score_heatmap` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_preparation_key``, :py:func:`~spacr.submodules.generate_score_heatmap`.
+Read by ``_preparation_key``, ``generate_score_heatmap``.
 
 .. _setting-flow-plate_format:
 
@@ -14819,7 +14819,7 @@ plate_format
 |         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_plaque_scale_for`` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.plaque_preview.prepare_figure_review`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_analyze_plaque_figures``, ``_plaque_scale_for``.
+Read by ``prepare_figure_review``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``, ``_plaque_scale_for``.
 
 .. _setting-flow-plate_naming:
 
@@ -14833,7 +14833,7 @@ How imported plates are named when the source does not provide one. 'index' assi
 |     :py:func:`~spacr.external_masks.plan_external_masks` **-- reads it**
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.external_masks.plan_external_masks`, :py:func:`~spacr.foreign.import_project`.
+Read by ``convert_folder``, ``plan_external_masks``, ``import_project``.
 
 .. _setting-flow-plot:
 
@@ -14940,7 +14940,7 @@ plot
 |     :py:func:`~spacr.utils.save_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_run_mask_workers``, :py:func:`~spacr.core.preprocess_generate_masks`, ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, ``_concatenate_and_normalize_impl``, :py:func:`~spacr.io.preprocess_img_data`, ``_measure_crop_core``, ``_show_response_distribution``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.refit.refit_settings`, :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.sim.run_and_save`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.utils.save_settings`.
+Read by ``_run_mask_workers``, ``preprocess_generate_masks``, ``_cross_validate_model``, ``_fit_one``, ``generate_activation_map``, ``train_test_model``, ``_concatenate_and_normalize_impl``, ``preprocess_img_data``, ``_measure_crop_core``, ``_show_response_distribution``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``refit_settings``, ``barcode_qc``, ``barcode_qc_defaults``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``run_and_save``, ``check_cellpose_models``, ``analyze_recruitment``, ``save_settings``.
 
 .. _setting-flow-plot_by_cluster:
 
@@ -14951,7 +14951,7 @@ plot_by_cluster
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-plot_cluster_grids:
 
@@ -14962,7 +14962,7 @@ plot_cluster_grids
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-plot_control:
 
@@ -14973,7 +14973,7 @@ plot_control
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-plot_images:
 
@@ -14984,7 +14984,7 @@ plot_images
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-plot_nr:
 
@@ -14995,7 +14995,7 @@ plot_nr
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-plot_outlines:
 
@@ -15006,7 +15006,7 @@ plot_outlines
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-plot_points:
 
@@ -15017,7 +15017,7 @@ plot_points
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-png_channel_mapping:
 
@@ -15031,7 +15031,7 @@ png_channel_mapping
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``get_measure_crop_settings``.
 
 .. _setting-flow-png_dims:
 
@@ -15105,7 +15105,7 @@ png_size
 |     :py:func:`~spacr.validate.describe_plan` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.crops.crop_spec_from_settings`, ``_crop_shape_overrides``, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.validate.describe_plan`.
+Read by ``generate_annotation_dataset``, ``crop_spec_from_settings``, ``_crop_shape_overrides``, ``_measure_crop_core``, ``get_measure_crop_settings``, ``describe_plan``.
 
 .. _setting-flow-png_type:
 
@@ -15119,7 +15119,7 @@ png_type
 |     :py:func:`~spacr.io.generate_dataset` **-- reads it**
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.crop_source.select_crops`, :py:func:`~spacr.io.generate_dataset`, :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``select_crops``, ``generate_dataset``, ``generate_training_dataset``.
 
 .. _setting-flow-point_alpha:
 
@@ -15130,7 +15130,7 @@ point_alpha
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-point_color:
 
@@ -15141,7 +15141,7 @@ point_color
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-pos:
 
@@ -15153,7 +15153,7 @@ pos
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.reducer_hyperparameter_search` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``.
 
 .. _setting-flow-position_effect_ratio:
 
@@ -15165,7 +15165,7 @@ Fold-change from its plate's median read depth at which a plate row or column is
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-positive_control_id:
 
@@ -15186,7 +15186,7 @@ positive_control_id
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.hyperparam.load_search_data`, ``_calibration_inputs``, ``_perform_regression``, ``_run_guide_permutation_analysis``, :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``load_search_data``, ``_calibration_inputs``, ``_perform_regression``, ``_run_guide_permutation_analysis``, ``generate_ml_scores``.
 
 .. _setting-flow-positive_control_wells:
 
@@ -15204,7 +15204,7 @@ positive_control_wells
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.well_spec.control_block_wells`.
+Read by ``control_block_wells``.
 
 .. _setting-flow-positive_mean:
 
@@ -15219,7 +15219,7 @@ positive_mean
 |         ``append(...)  [UNRESOLVED]``
 | :py:func:`~spacr.sim.validate_and_adjust_beta_params` **-- reads it**
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`, :py:func:`~spacr.sim.validate_and_adjust_beta_params`.
+Read by ``generate_parameters``, ``run_simulation``, ``validate_and_adjust_beta_params``.
 
 .. _setting-flow-positive_variance:
 
@@ -15234,7 +15234,7 @@ positive_variance
 |         ``append(...)  [UNRESOLVED]``
 | :py:func:`~spacr.sim.validate_and_adjust_beta_params` **-- reads it**
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`, :py:func:`~spacr.sim.validate_and_adjust_beta_params`.
+Read by ``generate_parameters``, ``run_simulation``, ``validate_and_adjust_beta_params``.
 
 .. _setting-flow-power_backend:
 
@@ -15246,7 +15246,7 @@ Inference backend: 'torch' uses mean-field ADVI; 'numpyro' and 'pymc' use option
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_background_positive_rate:
 
@@ -15258,7 +15258,7 @@ Mean probability that a non-hit cell is called positive. Rates vary across libra
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_cells_per_well:
 
@@ -15270,7 +15270,7 @@ Mean cells imaged per well. The real screen averaged 123. This is the parameter 
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_constructs_per_well:
 
@@ -15282,7 +15282,7 @@ Target mean distinct library units present per well (genes in gene mode, guides 
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_detection_auroc:
 
@@ -15294,7 +15294,7 @@ The AUROC a simulated screen must reach to count as a detection. There is no p-v
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_effect_fold:
 
@@ -15306,7 +15306,7 @@ Requested fold multiplier on the mean background positive-call rate. The simulat
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_hit_rate:
 
@@ -15318,7 +15318,7 @@ Independent probability that each simulated library unit is a true hit; the real
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_n_genes:
 
@@ -15330,7 +15330,7 @@ Number of genes in the design. In gene mode this is the number of simulated libr
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_n_grnas_per_gene:
 
@@ -15342,7 +15342,7 @@ Guides per gene. Only reaches the simulation when power_score_per is 'guide'; th
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_n_plates:
 
@@ -15354,7 +15354,7 @@ Number of plates used to calculate total simulated wells: wells-per-plate × pla
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_n_replicates:
 
@@ -15366,7 +15366,7 @@ Simulated screens per grid point. One screen at one setting is a single draw fro
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_reads_per_well:
 
@@ -15378,7 +15378,7 @@ Target mean sequencing depth per well. Per-well targets vary according to the he
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_score_per:
 
@@ -15390,7 +15390,7 @@ power_score_per
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_seed:
 
@@ -15402,7 +15402,7 @@ Master seed used to derive each grid-point replicate seed. Reproduction requires
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-power_wells_per_plate:
 
@@ -15414,7 +15414,7 @@ Wells per plate. The GUI offers 96, 384 and 1536; programmatic designs are not r
 | :py:func:`~spacr.qt.screens.power.spec_from_settings` **-- reads it**
 |     :py:func:`~spacr.qt.screens.power.power_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.power.power_default_settings`, :py:func:`~spacr.qt.screens.power.spec_from_settings`.
+Read by ``power_default_settings``, ``spec_from_settings``.
 
 .. _setting-flow-prediction_column:
 
@@ -15426,7 +15426,7 @@ Column containing the CV class the surrogate must reproduce. Selecting a score i
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-predictions_file:
 
@@ -15439,7 +15439,7 @@ predictions_file
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.investigate_hit`, :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``investigate_hit``, ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-preprocess:
 
@@ -15452,7 +15452,7 @@ preprocess
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`.
+Read by ``preprocess_generate_masks``.
 
 .. _setting-flow-preview_only:
 
@@ -15482,7 +15482,7 @@ Build and print the complete input-to-mask assignment plan without writing a pro
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.align.align_folder`, :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.external_masks.prepare_external_masks`, :py:func:`~spacr.foreign.import_project`, ``_check_required_paths``.
+Read by ``align_folder``, ``convert_folder``, ``prepare_external_masks``, ``import_project``, ``_check_required_paths``.
 
 .. _setting-flow-preview_rows:
 
@@ -15491,7 +15491,7 @@ preview_rows
 
 | :py:func:`~spacr.convert.convert_folder` **-- reads it**
 
-Read by :py:func:`~spacr.convert.convert_folder`.
+Read by ``convert_folder``.
 
 .. _setting-flow-primary_token:
 
@@ -15510,7 +15510,7 @@ print_object_number
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_merged`.
+Read by ``plot_merged``.
 
 .. _setting-flow-project:
 
@@ -15519,7 +15519,7 @@ project
 
 | :py:func:`~spacr.artifacts.register` **-- reads it**
 
-Read by :py:func:`~spacr.artifacts.register`.
+Read by ``register``.
 
 .. _setting-flow-prune_features:
 
@@ -15530,7 +15530,7 @@ prune_features
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-psf_fwhm_um:
 
@@ -15588,7 +15588,7 @@ psf_fwhm_um
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.point_spread.fill_psf_settings`, :py:func:`~spacr.psf_pipeline.prepare_psf`.
+Read by ``fill_psf_settings``, ``prepare_psf``.
 
 .. _setting-flow-psf_image_sampling_um:
 
@@ -15646,7 +15646,7 @@ psf_image_sampling_um
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.point_spread.fill_psf_settings`, :py:func:`~spacr.psf_measurement.prepare_measurement_psf`, :py:func:`~spacr.psf_pipeline.prepare_psf`.
+Read by ``fill_psf_settings``, ``prepare_measurement_psf``, ``prepare_psf``.
 
 .. _setting-flow-psf_iterations:
 
@@ -15699,7 +15699,7 @@ psf_iterations
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.psf_pipeline.prepare_psf`.
+Read by ``prepare_psf``.
 
 .. _setting-flow-psf_kernel_sampling_um:
 
@@ -15752,7 +15752,7 @@ psf_kernel_sampling_um
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.psf_pipeline.prepare_psf`.
+Read by ``prepare_psf``.
 
 .. _setting-flow-psf_measurement_source:
 
@@ -15790,7 +15790,7 @@ psf_measurement_source
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.psf_measurement.prepare_measurement_psf`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``prepare_measurement_psf``, ``get_measure_crop_settings``.
 
 .. _setting-flow-psf_objective:
 
@@ -15829,7 +15829,7 @@ psf_objective
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.point_spread.fill_psf_settings`.
+Read by ``fill_psf_settings``.
 
 .. _setting-flow-psf_operation:
 
@@ -15889,7 +15889,7 @@ psf_operation
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.point_spread.fill_psf_settings`, :py:func:`~spacr.psf_pipeline.prepare_psf`, :py:func:`~spacr.psf_pipeline.processing_requested`, ``_check_app_specific``.
+Read by ``fill_psf_settings``, ``prepare_psf``, ``processing_requested``, ``_check_app_specific``.
 
 .. _setting-flow-psf_path:
 
@@ -15942,7 +15942,7 @@ psf_path
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.psf_pipeline.prepare_psf`.
+Read by ``prepare_psf``.
 
 .. _setting-flow-psf_source:
 
@@ -16000,7 +16000,7 @@ psf_source
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.point_spread.fill_psf_settings`, :py:func:`~spacr.psf_pipeline.prepare_psf`.
+Read by ``fill_psf_settings``, ``prepare_psf``.
 
 .. _setting-flow-qc_data:
 
@@ -16012,7 +16012,7 @@ Path(s) to the qc.csv a barcode-mapping run wrote beside its count table. Suppli
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-qc_plot_max_panels:
 
@@ -16025,7 +16025,7 @@ qc_plot_max_panels
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-quantile:
 
@@ -16054,7 +16054,7 @@ queue_by_uncertainty
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-queue_diversity:
 
@@ -16065,7 +16065,7 @@ queue_diversity
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-queue_limit:
 
@@ -16076,7 +16076,7 @@ queue_limit
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-queue_measure:
 
@@ -16087,7 +16087,7 @@ queue_measure
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-radial_dist:
 
@@ -16104,7 +16104,7 @@ radial_dist
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_intensity_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_intensity_measurements``, ``get_measure_crop_settings``.
 
 .. _setting-flow-random_row_column_effects:
 
@@ -16129,7 +16129,7 @@ random_row_column_effects
 | ``_level_reason`` **-- reads it**
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_perform_regression``, ``_reconcile_random_row_column_effects``, :py:func:`~spacr.qt.screens.settings_model.section_explainer`, :py:func:`~spacr.qt.screens.settings_model.section_explainer_html`, :py:func:`~spacr.refit.refit_settings`, ``_level_is_read``, ``_level_reason``, :py:func:`~spacr.settings.get_setting_dependencies`.
+Read by ``_perform_regression``, ``_reconcile_random_row_column_effects``, ``section_explainer``, ``section_explainer_html``, ``refit_settings``, ``_level_is_read``, ``_level_reason``, ``get_setting_dependencies``.
 
 .. _setting-flow-random_seed:
 
@@ -16173,7 +16173,7 @@ random_seed
 | :py:func:`~spacr.sim.run_and_save` **-- reads it**
 | :py:func:`~spacr.stream_dataset.stream_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.core.generate_image_umap`, ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.io.generate_training_dataset`, ``_defaults``, :py:func:`~spacr.runctx.resolve_seed`, :py:func:`~spacr.sim.run_and_save`, :py:func:`~spacr.stream_dataset.stream_dataset`.
+Read by ``generate_annotation_dataset``, ``generate_image_umap``, ``_cross_validate_model``, ``train_test_model``, ``generate_training_dataset``, ``_defaults``, ``resolve_seed``, ``run_and_save``, ``stream_dataset``.
 
 .. _setting-flow-random_state:
 
@@ -16191,7 +16191,7 @@ random_state
 |     ``dict(...)  [UNRESOLVED]``
 |     ``simulate_fn(...)  [UNRESOLVED]``
 
-Read by ``_default_umap_embed``, :py:func:`~spacr.hyperparam.embed_fn`, :py:func:`~spacr.hyperparam.umap_search`, ``_call_simulator``.
+Read by ``_default_umap_embed``, ``embed_fn``, ``umap_search``, ``_call_simulator``.
 
 .. _setting-flow-random_test:
 
@@ -16205,7 +16205,7 @@ random_test
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``preprocess_img_data``.
 
 .. _setting-flow-randomize:
 
@@ -16221,7 +16221,7 @@ randomize
 |                 ``_concatenate_and_normalize_impl`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, ``_concatenate_and_normalize_impl``.
+Read by ``preprocess_generate_masks``, ``_concatenate_and_normalize_impl``.
 
 .. _setting-flow-recursive:
 
@@ -16234,7 +16234,7 @@ Search inside subfolders of every input folder. Turn this off when only files di
 | :py:func:`~spacr.external_masks.prepare_external_masks`
 |     :py:func:`~spacr.external_masks.plan_external_masks` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, :py:func:`~spacr.external_masks.plan_external_masks`.
+Read by ``align_folder``, ``plan_external_masks``.
 
 .. _setting-flow-reduction_method:
 
@@ -16247,7 +16247,7 @@ reduction_method
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.reducer_hyperparameter_search` **-- reads it**
 
-Read by ``_compute_umap``, :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`.
+Read by ``_compute_umap``, ``generate_image_umap``, ``reducer_hyperparameter_search``.
 
 .. _setting-flow-reference_channel:
 
@@ -16258,7 +16258,7 @@ reference_channel
 | ``_work`` **-- reads it**
 | :py:func:`~spacr.qt.screens.align.build_plan` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`, ``_work``, :py:func:`~spacr.qt.screens.align.build_plan`.
+Read by ``align_folder``, ``_work``, ``build_plan``.
 
 .. _setting-flow-reg_alpha:
 
@@ -16269,7 +16269,7 @@ reg_alpha
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-reg_lambda:
 
@@ -16280,7 +16280,7 @@ reg_lambda
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-regex:
 
@@ -16291,7 +16291,7 @@ regex
 
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``generate_barecode_mapping``.
 
 .. _setting-flow-regression_backend:
 
@@ -16311,7 +16311,7 @@ regression_backend
 | ``_run_settings_row`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.sweep_runs.record_run` **-- reads it**
 
-Read by ``_perform_regression``, ``_announce_the_fit``, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`.
+Read by ``_perform_regression``, ``_announce_the_fit``, ``_run_settings_row``, ``record_run``.
 
 .. _setting-flow-regression_panel_manifest:
 
@@ -16390,7 +16390,7 @@ regression_type
 |         ``_stale_against`` **-- reads it**
 | :py:func:`~spacr.settings_advisor.refusals` **-- reads it**
 
-Read by ``_perform_regression``, ``_perform_regression_read_data``, ``_reconcile_random_row_column_effects``, ``_reject_unused_run_settings``, ``_run_guide_permutation_analysis``, ``_warn_if_penalised_no_hits``, ``_write_regression_diagnostics``, :py:func:`~spacr.ml.results_folder_kind`, ``_announce_the_fit``, ``_on_refit``, :py:func:`~spacr.qt.screens.settings_model.section_explainer`, :py:func:`~spacr.qt.screens.settings_model.section_explainer_html`, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`, :py:func:`~spacr.refit.destination`, :py:func:`~spacr.refit.refit_settings`, :py:func:`~spacr.regression_summary.build_run_summary`, :py:func:`~spacr.run_recommendations.recommend`, ``_level_is_read``, ``_level_reason``, ``_resolve_regression_analysis_choices``, :py:func:`~spacr.settings.get_setting_dependencies`, ``_stale_against``, :py:func:`~spacr.settings_advisor.refusals`.
+Read by ``_perform_regression``, ``_perform_regression_read_data``, ``_reconcile_random_row_column_effects``, ``_reject_unused_run_settings``, ``_run_guide_permutation_analysis``, ``_warn_if_penalised_no_hits``, ``_write_regression_diagnostics``, ``results_folder_kind``, ``_announce_the_fit``, ``_on_refit``, ``section_explainer``, ``section_explainer_html``, ``_run_settings_row``, ``record_run``, ``destination``, ``refit_settings``, ``build_run_summary``, ``recommend``, ``_level_is_read``, ``_level_reason``, ``_resolve_regression_analysis_choices``, ``get_setting_dependencies``, ``_stale_against``, ``refusals``.
 
 .. _setting-flow-rejections:
 
@@ -16399,7 +16399,7 @@ rejections
 
 | :py:func:`~spacr.qt.screens.annotate.run` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.annotate.run`.
+Read by ``run``.
 
 .. _setting-flow-remove_background:
 
@@ -16422,7 +16422,7 @@ remove_background
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``_normalize_img_batch``, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``_normalize_img_batch``, ``plot_merged``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-remove_background_cell:
 
@@ -16487,7 +16487,7 @@ remove_cluster_noise
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-remove_highly_correlated:
 
@@ -16501,7 +16501,7 @@ remove_highly_correlated
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``load_search_data``.
 
 .. _setting-flow-remove_highly_correlated_features:
 
@@ -16512,7 +16512,7 @@ remove_highly_correlated_features
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-remove_image_canvas:
 
@@ -16523,7 +16523,7 @@ remove_image_canvas
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-remove_low_variance_features:
 
@@ -16534,7 +16534,7 @@ remove_low_variance_features
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-remove_outliers:
 
@@ -16543,7 +16543,7 @@ remove_outliers
 
 | :py:func:`~spacr.plot.plot_data_from_csv` **-- reads it**
 
-Read by :py:func:`~spacr.plot.plot_data_from_csv`.
+Read by ``plot_data_from_csv``.
 
 .. _setting-flow-remove_train:
 
@@ -16552,7 +16552,7 @@ remove_train
 
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
+Read by ``annotate_filter_vision``.
 
 .. _setting-flow-replicates:
 
@@ -16564,7 +16564,7 @@ replicates
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`.
+Read by ``generate_parameters``.
 
 .. _setting-flow-replication_method:
 
@@ -16577,7 +16577,7 @@ replication_method
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``analyze_replication``.
 
 .. _setting-flow-representation:
 
@@ -16588,7 +16588,7 @@ representation
 | :py:func:`~spacr.plot.plot_data_from_csv` **-- reads it**
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`, :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`.
+Read by ``generate_screen_graphs``, ``plot_data_from_csv``, ``plot_data_from_db``.
 
 .. _setting-flow-require_host_cell:
 
@@ -16602,7 +16602,7 @@ require_host_cell
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``_set_analyze_replication_defaults``, ``analyze_replication``.
 
 .. _setting-flow-resample:
 
@@ -16615,7 +16615,7 @@ resample
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``get_analyze_plaque_settings``, ``identify_masks_finetune``.
 
 .. _setting-flow-rescale:
 
@@ -16628,7 +16628,7 @@ rescale
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``get_analyze_plaque_settings``, ``identify_masks_finetune``.
 
 .. _setting-flow-resize:
 
@@ -16642,7 +16642,7 @@ resize
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-resnet_features:
 
@@ -16653,7 +16653,7 @@ resnet_features
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-results_folder:
 
@@ -16682,7 +16682,7 @@ Exact regression output folder that produced the selected hit. Its CSV and JSON 
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.hit_investigation.investigate_hit`, ``_check_app_specific``.
+Read by ``investigate_hit``, ``_check_app_specific``.
 
 .. _setting-flow-resume:
 
@@ -16711,7 +16711,7 @@ resume
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 
-Read by :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.core.preprocess_generate_masks`, ``_concatenate_and_normalize_impl``, ``_segment_cellpose``, ``_segment_cellpose_sam``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.resume.resume_enabled`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``convert_folder``, ``preprocess_generate_masks``, ``_concatenate_and_normalize_impl``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``resume_enabled``, ``get_measure_crop_settings``.
 
 .. _setting-flow-resume_checkpoint:
 
@@ -16736,7 +16736,7 @@ resume_checkpoint
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-reuse_existing_measurements:
 
@@ -16747,7 +16747,7 @@ reuse_existing_measurements
 
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``automated_motility_assay``.
 
 .. _setting-flow-rng:
 
@@ -16772,7 +16772,7 @@ row_csv
 | :py:func:`~spacr.sequencing_qc.barcode_qc`
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by ``_run_barcode_qc``, :py:func:`~spacr.sequencing.generate_barecode_mapping`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``_run_barcode_qc``, ``generate_barecode_mapping``, ``barcode_qc_defaults``.
 
 .. _setting-flow-row_limit:
 
@@ -16786,7 +16786,7 @@ row_limit
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`.
+Read by ``generate_image_umap``, ``reducer_hyperparameter_search``, ``load_search_data``.
 
 .. _setting-flow-rra_alpha:
 
@@ -16830,7 +16830,7 @@ sample
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.io.generate_dataset`.
+Read by ``generate_dataset``.
 
 .. _setting-flow-sampling:
 
@@ -16840,7 +16840,7 @@ sampling
 | :py:func:`~spacr.object_distances.interior_distance_transform` **-- reads it**
 | :py:func:`~spacr.object_distances.surface_distance_transform` **-- reads it**
 
-Read by :py:func:`~spacr.object_distances.interior_distance_transform`, :py:func:`~spacr.object_distances.surface_distance_transform`.
+Read by ``interior_distance_transform``, ``surface_distance_transform``.
 
 .. _setting-flow-sanity_check:
 
@@ -16853,7 +16853,7 @@ sanity_check
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 | :py:func:`~spacr.hyperparam.run_search_for_app` **-- reads it**
 
-Read by :py:func:`~spacr.hyperparam.run_search_for_app`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``run_search_for_app``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-save:
 
@@ -16899,7 +16899,7 @@ save
 | :py:func:`~spacr.submodules.test_cellpose_model` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_test_cellpose_model_settings` **-- reads it**
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.host_pathogen.analyze_host_pathogen`, :py:func:`~spacr.ml.create_extended_radar_plot`, :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.generate_organelle_masks_sam`, :py:func:`~spacr.plot.graph_importance`, :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`, :py:func:`~spacr.submodules.apply_cellpose_model`, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.submodules.test_cellpose_model`.
+Read by ``preprocess_generate_masks``, ``generate_activation_map``, ``analyze_host_pathogen``, ``create_extended_radar_plot``, ``interpret_vision_model``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``barcode_qc``, ``barcode_qc_defaults``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``, ``apply_cellpose_model``, ``interpret_vision_model``, ``test_cellpose_model``.
 
 .. _setting-flow-save_arrays:
 
@@ -16915,7 +16915,7 @@ save_arrays
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``get_measure_crop_settings``.
 
 .. _setting-flow-save_figure:
 
@@ -16926,7 +16926,7 @@ save_figure
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-save_h5:
 
@@ -16937,7 +16937,7 @@ save_h5
 
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``generate_barecode_mapping``.
 
 .. _setting-flow-save_measurements:
 
@@ -16954,7 +16954,7 @@ save_measurements
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.foreign.run_import`, ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``run_import``, ``_measure_crop_core``, ``get_measure_crop_settings``.
 
 .. _setting-flow-save_original_images:
 
@@ -16971,7 +16971,7 @@ save_original_images
 |                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_rebuild_stacks_from_raw``, :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``_rebuild_stacks_from_raw``, ``preprocess_img_data``.
 
 .. _setting-flow-save_path:
 
@@ -16983,7 +16983,7 @@ save_path
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-save_png:
 
@@ -17018,7 +17018,7 @@ save_png
 |         ``_describe_outputs`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.settings.get_measure_crop_settings`, ``_describe_outputs``, :py:func:`~spacr.validate.describe_plan`, :py:func:`~spacr.validate.describe_resources`.
+Read by ``_measure_crop_core``, ``measure_crop``, ``get_measure_crop_settings``, ``_describe_outputs``, ``describe_plan``, ``describe_resources``.
 
 .. _setting-flow-save_stack:
 
@@ -17027,7 +17027,7 @@ save_stack
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-save_workspace:
 
@@ -17037,7 +17037,7 @@ save_workspace
 | :py:func:`~spacr.workspace.mode_from_settings` **-- reads it**
 |     ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.workspace.mode_from_settings`.
+Read by ``mode_from_settings``.
 
 .. _setting-flow-scale_range:
 
@@ -17049,7 +17049,7 @@ scale_range
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-schedule:
 
@@ -17075,7 +17075,7 @@ schedule
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-score_column:
 
@@ -17092,7 +17092,7 @@ score_column
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.read_and_preprocess_data` **-- reads it**
 
-Read by :py:func:`~spacr.hit_investigation.investigate_hit`, :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.ml.read_and_preprocess_data`, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.submodules.read_and_preprocess_data`.
+Read by ``investigate_hit``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``interpret_vision_model``, ``read_and_preprocess_data``.
 
 .. _setting-flow-score_data:
 
@@ -17133,7 +17133,7 @@ score_data
 |         ``_describe_regression_plan`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, :py:func:`~spacr.ml.minimum_cell_simulation`, :py:func:`~spacr.ml.normalize_regression_input_pairs`, ``_preparation_key``, :py:func:`~spacr.qt.widgets.measurement_scan_panel.column_run_settings`, ``_describe_regression_plan``.
+Read by ``_calibration_inputs``, ``_perform_regression``, ``_perform_regression_read_data``, ``minimum_cell_simulation``, ``normalize_regression_input_pairs``, ``_preparation_key``, ``column_run_settings``, ``_describe_regression_plan``.
 
 .. _setting-flow-score_threshold:
 
@@ -17145,7 +17145,7 @@ score_threshold
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.apply_model_to_tar`.
+Read by ``apply_model_to_tar``.
 
 .. _setting-flow-scores:
 
@@ -17161,7 +17161,7 @@ scores
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.read_and_preprocess_data` **-- reads it**
 
-Read by :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.ml.read_and_preprocess_data`, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.submodules.read_and_preprocess_data`.
+Read by ``interpret_vision_model``, ``read_and_preprocess_data``, ``interpret_vision_model``, ``read_and_preprocess_data``.
 
 .. _setting-flow-sd_cells_per_well:
 
@@ -17175,7 +17175,7 @@ sd_cells_per_well
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-sd_genes_per_well:
 
@@ -17189,7 +17189,7 @@ sd_genes_per_well
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-sd_reads_per_gene:
 
@@ -17203,7 +17203,7 @@ sd_reads_per_gene
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-seconds_per_frame:
 
@@ -17221,7 +17221,7 @@ seconds_per_frame
 | :py:func:`~spacr.qt.widgets.motility_preview.apply_settings` **-- reads it**
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.motility_preview.apply_settings`, :py:func:`~spacr.timelapse.automated_motility_assay`, :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``apply_settings``, ``automated_motility_assay``, ``plan_4d_from_settings``.
 
 .. _setting-flow-seed:
 
@@ -17257,7 +17257,7 @@ seed
 |     :py:func:`~spacr.runctx.run_context`
 |         :py:func:`~spacr.runctx.resolve_seed` **-- reads it**
 
-Read by ``_call_simulator``, :py:func:`~spacr.runctx.resolve_seed`.
+Read by ``_call_simulator``, ``resolve_seed``.
 
 .. _setting-flow-seed_wells_from_cells:
 
@@ -17274,7 +17274,7 @@ seed_wells_from_cells
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_invasion``, ``analyze_replication``.
 
 .. _setting-flow-seg_qc:
 
@@ -17303,7 +17303,7 @@ seg_qc
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.qc_mode` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.qc_mode`.
+Read by ``qc_mode``.
 
 .. _setting-flow-seg_qc_border_fraction:
 
@@ -17332,7 +17332,7 @@ seg_qc_border_fraction
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_count_ratio:
 
@@ -17361,7 +17361,7 @@ seg_qc_count_ratio
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_flags:
 
@@ -17411,7 +17411,7 @@ seg_qc_foreground_fraction
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_max_object_fraction:
 
@@ -17440,7 +17440,7 @@ seg_qc_max_object_fraction
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_min_diameter:
 
@@ -17469,7 +17469,7 @@ seg_qc_min_diameter
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_min_objects:
 
@@ -17498,7 +17498,7 @@ seg_qc_min_objects
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_outlier_fraction:
 
@@ -17527,7 +17527,7 @@ seg_qc_outlier_fraction
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_outlier_mad:
 
@@ -17556,7 +17556,7 @@ seg_qc_outlier_mad
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_plate_fail_fraction:
 
@@ -17585,7 +17585,7 @@ seg_qc_plate_fail_fraction
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_size_ratio:
 
@@ -17614,7 +17614,7 @@ seg_qc_size_ratio
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_split_ratio:
 
@@ -17643,7 +17643,7 @@ seg_qc_split_ratio
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-seg_qc_tiny_fraction:
 
@@ -17672,7 +17672,7 @@ seg_qc_tiny_fraction
 |     ``_run_seg_qc``
 |         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 
-Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
+Read by ``thresholds_from_settings``.
 
 .. _setting-flow-segment_fn:
 
@@ -17681,7 +17681,7 @@ segment_fn
 
 | :py:func:`~spacr.model_zoo.compare_entries` **-- reads it**
 
-Read by :py:func:`~spacr.model_zoo.compare_entries`.
+Read by ``compare_entries``.
 
 .. _setting-flow-segmentation_backend:
 
@@ -17703,7 +17703,7 @@ segmentation_backend
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_get_object_settings`` **-- reads it**
 
-Read by ``_prepare_mask_model``, ``_cellpose3_is_chosen``, ``_prefixed_model_route``, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_get_object_settings``.
+Read by ``_prepare_mask_model``, ``_cellpose3_is_chosen``, ``_prefixed_model_route``, ``generate_cellpose_masks_sam``, ``_get_object_settings``.
 
 .. _setting-flow-sep:
 
@@ -17713,7 +17713,7 @@ sep
 | :py:func:`~spacr.tabular.read_table` **-- reads it**
 | :py:func:`~spacr.tabular.write_table` **-- reads it**
 
-Read by :py:func:`~spacr.tabular.read_table`, :py:func:`~spacr.tabular.write_table`.
+Read by ``read_table``, ``write_table``.
 
 .. _setting-flow-sequencing_error:
 
@@ -17727,7 +17727,7 @@ sequencing_error
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-settings:
 
@@ -17741,7 +17741,7 @@ settings
 | :py:func:`~spacr.ml.decorate` **-- reads it**
 | :py:func:`~spacr.ml.observed` **-- reads it**
 
-Read by ``_flowview_pipeline``, :py:func:`~spacr.deep_spacr.decorate`, :py:func:`~spacr.deep_spacr.observed`, ``_flowview_pipeline``, :py:func:`~spacr.ml.decorate`, :py:func:`~spacr.ml.observed`.
+Read by ``_flowview_pipeline``, ``decorate``, ``observed``, ``_flowview_pipeline``, ``decorate``, ``observed``.
 
 .. _setting-flow-shap:
 
@@ -17755,7 +17755,7 @@ shap
 | :py:func:`~spacr.submodules.interpret_vision_model` **-- reads it**
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.submodules.interpret_vision_model`.
+Read by ``interpret_vision_model``, ``interpret_vision_model``.
 
 .. _setting-flow-shap_sample:
 
@@ -17769,7 +17769,7 @@ shap_sample
 | :py:func:`~spacr.submodules.interpret_vision_model` **-- reads it**
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.submodules.interpret_vision_model`.
+Read by ``interpret_vision_model``, ``interpret_vision_model``.
 
 .. _setting-flow-show_progress:
 
@@ -17790,7 +17790,7 @@ shuffle
 | :py:func:`~spacr.deep_spacr.generate_activation_map` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``generate_activation_map``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-sim_time:
 
@@ -17799,7 +17799,7 @@ sim_time
 
 | :py:func:`~spacr.sim.run_and_save` **-- reads it**
 
-Read by :py:func:`~spacr.sim.run_and_save`.
+Read by ``run_and_save``.
 
 .. _setting-flow-single_direction:
 
@@ -17811,7 +17811,7 @@ single_direction
 | :py:func:`~spacr.barcode_search.propose_map_barcodes_settings` **-- reads it**
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.barcode_search.propose_map_barcodes_settings`, :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``propose_map_barcodes_settings``, ``generate_barecode_mapping``.
 
 .. _setting-flow-sliding_window_shapes:
 
@@ -17831,7 +17831,7 @@ smooth_lines
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-smoothgrad_samples:
 
@@ -17843,7 +17843,7 @@ smoothgrad_samples
 | :py:func:`~spacr.deep_spacr.generate_activation_map` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``generate_activation_map``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-smoothgrad_sigma:
 
@@ -17855,7 +17855,7 @@ smoothgrad_sigma
 | :py:func:`~spacr.deep_spacr.generate_activation_map` **-- reads it**
 |     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``generate_activation_map``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-smoothing:
 
@@ -17873,7 +17873,7 @@ sort_keys
 
 | :py:func:`~spacr.macro.to_json` **-- reads it**
 
-Read by :py:func:`~spacr.macro.to_json`.
+Read by ``to_json``.
 
 .. _setting-flow-spatial_measurements:
 
@@ -17894,7 +17894,7 @@ spatial_measurements
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_morphological_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.organelle_measurement_caveats`.
+Read by ``_morphological_measurements``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``.
 
 .. _setting-flow-spatial_neighbor_radius:
 
@@ -17911,7 +17911,7 @@ spatial_neighbor_radius
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_morphological_measurements``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_morphological_measurements``, ``get_measure_crop_settings``.
 
 .. _setting-flow-spectral_affinity:
 
@@ -17922,7 +17922,7 @@ spectral_affinity
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-spectral_n_neighbors:
 
@@ -17933,7 +17933,7 @@ spectral_n_neighbors
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-spline_degree:
 
@@ -18226,7 +18226,7 @@ src
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.delete_intermedeate_files` **-- reads it**
 
-Read by ``_generate_masks_in_parallel``, :py:func:`~spacr.align.align_folder`, :py:func:`~spacr.anndata_export.anndata_export_settings`, :py:func:`~spacr.anndata_export.run_anndata_export`, :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, ``_src_values``, :py:func:`~spacr.batch.default_label`, ``_call_entry``, :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.generate_screen_graphs`, :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.crops.resolve_crop_source`, ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.annotate_filter_vision`, :py:func:`~spacr.deep_spacr.deep_spacr`, :py:func:`~spacr.deep_spacr.generate_activation_map`, :py:func:`~spacr.deep_spacr.train_test_model`, ``_source_value``, :py:func:`~spacr.foreign.run_import`, :py:func:`~spacr.host_pathogen.analyze_host_pathogen`, :py:func:`~spacr.host_pathogen_preview.preview_fields`, :py:func:`~spacr.hyperparam.load_activation_data`, :py:func:`~spacr.hyperparam.load_search_data`, :py:func:`~spacr.hyperparam.umap_checkpoint_path`, :py:func:`~spacr.illumination.illumination_settings`, :py:func:`~spacr.illumination.prepare_illumination_model`, :py:func:`~spacr.illumination.prepare_segmentation_illumination`, :py:func:`~spacr.illumination.validate_measurement_illumination_inputs`, ``_save_settings_to_db``, :py:func:`~spacr.io.generate_dataset`, :py:func:`~spacr.io.generate_training_dataset`, :py:func:`~spacr.io.open_crop_source`, :py:func:`~spacr.io.preprocess_img_data`, ``_project_root``, ``_measure_crop_core``, ``_write_intensity_rescale_record``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.measure.process_measure_crop_results`, ``_annotation_cache``, ``_perform_regression_set_paths``, ``_show_response_distribution``, :py:func:`~spacr.ml.create_extended_radar_plot`, :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.ml.read_and_preprocess_data`, ``_describe_cellpose_training``, ``_describe_classifier_training``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, ``_trial_settings``, :py:func:`~spacr.parameter_sweep.rerun_trial`, :py:func:`~spacr.parameter_sweep.run_trial_contained`, :py:func:`~spacr.parameter_sweep.settings_for_trial`, :py:func:`~spacr.plot.graph_importance`, :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.plot.plot_region`, :py:func:`~spacr.point_spread.fill_psf_settings`, :py:func:`~spacr.qt.dnd_handlers.apply`, :py:func:`~spacr.qt.plate_queue.build`, :py:func:`~spacr.qt.plate_queue.import_plates_from_csv`, ``_load_regression_results``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, :py:func:`~spacr.qt.screens.map_barcodes.plan_barcode_search`, ``_make_screen``, ``_trial_figures_ready``, :py:func:`~spacr.qt.screens.parameter_sweep.apply_settings`, ``_on_click``, :py:func:`~spacr.qt.screens.queue.wire_add_current`, :py:func:`~spacr.qt.screens.settings_model.resolve_default_settings`, :py:func:`~spacr.qt.settings_pack.settings_from_pack`, :py:func:`~spacr.qt.widgets.host_pathogen_preview.apply_settings`, :py:func:`~spacr.qt.widgets.host_pathogen_preview.load_source_async`, :py:func:`~spacr.qt.widgets.host_pathogen_preview.run_preview`, :py:func:`~spacr.qt.widgets.measure_preview.apply_settings`, :py:func:`~spacr.qt.widgets.plaque_preview.detect_figure`, :py:func:`~spacr.qt.widgets.plaque_preview.figure_pass`, :py:func:`~spacr.qt.widgets.plaque_preview.seed_well_boxes`, :py:func:`~spacr.refit.destination`, ``_settings_point_at``, :py:func:`~spacr.resume.measurements_db_path`, :py:func:`~spacr.resume.plan_measure_resume`, :py:func:`~spacr.run_compare.plates_of`, :py:func:`~spacr.sequencing.generate_barecode_mapping`, :py:func:`~spacr.settings.default_settings_analyze_percent_positive`, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.settings.set_annotate_default_settings`, :py:func:`~spacr.sim.run_and_save`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, :py:func:`~spacr.stream_dataset.stream_dataset`, ``_analyze_plaque_figures``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_percent_positive`, :py:func:`~spacr.submodules.analyze_plaques`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.analyze_replication`, :py:func:`~spacr.submodules.apply_cellpose_model`, :py:func:`~spacr.submodules.count_phenotypes`, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.submodules.read_and_preprocess_data`, :py:func:`~spacr.submodules.split_wells`, :py:func:`~spacr.submodules.test_cellpose_model`, :py:func:`~spacr.submodules.train_cellpose`, :py:func:`~spacr.sweep_child.main`, :py:func:`~spacr.timelapse.automated_motility_assay`, :py:func:`~spacr.utils.delete_intermedeate_files`, :py:func:`~spacr.utils.measure_test_mode`, :py:func:`~spacr.utils.save_settings`, ``_describe_outputs``, ``_describe_regression_plan``.
+Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``convert_folder``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_measure_crop_core``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``apply``, ``build``, ``import_plates_from_csv``, ``_load_regression_results``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``destination``, ``_settings_point_at``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``run_and_save``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_plaque_figures``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
 
 .. _setting-flow-stage:
 
@@ -18235,7 +18235,7 @@ stage
 
 | :py:func:`~spacr.qt.app_catalog.register_declared` **-- reads it**
 
-Read by :py:func:`~spacr.qt.app_catalog.register_declared`.
+Read by ``register_declared``.
 
 .. _setting-flow-stain_baseline_wells:
 
@@ -18248,7 +18248,7 @@ stain_baseline_wells
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-start_new_session:
 
@@ -18267,7 +18267,7 @@ start_time
 | :py:func:`~spacr.sim.run_and_save` **-- reads it**
 | :py:func:`~spacr.sim.run_multiple_simulations` **-- reads it**
 
-Read by :py:func:`~spacr.sim.run_and_save`, :py:func:`~spacr.sim.run_multiple_simulations`.
+Read by ``run_and_save``, ``run_multiple_simulations``.
 
 .. _setting-flow-starved_read_fraction:
 
@@ -18279,7 +18279,7 @@ Share of the median well's read total used as the starvation cut when min_reads_
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-stdevs:
 
@@ -18306,7 +18306,7 @@ stitch_threshold
 |                 :py:func:`~spacr.zstack.plan_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`, :py:func:`~spacr.zstack.plan_from_settings`.
+Read by ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-straightness_threshold:
 
@@ -18319,7 +18319,7 @@ straightness_threshold
 | :py:func:`~spacr.timelapse.automated_motility_assay`
 |     ``_compute_velocities_and_well_summary`` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.motility_preview.apply_settings`, ``_compute_velocities_and_well_summary``.
+Read by ``apply_settings``, ``_compute_velocities_and_well_summary``.
 
 .. _setting-flow-stream_method:
 
@@ -18330,7 +18330,7 @@ stream_method
 
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_setting_dependencies`.
+Read by ``get_setting_dependencies``.
 
 .. _setting-flow-stream_source:
 
@@ -18339,7 +18339,7 @@ stream_source
 
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`.
+Read by ``generate_annotation_dataset``.
 
 .. _setting-flow-strict:
 
@@ -18348,7 +18348,7 @@ strict
 
 | :py:func:`~spacr.runctx.register_outputs` **-- reads it**
 
-Read by :py:func:`~spacr.runctx.register_outputs`.
+Read by ``register_outputs``.
 
 .. _setting-flow-strict_errors:
 
@@ -18384,7 +18384,7 @@ strict_errors
 |         :py:func:`~spacr.errors.strict_errors` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.errors.strict_errors`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``strict_errors``, ``get_measure_crop_settings``.
 
 .. _setting-flow-strides:
 
@@ -18402,7 +18402,7 @@ subpixel
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-summarize_organelles_by:
 
@@ -18418,7 +18418,7 @@ summarize_organelles_by
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``get_measure_crop_settings``.
 
 .. _setting-flow-summary_func:
 
@@ -18427,7 +18427,7 @@ summary_func
 
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`.
+Read by ``generate_screen_graphs``.
 
 .. _setting-flow-surrogate_correlation_threshold:
 
@@ -18439,7 +18439,7 @@ Absolute Spearman correlation above which a held-out feature pair is disclosed. 
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_exclude:
 
@@ -18451,7 +18451,7 @@ Additional measured features barred from the explanatory matrix. Use it for know
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_importance_methods:
 
@@ -18463,7 +18463,7 @@ Feature-importance measures to report: 'gain' (the model's native split gain; no
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_min_fidelity_improvement:
 
@@ -18475,7 +18475,7 @@ Accuracy improvement over the majority-class baseline required before feature im
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_model:
 
@@ -18505,7 +18505,7 @@ Estimator family used to reproduce CV decisions: Random Forest, histogram gradie
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`, ``_check_app_specific``.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``, ``_check_app_specific``.
 
 .. _setting-flow-surrogate_n_estimators:
 
@@ -18517,7 +18517,7 @@ Number of trees or boosting iterations in the selected surrogate. Raising it can
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_n_repeats:
 
@@ -18529,7 +18529,7 @@ Repeated held-out shuffles per feature for permutation importance. More repeats 
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_random_seed:
 
@@ -18541,7 +18541,7 @@ Seed shared by grouped splitting, estimator fitting and importance calculations.
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_shap_explainer:
 
@@ -18553,7 +18553,7 @@ How SHAP is computed: 'tree' (exact TreeSHAP for tree ensembles), 'kernel' (mode
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_shap_max_samples:
 
@@ -18565,7 +18565,7 @@ Maximum held-out objects receiving signed SHAP values and dependence plots. Rais
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-surrogate_split_by:
 
@@ -18595,7 +18595,7 @@ Independent acquisition unit kept intact between fitting and fidelity evaluation
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`, ``_check_app_specific``.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``, ``_check_app_specific``.
 
 .. _setting-flow-surrogate_test_size:
 
@@ -18607,7 +18607,7 @@ Fraction of independent well or plate groups held out for fidelity and permutati
 | :py:func:`~spacr.surrogate.run_explain_cv` **-- reads it**
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`.
+Read by ``explain_cv_default_settings``, ``run_explain_cv``.
 
 .. _setting-flow-svd_solver:
 
@@ -18616,7 +18616,7 @@ svd_solver
 
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``reduction_and_clustering``.
 
 .. _setting-flow-sweep_points:
 
@@ -18628,7 +18628,7 @@ Log-spaced points on the sweep, before the derived threshold is added to them. M
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-sweep_span:
 
@@ -18640,7 +18640,7 @@ How far either side of the derived threshold the sweep runs, as a multiplicative
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-t_axis:
 
@@ -18656,7 +18656,7 @@ t_axis
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``plan_4d_from_settings``.
 
 .. _setting-flow-t_axis_order:
 
@@ -18672,7 +18672,7 @@ t_axis_order
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``plan_4d_from_settings``.
 
 .. _setting-flow-t_link_threshold:
 
@@ -18688,7 +18688,7 @@ t_link_threshold
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``plan_4d_from_settings``.
 
 .. _setting-flow-t_max_displacement_px:
 
@@ -18704,7 +18704,7 @@ t_max_displacement_px
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``plan_4d_from_settings``.
 
 .. _setting-flow-t_max_displacement_um:
 
@@ -18720,7 +18720,7 @@ t_max_displacement_um
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``plan_4d_from_settings``.
 
 .. _setting-flow-t_project_for_tracking:
 
@@ -18736,7 +18736,7 @@ t_project_for_tracking
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``plan_4d_from_settings``.
 
 .. _setting-flow-t_stack:
 
@@ -18757,7 +18757,7 @@ t_stack
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_refuse_t_stack`` **-- reads it**
 
-Read by ``_parallel_mask_plan``, ``_refuse_t_stack``, :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``_parallel_mask_plan``, ``_refuse_t_stack``, ``plan_4d_from_settings``.
 
 .. _setting-flow-t_track_backend:
 
@@ -18773,7 +18773,7 @@ t_track_backend
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`.
+Read by ``plan_4d_from_settings``.
 
 .. _setting-flow-table:
 
@@ -18782,7 +18782,7 @@ table
 
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`.
+Read by ``generate_annotation_dataset``.
 
 .. _setting-flow-table_name:
 
@@ -18792,7 +18792,7 @@ table_name
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 | :py:func:`~spacr.utils.add_column_to_database` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.utils.add_column_to_database`.
+Read by ``generate_ml_scores``, ``add_column_to_database``.
 
 .. _setting-flow-table_names:
 
@@ -18801,7 +18801,7 @@ table_names
 
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 
-Read by :py:func:`~spacr.plot.plot_data_from_db`.
+Read by ``plot_data_from_db``.
 
 .. _setting-flow-tables:
 
@@ -18828,7 +18828,7 @@ tables
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.read_and_preprocess_data` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.generate_screen_graphs`, :py:func:`~spacr.core.reducer_hyperparameter_search`, :py:func:`~spacr.hyperparam.load_search_data`, :py:func:`~spacr.io.generate_training_dataset`, :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.ml.read_and_preprocess_data`, :py:func:`~spacr.settings.default_settings_analyze_percent_positive`, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_percent_positive`, :py:func:`~spacr.submodules.interpret_vision_model`, :py:func:`~spacr.submodules.read_and_preprocess_data`.
+Read by ``generate_image_umap``, ``generate_screen_graphs``, ``reducer_hyperparameter_search``, ``load_search_data``, ``generate_training_dataset``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``default_settings_analyze_percent_positive``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_percent_positive``, ``interpret_vision_model``, ``read_and_preprocess_data``.
 
 .. _setting-flow-tar_path:
 
@@ -18840,7 +18840,7 @@ tar_path
 | :py:func:`~spacr.deep_spacr.deep_spacr` **-- reads it**
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.deep_spacr`.
+Read by ``apply_model_to_tar``, ``deep_spacr``.
 
 .. _setting-flow-target:
 
@@ -18851,7 +18851,7 @@ target
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-target_gene:
 
@@ -18880,7 +18880,7 @@ Gene identifier carried from the selected Hit List row. It labels the attributio
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.hit_investigation.investigate_hit`, ``_check_app_specific``.
+Read by ``investigate_hit``, ``_check_app_specific``.
 
 .. _setting-flow-target_grnas_per_well:
 
@@ -18894,7 +18894,7 @@ How many gRNAs a well is meant to carry. This is the biological target that repl
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by ``_run_barcode_qc``, :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``_run_barcode_qc``, ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-target_guides:
 
@@ -18924,7 +18924,7 @@ Exact guides supporting the selected gene in the source result. Each remains sep
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`, ``_check_app_specific``.
+Read by ``hit_investigation_default_settings``, ``investigate_hit``, ``_check_app_specific``.
 
 .. _setting-flow-target_height:
 
@@ -18938,7 +18938,7 @@ target_height
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-target_intensity_min:
 
@@ -18949,7 +18949,7 @@ target_intensity_min
 
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by :py:func:`~spacr.submodules.analyze_recruitment`.
+Read by ``analyze_recruitment``.
 
 .. _setting-flow-target_layer:
 
@@ -18972,7 +18972,7 @@ target_layer
 |     ``dict(...)  [UNRESOLVED]``
 |     ``_attribute(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.generate_activation_map`, ``_activation_params``, :py:func:`~spacr.settings.get_default_generate_activation_map_settings`.
+Read by ``generate_activation_map``, ``_activation_params``, ``get_default_generate_activation_map_settings``.
 
 .. _setting-flow-target_sequence:
 
@@ -18985,7 +18985,7 @@ target_sequence
 |     :py:func:`~spacr.qt.screens.map_barcodes.plan_barcode_search` **-- reads it**
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.qt.screens.map_barcodes.plan_barcode_search`, :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``plan_barcode_search``, ``generate_barecode_mapping``.
 
 .. _setting-flow-target_size:
 
@@ -19004,7 +19004,7 @@ target_size
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_describe_cellpose_training``, :py:func:`~spacr.settings.get_default_apply_cellpose_model_settings`, :py:func:`~spacr.settings.get_default_test_cellpose_model_settings`, ``__init__``, :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``_describe_cellpose_training``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``__init__``, ``train_cellpose``.
 
 .. _setting-flow-target_statistic:
 
@@ -19016,7 +19016,7 @@ Whether target_grnas_per_well is a 'median' or a 'mean' over wells. Median is th
 | :py:func:`~spacr.sequencing_qc.barcode_qc` **-- reads it**
 |     :py:func:`~spacr.sequencing_qc.barcode_qc_defaults` **-- reads it**
 
-Read by :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`.
+Read by ``barcode_qc``, ``barcode_qc_defaults``.
 
 .. _setting-flow-target_unique_count:
 
@@ -19037,7 +19037,7 @@ target_unique_count
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_preparation_key``, :py:func:`~spacr.sequencing.graph_sequencing_stats`.
+Read by ``_preparation_key``, ``graph_sequencing_stats``.
 
 .. _setting-flow-target_width:
 
@@ -19051,7 +19051,7 @@ target_width
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`.
+Read by ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-tensorboard:
 
@@ -19077,7 +19077,7 @@ tensorboard
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-test:
 
@@ -19116,7 +19116,7 @@ test
 |     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.deep_spacr`, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.sequencing.generate_barecode_mapping`, :py:func:`~spacr.settings.get_train_test_model_settings`, ``_check_required_paths``.
+Read by ``deep_spacr``, ``train_test_model``, ``generate_barecode_mapping``, ``get_train_test_model_settings``, ``_check_required_paths``.
 
 .. _setting-flow-test_images:
 
@@ -19130,7 +19130,7 @@ test_images
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.io.preprocess_img_data`.
+Read by ``preprocess_img_data``.
 
 .. _setting-flow-test_mask_src:
 
@@ -19142,7 +19142,7 @@ test_mask_src
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-test_mode:
 
@@ -19235,7 +19235,7 @@ test_mode
 |     :py:func:`~spacr.utils.save_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.io.preprocess_img_data`, :py:func:`~spacr.refit.refit_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.utils.measure_test_mode`, :py:func:`~spacr.utils.save_settings`, :py:func:`~spacr.validate.describe_plan`.
+Read by ``preprocess_generate_masks``, ``preprocess_img_data``, ``refit_settings``, ``get_measure_crop_settings``, ``measure_test_mode``, ``save_settings``, ``describe_plan``.
 
 .. _setting-flow-test_nr:
 
@@ -19250,7 +19250,7 @@ test_nr
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.utils.measure_test_mode`.
+Read by ``get_measure_crop_settings``, ``measure_test_mode``.
 
 .. _setting-flow-test_size:
 
@@ -19261,7 +19261,7 @@ test_size
 
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`.
+Read by ``generate_ml_scores``.
 
 .. _setting-flow-test_split:
 
@@ -19282,7 +19282,7 @@ test_split
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.stream_dataset.stream_dataset` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`, :py:func:`~spacr.flowview.classify_blueprint.classify_graph`, :py:func:`~spacr.io.generate_training_dataset`, :py:func:`~spacr.stream_dataset.stream_dataset`.
+Read by ``generate_annotation_dataset``, ``classify_graph``, ``generate_training_dataset``, ``stream_dataset``.
 
 .. _setting-flow-test_src:
 
@@ -19294,7 +19294,7 @@ test_src
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``train_cellpose``.
 
 .. _setting-flow-text_ignore:
 
@@ -19306,7 +19306,7 @@ text_ignore
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_min_confidence:
 
@@ -19318,7 +19318,7 @@ text_min_confidence
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_order:
 
@@ -19330,7 +19330,7 @@ text_order
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_panel_reach:
 
@@ -19342,7 +19342,7 @@ text_panel_reach
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_reach_above:
 
@@ -19354,7 +19354,7 @@ text_reach_above
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_reach_below:
 
@@ -19366,7 +19366,7 @@ text_reach_below
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_reach_left:
 
@@ -19378,7 +19378,7 @@ text_reach_left
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_reread:
 
@@ -19390,7 +19390,7 @@ text_reread
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_reread_scale:
 
@@ -19402,7 +19402,7 @@ text_reread_scale
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_separator:
 
@@ -19414,7 +19414,7 @@ text_separator
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_use_above:
 
@@ -19426,7 +19426,7 @@ text_use_above
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_use_below:
 
@@ -19438,7 +19438,7 @@ text_use_below
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-text_use_left:
 
@@ -19450,7 +19450,7 @@ text_use_left
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`.
+Read by ``get_analyze_plaque_settings``.
 
 .. _setting-flow-theme:
 
@@ -19462,7 +19462,7 @@ theme
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 | :py:func:`~spacr.qt.widgets.dna_rain.install_dna_rain` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`, :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.qt.widgets.dna_rain.install_dna_rain`.
+Read by ``generate_screen_graphs``, ``plot_data_from_csv``, ``plot_data_from_db``, ``install_dna_rain``.
 
 .. _setting-flow-threshold:
 
@@ -19475,7 +19475,7 @@ threshold
 | :py:func:`~spacr.submodules.analyze_percent_positive` **-- reads it**
 |     :py:func:`~spacr.settings.default_settings_analyze_percent_positive` **-- reads it**
 
-Read by :py:func:`~spacr.settings.default_settings_analyze_percent_positive`, :py:func:`~spacr.settings.set_annotate_default_settings`, :py:func:`~spacr.submodules.analyze_percent_positive`.
+Read by ``default_settings_analyze_percent_positive``, ``set_annotate_default_settings``, ``analyze_percent_positive``.
 
 .. _setting-flow-threshold_agreement_tolerance:
 
@@ -19501,7 +19501,7 @@ threshold_direction
 
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 
-Read by :py:func:`~spacr.settings.set_annotate_default_settings`.
+Read by ``set_annotate_default_settings``.
 
 .. _setting-flow-threshold_method:
 
@@ -19563,7 +19563,7 @@ timeflows_model
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`.
+Read by ``generate_cellpose_masks_sam``.
 
 .. _setting-flow-timelapse:
 
@@ -19612,7 +19612,7 @@ timelapse
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | :py:func:`~spacr.qt.synthetic.generate_timelapse_demo` **-- reads it**
 
-Read by ``_parallel_mask_plan``, :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.core.preprocess_generate_masks_timelapse`, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, :py:func:`~spacr.io.preprocess_img_data`, ``_measure_crop_core``, ``_write_intensity_rescale_record``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.synthetic.generate_timelapse_demo`, :py:func:`~spacr.resume.plan_measure_resume`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.get_timelapse_settings`, :py:func:`~spacr.utils.filepaths_to_database`.
+Read by ``_parallel_mask_plan``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_measure_crop_core``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_timelapse_settings``, ``filepaths_to_database``.
 
 .. _setting-flow-timelapse_batch_size:
 
@@ -19625,7 +19625,7 @@ timelapse_batch_size
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`.
+Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``.
 
 .. _setting-flow-timelapse_displacement:
 
@@ -19641,7 +19641,7 @@ timelapse_displacement
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`.
+Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``.
 
 .. _setting-flow-timelapse_frame_limits:
 
@@ -19657,7 +19657,7 @@ timelapse_frame_limits
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | :py:func:`~spacr.qt.synthetic.generate_timelapse_demo` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.synthetic.generate_timelapse_demo`.
+Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``.
 
 .. _setting-flow-timelapse_memory:
 
@@ -19673,7 +19673,7 @@ timelapse_memory
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`.
+Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``.
 
 .. _setting-flow-timelapse_mode:
 
@@ -19689,7 +19689,7 @@ timelapse_mode
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`.
+Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``.
 
 .. _setting-flow-timelapse_objects:
 
@@ -19711,7 +19711,7 @@ timelapse_objects
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``, ``get_measure_crop_settings``.
 
 .. _setting-flow-timelapse_remove_transient:
 
@@ -19727,7 +19727,7 @@ timelapse_remove_transient
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 | :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.widgets.timelapse_preview.apply_settings`.
+Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_settings``.
 
 .. _setting-flow-timeout:
 
@@ -19752,7 +19752,7 @@ tolerance
 |             ``_perform_regression_read_data(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_perform_regression``, :py:func:`~spacr.ml.minimum_cell_simulation`.
+Read by ``_perform_regression``, ``minimum_cell_simulation``.
 
 .. _setting-flow-top_features:
 
@@ -19767,7 +19767,7 @@ top_features
 | :py:func:`~spacr.submodules.interpret_vision_model` **-- reads it**
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.ml.interpret_vision_model`, :py:func:`~spacr.submodules.interpret_vision_model`.
+Read by ``generate_ml_scores``, ``interpret_vision_model``, ``interpret_vision_model``.
 
 .. _setting-flow-total_channel:
 
@@ -19780,7 +19780,7 @@ total_channel
 |     ``_set_analyze_invasion_defaults`` **-- reads it**
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_invasion_defaults``, :py:func:`~spacr.submodules.analyze_invasion`.
+Read by ``_set_analyze_invasion_defaults``, ``analyze_invasion``.
 
 .. _setting-flow-track_outlier_zscore:
 
@@ -19791,7 +19791,7 @@ track_outlier_zscore
 
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by :py:func:`~spacr.timelapse.automated_motility_assay`.
+Read by ``automated_motility_assay``.
 
 .. _setting-flow-trackastra_linking:
 
@@ -19805,7 +19805,7 @@ trackastra_linking
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`.
+Read by ``generate_cellpose_masks_sam``.
 
 .. _setting-flow-trackastra_model:
 
@@ -19819,7 +19819,7 @@ trackastra_model
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`.
+Read by ``generate_cellpose_masks_sam``.
 
 .. _setting-flow-tracked_object:
 
@@ -19831,7 +19831,7 @@ tracked_object
 | :py:func:`~spacr.qt.widgets.motility_preview.apply_settings` **-- reads it**
 | ``_infection_qc_xgboost`` **-- reads it**
 
-Read by :py:func:`~spacr.qt.widgets.motility_preview.apply_settings`, ``_infection_qc_xgboost``.
+Read by ``apply_settings``, ``_infection_qc_xgboost``.
 
 .. _setting-flow-train:
 
@@ -19869,7 +19869,7 @@ train
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.deep_spacr`, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`, ``_check_required_paths``.
+Read by ``deep_spacr``, ``train_test_model``, ``get_train_test_model_settings``, ``_check_required_paths``.
 
 .. _setting-flow-train_channels:
 
@@ -19896,7 +19896,7 @@ train_channels
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-train_test_leakage_audit_path:
 
@@ -19913,7 +19913,7 @@ train_test_leakage_audit_path
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.train_test_model`.
+Read by ``train_test_model``.
 
 .. _setting-flow-train_validation_leakage_audit_path:
 
@@ -19930,7 +19930,7 @@ train_validation_leakage_audit_path
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.train_test_model`.
+Read by ``train_test_model``.
 
 .. _setting-flow-transform:
 
@@ -19950,7 +19950,7 @@ transform
 | :py:func:`~spacr.qt.widgets.sweep_runs.record_run` **-- reads it**
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_perform_regression``, ``_show_response_distribution``, ``_preparation_key``, ``_run_settings_row``, :py:func:`~spacr.qt.widgets.sweep_runs.record_run`, :py:func:`~spacr.settings.get_setting_dependencies`.
+Read by ``_perform_regression``, ``_show_response_distribution``, ``_preparation_key``, ``_run_settings_row``, ``record_run``, ``get_setting_dependencies``.
 
 .. _setting-flow-treatment_loc:
 
@@ -19961,7 +19961,7 @@ treatment_loc
 
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
+Read by ``annotate_filter_vision``.
 
 .. _setting-flow-treatment_plate_metadata:
 
@@ -19982,7 +19982,7 @@ treatment_plate_metadata
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.plot.plot_data_from_db`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``plot_data_from_db``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_recruitment``, ``analyze_replication``.
 
 .. _setting-flow-treatments:
 
@@ -20004,7 +20004,7 @@ treatments
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`, :py:func:`~spacr.plot.plot_data_from_db`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_recruitment`, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``annotate_filter_vision``, ``plot_data_from_db``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_recruitment``, ``analyze_replication``.
 
 .. _setting-flow-tsne_early_exaggeration:
 
@@ -20015,7 +20015,7 @@ tsne_early_exaggeration
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-tsne_learning_rate:
 
@@ -20026,7 +20026,7 @@ tsne_learning_rate
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-tsne_max_iter:
 
@@ -20037,7 +20037,7 @@ tsne_max_iter
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-tsne_perplexity:
 
@@ -20048,7 +20048,7 @@ tsne_perplexity
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-tta_aggregation:
 
@@ -20062,7 +20062,7 @@ tta_aggregation
 |         ``_inference_predictions``
 |             :py:func:`~spacr.inference_augmentation.predict_augmented` **-- reads it**
 
-Read by :py:func:`~spacr.inference_augmentation.predict_augmented`.
+Read by ``predict_augmented``.
 
 .. _setting-flow-tta_enabled:
 
@@ -20090,7 +20090,7 @@ tta_horizontal_flip
 |             :py:func:`~spacr.inference_augmentation.predict_augmented`
 |                 :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
 
-Read by :py:func:`~spacr.inference_augmentation.transforms_for`.
+Read by ``transforms_for``.
 
 .. _setting-flow-tta_rotations:
 
@@ -20105,7 +20105,7 @@ tta_rotations
 |             :py:func:`~spacr.inference_augmentation.predict_augmented`
 |                 :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
 
-Read by :py:func:`~spacr.inference_augmentation.transforms_for`.
+Read by ``transforms_for``.
 
 .. _setting-flow-tta_vertical_flip:
 
@@ -20120,7 +20120,7 @@ tta_vertical_flip
 |             :py:func:`~spacr.inference_augmentation.predict_augmented`
 |                 :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
 
-Read by :py:func:`~spacr.inference_augmentation.transforms_for`.
+Read by ``transforms_for``.
 
 .. _setting-flow-ultrack_contour_sigma:
 
@@ -20134,7 +20134,7 @@ ultrack_contour_sigma
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`.
+Read by ``generate_cellpose_masks_sam``.
 
 .. _setting-flow-ultrack_division_weight:
 
@@ -20148,7 +20148,7 @@ ultrack_division_weight
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`.
+Read by ``generate_cellpose_masks_sam``.
 
 .. _setting-flow-ultrack_max_distance:
 
@@ -20162,7 +20162,7 @@ ultrack_max_distance
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`.
+Read by ``generate_cellpose_masks_sam``.
 
 .. _setting-flow-ultrack_n_workers:
 
@@ -20178,7 +20178,7 @@ ultrack_n_workers
 | :py:func:`~spacr.qt.bridge.make_thread`
 |     :py:func:`~spacr.qt.bridge.apply_worker_budget` **-- reads it**
 
-Read by :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.qt.bridge.apply_worker_budget`.
+Read by ``generate_cellpose_masks_sam``, ``apply_worker_budget``.
 
 .. _setting-flow-um_per_px:
 
@@ -20190,7 +20190,7 @@ um_per_px
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 
-Read by :py:func:`~spacr.foreign.import_project`, :py:func:`~spacr.submodules.analyze_endodyogeny`.
+Read by ``import_project``, ``analyze_endodyogeny``.
 
 .. _setting-flow-umap_canvas_width:
 
@@ -20201,7 +20201,7 @@ umap_canvas_width
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-umap_sidebar_width:
 
@@ -20212,7 +20212,7 @@ umap_sidebar_width
 
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_image_umap`.
+Read by ``generate_image_umap``.
 
 .. _setting-flow-uninfected:
 
@@ -20229,7 +20229,7 @@ uninfected
 |     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops` **-- reads it**
 
-Read by ``_measure_crop_core``, :py:func:`~spacr.measure.measure_crop`, :py:func:`~spacr.qt.widgets.measure_preview.annotate_crops`, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``_measure_crop_core``, ``measure_crop``, ``annotate_crops``, ``get_measure_crop_settings``.
 
 .. _setting-flow-update_column:
 
@@ -20239,7 +20239,7 @@ update_column
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 | :py:func:`~spacr.utils.add_column_to_database` **-- reads it**
 
-Read by :py:func:`~spacr.ml.generate_ml_scores`, :py:func:`~spacr.utils.add_column_to_database`.
+Read by ``generate_ml_scores``, ``add_column_to_database``.
 
 .. _setting-flow-upper_threshold:
 
@@ -20248,7 +20248,7 @@ upper_threshold
 
 | :py:func:`~spacr.deep_spacr.annotate_filter_vision` **-- reads it**
 
-Read by :py:func:`~spacr.deep_spacr.annotate_filter_vision`.
+Read by ``annotate_filter_vision``.
 
 .. _setting-flow-upsample:
 
@@ -20257,7 +20257,7 @@ upsample
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-use_bfloat16:
 
@@ -20268,7 +20268,7 @@ use_bfloat16
 | :py:func:`~spacr.qt.screens.make_masks.load_cellpose_model` **-- reads it**
 | :py:func:`~spacr.qt.widgets.preview_contract.preview_cellpose_model` **-- reads it**
 
-Read by :py:func:`~spacr.accelerator.cellpose_kwargs`, :py:func:`~spacr.qt.screens.make_masks.load_cellpose_model`, :py:func:`~spacr.qt.widgets.preview_contract.preview_cellpose_model`.
+Read by ``cellpose_kwargs``, ``load_cellpose_model``, ``preview_cellpose_model``.
 
 .. _setting-flow-use_bounding_box:
 
@@ -20302,7 +20302,7 @@ use_bounding_box
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_crop_choice_warnings`` **-- reads it**
 
-Read by :py:func:`~spacr.crops.crop_spec_from_settings`, ``_crop_shape_overrides``, ``_measure_crop_core``, ``_crop_choice_warnings``, :py:func:`~spacr.settings.get_measure_crop_settings`.
+Read by ``crop_spec_from_settings``, ``_crop_shape_overrides``, ``_measure_crop_core``, ``_crop_choice_warnings``, ``get_measure_crop_settings``.
 
 .. _setting-flow-use_checkpoint:
 
@@ -20329,7 +20329,7 @@ use_checkpoint
 |         ``trainer(...)  [UNRESOLVED]``
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.torch_artifacts.build_model_from_configuration`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``, ``build_model_from_configuration``.
 
 .. _setting-flow-vacuole_key:
 
@@ -20343,7 +20343,7 @@ vacuole_key
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_replication`.
+Read by ``_set_analyze_replication_defaults``, ``analyze_replication``.
 
 .. _setting-flow-vacuole_link_distance:
 
@@ -20375,7 +20375,7 @@ vacuole_link_distance
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_replication`, ``_check_app_specific``.
+Read by ``_set_analyze_replication_defaults``, ``analyze_replication``, ``_check_app_specific``.
 
 .. _setting-flow-vacuole_link_factor:
 
@@ -20407,7 +20407,7 @@ vacuole_link_factor
 |     ``apply_defaults(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_replication`, ``_check_app_specific``.
+Read by ``_set_analyze_replication_defaults``, ``analyze_replication``, ``_check_app_specific``.
 
 .. _setting-flow-val_split:
 
@@ -20435,7 +20435,7 @@ val_split
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.deep_spacr.train_model`, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`.
+Read by ``train_model``, ``train_test_model``, ``get_train_test_model_settings``.
 
 .. _setting-flow-value_col:
 
@@ -20447,7 +20447,7 @@ value_col
 | :py:func:`~spacr.submodules.analyze_percent_positive` **-- reads it**
 |     :py:func:`~spacr.settings.default_settings_analyze_percent_positive` **-- reads it**
 
-Read by :py:func:`~spacr.settings.default_settings_analyze_percent_positive`, :py:func:`~spacr.submodules.analyze_percent_positive`.
+Read by ``default_settings_analyze_percent_positive``, ``analyze_percent_positive``.
 
 .. _setting-flow-var_weights:
 
@@ -20458,7 +20458,7 @@ var_weights
 | ``_glm_binomial`` **-- reads it**
 | :py:func:`~spacr.ml.regression_model` **-- reads it**
 
-Read by ``_glm_auto``, ``_glm_binomial``, :py:func:`~spacr.ml.regression_model`.
+Read by ``_glm_auto``, ``_glm_binomial``, ``regression_model``.
 
 .. _setting-flow-variable:
 
@@ -20467,7 +20467,7 @@ variable
 
 | :py:func:`~spacr.sim.run_and_save` **-- reads it**
 
-Read by :py:func:`~spacr.sim.run_and_save`.
+Read by ``run_and_save``.
 
 .. _setting-flow-verbose:
 
@@ -20561,7 +20561,7 @@ verbose
 |     :py:func:`~spacr.surrogate.explain_cv_default_settings` **-- reads it**
 | ``_get_object_settings`` **-- reads it**
 
-Read by ``_score_v2_masks``, :py:func:`~spacr.core.generate_image_umap`, :py:func:`~spacr.core.preprocess_generate_masks`, :py:func:`~spacr.core.reducer_hyperparameter_search`, ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.apply_model_to_tar`, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.hit_investigation.hit_investigation_default_settings`, :py:func:`~spacr.hit_investigation.investigate_hit`, :py:func:`~spacr.illumination.load_segmentation_illumination_resume`, :py:func:`~spacr.illumination.prepare_illumination_correction`, :py:func:`~spacr.illumination.prepare_illumination_model`, :py:func:`~spacr.io.preprocess_img_data`, ``_measure_crop_core``, ``_perform_regression``, :py:func:`~spacr.ml.generate_ml_scores`, ``_run_seg_qc``, :py:func:`~spacr.object.generate_cellpose_masks`, :py:func:`~spacr.object.generate_cellpose_masks_sam`, :py:func:`~spacr.object.generate_organelle_masks_sam`, ``_trial_settings``, :py:func:`~spacr.parameter_sweep.rerun_trial`, :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`, :py:func:`~spacr.plot.plot_merged`, :py:func:`~spacr.plot.plot_proportion_stacked_bars`, :py:func:`~spacr.sequencing_qc.barcode_qc`, :py:func:`~spacr.sequencing_qc.barcode_qc_defaults`, ``_get_object_settings``, :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.spacr_cellpose.check_cellpose_models`, :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, :py:func:`~spacr.submodules.analyze_class_proportion`, :py:func:`~spacr.submodules.analyze_endodyogeny`, :py:func:`~spacr.submodules.analyze_invasion`, :py:func:`~spacr.submodules.analyze_replication`, :py:func:`~spacr.surrogate.explain_cv_default_settings`, :py:func:`~spacr.surrogate.run_explain_cv`, ``_get_object_settings``.
+Read by ``_score_v2_masks``, ``generate_image_umap``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``_cross_validate_model``, ``apply_model_to_tar``, ``train_test_model``, ``hit_investigation_default_settings``, ``investigate_hit``, ``load_segmentation_illumination_resume``, ``prepare_illumination_correction``, ``prepare_illumination_model``, ``preprocess_img_data``, ``_measure_crop_core``, ``_perform_regression``, ``generate_ml_scores``, ``_run_seg_qc``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``_trial_settings``, ``rerun_trial``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_merged``, ``plot_proportion_stacked_bars``, ``barcode_qc``, ``barcode_qc_defaults``, ``_get_object_settings``, ``get_analyze_plaque_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``, ``explain_cv_default_settings``, ``run_explain_cv``, ``_get_object_settings``.
 
 .. _setting-flow-voxel_size_xy_um:
 
@@ -20593,7 +20593,7 @@ voxel_size_xy_um
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_plane_spacing`` **-- reads it**
 
-Read by :py:func:`~spacr.measure.resolve_measurement_spacing`, ``_plane_spacing``, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.zstack.plan_4d_from_settings`, :py:func:`~spacr.zstack.plan_from_settings`.
+Read by ``resolve_measurement_spacing``, ``_plane_spacing``, ``get_measure_crop_settings``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-voxel_size_z_um:
 
@@ -20624,7 +20624,7 @@ voxel_size_z_um
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.measure.resolve_measurement_spacing`, :py:func:`~spacr.settings.get_measure_crop_settings`, :py:func:`~spacr.zstack.plan_4d_from_settings`, :py:func:`~spacr.zstack.plan_from_settings`.
+Read by ``resolve_measurement_spacing``, ``get_measure_crop_settings``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-weight_decay:
 
@@ -20652,7 +20652,7 @@ weight_decay
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_fit_one``, :py:func:`~spacr.deep_spacr.train_test_model`, :py:func:`~spacr.settings.get_train_test_model_settings`, :py:func:`~spacr.submodules.train_cellpose`.
+Read by ``_cross_validate_model``, ``_fit_one``, ``train_test_model``, ``get_train_test_model_settings``, ``train_cellpose``.
 
 .. _setting-flow-well_confidence:
 
@@ -20665,7 +20665,7 @@ well_confidence
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     :py:func:`~spacr.submodules.split_wells` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.submodules.split_wells`.
+Read by ``get_analyze_plaque_settings``, ``split_wells``.
 
 .. _setting-flow-well_detection:
 
@@ -20679,7 +20679,7 @@ well_detection
 |     :py:func:`~spacr.submodules.split_wells`
 |         ``_resolve_well_detector`` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_resolve_well_detector``, :py:func:`~spacr.submodules.analyze_plaques`.
+Read by ``get_analyze_plaque_settings``, ``_resolve_well_detector``, ``analyze_plaques``.
 
 .. _setting-flow-well_diameter_mm:
 
@@ -20692,7 +20692,7 @@ well_diameter_mm
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_plaque_scale_for`` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, ``_plaque_scale_for``.
+Read by ``get_analyze_plaque_settings``, ``_plaque_scale_for``.
 
 .. _setting-flow-well_ineq_coeff:
 
@@ -20706,7 +20706,7 @@ well_ineq_coeff
 |         ``deepcopy(...)  [UNRESOLVED]``
 |         ``append(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.sim.generate_parameters`, :py:func:`~spacr.sim.run_simulation`.
+Read by ``generate_parameters``, ``run_simulation``.
 
 .. _setting-flow-well_pad:
 
@@ -20719,7 +20719,7 @@ well_pad
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     :py:func:`~spacr.submodules.split_wells` **-- reads it**
 
-Read by :py:func:`~spacr.settings.get_analyze_plaque_settings`, :py:func:`~spacr.submodules.split_wells`.
+Read by ``get_analyze_plaque_settings``, ``split_wells``.
 
 .. _setting-flow-wells:
 
@@ -20729,7 +20729,7 @@ wells
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`
 |     :py:func:`~spacr.annotation_dataset.filter_selection` **-- reads it**
 
-Read by :py:func:`~spacr.annotation_dataset.filter_selection`.
+Read by ``filter_selection``.
 
 .. _setting-flow-whiten:
 
@@ -20738,7 +20738,7 @@ whiten
 
 | :py:func:`~spacr.utils.reduction_and_clustering` **-- reads it**
 
-Read by :py:func:`~spacr.utils.reduction_and_clustering`.
+Read by ``reduction_and_clustering``.
 
 .. _setting-flow-wide_predictor_columns:
 
@@ -20786,7 +20786,7 @@ window_length
 | :py:func:`~spacr.barcode_search.propose_map_barcodes_settings` **-- reads it**
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by :py:func:`~spacr.barcode_search.propose_map_barcodes_settings`, :py:func:`~spacr.sequencing.generate_barecode_mapping`.
+Read by ``propose_map_barcodes_settings``, ``generate_barecode_mapping``.
 
 .. _setting-flow-workspace_copy_limit_mb:
 
@@ -20796,7 +20796,7 @@ workspace_copy_limit_mb
 | :py:func:`~spacr.workspace.copy_limit_from_settings` **-- reads it**
 |     ``isinstance(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.workspace.copy_limit_from_settings`.
+Read by ``copy_limit_from_settings``.
 
 .. _setting-flow-write_random_annotation_column:
 
@@ -20811,7 +20811,7 @@ write_random_annotation_column
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 
-Read by ``_rules_from_annotation``, :py:func:`~spacr.io.generate_training_dataset`.
+Read by ``_rules_from_annotation``, ``generate_training_dataset``.
 
 .. _setting-flow-writer:
 
@@ -20820,7 +20820,7 @@ writer
 
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 
-Read by :py:func:`~spacr.align.align_folder`.
+Read by ``align_folder``.
 
 .. _setting-flow-x_lim:
 
@@ -20844,7 +20844,7 @@ xtick.color
 
 | :py:func:`~spacr.figure_style.rc_params` **-- reads it**
 
-Read by :py:func:`~spacr.figure_style.rc_params`.
+Read by ``rc_params``.
 
 .. _setting-flow-y_axis_start:
 
@@ -20853,7 +20853,7 @@ y_axis_start
 
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 
-Read by :py:func:`~spacr.core.generate_screen_graphs`.
+Read by ``generate_screen_graphs``.
 
 .. _setting-flow-y_lim:
 
@@ -20863,7 +20863,7 @@ y_lim
 | :py:func:`~spacr.plot.plot_data_from_csv` **-- reads it**
 | :py:func:`~spacr.plot.plot_data_from_db` **-- reads it**
 
-Read by :py:func:`~spacr.plot.plot_data_from_csv`, :py:func:`~spacr.plot.plot_data_from_db`.
+Read by ``plot_data_from_csv``, ``plot_data_from_db``.
 
 .. _setting-flow-y_lims:
 
@@ -20887,7 +20887,7 @@ ytick.color
 
 | :py:func:`~spacr.figure_style.rc_params` **-- reads it**
 
-Read by :py:func:`~spacr.figure_style.rc_params`.
+Read by ``rc_params``.
 
 .. _setting-flow-z_axis:
 
@@ -20905,7 +20905,7 @@ z_axis
 |                 :py:func:`~spacr.zstack.plan_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`, :py:func:`~spacr.zstack.plan_from_settings`.
+Read by ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-z_handling:
 
@@ -20919,7 +20919,7 @@ How multiple Z planes become a 2-D Measure input. 'max' takes a maximum-intensit
 |     :py:func:`~spacr.external_masks.plan_external_masks` **-- reads it**
 | :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by :py:func:`~spacr.convert.convert_folder`, :py:func:`~spacr.external_masks.plan_external_masks`, :py:func:`~spacr.foreign.import_project`.
+Read by ``convert_folder``, ``plan_external_masks``, ``import_project``.
 
 .. _setting-flow-z_projection:
 
@@ -20937,7 +20937,7 @@ z_projection
 |                 :py:func:`~spacr.zstack.plan_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`, :py:func:`~spacr.zstack.plan_from_settings`.
+Read by ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-z_segmentation_mode:
 
@@ -20955,7 +20955,7 @@ z_segmentation_mode
 |                 :py:func:`~spacr.zstack.plan_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_4d_from_settings`, :py:func:`~spacr.zstack.plan_from_settings`.
+Read by ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-z_stack:
 
@@ -20971,4 +20971,4 @@ z_stack
 |                 :py:func:`~spacr.zstack.plan_from_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by :py:func:`~spacr.zstack.plan_from_settings`.
+Read by ``plan_from_settings``.

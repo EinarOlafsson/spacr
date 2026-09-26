@@ -4170,6 +4170,7 @@ class AppScreen(QWidget):
                     hides.add(key)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not ask the dimension switches", exc_info=True)
+        hides.update(self._alpha_hidden_keys())
         return hides
 
     def _headings_the_run_lacks(self) -> set:
@@ -4428,7 +4429,9 @@ class AppScreen(QWidget):
                 state=states.get(state, state))
             for device, state, done, total in report["workers"])
         self._gpu_progress.setText("  ·  ".join(parts))
-        self._gpu_progress.setVisible(True)
+        from ..preferences import _is_alpha_visible
+        self._gpu_progress.setVisible(
+            _is_alpha_visible("widgets", self._gpu_progress.objectName()))
 
     def _lay_out_setting_row(self, section, label, widget) -> None:
         """Put one setting on ``section``'s form: its label, then its field.
@@ -6154,6 +6157,112 @@ class AppScreen(QWidget):
             _set_row_visible(
                 section, field,
                 not self._dimension_is_gated(setting_dimension(key)))
+        self._apply_alpha_rows()
+
+    def _alpha_hidden_keys(self) -> set:
+        """The settings on this form the alpha gate is holding back now.
+
+        Empty while Preferences -> Show alpha features is on. See
+        ``spacr.settings.ALPHA_FEATURES``.
+        """
+        from ..preferences import _is_alpha_visible
+        from ...settings import _alpha_names
+
+        if _is_alpha_visible():
+            return set()
+        widgets = getattr(getattr(self, "_settings_model", None),
+                          "_widgets", None) or {}
+        return {key for key in _alpha_names("settings") if key in widgets}
+
+    def _apply_alpha_rows(self) -> None:
+        """Hide alpha settings rows and alpha dropdown entries (item 569).
+
+        Only HIDES rows: showing them again is the object rule's job, which
+        ``_refresh_alpha_visibility`` asks for, so a row another filter
+        hides is not brought back by this one. A hidden row keeps its widget
+        and its value, so the run still receives it.
+        """
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return
+        for key in self._alpha_hidden_keys():
+            try:
+                model._set_row_visible(key, False)
+            except RuntimeError:
+                continue
+        from ...settings import _alpha_names
+
+        for key in _alpha_names("choices"):
+            built = getattr(model, "_built_control", None)
+            combo = built(key) if callable(built) else None
+            if combo is not None:
+                self._gate_alpha_choices(key, combo)
+
+    @staticmethod
+    def _gate_alpha_choices(key: str, combo) -> None:
+        """Hide and disable ``combo``'s alpha entries while the gate is shut.
+
+        Hidden in the list and disabled, never removed, so a settings file
+        that chose the entry still loads it and still runs with it.
+
+        :param key: the settings key the combo edits.
+        :param combo: the key's control; anything but a combo is ignored.
+        """
+        from PySide6.QtWidgets import QComboBox
+
+        if not isinstance(combo, QComboBox):
+            return
+        from ..preferences import _is_alpha_visible
+        from ...settings import _alpha_choices
+
+        registered = _alpha_choices(key)
+        model = combo.model()
+        view = combo.view()
+        for index in range(combo.count()):
+            names = {str(combo.itemText(index)), str(combo.itemData(index))}
+            if not names & registered:
+                continue
+            shown = _is_alpha_visible("choices", key,
+                                     (names & registered).pop())
+            if view is not None:
+                view.setRowHidden(index, not shown)
+            item = model.item(index) if hasattr(model, "item") else None
+            if item is not None:
+                item.setEnabled(shown)
+
+    def _refresh_alpha_visibility(self) -> None:
+        """Re-decide everything the Show alpha features preference gates.
+
+        Called for every open screen when Preferences closes, so the switch
+        applies live. The settings search is re-indexed first, so its count
+        and its matches leave hidden alpha settings out; then the object rule
+        re-decides every row, which shows alpha rows again when the switch
+        is on; then the section and dimension pass hides them when it is off.
+        """
+        bar = getattr(self, "_settings_search", None)
+        if bar is not None:
+            try:
+                bar._build_index()
+            except Exception:
+                LOG.debug("could not re-index the settings search",
+                          exc_info=True)
+        model = getattr(self, "_settings_model", None)
+        refresh = getattr(model, "refresh_object_visibility", None)
+        if callable(refresh):
+            try:
+                refresh()
+            except Exception:
+                LOG.debug("could not re-decide the rows", exc_info=True)
+        if bar is not None:
+            try:
+                bar.apply(reopen=False)
+            except Exception:
+                LOG.debug("could not re-apply the settings search",
+                          exc_info=True)
+        self.refresh_maturity_visibility()
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self)
 
     def setting_row_is_visible(self, key: str) -> bool:
         """Whether ``key``'s row is currently on the form.
