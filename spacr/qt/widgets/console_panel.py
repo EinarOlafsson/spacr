@@ -1306,24 +1306,6 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         scrollbar = self._scroll.verticalScrollBar()
         self._follow_output = value >= scrollbar.maximum() - 4
 
-    def sit_in_card(self) -> None:
-        """Let the card this console is placed in be its only panel.
-
-        A console on its own paints a rounded box at the page opacity. Put
-        inside a :class:`~spacr.qt.widgets.card.Card`, as every module
-        screen has done since item 515, that box stacked a second
-        translucent grey on the card's: 0.49 of the backdrop through the
-        console against 0.70 through each settings category. Tagged, the
-        box paints nothing and the card's surface is the console's.
-        """
-        box = self._console_box
-        box.setProperty("spacrInCard", True)
-        style = box.style()
-        if style is not None:
-            style.unpolish(box)
-            style.polish(box)
-        box.update()
-
     def jump_to_the_end(self) -> None:
         """Show the newest line, and follow the tail again.
 

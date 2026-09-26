@@ -5581,8 +5581,8 @@ QFrame#ConsoleBox {{
 /* A console that sits inside a Card (every module screen since item 515)
    is ON a panel already. Its box then paints nothing, so the console reads
    as the one panel the settings categories are, not two translucent greys
-   stacked. The ID + attribute selector outranks both ConsoleBox rules. */
-QFrame#ConsoleBox[spacrInCard="true"] {{
+   stacked. Two IDs outrank the one in either ConsoleBox rule. */
+QFrame#Card QFrame#ConsoleBox {{
     background: transparent;
     border: none;
 }}

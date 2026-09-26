@@ -7136,7 +7136,6 @@ class AppScreen(QWidget):
         self._console = ConsolePanel(active_app_label=app_title,
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
-        self._console.sit_in_card()
         console_card.body_layout.addWidget(self._console, 1)
         from ..widgets.foldable import make_foldable
 
