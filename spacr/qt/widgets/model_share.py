@@ -94,6 +94,69 @@ SHARE_FIELDS: Tuple[Tuple[str, str, str], ...] = (
 )
 
 
+def _gradio_upload(base: str, path: str, timeout: int) -> Dict[str, Any]:
+    """Send one file to a Gradio app's upload route; returns its file handle.
+
+    :param base: the app's URL without a trailing slash.
+    :param path: the local file.
+    :param timeout: seconds to wait for the transfer.
+    """
+    import json
+    import urllib.request
+    import uuid
+
+    boundary = uuid.uuid4().hex
+    with open(path, "rb") as handle:
+        payload = handle.read()
+    body = (f"--{boundary}\r\nContent-Disposition: form-data; name=\"files\"; "
+            f"filename=\"{os.path.basename(path)}\"\r\n"
+            "Content-Type: application/octet-stream\r\n\r\n").encode()
+    body += payload + f"\r\n--{boundary}--\r\n".encode()
+    request = urllib.request.Request(
+        base + "/gradio_api/upload", data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
+    sent = json.loads(urllib.request.urlopen(request, timeout=timeout).read())
+    return {"path": sent[0], "meta": {"_type": "gradio.FileData"}}
+
+
+def _gradio_call(base: str, api_name: str, data: list,
+                 wait: float = 600) -> str:
+    """Call one endpoint of a Gradio app and wait for its text reply.
+
+    :param base: the app's URL without a trailing slash.
+    :param api_name: the endpoint, e.g. ``"upload"``.
+    :param data: the endpoint's arguments, in order.
+    :param wait: seconds to wait for the reply.
+    :returns: the reply with its ``ok:`` kept.
+    :raises RuntimeError: with the endpoint's own words when it replies
+        ``error: ...``, or when it does not answer in time.
+    """
+    import json
+    import time
+    import urllib.request
+
+    request = urllib.request.Request(
+        base + f"/gradio_api/call/{api_name}",
+        data=json.dumps(dict(data=data)).encode(),
+        headers={"Content-Type": "application/json"})
+    event = json.loads(urllib.request.urlopen(request, timeout=120).read())["event_id"]
+    deadline = time.time() + wait
+    while time.time() < deadline:
+        with urllib.request.urlopen(
+                base + f"/gradio_api/call/{api_name}/{event}",
+                timeout=120) as reply:
+            text = reply.read().decode("utf-8", "replace")
+        if "event: complete" in text:
+            answer = json.loads(text.rsplit("data:", 1)[1].strip())[0]
+            if str(answer).startswith("error:"):
+                raise RuntimeError(str(answer)[6:].strip())
+            return str(answer)
+        if "event: error" in text:
+            raise RuntimeError("the upload endpoint failed while handling it")
+        time.sleep(3)
+    raise RuntimeError("the upload endpoint did not answer in time")
+
+
 def central_upload(path: str, fields: Dict[str, Any]) -> str:
     """Publish through the central endpoint. Returns its reply.
 
@@ -111,72 +174,29 @@ def central_upload(path: str, fields: Dict[str, Any]) -> str:
         with :func:`pack_training_data` and uploaded too.
     """
     import json
-    import os as _os
-    import time
-    import urllib.request
-    import uuid
 
     if not CENTRAL_ENDPOINT:
         raise RuntimeError("no central upload endpoint is configured")
     base = CENTRAL_ENDPOINT.rstrip("/")
-
-    boundary = uuid.uuid4().hex
-    with open(path, "rb") as handle:
-        payload = handle.read()
-    body = (f"--{boundary}\r\nContent-Disposition: form-data; name=\"files\"; "
-            f"filename=\"{_os.path.basename(path)}\"\r\n"
-            "Content-Type: application/octet-stream\r\n\r\n").encode()
-    body += payload + f"\r\n--{boundary}--\r\n".encode()
-    request = urllib.request.Request(
-        base + "/gradio_api/upload", data=body,
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
-    uploaded = json.loads(urllib.request.urlopen(request, timeout=600).read())
+    uploaded = _gradio_upload(base, path, 600)
 
     train_handle = None
     train_dir = str(fields.get("train_data_dir") or "")
     if train_dir:
         tarball = pack_training_data(train_dir)
-        boundary = uuid.uuid4().hex
-        with open(tarball, "rb") as handle:
-            blob = handle.read()
-        body = (f"--{boundary}\r\nContent-Disposition: form-data; name=\"files\"; "
-                f"filename=\"{_os.path.basename(tarball)}\"\r\n"
-                "Content-Type: application/octet-stream\r\n\r\n").encode()
-        body += blob + f"\r\n--{boundary}--\r\n".encode()
-        request = urllib.request.Request(
-            base + "/gradio_api/upload", data=body,
-            headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
-        sent = json.loads(urllib.request.urlopen(request, timeout=7200).read())
-        train_handle = {"path": sent[0], "meta": {"_type": "gradio.FileData"}}
         try:
-            _os.unlink(tarball)
-        except OSError:
-            pass
+            train_handle = _gradio_upload(base, tarball, 7200)
+        finally:
+            try:
+                os.unlink(tarball)
+            except OSError:
+                pass
 
-    call = dict(data=[{"path": uploaded[0], "meta": {"_type": "gradio.FileData"}},
-                      str(fields.get("display_name") or ""),
-                      str(fields.get("kind") or "cellpose"),
-                      str(fields.get("trained_on") or ""),
-                      json.dumps(fields),
-                      str(fields.get("contact") or ""),
-                      train_handle])
-    request = urllib.request.Request(
-        base + "/gradio_api/call/upload", data=json.dumps(call).encode(),
-        headers={"Content-Type": "application/json"})
-    event = json.loads(urllib.request.urlopen(request, timeout=120).read())["event_id"]
-
-    deadline = time.time() + 600
-    while time.time() < deadline:
-        with urllib.request.urlopen(
-                base + f"/gradio_api/call/upload/{event}", timeout=120) as reply:
-            text = reply.read().decode("utf-8", "replace")
-        if "event: complete" in text:
-            answer = json.loads(text.rsplit("data:", 1)[1].strip())[0]
-            if str(answer).startswith("error:"):
-                raise RuntimeError(str(answer)[6:].strip())
-            return str(answer)
-        time.sleep(3)
-    raise RuntimeError("the upload endpoint did not answer in time")
+    return _gradio_call(base, "upload", [
+        uploaded, str(fields.get("display_name") or ""),
+        str(fields.get("kind") or "cellpose"),
+        str(fields.get("trained_on") or ""), json.dumps(fields),
+        str(fields.get("contact") or ""), train_handle])
 
 
 def slugify(text: str) -> str:
@@ -866,7 +886,63 @@ def write_contribution(target: str, items: Any, dest: Any, *,
     return root
 
 
-def contribute(folder: Any, target: str, token: str) -> str:
+MAX_CONTRIBUTION_BYTES = 2_000_000_000
+
+
+def central_contribute(folder: Any, target: str) -> str:
+    """Send a contribution folder through the central upload Space.
+
+    For a contributor with no Hugging Face login: the folder goes to the
+    Space (see ``tools/model_upload_space/``) as one uncompressed tar, and
+    the Space checks it and opens the pull request with its own token. The
+    Space accepts only ``figures``, ``plaques`` and ``community_<name>``
+    targets, about :data:`MAX_CONTRIBUTION_BYTES`, the file types
+    :func:`write_contribution` writes, and every image paired with its mask
+    or labels and its meta file.
+
+    :param folder: a folder :func:`write_contribution` made.
+    :param target: as for :func:`community_repo`; sent as the name the Space
+        resolves, ``figures``, ``plaques`` or ``community_<name>``.
+    :returns: the pull request's URL.
+    :raises RuntimeError: when no endpoint is configured, the folder is over
+        the limit, or the Space refuses it (with the Space's reason).
+    """
+    import shutil
+    import tarfile
+    import tempfile
+
+    if not CENTRAL_ENDPOINT:
+        raise RuntimeError("no central upload endpoint is configured")
+    folder = Path(folder)
+    if not (folder / "contribution.json").is_file():
+        raise RuntimeError(f"{folder} is not a contribution folder")
+    total = sum(f.stat().st_size for f in folder.rglob("*") if f.is_file())
+    if total > MAX_CONTRIBUTION_BYTES:
+        raise RuntimeError(
+            f"the contribution holds {total / 1e9:.1f} GB and the upload "
+            f"service takes about {MAX_CONTRIBUTION_BYTES / 1e9:.0f} GB; send "
+            "it in parts, or with your own Hugging Face login")
+    if target in (FIGURES_KIND, PLAQUES_KIND):
+        name = str(target)
+    else:
+        name = community_repo(target)
+    work = tempfile.mkdtemp(prefix="spacr-contribution-")
+    tarball = os.path.join(work, f"{folder.name}.tar")
+    try:
+        with tarfile.open(tarball, "w") as tar:
+            tar.add(str(folder), arcname=folder.name)
+        base = CENTRAL_ENDPOINT.rstrip("/")
+        handle = _gradio_upload(base, tarball, 3600)
+        reply = _gradio_call(base, "contribute", [handle, name], wait=1800)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    found = re.search(r"https://huggingface\.co/\S+", reply)
+    if not found:
+        raise RuntimeError(f"the upload service replied: {reply}")
+    return found.group(0)
+
+
+def contribute(folder: Any, target: str, token: Optional[str] = None) -> str:
     """Send a contribution folder as a pull request. Returns its URL.
 
     A pull request rather than a commit, whoever sends it: every
@@ -876,15 +952,29 @@ def contribute(folder: Any, target: str, token: str) -> str:
     A dataset that does not exist yet is created first by
     :func:`ensure_community_repo`, which only its owner can do.
 
+    The contributor's own login is preferred. With no login, or when the
+    login cannot create a dataset that does not exist yet, the folder goes
+    through the central upload Space instead (:func:`central_contribute`),
+    which opens the same pull request with its own token.
+
     :param folder: a folder :func:`write_contribution` made.
     :param target: as for :func:`community_repo`; picks the repository.
-    :param token: the uploader's Hugging Face token (:func:`find_token`).
+    :param token: the uploader's Hugging Face token; :func:`find_token`'s
+        when None.
     """
     from huggingface_hub import HfApi
 
     folder = Path(folder)
     repo_id = community_repo(target)
-    ensure_community_repo(target, token)
+    token = token or find_token()
+    if not token:
+        return central_contribute(folder, target)
+    try:
+        ensure_community_repo(target, token)
+    except RuntimeError:
+        if not CENTRAL_ENDPOINT:
+            raise
+        return central_contribute(folder, target)
     info = HfApi(token=token).upload_folder(
         folder_path=str(folder), path_in_repo=f"contributions/{folder.name}",
         repo_id=repo_id, repo_type="dataset", create_pr=True,

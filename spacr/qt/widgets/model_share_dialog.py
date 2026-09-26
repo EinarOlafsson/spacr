@@ -178,22 +178,34 @@ def ask_community_consent(parent: Optional[QWidget] = None, *,
 
 
 def upload_with_own_login(folder: Any, target: str) -> str:
-    """Send a contribution with the contributor's own Hugging Face login.
+    """Send a contribution, with the contributor's own Hugging Face login if any.
+
+    With a login, the pull request is opened with it (see
+    :func:`~spacr.qt.widgets.model_share.contribute`). Without one, the
+    folder goes through spaCR's upload Space, which opens the same pull
+    request with its own token, so no account is needed.
 
     :param folder: a folder :func:`~spacr.qt.widgets.model_share.write_contribution` made.
     :param target: the community collection; see
         :func:`~spacr.qt.widgets.model_share.community_repo`.
     :returns: the pull request's URL.
+    :raises RuntimeError: with no login, when the upload Space cannot take
+        it; the message says why and how to send it with a login instead.
     """
     from . import model_share
 
     token = model_share.find_token()
-    if not token:
+    if token:
+        return model_share.contribute(folder, target, token)
+    try:
+        return model_share.central_contribute(folder, target)
+    except Exception as exc:
         raise RuntimeError(tr(
-            "Log in to Hugging Face first (a free account: run "
-            "'huggingface-cli login', or set HF_TOKEN), then press Upload "
-            "again. Your annotations are kept while this window is open."))
-    return model_share.contribute(folder, target, token)
+            "spaCR's upload service could not take it ({why}). You can send "
+            "it with a free Hugging Face login instead: run 'huggingface-cli "
+            "login', or set HF_TOKEN, then press Upload again. Your "
+            "annotations are kept while this window is open.",
+            why=exc)) from exc
 
 
 LAST_MASKS_DATASET_KEY = "community_training_data/last_masks_dataset"

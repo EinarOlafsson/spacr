@@ -227,3 +227,76 @@ For the maintainer to decide
   already off on nightly f046bcc36 (9,779 callables vs pinned 9,735); this
   makes it 9,780.
 
+
+
+2026-09-26 -- THE UPLOAD SPACE TAKES CONTRIBUTIONS: NO HUGGING FACE LOGIN NEEDED
+
+  Approved by the maintainer 2026-09-25 ("Extend the Space"). The note
+  above left: "The central upload Space only takes models, so a contributor
+  needs a free HF login to open the PR."
+  * tools/model_upload_space/contribution.py (new, Space-side, plain
+    Python with the HfApi passed in): receive(archive, target, api) takes
+    ONE contribution folder as a tar, exactly as write_contribution lays it
+    out, and opens a PULL REQUEST on the target dataset with the Space's
+    token (create_pr=True; never a commit to main).
+      - Targets: figures, plaques (by kind or full id) and
+        einarolafsson/community_<name> (with or without the owner). Every
+        other target is "unknown" and refused before the archive is read
+        (user-models, another owner's repo, odd characters, "..").
+      - Limits: archive and unpacked total 2 GB, 500 MB per file, 4,000
+        files; only regular files (links/devices refused), no absolute or
+        ".." paths, one top folder with a safe name.
+      - Allow-list: contribution.json at the top; images/ .png .jpg .jpeg
+        .tif .tiff .bmp; masks/ .tif (masks layout) or labels/ .txt (boxes
+        layout, every line a YOLO "0 cx cy w h"); meta/ .json. Anything
+        else is refused and named. Image and mask files must start with
+        their format's magic bytes.
+      - Pairs: every image has exactly one mask (or label file) and one
+        meta file of the same stem, and no mask/meta without an image;
+        the missing or stray names are listed.
+      - contribution.json: valid JSON, layout matches the target, licence
+        CC BY 4.0, consent recorded, image count matches.
+      - A community_<name> dataset that does not exist yet is created with
+        the same README spaCR writes (CREATE_NEW_DATASETS=0 as a Space
+        secret turns that off); Plaque Assay's two must already exist.
+      - The PR description records the archive's sha256, the image count,
+        the spaCR version and a hash of the sender's address.
+  * tools/model_upload_space/app.py: gr.Blocks with two tabs and explicit
+    api_name "upload" (unchanged arguments, so the Model Zoo's Add keeps
+    working) and "contribute" (file, target), rate limit 10 contributions
+    per IP per hour. Token: CONTRIBUTION_TOKEN secret if set, else HF_TOKEN.
+    README says what each endpoint does.
+  * spacr/qt/widgets/model_share.py: central_contribute(folder, target)
+    tars the folder, checks the 2 GB cap before sending, uploads it and
+    calls "contribute" (the Gradio HTTP calls are now _gradio_upload /
+    _gradio_call, shared with central_upload, which behaves as before).
+    contribute(folder, target, token=None) prefers the contributor's own
+    login (token given or find_token()); with none it uses the Space; with a
+    login that cannot create a new community_<name> dataset it also uses
+    the Space (528's leftover).
+  * spacr/qt/widgets/model_share_dialog.py: upload_with_own_login uses the
+    login when there is one, the Space otherwise; when the Space cannot take
+    it the error says why and how to send it with a login instead.
+  Tests: tests/qt/test_523_upload_space_takes_community_contributions.py,
+  36 passed: the Space handler with a fake HfApi (masks, figures, plaques
+  -> PR on the right dataset with the exact files; 9 unknown targets
+  refused with no API call; masks sent as figures, image without mask,
+  stray mask, missing meta, 5 disallowed files, a script named .png, no
+  consent, "../"/absolute paths, a symlink, each size cap -> refused with
+  no API call; new name -> dataset + README then PR, refused when
+  creation is off or for the plaque datasets; an HfApi failure is a reply,
+  not a crash); spaCR's client against a fake urlopen that runs the real
+  handler (no login -> Space -> PR; upload_with_own_login -> Space; a
+  Space refusal reaches the user with the login way round; a login is
+  preferred; a login that cannot create a dataset -> Space; oversized
+  folder refused before any request).
+  Also run by hand: the real app.py under Gradio 6.28.0 (the Space's
+  version) on localhost with a fake HfApi, and spaCR's contribute() and
+  central_upload() against it: masks and figures contributions became PRs
+  with the right files, user-models was refused, a model upload still
+  landed in staging/.
+  New tr() string: "spaCR's upload service could not take it ({why}). You
+  can send it with a free Hugging Face login instead: ..." (the old "Log in
+  to Hugging Face first ..." is no longer used). Catalogs untouched.
+  API: new public callable central_contribute; contribute's token is now
+  optional.
