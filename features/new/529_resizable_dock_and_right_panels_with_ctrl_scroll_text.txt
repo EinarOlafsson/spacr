@@ -107,3 +107,46 @@ NEW tr() STRINGS for the catalog lane: "Dock width", "Drag to make the dock
 wider or narrower. Double-click to fit it to the names again."
 NEW SETTINGS: prefs/dock_width (int px, 0 = fit), prefs/runtime_text_scale
 (float, 0.6-2.0, default 1.0).
+
+--------------------------------------------------------------------------------
+2026-09-26 — LEFTOVER CLOSED: the Settings column gives way to the right one
+--------------------------------------------------------------------------------
+
+The LIMIT above: the Settings column could not go below its search strip's
+one-line minimum. Measured on this checkout (theme applied, dock locked,
+Mask screen): the strip needed 375 px on one line (box 38, Modified 54,
+switch 67, Essentials 97, Recipes 95, spacing), so the right column could
+be dragged out to only 795 px at 1440 x 900 and 721 px at 1366 x 768.
+
+Fix, spacr/qt/settings_search.py only (no theme or screen-construction
+change): SettingsSearchBar moves its controls (Modified + switch,
+Essentials/All, and every add_trailing_widget control such as Recipes and
+the preview switch) onto a wrapping line UNDER the search box when the row
+no longer fits (a FlowLayout host already used by other panels), and back
+beside the box when it does. Its minimumSizeHint is then the widest single
+control -- or the Modified caption + switch, which never wrap apart -- not
+the whole row: 97 px. The strip's height follows the wrapped lines
+(sizeHint uses the layout's height-for-width), so nothing overlaps the
+count line. The box keeps QLineEdit's own small minimum (38 px); Qt
+already elides a placeholder that does not fit, so no text holds it open.
+At the default split nothing moves: the strip is still one line.
+After: at the narrowest Settings column (97 px) the right column is
+1073 px at 1440 x 900 and 999 px at 1366 x 768 (was 795 / 721).
+
+Tests (tests/qt/test_529_...::TestTheSettingsColumnGivesWay, both window
+sizes): the strip's and the Settings pane's minimum are under 200 px; at
+the pane's minimum the column stays open (not collapsed), the right column
+is > 100 px wider than before, the controls sit below the box, and every
+part lies inside the strip without overlap; at half the width the controls
+are back on the box's line; a long placeholder does not raise the minimum.
+test_529: 15 passed. Wider search-strip set (settings_search,
+uncovered paths, recipes, preview_registry, shell collapse, help search
+field, hidden rows, closed categories, widget QSS, page-never-black,
+app_screen cov, caption ratchet, settings column panel): 480 passed,
+21 failed. 20 of the 21 fail identically on nightly's settings_search.py
+(test_settings_column_panel opacity probes, test_settings_search's
+cellpose3_* rows and explain_cv group -- measured by swapping the file
+back); the 21st is test_i18n_caption_ratchet's catalog-hash list, which
+already fails on nightly with 528's strings (catalog lane).
+No new tr() strings; no new public callables (_fit and _one_line_width
+are private, minimumSizeHint/sizeHint/resizeEvent are Qt overrides).

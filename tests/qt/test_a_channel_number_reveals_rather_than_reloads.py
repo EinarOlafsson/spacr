@@ -16,9 +16,9 @@ rebuild, 18 ms, same screen.
 THE TWO CASES ARE NOT THE SAME and the request separates them itself. A
 channel only decides which of the rows already on the form are SHOWN.
 `number_of_organelles` decides which rows EXIST -- raising it to 2 spawns 52
-`organelleb_*` controls that were not there -- and the same request accepts
-that those "have to be spawned". So the rebuild is kept for exactly that key
-and pinned here, because silently losing it would be a slot with no settings.
+`organelleb_*` controls that were not there. Since 2026-09-25 those are built
+and laid out on the screen already open, so neither case reloads the module;
+the rebuild is left only for a run that owns the screen.
 """
 from __future__ import annotations
 
@@ -113,31 +113,182 @@ def test_clearing_it_hides_them_again(mask_window, qtbot, monkeypatch):
     assert set(model.keys_hidden_by_the_run()) == start
 
 
-def test_the_organelle_count_still_spawns_its_settings(mask_window, qtbot,
-                                                       monkeypatch):
-    """The deliberate exception, pinned so it cannot be optimised away.
+def _set_count(model, count):
+    combo = model._widgets["number_of_organelles"]
+    index = next(i for i in range(combo.count())
+                 if str(combo.itemData(i)) == str(count))
+    combo.setCurrentIndex(index)
 
-    A second organelle's settings do not exist until the count says so:
-    measured, raising it to 2 creates 52 `organelleb_*` controls where there
-    were none. That is a rebuild, and the request accepts it.
+
+def _slot(model, role):
+    from spacr.organelle_types import organelle_role_of
+
+    return {key: widget for key, widget in model._widgets.built_items()
+            if organelle_role_of(key) == role}
+
+
+def _an_unrelated_spin_box(model):
+    from PySide6.QtWidgets import QSpinBox
+
+    return next((key, widget) for key, widget in model._widgets.built_items()
+                if isinstance(widget, QSpinBox) and "organelle" not in key
+                and widget.value() < widget.maximum())
+
+
+def test_the_organelle_count_spawns_its_settings_in_place(mask_window, qtbot,
+                                                          monkeypatch):
+    """Case 2, done 2026-09-25: the count no longer reloads the module.
+
+    A second organelle's 52 controls did not exist until the count said so,
+    which is why this used to rebuild the whole screen. They are now built
+    and laid out in the headings already on screen, and every control that
+    existed stays the same object.
     """
     window, screen = mask_window
     calls = _count_rebuilds(window, monkeypatch)
     model = screen._settings_model
-    combo = model._widgets["number_of_organelles"]
     assert not [k for k in model._widgets if k.startswith("organelleb_")]
+    existing = dict(model._widgets.built_items())
+    key, spin = _an_unrelated_spin_box(model)
+    spin.setValue(spin.value() + 1)
+    typed = spin.value()
 
-    index = next(i for i in range(combo.count())
-                 if str(combo.itemData(i)) == "2")
-    combo.setCurrentIndex(index)
+    _set_count(model, 2)
     qtbot.wait(50)
 
-    assert calls == ["mask"], f"the organelle count did not rebuild: {calls}"
-    fresh = window._screens["mask"]
-    spawned = [k for k in fresh._settings_model._widgets
-               if k.startswith("organelleb_")]
+    assert calls == [], f"the organelle count rebuilt the form: {calls}"
+    assert window._screens["mask"] is screen
+    spawned = [k for k in model._widgets if k.startswith("organelleb_")]
     assert len(spawned) > 20, (
         f"only {len(spawned)} controls were spawned for the second organelle")
+    rebuilt = [name for name, widget in existing.items()
+               if model._widgets.built(name) is not widget]
+    assert not rebuilt, f"controls that existed were replaced: {rebuilt[:5]}"
+    assert model._widgets.built(key) is spin
+    assert spin.value() == typed, "an uncommitted value was lost"
+    assert model.collect()["number_of_organelles"] == 2
+
+
+def test_raising_two_to_three_keeps_slots_one_and_two(mask_window, qtbot,
+                                                      monkeypatch):
+    """The check this file set itself, verbatim: slots 1 and 2 keep their
+    widgets and slot 3's are added."""
+    window, screen = mask_window
+    calls = _count_rebuilds(window, monkeypatch)
+    model = screen._settings_model
+    _set_count(model, 2)
+    qtbot.wait(50)
+    one, two = _slot(model, "organelle"), _slot(model, "organelleb")
+    assert two, "slot 2 was not spawned"
+
+    _set_count(model, 3)
+    qtbot.wait(50)
+
+    assert calls == []
+    for name, widget in {**one, **two}.items():
+        assert model._widgets.built(name) is widget, f"{name} was rebuilt"
+    assert len([k for k in model._widgets
+                if k.startswith("organellec_")]) > 20
+
+
+def test_the_new_slot_has_a_captioned_channel_on_the_form(mask_window, qtbot,
+                                                          monkeypatch):
+    """A spawned slot is not a set of controls with nowhere to live: its
+    channel row is laid out beside the first slot's and captioned."""
+    window, screen = mask_window
+    _count_rebuilds(window, monkeypatch)
+    model = screen._settings_model
+
+    _set_count(model, 2)
+    qtbot.wait(50)
+
+    channel = model._widgets.built("organelleb_channel")
+    assert channel is not None
+    assert getattr(channel, "_spacr_setting_label", None) is not None, (
+        "the new slot's channel was never captioned")
+    holders = [section for section in screen._settings_sections
+               if any(key == "organelleb_channel" for key, _l, _w in
+                      getattr(section, "_spacr_declared_rows", ()) or ())]
+    assert holders, "no heading declares the new slot's channel"
+    declared = [key for key, _l, _w in holders[0]._spacr_declared_rows]
+    if "organelle_channel" in declared:
+        assert (declared.index("organelleb_channel")
+                == declared.index("organelle_channel") + 1)
+
+
+def test_the_new_slots_channel_reveals_its_settings(mask_window, qtbot,
+                                                    monkeypatch):
+    """The spawned switch is watched like the ones the panel was built with."""
+    window, screen = mask_window
+    calls = _count_rebuilds(window, monkeypatch)
+    model = screen._settings_model
+    _set_count(model, 2)
+    qtbot.wait(50)
+    before = {k for k in model.keys_hidden_by_the_run()
+              if k.startswith("organelleb_")}
+    assert before, "none of the new slot's settings wait for its channel"
+
+    _commit(model._widgets["organelleb_channel"], 1)
+    qtbot.wait(20)
+
+    after = {k for k in model.keys_hidden_by_the_run()
+             if k.startswith("organelleb_")}
+    assert after < before
+    assert calls == []
+
+
+def test_lowering_the_count_hides_the_slot_in_place(mask_window, qtbot,
+                                                    monkeypatch):
+    window, screen = mask_window
+    calls = _count_rebuilds(window, monkeypatch)
+    model = screen._settings_model
+    _set_count(model, 2)
+    qtbot.wait(50)
+    two = _slot(model, "organelleb")
+
+    _set_count(model, 1)
+    qtbot.wait(50)
+
+    assert calls == []
+    assert "organelleb_channel" in set(model.keys_hidden_by_the_run())
+    for name, widget in two.items():
+        assert model._widgets.built(name) is widget
+    assert "organelleb_channel" not in model.collect()
+
+
+def test_the_per_object_table_gains_the_new_organelle_as_a_column(
+        mask_window, qtbot, monkeypatch):
+    """With 364's table mounted, the new slot is a COLUMN, still no reload."""
+    window, screen = mask_window
+    calls = _count_rebuilds(window, monkeypatch)
+    monkeypatch.setattr("spacr.qt.preferences.get_object_grid_enabled",
+                        lambda: True)
+    screen.apply_object_grid_preference()
+    grid = getattr(screen, "_object_grid", None)
+    if grid is None:
+        pytest.skip("Mask did not mount the per-object table")
+    model = screen._settings_model
+
+    _set_count(model, 2)
+    qtbot.wait(50)
+
+    assert calls == []
+    assert {"organelle", "organelleb"} <= set(grid.objects())
+
+
+def test_a_run_owning_the_screen_still_defers_to_the_rebuild(mask_window,
+                                                             monkeypatch):
+    """The fallback is kept: a run in flight must not have its form grown
+    under it, so the count goes the rebuild's deferred way."""
+    _window, screen = mask_window
+    rebuilt = []
+    monkeypatch.setattr(screen, "_worker_thread_is_running", lambda: True)
+    monkeypatch.setattr(screen, "_rebuild_the_form",
+                        lambda *a: rebuilt.append(1))
+
+    _set_count(screen._settings_model, 2)
+
+    assert rebuilt == [1]
 
 
 def test_the_two_kinds_of_key_are_kept_apart(mask_window):

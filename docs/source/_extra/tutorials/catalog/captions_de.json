@@ -3304,21 +3304,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay: Außen- und Gesamtfärbung auswerten",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "Ordnen Sie zwei Färbekanäle zu, wählen Sie die Färbe-Baseline, führen Sie die Analyse aus und prüfen Sie Invasionszuordnungen und Schwellenwertempfindlichkeit.",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "Die Messdatenbank wählen und Außen- und Gesamtfärbung zuordnen.",
+        "Baseline-Wells und Schwellenwerteinstellungen festlegen und dann die Analyse ausführen.",
+        "Verteilungen, Nenner pro Well und gespeicherte Ergebnistabellen prüfen."
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "Entpacken Sie das verlinkte synthetische Invasion-Assay-Beispiel und verwenden Sie dessen Einstellungsreferenz. Die Datenbank enthält 1.800 synthetische Parasitenmessungen; Bedingungsnamen und Ergebnisse dienen nur der Veranschaulichung. Verwenden Sie für Ihren eigenen Assay ein validiertes Zweifarben-Färbedesign mit Außenfärbung vor der Permeabilisierung und Gesamtfärbung danach, und prüfen Sie repräsentative Bilder.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Öffnen Sie von Home aus Toxoplasma und wählen Sie dann Invasion Assay. Beginnen Sie mit einer Messdatenbank, die Parasitenintensitäten für die Außen- und die Gesamtfärbung enthält. Üben Sie mit der verlinkten synthetischen Probe Kanalzuordnung, Schwellenwertwahl und Ergebnisprüfung.",
           "focus": [
             346,
             50,
@@ -3332,7 +3332,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "Entpacken Sie die Probe und setzen Sie Source auf deren Ordner invasion, der measurements/measurements.db enthält. Geben Sie die beiliegende Einstellungsreferenz ein und ersetzen Sie deren Platzhalter für Source. Die Probe enthält Baseline-Wells und zwei Assay-Bedingungen.",
           "focus": [
             346,
             170,
@@ -3343,7 +3343,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Setzen Sie Outside channel auf 1 und Total channel auf 0. Die Außenfärbung wird vor der Permeabilisierung aufgetragen, die Gesamtfärbung danach. Außen-positive Parasiten werden als anhaftend eingestuft, solche auf oder unter dem Außenschwellenwert als eingedrungen. Prüfen Sie bei eigenen Messungen die Reihenfolge Ihrer Aufnahmekanäle.",
           "focus": [
             346,
             170,
@@ -3354,7 +3354,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "Wählen Sie unter Intensity statistic mean, passend zu den Spalten der Beispieldatenbank. Wählen Sie für Ihren eigenen Assay eine verfügbare Statistik, die zur Färbung passt, und prüfen Sie repräsentative Objekte. Belassen Sie Minimum total intensity für diese Probe bei 100.",
           "focus": [
             346,
             170,
@@ -3365,7 +3365,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "Setzen Sie Stain baseline wells mit c1 auf Spalte 1. Diese Messungen ohne Färbung legen den Grenzwert fest und werden aus den Nennern des Assays ausgeschlossen. Ordnen Sie unter Pathogen plate metadata vehicle der Spalte 2 und inhibitor der Spalte 3 zu.",
           "focus": [
             346,
             170,
@@ -3376,7 +3376,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Setzen Sie Control quantile auf 0,99 und lassen Sie den festen Outside threshold leer. Dann bestimmen die Baseline-Messungen den Grenzwert, in diesem Beispiel etwa 22,8. Prüfen Sie den angewendeten Schwellenwert in der Ausgabe, bevor Sie die Einstufungen interpretieren.",
           "focus": [
             346,
             170,
@@ -3387,7 +3387,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Setzen Sie Threshold sensitivity auf 0,25. Damit werden auch Grenzwerte 25 Prozent unter und über dem gewählten Schwellenwert ausgewertet. Vergleichen Sie den resultierenden Bereich der Invasionseffizienz, um zu sehen, wie stark Ihr Ergebnis von der Schwellenwertwahl abhängt.",
           "focus": [
             346,
             170,
@@ -3398,7 +3398,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "Setzen Sie Extracellular class für die Probe auf classify. Für Objekte ohne Wirtszell-Verknüpfung verwendet classify die Färbung, attached stuft sie als anhaftend ein, und exclude entfernt sie aus der bewerteten Population. Wählen Sie diese Einstellung mit Blick auf die Qualität Ihrer Wirtszellzuordnungen.",
           "focus": [
             346,
             170,
@@ -3409,7 +3409,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Lassen Sie Save aktiviert und klicken Sie auf Run. Öffnen Sie nach Abschluss der Verarbeitung die Schwellenwertabbildung. Sie zeigt die Verteilungen pro Well und den angewendeten Grenzwert. Vergleichen Sie bei einem Experiment diese Verteilungen mit repräsentativen gefärbten Bildern und untersuchen Sie schwache Außenfärbung.",
           "focus": [
             1685,
             260,
@@ -3420,7 +3420,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "Wenn eine Legende über die Abbildung hinausragt, öffnen Sie Figure settings. Setzen Sie im Tab axes Legend position auf best und bestätigen Sie. Prüfen Sie, dass die Beschriftungen sowohl in der Bildschirmansicht als auch in der exportierten Abbildung sichtbar bleiben.",
           "focus": [
             1420,
             330,
@@ -3434,7 +3434,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "Öffnen Sie die Abbildung pro Well. Jeder Balken zeigt die Anteile anhaftender und eingedrungener Parasiten, darüber die Zahl der bewerteten Parasiten. Baseline-Wells sind ausgeschlossen. Lesen Sie beim Vergleich von Wells die Anzahlen zusammen mit den Anteilen.",
           "focus": [
             1685,
             260,
@@ -3445,7 +3445,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "Öffnen Sie die Zusammenfassung nach Bedingung. Vergleichen Sie den gepoolten Invasionsanteil mit dem Mittelwert über die Wells, da beide unterschiedlich gewichten. Prüfen Sie die Streuung der Ergebnisse pro Well, bevor Sie Bedingungen vergleichen.",
           "focus": [
             1685,
             260,
@@ -3456,7 +3456,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "Alles landet in results/analyze_invasion innerhalb von Source. parasite_calls.csv enthält die Einstufung jedes Parasiten, field_thresholds.csv die zugrunde liegenden Grenzwerte, well_invasion.csv die Anteile pro Well und condition_summary.csv den gepoolten Vergleich. Bewahren Sie Abbildungen und Einstellungen dazu auf und vergleichen Sie Bedingungen über unabhängige Replikate hinweg.",
           "focus": [
             1510,
             1200,
@@ -3476,6 +3476,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3483,21 +3523,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay: Parasiten pro Vakuole zählen",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "Laden Sie Parasitenmessungen, wählen Sie die Vakuolen-Identität, führen Sie die Analyse aus und prüfen Sie Zählverteilungen und Exporte.",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "Eine Messdatenbank und ihre Vakuolen-Kennung wählen.",
+        "Wirtszuordnungs- und Größenfilter festlegen und dann die Analyse ausführen.",
+        "Verteilungen pro Well lesen und die gespeicherten Ergebnistabellen finden."
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "Entpacken Sie das verlinkte synthetische Replication-Assay-Beispiel. Es enthält eine Messdatenbank und eine Einstellungsreferenz mit 1.992 Parasitenzeilen in 480 Vakuolen über zwölf Wells. Bedingungsnamen und Messwerte sind Lehrdaten. Verwenden Sie für Ihren eigenen Assay gemessene Parasiten mit geprüften Vakuolenzuordnungen und unabhängige experimentelle Replikate.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Öffnen Sie von Home aus Toxoplasma und wählen Sie dann Replication Assay. Beginnen Sie mit einer Messdatenbank, die Parasitenzeilen und deren Vakuolenzuordnungen enthält. Mit dem verlinkten synthetischen Beispiel üben Sie die Einstellungen und lesen die entstehenden Zählverteilungen.",
           "focus": [
             346,
             50,
@@ -3511,7 +3551,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "Entpacken Sie die Probe und setzen Sie Source auf deren Ordner replication. Die Datenbank liegt in measurements. Geben Sie die beiliegende Einstellungsreferenz ein und ersetzen Sie den Platzhalter für Source durch Ihren entpackten Ordner. Lassen Sie Save aktiviert, damit die Ergebnisse geschrieben werden.",
           "focus": [
             346,
             170,
@@ -3522,7 +3562,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Setzen Sie Vacuole key auf vacuole_id. Damit werden Parasiten nach der Vakuole gruppiert, zu der sie gehören. Die Probe enthält zwei Vakuolen pro Wirtszellgruppe; verwenden Sie daher die Vakuolen-Kennung, um diese Zählungen getrennt zu halten.",
           "focus": [
             346,
             170,
@@ -3533,7 +3573,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Aktivieren Sie Require host cell, um nur Parasiten einzuschließen, die mit einer Wirtszelle verknüpft sind. Prüfen Sie bei eigenen Daten die nicht zugeordneten Objekte. Setzen Sie für diese Probe Minimum parasite area auf 200 und Maximum parasite area auf 800.",
           "focus": [
             346,
             170,
@@ -3544,7 +3584,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Setzen Sie Maximum parasites per vacuole auf 16. Das legt die größte benannte Kategorie für Zweierpotenzen fest. Größere Zweierpotenzen kommen in eine Überlaufkategorie, während Zählungen wie 3 in der eigenen Kategorie für Nicht-Zweierpotenzen bleiben.",
           "focus": [
             346,
             170,
@@ -3555,7 +3595,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "Geben Sie vehicle und inhibitor als die beiden Pathogen types ein und ordnen Sie sie in Pathogen plate metadata Spalte 1 und Spalte 2 zu. Jede Gruppe enthält sechs Übungs-Wells. Geben Sie für Ihr Experiment die Bedingungsnamen und Well-Zuordnungen aus Ihrem Plattendesign ein.",
           "focus": [
             346,
             170,
@@ -3566,7 +3606,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Prüfen Sie Source, Vacuole key, die Filter und Save und klicken Sie dann auf Run. Verfolgen Sie die Konsole, bis die Verarbeitung abgeschlossen ist. Der Bereich Figures zeigt die Verteilungen pro Well und pro Bedingung.",
           "focus": [
             1510,
             170,
@@ -3577,7 +3617,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "Öffnen Sie die Abbildung pro Well. Jeder gestapelte Balken zeigt den Anteil der Vakuolen in jeder Kategorie der Parasitenzahl. Lesen Sie die Farben anhand der Legende. In dieser Probe enthält jedes Well 40 Vakuolen, und 5 Prozent fallen in die Kategorie der Nicht-Zweierpotenzen.",
           "focus": [
             1510,
             170,
@@ -3588,7 +3628,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "Öffnen Sie Figure settings, um die Legende anzupassen. Wählen Sie im Tab axes eine Legend position innerhalb der Abbildung, wenn die Beschriftungen darüber hinausragen. Das ändert nur die Darstellung; die berechneten Zählungen bleiben erhalten.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3599,7 +3639,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "Öffnen Sie die Abbildung nach Bedingung, um die gepoolten Zählverteilungen zu vergleichen. Prüfen Sie die Ergebnisse pro Well zusammen mit dieser Zusammenfassung. Verwenden Sie bei der Analyse eines Experiments unabhängige biologische Replikate und eine geeignete experimentelle Einheit für statistische Vergleiche.",
           "focus": [
             1510,
             170,
@@ -3610,7 +3650,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "Lesen Sie etwaige Exportwarnungen in der Konsole. Prüfen Sie neben der Bildschirmansicht auch die gespeicherten Abbildungen, und wählen Sie Farben, die vor dem Exporthintergrund lesbar bleiben.",
           "focus": [
             1510,
             1190,
@@ -3621,7 +3661,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Die Ergebnisse in results/analyze_replication innerhalb von Source bauen aufeinander auf. vacuole_counts.csv zählt jede Vakuole, well_distribution.csv macht daraus die Verteilung jedes Wells, und die Zusammenfassungen und Abbildungen nach Bedingung fassen die Wells zusammen. Bewahren Sie sie mit den Einstellungen und der Quelldatenbank auf, damit Sie jede Zahl zurückverfolgen können.",
           "focus": [
             346,
             170,
@@ -3641,6 +3681,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

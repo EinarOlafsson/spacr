@@ -4,14 +4,17 @@ TIMEFLOWS: A TEMPORAL CELLPOSE FOR THE TIMELAPSE SUBMODULE
 
 Filed as 417 on 2026-09-18; renumbered 2026-09-19 because 417 also names features/new/417_the_magnifier_round_two.txt.
 
-Status:    EXPERIMENTAL V1 TRAINED2026-09-22, NOT PROMOTED. QC, baseline,
-           paired model/training and a first held-out scramble evaluation
-           exist; v1 does not consistently beat the IoU stitcher. The motion
-           sampler is corrected2026-09-23 to use each pair's own endpoints
-           across mixed-size movies. Faster held-out movies, stratified
-           scores/controls, corrected-sampler retraining, the prescribed
-           segmentation pretraining and whole-movie/submodule integration
-           remain open. See the dated evidence below; the historical
+Status:    EXPERIMENTAL, OPT-IN, NOT PROMOTED (2026-09-26). v2 was retrained
+           with the corrected sampler and 1/3/6/12-frame gaps, then scored on
+           a harder held-out set (real C. glutamicum, U373, DIC-HeLa, Huh7;
+           synthetic SIM+). It ties v1 and the no-model zero-motion control,
+           and it loses to the IoU stitcher on the dense real movie. The
+           time head has still not learned motion. timelapse_mode='timeflows'
+           exists (a trained checkpoint goes in timeflows_model; the default
+           stays trackastra), and whole-movie ids are reproducible. Still
+           open: a head that learns motion (see 2026-09-26 below), the
+           segmentation pretraining, lineage, end-to-end scoring and
+           promotion. See the dated evidence below; the historical
            not-started statements no longer describe the implementation.
 
 Decision:  Fork Cellpose and add a third output: flows through TIME. The
@@ -739,3 +742,98 @@ holdouts, model-own segmentation and whole-movie identity/lineage remain open.
 Receipt:data/426_temporal_assignment_comparison_2026-09-23.json records both
 summaries,18cache hashes, service result and provenance. Private full strata:
 implementation-20260922/timeflows-426/completed-assignment-summaries.json.
+
+2026-09-26 -- V2 RETRAINED ON WIDER GAPS; HARDER HELD-OUT SET; OPT-IN BACKEND
+--------------------------------------------------------------------------------
+SAMPLER. The 09-23 per-pair sampler is confirmed on real data. 720 pairs from
+the six v1 training movies: 15 per sequence per gap, at gaps 1, 3, 6 and 12
+(ctc_pairs(gaps=...), CLI --gaps). Their median displacement is 0.23, 1.04,
+2.43 and 3.23 source diameters at the 50th, 90th, 99th and 100th percentiles.
+The inverse-frequency bins put 81.5 % of the sampling weight on the 170 pairs
+whose median displacement is at least 0.5 diameter. Loading the pairs peaked
+at 9.2 GB RSS.
+
+TRAINED. timeflows_v2.pt (sha256 0ad1e0d3..., with its .json and
+train_v2.log in live_cell/timeflows/) started from cpsam and ran 2,500
+head-only steps and then 2,500 full steps. The whole job took one gpu_turn
+(05:41-06:47, 22 min of training, rc 0). The loss did NOT settle.
+Over the head stage it had a median of 2.0 (0.15-13.2); over the full stage, a median of 1.7
+(0.09-17.3), ending at 7.04. v1 ended near 0.05 on consecutive frames only. The
+large vectors of the wide-gap pairs dominate the loss, and the head does not
+fit them. The first queued turn trained nothing: live_cell/datasets had moved to
+/nas_mnt/data/training_data/projects/live_cell on 2026-09-25, so it found 0
+pairs. The movies were copied read-only to /tmp/spacr-426-scratch/data for
+the rerun. For C. glutamicum only the 219 files of the selected frames were
+copied.
+
+HARDER HELD-OUT SET. None of these movies was used in training. Pairs were
+chosen from the annotations alone and fixed before any checkpoint was scored:
+tools/evaluate_timeflows.py --selection hardest --select-only, then
+--pairs-from so that every checkpoint scores the same pairs. Per sequence and gap,
+evenly spaced candidates (40 for C. glutamicum, 30 elsewhere) were ranked by
+the share of objects moving at least half a diameter, and the top 3 were kept.
+C. glutamicum is real bacterial phase contrast with complete GT masks, 5
+sequences x gaps 1/4/16. At gap 16, 80 % of tracked objects move at least
+0.5 diameter (mean 1.28). U373 and DIC-HeLa use silver ST masks at gaps
+6/12/24; SIM+ is synthetic GT at gaps 12/24; Huh7 is real GT at gap 1 and is
+an easy control. The same distance-gated matcher scores every arm.
+Correct links to the true successor:
+
+  movie       true succ.   v2      v1      IoU     zero motion
+  C.glut g1     20216     20003   20017   20007   20050
+  C.glut g4     19704     14321   14583   14833   14641
+  C.glut g16    12481      2819    2817    2848    2790
+  U373 (ST)       107        92      94      71      90
+  DIC-HeLa (ST)   172       166     164     168     168
+  SIM+ (synth)    214       195     195     165     191
+  Huh7 (GT)        83        81      83      83      83
+
+Of the 8,033 C. glutamicum successors that moved at least 1 diameter, IoU
+linked 59, v2 and v1 5 each, and zero motion 0. False links among objects
+without a successor (C. glutamicum, 6,905 of them): v2 6,490, v1 6,458, IoU
+6,351, zero motion 6,463. On SIM+ (102) they were v2 69, v1 68, IoU 44, zero
+motion 63. The oracle linked 100 % in every set, the random head abstained on every
+successor, and the copied-frame controls pass. Per-pair rows, strata, hashes
+and selections: features/data/426_timeflows_v2_hard_heldout_2026-09-26.json.
+
+WHAT THIS SAYS. v2 does not beat the IoU stitcher, so it is NOT promoted.
+The trained arm tracks the zero-motion arm to within about 1 % everywhere.
+Its wins over IoU on U373 and SIM+ are therefore centroid-distance matching,
+which the no-model control does just as well; they are not learned motion.
+In the dense real colony, where motion outruns overlap (gap 16), all four
+arms link only about 23 %, so nothing here solves that case. What this does
+NOT prove: the held-out motion comes from subsampling slow movies, which
+imitates a sparse frame rate but not intrinsically fast cells. Divisions
+pile up inside wide gaps. Frames of one movie are not independent replicates.
+The masks are supplied, so none of this is end-to-end tracking.
+
+LIKELY CAUSES, for the next attempt. The 256 px tile censors most
+wide-gap successors, which fall partly or wholly outside the crop, and the
+head sees 1/8-resolution neck features. A regression loss in diameters lets
+the rare large vectors swamp the rest. Options: a larger tile or a
+coarse-to-fine search, a cost-volume/correlation head between the two
+frames' features, a bounded or robust loss, and a gap-conditioned input.
+
+INTEGRATION (opt-in, off by default). timelapse_mode gains 'timeflows'
+(object.py -> timelapse._timeflows_track_cells), and the new setting
+timeflows_model names the checkpoint. No checkpoint is shipped or downloaded;
+on CPU the encoder runs in float32. Frame-to-frame links become whole-movie
+track ids through timeflows_model._stitch_links. Ids are assigned by
+first appearance in ascending label order, so a re-run gives identical ids.
+A newcomer or a daughter starts a new track; no parent/child lineage is
+recorded yet. It writes the same tracks CSV layout as trackastra. The
+setting is registered in the settings, GUI and consumer maps, and the
+generated artefacts were rerun. 18 new tests
+(tests/test_timeflows_movie_tracking.py) cover gaps, the sampler, hardest
+selection, --select-only/--pairs-from, stitching, whole-movie linking with
+an oracle stand-in, the backend and checkpoint loading. They load no real
+weights.
+
+STILL OPEN, AND WHY. (1) A time head that learns motion. v2 shows that more
+wide-gap data alone does not get there; see the causes above. (2) Step 0
+segmentation pretraining: a separate multi-hour Cellpose fine-tune over the
+curated light-microscopy set, which one ~2 h GPU turn cannot hold. (3)
+Lineage (division edges) and gap bridging in the stitcher. (4) End-to-end
+scoring (the model's own segmentation, then CTC TRA). (5) Promotion, which
+needs (1) and real held-out movies of intrinsically small, fast cells;
+none exist locally beyond the subsampled sets above.

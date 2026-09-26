@@ -80,84 +80,6 @@
       "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "05_home",
-      "language": "da",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "de",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "es",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "fr",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "hi",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "is",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "it",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "ja",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "ko",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "nb",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "pt-BR",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "sv",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "05_home",
-      "language": "zh-CN",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
       "lesson": "06_api",
       "language": "da",
       "status": "english_fallback",
@@ -782,84 +704,6 @@
       "reason": "English fallback retained from the published catalog; translation requires review"
     },
     {
-      "lesson": "14_make_masks",
-      "language": "da",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "de",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "es",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "fr",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "hi",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "is",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "it",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "ja",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "ko",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "nb",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "pt-BR",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "sv",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "14_make_masks",
-      "language": "zh-CN",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
       "lesson": "15_image_umap",
       "language": "da",
       "status": "english_fallback",
@@ -1014,84 +858,6 @@
       "language": "zh-CN",
       "status": "english_fallback",
       "reason": "English changed after the translation review"
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "da",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "de",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "es",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "fr",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "hi",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "is",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "it",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "ja",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "ko",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "nb",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "pt-BR",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "sv",
-      "status": "source_bound_review",
-      "reason": null
-    },
-    {
-      "lesson": "17_timelapse",
-      "language": "zh-CN",
-      "status": "source_bound_review",
-      "reason": null
     },
     {
       "lesson": "18_motility",
@@ -1642,158 +1408,158 @@
     {
       "lesson": "26_invasion",
       "language": "da",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "de",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "sv",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "26_invasion",
       "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "da",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "de",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "es",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "fr",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "hi",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "is",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "it",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "ja",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "ko",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "nb",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "pt-BR",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "sv",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "27_replication",
       "language": "zh-CN",
-      "status": "english_fallback",
-      "reason": "English changed after the translation review"
+      "status": "source_bound_review",
+      "reason": null
     },
     {
       "lesson": "28_training_runs",

@@ -434,3 +434,85 @@ def test_a_console_that_went_away_stops_listening(qtbot):
     QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
     assert len(SB._OUTPUT_LISTENERS) == before
     SB._tell_listeners("Cellpose 3", " 5%|bar\r")
+
+
+@pytest.mark.parametrize("model, estimates", [
+    ("cellpose3:cyto3", True), ("cellpose3:cyto2", True),
+    ("cellpose3:cyto", True), ("cellpose3:nuclei", True),
+    ("cellpose3:", True), ("CellPose3: nuclei", True),
+    ("cellpose3:/models/cp3_weights.pth", False),
+    ("cellpose_dino:/models/cellposedino_vit_b", False),
+    ("cpsam", False), ("/models/finetuned_cpsam", False),
+    ("dinocell", False), ("samcell", False), ("", False), (None, False),
+])
+def test_the_diameter_note_follows_the_route_that_estimates(model, estimates):
+    """Item 507: Diameter 0 estimates only through a Cellpose 3 size model.
+
+    A Cellpose 3 checkpoint runs at its trained diameter, and Cellpose-DINO
+    and Cellpose-SAM run Cellpose 4, which segments at native scale when
+    the diameter is 0 -- no estimate, so the note would be untrue there.
+    """
+    assert mm._diameter_zero_estimates(model) is estimates
+
+
+def test_the_magnifier_asks_the_route_its_mode_runs():
+    assert mm._magnifier_route_model(
+        {"mode": "cellpose", "model_name": "cellpose3:cyto2"}) == \
+        "cellpose3:cyto2"
+    assert mm._magnifier_route_model(
+        {"mode": "cellpose3:nuclei", "model_name": "cpsam"}) == \
+        "cellpose3:nuclei"
+    assert mm._magnifier_route_model(
+        {"mode": "dinocell", "model_name": "cellpose3:cyto3"}) == "dinocell"
+    assert mm._magnifier_route_model(
+        {"mode": "cellpose_dino:/m/vit_b", "model_name": "cpsam"}) == \
+        "cellpose_dino:/m/vit_b"
+
+
+@pytest.fixture
+def loaded(qtbot, tmp_path):
+    import imageio.v2 as imageio
+    import numpy as np
+
+    folder = tmp_path / "fields"
+    (folder / "masks").mkdir(parents=True)
+    imageio.imwrite(folder / "f_00.tif", np.zeros((40, 40), np.uint16))
+    widget = mm.MakeMasksScreen()
+    qtbot.addWidget(widget)
+    widget._open_folder(str(folder))
+    if widget._loading:
+        widget._load_worker.wait(30_000)
+        widget._on_background_load_finished()
+    assert widget._canvas.image is not None
+    yield widget
+    widget.close_folded()
+
+
+@pytest.mark.parametrize("model, said", [
+    ("cellpose3:cyto3", True),
+    ("cellpose3:/models/cp3_weights.pth", False),
+    ("cellpose_dino:/models/cellposedino_vit_b", False),
+])
+def test_object_detection_says_the_note_where_diameter_0_estimates(
+        loaded, monkeypatch, model, said):
+    reported = []
+    submitted = []
+    monkeypatch.setattr(loaded, "_report",
+                        lambda text, kind="info": reported.append((text, kind)))
+    loaded._detection_worker = types.SimpleNamespace(
+        submit=submitted.append, close=lambda timeout=0: True)
+    if loaded._cp_model.findData(model) < 0:
+        loaded._cp_model.addItem(model, model)
+    loaded._cp_model.setCurrentIndex(loaded._cp_model.findData(model))
+    loaded._cp_diameter.setValue(0)
+    loaded._on_detect_cellpose()
+    assert len(submitted) == 1
+    note = (mm._cellpose3_auto_diameter_note(), "warning")
+    assert (note in reported) is said
+
+    reported.clear()
+    loaded._detection_request = None
+    loaded._cp_diameter.setValue(44)
+    loaded._on_detect_cellpose()
+    assert note not in reported
+    loaded._detection_request = None

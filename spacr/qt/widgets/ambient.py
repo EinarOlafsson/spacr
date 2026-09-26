@@ -5785,12 +5785,13 @@ def _the_spaceout_fractal(host):
 
 
 _BUILT_FROM_SETTINGS = ("pattern", "backend", "quality", "scale",
-                       "max_iterations", "precision_digits")
+                       "supersampling", "max_iterations", "precision_digits")
 """The fractal settings a spaceout backdrop is BUILT from.
 
 The pattern picks the shader and the backend picks GPU or CPU; quality and
-scale go into the frozen `Settings` the renderer sizes itself from; the
-Mandelbrot reference orbit is iterated once, at construction, to
+scale go into the frozen `Settings` the renderer sizes itself from;
+supersampling is compiled into the shader's sample grid and sizes the CPU
+engine's (item 531); the Mandelbrot reference orbit is iterated once, at construction, to
 `max_iterations` at `precision_digits`. Every other setting is either on the
 `RuntimeControls` the canvas reads each frame or read from the store each
 frame, so it needs no rebuild. See item 530.
@@ -5827,7 +5828,8 @@ def _build_the_spaceout_fractal(values: dict, controls=None):
             zoom_rate=values["zoom_rate"])
     widget = create_fractal_widget(
         Settings(pattern=values["pattern"], backend=values["backend"],
-                 quality=values["quality"], scale=values["scale"]),
+                 quality=values["quality"], scale=values["scale"],
+                 supersampling=values.get("supersampling", 2)),
         controls,
     )
     widget._spaceout_controls = controls

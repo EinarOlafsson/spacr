@@ -229,7 +229,14 @@ def clamp(value: float, low: float, high: float) -> float:
 
 @dataclass(frozen=True)
 class Settings:
-    """What the picture is made of. Every field is a Preferences row."""
+    """What the picture is made of. Every field is a Preferences row.
+
+    `supersampling` is samples per pixel along each axis, the Fractal tab's
+    Supersampling row. Every renderer used a fixed 2x2 whatever it said
+    (item 531); now the shaders and the CPU kernels take an N x N grid from
+    it. Two is the published grid, so a `Settings()` nobody filled in draws
+    what it always drew.
+    """
 
     pattern: str = DEFAULT_PATTERN
     backend: str = DEFAULT_BACKEND
@@ -237,6 +244,7 @@ class Settings:
     scale: float = DEFAULT_SCALE
     fps: int = 60
     cpu_threads: Optional[int] = None
+    supersampling: int = 2
 
     def validated(self) -> "Settings":
         """A copy with every field inside the range the renderers accept.
@@ -253,7 +261,96 @@ class Settings:
             fps=int(clamp(float(self.fps), 15, 240)),
             cpu_threads=(None if self.cpu_threads is None
                          else max(1, int(self.cpu_threads))),
+            supersampling=_samples_a_side(self.supersampling),
         )
+
+
+def _samples_a_side(value) -> int:
+    """The supersampling setting as a usable whole number of samples a side.
+
+    Below one cannot draw anything and is read as one; there is no upper
+    bound, because the Fractal tab leaves extravagant values to the user
+    and says what they cost. Anything unreadable is the published two.
+
+    :param value: the saved setting, possibly a float or a string.
+    :returns: at least 1.
+    """
+    try:
+        return max(1, int(round(float(value))))
+    except (TypeError, ValueError):
+        return 2
+
+
+def _sub_pixel_offsets(samples: int) -> tuple:
+    """The centres of an N x N sub-pixel grid, relative to the pixel centre.
+
+    ``(i + 0.5) / N - 0.5`` along each axis: one sample sits on the centre,
+    two give the published -0.25 / +0.25, three give -1/3, 0, +1/3.
+
+    :param samples: samples a side.
+    :returns: ``N * N`` ``(dx, dy)`` pairs, row by row.
+    """
+    count = _samples_a_side(samples)
+    steps = [(index + 0.5) / count - 0.5 for index in range(count)]
+    return tuple((dx, dy) for dy in steps for dx in steps)
+
+
+_SHADER_MAIN = re.compile(r"void\s+main\s*\(\s*\)\s*\{")
+_SHADER_SAMPLER = re.compile(r"(\w+)\s*\(\s*(?:gl_FragCoord\.xy|base)\s*\+\s*vec2")
+
+
+def _supersampled_shader(source: str, samples: int) -> str:
+    """``source`` with its fixed 2x2 ``main`` replaced by an N x N grid.
+
+    Every spaceout fragment shader ends in a ``main`` that averages four
+    calls of one per-sample function at a fixed 2x2 of sub-pixel offsets.
+    That ``main`` is rewritten to loop an N x N grid with constant bounds,
+    which GLSL 1.20 and GLSL ES both accept, so one rule serves all five
+    shaders and a new one only has to keep the same shape. Two returns
+    the source untouched: the published grid, byte for byte.
+
+    :param source: the fragment shader as its module publishes it.
+    :param samples: samples a side, from the Supersampling setting.
+    :returns: the shader to compile.
+    :raises ValueError: if the shader's ``main`` does not have that shape,
+        so a new shader that cannot follow the setting fails loudly in the
+        tests rather than silently keeping 2x2.
+    """
+    count = _samples_a_side(samples)
+    if count == 2:
+        return source
+    opening = _SHADER_MAIN.search(source)
+    if opening is None:
+        raise ValueError("the fragment shader has no main()")
+    body = source[opening.end():]
+    depth = 1
+    closing = -1
+    for index, character in enumerate(body):
+        if character == "{":
+            depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                closing = index
+                break
+    sampler = _SHADER_SAMPLER.search(body, 0, max(0, closing))
+    if sampler is None or closing < 0:
+        raise ValueError("the fragment shader's main() is not a sample grid")
+    name = sampler.group(1)
+    grid = (
+        "void main() {\n"
+        "    vec3 total = vec3(0.0);\n"
+        f"    for (int sy = 0; sy < {count}; sy++) {{\n"
+        f"        for (int sx = 0; sx < {count}; sx++) {{\n"
+        "            vec2 offset = (vec2(float(sx), float(sy)) + 0.5)"
+        f" / {float(count)!r} - 0.5;\n"
+        f"            total += {name}(gl_FragCoord.xy + offset);\n"
+        "        }\n"
+        "    }\n"
+        f"    gl_FragColor = vec4(total / {float(count * count)!r}, 1.0);\n"
+        "}\n"
+    )
+    return source[:opening.start()] + grid + body[closing + 1:]
 
 
 @dataclass
@@ -631,6 +728,26 @@ if njit is not None:
                              + 0.06 * ring[previous_3, y, x, channel])
                     output[y, x, channel] = int(value)
 
+    @njit(cache=True, parallel=True, fastmath=True, nogil=True)
+    def _blend_weighted(ring, output, newest, weights):
+        """Combine a ring of any length, newest first, with ``weights``.
+
+        The published 2x2 keeps :func:`_blend_temporal` and its four fixed
+        weights; this is the same blend for the N x N grids item 531 lets the
+        Supersampling setting ask for, where the ring holds N * N phases.
+        """
+        height, width, _channels = output.shape
+        length = ring.shape[0]
+        for y in prange(height):
+            for x in range(width):
+                for channel in range(3):
+                    value = 0.0
+                    for age in range(length):
+                        value += (weights[age]
+                                  * ring[(newest - age) % length, y, x,
+                                         channel])
+                    output[y, x, channel] = int(value)
+
 else:                                                        # pragma: no cover
 
     def _render_into(*_args, **_kwargs):
@@ -647,6 +764,10 @@ else:                                                        # pragma: no cover
         """Refuse clearly when numba is absent. See :func:`_render_into`."""
         raise RuntimeError("numba is required for the CPU fractal backend")
 
+    def _blend_weighted(*_args, **_kwargs):
+        """Refuse clearly when numba is absent. See :func:`_render_into`."""
+        raise RuntimeError("numba is required for the CPU fractal backend")
+
 
 #: The four 2x2 sub-pixel positions, walked one per frame.
 JITTERS: Final[tuple[tuple[float, float], ...]] = (
@@ -654,11 +775,42 @@ JITTERS: Final[tuple[tuple[float, float], ...]] = (
 )
 
 
+def _orbit_jitters(samples: int) -> tuple:
+    """The sub-pixel positions the CPU orbit walks for ``samples`` a side.
+
+    From the pixel's corner, as :data:`JITTERS` is: two a side IS
+    :data:`JITTERS`, one a side is the pixel centre alone.
+
+    :param samples: samples a side, from the Supersampling setting.
+    :returns: ``N * N`` ``(x, y)`` offsets in ``[0, 1)``.
+    """
+    return tuple((0.5 + dx, 0.5 + dy) for dx, dy in _sub_pixel_offsets(samples))
+
+
+def _orbit_blend_weights(phases: int) -> np.ndarray:
+    """Weights for a ring of ``phases`` frames, newest first, summing to 1.
+
+    Falling with the square of how many frames remain, so the newest frame
+    dominates as the published 0.62 / 0.22 / 0.10 / 0.06 does and a moving
+    picture does not ghost across nine or sixteen frames.
+
+    :param phases: the ring length, ``N * N``.
+    :returns: a float64 array of length ``phases``.
+    """
+    raw = np.array([(phases - age) ** 2 for age in range(max(1, phases))],
+                   dtype=np.float64)
+    return raw / raw.sum()
+
+
 class OrbitEngine:
     """The four-frame temporal window, and nothing else.
 
     Holds no keyframes: the only state is the ring of the last four jitter
     phases, which is what the antialiasing needs and all it needs.
+
+    Four is the published 2x2. `samples`, set by the widget from the
+    Supersampling setting (item 531), makes it N x N phases walked over
+    N * N frames; one a side keeps no history at all.
 
     :param thread_count: worker threads to render with. Clamped to at least
         one, so a caller that computed zero from an unavailable CPU count
@@ -678,6 +830,8 @@ class OrbitEngine:
         self.output: Optional[np.ndarray] = None
         self.slot = 0
         self.frames = 0
+        self.samples = 2
+        self._ring_samples = 2
 
     def _ensure_size(self, width: int, height: int) -> None:
         """Allocate the ring and output buffers for a new frame size.
@@ -689,11 +843,15 @@ class OrbitEngine:
         :param width: frame width in pixels.
         :param height: frame height in pixels.
         """
-        if width == self.width and height == self.height and self.ring is not None:
+        samples = _samples_a_side(self.samples)
+        if (width == self.width and height == self.height
+                and self.ring is not None and samples == self._ring_samples):
             return
         self.width = width
         self.height = height
-        self.ring = np.empty((4, height, width, 3), dtype=np.uint8)
+        self._ring_samples = samples
+        self.ring = np.empty((samples * samples, height, width, 3),
+                             dtype=np.uint8)
         self.output = np.empty((height, width, 3), dtype=np.uint8)
         self.slot = 0
         self.frames = 0
@@ -715,15 +873,24 @@ class OrbitEngine:
         """
         set_num_threads(self.thread_count)
         self._ensure_size(width, height)
-        jitter_x, jitter_y = JITTERS[self.slot]
+        samples = self._ring_samples
+        phases = samples * samples
+        jitters = JITTERS if samples == 2 else _orbit_jitters(samples)
+        jitter_x, jitter_y = jitters[self.slot]
         _render_into(self.ring[self.slot], t, speed, dream, iterations,
                      jitter_x, jitter_y, pointer_x, pointer_y, pull, push)
         if self.frames == 0:
-            for index in range(4):
+            for index in range(phases):
                 if index != self.slot:
                     self.ring[index, :, :, :] = self.ring[self.slot, :, :, :]
-        _blend_temporal(self.ring, self.output, self.slot)
-        self.slot = (self.slot + 1) % 4
+        if phases == 1:
+            self.output[:, :, :] = self.ring[0]
+        elif samples == 2:
+            _blend_temporal(self.ring, self.output, self.slot)
+        else:
+            _blend_weighted(self.ring, self.output, self.slot,
+                            _orbit_blend_weights(phases))
+        self.slot = (self.slot + 1) % phases
         self.frames += 1
         return self.output.copy()
 
@@ -843,6 +1010,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
 
     target_period = 1.0 / target_fps
     base_pixels *= settings.scale * settings.scale
+    samples = _samples_a_side(settings.supersampling)
 
     class _Worker(QObject):
         """Shades frames off the GUI thread and hands them over as arrays.
@@ -865,6 +1033,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             """Build the engine this thread will shade with."""
             super().__init__()
             self.engine = engine_factory(thread_count)
+            self.engine.samples = samples
 
         @Slot(object)
         def render(self, request: object) -> None:
@@ -1164,7 +1333,9 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             else:
                 timing = f"{1000.0 * self._last_render_seconds:.1f} ms frame"
             error = "" if self._error is None else f"\n{self._error}"
-            aa = "spatial 2x2" if cascade else "temporal 2x2"
+            aa = (f"spatial {samples}x{samples}"
+                  if engine_factory is not OrbitEngine
+                  else f"temporal {samples}x{samples}")
             return (f"v{VERSION} · CPU/{quality} · {settings.pattern} · {aa}\n"
                     f"{width}×{height} · {self._actual_fps:.1f} fps · "
                     f"{thread_count} threads\n{timing}{error}")
@@ -1787,6 +1958,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         _FRAGMENT = FRAGMENT_SHADER
         base_detail = 6 if quality == "balanced" else 8
         detail_floor = 5
+    samples = _samples_a_side(settings.supersampling)
+    _FRAGMENT = _supersampled_shader(_FRAGMENT, samples)
 
     _DECLARED = frozenset(
         match.group(1) for match in
@@ -2271,7 +2444,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             else:
                 timing = f"{1000.0 * self._render_ema:.1f} ms GPU"
             return (f"v{VERSION} · GPU/{quality} · {settings.pattern} · "
-                    f"spatial 2x2\n"
+                    f"spatial {samples}x{samples}\n"
                     f"{int(width)}×{int(height)} · target {settings.fps} fps · "
                     f"detail {self._detail}\n{timing}")
 

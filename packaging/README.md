@@ -127,9 +127,12 @@ leave the target as `main`. `.github/workflows/release.yml` then:
    version is available from the PyPI API;
 4. builds Windows, macOS, and Linux installers on native runners;
 5. commits the current installers under `spacr/application/` and updates the
-   README links; and
+   README links;
 6. tags that exact installer commit, creates the GitHub release, and attaches the three
-   installers, wheel, source distribution, and SHA-256 manifest.
+   installers, wheel, source distribution, and SHA-256 manifest; and
+7. records the new Zenodo version DOI and the PyPI sdist checksum in
+   ``CITATION.cff`` and the conda recipe on `main` and `nightly` (see
+   *Release metadata that only exists after publishing* below).
 
 GitHub displays manual ``workflow_dispatch`` buttons from the default branch,
 so merge `release.yml` into `main` once to enable that button permanently.
@@ -164,6 +167,40 @@ artifacts or a separate repository instead. The README cites the stable concept
 DOI, ``10.5281/zenodo.21343316``. Once Zenodo archives a version, put that
 release's newly minted version DOI in ``CITATION.cff``; never substitute an
 older release's version DOI for the concept DOI in the README.
+
+### Release metadata that only exists after publishing
+
+`bump` cannot write three values, because the release creates them: the
+Zenodo version DOI (minted a few minutes after the GitHub release), the
+PyPI sdist's SHA-256, and therefore the reference conda recipe's version.
+Until 2026-09-26 nothing wrote them after the release either, and both
+files were still on 1.5.0.9 two days after 1.5.1.0 shipped.
+
+`release.yml`'s `release-metadata` job now runs after `github-release`:
+
+```bash
+# Wait for Zenodo (concept record 21343316) and PyPI, print what they report
+python packaging/release.py sync-release-metadata --version 1.5.1.0 --lookup-only
+
+# Look up and write CITATION.cff and conda-forge/recipe/recipe.yaml
+python packaging/release.py sync-release-metadata --version 1.5.1.0
+
+# Write from a recorded lookup, with no network
+python packaging/release.py sync-release-metadata --version 1.5.1.0 \
+    --metadata release-metadata.json
+```
+
+It rewrites `CITATION.cff`'s `version`, `date-released` (Zenodo's
+publication date), `doi`, and the version-DOI identifier's value and
+description. In the recipe, it rewrites `version` and `sha256`. The
+concept DOI is never accepted as a version DOI, and neither file moves back
+to an older release. The lookup retries a missing record, a network error,
+HTTP 404, 429, or 5xx every 30 s, for up to 30 minutes in CI. The job looks
+the values up once and commits
+`chore(release): record spaCR <version>'s DOI and sdist checksum` to `main`
+and `nightly`, as the installer commit does. A rejected push rebases and
+retries up to five times. If Zenodo is slower than the wait, run the second
+command above locally and commit the two files.
 
 ## Conda-forge releases
 

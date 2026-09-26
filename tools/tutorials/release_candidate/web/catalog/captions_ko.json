@@ -3304,21 +3304,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay: 외부 염색과 전체 염색 점수화",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "두 염색 채널을 지정하고 염색 기준선을 고른 뒤 분석을 실행하여 침입 판정과 임곗값 민감도를 확인합니다.",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "측정 데이터베이스를 고르고 외부 염색과 전체 염색을 지정합니다.",
+        "기준선 웰과 임곗값 설정을 정한 뒤 분석을 실행합니다.",
+        "분포, 웰별 분모, 저장된 결과 표를 확인합니다."
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "연결된 합성 Invasion Assay 예제의 압축을 풀고 설정 참고 자료를 사용하세요. 데이터베이스에는 기생충 합성 측정값 1,800개가 들어 있으며, 조건 이름과 결과는 예시일 뿐입니다. 자신의 분석에는 투과화 전에 외부 염색, 후에 전체 염색을 하는 검증된 2색 염색 설계를 사용하고 대표 이미지를 검토하세요.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Home에서 Toxoplasma를 열고 Invasion Assay를 선택하세요. 외부 염색과 전체 염색에 대한 기생충 강도가 담긴 측정 데이터베이스로 시작합니다. 연결된 합성 샘플로 채널 지정, 임곗값 선택, 결과 검토를 연습하세요.",
           "focus": [
             346,
             50,
@@ -3332,7 +3332,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "샘플의 압축을 풀고 Source를 measurements/measurements.db가 들어 있는 invasion 폴더로 설정하세요. 함께 제공된 설정 참고 자료를 입력하고 Source 자리표시자를 바꾸세요. 샘플에는 기준선 웰과 두 가지 분석 조건이 있습니다.",
           "focus": [
             346,
             170,
@@ -3343,7 +3343,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Outside channel을 1로, Total channel을 0으로 설정하세요. 외부 염색은 투과화 전에, 전체 염색은 그 후에 합니다. 외부 염색 양성 기생충은 부착으로, 외부 임곗값 이하인 기생충은 침입으로 분류됩니다. 자신의 측정값을 쓸 때는 촬영 채널 순서를 확인하세요.",
           "focus": [
             346,
             170,
@@ -3354,7 +3354,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "예제 데이터베이스의 열과 맞추기 위해 Intensity statistic에서 mean을 선택하세요. 자신의 분석에서는 염색에 맞는 사용 가능한 통계량을 고르고 대표 객체를 검토하세요. 이 샘플에서는 Minimum total intensity를 100으로 유지하세요.",
           "focus": [
             346,
             170,
@@ -3365,7 +3365,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "c1을 사용해 Stain baseline wells를 1열로 설정하세요. 이 음성 염색 측정값이 기준값을 정하며, 분석의 분모에서는 제외됩니다. Pathogen plate metadata에서 vehicle은 2열에, inhibitor는 3열에 지정하세요.",
           "focus": [
             346,
             170,
@@ -3376,7 +3376,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Control quantile을 0.99로 설정하고 고정 Outside threshold는 비워 두세요. 그러면 기준선 측정값이 기준값을 정하며, 이 예제에서는 약 22.8입니다. 분류를 해석하기 전에 출력에서 적용된 임곗값을 확인하세요.",
           "focus": [
             346,
             170,
@@ -3387,7 +3387,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Threshold sensitivity를 0.25로 설정하세요. 그러면 선택한 임곗값보다 25퍼센트 낮거나 높은 기준값도 평가됩니다. 얻은 침입 효율 범위를 비교해 결과가 임곗값 선택에 얼마나 좌우되는지 확인하세요.",
           "focus": [
             346,
             170,
@@ -3398,7 +3398,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "이 샘플에서는 Extracellular class를 classify로 설정하세요. 숙주 세포와 연결되지 않은 객체에 대해 classify는 염색을 사용하고, attached는 부착으로 분류하며, exclude는 점수 대상 집단에서 제외합니다. 숙주 세포 배정의 품질을 고려해 이 설정을 고르세요.",
           "focus": [
             346,
             170,
@@ -3409,7 +3409,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Save를 켠 채로 Run을 클릭하세요. 처리가 끝나면 임곗값 그림을 여세요. 웰별 분포와 적용된 기준값이 표시됩니다. 실제 실험에서는 이 분포를 대표 염색 이미지와 비교하고 약한 외부 염색을 조사하세요.",
           "focus": [
             1685,
             260,
@@ -3420,7 +3420,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "범례가 그림 밖으로 벗어나면 Figure settings를 여세요. axes 탭에서 Legend position을 best로 설정한 뒤 확인하세요. 화면의 그림과 내보낸 그림 모두에서 라벨이 보이는지 확인하세요.",
           "focus": [
             1420,
             330,
@@ -3434,7 +3434,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "웰별 그림을 여세요. 각 막대는 부착과 침입의 비율을 보여 주며, 위에는 점수화된 기생충 수가 표시됩니다. 기준선 웰은 제외됩니다. 웰을 비교할 때는 비율과 함께 개수도 읽으세요.",
           "focus": [
             1685,
             260,
@@ -3445,7 +3445,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "조건별 요약을 여세요. 합산한 침입 비율과 웰 평균은 가중 방식이 다르므로 서로 비교해 보세요. 조건을 비교하기 전에 웰별 결과의 변동을 확인하세요.",
           "focus": [
             1685,
             260,
@@ -3456,7 +3456,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "모든 결과는 Source 안의 results/analyze_invasion에 저장됩니다. parasite_calls.csv에는 기생충별 판정, field_thresholds.csv에는 그 근거가 된 기준값, well_invasion.csv에는 웰별 비율, condition_summary.csv에는 합산 비교가 들어 있습니다. 그림과 설정을 함께 보관하고, 조건은 독립적인 반복 실험 사이에서 비교하세요.",
           "focus": [
             1510,
             1200,
@@ -3476,6 +3476,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3483,21 +3523,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay: 액포당 기생충 수 세기",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "기생충 측정값을 불러오고 액포 식별자를 고른 뒤 분석을 실행하여 개수 분포와 내보낸 결과를 확인합니다.",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "측정 데이터베이스와 액포 식별자를 고릅니다.",
+        "숙주 배정과 크기 필터를 설정한 뒤 분석을 실행합니다.",
+        "웰별 분포를 읽고 저장된 결과 표를 찾습니다."
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "연결된 합성 Replication Assay 예제의 압축을 푸세요. 측정 데이터베이스와 설정 참고 자료가 들어 있으며, 웰 12개에 걸친 액포 480개에 기생충 행 1,992개가 있습니다. 조건 이름과 측정값은 교육용 데이터입니다. 자신의 분석에는 액포 배정을 검토한 측정 기생충과 독립적인 실험 반복을 사용하세요.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Home에서 Toxoplasma를 열고 Replication Assay를 선택하세요. 기생충 행과 그 액포 배정이 담긴 측정 데이터베이스로 시작합니다. 연결된 합성 예제로 설정을 연습하고, 그 결과로 나오는 개수 분포를 읽어 볼 수 있습니다.",
           "focus": [
             346,
             50,
@@ -3511,7 +3551,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "샘플의 압축을 풀고 Source를 replication 폴더로 설정하세요. 데이터베이스는 measurements 안에 있습니다. 함께 제공된 설정 참고 자료를 입력하고, Source 자리표시자를 압축을 푼 폴더로 바꾸세요. 결과를 저장하려면 Save를 켜 두세요.",
           "focus": [
             346,
             170,
@@ -3522,7 +3562,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Vacuole key를 vacuole_id로 설정하세요. 그러면 기생충이 속한 액포별로 묶입니다. 이 샘플에는 숙주 세포 그룹마다 액포가 두 개 있으므로, 액포 식별자로 두 개수를 구분하세요.",
           "focus": [
             346,
             170,
@@ -3533,7 +3573,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Require host cell을 켜면 숙주 세포에 연결된 기생충만 포함됩니다. 자신의 데이터를 쓸 때는 배정되지 않은 객체를 검토하세요. 이 샘플에서는 Minimum parasite area를 200으로, Maximum parasite area를 800으로 설정하세요.",
           "focus": [
             346,
             170,
@@ -3544,7 +3584,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Maximum parasites per vacuole을 16으로 설정하세요. 이 값이 이름이 붙은 2의 거듭제곱 범주의 최댓값이 됩니다. 이보다 큰 2의 거듭제곱 개수는 초과 범주로 들어가고, 3 같은 개수는 2의 거듭제곱이 아닌 값의 별도 범주에 남습니다.",
           "focus": [
             346,
             170,
@@ -3555,7 +3595,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "두 Pathogen types로 vehicle과 inhibitor를 입력하고, Pathogen plate metadata에서 각각 1열과 2열에 지정하세요. 각 그룹에는 연습용 웰이 6개 있습니다. 실제 실험에서는 플레이트 설계에 따라 조건 이름과 웰 배정을 입력하세요.",
           "focus": [
             346,
             170,
@@ -3566,7 +3606,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Source, Vacuole key, 필터, Save를 확인한 뒤 Run을 클릭하세요. 처리가 끝날 때까지 콘솔을 지켜보세요. Figures 영역에 웰별, 조건별 분포가 표시됩니다.",
           "focus": [
             1510,
             170,
@@ -3577,7 +3617,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "웰별 그림을 여세요. 각 누적 막대는 기생충 수 범주별로 액포가 차지하는 비율을 보여 줍니다. 색은 범례와 함께 읽으세요. 이 샘플에서는 각 웰에 액포가 40개 있고, 그중 5퍼센트가 2의 거듭제곱이 아닌 범주에 속합니다.",
           "focus": [
             1510,
             170,
@@ -3588,7 +3628,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "범례를 조정하려면 Figure settings를 여세요. 라벨이 그림 밖으로 벗어나면 axes 탭에서 그림 안쪽의 Legend position을 고르세요. 표시 방식만 바뀌고 계산된 개수는 그대로 유지됩니다.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3599,7 +3639,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "조건별 그림을 열어 합산한 개수 분포를 비교하세요. 이 요약과 함께 웰별 결과도 확인하세요. 실험을 분석할 때는 통계 비교에 독립적인 생물학적 반복과 적절한 실험 단위를 사용하세요.",
           "focus": [
             1510,
             170,
@@ -3610,7 +3650,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "콘솔에 표시되는 내보내기 경고를 읽어 보세요. 화면 보기뿐 아니라 저장된 그림도 확인하고, 내보낸 그림의 배경에서도 읽기 쉬운 색을 고르세요.",
           "focus": [
             1510,
             1190,
@@ -3621,7 +3661,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Source 안 results/analyze_replication의 결과는 단계적으로 쌓입니다. vacuole_counts.csv는 액포마다 개수를 세고, well_distribution.csv는 그 개수를 웰별 분포로 바꾸며, 조건별 요약과 그림은 웰을 합칩니다. 어떤 숫자든 거슬러 추적할 수 있도록 설정과 원본 데이터베이스와 함께 보관하세요.",
           "focus": [
             346,
             170,
@@ -3641,6 +3681,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

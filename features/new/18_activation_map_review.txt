@@ -310,3 +310,68 @@ NOT DONE / FOLLOW-UPS
   - hyperparam.py's cam_type sweep list (line 233) was not extended.
   - ml_analyze already has its own feature/permutation/SHAP toggles; not
     changed.
+
+--------------------------------------------------------------------------------
+2026-09-26 -- FOLLOW-UPS: THE SWEEP'S cam_type LIST, AND THE RANDOMISATION CHECK
+--------------------------------------------------------------------------------
+
+HYPERPARAMETER SWEEP (spacr/hyperparam.py)
+  DEFAULT_SPACES["activation"]["cam_type"] now names hirescam, ablation_cam,
+  gradient_shap, deeplift_shap and chefer beside the old six (all five
+  families: cam, gradient, shap, perturbation, attention). No backbone takes
+  all of them, so activation_search now drops each swept value that
+  method_applicability refuses for the LOADED model (_applicable_activation_
+  space), with its reason in the result's notes, instead of letting it fail
+  as a trial (a failed trial reads as a bad method). CNN: chefer dropped;
+  ResNet: + deeplift_shap (reused ReLU); ViT/Swin: every CAM dropped, chefer
+  kept; MaxViT: chefer dropped. Nothing applicable -> ValueError with the
+  reasons. Not filtered when a test replaces the attribution call, or when
+  the model is not a torch module. _activation_params also maps the form's
+  torchcam_gradcam / torchcam_gradcam_pp aliases to the registry names.
+  COST: Ablation-CAM re-scores the image once per target-layer channel; on
+  the trained MaxViT-T on CPU one attribution took ~8.5 min (512 channels
+  of conv_b). Occlusion, already in the default, is of the same order.
+  Trim the grid on a CPU-only machine.
+
+RANDOMISATION SANITY CHECK (Adebayo 2018, cascading, threshold 0.5 on the
+Spearman similarity of the fully randomised model's map; CPU,
+CUDA_VISIBLE_DEVICES='', script kept at /tmp/spacr-531-scratch/sanity18.py)
+  Models: (a) the real trained classifier on this machine,
+  /mnt/firecuda2/methods_paper/plate1/datasets/training/model/maxvit_t/rgb/
+  epochs_100/maxvit_t_epoch_99_acc_99.0_channels_rgb.pth, one real pc test
+  crop (training_all/test/pc), 224 px, max_stages=3, layer
+  base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b; (b) a tiny CNN
+  and (c) a tiny 2-block ViT (nn.MultiheadAttention, class token), both
+  trained here on a synthetic planted-signal set (class 1 = Gaussian blob in
+  channel 0, class 0 = the same blob in channel 1 as a distractor; 800
+  train / 200 held out; held-out accuracy 1.00 for both), 3 images each.
+  final = similarity after all layers randomised (pass < 0.5);
+  first = after the first (output-side) stage.
+
+  method          MaxViT-T (real)       tiny CNN (3 imgs)     tiny ViT (3 imgs)
+  hirescam        PASS 0.24 (first .08) PASS -.19..0.31       n/a (pure ViT)
+  ablation_cam    PASS 0.33 (first .43) PASS -.19..0.31       n/a (pure ViT)
+  gradient_shap   PASS -.04 (first .27) PASS 0.24..0.36       PASS 0.24..0.36
+  deeplift_shap   PASS -.18 (first .74) PASS 0.36..0.45       PASS 0.36..0.39
+  chefer          n/a (MaxViT)          n/a (no attention)    PASS 0.22..0.35
+  gradcam (tc)    PASS -.04             PASS -.19..0.31       n/a
+  gradcam_pp (tc) PASS -.01             PASS -.21..0.32       n/a
+  saliency (ref)  PASS 0.03             PASS 0.08..0.11       PASS 0.02..0.04
+  RESULT: every new crop method passes wherever it applies (5/5 new methods;
+  hirescam, ablation_cam, gradient_shap, deeplift_shap on the real MaxViT;
+  chefer on the trained ViT).
+  READ WITH CARE:
+  - The known-bad control, guided_backprop, ALSO passes on both tiny models
+    (final 0.02-0.05). On a three-conv or two-block network every weight is
+    close to the output, so the final all-layers stage is not discriminative
+    there; the tiny-model rows show the methods are not broken, not that
+    they are trustworthy. The real MaxViT is the informative row.
+  - deeplift_shap stays closest to the trained map (0.36-0.45 on the tiny
+    models, first-stage 0.74 on MaxViT): passes, but with the least margin.
+  - The CASCADE separates Chefer from rollout on the trained ViT:
+    randomising only the head leaves attention_rollout's map identical
+    (first-stage similarity 1.00, it is class-agnostic) while Chefer's
+    changes at once (0.24-0.30). That is the reason Chefer was added.
+  - The MaxViT has a single-logit head, so each map explains that logit.
+  The Activation form's sanity_check=True still runs this per run; nothing
+  in the code was changed for this check.

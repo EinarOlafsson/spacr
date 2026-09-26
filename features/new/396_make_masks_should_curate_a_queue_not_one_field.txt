@@ -575,3 +575,22 @@ leaves the field out; skip is disabled and writes nothing for a folder that is
 not a queue; a no-edit save of a seed carrying one label in two pieces leaves
 the file byte-identical and records 2 objects; an edited save still writes.
 66 passed with the resume tests; 274 passed across nine Make Masks test files.
+
+2026-09-26 -- AN EDITED SAVE RECORDS THE COUNT THE FILE HOLDS
+
+The smaller half the last note left is closed. `_on_save`, after an edit,
+recorded the object count of the canvas mask BEFORE `canonical_labels`, so
+a label lying in two pieces that the save then split was recorded one
+short. It now counts `engine.canonical_labels(mask, preserve_ids=...)` with
+the same `preserve_ids` the save was given -- the very array
+`engine.save_mask` writes to the TIFF or into the `_seg.npy` bundle -- so
+the recorded `n_objects` is the file's count. The pixels written are
+unchanged, and the no-edit path (which writes nothing and counts the file's
+own labels) is untouched. Nothing is read back from disk; the extra
+`canonical_labels` call costs tens of milliseconds on a 2048 x 2048 field
+(its own docstring's measurement).
+
+Guard (tests/qt/test_the_editor_opens_on_the_queue_it_was_handed.py): a
+seed whose label 1 is in two pieces, an edit elsewhere (label 2 trimmed),
+save: the file holds 3 objects and status.csv records 3 (it recorded 2).
+Same-run results: that file plus 528/507/529 files, 77 passed.

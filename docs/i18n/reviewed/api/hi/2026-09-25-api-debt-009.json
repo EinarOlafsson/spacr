@@ -1,0 +1,1616 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.segmentation_views.to_qpixmap#0",
+      "source": "A ``QPixmap`` of ``rgb``; a null one when there is nothing to draw.",
+      "source_sha256": "a80af02f02fb4b8c00d846a40142c283b117c752766ac45bea5572427659727b",
+      "context": "A ``QPixmap`` of ``rgb``; a null one when there is nothing to draw.",
+      "translation": "एक ``QPixmap``, ``rgb`` से बना; बनाने को कुछ न होने पर null pixmap।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.segmentation_views.to_qpixmap#1",
+      "source": "anything :func:`to_rgb8` accepts.",
+      "source_sha256": "c0fa139b5ed41a026892ad23ff4067be9a1c0901c5af373d03bb931c718e9ace",
+      "context": "anything :func:`to_rgb8` accepts.",
+      "translation": "कुछ भी जिसे :func:`to_rgb8` स्वीकार करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.segmentation_views.to_rgb8#0",
+      "source": "``image`` as ``H x W x 3`` ``uint8``, or ``None`` for nothing drawable.",
+      "source_sha256": "74687254e32d040adb979c0d3fc2a267d52703cdcc83ec6cb33a08ccb8f0cd22",
+      "context": "``image`` as ``H x W x 3`` ``uint8``, or ``None`` for nothing drawable.",
+      "translation": "``image`` को ``H x W x 3`` ``uint8`` के रूप में, या कुछ भी बनाने योग्य न होने पर ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.segmentation_views.to_rgb8#1",
+      "source": "A ``uint8`` picture passes through untouched. Anything else is stretched from its own minimum to its own maximum: the default for an owner that did not normalise, and no more than that, because normalisation is the owner's business (the live preview has percentiles for it).",
+      "source_sha256": "ef909e2ef770f84211f36a290b18b40d7cb0fadfa6a2c3dcb41b29f02ca15a2c",
+      "context": "A ``uint8`` picture passes through untouched. Anything else is stretched from its own minimum to its own maximum: the default for an owner that did not normalise, and no more than that, because normalisation is the owner's business (the live preview has percentiles for it).",
+      "translation": "``uint8`` चित्र बिना छुए आगे जाता है। बाकी सब कुछ अपने न्यूनतम से अपने अधिकतम तक फैलाया जाता है: यह उस स्वामी के लिए डिफ़ॉल्ट है जिसने सामान्यीकरण नहीं किया, और इससे अधिक कुछ नहीं, क्योंकि सामान्यीकरण स्वामी का काम है (लाइव पूर्वावलोकन में इसके लिए पर्सेंटाइल हैं)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.segmentation_views.to_rgb8#2",
+      "source": "``H x W``, ``H x W x 1`` or ``H x W x C`` in any dtype.",
+      "source_sha256": "43f5dec5bacfb789c4c2e55908fc5c3dc7f5260145a1c6f1cf957f8e053d376b",
+      "context": "``H x W``, ``H x W x 1`` or ``H x W x C`` in any dtype.",
+      "translation": "``H x W``, ``H x W x 1`` या ``H x W x C``, किसी भी dtype में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.settings_advisor_dialog.ProposalPage.retranslate_dynamic_content#1",
+      "source": "the new application language, used to re-render the summary, table and undecided list; nothing is drawn before a proposal has been shown.",
+      "source_sha256": "403c5b8018ea48d0aba64c3aabcb1e05270e59ef829f241bd0e4806e1e8eb1ce",
+      "context": "the new application language, used to re-render the summary, table and undecided list; nothing is drawn before a proposal has been shown.",
+      "translation": "नई एप्लिकेशन भाषा, जिसका उपयोग सारांश, तालिका और अनिर्णीत सूची को फिर से रेंडर करने के लिए होता है; कोई प्रस्ताव दिखाए जाने से पहले कुछ नहीं बनाया जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.settings_advisor_dialog.ProposalPage.show_the_proposal#1",
+      "source": "the advisor's proposal: its reading fills the summary, its chosen values the table and its undecided settings the list below it.",
+      "source_sha256": "b735bf2948bfb669d36cde836a68156f90026a40387909ac56684820abc271cf",
+      "context": "the advisor's proposal: its reading fills the summary, its chosen values the table and its undecided settings the list below it.",
+      "translation": "सलाहकार का प्रस्ताव: उसका आकलन सारांश भरता है, उसके चुने गए मान तालिका, और उसकी अनिर्णीत सेटिंग्स उसके नीचे की सूची।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.settings_advisor_dialog.ProposalPage.show_the_proposal#2",
+      "source": "the settings in effect now, by key; copied, and shown beside each proposed value so unchanged ones can be greyed out.",
+      "source_sha256": "cf13ac5e6ad9f32f826a8ed3d66a5ae0fcc7eb81f6d17b8513ca6cac66395dae",
+      "context": "the settings in effect now, by structured-data name; copied, and shown beside each proposed value so unchanged ones can be greyed out.",
+      "translation": "अभी प्रभावी सेटिंग्स, कुंजी के अनुसार; इनकी प्रति बनाई जाती है और हर प्रस्तावित मान के बगल में दिखाई जाती हैं ताकि अपरिवर्तित मान धूसर किए जा सकें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.accent_alpha#2",
+      "source": "position along the lit run, 0 at the tail and 1 at the head; clamped to that range.",
+      "source_sha256": "cb93a4595725b4a58e3cd35d08c69bf04f58960985732c4361bbff3752524ad8",
+      "context": "position along the lit run, 0 at the tail and 1 at the head; clamped to that range.",
+      "translation": "प्रकाशित भाग पर स्थिति, पूँछ पर 0 और सिर पर 1; उसी सीमा में सीमित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.accent_span#2",
+      "source": "the card's drawing rectangle; not read, because the fraction is measured on the reference card size so every card's rim looks alike.",
+      "source_sha256": "aa2c67f495dbb86355b82b783a94d261c901d887e4b1dbcc1907c85e3f638ab3",
+      "context": "the card's drawing rectangle; not read, because the fraction is measured on the reference card size so every card's rim looks alike.",
+      "translation": "कार्ड का ड्रॉइंग आयत; पढ़ा नहीं जाता, क्योंकि अंश संदर्भ कार्ड आकार पर मापा जाता है ताकि हर कार्ड का किनारा एक जैसा दिखे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.accent_start#2",
+      "source": "length of the lit run as a fraction of the rim, as returned by :meth:`accent_span`.",
+      "source_sha256": "c5c217f47a316e67309d8ff664e90718e9df1d3d1caefa7fcade8783d568e145",
+      "context": "length of the lit run as a fraction of the rim, as returned by :meth:`accent_span`.",
+      "translation": "किनारे के अंश के रूप में प्रकाशित भाग की लंबाई, जैसा :meth:`accent_span` लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.flow_towards#2",
+      "source": "position in the card's own widget coordinates; it may lie outside the card.",
+      "source_sha256": "f672f767b482f9763a7f2008d94cae9b668aaa3cc8cd126ea20d4ba5106e49b5",
+      "context": "position in the card's own widget coordinates; it may lie outside the card.",
+      "translation": "कार्ड के अपने विजेट निर्देशांकों में स्थिति; यह कार्ड के बाहर भी हो सकती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.hideEvent#1",
+      "source": "the hide event; it is not inspected, only passed on to the base class before the animation timer stops.",
+      "source_sha256": "f6d5e0c6c21c721d907657379b13ba213d235a5c5fdb8b0b308197d17f7569da",
+      "context": "the hide event; it is not inspected, only passed on to the base class before the animation timer stops.",
+      "translation": "hide इवेंट; इसका निरीक्षण नहीं किया जाता, केवल एनिमेशन टाइमर रुकने से पहले बेस क्लास को आगे दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.ink_at#4",
+      "source": "position along the lit run, 0 at the tail and 1 at the head.",
+      "source_sha256": "00dfeca0887d7830e6223fc8498f8022408145454b3e09c246d6ed06ab0c2108",
+      "context": "position along the lit run, 0 at the tail and 1 at the head.",
+      "translation": "प्रकाशित भाग पर स्थिति, पूँछ पर 0 और सिर पर 1।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.ink_at#5",
+      "source": "the theme's accent colour; returned as a copy in the plain modes, and its saturation and value set the floor for the spectral ones.",
+      "source_sha256": "1aaa01a2bcaf414a8b9b7f845c2cc91fc27f87dcede4eb7344b163a50cdff21c",
+      "context": "the theme's accent colour; returned as a copy in the plain modes, and its saturation and value set the floor for the spectral ones.",
+      "translation": "थीम का accent रंग; सादे मोड में प्रति के रूप में लौटाया जाता है, और इसकी संतृप्ति और मान स्पेक्ट्रल मोड के लिए न्यूनतम सीमा तय करते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.mode#0",
+      "source": "``'glow'``, ``'rainbow'`` or ``'beat'``.",
+      "source_sha256": "24cc62c22b40b74e54b3f5028b737cad9b2531d89733366f45495a9d6c00f7bc",
+      "context": "``'glow'``, ``'rainbow'`` or ``'beat'``.",
+      "translation": "``'glow'``, ``'rainbow'`` या ``'beat'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.nearest_corner#2",
+      "source": "position in the card's own widget coordinates.",
+      "source_sha256": "a37c29c3af6dead58302cf37077d49410a43575903ece1dac29877d7e8e498fb",
+      "context": "position in the card's own widget coordinates.",
+      "translation": "कार्ड के अपने विजेट निर्देशांकों में स्थिति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.showEvent#1",
+      "source": "the show event; it is not inspected, only passed on to the base class before following starts.",
+      "source_sha256": "1b5f5b5e5556e4ddde1ef8d589c021490be5ca372e1395115eed1d84b711e8ea",
+      "context": "the show event; it is not inspected, only passed on to the base class before following starts.",
+      "translation": "show इवेंट; इसका निरीक्षण नहीं किया जाता, केवल अनुसरण शुरू होने से पहले बेस क्लास को आगे दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides.accept#1",
+      "source": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the screen open, and stopping it closes the screen as before.",
+      "source_sha256": "21b573e04a2ccab52e860d982f3e7fedabde66ee7b9553c9a1bd9573ca8d6c91",
+      "context": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the application view open, and stopping it closes the application view as before.",
+      "translation": "दर्ज किया जाता है, ताकि पहली बार का मार्गदर्शन लौटकर आए उपयोगकर्ता का नए उपयोगकर्ता की तरह स्वागत न करे। इंस्टॉलर चलते समय पहले उपयोगकर्ता से पूछा जाता है (:meth:`_may_close`): उसे चलने देने पर पेज खुला रहता है, और उसे रोकने पर पेज पहले की तरह बंद हो जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides.mouseMoveEvent#1",
+      "source": "the mouse move event; its position, mapped into the card, is what the rim flows towards. It is then passed on to the base class.",
+      "source_sha256": "e4b92cc3425a1958966b83e825c4d50a6f28991f0db4d8bc9dbacce714a9ffb8",
+      "context": "the mouse move event; its position, mapped into the card, is what the rim flows towards. It is then passed on to the base class.",
+      "translation": "माउस गति इवेंट; कार्ड में मैप की गई इसकी स्थिति वह है जिसकी ओर किनारा प्रवाहित होता है। फिर इसे बेस क्लास को आगे दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides.provider_status#2",
+      "source": "provider code as in :data:`PROVIDERS`, e.g. ``\"claude\"`` or ``\"gpt\"``; looked up in the AI provider registry.",
+      "source_sha256": "d1c5447b72bee697d14f62584d202922cf012036f08b4723c320a007678b9e18",
+      "context": "provider code as in :data:`PROVIDERS`, e.g. ``\"claude\"`` or ``\"gpt\"``; looked up in the AI provider registry.",
+      "translation": ":data:`PROVIDERS` जैसा प्रदाता कोड, उदाहरण ``\"claude\"`` या ``\"gpt\"``; AI प्रदाता रजिस्ट्री में खोजा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides.provider_status#3",
+      "source": "the provider's CLI name, e.g. ``\"codex\"``; tried in the registry after ``code``, and checked on ``PATH`` when neither resolves.",
+      "source_sha256": "9e5b946c5e015545a305e9b095dd6945a00f8898e5be5f25806866ff25afa56e",
+      "context": "the provider's CLI name, e.g. ``\"codex\"``; tried in the registry after ``code``, and checked on ``PATH`` when neither resolves.",
+      "translation": "प्रदाता का CLI नाम, उदाहरण ``\"codex\"``; ``code`` के बाद रजिस्ट्री में आज़माया जाता है, और दोनों में से कोई हल न होने पर ``PATH`` पर जाँचा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides.reject#3",
+      "source": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the screen open.",
+      "source_sha256": "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18",
+      "context": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the application view open.",
+      "translation": "इंस्टॉलर चलते समय पहले उपयोगकर्ता से पूछा जाता है, जैसे :meth:`accept` पूछता है; उसे चलने देने पर पेज खुला रहता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides.showEvent#2",
+      "source": "the show event, passed to the base class first.",
+      "source_sha256": "cd2b298e75e1f5fef30ed21e4183e1a784510025fb9b256f6f893bf18c7646a9",
+      "context": "the show event, passed to the base class first.",
+      "translation": "show इवेंट, पहले बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.greeting_for#1",
+      "source": "language code, a key of :data:`GREETINGS` such as ``\"sv\"`` or ``\"zh_CN\"``; unknown or empty codes give ``\"Hello\"``.",
+      "source_sha256": "6a9ded8e0956e4f88cafd31c1ceb764054fbfdc3a35f2cc52ff4a15aa2a0dc27",
+      "context": "language code, a key of :data:`GREETINGS` such as ``\"sv\"`` or ``\"zh_CN\"``; unknown or empty codes give ``\"Hello\"``.",
+      "translation": "भाषा कोड, :data:`GREETINGS` की एक कुंजी, जैसे ``\"sv\"`` या ``\"zh_CN\"``; अज्ञात या खाली कोड ``\"Hello\"`` देते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.verdict_ink#0",
+      "source": "The colour a GPU verdict is drawn in on the theme in force.",
+      "source_sha256": "9bfe9dadbb1f5ef633bc0463eef44391a4eeaecb7e82737ff7084b22ecfd641a",
+      "context": "The colour a GPU verdict is drawn in on the theme in force.",
+      "translation": "वह रंग जिसमें प्रभावी थीम पर GPU निर्णय बनाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.verdict_ink#1",
+      "source": ":data:`GPU_YES_INK` and :data:`GPU_NO_INK` are the dark theme's green and red, and on a light page that green is under 2.5:1. A light theme draws the verdict in its own ``success`` and ``error`` instead, which its contrast rules hold readable.",
+      "source_sha256": "7f108ac4fc0018b87dbb9c391a12dd44e307fb8139b272f9c2fd937f897ecc66",
+      "context": ":data:`GPU_YES_INK` and :data:`GPU_NO_INK` are the dark theme's green and red, and on a light page that green is under 2.5:1. A light theme draws the verdict in its own ``success`` and ``error`` instead, which its contrast rules hold readable.",
+      "translation": ":data:`GPU_YES_INK` और :data:`GPU_NO_INK` डार्क थीम के हरे और लाल रंग हैं, और हल्के पेज पर वह हरा 2.5:1 से कम है। हल्की थीम इसके बजाय निर्णय को अपने ``success`` और ``error`` रंगों में बनाती है, जिन्हें उसके कंट्रास्ट नियम पठनीय रखते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.verdict_ink#2",
+      "source": "whether the verdict is good news.",
+      "source_sha256": "f4f3d884894fc2e9703f3d26d2699a33ebd07c69540881bbd2a3e3ad1cd0c4e0",
+      "context": "whether the verdict is good news.",
+      "translation": "निर्णय अच्छी खबर है या नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.SortableTableItem.setData#2",
+      "source": "the Qt item data role; only ``DisplayRole`` and ``EditRole`` refresh the sort key, which then comes from :data:`SORT_KEY_ROLE` when set and from the text otherwise.",
+      "source_sha256": "5fb3fe140184f7bb85761e2f4406c47a9cb44169a40c0cc0d60eec479d6c128f",
+      "context": "the Qt item data role; only ``DisplayRole`` and ``EditRole`` refresh the sort key, which then comes from :data:`SORT_KEY_ROLE` when set and from the text otherwise.",
+      "translation": "Qt आइटम डेटा भूमिका; केवल ``DisplayRole`` और ``EditRole`` सॉर्ट कुंजी को ताज़ा करते हैं, जो तब सेट होने पर :data:`SORT_KEY_ROLE` से और अन्यथा पाठ से आती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.SortableTableItem.setData#3",
+      "source": "the data stored for ``role``.",
+      "source_sha256": "f4742e6c85fa0688c178769b9fe92e05292893e7e893a7178bac0991a0b14f5d",
+      "context": "the data stored for ``role``.",
+      "translation": "``role`` के लिए संग्रहीत डेटा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.install_sorting#2",
+      "source": "the view to make sortable; a view with no header is returned untouched, and one already installed only has its initial order re-stamped.",
+      "source_sha256": "64f9ea786ebb1e7ecaba4b4d085d60099cb1cc6d2176de27d771ea7c46f4f25d",
+      "context": "the view to make sortable; a view with no header is returned untouched, and one already installed only has its initial order re-stamped.",
+      "translation": "सॉर्ट करने योग्य बनाया जाने वाला व्यू; बिना हेडर वाला व्यू बिना छुए लौटाया जाता है, और पहले से स्थापित व्यू का केवल प्रारंभिक क्रम फिर से अंकित किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.is_missing#2",
+      "source": "a cell value of any type.",
+      "source_sha256": "2810efc3b65489b377421afea1d55e57b0f09da1466a8c64b34b178c6be9d32a",
+      "context": "a cell value of any type.",
+      "translation": "किसी भी प्रकार का सेल मान।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.numeric_value#2",
+      "source": "cell text or number; ``None``, booleans, blanks and NaN give ``None``.",
+      "source_sha256": "83614fcc676c92a0451d50918b31a590dda53853082d9669e2be28f195174472",
+      "context": "cell text or number; ``None``, booleans, blanks and NaN give ``None``.",
+      "translation": "सेल का पाठ या संख्या; ``None``, बूलियन, रिक्त और NaN ``None`` देते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.sort_key_of#1",
+      "source": "a cell value; see :func:`sorts_as_missing` and :func:`numeric_value`.",
+      "source_sha256": "5e32fef992595b40f674a821f6be4550f8140e7a0fa307cbc7e1fbf0fa2bf624",
+      "context": "a cell value; see :func:`sorts_as_missing` and :func:`numeric_value`.",
+      "translation": "एक सेल मान; :func:`sorts_as_missing` और :func:`numeric_value` देखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sortable_table.sorts_as_missing#1",
+      "source": "a cell value; missing per :func:`is_missing`, or a placeholder string such as ``\"n/a\"``, ``\"-\"`` or ``\"?\"`` (case-insensitive), sorts as missing.",
+      "source_sha256": "30d876aed2680751c3ce7a68d0cbaa625127f1f6086f98cdb0f23ed131fcac51",
+      "context": "a cell value; missing per :func:`is_missing`, or a placeholder string such as ``\"n/a\"``, ``\"-\"`` or ``\"?\"`` (case-insensitive), sorts as missing.",
+      "translation": "एक सेल मान; :func:`is_missing` के अनुसार अनुपस्थित, या ``\"n/a\"``, ``\"-\"`` या ``\"?\"`` जैसी प्लेसहोल्डर स्ट्रिंग (अक्षर-आकार से स्वतंत्र), अनुपस्थित के रूप में सॉर्ट होती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_panel.sweep_inputs#2",
+      "source": "the merged per-object frame with ``plateID``, ``rowID`` and ``columnID`` (or ``prc``); its numeric columns are averaged per well. It is copied, not modified.",
+      "source_sha256": "dea27295db8ab367e60e56eb0a306c5647d14c6d69fb0dad5b6e6c9d210e7e11",
+      "context": "the merged per-object frame with ``plateID``, ``rowID`` and ``columnID`` (or ``prc``); its numeric columns are averaged per microplate sample position. It is copied, not modified.",
+      "translation": "``plateID``, ``rowID`` और ``columnID`` (या ``prc``) वाला मर्ज किया गया प्रति-ऑब्जेक्ट फ़्रेम; इसके संख्यात्मक स्तंभों का प्रति वेल औसत लिया जाता है। इसकी प्रति बनाई जाती है, इसे बदला नहीं जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_panel.sweep_inputs#3",
+      "source": "the per-well gRNA table with ``prc``, ``grna`` and ``fraction`` columns, pivoted to one column per gRNA.",
+      "source_sha256": "7b4c5ecfc8b76d143bedeb25b614f5a86f4cd6913ea78559c2ef0b73fb981f40",
+      "context": "the per-microplate sample position gRNA table with ``prc``, ``grna`` and ``fraction`` columns, pivoted to one column per gRNA.",
+      "translation": "``prc``, ``grna`` और ``fraction`` स्तंभों वाली प्रति-वेल gRNA तालिका, प्रति gRNA एक स्तंभ में pivot की गई।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_panel.sweep_inputs#4",
+      "source": "the score column averaged per well, read from ``cells`` or else from ``scores``.",
+      "source_sha256": "1c1c63432082e2e31cfe16a9510e97a0ff83cbdfae2ee2c254a67933b561f33e",
+      "context": "the score column averaged per microplate sample position, read from ``cells`` or else from ``scores``.",
+      "translation": "प्रति वेल औसत किया गया स्कोर स्तंभ, ``cells`` से या अन्यथा ``scores`` से पढ़ा गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_panel.sweep_inputs#5",
+      "source": "an optional score table used when ``cells`` lacks ``score_column``.",
+      "source_sha256": "794038d8a939d619699f1275f00d483f99bd351a6be6c9676ca6922bc36b79d6",
+      "context": "an optional score table used when ``cells`` lacks ``score_column``.",
+      "translation": "वैकल्पिक स्कोर तालिका, जिसका उपयोग तब होता है जब ``cells`` में ``score_column`` न हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.describe_folder#3",
+      "source": "path of the run folder to walk; an empty or missing folder gives ``\"nothing on disk\"``.",
+      "source_sha256": "86a1c0ab5ea75fb2d24ebe4f991a611f7126edcf40629b0fb3dc7c37d60bc189",
+      "context": "path of the processing-session folder to walk; an empty or missing folder gives ``\"nothing on disk\"``.",
+      "translation": "जाँचे जाने वाले रन फ़ोल्डर का पथ; खाली या अनुपस्थित फ़ोल्डर ``\"nothing on disk\"`` देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.eventFilter#2",
+      "source": "the object the event was sent to; only the run table is handled here.",
+      "source_sha256": "b2e1349ec0652b0999a13d7c7f88c9bec0efaea679787a26951629cbf6f8bae7",
+      "context": "the object the event was sent to; only the run table is handled here.",
+      "translation": "वह ऑब्जेक्ट जिसे इवेंट भेजा गया; यहाँ केवल रन तालिका संभाली जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.eventFilter#3",
+      "source": "the filtered event; a Delete or Backspace ``KeyPress`` on the run table removes the selected rows, and anything else goes to the base class.",
+      "source_sha256": "bf9cd978fab5da44cb560c9e6f034c17b553aaa17f37f76c4ce880ed86a6e850",
+      "context": "the filtered event; a Delete or Backspace ``KeyPress`` on the run table removes the selected rows, and anything else goes to the base class.",
+      "translation": "फ़िल्टर किया गया इवेंट; रन तालिका पर Delete या Backspace ``KeyPress`` चयनित पंक्तियाँ हटाता है, और बाकी सब बेस क्लास को जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.load#2",
+      "source": "the sweep destination folder, or a path ending in ``.csv`` naming the results file itself; ``~`` is expanded and an empty value returns ``False``.",
+      "source_sha256": "29b42211f82ee900ab8cde501f8107943bfa363efaf5909f640fad3cbf0f020a",
+      "context": "the sweep destination folder, or a path ending in ``.csv`` naming the results file itself; ``~`` is expanded and an empty value returns ``False``.",
+      "translation": "स्वीप का गंतव्य फ़ोल्डर, या ``.csv`` पर समाप्त होने वाला पथ जो स्वयं परिणाम फ़ाइल को नामित करता है; ``~`` का विस्तार किया जाता है और खाली मान ``False`` लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.remove_runs#2",
+      "source": "run row dicts to take off the table, matched by folder or else by name (and by ``trial_id`` in the sweep table); ``None`` removes nothing.",
+      "source_sha256": "e77615448e340ddece07db9e34440fdaa21713bf4440769eb51428b3ae3a3165",
+      "context": "run row key-value mappings to take off the table, matched by folder or else by name (and by ``trial_id`` in the sweep table); ``None`` removes nothing.",
+      "translation": "तालिका से हटाई जाने वाली रन पंक्ति dicts, जिनका मिलान फ़ोल्डर से या अन्यथा नाम से किया जाता है (और स्वीप तालिका में ``trial_id`` से); ``None`` कुछ नहीं हटाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.set_loaded_run#1",
+      "source": "the run's folder (``~`` is expanded and made absolute for matching) or its name; ``None`` or an empty string returns ``False``.",
+      "source_sha256": "25956ab9ddfaae3c5c84c42a355b484e1c9ea0fe4450c6f4118b93d775e8d3ad",
+      "context": "the processing session's folder (``~`` is expanded and made absolute for matching) or its name; ``None`` or an empty string returns ``False``.",
+      "translation": "रन का फ़ोल्डर (मिलान के लिए ``~`` का विस्तार करके उसे निरपेक्ष बनाया जाता है) या उसका नाम; ``None`` या खाली स्ट्रिंग ``False`` लौटाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.update_run#2",
+      "source": "the handle returned when the run was recorded; an unknown handle returns ``False``.",
+      "source_sha256": "8c28855661321ee2b7e7d9549f80318bea9b24b90001e49133d3606935f98849",
+      "context": "the handle returned when the run was recorded; an unknown handle returns ``False``.",
+      "translation": "रन दर्ज होते समय लौटाया गया हैंडल; अज्ञात हैंडल ``False`` लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.describe_saved_states#1",
+      "source": "the run folders whose state was saved.",
+      "source_sha256": "7b9711cc8fcb50e6475c767b6f9f678722362d649c79d96ba70ae555fe38652a",
+      "context": "the processing-session folders whose state was saved.",
+      "translation": "वे रन फ़ोल्डर जिनकी अवस्था सहेजी गई।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.describe_saved_states#2",
+      "source": "``(path, reason)`` pairs for runs that did not save; the first three are named.",
+      "source_sha256": "60500be811fc2c5144c3acaad5be3f9570caa0d715a09ea787e3dec84d8eea84",
+      "context": "``(path, reason)`` pairs for runs that did not save; the first three are named.",
+      "translation": "उन रनों के लिए ``(path, reason)`` जोड़े जो सहेजे नहीं गए; पहले तीन के नाम बताए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.test_data_chooser.TestDataChooser.eventFilter#1",
+      "source": "the route button the event is for; its ``routeKey`` property picks the description shown.",
+      "source_sha256": "0035ffddb5498c849140d49c77e077fdab183b3a1b08274360757640f33a9737",
+      "context": "the route button the event is for; its ``routeKey`` property picks the description shown.",
+      "translation": "वह रूट बटन जिसके लिए इवेंट है; उसकी ``routeKey`` प्रॉपर्टी दिखाया जाने वाला विवरण चुनती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.test_data_chooser.TestDataChooser.eventFilter#2",
+      "source": "the event; Enter shows the route's description and Leave restores the resting text. It is always passed on to the base class.",
+      "source_sha256": "fa8dd0759560f45e783a5304d419012dbc9a2df602faa8282b24dda08ed313ec",
+      "context": "the event; Enter shows the route's description and Leave restores the resting text. It is always passed on to the base class.",
+      "translation": "इवेंट; Enter रूट का विवरण दिखाता है और Leave सामान्य पाठ वापस लाता है। इसे हमेशा बेस क्लास को आगे दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.test_data_chooser.TestDataChooser.resizeEvent#2",
+      "source": "the resize event, passed to the base class before the description pane is re-measured.",
+      "source_sha256": "f333af75040256f50158e7ff85a52a31d7c1db609e63f1566b05684aa9130f19",
+      "context": "the resize event, passed to the base class before the description pane is re-measured.",
+      "translation": "resize इवेंट, जो विवरण पैन को फिर से मापने से पहले बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.tile_chrome.cover_rect#2",
+      "source": "the image to draw; only its size is read. An empty pixmap returns ``box`` unchanged.",
+      "source_sha256": "558e7dc160f642ca170857025eb4cd249c499e3c2e07f1cf868dcbc1d4414097",
+      "context": "the image to draw; only its size is read. An empty pixmap returns ``box`` unchanged.",
+      "translation": "बनाई जाने वाली छवि; केवल उसका आकार पढ़ा जाता है। खाली pixmap होने पर ``box`` अपरिवर्तित लौटता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.tile_chrome.cover_rect#3",
+      "source": "the rectangle to fill.",
+      "source_sha256": "b7f75a16b619f7429a51ec1fe83b5eb1574761e9aaf16cbfe0e6473f095e92f3",
+      "context": "the rectangle to fill.",
+      "translation": "भरा जाने वाला आयत।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.tile_chrome.stroke_ring#1",
+      "source": "the active painter; its pen is replaced.",
+      "source_sha256": "d5a2d2889df2a496198e26caf68d57b8d0df25272b163068daadb880c41fda58",
+      "context": "the active painter; its pen is replaced.",
+      "translation": "सक्रिय पेंटर; उसका पेन बदल दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.tile_chrome.stroke_ring#2",
+      "source": "stroke colour, any string :class:`QColor` accepts.",
+      "source_sha256": "7b78ef3beedbf396f94b7c13be5062f1159e1b0e4bb1b003992ce72f523399f7",
+      "context": "stroke colour, any string :class:`QColor` accepts.",
+      "translation": "स्ट्रोक का रंग, कोई भी स्ट्रिंग जिसे :class:`QColor` स्वीकार करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.tile_chrome.stroke_ring#3",
+      "source": "pen width in pixels.",
+      "source_sha256": "7f6cacbf6939ebf4e14c501e64836e14cc17d2abc596c3a1f8db6b9d5010cad8",
+      "context": "pen width in pixels.",
+      "translation": "पेन की चौड़ाई, पिक्सेल में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.tile_chrome.stroke_ring#4",
+      "source": "distance of the ring from the widget edge, in pixels; the corner radius shrinks by the same amount (to at least 1).",
+      "source_sha256": "0c5424d9c17296c2473ec504a201343b77ebc35f0462e3404fbf88a02169d50c",
+      "context": "distance of the ring from the widget edge, in pixels; the corner radius shrinks by the same amount (to at least 1).",
+      "translation": "विजेट के किनारे से रिंग की दूरी, पिक्सेल में; कोने की त्रिज्या उतनी ही घटती है (कम से कम 1 तक)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.tile_chrome.stroke_ring#5",
+      "source": "widget width in pixels.",
+      "source_sha256": "435a4382719289031416fa95c47212b69cf9b3df97a6187dc39db4e018882ec4",
+      "context": "widget width in pixels.",
+      "translation": "विजेट की चौड़ाई, पिक्सेल में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.tile_chrome.stroke_ring#6",
+      "source": "widget height in pixels. Nothing is drawn when the inset leaves no room in either dimension.",
+      "source_sha256": "094e6c4f7ba4161468bbf5a19362723584d79f9e77cfefe428c45564c538b6d7",
+      "context": "widget height in pixels. Nothing is drawn when the inset leaves no room in either dimension.",
+      "translation": "विजेट की ऊँचाई, पिक्सेल में। जब inset किसी भी आयाम में जगह नहीं छोड़ता, तब कुछ नहीं बनाया जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_movie.FilmStrip.highlight#1",
+      "source": "zero-based index of the frame to ring; every other cell loses its ring, and an index outside the strip rings none.",
+      "source_sha256": "f799cf68a9b82860bdd87ea65f4da05ad2298a9a463207f1f0dbfc92e47b18cc",
+      "context": "zero-based index of the frame to ring; every other cell loses its ring, and an index outside the strip rings none.",
+      "translation": "रिंग लगाए जाने वाले फ़्रेम का शून्य-आधारित इंडेक्स; बाकी हर सेल की रिंग हट जाती है, और स्ट्रिप से बाहर का इंडेक्स किसी पर रिंग नहीं लगाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_movie.FilmStrip.set_frames#1",
+      "source": "thumbnail pixmaps, one per frame in order; clicking one emits ``frame_picked`` with its index.",
+      "source_sha256": "90c179bd69d62a25bf09efe4a62ca71b83b209f9a72155d06d4758fc38bacaea",
+      "context": "thumbnail pixmaps, one per frame in order; clicking one emits ``frame_picked`` with its index.",
+      "translation": "थंबनेल pixmaps, क्रम में प्रति फ़्रेम एक; किसी पर क्लिक करने से उसके इंडेक्स के साथ ``frame_picked`` उत्सर्जित होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_movie.FovMovie.set_overlays#1",
+      "source": "whether mask outlines are drawn.",
+      "source_sha256": "44010b91b00fde5567745e5a6f2943dc0b1f7701cde42a1909fc4f7698798428",
+      "context": "whether mask outlines are drawn.",
+      "translation": "मास्क रूपरेखाएँ बनाई जाएँ या नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_movie.FovMovie.set_overlays#2",
+      "source": "whether track tails are drawn.",
+      "source_sha256": "f72953da679f8c9d569485cbd7fd46b5fd25cc4dd8a77412206cbcb4a67aa11e",
+      "context": "whether track tails are drawn.",
+      "translation": "ट्रैक की पूँछ (trails) बनाई जाएँ या नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_movie.FovMovie.set_sequence#2",
+      "source": "the field's frames as an array-like stack, first axis time; each frame may carry channels, of which ``channel`` is shown. None clears the movie.",
+      "source_sha256": "2fa3b2e86a7c371df739a6e7026dd7a2184147ed08108e5db5a7fe22de9a7c5d",
+      "context": "the microscope field of view's frames as an array-like stack, first axis time; each frame may carry image data channels, of which ``channel`` is shown. None clears the movie.",
+      "translation": "फ़ील्ड के फ़्रेम ऐरे जैसे स्टैक के रूप में, पहला अक्ष समय; हर फ़्रेम में चैनल हो सकते हैं, जिनमें से ``channel`` दिखाया जाता है। None मूवी को खाली कर देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_movie.FovMovie.show_frame#1",
+      "source": "zero-based frame index; clamped to the frames loaded.",
+      "source_sha256": "897801ab731f3a444d98091e4bb80c91faac485a48ceeeaae8518f0db7d2da81",
+      "context": "zero-based frame index; clamped to the frames loaded.",
+      "translation": "शून्य-आधारित फ़्रेम इंडेक्स; लोड किए गए फ़्रेमों की सीमा में सीमित किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_movie.TimelapseMoviePanel.set_max_fields#2",
+      "source": "how many fields may be held at once; clamped to 1 through ``MAX_FIELDS_CEILING`` (8), and fields beyond it are dropped at once.",
+      "source_sha256": "ee7df285157015794a4c550ccc8a004db01b80bc3505b1c36edc798dbb9b9dd9",
+      "context": "how many fields may be held at once; clamped to 1 through ``MAX_FIELDS_CEILING`` (8), and fields beyond it are dropped at once.",
+      "translation": "एक साथ कितने फ़ील्ड रखे जा सकते हैं; 1 से ``MAX_FIELDS_CEILING`` (8) तक सीमित, और उससे अधिक फ़ील्ड तुरंत हटा दिए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.FrameSequence#5",
+      "source": "``\"files\"``, ``\"tiff\"`` or ``\"npy\"``.",
+      "source_sha256": "ac27ee718a8226ee56d5e3e04c2363f955e5bb4c123badf803eca43081a5e32a",
+      "context": "``\"files\"``, ``\"tiff\"`` or ``\"npy\"``.",
+      "translation": "``\"files\"``, ``\"tiff\"`` या ``\"npy\"``।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.FrameSequence.frame#1",
+      "source": "preview-frame position; outside ``0`` to ``len(indices) - 1`` raises :class:`IndexError`. Frames read are kept in a small cache.",
+      "source_sha256": "834b2cc3c4ec3a7617a355679727d91dfae8a94f1d7aa1763cd64c49525cf7df",
+      "context": "preview-frame position; outside ``0`` to ``len(indices) - 1`` raises :class:`IndexError`. Frames read are kept in a small cache.",
+      "translation": "पूर्वावलोकन-फ़्रेम की स्थिति; ``0`` से ``len(indices) - 1`` के बाहर होने पर :class:`IndexError` त्रुटि उठती है। पढ़े गए फ़्रेम एक छोटे कैश में रखे जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.apply_settings#1",
+      "source": "the Timelapse settings; a copy is kept, and the linking mode, displacement, memory, object, transient filter and that object's channel, diameter and model are read from it.",
+      "source_sha256": "aa532dce05380bd3f2dc19d6e612f6207a9b8ad08c2a7961b832596dd9a33f4a",
+      "context": "the Timelapse settings; a copy is kept, and the linking mode, displacement, memory, object, transient filter and that object's channel, diameter and model are read from it.",
+      "translation": "Timelapse सेटिंग्स; एक प्रति रखी जाती है, और उससे लिंकिंग मोड, विस्थापन, memory, ऑब्जेक्ट, क्षणिक फ़िल्टर और उस ऑब्जेक्ट का चैनल, व्यास और मॉडल पढ़े जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.attach_movie_panel#2",
+      "source": "the movie panel; its ``max_fields_changed`` signal is connected and a previously attached panel is disconnected.",
+      "source_sha256": "9c80acbc4d52a268b47134c44e221278df7959747d6500819a5a2964e63134db",
+      "context": "the movie panel; its ``max_fields_changed`` signal is connected and a previously attached panel is disconnected.",
+      "translation": "मूवी पैनल; उसका ``max_fields_changed`` सिग्नल जोड़ा जाता है और पहले से संलग्न पैनल अलग कर दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.closeEvent#2",
+      "source": "the close event; passed on to the base class after the workers finish (up to 5 s each).",
+      "source_sha256": "3914bc8567b60be449b115b1b034fce8fdfc0b3a7e5e014c378bc776ad7e7ae6",
+      "context": "the close event; passed on to the base class after the workers finish (up to 5 s each).",
+      "translation": "close इवेंट; वर्कर समाप्त होने के बाद (हर एक के लिए अधिकतम 5 s) बेस क्लास को आगे दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_masks#2",
+      "source": "the label images: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "source_sha256": "254cc27a9e6de79a6d78f1844f6eb6ad4a1c7ec65e67f2cce99377e83a15c751",
+      "context": "the label images: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "translation": "लेबल छवियाँ: फ़्रेमों की एक डायरेक्टरी, एक बहु-पृष्ठ TIFF, या एक ``.npy`` स्टैक जिसका पहला अक्ष समय है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_masks#3",
+      "source": "False, with the reason in the status line, when it cannot be opened.",
+      "source_sha256": "70664777721e24eac0333861cf08340b4f08d4e786d4fdd92170e07574dd41ee",
+      "context": "False, with the reason in the status line, when it cannot be opened.",
+      "translation": "जब इसे खोला न जा सके, तब False, और कारण स्थिति पंक्ति में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_masks_async#3",
+      "source": "the label images: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time. ``None`` or empty submits nothing.",
+      "source_sha256": "5a6dade24c778ee7b98e2d8ed7c99abc63227d02a71242a73176c687eed50522",
+      "context": "the label images: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time. ``None`` or empty submits nothing.",
+      "translation": "लेबल छवियाँ: फ़्रेमों की एक डायरेक्टरी, एक बहु-पृष्ठ TIFF, या एक ``.npy`` स्टैक जिसका पहला अक्ष समय है। ``None`` या खाली होने पर कुछ भी सबमिट नहीं होता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_sequence#2",
+      "source": "the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "source_sha256": "c0ba687aebbf9a18688fce9d3add7844b5e9d5ff5648345c3c6aa88178cd3302",
+      "context": "the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "translation": "छवि अनुक्रम: फ़्रेमों की एक डायरेक्टरी, एक बहु-पृष्ठ TIFF, या एक ``.npy`` स्टैक जिसका पहला अक्ष समय है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_sequence_async#2",
+      "source": "the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time. ``None`` or empty submits nothing.",
+      "source_sha256": "784a4d628149fc5694b06961adcc1b0c9d7ddc6d390b031bcbe9e01e952964ab",
+      "context": "the image sequence: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time. ``None`` or empty submits nothing.",
+      "translation": "छवि अनुक्रम: फ़्रेमों की एक डायरेक्टरी, एक बहु-पृष्ठ TIFF, या एक ``.npy`` स्टैक जिसका पहला अक्ष समय है। ``None`` या खाली होने पर कुछ भी सबमिट नहीं होता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.load_sequence_async#3",
+      "source": "list the sibling fields next to ``path`` for the field dropdown; ``False`` reuses the cached listing.",
+      "source_sha256": "ee1b168bc6501a9411c46b61aa0fca872f21fdcbb8240d38d43105fc1a50f127",
+      "context": "list the sibling fields next to ``path`` for the field dropdown; ``False`` reuses the cached listing.",
+      "translation": "फ़ील्ड ड्रॉपडाउन के लिए ``path`` के बगल वाले सहोदर फ़ील्ड सूचीबद्ध करें; ``False`` कैश की गई सूची का पुनः उपयोग करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.set_propagate_callback#1",
+      "source": "the callable, or ``None`` to remove it.",
+      "source_sha256": "7352cd850bd0a12d0469ab3cb66ca55b215dfdfdc0e34a10e8001e5f78b511f8",
+      "context": "the callable, or ``None`` to remove it.",
+      "translation": "callable, या उसे हटाने के लिए ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.TimelapsePreviewPanel.showEvent#1",
+      "source": "the show event; passed on to the base class first.",
+      "source_sha256": "51633d83b83eeabbef0531f1b10673ffd91e298e05dcf3002a62d3f4eb842347",
+      "context": "the show event; passed on to the base class first.",
+      "translation": "show इवेंट; पहले बेस क्लास को आगे दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.backend_available#2",
+      "source": "linking backend name, one of :data:`TRACK_MODES` (case-insensitive); ``iou`` needs no optional package.",
+      "source_sha256": "965a5ec27f0f6c660b12a1f82a16c600abfa207d4be46a483d8efd2c47eab260",
+      "context": "linking backend name, one of :data:`TRACK_MODES` (case-insensitive); ``iou`` needs no optional package.",
+      "translation": "लिंकिंग बैकएंड का नाम, :data:`TRACK_MODES` में से एक (अक्षर-आकार से स्वतंत्र); ``iou`` को किसी वैकल्पिक पैकेज की आवश्यकता नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#2",
+      "source": "the field to open: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "source_sha256": "9bacb1fb14b873d10fe2027adece0f0963b4a5e5fc8581cf4b8f0deaa140775f",
+      "context": "the field to open: a directory of frames, a multi-page TIFF, or an ``.npy`` stack whose first axis is time.",
+      "translation": "खोला जाने वाला फ़ील्ड: फ़्रेमों की एक डायरेक्टरी, एक बहु-पृष्ठ TIFF, या एक ``.npy`` स्टैक जिसका पहला अक्ष समय है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#3",
+      "source": "cap on the number of frames read.",
+      "source_sha256": "e3ec77b044d24bb283812a64d3a7aae1562cc09e99fb57ec9c7ca573a68934e2",
+      "context": "cap on the number of frames read.",
+      "translation": "पढ़े जाने वाले फ़्रेमों की अधिकतम संख्या।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#4",
+      "source": "segmentation parameters, as :func:`segment_frame` takes them; its ``channel`` is also returned.",
+      "source_sha256": "29253a1775aa16ba06b0b4134ed85b2807c039feda88b6823c37e94d3d5259f8",
+      "context": "segmentation parameters, as :func:`segment_frame` takes them; its ``channel`` is also returned.",
+      "translation": "सेगमेंटेशन पैरामीटर, जैसे :func:`segment_frame` उन्हें लेता है; उनका ``channel`` भी लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#5",
+      "source": "keyword arguments for :func:`link_tracks`.",
+      "source_sha256": "0141870d8e99dcc4e43b53b67c6f4c2abbbf7e6646f2854f4935ee6d1517abfc",
+      "context": "keyword arguments for :func:`link_tracks`.",
+      "translation": ":func:`link_tracks` के लिए कीवर्ड आर्ग्युमेंट।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#6",
+      "source": "an existing (T, H, W) label stack to reuse instead of segmenting; its frame count must match the sequence.",
+      "source_sha256": "2fdd8220f6bf106260e55804dedb775181b3d43076e5b2fe4b310dd01d2a29ca",
+      "context": "an existing (T, H, W) label stack to reuse instead of segmenting; its frame count must match the sequence.",
+      "translation": "सेगमेंटेशन के बजाय पुनः उपयोग के लिए एक मौजूदा (T, H, W) लेबल स्टैक; उसकी फ़्रेम संख्या अनुक्रम से मेल खानी चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_movie_field#7",
+      "source": "a no-argument callable returning ``True`` to stop.",
+      "source_sha256": "346c9a4f77c98d7199467bccbc0be8ada354c46a394d947c609ff8bdf59dec51",
+      "context": "a no-argument callable returning ``True`` to stop.",
+      "translation": "बिना आर्ग्युमेंट वाला callable जो रोकने के लिए ``True`` लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.build_timelapse_preview_card#3",
+      "source": "return ``None`` for the panel and leave the card empty, for :func:`_fill_timelapse_preview_card` to fill the first time it is shown -- how Mask carries this preview for its folded Timelapse switch without building ~130 widgets nobody has asked to see.",
+      "source_sha256": "9951446224bedff3e56715346dcb41f815807ab82efea8400705452cfcf5f2ea",
+      "context": "return ``None`` for the panel and leave the card empty, for :func:`_fill_timelapse_preview_card` to fill the first time it is shown -- how Mask carries this preview for its folded Timelapse switch without building ~130 widgets nobody has asked to see.",
+      "translation": "पैनल के लिए ``None`` लौटाएँ और कार्ड को खाली छोड़ें, ताकि पहली बार दिखाए जाने पर :func:`_fill_timelapse_preview_card` उसे भरे -- इसी तरह Mask अपने मुड़े हुए Timelapse स्विच के लिए यह पूर्वावलोकन रखता है, बिना ऐसे ~130 विजेट बनाए जिन्हें देखने के लिए किसी ने नहीं कहा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.frame_channel#2",
+      "source": "the frame array; a 2-D frame is returned as is and one with other than three dimensions is squeezed.",
+      "source_sha256": "cea2f5c5447df46fa898d9dcba05f75999ee0e43b97d5f0174a594e563a37b28",
+      "context": "the frame array; a 2-D frame is returned as is and one with other than three dimensions is squeezed.",
+      "translation": "फ़्रेम ऐरे; 2-D फ़्रेम जैसा है वैसा लौटाया जाता है और तीन से अलग आयामों वाले फ़्रेम को squeeze किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.frame_channel#3",
+      "source": "the channel index to take (wrapped modulo the channel count on a channel-first frame).",
+      "source_sha256": "fff718694e62221fc1ecc7e7e9f65b249b0d16347200c2c28faa14e0b7deb572",
+      "context": "the channel index to take (wrapped modulo the channel count on a channel-first frame).",
+      "translation": "लिया जाने वाला चैनल इंडेक्स (चैनल-पहले फ़्रेम पर चैनल संख्या के modulo से लपेटा गया)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#1",
+      "source": "label stack with at least two frames; any other shape raises :class:`ValueError`.",
+      "source_sha256": "26ffa4f7dda2882d9c11555769d204ff73550890106c17687b3fbbce1d317f1e",
+      "context": "label stack with at least two frames; any other shape raises :class:`ValueError`.",
+      "translation": "कम से कम दो फ़्रेम वाला लेबल स्टैक; किसी अन्य आकार पर :class:`ValueError` त्रुटि उठती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#2",
+      "source": "linking backend, one of :data:`TRACK_MODES`.",
+      "source_sha256": "3f826f852480c7edf320b32c1b4183bd663b32c5d77d72e54d4ed9b77307a594",
+      "context": "linking backend, one of :data:`TRACK_MODES`.",
+      "translation": "लिंकिंग बैकएंड, :data:`TRACK_MODES` में से एक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#3",
+      "source": "maximum displacement between frames, in pixels, passed to the ``trackpy``, ``btrack`` and ``ultrack`` backends.",
+      "source_sha256": "0ffeae13c7a7cd1a6305b64d7e2e8a48e6de19c8eeabd21baf1dde441e7184e4",
+      "context": "maximum displacement between frames, in pixels, passed to the ``trackpy``, ``btrack`` and ``ultrack`` backends.",
+      "translation": "फ़्रेमों के बीच अधिकतम विस्थापन, पिक्सेल में, जिसे ``trackpy``, ``btrack`` और ``ultrack`` बैकएंड को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#4",
+      "source": "frames an object may vanish for (``trackpy`` only).",
+      "source_sha256": "246bb8df5dc458112647068e3e9f7bc886c50fc9be0627f8373675cb4c4443d9",
+      "context": "frames an object may vanish for (``trackpy`` only).",
+      "translation": "कितने फ़्रेमों तक कोई ऑब्जेक्ट गायब रह सकता है (केवल ``trackpy``)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#5",
+      "source": "minimum overlap to link (``iou`` only).",
+      "source_sha256": "3639b26ab867845a65f9c97c7c3c4e27b9de852a16c6fc8dd8a8050e29df4c18",
+      "context": "minimum overlap to link (``iou`` only).",
+      "translation": "लिंक करने के लिए न्यूनतम ओवरलैप (केवल ``iou``)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#6",
+      "source": "intensity stack for ``trackastra``.",
+      "source_sha256": "2e41e02221003c3e29fd38695f00876f7eddc6e1b3e7e6467b6b4ccef21914a7",
+      "context": "intensity stack for ``trackastra``.",
+      "translation": "``trackastra`` के लिए तीव्रता स्टैक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#7",
+      "source": "``trackastra`` model name.",
+      "source_sha256": "a28710d2f3558ad684714f833f67ae9cc18821b1cabf69bcad4c2e044b5d86b4",
+      "context": "``trackastra`` model name.",
+      "translation": "``trackastra`` मॉडल का नाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.link_tracks#8",
+      "source": "``trackastra`` linking mode.",
+      "source_sha256": "540180cea0723c24e75b4b10eaf7022d7270489d8a79ad80c23fb422aa836151",
+      "context": "``trackastra`` linking mode.",
+      "translation": "``trackastra`` लिंकिंग मोड।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.relabel_by_track#2",
+      "source": "the (T, H, W) label stack the tracks were built from.",
+      "source_sha256": "edecdb7bc9f2313db772f0c2744d5f2eaebdcc312b417eebcd77591522a25bbe",
+      "context": "the (T, H, W) label stack the tracks were built from.",
+      "translation": "वह (T, H, W) लेबल स्टैक जिससे ट्रैक बनाए गए थे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.relabel_by_track#3",
+      "source": "the track table from :func:`link_tracks`; ``None`` or an empty table gives an all-zero stack.",
+      "source_sha256": "0516dd0bac6ae0f4e6f67d33b01c306cd8491a728586ccaa65c6c75b571034ef",
+      "context": "the track table from :func:`link_tracks`; ``None`` or an empty table gives an all-zero stack.",
+      "translation": ":func:`link_tracks` से मिली ट्रैक तालिका; ``None`` या खाली तालिका पूरी तरह शून्य वाला स्टैक देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#10",
+      "source": "channel of ``image`` to draw.",
+      "source_sha256": "d8213535675744824be34ee8a42b055f744a913d0c81715c96998f900a5ce4d9",
+      "context": "channel of ``image`` to draw.",
+      "translation": "``image`` का बनाया जाने वाला चैनल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#11",
+      "source": "an RGB ``uint8`` array.",
+      "source_sha256": "7d851dd0e1c4db99ee06824d30c5ecaff3484810cf304422555ecc6fd30c06a2",
+      "context": "an RGB ``uint8`` array.",
+      "translation": "एक RGB ``uint8`` ऐरे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#2",
+      "source": "the frame to draw, 2-D or with a channel axis; the plane is picked with :func:`frame_channel`.",
+      "source_sha256": "070854b3b7142345181f5b094f332753607f7ce7b21bb6454149b999ec7264b0",
+      "context": "the frame to draw, 2-D or with an image data channel axis; the image layer is picked with :func:`frame_channel`.",
+      "translation": "बनाया जाने वाला फ़्रेम, 2-D या चैनल अक्ष के साथ; प्लेन :func:`frame_channel` से चुना जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#3",
+      "source": "optional track-relabelled mask for this frame, outlined per track colour.",
+      "source_sha256": "baf0d2c8af7d5dbce63e1137638a9ea594ed4883c50567b63b0ff423286e998f",
+      "context": "optional track-relabelled mask for this frame, outlined per track colour.",
+      "translation": "इस फ़्रेम के लिए वैकल्पिक, ट्रैक के अनुसार फिर से लेबल किया गया मास्क, जिसकी रूपरेखा ट्रैक रंग में बनती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#4",
+      "source": "optional track table with ``x``, ``y``, ``frame`` and ``track_id``; trails are drawn up to ``frame``.",
+      "source_sha256": "edd3b968b50cd3c10cdc3751375d443a6542335edf8a37ac8254bed9c948c91b",
+      "context": "optional track table with ``x``, ``y``, ``frame`` and ``track_id``; trails are drawn up to ``frame``.",
+      "translation": "``x``, ``y``, ``frame`` और ``track_id`` वाली वैकल्पिक ट्रैक तालिका; ट्रेल ``frame`` तक बनाए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#5",
+      "source": "index of this frame in the track table.",
+      "source_sha256": "daefd6b7975e5c6f31bce6d261eee69e3fad231b2b1b8c1228dc55c2b53ee9d0",
+      "context": "index of this frame in the track table.",
+      "translation": "ट्रैक तालिका में इस फ़्रेम का इंडेक्स।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#6",
+      "source": "how many earlier frames each trail reaches back.",
+      "source_sha256": "d966629819284737297820e50942291919b530fb06491b8281c7517f688fcde8",
+      "context": "how many earlier frames each trail reaches back.",
+      "translation": "हर ट्रेल कितने पिछले फ़्रेमों तक जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#7",
+      "source": "stretch the plane between the two percentiles.",
+      "source_sha256": "0e8a1c97a9917e9bf5a099b2a8236406b1f55a6a43e487f0394ab0af7d63fe8b",
+      "context": "stretch the image layer between the two percentiles.",
+      "translation": "प्लेन को दो पर्सेंटाइल के बीच फैलाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#8",
+      "source": "lower percentile of the stretch.",
+      "source_sha256": "42e8e854bc8952474ce15d7e7d6a4ac2aeff6febb408534efc129de47c2fe8d8",
+      "context": "lower percentile of the stretch.",
+      "translation": "फैलाव का निचला पर्सेंटाइल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.render_frame#9",
+      "source": "upper percentile of the stretch.",
+      "source_sha256": "61030dfeaf59ce907000097b3f5785da250b93f5d6759e47f6393cbe3a5fdf71",
+      "context": "upper percentile of the stretch.",
+      "translation": "फैलाव का ऊपरी पर्सेंटाइल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.run_preview_pass#1",
+      "source": "the request; its cached masks are used first, then its mask sequence, then its image sequence is segmented with ``req.seg``, and the masks are linked with ``req.track``. With none of these it raises :class:`ValueError`.",
+      "source_sha256": "0006b31cf3fd7a7eb3f8fa1498523abe9684a33e81a779e13a70ad112aef6871",
+      "context": "the request; its cached masks are used first, then its mask sequence, then its image sequence is segmented with ``req.seg``, and the masks are linked with ``req.track``. With none of these it raises :class:`ValueError`.",
+      "translation": "अनुरोध; पहले उसके कैश किए गए मास्क उपयोग होते हैं, फिर उसका मास्क अनुक्रम, फिर उसके छवि अनुक्रम का ``req.seg`` से सेगमेंटेशन होता है, और मास्क ``req.track`` से लिंक किए जाते हैं। इनमें से कुछ भी न होने पर यह :class:`ValueError` त्रुटि उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.segment_frame#2",
+      "source": "the frame, 2-D or with a channel axis.",
+      "source_sha256": "b52ed797035ad72bb03ef9138bf5bf12e0dbd16cac5006122cf4d0f246ff28aa",
+      "context": "the frame, 2-D or with a channel axis.",
+      "translation": "फ़्रेम, 2-D या चैनल अक्ष के साथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.segment_frame#3",
+      "source": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
+      "source_sha256": "7901c5b1ff077fc23be6f70cea27611f39b1a78524c0d860f81f146a094623ce",
+      "context": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
+      "translation": "सेगमेंटेशन सेटिंग्स; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` और ``cellprob`` पढ़े जाते हैं, हर एक डिफ़ॉल्ट के साथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#2",
+      "source": "the frame sequence to segment.",
+      "source_sha256": "998bf5c62e8b9e6361a5ce55f7fe827159406844b22b398b70dc2bdd1fce23ef",
+      "context": "the frame sequence to segment.",
+      "translation": "सेगमेंट किया जाने वाला फ़्रेम अनुक्रम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#3",
+      "source": "segmentation settings, as :func:`segment_frame` takes them.",
+      "source_sha256": "c11d65eff366b26a0cd5946652cd62bd8b6a67a3c09e22fa05af65e901290355",
+      "context": "segmentation settings, as :func:`segment_frame` takes them.",
+      "translation": "सेगमेंटेशन सेटिंग्स, जैसे :func:`segment_frame` उन्हें लेता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.timelapse_preview.track_colour#1",
+      "source": "the track id, converted with ``int``; it indexes :data:`TRACK_COLOURS` cyclically.",
+      "source_sha256": "fcafa0d8a309f3a4f9616388d605e4963075685b0b4824d3d3fc9f61801c6bfe",
+      "context": "the track id, converted with ``int``; it indexes :data:`TRACK_COLOURS` cyclically.",
+      "translation": "ट्रैक id, ``int`` से रूपांतरित; यह :data:`TRACK_COLOURS` को चक्रीय रूप से इंडेक्स करती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle#3",
+      "source": "let a long caption wrap to the available width. False keeps the existing single-line switch layout.",
+      "source_sha256": "6cd300010e9da0a349b45880229791a5e37c5207c18c7ae430c5fa039ad86303",
+      "context": "let a long caption wrap to the available width. False keeps the existing single-line switch layout.",
+      "translation": "लंबे कैप्शन को उपलब्ध चौड़ाई तक लपेटने दें। False मौजूदा एक-पंक्ति स्विच लेआउट बनाए रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.heightForWidth#0",
+      "source": "Return enough height to paint the complete wrapped caption.",
+      "source_sha256": "138e12c8c4b8aab5c9367c346eea6be06b497f77f514280eb232922a2778c184",
+      "context": "Return enough height to paint the complete wrapped caption.",
+      "translation": "पूरे लपेटे गए कैप्शन को पेंट करने के लिए पर्याप्त ऊँचाई लौटाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.heightForWidth#1",
+      "source": "available control width in logical pixels.",
+      "source_sha256": "4762ce89b854d47d1018d43ca0218de2bb27987dc28b47cef86f4176d03f7f16",
+      "context": "available control width in logical pixels.",
+      "translation": "तार्किक पिक्सेल में उपलब्ध नियंत्रण चौड़ाई।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.heightForWidth#2",
+      "source": "wrapped height, or the native checkbox result when disabled.",
+      "source_sha256": "09ebea0079891c233b597e2842974976553c3dc45765ad0210d9cca5bc9fa2b8",
+      "context": "wrapped height, or the native checkbox result when disabled.",
+      "translation": "लपेटी गई ऊँचाई, या अक्षम होने पर मूल चेकबॉक्स परिणाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.minimumSizeHint#0",
+      "source": "Allow wrapped captions to shrink without making their text a width floor.",
+      "source_sha256": "06fb37762680de4f54646aed3d7a09e4957b4cbd8f755bfb6b8a976c19bb6c38",
+      "context": "Allow wrapped captions to shrink without making their text a width floor.",
+      "translation": "लपेटे गए कैप्शन को सिकुड़ने दें, उनके पाठ को न्यूनतम चौड़ाई बनाए बिना।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.mouseMoveEvent#1",
+      "source": "the mouse move; its x position drags the knob once it is 3 pixels or more from the press.",
+      "source_sha256": "65447bad7c87bb4acdb2ee1fe0179cbd3420a92f567eee22cf40e28424d7aeb2",
+      "context": "the mouse move; its x position drags the knob once it is 3 pixels or more from the press.",
+      "translation": "माउस की गति; जब यह दबाने के स्थान से 3 पिक्सेल या अधिक दूर हो जाए, तब इसकी x स्थिति नॉब को खींचती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.mousePressEvent#1",
+      "source": "the mouse press; a left-button press on an enabled switch is consumed and its x position recorded, and any other press goes to the base class.",
+      "source_sha256": "e729ea5e6a47afec6d723a1af91caab4101ca702d5d8a1a96059e0a1040cbb8c",
+      "context": "the mouse press; a left-button press on an enabled switch is consumed and its x position recorded, and any other press goes to the base class.",
+      "translation": "माउस प्रेस; सक्षम स्विच पर बाएँ बटन का प्रेस उपभोग किया जाता है और उसकी x स्थिति दर्ज की जाती है, और कोई अन्य प्रेस बेस क्लास को जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.mouseReleaseEvent#1",
+      "source": "the mouse release; only a left-button release ending a press on this switch is handled, anything else goes to the base class.",
+      "source_sha256": "0026400cac5aa0c41c555299ef0ee29899e0643e5da3ca1c6da2bb42b3258a04",
+      "context": "the mouse release; only a left-button release ending a press on this switch is handled, anything else goes to the base class.",
+      "translation": "माउस रिलीज़; केवल इस स्विच पर शुरू हुए प्रेस को समाप्त करने वाला बाएँ बटन का रिलीज़ संभाला जाता है, बाकी सब बेस क्लास को जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.toggle.Toggle.paintEvent#1",
+      "source": "the paint event; not read, since the whole switch is redrawn from its state every time.",
+      "source_sha256": "ea609c48f211ee3433e0cb0b773401b6f6246c2ca383401b9a371cbaf34f88b9",
+      "context": "the paint event; not read, since the whole switch is redrawn from its state every time.",
+      "translation": "paint इवेंट; पढ़ा नहीं जाता, क्योंकि पूरा स्विच हर बार उसकी अवस्था से फिर से बनाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#1",
+      "source": "the trellis specification the grid was computed from.",
+      "source_sha256": "f9d4851a510fe4180d4d0f1fe196602830703f987e9b5ee8e72951e7acc0697e",
+      "context": "the trellis specification the grid was computed from.",
+      "translation": "वह trellis विनिर्देश जिससे ग्रिड की गणना की गई।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#4",
+      "source": "column name to column kind for ``frame``, with the graph spec's role overrides applied.",
+      "source_sha256": "652a93678ff220bac52c768f0835072682db7e518ddb94a9a1605cf1a9e76ca6",
+      "context": "column name to column kind for ``frame``, with the graph spec's role overrides applied.",
+      "translation": "``frame`` के लिए स्तंभ नाम से स्तंभ प्रकार, ग्राफ़ spec की भूमिका-ओवरराइड लागू करके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#5",
+      "source": "the facet layout the panels came from.",
+      "source_sha256": "416801ab68faf754e1b760ca926f2e12e9fcab9ebdbbee8352cee4bcf284cc67",
+      "context": "the facet layout the panels came from.",
+      "translation": "वह फ़ैसेट लेआउट जिससे पैनल आए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#6",
+      "source": "every panel in row-major order, blank slots included.",
+      "source_sha256": "67b2928ecee73445ecfb10d098884468ff0dc5eac805d585ae2dc4ec563d8a77",
+      "context": "every panel in row-major order, blank slots included.",
+      "translation": "पंक्ति-प्रधान क्रम में हर पैनल, खाली स्लॉट सहित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis#7",
+      "source": "``(rows, columns)`` of the panel grid.",
+      "source_sha256": "f2703f213978fb2dd7a6a63d083df2072037e188783bc97008c45b7b426ddb45",
+      "context": "``(rows, columns)`` of the panel grid.",
+      "translation": "पैनल ग्रिड का ``(rows, columns)``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#2",
+      "source": "one horizontal edge of the rectangle, in data units.",
+      "source_sha256": "f47174d6b524f8bacee46e29796a5d8819bb702fcc31224845919aabc4c15115",
+      "context": "one horizontal edge of the rectangle, in data units.",
+      "translation": "आयत का एक क्षैतिज किनारा, डेटा इकाइयों में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#3",
+      "source": "one vertical edge, in data units.",
+      "source_sha256": "9804b5dc2b4dac66b8ce13c2691438f444d88aae5e52bb9c5c2691cfc3f3dce3",
+      "context": "one vertical edge, in data units.",
+      "translation": "एक ऊर्ध्वाधर किनारा, डेटा इकाइयों में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#4",
+      "source": "the other horizontal edge; the edges may come in either order.",
+      "source_sha256": "9651d7b61ee8f342299e9ee4526f04139c6ee02d0a70caae463e141281b81d13",
+      "context": "the other horizontal edge; the edges may come in either order.",
+      "translation": "दूसरा क्षैतिज किनारा; किनारे किसी भी क्रम में आ सकते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#5",
+      "source": "the other vertical edge.",
+      "source_sha256": "77eac8c1e6ff9c382ff57d9cf899eadcc8309613ca939ebbb0b7318a6efc1008",
+      "context": "the other vertical edge.",
+      "translation": "दूसरा ऊर्ध्वाधर किनारा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#6",
+      "source": "the grid row of the panel brushed, from 0.",
+      "source_sha256": "d329796a984f8cb3bcbea7ff21c363a62bc0a09219a5526979182043b583a6e7",
+      "context": "the grid row of the panel brushed, from 0.",
+      "translation": "ब्रश किए गए पैनल की ग्रिड पंक्ति, 0 से।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#7",
+      "source": "the grid column of the panel brushed, from 0.",
+      "source_sha256": "622a6ce62017cf89996831c555af66764cf6ab9aa5dfac4c7772780c02df1b95",
+      "context": "the grid column of the panel brushed, from 0.",
+      "translation": "ब्रश किए गए पैनल का ग्रिड स्तंभ, 0 से।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.Trellis.brush#8",
+      "source": "a boolean mask over :attr:`source`; all ``False`` for a blank slot.",
+      "source_sha256": "688c63896e4c9c213f45aa72cfdae6b2757b166a6344f07d4f4234d8b09190bc",
+      "context": "a boolean mask over :attr:`source`; all ``False`` for a blank slot.",
+      "translation": ":attr:`source` पर एक बूलियन मास्क; खाली स्लॉट के लिए सभी ``False``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#2",
+      "source": "the panel's grid row, from 0.",
+      "source_sha256": "002d7cba62d5bebfad70611c34b564fbd401e227ade21e6f3808228a649e3f35",
+      "context": "the panel's grid row, from 0.",
+      "translation": "पैनल की ग्रिड पंक्ति, 0 से।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#3",
+      "source": "the panel's grid column, from 0.",
+      "source_sha256": "7c48a8dcc6c1ea65e5e56481e1c25b4eec7a7b876b049461aaf4dc2c170ade2e",
+      "context": "the panel's grid column, from 0.",
+      "translation": "पैनल का ग्रिड स्तंभ, 0 से।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#4",
+      "source": "the row-facet level this panel holds, or ``None``.",
+      "source_sha256": "ab52fabcb75649338229ee8a678cf950ef3aaa1a469dccb04625b484e82e599e",
+      "context": "the row-facet level this panel holds, or ``None``.",
+      "translation": "इस पैनल में रखा गया पंक्ति-फ़ैसेट स्तर, या ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#5",
+      "source": "the column-facet level this panel holds, or ``None``.",
+      "source_sha256": "d6c8df2ec26abc5a2ff629f62980f0d3a7d73cdc1fbba7308f916cf1712e89db",
+      "context": "the column-facet level this panel holds, or ``None``.",
+      "translation": "इस पैनल में रखा गया स्तंभ-फ़ैसेट स्तर, या ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#6",
+      "source": "positional indices of this panel's rows in the laid-out frame.",
+      "source_sha256": "361b28e74655d43de6484cbe9c97b65fbb533c66268057456a581895a792b3ab",
+      "context": "positional indices of this panel's rows in the laid-out frame.",
+      "translation": "व्यवस्थित फ़्रेम में इस पैनल की पंक्तियों के स्थितिगत इंडेक्स।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel#7",
+      "source": "the axis limits and orders this panel is drawn with.",
+      "source_sha256": "e6a52dc88a6f2217c30dd60aaf61f3be013fad1e972530d04ae93d467fc8c15a",
+      "context": "the axis limits and orders this panel is drawn with.",
+      "translation": "वे अक्ष सीमाएँ और क्रम जिनके साथ यह पैनल बनाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.wrap_positions#2",
+      "source": "number of levels to place.",
+      "source_sha256": "fdab2804ddd39c9b0321f33b3c43dce14e9b8e675b920e37f4b52886a79f360b",
+      "context": "number of levels to place.",
+      "translation": "रखे जाने वाले स्तरों की संख्या।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.wrap_positions#3",
+      "source": "panels per row; below 1 puts every level in its own row of one.",
+      "source_sha256": "49ac19af89885f20284df9361b75dbc476f0168d6fea99d09225849f0134cd76",
+      "context": "panels per row; below 1 puts every level in its own row of one.",
+      "translation": "प्रति पंक्ति पैनल; 1 से कम होने पर हर स्तर एक-एक की अपनी पंक्ति में जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.brush#2",
+      "source": "horizontal position of one corner of the rectangle, in the panel's data coordinates; the corners may be given in either order.",
+      "source_sha256": "7f75c974d89807c77379db48d22eca61d0ef069e9cb3129b87e2383b8e7eac39",
+      "context": "horizontal position of one corner of the rectangle, in the panel's data coordinates; the corners may be given in either order.",
+      "translation": "आयत के एक कोने की क्षैतिज स्थिति, पैनल के डेटा निर्देशांकों में; कोने किसी भी क्रम में दिए जा सकते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.brush#3",
+      "source": "vertical position of that corner, in the panel's data coordinates; the corners may be given in either order.",
+      "source_sha256": "cf77e6dbe94e7a50ce03a1d9d7cd75141dd297bba74bd244717744fc7afc7478",
+      "context": "vertical position of that corner, in the panel's data coordinates; the corners may be given in either order.",
+      "translation": "उसी कोने की ऊर्ध्वाधर स्थिति, पैनल के डेटा निर्देशांकों में; कोने किसी भी क्रम में दिए जा सकते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.brush#4",
+      "source": "horizontal position of the opposite corner.",
+      "source_sha256": "e4f671e6f487dcd9ffb15550513b9270543a02e652bc0ade0fd60267461c1ddb",
+      "context": "horizontal position of the opposite corner.",
+      "translation": "विपरीत कोने की क्षैतिज स्थिति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.brush#5",
+      "source": "vertical position of the opposite corner.",
+      "source_sha256": "c1fddd9b59f1f3d0d4ac82848b63e236d9a671c694cdb114182d43840ffd5b31",
+      "context": "vertical position of the opposite corner.",
+      "translation": "विपरीत कोने की ऊर्ध्वाधर स्थिति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.on_linked_selection_changed#1",
+      "source": "the new shared selection; not read directly, since the highlight is recomputed from the canvas's linked selection.",
+      "source_sha256": "659d8a7b3ecfaec4a6044e2d4f145861732b6144dd484d838e5bbff7cd0d86b3",
+      "context": "the new shared selection; not read directly, since the highlight is recomputed from the canvas's linked selection.",
+      "translation": "नया साझा चयन; इसे सीधे नहीं पढ़ा जाता, क्योंकि हाइलाइट कैनवास के लिंक किए गए चयन से फिर से गणना किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.set_spec#1",
+      "source": "the inner chart spec, combined with the current grid options through ``TrellisSpec.with_graph``.",
+      "source_sha256": "f9ea4870841b85919158d83ba768efb1fc8dccdab2f530eb3f4d0d8b53aaf336",
+      "context": "the inner chart spec, combined with the current grid options through ``TrellisSpec.with_graph``.",
+      "translation": "आंतरिक चार्ट spec, जिसे ``TrellisSpec.with_graph`` के माध्यम से वर्तमान ग्रिड विकल्पों के साथ जोड़ा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisCanvas.set_trellis_spec#1",
+      "source": "the complete trellis spec: grid options plus the inner chart spec in its ``graph`` attribute.",
+      "source_sha256": "fc06ce0173ad98cebd97b3f1a845cb1cb26182237317bc58ca8e0d6bcfb49454",
+      "context": "the complete trellis spec: grid options plus the inner chart spec in its ``graph`` attribute.",
+      "translation": "पूरा trellis spec: ग्रिड विकल्प और साथ में उसके ``graph`` एट्रिब्यूट में आंतरिक चार्ट spec।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_view.TrellisPanelWidget#6",
+      "source": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
+      "source_sha256": "0641e549844c7dd40b6f78e06ec4a4f75248bc5d816d3acba52fe2d3873f48dc",
+      "context": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
+      "translation": "आइटम 471: शेल्फ़ (\"Channels\") और कैनवास (\"Trellis\") एक :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``) के खंड हैं: हर एक अपने शीर्षक से मुड़ता है और उनके बीच का किनारा खींचा जा सकता है, जो पुराने 300 / 900 विभाजन पर खुलता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.apply_display#1",
+      "source": "``{display key: value}``; keys the explorer does not know and ``None`` values are skipped, and ``None`` for the whole mapping changes nothing.",
+      "source_sha256": "05e797380a9bc004cef9e8e844f6ffb835533fe919e1df4c217975cf62c440b6",
+      "context": "``{display key: value}``; structured-data names that the explorer does not know and ``None`` values are skipped, and ``None`` for the whole mapping changes nothing.",
+      "translation": "``{display key: value}``; जिन कुंजियों को एक्सप्लोरर नहीं जानता वे और ``None`` मान छोड़ दिए जाते हैं, और पूरी मैपिंग के लिए ``None`` कुछ नहीं बदलता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.on_linked_selection_changed#1",
+      "source": "the :class:`~spacr.selection.Selection` another view published; the points whose object keys it names are ringed, and an inactive selection rings none.",
+      "source_sha256": "2350ffbbe69806485f4f1b7e69640c1112a8ed24f00ce028f4849e22aaecbaa8",
+      "context": "the :class:`~spacr.selection.Selection` another view published; the points whose object keys it names are ringed, and an inactive selection rings none.",
+      "translation": "किसी अन्य व्यू द्वारा प्रकाशित :class:`~spacr.selection.Selection`; जिन बिंदुओं की ऑब्जेक्ट कुंजियाँ इसमें नामित हैं उन पर घेरा बनाया जाता है, और निष्क्रिय चयन किसी पर घेरा नहीं बनाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.set_payload#2",
+      "source": "the dict attached by ``generate_image_umap``: ``embedding`` (shape (N, 2)), ``labels`` and ``records`` of the same length, and optionally ``frame`` (a DataFrame with N rows) and ``display`` (initial display values). A wrong shape or length raises :class:`ValueError`.",
+      "source_sha256": "d9c25faa2b5d9ecd6dbf96763f668c08efc229af7a70d52d69e3c20741b104a5",
+      "context": "the key-value mapping attached by ``generate_image_umap``: ``embedding`` (shape (N, 2)), ``labels`` and ``records`` of the same length, and optionally ``frame`` (a DataFrame with N rows) and ``display`` (initial display values). A wrong shape or length raises :class:`ValueError`.",
+      "translation": "``generate_image_umap`` द्वारा संलग्न dict: ``embedding`` (आकार (N, 2)), समान लंबाई वाले ``labels`` और ``records``, और वैकल्पिक रूप से ``frame`` (N पंक्तियों वाला DataFrame) और ``display`` (प्रारंभिक प्रदर्शन मान)। गलत आकार या लंबाई पर :class:`ValueError` त्रुटि उठती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.set_propagate_callback#2",
+      "source": "called with a dict of settings, keyed by their persisted names, after the display settings window is accepted; any exception it raises is logged and ignored.",
+      "source_sha256": "394ebdf0dae5027d63b276a1b979d0eaa298575a76dededdf23a15f2aca710fd",
+      "context": "called with a key-value mapping of settings, keyed by their persisted names, after the display settings window is accepted; any exception it raises is logged and ignored.",
+      "translation": "डिस्प्ले सेटिंग्स विंडो स्वीकार होने के बाद, सेटिंग्स के dict के साथ कॉल किया जाता है, जो उनके संग्रहीत नामों से कुंजीबद्ध है; इससे उठने वाला कोई भी अपवाद लॉग करके अनदेखा किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.show_point#1",
+      "source": "position of the point in the payload's records; converted to ``int``, and an out-of-range index does nothing.",
+      "source_sha256": "8cbeea26087f90b1e6ac3d2adb3de9ccbbccd9a82dfe356683e210b64868a2e4",
+      "context": "position of the point in the payload's records; converted to ``int``, and an out-of-range index does nothing.",
+      "translation": "payload के रिकॉर्ड में बिंदु की स्थिति; ``int`` में बदली जाती है, और सीमा से बाहर का इंडेक्स कुछ नहीं करता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.as_settings_keys#1",
+      "source": "display values keyed by display name; keys in :data:`SETTINGS_KEY_FOR_DISPLAY` are renamed and the rest kept as they are. ``None`` gives an empty dict.",
+      "source_sha256": "5998edb27fc37483c0dc795b2002abc991bed4087ae212e0b2c68d9aabce26df",
+      "context": "display values keyed by display name; structured-data names in :data:`SETTINGS_KEY_FOR_DISPLAY` are renamed and the rest kept as they are. ``None`` gives an empty key-value mapping.",
+      "translation": "प्रदर्शन नाम से कुंजीबद्ध प्रदर्शन मान; :data:`SETTINGS_KEY_FOR_DISPLAY` में मौजूद कुंजियों का नाम बदला जाता है और बाकी जैसी हैं वैसी रखी जाती हैं। ``None`` खाली dict देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#2",
+      "source": "the label shown beside the editor.",
+      "source_sha256": "d4fb86ad6d9c5e6c44971d7c15451818e01a86423edc5093f0bb4e0c5f9133e5",
+      "context": "the label shown beside the editor.",
+      "translation": "संपादक के बगल में दिखाया गया लेबल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#3",
+      "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
+      "context": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
+      "translation": "संपादक का प्रकार: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` या ``\"choice\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#4",
+      "source": "lower bound for a numeric editor (unused otherwise).",
+      "source_sha256": "53dea136e96fbfeea3ea78af7292b56d9b4a1db57195ac6640fc935b49d7f4ff",
+      "context": "lower bound for a numeric editor (unused otherwise).",
+      "translation": "संख्यात्मक संपादक के लिए निचली सीमा (अन्यथा अप्रयुक्त)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#5",
+      "source": "upper bound for a numeric editor (unused otherwise).",
+      "source_sha256": "982b6bc6bc5ec9305ebfb42adbf0d5ff4bfa105e5dd5476a813c23ee313ded10",
+      "context": "upper bound for a numeric editor (unused otherwise).",
+      "translation": "संख्यात्मक संपादक के लिए ऊपरी सीमा (अन्यथा अप्रयुक्त)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#6",
+      "source": "what applying it takes: :data:`TIER_STYLE`, :data:`TIER_REDRAW` or :data:`TIER_RERUN`.",
+      "source_sha256": "c555e56db4f9d01a24c33fb85333f0f07cc47fc2fbaa64b968f785716373aca0",
+      "context": "what applying it takes: :data:`TIER_STYLE`, :data:`TIER_REDRAW` or :data:`TIER_RERUN`.",
+      "translation": "इसे लागू करने में क्या लगता है: :data:`TIER_STYLE`, :data:`TIER_REDRAW` या :data:`TIER_RERUN`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.Field#7",
+      "source": "the options of a ``\"choice\"`` field.",
+      "source_sha256": "23317f43478a669144bb78f73e1c3f23b0111a33eac48f038e22069c42073bc0",
+      "context": "the options of a ``\"choice\"`` field.",
+      "translation": "``\"choice\"`` फ़ील्ड के विकल्प।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.apply_to_figure#1",
+      "source": "the matplotlib figure the Image UMAP was drawn into.",
+      "source_sha256": "46020fc4e3763155d40a0ee98a3d6888ee70ff1cb8b464b43a9a384a8ac827fb",
+      "context": "the matplotlib figure the Image UMAP was drawn into.",
+      "translation": "वह matplotlib फ़िगर जिसमें Image UMAP बनाया गया था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.apply_to_figure#2",
+      "source": "the figure's saved embedding payload, used for a redraw.",
+      "source_sha256": "db94d06d1261ef83eb6bff40842d38e0e08db515ea349a9d39ac26ab9509f557",
+      "context": "the figure's saved embedding payload, used for a redraw.",
+      "translation": "फ़िगर का सहेजा गया embedding payload, जिसका उपयोग दोबारा बनाने के लिए होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.apply_to_figure#3",
+      "source": "setting key to value; keys that differ from ``previous`` decide the work: any redraw-tier key replots, otherwise any style-tier key restyles.",
+      "source_sha256": "ac53f66d9cd080523dc2ab8df30f8ffd99257d8a1050e51d13e2a264f4ab8f26",
+      "context": "setting name to value; structured-data names that differ from ``previous`` decide the work: any redraw-tier structured-data name replots, otherwise any style-tier structured-data name restyles.",
+      "translation": "सेटिंग कुंजी से मान; जो कुंजियाँ ``previous`` से अलग हैं वे काम तय करती हैं: redraw-स्तर की कोई भी कुंजी दोबारा प्लॉट कराती है, अन्यथा style-स्तर की कोई भी कुंजी केवल शैली फिर से लागू कराती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.apply_to_figure#4",
+      "source": "the values last applied; ``None`` treats every key as changed.",
+      "source_sha256": "b6ab01be4e6e73a79802c3d7fa86055eaee57332ccc23a5cfb69e907271b7d87",
+      "context": "the values last applied; ``None`` treats every structured-data name as changed.",
+      "translation": "अंतिम बार लागू किए गए मान; ``None`` हर कुंजी को बदली हुई मानता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.keys_for_tier#1",
+      "source": ":data:`TIER_STYLE`, :data:`TIER_REDRAW` or :data:`TIER_RERUN`; any other value gives an empty tuple.",
+      "source_sha256": "fa2b2e4b322b0e30df4428f962a2e1310367964e136886d472e7f36dc3afd830",
+      "context": ":data:`TIER_STYLE`, :data:`TIER_REDRAW` or :data:`TIER_RERUN`; any other value gives an empty tuple.",
+      "translation": ":data:`TIER_STYLE`, :data:`TIER_REDRAW` या :data:`TIER_RERUN`; कोई अन्य मान खाली tuple देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.redraw_umap_figure#2",
+      "source": "the matplotlib figure; ``None`` returns False.",
+      "source_sha256": "05b80677d3bf41f4f97571f1f8f998bf6802bc92cffcffb6765be5c4a3664545",
+      "context": "the matplotlib figure; ``None`` returns False.",
+      "translation": "matplotlib फ़िगर; ``None`` होने पर False लौटाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.redraw_umap_figure#3",
+      "source": "dict holding ``embedding`` (array of shape (N, 2)), ``plot_labels`` or ``labels`` (one per point), and optionally ``records`` with ``image`` paths and ``theme_colors``. A missing or mismatched embedding or labels returns False.",
+      "source_sha256": "fcf7bd6399bae0fbcc48e74b12cc677e58d1da787ab8e854a0ee9bca98d056f2",
+      "context": "key-value mapping holding ``embedding`` (array of shape (N, 2)), ``plot_labels`` or ``labels`` (one per point), and optionally ``records`` with ``image`` paths and ``theme_colors``. A missing or mismatched embedding or labels returns False.",
+      "translation": "dict जिसमें ``embedding`` ((N, 2) आकार का ऐरे), ``plot_labels`` या ``labels`` (प्रति बिंदु एक), और वैकल्पिक रूप से ``records`` (``image`` पथों सहित) और ``theme_colors`` हों। अनुपस्थित या बेमेल embedding या लेबल होने पर False लौटता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.redraw_umap_figure#4",
+      "source": "setting key to value; an unset key uses the shipped default.",
+      "source_sha256": "0186c17bf7c9e833973b8169c4dbc014d9a60c5b8729c362ee14a5a182f32d26",
+      "context": "setting name to value; an unset structured-data name uses the shipped default.",
+      "translation": "सेटिंग कुंजी से मान; सेट न की गई कुंजी साथ आए डिफ़ॉल्ट का उपयोग करती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.restyle_umap_figure#4",
+      "source": "setting key to value; only ``dot_size``, ``point_alpha``, ``outline_width`` and ``point_color`` are read, and a missing key is left alone.",
+      "source_sha256": "e5744af14af702edec65997bab0d1ab469a13156312b330669c89321a1a63978",
+      "context": "setting name to value; only ``dot_size``, ``point_alpha``, ``outline_width`` and ``point_color`` are read, and a missing structured-data name is left alone.",
+      "translation": "सेटिंग कुंजी से मान; केवल ``dot_size``, ``point_alpha``, ``outline_width`` और ``point_color`` पढ़े जाते हैं, और अनुपस्थित कुंजी को वैसे ही छोड़ दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.restyle_umap_figure#5",
+      "source": "True when any artist was changed.",
+      "source_sha256": "429d51134f78fe193aee895643d5545662d4450174a17497a7c86f4d9f8329a5",
+      "context": "True when any artist was changed.",
+      "translation": "जब कोई भी artist बदला गया हो तब True।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView.set_appearance#1",
+      "source": "the rendering settings to change, read by the keys ``marker`` (``\"circle\"``, ``\"square\"``, ``\"diamond\"`` or ``\"cross\"``; anything else raises :class:`ValueError`), ``size`` (clipped to 1-24), ``alpha`` (clipped to 0.05-1.0) and ``cmap`` (an unknown colour map falls back to ``\"spaCR\"``). A missing key keeps its current value.",
+      "source_sha256": "67216ce53ac9703f4e36dc24e79e9da47c76037906a6fe275383e9f8e84d1c38",
+      "context": "the rendering settings to change, read by the structured-data names ``marker`` (``\"circle\"``, ``\"square\"``, ``\"diamond\"`` or ``\"cross\"``; anything else raises :class:`ValueError`), ``size`` (clipped to 1-24), ``alpha`` (clipped to 0.05-1.0) and ``cmap`` (an unknown colour map falls back to ``\"spaCR\"``). A missing structured-data name keeps its current value.",
+      "translation": "बदली जाने वाली रेंडरिंग सेटिंग्स, जिन्हें कुंजियों ``marker`` (``\"circle\"``, ``\"square\"``, ``\"diamond\"`` या ``\"cross\"``; अन्य कुछ भी होने पर :class:`ValueError` त्रुटि उठती है), ``size`` (1-24 तक सीमित), ``alpha`` (0.05-1.0 तक सीमित) और ``cmap`` (अज्ञात रंग मानचित्र ``\"spaCR\"`` पर लौटता है) से पढ़ा जाता है। अनुपस्थित कुंजी अपना वर्तमान मान रखती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#1",
+      "source": "the embedding, an array of shape (n, 2) or (n, 3); a 2-D map gets a zero third axis, and an empty, NaN-holding or otherwise shaped array raises :class:`ValueError`.",
+      "source_sha256": "6a100d671e313cc02ec8573ab23f003ef825c68ac7aa96faa83e67f83595240e",
+      "context": "the embedding, an array of shape (n, 2) or (n, 3); a 2-D map gets a zero third axis, and an empty, NaN-holding or otherwise shaped array raises :class:`ValueError`.",
+      "translation": "embedding, (n, 2) या (n, 3) आकार का ऐरे; 2-D मानचित्र को शून्य तीसरा अक्ष मिलता है, और खाली, NaN वाला या किसी अन्य आकार का ऐरे :class:`ValueError` त्रुटि उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#2",
+      "source": "width of the drawing area, in pixels.",
+      "source_sha256": "6bdaca14dd8e3ea8e7a9d406339bc153248bd96bb426659146288045fca063d5",
+      "context": "width of the drawing area, in pixels.",
+      "translation": "ड्रॉइंग क्षेत्र की चौड़ाई, पिक्सेल में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#3",
+      "source": "height of the drawing area, in pixels.",
+      "source_sha256": "ff014a1a0dbcd4febe0796d21c6647429c2344344424484e8ee456ce8639865a",
+      "context": "height of the drawing area, in pixels.",
+      "translation": "ड्रॉइंग क्षेत्र की ऊँचाई, पिक्सेल में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#4",
+      "source": "rotation about the vertical axis, in radians.",
+      "source_sha256": "67ac8b666a8092c585706aae1a328acc35c71ba57b0462ad4ff1f12d2ea81ffa",
+      "context": "rotation about the vertical axis, in radians.",
+      "translation": "ऊर्ध्वाधर अक्ष के चारों ओर घुमाव, रेडियन में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#5",
+      "source": "rotation about the horizontal axis, in radians.",
+      "source_sha256": "e2058c6559a1af72518094f7cdf9fd40f8d65db9e563b53dc8e550f7391728fb",
+      "context": "rotation about the horizontal axis, in radians.",
+      "translation": "क्षैतिज अक्ष के चारों ओर घुमाव, रेडियन में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame#6",
+      "source": "magnification of the fitted view, floored at 0.05.",
+      "source_sha256": "26f3c33d6b55dd7c17ad7903633273e499637ccf83771a693a57d1518a7c8acc",
+      "context": "magnification of the fitted view, floored at 0.05.",
+      "translation": "फ़िट किए गए व्यू का आवर्धन, न्यूनतम 0.05।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.colors_for_labels#1",
+      "source": "one cluster label per point, or ``None`` for no clusters (every point in the plain point colour under ``\"spaCR\"``, otherwise spread along ``cmap``); negative labels are HDBSCAN noise and are drawn grey. Labels whose shape is not ``(count,)`` give the plain point colour for all.",
+      "source_sha256": "a27d92b7ad2da02c8ec7fe1abcbf01dc50a9588428c2e281025d8562ffe46cec",
+      "context": "one cluster label per point, or ``None`` for no clusters (every point in the plain point colour under ``\"spaCR\"``, otherwise spread along ``cmap``); negative labels are HDBSCAN noise and are drawn grey. Labels whose shape is not ``(count,)`` give the plain point colour for all.",
+      "translation": "प्रति बिंदु एक क्लस्टर लेबल, या क्लस्टर न होने पर ``None`` (``\"spaCR\"`` के अंतर्गत हर बिंदु सादे बिंदु रंग में, अन्यथा ``cmap`` पर फैला हुआ); ऋणात्मक लेबल HDBSCAN noise हैं और धूसर बनाए जाते हैं। जिन लेबलों का आकार ``(count,)`` नहीं है, वे सभी के लिए सादा बिंदु रंग देते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.colors_for_labels#2",
+      "source": "number of points to colour.",
+      "source_sha256": "3c7aa05e2f0fca529b52cce32464ba1225d683dc24fec1a5edbcd6289614bb1c",
+      "context": "number of points to colour.",
+      "translation": "रंगे जाने वाले बिंदुओं की संख्या।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.colors_for_labels#3",
+      "source": "a colour map from :func:`available_colormaps`; ``\"spaCR\"`` is the native palette.",
+      "source_sha256": "028213d33cb2ee19a0bff3066d214492c069bce52d26d65b1acf001556a8f4cb",
+      "context": "a colour map from :func:`available_colormaps`; ``\"spaCR\"`` is the native palette.",
+      "translation": ":func:`available_colormaps` से एक रंग मानचित्र; ``\"spaCR\"`` मूल पैलेट है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.colors_for_labels#4",
+      "source": "point opacity, clipped to 0.05-1.0.",
+      "source_sha256": "3f6cb655ffe70959e7e72592dda23c629446e02783f545361a7ac659ebb876fe",
+      "context": "point opacity, clipped to 0.05-1.0.",
+      "translation": "बिंदु की अपारदर्शिता, 0.05-1.0 तक सीमित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.thumbnail_image#2",
+      "source": "one cluster label per point, or ``None``; coloured as :func:`colors_for_labels` does.",
+      "source_sha256": "eefa21bee6c21cb2419c6ee8a171e41ee3be567bf7f8b17f468ce5ceff4c2278",
+      "context": "one cluster label per point, or ``None``; coloured as :func:`colors_for_labels` does.",
+      "translation": "प्रति बिंदु एक क्लस्टर लेबल, या ``None``; रंग वैसे ही दिए जाते हैं जैसे :func:`colors_for_labels` देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.thumbnail_image#3",
+      "source": "side of the square thumbnail in pixels; at least 48.",
+      "source_sha256": "b6e4d3e81b5c29b4d27206e59839b8365b2d3bcd144b1f3df299bbf64e396267",
+      "context": "side of the square thumbnail in pixels; at least 48.",
+      "translation": "वर्गाकार थंबनेल की भुजा, पिक्सेल में; कम से कम 48।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.usage_bar.UsageBar.changeEvent#2",
+      "source": "the change event, passed to the base class; a font, application-font or style change re-measures the columns.",
+      "source_sha256": "b31d80c507e7f74398c8a4004ff6236f47abe04b01dcdb0fc6d42f0ca6a9e2b8",
+      "context": "the change event, passed to the base class; a font, application-font or style change re-measures the columns.",
+      "translation": "परिवर्तन इवेंट, जो बेस क्लास को दिया जाता है; फ़ॉन्ट, एप्लिकेशन-फ़ॉन्ट या शैली परिवर्तन स्तंभों को फिर से मापता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.usage_bar.UsageBar.showEvent#2",
+      "source": "the show event, passed to the base class after the columns are re-measured.",
+      "source_sha256": "dd12b92312115f344d230a4a9e45de2924f77d673f9ce6c197df478964554b47",
+      "context": "the show event, passed to the base class after the columns are re-measured.",
+      "translation": "show इवेंट, जो स्तंभों को फिर से मापने के बाद बेस क्लास को दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer#5",
+      "source": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
+      "source_sha256": "6325a527a2f604029f704ea5c7a4d0658153463b6b4bdbba44a7b25e4c00f249",
+      "context": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
+      "translation": "आइटम 471: प्लॉट (\"Volcano plot\") और चयनित-बिंदु तालिका (\"Selected point\") एक ऊर्ध्वाधर :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` के खंड हैं -- हर एक अपने शीर्षक से मुड़ता है, और उनके बीच का किनारा खींचा जा सकता है -- और वह स्तंभ शैली नियंत्रणों के साथ एक खींचने योग्य किनारा साझा करता है, जिनकी श्रेणियाँ पहले से मुड़ती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.label_for#1",
+      "source": "the style setting's key, as its control was registered; an unknown key gives ``None``.",
+      "source_sha256": "4661ef2d3a1ad5e3e6c5f014ea0c102cb2975084c86a41de3c2644c960af84c9",
+      "context": "the style setting's structured-data name, as its control was registered; an unknown structured-data name gives ``None``.",
+      "translation": "शैली सेटिंग की कुंजी, जैसे उसका नियंत्रण पंजीकृत किया गया था; अज्ञात कुंजी ``None`` देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.merge_annotation_file#2",
+      "source": "annotation file; ``.xlsx``/``.xls`` is read as Excel, anything else as CSV. It must share a column with the results (unless ``on`` names one) or :class:`ValueError` is raised.",
+      "source_sha256": "bbe9bf74743d53373386f44da1a2c6a77d91c5e07dd20b5bc2a765c91d9e9914",
+      "context": "annotation file; ``.xlsx``/``.xls`` is read as Excel, anything else as CSV. It must share a column with the results (unless ``on`` names one) or :class:`ValueError` is raised.",
+      "translation": "एनोटेशन फ़ाइल; ``.xlsx``/``.xls`` को Excel के रूप में पढ़ा जाता है, बाकी सब कुछ CSV के रूप में। इसका परिणामों के साथ एक साझा स्तंभ होना चाहिए (जब तक ``on`` किसी को नामित न करे), अन्यथा :class:`ValueError` त्रुटि उठती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.nearest_point#2",
+      "source": "the click's x position in data units of the x column.",
+      "source_sha256": "9a775f533ae254faccdb2641d4f4414b6adf7509cea985651e145bd7e558458b",
+      "context": "the click's x position in data units of the x column.",
+      "translation": "x स्तंभ की डेटा इकाइयों में क्लिक की x स्थिति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.nearest_point#3",
+      "source": "the click's y position in plotted units (after the ``-log10`` transform when the style applies one).",
+      "source_sha256": "12b428b4259b44f1876abd6b5fffa961a81ed54d3c27a808517dfaa30b2a6fe1",
+      "context": "the click's y position in plotted units (after the ``-log10`` transform when the style applies one).",
+      "translation": "प्लॉट की गई इकाइयों में क्लिक की y स्थिति (जब शैली ``-log10`` रूपांतरण लागू करती है, तो उसके बाद)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.nearest_point#4",
+      "source": "the row position, or ``None`` when no point lies within 0.05 of the normalised visible range.",
+      "source_sha256": "4422713dfb69b5c90d5649666d4c2f2a21fc8af21758c61d57aef923e136cce2",
+      "context": "the row position, or ``None`` when no point lies within 0.05 of the normalised visible range.",
+      "translation": "पंक्ति स्थिति, या ``None`` जब सामान्यीकृत दृश्य सीमा के 0.05 के भीतर कोई बिंदु न हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.section_for#1",
+      "source": "the style setting's key; an unknown key, or one registered outside a section, gives ``None``.",
+      "source_sha256": "c3a9510d92e61459dced1d1b9a72c0f55e90e8633d12a00a94d74467507d7d10",
+      "context": "the style setting's structured-data name; an unknown structured-data name, or one registered outside a section, gives ``None``.",
+      "translation": "शैली सेटिंग की कुंजी; अज्ञात कुंजी, या किसी खंड के बाहर पंजीकृत कुंजी, ``None`` देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.select_point#1",
+      "source": "positional row index into the results frame (not a label).",
+      "source_sha256": "5f5791ce73eab8ced969b4b861143c99cb8757790829e38404d6ef296451430e",
+      "context": "positional row index into the results frame (not a label).",
+      "translation": "परिणाम फ़्रेम में स्थितिगत पंक्ति इंडेक्स (लेबल नहीं)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#0",
+      "source": "Camera arithmetic for the Gate Editor's 3D volume.",
+      "source_sha256": "8f4d2ac81b91fa9a032135640a4c8610287dc468076e614b6e2668b492ff2b09",
+      "context": "Camera arithmetic for the Data-selection boundary Editor's 3D volume.",
+      "translation": "चयन-सीमा संपादक के 3D वॉल्यूम के लिए कैमरा अंकगणित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#1",
+      "source": "Pure numpy, no Qt and no matplotlib, so it can be tested on its own.",
+      "source_sha256": "fb482a462fca3cec43c0bd6b83f2a88a0e8a83d72a562d4844b908ec66fb46ae",
+      "context": "Pure numpy, no Qt and no matplotlib, so it can be tested on its own.",
+      "translation": "शुद्ध numpy, न Qt और न matplotlib, ताकि इसका अलग से परीक्षण किया जा सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#2",
+      "source": "matplotlib describes a 3D camera with three angles -- ``elev``, ``azim`` and ``roll`` -- and builds the screen axes from them in ``Axes3D.get_proj``. Dragging by adding to ``elev`` and ``azim`` is a turntable: it can never roll the view, it flips when the elevation passes the pole, and a clamp on the elevation (what the editor used to do) makes whole orientations unreachable.",
+      "source_sha256": "ec55198f3827d5f46a0049e6dbaedfc25bdec9daa60f437e62e3a89bb5d67863",
+      "context": "matplotlib describes a 3D camera with three angles -- ``elev``, ``azim`` and ``roll`` -- and builds the screen axes from them in ``Axes3D.get_proj``. Dragging by adding to ``elev`` and ``azim`` is a turntable: it can never roll the view, it flips when the elevation passes the pole, and a clamp on the elevation (what the editor used to do) makes whole orientations unreachable.",
+      "translation": "matplotlib 3D कैमरे का वर्णन तीन कोणों -- ``elev``, ``azim`` और ``roll`` -- से करता है और ``Axes3D.get_proj`` में उनसे डिस्प्ले अक्ष बनाता है। ``elev`` और ``azim`` में जोड़कर खींचना एक टर्नटेबल है: यह व्यू को कभी roll नहीं कर सकता, elevation के ध्रुव पार करने पर पलट जाता है, और elevation पर सीमा (जो संपादक पहले करता था) पूरे-के-पूरे अभिविन्यासों को अप्राप्य बना देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#3",
+      "source": "This module goes the other way round. The camera is held as the three screen axes ``u`` (right), ``v`` (up) and ``w`` (out of the screen) in matplotlib's box coordinates; a drag rotates that frame about the screen axes, which is a trackball, and :func:`angles_from_axes` turns the frame back into the three angles ``view_init`` takes. Every orientation is reachable and nothing snaps.",
+      "source_sha256": "b9ea7086dd4eb5a9c9e63920c7cd9e90dbaf73d7f172a56bb13245a2165e9047",
+      "context": "This module goes the other way round. The camera is held as the three screen axes ``u`` (right), ``v`` (up) and ``w`` (out of the screen) in matplotlib's box coordinates; a drag rotates that frame about the screen axes, which is a trackball, and :func:`angles_from_axes` turns the frame back into the three angles ``view_init`` takes. Every orientation is reachable and nothing snaps.",
+      "translation": "यह मॉड्यूल उलटी दिशा से चलता है। कैमरा को matplotlib के बॉक्स निर्देशांकों में तीन डिस्प्ले अक्षों ``u`` (दाएँ), ``v`` (ऊपर) और ``w`` (डिस्प्ले से बाहर) के रूप में रखा जाता है; खींचना उस फ़्रेम को डिस्प्ले अक्षों के चारों ओर घुमाता है, जो एक ट्रैकबॉल है, और :func:`angles_from_axes` फ़्रेम को वापस उन तीन कोणों में बदलता है जो ``view_init`` लेता है। हर अभिविन्यास प्राप्य है और कुछ भी झटके से नहीं बदलता।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

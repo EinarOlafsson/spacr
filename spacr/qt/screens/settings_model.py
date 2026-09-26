@@ -1313,6 +1313,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_mode", "trackastra_model", "trackastra_linking",
             "ultrack_max_distance", "ultrack_division_weight",
             "ultrack_contour_sigma", "ultrack_n_workers",
+            "timeflows_model",
             "timelapse_displacement", "timelapse_memory",
             "t_track_backend", "t_link_threshold",
             "t_max_displacement_px", "t_max_displacement_um",
@@ -8855,12 +8856,92 @@ class SettingsWidgets:
         from spacr.settings import organelle_slots_beyond_the_count
 
         shipped = resolve_default_settings(self.app_key)
-        self._defaults = organelle_slots_beyond_the_count(shipped, wanted)
-        self._slots_the_panel_added = {
-            key: value for key, value in self._defaults.items()
-            if key not in shipped}
+        fresh = organelle_slots_beyond_the_count(shipped, wanted)
+        added = getattr(self, "_slots_the_panel_added", None)
+        added = {} if added is None else added
+        for key, value in fresh.items():
+            if key in self._defaults:
+                continue
+            self._defaults[key] = value
+            if key not in shipped:
+                added[key] = value
+        self._slots_the_panel_added = added
         self._slots_built_for = wanted
         return wanted
+
+    def organelle_keys_to_spawn(self, count) -> List[str]:
+        """The settings :meth:`spawn_organelle_slots` would build, unbuilt.
+
+        Asked first so the screen can check it has a heading for every one
+        of them before anything is built.
+
+        :param count: the new ``number_of_organelles``.
+        :returns: the keys of the slots past those already built, in the
+            order the defaults declare them; empty when there are none.
+        """
+        from spacr.organelle_types import organelle_role_of
+        from spacr.settings import organelle_slots_beyond_the_count
+
+        try:
+            wanted = min(max(0, int(count or 0)), PANEL_ORGANELLE_SLOTS)
+        except (TypeError, ValueError):
+            return []
+        before = int(getattr(self, "_slots_built_for", 0) or 0)
+        if wanted <= before:
+            return []
+        roles = set(ALL_ORGANELLE_ROLES[before:wanted])
+        fresh = organelle_slots_beyond_the_count(
+            resolve_default_settings(self.app_key), wanted)
+        hidden = set(_APP_HIDDEN_KEYS.get(self.app_key, frozenset()))
+        keys = dict.fromkeys(list(self._defaults) + list(fresh))
+        return [key for key in keys
+                if organelle_role_of(key) in roles
+                and key not in self._widgets and key not in hidden]
+
+    def spawn_organelle_slots(self, count) -> List[str]:
+        """Build the controls a raised ``number_of_organelles`` asks for.
+
+        Instruction 356, case 2: raising the count used to rebuild the whole
+        screen, because a slot's controls do not exist until the count says
+        so. This builds ONLY the new slots' controls, on the panel already
+        on screen; every control that existed keeps its identity and
+        whatever the user typed into it. The caller lays the new controls
+        out.
+
+        EXISTING VALUES WIN. A slot above the count that a settings file
+        carried is already in ``_defaults`` (see :meth:`set_hidden_value`),
+        and its control is built holding that value rather than the one the
+        panel would invent.
+
+        :param count: the new ``number_of_organelles``.
+        :returns: the new settings keys with a control, in the order the
+            panel declares them; empty when the count asks for nothing new.
+        """
+        from spacr.settings_spec import convert_settings_dict_for_gui
+
+        before = int(getattr(self, "_slots_built_for", 0) or 0)
+        wanted = self.organelle_keys_to_spawn(count)
+        after = self.grow_to_fit_the_organelle_count(count)
+        if after <= before or not wanted:
+            return []
+        roles = set(ALL_ORGANELLE_ROLES[before:after])
+        self._skip_keys = frozenset(self._skip_keys) - frozenset(wanted)
+        variables = convert_settings_dict_for_gui(
+            {key: self._defaults[key] for key in wanted
+             if key in self._defaults})
+        spawned: List[str] = []
+        for key, (kind, options, default) in variables.items():
+            widget = self._widget_for(kind, options, default, key)
+            if widget is None:
+                continue
+            attach_api_tooltip(widget, self.app_key, key,
+                               _descriptions=self._tooltips)
+            self._widgets[key] = widget
+            spawned.append(key)
+        for role in sorted(roles):
+            self._connect_the_signals_of_role(role)
+        self._slot_heading_cache = None
+        return spawned
 
     def tooltip_for(self, key: str) -> str:
         """Return the HTML-formatted tooltip for a given setting key.
@@ -10570,49 +10651,65 @@ class SettingsWidgets:
         if getattr(self, "_object_visibility_signals_connected", False):
             return
         self._object_visibility_signals_connected = True
+        roles = {object_of_setting(key) for key in self._widgets}
+        roles = {role for role in roles
+                 if role is not None and role not in CHANNELLED_OBJECTS}
+        for role in roles:
+            self._connect_the_signals_of_role(role)
+
+    def _connect_the_signals_of_role(self, role: str) -> None:
+        """Follow one object role's type, diameter and preset targets.
+
+        Once per role: :meth:`spawn_organelle_slots` calls it for a slot
+        built after the panel, and a second connection would run every
+        handler twice.
+
+        :param role: the object role, e.g. ``"organelleb"``.
+        """
+        connected = getattr(self, "_roles_followed", None)
+        if connected is None:
+            connected = self._roles_followed = set()
+        if role in connected:
+            return
+        connected.add(role)
         from ...organelle_types import ORGANELLE_TYPES, slot_setting
 
         primary_targets = {"organelle_morphology", "organelle_method"}
         for preset in ORGANELLE_TYPES.values():
             primary_targets.update(preset.params)
+        recommended = self._organelle_recommendations(role)
+        owned = self._organelle_preset_owned.setdefault(role, {})
+        for key, value in recommended.items():
+            if self._setting_value_equals(key, value):
+                owned[key] = value
 
-        roles = {object_of_setting(key) for key in self._widgets}
-        roles = {role for role in roles
-                 if role is not None and role not in CHANNELLED_OBJECTS}
-        for role in roles:
-            recommended = self._organelle_recommendations(role)
-            owned = self._organelle_preset_owned.setdefault(role, {})
-            for key, value in recommended.items():
-                if self._setting_value_equals(key, value):
-                    owned[key] = value
+        type_widget = self._widgets.get(f"{role}_type")
+        if type_widget is not None:
+            _connect_value_changed(
+                type_widget,
+                partial(self._on_organelle_type_changed, role))
 
-            type_widget = self._widgets.get(f"{role}_type")
-            if type_widget is not None:
-                _connect_value_changed(
-                    type_widget,
-                    partial(self._on_organelle_type_changed, role))
-
-            diameter = self._widgets.get(f"{role}_diameter")
-            if diameter is not None:
-                changed = partial(self._on_organelle_diameter_changed, role)
-                committed = getattr(diameter, "editingFinished", None)
-                if committed is not None:
-                    try:
-                        committed.connect(changed)
-                    except Exception:                        # noqa: BLE001
-                        _connect_value_changed(diameter, changed)
-                else:
+        diameter = self._widgets.get(f"{role}_diameter")
+        if diameter is not None:
+            changed = partial(self._on_organelle_diameter_changed, role)
+            committed = getattr(diameter, "editingFinished", None)
+            if committed is not None:
+                try:
+                    committed.connect(changed)
+                except Exception:                        # noqa: BLE001
                     _connect_value_changed(diameter, changed)
+            else:
+                _connect_value_changed(diameter, changed)
 
-            for primary in primary_targets:
-                key = slot_setting(primary, role)
-                widget = self._widgets.get(key)
-                if widget is None:
-                    continue
-                _connect_value_changed(
-                    widget,
-                    partial(self._on_organelle_preset_target_changed,
-                            role, key))
+        for primary in primary_targets:
+            key = slot_setting(primary, role)
+            widget = self._widgets.get(key)
+            if widget is None:
+                continue
+            _connect_value_changed(
+                widget,
+                partial(self._on_organelle_preset_target_changed,
+                        role, key))
 
     def _on_object_switch_changed(self, *_args) -> None:
         """Refresh rows after one slot-narrowing value is committed."""

@@ -215,6 +215,36 @@ API_EXACT_BLOCK_SHA256_ALLOWLIST = frozenset({
     "fe5b5050fded2d8cd1e1223089652833a23996c8061fd983069b170a9298da7e",
 })
 
+# EXACT IDENTITY IS SOMETIMES THE TRANSLATION, but only per language and only
+# for REVIEWED evidence. The hash allowlist above removes a block from
+# translation in every language; that is wrong for these, which are prose
+# headings in ``spacr.qt.screens.organism_screen``. A genus name is written
+# the same in every Latin-script target (French "Plasmodium", German
+# "Candida"), so the exact-English gate refused the correct heading and fr
+# stood at two owed blocks until reviewers padded it into "Organismus
+# Plasmodium", the qualifier workaround ``build_i18n_catalogs`` already calls
+# out for fr "Concentration". The runtime catalogs make the same decision in
+# ``_IDENTITY_TEXT`` ("Plasmodium spp.", "Toxoplasma gondii").
+#
+# The exception is deliberately narrow: an exact whole block, the listed
+# languages only, and only for a reviewed record. Model output that echoes the
+# English is still rejected, a translated heading stays valid, and zh_CN, hi
+# and ko still need their own script (疟原虫, प्लाज़्मोडियम, 플라스모디움).
+# Syntax, degeneracy, false-friend and artifact gates all still apply.
+API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE: Mapping[str, frozenset[str]] = {
+    # Scientific genus names (organism Home pages).
+    "Plasmodium": frozenset({"sv", "de", "es", "pt", "is", "fr"}),
+    "Candida": frozenset({"sv", "de", "es", "pt", "is", "fr"}),
+    "Toxoplasma": frozenset({"sv", "de", "es", "pt", "is", "fr"}),
+}
+
+
+def _api_exact_identity_allowed(source: str, language: str) -> bool:
+    """Whether a reviewed target may equal its exact English source block."""
+    return language in API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE.get(
+        str(source), frozenset(),
+    )
+
 # Some terse API fragments are ambiguous noun labels, and general translation
 # checkpoints legitimately treat words such as "layout", "backend" and
 # "benchmark" as English loanwords. These target-neutral English expansions
@@ -5918,7 +5948,9 @@ def _reviewed_api_block_valid(
     if not _api_block_requires_translation(source):
         return _normalized_block(source) == _normalized_block(value)
     if _normalized_block(source) == _normalized_block(value):
-        return False
+        return str(value) == str(source) and _api_exact_identity_allowed(
+            source, language,
+        )
     pattern = _TARGET_SCRIPT_PATTERN.get(language)
     return pattern is None or bool(pattern.search(str(value)))
 
@@ -6649,7 +6681,13 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                             semantic_false_friend_errors.append(label)
                         if _api_block_requires_translation(source_block):
                             if (_normalized_block(source_block)
-                                    == _normalized_block(translated_block)):
+                                    == _normalized_block(translated_block)
+                                    and not (
+                                        is_reviewed
+                                        and _api_exact_identity_allowed(
+                                            source_block, language,
+                                        )
+                                    )):
                                 unexpected_unchanged.append(label)
                             contextual_source = _api_translation_source(
                                 source_block

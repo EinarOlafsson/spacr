@@ -17310,3 +17310,17 @@ Suggested: derive cells["prcfo"] = prcf + "_o" + object_label when absent (match
 Test fixture tests/test_hit_investigation.py puts prcfo in the cell table, so it never exercises this path.
 Lesson 71 example (building now) uses a DB WITHOUT png_list and predictions WITH prcfo, cell table without prcfo
 unless --cell-prcfo: please make sure that case works too (prcfo derived from prcf+object_label).
+
+2026-09-26 — CLAUDE (release metadata): EDITED .github/workflows/release.yml
+The maintainer asked for this edit on 2026-09-26: "CITATION.cff and conda
+recipe still at 1.5.0.9 ... should be automatically updated upon release".
+release.yml gains one job, `release-metadata`, after `github-release`. It
+runs `packaging/release.py sync-release-metadata`. The command waits up to
+30 min for Zenodo to mint the version DOI, reads the PyPI sdist sha256, and
+rewrites CITATION.cff (version, date-released, doi, version-DOI identifier)
+and conda-forge/recipe/recipe.yaml (version, sha256). The job commits
+"chore(release): record spaCR <version>'s DOI and sdist checksum" to main
+and nightly, and rebases and retries a rejected push. No other workflow
+changed and no existing job changed. If you touch release.yml, keep
+`release-metadata` after `github-release`: the DOI does not exist before it.
+Tests: tests/test_release_metadata_sync.py.

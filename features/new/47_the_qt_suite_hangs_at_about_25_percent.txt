@@ -8,11 +8,15 @@ Status:    DONE for what this file is about, and the shutdown gap it left
            between the coverage write and the summary line -- where the
            reported wedge sits, and the one interval nothing was armed for --
            is bounded and names what is holding the process open.
-           OPEN, AND NOT THIS FILE'S: a full SERIAL `pytest tests/qt` is
-           stopped at about 15% by SEGFAULTS in
-           tests/qt/test_cellpose_workbench.py -- five tests, reproducible
-           alone and outside pytest, so the file has to be ignored for a
-           whole-suite run. See the last entry.
+           OPEN, re-run 2026-09-25/26 (last entry): the full SERIAL
+           `pytest tests/qt` still does NOT reach its summary line. It
+           passed the old 15% segfault point and the 25% "hang" point
+           cleanly, then at 28% was ended by the suite's OWN memory guard
+           (tests/conftest.py, 6 GB RSS ceiling), which exited 3 and left
+           nothing in the log. Both halves of that are fixed: a run under a
+           kernel cap now gets 90% of the cap as its ceiling, and the
+           guard's message reaches the log. A third serial run has not been
+           made.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -1227,3 +1231,59 @@ instead is that both sharded runs reach a summary: shard 0 ended
 fault` on the way and still summarised, because an xdist worker that dies is
 replaced. That is the hang being gone; it is not the same statement as a
 serial run finishing, and nobody should read it as one.
+
+
+--------------------------------------------------------------------------------
+2026-09-25/26 -- THE SERIAL RUN, TWICE, AND WHAT STOPPED IT
+--------------------------------------------------------------------------------
+
+The criterion re-run, as asked: one process, offscreen,
+`tools/run_capped.sh 16G python -m pytest tests/qt -p no:cacheprovider -q
+--timeout 600`, scratch XDG dirs, log in /tmp/spacr-waveY-scratch/.
+
+RUN 1 (18:25) was stopped from outside at 24% after 1 h 34 min: it had
+initialised CUDA and held a GPU context, which blocks every session's
+tools/gpu_turn.sh queue. Not a hang -- it was advancing. Every later run
+sets CUDA_VISIBLE_DEVICES=''. Worth knowing for anyone repeating this: a
+serial qt run WILL touch CUDA unless it is hidden.
+
+RUN 2 (20:36, CUDA hidden) reached 28% at 00:09 and ended with exit status
+3 and NOTHING after the last progress dot -- no traceback, no summary, no
+kernel OOM (journal clean; the 16 GB scope was not the killer). The past
+blockers were passed cleanly: no segfault at 15%, no stall at 25%; a
+handful of F's along the way (-q gives no names without the summary).
+
+WHAT EXIT 3 IS: `_stop_before_the_machine_does` in tests/conftest.py, which
+`os._exit(3)`s when the pytest process's RSS passes SPACR_TEST_MEMORY_GB
+(default 6). So a serial qt run accumulates more than 6 GB of RSS by 28%.
+Two defects in that guard, both fixed in tests/conftest.py:
+
+  1. ITS MESSAGE NEVER REACHES THE LOG DURING A TEST. It writes to fd 2 so
+     pytest's sys-level capture cannot eat it -- but pytest's default FD
+     capture has pointed fd 2 at a temporary file while a test runs.
+     Reproduced: a test that allocates 1.5 GB under SPACR_TEST_MEMORY_GB=1
+     exits 3 SILENTLY on nightly, and prints "spaCR test guard: this pytest
+     reached 1.7 GB, over the 1.0 GB ceiling ..." with the fix. The guard
+     now suspends the global capture (the capture manager is kept by
+     pytest_configure) before writing.
+  2. IT IGNORED THE KERNEL CAP IT WAS RUNNING UNDER. The 6 GB is about
+     concurrency (a dozen UNcapped processes, 2026-09-04); a process inside
+     a run_capped.sh cgroup is already bounded by the kernel. With no
+     SPACR_TEST_MEMORY_GB set, the ceiling is now 90% of this cgroup's
+     memory.max when there is one (14.4 GB under 16G, measured), else 6 GB.
+     An explicit SPACR_TEST_MEMORY_GB still wins.
+
+STILL OPEN, and it is this file's criterion: a serial run that reaches the
+summary line. With the fix, a third run under run_capped.sh 16G gets a
+14.4 GB ceiling; whether the suite's growth stays under that to 100% is
+unmeasured. Run 2 took 3 h 33 min for 28% on a loaded machine, so a full
+serial run is 6-12 h. The growth itself (>6 GB by 28%) is the next thing to
+look at if the third run is stopped again -- the guard's message now says
+where.
+
+Tests: tests/test_conftest_guard_names_the_cause.py,
+test_a_lost_runner_leaves_its_memory_in_the_log,
+test_teardown_watchdog_arming and test_test_suite_hygiene pass, except
+test_no_new_assertion_free_tests, which names
+qt/test_bioimageio_rows_in_the_picker.py (already on nightly, not this
+change).

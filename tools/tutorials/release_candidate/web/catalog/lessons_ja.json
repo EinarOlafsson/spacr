@@ -3416,21 +3416,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay：外部染色と全体染色をスコア化する",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "二つの染色チャネルを割り当て、染色のベースラインを選び、解析を実行して、侵入の判定としきい値の感度を確認します。",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "測定データベースを選び、外部染色と全体染色を割り当てる。",
+        "ベースラインのウェルとしきい値の設定を決め、解析を実行する。",
+        "分布、ウェルごとの分母、保存された結果の表を確認する。"
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "リンク先の合成Invasion Assayの例を展開し、その設定リファレンスを使います。データベースには寄生虫の合成測定値が1,800件含まれています。条件名と結果は説明用です。自分のアッセイでは、透過処理の前に外部染色、後に全体染色を行う、検証済みの二色染色の設計を使い、代表的な画像を確認してください。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "HomeからToxoplasmaを開き、Invasion Assayを選びます。外部染色と全体染色それぞれについて、寄生虫の強度を含む測定データベースから始めます。リンク先の合成サンプルを使って、チャネルの割り当て、しきい値の選択、結果の確認を練習しましょう。",
           "focus": [
             346,
             50,
@@ -3440,99 +3440,108 @@
           "related_lessons": [
             "08_measure"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "ホームからToxoplasmaを開き、Invasion Assayを選びます。外部染色と全体染色それぞれについて、寄生虫の強度を含む測定データベースから始めます。リンク先の合成サンプルを使って、チャネルの割り当て、しきい値の選択、結果の確認を練習しましょう。"
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "サンプルを展開し、Sourceをmeasurements/measurements.dbを含むinvasionフォルダーに設定します。付属の設定リファレンスを入力し、Sourceの仮の値を置き換えます。サンプルには、ベースラインのウェルと二つのアッセイ条件が含まれています。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "サンプルを展開し、Sourceをmeasurements/メジャメンツ・ドット・ディービーを含むinvasionフォルダーに設定します。付属の設定リファレンスを入力し、Sourceの仮の値を置き換えます。サンプルには、ベースラインのウェルと二つのアッセイ条件が含まれています。"
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Outside channelを一に、Total channelをゼロに設定します。外部染色は透過処理の前に、全体染色はその後に行います。外部染色が陽性の寄生虫は付着、外部のしきい値以下のものは侵入と分類されます。自分の測定値を使うときは、撮影チャネルの順番を確認してください。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Outside channelを一に、Total channelをゼロに設定します。外部染色は透過処理の前に、全体染色はその後に行います。外部染色が陽性の寄生虫は付着、外部のしきい値以下のものは侵入と分類されます。自分の測定値を使うときは、撮影チャネルの順番を確認してください。"
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "例のデータベースの列に合わせて、Intensity statisticでmeanを選びます。自分のアッセイでは、染色に合った利用可能な統計量を選び、代表的な物体を確認します。このサンプルでは、Minimum total intensityを百のままにします。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "例のデータベースの列に合わせて、Intensity statisticでmeanを選びます。自分のアッセイでは、染色に合った利用可能な統計量を選び、代表的な物体を確認します。このサンプルでは、Minimum total intensityを百のままにします。"
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "c1を使って、Stain baseline wellsを一列目に設定します。これらの陰性染色の測定値が基準値を決め、アッセイの分母からは除外されます。Pathogen plate metadataで、vehicleを二列目に、inhibitorを三列目に割り当てます。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "c1を使って、Stain baseline wellsを一列目に設定します。これらの陰性染色の測定値が基準値を決め、アッセイの分母からは除外されます。Pathogen plate metadataで、vehicleを二列目に、inhibitorを三列目に割り当てます。"
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Control quantileを零点九九に設定し、固定のOutside thresholdは空欄のままにします。すると、ベースラインの測定値から基準値が決まり、この例ではおよそ二十二点八になります。分類を解釈する前に、出力で適用されたしきい値を確認してください。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Control quantileを零点九九に設定し、固定のOutside thresholdは空欄のままにします。すると、ベースラインの測定値から基準値が決まり、この例ではおよそ二十二点八になります。分類を解釈する前に、出力で適用されたしきい値を確認してください。"
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Threshold sensitivityを零点二五に設定します。これにより、選んだしきい値より二十五パーセント低い値と高い値も評価されます。得られた侵入効率の幅を比べ、結果がしきい値の選び方にどれだけ左右されるかを確認します。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Threshold sensitivityを零点二五に設定します。これにより、選んだしきい値より二十五パーセント低い値と高い値も評価されます。得られた侵入効率の幅を比べ、結果がしきい値の選び方にどれだけ左右されるかを確認します。"
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "このサンプルでは、Extracellular classをclassifyに設定します。宿主細胞との関連がない物体について、classifyは染色を使い、attachedは付着として扱い、excludeはスコア対象の集団から除きます。この設定は、宿主細胞への割り当ての質を考えて選んでください。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "このサンプルでは、Extracellular classをclassifyに設定します。宿主細胞との関連がない物体について、classifyは染色を使い、attachedは付着として扱い、excludeはスコア対象の集団から除きます。この設定は、宿主細胞への割り当ての質を考えて選んでください。"
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Saveをオンのままにして、Runをクリックします。処理が終わったら、しきい値の図を開きます。ウェルごとの分布と適用された基準値が表示されます。実際の実験では、これらの分布を代表的な染色画像と比べ、弱い外部染色を調べてください。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Saveをオンのままにして、Runをクリックします。処理が終わったら、しきい値の図を開きます。ウェルごとの分布と適用された基準値が表示されます。実際の実験では、これらの分布を代表的な染色画像と比べ、弱い外部染色を調べてください。"
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "凡例が図からはみ出す場合は、Figure settingsを開きます。axesタブでLegend positionをbestに設定し、確定します。画面上の図でも書き出した図でも、ラベルが見えることを確認します。",
           "focus": [
             1420,
             330,
@@ -3542,33 +3551,36 @@
           "related_lessons": [
             "27_replication"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "凡例が図からはみ出す場合は、Figure settingsを開きます。axesタブでLegend positionをbestに設定し、確定します。画面上の図でも書き出した図でも、ラベルが見えることを確認します。"
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "ウェルごとの図を開きます。各棒は付着と侵入の割合を示し、その上にスコア化された寄生虫の数が表示されます。ベースラインのウェルは除外されます。ウェルを比べるときは、割合と一緒に数も読み取ってください。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "ウェルごとの図を開きます。各棒は付着と侵入の割合を示し、その上にスコア化された寄生虫の数が表示されます。ベースラインのウェルは除外されます。ウェルを比べるときは、割合と一緒に数も読み取ってください。"
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "条件ごとの要約を開きます。まとめて計算した侵入の割合と、ウェル間の平均を比べます。この二つは重み付けが異なるためです。条件を比べる前に、ウェルごとの結果のばらつきを確認してください。",
           "focus": [
             1685,
             260,
             2125,
             875
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "条件ごとの要約を開きます。まとめて計算した侵入の割合と、ウェル間の平均を比べます。この二つは重み付けが異なるためです。条件を比べる前に、ウェルごとの結果のばらつきを確認してください。"
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "すべてはSourceの中のresults/analyze_invasionに保存されます。parasite_calls.csvには寄生虫ごとの判定、field_thresholds.csvにはその根拠となる基準値、well_invasion.csvにはウェルごとの割合、condition_summary.csvにはまとめた比較が入っています。図と設定も一緒に保管し、条件の比較は独立した反復実験の間で行います。",
           "focus": [
             1510,
             1200,
@@ -3579,7 +3591,8 @@
             "08_measure",
             "13_regression"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "すべてはSourceの中のresults/analyze_invasionに保存されます。parasite_calls.csvには寄生虫ごとの判定、field_thresholds.csvにはその根拠となる基準値、well_invasion.csvにはウェルごとの割合、condition_summary.csvにはまとめた比較が入っています。図と設定も一緒に保管し、条件の比較は独立した反復実験の間で行います。"
         }
       ],
       "example_files": [
@@ -3588,6 +3601,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3595,21 +3648,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay：寄生胞あたりの寄生虫数を数える",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "寄生虫の測定値を読み込み、寄生胞の識別子を選び、解析を実行して、カウントの分布と書き出したファイルを確認します。",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "測定データベースと寄生胞の識別子を選ぶ。",
+        "宿主細胞への割り当てとサイズのフィルターを設定し、解析を実行する。",
+        "ウェルごとの分布を読み、保存された結果の表を見つける。"
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "リンク先の合成Replication Assayの例を展開します。測定データベースと設定リファレンスが含まれ、十二ウェルにわたる480個の寄生胞に、寄生虫の行が1,992件あります。条件名と測定値は教材用のデータです。自分のアッセイでは、寄生胞への割り当てを確認済みの測定された寄生虫と、独立した実験の反復を使ってください。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "HomeからToxoplasmaを開き、Replication Assayを選びます。寄生虫の行と、その寄生胞への割り当てを含む測定データベースから始めます。リンク先の合成例で、設定を練習し、得られるカウントの分布を読み取ることができます。",
           "focus": [
             346,
             50,
@@ -3619,121 +3672,132 @@
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "ホームからToxoplasmaを開き、Replication Assayを選びます。寄生虫の行と、その寄生胞への割り当てを含む測定データベースから始めます。リンク先の合成例で、設定を練習し、得られるカウントの分布を読み取ることができます。"
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "サンプルを展開し、Sourceをそのreplicationフォルダーに設定します。データベースはmeasurementsの中にあります。付属の設定リファレンスを入力し、Sourceの仮の値を展開したフォルダーに置き換えます。結果を書き出すため、Saveはオンのままにします。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "サンプルを展開し、Sourceをそのreplicationフォルダーに設定します。データベースはmeasurementsの中にあります。付属の設定リファレンスを入力し、Sourceの仮の値を展開したフォルダーに置き換えます。結果を書き出すため、Saveはオンのままにします。"
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Vacuole keyをvacuole_idに設定します。これで、寄生虫が属する寄生胞ごとにまとめられます。このサンプルでは、宿主細胞のグループごとに寄生胞が二つあるため、寄生胞の識別子を使ってカウントを分けておきます。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Vacuole keyをvacuole_idに設定します。これで、寄生虫が属する寄生胞ごとにまとめられます。このサンプルでは、宿主細胞のグループごとに寄生胞が二つあるため、寄生胞の識別子を使ってカウントを分けておきます。"
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Require host cellをオンにすると、宿主細胞に結び付いた寄生虫だけが含まれます。自分のデータを使うときは、割り当てのない物体を確認してください。このサンプルでは、Minimum parasite areaを二百に、Maximum parasite areaを八百に設定します。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Require host cellをオンにすると、宿主細胞に結び付いた寄生虫だけが含まれます。自分のデータを使うときは、割り当てのない物体を確認してください。このサンプルでは、Minimum parasite areaを二百に、Maximum parasite areaを八百に設定します。"
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Maximum parasites per vacuoleを十六に設定します。これが、名前付きの二のべき乗の区分の上限になります。それより大きい二のべき乗の数はオーバーフローの区分に入り、三のような数は、二のべき乗でない値の別の区分に残ります。",
           "focus": [
             346,
             170,
             1150,
             215
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Maximum parasites per vacuoleを十六に設定します。これが、名前付きの二のべき乗の区分の上限になります。それより大きい二のべき乗の数はオーバーフローの区分に入り、三のような数は、二のべき乗でない値の別の区分に残ります。"
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "二つのPathogen typesとしてvehicleとinhibitorを入力し、Pathogen plate metadataでそれぞれ一列目と二列目に割り当てます。各グループには練習用のウェルが六つあります。実際の実験では、プレート設計にある条件名とウェルの割り当てを入力します。",
           "focus": [
             346,
             170,
             1150,
             560
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "二つのPathogen typesとしてvehicleとinhibitorを入力し、Pathogen plate metadataでそれぞれ一列目と二列目に割り当てます。各グループには練習用のウェルが六つあります。実際の実験では、プレート設計にある条件名とウェルの割り当てを入力します。"
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Source、Vacuole key、フィルター、Saveを確認してから、Runをクリックします。処理が終わるまでコンソールを見守ります。Figuresの領域に、ウェルごと、条件ごとの分布が表示されます。",
           "focus": [
             1510,
             170,
             2310,
             1840
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "Source、Vacuole key、フィルター、Saveを確認してから、Runをクリックします。処理が終わるまでコンソールを見守ります。Figuresの領域に、ウェルごと、条件ごとの分布が表示されます。"
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "ウェルごとの図を開きます。積み上げ棒グラフの各棒は、寄生虫数の区分ごとに寄生胞の割合を示します。色は凡例と照らし合わせて読みます。このサンプルでは、各ウェルに四十個の寄生胞があり、その五パーセントが二のべき乗でない区分に入ります。",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "ウェルごとの図を開きます。積み上げ棒グラフの各棒は、寄生虫数の区分ごとに寄生胞の割合を示します。色は凡例と照らし合わせて読みます。このサンプルでは、各ウェルに四十個の寄生胞があり、その五パーセントが二のべき乗でない区分に入ります。"
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "凡例を調整するには、Figure settingsを開きます。ラベルが図からはみ出す場合は、axesタブで内側のLegend positionを選びます。これで見た目だけが変わり、計算されたカウントはそのまま保たれます。",
           "hold_after": 0.7,
           "focus": [
             1420,
             330,
             1000,
             1500
-          ]
+          ],
+          "speech_text": "凡例を調整するには、Figure settingsを開きます。ラベルが図からはみ出す場合は、axesタブで内側のLegend positionを選びます。これで見た目だけが変わり、計算されたカウントはそのまま保たれます。"
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "条件ごとの図を開き、まとめたカウントの分布を比べます。この要約と一緒に、ウェルごとの結果も確認します。実験を解析するときは、統計的な比較に、独立した生物学的反復と適切な実験単位を使ってください。",
           "focus": [
             1510,
             170,
             2310,
             1020
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "条件ごとの図を開き、まとめたカウントの分布を比べます。この要約と一緒に、ウェルごとの結果も確認します。実験を解析するときは、統計的な比較に、独立した生物学的反復と適切な実験単位を使ってください。"
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "コンソールに書き出しの警告があれば読みます。画面上の表示だけでなく保存された図も確認し、書き出し時の背景でも読みやすい色を選びます。",
           "focus": [
             1510,
             1190,
             2310,
             440
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "speech_text": "コンソールに書き出しの警告があれば読みます。画面上の表示だけでなく保存された図も確認し、書き出し時の背景でも読みやすい色を選びます。"
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Sourceの中のresults/analyze_replicationにある結果は、段階的に積み上がっています。vacuole_counts.csvは寄生胞ごとの数、well_distribution.csvはそれをウェルごとの分布にしたもので、条件ごとの要約と図はウェルをまとめたものです。どの数値でもさかのぼれるように、設定と元のデータベースと一緒に保管してください。",
           "focus": [
             346,
             170,
@@ -3744,7 +3808,8 @@
           "related_lessons": [
             "08_measure",
             "34_database"
-          ]
+          ],
+          "speech_text": "Sourceの中のresults/analyze_replicationにある結果は、段階的に積み上がっています。vacuole_counts.csvは寄生胞ごとの数、well_distribution.csvはそれをウェルごとの分布にしたもので、条件ごとの要約と図はウェルをまとめたものです。どの数値でもさかのぼれるように、設定と元のデータベースと一緒に保管してください。"
         }
       ],
       "example_files": [
@@ -3753,6 +3818,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

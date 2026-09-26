@@ -415,7 +415,9 @@ if njit is not None:
             coordinate, which steers the flight's heading.
         :param offset_y: vertical shift added likewise.
         :param samples: ``1`` or less takes one sample at each pixel centre;
-            anything larger averages a 2 x 2 grid of samples per pixel.
+            anything larger averages a ``samples`` x ``samples`` grid of
+            samples per pixel (item 531: it used to be 2 x 2 whatever the
+            number said).
         :returns: ``(height, width, 3)`` uint8 RGB array.
         """
         out = np.empty((height, width, 3), dtype=np.uint8)
@@ -432,8 +434,11 @@ if njit is not None:
                     out[row, col, 2] = int(255.0 * b)
                 else:
                     ar = ag = ab = 0.0
-                    for oy in (0.25, 0.75):
-                        for ox in (0.25, 0.75):
+                    step = 1.0 / samples
+                    for sy in range(samples):
+                        for sx in range(samples):
+                            ox = step * (sx + 0.5)
+                            oy = step * (sy + 0.5)
                             x = (2.0 * (col + ox) - width) / denominator * 1.08
                             y = (height - 2.0 * (row + oy)) / denominator * 1.08
                             r, g, b = sample_space(x + offset_x,
@@ -441,9 +446,9 @@ if njit is not None:
                             ar += r
                             ag += g
                             ab += b
-                    out[row, col, 0] = int(255.0 * ar / 4.0)
-                    out[row, col, 1] = int(255.0 * ag / 4.0)
-                    out[row, col, 2] = int(255.0 * ab / 4.0)
+                    out[row, col, 0] = int(255.0 * ar / float(samples * samples))
+                    out[row, col, 1] = int(255.0 * ag / float(samples * samples))
+                    out[row, col, 2] = int(255.0 * ab / float(samples * samples))
         return out
 
 else:
@@ -471,6 +476,11 @@ class SpaceEngine:
 
     :param thread_count: worker threads numba may use.
 
+    `samples` is how many samples a side each pixel takes, set by the
+    widget from the Supersampling setting (item 531). ``None`` -- an engine
+    nobody configured -- keeps the old rule of two on a small frame and one
+    on a large one.
+
     The widget builds and calls every pattern engine the same way, so this
     takes the same arguments even where the scene has no use for one. A
     pattern that needed a different call would put a branch in the one place
@@ -485,6 +495,7 @@ class SpaceEngine:
             still works, it just shares the default pool.
         """
         self.thread_count = max(1, int(thread_count))
+        self.samples = None
         try:
             from numba import set_num_threads
 
@@ -522,7 +533,18 @@ class SpaceEngine:
         offset_y = float(pointer_y) * float(pull) * 0.22 - float(push) * float(pointer_y) * 0.35
         return render_space_frame(
             max(1, int(width)), max(1, int(height)), float(t), float(speed),
-            float(offset_x), float(offset_y), self._samples(width, height))
+            float(offset_x), float(offset_y), self._samples_for(width, height))
+
+    def _samples_for(self, width: int, height: int) -> int:
+        """The saved samples a side, or the size rule when none was given.
+
+        :param width: frame width in pixels.
+        :param height: frame height in pixels.
+        :returns: samples a side, at least one.
+        """
+        if self.samples is None:
+            return self._samples(width, height)
+        return max(1, int(self.samples))
 
     @staticmethod
     def _samples(width: int, height: int) -> int:

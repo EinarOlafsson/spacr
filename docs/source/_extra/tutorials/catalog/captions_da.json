@@ -3304,21 +3304,21 @@
       "id": "26_invasion",
       "number": 26,
       "slug": "invasion-assay",
-      "title": "Invasion Assay: score outside and total staining",
+      "title": "Invasion Assay: scor ydre farvning og totalfarvning",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Map two staining channels, choose the staining baseline, run the analysis and inspect invasion calls and threshold sensitivity.",
+      "description": "Tilknyt to farvningskanaler, vælg farvningens baseline, kør analysen, og undersøg invasionsvurderinger og tærskelfølsomhed.",
       "objectives": [
-        "Choose the measurement database and map outside and total staining.",
-        "Set baseline wells and threshold controls, then run the analysis.",
-        "Inspect distributions, well denominators and saved result tables."
+        "Vælge måledatabasen og tilknytte ydre farvning og totalfarvning.",
+        "Angive baselinebrønde og tærskelindstillinger og derefter køre analysen.",
+        "Undersøge fordelinger, nævnere pr. brønd og gemte resultattabeller."
       ],
-      "prerequisite": "Extract the linked synthetic Invasion Assay example and use its settings reference. The database contains 1,800 synthetic parasite measurements; condition names and results are illustrative. For your own assay, use a validated two-colour staining design with outside staining before permeabilisation and total staining afterwards, and review representative images.",
+      "prerequisite": "Udpak det linkede syntetiske Invasion Assay-eksempel, og brug dets indstillingsreference. Databasen indeholder 1.800 syntetiske parasitmålinger; betingelsernes navne og resultaterne er kun illustrationer. Til dit eget assay bruger du et valideret tofarvet farvningsdesign med ydre farvning før permeabilisering og totalfarvning bagefter, og du gennemgår repræsentative billeder.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+          "narration": "Fra Home åbner du Toxoplasma og vælger derefter Invasion Assay. Start med en måledatabase, der indeholder parasitintensiteter for den ydre farvning og totalfarvningen. Brug den linkede syntetiske prøve til at øve kanaltilknytning, tærskelvalg og gennemgang af resultater.",
           "focus": [
             346,
             50,
@@ -3332,7 +3332,7 @@
         },
         {
           "visual": "02_setting_src",
-          "narration": "Extract the sample and set Source to its invasion folder, which contains measurements/measurements.db. Enter the accompanying settings reference and replace its Source placeholder. The sample contains baseline wells and two assay conditions.",
+          "narration": "Udpak prøven, og sæt Source til dens mappe invasion, som indeholder measurements/measurements.db. Indtast den medfølgende indstillingsreference, og erstat dens pladsholder for Source. Prøven indeholder baselinebrønde og to assaybetingelser.",
           "focus": [
             346,
             170,
@@ -3343,7 +3343,7 @@
         },
         {
           "visual": "03_setting_outside_channel",
-          "narration": "Set Outside channel to one and Total channel to zero. Outside represents the stain applied before permeabilisation; total represents the stain applied afterwards. Outside-positive parasites are classified as attached, and those at or below the outside threshold as invaded. Check your acquisition channel order when using your own measurements.",
+          "narration": "Sæt Outside channel til 1 og Total channel til 0. Den ydre farvning påføres før permeabiliseringen og totalfarvningen bagefter. Parasitter, der er positive for den ydre farvning, klassificeres som fastsiddende, og dem på eller under den ydre tærskel som invaderede. Kontrollér rækkefølgen af dine optagelseskanaler, når du bruger egne målinger.",
           "focus": [
             346,
             170,
@@ -3354,7 +3354,7 @@
         },
         {
           "visual": "05_setting_intensity_statistic",
-          "narration": "Select mean under Intensity statistic to match the columns in the example database. For your own assay, choose an available statistic suited to the stain and inspect representative objects. Keep Minimum total intensity at one hundred for this sample.",
+          "narration": "Vælg mean under Intensity statistic, så det matcher kolonnerne i eksempeldatabasen. Til dit eget assay vælger du en tilgængelig statistik, der passer til farvningen, og undersøger repræsentative objekter. Behold Minimum total intensity på 100 for denne prøve.",
           "focus": [
             346,
             170,
@@ -3365,7 +3365,7 @@
         },
         {
           "visual": "06_setting_stain_baseline_wells",
-          "narration": "Set Stain baseline wells to column one, using c1. These negative-stain measurements establish the cutoff and are excluded from the assay denominators. Under Pathogen plate metadata, map vehicle to column two and inhibitor to column three.",
+          "narration": "Sæt Stain baseline wells til kolonne 1 med c1. Disse målinger uden farvning fastlægger grænseværdien og udelukkes fra assayets nævnere. Under Pathogen plate metadata tilknytter du vehicle til kolonne 2 og inhibitor til kolonne 3.",
           "focus": [
             346,
             170,
@@ -3376,7 +3376,7 @@
         },
         {
           "visual": "07_setting_control_quantile",
-          "narration": "Set Control quantile to zero point nine nine and leave the fixed Outside threshold unset. The baseline measurements then determine the cutoff, about twenty-two point eight in this example. Check the applied threshold in the output before interpreting the classifications.",
+          "narration": "Sæt Control quantile til 0,99, og lad den faste Outside threshold stå tom. Så bestemmer baselinemålingerne grænseværdien, cirka 22,8 i dette eksempel. Kontrollér den anvendte tærskel i outputtet, før du fortolker klassificeringerne.",
           "focus": [
             346,
             170,
@@ -3387,7 +3387,7 @@
         },
         {
           "visual": "08_setting_threshold_sensitivity",
-          "narration": "Set Threshold sensitivity to zero point two five. This also evaluates cutoffs twenty-five percent below and above the selected threshold. Compare the resulting invasion-efficiency range to see how strongly your result depends on threshold choice.",
+          "narration": "Sæt Threshold sensitivity til 0,25. Så vurderes også grænseværdier 25 procent under og over den valgte tærskel. Sammenlign det resulterende interval for invasionseffektivitet for at se, hvor meget dit resultat afhænger af tærskelvalget.",
           "focus": [
             346,
             170,
@@ -3398,7 +3398,7 @@
         },
         {
           "visual": "10_setting_extracellular_class",
-          "narration": "Set Extracellular class to classify for the sample. For objects without a host link, classify uses the stain, attached assigns them to attached, and exclude removes them from the scored population. Choose this setting with the quality of your host-cell assignments in mind.",
+          "narration": "Sæt Extracellular class til classify for prøven. For objekter uden tilknytning til en værtscelle bruger classify farvningen, attached regner dem som fastsiddende, og exclude fjerner dem fra den scorede population. Vælg denne indstilling med tanke på kvaliteten af dine værtscelletildelinger.",
           "focus": [
             346,
             170,
@@ -3409,7 +3409,7 @@
         },
         {
           "visual": "15_figure_02",
-          "narration": "Keep Save enabled and click Run. Open the threshold figure after processing finishes. It shows distributions by well and the applied cutoff. For an experiment, compare these distributions with representative stained images and investigate weak outside staining.",
+          "narration": "Lad Save være slået til, og klik på Run. Åbn tærskelfiguren, når behandlingen er færdig. Den viser fordelinger pr. brønd og den anvendte grænseværdi. I et eksperiment sammenligner du disse fordelinger med repræsentative farvede billeder og undersøger svag ydre farvning.",
           "focus": [
             1685,
             260,
@@ -3420,7 +3420,7 @@
         },
         {
           "visual": "16_legend_00",
-          "narration": "If a legend extends beyond the figure, open Figure settings. In the axes tab, set Legend position to best, then confirm. Check that the labels remain visible in both the on-screen and exported figures.",
+          "narration": "Hvis en signaturforklaring går ud over figuren, åbner du Figure settings. På fanen axes sætter du Legend position til best og bekræfter. Kontrollér, at etiketterne er synlige både i figuren på skærmen og i den eksporterede figur.",
           "focus": [
             1420,
             330,
@@ -3434,7 +3434,7 @@
         },
         {
           "visual": "17_readable_figure_00",
-          "narration": "Open the per-well figure. Each bar shows attached and invaded fractions, with the number of scored parasites above it. Baseline wells are excluded. Read the counts alongside the fractions when comparing wells.",
+          "narration": "Åbn figuren pr. brønd. Hver søjle viser andelene af fastsiddende og invaderede parasitter med antallet af scorede parasitter ovenover. Baselinebrønde er udelukket. Læs antallene sammen med andelene, når du sammenligner brønde.",
           "focus": [
             1685,
             260,
@@ -3445,7 +3445,7 @@
         },
         {
           "visual": "17_readable_figure_01",
-          "narration": "Open the condition summary. Compare the pooled invasion fraction with the mean across wells, since they use different weighting. Check the per-well results for variation before making comparisons between conditions.",
+          "narration": "Åbn oversigten pr. betingelse. Sammenlign den samlede invasionsandel med gennemsnittet over brøndene, da de vægtes forskelligt. Kontrollér variationen i resultaterne pr. brønd, før du sammenligner betingelser.",
           "focus": [
             1685,
             260,
@@ -3456,7 +3456,7 @@
         },
         {
           "visual": "14_actual_completion",
-          "narration": "Everything lands in results/analyze_invasion inside Source. parasite_calls.csv holds each parasite's call, field_thresholds.csv the cutoffs behind them, well_invasion.csv the per-well fractions and condition_summary.csv the pooled comparison. Keep figures and settings with them, and compare conditions across independent replicates.",
+          "narration": "Alt havner i results/analyze_invasion inde i Source. parasite_calls.csv indeholder vurderingen af hver parasit, field_thresholds.csv de grænseværdier, der ligger bag, well_invasion.csv andelene pr. brønd og condition_summary.csv den samlede sammenligning. Opbevar figurer og indstillinger sammen med dem, og sammenlign betingelser på tværs af uafhængige replikater.",
           "focus": [
             1510,
             1200,
@@ -3476,6 +3476,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -3483,21 +3523,21 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication Assay: count parasites per vacuole",
+      "title": "Replication Assay: tæl parasitter pr. vakuole",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+      "description": "Indlæs parasitmålinger, vælg vakuoleidentitet, kør analysen, og undersøg tællingsfordelinger og eksporter.",
       "objectives": [
-        "Choose a measurement database and its vacuole identifier.",
-        "Set host-assignment and size filters, then run the analysis.",
-        "Read per-well distributions and locate the saved result tables."
+        "Vælge en måledatabase og dens vakuoleidentifikator.",
+        "Angive filtre for værtscelletildeling og størrelse og derefter køre analysen.",
+        "Læse fordelingerne pr. brønd og finde de gemte resultattabeller."
       ],
-      "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+      "prerequisite": "Udpak det linkede syntetiske Replication Assay-eksempel. Det indeholder en måledatabase og en indstillingsreference med 1.992 parasitrækker i 480 vakuoler fordelt på tolv brønde. Betingelsernes navne og målingerne er undervisningsdata. Til dit eget assay bruger du målte parasitter med gennemgåede vakuoletildelinger og uafhængige eksperimentelle replikater.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+          "narration": "Fra Home åbner du Toxoplasma og vælger derefter Replication Assay. Start med en måledatabase, der indeholder parasitrækker og deres vakuoletildelinger. Med det linkede syntetiske eksempel kan du øve indstillingerne og læse de resulterende tællingsfordelinger.",
           "focus": [
             346,
             50,
@@ -3511,7 +3551,7 @@
         },
         {
           "visual": "03_setting_src",
-          "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+          "narration": "Udpak prøven, og sæt Source til dens mappe replication. Databasen ligger i measurements. Indtast den medfølgende indstillingsreference, og erstat dens pladsholder for Source med din udpakkede mappe. Lad Save være slået til, så resultaterne skrives.",
           "focus": [
             346,
             170,
@@ -3522,7 +3562,7 @@
         },
         {
           "visual": "04_setting_vacuole_key",
-          "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+          "narration": "Sæt Vacuole key til vacuole_id. Det grupperer parasitterne efter den vakuole, de tilhører. Prøven indeholder to vakuoler pr. værtscellegruppe, så brug vakuoleidentifikatoren til at holde tællingerne adskilt.",
           "focus": [
             346,
             170,
@@ -3533,7 +3573,7 @@
         },
         {
           "visual": "05_setting_require_host_cell",
-          "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+          "narration": "Slå Require host cell til for kun at medtage parasitter, der er knyttet til en værtscelle. Gennemgå objekter uden tildeling, når du bruger dine egne data. For denne prøve sætter du Minimum parasite area til 200 og Maximum parasite area til 800.",
           "focus": [
             346,
             170,
@@ -3544,7 +3584,7 @@
         },
         {
           "visual": "07_setting_max_parasites_per_vacuole",
-          "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+          "narration": "Sæt Maximum parasites per vacuole til 16. Det fastlægger den største navngivne kategori blandt totalspotenserne. Større totalspotenser havner i en overløbskategori, mens antal som 3 bliver i den separate kategori for værdier, der ikke er totalspotenser.",
           "focus": [
             346,
             170,
@@ -3555,7 +3595,7 @@
         },
         {
           "visual": "09_setting_pathogen_plate_metadata",
-          "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+          "narration": "Indtast vehicle og inhibitor som de to Pathogen types, og tilknyt dem til kolonne 1 og kolonne 2 i Pathogen plate metadata. Hver gruppe indeholder seks øvebrønde. Til dit eksperiment indtaster du betingelsernes navne og brøndtildelingerne fra dit pladedesign.",
           "focus": [
             346,
             170,
@@ -3566,7 +3606,7 @@
         },
         {
           "visual": "11_actual_run",
-          "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+          "narration": "Kontrollér Source, Vacuole key, filtrene og Save, og klik derefter på Run. Følg konsollen, indtil behandlingen er færdig. Området Figures viser fordelinger pr. brønd og pr. betingelse.",
           "focus": [
             1510,
             170,
@@ -3577,7 +3617,7 @@
         },
         {
           "visual": "15_readable_legend_00",
-          "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+          "narration": "Åbn figuren pr. brønd. Hver stablet søjle viser andelen af vakuoler i hver kategori for antal parasitter. Læs farverne ved hjælp af signaturforklaringen. I denne prøve indeholder hver brønd 40 vakuoler, og 5 procent falder i kategorien for værdier, der ikke er totalspotenser.",
           "focus": [
             1510,
             170,
@@ -3588,7 +3628,7 @@
         },
         {
           "visual": "14_legend_settings_00",
-          "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+          "narration": "Åbn Figure settings for at justere signaturforklaringen. På fanen axes vælger du en Legend position inde i figuren, hvis etiketterne går ud over den. Det ændrer kun præsentationen; de beregnede tællinger bevares.",
           "hold_after": 0.7,
           "focus": [
             1420,
@@ -3599,7 +3639,7 @@
         },
         {
           "visual": "15_readable_legend_01",
-          "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+          "narration": "Åbn figuren pr. betingelse for at sammenligne de samlede tællingsfordelinger. Gennemgå resultaterne pr. brønd sammen med denne oversigt. Når du analyserer et eksperiment, bruger du uafhængige biologiske replikater og en passende eksperimentel enhed til statistiske sammenligninger.",
           "focus": [
             1510,
             170,
@@ -3610,7 +3650,7 @@
         },
         {
           "visual": "12_actual_completion",
-          "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+          "narration": "Læs eventuelle eksportadvarsler i konsollen. Kontrollér de gemte figurer og ikke kun visningen på skærmen, og vælg farver, der forbliver læsbare mod eksportens baggrund.",
           "focus": [
             1510,
             1190,
@@ -3621,7 +3661,7 @@
         },
         {
           "visual": "10_setting_save",
-          "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+          "narration": "Resultaterne i results/analyze_replication inde i Source bygger oven på hinanden. vacuole_counts.csv tæller hver vakuole, well_distribution.csv omdanner tællingerne til hver brønds fordeling, og oversigterne og figurerne pr. betingelse samler brøndene. Opbevar dem sammen med indstillingerne og kildedatabasen, så du kan spore ethvert tal tilbage.",
           "focus": [
             346,
             170,
@@ -3641,6 +3681,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

@@ -1,0 +1,2080 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.set_folded#2",
+      "source": "False for a fold made on the user's behalf, which is never remembered.",
+      "source_sha256": "b4c17b1467e0011c0b48dae8b351597822059c61b9c780736374f0658ccc2adc",
+      "context": "False for a fold made on the user's behalf, which is never remembered.",
+      "translation": "False för en hopfällning som görs för användarens räkning, som aldrig minns.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection.shut#0",
+      "source": "Whether the section is folded.",
+      "source_sha256": "b66379c2b92a609d60d4d50859e27d17a07e6826edec5c4cef68a72a961167cb",
+      "context": "Whether the section is folded.",
+      "translation": "Om avsnittet är hopfällt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#0",
+      "source": "One registered child of a :class:`CollapsibleSplitter`.",
+      "source_sha256": "38e340e258167e634577098505129e25842a18cbf623a4526b2140418f6936e0",
+      "context": "One registered child of a :class:`CollapsibleSplitter`.",
+      "translation": "Ett registrerat barn till en :class:`CollapsibleSplitter`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#1",
+      "source": "Made by :meth:`CollapsibleSplitter.add_pane`; each argument is kept as the attribute of the same name.",
+      "source_sha256": "93cf82e75eb9d1602be163fc65b9e964ebc0f05cb85b9fdb482d3feed52a5ee4",
+      "context": "Made by :meth:`CollapsibleSplitter.add_pane`; each argument is kept as the attribute of the same name.",
+      "translation": "Skapas av :meth:`CollapsibleSplitter.add_pane`; varje argument behålls som attributet med samma namn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#10",
+      "source": "stores an EDGE pane's collapse across restarts.",
+      "source_sha256": "79e0f70e16bbe36d3361f7dd04286fe2a7cf204b1160977d3a98b57bd08f0ff6",
+      "context": "stores an EDGE pane's collapse across restarts.",
+      "translation": "lagrar en EDGE-panels hopfällning mellan omstarter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#11",
+      "source": "what dragging this EDGE pane's handle does, in English; it replaces the generic \"or drag to resize it\" in the handle's tooltip.",
+      "source_sha256": "88eafe4b70f534d435a0e57cb8abda0d3d5a3a3218bbf2a0850a82ac30c28abc",
+      "context": "what dragging this EDGE pane's handle does, in English; it replaces the generic \"or drag to resize it\" in the handle's tooltip.",
+      "translation": "vad dragning i den här EDGE-panelens handtag gör, på engelska; det ersätter det generiska \"eller dra för att ändra storlek\" i handtagets verktygstips.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#12",
+      "source": "Hold the pane's description; see the class for each field.",
+      "source_sha256": "6275ad15d7f3a708e1231608b7bdc3cbf543df5e97e024a3a53ffb6a29fddda1",
+      "context": "Hold the pane's description; see the class for each field.",
+      "translation": "Håll panelens beskrivning; se klassen för varje fält.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#2",
+      "source": "the splitter's direct child.",
+      "source_sha256": "96ed29961d2c422c5ca586fe2eead4cecb2771af8c0ab467b42c51991676b67f",
+      "context": "the splitter's direct child.",
+      "translation": "delarens direkta barn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#3",
+      "source": "stable English name; the key its size is stored under.",
+      "source_sha256": "b9773a70bd99e5fc7e7fa5cc36bb9fe111cf646ceb113b0215c60eacb9036e61",
+      "context": "stable English name; the key its size is stored under.",
+      "translation": "stabilt engelskt namn; nyckeln som dess storlek lagras under.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#4",
+      "source": ":data:`HEADER`, :data:`EDGE` or ``None``.",
+      "source_sha256": "91fa79dad57774c2d9aa562d61d02c624931d19fdfee4ba8481f16571acce972",
+      "context": ":data:`HEADER`, :data:`EDGE` or ``None``.",
+      "translation": ":data:`HEADER`, :data:`EDGE` eller ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#5",
+      "source": "the heading's Folder, for a HEADER pane.",
+      "source_sha256": "801de882a965fa0944b1ccd58157d39906b9819f67a8c337fc675ddd9c45c7d0",
+      "context": "the heading's Folder, for a HEADER pane.",
+      "translation": "rubrikens Folder, för en HEADER-panel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#6",
+      "source": "0 keeps the pane at its own size when the splitter grows.",
+      "source_sha256": "ea685bdfcf28d2b170aadfa484bb0ed4f4fb80ad9d17227fe9262b0a4b4e5e44",
+      "context": "0 keeps the pane at its own size when the splitter grows.",
+      "translation": "0 behåller panelen i sin egen storlek när delaren växer.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#7",
+      "source": "the size it opens at; updated by every drag.",
+      "source_sha256": "2d305d4788c09530d18c423953b4cf258a08877bd9bb5cdf9d777415961e4dd8",
+      "context": "the size it opens at; updated by every drag.",
+      "translation": "storleken som den öppnas med; uppdateras vid varje dragning.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#8",
+      "source": "its minimum while open, dropped while it is collapsed so it can shrink to its heading.",
+      "source_sha256": "9b6abcfca011bbe5adbeb1b67841c69fd672dcd4fe7e455ee6818c40f48c263a",
+      "context": "its minimum while open, dropped while it is collapsed so it can shrink to its heading.",
+      "translation": "dess minimum när den är öppen, som släpps när den är hopfälld så att den kan krympa till sin rubrik.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#9",
+      "source": "showing it also opens it (a live preview the user folded opens again when it is switched back on).",
+      "source_sha256": "69442942a8ddfe343f14ce070c17942242b1d3189a9f5c1b3e137e948706c93a",
+      "context": "showing it also opens it (a live preview the user folded opens again when it is switched back on).",
+      "translation": "att visa den öppnar den också (en realtidsförhandsvisning som användaren fällde ihop öppnas igen när den slås på igen).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane.is_collapsed#0",
+      "source": "Whether the pane is collapsed right now.",
+      "source_sha256": "a07c37606842ad89bd4787cc92a815a18278761db71324c24f26a9042a220b3d",
+      "context": "Whether the pane is collapsed right now.",
+      "translation": "Om panelen är hopfälld just nu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.fold_card#0",
+      "source": "Make a titled :class:`~spacr.qt.widgets.card.Card` fold by its title.",
+      "source_sha256": "b13060f0863f672f7edca82059cd40fd258fe4c39fce6f9755beb5fe24ab8c1d",
+      "context": "Make a titled :class:`~spacr.qt.widgets.card.Card` fold by its title.",
+      "translation": "Få ett :class:`~spacr.qt.widgets.card.Card` med titel att fällas ihop via sin titel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.fold_card#1",
+      "source": "The card keeps its frame and its title; clicking the title folds the body away and the folded card's title locks to the bottom of its room. A card whose body is built on first show stays unbuilt: the fold moves the card's body widget only, never the card.",
+      "source_sha256": "d6700cbc280b5e7f512c4ff812980091dbffc600b09c4755583ba641837e18a2",
+      "context": "The card keeps its frame and its title; clicking the title folds the body away and the folded card's title locks to the bottom of its room. A card whose body is built on first show stays unbuilt: the fold moves the card's body widget only, never the card.",
+      "translation": "Kortet behåller sin ram och sin titel; ett klick på titeln fäller undan innehållet och det hopfällda kortets titel låses mot botten av sitt utrymme. Ett kort vars innehåll byggs vid första visningen förblir obyggt: hopfällningen flyttar bara kortets innehållswidget, aldrig kortet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.fold_card#2",
+      "source": "the card; one without a title is left alone.",
+      "source_sha256": "6444299658b9968a930f7ec37d3bf46aacac92b0ce2b852c32d484e8e9d733de",
+      "context": "the card; one without a title is left alone.",
+      "translation": "kortet; ett utan titel lämnas orört.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.fold_card#3",
+      "source": "English name; defaults to the card's title text.",
+      "source_sha256": "43230beef0d129dcef818e53282d279016c1cc073e3eec5a96e36ec8dc1eeddf",
+      "context": "English name; defaults to the card's title text.",
+      "translation": "engelskt namn; standard är kortets titeltext.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.fold_card#4",
+      "source": "``\"<module>/<card>\"`` to remember a user's fold.",
+      "source_sha256": "45f1a249b8b0ecefee705d00b81621a91aae72696c83644abe154b5afb6d994a",
+      "context": "``\"<module>/<card>\"`` to remember a user's fold.",
+      "translation": "``\"<module>/<card>\"`` för att minnas en hopfällning som användaren gjort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.fold_card#5",
+      "source": "the card's Folder, or None when it has no title.",
+      "source_sha256": "ba4421e01ce763f1f7ec9afc063b6f3b4b81988cba64efa680b72ba74aa69d17",
+      "context": "the card's Folder, or None when it has no title.",
+      "translation": "kortets Folder, eller None när det saknar titel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.get_pane_extents#0",
+      "source": "The sizes the user dragged the panes of ``persist_key`` to.",
+      "source_sha256": "ea9e6df8213859902ac00fecfa5c3c197387fea59a6ec4b2cbfdf3a602e0e114",
+      "context": "The sizes the user dragged the panes of ``persist_key`` to.",
+      "translation": "De storlekar som användaren drog panelerna i ``persist_key`` till.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.get_pane_extents#1",
+      "source": "the splitter's key, e.g. ``\"mask::runtime\"``.",
+      "source_sha256": "6a7d7cb78959a3bf7073b36bc3e735dad10cf06b678c2509d922b7e62721ec6a",
+      "context": "the splitter's key, e.g. ``\"mask::runtime\"``.",
+      "translation": "delarens nyckel, t.ex. ``\"mask::runtime\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.get_pane_extents#2",
+      "source": "``{pane name: pixels}``; empty when nothing was ever dragged or the stored value is unreadable.",
+      "source_sha256": "ee0a930a5aea9f6736363cbde50e0ee5defa32edc32af3d660a2f76e3fd06192",
+      "context": "``{pane name: pixels}``; empty when nothing was ever dragged or the stored value is unreadable.",
+      "translation": "``{pane name: pixels}``; tom när ingenting någonsin har dragits eller det lagrade värdet är oläsbart.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#0",
+      "source": "Keep ``container``'s heading at the bottom of its room while folded.",
+      "source_sha256": "8a917dc67ba4aeca461d83322fd3a64294acb3491e3c7ba2ac0b13a1d493cbef",
+      "context": "Keep ``container``'s heading at the bottom of its room while folded.",
+      "translation": "Håll rubriken för ``container`` längst ned i dess utrymme medan den är hopfälld.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#1",
+      "source": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "source_sha256": "4e2e6595cfbd138b4c4a186481d80353527e3fb0d5c4c000f1cf7cefdd2cb3cb",
+      "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the bug item 471 names (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
+      "translation": "En hopfälld panel som fick mer utrymme än dess rubrik behöver -- den sista panelen i en delare, ett avsnitt som sträckts av sin kolumn -- lade tidigare ut sin rubrik mitt i det utrymmet, vilket är den bugg som punkt 471 namnger (\"när jag fäller ihop konsolen fälls den ihop till mitten\"). En stretch som placeras OVANFÖR rubriken medan den är hopfälld tar i stället det överblivna utrymmet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#2",
+      "source": "the widget whose layout holds the heading (first) and the body.",
+      "source_sha256": "8ac98fff52f56030f6092ddac08bea5af2f7c9e79087f49e56c752c20f8abcfd",
+      "context": "the widget whose layout holds the heading (first) and the body.",
+      "translation": "widgeten vars layout innehåller rubriken (först) och innehållet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#3",
+      "source": "its :class:`~spacr.qt.widgets.foldable.Folder`.",
+      "source_sha256": "696b8d8621727c667247f142f574e61457e8e15c3e3f71e0ce40fd840f08c4e3",
+      "context": "its :class:`~spacr.qt.widgets.foldable.Folder`.",
+      "translation": "dess :class:`~spacr.qt.widgets.foldable.Folder`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#4",
+      "source": "``Qt.Horizontal`` locks it to the left instead, for a panel that folds sideways.",
+      "source_sha256": "d8e934de7c14a219edaac49e48429601cb7e6e343084f6785aee664a0632112f",
+      "context": "``Qt.Horizontal`` locks it to the left instead, for a panel that folds sideways.",
+      "translation": "``Qt.Horizontal`` låser den i stället mot vänster, för en panel som fälls ihop i sidled.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#5",
+      "source": "Called twice for one container and folder -- a :class:`FoldSection` locks itself and :meth:`CollapsibleSplitter.add_pane` locks every HEADER pane -- the second call does nothing, so there is only ever one stretch and the first orientation asked for wins.",
+      "source_sha256": "db173ab1b5d523b63e42d330427790bae4bbffc0a04719cacd88e3b35658db54",
+      "context": "Called twice for one container and folder -- a :class:`FoldSection` locks itself and :meth:`CollapsibleSplitter.add_pane` locks every HEADER pane -- the second call does nothing, so there is only ever one stretch and the first orientation asked for wins.",
+      "translation": "Anropad två gånger för samma behållare och Folder -- en :class:`FoldSection` låser sig själv och :meth:`CollapsibleSplitter.add_pane` låser varje HEADER-panel -- gör det andra anropet ingenting, så att det bara någonsin finns en stretch och den första begärda orienteringen vinner.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.set_pane_extents#0",
+      "source": "Remember ``{pane name: pixels}`` for ``persist_key``.",
+      "source_sha256": "145117af0e50bcd0fa866fa4acbc07517f1ddb381b473fe824f875d590dc790a",
+      "context": "Remember ``{pane name: pixels}`` for ``persist_key``.",
+      "translation": "Minns ``{pane name: pixels}`` för ``persist_key``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.set_pane_extents#1",
+      "source": "the splitter's key.",
+      "source_sha256": "ac1fee7da023ae0a2a031cb639bb0f3bdfd04f27ff297ac49a33f9db6d22bc41",
+      "context": "the splitter's key.",
+      "translation": "delarens nyckel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.set_pane_extents#2",
+      "source": "``{pane name: pixels}``; zero and negative sizes are dropped.",
+      "source_sha256": "6c40c124d5af2a00f77828503d7ca826c8c001bffd8b168375ea3d7ee3d6c8bf",
+      "context": "``{pane name: pixels}``; zero and negative sizes are dropped.",
+      "translation": "``{pane name: pixels}``; storlekar som är noll eller negativa tas bort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.splitter_of#0",
+      "source": "The CollapsibleSplitter ``widget`` sits directly in, if any.",
+      "source_sha256": "ca7f85dbf1190fe14d931dff6af8c543a4b1b51e47885bc2b8f7b955ebc1e7c4",
+      "context": "The CollapsibleSplitter ``widget`` sits directly in, if any.",
+      "translation": "Den CollapsibleSplitter som ``widget`` sitter direkt i, om någon.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.splitter_of#1",
+      "source": "any widget.",
+      "source_sha256": "12554fd357279b4350cf9a1e8d6edcd6ac95e84c4d3453dd3d92f6f14513b98e",
+      "context": "any widget.",
+      "translation": "valfri widget.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.addItem#1",
+      "source": "the ``QLayoutItem`` to manage; it is placed in the trailing run after the column-aligned widgets.",
+      "source_sha256": "250f0207e83f856e72e14e43875035ad447122c3dd9646253e936651f23f0116",
+      "context": "the ``QLayoutItem`` to manage; it is placed in the trailing run after the column-aligned widgets.",
+      "translation": "den ``QLayoutItem`` som ska hanteras; den placeras i det avslutande partiet efter de kolumnjusterade widgetarna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.add_over_column#2",
+      "source": "the widget to place; it is reparented to the layout's parent widget, and ``None`` or a deleted widget is ignored.",
+      "source_sha256": "968c472da002688a5a520fc112bc5c7e5b2afad240cd09c791eee5e0c4638904",
+      "context": "the widget to place; it is reparented to the layout's parent widget, and ``None`` or a deleted widget is ignored.",
+      "translation": "widgeten som ska placeras; den får layoutens förälderwidget som förälder, och ``None`` eller en borttagen widget ignoreras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.add_over_column#3",
+      "source": "the table's logical column index to centre the widget over, or ``None`` to put it in the trailing run. An index past the header's end or a hidden column also trails.",
+      "source_sha256": "fc4f007627f1414e671053909a1b1e5f11abdf1c2fbe02c1049366b0643e5130",
+      "context": "the table's logical column index to centre the widget over, or ``None`` to put it in the trailing run. An index past the header's end or a hidden column also trails.",
+      "translation": "tabellens logiska kolumnindex som widgeten ska centreras över, eller ``None`` för att placera den i det avslutande partiet. Ett index bortom rubrikens slut eller en dold kolumn hamnar också sist.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.eventFilter#1",
+      "source": "the object the event is for (the table header's viewport); not read.",
+      "source_sha256": "ca9dc4527101c3480bd4a44eca4700e4610b695de6e5410346a9ca9195594c8b",
+      "context": "the object the event is for (the table header's viewport); not read.",
+      "translation": "objektet som händelsen gäller (tabellrubrikens viewport); läses inte.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.eventFilter#2",
+      "source": "the event; a resize, move or show re-lays the row out. It is never consumed.",
+      "source_sha256": "1c4b5e61ab386c41d8a560bd226fa2c1e183d125f6f82519be03173f5fcaedb9",
+      "context": "the event; a resize, move or show re-lays the row out. It is never consumed.",
+      "translation": "händelsen; en storleksändring, flytt eller visning lägger ut raden igen. Den konsumeras aldrig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.setGeometry#1",
+      "source": "the rectangle the layout is given, in the parent widget's coordinates; widgets are vertically centred in it.",
+      "source_sha256": "0d8ba637e03ccd8e1f6770ed598a8e63d327fa4872fa72e628a440132ad7471a",
+      "context": "the rectangle the layout is given, in the parent widget's coordinates; widgets are vertically centred in it.",
+      "translation": "rektangeln som layouten får, i förälderwidgetens koordinater; widgetarna centreras vertikalt i den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.ColumnPickerButton.set_dialog_runner#2",
+      "source": "callable that takes the :class:`ColumnPickerDialog`, presents it and returns its result code (``QDialog.Accepted`` or ``QDialog.Rejected``).",
+      "source_sha256": "cf8ca803564b398b3e760b7946b61aaabdadde645c41f75260328de222263cc3",
+      "context": "callable that takes the :class:`ColumnPickerDialog`, presents it and returns its result code (``QDialog.Accepted`` or ``QDialog.Rejected``).",
+      "translation": "anropsbart objekt som tar :class:`ColumnPickerDialog`, visar den och returnerar dess resultatkod (``QDialog.Accepted`` eller ``QDialog.Rejected``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.ColumnPickerDialog.done#2",
+      "source": "the dialog result code, passed unchanged to ``QDialog.done``.",
+      "source_sha256": "67397c1b0dc83891f9e26e127924cbc4af4259bfdb68c52dd3f1534a6cc2b7bd",
+      "context": "the dialog result code, passed unchanged to ``QDialog.done``.",
+      "translation": "dialogens resultatkod, som skickas oförändrad till ``QDialog.done``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.ColumnPickerDialog.select_column#1",
+      "source": "column name, converted with ``str()`` and matched exactly against the first column of the list.",
+      "source_sha256": "fd49a8d47304a3ea0074cc3efbd6140afe5f670453f80c598bd1e432b15b1a54",
+      "context": "column name, converted with ``str()`` and matched exactly against the first column of the list.",
+      "translation": "kolumnnamn, konverterat med ``str()`` och matchat exakt mot listans första kolumn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.ColumnPickerDialog.select_columns#1",
+      "source": "column names to select, converted with ``str()`` and matched exactly; the previous selection is cleared first.",
+      "source_sha256": "2d2e5c41b84e99bb6abff2e4b5bf83742a96c7072ed5f56f0e7519428856a315",
+      "context": "column names to select, converted with ``str()`` and matched exactly; the previous selection is cleared first.",
+      "translation": "kolumnnamn att välja, konverterade med ``str()`` och matchade exakt; det tidigare urvalet rensas först.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.ColumnPickerDialog.select_table#1",
+      "source": "table name, converted with ``str()`` and matched exactly against the table list.",
+      "source_sha256": "43c6df93859d04042046580b9fecb747952245a9cfed3e69e64d73757312ae19",
+      "context": "table name, converted with ``str()`` and matched exactly against the table list.",
+      "translation": "tabellnamn, konverterat med ``str()`` och matchat exakt mot tabellistan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.ColumnPickerDialog.set_name#1",
+      "source": "text for the name box, converted with ``str()``.",
+      "source_sha256": "0bc6444bddbf0937cddbdb8e5d44282c4ecfdc923d318f8750850cb3b234f18d",
+      "context": "text for the name box, converted with ``str()``.",
+      "translation": "text för namnrutan, konverterad med ``str()``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.column_info#2",
+      "source": "name of the table or view; it is quoted as an identifier.",
+      "source_sha256": "c8a34685ab267be39e86d88a666676052c735d14925a9587ac31b2f6435d1cf5",
+      "context": "name of the table or view; it is quoted as an identifier.",
+      "translation": "namnet på tabellen eller vyn; det citeras som en identifierare.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.count_non_null#2",
+      "source": "name of the table or view to scan; quoted as an identifier.",
+      "source_sha256": "de97c79ea1471dd11f15e30497561f423effedac673366be4683999161684882",
+      "context": "name of the table or view to scan; quoted as an identifier.",
+      "translation": "namnet på tabellen eller vyn som ska genomsökas; citeras som en identifierare.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.SchemaReader.count_non_null#3",
+      "source": "name of the column whose non-NULL values are counted; quoted as an identifier.",
+      "source_sha256": "3fb72fa18c9d978ce03f7aca8e50419ca19c22d7fffc458aa6f439c01209ebac",
+      "context": "name of the column whose non-NULL values are counted; quoted as an identifier.",
+      "translation": "namnet på kolumnen vars värden som inte är NULL räknas; citeras som en identifierare.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.chip_editor#2",
+      "source": "the widget to test, or None; line edits and combo boxes always yield None.",
+      "source_sha256": "5af838e7c65fac82c2c1be2942bd587ab6e4af306ce4dae3e4e348355ab2fe43",
+      "context": "the widget to test, or None; line edits and combo boxes always yield None.",
+      "translation": "widgeten som ska testas, eller None; textfält och kombinationsrutor ger alltid None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.field_is_list#1",
+      "source": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None.",
+      "source_sha256": "7ec07cc94c07f9a0ee9ec84ab50c42f9a50687c2ad6b8f568f7d53e6c407850d",
+      "context": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None.",
+      "translation": "inställningsfältet: en ``QLineEdit``, en ``QComboBox``, en listredigerare med chipsremsa eller None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.field_text#1",
+      "source": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. Any other widget reads as an empty string.",
+      "source_sha256": "48d854e9d870b013718f4c73c72d8e62378eea6daa1bb261405c4b258fff2854",
+      "context": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. Any other widget reads as an empty string.",
+      "translation": "inställningsfältet: en ``QLineEdit``, en ``QComboBox``, en listredigerare med chipsremsa eller None. Alla andra widgetar läses som en tom sträng.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.field_values#1",
+      "source": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. Text is split on commas, and a bracketed ``[...]`` list has its quotes stripped.",
+      "source_sha256": "8ac485df0c284872e80bdf2a6fb47f9ba5b5f85d361d39ff372af1abbc90c3e6",
+      "context": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. Text is split on commas, and a bracketed ``[...]`` list has its quotes stripped.",
+      "translation": "inställningsfältet: en ``QLineEdit``, en ``QComboBox``, en listredigerare med chipsremsa eller None. Texten delas vid kommatecken, och en lista inom hakparenteser ``[...]`` får sina citattecken borttagna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.read_table#2",
+      "source": "open schema reader for the database; None returns the empty payload.",
+      "source_sha256": "f30ee8fb0fe1d4ec70f9765fd84b970be38c5117267eced0dcd13a9a265f1eec",
+      "context": "open schema reader for the database; None returns the empty payload.",
+      "translation": "öppen schemaläsare för databasen; None returnerar den tomma nyttolasten.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.read_table#3",
+      "source": "table name to read; None or an empty name returns the empty payload.",
+      "source_sha256": "3e8fd3475ffc9c0aecb53b95c15b998c4d56b5fd17e696704dd3e6dbfcb3846e",
+      "context": "table name to read; None or an empty name returns the empty payload.",
+      "translation": "tabellnamn att läsa; None eller ett tomt namn returnerar den tomma nyttolasten.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.set_field_values#2",
+      "source": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. None returns False.",
+      "source_sha256": "a5b6c7271c5ac39cd8dd940c1967b6034a8c613fc1a6de2b51b216698296661a",
+      "context": "the settings field: a ``QLineEdit``, a ``QComboBox``, a chip-strip list editor, or None. None returns False.",
+      "translation": "inställningsfältet: en ``QLineEdit``, en ``QComboBox``, en listredigerare med chipsremsa eller None. None returnerar False.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker.set_field_values#3",
+      "source": "column names to write; blank entries are dropped, and an empty result returns False.",
+      "source_sha256": "1e186fb1148daaff3b3412d6b4d156f39b12c3eaf0c62f8404411718d2fe6a48",
+      "context": "column names to write; blank entries are dropped, and an empty result returns False.",
+      "translation": "kolumnnamn att skriva; tomma poster tas bort, och ett tomt resultat returnerar False.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel#7",
+      "source": "False keeps the application-wide log out of this panel, for a screen whose console carries only its own messages (Make Masks); the log still reaches the file and the shell's console.",
+      "source_sha256": "9a07c78d2b4919423993e32be9930846b70dea4c0a8d7a453a889883ea3b7c94",
+      "context": "False keeps the application-wide log out of this panel, for a screen whose console carries only its own messages (Make Masks); the log still reaches the file and the shell's console.",
+      "translation": "False håller programmets hela logg utanför den här panelen, för en programvy vars konsol bara bär sina egna meddelanden (Make Masks); loggen når fortfarande filen och skalets konsol.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel#8",
+      "source": "False hides the chat row, for a console that only reports.",
+      "source_sha256": "eb3f137af0fa6ffa5fb1b7ca46f09792871d5df76d2ade577a4b234cfc188808",
+      "context": "False hides the chat row, for a console that only reports.",
+      "translation": "False döljer chattraden, för en konsol som bara rapporterar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.ai_explanation_of#3",
+      "source": "the traceback the report is about; compared, whitespace-stripped, with the traceback the AI last explained.",
+      "source_sha256": "1916576e3c0d70139a0098bd65f2ae23a7ede9cd2ebd302c7e502b8d35368373",
+      "context": "the traceback the report is about; compared, whitespace-stripped, with the traceback the AI last explained.",
+      "translation": "den traceback som rapporten gäller; jämförs, med blanktecken borttagna, med den traceback som AI:n senast förklarade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.append_notice#2",
+      "source": "the notice's untranslated English template; empty does nothing. It is translated on the GUI thread and filled with the keyword values.",
+      "source_sha256": "b2b8055c8bd7dd1077758c65abaf4ee47b3c9046fc1325d73780bf30da0550bc",
+      "context": "the notice's untranslated English template; empty does nothing. It is translated on the main GUI execution path and filled with the keyword values.",
+      "translation": "meddelandets oöversatta engelska mall; tom gör ingenting. Den översätts i GUI-tråden och fylls med nyckelordsvärdena.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.append_stdout#3",
+      "source": "the pipeline output to append; empty does nothing.",
+      "source_sha256": "20c246a9f70d6e7621774d47c2199c72418d8aa0deead51359edd3ee09d62b75",
+      "context": "the workflow output to append; empty does nothing.",
+      "translation": "pipelineutdata som ska läggas till; tomt gör ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic#5",
+      "source": "the heading text.",
+      "source_sha256": "29c428dd52fb74b1a8ec928af31b2968c0fe638c84ea9b946df444b16b4fb3d0",
+      "context": "the heading text.",
+      "translation": "rubriktexten.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic#6",
+      "source": "colour for the heading, or ``None`` for the theme's.",
+      "source_sha256": "794cbc0bacf0d6e0f596256f1fc443735c53e368650ba3261afb6caa6aa10faf",
+      "context": "colour for the heading, or ``None`` for the theme's.",
+      "translation": "färg för rubriken, eller ``None`` för temats.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic#7",
+      "source": "a widget pinned to the right of the heading, such as a working indicator.",
+      "source_sha256": "372e3af4eb82ce42e3a6799b0cca10214177dbadfe94cb2d2664bfd6597002b6",
+      "context": "a widget pinned to the right of the heading, such as a working indicator.",
+      "translation": "en widget som fästs till höger om rubriken, till exempel en arbetsindikator.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_topic#8",
+      "source": "the bar that was drawn, or ``None`` when the one already showing says the same thing and was kept. The caller needs the widget to be able to take an empty heading down again -- see :meth:`_take_down_the_waiting_heading`.",
+      "source_sha256": "2d9de70df8ab9555d17b5152521a131e036d3800584b91af04afd9c5a2d42689",
+      "context": "the bar that was drawn, or ``None`` when the one already showing says the same thing and was kept. The caller needs the widget to be able to take an empty heading down again -- see :meth:`_take_down_the_waiting_heading`.",
+      "translation": "raden som ritades, eller ``None`` när den som redan visas säger samma sak och behölls. Anroparen behöver widgeten för att kunna ta ned en tom rubrik igen -- se :meth:`_take_down_the_waiting_heading`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.closeEvent#1",
+      "source": "the close event, passed to the base class after :meth:`shutdown` drains the AI thread.",
+      "source_sha256": "67783e968eb2eacf0a6f8371b54f3242fb6e963363116fa90557bfe7441cdc74",
+      "context": "the close event, passed to the base class after :meth:`shutdown` drains the AI thread.",
+      "translation": "stängningshändelsen, som skickas till basklassen efter att :meth:`shutdown` har tömt AI-tråden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.collapse_section#1",
+      "source": "the topic bar (section heading) whose section is meant.",
+      "source_sha256": "475d73f6880fbf32464ad093eba284154d891679a7b7715f392050a73a723c39",
+      "context": "the topic bar (section heading) whose section is meant.",
+      "translation": "ämnesraden (avsnittsrubriken) vars avsnitt avses.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.section_body#2",
+      "source": "the topic bar (section heading) whose section is meant. A bar not in the console gives an empty list.",
+      "source_sha256": "1d3271015059143cebae16e5063c79db26461bbe78411c6833a74e3e6bc9c4a5",
+      "context": "the topic bar (section heading) whose section is meant. A bar not in the console gives an empty list.",
+      "translation": "ämnesraden (avsnittsrubriken) vars avsnitt avses. En rad som inte finns i konsolen ger en tom lista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.section_text#1",
+      "source": "the topic bar (section heading) whose section is meant. A bar not in the console gives ``\"\"``.",
+      "source_sha256": "c33cf6e7bc272c86bbaa9d074d9720c0fbbfcb4b8e5456963888726980f08949",
+      "context": "the topic bar (section heading) whose section is meant. A bar not in the console gives ``\"\"``.",
+      "translation": "ämnesraden (avsnittsrubriken) vars avsnitt avses. En rad som inte finns i konsolen ger ``\"\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.set_active_app#1",
+      "source": "the text shown in the next automatic topic divider.",
+      "source_sha256": "0c0e01a902e5edac6fafdb92da19ef71acd631f15532c7fa65e597003807239a",
+      "context": "the text shown in the next automatic topic divider.",
+      "translation": "texten som visas i nästa automatiska ämnesavdelare.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.set_ai_active#1",
+      "source": "whether Enter in the input goes to the AI; converted to bool.",
+      "source_sha256": "79ddcd4ed317256852b9e7d8ac9cd53ce9e34a9af68f9c1fcb66ec9fa0c7d2fb",
+      "context": "whether Enter in the input goes to the AI; converted to bool.",
+      "translation": "om Enter i inmatningsfältet går till AI:n; konverteras till bool.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.set_ai_provider#1",
+      "source": "the provider's name, or None to unset it.",
+      "source_sha256": "27e2d7d8d9b36c931880ec5924be488c4a5c1592c4532a0636b5538e835e1c1c",
+      "context": "the provider's name, or None to unset it.",
+      "translation": "leverantörens namn, eller None för att avmarkera den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.set_console_font_pt#1",
+      "source": "the font size in points, converted to int.",
+      "source_sha256": "623c0c2c5003b08dbf6dd34065e02653c70701ba0af4060b5c7d96e43001f49a",
+      "context": "the font size in points, converted to int.",
+      "translation": "teckenstorleken i punkter, konverterad till int.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ai_color_for_provider#1",
+      "source": "the provider's name, matched case-insensitively by substring (``claude``, ``gpt``, ``gemini`` and the like); None or unknown gives the default colour.",
+      "source_sha256": "b716e79449061792294472ae621bef12eee94a86b3a4e2f69dc5ac392cf85a6b",
+      "context": "the provider's name, matched case-insensitively by substring (``claude``, ``gpt``, ``gemini`` and the like); None or unknown gives the default colour.",
+      "translation": "leverantörens namn, matchat skiftlägesokänsligt som delsträng (``claude``, ``gpt``, ``gemini`` och liknande); None eller okänt ger standardfärgen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.set_split_state#2",
+      "source": "the screen the state belongs to; stripped, and a blank key stores nothing.",
+      "source_sha256": "f9620829117cc07447a5ddf480d26a7149d5d864e31f987e2598c14d4fd5c31b",
+      "context": "the screen the state belongs to; stripped, and a blank key stores nothing.",
+      "translation": "programvyn som tillståndet hör till; trimmas, och en tom nyckel lagrar ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.set_split_state#3",
+      "source": "the ``QSplitter.saveState()`` bytes, stored as a ``QByteArray``.",
+      "source_sha256": "a1715fbf2b70f882a474dd00a8883cf0f78013a33c303d1b0f873fcb7b9bc591",
+      "context": "the ``QSplitter.saveState()`` bytes, stored as a ``QByteArray``.",
+      "translation": "byten från ``QSplitter.saveState()``, lagrade som en ``QByteArray``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartResult#18",
+      "source": "the column the plotted value was read from.",
+      "source_sha256": "9fafb0b74e4cc5850a23b369c0911ed610cbd70afc776d283bf0b8f0dffb8964",
+      "context": "the column the plotted value was read from.",
+      "translation": "kolumnen som det plottade värdet lästes från.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartResult#19",
+      "source": "the column that identifies each plate.",
+      "source_sha256": "b9c156001e0b2959509b8e512cac2ac05071760f69494d619a01bd128fd8902a",
+      "context": "the column that identifies each laboratory microplate.",
+      "translation": "kolumnen som identifierar varje platta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartResult.rules_at#2",
+      "source": "the point's position in run order; outside ``0 .. len(self) - 1`` raises :class:`ControlChartError`.",
+      "source_sha256": "c692e91752eeed5dc6141c787b6ff30f11a711abe34236c18c28d029a2e05ee7",
+      "context": "the point's position in run order; outside ``0 .. len(self) - 1`` raises :class:`ControlChartError`.",
+      "translation": "punktens position i körningsordning; utanför ``0 .. len(self) - 1`` genereras :class:`ControlChartError`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.from_dict#2",
+      "source": "a mapping as written by :meth:`to_dict`; unknown keys are ignored and missing ones take their defaults.",
+      "source_sha256": "ea08490d03762ab1ae5d9942437eb672365dc2687b00e686eecacb8016496ec8",
+      "context": "a mapping as written by :meth:`to_dict`; unknown structured-data names are ignored and missing ones take their defaults.",
+      "translation": "en mappning så som den skrivs av :meth:`to_dict`; okända nycklar ignoreras och saknade får sina standardvärden.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.from_json#1",
+      "source": "a JSON string as written by :meth:`to_json`.",
+      "source_sha256": "084d1cf9d3f485c16271c143ed28f21e2325b0290f61424b5751d8a11d6afee3",
+      "context": "a JSON string as written by :meth:`to_json`.",
+      "translation": "en JSON-sträng så som den skrivs av :meth:`to_json`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.with_control#1",
+      "source": "the column holding the control labels, or None.",
+      "source_sha256": "d8af9f3f22a173d51278f75f181c8b1145696bdc28722a0f3694ad9b4a6b7be2",
+      "context": "the column holding the control labels, or None.",
+      "translation": "kolumnen som innehåller kontrolletiketterna, eller None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.with_control#2",
+      "source": "the labels in that column that mark control wells.",
+      "source_sha256": "495478527e25fa832383d82a62e8dfed7449b3ad269c0bdc514aec0f12ce05e0",
+      "context": "the labels in that column that mark control microplate sample positions.",
+      "translation": "etiketterna i den kolumnen som markerar kontrollbrunnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.with_estimator#1",
+      "source": "the sigma estimator name, e.g. ``'auto'``, ``'moving_range'``, ``'subgroup_s'``, ``'robust'`` or ``'mad'``; stored without checking.",
+      "source_sha256": "219e3b713df754b4085d9902c8de4923cd3fb148bd081ce79b6fbca69fe6215a",
+      "context": "the sigma estimator name, e.g. ``'auto'``, ``'moving_range'``, ``'subgroup_s'``, ``'robust'`` or ``'mad'``; stored without checking.",
+      "translation": "namnet på sigma-estimatorn, t.ex. ``'auto'``, ``'moving_range'``, ``'subgroup_s'``, ``'robust'`` eller ``'mad'``; lagras utan kontroll.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.with_rules#1",
+      "source": "the rule numbers (1 to 8) to run.",
+      "source_sha256": "3be3fe301e41e510e525b8d8b2ed450ab440b63948aa1dc754fc2d22e771115a",
+      "context": "the rule numbers (1 to 8) to run.",
+      "translation": "regelnumren (1 till 8) som ska köras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.c4#3",
+      "source": "the subgroup size, converted to int; must be at least 2.",
+      "source_sha256": "55d917f375dfcbd3f9765171bb7a9dd965288c84889c14ca5cdaa001a7bb1680",
+      "context": "the subgroup size, converted to int; must be at least 2.",
+      "translation": "delgruppens storlek, konverterad till int; måste vara minst 2.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.candidate_key_columns#2",
+      "source": "the per-well table whose columns are classified by :func:`spacr.qt.widgets.graph_spec.column_kinds`. Columns named like a plate, date, time, batch, run or order are added.",
+      "source_sha256": "9e9a4e5add7cdc580d57a171c65a52c6306a50cb04a2622f0ddf3f2570902d20",
+      "context": "the per-microplate sample position table whose columns are classified by :func:`spacr.qt.widgets.graph_spec.column_kinds`. Columns named like a laboratory microplate, date, time, batch, run or order are added.",
+      "translation": "tabellen per brunn vars kolumner klassificeras av :func:`spacr.qt.widgets.graph_spec.column_kinds`. Kolumner med namn som liknar platta, datum, tid, batch, körning eller ordning läggs till.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.candidate_value_columns#2",
+      "source": "the per-well table whose columns are classified by :func:`spacr.qt.widgets.graph_spec.column_kinds`.",
+      "source_sha256": "a9660ca9ee27458948174d23f4165f8e73ee8d7d2439e893c6e2dffec9594d6e",
+      "context": "the per-microplate sample position table whose columns are classified by :func:`spacr.qt.widgets.graph_spec.column_kinds`.",
+      "translation": "tabellen per brunn vars kolumner klassificeras av :func:`spacr.qt.widgets.graph_spec.column_kinds`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.control_chart#2",
+      "source": "the per-well table holding the spec's value, plate, order and control columns.",
+      "source_sha256": "ea4061a4bd867e5a63af887ead3007f05c63c3c5623b0adb89980fb04e6b9777",
+      "context": "the per-microplate sample position table holding the spec's value, laboratory microplate, order and control columns.",
+      "translation": "tabellen per brunn som innehåller specifikationens kolumner för värde, platta, ordning och kontroll.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.sd_reference_limits#3",
+      "source": "the plotted values; non-finite ones are ignored.",
+      "source_sha256": "1540d0b0a4242c11ee6c8a5b13e8caf531cf6db92111bcd63ed139b7d3108bd8",
+      "context": "the plotted values; non-finite ones are ignored.",
+      "translation": "de plottade värdena; icke-ändliga värden ignoreras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.zprime_chart#3",
+      "source": "the chart settings; must name ``control_column``, ``positive_levels`` and ``negative_levels``. Its estimator, rules and baseline are reused for the Z' chart.",
+      "source_sha256": "aa962e486e90f79916a12289e23b6a512c3974e3f92ddff1d443efab6ad666be",
+      "context": "the chart settings; must name ``control_column``, ``positive_levels`` and ``negative_levels``. Its estimator, rules and baseline are reused for the Z' chart.",
+      "translation": "diagraminställningarna; måste namnge ``control_column``, ``positive_levels`` och ``negative_levels``. Dess estimator, regler och baslinje återanvänds för Z'-diagrammet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.zprime_frame#4",
+      "source": "the chart settings; must name ``control_column``, ``positive_levels`` and ``negative_levels``.",
+      "source_sha256": "ec93402025e1aaf76f098c6e39ebb85d97561048a8eda0310d95515dca8b5006",
+      "context": "the chart settings; must name ``control_column``, ``positive_levels`` and ``negative_levels``.",
+      "translation": "diagraminställningarna; måste namnge ``control_column``, ``positive_levels`` och ``negative_levels``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_policy#0",
+      "source": "Keep the operating system's standard arrow in every interactive context.",
+      "source_sha256": "36217cba2ba61ea5547b039c15793c731df122e32b2d8d8355939ffe9da0d51b",
+      "context": "Keep the operating system's standard arrow in every interactive context.",
+      "translation": "Behåll operativsystemets standardpil i varje interaktivt sammanhang.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_policy.arrow_cursor#0",
+      "source": "Return the native OS arrow without customizing its artwork or size.",
+      "source_sha256": "5928089557210a4063e926f7f97911f4f629cc81368e09f59a0bed150973967f",
+      "context": "Return the native OS arrow without customizing its artwork or size.",
+      "translation": "Returnera operativsystemets inbyggda pil utan att anpassa dess grafik eller storlek.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_policy.arrow_cursor#1",
+      "source": "retained for compatibility; both states use the OS arrow.",
+      "source_sha256": "2c13e971c6e99905248fcce2217fab9685239a953e9bb86b2c3654a53e7655b5",
+      "context": "retained for compatibility; both states use the OS arrow.",
+      "translation": "behålls för kompatibilitet; båda tillstånden använder operativsystemets pil.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_policy.arrow_cursor#2",
+      "source": "a native arrow that follows the user's OS pointer preferences.",
+      "source_sha256": "05b2e06dfa261ed152f3932cf94aa67d0fd9f5a1960f3b3b11918c6f1177aa5e",
+      "context": "a native arrow that follows the user's OS pointer preferences.",
+      "translation": "en inbyggd pil som följer användarens pekarinställningar i operativsystemet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_policy.install_cursor_policy#0",
+      "source": "Install the native-arrow policy once; leave all gestures unchanged.",
+      "source_sha256": "1f07b257cc3a636d3c957a9ae00dfc080ade5220a06b8c67c6d0eeb0a0e3de7f",
+      "context": "Install the native-arrow policy once; leave all gestures unchanged.",
+      "translation": "Installera policyn med inbyggd pil en gång; lämna alla gester oförändrade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_zoom#0",
+      "source": "Explicit cursor anchoring for image views, independent of Qt mouse history.",
+      "source_sha256": "6c9db86f86bc9a792bde7584a106c1eb6cf84159820854960355d9b38f722612",
+      "context": "Explicit cursor anchoring for image views, independent of Qt mouse history.",
+      "translation": "Uttrycklig markörförankring för bildvyer, oberoende av Qt:s mushistorik.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_zoom.zoom_at_pointer#0",
+      "source": "Scale an image while retaining the scene point beneath a viewport point.",
+      "source_sha256": "063a78271965666fbbcf2665cfd1fb652798449e3211d724e61a5884379df127",
+      "context": "Scale an image while retaining the scene point beneath a viewport point.",
+      "translation": "Skala en bild och behåll scenpunkten under en viewportpunkt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_zoom.zoom_at_pointer#1",
+      "source": "QGraphicsView whose owner suppresses peer updates while zooming.",
+      "source_sha256": "d02c4c35ed10fd417e0f7256a7fc68acefa30eda0bdffc36afe145eef19235ac",
+      "context": "QGraphicsView whose owner suppresses peer updates while zooming.",
+      "translation": "QGraphicsView vars ägare undertrycker uppdateringar till likställda under zoomning.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_zoom.zoom_at_pointer#2",
+      "source": "positive, finite magnification multiplier.",
+      "source_sha256": "85888e8f587c7fae605e3e486a45d874fef715ce6b06c951ff019ba4df657a39",
+      "context": "positive, finite magnification multiplier.",
+      "translation": "positiv, ändlig förstoringsmultiplikator.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_zoom.zoom_at_pointer#3",
+      "source": "viewport coordinates; None uses its center for buttons.",
+      "source_sha256": "f677d10008a54d40e8349c9adc6bcc9eac0045523f3d531e36f23685ccde7f06",
+      "context": "viewport coordinates; None uses its center for buttons.",
+      "translation": "viewportkoordinater; None använder dess centrum för knappar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.cursor_zoom.zoom_at_pointer#4",
+      "source": "whether a zoom was applied. Extra scene margins allow anchoring even when the image is smaller than the viewport. The scene itself remains unchanged so fit-to-image still uses the actual image bounds.",
+      "source_sha256": "cffca4a1ec2a46b08ae8deec405b02f102de90fbf7f2aac03fd13a1d180d6e00",
+      "context": "whether a zoom was applied. Extra scene margins allow anchoring even when the image is smaller than the viewport. The scene itself remains unchanged so fit-to-image still uses the actual image bounds.",
+      "translation": "om en zoom tillämpades. Extra scenmarginaler gör förankring möjlig även när bilden är mindre än viewporten. Själva scenen förblir oförändrad så att anpassa-till-bild fortfarande använder bildens verkliga gränser.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.data_filter_panel.DataFilterPanel.add_column#1",
+      "source": "column of the current frame; a range row is added for a ``\"range\"`` column and a category row for a ``\"category\"`` one. Anything else, or no frame yet, adds nothing.",
+      "source_sha256": "a21bcd4f666f8582c04810c2f5c03639f5896a8b16f3ec290a118db214d3b020",
+      "context": "column of the current frame; a range row is added for a ``\"range\"`` column and a category row for a ``\"category\"`` one. Anything else, or no frame yet, adds nothing.",
+      "translation": "kolumn i den aktuella ramen; en intervallrad läggs till för en ``\"range\"``-kolumn och en kategorirad för en ``\"category\"``-kolumn. Allt annat, eller ingen ram ännu, lägger inte till något.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.data_filter_panel.DataFilterPanel.load#1",
+      "source": "JSON file written by :meth:`save`; its contents are applied with :meth:`restore`.",
+      "source_sha256": "dd91ca2e2bd49acea7eadb2615f678e28abcd1bd04d884f5b063696161dd2bab",
+      "context": "JSON file written by :meth:`save`; its contents are applied with :meth:`restore`.",
+      "translation": "JSON-fil som skrivits av :meth:`save`; dess innehåll tillämpas med :meth:`restore`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.data_filter_panel.DataFilterPanel.restore#1",
+      "source": "dict as :meth:`state` returns it, ``{\"version\": 1, \"filters\": [...]}``; any other version raises ``ValueError``. Existing clauses are cleared first.",
+      "source_sha256": "b3790c5c8be529931764ebe5c537d7a25cc7cb6c2f76da0c76926228da2ff9af",
+      "context": "key-value mapping as :meth:`state` returns it, ``{\"version\": 1, \"filters\": [...]}``; any other version raises ``ValueError``. Existing clauses are cleared first.",
+      "translation": "dict så som :meth:`state` returnerar den, ``{\"version\": 1, \"filters\": [...]}``; alla andra versioner genererar ``ValueError``. Befintliga satser rensas först.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.data_filter_panel.DataFilterPanel.save#1",
+      "source": "destination file, overwritten with :meth:`state`; it is also the return value.",
+      "source_sha256": "5ee2a579d7aec3b7bef2a66cc8792479dfdb62fb45d24d9d8d38f8e91c1e41f0",
+      "context": "destination file, overwritten with :meth:`state`; it is also the return value.",
+      "translation": "målfil, som skrivs över med :meth:`state`; den är också returvärdet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.data_filter_panel.DataFilterPanel.set_frame#2",
+      "source": "the table to filter; every column that :func:`classify_columns` does not mark ``\"skip\"`` is offered.",
+      "source_sha256": "8e69c351817edb03917aabaec279df6762ab699574026d4baccd38924af426f6",
+      "context": "the table to filter; every column that :func:`classify_columns` does not mark ``\"skip\"`` is offered.",
+      "translation": "tabellen som ska filtreras; varje kolumn som :func:`classify_columns` inte markerar ``\"skip\"`` erbjuds.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.add_sources#1",
+      "source": "source folders or database paths to append; each is converted with ``str()`` and stripped, and blanks and duplicates are skipped. None adds nothing.",
+      "source_sha256": "0b12edf94d94f399ba3d1c733b5be831041252c10f5d9ab4778f9d516e47d1cd",
+      "context": "source folders or database paths to append; each is converted with ``str()`` and stripped, and blanks and duplicates are skipped. None adds nothing.",
+      "translation": "källmappar eller databassökvägar att lägga till; var och en konverteras med ``str()`` och trimmas, och tomma värden och dubbletter hoppas över. None lägger inte till något.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state#4",
+      "source": "dict saved by :meth:`workspace_state`; only its ``sources`` list is read, and anything that is not a dict, or has no sources, returns False.",
+      "source_sha256": "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df",
+      "context": "key-value mapping saved by :meth:`workspace_state`; only its ``sources`` list is read, and anything that is not a key-value mapping, or has no sources, returns False.",
+      "translation": "dict som sparats av :meth:`workspace_state`; bara dess ``sources``-lista läses, och allt som inte är en dict, eller saknar källor, returnerar False.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.remove_source#2",
+      "source": "the source's path or its chip label; nothing is removed when it matches neither or the set is already at its minimum size.",
+      "source_sha256": "be88273d6bfdcfa731b474659ee8244e5058458b9da59c8b982acee80ed2249a",
+      "context": "the source's path or its chip label; nothing is removed when it matches neither or the set is already at its minimum size.",
+      "translation": "källans sökväg eller dess chipetikett; ingenting tas bort när den inte matchar någon av dem eller uppsättningen redan har sin minsta storlek.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.set_value#1",
+      "source": "a list of source paths, a single path string, or None; paths are stripped and de-duplicated, and settings placeholders such as ``path`` are dropped.",
+      "source_sha256": "1b8eb2fad1b8d744639019755c817fb4e3f38f2f8a6fb2071a736ae5930571b5",
+      "context": "a list of source paths, a single path string, or None; paths are stripped and de-duplicated, and settings placeholders such as ``path`` are dropped.",
+      "translation": "en lista med källsökvägar, en enda sökvägssträng eller None; sökvägarna trimmas och dedupliceras, och platshållare från inställningar som ``path`` tas bort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.database_set.database_for_source#2",
+      "source": "``'database'`` or ``'folder'``.",
+      "source_sha256": "ca2c006bca4504f14dcf247eee27683d75fd1216ed2c20ceb33cd0f694b631ef",
+      "context": "``'database'`` or ``'folder'``.",
+      "translation": "``'database'`` eller ``'folder'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainEngine.column_text#1",
+      "source": "position of the column in :attr:`columns`.",
+      "source_sha256": "84fa46aacdb9103f07cc751cbd7f3b65277071fd23faf376cc1835d0ba805afa",
+      "context": "position of the column in :attr:`columns`.",
+      "translation": "kolumnens position i :attr:`columns`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainEngine.resize#1",
+      "source": "new canvas width in pixels; negative values become 0.",
+      "source_sha256": "079fe763aa7ab56ccb964262f6de1d2d600f7f30244c4e9cd0927b966207cdf2",
+      "context": "new canvas width in pixels; negative values become 0.",
+      "translation": "ny dukbredd i pixlar; negativa värden blir 0.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainEngine.resize#2",
+      "source": "new canvas height in pixels; negative values become 0.",
+      "source_sha256": "7791accd9b5cc058d771a8019e57513bdc33532dcc43382b104333352df4c43f",
+      "context": "new canvas height in pixels; negative values become 0.",
+      "translation": "ny dukhöjd i pixlar; negativa värden blir 0.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainEngine.set_font_size#1",
+      "source": "glyph size in pixels, clamped to :data:`MIN_FONT_PX` .. :data:`MAX_FONT_PX`; a change re-lays-out the columns.",
+      "source_sha256": "086c4518b77832a887cf22b939e5768eef2d904fa8f2a0a53b087ac26157b251",
+      "context": "glyph size in pixels, clamped to :data:`MIN_FONT_PX` .. :data:`MAX_FONT_PX`; a change re-lays-out the columns.",
+      "translation": "glyfstorlek i pixlar, begränsad till :data:`MIN_FONT_PX` .. :data:`MAX_FONT_PX`; en ändring lägger ut kolumnerna igen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainEngine.set_speed_multiplier#1",
+      "source": "multiplier applied to every column's speed; negative values become 0.",
+      "source_sha256": "d2bee886ec42297da7c9ee1c5c072b95f066679b8cc60d5c53f6585c5baa5bd6",
+      "context": "multiplier applied to every column's speed; negative values become 0.",
+      "translation": "multiplikator som tillämpas på varje kolumns hastighet; negativa värden blir 0.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainSettingsBar.bind#1",
+      "source": "the rain widget to drive; the bar's controls are seeded from its current colour, speed, font size, opacity and colour mode, and the bar's signals are connected to its setters.",
+      "source_sha256": "ff3bd023bfec9b4bfc567cc9f4cf7d645e82a577b76af554cb44f2f3781b19c5",
+      "context": "the rain widget to drive; the bar's controls are seeded from its current colour, speed, font size, opacity and colour mode, and the bar's signals are connected to its setters.",
+      "translation": "regnwidgeten som ska drivas; radens reglage får startvärden från dess aktuella färg, hastighet, teckenstorlek, opacitet och färgläge, och radens signaler kopplas till dess setters.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainSettingsBar.set_color#1",
+      "source": "a :class:`QColor` or colour name; an invalid colour keeps the current one.",
+      "source_sha256": "d860da2680dadce14c61a304331528a589c246fd41fda82c660a240beed7c04c",
+      "context": "a :class:`QColor` or colour name; an invalid colour keeps the current one.",
+      "translation": "en :class:`QColor` eller ett färgnamn; en ogiltig färg behåller den aktuella.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainSettingsBar.set_random_color#1",
+      "source": "whether the per-column colour check box is ticked.",
+      "source_sha256": "539fffaf93f8a2fa97c887829b1e0dbe2bf978c7192ed509234f38a9dec79832",
+      "context": "whether the per-column colour check box is ticked.",
+      "translation": "om kryssrutan för färg per kolumn är markerad.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.apply_theme#2",
+      "source": "theme name passed to :func:`spacr.qt.theme.palette_for`; its ``bg`` and ``accent`` colours become the background and trail colours.",
+      "source_sha256": "c51753c6f14d01faa6dfdd81da9df84c71084ab934459b5d68896d086c18c99f",
+      "context": "theme name passed to :func:`spacr.qt.theme.palette_for`; its ``bg`` and ``accent`` colours become the background and trail colours.",
+      "translation": "temanamn som skickas till :func:`spacr.qt.theme.palette_for`; dess färger ``bg`` och ``accent`` blir bakgrunds- och spårfärgerna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.column_color#2",
+      "source": "position of the column in the engine's column list.",
+      "source_sha256": "51c61aa451837a0e7408ae35b361ffd8759431dec059f3b0573f0db1edec4228",
+      "context": "position of the column in the engine's column list.",
+      "translation": "kolumnens position i motorns kolumnlista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.eventFilter#1",
+      "source": "the watched object: the parent widget or the top-level window.",
+      "source_sha256": "28cb0d0361f968a16b17579021196869a03ec10e74f5d345d16340ca084b2a9e",
+      "context": "the watched object: the parent widget or the top-level window.",
+      "translation": "det bevakade objektet: förälderwidgeten eller toppnivåfönstret.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.eventFilter#2",
+      "source": "the event delivered to it. A parent resize resizes the rain to cover it; a window state change, hide or show of the window pauses or resumes the animation. Every event is then passed to the base class.",
+      "source_sha256": "066a87ea2bfe3985d48c193dbbdd11d5b4d898c563f863e2d37d09bedf7f2e9e",
+      "context": "the event delivered to it. A parent resize resizes the rain to cover it; a window state change, hide or show of the window pauses or resumes the animation. Every event is then passed to the base class.",
+      "translation": "händelsen som levereras till det. En storleksändring av föräldern storleksändrar regnet så att det täcker den; en ändring av fönstertillstånd, döljning eller visning av fönstret pausar eller återupptar animationen. Varje händelse skickas sedan till basklassen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.focusInEvent#1",
+      "source": "the focus event; it is ignored and focus is cleared again.",
+      "source_sha256": "572230a1b4d19eb3c64487693e7634eaf4fa2e6e1a82a495e8e5db4f5fdd41fb",
+      "context": "the focus event; it is ignored and focus is cleared again.",
+      "translation": "fokushändelsen; den ignoreras och fokus rensas igen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.set_background_color#2",
+      "source": "a :class:`QColor` or colour name; an invalid colour keeps the current one, and alpha is forced to 255.",
+      "source_sha256": "8613c46a1e6c4888fb594d0b361eef569b153f43f7904d8b731f5dc08e39e86c",
+      "context": "a :class:`QColor` or colour name; an invalid colour keeps the current one, and alpha is forced to 255.",
+      "translation": "en :class:`QColor` eller ett färgnamn; en ogiltig färg behåller den aktuella, och alfa tvingas till 255.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.set_font_size#1",
+      "source": "glyph size in pixels, clamped to :data:`MIN_FONT_PX` .. :data:`MAX_FONT_PX`.",
+      "source_sha256": "cf1256c0bd4c04a834ce4c41a26856eb6712061e0ea0bf2372c893ac16bf4f87",
+      "context": "glyph size in pixels, clamped to :data:`MIN_FONT_PX` .. :data:`MAX_FONT_PX`.",
+      "translation": "glyfstorlek i pixlar, begränsad till :data:`MIN_FONT_PX` .. :data:`MAX_FONT_PX`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.set_fps#1",
+      "source": "frames per second, clamped to :data:`MIN_FPS` .. :data:`MAX_FPS`; the animation timer interval is set from it.",
+      "source_sha256": "4eff06493759f24a61d45d684dc6e306fb11cc31384147f953def299eb9441d6",
+      "context": "frames per second, clamped to :data:`MIN_FPS` .. :data:`MAX_FPS`; the animation timer interval is set from it.",
+      "translation": "bildrutor per sekund, begränsade till :data:`MIN_FPS` .. :data:`MAX_FPS`; animationstimerns intervall sätts utifrån det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.set_opacity#1",
+      "source": "glyph opacity, clamped to 0..1.",
+      "source_sha256": "4aab72437088ff99559445736afa7119a86a5a10af573fe78120242af5eca7fc",
+      "context": "glyph opacity, clamped to 0..1.",
+      "translation": "glyfernas opacitet, begränsad till 0..1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget.set_random_colors#2",
+      "source": "``True`` for a hue per column, ``False`` for the one picked colour; setting the current mode again does nothing.",
+      "source_sha256": "d16f5f3b4dc9d7fc658b5f8dce3ec2e9e4df0b091d9f52a14009dfad9d23a49c",
+      "context": "``True`` for a hue per column, ``False`` for the one picked colour; setting the current mode again does nothing.",
+      "translation": "``True`` för en nyans per kolumn, ``False`` för den enda valda färgen; att sätta det aktuella läget igen gör ingenting.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.blend#1",
+      "source": "colour returned at ``t=0``.",
+      "source_sha256": "4a4102c7e7444238b624f23ee4920d43b25dc3a37f62da78b68f17bd8cd17863",
+      "context": "colour returned at ``t=0``.",
+      "translation": "färgen som returneras vid ``t=0``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.blend#2",
+      "source": "colour returned at ``t=1``.",
+      "source_sha256": "d105e1f631cde11627e04f60f8ad95e98409fbaba54acc3a74feaf85a465e7fb",
+      "context": "colour returned at ``t=1``.",
+      "translation": "färgen som returneras vid ``t=1``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.blend#3",
+      "source": "blend fraction, clamped to 0..1; only the red, green and blue channels are blended.",
+      "source_sha256": "027181172f25dc3c315e0d12b9501fdd60df1ce709d32f96a7819539afa73f29",
+      "context": "blend fraction, clamped to 0..1; only the red, green and blue channels are blended.",
+      "translation": "blandningsandel, begränsad till 0..1; bara den röda, gröna och blå kanalen blandas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.hideEvent#1",
+      "source": "the hide event; it is passed on to the base class unchanged before ``closed`` is emitted.",
+      "source_sha256": "8e6187e8f284034006c72bfd413ef9b36e4956bcdd0e47a43f689dbd607206f9",
+      "context": "the hide event; it is passed on to the base class unchanged before ``closed`` is emitted.",
+      "translation": "döljningshändelsen; den skickas oförändrad vidare till basklassen innan ``closed`` sänds ut.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.keyPressEvent#1",
+      "source": "the key event; Escape hides the popover and is accepted, any other key goes to the base class.",
+      "source_sha256": "9456c02bc4ee414d1e38785667b7c2bd7386fc462b490ee2909fbbb3ce8e94a7",
+      "context": "the key event; Escape hides the popover and is accepted, any other key goes to the base class.",
+      "translation": "tangenthändelsen; Escape döljer popupfönstret och accepteras, alla andra tangenter går till basklassen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.mousePressEvent#2",
+      "source": "the mouse press; its local and global positions decide whether it landed outside the popover on the anchor button.",
+      "source_sha256": "59e2335624c438598e09a8363f0a3b3469f898bf942c91bf7e0ea950df5b3706",
+      "context": "the mouse press; its local and global positions decide whether it landed outside the popover on the anchor button.",
+      "translation": "mustrycket; dess lokala och globala positioner avgör om det landade utanför popupfönstret på ankarknappen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.open_near#1",
+      "source": "the widget the popover is positioned against, above it or else below it.",
+      "source_sha256": "035c3892306774fbe2830af126700974cf9fe308f20bbef1eec9ce8aa2a3d02d",
+      "context": "the widget the popover is positioned against, above it or else below it.",
+      "translation": "widgeten som popupfönstret placeras mot, ovanför den eller annars under den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaSettingsButton.hideEvent#2",
+      "source": "the hide event; it is passed on to the base class after the popover is hidden.",
+      "source_sha256": "184b675aa83257c5790861d87061c023727aa9292bfb0adff9b6ae27ea48623c",
+      "context": "the hide event; it is passed on to the base class after the popover is hidden.",
+      "translation": "döljningshändelsen; den skickas vidare till basklassen efter att popupfönstret har dolts.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.eventFilter#3",
+      "source": "the object the event is for; only a :class:`SectionHeader` is handled here.",
+      "source_sha256": "403be759794ee708b771d60a678e0e45ebb2d7fbd5e3aaea47cc4f29f39e5977",
+      "context": "the object the event is for; only a :class:`SectionHeader` is handled here.",
+      "translation": "objektet som händelsen gäller; bara en :class:`SectionHeader` hanteras här.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.eventFilter#4",
+      "source": "the event; Enter and Leave set the header's ``hovered`` property, and a left-button release toggles its section.",
+      "source_sha256": "adddf40b6972f9ef685699a11724c64133bde04ff347e45482269fc7c13d8493",
+      "context": "the event; Enter and Leave set the header's ``hovered`` property, and a left-button release toggles its section.",
+      "translation": "händelsen; Enter och Leave sätter rubrikens egenskap ``hovered``, och ett släpp av vänster knapp växlar dess avsnitt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.expand_host#2",
+      "source": "the app key of the host; ignored.",
+      "source_sha256": "9c6eb8a59aea7900eee77fcf8bdb96c43bfa9487a65673bc33d48d6a6e9edf85",
+      "context": "the app key of the host; ignored.",
+      "translation": "värdens appnyckel; ignoreras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.leaveEvent#2",
+      "source": "the leave event, passed to the base class after every row is unlit.",
+      "source_sha256": "c9bbb4b57c3a845071bd771461c06ea60c606a56ff6b082cb865ef5a45990b5e",
+      "context": "the leave event, passed to the base class after every row is unlit.",
+      "translation": "lämnahändelsen, som skickas till basklassen efter att varje rad har släckts.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.refresh_icons#1",
+      "source": "A QIcon bakes its pixmap when it is built, so re-applying the stylesheet does not recolour icons that already exist.",
+      "source_sha256": "a386ae91c78d0734021fd702b311e7daefb3b28a6cf45e174fd92e336fdc918a",
+      "context": "A QIcon bakes its pixmap when it is built, so re-applying the stylesheet does not recolour icons that already exist.",
+      "translation": "En QIcon bakar in sin pixmap när den byggs, så att tillämpa stilmallen igen färgar inte om ikoner som redan finns.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.refresh_icons#2",
+      "source": "THE SIZE IS FIXED PER SCALE, NOT PER ROW STATE. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
+      "source_sha256": "98efadcb034381d0b96dc99c19dc1beaf6ab84106523d44991376ba18867a08f",
+      "context": "The size is fixed per scale, not per row state. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
+      "translation": "STORLEKEN ÄR FAST PER SKALA, INTE PER RADTILLSTÅND. Den gamla dockan förstorade och krympte en ikon vid hovring, vilket lade om hela kolumnen under pekaren; det är det som :data:`ICON_PX` som ett enda tal förhindrar. Den måste ändå följa gränssnittets skala, så grundstorleken registreras på varje rad och härleds därifrån på nytt -- se :func:`spacr.qt.preferences._set_scaled_icon_size` för varför den aldrig beräknas om från den storlek som raden redan har.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.section_is_open#1",
+      "source": "the category name.",
+      "source_sha256": "de5fa62ac7ef73f4fb6e5b73cd179883426f368bd8cd92787546a09ecccafae9",
+      "context": "the category name.",
+      "translation": "kategorinamnet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock.Dock.toggle_section#1",
+      "source": "the category name to open or close.",
+      "source_sha256": "ba7b85eca8425ffc942eda915809ca708eac94eb6150037ce7e7fcd36cbbc98e",
+      "context": "the category name to open or close.",
+      "translation": "kategorinamnet som ska öppnas eller stängas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#24",
+      "source": "Two models, and why the second one is offered rather than chosen",
+      "source_sha256": "bb2d7154d332b928860452e2282e140524fbe5b7a2849152788ceea57be27014",
+      "context": "Two models, and why the second one is offered rather than chosen",
+      "translation": "Två modeller, och varför den andra erbjuds snarare än väljs",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#25",
+      "source": ":data:`MODEL_5PL` fits :func:`five_parameter_logistic`, a 4PL with one more parameter that lets the curve approach its two plateaus at different rates. Real dose–responses are asymmetric — receptor occupancy with cooperativity, anything read through a saturating stain — and **a 4PL fitted to an asymmetric curve does not fail, it moves the EC50**: on the calibration series in ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py`` a symmetric fit to a curve whose true EC50 is 1.0 reports 0.67, with a tight interval and an R² of 0.997.",
+      "source_sha256": "f6b969469d1494fdf1db6b9d64e6806d412ffec9c6cc890cdefd19b7ebb320e2",
+      "context": ":data:`MODEL_5PL` fits :func:`five_parameter_logistic`, a 4PL with one more parameter that lets the curve approach its two plateaus at different rates. Real dose–responses are asymmetric — receptor occupancy with cooperativity, anything read through a saturating stain — and **a 4PL fitted to an asymmetric curve does not fail, it moves the EC50**: on the calibration series in ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py`` a symmetric fit to a curve whose true EC50 is 1.0 reports 0.67, with a tight interval and an R² of 0.997.",
+      "translation": ":data:`MODEL_5PL` anpassar :func:`five_parameter_logistic`, en 4PL med en parameter till som låter kurvan närma sig sina två platåer i olika takt. Verkliga dos–responskurvor är asymmetriska — receptorbeläggning med kooperativitet, allt som läses via en mättande färgning — och **en 4PL som anpassas till en asymmetrisk kurva misslyckas inte, den flyttar EC50**: på kalibreringsserien i ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py`` rapporterar en symmetrisk anpassning till en kurva vars sanna EC50 är 1.0 värdet 0.67, med ett snävt intervall och ett R² på 0.997.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#26",
+      "source": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
+      "source_sha256": "90ac9ad64db7ee715905d050dfc0dee1df43a9d80986831e7839a231167d43b6",
+      "context": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
+      "translation": "Den är ändå **inte standard**, och det är ett beslut snarare än ett förbiseende. Den femte parametern byts mot Hill-lutningen — många par (lutning, asymmetri) ritar nästan samma kurva — så med de åtta eller tio koncentrationer som en platta faktiskt bär är den svagt identifierad, och det profilintervall som den ger är motsvarande bredare. Modulen erbjuder den därför, anpassar den **utifrån 4PL-lösningen** så att den asymmetriska sökningen börjar i det symmetriska svaret, och rapporterar ett F-test med extra kvadratsumma för den enda tillagda parametern i :attr:`DoseResponseResult.asymmetry_p`, så att en läsare kan se om asymmetrin var värd vad den kostade.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#27",
+      "source": "The parameterisation is the EC50-preserving one: ``log10_ec50`` means the same thing under both models, so every rule in this file — boundedness, profiling, the back-transformed reporting — reads one number and not two. :func:`five_parameter_logistic` explains why that needs a constant in the denominator and what goes wrong without it.",
+      "source_sha256": "9cc4c9873f8e07fdde5c8e1c1d93ac1a8252216db19e71352063f3e46f121aa8",
+      "context": "The parameterisation is the EC50-preserving one: ``log10_ec50`` means the same thing under both models, so every rule in this file — boundedness, profiling, the back-transformed reporting — reads one number and not two. :func:`five_parameter_logistic` explains why that needs a constant in the denominator and what goes wrong without it.",
+      "translation": "Parametriseringen är den som bevarar EC50: ``log10_ec50`` betyder samma sak under båda modellerna, så varje regel i den här filen — begränsning, profilering, den tillbakatransformerade rapporteringen — läser ett tal och inte två. :func:`five_parameter_logistic` förklarar varför det kräver en konstant i nämnaren och vad som går fel utan den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#28",
+      "source": "Hormesis, which is the other reason a curve turns around",
+      "source_sha256": "0408c578fc21e1d7c8c066c03ad6a6e8cb29822e6cfe6ae785679cdff2869819",
+      "context": "Hormesis, which is the other reason a curve turns around",
+      "translation": "Hormesis, som är det andra skälet till att en kurva vänder",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#29",
+      "source": ":func:`monotonicity` can see that a series reverses. It cannot say which reversal it is, and the two mean opposite things:",
+      "source_sha256": "07786e75529e3fb728a8384726d07c4393dae1bf01bab72141caf1c586984787",
+      "context": ":func:`monotonicity` can see that a series reverses. It cannot say which reversal it is, and the two mean opposite things:",
+      "translation": ":func:`monotonicity` kan se att en serie vänder. Den kan inte säga vilken vändning det är, och de två betyder motsatta saker:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#30",
+      "source": "the response **collapses at the top dose** — usually the compound killing whatever was being counted. The advice is to drop that dose;",
+      "source_sha256": "f44be244fc24184170eb920e845072f2e5c2cd37620f54d319f7405eea4db865",
+      "context": "the response **collapses at the top dose** — usually the compound killing whatever was being counted. The advice is to drop that dose;",
+      "translation": "responsen **kollapsar vid den högsta dosen** — oftast substansen som dödar det som räknades. Rådet är att ta bort den dosen;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#31",
+      "source": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
+      "source_sha256": "c4538f3c829789f7d52787b8fbf30cda8d9431e6ef5d271aad5721bc2db7483d",
+      "context": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
+      "translation": "responsen **stiger vid den lägsta dosen** innan den faller — hormesis. Rådet är med eftertryck att inte ta bort de doserna, eftersom stigningen är fyndet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#32",
+      "source": ":func:`hormesis` tells them apart by fitting :func:`brain_cousens` — the 4PL with a low-dose stimulation term, which is the 4PL exactly when that term is zero — and comparing the two nested fits by an extra-sum-of-squares F test (the likelihood-ratio test, under this module's Gaussian errors), a small-sample-corrected AIC, and a **minimum-effect threshold**. All three, plus a positive coefficient, or the answer is no. The threshold is there because a tight assay will reach p < 0.001 on a hump worth 2% of the response span, and 2% is not a biological claim.",
+      "source_sha256": "db4ba29e8488f8caab3c698e218e2d0c5861f330e6db7fc40934678294ebafca",
+      "context": ":func:`hormesis` tells them apart by fitting :func:`brain_cousens` — the 4PL with a low-dose stimulation term, which is the 4PL exactly when that term is zero — and comparing the two nested fits by an extra-sum-of-squares F test (the likelihood-ratio test, under this module's Gaussian errors), a small-sample-corrected AIC, and a **minimum-effect threshold**. All three, plus a positive coefficient, or the answer is no. The threshold is there because a tight assay will reach p < 0.001 on a hump worth 2% of the response span, and 2% is not a biological claim.",
+      "translation": ":func:`hormesis` skiljer dem åt genom att anpassa :func:`brain_cousens` — 4PL med en stimuleringsterm vid låg dos, som är exakt 4PL när den termen är noll — och jämföra de två nästlade anpassningarna med ett F-test med extra kvadratsumma (likelihoodkvottestet, under den här modulens Gaussiska fel), ett småstickprovskorrigerat AIC och en **tröskel för minsta effekt**. Alla tre, plus en positiv koefficient, annars är svaret nej. Tröskeln finns där eftersom en snäv analys når p < 0.001 på en puckel som motsvarar 2% av responsspannet, och 2% är inget biologiskt påstående.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#33",
+      "source": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
+      "source_sha256": "b58fe65189506a40db2a89a06934aadb3125e6cfd14a840ae2386e9a2012f3cc",
+      "context": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
+      "translation": "Testet körs på varje serie vars lågdosände avviker från kontrollen mot trenden, inte bara på dem som :func:`monotonicity` vägrar — **en puckel kan bära en femtedel av responsspannet och ändå ligga inom** :data:`MAX_REVERSAL`, och i så fall lyckas dagens anpassning, anger en EC50 som förskjutits av puckeln och säger ingenting. De anpassningarna bär nu fyndet i :attr:`DoseResponseResult.hormesis` och i sina förbehåll.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#21",
+      "source": "residual degrees of freedom — ``n_obs`` less the model's parameter count, so ``n_obs - 4`` for a 4PL and ``n_obs - 5`` for a 5PL.",
+      "source_sha256": "7cf55fb2e77ce8b5c3163f1ac8894fdd303361c0d199e2c1c3ecfd65219e47f8",
+      "context": "residual degrees of freedom — ``n_obs`` less the model's parameter count, so ``n_obs - 4`` for a 4PL and ``n_obs - 5`` for a 5PL.",
+      "translation": "residualfrihetsgrader — ``n_obs`` minus modellens antal parametrar, alltså ``n_obs - 4`` för en 4PL och ``n_obs - 5`` för en 5PL.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#22",
+      "source": "lowest distinct positive concentration fitted.",
+      "source_sha256": "6c1340e6b62ef92da67c469b16f44852ca6e54bb57d02f74166d21c658ee9f0d",
+      "context": "lowest distinct positive concentration fitted.",
+      "translation": "lägsta distinkta positiva koncentration som anpassades.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#23",
+      "source": "highest distinct positive concentration fitted.",
+      "source_sha256": "74ff0fc5f6490a593cf484149bf433ad432f5638c529a925317dd0c37678acf5",
+      "context": "highest distinct positive concentration fitted.",
+      "translation": "högsta distinkta positiva koncentration som anpassades.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#24",
+      "source": "residual sum of squares of the fitted curve.",
+      "source_sha256": "ff3fc4ae29c8108f42e42bffcb5da08aa126e8813bba2485c92d526d8aeef4d6",
+      "context": "residual sum of squares of the fitted curve.",
+      "translation": "residualkvadratsumma för den anpassade kurvan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#37",
+      "source": ":data:`MODEL_4PL` or :data:`MODEL_5PL` — which curve these parameters belong to.",
+      "source_sha256": "b017b8e8a5f6b29e0a38256beb86eb546abd86fe4ac0e29a7b96738b851c9490",
+      "context": ":data:`MODEL_4PL` or :data:`MODEL_5PL` — which curve these parameters belong to.",
+      "translation": ":data:`MODEL_4PL` eller :data:`MODEL_5PL` — vilken kurva dessa parametrar hör till.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#38",
+      "source": "the 5PL exponent. Exactly ``1.0`` under :data:`MODEL_4PL`, where it is not a parameter at all.",
+      "source_sha256": "5caa69012f1bb1cc6d4c8b7569ba4f4379799a4c8bd0475078724da717b21cd8",
+      "context": "the 5PL exponent. Exactly ``1.0`` under :data:`MODEL_4PL`, where it is not a parameter at all.",
+      "translation": "5PL-exponenten. Exakt ``1.0`` under :data:`MODEL_4PL`, där den inte alls är en parameter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#39",
+      "source": "its Wald interval, or ``(None, None)``.",
+      "source_sha256": "a987fe02bbae2b6a633f4b17bd14ee444ff5417fd31cee385e0141eeb8a04c5f",
+      "context": "its Wald interval, or ``(None, None)``.",
+      "translation": "dess Wald-intervall, eller ``(None, None)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#40",
+      "source": "extra-sum-of-squares F of the 5PL against the 4PL on the same points, or ``None`` under :data:`MODEL_4PL`.",
+      "source_sha256": "d5d962957f536f72e7e11c1a6dd4aca883c9e90d3fa9770715d2e687b5d80351",
+      "context": "extra-sum-of-squares F of the 5PL against the 4PL on the same points, or ``None`` under :data:`MODEL_4PL`.",
+      "translation": "F med extra kvadratsumma för 5PL mot 4PL på samma punkter, eller ``None`` under :data:`MODEL_4PL`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#41",
+      "source": "its p value. **A large p is the interesting case**: it says the asymmetry the 5PL fitted is inside what the noise would produce, and the symmetric fit is the one to quote.",
+      "source_sha256": "ae7fd5b534c86997daad80198c2cb7dc1ae6454ddbd4b0647948b05a3cc83b6a",
+      "context": "its p value. **A large p is the interesting case**: it says the asymmetry the 5PL fitted is inside what the noise would produce, and the symmetric fit is the one to quote.",
+      "translation": "dess p-värde. **Ett stort p är det intressanta fallet**: det säger att den asymmetri som 5PL anpassade ligger inom vad bruset skulle ge, och att den symmetriska anpassningen är den som ska anges.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#42",
+      "source": "the :class:`HormesisCheck` when the low-dose end of the series was worth testing, else ``None``. A fit can be perfectly monotone by :func:`monotonicity` and still carry a hormetic hump that displaces its EC50, so this is reported beside a successful fit and not only inside a refusal.",
+      "source_sha256": "ea1ec3b2db8f155966301e9629d029634a8fa1b0ad18c050766f719745d76270",
+      "context": "the :class:`HormesisCheck` when the low-dose end of the series was worth testing, else ``None``. A fit can be perfectly monotone by :func:`monotonicity` and still carry a hormetic hump that displaces its EC50, so this is reported beside a successful fit and not only inside a refusal.",
+      "translation": ":class:`HormesisCheck` när seriens lågdosände var värd att testa, annars ``None``. En anpassning kan vara helt monoton enligt :func:`monotonicity` och ändå bära en hormetisk puckel som förskjuter dess EC50, så detta rapporteras bredvid en lyckad anpassning och inte bara i en vägran.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult#9",
+      "source": "whether the data bound the EC50: it lies inside the tested range, the curve's midpoint is within the observed responses, both plateaus are reached and the interval is closed on both sides. :attr:`ec50` is ``None`` unless it is ``True``.",
+      "source_sha256": "8baac7bdd85a3b273277122639cf4d3acf0f04232d8b1f757d101f9dfcffbcc5",
+      "context": "whether the data bound the EC50: it lies inside the tested range, the curve's midpoint is within the observed responses, both plateaus are reached and the interval is closed on both sides. :attr:`ec50` is ``None`` unless it is ``True``.",
+      "translation": "om data avgränsar EC50: den ligger inom det testade intervallet, kurvans mittpunkt ligger inom de observerade responserna, båda platåerna nås och intervallet är slutet på båda sidor. :attr:`ec50` är ``None`` om inte detta är ``True``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.model_function#0",
+      "source": ":func:`four_parameter_logistic` or :func:`five_parameter_logistic`.",
+      "source_sha256": "88faaf1b2ef2cf40e09bef353cb47fa6b7a64b70f59b0de4d8419ac5d6cc57c5",
+      "context": ":func:`four_parameter_logistic` or :func:`five_parameter_logistic`.",
+      "translation": ":func:`four_parameter_logistic` eller :func:`five_parameter_logistic`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.n_parameters#0",
+      "source": "4 or 5 — what every degrees-of-freedom count here is against.",
+      "source_sha256": "96562ba9b84b00e4271282770acab049d8d7ee98fec227f20d1fd3e9eeb45bfc",
+      "context": "4 or 5 — what every degrees-of-freedom count here is against.",
+      "translation": "4 eller 5 — det som varje antal frihetsgrader här räknas mot.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.parameters#0",
+      "source": "The vector this result's model takes.",
+      "source_sha256": "912c5280c480ed0f0224cbacf98ac7992dff865cca3b68992d7e3389ba116f2a",
+      "context": "The vector this result's model takes.",
+      "translation": "Vektorn som det här resultatets modell tar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.parameters#1",
+      "source": "``(bottom, top, log10_ec50, hill)`` under :data:`MODEL_4PL` and that with ``asymmetry`` appended under :data:`MODEL_5PL` — in both cases exactly what :attr:`model_function` expects, so ``predict`` is one line and no caller has to know which model it is holding.",
+      "source_sha256": "429917bc980059fc1237c063a4de6d10e6a47910487cf5e5594619660fa66ff6",
+      "context": "``(bottom, top, log10_ec50, hill)`` under :data:`MODEL_4PL` and that with ``asymmetry`` appended under :data:`MODEL_5PL` — in both cases exactly what :attr:`model_function` expects, so ``predict`` is one line and no caller has to know which model it is holding.",
+      "translation": "``(bottom, top, log10_ec50, hill)`` under :data:`MODEL_4PL` och samma med ``asymmetry`` tillagt under :data:`MODEL_5PL` — i båda fallen exakt vad :attr:`model_function` förväntar sig, så att ``predict`` är en rad och ingen anropare behöver veta vilken modell den håller.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.predict#1",
+      "source": "concentration(s), in the fitted units; evaluated with this result's model and parameters.",
+      "source_sha256": "faa584b1697261dc92ec6fc6d777f2a0591a2cc811ed7f429df84d032fb5123b",
+      "context": "concentration(s), in the fitted units; evaluated with this result's model and parameters.",
+      "translation": "koncentration(er), i de anpassade enheterna; utvärderas med det här resultatets modell och parametrar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseResult.status#0",
+      "source": ":data:`STATUS_FITTED` or :data:`STATUS_UNBOUNDED`.",
+      "source_sha256": "7b27bb44526ffb56231cf6533848a7caa7be3e54a34245af11006fcf6f21ad92",
+      "context": ":data:`STATUS_FITTED` or :data:`STATUS_UNBOUNDED`.",
+      "translation": ":data:`STATUS_FITTED` eller :data:`STATUS_UNBOUNDED`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSet.get#1",
+      "source": "the level name to look up, as stored in :attr:`GroupFit.group` (``\"\"`` for an ungrouped fit).",
+      "source_sha256": "44a142de643cf1b0933276ac217608780437018a1d74e4c4a37d0afb1309ca63",
+      "context": "the level name to look up, as stored in :attr:`GroupFit.group` (``\"\"`` for an ungrouped fit).",
+      "translation": "nivånamnet att slå upp, så som det lagras i :attr:`GroupFit.group` (``\"\"`` för en ogrupperad anpassning).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#11",
+      "source": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
+      "source_sha256": "c649bbc62d764683b27f13d71653696bf3960e5cca9b7aaab962bd27526ec5b5",
+      "context": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
+      "translation": ":data:`MODEL_4PL` (standard) eller :data:`MODEL_5PL`. Den asymmetriska modellen är ett val som användaren gör och aldrig ett som data gör åt användaren: den erbjuds eftersom verklig asymmetri förekommer och en 4PL absorberar den i en förskjuten EC50, och den är inte standard eftersom den femte parametern är svagt identifierad med de åtta eller tio koncentrationer som en platta faktiskt bär. En anpassning som valde 5PL rapporterar om den extra parametern gjorde sig förtjänt av sin plats — se :attr:`DoseResponseResult.asymmetry_p`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#12",
+      "source": "on an unknown method, direction or model, or a confidence outside (0, 1) — at the point the spec is built, not halfway through a plate.",
+      "source_sha256": "2f52c10dbb620c1ce404ab6a9eb85e6b045c072df1706859c6bf7b32f891ccc2",
+      "context": "on an unknown method, direction or model, or a confidence outside (0, 1) — at the point the spec is built, not halfway through a plate.",
+      "translation": "vid en okänd metod, riktning eller modell, eller en konfidens utanför (0, 1) — i det ögonblick specifikationen byggs, inte halvvägs genom en platta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.__post_init__#1",
+      "source": "if ``ci_method``, ``direction`` or ``model`` is not one this module offers; if ``confidence`` is not strictly between 0 and 1 -- it is a coverage probability, so a 95% interval is 0.95 and not 95; or if ``max_reversal`` is not a fraction of the response span in ``(0, 1]``.",
+      "source_sha256": "f00ed0839170ac9f4902dcdce1cbc07e9dde8ce970a928d476a658ad5b2d8270",
+      "context": "if ``ci_method``, ``direction`` or ``model`` is not one this module offers; if ``confidence`` is not strictly between 0 and 1 -- it is a coverage probability, so a 95% interval is 0.95 and not 95; or if ``max_reversal`` is not a fraction of the response span in ``(0, 1]``.",
+      "translation": "om ``ci_method``, ``direction`` eller ``model`` inte är ett som den här modulen erbjuder; om ``confidence`` inte ligger strikt mellan 0 och 1 -- det är en täckningssannolikhet, så ett 95%-intervall är 0.95 och inte 95; eller om ``max_reversal`` inte är en andel av responsspannet i ``(0, 1]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.from_dict#2",
+      "source": "mapping as written by :meth:`to_dict`; only the spec's own field names are used.",
+      "source_sha256": "1de9292805aa1245530114d08f111e18c5ecd10a3dbe4a30d8932f9c801d5b98",
+      "context": "mapping as written by :meth:`to_dict`; only the spec's own field names are used.",
+      "translation": "mappning så som den skrivs av :meth:`to_dict`; bara specifikationens egna fältnamn används.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.from_json#1",
+      "source": "JSON text as written by :meth:`to_json`.",
+      "source_sha256": "44351042c2a452c20bbe79417e5beae106578d8b5e904f16d86c0391b77669ec",
+      "context": "JSON text as written by :meth:`to_json`.",
+      "translation": "JSON-text så som den skrivs av :meth:`to_json`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_ci_method#1",
+      "source": ":data:`CI_PROFILE` or :data:`CI_WALD`; any other value raises :class:`DoseResponseError`.",
+      "source_sha256": "346edb0195cdbc15ca0a1ce63ced5dc99a60554f559a3adcbff7f4ab788ecaf4",
+      "context": ":data:`CI_PROFILE` or :data:`CI_WALD`; any other value raises :class:`DoseResponseError`.",
+      "translation": ":data:`CI_PROFILE` eller :data:`CI_WALD`; alla andra värden genererar :class:`DoseResponseError`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_columns#0",
+      "source": "A copy pointed at different columns.",
+      "source_sha256": "bc01b3abc04c332863e3d481610868aaae884aed6bccb5c5f2e33acfed7123bc",
+      "context": "A copy pointed at different columns.",
+      "translation": "En kopia som pekar på andra kolumner.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_columns#1",
+      "source": "column holding the dose.",
+      "source_sha256": "acd3bcadc70ac4ddbbee0df487fae28e09d61c3bf2a0b552e8ea7740f0215d00",
+      "context": "column holding the dose.",
+      "translation": "kolumn som innehåller dosen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_columns#2",
+      "source": "column holding the measured response.",
+      "source_sha256": "2b4c456e4b21f10d21910d70214c37f5de4a437fa1e1ac52571307e9b815e600",
+      "context": "column holding the measured response.",
+      "translation": "kolumn som innehåller den uppmätta responsen.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.DoseResponseSpec.with_unit#1",
+      "source": "concentration unit for the sentences; surrounding whitespace is stripped.",
+      "source_sha256": "efb3a1afdff677e472ea963aef1412672884307efeca281981074f35f1da6da5",
+      "context": "concentration unit for the sentences; surrounding whitespace is stripped.",
+      "translation": "koncentrationsenhet för meningarna; omgivande blanktecken tas bort.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.GroupFit.status#0",
+      "source": ":data:`STATUS_REFUSED`, :data:`STATUS_UNBOUNDED` or :data:`STATUS_FITTED`.",
+      "source_sha256": "0434d4c308510610dc050461cc99aafffd3a40e1d4b50720e07e945ffb32ea3c",
+      "context": ":data:`STATUS_REFUSED`, :data:`STATUS_UNBOUNDED` or :data:`STATUS_FITTED`.",
+      "translation": ":data:`STATUS_REFUSED`, :data:`STATUS_UNBOUNDED` eller :data:`STATUS_FITTED`.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#0",
+      "source": "Whether the low-dose end of the series is stimulated, and by how much.",
+      "source_sha256": "475931ffd5ac04fe8392a30a7c188fd030f5efb25b3b2f11a9176bae2fc4d091",
+      "context": "Whether the low-dose end of the series is stimulated, and by how much.",
+      "translation": "Om seriens lågdosände stimuleras, och hur mycket.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#1",
+      "source": ":func:`monotonicity` can see that a series turns around. It cannot say *which* turn it is, and the two turns a concentration series produces mean opposite things: a collapse at the top dose is usually the compound killing whatever was being counted, and the fix is to drop that dose, while a hump at the bottom is hormesis, and dropping doses there throws the finding away. This check names which one it is by fitting the model that has a hump in it and asking whether the hump paid for itself.",
+      "source_sha256": "d40ef19cc2cd95ac970f96b23ea79dece85500555b8eb2025b75f1b699b24365",
+      "context": ":func:`monotonicity` can see that a series turns around. It cannot say *which* turn it is, and the two turns a concentration series produces mean opposite things: a collapse at the top dose is usually the compound killing whatever was being counted, and the fix is to drop that dose, while a hump at the bottom is hormesis, and dropping doses there throws the finding away. This check names which one it is by fitting the model that has a hump in it and asking whether the hump paid for itself.",
+      "translation": ":func:`monotonicity` kan se att en serie vänder. Den kan inte säga *vilken* vändning det är, och de två vändningar som en koncentrationsserie ger betyder motsatta saker: en kollaps vid den högsta dosen är oftast substansen som dödar det som räknades, och åtgärden är att ta bort den dosen, medan en puckel längst ned är hormesis, och att ta bort doser där kastar bort fyndet. Den här kontrollen anger vilken det är genom att anpassa den modell som har en puckel i sig och fråga om puckeln betalade för sig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#10",
+      "source": "residual sum of squares of the 4PL.",
+      "source_sha256": "9ccb6a94c07caab94bc0450662d0732cc508e350c4c762128a598d6979e1d076",
+      "context": "residual sum of squares of the 4PL.",
+      "translation": "residualkvadratsumma för 4PL.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#11",
+      "source": "residual sum of squares of the Brain–Cousens fit.",
+      "source_sha256": "93cfa3e2cc95fe15bbfe789f7820bd366b86c14dccf1aae2ed452dd21fc6dbc9",
+      "context": "residual sum of squares of the Brain–Cousens fit.",
+      "translation": "residualkvadratsumma för Brain–Cousens-anpassningen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#12",
+      "source": "observations both models were fitted on.",
+      "source_sha256": "96ed714d3cce2565b68ccc973eaf13eba6a221525b18c1418afd0b9b4e617648",
+      "context": "observations both models were fitted on.",
+      "translation": "observationer som båda modellerna anpassades på.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#13",
+      "source": "residual degrees of freedom of the hormetic fit, ``n - 5``.",
+      "source_sha256": "c324ec40938d59bf3e026d3780e2720899b9659047a461dae8cbad8f653e3c54",
+      "context": "residual degrees of freedom of the hormetic fit, ``n - 5``.",
+      "translation": "residualfrihetsgrader för den hormetiska anpassningen, ``n - 5``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#14",
+      "source": "the EC50 the monotone fit reports, so the cost of ignoring the hump is visible as a number rather than an argument.",
+      "source_sha256": "7c7cea07f1216975678a62251343a97877b9aa6ce9f38471c7ea8d68c7bab4d0",
+      "context": "the EC50 the monotone fit reports, so the cost of ignoring the hump is visible as a number rather than an argument.",
+      "translation": "den EC50 som den monotona anpassningen rapporterar, så att kostnaden för att ignorera puckeln syns som ett tal snarare än ett argument.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#15",
+      "source": "the EC50 the hormetic fit reports.",
+      "source_sha256": "352d02f1908b34ab0dabe4d422c1346468cc11d4161db66aebeaa450a17834ec",
+      "context": "the EC50 the hormetic fit reports.",
+      "translation": "den EC50 som den hormetiska anpassningen rapporterar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#16",
+      "source": "the :data:`HORMESIS_MIN_EFFECT` this used.",
+      "source_sha256": "2698bf2d38979e7b438a12ee1c49425841a427dd9d033ac4f72edc14f15986e0",
+      "context": "the :data:`HORMESIS_MIN_EFFECT` this used.",
+      "translation": "den :data:`HORMESIS_MIN_EFFECT` som detta använde.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#17",
+      "source": "the :data:`HORMESIS_ALPHA` this used.",
+      "source_sha256": "bed2f1224230d2ad9df18839954eecbb0503a59f1f962fbb63abe3470a819b45",
+      "context": "the :data:`HORMESIS_ALPHA` this used.",
+      "translation": "den :data:`HORMESIS_ALPHA` som detta använde.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#18",
+      "source": "the :data:`HORMESIS_MIN_AIC` this used.",
+      "source_sha256": "cb0d76a2488084cf57d96a0a716c44e85fc827aa57df7db0510e881e757abd06",
+      "context": "the :data:`HORMESIS_MIN_AIC` this used.",
+      "translation": "den :data:`HORMESIS_MIN_AIC` som detta använde.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#19",
+      "source": "why the verdict is what it is — the first criterion that failed, or the caveat that survives a positive verdict.",
+      "source_sha256": "b98c0e771011cae41a03938308a2d309e361e88b3b22260f82ef5143c81349eb",
+      "context": "why the verdict is what it is — the first criterion that failed, or the caveat that survives a positive verdict.",
+      "translation": "varför utlåtandet är som det är — det första kriterium som inte uppfylldes, eller det förbehåll som kvarstår efter ett positivt utlåtande.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#2",
+      "source": "the verdict, and it needs all four criteria below.",
+      "source_sha256": "47630260220cc00bdc7a9a649263bfd9624e7213859a9384bffc8c042aa1fff6",
+      "context": "the verdict, and it needs all four criteria below.",
+      "translation": "utlåtandet, och det kräver alla fyra kriterierna nedan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#3",
+      "source": "the fitted Brain–Cousens coefficient, in response units per concentration unit. Positive is a hump.",
+      "source_sha256": "7231b4b34756b6d5cb6e9a17d343133dc918d4008d444e51e027f5a781975130",
+      "context": "the fitted Brain–Cousens coefficient, in response units per concentration unit. Positive is a hump.",
+      "translation": "den anpassade Brain–Cousens-koefficienten, i responsenheter per koncentrationsenhet. Positiv är en puckel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#4",
+      "source": "the largest departure from the control plateau the fitted hormetic curve reaches inside the tested range, in response units.",
+      "source_sha256": "122016fb67cd43173d827285ea89993c3b6c02875c8ec538a63478b62b5ee095",
+      "context": "the largest departure from the control plateau the fitted hormetic curve reaches inside the tested range, in response units.",
+      "translation": "den största avvikelse från kontrollplatån som den anpassade hormetiska kurvan når inom det testade intervallet, i responsenheter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#5",
+      "source": "that departure over the fitted curve's response span — the number the minimum-effect threshold is applied to.",
+      "source_sha256": "f56910bf74a9da661da8baf4cf9eb5a5fdbd2f6d7845b03b2c614970c85e5ad4",
+      "context": "that departure over the fitted curve's response span — the number the minimum-effect threshold is applied to.",
+      "translation": "den avvikelsen delad med den anpassade kurvans responsspann — det tal som tröskeln för minsta effekt tillämpas på.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#6",
+      "source": "where that maximum sits, or ``None`` when there is no fitted curve to read it off.",
+      "source_sha256": "671f21f6cfce9106946ea956dd6da4e38fb232b4e90bb7f60377682c70d3d816",
+      "context": "where that maximum sits, or ``None`` when there is no fitted curve to read it off.",
+      "translation": "var det maximumet ligger, eller ``None`` när det inte finns någon anpassad kurva att läsa av det från.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#7",
+      "source": "extra-sum-of-squares F for the one added parameter.",
+      "source_sha256": "2231059c2670650c5e77d073eb9b7e750ec1cf65e8d3eb0924a7c545022fc0fe",
+      "context": "extra-sum-of-squares F for the one added parameter.",
+      "translation": "F med extra kvadratsumma för den enda tillagda parametern.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#8",
+      "source": "its p value, on 1 and ``dof`` degrees of freedom.",
+      "source_sha256": "82ae97ad35f1165bbd9ba5ac692432e982a4357b1616d223fbfc387aed432479",
+      "context": "its p value, on 1 and ``dof`` degrees of freedom.",
+      "translation": "dess p-värde, med 1 och ``dof`` frihetsgrader.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#9",
+      "source": "corrected AIC of the monotone fit minus that of the hormetic fit. Positive favours hormesis.",
+      "source_sha256": "fbb9b6b9f7ba90a6b4584c1fb6e8a183871fdc39da916d05fc5c580ab64c03fe",
+      "context": "corrected AIC of the monotone fit minus that of the hormetic fit. Positive favours hormesis.",
+      "translation": "korrigerat AIC för den monotona anpassningen minus det för den hormetiska anpassningen. Positivt gynnar hormesis.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck.describe#0",
+      "source": "One line, for a caption, a caveat or a refusal message.",
+      "source_sha256": "76bcfe7124023901e7db5328a7182beeceff211dca0e26c79907e0db63f48629",
+      "context": "One line, for a caption, a caveat or a refusal message.",
+      "translation": "En rad, för en bildtext, ett förbehåll eller ett avslagsmeddelande.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.InteractionSurface#3",
+      "source": ":data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.",
+      "source_sha256": "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+      "context": ":data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.",
+      "translation": ":data:`SYNERGY_BLISS` eller :data:`SYNERGY_LOEWE`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#0",
+      "source": "The Brain–Cousens hormesis model: a 4PL with a low-dose hump on it.",
+      "source_sha256": "ad1e01814bd21fbad6f01910d1ed58d80987e891cec5a42ae8531ef5f0ce47c2",
+      "context": "The Brain–Cousens hormesis model: a 4PL with a low-dose hump on it.",
+      "translation": "Brain–Cousens-modellen för hormesis: en 4PL med en puckel vid låg dos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#1",
+      "source": "``y = four_parameter_logistic(x, ...) - sign(hill)·stimulation·x·w(x)`` with ``w(x) = 1 / (1 + (x / EC50) ** |hill|)``, the weight that is 1 at zero dose, ½ at the EC50 and 0 above it.",
+      "source_sha256": "951933d1b39167ef3dd70dad48c093ab2e4772ca5bdc7c1be32f1f25205160e6",
+      "context": "``y = four_parameter_logistic(x, ...) - sign(hill)·stimulation·x·w(x)`` with ``w(x) = 1 / (1 + (x / EC50) ** |hill|)``, the weight that is 1 at zero dose, ½ at the EC50 and 0 above it.",
+      "translation": "``y = four_parameter_logistic(x, ...) - sign(hill)·stimulation·x·w(x)`` med ``w(x) = 1 / (1 + (x / EC50) ** |hill|)``, vikten som är 1 vid dosen noll, ½ vid EC50 och 0 över den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#10",
+      "source": "the modelled response, same shape as ``x``.",
+      "source_sha256": "b108add4d625f24ebe4ab73ba065fdbe104ed3e65dd0ca2672105e39548b48c1",
+      "context": "the modelled response, same shape as ``x``.",
+      "translation": "det modellerade svaret, med samma form som ``x``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#2",
+      "source": "For an inhibition curve (``hill < 0``) that is the published model (Brain & Cousens, *Weed Research* 29, 1989) written in this module's parameterisation: ``w`` is then exactly the 4PL's own sigmoid factor, and the expression collapses to ``bottom + (top - bottom + f·x)·w``, which is Brain–Cousens term for term. For an activation curve it is that model reflected, because hormesis is a departure from the control *against* the direction the compound eventually pushes the readout, and on an activation series that is a low-dose dip rather than a low-dose rise. Writing it as one function with the sign taken from the Hill slope means the same hypothesis test covers both, instead of a second model nobody would remember to run.",
+      "source_sha256": "6a3ebe9a36a6accd06589b270439abcc67ae97dc14bc32dc36e79e94a4543655",
+      "context": "For an inhibition curve (``hill < 0``) that is the published model (Brain & Cousens, *Weed Research* 29, 1989) written in this module's parameterisation: ``w`` is then exactly the 4PL's own sigmoid factor, and the expression collapses to ``bottom + (top - bottom + f·x)·w``, which is Brain–Cousens term for term. For an activation curve it is that model reflected, because hormesis is a departure from the control *against* the direction the compound eventually pushes the readout, and on an activation series that is a low-dose dip rather than a low-dose rise. Writing it as one function with the sign taken from the Hill slope means the same hypothesis test covers both, instead of a second model nobody would remember to execute.",
+      "translation": "För en inhiberingskurva (``hill < 0``) är det den publicerade modellen (Brain & Cousens, *Weed Research* 29, 1989) skriven i den här modulens parametrisering: ``w`` är då exakt 4PL:s egen sigmoida faktor, och uttrycket reduceras till ``bottom + (top - bottom + f·x)·w``, vilket är Brain–Cousens term för term. För en aktiveringskurva är det den modellen speglad, eftersom hormesis är en avvikelse från kontrollen *mot* den riktning som substansen till slut driver avläsningen, och i en aktiveringsserie är det en sänkning vid låg dos snarare än en stigning vid låg dos. Att skriva det som en funktion med tecknet hämtat från Hill-lutningen innebär att samma hypotestest täcker båda, i stället för en andra modell som ingen skulle komma ihåg att köra.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#3",
+      "source": "``stimulation == 0`` is the 4PL exactly, which is what makes the pair nested and :func:`hormesis`' F test a one-parameter test.",
+      "source_sha256": "12b4158d0517f5bde63224873ec4f5bfa0aff01f66602ee139c7d4e6ab93b146",
+      "context": "``stimulation == 0`` is the 4PL exactly, which is what makes the pair nested and :func:`hormesis`' F test a one-parameter test.",
+      "translation": "``stimulation == 0`` är exakt 4PL, vilket är det som gör paret nästlat och F-testet i :func:`hormesis` till ett test av en parameter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#4",
+      "source": "concentration(s).",
+      "source_sha256": "137e8c97e609243d4b957d357d92fd7de59b87a5f690aafc2720912a1ab6d94e",
+      "context": "concentration(s).",
+      "translation": "koncentration(er).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#5",
+      "source": "the smaller plateau of the underlying 4PL.",
+      "source_sha256": "41aaff90e831a8e9bc28cec18c358723ba70f2db80ba5e70adfcb3b51c1160b9",
+      "context": "the smaller plateau of the underlying 4PL.",
+      "translation": "den lägre platån i den underliggande 4PL-kurvan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#6",
+      "source": "the larger plateau of the underlying 4PL.",
+      "source_sha256": "8fe00f1ad8a8a12e17d4e3c925041d6ff56467c2c8236364a2335ffb646f9725",
+      "context": "the larger plateau of the underlying 4PL.",
+      "translation": "den högre platån i den underliggande 4PL-kurvan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#7",
+      "source": "base-10 log of the underlying 4PL's EC50.",
+      "source_sha256": "8de16ef98d97a33e53dcfb3dea8eb5f55919a0f0a5b13d2c88a23be97064f757",
+      "context": "base-10 log of the underlying 4PL's EC50.",
+      "translation": "tiologaritmen av den underliggande 4PL-kurvans EC50.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#8",
+      "source": "slope; its sign carries the direction, as everywhere here.",
+      "source_sha256": "fbb23241816a99ecc0c7a3882a5808f3dd8beacb6a04c00ac68634aa01a44546",
+      "context": "slope; its sign carries the direction, as everywhere here.",
+      "translation": "lutning; dess tecken anger riktningen, som överallt här.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.brain_cousens#9",
+      "source": "the hormesis term's coefficient, in response units per concentration unit. Positive is hormesis; zero is no hormesis; negative is a curve that leaves the control plateau *faster* than a 4PL, which is a shape correction and is never called hormesis.",
+      "source_sha256": "fce5025bc25ed8d1e6dd67d023e9afa6daa3a7afa7fdfbcdfb2106fa6f0fea20",
+      "context": "the hormesis term's coefficient, in response units per concentration unit. Positive is hormesis; zero is no hormesis; negative is a curve that leaves the control plateau *faster* than a 4PL, which is a shape correction and is never called hormesis.",
+      "translation": "hormesistermens koefficient, i svarsenheter per koncentrationsenhet. Positiv är hormesis; noll är ingen hormesis; negativ är en kurva som lämnar kontrollplatån *snabbare* än en 4PL, vilket är en formkorrektion och aldrig kallas hormesis.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.candidate_concentration_columns#3",
+      "source": "the table whose columns are screened; they are returned in sorted name order.",
+      "source_sha256": "99495f3fdb0646243631435b4dc1dc22d582d892029bd50918d8ee7a51566246",
+      "context": "the table whose columns are screened; they are returned in sorted name order.",
+      "translation": "tabellen vars kolumner gallras; de returneras sorterade efter namn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.candidate_response_columns#2",
+      "source": "the table whose columns are classified; the continuous ones are returned in sorted name order.",
+      "source_sha256": "d3dc145384b4a2247884721b82f754f3c26693cb478eaee344093d27663991c4",
+      "context": "the table whose columns are classified; the continuous ones are returned in sorted name order.",
+      "translation": "tabellen vars kolumner klassificeras; de kontinuerliga returneras sorterade efter namn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response#2",
+      "source": "Two things happen here that the model choice does not change. **A series whose low-dose end rises against the trend is tested for hormesis** (:func:`hormesis`) whether or not it also fails the monotonicity check, because a hump can be worth a fifth of the response span and still be inside :data:`MAX_REVERSAL`. A hormetic series that fails the monotonicity check is refused *as hormesis* rather than as the cytotoxicity a bell shape usually is — a different sentence, a different thing to do next. A hormetic series that passes it is fitted, and carries the finding as a caveat and as :attr:`DoseResponseResult.hormesis`.",
+      "source_sha256": "bd3872fff0a1836de6bf5e6b95e45f64bdae2ecc899c1f259d1cbbab2d600e0a",
+      "context": "Two things happen here that the model choice does not change. **A series whose low-dose end rises against the trend is tested for hormesis** (:func:`hormesis`) whether or not it also fails the monotonicity check, because a hump can be worth a fifth of the response span and still be inside :data:`MAX_REVERSAL`. A hormetic series that fails the monotonicity check is refused *as hormesis* rather than as the cytotoxicity a bell shape usually is — a different sentence, a different thing to do next. A hormetic series that passes it is fitted, and carries the finding as a caveat and as :attr:`DoseResponseResult.hormesis`.",
+      "translation": "Två saker händer här som modellvalet inte ändrar. **En serie vars lågdosände stiger mot trenden testas för hormesis** (:func:`hormesis`) oavsett om den också underkänns i monotonitetskontrollen, eftersom en puckel kan vara värd en femtedel av svarsomfånget och ändå ligga inom :data:`MAX_REVERSAL`. En hormetisk serie som underkänns i monotonitetskontrollen avvisas *som hormesis* snarare än som den cytotoxicitet som en klockform brukar vara — en annan mening, en annan sak att göra härnäst. En hormetisk serie som godkänns anpassas, och bär fyndet som en reservation och som :attr:`DoseResponseResult.hormesis`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response#3",
+      "source": "**The 5PL is fitted from the 4PL solution**, so the asymmetric fit starts at the symmetric answer and can only leave it for something better; the improvement is then reported as an F test on the one extra parameter.",
+      "source_sha256": "3804e68137aa3563f6c0359f5102afbd887c8301615f11f00d2386fb2b8c5491",
+      "context": "**The 5PL is fitted from the 4PL solution**, so the asymmetric fit starts at the symmetric answer and can only leave it for something better; the improvement is then reported as an F test on the one extra parameter.",
+      "translation": "**5PL-kurvan anpassas utifrån 4PL-lösningen**, så att den asymmetriska anpassningen börjar vid det symmetriska svaret och bara kan lämna det för något bättre; förbättringen rapporteras sedan som ett F-test på den enda extra parametern.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response#6",
+      "source": "a :class:`DoseResponseSpec`. Only its policy fields matter here — including ``model``; the column names are for :func:`fit_frame`.",
+      "source_sha256": "caae5df2071cbfb532945c8f9c30937b921517c5dad60300c7b7f6e6ffb68c5c",
+      "context": "a :class:`DoseResponseSpec`. Only its policy fields matter here — including ``model``; the column names are for :func:`fit_frame`.",
+      "translation": "en :class:`DoseResponseSpec`. Endast dess policyfält spelar roll här — inklusive ``model``; kolumnnamnen är till för :func:`fit_frame`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response#8",
+      "source": "for every series that cannot carry the chosen model — too few concentrations, a flat response, a negative concentration, a bell shape, a hormetic curve, or an optimiser that never converged. The message says which and what to do about it.",
+      "source_sha256": "b2569f037da71ac3c4a03d2ec4d7863acc3e31b76c3bf490e0d0d66afa0ad12f",
+      "context": "for every series that cannot carry the chosen model — too few concentrations, a flat response, a negative concentration, a bell shape, a hormetic curve, or an optimiser that never converged. The message says which and what to do about it.",
+      "translation": "för varje serie som inte kan bära den valda modellen — för få koncentrationer, ett platt svar, en negativ koncentration, en klockform, en hormetisk kurva eller en optimerare som aldrig konvergerade. Meddelandet anger vilket och vad man ska göra åt det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_frame#2",
+      "source": "the table holding the concentration, response and optional grouping columns named by ``spec``.",
+      "source_sha256": "a3108e15a504b2994904d686ffb45d0aba404edbc9f99a92d56c0250e0a33047",
+      "context": "the table holding the concentration, response and optional grouping columns named by ``spec``.",
+      "translation": "tabellen som innehåller koncentrations-, svars- och valfria grupperingskolumner som namnges av ``spec``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_frame#3",
+      "source": "the columns to fit and the fitting policy; with a ``group`` column, one curve is fitted per level.",
+      "source_sha256": "bfdf8a7d03ea752c633756009125d5bb6c7c57ac43375f89d3d7e0f2889cb6e4",
+      "context": "the columns to fit and the fitting policy; with a ``group`` column, one curve is fitted per level.",
+      "translation": "kolumnerna som ska anpassas och anpassningspolicyn; med en kolumn ``group`` anpassas en kurva per nivå.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#0",
+      "source": "The 5PL curve, parameterised so ``log10_ec50`` is still the EC50.",
+      "source_sha256": "e159543150bb61bae4c1b6cd19eeebddc659361e12edac2c082252031417286f",
+      "context": "The 5PL curve, parameterised so ``log10_ec50`` is still the EC50.",
+      "translation": "5PL-kurvan, parametriserad så att ``log10_ec50`` fortfarande är EC50.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#1",
+      "source": "``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) * hill)) ** asymmetry``, with ``a = 2 ** (1 / asymmetry) - 1``.",
+      "source_sha256": "94f56af32d96e6f342f6a14b81fb9c20dd04cf349088f8eaf06a1f5aecd495f7",
+      "context": "``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) * hill)) ** asymmetry``, with ``a = 2 ** (1 / asymmetry) - 1``.",
+      "translation": "``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) * hill)) ** asymmetry``, med ``a = 2 ** (1 / asymmetry) - 1``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#10",
+      "source": "slope. Negative is inhibition, positive is activation.",
+      "source_sha256": "fd80341b192f2c2311a4cb0dca4857fbfa4cb74bbf6ae842a4e149f205eb0eaf",
+      "context": "slope. Negative is inhibition, positive is activation.",
+      "translation": "lutning. Negativ är hämning, positiv är aktivering.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#11",
+      "source": "the exponent. ``1`` is the symmetric 4PL; below 1 the curve leaves the low-dose plateau slowly and reaches the high-dose one abruptly, above 1 the reverse.",
+      "source_sha256": "50f859b92ffd5d23b54968aa6ee0cf864d6233f5ebb72c256128f81d4e0f2c40",
+      "context": "the exponent. ``1`` is the symmetric 4PL; below 1 the curve leaves the low-dose plateau slowly and reaches the high-dose one abruptly, above 1 the reverse.",
+      "translation": "exponenten. ``1`` är den symmetriska 4PL-kurvan; under 1 lämnar kurvan lågdosplatån långsamt och når högdosplatån abrupt, över 1 tvärtom.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#13",
+      "source": "if ``asymmetry`` is not strictly positive — the exponent of a nonneg quantity cannot be zero or negative here, and returning ``nan`` would let the optimiser wander into it.",
+      "source_sha256": "083008228b436a20e82bd3529bbe67b07788ada9366cad4c88167deb9ccfa441",
+      "context": "if ``asymmetry`` is not strictly positive — the exponent of a nonneg quantity cannot be zero or negative here, and returning ``nan`` would let the optimiser wander into it.",
+      "translation": "om ``asymmetry`` inte är strikt positiv — exponenten för en icke-negativ storhet kan inte vara noll eller negativ här, och att returnera ``nan`` skulle låta optimeraren vandra in i det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#2",
+      "source": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
+      "source_sha256": "145fea693db0defae9669687af04ae2111e23e68b96cba9e159647d476d8f912",
+      "context": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
+      "translation": "**Den skalfaktorn är hela poängen med den här funktionen.** Skriven på det sätt som 5PL-kurvan vanligtvis skrivs —",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#3",
+      "source": "— the parameter ``c`` is *not* the half-maximal concentration once ``s != 1``: at ``x = 10**c`` the response is ``bottom + (top - bottom) / 2**s``, which for ``s = 3`` is an eighth of the way up rather than half. A 5PL reported as if ``c`` were the EC50 is wrong by a factor that grows with the asymmetry, and it is a published mistake often enough to have its own literature (Gottschalk & Dunn, *Anal. Biochem.* 343, 2005). Scaling the exponential by ``2 ** (1 / s) - 1`` moves the half-maximal point back to ``x = EC50`` exactly, so:",
+      "source_sha256": "abb5f59c9fe33b64c56fab381928f546b95aad7e45e79633690a130d67cb358a",
+      "context": "— the parameter ``c`` is *not* the half-maximal concentration once ``s != 1``: at ``x = 10**c`` the response is ``bottom + (top - bottom) / 2**s``, which for ``s = 3`` is an eighth of the way up rather than half. A 5PL reported as if ``c`` were the EC50 is wrong by a factor that grows with the asymmetry, and it is a published mistake often enough to have its own literature (Gottschalk & Dunn, *Anal. Biochem.* 343, 2005). Scaling the exponential by ``2 ** (1 / s) - 1`` moves the half-maximal point back to ``x = EC50`` exactly, so:",
+      "translation": "— är parametern ``c`` *inte* den halvmaximala koncentrationen när ``s != 1``: vid ``x = 10**c`` är svaret ``bottom + (top - bottom) / 2**s``, vilket för ``s = 3`` är en åttondel av vägen upp i stället för hälften. En 5PL som rapporteras som om ``c`` vore EC50 är fel med en faktor som växer med asymmetrin, och det är ett publicerat misstag tillräckligt ofta för att ha en egen litteratur (Gottschalk & Dunn, *Anal. Biochem.* 343, 2005). Att skala exponentialen med ``2 ** (1 / s) - 1`` flyttar den halvmaximala punkten tillbaka till exakt ``x = EC50``, så att:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#4",
+      "source": "``asymmetry == 1`` reproduces :func:`four_parameter_logistic` term for term, which is what makes the two models nested and the F test in :func:`fit_dose_response` legitimate;",
+      "source_sha256": "b7b493ccdc1e075cf644ae1a845f82e94fe2867d8e6614237fe728b97fc5c2be",
+      "context": "``asymmetry == 1`` reproduces :func:`four_parameter_logistic` term for term, which is what makes the two models nested and the F test in :func:`fit_dose_response` legitimate;",
+      "translation": "``asymmetry == 1`` återger :func:`four_parameter_logistic` term för term, vilket är det som gör de två modellerna nästlade och F-testet i :func:`fit_dose_response` legitimt;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#5",
+      "source": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
+      "source_sha256": "a1251e1e88117eae1047b7a8adb6043f0ff87bd5f0adebdd50c7ef89af9eae2a",
+      "context": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
+      "translation": "varje efterföljande regel i den här modulen — begränsningstesterna, profilintervallet, den tillbakatransformerade rapporteringen — fortsätter att läsa ``log10_ec50`` som samma storhet under båda modellerna, och ingen av dem behövde lära sig en andra betydelse.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#6",
+      "source": "concentration(s). ``0`` evaluates to the low-dose plateau, as in :func:`four_parameter_logistic`.",
+      "source_sha256": "a10a897e2aa6ce1747ac392da3b4195d8e45335a49f49feb3ae03740c715d589",
+      "context": "concentration(s). ``0`` evaluates to the low-dose plateau, as in :func:`four_parameter_logistic`.",
+      "translation": "koncentration(er). ``0`` ger lågdosplatån, som i :func:`four_parameter_logistic`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#7",
+      "source": "the smaller plateau.",
+      "source_sha256": "62366e09548a73fc80e160070cfd1ddc1249d72156f3be38ccaff07c44a953e1",
+      "context": "the smaller plateau.",
+      "translation": "den lägre platån.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#8",
+      "source": "the larger plateau.",
+      "source_sha256": "4fb45bdbc4254999af9367efccaebfafcae58dc138005824c6827d94537104b3",
+      "context": "the larger plateau.",
+      "translation": "den högre platån.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#9",
+      "source": "base-10 log of the half-maximal concentration. It is the EC50 here, not the inflection parameter.",
+      "source_sha256": "7256704f2ef895d873a15fa5f01c0a219e369ac747fbde3b2d8080377fa38355",
+      "context": "base-10 log of the half-maximal concentration. It is the EC50 here, not the inflection parameter.",
+      "translation": "tiologaritmen av den halvmaximala koncentrationen. Den är EC50 här, inte inflexionsparametern.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#0",
+      "source": "Is the low-dose end of this series stimulated, or is it noise?",
+      "source_sha256": "3bea01c7922161566a7b8ebb8719049a77e432da5951f8731ff0f0dd8bddad97",
+      "context": "Is the low-dose end of this series stimulated, or is it noise?",
+      "translation": "Är lågdosänden av den här serien stimulerad, eller är det brus?",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#1",
+      "source": "Fits a 4PL and a Brain–Cousens curve (:func:`brain_cousens`) to the same points and compares them. The two models are nested — Brain–Cousens *is* the 4PL at ``stimulation = 0`` — so the comparison is the classical extra-sum-of-squares F test on one degree of freedom, which under Gaussian errors is the likelihood-ratio test written in the units this module already reports. It is required to agree with a corrected AIC, and both are required to agree with a minimum effect size.",
+      "source_sha256": "df8e80a3611edb274ad2df6d608ae15ba338476066cbca9eb266d37df914039f",
+      "context": "Fits a 4PL and a Brain–Cousens curve (:func:`brain_cousens`) to the same points and compares them. The two models are nested — Brain–Cousens *is* the 4PL at ``stimulation = 0`` — so the comparison is the classical extra-sum-of-squares F test on one degree of freedom, which under Gaussian errors is the likelihood-ratio test written in the units this module already reports. It is required to agree with a corrected AIC, and both are required to agree with a minimum effect size.",
+      "translation": "Anpassar en 4PL-kurva och en Brain–Cousens-kurva (:func:`brain_cousens`) till samma punkter och jämför dem. De två modellerna är nästlade — Brain–Cousens *är* 4PL vid ``stimulation = 0`` — så jämförelsen är det klassiska F-testet för extra kvadratsumma med en frihetsgrad, vilket under Gaussiska fel är likelihoodkvottestet skrivet i de enheter som den här modulen redan rapporterar. Det måste stämma överens med ett korrigerat AIC, och båda måste stämma överens med en minsta effektstorlek.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#10",
+      "source": "significance the F test has to reach.",
+      "source_sha256": "2945712d32148ae92ae3418e53cc67f357da5309f606ffc5e9b9000f20a92495",
+      "context": "significance the F test has to reach.",
+      "translation": "den signifikans som F-testet måste nå.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#11",
+      "source": "corrected-AIC gap the hormetic fit has to win by.",
+      "source_sha256": "0140818a4ce71f857ca5b6ff20442ba15e99ead31a1684d653a804d45a6e5869",
+      "context": "corrected-AIC gap the hormetic fit has to win by.",
+      "translation": "den skillnad i korrigerat AIC som den hormetiska anpassningen måste vinna med.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#12",
+      "source": "a :class:`HormesisCheck`. Read :attr:`~HormesisCheck.is_hormetic`; when it is ``False`` the :attr:`~HormesisCheck.note` says which criterion failed.",
+      "source_sha256": "bfb18e45fd55f76d29fce03336d1a0df0e623ed39b852cb35b76f71d4f13106a",
+      "context": "a :class:`HormesisCheck`. Read :attr:`~HormesisCheck.is_hormetic`; when it is ``False`` the :attr:`~HormesisCheck.note` says which criterion failed.",
+      "translation": "en :class:`HormesisCheck`. Läs :attr:`~HormesisCheck.is_hormetic`; när den är ``False`` anger :attr:`~HormesisCheck.note` vilket kriterium som inte uppfylldes.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#13",
+      "source": "only for data that cannot be read at all — a negative concentration, or a concentration and response column of different lengths. Too few points to test is a ``False`` verdict with a note, not an exception: \"we could not test this\" is an answer.",
+      "source_sha256": "a5fe694c116671ce2c4462c29f9e2419ab652eb920b1297a0f6c5cdc6f3bcf0c",
+      "context": "only for data that cannot be read at all — a negative concentration, or a concentration and response column of different lengths. Too few points to test is a ``False`` verdict with a note, not an exception: \"we could not test this\" is an answer.",
+      "translation": "endast för data som inte kan läsas alls — en negativ koncentration, eller en koncentrations- och en svarskolumn med olika längd. För få punkter för att testa är ett ``False``-utlåtande med en anteckning, inte ett undantag: \"vi kunde inte testa detta\" är ett svar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#2",
+      "source": "**Four criteria, and all four have to hold.** Any one of them alone is a way to be wrong:",
+      "source_sha256": "0384d0567033fb7580d0a21a4e2b53c4527e7899e9f76fb3b3b6f9b4dbbe6811",
+      "context": "**Four criteria, and all four have to hold.** Any one of them alone is a way to be wrong:",
+      "translation": "**Fyra kriterier, och alla fyra måste uppfyllas.** Vilket som helst av dem ensamt är ett sätt att ha fel:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#3",
+      "source": "1. the fitted ``stimulation`` is positive — a negative coefficient makes the curve leave the control plateau faster, which is a 4PL that does not quite fit rather than a compound that stimulates; 2. ``p < alpha`` on the F test; 3. ``ΔAICc >= min_delta_aic``, computed with the small-sample correction because these are five- and six-parameter models on twenty-odd wells; 4. the hump reaches ``min_effect`` of the fitted response span — the minimum-effect threshold, without which a very tight assay reports hormesis at 2% and a reader acts on it.",
+      "source_sha256": "48b2e61422288653716cb676bee8b63df03dbd3694b0feacb9bddabf3d245431",
+      "context": "1. the fitted ``stimulation`` is positive — a negative coefficient makes the curve leave the control plateau faster, which is a 4PL that does not quite fit rather than a compound that stimulates; 2. ``p < alpha`` on the F test; 3. ``ΔAICc >= min_delta_aic``, computed with the small-sample correction because these are five- and six-parameter models on twenty-odd microplate sample positions; 4. the hump reaches ``min_effect`` of the fitted response span — the minimum-effect threshold, without which a very tight assay reports hormesis at 2% and a reader acts on it.",
+      "translation": "1. den anpassade ``stimulation`` är positiv — en negativ koefficient får kurvan att lämna kontrollplatån snabbare, vilket är en 4PL som inte riktigt passar snarare än en substans som stimulerar; 2. ``p < alpha`` i F-testet; 3. ``ΔAICc >= min_delta_aic``, beräknat med korrektionen för små stickprov eftersom detta är modeller med fem och sex parametrar på drygt tjugo brunnar; 4. puckeln når ``min_effect`` av det anpassade svarsomfånget — tröskeln för minsta effekt, utan vilken en mycket precis analys rapporterar hormesis vid 2% och en läsare agerar på det.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#4",
+      "source": "**Why the effect is measured against the response span** and not as a percentage of the control, which is the convention in the hormesis literature: this module normalises plates to percent inhibition, where the control is 0 by construction and a percentage of it is either infinite or meaningless. The span is the window the curve moves through under either scaling.",
+      "source_sha256": "2adb022436ab7f841e6b012501ef485c49153bc787b37f21b5f134ec5cc747c3",
+      "context": "**Why the effect is measured against the response span** and not as a percentage of the control, which is the convention in the hormesis literature: this module normalises plates to percent inhibition, where the control is 0 by construction and a percentage of it is either infinite or meaningless. The span is the window the curve moves through under either scaling.",
+      "translation": "**Varför effekten mäts mot svarsomfånget** och inte som en procentandel av kontrollen, vilket är konventionen i hormesislitteraturen: den här modulen normaliserar plattor till procent hämning, där kontrollen är 0 per konstruktion och en procentandel av den är antingen oändlig eller meningslös. Omfånget är det fönster som kurvan rör sig genom under båda skalningarna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#5",
+      "source": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
+      "source_sha256": "a841346d577f13b160fc5ab59b6823582b375bbb6da64034f485b55428ffef2d",
+      "context": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
+      "translation": "**F-testet är tvåsidigt och hypotesen ensidig**, eftersom bara en positiv stimulering är hormesis. Kriterium 1 sköter den ensidiga delen genom inspektion i stället för genom att halvera p-värdet, så det rapporterade p-värdet är konservativt med ungefär en faktor två. Angivet snarare än korrigerat: ett konservativt p-värde i en screening som redan avvisar sådana data är rätt håll att ha fel åt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#6",
+      "source": "concentrations, one per observation. Zeros are vehicle controls and are dropped, as everywhere in this module.",
+      "source_sha256": "b0c13d88182a2d698b76ecc12b649bdf71e8b187c93f64d58578130bbd14a384",
+      "context": "concentrations, one per observation. Zeros are vehicle controls and are dropped, as everywhere in this module.",
+      "translation": "koncentrationer, en per observation. Nollor är vehikelkontroller och tas bort, som överallt i den här modulen.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#7",
+      "source": "the matching responses.",
+      "source_sha256": "b13bb11c822ea7bbf03a5659c452a6043025d17dac68e5e2c6b63f95bd34dc1e",
+      "context": "the matching responses.",
+      "translation": "de motsvarande svaren.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#8",
+      "source": ":data:`DIRECTION_AUTO` or a pinned direction. It sets which way \"stimulated\" points — for an inhibition series hormesis is a rise above control, for an activation series a dip below it.",
+      "source_sha256": "4b567a19d13bfc0a37df0ed22c384cbdbfeb2af76fe2adf93872104f60c2bf98",
+      "context": ":data:`DIRECTION_AUTO` or a pinned direction. It sets which way \"stimulated\" points — for an inhibition series hormesis is a rise above control, for an activation series a dip below it.",
+      "translation": ":data:`DIRECTION_AUTO` eller en fastlåst riktning. Den anger åt vilket håll \"stimulated\" pekar — för en hämningsserie är hormesis en ökning över kontrollen, för en aktiveringsserie en sänkning under den.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.hormesis#9",
+      "source": "the minimum-effect threshold, as a fraction of the fitted response span. See :data:`HORMESIS_MIN_EFFECT`.",
+      "source_sha256": "be89c41de9d30457ef16027f8f64ee8ff96404c40bf068480d8ca3d0a02bc834",
+      "context": "the minimum-effect threshold, as a fraction of the fitted response span. See :data:`HORMESIS_MIN_EFFECT`.",
+      "translation": "tröskeln för minsta effekt, som en andel av det anpassade svarsomfånget. Se :data:`HORMESIS_MIN_EFFECT`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dot_link.DotLink.paintEvent#1",
+      "source": "the paint event; unused, since the dot is redrawn whole from the button's enabled, pressed and hover state.",
+      "source_sha256": "7d4c96edbe84cdab84edfb25e1706521baf6948cca2f07e67a72e61c23bf5b71",
+      "context": "the paint event; unused, since the dot is redrawn whole from the button's enabled, pressed and hover state.",
+      "translation": "målningshändelsen; används inte, eftersom punkten ritas om helt utifrån knappens aktiverade, nedtryckta och hovrade tillstånd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.drawer.EdgeDrawer.adopt#2",
+      "source": "the panel widget to re-parent into the drawer; it is moved to the top-left, sized to the drawer's width and height and shown.",
+      "source_sha256": "c695cf902e2fb125da5f3bcefe04017e796e22550f2408ef7cb1ae770ea3cfb3",
+      "context": "the panel widget to re-parent into the drawer; it is moved to the top-left, sized to the drawer's width and height and shown.",
+      "translation": "panelwidgeten som ska få lådan som ny förälder; den flyttas till övre vänstra hörnet, storleksanpassas till lådans bredd och höjd och visas.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

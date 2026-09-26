@@ -99,5 +99,47 @@
       "bytes": 2386958407
     }
   ],
-  "filesystem_bytes_freed": 54999879680
+  "filesystem_bytes_freed": 54999879680,
+  "later_rounds": [
+    {
+      "date": "2026-09-26",
+      "kept": [
+        "release-candidate-append-vdq3zb7x (current baseline)",
+        "release-candidate-append-1dgypni8",
+        "release-candidate-append-iij8lm0r"
+      ],
+      "deleted": [
+        {
+          "folder": "release-candidate-append-nzin8z6h",
+          "commit": "b2225b919d11c150963c419c9810a4063482a9b2",
+          "tag": "tutorials-recapture-20260925-nzin8z6h",
+          "tag_resolves_to_commit": true,
+          "bytes": 2241048512
+        },
+        {
+          "folder": "release-candidate-append-31kkmyz_",
+          "commit": "cddb2b8429f209dcc7613f550d9f8b7cfb80850c",
+          "tag": "tutorials-hosted-20260925-31kkmyz_",
+          "tag_resolves_to_commit": true,
+          "bytes": 2091861088
+        },
+        {
+          "folder": "release-candidate-append-1rjwna77",
+          "commit": "d2db0911ea22c47dbb4f913bf62a8f173232021b",
+          "tag": "tutorials-item520-20260925-1rjwna77",
+          "tag_resolves_to_commit": true,
+          "bytes": 2091331529
+        },
+        {
+          "folder": "release-candidate-append-ii3rwunc",
+          "commit": "84b3dea3da6dd37490bb19e67dac7b8da04ce126",
+          "tag": "tutorials-voices-b3-20260925-ii3rwunc",
+          "tag_resolves_to_commit": true,
+          "bytes": 2237073956
+        }
+      ],
+      "filesystem_bytes_freed": 8678105088,
+      "note": "ii3rwunc was never recorded: its media equal vdq3zb7x except the player, which lives on Pages."
+    }
+  ]
 }
