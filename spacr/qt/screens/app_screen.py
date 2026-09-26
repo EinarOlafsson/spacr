@@ -7492,6 +7492,10 @@ class AppScreen(QWidget):
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
         buttons.addWidget(self._btn_import)
+        buttons.addWidget(self._build_analysis_lock_button())
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._btn_analysis_lock)
 
         self._btn_remote = QPushButton("Submit remote…")
         self._btn_remote.setObjectName("PrimaryButton")
@@ -11004,6 +11008,128 @@ class AppScreen(QWidget):
                 "\nStopped waiting. The step would not interrupt -- it is "
                 "still finishing in the background and may keep writing for "
                 "a while. The window is yours again.\n")
+
+    def _build_analysis_lock_button(self) -> QPushButton:
+        """The Lock analysis button: preregister these settings before results.
+
+        Opens :meth:`_analysis_lock_dialog`. An alpha feature, registered as
+        ``AnalysisLockButton`` in :data:`spacr.settings.ALPHA_FEATURES`;
+        the caller applies the gate once the button is in its row.
+
+        :returns: the button.
+        """
+        button = QPushButton(tr("Lock analysis…"))
+        button.setObjectName("AnalysisLockButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Preregister the analysis: freeze these settings, your hypotheses "
+            "and thresholds, and the model and gate files they name, with a "
+            "hash and a timestamp, before the results are seen. Every later "
+            "run on the same source is checked against the lock, and a "
+            "change is flagged in its manifest, the report and the methods "
+            "text, as post-hoc once the blinding key has been opened. "
+            "Default no lock."))
+        button.clicked.connect(self._on_analysis_lock)
+        self._btn_analysis_lock = button
+        return button
+
+    def _on_analysis_lock(self) -> None:
+        """Show the analysis lock dialog for the settings on the form."""
+        dialog = self._analysis_lock_dialog()
+        if dialog is not None:
+            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+            dialog.open()
+
+    def _analysis_lock_dialog(self):
+        """Build the dialog that shows the lock on these settings and makes one.
+
+        It states how the settings on the form stand against the newest lock
+        on this module and source (:func:`spacr.run_journal.check_analysis_lock`),
+        takes the hypotheses, the thresholds and gates, and a note, and its
+        Lock button freezes them with the settings through
+        :meth:`_lock_analysis_now`.
+
+        :returns: the dialog, not yet shown, or ``None`` when the settings
+            on the form cannot be read.
+        """
+        from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QFormLayout,
+                                       QLineEdit, QPlainTextEdit)
+
+        from ...run_journal import check_analysis_lock
+
+        try:
+            settings = dict(self._settings_model.collect())
+        except Exception as exc:
+            QMessageBox.warning(self, tr("Bad settings"), str(exc))
+            return None
+        dialog = QDialog(self)
+        dialog.setObjectName("AnalysisLockDialog")
+        dialog.setWindowTitle(tr("Lock analysis"))
+        layout = QVBoxLayout(dialog)
+        status = QLabel(dialog)
+        status.setWordWrap(True)
+        status.setProperty("i18nSkipText", True)
+        result = check_analysis_lock(settings, app_key=self.app_key)
+        status.setText(result["summary"] if result["status"] != "unlocked"
+                       else tr("No analysis lock applies to these settings "
+                               "yet."))
+        layout.addWidget(status)
+        form = QFormLayout()
+        hypotheses = QPlainTextEdit(dialog)
+        hypotheses.setPlaceholderText(tr(
+            "What you expect to find, and what would count against it."))
+        thresholds = QPlainTextEdit(dialog)
+        thresholds.setPlaceholderText(tr(
+            "The thresholds and gates that decide a call, one per line."))
+        note = QLineEdit(dialog)
+        form.addRow(tr("Hypotheses"), hypotheses)
+        form.addRow(tr("Thresholds and gates"), thresholds)
+        form.addRow(tr("Note"), note)
+        layout.addLayout(form)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, dialog)
+        lock = buttons.addButton(tr("Lock"), QDialogButtonBox.ActionRole)
+        lock.setObjectName("AnalysisLockConfirm")
+        buttons.rejected.connect(dialog.reject)
+
+        def _lock():
+            record = self._lock_analysis_now(
+                settings, hypotheses.toPlainText(), thresholds.toPlainText(),
+                note.text())
+            status.setText(tr(
+                "Locked {sha} at {time}. Runs of these settings on this "
+                "source are checked against it.",
+                sha=record["sha256"][:16], time=record["locked_utc"]))
+            lock.setEnabled(False)
+
+        lock.clicked.connect(_lock)
+        layout.addWidget(buttons)
+        dialog._spacr_lock_parts = {
+            "status": status, "hypotheses": hypotheses,
+            "thresholds": thresholds, "note": note, "lock": lock}
+        return dialog
+
+    def _lock_analysis_now(self, settings, hypotheses: str = "",
+                           thresholds: str = "", note: str = "") -> dict:
+        """Freeze ``settings`` and the plan, and say so in the console.
+
+        :param settings: the settings to lock.
+        :param hypotheses: the hypotheses, in words.
+        :param thresholds: the thresholds and gates, in words.
+        :param note: anything else to keep with the plan.
+        :returns: the lock :func:`spacr.run_journal.lock_analysis` wrote.
+        """
+        from ...run_journal import lock_analysis
+
+        record = lock_analysis(settings, app_key=self.app_key,
+                               hypotheses=hypotheses, thresholds=thresholds,
+                               note=note)
+        try:
+            self._console.append_notice(
+                "Analysis locked: {sha} at {time}.\n",
+                sha=record["sha256"][:16], time=record["locked_utc"])
+        except Exception:
+            LOG.debug("could not report the analysis lock", exc_info=True)
+        return record
 
     def _on_import_settings(self):
         """Load a settings CSV into the form and report what was applied.
