@@ -1,46 +1,38 @@
 {
   "lesson": "13_regression",
-  "language": "nb",
-  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "english_sha256": "2e037a0eedfdac229744cbbaa82819ee8680d8fb607655490493ef36f4b0f71b",
   "review": {
-    "kind": "Editorial caption translation checked against English and the accepted real-data recording",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "corrections": [
-      "Distinguish 759 stored results from the displayed 434-guide family.",
-      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
-      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
-    ]
+    "listening_review": false
   },
-  "title": "Regression: et ekte eksempel fra parede tabeller til resultater",
-  "description": "Last inn det nedlastbare screeningsdatasettet, konfigurer en avgrenset guide-permutasjonsanalyse, undersøk den faktiske konsollen og figurene, og finn spesialverktøyene som nå ligger inne i Regression.",
+  "language": "nb",
+  "title": "Regression: fra parede tabeller til resultater",
+  "description": "Koble fenotypepoeng med guidetellinger, velg en inferensmetode, kjør eksemplet og utforsk resultater per guide og per gen.",
   "objectives": [
-    "Last inn fire par med skår- og tellingstabeller via den synlige testdataknappen, og velg en egen utdatamappe.",
-    "Skill mellom inferensmetode, resultatnivå og analyseenhet, og gjenta det avgrensede eksemplet uten å behandle permutasjonsantallet som en anbefaling for den endelige analysen.",
-    "Undersøk faktiske resultater, figurer og diagnostiske begrensninger; skill interaktiv visning fra direkte omberegning av analysen.",
-    "Finn Regressions innebygde verktøy, valgfri KI-hjelp og gjeldende Python-inngangspunkt."
+    "Laste inn parede poeng- og tellingstabeller og velge en utdatamappe.",
+    "Angi inferensmetode, rapporteringsnivå og analyseenhet.",
+    "Kjøre eksemplet og undersøke resultatene sammen med tilhørende diagnostikk."
   ],
-  "prerequisite": "Spilt inn i spaCR 1.5.0.9. Åpne spaCR og velg Regression blant Core-modulene. Eksemplet laster ned skår- og tellingsfiler eller gjenbruker hurtigbufferen. Den innspilte analysen krever ingen måledatabase, bildeutsnitt, ekstern annotasjonstjeneste eller KI-abonnement. Den korte permutasjonskjøringen viser arbeidsflyten, ikke endelige biologiske funn.",
+  "prerequisite": "Åpne Regression og velg Load test data for å få fire parede poeng- og tellingstabeller. Bruk en ny utdatamappe. En måledatabase er valgfri for denne analysen av poeng og tellinger; visninger på objektnivå krever tilsvarende måledata og bilder.",
   "scenes": [
-    "Åpne Regression blant Core-modulene. Modulen kobler fenotypeskårer til mengden av guider og rapporterer sammenhenger med den valgte inferensmetoden. Verktøyene øverst ligger nå inne i modulen; de er ikke lenger egne felt på Home.",
-    "Velg Load test data under Input Tables. Programmet laster ned eksempelscreeningen eller gjenbruker kontrollerte filer i hurtigbufferen; opptaket bruker hurtigbufferen. Konsollen melder om fire skårtabeller og fire tellingstabeller, paret etter plate.",
-    "Kontroller alle fire parede rader. Hver plate trenger de tilhørende skår- og tellingsfilene; den valgfrie kolonnen for måledatabase er tom her. Gjør innstillingspanelet bredere ved behov, og bruk en ny utdatamappe slik at demonstrasjonen ikke blandes med en eksisterende analyse.",
-    "Bytt fra Essentials til All settings, og søk etter en innstilling med etiketten eller API-nøkkelen. Her er inference satt til nonparametric: permutasjonstesting av guider. Det skiller seg fra parametrisk regresjon som tilpasser alle prediktorer samtidig og krever et identifiserbart design.",
-    "Level svarer på et annet spørsmål: Hva skal rapporteres? Velg both for separate guide- og genresultater. Dette valget bestemmer ikke inferensmetoden. Guide- og genresultater er forskjellige testfamilier, så kontroller ønsket familie før du tolker korrigert signifikans.",
-    "Bruk well som analyseenhet i eksemplet. Den innlastede forhåndsinnstillingen angir responskolonne, transformasjoner, kontroller og ekskluderinger. Undersøk antakelsene før du tilpasser arbeidsflyten til din egen screening. En nedlastet forhåndsinnstilling er et eksempeldesign, ikke en universell anbefaling.",
-    "Sett minste støtte for en guide til to brønner i denne avgrensede kjøringen. Det filtrerer hvilke guider som testes, men beviser ikke tilstrekkelig statistisk styrke. En guide som finnes i svært få brønner, må fortsatt tolkes forsiktig.",
-    "Velg 199 permutasjoner for å gjenta den korte demonstrasjonen. Det begrenser den minste mulige empiriske p-verdien til 0,005, noe som kan være for grovt etter korreksjon for multiple tester. Planlegg et passende antall permutasjoner for det faktiske forsøket.",
-    "Sett permutasjonsfrøet til null for kjøringen som vises. Behold eksemplets plateblokker og rad- og kolonneledd for forstyrrende variasjon med mindre forsøksdesignet begrunner en endring. Et fast frø støtter reproduserbarhet, men reparerer ikke ugyldige antakelser om utbyttbarhet.",
-    "Regression backend er ingen universell akselerasjonsbryter. Feltet gjelder støttede estimatorer som tilpasser modeller; å endre det gjør ikke denne guide-permutasjonsdemonstrasjonen til GPU-regresjon. Andre spaCR-moduler har egne enhetsvalg. Følg kontrollene og konsollen for operasjonen som faktisk kjører.",
-    "Velg none som annotasjonskilde i dette selvstendige eksemplet. De statistiske resultatene krever ikke et eksternt oppslag av genannotasjoner. Bruk annotasjoner som passer organismen og identifikatorsystemet i din egen screening, i stedet for å anta at alle guidebetegnelser blir gjenkjent.",
-    "Tøm søket, kontroller utdatamappen og trykk Run. Følg den faktiske konsollen mens inndata samordnes, valgte filtre brukes og resultater beregnes. Regression lager diagnostiske figurer direkte; dette opptaket har ingen egen Plot-bryter som skal slås på.",
-    "Det fullførte eksemplet ga 434 guideresultater, 325 genresultater og fem figurer. Finished betyr at programmet er ferdig; det godkjenner verken forsøksdesignet eller biologiske funn. Les de diagnostiske advarslene i tillegg til fullføringsmeldingen. Rapporten om utbyttbarhet mislyktes i denne kjøringen; forutsetningene for permutasjonstesten må derfor fortsatt vurderes uavhengig.",
-    "Runs identifiserer den lagrede analysen; Results viser den valgte kjøringen. Kontroller mappe og innstillinger når du sammenligner kjøringer. Endring av et skjemafelt beregner ikke det viste resultatet på nytt. Kjør analysen igjen når du vil teste et nytt valg.",
-    "Results inneholder koeffisienttabellen og interaktive visninger ved siden av de genererte figurene. Kjøringen har til sammen 759 rader på begge nivåer; denne visningen velger de 434 guideresultatene. Bruk Level til å velge testfamilien. Interaktiv gjennomgang av lagrede resultater kjører ikke inferensen på nytt.",
-    "Åpne p-values for å undersøke resultatfordelingen. Tolk den sammen med valgt testfamilie, permutasjonsoppløsning og diagnostikk, ikke som automatisk bevis på en effekt. Den separate Diagnostics-veiledningen forklarer de lagrede design- og inferenspanelene i detalj.",
-    "Measurements har kontroller for å undersøke flere målte responsvariabler. Eksemplet har ingen tilkoblet måledatabase. Å åpne fanen oppretter ikke en database og utfører ikke et sveip over målinger. Legg til nødvendige måledata før du bruker verktøyene på ditt eget forsøk.",
-    "Cells kan koble valgte resultater til underliggende objekter når passende måledata og bilder finnes. Her er databasekolonnen tom, så det finnes ingen cellemontasje å vise. Ikke forveksle en utilgjengelig objektvisning med en mislykket skår- og tellingsanalyse.",
-    "De innebygde verktøyene er Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler og Diagnostics. Hold pekeren over ikonene for å identifisere dem. De lenkede veiledningene dekker hver arbeidsflyt. En prediksjonsprofil krever for eksempel egnede resultater fra en tilpasset modell, som denne permutasjonskjøringen ikke leverer.",
-    "AI aktiverer valgfri hjelp gjennom leverandøren som er konfigurert i Preferences under AI. Still et konkret spørsmål om resultater eller innstillinger, og kontroller rådene mot dataene. Dette er et usendt eksempelspørsmål: Ingen leverandør ble kontaktet, og ingen svar ble generert til opptaket.",
-    "I skript bruker du perform_regression i spaCRs maskinlæringsmodul med de tilsvarende innstillingene; se gjeldende API-dokumentasjon. Oppbevar inndatatabeller, lagrede innstillinger, resultater og diagnostisk tolkning samlet. Bruk Parameter Sweep bevisst til sammenligninger, og skill utforskende valg fra beslutninger om den endelige analysen."
+    "Fra Home åpner du Regression. Denne modulen knytter fenotypepoeng til guidemengde. Begynn med én poengtabell og én tellingstabell per plate, og velg deretter hvordan sammenhenger skal testes og rapporteres.",
+    "I Input Tables klikker du på Load test data og venter til eksemplet er lastet inn. Det gir fire poengtabeller og fire tellingstabeller, paret etter plate.",
+    "Undersøk hver parede rad og kontroller platenavnet, poengfilen og tellingsfilen. La den valgfrie kolonnen for måledatabase stå tom i dette eksemplet. Velg en ny utdatamappe for analysen.",
+    "Bytt til All settings og bruk søkefeltet for å finne Inference. Velg nonparametric for dette eksemplet med guidepermutasjon. Bruk en parametrisk metode når spørsmålet og designet krever at flere prediktorer tilpasses sammen.",
+    "Level bestemmer hvilke resultater som rapporteres. Velg both for å få resultater både per guide og per gen. Hold disse testfamiliene atskilt når du ser på justert signifikans.",
+    "Velg well som analyseenhet i dette eksemplet. Gå gjennom responskolonnen, transformasjonene, kontrollene og de ekskluderte brønnene. Tilpass innstillingene til designet for din egen screen før du kjører nye data.",
+    "Minste guidestøtte styrer hvor mange brønner en guide må finnes i før den testes. Sett den til 2 for å følge dette lille eksemplet. Velg et støttekrav som passer eksperimentet ditt.",
+    "Angi 199 permutasjoner for en rask første kjøring. Flere permutasjoner gir finere oppløsning av den empiriske p-verdien og tar lengre tid. Velg et høyere antall når den endelige analysen krever det.",
+    "Sett permutasjonsfrøet til 0 for å gjenta den samme randomiseringen. Behold eksemplets plateblokker og støyleddene for rad og kolonne. For egne data velger du blokker som tar hensyn til hvilke observasjoner som kan byttes om etter forsøksdesignet.",
+    "Velg none i Annotation source for å kjøre eksemplet uten oppslag av genannoteringer. For en annen screen velger du annoteringer som passer organismen og identifikatorsystemet.",
+    "Tøm søket, kontroller de parede inndataene og utdatamappen, og klikk deretter på Run. Følg konsollen mens modulen justerer tabellene mot hverandre, filtrerer guider og beregner resultatene. Diagnostikkfigurene lages sammen med analysen.",
+    "Når kjøringen er ferdig, åpner du Runs og velger den lagrede analysen. Bekreft mappen og innstillingene før du sammenligner den med en annen kjøring. Kjør analysen på nytt etter at du har endret innstillinger hvis du vil ha nye resultater.",
+    "Åpne Results og bruk Level til å bytte mellom guide- og genresultater. Undersøk resultattabellen og de interaktive visningene. De lagrede filene results_grna.csv og results_gene.csv inneholder de tilsvarende tabellene for videre analyse.",
+    "Åpne visningen for p-verdier og verktøyet Diagnostics. Gå gjennom resultatfordelingen sammen med permutasjonsoppløsningen, testfamilien og designadvarslene. Løs viktige diagnostiske problemer før du tolker sammenhenger.",
+    "Bruk verktøylinjen til å åpne Volcano Explorer, Hit List eller Investigate Hit som neste steg. Veiledningene deres viser hvordan du undersøker valgte resultater. Hold inndatatabeller, lagrede innstillinger, resultatfiler og diagnostikkrapporter samlet når du deler analysen."
   ]
 }

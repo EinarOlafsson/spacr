@@ -1,31 +1,35 @@
 {
   "lesson": "16_activation",
-  "english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "a93b1d181e542e8162f7a36996e2de029d338fcf457fe57b640fbf7fe4cd0980",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "da",
-  "title": "Activation Maps: reelle salienskort og deres begrænsninger",
-  "description": "Åbn Activation Maps i Classify, match en betroet model med reelle billedudsnit, og sammenlign to resultater uden at forveksle attribution med validering.",
+  "title": "Activation Maps: undersøg en billedklassifikators saliency-kort",
+  "description": "Vælg en trænet klassifikator og matchende billedudsnit, sammenlign kanal- og billed-saliency, og åbn de gemte kort.",
   "objectives": [
-    "Find det indlejrede værktøj, og bevar modellens inputkrav.",
-    "Skeln mellem forbehandling, visningskontrast og attribution.",
-    "Undersøg gemte filer, når Figures er tomt.",
-    "Adskil numerisk kontrol, forudsigelser og videnskabelig gyldighed."
+    "Afstemme udsnitsarkivet, modellen og forbehandlingsindstillingerne.",
+    "Køre kanal-saliency med en billedoverlejring.",
+    "Sammenligne billed-saliency og finde de gemte gitre."
   ],
-  "prerequisite": "Fire uændrede RGB-celleudsnit fra Annotates downloadede eksempel og et betroet lokalt ResNet18-checkpoint trænet én epoke. Det tidligere eksempel deler brønde mellem datasplit: INGEN påstand om uafhængig nøjagtighed. Bevar formatmarkør 3/RGB og modelkort. Størrelse 128, batch 4, kanaler [1,2,3], normalize_input/normalize/Plot/Save til, shuffle/correlation fra, én CPU-proces. saliency_channel med overlejring og saliency_image uden. 196608 inputværdier og 262144 kortkomponenter kontrolleret med højst ét 8-bit afrundingsniveau. Identiteter og originaler uændrede. src-advarsel og tomt Figures IKKE rettet; ægte PNG-filer vises eksternt. Fire ubrugte pladser er tomme. Ingen attributionsvalidering, uafhængig nøjagtighed, AI-forespørgsel, biologisk validering eller publicering. API: spacr.deep_spacr.generate_activation_maps og spacr.utils.SaliencyMapGenerator.",
+  "prerequisite": "Brug et trænet checkpoint til billedklassifikation og et TAR-arkiv med kompatible billedudsnit. Behold markøren for udsnitsformat, hvis den findes, og følg modelkortets kanalrækkefølge, billedstørrelse og normalisering. Eksemplet bruger fire RGB-udsnit fra Annotate og en ResNet18-model fra Classify. Træn eller skaf en model med kendt forbehandling, før du begynder.",
   "scenes": [
-    "Åbn Classify og derefter det indlejrede værktøj Activation Maps. Denne arbejdsgang undersøger, hvordan en trænet models forudsigelse reagerer på billedpixels. Den træner ikke en klassifikator og fastslår ikke årsagen til en observeret fænotype. Vi viser to reelle salienskørsler, konsollen og en udtrykkelig vej til at se gemte filer.",
-    "Brug det faktiske udsnitsarkiv, ikke en eksempelmappe. Vores lille arkiv indeholder fire uændrede RGB-celleudsnit fra Annotates downloadede eksempel samt formatmarkøren. Vi bevarer kilderne og arbejder i et privat projekt. Fire bekvemt valgte billeder illustrerer funktionen; de er ikke en repræsentativ valideringsgruppe.",
-    "Vælg den tilsvarende betroede model, og bevar modelkortet. Dette er et ResNet18-checkpoint trænet i kun én epoke i den tidligere demonstration. Dets datasplit delte brønde, så vi hævder ingen uafhængig nøjagtighed. Et overbevisende attributionsbillede redder ikke en utilstrækkeligt valideret model. Indlæs ikke et ubekræftet checkpoint af bekvemmelighed.",
-    "Match træningens inputkrav: størrelse 128 og den deklarerede RGB-kanalrækkefølge. Her bruger den faktiske kanalvælger 1, 2, 3. Byt ikke kanaler, fordi et andet værktøj bruger indeks fra nul. Vi kontrollerede uafhængigt de centrerede udsnit og transformerede inputværdier mod træningens indlæser, før saliens blev sammenlignet.",
-    "Skeln mellem inputnormalisering og visningsnormalisering. Input skal matche træningen; her er den registrerede symmetriske forbehandling slået til. Visningsnormalisering ændrer den overlejrede inputvisning, ikke modellens nøjagtighed eller betydningen af en farve. Bevar begge indstillinger ved sammenligning, og forveksl ikke et lysere billede med stærkere evidens.",
-    "Vælg saliency channel med Overlay aktiveret, og behold Plot og Save. Vi bruger én arbejdsproces, fire billeder pr. batch og CPU til denne lille demonstration. Skærmen har ingen livevisning; et metodeskift kræver en ny kørsel. Kanalsaliens holder inputkanalerne adskilt, når de afledningsbaserede kort gemmes.",
-    "Læs den faktiske konsol. Beregningen afsluttes, men denne version klager fejlagtigt over manglende src, selvom Activation bruger Dataset. Figures-panelet forbliver også tomt. Vi kontrollerede uafhængigt input, gemte kort og databaseidentiteter; vi rettede ikke GUI-fejlene. Andre fejl skal stadig undersøges.",
-    "Åbn det gemte batchgitter i en billedfremviser. Dette er den rigtige eksterne fremviser, ikke en figur indsat i spaCR. Fire udfyldte pladser svarer til de fire udsnit; de øvrige fire er ubrugte. Hjørnetallene nul og ét er modelforudsigelser, ikke facit. Overlejringen viser følsomhed, ikke en segmenteringsmaske.",
-    "Vælg nu saliency image, slå Overlay fra, og kør igen på de samme input. Metoden kombinerer absolutte afledte på tværs af kanaler, før det gemte gråtonekort skaleres igen. Det er ikke okklusion eller integrerede gradienter. Hold metodespecifikke resultater adskilt, så anden kørsel ikke forveksles med første.",
-    "Det andet gemte gitter viser kortene uden de underliggende billeder. Farverne viser den viste saliensskala, ikke klassesandsynligheder eller bevis for biologisk betydning. Uafhængige kontroller sammenligner hver gemt komponent med en separat beregnet gradient og tillader højst ét afrundingsniveau i otte bit. Det kontrollerer implementeringen, ikke forklaringens nytte.",
-    "Kortkvantificering er slået fra. Vi har ikke kørt sletning, indsættelse, modelrandomisering eller andre attributionsvalideringer; to visuelt forskellige metoder erstatter dem ikke. Brug repræsentative fejl og succeser, meningsfulde kontroller og uafhængigt tilbageholdte data, før du konkluderer. Betragt denne begrænsede demonstration som en kontrol af arbejdsgangen.",
-    "Bevar udsnitsidentiteter, originalbilleder, model og kort, indstillinger, logs, salienskort og database samlet. Kilderne forblev uændrede, og begge metoder bevarede alle fire identiteter. AI-hjælp er valgfri; ingen forespørgsel blev sendt her. Kontrollér senere råd mod den faktiske API og evidensen, frem for at tage en flydende forklaring for validering."
+    "Fra Home åbner du Classify og derefter Activation Maps. Værktøjet viser, hvilke inputpixels en trænet billedklassifikators forudsigelse er følsom over for. Begynd med modellen og et arkiv af udsnit, der er forberedt på samme måde som dens træningsdata.",
+    "Vælg udsnitsarkivet i Dataset. Eksemplet indeholder fire RGB-celleudsnit fra Annotate. Medtag markøren for udsnitsformat, når du pakker billederne, og behold filnavnene, så du kan knytte hvert kort til dets oprindelige objekt.",
+    "Vælg den trænede model og dens modeltype. Her er modellen ResNet18. Læs modelkortet, og sæt Image size til 128, så det passer til træningens input.",
+    "Indstil Channels i den rækkefølge, modellen forventer. I eksemplet bruger vælgeren 1, 2 og 3 til RGB-input. Behold den rækkefølge, når du sammenligner kort fra forskellige billeder.",
+    "Indstil Normalize input, så det svarer til træningen. Den separate visningsnormalisering styrer, hvordan billedet ser ud i den gemte overlejring. Hold begge indstillinger ens, når du sammenligner kørsler.",
+    "Vælg saliency channel, og slå Overlay, Plot og Save til. Det giver separate kanalkort oven på billederne. Til eksemplet med fire udsnit bruger du batchstørrelse 4 og én arbejdsproces og klikker derefter på Run.",
+    "Følg konsollen, indtil behandlingen er færdig. Hvis panelet Figures er tomt, åbner du outputmappen og undersøger de gemte batchgitre. Kontrollér fejlmeddelelser og gemte resultater, før du fortsætter.",
+    "Åbn batch_0_grid.png fra metodens mappe batch_grids. Knyt hvert udfyldt felt til dets kildeudsnit; ubrugte felter kan være tomme. Labels i hjørnerne er modellens forudsigelser. Sammenlign fremtrædende områder med det originale billede og kendte objektgrænser.",
+    "For at sammenligne et kombineret kort vælger du saliency image og slår Overlay fra. Kør de samme billeder igen med samme forbehandling. Hold de to metoders output i deres respektive mapper.",
+    "Åbn det andet gemte gitter. Billed-saliency samler kanalernes følsomhed i ét kort pr. udsnit. Sammenlign de fremhævede områder med kanalkortene. Farverne viser kortets skala; for at fortolke dem skal du tage højde for modellen og billedets sammenhæng.",
+    "Lad Correlation være slået fra i denne første gennemgang. Gennemgå eksempler fra forskellige klasser, herunder fejlforudsigelser, før du fortolker mønstre. Brug Classifier Evaluation til at vurdere ydeevnen på uafhængigt tilbageholdte data.",
+    "Hold inputarkivet, modellen og modelkortet, indstillingerne, kortene og outputdatabasen samlet. Vend tilbage til de originale udsnit for at undersøge uventede områder, eller sammenlign en anden metode med de samme input."
   ]
 }

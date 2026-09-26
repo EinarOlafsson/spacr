@@ -13,28 +13,33 @@
       "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
       "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
       "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
-      "translation": "加载 ``cpsam`` 预训练模型；如果 ``<object_type>_model_name``（或 ``pathogen_model``）指定了用户训练的检查点，则加载该检查点。遍历每个已预先分批的 ``.npz`` 文件，对 2-D 掩膜执行基于周长的合并以及面积和边界过滤，并可选择根据对象在其自身通道原始图像中的绝对平均强度过滤对象。随后可选择跟踪延时成像中的对象，为每张图像保存 ``.npy`` 掩膜，并将各对象类型的数量记录到本次运行的 SQLite 数据库中。无论声明的时间轴位于何处，时间堆栈归档都必须为每个时间点提供一个文件名；每个原始图像文件名对应该时间点的 ``(Z, Y, X, C)`` 体积数据，或其 ``(Y, X, C)`` 图像（用于平面 ``TYX`` 序列）。"
-    },
-    {
-      "label": "spacr.object.generate_cellpose_masks_sam#2",
-      "source": "Directory containing the pre-batched ``.npz`` image stacks.",
-      "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
-      "context": "Directory containing the pre-batched ``.npz`` image stacks.",
-      "translation": "包含已预先分批的 ``.npz`` 图像堆栈的目录。"
+      "translation": "加载 ``cpsam`` 预训练模型；如果 ``<object_type>_model_name``（或 ``pathogen_model``）指定了用户训练的检查点，则加载该检查点。遍历每个已预先分批的 ``.npz`` 文件，对 2-D 掩膜执行基于周长的合并以及面积和边界过滤，并可选择根据对象在其自身通道原始图像中的绝对平均强度过滤对象。随后可选择跟踪延时成像中的对象，为每张图像保存 ``.npy`` 掩膜，并将各对象类型的数量记录到本次运行的 SQLite 数据库中。无论声明的时间轴位于何处，时间堆栈归档都必须为每个时间点提供一个文件名；每个原始图像文件名对应该时间点的 ``(Z, Y, X, C)`` 体积数据，或其 ``(Y, X, C)`` 图像（用于平面 ``TYX`` 序列）。",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#3",
-      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
-      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
-      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
-      "translation": "处理流程设置字典；通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 规范化。"
+      "source": "Directory containing the pre-batched ``.npz`` image stacks.",
+      "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
+      "context": "Directory containing the pre-batched ``.npz`` image stacks.",
+      "translation": "包含已预先分批的 ``.npz`` 图像堆栈的目录。",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#2"
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#4",
+      "source": "Pipeline settings dict; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "source_sha256": "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
+      "context": "Workflow settings key-value mapping; canonicalized via :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.",
+      "translation": "处理流程设置字典；通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 规范化。",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#3"
+    },
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#5",
       "source": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
       "source_sha256": "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
       "context": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``; drives channel/threshold lookups and output folder name.",
-      "translation": "``'cell'``、``'nucleus'``、``'pathogen'`` 或 ``'organelle'``；决定通道和阈值的查找以及输出文件夹名称。"
+      "translation": "``'cell'``、``'nucleus'``、``'pathogen'`` 或 ``'organelle'``；决定通道和阈值的查找以及输出文件夹名称。",
+      "rebound_from": "spacr.object.generate_cellpose_masks_sam#4"
     },
     {
       "label": "spacr.object.merge_split_filter_masks#0",

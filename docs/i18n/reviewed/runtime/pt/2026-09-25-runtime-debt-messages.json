@@ -69,20 +69,6 @@
     },
     {
       "table": "ui",
-      "key": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
-      "source": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
-      "source_sha256": "c374731b1b2c4eec70eb888649b01ba12d6b48523762ee67263e16d45f3af320",
-      "translation": "Todos os oito módulos de Plasmodium desta página estão planejados. Suas descrições definem as leituras pretendidas, e não fluxos de análise disponíveis. PlasmoDB e UniProt fornecem o contexto genômico e proteico para escolher marcadores e interpretar resultados. A ilustração apicomplexa é útil para discutir compartimentos compartilhados com Toxoplasma, mas não estabelece que uma proteína tenha a mesma localização nos dois organismos."
-    },
-    {
-      "table": "ui",
-      "key": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
-      "source": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
-      "source_sha256": "f3daa1382843e31a232a9ecc036eba4b9ae12183a86a6f0b22dfe2fd6285368b",
-      "translation": "Resposta a antifúngicos é um fluxo de trabalho proposto de concentração-resposta para o crescimento e a morfologia fúngicos. Combiná-lo com Morfologia ou Biofilme ajudaria a descrever quais características de imagem mudam durante o tratamento. Os oito módulos de Candida estão atualmente planejados e seus blocos estão marcados como Em breve. O Candida Genome Database e o UniProt fornecem anotações de genes e proteínas para apoiar a escolha de marcadores e a interpretação."
-    },
-    {
-      "table": "ui",
       "key": "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
       "source": "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
       "source_sha256": "4f7d1ccf5c5c273c5cdd3b5fcf4f86d3cf79768b7ea378ac035863195d35f42e",
@@ -265,13 +251,6 @@
     },
     {
       "table": "ui",
-      "key": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
-      "source": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
-      "source_sha256": "b4a8acea49fc2990a3ba506c91ffd1d86f8049dd25e2fb8e4774c09b37444de8",
-      "translation": "A Invasão epitelial está planejada para distinguir fungos extracelulares daqueles internalizados por células epiteliais. A Fagocitose medirá a captação por fagócitos. Ambas exigem uma forma de distinguir contato de internalização, como uma marcação diferencial adequada ou informação espacial. Relate a população de células hospedeiras e a morfologia fúngica junto com a leitura de captação."
-    },
-    {
-      "table": "ui",
       "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
       "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
       "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
@@ -346,13 +325,6 @@
       "source": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
       "source_sha256": "69b290e0d6c71dfe9ff67646482b0d6e03a1b609d9408b638511995918e232c8",
       "translation": "Achata o histograma da região inteira de uma vez, para que cada faixa de brilho termine com o mesmo número de pixels. É a mais forte das etapas de contraste e a que menos respeita os dados: um campo que é principalmente fundo tem o fundo esticado por metade do intervalo."
-    },
-    {
-      "table": "ui",
-      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
-      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
-      "source_sha256": "ebfb1c9811c74671d5842f0a8f7a663cdad6815e6a0622cb58809571a838e266",
-      "translation": "Maturidade dos gametócitos é um fluxo de trabalho proposto para características de imagem associadas ao estágio e ao sexo, quando houver marcadores adequados e anotações de referência. A Análise de imagens da resposta a fármacos relacionará crescimento e morfologia à concentração. Registre a espécie, o estágio inicial e a duração da exposição com essas medições: caso contrário, mudanças na mistura de estágios podem ser confundidas com mudanças no número de parasitas."
     },
     {
       "table": "ui",
@@ -500,13 +472,6 @@
       "source": "Leica LIF (public samples), named like A01/FRAP.lif. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes LIF, so these are public sample files by Sean Warren and Michael Goelzer, CC BY 4.0: time series, a z-stack and a tile scan. They have no masks, so they go through the Format Converter.",
       "source_sha256": "a2d14ccfb2aa62e37b5bec4d9fbf60a86358d1d582186c21cd4ec7d81a1add5d",
       "translation": "Leica LIF (amostras públicas), com nomes como A01/FRAP.lif. Nomenclatura: auto. Preenche o Format Converter: apenas imagens, depois as prévias.\n\nNenhuma biblioteca aberta grava LIF, então estes são arquivos de amostra públicos de Sean Warren e Michael Goelzer, CC BY 4.0: séries temporais, uma pilha z e uma varredura em mosaico. Não têm máscaras, então passam pelo Format Converter."
-    },
-    {
-      "table": "ui",
-      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
-      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
-      "source_sha256": "ae13b680adfb10492d7bda64d4b0f36ce4765cf0b32bd763df25fb690455fac1",
-      "translation": "O Crescimento no estágio hepático está planejado para medir o número e o tamanho dos parasitas dentro de hepatócitos. A Motilidade de esporozoítos se concentrará em trajetórias ou rastros de deslizamento, enquanto a Travessia celular tratará da lesão de células hospedeiras ao longo dos trajetos do parasita. Travessia, invasão produtiva e crescimento subsequente são desfechos diferentes: seus marcadores de imagem, tempos de observação e denominadores precisam ser definidos separadamente."
     },
     {
       "table": "ui",
@@ -1308,31 +1273,10 @@
     },
     {
       "table": "ui",
-      "key": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
-      "source": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
-      "source_sha256": "3db2af90e552d9f1ff09084d9fcc2467ba0a8907b230de616dd7257c8a266014",
-      "translation": "O módulo planejado Egresso se concentrará na ruptura do vacúolo e na saída do parasita; a Motilidade por deslizamento quantificará rastros e movimento extracelulares. A Conversão em bradizoítos tratará de leituras de marcadores de estágio e da parede do cisto, enquanto o Dano às células hospedeiras descreverá a perda da monocamada. São fluxos de trabalho propostos, por isso seus blocos estão marcados como Em breve. Imagens fixas, séries temporais e marcadores específicos de estágio respondem a perguntas diferentes e devem ser escolhidos de acordo com a leitura pretendida."
-    },
-    {
-      "table": "ui",
       "key": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
       "source": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
       "source_sha256": "6e0c370bb9d95162771a35b59788beb7866ce81eb66ce6a73d44196cc8ff72d3",
       "translation": "As configurações da prévia, em duas abas: Figure (encontrar os poços com placas de lise e ler a figura) e Plaque detection (o modelo de placas de lise e seus limiares)."
-    },
-    {
-      "table": "ui",
-      "key": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
-      "source": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
-      "source_sha256": "77f3167fe2cb6f5c77b1e1b654a69b6404b54a6ad078b463adfa86b873a8e483",
-      "translation": "O módulo proposto Adesão contará células fúngicas associadas a uma superfície de células hospedeiras. Biofilme se concentrará no crescimento coletivo, incluindo a área coberta e a espessura quando a aquisição contiver informação de profundidade. Um único campo bidimensional pode descrever a cobertura da superfície, mas não pode, por si só, estabelecer a espessura do biofilme. Escolha imagens de plano único ou volumétricas de acordo com o desfecho."
-    },
-    {
-      "table": "ui",
-      "key": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
-      "source": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
-      "source_sha256": "1ed3b2e9fa86adf509f980a162693fab21484b44ddb9780c3f59e54f573546e6",
-      "translation": "O módulo proposto Parasitemia contará as hemácias infectadas em relação à população total de hemácias. A Classificação dos estágios sanguíneos separará anéis, trofozoítos e esquizontes, para que uma mudança na composição dos estágios possa ser examinada junto com a frequência de infecção. A Invasão de merozoítos se concentrará na entrada nas hemácias. Juntas, essas leituras ajudariam a distinguir menos células recém-infectadas de um desenvolvimento alterado dos parasitas já presentes nelas."
     },
     {
       "table": "ui",

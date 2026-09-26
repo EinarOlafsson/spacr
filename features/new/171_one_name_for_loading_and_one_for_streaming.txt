@@ -2,7 +2,9 @@
 ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
 ================================================================================
 
-Status:    closed. Every panel that offers this choice now offers the two
+Status:    closed; the two gaps the 2026-09-14 note left open (a file
+           with crop_source alone, and merged_db) closed 2026-09-25.
+           Every panel that offers this choice now offers the two
            names AS A CONTROL -- including the training panel, which until
            2026-09-14 offered them as a FREE-TEXT BOX. See
            `settings_model._IMAGE_SOURCE_OPTIONS` (line 682), wired in at
@@ -390,3 +392,37 @@ documented public symbols and `spacr/cli_make_masks.py` 7 -- and
 `_image_source_the_panel_offers` contributes none, being private:
 `public_docstrings()` holds no `spacr.qt.screens.settings_model._*` key at
 all.
+
+--------------------------------------------------------------------------------
+2026-09-25 -- BOTH GAPS ABOVE CLOSED.
+--------------------------------------------------------------------------------
+
+1. A FILE CARRYING `crop_source` ALONE now opens on the mode the run reads.
+   It did not need `SettingsWidgets` to tell shipped defaults from file
+   values, which is what the note above feared: `__init__` already holds the
+   file's values separately as `current`, before they are laid over the
+   defaults. `settings_model._image_source_seeded_from_crop_source` mirrors
+   `deep_spacr_defaults`' `setdefault('image_source', crop_source)` --
+   IMAGE_SOURCE WINS when a file carries both, as it does headlessly, and an
+   empty `crop_source` seeds nothing -- and resolves the value through
+   `_image_source_the_panel_offers`, so a retired spelling selects its mode.
+   It runs in two places, because an old file reaches the panel two ways:
+     * `SettingsWidgets(app, current=...)`, for apps whose shipped defaults
+       have `image_source` (classify, classify_merged) -- the rebuild path;
+     * `app_screen._translate_legacy_setting_keys`, which every
+       "Import settings CSV" goes through before any value reaches a widget.
+       Without the seed there, the combo is handed nothing to change and
+       keeps LOAD IMAGES even when the form is not rebuilt.
+   Measured through the real panel for on_demand, merged, merged_db (stream)
+   and pre_generated, png (load), each against `deep_spacr_defaults` on the
+   same dict: the two agree for all five.
+
+2. `merged_db` (`crops.STREAM_FROM_DB`) is in `settings._IMAGE_SOURCES` as
+   `stream_images`: a database stream is a stream, and the unknown-value
+   fallback would have answered it with LOAD IMAGES.
+
+Tests: tests/test_load_images_and_stream_images.py, 45 passing (8 new).
+tests/qt/test_settings_search.py has one failure in this tree that is not
+this item's: it names the cellpose3_* rows, which this change does not touch
+(a second, `test_a_visible_screen_still_keeps_the_sizes_it_had`, failed in a
+batch run and passes on its own).

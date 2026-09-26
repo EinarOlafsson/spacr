@@ -2,7 +2,13 @@
 EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
 ================================================================================
 
-Status:    PHASES 1-4 DONE, AND BOTH ENDS NOW HELD BY A TEST rather than by
+Status:    2026-09-25: DONE here (both pins green again on this commit);
+           remaining: docs lane -- the API translation tail on 411, and the
+           public-API-surface ratchet in tests/test_api_i18n_extractor.py,
+           red on nightly a93f937d2 before this commit (11724 vs reviewed
+           11710, +14 from other items), which is bumped by regenerating the
+           catalogs with tools/build_documentation_i18n.py.
+           PHASES 1-4 DONE, AND BOTH ENDS NOW HELD BY A TEST rather than by
            a note in this file, which is what the two previous closes were
            missing. 2026-09-14: the two generated artefacts were two days
            stale (seven settings had no section and no index entry) and the
@@ -774,3 +780,29 @@ that reader in both its tree and reference list; the paired key index is
 unchanged. The artifact, API-link and analyser selection passes25tests.
 This repairs generated English settings-flow documentation, not the open
 translation work on411. No runtime or schema setting changed.
+
+2026-09-25 -- BOTH PINS WERE RED AGAIN; BOTH GREEN
+Measured on nightly a93f937d2, as the header asks:
+  * tests/test_the_settings_flow_artefacts_are_current.py: the page and the
+    key index missed three settings (_default_diameter, object_filters,
+    psf_objective) and 65 of 1149 sections no longer matched the source
+    (e.g. cell_cellprob_threshold now read by _backend_mask_settings, from
+    today's 503/525 Cellpose work). Regenerated with
+    `tools/settings_flow.py --rst`: 1152 sections, 7481 cross-references;
+    docs/source/_generated/settings_flow.rst and
+    spacr/qt/screens/settings_flow_index.py (+3 keys).
+  * tests/test_every_callable_in_the_package_is_documented.py: 2 of 22431
+    callables had no docstring, both nested in
+    ModelZooPicker._warm_bioimageio (spacr/qt/widgets/model_zoo_picker.py,
+    _warm and seen, from 525's f8121d974). Both documented.
+After: those two files 7 passed; test_a_settings_api_link_lands_on_the_setting
+passes. tests/test_api_i18n_extractor.py has one red,
+test_public_docstrings_matches_reviewed_visible_coverage (+14 public
+symbols), and it is red identically with this commit's code change removed,
+so it is other items' public additions awaiting the docs lane's catalog
+regeneration, not this sweep.
+
+2026-09-25, after merging nightly: the plaque_preview change that landed
+meanwhile (seed_well_boxes now reads figure_confidence, figure_detector,
+figure_imgsz, src) staled 4 sections; regenerated again, 7489
+cross-references. Settings-flow pins and the API-link test: 11 passed.

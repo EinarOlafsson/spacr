@@ -2,7 +2,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    open, 82%. Re-triaged from run 32907403895 / 32907403724 /
+Status:    open, 83%. 2026-09-25: the three order-dependent Qt failures
+           (teardown on deleted dialogs; coverage shard 0 SIGABRT) now have
+           reproduced causes and fixes, but no nightly CI run has completed
+           since 36020180024, so green is not shown. See the 2026-09-25
+           entry at the end and item 288's note of the same date.
+           Earlier: Re-triaged from run 32907403895 / 32907403724 /
            32907403685 -- a push of commit f0ac3b28, not a re-run -- and
            every failure below was reproduced locally before anything was
            changed.
@@ -2219,3 +2224,20 @@ make_masks_help,pipeline_details},timeflows_validation. CI's expected-file-count
 and the exact inventory tests now include all634. No coverage floor, baseline,
 exclusion or missing-row policy changed. This is not a green-CI claim.
 All10module-coverage inventory/ratchet tests pass (1.58s).
+
+2026-09-25 — ORDER-DEPENDENT QT FAILURES: CAUSES FOUND AND FIXED
+No completed nightly run since 36020180024 (every later one was cancelled by
+the next push), so its failing ids were reproduced locally. Qt1/Qt2 teardown
+errors: pytest-qt closed WA_DeleteOnClose dialogs Qt had already deleted,
+whenever an uncollected cycle kept the Python wrapper alive; reproduced and
+fixed in tests/conftest.py (c8e6fd2fe). Coverage shard 0 SIGABRT: Home's
+GitHub news fetch started after the launch test's window closed, and the
+next test's deferred-delete flush destroyed the window with the QThread
+running; reproduced with a slow fetch and fixed in spacr/qt/app.py
+(2dc355d93). Also fixed from today's merges: a volumetric z/t crash with a
+shape-only object filter, stale model-kind tests after 503/525, the
+Embeddings tile after 527, the settings flow page, and coverage for seven of
+today's modules (table in item 288). Still red for other lanes: docs count
+pins (callables 9767 vs 9735, API 11793 vs 11758, en.json manifest), the
+i18n caption ratchet, and release metadata in CITATION.cff and the conda
+recipe. This is not a green-CI claim.

@@ -1,7 +1,8 @@
 489 — DEEP IMAGE ENHANCEMENT
 ===========================
-Status: RUNTIME IMPLEMENTED. Compare/Apply and full-field CPU acceptance verified;
-documentation, translations and tutorial/animation remain with their owner.
+Status: DONE for the runtime 2026-09-25 (Compare/Apply, real crop and full-field
+CPU acceptance 2026-09-24; re-tested 2026-09-25). Owed to the docs lane: a
+guide section, three restoration captions' catalog rows, a tutorial/animation.
 
 Add opt-in network-based enhancement to Make Masks, with useful choices for
 different structures and acquisition noise. Research primary documentation and
@@ -148,3 +149,20 @@ cancelling does not. These use a loader stub to test control protocol; they do
 not replace the previously recorded real isolated Cellpose3model acceptance.
 All12MakeMasksrestoration checks pass; controls coverage99.31%with no runtime
 change. Documentation/tutorial follow-up remains with the docs session.
+
+2026-09-25 — RUNTIME CLOSED; WHAT THE DOCS LANE STILL OWES
+Re-checked on nightly a93f937d2 (offscreen): tests/qt/test_make_masks_
+restoration.py, test_make_masks_psf.py, test_make_masks_psf_infers_and_
+folds.py, tests/test_psf_optics_inference.py and test_psf_mask_pipeline.py,
+71 passed. Owed, each to the docs lane (not buildable in a feature branch):
+  * no page under docs/source mentions restoration or denoise_nuclei;
+    make_masks.rst needs a Restoration section (model choice, input
+    expectations, CPU/GPU timing, that output is model output, not new
+    structure);
+  * three help strings in spacr/qt/widgets/restoration_controls.py have no
+    exact catalog row in all nine languages ("Load the selected Cellpose 3
+    restoration weights on the CPU/GPU…", "On the CPU a whole field takes
+    tens of seconds…");
+  * a restoration tutorial/animation.
+CARE/Noise2Void stay suggestions: they need acquisition-specific trained
+models the maintainer would supply.

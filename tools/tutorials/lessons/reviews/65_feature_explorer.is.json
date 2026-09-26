@@ -1,35 +1,37 @@
 {
   "lesson": "65_feature_explorer",
-  "english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "english_sha256": "60591cb8b483c4bcd98a3ff410ea16677a8b7589ee3250c9c364479a2b384bc9",
   "review": {
-    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "is",
-  "title": "Feature Explorer: raða raunverulegum mælingum og halda samanburðinum skýrum",
-  "description": "Opnaðu undireininguna í Classify, berðu saman raunverulegar mælingar eftir röðum plötu, skoðaðu dreifingar, síaðu í rauntíma, bættu við reiknuðum dálki og flyttu út réttan röðunarlista án þess að þjálfa flokkara.",
+  "title": "Feature Explorer: berðu saman hópa og fluttu út röðun eiginleika",
+  "description": "Veldu flokkunardálk, raðaðu mælingum eftir AUC eða KS, skoðaðu dreifingar og fluttu út valda eiginleika.",
   "objectives": [
-    "Finna Feature Explorer innan Classify og hlaða inn fyrirliggjandi frumumælingum.",
-    "Greina á milli AUC og aðskilnaðar og skoða fjölda í flokkum og mun á dreifingum.",
-    "Sía í rauntíma án þess að missa af sjálfvirkri breytingu á samanburðardálki.",
-    "Velja Top meðvitað, sannreyna endurskalaðan dálk og flytja út raunverulegan röðunarlista."
+    "Hlaða inn mælingum og velja hópa til samanburðar.",
+    "Lesa raðanir og dreifingar og kanna svo síur og reiknaða dálka.",
+    "Flytja út þann fjölda raðaðra eiginleika sem ætlunin er."
   ],
-  "prerequisite": "Notaðu niðurhalaða Annotate-dæmið, ekki tilbúnar mælingar. Upptakan opnar einkaeintak af gagnagrunni með 2.341 frumu og 276 dálkum, eins bæti fyrir bæti og frumritið. rowID-hóparnir r12 og r5 eru staðsetningarraðir á plötu, ekki staðfestir meðferðarhópar; frumurnar deila myndsviðum og brunnum og eru ekki óháðar tilraunir. Frumgögn haldast óbreytt. AUC, KS, röðun og fjöldi endanlegra mæligilda í flokkum eru sannreynd sjálfstætt fyrir fyrirhugaðan tveggja flokka samanburð. Sjálfvirki átta flokka samanburðurinn er varnaðardæmi, ekki sjálfstætt staðfest ályktun. Shuffle test er óvirkt. Hér fer hvorki fram þjálfun, ný myndgreining, sérstakt niðurhal, GPU-aðgerð né AI-beiðni; súluritin eru gröf einingarinnar sjálfrar.",
+  "prerequisite": "Sæktu Annotate-dæmið og opnaðu vinnuafrit af measurements.db þess. Það inniheldur 2.341 frumu. Yfirferðin ber saman rowID-hópana r12 og r5, sem auðkenna rúmfræðilegar raðir á plötunni. Veldu hópdálk sem hentar tilrauninni þinni og hafðu í huga að frumur deila brunnum þegar þú túlkar samanburðinn.",
   "scenes": [
-    "Opnaðu Classify og síðan Feature Explorer-hnappinn. Þetta innfellda verkfæri raðar fyrirliggjandi mælingum; það þjálfar ekki flokkara við opnun. Við notum raunverulega Annotate-dæmið sem hægt er að sækja, á einkaeintaki gagnagrunnsins. Fylgdu Annotate-kennslunni til að sækja það og haltu upprunalegum tilraunagögnum óbreyttum.",
-    "Veldu Load table, mæligagnagrunninn og cell-töfluna, og stilltu Split by á rowID. Hér eru 2.341 fruma og 276 dálkar. Hóparnir tveir eru skráðar raðir á plötu, ekki staðfestir meðferðarhópar; frumurnar eru ekki óháðar tilraunir.",
-    "Raðaðu eftir AUC og lestu báða talnadálkana. Separation er algildi tvöfalds AUC mínus einn: um 0,34 aðskilnaður er því ekki 0,34 AUC. Higher in segir til um stefnu; min n telur endanleg mæligildi í minni flokknum, ekki endurteknar tilraunir.",
-    "Stilltu Top á fjóra til að skoða fjögur sköruð tíðnirit. Innan hverrar breytu nota flokkarnir sömu bilamörk og súluhæðin sýnir fjölda. Efsta breytan er ekki sjálfkrafa gagnlegur lífmarki. Lestu viðvörunina: AUC getur misst af mun á dreifni þótt dreifingarnar séu ólíkar.",
-    "Export ranking með Top fjóra skrifar fjórar breyturaðir. Í þessari útgáfu fylgir útflutningurinn Top þótt orðalagið gefi til kynna allan listann. Hann flytur hvorki út frumugögnin sjálf né vistar þjálfað líkan. Við bárum hvert útflutt gildi saman við raunverulegan núverandi röðunarlista.",
-    "Stilltu Top á 500 áður en allar metnar breytur þessa dæmis eru fluttar út. Hægt er að meta 261 breytu; tvo tölulega möguleika er ekki hægt að meta. Útflutningurinn hefur allar 261 raðirnar en skjárinn teiknar í mesta lagi átta dreifingar. Fjöldi breyta, töfluraðir og grafreitir eru ólíkar stærðir.",
-    "Skiptu Rank by yfir í KS til að bera saman mesta bil á milli uppsafnaðra dreifinga og farðu síðan aftur í AUC. KS getur sýnt dreifingarmun sem AUC missir af en gefur ekki eitt og sér stefnu. Önnur tölfræðigildi hafa sínar takmarkanir; lestu viðvörunina í stað þess að túlka röðun sem marktæknipróf.",
-    "Bættu cell_area við í Filter og stilltu lágmarkið á 21.925. Sýnilega þýðið verður 1.171 fruma og 255 breytur eru enn metanlegar. Þessi sýniþröskuldur byggir á miðgildi, ekki líffræðilegum gæðamörkum. Röðun og dreifingar uppfærast án þess að myndirnar séu mældar aftur.",
-    "Clear all fjarlægir birtingarsíur, ekki gögn. Allar 2.341 frumurnar og upprunalega röðunin koma aftur. Athugaðu þýðið og Split by eftir síubreytingar. Munur sem breytist við síun lýsir öðru völdu þýði, ekki nýrri tilraun.",
-    "Í þessari útgáfu er mikilvæg gildra. Síun rowID á r12 fjarlægir hina röðina en skjárinn breytir Split by hljóðlega í cell_channel_0_maxima_count. Nú eru átta hópar bornir saman og aðeins einn hlutur í þeim minnsta. Þessi glæsilegu gildi eru hvorki upprunalegi raðasamanburðurinn né sönnun fyrir líffræðilegri uppgötvun.",
-    "Hreinsaðu síuna og veldu rowID sérstaklega aftur. Hreinsunin ein endurheimtir ekki endilega upprunalega samanburðinn. Athugaðu bæði flokkunardálk og þýði fyrir útflutning. Shuffle test býður 50 uppstokkanir flokkamerkja en við höfum það óvirkt: frjáls uppstokkun þessara háðu frumna myndi ekki staðfesta áhrif á brunn- eða meðferðarstigi.",
-    "Opnaðu Columns og nefndu nýjan dálk area_k. Sláðu inn cell_area deilt með 1e3, það er 1.000, og veldu Add column án þess að yfirskrifa. Þetta endurskalar flatarmál; það kvarðar ekki eðlisfræðilegar einingar og bætir ekki við nýrri mælingu. Preview kannar fyrstu 2.000 raðirnar; viðbótin notar formúluna á alla töfluna.",
-    "Endurskalaði dálkurinn bætist við röðun og útflutning svo metnar breytur verða 262. AUC og KS hans eru jöfn gildum cell_area því jákvæð endurskölun varðveitir röð. Við könnuðum hvert reiknað gildi. Fjarlægðu formúluna til að fara aftur í upprunalegu 261 breyturnar; mæligagnagrunnurinn er óbreyttur.",
-    "Notaðu þessa röðun til lýsandi könnunar, ekki sem óháða sannprófun á valinni breytu eða þjálfuðum flokkara. Í Python veitir spacr.qt.widgets.feature_rank föllin og gerðirnar rank_features og ExplorerSpec. Haltu áfram í Database Browser og Graph Builder fyrir hrátöflur eða annan samanburð. Engin ný myndgreiningarvinnsla eða AI-beiðni var keyrð."
+    "Frá Home opnarðu Classify og svo Feature Explorer. Notaðu mælingagagnagrunninn úr Annotate-dæminu til að bera saman fyrirliggjandi eiginleika milli hópa.",
+    "Smelltu á Load table, veldu measurements.db og veldu cell. Stilltu Split by á rowID. Hóparnir í dæminu eru rúmfræðilegar raðir á plötunni; athugaðu að flokkunardálkurinn þinn tákni samanburðinn sem þú ætlar þér.",
+    "Veldu AUC undir Rank by. Aðgreiningin er tölugildi 2 × AUC − 1. Higher in sýnir stefnuna og min n telur endanleg mæligildi í minni hópnum.",
+    "Stilltu Top á 4 til að skoða fjögur yfirlögð stuðlarit. Innan hvers eiginleika deila hóparnir bilamörkum og hæð súlnanna sýnir fjölda. Lestu bæði dreifingarnar og röðunarstigið.",
+    "Smelltu á Export ranking til að vista efstu eiginleikana sem birtast. Með Top á 4 inniheldur útflutningurinn fjórar eiginleikalínur. Hækkaðu Top áður en þú flytur út lengri röðun.",
+    "Stilltu Top á 500 til að taka með alla 261 eiginleika dæmisins sem hægt er að gefa stig. Grafið sýnir í mesta lagi átta dreifingar, jafnvel þegar útflutta röðunin er lengri.",
+    "Skiptu Rank by yfir í KS til að bera saman mesta bilið milli uppsafnaðra dreifinga. KS getur leitt í ljós mun á dreifni sem AUC missir af. Farðu aftur í AUC til að sjá stefnuna í Higher in.",
+    "Í Filter bætirðu við cell_area og setur lágmarkið á 21.925. Þýðið breytist í 1.171 frumu og röðunin uppfærist.",
+    "Smelltu á Clear all til að fá allt þýðið og alla röðunina aftur. Athugaðu Split by aftur eftir að hafa breytt síum svo að þú vitir hvaða hópar eru bornir saman.",
+    "Ef rowID er síað á r12 hverfur seinni hópurinn. Í þessari útgáfu breytist Split by þá sjálfkrafa í annan dálk. Athugaðu þá stýringu í hvert sinn sem sía fjarlægir hóp.",
+    "Hreinsaðu síuna og settu rowID aftur með beinum hætti undir Split by. Hafðu Shuffle test óvirkt í þessu dæmi: frumur deila brunnum, svo óheft uppstokkun frumumerkja jafngildir ekki óháðum tilraunaendurtekningum.",
+    "Opnaðu Columns og nefndu reiknaðan dálk area_k. Sláðu inn cell_area deilt með 1000 og smelltu á Add column með útskiptingu óvirka. Preview sýnir fyrstu 2.000 línurnar; þegar dálkinum er bætt við gildir formúlan um alla töfluna.",
+    "Reiknaði dálkurinn bætist við röðunina. Jákvæð kvarðabreyting gefur honum sama AUC og KS og cell_area. Fjarlægðu formúluna til að fara aftur í upprunalegu eiginleikana.",
+    "Fluttu röðunina út eftir að hafa athugað þýðið, Split by og Top. Í Python notarðu rank_features og ExplorerSpec úr spacr.qt.widgets.feature_rank. Haltu áfram í Graph Builder til að teikna valinn eiginleika nánar."
   ]
 }

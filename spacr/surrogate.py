@@ -63,6 +63,10 @@ __all__ = [
     "SURROGATE_BACKENDS",
     "available_backends",
     "write_surrogate_result",
+    "IMPORTANCE_METHODS",
+    "SHAP_EXPLAINERS",
+    "importance_method_availability",
+    "rank_feature_importance",
     "explain_cv_default_settings",
     "run_explain_cv",
 ]
@@ -76,6 +80,15 @@ MODEL_FAMILIES: Dict[str, str] = {
     "hist_gradient_boosting": "Histogram Gradient Boosting",
     "xgboost": "XGBoost",
 }
+
+#: The feature-importance measures a surrogate can report, in the order the
+#: Importance table and the bar plots show them.
+IMPORTANCE_METHODS: Tuple[str, ...] = ("gain", "permutation", "shap")
+
+#: How the ``shap`` column is computed: TreeSHAP is exact and fast for tree
+#: ensembles, KernelSHAP is model-agnostic and slow, and ``auto`` tries the
+#: tree explainer first and falls back to the kernel one.
+SHAP_EXPLAINERS: Tuple[str, ...] = ("auto", "tree", "kernel")
 
 #: Column-name fragments that make a surrogate look brilliant and mean
 #: nothing. A model's own scores, or a label copied into the feature table,
@@ -538,6 +551,8 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
                   model_options: Optional[Mapping[str, Any]] = None,
                   correlation_threshold: float = 0.9,
                   minimum_fidelity_improvement: float = 0.05,
+                  importance_methods: Sequence[str] = IMPORTANCE_METHODS,
+                  shap_explainer: str = "auto",
                   verbose: bool = True) -> SurrogateResult:
     """Fit a surrogate to ``frame['cv_prediction']`` and rank the features.
 
@@ -552,6 +567,8 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
     :param exclude: extra feature columns to drop.
     :param split_by: acquisition unit held intact between surrogate fitting
         and fidelity measurement. Default ``'well'``.
+    :param importance_methods: which of :data:`IMPORTANCE_METHODS` to compute.
+    :param shap_explainer: one of :data:`SHAP_EXPLAINERS`.
     :param verbose: print the summary when done.
     :returns: a :class:`SurrogateResult`.
     :raises SurrogateError: too few objects or classes to fit anything.
@@ -623,10 +640,11 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
         predicted = decode(model.predict(x_test))
         fidelity = float(np.mean(np.asarray(predicted) == y_test.to_numpy()))
 
+    wanted = _checked_importance_methods(importance_methods)
     importance = pd.DataFrame({"feature": features})
-    if hasattr(model, "feature_importances_"):
+    if "gain" in wanted and hasattr(model, "feature_importances_"):
         importance["gain"] = np.asarray(model.feature_importances_, dtype=float)
-    else:
+    elif "gain" in wanted:
         warnings.append(
             f"{MODEL_FAMILIES[str(model_family).lower()]} has no native gain "
             "importance; held-out permutation and SHAP remain available")
@@ -637,18 +655,21 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
     else:
         permutation_labels = y_test
 
-    permutation_jobs = guarded_n_jobs(
-        -1, "surrogate permutation importance")
-    with single_threaded_openmp("surrogate permutation importance"):
-        with parallel_backend("threading", n_jobs=permutation_jobs):
-            perm = permutation_importance(
-                model, x_test, permutation_labels, n_repeats=n_repeats,
-                random_state=random_seed,
-                n_jobs=permutation_jobs)
-    importance["permutation"] = perm.importances_mean
+    if "permutation" in wanted:
+        permutation_jobs = guarded_n_jobs(
+            -1, "surrogate permutation importance")
+        with single_threaded_openmp("surrogate permutation importance"):
+            with parallel_backend("threading", n_jobs=permutation_jobs):
+                perm = permutation_importance(
+                    model, x_test, permutation_labels, n_repeats=n_repeats,
+                    random_state=random_seed,
+                    n_jobs=permutation_jobs)
+        importance["permutation"] = perm.importances_mean
 
-    shap_output = _shap_importance(
-        model, x_test, shap_max_samples, warnings, return_details=True)
+    shap_output = (_shap_importance(
+        model, x_test, shap_max_samples, warnings, return_details=True,
+        explainer=shap_explainer, background=x_train)
+        if "shap" in wanted else None)
     signed_shap = pd.DataFrame()
     shap_feature_values = pd.DataFrame()
     if shap_output is not None:
@@ -661,8 +682,11 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
             shap_importance = shap_output
         importance["shap"] = shap_importance
 
-    importance = importance.sort_values(
-        "permutation", ascending=False).reset_index(drop=True)
+    sort_by = next((column for column in ("permutation", "shap", "gain")
+                    if column in importance), None)
+    if sort_by is not None:
+        importance = importance.sort_values(
+            sort_by, ascending=False).reset_index(drop=True)
     importance["feature_family"] = importance["feature"].map(_feature_family)
     importance_columns = [column for column in ("gain", "permutation", "shap")
                           if column in importance]
@@ -730,13 +754,99 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
     return result
 
 
+def _checked_importance_methods(methods: Optional[Sequence[str]]) -> List[str]:
+    """Validate a requested set of importance measures, keeping their order."""
+    if methods is None:
+        return list(IMPORTANCE_METHODS)
+    if isinstance(methods, str):
+        methods = [part.strip() for part in methods.replace(",", " ").split()]
+    chosen = [str(m).strip().lower() for m in methods if str(m).strip()]
+    unknown = sorted(set(chosen) - set(IMPORTANCE_METHODS))
+    if unknown:
+        raise SurrogateError(
+            f"unknown importance method(s) {unknown}; choose from "
+            f"{list(IMPORTANCE_METHODS)}")
+    return [m for m in IMPORTANCE_METHODS if m in chosen]
+
+
+def _is_tree_model(model: Any) -> bool:
+    """Whether TreeSHAP can read this fitted model's trees."""
+    name = type(model).__name__
+    return (hasattr(model, "estimators_") or hasattr(model, "get_booster")
+            or name.startswith(("HistGradientBoosting", "DecisionTree",
+                                "ExtraTree", "LGBM", "CatBoost")))
+
+
+def importance_method_availability(model: Any = None,
+                                   model_family: Optional[str] = None
+                                   ) -> Dict[str, Dict[str, Any]]:
+    """Which importance measures apply to a model, and why the others do not.
+
+    :param model: a fitted estimator, when there is one.
+    :param model_family: a key of :data:`MODEL_FAMILIES`, when there is no
+        fitted model yet (the Explain CV Model form).
+    :returns: ``{name: {'available': bool, 'reason': str}}`` for ``gain``,
+        ``permutation``, ``tree_shap`` and ``kernel_shap``.
+    """
+    family = str(model_family or "").strip().lower()
+    has_shap = importlib.util.find_spec("shap") is not None
+    no_shap = "needs the optional shap package: pip install shap"
+    if model is not None:
+        native = hasattr(model, "feature_importances_")
+        tree = _is_tree_model(model)
+        label = type(model).__name__
+    else:
+        native = family in ("random_forest", "xgboost", "")
+        tree = family in MODEL_FAMILIES or family == ""
+        label = MODEL_FAMILIES.get(family, family or "this model")
+    return {
+        "gain": {"available": native, "reason": "" if native else (
+            f"{label} has no native (gain/impurity) importance; use "
+            f"permutation or SHAP")},
+        "permutation": {"available": True, "reason": ""},
+        "tree_shap": {"available": has_shap and tree, "reason": (
+            no_shap if not has_shap else "" if tree else
+            f"{label} is not a tree ensemble; use KernelSHAP")},
+        "kernel_shap": {"available": has_shap,
+                        "reason": "" if has_shap else no_shap},
+    }
+
+
+def _kernel_shap_values(shap, model, sample: pd.DataFrame,
+                        background: Optional[pd.DataFrame]):
+    """Model-agnostic KernelSHAP against a small k-means background."""
+    predict = (model.predict_proba if hasattr(model, "predict_proba")
+               else model.predict)
+    reference = (background if background is not None and len(background)
+                 else sample).astype(float)
+    if len(reference) > 20:
+        reference = shap.kmeans(reference.to_numpy(), 10)
+    else:
+        reference = reference.to_numpy()
+
+    def _predict(values):
+        """Call the model on a frame with the training column names."""
+        return predict(pd.DataFrame(values, columns=sample.columns))
+
+    explainer = shap.KernelExplainer(_predict, reference)
+    return explainer.shap_values(sample.astype(float).to_numpy(), silent=True)
+
+
 def _shap_importance(model, x_test: pd.DataFrame, max_samples: int,
-                     warnings: List[str], *, return_details: bool = False):
+                     warnings: List[str], *, return_details: bool = False,
+                     explainer: str = "tree",
+                     background: Optional[pd.DataFrame] = None):
     """Mean absolute SHAP plus optional signed per-object values.
 
     Optional on purpose: SHAP is the most informative of the three and the
     most expensive, and a missing optional dependency must cost the SHAP
     column rather than the whole analysis.
+
+    :param explainer: ``'tree'`` (TreeSHAP), ``'kernel'`` (KernelSHAP against
+        a k-means summary of ``background``) or ``'auto'`` (tree, falling back
+        to kernel for a model TreeSHAP cannot read).
+    :param background: reference rows for KernelSHAP; the explained rows
+        themselves when omitted.
     """
     try:
         import shap
@@ -745,23 +855,46 @@ def _shap_importance(model, x_test: pd.DataFrame, max_samples: int,
             "shap is not installed, so no SHAP column. gain and permutation "
             "are still reported; `pip install shap` adds the third.")
         return None
+    kind = str(explainer or "auto").strip().lower()
+    if kind not in SHAP_EXPLAINERS:
+        raise SurrogateError(
+            f"unknown SHAP explainer {explainer!r}; choose from "
+            f"{list(SHAP_EXPLAINERS)}")
 
     sample = x_test
+    if kind == "kernel":
+        max_samples = min(int(max_samples), 100)
     if len(sample) > max_samples:
         sample = sample.sample(max_samples, random_state=0)
         warnings.append(
             f"SHAP computed on {max_samples:,} of {len(x_test):,} held-out "
             f"objects (it is O(rows)); raise shap_max_samples for more.")
-    try:
-        explainer = shap.TreeExplainer(model)
+    values = None
+    if kind in ("auto", "tree"):
         try:
-            values = explainer.shap_values(sample, check_additivity=False)
-        except TypeError:
-            values = explainer.shap_values(sample)
-    except Exception as exc:
-        warnings.append(f"SHAP failed ({type(exc).__name__}: {exc}); the "
-                        f"gain and permutation columns are unaffected.")
-        return None
+            tree_explainer = shap.TreeExplainer(model)
+            try:
+                values = tree_explainer.shap_values(
+                    sample, check_additivity=False)
+            except TypeError:
+                values = tree_explainer.shap_values(sample)
+        except Exception as exc:
+            if kind == "tree":
+                warnings.append(
+                    f"SHAP failed ({type(exc).__name__}: {exc}); the "
+                    f"gain and permutation columns are unaffected.")
+                return None
+            warnings.append(
+                f"TreeSHAP cannot read {type(model).__name__} "
+                f"({type(exc).__name__}); SHAP was computed with KernelSHAP.")
+    if values is None:
+        try:
+            values = _kernel_shap_values(shap, model, sample, background)
+        except Exception as exc:
+            warnings.append(f"SHAP failed ({type(exc).__name__}: {exc}); "
+                            f"the gain and permutation columns are "
+                            f"unaffected.")
+            return None
 
     if isinstance(values, list):
         arrays = [np.asarray(value) for value in values]
@@ -804,6 +937,135 @@ def _shap_importance(model, x_test: pd.DataFrame, max_samples: int,
     details.index.name = "object_index"
     return importance, details, sample.copy()
 
+
+
+def _importance_bar_figure(importance: pd.DataFrame, measures: Sequence[str],
+                           title: str, top: int = 15):
+    """One ranked horizontal bar panel per importance measure.
+
+    :param importance: a table with a ``feature`` column and one numeric
+        column per measure.
+    :param measures: the columns to plot, one panel each.
+    :param title: the figure title.
+    :param top: how many of the highest-ranked features each panel shows.
+    :returns: the matplotlib Figure.
+    """
+    import matplotlib.pyplot as plt
+
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(
+            1, len(measures), figsize=(5.2 * len(measures), 5.0),
+            squeeze=False)
+        for axis, measure in zip(axes[0], measures):
+            ranked = importance.nlargest(top, measure).sort_values(measure)
+            axis.barh(ranked["feature"].astype(str), ranked[measure],
+                      color="#3B82C4")
+            axis.set_title(measure.replace("_", " ").capitalize())
+            axis.set_xlabel("importance")
+            axis.spines[["top", "right"]].set_visible(False)
+        fig.suptitle(title)
+        fig.tight_layout()
+    return fig
+
+
+def _save_importance_figure(fig, root: str, stem: str,
+                            paths: Dict[str, str], role: str) -> None:
+    """Save ``fig`` as PDF and PNG under ``root`` and record both paths."""
+    import matplotlib.pyplot as plt
+    from .plot import save_figure
+
+    for extension in ("pdf", "png"):
+        path = os.path.join(root, f"{stem}.{extension}")
+        paths[f"{role}_{extension}"] = save_figure(
+            fig, path, fmt=extension, bbox_inches="tight")
+    plt.close(fig)
+
+
+def rank_feature_importance(model: Any, x: pd.DataFrame, y: Any, *,
+                            methods: Sequence[str] = ("gain", "permutation",
+                                                      "shap"),
+                            shap_explainer: str = "auto",
+                            n_repeats: int = 5, random_state: int = 0,
+                            shap_max_samples: int = 200,
+                            scoring: Optional[str] = None,
+                            destination: Optional[str] = None,
+                            title: str = "Feature importance"
+                            ) -> Tuple[pd.DataFrame, Dict[str, str]]:
+    """Rank the features of any fitted tabular classifier or regressor.
+
+    The same three measures the surrogate reports, for a model that did not
+    come from :func:`fit_surrogate`: native (gain / impurity) importance read
+    from the model, sklearn permutation importance on ``(x, y)``, and mean
+    absolute SHAP (TreeSHAP for tree ensembles, KernelSHAP otherwise). Pass
+    held-out rows: permutation importance on the training rows measures what
+    the model memorised.
+
+    A measure that does not apply to this model (gain for a model without
+    ``feature_importances_``, SHAP without the shap package) is left out and
+    the reason is recorded in the returned table's ``attrs['warnings']``.
+
+    :param model: a fitted estimator with ``predict``.
+    :param x: feature rows, one column per feature.
+    :param y: the target for those rows.
+    :param methods: which of :data:`IMPORTANCE_METHODS` to compute.
+    :param shap_explainer: one of :data:`SHAP_EXPLAINERS`.
+    :param n_repeats: permutation repeats per feature.
+    :param random_state: seed for permutation and SHAP subsampling.
+    :param shap_max_samples: rows SHAP explains at most.
+    :param scoring: sklearn scorer name for permutation importance; the
+        model's own ``score`` when None.
+    :param destination: folder for ``feature_importance.csv`` and the ranked
+        bar plot; nothing is written when None.
+    :param title: bar-plot title.
+    :returns: ``(table, paths)`` -- the table is sorted by the first computed
+        of permutation, SHAP, gain; ``paths`` maps artifact role to path.
+    :raises SurrogateError: for an unknown method or explainer.
+    """
+    from sklearn.inspection import permutation_importance
+
+    wanted = _checked_importance_methods(methods)
+    frame = pd.DataFrame(x).copy()
+    frame.columns = [str(c) for c in frame.columns]
+    warnings: List[str] = []
+    availability = importance_method_availability(model=model)
+    table = pd.DataFrame({"feature": list(frame.columns)})
+    if "gain" in wanted:
+        if availability["gain"]["available"]:
+            table["gain"] = np.asarray(model.feature_importances_, dtype=float)
+        else:
+            warnings.append(f"gain omitted: {availability['gain']['reason']}")
+    if "permutation" in wanted:
+        perm = permutation_importance(
+            model, frame, np.asarray(y), n_repeats=int(n_repeats),
+            random_state=int(random_state), scoring=scoring)
+        table["permutation"] = perm.importances_mean
+        table["permutation_std"] = perm.importances_std
+    if "shap" in wanted:
+        shap_output = _shap_importance(
+            model, frame, int(shap_max_samples), warnings,
+            explainer=shap_explainer, background=frame)
+        if shap_output is not None:
+            table["shap"] = np.asarray(shap_output, dtype=float)
+    measures = [m for m in ("permutation", "shap", "gain") if m in table]
+    if measures:
+        table = table.sort_values(measures[0], ascending=False)
+    table = table.reset_index(drop=True)
+    table.insert(0, "rank", np.arange(1, len(table) + 1))
+    table.attrs["warnings"] = list(warnings)
+    paths: Dict[str, str] = {}
+    if destination:
+        root = os.path.abspath(os.path.expanduser(str(destination)))
+        os.makedirs(root, exist_ok=True)
+        csv_path = os.path.join(root, "feature_importance.csv")
+        table.to_csv(csv_path, index=False)
+        paths["importance"] = csv_path
+        plotted = [m for m in ("gain", "permutation", "shap")
+                   if m in table and table[m].notna().any()]
+        if plotted:
+            fig = _importance_bar_figure(table, plotted, title)
+            _save_importance_figure(fig, root, "feature_importance", paths,
+                                    "importance")
+    return table, paths
 
 
 def explain_classifier(db_path: str, predictions: pd.DataFrame, *,
@@ -903,33 +1165,16 @@ def write_surrogate_result(result: SurrogateResult,
     paths["manifest"] = manifest_path
 
     if result.is_faithful and not result.importance.empty:
-        import matplotlib.pyplot as plt
-        measures = [column for column in ("gain", "permutation", "shap")
+        measures =[column for column in ("gain", "permutation", "shap")
                     if column in result.importance and
                     result.importance[column].notna().any()]
         if measures:
-            with figure_style(theme_target()):
-                fig, axes = plt.subplots(
-                    1, len(measures), figsize=(5.2 * len(measures), 5.0),
-                    squeeze=False)
-                for axis, measure in zip(axes[0], measures):
-                    top = result.importance.nlargest(15, measure).sort_values(measure)
-                    axis.barh(top["feature"].astype(str), top[measure],
-                              color="#3B82C4")
-                    axis.set_title(measure.capitalize())
-                    axis.set_xlabel("importance")
-                    axis.spines[["top", "right"]].set_visible(False)
-                fig.suptitle(
-                    f"Held-out fidelity {result.fidelity:.3f} "
-                    f"(baseline {result.baseline:.3f})")
-                fig.tight_layout()
-                from .plot import save_figure
-
-                for extension in ("pdf", "png"):
-                    path = os.path.join(root, f"feature_importance.{extension}")
-                    paths[f"importance_{extension}"] = save_figure(
-                        fig, path, fmt=extension, bbox_inches="tight")
-                plt.close(fig)
+            fig = _importance_bar_figure(
+                result.importance, measures,
+                f"Held-out fidelity {result.fidelity:.3f} "
+                f"(baseline {result.baseline:.3f})")
+            _save_importance_figure(fig, root, "feature_importance", paths,
+                                    "importance")
     if (result.is_faithful and not result.shap_values.empty
             and not result.shap_feature_values.empty):
         import matplotlib.pyplot as plt
@@ -986,6 +1231,9 @@ def explain_cv_default_settings(settings=None) -> Dict[str, Any]:
     configured.setdefault("surrogate_exclude", [])
     configured.setdefault("surrogate_correlation_threshold", 0.9)
     configured.setdefault("surrogate_min_fidelity_improvement", 0.05)
+    configured.setdefault("surrogate_importance_methods",
+                          list(IMPORTANCE_METHODS))
+    configured.setdefault("surrogate_shap_explainer", "auto")
     configured.setdefault("dst", "")
     configured.setdefault("verbose", True)
     return configured
@@ -1026,6 +1274,8 @@ def run_explain_cv(settings: Mapping[str, Any]) -> Dict[str, Any]:
             configured["surrogate_correlation_threshold"]),
         minimum_fidelity_improvement=float(
             configured["surrogate_min_fidelity_improvement"]),
+        importance_methods=configured["surrogate_importance_methods"],
+        shap_explainer=str(configured["surrogate_shap_explainer"]),
         verbose=bool(configured["verbose"]),
     )
     destination = str(configured.get("dst") or "").strip()
@@ -1057,6 +1307,8 @@ def register_explain_cv_settings(replace: bool = False) -> bool:
         "surrogate_exclude": "(list) - Additional measured features barred from the explanatory matrix. Use it for known artifacts or post-treatment annotations; model outputs, classes and identifiers remain excluded automatically. Default [].",
         "surrogate_correlation_threshold": "(float) - Absolute Spearman correlation above which a held-out feature pair is disclosed. Lower values reveal more redundancy and produce a larger audit table. Default 0.9.",
         "surrogate_min_fidelity_improvement": "(float) - Accuracy improvement over the majority-class baseline required before feature importances are presented as explanations. Raising it withholds more weak surrogates. Default 0.05.",
+        "surrogate_importance_methods": "(list) - Feature-importance measures to report: 'gain' (the model's native split gain; not available for histogram gradient boosting), 'permutation' (held-out score drop when one feature is shuffled) and 'shap' (mean absolute SHAP; needs the optional shap package). Each is written as a column of feature_importance.csv and a panel of the ranked bar plot. Default ['gain', 'permutation', 'shap'].",
+        "surrogate_shap_explainer": "(str) - How SHAP is computed: 'tree' (exact TreeSHAP for tree ensembles), 'kernel' (model-agnostic KernelSHAP against a k-means background; slow, capped at 100 explained objects) or 'auto' (TreeSHAP, falling back to KernelSHAP for a model it cannot read). Default 'auto'.",
         "dst": "(str) - Folder receiving versioned tables, manifests and figures. Default '' uses a module-specific folder beside the primary input, keeping different analyses separated.",
     }
     tooltips = {key: value for key, value in tooltips.items()
@@ -1070,6 +1322,8 @@ def register_explain_cv_settings(replace: bool = False) -> bool:
         "surrogate_exclude": list,
         "surrogate_correlation_threshold": (int, float),
         "surrogate_min_fidelity_improvement": (int, float),
+        "surrogate_importance_methods": list,
+        "surrogate_shap_explainer": str,
         "dst": str,
     }
     register_defaults(

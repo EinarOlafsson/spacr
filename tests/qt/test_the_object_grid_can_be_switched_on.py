@@ -86,13 +86,13 @@ def test_editing_a_cell_reaches_the_settings_the_run_reads(qtbot, qt_theme_appli
     screen = _screen(qtbot, grid_preference, True)
     model = screen._settings_model
     table = screen._object_grid._model
-    row = list(table.table()).index("min_area")
-    before = int(model.collect()["cell_min_area"])
+    row = list(table.table()).index("background")
+    before = int(model.collect()["cell_background"])
 
     assert table.setData(table.index(row, 0), str(before + 7), Qt.EditRole)
     QApplication.processEvents()
 
-    assert int(model.collect()["cell_min_area"]) == before + 7
+    assert int(model.collect()["cell_background"]) == before + 7
 
 
 def test_a_row_the_grid_speaks_for_stays_hidden_across_a_refresh(

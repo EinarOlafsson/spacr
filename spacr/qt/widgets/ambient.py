@@ -5772,35 +5772,212 @@ def _the_spaceout_fractal(host):
 
     try:
         from ..preferences import get_fractal_settings
-        from .fractal_travel import (
-            _HeavyImportInProgress, RuntimeControls, Settings,
-            create_fractal_widget)
+        from .fractal_travel import _HeavyImportInProgress
 
-        values = get_fractal_settings()
-        widget = create_fractal_widget(
-            Settings(pattern=values["pattern"], backend=values["backend"],
-                     quality=values["quality"], scale=values["scale"]),
-            RuntimeControls(speed=values["speed"], dream=values["dream"],
-                            variable_speed=values["variable_speed"],
-                            speed_min=values["speed_min"],
-                            speed_max=values["speed_max"],
-                            speed_period=values["speed_period"],
-                            follow_pointer=bool(values["pointer_gravity"]),
-                            pointer_size=values["pointer_size"],
-                            pointer_strength=values["pointer_strength"],
-                            zoom_rate=values["zoom_rate"]),
-        )
-        widget.setParent(host)
-        widget.setGeometry(host.rect())
-        widget.lower()
-        widget.show()
-        host.installEventFilter(_FractalTracksItsHost(widget, host))
+        widget = _build_the_spaceout_fractal(get_fractal_settings())
+        _place_the_spaceout_fractal(widget, host)
         return widget
     except _HeavyImportInProgress:
         raise
     except Exception:                                        # noqa: BLE001
         LOG.exception("Could not install the spaceout fractal")
         return None
+
+
+_BUILT_FROM_SETTINGS = ("pattern", "backend", "quality", "scale",
+                       "max_iterations", "precision_digits")
+"""The fractal settings a spaceout backdrop is BUILT from.
+
+The pattern picks the shader and the backend picks GPU or CPU; quality and
+scale go into the frozen `Settings` the renderer sizes itself from; the
+Mandelbrot reference orbit is iterated once, at construction, to
+`max_iterations` at `precision_digits`. Every other setting is either on the
+`RuntimeControls` the canvas reads each frame or read from the store each
+frame, so it needs no rebuild. See item 530.
+"""
+
+
+def _built_from(values: dict) -> tuple:
+    """The construction-time part of ``values``, comparable with ``==``."""
+    return tuple(values.get(name) for name in _BUILT_FROM_SETTINGS)
+
+
+def _build_the_spaceout_fractal(values: dict, controls=None):
+    """Construct the spaceout backdrop from ``values``, unparented.
+
+    :param values: :func:`~spacr.qt.preferences.get_fractal_settings`.
+    :param controls: the `RuntimeControls` to hand it, or ``None`` for new
+        ones made from ``values``. A rebuild passes the old backdrop's, so
+        a zoom rate nudged with the arrow keys survives a pattern change.
+    :returns: the widget, remembering what it was built from.
+    """
+    from .fractal_travel import (RuntimeControls, Settings,
+                                 create_fractal_widget)
+
+    if controls is None:
+        controls = RuntimeControls(
+            speed=values["speed"], dream=values["dream"],
+            variable_speed=values["variable_speed"],
+            speed_min=values["speed_min"],
+            speed_max=values["speed_max"],
+            speed_period=values["speed_period"],
+            follow_pointer=bool(values["pointer_gravity"]),
+            pointer_size=values["pointer_size"],
+            pointer_strength=values["pointer_strength"],
+            zoom_rate=values["zoom_rate"])
+    widget = create_fractal_widget(
+        Settings(pattern=values["pattern"], backend=values["backend"],
+                 quality=values["quality"], scale=values["scale"]),
+        controls,
+    )
+    widget._spaceout_controls = controls
+    widget._spaceout_built_from = _built_from(values)
+    return widget
+
+
+def _place_the_spaceout_fractal(widget, host) -> None:
+    """Parent ``widget`` to ``host``, fill it, lower it and keep it filling."""
+    widget.setParent(host)
+    widget.setGeometry(host.rect())
+    widget.lower()
+    widget.show()
+    host.installEventFilter(_FractalTracksItsHost(widget, host))
+
+
+def _live_spaceout_fractals() -> list:
+    """Every spaceout backdrop currently parented to something."""
+    from PySide6.QtWidgets import QApplication
+
+    if QApplication.instance() is None:
+        return []
+    found = []
+    for widget in QApplication.allWidgets():
+        try:
+            if (getattr(widget, "_spaceout_built_from", None) is not None
+                    and widget.parentWidget() is not None):
+                found.append(widget)
+        except Exception:                                    # noqa: BLE001
+            continue
+    return found
+
+
+def _point_holders_at(old, new, host) -> int:
+    """Swap every attribute that held ``old`` on ``host`` or its window.
+
+    The screens keep their backdrop as ``_ambient`` and the main window as
+    ``_dock_backdrop``; pausing it for a run, retiring it and the screens'
+    "is there one already" guard all go through those names, so a rebuild
+    that left them on the retired widget would be a backdrop nothing can
+    pause and a second one built on top of it.
+
+    :returns: how many attributes were moved.
+    """
+    moved = 0
+    holders = [host]
+    try:
+        window = host.window()
+        if window is not None and window is not host:
+            holders.append(window)
+    except Exception:                                        # noqa: BLE001
+        pass
+    for holder in holders:
+        try:
+            names = [name for name, value in vars(holder).items()
+                     if value is old]
+        except TypeError:
+            continue
+        for name in names:
+            setattr(holder, name, new)
+            moved += 1
+    return moved
+
+
+def _retire_one_fractal(old, host) -> None:
+    """Stop ``old``, drop the filter that sized it, and let Qt free it."""
+    try:
+        old.shutdown()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not stop an old fractal", exc_info=True)
+    try:
+        for follower in host.findChildren(_FractalTracksItsHost):
+            if follower._widget is old:
+                host.removeEventFilter(follower)
+                follower._widget = None
+                follower.deleteLater()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not drop an old fractal's filter", exc_info=True)
+    try:
+        old.setParent(None)
+        old.deleteLater()
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
+def rebuild_the_spaceout_backdrops() -> int:
+    """Rebuild every running spaceout backdrop whose build settings changed.
+
+    :returns: how many were rebuilt.
+
+    WHY A SAVED PATTERN USED TO WAIT FOR A RESTART (item 530). The window
+    builds ONE backdrop behind the dock and the page and keeps it for the
+    session. Saving Preferences pushed the runtime numbers into it
+    (`apply_saved_controls`) but the pattern, backend, quality and scale are
+    fixed when it is constructed, and nothing constructed it again -- the
+    old note that "changing a screen" would do it stopped being true when
+    the backdrop moved from the screens to the window.
+
+    The replacement is built BEFORE the old one is retired, so a GPU that
+    cannot be had right now leaves the running backdrop on screen rather
+    than none. It inherits the old one's `RuntimeControls`, its paused
+    state and its visibility, and every reference to the old one on its
+    host or window is moved to it. A heavy import holding the GL lock is
+    waited out on a timer, as at startup.
+    """
+    try:
+        from ..theme import spaceout_enabled
+
+        if not spaceout_enabled():
+            return 0
+        from ..preferences import get_fractal_settings
+        from .fractal_travel import _HeavyImportInProgress
+
+        values = get_fractal_settings()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the fractal settings", exc_info=True)
+        return 0
+
+    wanted = _built_from(values)
+    rebuilt = 0
+    for old in _live_spaceout_fractals():
+        if getattr(old, "_spaceout_built_from", None) == wanted:
+            continue
+        host = old.parentWidget()
+        try:
+            paused = bool(old.is_paused())
+        except Exception:                                    # noqa: BLE001
+            paused = False
+        hidden = old.isHidden()
+        try:
+            new = _build_the_spaceout_fractal(
+                values, getattr(old, "_spaceout_controls", None))
+        except _HeavyImportInProgress:
+            QTimer.singleShot(400, rebuild_the_spaceout_backdrops)
+            continue
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("Could not rebuild the spaceout fractal")
+            continue
+        _retire_one_fractal(old, host)
+        _place_the_spaceout_fractal(new, host)
+        if hidden:
+            new.hide()
+        if paused:
+            try:
+                new.pause()
+            except Exception:                                # noqa: BLE001
+                pass
+        _point_holders_at(old, new, host)
+        rebuilt += 1
+    return rebuilt
 
 
 class _FractalTracksItsHost(QObject):

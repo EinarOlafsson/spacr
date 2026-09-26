@@ -1,31 +1,34 @@
 {
   "lesson": "20_cellpose_masks",
-  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "pt-BR",
-  "title": "Aplicar Cellpose: máscaras salvas e filtros ao vivo",
-  "description": "Aplique CPSAM a três imagens reais para download no Workbench aninhado, confira figuras e console e teste filtros sem confundir prévia com processamento em lote.",
+  "title": "Aplicar Cellpose: segmentar uma pasta e inspecionar as máscaras",
+  "description": "Escolha um modelo de segmentação, processe as imagens fornecidas e inspecione as máscaras salvas e os filtros de tamanho ao vivo.",
   "objectives": [
-    "Localizar Apply em Make Masks e Cellpose Workbench.",
-    "Usar cópias preservadas e configurações registradas do modelo padrão.",
-    "Examinar três máscaras e suas figuras de imagem, contornos e fluxo.",
-    "Demonstrar filtros reversíveis e zoom sincronizado.",
-    "Reconhecer a diferença medida entre prévia e lote sem alegar acurácia."
+    "Selecionar as imagens, os pesos do modelo e as configurações de segmentação.",
+    "Executar o Apply e localizar os TIFF de máscara salvos.",
+    "Inspecionar os resultados ao vivo e comparar filtros de tamanho de objeto."
   ],
-  "prerequisite": "Extraia as três imagens em uma pasta nova e aponte src para images. recorded_settings.json contém valores históricos, não comprova importação portátil pela interface. São recortes celulares reais uint16 de 512 pixels de lado, não referência de segmentação. Usa-se CPSAM padrão, não o modelo de Train. Configurações: channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert e remove_background são False. O lote CUDA salva 9/94/46 objetos e três figuras nativas. Chamadas independentes reproduzem todos os pixels das máscaras e matrizes das figuras. Contornos externos não separam cada instância em contato; o fluxo é um canal de visualização, não movimento medido. A prévia da imagem 02 gera 95, não 94: segue os padrões Cellpose para a imagem bruta, não o pré-processamento e reamostragem do lote. Exibir 2/99 não prova equivalência. Área mínima 1838 dá 95→47→95 sem nova inferência; cada pixel restaurado é verificado e os TIFFs permanecem intactos. O zoom sincroniza as vistas, mas recorta a imagem e não corrige o painel estreito. Dados e bloqueios anteriores preservados. Sem certificação biológica, solicitação à IA, publicação ou mudança no aplicativo.",
+  "prerequisite": "Extraia o exemplo do Apply Cellpose indicado em uma pasta nova. Ele contém três imagens de células de um único canal e uma referência de configurações. Selecione a pasta images dele como Source. Este passo a passo usa o modelo padrão cpsam; para um modelo próprio, escolha pesos e configurações compatíveis com suas imagens.",
   "scenes": [
-    "Em Make Masks, abra o Cellpose Workbench aninhado e escolha Apply. Train e Apply compartilham esse painel; Apply não é um bloco separado na tela inicial. Esta aula usa o modelo padrão em três imagens reais, não o checkpoint de demonstração da aula Train vinculada.",
-    "Extraia o exemplo vinculado em uma pasta nova. Defina o diretório images como origem, preservando o download original. São três imagens celulares de um canal, cada uma com quinhentos e doze pixels de lado. São exemplos, não referência de segmentação. Consulte as configurações registradas e substitua o caminho histórico pelo seu.",
-    "Selecione CPSAM e deixe o modelo personalizado vazio. Nessas imagens, o canal é zero, a normalização usa os percentis dois e noventa e nove, o diâmetro é trinta, o limiar de fluxo é zero vírgula quatro e a probabilidade celular é zero. São escolhas demonstrativas, não recomendações universais.",
-    "Ative Save e Verbose, use uma imagem por lote e execute Apply. Essa rota cria figuras sem um botão Plot separado. O console identifica uma RTX trinta noventa usando CUDA e termina as três imagens. Confira a origem e as configurações salvas: Finished sozinho não mede acurácia.",
-    "Três TIFFs de máscara com os mesmos nomes são salvos na subpasta masks da origem. As contagens são nove, noventa e quatro e quarenta e seis. As figuras reais mostram entrada, contornos externos vermelhos e fluxo. Os contornos não separam todas as instâncias adjacentes; as cores não medem movimento físico nem acurácia.",
-    "Ative Live preview e escolha cell pair zero dois com o seletor real. Recolha Console e System para liberar espaço. A prévia tem controles próprios: confira o canal zero e os percentis exibidos em Live settings, sem presumir que todas as opções de Apply foram copiadas.",
-    "A prévia encontra noventa e cinco objetos, enquanto a máscara salva da mesma imagem contém noventa e quatro. Verificações independentes reproduzem ambos: a prévia usa os padrões Cellpose para a imagem bruta, não o pré-processamento e a reamostragem explícitos do lote. É uma visão exploratória, não garantia de máscaras idênticas.",
-    "O painel de prévia continua estreito nesta versão. A roda do mouse amplia um detalhe nas duas vistas juntas; não aumenta o painel, e a imagem completa fica recortada. Isso ajuda a examinar contornos locais, mas não substitui a revisão de todo o campo.",
-    "Abra Live settings e ajuste a área celular mínima para mil oitocentos e trinta e oito pixels. É um limiar demonstrativo, não um ótimo biológico. Feche o diálogo para ver o resultado. O filtro remove quarenta e oito objetos, deixando quarenta e sete, sem executar Cellpose novamente nem alterar a segmentação bruta.",
-    "Aqui está a prévia filtrada, com o diálogo fechado e o zoom reaplicado. A imagem original permanece igual enquanto os objetos pequenos da máscara desaparecem. O contador mostra quarenta e sete. Essas mudanças afetam a prévia, não regravam os três TIFFs já salvos.",
-    "Volte a área mínima para zero, feche o diálogo e examine novamente. Retornam noventa e cinco objetos, e cada pixel de rótulo coincide com o resultado inicial. Guarde entradas, configurações e identidade do modelo junto às máscaras. O console opcional spaCR AI não é usado aqui; a validação independente continua necessária antes de conclusões científicas."
+    "Na tela Home, abra Make Masks e depois o Cellpose Workbench. Escolha Apply para segmentar imagens com um modelo existente. Use Train quando quiser aprender pesos novos a partir de pares de imagem e máscara revisados.",
+    "Extraia o exemplo indicado e defina Source como a pasta images dele. Ela contém três imagens de células de um único canal, cada uma com quinhentos e doze pixels de lado. Se usar o arquivo de configurações gravado como referência, troque o caminho de origem dele pela pasta que você extraiu.",
+    "Selecione cpsam e deixe Custom model vazio neste exemplo. Defina Channels como zero, os percentis de normalização como dois e noventa e nove, Diameter como trinta, Flow threshold como zero vírgula quatro e Cell probability como zero. Ajuste essas configurações depois de inspecionar alguns campos representativos do seu próprio experimento.",
+    "Ative Save e Verbose, escolha tamanho de lote um e clique em Run no Apply. Acompanhe o console enquanto cada imagem é processada. Revise as falhas antes de seguir para a medição.",
+    "Abra a subpasta masks dentro de Source. Cada imagem tem um TIFF de máscara com o mesmo nome base. Inspecione as figuras ao lado das imagens originais, prestando atenção a objetos não detectados e células unidas. O painel de fluxos mostra as direções que o modelo usa para segmentar.",
+    "Ative Live preview e escolha uma imagem no seletor de imagens. Abra Live settings e confira os controles de canal e de normalização. Recolha Console e System para dar mais espaço à pré-visualização, se necessário.",
+    "Compare a pré-visualização com a máscara salva do lote. Neste exemplo, a pré-visualização e o Apply usam caminhos de processamento diferentes, então podem gerar contornos e contagens diferentes. Revise os TIFF salvos ao decidir se as saídas do lote servem para a medição.",
+    "Use a roda do mouse para ampliar uma área nas duas telas de pré-visualização. Inspecione objetos que se tocam e contornos fracos e depois reduza o zoom para conferir o campo inteiro.",
+    "Abra Live settings e aumente Minimum cell area para remover objetos pequenos da pré-visualização. O limite é em pixels; escolha-o de acordo com o tamanho dos seus objetos. Feche a caixa de diálogo para inspecionar o resultado filtrado.",
+    "Compare os contornos filtrados com a imagem original. Mudar este filtro ao vivo atualiza a pré-visualização sem regravar as máscaras que o Apply já salvou. Execute o lote de novo com as configurações desejadas quando precisar de novas saídas salvas.",
+    "Volte Minimum cell area para zero para restaurar a pré-visualização sem filtro. Mantenha juntos as imagens de entrada, a identidade do modelo, as configurações e as máscaras salvas. Use o Make Masks para correções ou o Measure para extrair características dos objetos a partir das máscaras revisadas."
   ]
 }

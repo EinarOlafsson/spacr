@@ -2981,7 +2981,8 @@ def generate_activation_map(settings):
     """
     from .utils import SaliencyMapGenerator, GradCAMGenerator, SelectChannels, activation_maps_to_database, activation_correlations_to_database
     from .utils import print_progress, save_settings, calculate_activation_correlations
-    from .attribution import ATTRIBUTION_METHODS, AttributionMapGenerator, methods_by_family
+    from .attribution import (AttributionMapGenerator, UnknownMethodError,
+                              cam_type_applicability, resolve_cam_type)
     from .io import TarImageDataset
     from .settings import get_default_generate_activation_map_settings
 
@@ -3004,16 +3005,12 @@ def generate_activation_map(settings):
     if settings['cam_type'] in ['saliency_image', 'saliency_channel']:
         settings['target_layer'] = None
 
-    _LEGACY_CAM_TYPES = ('gradcam', 'gradcam_pp', 'saliency_image',
-                         'saliency_channel')
     cam_type = settings['cam_type']
-    use_attribution = cam_type not in _LEGACY_CAM_TYPES
-    if use_attribution and cam_type not in ATTRIBUTION_METHODS:
-        raise ValueError(
-            f"unknown cam_type {cam_type!r}. Legacy names: "
-            f"{list(_LEGACY_CAM_TYPES)}. Registered attribution methods by "
-            f"family — " + ", ".join(f"{fam}: {names}" for fam, names
-                                     in methods_by_family().items()))
+    try:
+        attribution_method = resolve_cam_type(cam_type)
+    except UnknownMethodError as exc:
+        raise ValueError(str(exc)) from exc
+    use_attribution = attribution_method is not None
     settings.setdefault('smoothgrad_samples', 0)
     settings.setdefault('smoothgrad_sigma', 0.15)
 
@@ -3044,6 +3041,12 @@ def generate_activation_map(settings):
     model, metadata = _load_inference_model(settings['model_path'], device)
     model.to(device)
     model.eval()
+    applies, reason = cam_type_applicability(cam_type, model=model)
+    if not applies:
+        raise ValueError(
+            f"cam_type {cam_type!r} does not apply to the loaded "
+            f"{type(model).__name__} (model_type="
+            f"{settings.get('model_type')!r}): {reason}.")
 
     dataset_dir = os.path.dirname(settings['dataset'])
     dataset_name = os.path.splitext(os.path.basename(settings['dataset']))[0]
@@ -3066,7 +3069,8 @@ def generate_activation_map(settings):
 
     if use_attribution:
         cam_generator = AttributionMapGenerator(
-            model, method=cam_type, target_layer=settings['target_layer'],
+            model, method=attribution_method,
+            target_layer=settings['target_layer'],
             model_type=settings.get('model_type'),
             smoothgrad_samples=settings['smoothgrad_samples'],
             smoothgrad_sigma=settings['smoothgrad_sigma'])

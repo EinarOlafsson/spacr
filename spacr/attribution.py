@@ -3,11 +3,16 @@
 spaCR already drew Grad-CAM and saliency maps (``spacr.utils.GradCAMGenerator``,
 ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). This
 module is the library those two were the first entries in: the CAM family
-(Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM), the gradient
-family (saliency, integrated gradients, guided backprop, input×gradient,
-DeepLIFT, and SmoothGrad wrapped around any of them), the perturbation family
-(occlusion, feature ablation) and attention rollout for transformer backbones
-that have no convolution for a CAM to hook.
+(Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM, HiRes-CAM,
+Ablation-CAM), the gradient family (saliency, integrated gradients, guided
+backprop, input×gradient, DeepLIFT, and SmoothGrad wrapped around any of them),
+the SHAP family (GradientSHAP, DeepSHAP), the perturbation family (occlusion,
+feature ablation), and for Vision Transformers attention rollout plus Chefer et
+al.'s class-specific relevance propagation.
+
+Not every method applies to every backbone. :func:`method_applicability` says
+which do for a model or a ``model_type`` name, and why the others do not, so a
+method selector can grey an entry with its reason instead of failing mid-run.
 
 Almost none of it is written here. The CAM variants come from the optional
 **torchcam** attribution extra, while the gradient and perturbation methods
@@ -80,6 +85,15 @@ __all__ = [
     "smoothgrad",
     "compare_methods",
     "attention_rollout",
+    "chefer_relevance",
+    "method_applicability",
+    "applicable_methods",
+    "architecture_kind",
+    "cam_type_choices",
+    "cam_type_applicability",
+    "resolve_cam_type",
+    "CAM_TYPE_ALIASES",
+    "LEGACY_CAM_TYPES",
     "list_methods",
     "methods_by_family",
     "conv_layer_names",
@@ -709,7 +723,7 @@ def _captum_attribute(spec: "MethodSpec", wrapped: ClassScoreModel,
     per-channel output into the module's ``(H, W)`` contract without losing the
     signed form.
     """
-    import captum.attr as ca
+    ca = _import_captum_attr()
 
     notes: List[str] = []
     inp = x.clone().requires_grad_(True)
@@ -739,6 +753,17 @@ def _captum_attribute(spec: "MethodSpec", wrapped: ClassScoreModel,
     elif name == "deeplift":
         attributor = ca.DeepLift(wrapped)
         kwargs["baselines"] = _captum_baseline(kw.get("baseline", "zero"), x)
+    elif name == "gradient_shap":
+        attributor = ca.GradientShap(wrapped)
+        kwargs["baselines"] = _shap_baselines(x, kw)
+        kwargs["n_samples"] = max(1, int(kw.get("shap_samples", 20)))
+        kwargs["stdevs"] = float(_sigma_to_stdev(kw.get("shap_sigma", 0.09), x))
+        notes.append(
+            f"GradientSHAP averaged {kwargs['n_samples']} noisy draws between "
+            f"the image and {int(kwargs['baselines'].shape[0])} references.")
+    elif name == "deeplift_shap":
+        attributor = ca.DeepLiftShap(wrapped)
+        kwargs["baselines"] = _shap_baselines(x, kw)
     elif name == "occlusion":
         attributor = ca.Occlusion(wrapped)
         window = int(kw.get("window", kw.get("occlusion_window", 8)))
@@ -1015,12 +1040,467 @@ def _attention_adapter(spec: "MethodSpec", wrapped: ClassScoreModel,
 
 
 
+def _layer_activation_and_gradient(wrapped: ClassScoreModel, x: torch.Tensor,
+                                   module: nn.Module, target: int
+                                   ) -> Tuple[torch.Tensor, torch.Tensor]:
+    """The target layer's feature maps and the class score's gradient on them.
+
+    The activation is copied at forward time, because a later in-place ReLU
+    would otherwise overwrite the tensor that was hooked. The gradient is taken
+    with :func:`torch.autograd.grad` against the input, so no parameter's
+    ``.grad`` is touched.
+
+    :returns: ``(activation, gradient)``, both ``(1, C, h, w)``.
+    :raises AttributionError: when the layer never received a gradient.
+    """
+    captured: Dict[str, torch.Tensor] = {}
+
+    def _keep_gradient(grad):
+        """Store the gradient that reaches the hooked feature map."""
+        captured["grad"] = grad.detach().clone()
+
+    def _hook(_m, _inp, out):
+        """Copy the feature maps and ask for their gradient."""
+        tensor = out if isinstance(out, torch.Tensor) else out[0]
+        captured["act"] = tensor.detach().clone()
+        if tensor.requires_grad:
+            tensor.register_hook(_keep_gradient)
+
+    handle = module.register_forward_hook(_hook)
+    try:
+        with torch.enable_grad():
+            inp = x.detach().clone().requires_grad_(True)
+            score = wrapped(inp)[0, int(target)]
+            torch.autograd.grad(score, inp, allow_unused=True)
+    finally:
+        handle.remove()
+    if "act" not in captured or "grad" not in captured:
+        raise AttributionError(
+            "the target layer received no gradient from the class score, so a "
+            "gradient-weighted CAM has nothing to weight. Check that the layer "
+            "is on the path to the classifier head.")
+    return captured["act"], captured["grad"]
+
+
+def _hires_cam(spec: "MethodSpec", wrapped: ClassScoreModel, x: torch.Tensor,
+               target: int, layer: Optional[str], model_type: Optional[str],
+               **kw) -> Tuple[np.ndarray, None, str, List[str]]:
+    """HiRes-CAM (Draelos & Carin 2020): gradient times activation, element-wise.
+
+    Grad-CAM first averages each channel's gradient over space and then weights
+    the whole channel by that one number; HiRes-CAM keeps the gradient at every
+    position. For a network that ends in global average pooling and a linear
+    head the two coincide, and where they differ HiRes-CAM is the one that is
+    provably tied to the score: summed over the map it is the first-order
+    contribution of the layer to the class score, which Grad-CAM's
+    channel-averaging does not guarantee.
+    """
+    layer_name, module = _spatial_target_layer(wrapped.model, layer, model_type)
+    _check_spatial_activation(module, wrapped, x, layer_name, model_type,
+                              bool(kw.get("allow_pre_attention", False)))
+    act, grad = _layer_activation_and_gradient(wrapped, x, module, target)
+    cam = torch.relu((act[0] * grad[0]).sum(dim=0))
+    return (_finite_2d(cam, (int(x.shape[-2]), int(x.shape[-1]))), None,
+            layer_name, [])
+
+
+def _ablation_cam(spec: "MethodSpec", wrapped: ClassScoreModel,
+                  x: torch.Tensor, target: int, layer: Optional[str],
+                  model_type: Optional[str], **kw
+                  ) -> Tuple[np.ndarray, None, str, List[str]]:
+    """Ablation-CAM (Desai & Ramaswamy 2020): weight each channel by the score it costs.
+
+    Every channel of the target layer is zeroed in turn and the class score
+    re-measured; the channel's weight is the fractional score drop. No gradient
+    is used, so the map survives the saturated gradients that make Grad-CAM go
+    quiet. It costs one forward pass per channel, batched ``batch_size`` at a
+    time.
+    """
+    layer_name, module = _spatial_target_layer(wrapped.model, layer, model_type)
+    _check_spatial_activation(module, wrapped, x, layer_name, model_type,
+                              bool(kw.get("allow_pre_attention", False)))
+    captured: List[torch.Tensor] = []
+    state: Dict[str, Any] = {"channels": None}
+
+    def _ablate(_m, _inp, out):
+        """Record the clean feature maps, or zero one channel per batch row."""
+        tensor = out if isinstance(out, torch.Tensor) else out[0]
+        channels = state["channels"]
+        if channels is None:
+            captured.append(tensor.detach().clone())
+            return None
+        tensor = tensor.clone()
+        tensor[torch.arange(len(channels)), channels] = 0
+        if isinstance(out, torch.Tensor):
+            return tensor
+        return (tensor,) + tuple(out[1:])
+
+    handle = module.register_forward_hook(_ablate)
+    try:
+        with torch.no_grad():
+            base = float(wrapped(x)[0, int(target)])
+            act = captured[0][0]
+            n_channels = int(act.shape[0])
+            drops = torch.zeros(n_channels, dtype=torch.float64)
+            step = max(1, int(kw.get("batch_size", 32)))
+            for start in range(0, n_channels, step):
+                channels = torch.arange(start, min(n_channels, start + step))
+                state["channels"] = channels
+                batch = x.expand(len(channels), *x.shape[1:])
+                scores = wrapped(batch)[:, int(target)].double().cpu()
+                drops[channels] = base - scores
+    finally:
+        state["channels"] = None
+        handle.remove()
+    weights = (drops / (abs(base) + 1e-7)).to(act.dtype).to(act.device)
+    cam = torch.relu((weights[:, None, None] * act).sum(dim=0))
+    return (_finite_2d(cam, (int(x.shape[-2]), int(x.shape[-1]))), None,
+            layer_name,
+            [f"Ablation-CAM re-scored the image {n_channels} times, once per "
+             f"channel of {layer_name!r}."])
+
+
+def _shap_baselines(x: torch.Tensor, kw: Dict[str, Any]) -> torch.Tensor:
+    """The reference distribution GradientSHAP and DeepSHAP average over.
+
+    SHAP values are defined against a distribution of references, not one
+    image; a single black baseline turns GradientSHAP back into integrated
+    gradients. The default draws on three cheap references built from the
+    input itself: black, a blurred copy and the per-channel mean.
+    """
+    names = kw.get("shap_baselines") or ("zero", "blur", "mean")
+    if isinstance(names, str):
+        names = [part.strip() for part in names.replace(",", " ").split()
+                 if part.strip()]
+    refs = [_captum_baseline(name, x) for name in names]
+    if len(refs) < 2:
+        refs.append(_captum_baseline("blur", x))
+    return torch.cat(refs, dim=0)
+
+
+def _import_captum_attr():
+    """captum's ``attr`` package, or an install instruction."""
+    try:
+        import captum.attr as ca
+    except (ImportError, ModuleNotFoundError) as exc:
+        raise AttributionError(
+            "this attribution method needs the captum package, which is not "
+            "installed. Install it with `pip install captum`, or choose a CAM "
+            "method (eigencam, hirescam, ablation_cam), which need only torch."
+        ) from exc
+    return ca
+
+
+def architecture_kind(model: Optional[nn.Module] = None,
+                      model_type: Optional[str] = None) -> str:
+    """Classify a backbone into what the attribution families can use.
+
+    :param model: the model itself, when it is loaded.
+    :param model_type: the architecture name spaCR stores in settings
+        (``'resnet50'``, ``'maxvit_t'``, ``'vit_b_16'`` ...).
+    :returns: ``'vit'`` (global self-attention over a patch grid),
+        ``'swin'`` (shifted-window attention), ``'hybrid'`` (MaxViT:
+        convolutions after attention), ``'cnn'``, ``'other'`` (a loaded
+        model with neither convolution nor attention) or ``'unknown'``
+        (nothing to go on).
+    """
+    name = str(model_type or "").strip().lower()
+    if name.startswith("vit"):
+        return "vit"
+    if name.startswith("swin"):
+        return "swin"
+    if name.startswith("maxvit"):
+        return "hybrid"
+    if model is not None:
+        kinds = {type(m).__name__ for m in model.modules()}
+        if any(k.startswith("MaxVit") for k in kinds):
+            return "hybrid"
+        if any(k.startswith("Swin") or k == "ShiftedWindowAttention"
+               for k in kinds):
+            return "swin"
+        if any(isinstance(m, nn.MultiheadAttention) for m in model.modules()):
+            return "vit"
+        if conv_layer_names(model):
+            return "cnn"
+        return "other"
+    if name:
+        return "cnn"
+    return "unknown"
+
+
+def _reuses_relu_modules(model: Optional[nn.Module],
+                         model_type: Optional[str]) -> bool:
+    """Whether the backbone calls one ReLU module at several points.
+
+    torchvision's ResNet blocks do, and captum's DeepLIFT rules refuse such a
+    model because they attach one rescale rule per activation module.
+    """
+    name = str(model_type or "").strip().lower()
+    if name.startswith(("resnet", "wide_resnet", "resnext")):
+        return True
+    if model is not None:
+        return any(type(m).__name__ in ("BasicBlock", "Bottleneck")
+                   for m in model.modules())
+    return False
+
+
+def method_applicability(method: str, *, model: Optional[nn.Module] = None,
+                         model_type: Optional[str] = None
+                         ) -> Tuple[bool, str]:
+    """Whether a registered method can give a meaningful map for this backbone.
+
+    Decided from the architecture and from which optional backends are
+    installed, without running the model, so a settings form can grey the
+    methods that do not apply and show the reason.
+
+    :param method: a key of :data:`ATTRIBUTION_METHODS`.
+    :param model: the loaded model, when there is one.
+    :param model_type: the architecture name, when there is no model.
+    :returns: ``(applies, reason)``; the reason is empty when it applies.
+    :raises UnknownMethodError: for an unregistered method name.
+    """
+    import importlib.util
+
+    spec = ATTRIBUTION_METHODS.get(str(method))
+    if spec is None:
+        raise UnknownMethodError(
+            f"unknown attribution method {method!r}; registered: "
+            f"{sorted(ATTRIBUTION_METHODS)}")
+    if spec.backend == "torchcam" and importlib.util.find_spec("torchcam") is None:
+        return False, ("needs the optional torchcam package: "
+                       "pip install 'spacr[attribution]'")
+    if spec.backend == "captum" and importlib.util.find_spec("captum") is None:
+        return False, "needs the captum package: pip install captum"
+    kind = architecture_kind(model, model_type)
+    if spec.family == "cam":
+        if kind in ("vit", "swin"):
+            return False, (
+                "a pure transformer's only convolution is the patch embedding, "
+                "which runs before every attention block, so a CAM over it "
+                "shows local image statistics; use chefer (ViT), saliency or a "
+                "SHAP method")
+        if kind == "other":
+            return False, ("the model has no Conv2d feature map for a CAM to "
+                           "weight")
+    if spec.family == "attention" and kind not in ("vit", "unknown"):
+        if kind == "hybrid":
+            return False, (
+                "MaxViT attends inside local windows and grids with a relative "
+                "position bias and has no class token, so its attention cannot "
+                "be composed into one token map; use hirescam or gradcam on "
+                "its MBConv layers")
+        if kind == "swin":
+            return False, (
+                "Swin attends inside shifted local windows with no class token, "
+                "so its attention cannot be composed into one token map; use "
+                "saliency or a SHAP method")
+        return False, ("the model has no self-attention blocks; attention "
+                       "methods apply to Vision Transformers only")
+    if spec.name in ("deeplift", "deeplift_shap") and _reuses_relu_modules(
+            model, model_type):
+        return False, (
+            "ResNet-style blocks call one ReLU module twice, which captum's "
+            "DeepLIFT rules refuse; use gradient_shap or integrated_gradients")
+    return True, ""
+
+
+def applicable_methods(model: Optional[nn.Module] = None,
+                       model_type: Optional[str] = None
+                       ) -> Dict[str, Tuple[bool, str]]:
+    """:func:`method_applicability` for every registered method, by name."""
+    return {name: method_applicability(name, model=model,
+                                       model_type=model_type)
+            for name in sorted(ATTRIBUTION_METHODS)}
+
+
+#: ``cam_type`` names that ``generate_activation_map`` serves with spaCR's own
+#: pre-registry generators rather than through :data:`ATTRIBUTION_METHODS`.
+LEGACY_CAM_TYPES: Tuple[str, ...] = ("gradcam", "gradcam_pp", "saliency_image",
+                                     "saliency_channel")
+
+#: ``cam_type`` spellings for registry methods whose own name is taken by a
+#: legacy generator: the torchcam Grad-CAM and Grad-CAM++.
+CAM_TYPE_ALIASES: Dict[str, str] = {
+    "torchcam_gradcam": "gradcam",
+    "torchcam_gradcam_pp": "gradcam_pp",
+}
+
+
+def resolve_cam_type(cam_type: str) -> Optional[str]:
+    """The registry method a ``cam_type`` names, or None for a legacy one.
+
+    :raises UnknownMethodError: for a name that is neither.
+    """
+    name = str(cam_type)
+    if name in CAM_TYPE_ALIASES:
+        return CAM_TYPE_ALIASES[name]
+    if name in LEGACY_CAM_TYPES:
+        return None
+    if name in ATTRIBUTION_METHODS:
+        return name
+    raise UnknownMethodError(
+        f"unknown cam_type {name!r}; choose one of {list(cam_type_choices())}")
+
+
+def cam_type_choices() -> Tuple[str, ...]:
+    """Every ``cam_type`` the Activation Maps settings can name, in menu order."""
+    registry = [name for name in sorted(ATTRIBUTION_METHODS)
+                if name not in CAM_TYPE_ALIASES.values()]
+    return LEGACY_CAM_TYPES + tuple(CAM_TYPE_ALIASES) + tuple(registry)
+
+
+def cam_type_applicability(cam_type: str, *, model: Optional[nn.Module] = None,
+                           model_type: Optional[str] = None
+                           ) -> Tuple[bool, str]:
+    """:func:`method_applicability` for a ``cam_type`` setting value.
+
+    The legacy Grad-CAM generators need a spatial layer like any CAM; the
+    legacy saliency maps apply to every backbone.
+    """
+    registry_name = resolve_cam_type(cam_type)
+    if registry_name is not None:
+        return method_applicability(registry_name, model=model,
+                                    model_type=model_type)
+    if str(cam_type).startswith("saliency"):
+        return True, ""
+    return method_applicability("eigencam", model=model, model_type=model_type)
+
+
+def chefer_relevance(model: nn.Module, image: Any, *,
+                     target: Optional[int] = None,
+                     model_type: Optional[str] = None) -> Attribution:
+    """Class-specific transformer relevance (Chefer, Gur & Wolf 2021).
+
+    Rollout multiplies raw attention and so gives one map whatever class is
+    asked about. This weights every head's attention by the class score's
+    gradient on it, keeps the positive part, averages the heads and
+    accumulates the result through the residual stream, ``R <- R + A_bar R``
+    from the identity. The class token's row of ``R`` is the relevance of each
+    patch *for the target class*, so asking for the other class gives a
+    different map.
+
+    It reads :class:`torch.nn.MultiheadAttention` blocks (torchvision's ViT and
+    spaCR's own), asking each for per-head weights the way
+    :func:`attention_rollout` does.
+
+    :param model: the transformer classifier.
+    :param image: one image, ``(C, H, W)`` or ``(1, C, H, W)``.
+    :param target: class to explain; defaults to the prediction.
+    :param model_type: architecture name for the error messages.
+    :returns: the :class:`Attribution`.
+    :raises NoSpatialLayerError: when the model has no attention blocks whose
+        weights sit on the gradient path, or its tokens do not form a grid.
+    """
+    x = _to_batch(image)
+    was_training = model.training
+    model.eval()
+    wrapped = ClassScoreModel(model)
+    target = _resolve_target(wrapped, x, target)
+    predicted = _predicted_class(wrapped, x)
+    blocks = [m for m in model.modules() if isinstance(m, nn.MultiheadAttention)]
+    if not blocks:
+        _ok, reason = method_applicability("chefer", model=model,
+                                           model_type=model_type)
+        raise NoSpatialLayerError(
+            f"model_type={model_type or type(model).__name__!r}: Chefer "
+            f"relevance is not applicable — "
+            f"{reason or 'no torch.nn.MultiheadAttention block to read'}.")
+
+    captured: List[torch.Tensor] = []
+
+    def _hook(_m, _inp, out):
+        """Keep the attention weights an MHA block returns, graph attached."""
+        if isinstance(out, (tuple, list)) and len(out) > 1 and \
+                isinstance(out[1], torch.Tensor):
+            captured.append(out[1])
+
+    handles = [b.register_forward_hook(_hook) for b in blocks]
+    restore = _ask_for_attention_weights(blocks)
+    try:
+        with torch.enable_grad():
+            inp = x.detach().clone().requires_grad_(True)
+            score = wrapped(inp)[0, int(target)]
+            sources = []
+            for attn in captured:
+                base = attn._base
+                use_base = (base is not None and base.requires_grad
+                            and base.numel() == attn.numel())
+                sources.append(base if use_base else attn)
+            grads = (torch.autograd.grad(score, sources, allow_unused=True)
+                     if sources else ())
+    finally:
+        restore()
+        for handle in handles:
+            handle.remove()
+        if was_training:
+            model.train()
+
+    if not captured or any(g is None for g in grads):
+        raise NoSpatialLayerError(
+            f"model_type={model_type or type(model).__name__!r} has attention "
+            f"blocks, but their weights are not on the gradient path to the "
+            f"class score (a fused attention kernel), so there is nothing for "
+            f"Chefer relevance to weight. Use saliency or a SHAP method.")
+
+    relevance: Optional[torch.Tensor] = None
+    for attn, grad in zip(captured, grads):
+        a = attn.detach().double()
+        g = grad.detach().double().reshape(attn.shape)
+        if a.ndim == 3:
+            a, g = a[:, None], g[:, None]
+        cam = (g[0] * a[0]).clamp_min(0).mean(dim=0)
+        if cam.shape[0] != cam.shape[1]:
+            raise NoSpatialLayerError(
+                f"an attention block returned a non-square {tuple(cam.shape)} "
+                f"matrix, so token relevance cannot be propagated through it.")
+        if relevance is None:
+            relevance = torch.eye(cam.shape[0], dtype=cam.dtype)
+        relevance = relevance + cam @ relevance
+
+    n_tokens = int(relevance.shape[0])
+    grid = int(round(math.sqrt(n_tokens - 1)))
+    if grid * grid == n_tokens - 1:
+        weights = relevance[0, 1:]
+        note = "Read from the class token's row of the relevance matrix."
+    else:
+        grid = int(round(math.sqrt(n_tokens)))
+        if grid * grid != n_tokens:
+            raise NoSpatialLayerError(
+                f"{n_tokens} attention tokens do not form a square patch grid "
+                f"(with or without a class token), so they cannot be laid back "
+                f"out over the image.")
+        weights = (relevance - torch.eye(n_tokens, dtype=relevance.dtype)
+                   ).mean(dim=0)
+        note = ("No class token: relevance was averaged over every token's "
+                "row, the analogue for a mean-pooled head.")
+    heat = weights.reshape(grid, grid).float()
+    result = Attribution(
+        method="chefer",
+        map=_finite_2d(heat, (int(x.shape[-2]), int(x.shape[-1]))),
+        target=int(target), n_classes=wrapped.n_classes,
+        single_logit=bool(wrapped.single_logit), predicted=int(predicted),
+        raw=None, layer=None, family="attention", backend="spacr",
+        params={}, notes=[f"Propagated relevance through {len(captured)} "
+                          f"attention blocks.", note])
+    return result
+
+
+def _chefer_adapter(spec: "MethodSpec", wrapped: ClassScoreModel,
+                    x: torch.Tensor, target: int, layer: Optional[str],
+                    model_type: Optional[str], **kw):
+    """Registry entry point for Chefer relevance, returning the adapter tuple."""
+    att = chefer_relevance(wrapped.model, x, target=target,
+                           model_type=model_type)
+    return att.map, None, None, list(att.notes)
+
+
+
 @dataclass(frozen=True)
 class MethodSpec:
     """One registered attribution method.
 
     :param name: registry key callers pass as ``method=``.
-    :param family: method family—``"cam"``, ``"gradient"``,
+    :param family: method family—``"cam"``, ``"gradient"``, ``"shap"``,
         ``"perturbation"``, or ``"attention"``.
     :param backend: implementation provider—``"torchcam"``, ``"captum"``, or
         ``"spacr"``.
@@ -1099,6 +1579,23 @@ ATTRIBUTION_METHODS: Dict[str, MethodSpec] = {
         "attention_rollout", "attention", "spacr", _attention_adapter, False,
         "attention rollout for transformer backbones with no convolution to "
         "hook; not class-conditional"),
+    "hirescam": _spec("hirescam", "cam", "spacr", _hires_cam, True,
+                      "HiRes-CAM: gradient times activation at every position, "
+                      "the Grad-CAM variant that stays faithful to the score"),
+    "ablation_cam": _spec("ablation_cam", "cam", "spacr", _ablation_cam, True,
+                          "Ablation-CAM: gradient-free, zeroes one channel at a "
+                          "time and weights it by the score it costs"),
+    "gradient_shap": _spec(
+        "gradient_shap", "shap", "captum", _captum_attribute, False,
+        "GradientSHAP: expected gradients between the image and a set of "
+        "reference images; SHAP values in pixel units"),
+    "deeplift_shap": _spec(
+        "deeplift_shap", "shap", "captum", _captum_attribute, False,
+        "DeepSHAP: DeepLIFT averaged over a set of reference images"),
+    "chefer": _spec(
+        "chefer", "attention", "spacr", _chefer_adapter, False,
+        "Chefer transformer relevance: gradient-weighted attention propagated "
+        "through the blocks; class-specific, Vision Transformers only"),
 }
 
 

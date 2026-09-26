@@ -27,14 +27,18 @@
       "label": "spacr.qt.screens.organism_screen#0",
       "source": "Sourced organism guides, interactive cell diagrams and assay navigation.",
       "source_sha256": "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
-      "translation": "附有来源的生物指南、交互式细胞图示和分析导航。"
+      "translation": "附有来源的生物指南、交互式细胞图示和分析导航。",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The information and module panes scroll independently and share a horizontal splitter. Existing assays keep their registry keys; proposals cannot execute.",
       "label": "spacr.qt.screens.organism_screen#1",
       "source": "The information and module panes scroll independently and share a horizontal splitter. Existing assays keep their registry keys; proposals cannot run.",
       "source_sha256": "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce",
-      "translation": "信息面板和模块面板独立滚动，并共用水平布局的分隔控件。已有分析保留其注册键；提案无法运行。"
+      "translation": "信息面板和模块面板独立滚动，并共用水平布局的分隔控件。已有分析保留其注册键；提案无法运行。",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Show one organism and its existing or proposed image-analysis modules.",

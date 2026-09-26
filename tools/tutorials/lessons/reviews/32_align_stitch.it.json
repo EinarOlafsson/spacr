@@ -1,21 +1,32 @@
 {
-  "lesson": "32_align_stitch", "language": "it", "english_sha256": "c5ca1b87343bf3d9dc635ae146c77ffe5c57cb49886fdbcb1312ffdf69e6c5cc",
-  "review": {"kind": "Editorial translation checked against English and the actual captured Align & Stitch workflow", "native_speaker_signoff": false},
-  "title": "Align & Stitch: esaminare un piano reale e verificare il mosaico salvato",
-  "description": "Esegui l’attuale interfaccia di assemblaggio su pixel reali di microscopia conservati, esamina la disposizione calcolata, scrivi bande d’immagine di dimensioni limitate e verifica sia il mosaico sia i relativi record delle coordinate.",
-  "objectives": ["Distinguere questo esempio di ritagli a geometria nota da un esperimento a mosaico con campi acquisiti indipendentemente.", "Impostare griglia, sovrapposizione, ordine e canale di riferimento tramite l’interfaccia grafica attuale.", "Esaminare la registrazione prima della scrittura e distinguere il budget del buffer di bande dall’uso totale della memoria.", "Conservare insieme l’immagine assemblata, i record delle coordinate e la provenienza dei dati sorgente."],
-  "prerequisite": "Per la tua esecuzione, prepara riquadri con ordine e sovrapposizione noti e un canale utile alla registrazione; i tuoi conteggi e risultati saranno diversi. La registrazione video riutilizza nove ritagli esatti conservati di 800 × 800 × 4, ricavati da un unico campo reale di 2.000 × 2.000 × 4, con un passo di 600 pixel. Simulano un’acquisizione di 3 × 3, non nove campi acquisiti indipendentemente. I nomi tutorial_A01 sono coordinate dimostrative, non la piastra e il pozzetto originali. Align & Stitch non ha un pulsante separato per scaricare esempi.",
+  "lesson": "32_align_stitch",
+  "english_sha256": "66861407cfca015c4b796ed0848202ae64ee28cef5385b9f3a888b35f6674018",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Align & Stitch: pianificare e scrivere un mosaico di immagini",
+  "description": "Scegli le tessere di immagine, imposta la loro disposizione di acquisizione, esamina il piano di registrazione e scrivi il mosaico con le coordinate.",
+  "objectives": [
+    "Scegliere le tessere e impostare griglia, sovrapposizione e canale di registrazione.",
+    "Esaminare le posizioni pianificate e la qualità della registrazione.",
+    "Scrivere il mosaico e conservare il suo database delle coordinate."
+  ],
+  "prerequisite": "Scarica e decomprimi l’esempio con nove tessere qui sotto, oppure prepara tessere di immagine con ordine di acquisizione, sovrapposizione e un canale utile per la registrazione noti. L’esempio usa ritagli sovrapposti di un unico campo di microscopia come disposizione di prova.",
   "scenes": [
-    "Apri Align & Stitch nella categoria Tools di Home. Pianificare e scrivere sono azioni separate, quindi puoi esaminare una disposizione prima di crearne il mosaico. Questa schermata mostra una disposizione di riquadri e un resoconto testuale; i rettangoli colorati non sono un’anteprima dell’immagine di microscopia.",
-    "Scegli la cartella dei riquadri conservati del tutorial. I suoi nove riquadri sono ritagli esatti di un’unica immagine reale a quattro canali, disposti appositamente per simulare un’acquisizione con geometria nota. Non sono nove campi indipendenti e i nomi di piastra e pozzetto del tutorial sono identificativi dimostrativi.",
-    "Imposta Grid su tre per tre, Order su row-major e Overlap su zero virgola due cinque. Questi riquadri di ottocento pixel hanno un passo di seicento pixel. Per i tuoi dati, usa l’ordine effettivo di acquisizione e la sovrapposizione nominale; una scansione a serpentina non deve essere descritta come row-major.",
-    "Imposta Ref. channel su uno, il secondo piano in questo esempio con indici che partono da zero. La registrazione usa la struttura di quel piano e applica un unico posizionamento a tutti e quattro i canali. Scegli un canale significativo per la registrazione; questa operazione non è un allineamento cromatico indipendente di ciascun canale.",
-    "Imposta Min confidence su zero virgola tre, Neighbour radius su uno e Blend su feather. Assegna otto megabyte al buffer di bande tramite RAM budget (MB) per questo esempio circoscritto. Questa impostazione limita le bande d’immagine usate in scrittura; non impone un limite a ogni allocazione né all’uso totale della memoria dell’applicazione.",
-    "Premi Plan. Tutti e nove i riquadri dell’esempio vengono registrati, senza ricorrere alle posizioni nominali, e la superficie proposta è di duemila per duemila pixel con quattro canali. Non è stata ancora scritta alcuna immagine di output. Esamina i conteggi dei riquadri registrati, collocati nelle posizioni nominali e non posizionati, invece di considerare accettabile qualsiasi piano completato.",
-    "Fai clic sul riquadro centrale per esaminarne coordinate, confidenza, residuo e coppie che contribuiscono al calcolo. Qui la sua origine è a seicento pixel in ciascuna direzione, in accordo con la disposizione nota dei ritagli. Le sovrapposizioni perfettamente coincidenti di questo esempio costruito non predicono la qualità della registrazione su una nuova acquisizione.",
-    "Scegli una nuova cartella di output e un database delle coordinate separato, lasciando Overwrite disattivato. Write stack si abilita solo quando esiste un piano ed è stata specificata una destinazione. Mantieni invariati i riquadri sorgente; assegnare un percorso di output non sostituisce l’esame della registrazione.",
-    "Premi Write stack. L’output effettivo contiene tutti e nove i riquadri e, in questo esempio, ogni pixel di tutti e quattro i canali è identico a quello corrispondente nel campo originale. Il risultato riporta il percorso di output e l’uso del buffer di bande. È un risultato misurato per questi ritagli noti, non una promessa di registrazione senza perdite per immagini arbitrarie.",
-    "Il database delle coordinate contiene nove record. Verifichiamo ogni file sorgente, la piastra e il pozzetto dimostrativi, l’identificativo del campo, la posizione sulla superficie del mosaico e il percorso dello stack di output, non solo il numero di righe. Conserva questi record con l’immagine e il manifesto delle sorgenti, affinché le coordinate rimangano interpretabili nelle fasi successive.",
-    "In Python, spacr.align.scan_tiles legge la disposizione dei riquadri ed estimate_offsets costruisce il piano. write_stack crea il mosaico; save_coordinates e read_coordinates scrivono e recuperano la sua tabella delle coordinate. Il flusso di lavoro separato OPS non è validato da questo piccolo assemblaggio. Esamina la geometria reale di acquisizione prima di usare uno dei due flussi di lavoro per trarre conclusioni scientifiche."
+    "Nella categoria Tools di Home, apri Align and Stitch. Scegli le tessere, esamina la loro disposizione con Plan, poi usa Write stack per creare il mosaico.",
+    "Scarica e decomprimi l’esempio qui sotto, poi seleziona la sua cartella tiles. Contiene nove ritagli sovrapposti disposti in una griglia tre per tre. Per una tua acquisizione, tieni disponibili l’ordine originale delle tessere e i metadati del tavolino.",
+    "Per questo esempio, imposta la griglia su tre per tre, ordine per righe e sovrapposizione di zero virgola due cinque. Adatta questi valori alla tua acquisizione; usa l’ordine a serpentina quando le righe alterne sono state acquisite in direzioni opposte.",
+    "Imposta Reference channel sul piano dell’immagine usato per la registrazione. Questo esempio usa il canale uno, cioè il secondo piano con numerazione da zero. Scegli un canale con strutture visibili nelle sovrapposizioni; il posizionamento ottenuto si applica a tutti i canali dell’immagine.",
+    "Imposta Minimum confidence per accettare una registrazione e Neighbour radius per le tessere vicine da confrontare. L’esempio usa zero virgola tre e uno, con sfumatura graduale nelle sovrapposizioni. Il budget del buffer a bande controlla la memoria usata dalla scrittura delle immagini.",
+    "Premi Plan. Esamina il numero di tessere registrate, nominali e non posizionate e la dimensione proposta della tela. La disposizione mostra le posizioni delle tessere. Esamina eventuali ripieghi sulla posizione nominale o tessere non posizionate prima di scrivere il mosaico.",
+    "Fai clic su una tessera per esaminarne coordinate, confidenza, residuo e coppie che contribuiscono. Usa questi dettagli per indagare posizioni inattese, poi regola le impostazioni di registrazione e ripianifica se serve.",
+    "Scegli una cartella di output e un percorso per il database delle coordinate. Lascia disattivato Overwrite quando crei un nuovo risultato. Quando piano e destinazione sono pronti, premi Write stack.",
+    "Attendi il riepilogo di completamento e apri lo stack di output. Esamina le sovrapposizioni e i contorni degli oggetti nel mosaico. Conserva con esso il database delle coordinate e le tessere di origine, così le posizioni successive si possono ricondurre all’acquisizione."
   ]
 }

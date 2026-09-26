@@ -102,274 +102,434 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Condaでのインストール",
+      "title": "CondaでspaCRをインストールする",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "公式conda-forgeパッケージを専用環境にインストールし、チャネルの実際のバージョンと現在のモジュール講座との違いを確認します。",
+      "description": "Conda環境を作成し、conda-forgeからspaCRをインストールして、アプリケーションを起動します。",
       "objectives": [
         "専用のConda環境を作成して有効にする。",
-        "チャネルのパッケージ、Qt、診断結果を確認する。",
-        "チャネルが旧インターフェースのままなら、新しいpip版やデスクトップインストーラーを選ぶ。"
+        "conda-forgeからspaCRをインストールする。",
+        "spaCRを開き、必要に応じて同じ環境を更新する。"
       ],
-      "prerequisite": "Conda互換の管理ツールをインストールしておく必要があります。2026年9月10日、Linux、Python 3.12.14、Qt 6.11.2でconda-forgeのspaCR 1.5.0.4を検証しました。新規インストールでは専用の新しいパス、conda-forgeのみ、固定したチャネル版を使用しています。コマンドカードは名前付き環境での対応手順であり、インストール出力の再現ではありません。実際のGUIはHome (63)のままで、PyPI・インストーラー1.5.0.5の入れ子構造ではありません。通常のspacr-doctorで小さなCUDAメモリ割り当て試験は成功しましたが、任意のCZI機能に警告が出ました。速度測定やすべての解析・形式の検証ではありません。録画では文字倍率1.5の専用ダークプロファイル、終了済みツアー、既定の先読みを使用し、未対応の--no-setupは指定していません。他のプラットフォームは未検証です。制作元と公開版のナレーションが異なるため、音声を完全に同一のまま再利用したとは主張しません。",
+      "prerequisite": "CondaまたはMiniforgeをインストールし、condaコマンドが使えるターミナルを開いてください。",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "spaCRには専用のConda環境を使い、チャネルが実際に提供するバージョンを確認します。この録画時点のconda-forgeは、一点五点零点四をインストールします。PyPIとデスクトップインストーラーはすでに一点五点零点五です。これらのバージョンは同じものではありません。",
+          "narration": "Condaが使えるターミナルを開きます。spaCR用の環境を作成し、conda-forgeのパッケージをインストールして、その環境からアプリケーションを起動します。",
           "hold_after": 0.7,
-          "speech_text": "スペーカーには専用のConda環境を使い、チャネルが実際に提供するバージョンを確認します。この録画時点のconda-forgeは、一点五点零点四をインストールします。パイプとデスクトップインストーラーはすでに一点五点零点五です。これらのバージョンは同じものではありません。"
+          "speech_text": "Condaが使えるターミナルを開きます。スペーカー用の環境を作成し、conda-forgeのパッケージをインストールして、その環境からアプリケーションを起動します。"
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "表示されているコマンドで、Python三点十二とconda-forgeのspaCRを含む、spacr-condaという名前の環境を作成します。その名前をすでに別の環境で使っている場合は、別の名前を選んでください。",
+          "hold_after": 0.7,
+          "speech_text": "表示されているコマンドで、Python三点十二とconda-forgeのスペーカーを含む、スペーカー-condaという名前の環境を作成します。その名前をすでに別の環境で使っている場合は、別の名前を選んでください。"
         },
         {
           "visual": "07_create_conda",
-          "narration": "Condaが使えるシェルを開き、Python三点十二で新しい環境を作ります。カードではspacr-condaという名前を使っています。すでに存在する場合は未使用の別名を選び、進行中の解析とは環境を分けてください。",
+          "narration": "Condaが環境を解決し、パッケージの計画を一覧表示します。内容を確認し、yと入力して承認してから、ダウンロードとインストールが終わるまで待ちます。",
           "hold_after": 0.7,
-          "speech_text": "Condaが使えるシェルを開き、Python三点十二で新しい環境を作ります。カードではスペーカー-condaという名前を使っています。すでに存在する場合は未使用の別名を選び、進行中の解析とは環境を分けてください。"
+          "speech_text": "Condaが環境を解決し、パッケージの計画を一覧表示します。内容を確認し、yと入力して承認してから、ダウンロードとインストールが終わるまで待ちます。"
         },
         {
           "visual": "08_activate_conda",
-          "narration": "環境を有効にし、sysドットprefixを表示してPythonの所属先を確認します。実際の検証では、例の短い名前ではなく長い専用パスを使っています。端末のプロンプトだけでは、目的のインタープリターを使っている証拠にはなりません。",
+          "narration": "spacr-condaを有効にします。表示されているPythonコマンドを実行して環境のパスを表示し、いま作成した環境であることを確認します。",
           "hold_after": 0.7,
-          "speech_text": "環境を有効にし、sysドットprefixを表示してPythonの所属先を確認します。実際の検証では、例の短い名前ではなく長い専用パスを使っています。端末のプロンプトだけでは、目的のインタープリターを使っている証拠にはなりません。"
+          "speech_text": "スペーカー-condaを有効にします。表示されているPythonコマンドを実行して環境のパスを表示し、いま作成した環境であることを確認します。"
         },
         {
           "visual": "09_install_conda",
-          "narration": "conda-forgeを指定したパッケージをインストールし、conda list spacrでバージョンとチャネルを確認します。検証したインストールはconda-forgeだけを使い、チャネルのリリースを固定しました。確認画面の録画前に完了しています。カードは説明用であり、架空の端末出力ではありません。",
+          "narration": "conda list spacrを実行してインストールされたバージョンを表示し、conda-forgeから来ていることを確認します。PythonとspaCRを一つのコマンドでインストールすると、Condaがすべてのパッケージをまとめて解決できるため、既存の環境にspaCRを追加するよりはるかに速く済みます。",
           "hold_after": 0.7,
-          "speech_text": "conda-forgeを指定したパッケージをインストールし、conda list スペーカーでバージョンとチャネルを確認します。検証したインストールはconda-forgeだけを使い、チャネルのリリースを固定しました。確認画面の録画前に完了しています。カードは説明用であり、架空の端末出力ではありません。"
+          "speech_text": "conda list スペーカーを実行してインストールされたバージョンを表示し、conda-forgeから来ていることを確認します。Pythonとスペーカーを一つのコマンドでインストールすると、Condaがすべてのパッケージをまとめて解決できるため、既存の環境にスペーカーを追加するよりはるかに速く済みます。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "インストールした環境でspaCRとQtのバージョン、パッケージの場所を確認します。ここではパッケージは一点五点零点四で、Qtのインポートに成功しています。使用中のパッケージを特定しただけで、すべての科学的ワークフローや任意形式を検証したわけではありません。",
+          "narration": "インストールされたspaCRのバージョンとパッケージの場所を確認します。後で同じ環境に戻れるように、そのバージョンを解析メモに残しておきましょう。",
           "hold_after": 0.7,
-          "speech_text": "インストールした環境でスペーカーとQtのバージョン、パッケージの場所を確認します。ここではパッケージは一点五点零点四で、Qtのインポートに成功しています。使用中のパッケージを特定しただけで、すべての科学的ワークフローや任意形式を検証したわけではありません。"
+          "speech_text": "インストールされたスペーカーのバージョンとパッケージの場所を確認します。後で同じ環境に戻れるように、そのバージョンを解析メモに残しておきましょう。"
         },
         {
           "visual": "05_doctor",
-          "narration": "spacr-doctorを実行し、警告も読みます。ここでは小さなGPUメモリ割り当て試験は成功しましたが、任意のCZI機能に必要な依存パッケージが不足しています。省略した確認は合格ではありません。提案された修復はその機能についてのものです。特に管理ツールを混在させる場合は、適用前に環境への変更を検討してください。",
+          "narration": "spacr-doctorを実行してインストールを確認します。ここでは、主要な依存関係であるvispyが見つからないと報告し、それをインストールするコマンドを表示します。そのコマンドを実行してから、もう一度spacr-doctorを実行します。ほかの提案手順は、必要なファイル形式や機能に関するものだけに従ってください。",
           "hold_after": 0.7,
-          "speech_text": "スペーカー-doctorを実行し、警告も読みます。ここでは小さなGPUメモリ割り当て試験は成功しましたが、任意のCZI機能に必要な依存パッケージが不足しています。省略した確認は合格ではありません。提案された修復はその機能についてのものです。特に管理ツールを混在させる場合は、適用前に環境への変更を検討してください。"
+          "speech_text": "スペーカー-doctorを実行してインストールを確認します。ここでは、主要な依存関係であるvispyが見つからないと報告し、それをインストールするコマンドを表示します。そのコマンドを実行してから、もう一度スペーカー-doctorを実行します。ほかの提案手順は、必要なファイル形式や機能に関するものだけに従ってください。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "インストールしたCondaパッケージは正常に起動して終了しますが、これは六十三個のタイルがある旧Homeです。新しいモジュールの入れ子構造はありません。インストール成功だけで、新しいリリースの講座とすべての画面が一致するとは考えないでください。",
+          "narration": "spacrと入力してアプリケーションを起動します。初回起動時の選択を済ませたら、Homeのチュートリアルに進み、モジュールとその例データを探しましょう。",
           "hold_after": 0.7,
-          "speech_text": "インストールしたCondaパッケージは正常に起動して終了しますが、これは六十三個のタイルがある旧ホームです。新しいモジュールの入れ子構造はありません。インストール成功だけで、新しいリリースの講座とすべての画面が一致するとは考えないでください。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "スペーカーと入力してアプリケーションを起動します。初回起動時の選択を済ませたら、ホームのチュートリアルに進み、モジュールとその例データを探しましょう。"
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "更新されたモジュール講座の入れ子式インターフェースを使うには、別環境で現在のpipまたはPlatform installersのレッスンに従ってください。Condaチャネルが必要なら実際のリリースを記録し、更新を改めて確認します。進行中の解析に使ったバージョンは保持してください。",
+          "narration": "後で更新するときは、spaCRを閉じ、この環境を有効にして、conda-forgeのパッケージを更新します。conda-forgeに新しいビルドがない場合、Condaは要求したパッケージがすべてインストール済みだと報告します。その後、インストールされたバージョンを確認してください。ほかのインストール方法は、pipとインストーラーのレッスンで説明しています。",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "更新されたモジュール講座の入れ子式インターフェースを使うには、別環境で現在のpipまたはPlatform installersのレッスンに従ってください。Condaチャネルが必要なら実際のリリースを記録し、更新を改めて確認します。進行中の解析に使ったバージョンは保持してください。"
+          "speech_text": "後で更新するときは、スペーカーを閉じ、この環境を有効にして、conda-forgeのパッケージを更新します。conda-forgeに新しいビルドがない場合、Condaは要求したパッケージがすべてインストール済みだと報告します。その後、インストールされたバージョンを確認してください。ほかのインストール方法は、pipとインストーラーのレッスンで説明しています。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
       "number": 3,
       "slug": "pip_install",
-      "title": "pipでspaCRをインストール",
+      "title": "pipでspaCRをインストールする",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "独立したPython環境を作り、公開パッケージをインストールして依存関係を確認し、インストール済みのQtアプリを起動します。",
+      "description": "独立したPython環境を作成し、公開パッケージをインストールして依存関係を確認し、インストールしたQtアプリケーションを起動します。",
       "objectives": [
-        "spaCRの依存関係を専用のPython環境に分離する。",
-        "インストールしたパッケージとQt、任意機能の警告を確認する。",
-        "Homeを開き、更新対象の環境を意識して選ぶ。"
+        "Pythonの仮想環境を作成して有効にする。",
+        "spaCRをインストールし、依存関係を確認する。",
+        "アプリケーションを起動し、目的の環境を更新する。"
       ],
-      "prerequisite": "このレッスンはLinux、Python 3.12.13で公開PyPI版spaCR 1.5.0.5を検証しています。ソースの編集可能インストールではありません。コマンドカードは手順の説明であり、録画した端末出力ではありません。WindowsとmacOSのコマンドはここでは実行していません。新規インストールは録画した確認操作の前に完了しています。現在の基本依存関係にはQtが含まれます。Doctorには任意のCZI機能の警告があり、GPUメモリ割り当て試験は明示的に省略しています。GUI録画には--no-setup、文字倍率1.5の専用ダークプロファイル、終了済みのツアーを使用しています。確認したのはHomeの正常な起動と終了であり、すべてのモジュール、任意形式、GPU計算、他のプラットフォームの動作ではありません。",
+      "prerequisite": "Python 3.12をインストールし、ターミナルを開いてください。使用しているOSとシェルに合った有効化コマンドを使います。",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "spaCRは専用のPython環境にインストールします。この実演ではLinux上のPython三点十二と、ソースのチェックアウトではなくPyPIの公開リリースを使います。環境のインタープリターを選ぶ前に、python、ハイフン二つ、versionを確認してください。",
+          "narration": "ターミナルを開き、Pythonのバージョンを確認します。この手順ではPython三点十二を使います。パッケージを管理しやすいように、spaCRは専用の仮想環境に入れておきましょう。",
           "hold_after": 0.7,
-          "speech_text": "スペーカーは専用のPython環境にインストールします。この実演ではLinux上のPython三点十二と、ソースのチェックアウトではなくパイプの公開リリースを使います。環境のインタープリターを選ぶ前に、python、ハイフン二つ、versionを確認してください。"
+          "speech_text": "ターミナルを開き、Pythonのバージョンを確認します。この手順ではPython三点十二を使います。パッケージを管理しやすいように、スペーカーは専用の仮想環境に入れておきましょう。"
         },
         {
           "visual": "07_create_environment",
-          "narration": "プラットフォームに合うコマンドで、新しい仮想環境を作ります。ここでドットvenvは作業ディレクトリ内の新しいフォルダーです。Python三点十二はあらかじめインストールしておきます。このコマンドが作るのは環境であり、Python本体ではありません。",
+          "narration": "OSに合ったコマンドで、ドットvenvという名前の仮想環境を作成します。これで、spaCRに使うPython環境を含むフォルダーが作られます。",
           "hold_after": 0.7,
-          "speech_text": "プラットフォームに合うコマンドで、新しい仮想環境を作ります。ここでドットvenvは作業ディレクトリ内の新しいフォルダーです。Python三点十二はあらかじめインストールしておきます。このコマンドが作るのは環境であり、Python本体ではありません。"
+          "speech_text": "OSに合ったコマンドで、ドットvenvという名前の仮想環境を作成します。これで、スペーカーに使うPython環境を含むフォルダーが作られます。"
         },
         {
           "visual": "08_activate_environment",
-          "narration": "使用するシェルのコマンドで環境を有効にします。PowerShell、Command Prompt、bash、zshでは有効化コマンドが異なります。PowerShellがスクリプトを止めた場合はCommand Promptを使うか、環境内のPythonを直接呼び出します。コンピューター全体のセキュリティ設定を弱めないでください。",
+          "narration": "シェルに合ったコマンドでドットvenvを有効にします。WindowsのPowerShellとコマンドプロンプトでは有効化コマンドが異なります。macOSとLinuxでは通常、ここに表示されているシェルコマンドを使います。",
           "hold_after": 0.7,
-          "speech_text": "使用するシェルのコマンドで環境を有効にします。PowerShell、Command Prompt、bash、zshでは有効化コマンドが異なります。PowerShellがスクリプトを止めた場合はCommand Promptを使うか、環境内のPythonを直接呼び出します。コンピューター全体のセキュリティ設定を弱めないでください。"
+          "speech_text": "シェルに合ったコマンドでドットvenvを有効にします。WindowsのPowerShellとコマンドプロンプトでは有効化コマンドが異なります。macOSとLinuxでは通常、ここに表示されているシェルコマンドを使います。"
         },
         {
           "visual": "02_pip_environment",
-          "narration": "python、ハイフンm、pip、ハイフン二つ、versionを実行します。表示される場所が選択した環境の中にあることを確認します。この実際の端末には録画用の長い専用パスが表示されています。python、ハイフンm、pipを使うと、パッケージのインストール先がそのインタープリターに対応します。",
+          "narration": "python ダッシュ m pip ダッシュ ダッシュ versionを実行します。表示されたパスがドットvenvのものであることを確認します。インストールコマンドにはpython ダッシュ m pipを使い、pipがこのインタープリターを使うようにします。",
           "hold_after": 0.7,
-          "speech_text": "python、ハイフンm、pip、ハイフン二つ、versionを実行します。表示される場所が選択した環境の中にあることを確認します。この実際の端末には録画用の長い専用パスが表示されています。python、ハイフンm、pipを使うと、パッケージのインストール先がそのインタープリターに対応します。"
+          "speech_text": "python ダッシュ m pip ダッシュ ダッシュ versionを実行します。表示されたパスがドットvenvのものであることを確認します。インストールコマンドにはpython ダッシュ m pipを使い、pipがこのインタープリターを使うようにします。"
         },
         {
           "visual": "09_install_package",
-          "narration": "pipを更新してからspacrをインストールします。一点五点零点五に固定すると、このレッスンと同じリリースになります。新規インストールは、この確認画面の録画前に完了しています。科学計算用の依存関係には時間とディスク容量を確保してください。現在の基本依存関係にはQtのデスクトップ部品も含まれます。",
+          "narration": "pipをアップグレードしてから、spacrをインストールします。科学計算用パッケージのダウンロードとインストールが終わるまで待ちます。現在のパッケージには、アプリケーションを開くのに必要なデスクトップ用コンポーネントが含まれています。",
           "hold_after": 0.7,
-          "speech_text": "pipを更新してからスペーカーをインストールします。一点五点零点五に固定すると、このレッスンと同じリリースになります。新規インストールは、この確認画面の録画前に完了しています。科学計算用の依存関係には時間とディスク容量を確保してください。現在の基本依存関係にはQtのデスクトップ部品も含まれます。"
+          "speech_text": "pipをアップグレードしてから、スペーカーをインストールします。科学計算用パッケージのダウンロードとインストールが終わるまで待ちます。現在のパッケージには、アプリケーションを開くのに必要なデスクトップ用コンポーネントが含まれています。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "インストールされたspaCRとQtのバージョン、パッケージの場所を確認します。ここではすべて新しい環境のものです。インポートに成功しただけでは、すべての任意形式や解析が動くことも、ウィンドウが開くことも証明できません。",
+          "narration": "表示されているコマンドで、インストールされたspaCRのバージョンとパッケージの場所を確認します。バージョンは解析メモと一緒に保存しておきましょう。",
           "hold_after": 0.7,
-          "speech_text": "インストールされたスペーカーとQtのバージョン、パッケージの場所を確認します。ここではすべて新しい環境のものです。インポートに成功しただけでは、すべての任意形式や解析が動くことも、ウィンドウが開くことも証明できません。"
+          "speech_text": "表示されているコマンドで、インストールされたスペーカーのバージョンとパッケージの場所を確認します。バージョンは解析メモと一緒に保存しておきましょう。"
         },
         {
           "visual": "04_dependency_check",
-          "narration": "python、ハイフンm、pip checkを実行します。No broken requirementsは、インストール済みの依存関係の宣言が整合しているという意味です。競合があれば先に解消してください。この確認に成功しても、解析の科学的な妥当性が検証されたわけではありません。",
+          "narration": "python ダッシュ m pip checkを実行します。要件の競合が報告された場合は、環境を使う前にそれを解消してください。",
           "hold_after": 0.7,
-          "speech_text": "python、ハイフンm、pip checkを実行します。No broken requirementsは、インストール済みの依存関係の宣言が整合しているという意味です。競合があれば先に解消してください。この確認に成功しても、解析の科学的な妥当性が検証されたわけではありません。"
+          "speech_text": "python ダッシュ m pip checkを実行します。要件の競合が報告された場合は、環境を使う前にそれを解消してください。"
         },
         {
           "visual": "05_doctor",
-          "narration": "spacr-doctorを実行し、合格だけでなく警告も読みます。この環境には任意のCZI機能の警告があり、修復コマンドも表示されます。録画ではハイフン二つのno gpu probeを指定しているため、デバイスは検出しますがGPUのメモリ割り当ては試験していません。省略した確認は合格ではありません。",
+          "narration": "spacr-doctorを実行してインストールを調べ、不足しているオプション機能を確認します。提案された修復は、必要な形式や機能に関するものだけに従ってください。",
           "hold_after": 0.7,
-          "speech_text": "スペーカー-doctorを実行し、合格だけでなく警告も読みます。この環境には任意のCZI機能の警告があり、修復コマンドも表示されます。録画ではハイフン二つのno gpu probeを指定しているため、デバイスは検出しますがGPUのメモリ割り当ては試験していません。省略した確認は合格ではありません。"
+          "speech_text": "スペーカー-doctorを実行してインストールを調べ、不足しているオプション機能を確認します。提案された修復は、必要な形式や機能に関するものだけに従ってください。"
         },
         {
           "visual": "10_launch_commands",
-          "narration": "同じ有効化済み環境からspacrを起動します。通常の初回起動では設定の質問が表示されることがあります。今回の限定した確認では、ハイフン二つのno setupと録画用のプロファイルを明示的に使っているため、その質問への回答は実演していません。",
+          "narration": "有効にした環境からspacrを起動します。初回起動時は、セットアップの案内に従って設定を選びます。",
           "hold_after": 0.7,
-          "speech_text": "同じ有効化済み環境からスペーカーを起動します。通常の初回起動では設定の質問が表示されることがあります。今回の限定した確認では、ハイフン二つのno setupと録画用のプロファイルを明示的に使っているため、その質問への回答は実演していません。"
+          "speech_text": "有効にした環境からスペーカーを起動します。初回起動時は、セットアップの案内に従って設定を選びます。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "これはインストールしたwheelから開いた実際のHomeウィンドウです。六つのコアモジュールとData、Tools、Assaysのグループがあります。解析を始めず、正常に起動して終了しました。画面移動、入れ子になったツール、各モジュールの説明はHomeのレッスンへ進んでください。",
+          "narration": "HomeはCore、Data、Tools、Assaysのカテゴリーとともに開きます。Homeのチュートリアルに進み、モジュールを探し、例データを読み込み、パイプラインの概要を開きましょう。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "これはインストールしたwheelから開いた実際のホームウィンドウです。六つのコアモジュールとData、Tools、Assaysのグループがあります。解析を始めず、正常に起動して終了しました。画面移動、入れ子になったツール、各モジュールの説明はホームのレッスンへ進んでください。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "ホームはCore、Data、Tools、Assaysのカテゴリーとともに開きます。ホームのチュートリアルに進み、モジュールを探し、例データを読み込み、パイプラインの概要を開きましょう。"
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "更新するときはspaCRを閉じ、変更したい環境を有効にします。パッケージを更新し、pip checkとspacr-doctorを再実行して、更新後のバージョンを解析と一緒に記録します。更新により依存関係や動作が変わることがあります。進行中の作業を支える環境を黙って変更しないでください。",
+          "narration": "更新するときは、spaCRを閉じてこの環境を有効にします。パッケージをアップグレードしてから、バージョンと依存関係をもう一度確認します。進行中の解析に必要な場合は、以前の環境を残しておいてください。",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7,
-          "speech_text": "更新するときはスペーカーを閉じ、変更したい環境を有効にします。パッケージを更新し、pip checkとスペーカー-doctorを再実行して、更新後のバージョンを解析と一緒に記録します。更新により依存関係や動作が変わることがあります。進行中の作業を支える環境を黙って変更しないでください。"
+          "speech_text": "更新するときは、スペーカーを閉じてこの環境を有効にします。パッケージをアップグレードしてから、バージョンと依存関係をもう一度確認します。進行中の解析に必要な場合は、以前の環境を残しておいてください。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "プラットフォーム別インストーラー",
+      "title": "デスクトップインストーラーでspaCRをインストールする",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "公式インストーラーを選び、アクセラレーターの自動選択と任意のプライバシー設定を理解し、実際にインストールしたLinux環境を確認します。",
+      "description": "お使いのOS用のインストーラーをダウンロードし、セットアップを完了してspaCRを開きます。",
       "objectives": [
-        "OSに合った公式インストーラーを選ぶ。",
-        "自動アクセラレーションと明示的なCPUのみの選択を区別する。",
-        "プライバシー設定、インストール済みバージョン、診断の警告を読む。"
+        "お使いのOS用のインストーラーをダウンロードして実行する。",
+        "アクセラレーションの設定と初回起動時の設定を選ぶ。",
+        "spaCRを開き、セットアップに問題があればインストールログを見つける。"
       ],
-      "prerequisite": "この録画では2026年9月10日にチェックサムを照合したspaCR 1.5.0.5の公開Linux x86-64オンラインインストーラーを確認します。Python 3.12.13、Qt 6.11.2、Torch 2.14.0+cu132を使用します。実際のインストールは確認画面の撮影前に完了しています。新しい専用ランタイムと起動用ディレクトリ、既存のシステムGUIライブラリ、--skip-system-deps、--no-launchを使用し、既存の環境やシステム依存パッケージは変更していません。4枚の参考カードは手順説明であり、Windows/macOSのインストール録画や架空の端末出力ではありません。Windows/macOSの説明は現在のインストーラーのソースコードのみで確認しています。GUI録画では専用のダークプロファイル、フォント倍率1.5、終了済みのツアー、オンデマンド読み込み、--no-setupを使いますが、これでは別のプライバシー確認は省略されません。実際にEscapeで拒否し、任意項目をすべて無効のままにしてから設定を読み戻して確認しました。Doctorでは--no-gpu-probeを使用し、メモリ確保、速度、解析、他プラットフォームの検証は主張しません。失敗した録画試行は保存し、アプリの不具合としては数えていません。",
+      "prerequisite": "お使いのOS用の公式インストーラーをダウンロードし、アプリケーションと科学計算用の依存関係のための空き容量を確保してください。",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "spaCRの公式GitHubリリースを使い、OSに合うインストーラーを選びます。オンラインインストーラーは専用のPython実行環境と科学計算の依存パッケージをダウンロードするため、既存のConda環境は不要です。このLinux例では、実行前にダウンロードしたファイルと公開チェックサムを照合しました。",
+          "narration": "GitHubでspaCRの公式リリースを開き、Assetsから、お使いのOS用のインストーラーをダウンロードします。これらのオンラインインストーラーは、セットアップ中にPythonランタイムと科学計算用パッケージをダウンロードします。ダウンロードを検証したい場合は、同じリリースのSHA256SUMSドットtxtも保存しておきます。",
           "hold_after": 0.7,
-          "speech_text": "スペーカーの公式GitHubリリースを使い、OSに合うインストーラーを選びます。オンラインインストーラーは専用のPython実行環境と科学計算の依存パッケージをダウンロードするため、既存のConda環境は不要です。このLinux例では、実行前にダウンロードしたファイルと公開チェックサムを照合しました。"
+          "speech_text": "GitHubでスペーカーの公式リリースを開き、Assetsから、お使いのOS用のインストーラーをダウンロードします。これらのオンラインインストーラーは、セットアップ中にPythonランタイムと科学計算用パッケージをダウンロードします。ダウンロードを検証したい場合は、同じリリースのSHA256SUMSドットtxtも保存しておきます。"
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "Windowsではオンラインセットアップ実行ファイルを選びます。現在のインストーラーのソースでは自動アクセラレーションが初期選択され、任意コンポーネントのチェックを外すとCPUのみになります。このカードは選択肢の説明であり、Windowsでのインストール録画やお使いのPCの互換性試験ではありません。",
+          "narration": "Windowsでは、セットアッププログラムを実行して案内に従います。コンピューターで検出された対応ハードウェアを使うには、自動アクセラレーションを選択したままにします。必要であれば、CPUのみでの動作を選びます。",
           "hold_after": 0.7,
-          "speech_text": "Windowsではオンラインセットアップ実行ファイルを選びます。現在のインストーラーのソースでは自動アクセラレーションが初期選択され、任意コンポーネントのチェックを外すとCPUのみになります。このカードは選択肢の説明であり、Windowsでのインストール録画やお使いのPCの互換性試験ではありません。"
+          "speech_text": "Windowsでは、セットアッププログラムを実行して案内に従います。コンピューターで検出された対応ハードウェアを使うには、自動アクセラレーションを選択したままにします。必要であれば、CPUのみでの動作を選びます。"
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "macOSではIntelとApple silicon向けのユニバーサルオンラインパッケージを選びます。実行環境がなければ、アプリの起動プログラムがユーザーごとのセットアップを開始します。セキュリティ確認を承認する前に公式配布元を確かめ、ダウンロード時間を見込んでください。これはソースを確認した案内であり、macOSで実行したインストールではありません。",
+          "narration": "macOSでは、ユニバーサルパッケージを開いてインストーラーに従います。アプリケーションランチャーからspaCRを起動し、初回起動時のダウンロードが終わるまで待ちます。セキュリティの確認が表示されたら内容を読み、パッケージが公式リリースのものであることを確かめてください。",
           "hold_after": 0.7,
-          "speech_text": "macOSではIntelとApple silicon向けのユニバーサルオンラインパッケージを選びます。実行環境がなければ、アプリの起動プログラムがユーザーごとのセットアップを開始します。セキュリティ確認を承認する前に公式配布元を確かめ、ダウンロード時間を見込んでください。これはソースを確認した案内であり、macOSで実行したインストールではありません。"
+          "speech_text": "macOSでは、ユニバーサルパッケージを開いてインストーラーに従います。アプリケーションランチャーからスペーカーを起動し、初回起動時のダウンロードが終わるまで待ちます。セキュリティの確認が表示されたら内容を読み、パッケージが公式リリースのものであることを確かめてください。"
         },
         {
           "visual": "11_linux_commands",
-          "narration": "Linuxでは検証済みのダウンロードに実行権限を付け、そのフォルダーから実行します。現在はアクセラレーターの自動選択が標準です。CPUが必要なら明示的に指定します。今回の分離実行は既存のシステムライブラリと専用パスを使ったため、システム依存パッケージのインストールは実演していません。",
+          "narration": "Linuxでは、ダウンロードしたインストーラーに実行権限を付けてから、ターミナルで実行します。自動アクセラレーションは対応するバックエンドを選びます。ヘルプには、CPUのみで動かすためのダッシュ ダッシュ torch-backend cpuと、Qtのグラフィックスライブラリがすでにあるコンピューター向けのダッシュ ダッシュ skip-system-depsが載っています。",
           "hold_after": 0.7,
-          "speech_text": "Linuxでは検証済みのダウンロードに実行権限を付け、そのフォルダーから実行します。現在はアクセラレーターの自動選択が標準です。CPUが必要なら明示的に指定します。今回の分離実行は既存のシステムライブラリと専用パスを使ったため、システム依存パッケージのインストールは実演していません。"
+          "speech_text": "Linuxでは、ダウンロードしたインストーラーに実行権限を付けてから、ターミナルで実行します。自動アクセラレーションは対応するバックエンドを選びます。ヘルプには、CPUのみで動かすためのダッシュ ダッシュ torch-backend cpuと、Qtのグラフィックスライブラリがすでにあるコンピューター向けのダッシュ ダッシュ skip-system-depsが載っています。"
         },
         {
           "visual": "02_installer_backend",
-          "narration": "起動の成功だけでバックエンドを推測せず、実際のインストールプロファイルを読みます。ここでは要求がauto、選択されたバックエンドがNVIDIAハードウェア上のCUDAです。インストールされたTorchはCUDA十三点二のビルドです。選択を識別しただけで、GPU速度のベンチマークではありません。",
+          "narration": "セットアップ後、インストールプロファイルに選択されたバックエンドが記録されます。ランタイムがCPUと対応アクセラレーターのどちらを使っているか確かめたいときに確認します。",
           "hold_after": 0.7,
-          "speech_text": "起動の成功だけでバックエンドを推測せず、実際のインストールプロファイルを読みます。ここでは要求がauto、選択されたバックエンドがNVIDIAハードウェア上のCUDAです。インストールされたTorchはCUDA十三点二のビルドです。選択を識別しただけで、GPU速度のベンチマークではありません。"
+          "speech_text": "セットアップ後、インストールプロファイルに選択されたバックエンドが記録されます。ランタイムがCPUと対応アクセラレーターのどちらを使っているか確かめたいときに確認します。"
         },
         {
           "visual": "03_installed_versions",
-          "narration": "インストールされたパッケージのバージョン、Qtのインポート、パッケージのパスを確認します。この専用環境にはspaCR一点五点零点五があります。ファイルは編集可能なソースチェックアウトではなく、インストールされたものです。インポート成功はすべての解析や任意のファイル形式を検証するものではありません。",
+          "narration": "インストールされたspaCRのバージョンを確認します。特に後でアプリケーションを更新するときのために、解析メモに残しておきましょう。",
           "hold_after": 0.7,
-          "speech_text": "インストールされたパッケージのバージョン、Qtのインポート、パッケージのパスを確認します。この専用環境にはスペーカー一点五点零点五があります。ファイルは編集可能なソースチェックアウトではなく、インストールされたものです。インポート成功はすべての解析や任意のファイル形式を検証するものではありません。"
+          "speech_text": "インストールされたスペーカーのバージョンを確認します。特に後でアプリケーションを更新するときのために、解析メモに残しておきましょう。"
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "実際の初回起動では任意の診断情報共有、公開不具合報告、アカウント設定について尋ねられます。報告は公開されるため、説明を読んでください。この録画ではEscapeで拒否しています。Skip, keep all offと同じ処理です。アカウントは接続せず、専用設定の読み戻しでも共有と報告操作が無効のままであることを確認しています。",
+          "narration": "セットアップでは、診断情報の任意の共有とアカウント設定について尋ねられます。希望するオプションにだけyと答えます。既定のnでは、それぞれがオフのままになります。Windowsのインストーラーでは、同じ選択肢がチェックボックスで表示されます。",
           "hold_after": 0.7,
-          "speech_text": "実際の初回起動では任意の診断情報共有、公開不具合報告、アカウント設定について尋ねられます。報告は公開されるため、説明を読んでください。この録画ではEscapeで拒否しています。Skip, keep all offと同じ処理です。アカウントは接続せず、専用設定の読み戻しでも共有と報告操作が無効のままであることを確認しています。"
+          "speech_text": "セットアップでは、診断情報の任意の共有とアカウント設定について尋ねられます。希望するオプションにだけyと答えます。既定のnでは、それぞれがオフのままになります。Windowsのインストーラーでは、同じ選択肢がチェックボックスで表示されます。"
         },
         {
           "visual": "06_installed_home",
-          "narration": "その選択後、インストール済みアプリは二十一個のタイルと六つの主要モジュールを持つ現在のHomeを開きます。ウィンドウも正常に閉じます。入れ子のワークフローとサンプルデータはHomeのレッスンで学びます。Homeを開くだけでは解析試験になりません。",
+          "narration": "Homeが開いたら、Homeのチュートリアルに進みます。モジュールの開き方、テストデータの見つけ方、実験に合ったパイプラインの選び方を説明しています。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "その選択後、インストール済みアプリは二十一個のタイルと六つの主要モジュールを持つ現在のホームを開きます。ウィンドウも正常に閉じます。入れ子のワークフローとサンプルデータはホームのレッスンで学びます。ホームを開くだけでは解析試験になりません。"
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ],
+          "speech_text": "ホームが開いたら、ホームのチュートリアルに進みます。モジュールの開き方、テストデータの見つけ方、実験に合ったパイプラインの選び方を説明しています。"
         },
         {
           "visual": "05_doctor",
-          "narration": "インストール先の実行環境からspacr-doctorを実行し、成功だけでなく警告も読みます。ここではインストーラーのバックエンドを確認していますが、任意のCZI依存パッケージ不足を警告しています。今回はGPUメモリ確保、データベース、設定の検査を省略しました。省略は合格ではありません。環境を変更する前に提案された修復を検討してください。",
+          "narration": "起動やファイル形式に問題がある場合は、インストールされたランタイムからspacr-doctorを実行します。各チェックが修正案とともに一覧表示されます。このCPUのみのインストールでは、GPUのチェックは想定どおり失敗します。PATHのチェックはインストーラー自身のspacrランチャーを指摘しますが、これは同じランタイムを起動するものなので、ここではどちらも変更は不要です。",
           "hold_after": 0.7,
-          "speech_text": "インストール先の実行環境からスペーカー-doctorを実行し、成功だけでなく警告も読みます。ここではインストーラーのバックエンドを確認していますが、任意のCZI依存パッケージ不足を警告しています。今回はGPUメモリ確保、データベース、設定の検査を省略しました。省略は合格ではありません。環境を変更する前に提案された修復を検討してください。"
+          "speech_text": "起動やファイル形式に問題がある場合は、インストールされたランタイムからスペーカー-doctorを実行します。各チェックが修正案とともに一覧表示されます。このCPUのみのインストールでは、GPUのチェックは想定どおり失敗します。PATHのチェックはインストーラー自身のスペーカーランチャーを指摘しますが、これは同じランタイムを起動するものなので、ここではどちらも変更は不要です。"
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "問題を調べるときは、選んだインストールディレクトリのinstallドットlogとinstall-profileドットjsonを保存します。共有前にログ内の個人情報を確認してください。解析ごとに使用バージョンを記録し、意図して更新します。pipとCondaのレッスンでは別環境を使う他のインストール方法を説明します。",
+          "narration": "インストールで問題が起きたときは、インストールフォルダーにあるinstall ドット logとinstall-profile ドット jsonを探します。サポートを依頼する際に共有する前に、ログの内容を確認してください。問題を診断しやすいように、OSとspaCRのバージョンも添えましょう。",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
             "03_pip_install"
           ],
           "hold_after": 0.7,
-          "speech_text": "問題を調べるときは、選んだインストールディレクトリのinstallドットlogとinstall-profileドットjsonを保存します。共有前にログ内の個人情報を確認してください。解析ごとに使用バージョンを記録し、意図して更新します。pipとCondaのレッスンでは別環境を使う他のインストール方法を説明します。"
+          "speech_text": "インストールで問題が起きたときは、インストールフォルダーにあるinstall ドット logとinstall-profile ドット jsonを探します。サポートを依頼する際に共有する前に、ログの内容を確認してください。問題を診断しやすいように、OSとスペーカーのバージョンも添えましょう。"
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home画面とナビゲーション",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Homeからモジュールを開き、関連ツールと例データを見つけて、たどるパイプラインを選びます。",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "画像、測定値、シーケンシングリードに合った最初のモジュールを選ぶ。",
+        "関連ツールと生物種ごとのアッセイを見つける。",
+        "例を読み込み、ヘルプを探し、パイプラインの概要を開く。"
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "spaCRをインストールし、デスクトップアプリケーションを開いてください。",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
-          "hold_after": 0.7
+          "narration": "Homeが出発点です。タイルをクリックしてモジュールを開くか、左側のサイドバーを使います。ここに戻るには、サイドバーのHomeをクリックします。Core、Data、Tools、Assaysのタブを使うと、行いたい作業が見つけやすくなります。",
+          "hold_after": 0.7,
+          "speech_text": "ホームが出発点です。タイルをクリックしてモジュールを開くか、左側のサイドバーを使います。ここに戻るには、サイドバーのホームをクリックします。Core、Data、Tools、Assaysのタブを使うと、行いたい作業が見つけやすくなります。"
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "顕微鏡画像の場合は、まずMaskで物体の輪郭を取り、次にMeasureで特徴量と切り出し画像を抽出します。Annotateでは例となる物体にラベルを付けられ、Classifyはそのラベルから学習して、さらに多くの物体にスコアを付けます。Map Barcodesはシーケンシングデータを読み取ります。Regressionは、得られた表現型スコアとガイドのカウントを組み合わせて関連を見つけます。",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -386,11 +546,12 @@
             "41_classify",
             "12_map_barcodes",
             "13_regression"
-          ]
+          ],
+          "speech_text": "顕微鏡画像の場合は、まずMaskで物体の輪郭を取り、次にMeasureで特徴量と切り出し画像を抽出します。Annotateでは例となる物体にラベルを付けられ、Classifyはそのラベルから学習して、さらに多くの物体にスコアを付けます。Map Barcodesはシーケンシングデータを読み取ります。Regressionは、得られた表現型スコアとガイドのカウントを組み合わせて関連を見つけます。"
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Dataは、ファイルを取り込み、結果を確認する場所です。画像、マスク、測定テーブルがすでにある場合は、Importでほかのモジュールが読める形でプロジェクトに取り込みます。実験の前にはExperiment Designでプレートを設計し、実験の後にはQCで記録された品質チェックを確認し、Run Compareで二つの実行を並べて比べます。",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -406,11 +567,12 @@
             "35_converter",
             "31_external_masks",
             "77_embeddings"
-          ]
+          ],
+          "speech_text": "Dataは、ファイルを取り込み、結果を確認する場所です。画像、マスク、測定テーブルがすでにある場合は、Importでほかのモジュールが読める形でプロジェクトに取り込みます。実験の前にはExperiment Designでプレートを設計し、実験の後にはQCで記録された品質チェックを確認し、Run Compareで二つの実行を並べて比べます。"
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Toolsには、実際に手を動かすエディターやエクスプローラーがまとめられています。Make Masksではマスクを修正でき、そこからCellpose Workbenchも開けます。Align and Stitchは、重なり合う画像タイルをつなぎ合わせて一枚の画像にします。測定値がそろったら、Image UMAP、Gate Editor、Graph Builderで探索やプロットができます。各モジュールのツールバーから、関連するツールを開けます。",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -425,11 +587,12 @@
             "15_image_umap",
             "64_gate_editor",
             "58_graph_builder"
-          ]
+          ],
+          "speech_text": "Toolsには、実際に手を動かすエディターやエクスプローラーがまとめられています。Make Masksではマスクを修正でき、そこからセルポーズ Workbenchも開けます。Align and Stitchは、重なり合う画像タイルをつなぎ合わせて一枚の画像にします。測定値がそろったら、Image ユーマップ、ゲートエディタ、Graph Builderで探索やプロットができます。各モジュールのツールバーから、関連するツールを開けます。"
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Assaysを開き、生物種としてToxoplasma、Plasmodium、Candidaのいずれかを選びます。次に、その生物種のメニューからアッセイを選びます。たとえば、プラーク解析や宿主と病原体の測定にはToxoplasmaを開きます。選んだアッセイのチュートリアルに従って、画像、マスク、測定の入力を準備してください。",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -441,21 +604,23 @@
             "25_recruitment",
             "26_invasion",
             "27_replication"
-          ]
+          ],
+          "speech_text": "Assaysを開き、生物種としてToxoplasma、Plasmodium、Candidaのいずれかを選びます。次に、その生物種のメニューからアッセイを選びます。たとえば、プラーク解析や宿主と病原体の測定にはToxoplasmaを開きます。選んだアッセイのチュートリアルに従って、画像、マスク、測定の入力を準備してください。"
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Classifyを開き、Classifier familyで入力を選びます。物体の画像にはComputer Visionを、測定した特徴量の列にはTabular Machine Learningを選びます。リンク先のチュートリアルでは、それぞれの手法の学習、評価、スコア付けを説明しています。",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "speech_text": "Classifyを開き、Classifier familyで入力を選びます。物体の画像にはComputer Visionを、測定した特徴量の列にはTabular Machine Learningを選びます。リンク先のチュートリアルでは、それぞれの手法の学習、評価、スコア付けを説明しています。"
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "モデルを学習したら、Classifyのツールバーでその中身を検証できます。Classifier Evaluationは取り分けておいたデータでの成績を示し、Explain CV ModelとActivationは判定の決め手を示します。Training Runsは学習の履歴を比べ、Feature Explorerはグループを分ける特徴量を順位付けします。アイコンにポインターを合わせると名前が表示されます。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -464,30 +629,34 @@
             "16_activation",
             "28_training_runs",
             "65_feature_explorer"
-          ]
+          ],
+          "speech_text": "モデルを学習したら、Classifyのツールバーでその中身を検証できます。Classifier Evaluationは取り分けておいたデータでの成績を示し、Explain CV ModelとActivationは判定の決め手を示します。Training Runsは学習の履歴を比べ、Feature Explorerはグループを分ける特徴量を順位付けします。アイコンにポインターを合わせると名前が表示されます。"
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "モジュールを試すには、Load test dataがあればクリックします。ダウンロードが終わるのを待ってから、入力された項目と設定を確認します。Maskでは、Runを押す前にLiveをクリックしてフィールドを確認します。時系列にはTimeを、立体画像には3Dをオンにします。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "17_timelapse"
-          ]
+          ],
+          "speech_text": "モジュールを試すには、Load test dataがあればクリックします。ダウンロードが終わるのを待ってから、入力された項目と設定を確認します。Maskでは、Runを押す前にLiveをクリックしてフィールドを確認します。時系列にはTimeを、立体画像にはスリーディーをオンにします。"
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
-          "hold_after": 0.7
+          "narration": "Helpの横にある検索欄に、モジュール、設定、関数の名前を入力します。ここではPerformanceを検索すると、対応するPreferencesのページが見つかります。結果をクリックすると、その場所が開きます。APIの結果をクリックすると、選んだ関数のドキュメントが開きます。",
+          "hold_after": 0.7,
+          "speech_text": "Helpの横にある検索欄に、モジュール、設定、関数の名前を入力します。ここではPerformanceを検索すると、対応するPreferencesのページが見つかります。結果をクリックすると、その場所が開きます。APIの結果をクリックすると、選んだ関数のドキュメントが開きます。"
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
-          "hold_after": 0.7
+          "narration": "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。",
+          "hold_after": 0.7,
+          "speech_text": "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。"
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Homeに戻り、Pipeline overviewsをクリックしてワークフローを選びます。プール型の画像スクリーンならspaCR screensから始め、データに応じて画像解析またはシーケンシングの経路を選びます。次のチュートリアルでこれらのモジュールのつながりを示し、各モジュールのレッスンでそれぞれの作業を順に説明します。",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -499,12 +668,53 @@
             180,
             499,
             96
-          ]
+          ],
+          "speech_text": "ホームに戻り、Pipeline overviewsをクリックしてワークフローを選びます。プール型の画像スクリーンならスペーカー screensから始め、データに応じて画像解析またはシーケンシングの経路を選びます。次のチュートリアルでこれらのモジュールのつながりを示し、各モジュールのレッスンでそれぞれの作業を順に説明します。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1515,59 +1725,64 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks：ラベルを編集し、学習用画像を準備する",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "画像とマスクのペアを開き、物体を確認・編集し、測定値を保存して、学習用のペア切り出しを作成します。",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "対応するインスタンスマスクとともに画像を開き、拡大表示で物体を確認する。",
+        "ペアになったフィールドを測定し、物体の特徴量データベースを保存する。",
+        "Undo、描画、分割、サイズフィルターでラベルを修正する。",
+        "修正したマスクを保存し、学習用の画像とマスクの切り出しを作成する。"
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "二次元画像のフォルダーを用意し、masksサブフォルダーに対応するインスタンスラベルのTIFFを置きます。各マスクは画像ファイルと同じ基本名を使います。編集や切り直しを練習するときはコピーを使ってください。この例では、Measureでダウンロードできる顕微鏡プロジェクトのERの画像と細胞マスクを使います。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "HomeからToolsのMake Masksを開きます。個々の画像のマスクを確認して修正するには、このエディターを選びます。編集ツールを選ぶ前に、画像とラベルのペアが入ったフォルダーを開きます。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
-          ]
+          ],
+          "speech_text": "ホームからToolsのMake Masksを開きます。個々の画像のマスクを確認して修正するには、このエディターを選びます。編集ツールを選ぶ前に、画像とラベルのペアが入ったフォルダーを開きます。"
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "画像フォルダーを選択します。この例では、Measureのサンプルに含まれるERの強度画像と、対応する細胞マスクを使います。画像とマスクの大きさを同じにし、ファイル名を対応させておきます。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "画像フォルダーを選択します。この例では、Measureのサンプルに含まれるERの強度画像と、対応する細胞マスクを使います。画像とマスクの大きさを同じにし、ファイル名を対応させておきます。"
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
-          "hold_after": 0.7
+          "narration": "エディターは画像と、masksサブフォルダーにある対応するマスクを読み込みます。色付きのラベルが個々の物体を示します。輪郭が画像の境界に沿っているか確認します。対応するマスクがない場合は、空のマスクから始めて必要な物体を描きます。",
+          "hold_after": 0.7,
+          "speech_text": "エディターは画像と、masksサブフォルダーにある対応するマスクを読み込みます。色付きのラベルが個々の物体を示します。輪郭が画像の境界に沿っているか確認します。対応するマスクがない場合は、空のマスクから始めて必要な物体を描きます。"
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
-          "hold_after": 0.7
+          "narration": "Magnifier settingsを開きます。OtsuとRegion under the mouseを選ぶと、ポインターの周りでしきい値による物体をプレビューできます。しきい値で物体がうまく分かれないときは、モデルを使うモードを選びます。",
+          "hold_after": 0.7,
+          "speech_text": "Magnifier settingsを開きます。OtsuとRegion under the mouseを選ぶと、ポインターの周りでしきい値による物体をプレビューできます。しきい値で物体がうまく分かれないときは、モデルを使うモードを選びます。"
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Magnifierをオンにし、物体にポインターを合わせるとプレビューが拡大されます。いくつかの物体の上を動かして、提案された輪郭を確認します。正しく見えたらクリックして輪郭の物体を追加し、編集を続けるときはMagnifierをオフにします。",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
+          ],
+          "speech_text": "Magnifierをオンにし、物体にポインターを合わせるとプレビューが拡大されます。いくつかの物体の上を動かして、提案された輪郭を確認します。正しく見えたらクリックして輪郭の物体を追加し、編集を続けるときはMagnifierをオフにします。"
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Featuresをクリックして、画像とマスクのペアを測定します。フィールドごとに行を追加し、強度画像と対応する物体マスクを選びます。ファイル名の自動照合で割り当てられないファイルが残った場合は、手動の割り当てを確認します。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1577,11 +1792,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Featuresをクリックして、画像とマスクのペアを測定します。フィールドごとに行を追加し、強度画像と対応する物体マスクを選びます。ファイル名の自動照合で割り当てられないファイルが残った場合は、手動の割り当てを確認します。"
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "各行で、Channel 1にERの強度画像を、Cell maskに対応するラベル画像を選びます。二つ目のフィールドでも同じことを繰り返します。蛍光の測定には元の強度画像を使います。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1591,11 +1807,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "各行で、Channel 1にERの強度画像を、Cell maskに対応するラベル画像を選びます。二つ目のフィールドでも同じことを繰り返します。蛍光の測定には元の強度画像を使います。"
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "両方の行を確認してから、測定の設定を選びます。この例では、ワーカーを一つ、最小細胞サイズを一ピクセルにし、PNGの切り出しは保存しません。実験に合う場合は、サイズの下限を上げて小さな物体を除外します。Measureをクリックします。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1605,11 +1822,12 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "両方の行を確認してから、測定の設定を選びます。この例では、ワーカーを一つ、最小細胞サイズを一ピクセルにし、PNGの切り出しは保存しません。実験に合う場合は、サイズの下限を上げて小さな物体を除外します。Measureをクリックします。"
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "測定が終わったら、出力フォルダーを開きます。measurementsフォルダーには、両方のフィールドの物体特徴量を含むmeasurements.dbがあります。データベースは元の画像、マスク、設定と一緒に保管し、Featuresを閉じて編集に戻ります。",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1619,67 +1837,77 @@
           ],
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "測定が終わったら、出力フォルダーを開きます。measurementsフォルダーには、両方のフィールドの物体特徴量を含むメジャメンツ・ドット・ディービーがあります。データベースは元の画像、マスク、設定と一緒に保管し、Featuresを閉じて編集に戻ります。"
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "修正内容に合ったツールを選びます。Brushはピクセルを加え、Eraseはピクセルを消し、Erase objectはラベル全体を削除します。Drawは輪郭で囲んだ物体を追加し、Divideは一つの物体を分割します。変更の前に、Zoomで境界を確認できます。",
           "hold_after": 0.7,
           "focus": [
             345,
             195,
             2500,
             65
-          ]
+          ],
+          "speech_text": "修正内容に合ったツールを選びます。Brushはピクセルを加え、Eraseはピクセルを消し、Erase objectはラベル全体を削除します。Drawは輪郭で囲んだ物体を追加し、Divideは一つの物体を分割します。変更の前に、Zoomで境界を確認できます。"
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
-          "hold_after": 0.7
+          "narration": "Erase objectを選び、削除したい物体の内側をクリックします。更新された輪郭と物体の数を確認します。細胞の破片や解析条件に合わない物体など、不要なラベルに使います。",
+          "hold_after": 0.7,
+          "speech_text": "Erase objectを選び、削除したい物体の内側をクリックします。更新された輪郭と物体の数を確認します。細胞の破片や解析条件に合わない物体など、不要なラベルに使います。"
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
-          "hold_after": 0.7
+          "narration": "Undoをクリックすると削除が取り消されます。Redoでもう一度適用されます。これらの履歴操作で編集前後のマスクを比べ、残したい版に戻ります。",
+          "hold_after": 0.7,
+          "speech_text": "Undoをクリックすると削除が取り消されます。Redoでもう一度適用されます。これらの履歴操作で編集前後のマスクを比べ、残したい版に戻ります。"
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
-          "hold_after": 0.7
+          "narration": "Drawを選び、見落とされた物体の周りに閉じた境界を描きます。エディターがその内側を新しいラベルで塗りつぶします。この練習では輪郭が背景にあるので、保存する前に取り消してください。学習データでは、物体の実際の境界をなぞります。",
+          "hold_after": 0.7,
+          "speech_text": "Drawを選び、見落とされた物体の周りに閉じた境界を描きます。エディターがその内側を新しいラベルで塗りつぶします。この練習では輪郭が背景にあるので、保存する前に取り消してください。学習データでは、物体の実際の境界をなぞります。"
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
-          "hold_after": 0.7
+          "narration": "接している二つの物体が一つのラベルを共有しているときは、Divideを使います。つながった領域全体を横切るように切れ目を描き、分かれたラベルを確認します。一つの物体を切ってしまった場合や境界が不正確な場合は、分割を取り消します。",
+          "hold_after": 0.7,
+          "speech_text": "接している二つの物体が一つのラベルを共有しているときは、Divideを使います。つながった領域全体を横切るように切れ目を描き、分かれたラベルを確認します。一つの物体を切ってしまった場合や境界が不正確な場合は、分割を取り消します。"
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
-          "hold_after": 0.7
+          "narration": "Display percentilesを調整すると、暗い構造が見やすくなります。これらの設定は表示だけを変え、元の強度値とラベルはそのまま保たれます。フィールドを比べるときは、表示をそろえ直します。",
+          "hold_after": 0.7,
+          "speech_text": "Display percentilesを調整すると、暗い構造が見やすくなります。これらの設定は表示だけを変え、元の強度値とラベルはそのまま保たれます。フィールドを比べるときは、表示をそろえ直します。"
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
-          "hold_after": 0.7
+          "narration": "物体の最小面積と最大面積を設定し、Filterを押すと、その範囲外のラベルが削除されます。物体に合った範囲を選び、何が削除されたか確認します。フィルターはマスクを書き換えるので、有用な物体まで消えた場合はUndoを使います。",
+          "hold_after": 0.7,
+          "speech_text": "物体の最小面積と最大面積を設定し、Filterを押すと、その範囲外のラベルが削除されます。物体に合った範囲を選び、何が削除されたか確認します。フィルターはマスクを書き換えるので、有用な物体まで消えた場合はUndoを使います。"
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
-          "hold_after": 0.7
+          "narration": "編集を確認したら、Save maskをクリックします。必要なら、別のフィールドに移る前にサイズの範囲をゼロに戻して無効にします。元の画像は保存したままにし、保存された修正記録を編集済みマスクと一緒に保管します。",
+          "hold_after": 0.7,
+          "speech_text": "編集を確認したら、Save maskをクリックします。必要なら、別のフィールドに移る前にサイズの範囲をゼロに戻して無効にします。元の画像は保存したままにし、保存された修正記録を編集済みマスクと一緒に保管します。"
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "ヘッダーには、マスク用のほかのツールがまとめられています。重みを選ぶときは、Model Zooで探し、Model Compareで二組のマスクを並べて比べます。さらに修正が必要な例があるときは、CurateとOpen in napariで編集に戻れます。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
-          ]
+          ],
+          "speech_text": "ヘッダーには、マスク用のほかのツールがまとめられています。重みを選ぶときは、Model Zooで探し、Model Compareで二組のマスクを並べて比べます。さらに修正が必要な例があるときは、CurateとOpen in napariで編集に戻れます。"
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "ヘッダーからは、Model Compare、Model Zoo、Curate、Open in napariも開けます。マスクを並べて確認するにはModel Compareを、重みを選ぶにはModel Zooを、さらに多くの例を確認・編集するにはキュレーション用のツールを使います。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1687,59 +1915,108 @@
             "22_model_zoo",
             "42_curate",
             "46_napari_bridge"
-          ]
+          ],
+          "speech_text": "ヘッダーからは、Model Compare、Model Zoo、Curate、Open in napariも開けます。マスクを並べて確認するにはModel Compareを、重みを選ぶにはModel Zooを、さらに多くの例を確認・編集するにはキュレーション用のツールを使います。"
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
-          "hold_after": 0.7
+          "narration": "Recropを選び、小さな学習用フィールドに入れたい物体を囲むようにボックスをドラッグします。これで新しい画像と対応するマスクが書き出されます。境界で切れた物体は除かれるので、完全な物体の周りに余白を残し、切り出しを確認します。",
+          "hold_after": 0.7,
+          "speech_text": "Recropを選び、小さな学習用フィールドに入れたい物体を囲むようにボックスをドラッグします。これで新しい画像と対応するマスクが書き出されます。境界で切れた物体は除かれるので、完全な物体の周りに余白を残し、切り出しを確認します。"
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Nextをクリックすると、新しい切り出しが開きます。元の画像とマスクは、復元できるようにrecropped_originalsに保存されます。学習用データセットに加える前に、切り出しとそのラベルを確認します。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Nextをクリックすると、新しい切り出しが開きます。元の画像とマスクは、復元できるようにrecropped_originalsに保存されます。学習用データセットに加える前に、切り出しとそのラベルを確認します。"
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
-          "hold_after": 0.7
+          "narration": "現在のフィールドで物体を検出するには、Cellposeのモデルを選び、設定を確認します。この例では、cpsam、正規化オン、細胞確率のしきい値ゼロ、フローのしきい値零点四を使います。検出結果が既存のラベルを置き換えるのか、追加されるのかを確認します。",
+          "hold_after": 0.7,
+          "speech_text": "現在のフィールドで物体を検出するには、セルポーズのモデルを選び、設定を確認します。この例では、cpsam、正規化オン、細胞確率のしきい値ゼロ、フローのしきい値零点四を使います。検出結果が既存のラベルを置き換えるのか、追加されるのかを確認します。"
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
-          "hold_after": 0.7
+          "narration": "Object detectionをクリックし、得られた輪郭を画像と比べます。ここでは、モデルが中央の細胞ではなく、左上の一部だけ写った物体を選んでいます。その置き換えを取り消し、モデルの設定を調整してからもう一度試します。",
+          "hold_after": 0.7,
+          "speech_text": "Object detectionをクリックし、得られた輪郭を画像と比べます。ここでは、モデルが中央の細胞ではなく、左上の一部だけ写った物体を選んでいます。その置き換えを取り消し、モデルの設定を調整してからもう一度試します。"
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
-          "hold_after": 0.7
+          "narration": "Cell probabilityを開くと、前景スコアのマップを確認できます。モデルがどの領域を支持しているかがわかります。必要に応じて前景のしきい値を変え、検出をもう一度実行して新しい結果を得ます。",
+          "hold_after": 0.7,
+          "speech_text": "Cell probabilityを開くと、前景スコアのマップを確認できます。モデルがどの領域を支持しているかがわかります。必要に応じて前景のしきい値を変え、検出をもう一度実行して新しい結果を得ます。"
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
-          "hold_after": 0.7
+          "narration": "Flowsを開くと、方向の表示を確認できます。フローの一貫性のしきい値は、検出された物体のうちどれを残すかを決めます。値が低いほど厳しくなり、ゼロではこのチェックが無効になります。設定を変えるたびに、最終的なマスクを比べます。",
+          "hold_after": 0.7,
+          "speech_text": "Flowsを開くと、方向の表示を確認できます。フローの一貫性のしきい値は、検出された物体のうちどれを残すかを決めます。値が低いほど厳しくなり、ゼロではこのチェックが無効になります。設定を変えるたびに、最終的なマスクを比べます。"
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
-          "hold_after": 0.7
+          "narration": "Undoで検出前のラベルに戻せます。画像に最もよく合うマスクを残し、保存します。残りのフィールドも順に進め、学習に含める前にそれぞれの結果を確認します。",
+          "hold_after": 0.7,
+          "speech_text": "Undoで検出前のラベルに戻せます。画像に最もよく合うマスクを残し、保存します。残りのフィールドも順に進め、学習に含める前にそれぞれの結果を確認します。"
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "修正済みの画像と、同じ基本名のマスクを一緒に保管します。それらのペアから学習するにはTrain Cellposeを使い、測定値を取り出すにはFeaturesかMeasureに戻ります。関連するチュートリアルで、それぞれの次の手順を説明しています。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
-          ]
+          ],
+          "speech_text": "修正済みの画像と、同じ基本名のマスクを一緒に保管します。それらのペアから学習するにはTrain セルポーズを使い、測定値を取り出すにはFeaturesかMeasureに戻ります。関連するチュートリアルで、それぞれの次の手順を説明しています。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1954,20 +2231,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "時系列にわたって物体を連結し、その軌跡を確認して、追跡した画像を測定に向けて準備します。",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Track previewで例の画像とマスクを読み込む。",
+        "重なりを調整し、フレーム間で物体の識別を確認する。",
+        "時系列用のMaskの実行を設定し、追跡の出力を見つける。"
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "SYNTHETIC_timelapse_preview.zipをダウンロードして展開してください。この教材には、細胞画像八フレームと対応するラベル画像が含まれています。自分のデータでMaskを最後まで実行する場合は、時間順に並んだ顕微鏡画像を用意し、撮影間隔を記録しておきます。",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "HomeからMaskを開き、右上のTimelapseアイコンをクリックして追跡をオンにします。Timelapseを使うと、連続する画像の間で物体を連結できます。まずTrack previewでリンク先の例を試し、その後、自分の画像シーケンスを処理するための設定を確認します。",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -1978,54 +2255,60 @@
           "related_lessons": [
             "07_mask",
             "18_motility"
-          ]
+          ],
+          "speech_text": "ホームからMaskを開き、右上のTimelapseアイコンをクリックして追跡をオンにします。Timelapseを使うと、連続する画像の間で物体を連結できます。まずTrack previewでリンク先の例を試し、その後、自分の画像シーケンスを処理するための設定を確認します。"
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "下の例のアーカイブをダウンロードして展開し、Actionsの見出しの右にあるTrack previewをクリックします。アーカイブには、八フレームの画像シーケンスと、それに対応するマスクのシーケンスが入っています。対応する画像とラベルを選べるように、二つのフォルダーは一緒にしておきます。",
           "hold_after": 0.7,
           "focus": [
             360,
             230,
             3480,
             1900
-          ]
+          ],
+          "speech_text": "下の例のアーカイブをダウンロードして展開し、Actionsの見出しの右にあるTrack previewをクリックします。アーカイブには、八フレームの画像シーケンスと、それに対応するマスクのシーケンスが入っています。対応する画像とラベルを選べるように、二つのフォルダーは一緒にしておきます。"
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
-          "hold_after": 0.7
+          "narration": "画像フォルダーとして、image_sequences、続いてfield_A01を選びます。チャネルはゼロを選びます。各例の画像には、細胞の強度チャネルが一つだけ含まれています。Frames previewedを八に、Fieldsを一に設定します。",
+          "hold_after": 0.7,
+          "speech_text": "画像フォルダーとして、image_sequences、続いてfield_A01を選びます。チャネルはゼロを選びます。各例の画像には、細胞の強度チャネルが一つだけ含まれています。Frames previewedを八に、Fieldsを一に設定します。"
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
-          "hold_after": 0.7
+          "narration": "Masksをクリックし、label_sequences、続いてfield_A01を選びます。各ラベルは、対応する画像の中の一つの物体を示します。シーケンスの途中で始まったり終わったりする軌跡も確認できるように、最初はKeep only full-length tracksをオフのままにします。",
+          "hold_after": 0.7,
+          "speech_text": "Masksをクリックし、label_sequences、続いてfield_A01を選びます。各ラベルは、対応する画像の中の一つの物体を示します。シーケンスの途中で始まったり終わったりする軌跡も確認できるように、最初はKeep only full-length tracksをオフのままにします。"
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "重なりのしきい値を零点一に設定し、Run previewをクリックします。このしきい値は、隣り合うマスクがどれだけ重なれば連結されるかを決めます。色分けされた物体の識別と、軌跡の長さの要約を確認します。この例では、八フレームすべてにわたる十六本の軌跡ができます。",
           "hold_after": 0.7,
           "focus": [
             379,
             307,
             3432,
             958
-          ]
+          ],
+          "speech_text": "重なりのしきい値を零点一に設定し、Run previewをクリックします。このしきい値は、隣り合うマスクがどれだけ重なれば連結されるかを決めます。色分けされた物体の識別と、軌跡の長さの要約を確認します。この例では、八フレームすべてにわたる十六本の軌跡ができます。"
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "物体が短い軌跡に分かれたり、間違った隣の物体と連結されたりする場合は、重なりのしきい値を調整します。しきい値を高くすると、より大きな重なりが必要になります。変更したら、プレビューが終わるのを待ってRe-linkをクリックし、最終的な値で確認します。結果を受け入れる前に、いくつかのフレームを行き来して確かめます。",
           "hold_after": 0.7,
           "focus": [
             379,
             307,
             3432,
             958
-          ]
+          ],
+          "speech_text": "物体が短い軌跡に分かれたり、間違った隣の物体と連結されたりする場合は、重なりのしきい値を調整します。しきい値を高くすると、より大きな重なりが必要になります。変更したら、プレビューが終わるのを待ってRe-linkをクリックし、最終的な値で確認します。結果を受け入れる前に、いくつかのフレームを行き来して確かめます。"
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "フレームスライダーを使うと、シーケンス全体で同じ物体を追えます。Playはフレームを表示する速さを変えます。後で速度を測れるように、実際の撮影間隔は別に記録しておきます。",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -2037,67 +2320,113 @@
             "08_measure",
             "18_motility",
             "06_api"
-          ]
+          ],
+          "speech_text": "フレームスライダーを使うと、シーケンス全体で同じ物体を追えます。Playはフレームを表示する速さを変えます。後で速度を測れるように、実際の撮影間隔は別に記録しておきます。"
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "自分の画像で最後まで実行するには、MaskでSourceと強度チャネルを設定します。この録画では、八フレームの小さな合成シーケンスの設定を読み込んでいます。各フィールドの時点は順番どおりに保ちます。フレームの範囲は開始と、含まれない終了で指定します。ゼロから八とすると、最初の八フレームが選ばれます。",
           "hold_after": 0.7,
           "focus": [
             340,
             230,
             1160,
             1900
-          ]
+          ],
+          "speech_text": "自分の画像で最後まで実行するには、MaskでSourceと強度チャネルを設定します。この録画では、八フレームの小さな合成シーケンスの設定を読み込んでいます。各フィールドの時点は順番どおりに保ちます。フレームの範囲は開始と、含まれない終了で指定します。ゼロから八とすると、最初の八フレームが選ばれます。"
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "追跡する物体と追跡モードを選びます。重なりのモードであるiouは、隣り合うフレームのマスクを使って物体を連結します。まず短いシーケンスで確認し、フレーム間で物体がどれくらい動くかに合ったモードを選びます。",
           "hold_after": 0.7,
           "focus": [
             340,
             1480,
             1160,
             640
-          ]
+          ],
+          "speech_text": "追跡する物体と追跡モードを選びます。重なりのモードであるiouは、隣り合うフレームのマスクを使って物体を連結します。まず短いシーケンスで確認し、フレーム間で物体がどれくらい動くかに合ったモードを選びます。"
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "Keep original imagesをオンにすると、パイプラインの後片付けの間も入力画像が残ります。データに合わせてセグメンテーションモデルとチャネルを設定し、シーケンス全体を処理する前にプレビューを確認します。",
           "hold_after": 0.7,
           "focus": [
             340,
             1260,
             1160,
             160
-          ]
+          ],
+          "speech_text": "Keep original imagesをオンにすると、パイプラインの後片付けの間も入力画像が残ります。データに合わせてセグメンテーションモデルとチャネルを設定し、シーケンス全体を処理する前にプレビューを確認します。"
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "Plotをオンにして生成される図を確認できるようにし、Runをクリックします。コンソールで進行状況を見ながら、完了するまで待ちます。大きな実験を処理する前にマスクと軌跡の識別を確認できるよう、短いシーケンスから始めましょう。",
           "hold_after": 0.7,
           "focus": [
             340,
             1100,
             1160,
             140
-          ]
+          ],
+          "speech_text": "Plotをオンにして生成される図を確認できるようにし、Runをクリックします。コンソールで進行状況を見ながら、完了するまで待ちます。大きな実験を処理する前にマスクと軌跡の識別を確認できるよう、短いシーケンスから始めましょう。"
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "出力された図で、強度とラベルの各面を確認します。この実行では、プロジェクトフォルダー内のmergedに追跡済みの配列が、tracksに軌跡の表が保存されます。これらの軌跡から物体の特徴量と動きを計算するには、Measure、続いてMotilityに進みます。",
           "hold_after": 0.7,
           "focus": [
             366,
             171,
             3458,
             1797
-          ]
+          ],
+          "speech_text": "出力された図で、強度とラベルの各面を確認します。この実行では、プロジェクトフォルダー内のmergedに追跡済みの配列が、tracksに軌跡の表が保存されます。これらの軌跡から物体の特徴量と動きを計算するには、Measure、続いてMotilityに進みます。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9460,17 +9789,150 @@
       "id": "71_investigate_hit",
       "number": 71,
       "slug": "investigate_hit",
-      "title": "ヒットの検証",
+      "title": "Investigate Hit：Regressionの遺伝子から測定した細胞までたどる",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "結果と品質管理",
-      "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "近日公開",
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Hit Listから遺伝子を一つInvestigate Hitに送り、測定データベース、細胞ごとの予測、ガイドの割合を加えて、ウェル単位の証拠を読みます。",
+      "objectives": [
+        "Hit ListでRegressionの実行を開き、q値を確認して、遺伝子を一つInvestigate Hitに送る。",
+        "測定データベース、細胞ごとの予測、ガイドの割合、スコアの列を選ぶ。",
+        "証拠、ウェル、ガイド、しきい値の各タブを読み、保存された表を見つける。"
+      ],
+      "prerequisite": "Investigate_Hit_real_screen_example.zipを展開します。中身はすべて一つの実際のスクリーンから得たものです。Regressionのテストデータで行ったRegressionの実行（Regressionのチュートリアルの設定）、それに対応する細胞ごとのCV予測、そして同じ細胞の実際の形、大きさ、強度の測定値を含む測定データベースです。ダウンロードを小さくするため、データベースには52のウェルが入っています。遺伝子225160のガイドを持つ解析済みのウェルすべてと、それぞれに対して同じプレートにあるガイドのないウェル三つです。この短いRegressionの実行では、q ≤ 0.05を満たす遺伝子はありません。この調査は確定したヒットではなく、実践例として扱ってください。",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "HomeからRegressionを開きます。Investigate Hitは、完了したRegressionの実行から始めます。ある遺伝子に対応するウェルで測定した細胞が、その遺伝子のないウェルの細胞と違って見えるかどうかを問います。",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "ホームからRegressionを開きます。Investigate Hitは、完了したRegressionの実行から始めます。ある遺伝子に対応するウェルで測定した細胞が、その遺伝子のないウェルの細胞と違って見えるかどうかを問います。"
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Hitsを選んでHit Listを開きます。まず例のアーカイブを展開します。テストデータでのRegressionの実行、それに対応する細胞ごとのCV予測、同じ細胞の測定データベースが入っています。三つとも、一つの実際のスクリーンから得たものです。",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Hitsを選んでHit Listを開きます。まず例のアーカイブを展開します。テストデータでのRegressionの実行、それに対応する細胞ごとのCV予測、同じ細胞の測定データベースが入っています。三つとも、一つの実際のスクリーンから得たものです。"
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Browseをクリックし、regression_runのresultsの中にあるguide_permutationフォルダーを選びます。これは、Regressionのチュートリアルでテストデータを使って実行した結果です。",
+          "hold_after": 0.7,
+          "speech_text": "Browseをクリックし、regression_runのresultsの中にあるguide_permutationフォルダーを選びます。これは、Regressionのチュートリアルでテストデータを使って実行した結果です。"
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit Listは三百二十五の遺伝子を順位付けします。各行の効果、P値、q値をまとめて読み、ガイドの数と、そのうちいくつの向きが一致しているかも確認します。",
+          "hold_after": 0.7,
+          "speech_text": "Hit Listは三百二十五の遺伝子を順位付けします。各行の効果、P値、q値をまとめて読み、ガイドの数と、そのうちいくつの向きが一致しているかも確認します。"
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Max qを零点零五に設定します。この実行ではq値が零点零五以下の遺伝子がないため、表は空になります。百九十九回の並べ替えでは、取りうる最小のP値は零点零零五で、最も低いq値はおよそ零点二七です。そのため、ここからは確定したヒットではなく、順位の高い候補を調べます。",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Max qを零点零五に設定します。この実行ではq値が零点零五以下の遺伝子がないため、表は空になります。百九十九回の並べ替えでは、取りうる最小のP値は零点零零五で、最も低いq値はおよそ零点二七です。そのため、ここからは確定したヒットではなく、順位の高い候補を調べます。"
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Max qを一に戻し、二二五一六〇を検索して、その行を選びます。効果は零点三四、q値は零点二七で、三つのガイドはすべて同じ向きです。",
+          "hold_after": 0.7,
+          "speech_text": "Max qを一に戻し、二二五一六〇を検索して、その行を選びます。効果は零点三四、q値は零点二七で、三つのガイドはすべて同じ向きです。"
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Investigate selectedをクリックします。Investigate Hitが開き、その行から結果フォルダー、遺伝子、三つのガイド、正の効果の向きがすでに入力されています。",
+          "hold_after": 0.7,
+          "speech_text": "Investigate selectedをクリックします。Investigate Hitが開き、その行から結果フォルダー、遺伝子、三つのガイド、正の効果の向きがすでに入力されています。"
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "Measurements databaseの横でBrowseをクリックし、例のmeasurements.dbを選びます。五十二のウェルにある八千九百十五個の細胞について、形、大きさ、チャネルごとの平均強度が入っています。",
+          "hold_after": 0.7,
+          "speech_text": "Measurements databaseの横でBrowseをクリックし、例のメジャメンツ・ドット・ディービーを選びます。五十二のウェルにある八千九百十五個の細胞について、形、大きさ、チャネルごとの平均強度が入っています。"
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "Existing CV predictionsには、cv_predictions.csvを選びます。各行は一つの細胞について保存されたCVのスコアで、同じ測定済みの物体に結び付いています。パスをクリックしてEnterを押すとスコアの列が読み込まれるので、表現型のスコアの列はpredのままにします。",
+          "hold_after": 0.7,
+          "speech_text": "Existing CV predictionsには、cv_predictions.csvを選びます。各行は一つの細胞について保存されたCVのスコアで、同じ測定済みの物体に結び付いています。パスをクリックしてEnterを押すとスコアの列が読み込まれるので、表現型のスコアの列はpredのままにします。"
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "Well/guide fractionsには、同じ結果フォルダーのregression_data.csvを選びます。この表はRegressionが書き出したもので、解析した各ウェルにおける各ガイドの割合を示しています。",
+          "hold_after": 0.7,
+          "speech_text": "Well/guide fractionsには、同じ結果フォルダーのregression_data.csvを選びます。この表はRegressionが書き出したもので、解析した各ウェルにおける各ガイドの割合を示しています。"
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Independent morphology featuresは空欄のままにします。するとモジュールは、データベースにある十三の数値の細胞測定値を使い、識別子、ガイドの割合、CVのスコアは除きます。そのため、この確認でスコアが再利用されることはありません。自分のデータベースでは、欠損値のない測定値の列だけを指定してください。",
+          "hold_after": 0.7,
+          "speech_text": "Independent morphology featuresは空欄のままにします。するとモジュールは、データベースにある十三の数値の細胞測定値を使い、識別子、ガイドの割合、CVのスコアは除きます。そのため、この確認でスコアが再利用されることはありません。自分のデータベースでは、欠損値のない測定値の列だけを指定してください。"
+        },
+        {
+          "visual": "12_running",
+          "narration": "Investigate hitをクリックします。モデルは一度に一つのプレートを除いて当てはめられるので、どの細胞も自分のプレートで学習したモデルでスコア付けされることはありません。ウェルのガイドの割合は、そのウェルの細胞に対する最初の見込みを決めるだけです。細胞がそのガイドを持つと判定することはありません。この例は数分かかります。",
+          "hold_after": 0.7,
+          "speech_text": "Investigate hitをクリックします。モデルは一度に一つのプレートを除いて当てはめられるので、どの細胞も自分のプレートで学習したモデルでスコア付けされることはありません。ウェルのガイドの割合は、そのウェルの細胞に対する最初の見込みを決めるだけです。細胞がそのガイドを持つと判定することはありません。この例は数分かかります。"
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidenceに結果が表示されます。標的ウェルのヒット様の有病率は、対照ウェルよりわずか零点零一高いだけです。ウェル単位のブートストラップ区間はマイナス零点零四からプラス零点零六で、ブロック並べ替えのP値はおよそ零点六三です。細胞の測定値は、この候補を支持していません。",
+          "hold_after": 0.7,
+          "speech_text": "Evidenceに結果が表示されます。標的ウェルのヒット様の有病率は、対照ウェルよりわずか零点零一高いだけです。ウェル単位のブートストラップ区間はマイナス零点零四からプラス零点零六で、ブロック並べ替えのP値はおよそ零点六三です。細胞の測定値は、この候補を支持していません。"
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wellsには、ウェルごとのガイドの割合、ヒット様の確率の平均、有病率、細胞数が表示されます。各ウェルを独立した一つの単位として数えるので、比較は個々の細胞ではなく、十三の標的ウェルと三十九の対照ウェルで行われます。",
+          "hold_after": 0.7,
+          "speech_text": "Wellsには、ウェルごとのガイドの割合、ヒット様の確率の平均、有病率、細胞数が表示されます。各ウェルを独立した一つの単位として数えるので、比較は個々の細胞ではなく、十三の標的ウェルと三十九の対照ウェルで行われます。"
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guidesでは、標的ガイドが一つずつ表示されます。用量反応の向きがばらばらで、この遺伝子をヒットとして扱わない理由がもう一つ増えます。",
+          "hold_after": 0.7,
+          "speech_text": "Guidesでは、標的ガイドが一つずつ表示されます。用量反応の向きがばらばらで、この遺伝子をヒットとして扱わない理由がもう一つ増えます。"
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivityは、確率のしきい値を零点五から零点九まで変えて比較を繰り返します。どのしきい値でも差は零点零一付近のままなので、結論はしきい値に左右されません。",
+          "hold_after": 0.7,
+          "speech_text": "Threshold sensitivityは、確率のしきい値を零点五から零点九まで変えて比較を繰り返します。どのしきい値でも差は零点零一付近のままなので、結論はしきい値に左右されません。"
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cellsは、ヒット様の確率で細胞を順位付けし、元のスコアと、各細胞をスコア付けしたフォールドも示します。これらの確率はヒット様の形態を表すもので、細胞がどのガイドを持っていたかを示すものではありません。ウェル単位の証拠が確かな場合にだけ、判定をアノテーションに昇格させてください。Undoで昇格を取り消せます。",
+          "hold_after": 0.7,
+          "speech_text": "Candidate cellsは、ヒット様の確率で細胞を順位付けし、元のスコアと、各細胞をスコア付けしたフォールドも示します。これらの確率はヒット様の形態を表すもので、細胞がどのガイドを持っていたかを示すものではありません。ウェル単位の証拠が確かな場合にだけ、判定をアノテーションに昇格させてください。Undoで昇格を取り消せます。"
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "表は結果フォルダーのhit_investigationの中の、二二五一六〇に保存されます。この埋め込みとマニフェストが含まれ、各実行はデータベースにも新しい版として保存されます。この例には切り出し画像がないため、確認用のギャラリーは空のままです。次は、並べ替えの回数を増やしたRegressionの実行で、しきい値を満たす遺伝子を調べましょう。",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "表は結果フォルダーのhit_investigationの中の、二二五一六〇に保存されます。この埋め込みとマニフェストが含まれ、各実行はデータベースにも新しい版として保存されます。この例には切り出し画像がないため、確認用のギャラリーは空のままです。次は、並べ替えの回数を増やしたRegressionの実行で、しきい値を満たす遺伝子を調べましょう。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",

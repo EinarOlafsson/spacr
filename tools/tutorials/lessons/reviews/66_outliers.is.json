@@ -1,38 +1,40 @@
 {
   "lesson": "66_outliers",
-  "english_sha256": "383105db52f8c3c60eb7e6f36308b747810c66e32b082d2c43edf96bfc9ed644",
+  "english_sha256": "11fc8373bff222df7688c809af9a0f13ee7ffe05927b59ef7fbdf36f1c883ca7",
   "review": {
-    "kind": "Parent editorial translation against frozen English and independently verified real GUI; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "is",
-  "title": "Outliers: skoða raunverulegar merkingar án þess að eyða athugunum",
-  "description": "Opnaðu Outliers í QC, berðu saman traustar reglur á raunverulegum frumumælingum, greindu ómetna brunna frá gallalausum brunnum, skoðaðu raunverulega höfnun lograbreytingar og flyttu út allar raðir með merkingum.",
+  "title": "Outliers: flaggaðu mælingar til skoðunar",
+  "description": "Veldu eiginleika og traustbyggða reglu, skoðaðu niðurstöður eftir hlutum og brunnum og fluttu út flögg ásamt allri inntakstöflunni.",
   "objectives": [
-    "Finna undireiningu QC og velja mældar breytur meðvitað fyrir Scan.",
-    "Bera saman MAD, IQR og skýrar lograbreytingar án þess að túlka merkingar sem staðfestar villur.",
-    "Greina á milli hlutafjölda, sýndra raða og ómetins brunnasamanburðar.",
-    "Flytja út upprunalegar mælingar með merkingum og endurheimta gilda reglu eftir ógilda umbreytingu."
+    "Hlaða inn mælingum og velja eiginleika til skönnunar.",
+    "Bera saman MAD-, IQR- og lograreglur.",
+    "Lesa takmarkanir stigagjafar og flytja út línur, flögg og skýrslu."
   ],
-  "prerequisite": "Notaðu niðurhalanlega Annotate-dæmið á einkaeintaki gagnagrunnsins, eins bæti fyrir bæti. 2.341 fruma kemur úr fjórum skráðum brunnum; þetta eru hvorki óháðar tilraunir né hlutir með þekkta galla. Upprunalegum mælingum er aldrei breytt eða eytt. Kennslan sannreynir sjálfstætt MAD/IQR fyrir eina endanlega, óúrkynjaða breytu, hverja merkta stöðu, brunnamiðgildi og fjölda ásamt skýrri höfnun samanburðar á færri en fimm brunnum. Hún sannreynir ekki sjálfvirka yfirferð allra breyta, varaleiðir við núllskala, fjölbreytu-MCD-ályktanir eða líffræðileg gæði. Unnið er með fyrirliggjandi mælitöflu, ekki nýja myndskiptingu, GPU-greiningu eða flokkaraþjálfun. Hér er engin myndforskoðun, Plot-rofi, sérstakt dæmaniðurhal eða AI-stjórnborð; Objects, Wells og Report eru raunveruleg úttök.",
+  "prerequisite": "Notaðu vinnuafrit af measurements.db úr Annotate-dæminu. Flögg benda á athuganir til skoðunar; veldu þröskulda eftir greiningunni. Dæmið hefur fjóra brunna, færri en þá fimm sem þarf í samanburð milli brunna. Greindu brunna sem ekki fengu stig frá brunnum sem fengu stig án flagga.",
   "scenes": [
-    "Opnaðu QC frá Home og veldu Outliers-hnappinn. Yfirlit QC les vistaðar athuganir en þetta innfellda verkfæri reiknar merkingar úr mælitöflu. Við notum raunverulega niðurhalanlega Annotate-dæmið á einkaeintaki gagnagrunnsins. Fylgdu þeirri kennslu til að sækja það og haltu tilraunauppsprettunni óbreyttri.",
-    "Veldu Load table og cell-töflu gagnagrunnsins. Hleðslan fer sjálfkrafa yfir allar valdar samfelldar breytur: hér 255 fyrir 2.341 frumu. Þessi víða sjálfgefna regla merkir 2.338 hluti. Það sannar ekki að næstum allar frumur séu gallaðar. Hleðsla breiðrar niðurstöðutöflu getur tekið tíma.",
-    "Með auða breytuleit velurðu None til að afvelja allt. Leitaðu að cell_area, hakaðu aðeins við nákvæmlega þá breytu og ýttu á Scan. Leitin þrengir breytunöfn, ekki frumuraðir. Breytt val keyrir ekki yfirferð sjálfkrafa aftur; gamla niðurstaðan getur staðið þar til nýja reglan er keyrð.",
-    "Fyrir MAD læturðu umbreytinguna vera none og k vera 3,5. Reglan deilir algildi fjarlægðar frá miðgildi með um 1,4826 sinnum miðgildi algildra frávika. Hún merkir 26 frumur. Þetta eru skoðunarkandídatar, ekki staðfestar myndskiptingarvillur, og engri röð hefur verið eytt.",
-    "Opnaðu Wells. Allir fjórir brunnarnir hafa yfir 500 hluti en enginn er metinn: samanburðurinn þarf að minnsta kosti fimm gjaldgenga brunna. Lestu well_scored og nákvæma ástæðu, ekki bara Wells núll. Flagged share lýsir hlutamerkingum; það er hvorki brunnaskor né sönnun þess að brunnurinn sé gallalaus.",
-    "Report sýnir reglu, mælda miðju, skala og fyrirvara. Einn fyrirvari þessarar útgáfu segir ranglega að fjórir brunnar hafi haft færri en 20 hluti. Raunfjöldinn er 501–700; ástæðan er of fáir brunnar. Notaðu nákvæma ástæðu í brunnatöflunni og endurtaktu ekki röngu skýringuna um fjöldann.",
-    "Krafa um meiri fjarlægð merkir færri hluti. k lækkað í 2 gaf 142 merkingar; við 0,5 verða þær 1.479. Síðasta stillingin er víð viljandi til sýningar, ekki ráðlögð gæðamörk. Hlutataflan sýnir aðeins 500 raðir, svo sá fjöldi er ekki fjöldi merktra hluta.",
-    "Veldu Export og nýtt skráarheiti. objects-CSV heldur öllum 2.341 röðinni og bætir við merkingum; flagged inniheldur 1.479 merktar raðir. Wells hefur fjögur yfirlit og report er textaskrá. Hver útflutt mæling og merking var könnuð. Útflutningur eyðir engu og takmarkast ekki við 500 sýndar raðir.",
-    "Endurheimtu upprunalegu regluna og veldu IQR. Þröskuldurinn merkir nú c sinnum fjórðungabil, ekki traust staðalfrávik. Með c jafnt 1,5 gefur óbreytt frumuflatarmál 55 merkingar. Bæði mörkin og hver merkt staða voru sannreynd sjálfstætt. Hali skekktrar dreifingar getur verið merktur þótt mælingar séu gildar.",
-    "Hér er önnur orðalagsvilla. Þessi IQR-skýrsla nefnir 22.663 miðgildi en það er miðpunktur fyrsta og þriðja fjórðungsmarks. Raunverulegt miðgildi er 21.925. Sannreynd mörk eru rétt; ekki vísa í sýndu miðjuna sem miðgildi.",
-    "Veldu log10 sérstaklega og keyrðu aftur. Fyrir þessi jákvæðu flatarmál gefur IQR 79 merkingar en MAD með 3,5 gefur 36. Lograbreyting breytir fjarlægðum og spurningunni; hún tryggir hvorki færri merkingar né líffræðilega rétt niðurstöðu. Miðjur og skalar skýrslunnar eru nú í log10-einingum.",
-    "Fyrir raunverulegt höfnunardæmi velurðu enga umbreytingu og aðeins cell_channel_0_min_intensity. Scan tekst og merkir 68 hluti. Eitt mæligildi er raunverulega núll. Þetta jákvæða mótdæmi skiptir máli: tafla og breyta virka áður en beðið er um umbreytingu sem skilgreinir ekki það gildi.",
-    "Veldu nú log10 og ýttu á Scan. Raunvillan nefnir eina núll- eða neikvæða gildið og breytuna. Engri tilbúinni aukatalningu er bætt við og engum hlut eytt; Export er óvirkt. Gamlar töfluraðir og fjöldi geta enn sést eftir villuna en eru ekki ný, heppnuð niðurstaða. Lestu villuna og endurheimtu gilda reglu.",
-    "Farðu aftur í óbreytt cell_area og MAD 3,5 og keyrðu til að endurheimta 26 merkingar. Min objects per well stillt á 700 breytir gjaldgengi: aðeins einn brunnur nær þeim fjölda, hinir þrír halda skýrum ástæðum um lágan fjölda. Lægra lágmark býr ekki til fimmta brunninn sem vantar. Ómetið merkir aldrei staðfest gallalaust.",
-    "Settu lágmarkið aftur í 20, slökktu á Score wells too og keyrðu. Hlutamerkingar eru enn 26 og ekki er beðið um brunnasamanburð. Kveiktu aftur og keyrðu til að endurheimta fjögur ómetin brunnayfirlit. Þetta breytir greiningarstigi; það síar ekki eða eyðir frumum eða brunnum úr gagnagrunninum.",
-    "Flyttu endurheimtu regluna út undir öðru heiti. Lokaskrárnar hafa 2.341 hlutaröð, 26 merktar raðir, fjögur brunnayfirlit og skýrsluna. Upprunalegi og einkagagnagrunnurinn eru óbreyttir. Geymdu reglu og skýrslu með merkingunum svo annar þröskuldur sé ekki tekinn fyrir sömu greiningu.",
-    "Valmyndin býður líka trausta fjölbreytu-Mahalanobis-greiningu sem við keyrðum ekki hér. Alfa hennar byggir á dreifingarforsendum og tryggir ekki villutíðni. Python-reikningurinn notar detect_outliers með OutlierSpec í spacr.qt.widgets.outlier_model. Haltu áfram í Feature Explorer eða Annotate fyrir dreifingar eða myndir; hér var hvorki myndforskoðun né AI-beiðni."
+    "Frá Home opnarðu QC og svo Outliers. Notaðu gagnagrunninn úr Annotate-dæminu til að flagga óvenjulegar mælingar til skoðunar.",
+    "Smelltu á Load table og veldu töfluna cell. Við innhleðslu eru valdir samfelldir eiginleikar skannaðir sjálfkrafa. Skoðaðu valda eiginleika áður en þú túlkar þessa víðtæku fyrstu niðurstöðu.",
+    "Með eiginleikaleitina tóma smellirðu á None til að hreinsa allt val. Leitaðu að cell_area, hakaðu við eiginleikann og smelltu á Scan. Breytt val krefst nýrrar skönnunar.",
+    "Veldu MAD, hafðu Transform á none og stilltu k á 3,5. Smelltu á Scan. Reglan mælir fjarlægð frá miðgildi með traustum kvarða og flaggar 26 hluti í dæminu.",
+    "Opnaðu Wells og lestu well_scored og dálkinn reason. Þessir fjórir brunnar fá ekki stig því að samanburðurinn krefst að minnsta kosti fimm gjaldgengra brunna. Flagged share tekur saman flögg hluta sérstaklega.",
+    "Opnaðu Report til að lesa regluna, miðjuna og kvarðann. Í þessari útgáfu er almenna skýringin á fjölda brunna röng fyrir dæmið; notaðu tiltekna ástæðu í töflunni Wells: of fáir gjaldgengir brunnar.",
+    "Lækkaðu k til að flagga minni frávik frá miðju. Við 0,5 hefur dæmið 1.479 flögg. Hlutataflan sýnir aðeins 500 línur, svo notaðu fjölda flagga fremur en fjölda sýnilegra lína.",
+    "Veldu Export og nýtt skráarheiti. CSV-skráin objects heldur öllum inntakslínum með flöggum; flagged inniheldur aðeins flaggaða hluti. Wells og report vista samantektir brunna og texta greiningarinnar.",
+    "Veldu IQR, stilltu c á 1,5 og smelltu svo á Scan. Þá gilda mörk byggð á fjórðungsbili og 55 hlutir eru flaggaðir fyrir óunnið frumuflatarmál.",
+    "Lestu mörkin í IQR-skýrslunni. Miðjan sem birtist er miðpunktur fyrsta og þriðja fjórðungs, þótt þessi útgáfa merki hana median. Notaðu upprunagögnin þegar þú þarft raunverulegt miðgildi.",
+    "Veldu log10 og skannaðu aftur. Miðjur, kvarðar og fjarlægðarregla gilda nú um lograbreytt gildi. Prófaðu MAD með 3,5 til að bera niðurstöðuna saman við IQR-regluna.",
+    "Settu Transform aftur á none, hreinsaðu eiginleikavalið og veldu aðeins cell_channel_0_min_intensity. Skannaðu hrágildin áður en þú prófar lograbreytingu.",
+    "Veldu log10 og smelltu á Scan. Eiginleikinn inniheldur núll, svo breytingunni er hafnað og útflutningur er óvirkur. Lestu villuna: gamlar línur sem enn sjást tilheyra fyrri niðurstöðu.",
+    "Settu aftur óunnið cell_area, MAD og k 3,5 og smelltu svo á Scan. Ef Min objects per well er hækkað í 700 verða þrír brunnar ógjaldgengir. Sá sem eftir er dugar enn ekki fyrir samanburð fimm brunna.",
+    "Settu Min objects per well aftur á 20. Slökktu á Score wells too og smelltu á Scan til að fá aðeins flögg hluta. Kveiktu aftur á því og skannaðu á ný til að taka samantektir brunna með.",
+    "Fluttu endurheimtu regluna út undir sérstöku skráarheiti. Geymdu skýrsluna með 26 flögguðu línunum, allri hlutatöflunni og samantektum brunnanna fjögurra svo að þú getir séð hvaða stillingar voru notaðar.",
+    "Í Python notarðu detect_outliers og OutlierSpec úr spacr.qt.widgets.outlier_model. Haltu áfram í Feature Explorer til að skoða dreifingar eða í Annotate til að skoða samsvarandi myndir áður en þú ákveður hvernig farið er með flaggaða hluti."
   ]
 }

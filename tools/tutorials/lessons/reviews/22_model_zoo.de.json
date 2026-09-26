@@ -1,17 +1,30 @@
 {
-  "lesson": "22_model_zoo", "language": "de", "english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "Model Zoo: Modelle finden und ihre Herkunft prüfen",
-  "description": "Öffnen Sie die verschachtelte Modellbibliothek und durchsuchen Sie einen vorhandenen lokalen Cache. Unterscheiden Sie dokumentiertes Training von unbekannter Herkunft; die aktuelle Cellpose-Inkompatibilität verhindert einen nachgewiesenen Benchmark.",
-  "objectives": ["Model Zoo in Make Masks finden und einen lokalen Modellordner durchsuchen.", "Quelle, Typ, Prüfsumme und Trainingsangaben lesen, ohne unbekannte Metadaten mit Validierung gleichzusetzen.", "Modellverwaltung von Download, Training und Benchmark unterscheiden."],
-  "prerequisite": "spaCR 1.5.0.7 nightly. Die echte Aufnahme durchsucht einen vorhandenen Cellpose-Cache und wählt die ursprüngliche cpsam-Datei. Kein Download, Training oder Inferenzlauf. Verwenden Sie Ihren eigenen Ordner, nicht den persönlichen Pfad des Vortragenden. Die ausgewählten Metadaten enthalten weder veröffentlichte Prüfsumme noch Trainingsdaten oder Autor; dies wird nicht aus dem Namen abgeleitet. Ein separater Hash belegt nur die unveränderte lokale Datei während der Aufnahme, nicht ihre Herkunft. Model Zoo und Model Compare übergeben invert, das Cellpose 4.2.1.1 nicht unterstützt; der Anwendungsfehler wird hier weder repariert noch umgangen. Plaque zeigt einen echten Download samt Vorschau. Keine Genauigkeitsbewertung oder Validierung an unabhängigen Daten wird behauptet.",
+  "lesson": "22_model_zoo",
+  "english_sha256": "803c294c972e07647f2d5c34add71d3f0c109824b28829b0e541b3062aae37cd",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Model Zoo: ein Modell wählen und an Ihren Bildern testen",
+  "description": "Öffnen Sie Model Zoo, finden oder laden Sie einen Checkpoint, prüfen Sie seine Details und wählen Sie eine kleine Bildauswahl für einen Test.",
+  "objectives": [
+    "Model Zoo öffnen und einen lokalen Modellordner durchsuchen.",
+    "Modellfamilie und Version wählen und die Details prüfen.",
+    "Einen kleinen Bildtest ausführen und die entstandenen Masken und Qualitätsübersichten prüfen."
+  ],
+  "prerequisite": "Entpacken Sie das verlinkte Beispiel und verwenden Sie seinen Ordner images für den Test mit drei Bildfeldern. Wählen Sie ein installiertes Cellpose-Segmentierungsmodell oder laden Sie über Model Zoo einen geeigneten Checkpoint herunter. Bereiten Sie für einen eigenen Test einige repräsentative TIFF-, PNG-, NPY- oder NPZ-Bilder vor.",
   "scenes": [
-    "Model Zoo ist die Modellbibliothek innerhalb von Make Masks. Öffnen Sie das übergeordnete Modul und dann dessen Model-Zoo-Steuerung. Diese Lektion zeigt die echte Bibliothek und lokale Modellsuche, kein neues Training und keinen Genauigkeitsbenchmark.",
-    "Die Tabelle vereint veröffentlichte Einträge und lokal entdeckte Dateien. Lesen Sie Modelltyp und Quelle zusammen. Ein aufgelistetes Modell ist nicht automatisch heruntergeladen, an Ihren Bildern getestet oder für Ihr Experiment validiert.",
-    "Geben Sie einen vorhandenen Modellordner ein und drücken Sie Scan, oder wählen Sie ihn mit der benachbarten Schaltfläche. Hier durchsuchen wir den echten Cellpose-Cache. Verwenden Sie Ihren eigenen Pfad. Die Suche findet Dateien und Metadaten; sie trainiert oder segmentiert nicht.",
-    "Diese Suche zeigt acht Einträge: veröffentlichte entfernte Modelle und lokale Gewichtsdateien. Die Zahl beschreibt diesen Rechner, keine vorgeschriebene Ausstattung. Wählen Sie die genaue Datei; ähnliche Namen garantieren keine identischen Gewichte.",
-    "Die ausgewählte lokale Datei besitzt in dieser Ansicht weder veröffentlichte Prüfsumme noch dokumentierte Trainingsherkunft. Unbekannt bleibt unbekannt. Der Name beweist keinen Trainingsdatensatz. Unser Hash belegt, dass die Aufnahme die Datei unverändert ließ, nicht wer sie erzeugte oder wie gut sie funktioniert.",
-    "Der Downloadbereich bestimmt den Speicherort eines verfügbaren entfernten Modells. Er bietet auch eine Wahl für Modelle ohne veröffentlichte Prüfsumme. Eine fehlende Prüfsumme ist keine Verifikation. Diese lokale Auswahl wird nicht erneut heruntergeladen. Die Plaque-Lektion zeigt einen echten Download samt Vorschau.",
-    "Der untere Bereich dient zum Testen von Bildfeldern und Vergleichen ausgewählter Modelle. Das sind andere Aufgaben als die Bibliothekssuche. Die aktuelle Cellpose-Argumentinkompatibilität verhindert hier einen nachgewiesenen Benchmark. Es werden keine Masken oder Werte erfunden. Halten Sie repräsentative Validierungsbilder vom Training getrennt, wenn Sie den reparierten Ablauf bewerten."
+    "Öffnen Sie von Home aus Make Masks und wählen Sie dann Model Zoo. Auf dieser Seite finden Sie ein Segmentierungsmodell und testen es an einer kleinen Bildauswahl.",
+    "Klicken Sie auf Choose folder und wählen Sie Ihr Modellverzeichnis, um es zu durchsuchen. Wenn Sie den Pfad eintippen, klicken Sie auf Scan. Aktivieren Sie die Quellenüberschriften, die Sie durchsuchen möchten, etwa Cellpose oder lokale Modelle.",
+    "Wählen Sie eine Modellfamilie und mit ihrem Steuerelement Version den Checkpoint. Lesen Sie die Details zu Bildtyp, Trainingsinformationen und lokalem Pfad. Wählen Sie für einen entfernten Checkpoint einen Ordner unter Save to und klicken Sie auf Download, bevor Sie ihn testen.",
+    "Entpacken Sie das verlinkte Beispiel und wählen Sie unter Test on fields seinen Ordner images. Setzen Sie die Anzahl der Bildfelder auf 3. Beginnen Sie bei eigenen Bildern mit einer kleinen Auswahl aus typischen Bildfeldern und schwierigen Fällen.",
+    "Wählen Sie das lokale Segmentierungsmodell und klicken Sie auf Test on fields. Warten Sie, bis der Test abgeschlossen ist. Größere Bilder und Modelle können länger dauern, besonders auf einer CPU.",
+    "Wählen Sie eine Ergebniszeile, um ihre Maskenvorschau zu prüfen. Prüfen Sie anhand des Bildes Grenzen, sich berührende und übersehene Objekte. Nutzen Sie Objektzahl und Qualitätsmarkierungen, um Bildfelder zu finden, die genauer geprüft werden sollten.",
+    "Prüfen Sie die Feldübersichten und notieren Sie dann den Pfad des gewählten Checkpoints für Ihr Analysemodul. Um zwei verschiedene Modellfamilien an denselben Bildern zu vergleichen, wählen Sie beide Zeilen und dann Compare the two selected. Mit dem Versionssteuerelement testen Sie eine andere Version derselben Familie."
   ]
 }

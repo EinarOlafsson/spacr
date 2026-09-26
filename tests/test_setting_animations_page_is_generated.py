@@ -147,7 +147,13 @@ def test_no_animation_documents_a_setting_the_shipped_manifest_does_not_carry():
     # eight animations 391 removed each mapped TWO settings: the dim and
     # bright halves of the intensity-percentile band, at four roles.
     # 418 replaces 20 retired merge/split keys with eight mean-bound keys.
-    assert sum(len(keys) for keys in specs.values()) == 107
+    # 87 -> 78 animations and 107 -> 96 keys on 2026-09-25, item 511: the
+    # maintainer retired Mask's {cell,nucleus,pathogen}_{min,max}_
+    # {area,intensity} into object_filters rows. The nine max-area and
+    # mean-bound animations of those objects had no live key left and
+    # went; the three min-area ones keep `*_min_size`, and cell's also
+    # carries `object_filters` (-12 + 1 keys).
+    assert sum(len(keys) for keys in specs.values()) == 96
 
 
 def test_the_gallery_names_only_settings_spacr_actually_has():
@@ -184,7 +190,7 @@ def test_every_animation_in_the_page_is_one_the_registry_ships():
     # settings, and eight animations documented them: the dim/bright
     # intensity-percentile pair at four object roles. An animation for a
     # setting that no longer exists is a docs row pointing at nothing.
-    assert len(_settings_lines(page)) == len(animations) == 87
+    assert len(_settings_lines(page)) == len(animations) == 78
     for animation in animations:
         assert page.count(f".. _{animation.docs_anchor}:") == 1
         assert page.count(f"gifs/{animation.slug}.gif") == 1

@@ -1279,8 +1279,8 @@ def _under_todays_names(settings: Dict[str, Any],
         moved, in which case nothing is logged. None logs, as before.
     :returns: the same mapping, for chaining.
     """
-    from .settings import (_fold_gradient_accumulation, _fold_renamed_settings,
-                           _fold_toxoplasma)
+    from .settings import (_fold_gradient_accumulation, _fold_object_bounds,
+                           _fold_renamed_settings, _fold_toxoplasma)
     from .validate import _check_retired_keys
 
     before = set(settings)
@@ -1289,6 +1289,7 @@ def _under_todays_names(settings: Dict[str, Any],
     _fold_renamed_settings(settings)
     _fold_toxoplasma(settings)
     _fold_gradient_accumulation(settings)
+    _fold_object_bounds(settings)
     for key in sorted(before - set(settings), key=str):
         problem = said.get(key)
         if problem is None:

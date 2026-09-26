@@ -1,32 +1,34 @@
 {
   "lesson": "45_project_browser",
-  "english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "english_sha256": "208c8a5dd5c9ccc6722844b31fe174655526038d88b386f7f231f2859b4cb0fa",
   "review": {
-    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
-    "native_speaker_signoff": false
+    "native_speaker_signoff": false,
+    "listening_review": false
   },
   "language": "sv",
-  "title": "Project Browser: hitta verkliga projekt och tolka deras underlag",
-  "description": "Hitta registrerade och oregistrerade exempel, välj sökdjup, sortera faktisk diskanvändning och läs underlag utan analys eller radering.",
+  "title": "Project Browser: hitta och granska projekt",
+  "description": "Sök i projektmappar, granska registrerade steg och avgör vilket verktyg som ska öppnas härnäst.",
   "objectives": [
-    "Öppna Project browser från Help och avgränsa sökmapparna.",
-    "Använd Depth och Scan och sortera efter verkligt uppmätta byte.",
-    "Skilj saknad proveniens och deklarerade utdatastadier från faktisk körhistorik.",
-    "Läs detaljer, ta bara bort sökrötter och använd särskilda verktyg för data och journaler."
+    "Hitta projekt med sökrötter och sökdjup.",
+    "Granska artefakter och registrerade steg.",
+    "Välja nästa relevanta verktyg."
   ],
-  "prerequisite": "Använd slutförda exempel från External Masks och Batch Runner. Inspelningen jämför en verifierad privat kopia av det uppmätta projektet med två bildfält med en fyrkanalskonvertering, inklusive dold kontrollpunkt och två andra konverteringsposter. Det är olika exempel, inte före och efter. Alla 131 originalfiler i mätprojektet och sju konverteringsfiler är oförändrade. Bara i den isolerade inspelningsprocessen pekar de ursprungliga artefaktsökvägarna på mätkopian; proveniensen skrivs inte om. Project Browser har ingen egen nedladdning, direkt förhandsvisning, Plot-kontroll eller AI-panel. Scan läser projektunderlag, inte alla körjournaler. Sortering, djup och borttagning av sökrötter använder riktiga kontroller; ingen analys, radering, extern filhanterare eller automatisk överlämning körs. SQLite tar bara bort det privata registrets tomma WAL och SHM på 32768 byte. Databaser och andra filer behåller sina byte.",
+  "prerequisite": "Välj mappar som innehåller dina spaCR-projekt. De slutförda exemplen från External Masks och Format Converter kan användas för övning.",
   "scenes": [
-    "Öppna Help och sedan Project browser. Denna gemensamma vy hittar projektmappar och sammanfattar vad som är registrerat eller finns på disken. Vi använder privata kopior av verkliga utdata från External Masks och Batch Runner. Det är ett inventeringsverktyg, inte en bildanalys.",
-    "Add folder väljer var sökningen görs. Vid Depth noll undersöks bara själva mappen. Den valda överordnade mappen innehåller ett projekt en nivå nedanför, så tabellen är tom. Ett tomt resultat vid detta djup betyder inte att projektet eller bilderna saknas.",
-    "Sätt Depth till ett och välj Scan. Den konverterade bildmappen visas: ungefär trettiotvå megabyte i sju filer. Det är fyra insamlade kanalbilder, en konverteringskarta, en statuspost och en dold kontrollpunkt. Filantal är inte antal celler eller oberoende försök.",
-    "State visar unknown, nothing recorded eftersom mappen saknar artefaktregister. Stage säger nothing run och Last run never trots att konverteringen verkligen slutfördes. Kolumnerna visar deklarerade utdata och registrerade resultat, inte hela konverteringshistoriken. Unknown bevisar varken god datakvalitet eller obehandlade data.",
-    "Lägg till mätprojektet som en andra sökrot. Raden visar Measure, ungefär nittioen megabyte, etthundratjugonio filer och en registertid. Om den valda radens detaljer är tomma efter omskanning väljer du en annan rad och går tillbaka. Vi visar lösningen utan att ändra programmet.",
-    "Välj mätprojektet och dra avdelaren för att bredda detaljerna. Tre artefaktposter är current här, men ungefär åttiosju megabyte är fortfarande oregistrerade. Current beskriver den registrerade jämförelsen, inte fullständig proveniens eller vetenskaplig giltighet. Last run anger uttryckligen att tiden kommer från registret.",
-    "Läs Stages innan du tolkar en slutförandemarkering. Här är Mask-utdata complete eftersom importerade matriser, antal och masker finns; det bevisar inte att Mask-segmentering kördes. What could run next visar förslag, inte knappar eller validering av att varje analys passar dessa experimentdata.",
-    "Klicka på Size för att ändra sorteringen. Vi kontrollerade stigande och fallande ordning mot verkliga byte och radvalet pekar fortfarande på rätt projekt. Här finns inga separata filter för stadium, ålder, modulstatus eller inaktuella resultat. Använd de befintliga sorterbara kolumnerna och sökrötterna.",
-    "Med båda rötterna hittar Depth noll fortfarande det direkt valda mätprojektet, men inte konverteringen under dess överordnade mapp. Depth ett återställer båda raderna. Djupet ändrar sökområdet; det tar inte bort data eller ändrar hur mycket analys som har slutförts.",
-    "Remove slutar söka under den valda roten; mappen raderas inte. Vi tar bort mätroten och lägger till det oförändrade projektet igen. I denna version skickar ett dubbelklick urvalet men stannar i Project Browser. Förvänta dig inte att projektet eller den senaste körningen öppnas automatiskt i ett fönster.",
-    "Använd Run History för faktiska körjournaler, Database Browser för mättabeller och Data Manager för rensning eller arkivering. I Python erbjuder spacr.projects discover, scan och browse. Alla originalfiler är oförändrade och ingen ny analys startades. Följ relevant arbetsflödeslektion innan du utför ett föreslaget nästa steg."
+    "Öppna Help och sedan Project browser för att hitta projektmappar och granska deras registrerade utdata.",
+    "Klicka på Add folder och välj en sökrot. Djup 0 kontrollerar bara själva mappen; öka djupet när projekten ligger i undermappar.",
+    "Ställ Depth på 1 och klicka på Scan för att ta med mapparna direkt under roten. Granska de projektrader som visas.",
+    "Läs State och Stage tillsammans med filerna som hittats på disken. En mapp utan artefaktregister kan visa unknown även om den innehåller konverterade bilder.",
+    "Lägg till fler sökrötter för att ta med andra projekt. Välj en rad för att granska den; om detaljerna är tomma efter en ny genomsökning väljer du en annan rad och går tillbaka.",
+    "Dra i avdelaren för att bredda detaljerna. Granska registrerade artefakter, oregistrerade filer och källan till tidsstämpeln för den senaste körningen.",
+    "Öppna Stages för att se vilka förväntade utdata som finns. Använd What could run next för att välja ett lämpligt arbetsflöde och kontrollera sedan vilka indata modulen kräver.",
+    "Klicka på en kolumnrubrik, till exempel Size, för att sortera projekten. Klicka igen för att vända ordningen.",
+    "Justera Depth och sök igen när du behöver en snävare eller bredare sökning. Ett direkt valt projekt kan fortfarande hittas med djup 0.",
+    "Välj en rot och klicka på Remove för att sluta söka i den. Det tar bort sökplatsen från listan men låter filerna ligga kvar på disken.",
+    "Öppna Run History för jobbposter, Database Browser för mätningar eller Data Manager för rensning och arkivering. Använd handledningen för den aktuella modulen för att fortsätta analysen."
   ]
 }

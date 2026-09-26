@@ -7,6 +7,8 @@ derived from the guide selection and can then be restricted explicitly.
 from __future__ import annotations
 
 import logging
+import os
+import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -73,6 +75,126 @@ def wells_of(frame: pd.DataFrame, guides: Sequence[str]) -> List[str]:
             seen.add(value)
             out.append(value)
     return out
+
+
+TOP_HITS = 5
+
+TOP_HITS_ALPHA = 0.05
+
+_RESULT_NAMES: Tuple[str, ...] = ("feature", "coefficient_name", "term",
+                                  "name", "grna", "guide", "gene")
+
+_RESULT_P: Tuple[str, ...] = ("p_value", "pvalue", "p-value", "P>|t|",
+                              "P>|z|", "p")
+
+
+def _read_results(results: Any) -> Optional[pd.DataFrame]:
+    """A regression results table from a frame, a CSV or a run folder.
+
+    A folder is read for ``results.csv``, then the guide and gene tables
+    (:data:`spacr.hits.RESULT_FILES`). ``None`` when nothing is readable.
+    """
+    if results is None:
+        return None
+    if isinstance(results, pd.DataFrame):
+        return results
+    path = os.fspath(results)
+    if path and os.path.isdir(path):
+        from .hits import RESULT_FILES
+
+        inside = [os.path.join(path, RESULT_FILES[role])
+                  for role in ("all", "grna", "gene")]
+        path = next((f for f in inside if os.path.isfile(f)), "")
+    if not path or not os.path.isfile(path):
+        return None
+    try:
+        return pd.read_csv(path)
+    except Exception:
+        LOG.debug("could not read results %s", path, exc_info=True)
+        return None
+
+
+def _top_hits(frame: pd.DataFrame, results: Any, *,
+             alpha: float = TOP_HITS_ALPHA,
+             limit: int = TOP_HITS) -> List[str]:
+    """Return the guides of the most significant hits, as ``frame`` spells them.
+
+    Decision 2026-09-25 (item 205): "the regression Compare panel opens with
+    the TOP HITS pre-selected (top significant guides/genes and the wells
+    that carry them; user can change it)".
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+        Object table carrying a guide column.
+    results : pandas.DataFrame or path-like
+        The regression's coefficient table: a term column (``feature`` in
+        spaCR's own output) and a p-value column.
+    alpha : float, default=0.05
+        Only terms with ``p <= alpha`` count as hits.
+    limit : int, default=:data:`TOP_HITS`
+        How many hits, most significant first, contribute their guides. A
+        hit whose guides are not in ``frame`` is skipped and does not use up
+        a place.
+
+    Returns
+    -------
+    list of str
+        Guides in ``frame``'s own spelling, in table order. A guide-level
+        term contributes its one guide; a gene-level term contributes every
+        guide of that gene. Empty when nothing is significant, the table
+        cannot be read, or ``frame`` names no guide.
+    """
+    from .hits import _gene_id_of, gene_of
+
+    table = _read_results(results)
+    guide = _column(frame, GUIDE_COLUMNS)
+    if table is None or not len(table) or guide is None or not len(frame):
+        return []
+    name = _column(table, _RESULT_NAMES)
+    p_col = _column(table, _RESULT_P)
+    if name is None or p_col is None:
+        return []
+    p_values = pd.to_numeric(table[p_col], errors="coerce")
+    ranked = (table.assign(_p=p_values).dropna(subset=["_p"])
+              .loc[lambda t: t["_p"] <= float(alpha)]
+              .sort_values("_p", kind="stable"))
+    spelled = frame[guide].astype(str)
+    unique = list(dict.fromkeys(spelled))
+    genes = {g: _gene_id_of(g) for g in unique}
+    wanted: set = set()
+    used = 0
+    for term in ranked[name].astype(str):
+        if used >= int(limit):
+            break
+        match = re.search(r"\[(?:T\.)?(.*?)\]", term)
+        token = match.group(1) if match else term
+        gene = gene_of(term) or _gene_id_of(token)
+        if token in genes:
+            hits = {token}
+        elif gene and gene != token:
+            hits = {g for g in unique if g == token or g.endswith("_" + token)}
+        else:
+            hits = {g for g in unique if genes[g] == gene}
+        hits -= wanted
+        if hits:
+            wanted |= hits
+            used += 1
+    return [g for g in unique if g in wanted]
+
+
+def _guides_at(frame: pd.DataFrame, members: Sequence[Any]) -> List[str]:
+    """Return the guides of the rows whose index is in ``members``.
+
+    :param frame: object table carrying a guide column.
+    :param members: object-index values, e.g. one montage group's.
+    :returns: guides in table order; empty when ``frame`` names no guide.
+    """
+    guide = _column(frame, GUIDE_COLUMNS)
+    if guide is None or frame is None or not len(frame):
+        return []
+    rows = frame[frame.index.isin(list(members))]
+    return list(dict.fromkeys(rows[guide].astype(str)))
 
 
 def select(frame: pd.DataFrame, *, scope: str = "guides",

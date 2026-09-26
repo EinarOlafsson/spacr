@@ -27,7 +27,7 @@ from playwright.sync_api import sync_playwright
 
 from append_staged_lessons import parse_javascript
 from check_completed_matrix import digest
-from coming_soon import COPY, first_placeholder
+from coming_soon import COPY
 from stage_lesson import read, write
 from stage_web_renditions import web_dimensions
 from validate_candidate import validate
@@ -44,14 +44,24 @@ def check_sentence_cues(page):
     cases = []
     for sentence in sentences:
         requested = (sentence['speech_start'] + sentence['speech_end']) / 2
-        page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking')
-        page.evaluate('(seconds) => seekTo(seconds)', requested)
-        page.wait_for_timeout(300)
-        page.evaluate('elements.video.pause()')
-        page.wait_for_timeout(150)
-        actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
-            video: elements.video.currentTime,
-            cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+        # A hosted seek can still be fetching when a fixed delay ends; the cue
+        # list then describes the previous position. Read only after the video
+        # has finished seeking, and repeat the seek if narration drifted more
+        # than the unchanged one-second tolerance while it loaded.
+        for attempt in range(4):
+            page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking',
+                                   timeout=30000)
+            page.evaluate('(seconds) => seekTo(seconds)', requested)
+            page.wait_for_timeout(300)
+            page.wait_for_function('!elements.video.seeking && elements.video.readyState >= 2', timeout=30000)
+            page.evaluate('elements.video.pause()')
+            page.wait_for_timeout(150)
+            actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
+                video: elements.video.currentTime,
+                cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+            if abs(actual['audio'] - requested) < 1:
+                break
+        actual['seek_attempts'] = attempt + 1
         assert abs(actual['audio'] - requested) < 1, (requested, actual)
         assert sentence['text'] in actual['cues'], (sentence, actual)
         cases.append({'requested_audio_time': requested, 'text': sentence['text'], **actual})
@@ -94,7 +104,9 @@ def verify(root, *, placeholders_only=False, published=None):
     english = read(root / 'web/catalog/lessons_en.json')
     ready = [l for l in english['lessons'] if l.get('status') != 'coming_soon']
     placeholders = [l['id'] for l in english['lessons'] if l.get('status') == 'coming_soon']
-    unavailable = first_placeholder(english['lessons'])
+    # Once every route is ready there is no Coming soon screen to check; the
+    # player's guards are then exercised by check_placeholder_mutations' probe.
+    unavailable = placeholders[0] if placeholders else None
 
     def allowed_remote(url):
         if not media_root:
@@ -128,7 +140,7 @@ def verify(root, *, placeholders_only=False, published=None):
                                     ').forEach(([k,v]) => localStorage.setItem(k,v));')
                 return ctx
 
-            for language in COPY:
+            for language in (COPY if placeholders else ()):
                 ctx = context(language)
                 page = ctx.new_page()
                 page.on('pageerror', lambda error: errors.append(str(error)))
@@ -180,8 +192,8 @@ def verify(root, *, placeholders_only=False, published=None):
                 page.on('pageerror', lambda error: errors.append(str(error)))
                 requested_urls = []
                 page.on('request', lambda req: requested_urls.append(req.url))
-                page.goto(origin + entry + '#lesson=' + unavailable, wait_until='networkidle')
-                for lesson in ready:
+                page.goto(origin + entry + '#lesson=' + (unavailable or ready[0]['id']), wait_until='networkidle')
+                for position, lesson in enumerate(ready):
                     identity = lesson['id']
                     page.evaluate('(id) => selectLesson(id)', identity)
                     page.wait_for_function('narrationAudioAvailable && elements.audio.readyState >= 1 && chapterData.length > 0', timeout=60000)
@@ -246,8 +258,17 @@ def verify(root, *, placeholders_only=False, published=None):
                         '04_platform_installers', '12_map_barcodes', '21_model_compare', '22_model_zoo', '76_ops', '77_embeddings'} else []
                     # The positive playable counterpart is followed by a real
                     # transition back to unavailable, cancelling active audio.
-                    page.evaluate('(identity) => selectLesson(identity)', unavailable)
-                    assert page.evaluate('elements.audio.paused && !elements.audio.getAttribute("src")')
+                    if unavailable:
+                        page.evaluate('(identity) => selectLesson(identity)', unavailable)
+                        assert page.evaluate('elements.audio.paused && !elements.audio.getAttribute("src")')
+                    else:
+                        # No unavailable route remains: leaving for another ready
+                        # lesson must likewise stop and replace this lesson's audio.
+                        other = ready[(position + 1) % len(ready)]['id']
+                        page.evaluate('(identity) => selectLesson(identity)', other)
+                        page.wait_for_function('(identity) => activeLesson?.id === identity', arg=other)
+                        assert page.evaluate('''(identity) => elements.audio.paused &&
+                            !(elements.audio.getAttribute("src") || "").includes("/" + identity + "/")''', identity)
                     playback.append({'lesson': identity, 'audio_sha256': loaded, 'clocks': clocks,
                                      'chapter_text_matches_audio': True, 'native_caption_reloads': 2,
                                      'sentence_cue_checks': sentence_cues, 'passed': True})

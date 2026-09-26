@@ -1,22 +1,35 @@
 {
-  "lesson": "54_qc_dashboard", "language": "es", "english_sha256": "6d392cd91316120b850599122e922009dda2919f8085ccbc9908a473d69f377d",
-  "review": {"kind": "Editorial translation checked against English and actual read-only QC results", "native_speaker_signoff": false},
-  "title": "QC: leer las pruebas, no solo el resumen",
-  "description": "Lee informes de calidad reales, descargados y calculados, distingue comprobaciones ausentes, advertencias y fallos, y encuentra las tres herramientas anidadas de QC.",
-  "objectives": ["Encontrar QC y sus herramientas anidadas.", "Elegir la carpeta exacta del proyecto o ejecución acotada y revisar las cinco categorías de pruebas.", "Distinguir resultados ausentes, advertencias y fallos sin suponer que el panel valida todo el análisis.", "Actualizar las pruebas existentes sin recalcular ni cambiar los archivos de origen."],
-  "prerequisite": "Descarga primero los ejemplos de Annotate y Mask. La grabación reutiliza la base de mediciones de Annotate, los informes originales del ejemplo Mask y la ejecución real del tutorial con dos campos en Mask y uno en Measure, en plate1/test. QC no descarga nada ni calcula puntuaciones nuevas. Las carpetas padre y test representan ámbitos distintos, no un experimento de mejora antes/después.",
+  "lesson": "54_qc_dashboard",
+  "english_sha256": "8d73de741cc8b5d38c497eac960c0dfe562312ed73b07d6f02e536ba8ec4c174",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "QC: revisar los informes de calidad de un proyecto",
+  "description": "Elige un proyecto, lee los informes de calidad disponibles, investiga los avisos y actualiza el panel.",
+  "objectives": [
+    "Elegir el proyecto o la ejecución que quieres revisar.",
+    "Leer los informes disponibles, ausentes y desactualizados.",
+    "Investigar los hallazgos y actualizar la vista."
+  ],
+  "prerequisite": "Usa un proyecto con informes de calidad guardados. Los ejemplos descargados de Mask y de Annotate aportan conjuntos de informes distintos; elige el proyecto o la carpeta de ejecución concreta que quieres revisar.",
   "scenes": [
-    "Abre QC en la categoría Data de Home. Este panel lee informes de calidad que ya están en disco. No genera máscaras, mide imágenes ni entrena clasificadores. El resumen reúne las pruebas disponibles; no certifica que todo el análisis sea correcto.",
-    "La cabecera agrupa Layer Viewer, Control Charts y Outliers bajo QC. Sus lecciones especializadas siguen en Submodules, bajo este módulo principal. Usa esas herramientas para investigar una observación, no para sustituir pruebas ausentes por un color tranquilizador.",
-    "Usa Browse para seleccionar la carpeta real del proyecto. Primero abrimos el ejemplo descargado de Annotate, que contiene mediciones pero no informes de segmentación en esta carpeta. QC no tiene su propio descargador de ejemplos; reutiliza el proyecto real del flujo anterior.",
-    "Missing significa que el lector no dispone de un informe utilizable para esa comprobación. No es un aprobado ni demuestra un fallo. Un cálculo realizado en otra vista puede no haber guardado un informe que este panel pueda leer. Revisa siempre el origen indicado y su alcance.",
-    "Ahora elige la subcarpeta test con los resultados reales de nuestras ejecuciones acotadas de Mask y Measure. Seleccionar la carpeta padre no es equivalente. Son poblaciones y archivos distintos: sus veredictos no deben presentarse como una comparación controlada antes/después.",
-    "El subconjunto muestra una advertencia de segmentación: un campo celular tiene una distribución heterogénea de tamaños. Lee las indicaciones y examina las imágenes. Una señal basada en tamaño no demuestra dos tipos celulares biológicos ni que todos los contornos sean incorrectos.",
-    "La tarjeta de unidades indica coherencia interna en cuatro tablas de mediciones. Eso no equivale a validar independientemente la calibración o cada característica. Aquí aún faltan informes de fuga entre entrenamiento y prueba, efectos de placa y acuerdo entre anotadores; la tarjeta verde no hace que esas comprobaciones aprueben.",
-    "Lee las cinco categorías, incluidas las indicaciones bajo las tarjetas sin informe. Conserva los informes originales e investiga el flujo pertinente. En particular, un veredicto de fuga depende de identidades y agrupaciones correctas de las muestras; un aprobado del software no demuestra por sí solo independencia biológica.",
-    "Los informes descargados de la placa completa muestran fallos y advertencias. El resumen nombra un campo de patógenos con pocos objetos; los detalles enumeran otras señales. Son informes existentes del ejemplo más amplio, no puntuaciones nuevas calculadas al abrir QC ni pruebas de que nuestra ejecución pequeña mejorara la placa.",
-    "Pulsa Refresh tras revisar el origen. Aquí el estado indica que nada ha cambiado en disco, por lo que se reutilizan las pruebas existentes. Refresh no es Run: no volvió a puntuar las máscaras ni reparó una advertencia. Las huellas de bases e informes permanecen iguales.",
-    "Una etiqueta de resultado desactualizado, cuando aparece, exige revisar el informe y sus entradas. Este panel es informativo y no bloquea ejecuciones. Sus tarjetas son texto explicativo, no botones que abren o reparan automáticamente cada análisis fallido.",
-    "Para leer mediante un script, spacr.qt.widgets.qc_summary ofrece read_dashboard y format_dashboard. Reúnen pruebas existentes en lugar de ejecutar comprobaciones nuevas. Guarda los informes fuente con el proyecto y vuelve al análisis o a la lección especializada pertinente para investigar."
+    "Abre QC desde la categoría Data de Home para revisar los informes de calidad guardados con un proyecto.",
+    "El encabezado abre Layer Viewer, Control Charts y Outliers. Usa sus tutoriales cuando un hallazgo del panel necesite más investigación.",
+    "Haz clic en Browse y elige la carpeta del proyecto. Selecciona la carpeta que contiene los informes de la ejecución que quieres evaluar.",
+    "Interpreta Missing como un informe no disponible para esa comprobación. Sigue las indicaciones para obtener el informe necesario antes de sacar conclusiones.",
+    "Elige una subcarpeta de ejecución cuando sus salidas estén separadas del proyecto principal. Comprueba que el alcance mostrado corresponde a los datos que quieres revisar.",
+    "Lee los avisos de segmentación y revisa los campos correspondientes. Ante un aviso sobre la distribución de tamaños, compara las imágenes y los bordes de los objetos para entender la causa.",
+    "Revisa la tarjeta de unidades junto con las demás categorías. Un informe de unidades coherente resuelve esa comprobación; los informes que faltan siguen necesitando atención.",
+    "Lee las cinco categorías y sus indicaciones. En el caso de la fuga de datos, comprueba que las identidades de las muestras y la agrupación reflejan las unidades de validación independientes previstas.",
+    "Abre los detalles de los fallos o avisos para identificar los campos afectados y los informes de origen. Usa la herramienta de análisis correspondiente para investigarlos.",
+    "Haz clic en Refresh cuando cambien los informes en el disco. El panel vuelve a leer las evidencias disponibles; genera informes actualizados mediante el análisis que los produce.",
+    "Investiga un informe desactualizado comparándolo con sus datos de entrada y sus ajustes. Mantén visibles los hallazgos sin resolver en la revisión de tu proyecto.",
+    "Guarda los informes de calidad con el proyecto. Continúa en las herramientas especializadas enlazadas o en el tutorial del módulo correspondiente para abordar cada hallazgo."
   ]
 }

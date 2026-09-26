@@ -1,30 +1,34 @@
 {
   "lesson": "47_barcode_qc",
-  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "189d9466d15df859444f28e70fed0f6ef73597559efd8b96ef17b7e7e2930940",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "fr",
-  "title": "Barcode QC : comptages réels, compromis de seuil et graphiques enregistrés",
-  "description": "Examinez les comptages publiés, exécutez Barcode QC et comparez profondeur de lecture et seuils dans les graphiques réellement enregistrés.",
+  "title": "Barcode QC : examiner la profondeur de lecture et choisir un seuil",
+  "description": "Chargez des comptages assignés, examinez la couverture des puits et des guides, et comparez des seuils d’abondance.",
   "objectives": [
-    "Trouver Barcode QC dans Map Barcodes et choisir des comptages réels.",
-    "Distinguer une cible illustrative d'un choix expérimental justifié.",
-    "Examiner avertissements, graphiques et tableaux vérifiés indépendamment.",
-    "Distinguer puits peu lus, puits au-dessus de la cible et collisions de séquences."
+    "Choisir les entrées de comptage et les paramètres de contrôle qualité.",
+    "Examiner la couverture et les effets de position.",
+    "Comparer des seuils et conserver les tables et graphiques obtenus."
   ],
-  "prerequisite": "Utilisez une copie de plate_1_unique_combinations.csv de l'exemple téléchargé de Regression et un nouveau dossier de sortie. Ce fichier ne vient pas de notre tentative FASTQ infructueuse. Il contient 172756 lignes, 49464341 lectures assignées, 384 puits et 1379 guides observés. Cible 5/médiane uniquement illustrative, fraction de faible profondeur 0.1, Plot/Save/Verbose activés. Entrées QC et références facultatives absentes. Vérification indépendante de 2884 champs sans erreur numérique. L'avertissement src et le panneau Figures vide restent présents ; les PNG sont montrés dans le vrai visualiseur externe. Pas d'aperçu en direct, de calcul GPU, de requête AI, de validation biologique ou de publication. API : spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "prerequisite": "Utilisez plate_1_unique_combinations.csv issu des données du criblage d’exemple téléchargées dans le tutoriel Regression, ou votre propre table de comptages assignés. Choisissez un nouveau dossier de sortie. Fournissez les fichiers de contrôle qualité de l’assignation et de référence des codes-barres lorsque vous avez besoin de vérifications qui dépendent des lectures non assignées ou de la banque attendue.",
   "scenes": [
-    "Ouvrez Map Barcodes, puis son outil imbriqué Barcode QC. Ce flux examine les comptages après assignation ; il ne réassigne pas les lectures FASTQ. Nous utilisons le tableau publié de la leçon Regression liée. Il ne provient pas de notre précédente tentative infructueuse d'assignation des lectures brutes.",
-    "Dans Count data, choisissez une copie de plate one unique combinations. Vérifiez le fichier sélectionné au lieu de conserver un chemin fictif. Ce tableau réel contient environ quarante-neuf virgule cinq millions de lectures assignées dans trois cent quatre-vingt-quatre puits. Conservez l'original intact et choisissez une nouvelle destination pour les sorties QC.",
-    "Target gRNAs per well indique la cible servant à calculer un seuil d'abondance des lectures. Nous gardons ici la valeur illustrative cinq et utilisons la médiane. Ce n'est ni une recommandation expérimentale ni une preuve d'attribution à un guide unique. Choisissez selon votre plan expérimental et examinez les compromis, pas seulement le chiffre proposé.",
-    "La fraction de lectures faibles repère les puits ayant peu de lectures relativement à la médiane de la plaque. Elle vaut ici zéro virgule un, et aucun des trois cent quatre-vingt-quatre puits ne tombe sous le seuil obtenu. Cet indicateur de profondeur ne garantit pas la fiabilité de chaque puits, guide ou mesure biologique.",
-    "Activez Plot et Save, précisez la destination, puis cliquez sur Run. Il s'agit d'une petite analyse de tableau, pas d'une segmentation sur GPU ; cet écran n'a pas d'aperçu en direct. Nous laissons vides les entrées facultatives de QC d'assignation et de références de codes. Le tableau seul ne permet pas les conclusions nécessitant ces fichiers.",
-    "Lisez la console réelle, avertissements compris. Le calcul se termine, mais cette version signale à tort que src manque alors que le module utilise Count data. Nous avons vérifié l'entrée et les tableaux enregistrés ; nous n'avons pas réparé le contrôle préalable. Ce décalage diagnostiqué n'autorise pas à ignorer les autres erreurs.",
-    "Cette version laisse aussi le panneau Figures vide malgré deux graphiques PNG enregistrés. Ouvrez barcode tiret bas qc point png et threshold tiret bas sweep point png du dossier de sortie dans un visualiseur d'images. Les scènes suivantes montrent le vrai visualiseur système, pas des figures insérées dans spaCR ni une interface réparée.",
-    "Examinez profondeur de lecture, effets de lignes et colonnes et distribution de la bibliothèque observée. Le seuil pointillé repère les puits peu lus ; les barres comparent les médianes des lignes ou colonnes à celle de la plaque. La courbe montre une représentation inégale des guides observés. Sans référence, elle ne révèle pas quels guides attendus sont totalement absents.",
-    "Examinez le balayage plutôt que d'accepter aveuglément un seuil. Ici, le seuil dérivé vaut environ zéro virgule zéro un deux un, soit un virgule vingt et un pour cent des lectures d'un puits. Il donne une médiane de cinq guides, conserve tous les puits et environ cinquante-huit pour cent des lectures assignées ; quelque quarante pour cent des puits dépassent encore la cible.",
-    "La courbe rouge compte les puits dépassant la cible de cinq guides. Elle ne mesure pas la similarité des séquences de codes ; rester sous cette cible ne prouve pas une attribution à un guide unique. Assouplir le seuil augmente ici la proportion au-dessus de la cible sans gagner de puits. Comparez le tableau et justifiez votre choix, sans en faire un seuil universel.",
-    "Conservez ensemble comptages sources, réglages, journal, recommandation, tableaux et graphiques. Les contrôles indépendants ont reproduit les statistiques de puits, de positions et de balayage sans écart numérique. Ils vérifient ce calcul, pas son interprétation biologique. L'aide AI est facultative et aucune requête n'a été envoyée ici ; confrontez tout conseil ultérieur aux données réelles et à l'API."
+    "Ouvrez Map Barcodes, puis Barcode QC. Partez d’une table de comptages assignés ; l’exemple Regression associé en fournit une pour vous exercer.",
+    "Réglez Count data sur votre table de comptages et choisissez une nouvelle destination de sortie. L’exemple contient des lectures assignées sur trois cent quatre-vingt-quatre puits.",
+    "Réglez Target gRNAs per well d’après votre plan d’expérience et choisissez la méthode de synthèse utilisée pour dériver le seuil. L’exemple utilise cinq et median.",
+    "Réglez Starved read fraction pour signaler les puits ayant peu de lectures par rapport à la médiane de la plaque. L’exemple utilise zéro virgule un. Examinez les puits signalés avant de les exclure.",
+    "Activez Plot et Save, puis appuyez sur Run. Ajoutez les entrées de contrôle qualité de l’assignation ou de référence si vous voulez les vérifications correspondantes ; la table de comptages seule décrit les lectures assignées observées.",
+    "Lisez le journal de fin et les chemins de sortie enregistrés. Examinez les erreurs au regard des entrées sélectionnées avant d’utiliser les résultats.",
+    "Ouvrez barcode QC point PNG et threshold sweep point PNG dans le dossier de sortie. Utilisez une visionneuse d’images si le panneau Figures est vide.",
+    "Examinez la profondeur de lecture, les effets de ligne et de colonne et la représentation des guides. Comparez avec une banque de référence lorsque vous devez repérer des guides attendus totalement absents.",
+    "Examinez le balayage des seuils. Dans cet exemple, un seuil proche de un virgule deux un pour cent des lectures de chaque puits donne une médiane de cinq guides tout en conservant environ cinquante-huit pour cent des lectures assignées.",
+    "Comparez les lectures conservées, les puits conservés et les puits au-dessus de l’objectif de guides à mesure que le seuil change. Choisissez un seuil adapté à votre plan ; l’objectif de guides ne garantit pas l’attribution à un seul guide.",
+    "Conservez la recommandation, la table de balayage, les graphiques et les paramètres avec les comptages d’origine. Appliquez le seuil choisi de façon cohérente dans l’analyse en aval et consignez la raison de votre choix."
   ]
 }

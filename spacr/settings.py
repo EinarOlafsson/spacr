@@ -1148,19 +1148,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_perimeter_fraction',  0)
     settings.setdefault('pathogen_perimeter_fraction',  0)
     settings.setdefault('organelle_perimeter_fraction', 0)
-    settings.setdefault('cell_min_area', 0)
-    settings.setdefault('nucleus_min_area', 0)
-    settings.setdefault('pathogen_min_area', 0)
-    settings.setdefault('cell_max_area', 0)
-    settings.setdefault('nucleus_max_area', 0)
-    settings.setdefault('pathogen_max_area', 0)
-    settings.setdefault('cell_min_intensity', 0.0)
-    settings.setdefault('cell_max_intensity', 0.0)
-    settings.setdefault('nucleus_min_intensity', 0.0)
-    settings.setdefault('nucleus_max_intensity', 0.0)
-    settings.setdefault('pathogen_min_intensity', 0.0)
-    settings.setdefault('pathogen_max_intensity', 0.0)
     settings.setdefault('object_filters', {})
+    _fold_object_bounds(settings)
     settings.setdefault('cell_remove_border_objects', False)
     settings.setdefault('nucleus_remove_border_objects', False)
     settings.setdefault('pathogen_remove_border_objects', False)
@@ -1480,8 +1469,15 @@ def normalize_cellpose_model_name(value, object_type=None, key=None):
 
 
 def _get_object_settings(object_type, settings):
-    """Build per-object Cellpose/segmentation settings for cell/nucleus/pathogen."""
+    """Build per-object Cellpose/segmentation settings for cell/nucleus/pathogen.
+
+    Cellpose's ``min_size`` is the minimum of the object's ``area`` row in
+    ``object_filters``, the row the retired ``{object}_min_area`` setting
+    migrates into, so undersized masks are still dropped during
+    segmentation.
+    """
     from .utils import _get_diam
+    from .qt.mask_engine import object_filter_area_floor
     object_settings = {}
 
     object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
@@ -1498,7 +1494,7 @@ def _get_object_settings(object_type, settings):
             object_type=object_type, key=f'{object_type}_model_name')
 
     if object_type == 'cell':
-        object_settings['min_size'] = settings['cell_min_area']
+        object_settings['min_size'] = object_filter_area_floor(settings, 'cell')
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
@@ -1511,7 +1507,7 @@ def _get_object_settings(object_type, settings):
                 print(f'Cell diameter must be an integer or float, got {settings["cell_diameter"]!r}')
 
     elif object_type == 'nucleus':
-        object_settings['min_size'] = settings['nucleus_min_area']
+        object_settings['min_size'] = object_filter_area_floor(settings, 'nucleus')
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['restore_type'] = settings.get('nucleus_restore_type', None)
@@ -1525,7 +1521,7 @@ def _get_object_settings(object_type, settings):
                 print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]!r}')
 
     elif object_type == 'pathogen':
-        object_settings['min_size'] = settings['pathogen_min_area']
+        object_settings['min_size'] = object_filter_area_floor(settings, 'pathogen')
         object_settings['filter_size'] = False
         object_settings['filter_intensity'] = False
         object_settings['resample'] = False
@@ -1846,6 +1842,7 @@ RENAMED_SETTINGS = {
     "img_size": "crop_size",
     "straightness_filter": "drop_straight_tracks",
     "zscore_thresh": "track_outlier_zscore",
+    "complevel": "comp_level",
 }
 
 #: What each SEMANTIC fold does with an old value, in the words the doctor
@@ -1876,6 +1873,21 @@ SEMANTIC_FOLD_MEANINGS = {
         "true means annotation_source 'toxoplasma' and false means no "
         "annotation, unless annotation_source already names an organism"),
 }
+
+RETIRED_OBJECT_BOUNDS = {
+    f"{obj}_{bound}": (obj, bound)
+    for obj in ("cell", "nucleus", "pathogen")
+    for bound in ("min_area", "max_area", "min_intensity", "max_intensity")
+}
+
+SEMANTIC_FOLD_MEANINGS.update({
+    key: (
+        f"a non-zero value becomes the "
+        f"{'minimum' if bound.startswith('min') else 'maximum'} of the "
+        f"{'area' if bound.endswith('area') else 'intensity_mean'} row "
+        f"for {obj} in object_filters, and 0 means no bound")
+    for key, (obj, bound) in RETIRED_OBJECT_BOUNDS.items()
+})
 
 #: Retired names whose migration is SEMANTIC and must not be a plain move.
 #: :data:`SEMANTIC_FOLD_MEANINGS` says what each one does instead.
@@ -2104,6 +2116,77 @@ def _fold_toxoplasma(settings, quiet=False):
             "%s=%r is applied as annotation_source=%r. %s was retired and "
             "this file still uses it.", old, value,
             settings['annotation_source'], old)
+    return settings
+
+
+def _fold_object_bounds(settings, quiet=False):
+    """Move the retired per-object area and intensity bounds into rows.
+
+    Mask's ``{object}_min_area``, ``_max_area``, ``_min_intensity`` and
+    ``_max_intensity`` settings were retired on 2026-09-25 (item 511): one
+    filter list, ``object_filters``, holds every bound. A settings file
+    written before carries them, and its values must still apply, so they
+    become rows of ``object_filters`` for that object through
+    :func:`spacr.qt.mask_engine.legacy_filters`, where 0 was off and stays
+    off.
+
+    A row the file already has for the same property wins: a filter list is
+    the later spelling, written by someone who has seen the new form.
+
+    A value that is not a finite number of zero or more is LEFT where it is,
+    unmigrated: the old bound was refused by the run, the doctor and the
+    Live preview (``spacr.utils._validated_intensity_bounds``), and moving
+    it would turn that refusal into a silent "off".
+
+    :param settings: the settings mapping, edited in place.
+    :param quiet: say nothing, for a caller that folds a throwaway copy.
+    :returns: the same mapping, for chaining.
+    """
+    if not isinstance(settings, dict):
+        return settings
+    present = [key for key in RETIRED_OBJECT_BOUNDS if key in settings]
+    if not present:
+        return settings
+    from .qt.mask_engine import legacy_filters, parse_object_filters
+
+    import math
+
+    by_object = {}
+    for key in present:
+        obj, bound = RETIRED_OBJECT_BOUNDS[key]
+        value = settings[key]
+        try:
+            number = float(value) if value not in (None, '') else 0.0
+        except (TypeError, ValueError):
+            number = float('nan')
+        if not math.isfinite(number) or number < 0:
+            if not quiet:
+                LOG.warning(
+                    "%s=%r is not a bound of zero or more, so it was left "
+                    "where it is rather than moved into object_filters.",
+                    key, value)
+            continue
+        settings.pop(key)
+        by_object.setdefault(obj, {})[bound] = number
+    if not by_object:
+        return settings
+    table = parse_object_filters(settings.get('object_filters'))
+    for obj, bounds in by_object.items():
+        rows = legacy_filters(**bounds)
+        if not rows:
+            continue
+        kept = list(table.get(obj) or [])
+        named = {str(row.get('property')) for row in kept
+                 if isinstance(row, dict)}
+        added = [row for row in rows if row['property'] not in named]
+        if not added:
+            continue
+        table[obj] = kept + added
+        if not quiet:
+            LOG.info(
+                "The retired %s bounds %r are applied as object_filters "
+                "rows %r.", obj, bounds, added)
+    settings['object_filters'] = table
     return settings
 
 
@@ -3761,20 +3844,8 @@ expected_types = {
     'nucleus_perimeter_fraction':float,
     'pathogen_perimeter_fraction':float,
     'organelle_perimeter_fraction':float,
-    'cell_min_area':int,
-    'nucleus_min_area':int,
-    'pathogen_min_area':int,
     'organelle_min_area':int,
-    'cell_max_area':(int, type(None)),
-    'nucleus_max_area':(int, type(None)),
-    'pathogen_max_area':(int, type(None)),
     'organelle_max_area':(int, type(None)),
-    'cell_min_intensity':float,
-    'cell_max_intensity':float,
-    'nucleus_min_intensity':float,
-    'nucleus_max_intensity':float,
-    'pathogen_min_intensity':float,
-    'pathogen_max_intensity':float,
     'organelle_min_intensity':float,
     'organelle_max_intensity':float,
     'cell_remove_border_objects':bool,
@@ -3894,6 +3965,7 @@ _IMAGE_SOURCES = {
     "on_demand": "stream_images",
     "stream": "stream_images",
     "stream_images": "stream_images",
+    "merged_db": "stream_images",
     "auto": "auto",
 }
 
@@ -3914,6 +3986,11 @@ def _canonical_image_source(value) -> str:
     stopped finding its own crops. Both are mapped explicitly now, and
     ``auto`` survives as itself because both readers downstream understand
     it.
+
+    ``merged_db`` (`crops.STREAM_FROM_DB`, the viewers' database stream) is
+    a STREAMING source, so it resolves to ``stream_images`` -- training has
+    no database mode, and the unrecognised branch would have answered it
+    with the opposite direction, as it once did ``on_demand``.
     """
     return _IMAGE_SOURCES.get(str(value or "").strip().lower(),
                               "load_images")
@@ -4208,7 +4285,7 @@ tooltips = {
     "diameter_estimate_n_fields": "(int) - How many fields spacr.diameter.estimate_diameters reads before it proposes cell_diameter, nucleus_diameter and pathogen_diameter from blob statistics instead of requiring manual estimation. Fields are taken on an even stride across the sorted plate, so rows and columns are both represented rather than the first few wells; each field costs about a second of CPU and loads neither torch nor Cellpose. Increase it to 10–20 when wells are heterogeneous or confidence is low; decrease it to 2–3 for a faster preliminary estimate. Default 5.",
     'image_qc_mode': '(str) - Image screening before segmentation. off preserves the normal run; report saves metrics and flags without excluding anything; exclude skips flagged fields under the saved policy. No images are deleted and excluded fields are not reported as zero-object results. Reports: qc/image_quality.json and .csv. Default off.',
     'image_qc_channels': '(list) - Acquisition-channel identifiers to screen before Mask. Empty means every stored raw channel. These are zero-based array channels in v1 and mapped acquisition-channel identifiers in v2. Threshold dictionaries use the same identifiers. Default [].',
-    'object_filters': "(dict) - Extra object filters on any scalar scikit-image regionprop, listed per object type, for example {'cell': [{'property': 'solidity', 'min': 0.9}], 'nucleus': [{'property': 'eccentricity', 'max': 0.8}]}. An object is kept when min <= value <= max, and a missing side is off. Intensity properties read the object's own raw channel. Applied together with the area and intensity bounds in Mask runs and Live Preview, in the same form Make Masks records its Filter list. Default {}.",
+    'object_filters': "(dict) - Object filters on any scalar scikit-image regionprop, per object type, for example {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. An object is kept when min <= value <= max; a missing side is off. Intensity properties read the object's own raw channel. An area minimum is also Cellpose's min_size. An old file's cell_min_area and the other retired per-object bounds become rows here when it loads. Default {}.",
     'image_qc_min_focus': '(dict) - Minimum acceptable raw Laplacian variance by channel, for example {0: 25.0, 2: 10.0}. Empty disables focus exclusions. Calibrate using representative fields from the same acquisition; units are intensity squared. For a volume, the best-focus plane is used so defocused neighboring z planes alone do not reject it. Default {}.',
     'image_qc_max_saturation': '(dict) - Largest allowed saturated-pixel fraction by channel, for example {2: 0.01}. Values range from 0 to 1. Saturation uses the acquisition level or integer dtype ceiling, never the brightest observed pixel. Empty disables saturation exclusions. Default {}.',
     'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
@@ -4311,7 +4388,7 @@ tooltips = {
     "merge_pathogens": "(bool) - Legacy option that merged two touching pathogen labels into one when their shared boundary exceeded 66% of the smaller object's perimeter, so a single PV split by Cellpose counted once. The current Cellpose-SAM path ignores it - use pathogen_perimeter_fraction instead. Default True.",
     "resize": "(bool or float) - Resize every image to target_height x target_width before running Cellpose, then scale the returned mask back to the original dimensions with nearest-neighbour interpolation so measurements remain in original pixels. Enable this setting to match oversized fields to the model's training scale or reduce GPU memory use. Requires target_height and target_width. Default False (True for plaque analysis).",
     "embedding_by_controls": "(bool) - Fit the reducer only on control wells - rows whose col_to_compare value equals pos or neg - and then project every object into that space. Use it when the axes should be defined by the control phenotypes so treatments are read relative to them; False fits on all objects. Default False.",
-    "cam_type": "(str) - Which attribution map is computed. 'gradcam' weights the target_layer feature maps by their pooled gradients into a coarse heatmap of the region that drove the call; 'gradcam_pp' currently computes the identical map and only changes the output folder and table name. 'saliency_image' sums the absolute input gradient into one map; 'saliency_channel' keeps it per channel so you can see which stain mattered. Default 'gradcam'.",
+    "cam_type": "(str) - Which attribution map is computed. 'gradcam' weights target_layer feature maps by their pooled gradients; 'saliency_image' and 'saliency_channel' map the input gradient, summed or per stain. Also selectable: 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency' (SmoothGrad) and 'chefer' (ViT relevance). Methods that do not fit model_type are greyed with the reason. Default 'gradcam'.",
     "target_layer": "(str) - Dotted attribute path to the convolutional layer whose activations and gradients Grad-CAM hooks, e.g. 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'; utils.recommend_target_layers(model) lists valid names. Later layers give class-specific but coarse maps, earlier ones finer detail. Required for 'gradcam'/'gradcam_pp' - it is auto-filled only when model_type is exactly 'maxvit', and left None it raises. Default None.",
     "shuffle": "(bool) - Shuffle the tar dataset in the DataLoader when generating activation maps, so each batch-grid PDF contains a mixed sample rather than consecutive files from one plate or class. False preserves deterministic file order and permits direct alignment with the dataset listing. Default True.",
     "correlation": "(bool) - Correlate every input channel with every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, and 75 by default). This provides quantitative evidence of stain-specific model attention beyond visual heatmap inspection. save=True is required to write the results to the database. Default True.",
@@ -4355,7 +4432,7 @@ tooltips = {
     "cell_intensity_range": "(list) - Legacy [min, max] bounds used during recruitment analysis when cell_chann_dim is set. Despite the setting name, the current _object_filter call uses index 0 from [nucleus, pathogen, cell] and therefore filters the nucleus-channel mean intensity. Review the filtered object counts when using this setting. Default None.",
     "cell_loc": "(list) - One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
     "cell_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the cell label mask sits. Merged arrays are ordered [image channels..., cell, nucleus, pathogen, organelle], so the default 4 assumes the four channels 0-3 were kept; keep fewer channels and every mask dim shifts down. None makes measure_crop skip all cell measurements and cell crops. Default 4.",
-    "cell_min_size": "(int) - (Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by cell_min_area, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
+    "cell_min_size": "(int) - (Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
     "cell_plate_metadata": "(list of lists) - Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
     "cell_signal_to_noise": "(int) - Multiplied by cell_background to define the minimum intensity for the normalisation ceiling. spaCR evaluates the 98th through 99.5th percentiles of the cell channel and uses the first value at or above that product as the upper anchor. Increase it to raise the ceiling and reduce normalised intensity; decrease it to increase the visibility of faint cells. Default 10.",
     "cell_size_range": "(list) - [min, max] bounds in pixels^2 on cell_area, used to drop rows from the measurement table during recruitment analysis; only cells strictly between the two values are kept. Both entries must be integers or that bound is silently skipped. Setting it to None widens it to [0, 1e100]. Default [0, 100000].",
@@ -4374,7 +4451,7 @@ tooltips = {
     "CP_prob": "(float) - Cellpose cellprob_threshold: the cell-probability cut-off applied to the network output when deciding which pixels belong to an object. Lower it (typically toward -6) to recover dim or partly detected objects and grow existing masks; raise it (toward 6) to drop faint false positives and shrink masks. Default 0.",
     "custom_model": '(str) - Path to a saved Cellpose model, loaded as pretrained_model by the mask-finetune tool. When set, model_type is passed as None and diameter as diam_mean (which Cellpose 4.x ignores with a warning). model_name remains active and selects the channel pair sent to model.eval; an incompatible value therefore segments the wrong channels. Default None.',
     "cytoplasm_min_size": "(int) - (Deprecated) Pixel-area floor for the cytoplasm mask, which is the cell mask with nucleus, pathogen and organelle pixels removed. Cytoplasm regions below this are erased before measurement, so their host cell yields no cytoplasm features and any recruitment ratio built on them is lost. 0 or None disables. Default 0.",
-    "nucleus_min_size": "(int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer nucleus_min_area, which filters at segmentation time.",
+    "nucleus_min_size": "(int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.",
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
     "score_column": "(str) - Which column of the prediction CSV holds the CNN score that Explain CV and the hit-investigation montages read. The regression module no longer has this setting: it fits dependent_variable and simulates the minimum cell count on that same column, so one measurement cannot be named two ways there. Default 'cv_predictions'. Investigate Hit starts blank because no score field can be inferred universally; select the prediction column before building its montages.",
     "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. This setting is normally derived from inference; set it directly only to override that choice. Default 'regression'. The Regression module starts with inference='nonparametric', so its resolved initial mode is 'guide_permutation'.",
@@ -4619,7 +4696,7 @@ tooltips = {
     "timelapse_objects": "(list) - Which segmented objects are tracked across frames and relabelled with track IDs: any subset of ['cell', 'nucleus', 'pathogen']; any other value aborts the run with a message. Each extra entry costs a full additional tracking pass. Tracking nuclei is often more stable than cells when cells touch. Default ['cell'].",
     "timelapse_remove_transient": "(bool) - After linking, drop every track not present in all frames (trackpy filter_stubs over the full stack length), keeping only objects tracked from first frame to last. Enable for clean per-object time courses; expect to lose cells that divide, enter or leave the field, so object counts fall. Default False.",
     "timelapse": "(bool) - Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False.",
-    "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by pathogen_min_area, which filters at segmentation time instead.",
+    "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
     "pathogen_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the pathogen label mask sits, one plane after the nucleus mask. With the default four image channels (0-3) that is 6; shift it if you keep a different number of channels. None makes measure_crop skip pathogen measurements, so infection status cannot be scored. Default 6.",
     "use_bounding_box": "(bool) - Crop the object's rectangular bounding box padded by 10 px instead of its mask, so neighbouring cells and background inside the box are kept rather than zeroed out. Enable when the classifier should see local context; leave off to isolate a single object on a black background. Default False.",
     "plot_points": "(bool) - Show the scatter marker for each object in the embedding. When False the markers are still drawn but at alpha 0, so cluster colors and the legend survive while only the outlines and overlaid thumbnails stay visible - handy for image-only UMAP figures. Marker size comes from dot_size. Default True.",
@@ -4748,20 +4825,8 @@ tooltips = {
     'nucleus_perimeter_fraction': "(float) - Merge two touching nucleus labels when their shared boundary covers at least this fraction of the smaller object's perimeter. Low non-zero values merge aggressively (0.1 joins barely-touching nuclei); high values only fuse objects sharing most of an edge. Range 0-1; 0 (default) disables perimeter merging. Use it when one nucleus is split into fragments.",
     'pathogen_perimeter_fraction': "(float) - Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels.",
     'organelle_perimeter_fraction': "(float) - Merge two touching organelle labels when their shared boundary is at least this fraction of the smaller object's perimeter. Range 0-1; increase it toward 1 to merge only nearly fully fused pairs, or decrease it to merge labels with shorter shared boundaries. Applied before area and mean-intensity filtering in both Mask runs and Live Preview. Default 0 (disabled).",
-    'cell_min_area': "(int) - Minimum cell area in pixels^2. Passed to Cellpose as min_size so undersized masks are dropped during segmentation, then re-applied afterwards to delete any object below it. Raise it to clear debris and fragments; set it too high and genuine small cells disappear. 0 disables. Default 0.",
-    'nucleus_min_area': "(int) - Minimum nucleus area in pixels^2, applied twice: passed to Cellpose as min_size so small masks are never emitted, then re-applied to the label image so any surviving object below it is deleted and the rest renumbered. Raise it to drop debris and fragments. 0 (default) disables both filters.",
-    'pathogen_min_area': "(int) - Minimum pathogen area in pixels squared. Passed to Cellpose as min_size so undersized masks never leave segmentation, then re-applied in the merge/split/filter pass. 0, the default, disables it. Raise it to clear speckle and debris; set it too high and small or newly divided parasites disappear.",
     'organelle_min_area': "(int) - Post-segmentation area floor in square pixels; smaller objects are deleted and the mask relabelled. Raise it to clear noise specks left by thresholding, lower it to keep faint puncta. One filter for both the live preview and the batch run. Default 10 in Mask; Measure and External Masks start at 0 because they consume existing labels rather than segmenting new ones.",
-    'cell_max_area': "(int or None) - Maximum cell area in pixels^2; objects larger than this are deleted after segmentation. Use it to discard clumps or debris blobs that Cellpose labelled as one huge cell. 0 or None disables the filter. Default 0.",
-    'nucleus_max_area': "(int or None) - Maximum nucleus area in pixels^2; after segmentation, labels larger than this are deleted and the remaining nuclei are renumbered. Use it to remove unsplit clumps of touching nuclei or large segmentation artifacts covering a substantial fraction of the field. 0 (the default) or None disables the filter.",
-    'pathogen_max_area': "(int or None) - Maximum pathogen area in pixels squared; labels larger than this are deleted after segmentation. 0, the default, or None disables the filter. Use it to remove fused clumps and large segmentation artifacts that would otherwise dominate per-object statistics.",
     'organelle_max_area': "(int or None) - Post-segmentation area ceiling in square pixels; larger objects are deleted rather than split. Use it to reject fused clumps, saturated debris and background merged by Otsu into one component. Values below the largest valid organelle remove biological objects without warning. One filter for both the live preview and the batch run. Default None in Mask, meaning no limit; 0 in Measure and External Masks, which also disables it.",
-    'cell_min_intensity': "(float) - Delete cell objects whose mean pixel intensity in cell_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'cell_max_intensity': "(float) - Delete cell objects whose mean pixel intensity in cell_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'nucleus_min_intensity': "(float) - Delete nucleus objects whose mean pixel intensity in nucleus_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'nucleus_max_intensity': "(float) - Delete nucleus objects whose mean pixel intensity in nucleus_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'pathogen_min_intensity': "(float) - Delete pathogen objects whose mean pixel intensity in pathogen_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-    'pathogen_max_intensity': "(float) - Delete pathogen objects whose mean pixel intensity in pathogen_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
     'organelle_min_intensity': "(float) - Delete organelle objects whose mean pixel intensity in organelle_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
     'organelle_max_intensity': "(float) - Delete organelle objects whose mean pixel intensity in organelle_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
     'cell_remove_border_objects': "(bool) - Delete every cell label touching any of the four image edges before measurement. Removes partial cells whose area and total intensity are truncated and would bias per-cell statistics, at the cost of losing objects - a large cost in fields where cells are big relative to the field. Default False.",
@@ -5008,11 +5073,11 @@ categories = {
         "save_every", "save_each", "base_model", "custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
 
 
-    "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_min_area", "cell_max_area", "cell_min_intensity", "cell_max_intensity", "cell_remove_border_objects", "cell_perimeter_fraction"],
+    "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_remove_border_objects", "cell_perimeter_fraction"],
 
-    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_background", "nucleus_signal_to_noise", "nucleus_cellprob_threshold", "nucleus_flow_threshold", "remove_background_nucleus", "nucleus_min_area", "nucleus_max_area", "nucleus_min_intensity", "nucleus_max_intensity", "nucleus_remove_border_objects", "nucleus_perimeter_fraction"],
+    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_background", "nucleus_signal_to_noise", "nucleus_cellprob_threshold", "nucleus_flow_threshold", "remove_background_nucleus", "nucleus_remove_border_objects", "nucleus_perimeter_fraction"],
 
-    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_background", "pathogen_signal_to_noise", "pathogen_cellprob_threshold", "pathogen_flow_threshold", "pathogen_model", "remove_background_pathogen", "pathogen_min_area", "pathogen_max_area", "pathogen_min_intensity", "pathogen_max_intensity", "pathogen_remove_border_objects", "pathogen_perimeter_fraction"],
+    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_background", "pathogen_signal_to_noise", "pathogen_cellprob_threshold", "pathogen_flow_threshold", "pathogen_model", "remove_background_pathogen", "pathogen_remove_border_objects", "pathogen_perimeter_fraction"],
 
     "Organelle": organelle_basic_settings,
     "Organelle advanced": organelle_advanced_settings,

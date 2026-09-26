@@ -1,0 +1,344 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.mask_engine.relative_tolerance#3",
+      "source": "intensity image whose max minus min sets the range; an empty array gives ``1.0``.",
+      "source_sha256": "5dad790f1332571cc17897cabe5db0e535723f9c86c1b3db7e14157586bda8d8",
+      "context": "intensity image whose max minus min sets the range; an empty array gives ``1.0``.",
+      "translation": "imagen de intensidad cuyo máximo menos mínimo fija el intervalo; una matriz vacía da ``1.0``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.relative_tolerance#4",
+      "source": "share of that range, in percent (``5`` means 5 %).",
+      "source_sha256": "e306fd07d42eaf99ff1a8dec69cdfa4932136dd26066cb8ef884877b8dcef8c4",
+      "context": "share of that range, in percent (``5`` means 5 %).",
+      "translation": "proporción de ese intervalo, en porcentaje (``5`` significa 5 %).",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.remove_small_objects#1",
+      "source": "label or binary mask; every pixel above 0 is foreground. The survivors are relabelled 1..N in the input's dtype.",
+      "source_sha256": "fe131edd28a4a747e82c83cdf124bd8ee0b8b8cb1bc998c38cfb103aef8ab7d8",
+      "context": "label or binary mask; every pixel above 0 is foreground. The survivors are relabelled 1..N in the input's dtype.",
+      "translation": "máscara de etiquetas o binaria; cada píxel mayor que 0 es primer plano. Los supervivientes se vuelven a etiquetar como 1..N en el dtype de la entrada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.remove_small_objects#2",
+      "source": "smallest component to keep, in pixels; 0 or less returns a copy unchanged.",
+      "source_sha256": "eac35ab95f7d7a4753c09f068fb5e84c1e4b71d4d4a33f6f03141a9aed200f1c",
+      "context": "smallest component to keep, in pixels; 0 or less returns a copy unchanged.",
+      "translation": "componente más pequeño que se conserva, en píxeles; 0 o menos devuelve una copia sin cambios.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.retire_recropped_original#1",
+      "source": "The source image, mask, and curation ledger are moved to ``<folder>/recropped_originals`` and recorded in :data:`RECROP_MANIFEST`. This removes the multi-object source from the training queue without deleting it. A bundle goes with its ledger and with any display image of its stem beside it, as the external curation tool moved its ``.png``.",
+      "source_sha256": "4f7ced9f30622818b98822e60c1ee49e87eb549eeec09c263307c40fa1c51246",
+      "context": "The source image, mask, and curation ledger are moved to ``<folder>/recropped_originals`` and recorded in :data:`RECROP_MANIFEST`. This removes the multi-object source from the training work list without deleting it. A bundle goes with its ledger and with any display image of its stem beside it, as the external curation tool moved its ``.png``.",
+      "translation": "La imagen de origen, la máscara y el registro de curación se mueven a ``<folder>/recropped_originals`` y se registran en :data:`RECROP_MANIFEST`. Esto saca el origen con varios objetos de la cola de entrenamiento sin eliminarlo. Un paquete se mueve con su registro y con cualquier imagen de visualización de su misma raíz de nombre que haya a su lado, igual que la herramienta de curación externa movía su ``.png``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#1",
+      "source": "Object ids are preserved -- see :func:`canonical_labels` for what that costs and why the alternative is worse. A ``_seg.npy`` bundle is written back into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the TIFF to the sibling layout's masks folder.",
+      "source_sha256": "58e4f435f3deef69bb9c086657670f27f02c6b9386ea1c791cf1928290c71db7",
+      "context": "Object ids are preserved -- see :func:`canonical_labels` for what that costs and why the alternative is worse. A ``_seg.npy`` bundle is written back into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the TIFF to the sibling layout's masks folder.",
+      "translation": "Los id de objeto se conservan -- véase :func:`canonical_labels` para saber lo que cuesta y por qué la alternativa es peor. Un paquete ``_seg.npy`` lo vuelve a escribir sobre sí mismo :func:`save_seg_bundle`, y ``masks_dir`` lleva el TIFF a la carpeta de máscaras de la disposición sibling.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#3",
+      "source": "source image name; its extension is discarded and its stem becomes the TIFF mask name. A name ending in :data:`SEG_SUFFIX` is the bundle to write into.",
+      "source_sha256": "c0bea415c9505292362f509f2f28f66eb6845411ec88366ee918dcabf9510772",
+      "context": "source image name; its extension is discarded and its stem becomes the TIFF mask name. A name ending in :data:`SEG_SUFFIX` is the bundle to write into.",
+      "translation": "nombre de la imagen de origen; su extensión se descarta y su raíz pasa a ser el nombre de la máscara TIFF. Un nombre que termina en :data:`SEG_SUFFIX` es el paquete en el que escribir.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#7",
+      "source": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
+      "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
+      "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
+      "translation": "conservar los ID primarios/secundarios exactos sin interpretar las máscaras de un solo valor como binarias ni separar piezas desconectadas. El modo explícito valida etiquetas enteras 2-D no negativas y rechaza los ID superiores a 65535 antes de escribir; nunca los renumera en silencio.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#0",
+      "source": "Write edited labels back into the bundle they came from.",
+      "source_sha256": "7a308b9b06106321911de80e4f94356a56c56fba0e139e3431e7b235d062a770",
+      "context": "Write edited labels back into the bundle they came from.",
+      "translation": "Vuelve a escribir las etiquetas editadas en el paquete del que proceden.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#1",
+      "source": "Every key the bundle already had is kept -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter``, and any other -- and ``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys are DERIVED from the masks and would describe the old ones if left:",
+      "source_sha256": "fc5d86098182f1227cb9b6b5d7aeb7f0afcd738c36b3c320f09fd759653b23ee",
+      "context": "Every key the bundle already had is kept -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter``, and any other -- and ``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys are DERIVED from the masks and would describe the old ones if left:",
+      "translation": "Se conservan todas las claves que ya tenía el paquete -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter`` y cualquier otra -- y ``masks`` se sustituye por el :func:`canonical_labels` de ``mask``. Dos claves se DERIVAN de las máscaras y describirían las antiguas si se dejaran:",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#2",
+      "source": "``outlines`` is redrawn by :func:`seg_outlines`;",
+      "source_sha256": "e1377f06d0b8e311a9b249f41d9e66d13cfc87c38c192e251ba6ae9eb690c292",
+      "context": "``outlines`` is redrawn by :func:`seg_outlines`;",
+      "translation": "``outlines`` se vuelve a dibujar con :func:`seg_outlines`;",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#3",
+      "source": "``ismanual``, one flag per object, is resized to the new largest id: an id the bundle already flagged keeps its flag, and an id beyond the old list was drawn in this editor, so it is flagged manual.",
+      "source_sha256": "4512d8585bda3c7f00bc28a4bf6e04bd87c3369e5ed99dee191eb404407b5ed6",
+      "context": "``ismanual``, one flag per object, is resized to the new largest id: an id the bundle already flagged keeps its flag, and an id beyond the old list was drawn in this editor, so it is flagged manual.",
+      "translation": "``ismanual``, un indicador por objeto, se redimensiona al nuevo id más alto: un id que el paquete ya había marcado conserva su indicador, y un id más allá de la lista antigua se dibujó en este editor, así que se marca como manual.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#5",
+      "source": "the edited labels.",
+      "source_sha256": "1ff7977629fe768d38f93c120a633a45b75678e61dccaaa054ec047b409375df",
+      "context": "the edited labels.",
+      "translation": "las etiquetas editadas.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#6",
+      "source": "keep every supplied label exactly, including a lone ID or disconnected pieces with the same ID. Labels must fit uint16.",
+      "source_sha256": "bb39147b837252cc70c8038f9bd16e634ec249100a8e6bf7bac1dd32577d5ba3",
+      "context": "keep every supplied label exactly, including a lone ID or disconnected pieces with the same ID. Labels must fit uint16.",
+      "translation": "conservar exactamente cada etiqueta proporcionada, incluido un ID aislado o piezas desconectadas con el mismo ID. Las etiquetas deben caber en uint16.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#8",
+      "source": "when ``path`` is not a bundle.",
+      "source_sha256": "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf",
+      "context": "when ``path`` is not a bundle.",
+      "translation": "cuando ``path`` no es un paquete.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#0",
+      "source": "Grow secondary objects from labelled primaries with a seeded watershed.",
+      "source_sha256": "3170bdb4c52eaf2bc6d1ee9c7e677a201002e93870844c75ef852d55a2142241",
+      "context": "Grow secondary objects from labelled primaries with a seeded watershed.",
+      "translation": "Hace crecer objetos secundarios a partir de primarios etiquetados con un watershed con semillas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#1",
+      "source": "Every positive primary label is a marker, including all its pixels. Intensity growth follows the negative, optionally Gaussian-smoothed image. Distance growth floods a flat surface from the primary pixels. Common stop thresholds constrain four-connected paths around excluded pixels; seed_fraction trims after growth. This is not unrestricted Euclidean nearest-primary assignment. Neither mode is CellProfiler's distance/intensity Propagation algorithm.",
+      "source_sha256": "a990898d19f4db95d3ba41b520ea08d001d3bf0197622377d8cc291ed1e9c40e",
+      "context": "Every positive primary label is a marker, including all its pixels. Intensity growth follows the negative, optionally Gaussian-smoothed image. Distance growth floods a flat surface from the primary pixels. Common stop thresholds constrain four-connected paths around excluded pixels; seed_fraction trims after growth. This is not unrestricted Euclidean nearest-primary assignment. Neither mode is CellProfiler's distance/intensity Propagation algorithm.",
+      "translation": "Cada etiqueta primaria positiva es un marcador, incluidos todos sus píxeles. El crecimiento por intensidad sigue la imagen en negativo, opcionalmente suavizada con una gaussiana. El crecimiento por distancia inunda una superficie plana desde los píxeles primarios. Los umbrales de parada comunes restringen los caminos de conectividad a cuatro vecinos alrededor de los píxeles excluidos; seed_fraction recorta después del crecimiento. Esto no es una asignación sin restricciones al primario euclidiano más cercano. Ninguno de los dos modos es el algoritmo de propagación distancia/intensidad (Propagation) de CellProfiler.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#10",
+      "source": "minimum secondary area after hole filling; 0 disables filtering. The whole primary footprint counts toward the area.",
+      "source_sha256": "04a750409c1f7ff3d2facc6c9e350deedfe04aecb75ca72b4c8f0af4a0daa637",
+      "context": "minimum secondary area after hole filling; 0 disables filtering. The whole primary footprint counts toward the area.",
+      "translation": "área secundaria mínima tras el relleno de huecos; 0 desactiva el filtrado. Toda la huella primaria cuenta para el área.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#11",
+      "source": "fill enclosed background pixels per label before filtering. Does not overwrite another primary's labelled pixels.",
+      "source_sha256": "9f3dfd0f5b46bfe0c0a27ffdb5868ae83414cd35e9b32f450430f341b3986941",
+      "context": "fill enclosed background pixels per label before filtering. Does not overwrite another primary's labelled pixels.",
+      "translation": "rellenar los píxeles de fondo encerrados por etiqueta antes del filtrado. No sobrescribe los píxeles etiquetados de otro primario.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#12",
+      "source": "``intensity`` (default) uses negative image intensity; ``distance`` floods a flat surface. Common stop rules constrain paths; the primary-relative fraction trims after growth. Both retain the same stop rules and exact primary IDs. Distance can help when bright structures attract an intensity basin across cells.",
+      "source_sha256": "a8ccadc1b366f855a88d42b26289b8b4c9b2632d8741d6d691bea89531a33ff4",
+      "context": "``intensity`` (default) uses negative image intensity; ``distance`` floods a flat surface. Common stop rules constrain paths; the primary-relative fraction trims after growth. Both retain the same stop rules and exact primary IDs. Distance can help when bright structures attract an intensity basin across cells.",
+      "translation": "``intensity`` (predeterminado) usa la intensidad de la imagen en negativo; ``distance`` inunda una superficie plana. Las reglas de parada comunes restringen los caminos; la fracción relativa al primario recorta después del crecimiento. Ambos conservan las mismas reglas de parada y los ID primarios exactos. La distancia puede ayudar cuando estructuras brillantes atraen una cuenca de intensidad a través de las células.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#13",
+      "source": ":class:`SecondaryResult`, including ID relationship diagnostics. Empty primary masks yield an empty result and no common stop level.",
+      "source_sha256": "ae9007960a26c15cd0a16109b40762ec050e56d1e510d58ba06778eb4b459a43",
+      "context": ":class:`SecondaryResult`, including ID relationship diagnostics. Empty primary masks yield an empty result and no common stop level.",
+      "translation": ":class:`SecondaryResult`, incluidos los diagnósticos de relación de ID. Las máscaras primarias vacías producen un resultado vacío y ningún nivel de parada común.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#14",
+      "source": "invalid images, labels, shape, sigma, stop rule, rule-specific stop value or negative minimum area.",
+      "source_sha256": "b816949f8ccf52296c0fb687f0f3c46fbca702e0c8074591d0a0b38e8aa307c1",
+      "context": "invalid images, labels, shape, sigma, stop rule, rule-specific stop value or negative minimum area.",
+      "translation": "imágenes, etiquetas, forma, sigma, regla de parada o valor de parada específico de la regla no válidos, o área mínima negativa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#2",
+      "source": "The four rules in :data:`PROPAGATE_STOPS` use processed intensities. ``absolute``, ``percentile`` and ``threshold`` restrict growth with a common foreground mask. ``seed_fraction`` trims each watershed basin at a fraction of the brightest processed pixel inside its primary. That ratio is not a quantile and depends on background offset. With a dark nucleus in a cytoplasmic channel, use a common threshold instead of a nucleus-relative peak ratio.",
+      "source_sha256": "19d5ca2454ed0cbbc92a2df588de29ae1417f8654160f613bfac0fa50a1e4880",
+      "context": "The four rules in :data:`PROPAGATE_STOPS` use processed intensities. ``absolute``, ``percentile`` and ``threshold`` restrict growth with a common foreground mask. ``seed_fraction`` trims each watershed basin at a fraction of the brightest processed pixel inside its primary. That ratio is not a quantile and depends on background offset. With a dark nucleus in a cytoplasmic image data channel, use a common threshold instead of a nucleus-relative peak ratio.",
+      "translation": "Las cuatro reglas de :data:`PROPAGATE_STOPS` usan intensidades procesadas. ``absolute``, ``percentile`` y ``threshold`` restringen el crecimiento con una máscara de primer plano común. ``seed_fraction`` recorta cada cuenca del watershed a una fracción del píxel procesado más brillante dentro de su primario. Esa razón no es un cuantil y depende del desplazamiento de fondo. Con un núcleo oscuro en un canal citoplasmático, use un umbral común en lugar de una proporción respecto al pico del núcleo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#3",
+      "source": "Primary pixels are always included before minimum-area filtering, even below the threshold. Hole filling can also restore below-threshold pixels. Filtering can remove a whole secondary together with its seed; the missing ID is reported. Remaining labels retain their primary IDs exactly, without splitting or renumbering disconnected components. Sparse IDs use compact internal markers, never arrays sized by max ID.",
+      "source_sha256": "c41f991374b50ce6c5daa4400a56120b28de055012135f2fc1d46578571cb5ac",
+      "context": "Primary pixels are always included before minimum-area filtering, even below the threshold. Hole filling can also restore below-threshold pixels. Filtering can remove a whole secondary together with its seed; the missing ID is reported. Remaining labels retain their primary IDs exactly, without splitting or renumbering disconnected components. Sparse IDs use compact internal markers, never arrays sized by max ID.",
+      "translation": "Los píxeles primarios se incluyen siempre antes del filtrado por área mínima, incluso por debajo del umbral. El relleno de huecos también puede restaurar píxeles por debajo del umbral. El filtrado puede eliminar un secundario completo junto con su semilla; el ID ausente se notifica. Las etiquetas restantes conservan exactamente sus ID primarios, sin separar ni renumerar componentes desconectados. Los ID dispersos usan marcadores internos compactos, nunca matrices dimensionadas por el ID máximo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#4",
+      "source": "finite nonempty 2-D intensities, converted to float32. The caller supplies normalization, background correction or inversion.",
+      "source_sha256": "1d9f0243902d1877e96434a1f379698f9fe395d9ca11600cef797d24c93f825e",
+      "context": "finite nonempty 2-D intensities, converted to float32. The caller supplies normalization, background correction or inversion.",
+      "translation": "intensidades 2-D finitas y no vacías, convertidas a float32. Quien llama aporta la normalización, la corrección de fondo o la inversión.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#5",
+      "source": "same-shape nonnegative integer primary labels; 0 means background. The returned labels retain this dtype and these IDs.",
+      "source_sha256": "9294fdc6cd3d4f5d12d25e5306cbd454e83fc02593e3f1fddd2ccd0ea90c985c",
+      "context": "same-shape nonnegative integer primary labels; 0 means background. The returned labels retain this dtype and these IDs.",
+      "translation": "etiquetas primarias enteras no negativas de la misma forma; 0 significa fondo. Las etiquetas devueltas conservan este dtype y estos ID.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#6",
+      "source": "finite nonnegative Gaussian sigma in pixels; 0 disables smoothing. Smoothing affects growth and threshold estimation.",
+      "source_sha256": "245ef6666ac5a2caf77720a081cc203a93015e93265ee954e276196f0111d87a",
+      "context": "finite nonnegative Gaussian sigma in pixels; 0 disables smoothing. Smoothing affects growth and threshold estimation.",
+      "translation": "sigma gaussiana finita y no negativa en píxeles; 0 desactiva el suavizado. El suavizado afecta al crecimiento y a la estimación del umbral.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#7",
+      "source": "one of :data:`PROPAGATE_STOPS`, default ``\"threshold\"``.",
+      "source_sha256": "1c0828447a44f562ce574d89234db2b282e702318233dfbe434bd33f33245ddb",
+      "context": "one of :data:`PROPAGATE_STOPS`, default ``\"threshold\"``.",
+      "translation": "uno de :data:`PROPAGATE_STOPS`; predeterminado ``\"threshold\"``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#8",
+      "source": "intensity for ``absolute``, percentile in [0,100] for ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored by ``threshold``. Fractions require nonnegative processed intensities.",
+      "source_sha256": "bf6921247cbde56bcf58da2165bb7633a76ad9cc8b95235809bad6e552b60b08",
+      "context": "intensity for ``absolute``, percentile in [0,100] for ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored by ``threshold``. Fractions require nonnegative processed intensities.",
+      "translation": "intensidad para ``absolute``, percentil en [0,100] para ``percentile``, o una fracción en [0,1] para ``seed_fraction``. Se ignora con ``threshold``. Las fracciones requieren intensidades procesadas no negativas.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#9",
+      "source": "global threshold algorithm, default ``\"otsu\"``; read only for ``threshold``. The full supplied image determines it.",
+      "source_sha256": "76235a3210b833aa86172c5dcd565b50d459416b856b9a71f5c2d7eea3a3f6ce",
+      "context": "global threshold algorithm, default ``\"otsu\"``; read only for ``threshold``. The full supplied image determines it.",
+      "translation": "algoritmo de umbral global, predeterminado ``\"otsu\"``; solo se lee para ``threshold``. Lo determina toda la imagen proporcionada.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#0",
+      "source": "The ``outlines`` entry of a bundle, redrawn for ``labels``.",
+      "source_sha256": "0de796d648cb529b43ca4019762636e0aa8c609a67b62eeb1efc8f8daaa5bfb0",
+      "context": "The ``outlines`` entry of a bundle, redrawn for ``labels``.",
+      "translation": "La entrada ``outlines`` de un paquete, vuelta a dibujar para ``labels``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#1",
+      "source": "A pixel is on an outline when it belongs to an object and one of its four neighbours does not belong to the same one. ``like`` is the entry the bundle had: an entry holding only 0 and 1 gets a 0/1 outline back, and one holding ids gets each outline pixel's id, which is what Cellpose's own ``masks_flows_to_seg`` writes. An entry of all zeros says nothing about its form and gets ids, Cellpose's default.",
+      "source_sha256": "eefc7e1eeb93730216a904afa50d62335f5087300c96d013670deab94f8d00ab",
+      "context": "A pixel is on an outline when it belongs to an object and one of its four neighbours does not belong to the same one. ``like`` is the entry the bundle had: an entry holding only 0 and 1 gets a 0/1 outline back, and one holding ids gets each outline pixel's id, which is what Cellpose's own ``masks_flows_to_seg`` writes. An entry of all zeros says nothing about its form and gets ids, Cellpose's default.",
+      "translation": "Un píxel está en un contorno cuando pertenece a un objeto y uno de sus cuatro vecinos no pertenece al mismo. ``like`` es la entrada que tenía el paquete: una entrada que solo contiene 0 y 1 recibe un contorno 0/1, y una que contiene id recibe el id de cada píxel del contorno, que es lo que escribe el propio ``masks_flows_to_seg`` de Cellpose. Una entrada toda de ceros no dice nada sobre su forma y recibe id, el valor predeterminado de Cellpose.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#2",
+      "source": "the labels being saved.",
+      "source_sha256": "736f0a546513d04e6ff2139a92b245fc6b378f0122914da1ddaf9bf8a0b6442a",
+      "context": "the labels being saved.",
+      "translation": "las etiquetas que se guardan.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#3",
+      "source": "the bundle's previous ``outlines``, for its form and type.",
+      "source_sha256": "83f2b8e35f4a5d7e69475a9b1de485c46b7dcece9648a8ff532dbde8f7b0d65a",
+      "context": "the bundle's previous ``outlines``, for its form and type.",
+      "translation": "el ``outlines`` anterior del paquete, por su forma y tipo.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#4",
+      "source": "the new outlines, the shape of ``labels``.",
+      "source_sha256": "ab7ad2edbc51b758a6e006cf1984eef65fd953f182eff33852093c35ff31fe47",
+      "context": "the new outlines, the shape of ``labels``.",
+      "translation": "los nuevos contornos, con la forma de ``labels``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#0",
+      "source": "The ``object_filters`` list a Mask run applies to ``object_type``.",
+      "source_sha256": "28d6ba989a7d6f6b6d030526be145b9dbc4fe032c2ce4eb160c30baae1cfc41c",
+      "context": "The ``object_filters`` list a Mask run applies to ``object_type``.",
+      "translation": "La lista ``object_filters`` que una ejecución de Mask aplica a ``object_type``.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#1",
+      "source": "``object_filters`` maps an object type (``cell``, ``nucleus``, ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so each object type is filtered on its own properties. A missing or empty setting is no filters. The legacy ``{object}_min_area`` family is migrated by :func:`legacy_filters` where it is read, not here.",
+      "source_sha256": "eddb96607ced804c33e56264d5e402ecae5303f79079c518665f05ef9f72b39a",
+      "context": "``object_filters`` maps an object type (``cell``, ``nucleus``, ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so each object type is filtered on its own properties. A missing or empty setting is no filters. The legacy ``{object}_min_area`` family is migrated by :func:`legacy_filters` where it is read, not here.",
+      "translation": "``object_filters`` asigna un tipo de objeto (``cell``, ``nucleus``, ``pathogen``, ``organelle`` o una ranura de orgánulo) a su lista de filtros, de modo que cada tipo de objeto se filtra por sus propias propiedades. Un ajuste ausente o vacío significa sin filtros. La familia heredada ``{object}_min_area`` la migra :func:`legacy_filters` allí donde se lee, no aquí.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#2",
+      "source": "the Mask run's settings; ``None`` is no filters.",
+      "source_sha256": "3cb684a8cc652063ffc227b0cbe1ff6c4870befe1d45825466b1586f90663552",
+      "context": "the Mask processing session's settings; ``None`` is no filters.",
+      "translation": "los ajustes de la ejecución de Mask; ``None`` significa sin filtros.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#3",
+      "source": "the object type whose list is wanted.",
+      "source_sha256": "8802ff9f040fd83ecb22bdffe0e5eb1dd521fcba625b9aa8dee3eca489ee10e4",
+      "context": "the object type whose list is wanted.",
+      "translation": "el tipo de objeto cuya lista se quiere.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#4",
+      "source": "when the setting is not a mapping, names an object type spaCR does not segment, or holds an invalid filter.",
+      "source_sha256": "49b85cc1942416327c4a3fa1ecbc06f5bd4ba1a82a367da587ba3ff64e3af3b5",
+      "context": "when the setting is not a mapping, names an object type spaCR does not segment, or holds an invalid filter.",
+      "translation": "cuando el ajuste no es un mapeo, nombra un tipo de objeto que spaCR no segmenta o contiene un filtro no válido.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#0",
+      "source": "Erode every object by ``distance`` pixels, each one on its own.",
+      "source_sha256": "bb257eb0e55315468426f5d1fb67af96184c84f69cc38e32aa8f14cf2b08955a",
+      "context": "Erode every object by ``distance`` pixels, each one on its own.",
+      "translation": "Erosiona cada objeto ``distance`` píxeles, cada uno por separado.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#1",
+      "source": "Each object is eroded against everything that is not itself -- background AND the objects touching it -- so two objects sharing a border both pull back from it and the seam between them widens. Eroding the foreground as one binary would instead leave that seam untouched, which is the opposite of what a curator reaching for Shrink wants.",
+      "source_sha256": "9dcc5db550ff7ffb6659c66531ded0edfa9677d5f382b54ea6f8c390475a2375",
+      "context": "Each object is eroded against everything that is not itself -- background AND the objects touching it -- so two objects sharing a border both pull back from it and the seam between them widens. Eroding the foreground as one binary would instead leave that seam untouched, which is the opposite of what a curator reaching for Shrink wants.",
+      "translation": "Cada objeto se erosiona frente a todo lo que no es él mismo -- el fondo Y los objetos que lo tocan --, de modo que dos objetos que comparten un borde se retiran ambos de él y la costura entre ellos se ensancha. Erosionar el primer plano como un único binario dejaría en cambio esa costura intacta, que es lo contrario de lo que quiere un curador que recurre a Shrink.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}

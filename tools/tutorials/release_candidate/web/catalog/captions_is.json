@@ -81,56 +81,67 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Uppsetning með Conda",
+      "title": "Settu upp spaCR með Conda",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Settu opinbera conda-forge-pakkann upp í sérstöku umhverfi, athugaðu raunverulega útgáfu á rásinni og þekktu muninn á henni og núverandi kennsluefni um einingar.",
+      "description": "Búðu til Conda-umhverfi, settu upp spaCR frá conda-forge og ræstu forritið.",
       "objectives": [
         "Búa til og virkja sérstakt Conda-umhverfi.",
-        "Athuga uppsettan pakka af rásinni, Qt og niðurstöður greiningarprófana.",
-        "Velja nýrri pip-leiðina eða uppsetningarforritið þegar rásin er enn með eldra viðmót."
+        "Setja upp spaCR frá conda-forge.",
+        "Opna spaCR og uppfæra sama umhverfi þegar þörf krefur."
       ],
-      "prerequisite": "Pakkastjóri sem styður Conda þarf þegar að vera uppsettur. Upptakan sannreynir spaCR 1.5.0.4 frá conda-forge á Linux með Python 3.12.14 og Qt 6.11.2 þann 10. september 2026. Hrein uppsetning notar nýja einkaslóð fyrir umhverfið, eingöngu conda-forge og fasta útgáfu af rásinni; skipanaspjöldin sýna samsvarandi leið með nafngreindu umhverfi en endurskapa ekki úttak uppsetningar. Raunverulega viðmótið er enn með Home (63), ekki nýju hreiðruðu skipanina í PyPI/uppsetningarforriti 1.5.0.5. Venjuleg keyrsla spacr-doctor stóðst litla CUDA-minnisúthlutunarprófið en varaði við valkvæðum CZI-stuðningi; þetta er hvorki hraðamæling né sannprófun allra greininga eða skráarsniða. Upptakan notar einkasnið með dökku þema, leturkvarða 1.5, kynningu sem þegar hefur verið lokað og óbreyttum sjálfgefnum forhleðslustillingum, án óstudda flaggsins --no-setup. Önnur stýrikerfi voru ekki prófuð. Upprunaleg og útgefin frásögn eru ólíkar, svo ekki er fullyrt að eldra hljóð sé endurnotað óbreytt.",
+      "prerequisite": "Settu upp Conda eða Miniforge og opnaðu síðan skipanaglugga þar sem skipunin conda er tiltæk.",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "Notaðu sérstakt Conda-umhverfi fyrir spaCR og athugaðu hvaða útgáfu rásin býður í raun. Þegar þessi upptaka er gerð setur conda-forge upp einn punktur fimm punktur núll punktur fjórir. PyPI og uppsetningarforritið bjóða þegar einn punktur fimm punktur núll punktur fimm; þessar útgáfur eru ekki jafngildar.",
+          "narration": "Opnaðu skipanaglugga með Conda. Þú býrð til umhverfi fyrir spaCR, setur upp conda-forge-pakkann og ræsir forritið úr því umhverfi.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "Búðu til umhverfi sem heitir spacr-conda með Python 3.12 og spaCR frá conda-forge með skipuninni sem birtist. Veldu annað nafn ef þú notar það nafn nú þegar fyrir annað umhverfi.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_conda",
-          "narration": "Opnaðu skipanaskel sem er tilbúin fyrir Conda og búðu til nýtt umhverfi með Python þrír punktur tólf. Skipanaspjaldið notar nafnið spacr-conda. Veldu annað ónotað nafn ef það er þegar til og haltu umhverfinu aðskildu frá yfirstandandi greiningum.",
+          "narration": "Conda leysir umhverfið og birtir pakkaáætlunina. Farðu yfir hana, sláðu inn y til að samþykkja og bíddu síðan þar til niðurhali og uppsetningu er lokið.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_conda",
-          "narration": "Virkjaðu umhverfið og birtu sys punktur prefix til að staðfesta hvar Python er uppsett. Raunverulega prófunin notar lengri einkaslóð í stað stutta dæmisnafnsins. Skipanaboð eitt og sér sannar ekki að réttur túlkur sé í notkun.",
+          "narration": "Virkjaðu spacr-conda. Keyrðu Python-skipunina sem birtist til að sjá slóð umhverfisins og gakktu úr skugga um að þetta sé umhverfið sem þú varst að búa til.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_conda",
-          "narration": "Settu pakkann upp með conda-forge sérstaklega tilgreint og notaðu síðan conda list spacr til að skoða útgáfu og rás. Uppsetningin sem var staðfest notaði aðeins conda-forge og fasta útgáfu af rásinni. Henni var lokið áður en staðfestingarmyndirnar voru teknar; spjöldin eru leiðbeiningar, ekki tilbúið úttak úr skjáhermi.",
+          "narration": "Keyrðu conda list spacr til að sjá uppsettu útgáfuna og staðfesta að hún komi frá conda-forge. Þegar Python og spaCR eru sett upp með einni skipun getur Conda leyst alla pakkana saman, sem er mun fljótlegra en að bæta spaCR við umhverfi sem þegar er til.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Athugaðu útgáfur spaCR og Qt og staðsetningu pakkans í uppsetta umhverfinu. Hér er pakkinn einn punktur fimm punktur núll punktur fjórir og hægt er að flytja Qt inn. Þetta sýnir hvaða pakki er virkur en staðfestir ekki hvert vísindalegt verkferli eða hvert valkvætt skráarsnið.",
+          "narration": "Athugaðu uppsettu spaCR-útgáfuna og staðsetningu pakkans. Geymdu útgáfuna með greiningarglósunum þínum svo þú getir síðar snúið aftur í sama umhverfi.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Keyrðu spacr-doctor og lestu líka viðvaranirnar. Litla GPU-minnisúthlutunarprófið tekst hér, en hugbúnaðarháð vantar fyrir valkvæðan CZI-stuðning. Próf sem er sleppt er ekki staðist próf. Tillagan að lagfæringu á við þessa virkni; mettu breytingar á umhverfinu áður en þú gerir þær, sérstaklega þegar pakkastjórum er blandað saman.",
+          "narration": "Keyrðu spacr-doctor til að athuga uppsetninguna. Hér tilkynnir það að vispy, sem er kjarnapakki sem spaCR þarfnast, vanti og sýnir skipunina sem setur hann upp. Keyrðu þá skipun og keyrðu svo spacr-doctor aftur. Fylgdu öðrum ráðlögðum skrefum aðeins fyrir þau skráarsnið eða eiginleika sem þú þarft.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Uppsetti Conda-pakkinn opnast og lokast eðlilega, en þetta er eldri Home-síðan hans með sextíu og þremur flísum. Þar er ekki nýja hreiðraða einingaskipanin. Ekki gera ráð fyrir að vel heppnuð uppsetning þýði að allir skjáir samsvari kennsluefni fyrir nýrri útgáfu.",
-          "hold_after": 0.7
+          "narration": "Sláðu inn spacr til að ræsa forritið. Ljúktu við valkostina við fyrstu ræsingu og haltu svo áfram með Home-kennsluna til að finna einingar og sýnigögn þeirra.",
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "Fyrir nýrra hreiðraða viðmótið í uppfærða kennsluefninu skaltu nota núverandi kennslustund um pip eða Platform installers í sérstöku umhverfi. Ef þú þarft Conda-rásina skaltu skrá raunverulega útgáfu hennar og athuga aftur með uppfærslur. Varðveittu útgáfuna sem notuð er við yfirstandandi greiningu.",
+          "narration": "Til að uppfæra síðar lokarðu spaCR, virkjar þetta umhverfi og uppfærir conda-forge-pakkann. Þegar conda-forge hefur enga nýrri útgáfu tilkynnir Conda að allir umbeðnir pakkar séu þegar uppsettir. Athugaðu síðan uppsettu útgáfuna; kennslustundirnar um pip og uppsetningarforritið fjalla um hinar uppsetningarleiðirnar.",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
@@ -138,155 +149,257 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
       "number": 3,
       "slug": "pip_install",
-      "title": "Setja spaCR upp með pip",
+      "title": "Settu upp spaCR með pip",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Búðu til aðskilið Python-umhverfi, settu opinbera pakkann upp, athugaðu kröfur pakkanna og ræstu uppsetta Qt-forritið.",
+      "description": "Búðu til einangrað Python-umhverfi, settu upp opinbera pakkann, athugaðu hvaða pökkum hann er háður og ræstu uppsetta Qt-forritið.",
       "objectives": [
-        "Halda þeim hugbúnaðarpökkum sem spaCR þarf í sérstöku Python-umhverfi.",
-        "Athuga uppsettan pakka, Qt og viðvaranir um valfrjálsa eiginleika.",
-        "Opna Home og uppfæra rétt umhverfi meðvitað."
+        "Búa til og virkja sýndarumhverfi fyrir Python.",
+        "Setja upp spaCR og athuga pakkana sem það þarfnast.",
+        "Ræsa forritið og uppfæra rétta umhverfið."
       ],
-      "prerequisite": "Þessi kennsla sannreynir spaCR 1.5.0.5 frá PyPI á Linux með Python 3.12.13, ekki breytanlega uppsetningu úr frumkóðageymslu. Skipanakortin eru leiðbeiningar, ekki upptaka af úttaki skipanalínu; Windows- og macOS-skipanirnar voru ekki keyrðar hér. Hreinni uppsetningu var lokið áður en athuganirnar voru teknar upp. Núverandi grunnkröfur fela í sér Qt. Doctor sýnir viðvörun um valfrjálsan CZI-stuðning; prófun á úthlutun GPU-minnis er sérstaklega sleppt. GUI-upptakan notar --no-setup, sérstakt dökkt stillingasnið með leturkvarða 1.5 og kynningu sem hefur þegar verið lokað. Hún staðfestir að Home opnast og lokast eðlilega, ekki að allar einingar, valfrjáls skráarsnið, GPU-útreikningar eða önnur stýrikerfi virki.",
+      "prerequisite": "Settu upp Python 3.12 og opnaðu skipanaglugga. Notaðu virkjunarskipunina fyrir stýrikerfið þitt og skelina.",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "Settu spaCR upp í eigin Python-umhverfi. Sýnikennslan notar Python 3.12 á Linux og opinberu útgáfuna á PyPI, ekki afrit úr frumkóðageymslu. Athugaðu python --version áður en þú velur Python-túlk fyrir umhverfið.",
+          "narration": "Opnaðu skipanaglugga og athugaðu Python-útgáfuna. Þessi yfirferð notar Python 3.12. Hafðu spaCR í sérstöku sýndarumhverfi svo auðvelt sé að halda utan um pakkana.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_environment",
-          "narration": "Búðu til nýtt sýndarumhverfi með skipuninni fyrir þitt stýrikerfi. Hér er .venv ný mappa í vinnumöppunni. Python 3.12 verður þegar að vera uppsett; skipunin býr til umhverfi en setur ekki Python sjálft upp.",
+          "narration": "Búðu til sýndarumhverfi sem heitir .venv með skipuninni fyrir stýrikerfið þitt. Þá verður til mappa með Python-umhverfinu sem þú notar fyrir spaCR.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_environment",
-          "narration": "Virkjaðu umhverfið með skipuninni fyrir þína skel. PowerShell, Command Prompt, bash og zsh nota ólíkar virkjunarskipanir. Ef PowerShell hindrar skriftuna skaltu nota Command Prompt eða kalla beint á Python í umhverfinu; ekki veikja öryggisstillingar allrar tölvunnar.",
+          "narration": "Virkjaðu .venv með skipuninni fyrir skelina þína. Windows PowerShell og skipanalínan í Windows nota ólíkar virkjunarskipanir; macOS og Linux nota yfirleitt skeljarskipunina sem sést hér.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pip_environment",
-          "narration": "Keyrðu python -m pip --version. Staðsetningin ætti að vera innan umhverfisins sem þú valdir. Þessi raunverulega skipanalína sýnir lengri einkaslóðina sem notuð var við upptökuna. Með python -m pip er uppsetning pakkanna tengd við þann tiltekna túlk.",
+          "narration": "Keyrðu python -m pip --version. Athugaðu að slóðin sem birtist tilheyri .venv. Notaðu python -m pip í uppsetningarskipunum svo pip noti þennan túlk.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_package",
-          "narration": "Uppfærðu pip og settu síðan spacr upp. Með því að festa útgáfu 1.5.0.5 færðu sömu útgáfu og í kennslunni. Hreinni uppsetningu var lokið áður en þessar athuganir voru teknar upp. Gerðu ráð fyrir tíma og diskplássi fyrir vísindahugbúnaðinn sem þarf; núverandi grunnkröfur innihalda þegar Qt-skjáborðshlutana.",
+          "narration": "Uppfærðu pip og settu síðan upp spacr. Bíddu þar til vísindapakkarnir hafa hlaðist niður og verið settir upp. Núverandi pakki inniheldur skjáborðshlutana sem þarf til að opna forritið.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Athugaðu uppsetta spaCR-útgáfu, Qt-útgáfu og slóð pakkans. Hér koma öll þrjú úr nýja umhverfinu. Innflutningur sem tekst sannar hvorki að öll valfrjáls snið eða greiningar virki né að glugginn opnist.",
+          "narration": "Athugaðu uppsettu spaCR-útgáfuna og staðsetningu pakkans með skipuninni sem birtist. Vistaðu útgáfuna með greiningarglósunum þínum.",
           "hold_after": 0.7
         },
         {
           "visual": "04_dependency_check",
-          "narration": "Keyrðu python -m pip check. No broken requirements merkir að yfirlýstar kröfur uppsettra pakka séu samrýmanlegar. Leystu árekstra áður en þú heldur áfram; staðist athugun er ekki vísindaleg sannprófun greiningar.",
+          "narration": "Keyrðu python -m pip check. Ef það tilkynnir um kröfur sem stangast á skaltu leysa þá árekstra áður en þú notar umhverfið.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Keyrðu spacr-doctor og lestu viðvaranir jafnt sem staðist próf. Þessi uppsetning hefur viðvörun um valfrjálsan CZI-stuðning og sýnir viðgerðarskipunina. Upptakan notar --no-gpu-probe: tækið greinist en úthlutun GPU-minnis er ekki prófuð. Athuganir sem er sleppt teljast ekki staðist próf.",
+          "narration": "Keyrðu spacr-doctor til að skoða uppsetninguna og sjá hvort valfrjálsa eiginleika vanti. Fylgdu ráðlagðri lagfæringu aðeins fyrir þau snið eða eiginleika sem þú þarft.",
           "hold_after": 0.7
         },
         {
           "visual": "10_launch_commands",
-          "narration": "Ræstu spacr úr sama virka umhverfinu. Við venjulega fyrstu ræsingu geta komið upp spurningar um stillingar. Þessi afmarkaða sannprófun notar sérstaklega --no-setup og undirbúið upptökusnið; hún sýnir ekki hvernig spurningunum er svarað.",
+          "narration": "Ræstu spacr úr virka umhverfinu. Við fyrstu ræsingu fylgirðu uppsetningarleiðbeiningunum og velur stillingarnar þínar.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Þetta er raunverulegi Home-glugginn úr uppsetta wheel-pakkanum, með sex kjarnaeiningum og flokkunum Data, Tools og Assays. Hann opnaðist og lokaðist eðlilega án þess að greining væri ræst. Haltu áfram í Home-kennsluna fyrir leiðsögn, innfelld verkfæri og kennslu fyrir einingarnar.",
+          "narration": "Home opnast með flokkunum Core, Data, Tools og Assays. Haltu áfram með Home-kennsluna til að finna einingu, hlaða inn sýnigögnum og opna yfirlit yfir greiningarferli.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "Lokaðu spaCR fyrir uppfærslu og virkjaðu umhverfið sem þú ætlar að breyta. Uppfærðu pakkann, endurtaktu pip check og spacr-doctor og skráðu nýju útgáfuna með greiningunni. Uppfærslur geta breytt pakkakröfum og hegðun; ekki breyta án vitundar annarra umhverfi sem er notað í yfirstandandi vinnu.",
+          "narration": "Til að uppfæra lokarðu spaCR og virkjar þetta umhverfi. Uppfærðu pakkann og athugaðu svo útgáfuna og pakkana sem hann þarfnast aftur. Haltu fyrra umhverfinu ef þú þarft það fyrir greiningu sem er í gangi.",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Uppsetningarforrit fyrir mismunandi stýrikerfi",
+      "title": "Settu upp spaCR með uppsetningarforriti",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Veldu opinbert uppsetningarforrit, skildu sjálfvirkt val á hröðun og valfrjálsar persónuverndarstillingar og athugaðu raunverulega uppsetta Linux-umhverfið.",
+      "description": "Sæktu uppsetningarforritið fyrir stýrikerfið þitt, ljúktu uppsetningunni og opnaðu spaCR.",
       "objectives": [
-        "Velja opinbert uppsetningarforrit fyrir stýrikerfið.",
-        "Greina sjálfvirka hröðun frá skýru vali um að nota eingöngu CPU.",
-        "Lesa persónuverndarvalkosti, uppsettar útgáfur og viðvaranir úr greiningu."
+        "Sækja og keyra uppsetningarforritið fyrir stýrikerfið þitt.",
+        "Velja hröðunarkost og stillingar fyrir fyrstu ræsingu.",
+        "Opna spaCR og finna uppsetningarannála ef uppsetningin þarfnast athygli."
       ],
-      "prerequisite": "Upptakan sannreynir opinbera netuppsetningarforritið fyrir Linux x86-64, spaCR 1.5.0.5, sem var borið saman við gátsummu 10. september 2026, með Python 3.12.13, Qt 6.11.2 og Torch 2.14.0+cu132. Raunverulegri uppsetningu var lokið áður en staðfestingarmyndirnar voru teknar. Hún notaði nýjar einkamöppur fyrir keyrsluumhverfi og ræsiforrit, fyrirliggjandi grafísk kerfissöfn, --skip-system-deps og --no-launch; engum fyrirliggjandi umhverfum eða kerfishugbúnaði var breytt. Fjögur viðmiðunarspjöld eru leiðbeiningar, ekki upptökur af Windows/macOS-uppsetningum eða tilbúið skjáhermisúttak. Windows/macOS-leiðbeiningar voru aðeins yfirfarnar út frá núverandi frumkóða uppsetningarforritanna. Viðmótsupptakan notar einkasnið með dökku þema, leturkvarða 1.5, þegar lokaða kynningu, forhleðslu eftir þörfum og --no-setup, sem sleppir ekki aðskildu persónuverndarspurningunni. Henni er hafnað með raunverulegum Escape-takka og allir valfrjálsir kostir haldast óvirkir; einkastillingarnar voru lesnar aftur til staðfestingar. Doctor notaði --no-gpu-probe; ekki er fullyrt að minnisúthlutun, hraði, greiningar eða önnur stýrikerfi hafi verið sannreynd. Misheppnaðar upptökutilraunir eru varðveittar og ekki taldar hugbúnaðargallar.",
+      "prerequisite": "Sæktu opinbera uppsetningarforritið fyrir stýrikerfið þitt og gerðu ráð fyrir plássi fyrir forritið og vísindapakkana sem það þarfnast.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Notaðu opinbera spaCR-útgáfu á GitHub og veldu uppsetningarforrit fyrir stýrikerfið þitt. Netuppsetningarforritin sækja sérstakt Python-keyrsluumhverfi og hugbúnað sem vísindalegu greiningarnar þurfa; ekki þarf Conda-umhverfi fyrir. Í þessu Linux-dæmi bárum við niðurhalaða skrá saman við gátsummu útgáfunnar áður en hún var keyrð.",
+          "narration": "Opnaðu opinberu spaCR-útgáfuna á GitHub og sæktu uppsetningarforritið fyrir stýrikerfið þitt undir Assets. Þessi netuppsetningarforrit sækja Python-keyrsluumhverfið og vísindapakkana meðan á uppsetningu stendur. Geymdu SHA256SUMS.txt úr sömu útgáfu ef þú vilt staðfesta niðurhalið.",
           "hold_after": 0.7
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "Í Windows velurðu keyrsluskrána fyrir netuppsetningu. Núverandi frumkóði uppsetningarforritsins forvelur sjálfvirka hröðun; hægt er að taka hakið af þeim valfrjálsa hluta fyrir CPU eingöngu. Spjaldið útskýrir valið en er hvorki upptaka af Windows-uppsetningu né samhæfingarpróf á tölvunni þinni.",
+          "narration": "Í Windows keyrirðu uppsetningarforritið og fylgir leiðbeiningunum. Hafðu sjálfvirka hröðun valda til að nota studdan vélbúnað sem finnst í tölvunni, eða veldu aðeins CPU ef það er það sem þú þarft.",
           "hold_after": 0.7
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "Í macOS velurðu almenna netpakkann fyrir Intel og Apple silicon. Ræsiforrit appsins byrjar uppsetningu fyrir hvern notanda ef keyrsluumhverfið vantar. Staðfestu opinberan uppruna áður en öryggisfyrirmæli eru samþykkt og gefðu niðurhali tíma. Þetta eru leiðbeiningar yfirfarnar út frá frumkóða, ekki framkvæmd macOS-uppsetning.",
+          "narration": "Í macOS opnarðu alhliða pakkann og fylgir uppsetningarforritinu. Ræstu spaCR úr forritaræsinum og leyfðu niðurhali við fyrstu ræsingu að klárast. Lestu allar öryggisfyrirspurnir og staðfestu að pakkinn komi úr opinberu útgáfunni.",
           "hold_after": 0.7
         },
         {
           "visual": "11_linux_commands",
-          "narration": "Í Linux gerirðu staðfesta skrá keyranlega og ræsir hana úr möppunni hennar. Sjálfvirkt val á hröðun er nú sjálfgefið; veldu CPU sérstaklega ef það er það sem þú þarft. Aðskilin keyrsla okkar endurnýtti kerfissöfn og einkaslóðir og sýndi því ekki uppsetningu kerfishugbúnaðar sem forritið þarf.",
+          "narration": "Í Linux gerirðu niðurhalaða uppsetningarforritið keyranlegt og keyrir það svo úr skipanaglugga. Sjálfvirk hröðun velur studdan bakenda. Hjálpin sýnir --torch-backend cpu fyrir keyrslu eingöngu á CPU og --skip-system-deps fyrir tölvur sem þegar hafa grafíksöfn Qt.",
           "hold_after": 0.7
         },
         {
           "visual": "02_installer_backend",
-          "narration": "Lestu raunverulegt uppsetningarsnið í stað þess að álykta um bakenda út frá vel heppnaðri ræsingu. Hér var óskað eftir auto og CUDA valið á NVIDIA-vélbúnaði. Uppsetta Torch-útgáfan er byggð fyrir CUDA þrettán punktur tveir. Þetta greinir valið en er ekki hraðamæling á GPU.",
+          "narration": "Eftir uppsetningu skráir uppsetningarsniðið valinn bakenda. Skoðaðu það þegar þú vilt staðfesta hvort keyrsluumhverfið notar CPU eða studdan hraðal.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Athugaðu útgáfu pakkans, innflutning Qt og pakkaslóð. Þetta sérstaka keyrsluumhverfi inniheldur spaCR einn punktur fimm punktur núll punktur fimm. Skrárnar koma úr uppsetningunni en ekki breytanlegu frumkóðaafriti. Vel heppnaður innflutningur sannreynir ekki allar greiningar eða valkvæð skráarsnið.",
+          "narration": "Athugaðu uppsettu spaCR-útgáfuna. Geymdu hana með greiningarglósunum þínum, sérstaklega þegar þú uppfærir forritið síðar.",
           "hold_after": 0.7
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "Við raunverulega fyrstu ræsingu er spurt um valfrjálsa deilingu greiningarupplýsinga, opinberar villutilkynningar og uppsetningu reikninga. Tilkynningar yrðu opinberar, svo lestu skýringuna. Í upptökunni er glugganum hafnað með Escape, jafngilt Skip, keep all off. Engir reikningar eru tengdir og einkastillingar staðfesta að deiling og tilkynningaaðgerðir haldast óvirkar.",
+          "narration": "Uppsetningin spyr um valfrjálsa deilingu greiningargagna og uppsetningu aðgangs. Svaraðu y aðeins fyrir þá valkosti sem þú vilt; n, sjálfgefna svarið, heldur hverjum valkosti óvirkum. Uppsetningarforritið fyrir Windows sýnir sömu valkosti sem gátreiti.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Eftir þetta val opnar uppsetta appið núverandi Home með tuttugu og einni flís og sex kjarnaeiningum. Glugginn lokast líka eðlilega. Haltu áfram í Home-kennslustundina til að læra um hreiðruð verkferli og dæmisgögn; það eitt að opna Home er ekki greiningarpróf.",
+          "narration": "Þegar Home opnast heldurðu áfram með Home-kennsluna. Hún sýnir hvernig á að opna einingu, finna prófunargögn og velja greiningarferli fyrir tilraunina þína.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "05_doctor",
-          "narration": "Keyrðu spacr-doctor úr uppsetta umhverfinu og lestu bæði viðvaranir og niðurstöður prófa sem stóðust. Hér staðfestir það bakenda uppsetningarinnar en varar við því að hugbúnað vanti fyrir valkvæðan CZI-stuðning. GPU-úthlutun, gagnagrunns- og stillingaprófum var sleppt. Próf sem er sleppt er ekki staðist; mettu ráðlagða viðgerð áður en umhverfinu er breytt.",
+          "narration": "Ef ræsing eða skráarsnið þarfnast athygli skaltu keyra spacr-doctor úr uppsetta keyrsluumhverfinu. Það listar hverja athugun ásamt tillögu að lagfæringu. Í þessari uppsetningu, sem notar aðeins CPU, mistekst GPU-athugunin eins og búast mátti við, og PATH-athugunin merkir eigin spacr-ræsi uppsetningarforritsins, sem ræsir þetta sama keyrsluumhverfi, svo hvorugt þarf að breyta hér.",
           "hold_after": 0.7
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "Geymdu install punktur log og install-profile punktur json úr valinni uppsetningarmöppu við bilanagreiningu. Leitaðu að einkaupplýsingum í annálum áður en þú deilir þeim. Skráðu útgáfu hverrar greiningar og uppfærðu meðvitað. Kennslustundir um pip og Conda lýsa öðrum uppsetningarleiðum með aðskildum umhverfum.",
+          "narration": "Ef vandamál koma upp við uppsetningu finnurðu install.log og install-profile.json í uppsetningarmöppunni. Farðu yfir annálana áður en þú deilir þeim í beiðni um aðstoð. Tilgreindu stýrikerfið og spaCR-útgáfuna svo auðveldara sé að greina vandann.",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
@@ -294,32 +407,77 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home-skjárinn og leiðsögn",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Opnaðu einingu frá Home, finndu tengd verkfæri hennar og sýnigögn og veldu svo greiningarferli til að fylgja.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Velja upphafseiningu fyrir myndir, mælingar eða raðgreiningarlestra.",
+        "Finna tengd verkfæri og greiningar fyrir einstakar lífverur.",
+        "Hlaða inn dæmi, finna hjálp og opna yfirlit yfir greiningarferli."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "Settu upp spaCR og opnaðu skjáborðsforritið.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home er upphafsstaðurinn. Smelltu á reit til að opna einingu, eða notaðu hliðarstikuna vinstra megin. Smelltu á Home í hliðarstikunni til að koma aftur hingað. Flipinn Core, Data, Tools og Assays hjálpa þér að finna verkið sem þú vilt vinna.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "Fyrir smásjármyndir byrjarðu á Mask til að afmarka hluti og notar svo Measure til að draga út eiginleika þeirra og útskurði. Með Annotate merkirðu dæmihluti og Classify lærir af merkingunum til að gefa fleiri hlutum stig. Map Barcodes les raðgreiningargögn. Regression tengir svipgerðarstigin sem fást við talningu leiðsagnar-RNA til að finna tengsl.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -340,7 +498,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Í Data koma skrár inn og niðurstöður eru athugaðar. Ef þú ert þegar með myndir, grímur eða mælitöflur færir Import þær inn í verkefni sem hinar einingarnar geta lesið. Fyrir tilraun skipuleggur Experiment Design plöturnar; eftir hana sýnir QC skráðar gæðaathuganir og Run Compare setur tvær keyrslur hlið við hlið.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -360,7 +518,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools geymir verklegu ritlana og könnunartólin. Í Make Masks lagarðu grímur og þaðan opnast líka Cellpose Workbench. Align and Stitch skeytir saman myndreitum sem skarast í eina mynd. Þegar mælingar liggja fyrir geturðu kannað þær og teiknað með Image UMAP, Gate Editor og Graph Builder. Verkfærastika hverrar einingar opnar tengd verkfæri hennar.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -379,7 +537,7 @@
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Opnaðu Assays og veldu lífveruna þína: Toxoplasma, Plasmodium eða Candida. Veldu svo greiningu í valmynd þeirrar lífveru. Opnaðu til dæmis Toxoplasma fyrir greiningu á skellum eða mælingar á hýsli og sýkli. Fylgdu kennslu valinnar greiningar til að undirbúa myndir hennar, grímur og mæliinntak.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -395,7 +553,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Opnaðu Classify og veldu inntakið með Classifier family. Veldu Computer Vision fyrir myndir af hlutum eða Tabular Machine Learning fyrir dálka með mældum eiginleikum. Tengdu kennslurnar leiða þig í gegnum þjálfun, mat og stigagjöf fyrir hvora fjölskyldu.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -405,7 +563,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "Þegar líkan hefur verið þjálfað hjálpar verkfærastika Classify þér að rýna í það. Classifier Evaluation sýnir hvernig því gekk á gögnum sem haldið var til hliðar, Explain CV Model og Activation sýna hvað ræður niðurstöðum þess, Training Runs ber saman þjálfunarsögu og Feature Explorer raðar þeim eiginleikum sem aðgreina hópana. Haltu bendlinum yfir tákni til að sjá heiti þess.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -418,7 +576,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "Til að prófa einingu smellirðu á Load test data þegar það er í boði. Bíddu þar til niðurhalinu lýkur og farðu svo yfir útfyllt inntök og stillingar. Í Mask smellirðu á Live til að skoða sjónsvið áður en þú ýtir á Run. Kveiktu á Time fyrir tímaröð eða 3D fyrir rúmmálsmynd.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -427,17 +585,17 @@
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "narration": "Sláðu inn heiti einingar, stillingar eða falls í leitarreitinn við hliðina á Help. Hér finnur leit að Performance samsvarandi síðu í Preferences. Smelltu á niðurstöðu til að opna áfangastað hennar. API-niðurstöður opna skjölun valins falls.",
           "hold_after": 0.7
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "narration": "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
           "hold_after": 0.7
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Farðu aftur í Home og smelltu á Pipeline overviews til að velja verkferli. Byrjaðu á spaCR screens fyrir samsafnaða myndgreiningarskimun, eða veldu leið fyrir myndgreiningu eða raðgreiningu sem hentar gögnunum þínum. Næstu kennslur sýna hvernig þessar einingar tengjast og kennslur einstakra eininga fara síðan í gegnum hvert verk.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -455,6 +613,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1465,22 +1663,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: breyttu merkingum og undirbúðu þjálfunarmyndir",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Opnaðu pör af myndum og grímum, skoðaðu og breyttu hlutum, vistaðu mælingar og búðu til pöruð þjálfunarúrklipp.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Opna myndir með samsvarandi tilvikagrímum og skoða hluti í stækkunarglerinu.",
+        "Mæla pöruð sjónsvið og vista gagnagrunn með eiginleikum hluta.",
+        "Leiðrétta merkingar með Undo, teikningu, skiptingu og stærðarsíum.",
+        "Vista yfirfarnar grímur og búa til úrklipp af myndum og grímum til þjálfunar."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "Útbúðu möppu með tvívíðum myndum og samsvarandi TIFF-skrám með tilvikamerkingum í undirmöppu sem heitir masks. Hver gríma notar sama nafnstofn og myndskráin. Vinndu í afriti þegar þú æfir breytingar og nýja skurði. Dæmið notar ER-myndir og frumugrímur úr niðurhalanlegu smásjárverkefni Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Frá Home opnarðu Make Masks undir Tools. Veldu þennan ritil til að skoða og leiðrétta grímur einstakra mynda. Opnaðu möppuna með pöruðum myndum og merkingum áður en þú velur breytingartól.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1488,7 +1686,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Veldu myndamöppuna. Í þessu dæmi notarðu ER-styrkleikamyndirnar og samsvarandi frumugrímur úr Measure-sýninu. Hafðu stærð myndar og grímu þá sömu og skráarheitin pöruð.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1496,17 +1694,17 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "narration": "Ritillinn hleður inn myndinni og samsvarandi grímu úr undirmöppunni masks. Litaðar merkingar auðkenna einstaka hluti. Athugaðu hvort útlínurnar fylgi mörkunum í myndinni. Ef fylgigrímu vantar byrjarðu með tóma grímu og teiknar hlutina sem þú þarft.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Opnaðu Magnifier settings. Veldu Otsu og Region under the mouse til að forskoða hluti sem fást með þröskuldi í kringum bendilinn. Veldu líkanatengdan hátt þegar þröskuldurinn aðgreinir hlutina ekki vel.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Kveiktu á Magnifier og haltu bendlinum yfir hlut til að stækka forskoðunina. Farðu yfir nokkra hluti til að skoða tillögur að útlínum. Smelltu til að bæta afmörkuðu hlutunum við þegar þeir líta rétt út, eða slökktu á Magnifier til að halda áfram að breyta.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -1517,7 +1715,7 @@
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Smelltu á Features til að mæla pör af myndum og grímum. Bættu við röð fyrir hvert sjónsvið og veldu styrkleikamyndirnar og samsvarandi hlutagrímur. Athugaðu handvirka úthlutun ef sjálfvirk pörun skráarheita skilur skrár eftir án úthlutunar.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1531,7 +1729,7 @@
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "Í hverri röð velurðu ER-styrkleikamyndina í Channel 1 og samsvarandi merkingamynd í Cell mask. Endurtaktu fyrir annað sjónsviðið. Notaðu upprunalegu styrkleikamyndirnar til að mæla flúrljómun.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1545,7 +1743,7 @@
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "Farðu yfir báðar raðirnar og veldu svo mælistillingarnar. Þetta dæmi notar eitt vinnsluferli, minnstu frumustærð upp á einn díl og engin vistuð PNG-úrklipp. Hækkaðu stærðarmörkin til að útiloka litla hluti þegar það hentar tilrauninni. Smelltu á Measure.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1559,7 +1757,7 @@
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "Þegar mælingu lýkur opnarðu úttaksmöppuna. Mappan measurements inniheldur measurements.db með eiginleikum hlutanna úr báðum sjónsviðum. Geymdu gagnagrunninn með upprunamyndum hans, grímum og stillingum og lokaðu svo Features til að fara aftur í breytingar.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1573,7 +1771,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "Veldu tólið sem hentar leiðréttingunni. Brush bætir við dílum, Erase fjarlægir díla og Erase object fjarlægir heila merkingu. Draw bætir við afmörkuðum hlut; Divide skiptir einum í tvennt. Zoom hjálpar þér að skoða mörkin áður en þú breytir.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1584,42 +1782,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "narration": "Veldu Erase object og smelltu inni í hlutnum sem þú vilt fjarlægja. Athugaðu uppfærða útlínu og fjölda hluta. Notaðu þetta fyrir óæskilega merkingu, til dæmis frumuleifar eða hlut sem fellur utan greiningarviðmiða þinna.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "narration": "Smelltu á Undo til að afturkalla eyðinguna. Redo beitir henni aftur. Notaðu þessar sögustýringar til að bera breytingu saman við fyrri grímu og farðu svo aftur í þá útgáfu sem þú vilt halda.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "narration": "Veldu Draw og teiknaðu lokuð mörk utan um hlut sem vantar. Ritillinn fyllir hann með nýrri merkingu. Í þessu æfingaskrefi er útlínan í bakgrunninum, svo afturkallaðu hana áður en þú vistar. Fyrir þjálfunargögn teiknarðu raunveruleg mörk hlutarins.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "narration": "Notaðu Divide þegar tveir hlutir sem snertast deila einni merkingu. Teiknaðu skurð þvert yfir allt samtengda svæðið og skoðaðu aðskildu merkingarnar. Afturkallaðu skiptinguna ef hún sker í gegnum einn hlut eða skilur eftir röng mörk.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "narration": "Stilltu Display percentiles svo auðveldara sé að skoða daufa byggingu. Þessar stýringar breyta aðeins birtingunni og halda óunnum styrkleikagildum og merkingum óbreyttum. Farðu aftur í samræmda birtingu þegar þú berð saman sjónsvið.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "Stilltu minnsta og stærsta flatarmál hluta og ýttu svo á Filter til að fjarlægja merkingar utan þeirra marka. Veldu mörk sem henta hlutunum þínum og skoðaðu hvað var fjarlægt. Sían breytir grímunni, svo notaðu Undo ef mörkin fjarlægja gagnlega hluti.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "Þegar þú hefur farið yfir breytingarnar smellirðu á Save mask. Ef þörf krefur seturðu stærðarmörkin aftur á núll til að gera þau óvirk áður en þú ferð í annað sjónsvið. Varðveittu upprunamyndirnar og geymdu vistuðu yfirferðarskrána með breyttu grímunum.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "Hausinn geymir restina af grímutólunum. Þegar þú velur vigtir finnur Model Zoo þær og Model Compare setur tvö grímusett hlið við hlið. Þegar fleiri dæmi þarf að laga fara Curate og Open in napari með þig aftur í breytingar.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1629,7 +1827,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "Hausinn opnar líka Model Compare, Model Zoo, Curate og Open in napari. Notaðu Model Compare til að skoða grímur hlið við hlið, Model Zoo til að velja vigtir og yfirferðartólin til að fara yfir eða breyta fleiri dæmum.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1641,12 +1839,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "narration": "Veldu Recrop og dragðu kassa utan um hlutina sem þú vilt hafa í minna þjálfunarsviði. Þá er skrifuð ný mynd og samsvarandi gríma. Hlutum sem jaðarinn sker er sleppt, svo skildu eftir pláss í kringum heila hluti og skoðaðu úrklippið.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Smelltu á Next til að opna nýja úrklippið. Upprunalega myndin og gríman eru geymdar í recropped_originals svo hægt sé að endurheimta þær. Farðu yfir úrklippið og merkingar þess áður en þú bætir því við þjálfunargagnasafnið.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1654,32 +1852,32 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "Til að greina hluti í núverandi sjónsviði velurðu Cellpose-líkanið og ferð yfir stillingar þess. Þetta dæmi notar cpsam, kveikt á stöðlun, þröskuld frumulíkinda 0 og flæðisþröskuld 0,4. Athugaðu hvort greiningarnar komi í stað merkinga sem fyrir eru eða bætist við þær.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Smelltu á Object detection og berðu útlínurnar sem fást saman við myndina. Hér velur líkanið hálfa hlutinn efst til vinstri í stað frumunnar í miðjunni. Afturkallaðu þau skipti og stilltu líkanið áður en þú reynir aftur.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "narration": "Opnaðu Cell probability til að skoða forgrunnsstigakortið. Notaðu það til að sjá hvaða svæði líkanið styður. Breyttu forgrunnsþröskuldinum þegar það hjálpar og keyrðu greininguna aftur til að fá nýja niðurstöðu.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "narration": "Opnaðu Flows til að skoða stefnuyfirlitið. Þröskuldur flæðissamræmis ræður því hvaða greindu hlutum er haldið: lægri gildi eru strangari og 0 slekkur á þessari athugun. Berðu saman lokagrímurnar eftir hverja stillingabreytingu.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo endurheimtir merkingarnar frá því fyrir greininguna. Haltu grímunni sem fylgir myndinni best og vistaðu hana. Haltu áfram í gegnum sjónsviðin sem eftir eru og skoðaðu hverja niðurstöðu áður en þú tekur hana með í þjálfun.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "Hafðu yfirfarnar myndir og grímur með sama nafnstofni saman. Notaðu Train Cellpose til að læra af þessum pörum, eða farðu aftur í Features eða Measure til að draga út mælingar. Tengdu kennslurnar sýna hvert næsta skref.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1690,6 +1888,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1904,20 +2142,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "Tengdu hluti yfir tímaröð, skoðaðu ferla þeirra og undirbúðu raktar myndir fyrir mælingu.",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Hlaða dæmamyndunum og grímunum inn í Track preview.",
+        "Stilla skörun og skoða auðkenni hluta milli ramma.",
+        "Setja upp Mask-keyrslu fyrir tímaraðir og finna úttak hennar með rakningu."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "Sæktu og afþjappaðu SYNTHETIC_timelapse_preview.zip. Kennsludæmið inniheldur átta ramma af frumumyndum og samsvarandi merkingamyndir. Fyrir fulla Mask-keyrslu á eigin gögnum útbýrðu smásjármyndir í tímaröð og skráir tímabilið milli mynda.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "Frá Home opnarðu Mask og smellir á Timelapse-táknið efst til hægri til að kveikja á rakningu. Notaðu Timelapse til að tengja hluti milli samliggjandi mynda. Fyrst prófum við tengda dæmið í Track preview og förum síðan yfir stillingarnar til að vinna úr þinni eigin myndaröð.",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -1932,7 +2170,7 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "Sæktu og afþjappaðu dæmasafnið hér fyrir neðan og smelltu svo á Track preview hægra megin við fyrirsögnina Actions. Safnið inniheldur myndaröð og samsvarandi grímuröð með átta römmum. Hafðu báðar möppurnar saman svo þú getir valið myndir og merkingar sem eiga saman.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -1943,17 +2181,17 @@
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "narration": "Veldu image_sequences og síðan field_A01 sem myndamöppu. Veldu rás 0: hver dæmamynd inniheldur eina rás fyrir styrk frumna. Stilltu Frames previewed á 8 og Fields á 1.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "narration": "Smelltu á Masks og veldu label_sequences og síðan field_A01. Hver merking auðkennir hlut í samsvarandi mynd. Hafðu slökkt á Keep only full-length tracks í fyrstu svo þú getir skoðað ferla sem byrja eða enda innan raðarinnar.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "Stilltu skörunarþröskuldinn á 0,1 og smelltu á Run preview. Þröskuldurinn ræður því hversu mikið aðliggjandi grímur þurfa að skarast til að tengjast. Skoðaðu lituðu auðkenni hlutanna og yfirlitið yfir lengd ferla. Dæmið gefur sextán ferla sem ná yfir alla átta rammana.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -1964,7 +2202,7 @@
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "Stilltu skörunarþröskuldinn ef hlutir brotna upp í stutta ferla eða tengjast röngum nágrönnum. Hærri þröskuldur krefst meiri skörunar. Eftir breytinguna bíðurðu þar til forskoðuninni lýkur og smellir á Re-link til að skoða lokagildið. Flettu í gegnum nokkra ramma áður en þú samþykkir niðurstöðuna.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -1975,7 +2213,7 @@
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "Notaðu rammasleðann til að fylgja sama hlut í gegnum röðina. Play breytir því hversu hratt rammarnir birtast. Skráðu raunverulegt tímabil milli mynda sérstaklega fyrir hraðamælingar síðar.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -1991,7 +2229,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "Fyrir fulla keyrslu á eigin myndum stillirðu Source og styrkleikarásirnar í Mask. Þessi upptaka flytur inn stillingar lítillar gervimyndaraðar með átta römmum. Haltu tímapunktum hvers sjónsviðs í réttri röð. Rammamörk nota upphaf og útilokaðan endi: 0 til 8 velur fyrstu átta rammana.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2002,7 +2240,7 @@
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "Veldu hlutinn sem á að rekja og rakningarháttinn. Skörunarhátturinn iou tengir hluti með grímum þeirra í aðliggjandi römmum. Skoðaðu fyrst stutta röð og veldu hátt sem hentar því hversu langt hlutirnir færast milli ramma.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2013,7 +2251,7 @@
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "Kveiktu á Keep original images til að halda inntaksmyndunum meðan greiningarferlið hreinsar til. Stilltu aðgreiningarlíkanið og rásirnar fyrir gögnin þín og athugaðu forskoðunina áður en þú vinnur úr allri röðinni.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2024,7 +2262,7 @@
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "Kveiktu á Plot til að skoða myndritin sem verða til og smelltu svo á Run. Fylgstu með framvindunni í stjórnborðinu og bíddu þar til keyrslunni lýkur. Byrjaðu á stuttri röð svo þú getir athugað grímur og auðkenni ferla áður en þú vinnur úr stærri tilraun.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2035,7 +2273,7 @@
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "Skoðaðu styrk- og merkingalögin í úttaksmyndunum. Keyrslan vistar röktu fylkin í merged og ferlatöflurnar í tracks undir verkefnismöppunni. Haltu áfram í Measure og svo Motility til að reikna eiginleika hluta og hreyfingu út frá ferlunum.",
           "hold_after": 0.7,
           "focus": [
             366,
@@ -2048,6 +2286,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9397,18 +9675,134 @@
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 71,
-      "app_key": "investigate_hit",
-      "series": 5,
       "slug": "investigate_hit",
-      "section": "Results and quality control",
-      "host_app_key": "regression"
+      "title": "Investigate Hit: rektu gen úr Regression aftur til mældra frumna",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Sendu gen úr Hit List í Investigate Hit, bættu við mæligagnagrunninum, spám fyrir hverja frumu og hlutföllum leiðsagnar-RNA og lestu svo vísbendingarnar á brunnastigi.",
+      "objectives": [
+        "Opna Regression-keyrslu í Hit List, athuga q-gildi og senda eitt gen í Investigate Hit.",
+        "Velja mæligagnagrunn, frumuspár, hlutföll leiðsagnar-RNA og stigadálk.",
+        "Lesa flipana fyrir vísbendingar, brunna, leiðsagnar-RNA og þröskuld og finna vistuðu töflurnar."
+      ],
+      "prerequisite": "Afþjappaðu Investigate_Hit_real_screen_example.zip. Allt í því kemur úr einni raunverulegri skimun: Regression-keyrslunni á prófunargögnum Regression (stillingunum úr Regression-kennslunni), samsvarandi CV-spám fyrir hverja frumu og mæligagnagrunni með raunverulegum mælingum á lögun, stærð og styrk sömu frumna. Til að halda niðurhalinu litlu inniheldur gagnagrunnurinn 52 brunna: alla greinda brunna með leiðsagnar-RNA fyrir gen 225160 og, fyrir hvern þeirra, þrjá brunna án þess af sömu plötu. Ekkert gen í þessari fljótlegu Regression-keyrslu stenst q ≤ 0,05. Líttu á rannsóknina sem útreiknað dæmi, ekki staðfestan smell.",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "Frá Home opnarðu Regression. Investigate Hit byrjar á lokinni Regression-keyrslu. Það spyr hvort mældar frumur í brunnunum á bak við eitt gen líti öðruvísi út en frumur í brunnum án þess gens.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Veldu Hits til að opna Hit List. Afþjappaðu fyrst dæmasafnið. Það inniheldur Regression-keyrslu á prófunargögnunum, samsvarandi CV-spár fyrir hverja frumu og mæligagnagrunn fyrir sömu frumur. Allt þrennt kemur úr einni raunverulegri skimun.",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Smelltu á Browse og veldu möppuna guide_permutation í regression_run, results. Þetta er úttak keyrslunnar á prófunargögnunum í Regression-kennslunni.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List raðar 325 genum. Lestu áhrifin, P-gildið og q-gildið í hverri línu saman, ásamt fjölda leiðsagnar-RNA og hversu mörg þeirra eru samstíga.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Stilltu Max q á 0,05. Taflan tæmist því ekkert gen í þessari keyrslu nær q-gildi upp á 0,05 eða lægra. Með 199 umröðunum er minnsta mögulega P-gildið 0,005 og lægsta q-gildið um 0,27. Það sem á eftir fer skoðar því raðaðan kandídat, ekki staðfestan smell.",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Stilltu Max q aftur á 1, leitaðu að 225160 og veldu línuna. Það hefur áhrifin 0,34, q-gildið 0,27 og þrjú leiðsagnar-RNA sem öll vísa í sömu átt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Smelltu á Investigate selected. Investigate Hit opnast með niðurstöðumöppunni, geninu, þremur leiðsagnar-RNA þess og jákvæðri áhrifastefnu sem þegar hafa verið fyllt út úr línunni.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "Við hliðina á Measurements database smellirðu á Browse og velur measurements.db úr dæminu. Hann geymir lögun, stærð og meðalstyrk rása fyrir 8.915 frumur í 52 brunnum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "Fyrir Existing CV predictions velurðu cv_predictions.csv. Hver lína er vistað CV-stig einnar frumu, tengt sama mælda hlutnum. Smelltu á slóðina og ýttu á Enter svo stigadálkarnir séu lesnir og haltu svo pred sem stigadálki svipgerðar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "Fyrir Well/guide fractions velurðu regression_data.csv í sömu niðurstöðumöppu. Regression skrifaði þessa töflu. Hún gefur hlutfall hvers leiðsagnar-RNA í hverjum greindum brunni.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Hafðu Independent morphology features tómt. Þá notar einingin 13 tölulegar frumumælingar gagnagrunnsins og sleppir auðkennum, hlutföllum leiðsagnar-RNA og CV-stiginu, svo þessi athugun endurnýti ekki stigið. Fyrir eigin gagnagrunn tilgreinirðu aðeins mælidálka án gilda sem vantar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_running",
+          "narration": "Smelltu á Investigate hit. Líkanið er aðlagað þannig að ein plata er haldin utan í einu, svo engin fruma fær stig frá líkani sem var þjálfað á hennar eigin plötu. Hlutfall leiðsagnar-RNA í brunni ákvarðar aðeins upphafsvæntingu fyrir frumur hans. Það merkir aldrei frumu sem bera leiðsagnar-RNA-ið. Þetta dæmi tekur nokkrar mínútur.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence sýnir niðurstöðuna. Markbrunnar hafa smell-líka tíðni sem er aðeins 0,01 hærri en í viðmiðunarbrunnum. Ræsiúrtaksbilið eftir brunnum nær frá mínus 0,04 til plús 0,06, og P-gildi blokkaðrar umröðunar er um 0,63. Frumurnar styðja ekki þennan kandídat.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells sýnir hlutfall leiðsagnar-RNA, meðallíkur á smell-líkri svipgerð, tíðni og fjölda frumna fyrir hvern brunn. Hver brunnur telst ein óháð eining, svo samanburðurinn notar 13 markbrunna og 39 viðmiðunarbrunna, ekki einstakar frumur.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides sýnir hvert markleiðsagnar-RNA fyrir sig. Skammtasvörun þeirra vísar í ólíkar áttir, sem er enn ein ástæða til að líta ekki á þetta gen sem smell.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity endurtekur samanburðinn við líkindamörk frá 0,5 upp í 0,9. Við hver mörk helst munurinn nálægt 0,01, svo niðurstaðan veltur ekki á mörkunum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells raðar frumunum eftir smell-líkum líkum, með upprunalega stiginu og brotinu sem gaf hverri frumu stig. Þessar líkur lýsa smell-líkri lögun, ekki því hvaða leiðsagnar-RNA fruma bar. Færðu flokkanir aðeins yfir í merkingu þegar vísbendingarnar á brunnastigi eru sannfærandi. Undo afturkallar færslu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "Töflurnar vistast í niðurstöðumöppunni undir hit_investigation og svo 225160. Þær innihalda þessa innfellingu og upptalningarskrá, og hver keyrsla er líka geymd sem ný útgáfa í gagnagrunninum. Dæmið hefur engar úrklippumyndir, svo yfirferðarsafnið er tómt. Næst skaltu rannsaka gen sem stenst þröskuldinn þinn í Regression-keyrslu með fleiri umröðunum.",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",

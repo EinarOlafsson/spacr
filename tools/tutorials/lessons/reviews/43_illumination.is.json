@@ -1,34 +1,36 @@
 {
   "lesson": "43_illumination",
-  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "english_sha256": "733c89c9161df491db3c40feedfcdde7908b25a629f43da184fe9e8f6ff66d99",
   "review": {
-    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "is",
-  "title": "Lýsingarleiðrétting",
-  "description": "Áætlaðu lýsingarsvið út frá sóttum myndum á Illumination-síðu Measure, skoðaðu raunverulegt útflutt gæðaeftirlit og aðskildu tölulegan árangur frá líffræðilegri staðfestingu.",
+  "title": "Illumination: mettu og skoðaðu leiðréttingarlíkan",
+  "description": "Veldu myndrásir, mettu lýsingarsvið, skoðaðu gæðaeftirlitsmyndrit þess og endurnýttu vistaða líkanið.",
   "objectives": [
-    "Opna samþættu síðuna og velja styrkleikarásir samsettra mynda.",
-    "Bera saman slökkt og kveikt á leiðréttingu og skoða líkan og gæðaeftirlit.",
-    "Endurnota yfirfarið líkan án þess að rugla saman greiningu á aðlögunargögnum og óháðri staðfestingu."
+    "Velja dæmigerð sjónsvið og styrkleikarásir.",
+    "Meta og skoða lýsingarlíkan.",
+    "Endurnýta líkanið í Mask eða Measure."
   ],
-  "prerequisite": "Notuð eru óbreytt afrit af sextán sóttum plate1-myndsviðum, 1994 × 1994 mynddílum með sjö vistuðum plönum. Rás núll er styrkleikavísir, ekki heiti litunar; merkiplön eru ekki styrkleikar. Frumrit og afrit varðveitast. Eftir GUI-keyrslu sannreynir óháð formúla 7.952.072 leiðrétta mynddíla gegnum opinbera API-ið án þess að skipta út niðurstöðum viðmótsins. Líkan og gæðaeftirlit nota sömu sextán sviðin, ekki óháð sjónfræðileg eða líffræðileg viðmiðunargögn. Dökkt hliðrunargildi núll er ekki mæld kvörðun. Figures helst tómt; raunverulega PNG-skráin er opnuð í sérstöku myndskoðunarforriti. Engum forritskóða eða upprunamyndum er breytt. Gömlu fimm atriða hermuninni er skipt út.",
+  "prerequisite": "Notaðu möppu sameinaðra mynda með dæmigerðum sjónsviðum úr hverjum myndatökuhópi. Dæmið notar sextán sjónsvið úr plötudæminu sem sótt var í Measure. Vittu hvaða vistuð lög innihalda styrk og hver innihalda merki.",
   "scenes": [
-    "Opnaðu Measure og síðan Illumination-hnappinn. Þessi samþætta síða áætlar leiðréttingarlíkan fyrir stærri greiningu. Það er annað en að kveikja einfaldlega á leiðréttingu í mælingakeyrslu og gerir ekki alla forritslotuna sjálfkrafa leiðrétta.",
-    "Beindu Source að merged-möppunni með myndfylkjunum, ekki mælingagagnagrunninum. Við notum ný afrit af öllum sextán sviðum niðurhalanlega plötudæmisins. Frumritin haldast óbreytt og lýsingarlíkanið vistast við hlið merged-möppunnar.",
-    "Channels-stillingin nefnir staðsetningar í vistaða styrkleikafylkinu. Hér veljum við rás núll. Athugaðu eigin samsvörun við myndatöku í stað þess að gera ráð fyrir að núll tákni alltaf sömu litun. Veldu aldrei merkigrímuplan eins og það væri flúrljómunarstyrkur.",
-    "Fyrst er slökkt á leiðréttingu. Run lýkur en stjórnborðið segir skýrt að ekkert lýsingarsvið hafi verið áætlað. Við staðfestum að ekkert líkan hafi verið búið til. Skilaboð um heppnaða keyrslu sanna því ekki ein og sér að leiðrétting hafi farið fram.",
-    "Kveiktu á Illumination correction. Dæmið notar polynomial-matið með stigi fjögur og skilur Illumination model eftir tómt til að áætla nýtt svið. Meiri sveigjanleiki er ekki sjálfkrafa betri: Leiðrétting sem fylgir frumum eða meðferðarmynstrum getur fjarlægt líffræðina sem þú vildir mæla.",
-    "Haltu myndatökuhópum aðskildum með Illumination per plate. Hér notum við öll sextán tiltæku sviðin. Dæmigerð þekja skiptir meira máli en að hækka tölu í blindni; líkan aðlagað einum þéttvöxnum kima getur ruglað líffræðilegri byggingu saman við ójafna lýsingu.",
-    "Illumination dark er samlagningarhliðrun myndavélar í hráum talningareiningum, ekki lærður líffræðilegur bakgrunnur. Núll er stillingin í sýnidæminu, ekki kvörðunarniðurstaða. Veldu hliðrun út frá viðeigandi myndatökuviðmiðum í stað þess að breyta henni þar til svipgerð hverfur.",
-    "Hafðu Illumination QC virkt og athugaðu regluna þegar líkan vantar. Við veljum error svo að ófáanleg leiðrétting fyrir plötu stöðvi aðgerðina í stað þess að blanda saman leiðréttum og óleiðréttum sviðum án tilkynningar. Þessar athuganir koma ekki í stað þess að skoða áætlaða sviðið.",
-    "Keyrðu aftur með leiðréttingu virka. Stjórnborðið birtir nú aðlagaða sviðið, greiningarhallatölur og slóð vistaða líkansins. Þetta sjálfstæða skref skilur myndskrárnar eftir óbreyttar; það hefur hvorki endurkeyrt myndgreiningu né búið til nýjar frumumælingar.",
-    "Í þessari útgáfu vistast QC-myndin en birtist ekki í innbyggða Figures-spjaldinu. Opnaðu illumination_qc_plate1.png úr illumination-möppunni í myndskoðunarforriti. Þetta er raunverulega útflutta myndritið í sérstöku forriti, ekki hermt spaCR-spjald.",
-    "Vinstra spjaldið sýnir áætlaða lýsingarsviðið með meðaltalið einn. Leiðréttingin dregur hliðrun myndavélar frá og deilir með þessu sviði. Þótt fyrirsögnin kalli það gain skaltu ekki margfalda styrkleika með kortinu: Leiðréttingin notar andhverfu þess. Athugaðu hvort líffræðileg form hafi slæðst inn í matið.",
-    "Geislalæga hallatalan breytist úr um −0,181 í +0,026. Tilkynnt 85,4 prósenta minnkun stemmir við óháða útreikninginn okkar, en ferillinn eftir leiðréttingu er ekki flatur. Þetta eru sömu sviðin og voru notuð til að aðlaga líkanið, svo þetta er ekki óháð staðfesting.",
-    "Til að endurnota líkanið síðar skaltu gefa upp vistaða slóð þess og virkja leiðréttingu sérstaklega í fyrirhugaðri Mask- eða Measure-vinnslu. Varðveittu líkan, rásatengingar, plötuauðkenni og stillingar saman. Skoðaðu óháð svið og forðastu að leiðrétta þegar leiðrétta styrkleika tvisvar áður en þú túlkar líffræðilegan mun."
+    "Opnaðu Measure og svo Illumination til að meta leiðréttingarlíkan fyrir ójafna birtu mynda.",
+    "Stilltu Source á möppuna merged sem inniheldur myndfylkin. Notaðu dæmigerð sjónsvið úr myndatökunni; dæmið notar sextán sjónsvið af einni plötu.",
+    "Stilltu Channels á vistuðu styrkleikalögin sem þú vilt leiðrétta. Dæmið notar rás 0. Athugaðu rásavörpunina og útilokaðu lög með merkjagrímum.",
+    "Virkjaðu Illumination correction áður en þú metur svið. Þegar slökkt er á því lýkur Run án þess að búa til leiðréttingarlíkan.",
+    "Veldu matsaðferð og stillingar hennar. Fyrir margliðudæmið notarðu stig 4 og hefur Illumination model tómt til að meta nýtt svið. Skoðaðu hvort niðurstaðan inniheldur byggingar sem tilheyra frumum frekar en lýsingu.",
+    "Virkjaðu Illumination per plate til að aðlaga myndatökuhópa sérstaklega. Stilltu Maximum fields á dæmigert úrtak; dæmið tekur öll sextán tiltæk sjónsvið með.",
+    "Stilltu Illumination dark eftir kvörðun myndavélarinnar ef hún er til. Það er viðbótarhliðrun í hráum talningum; 0 er gildi dæmisins.",
+    "Virkjaðu Illumination QC og veldu reglu fyrir líkön sem vantar. Með error valið stöðvar vinnslan ef leiðréttingu plötu vantar svo þú getir leyst málið.",
+    "Ýttu á Run og lestu slóð vistaða líkansins í stjórnborðinu. Þetta skref metur líkanið; virkjaðu það í síðari greiningu til að beita leiðréttingunni.",
+    "Opnaðu vistaða PNG-gæðaeftirlitsmynd lýsingar í möppunni illumination. Notaðu myndskoðara ef hún birtist ekki í spjaldinu Figures.",
+    "Skoðaðu metna lýsingarsviðið: birtan á að breytast mjúklega og engar óæskilegar frumulaga byggingar eiga að sjást. Leiðréttingin dregur myrkurhliðrunina frá og deilir með þessu sviði sem hefur meðaltalið 1.",
+    "Berðu saman geislalægu sniðin fyrir og eftir. Notaðu fleiri sjónsvið til að meta hversu vel leiðréttingin virkar utan myndanna sem notaðar voru til að aðlaga hana.",
+    "Til að endurnýta líkanið tilgreinirðu slóð þess og virkjar leiðréttinguna í viðeigandi Mask- eða Measure-ferli. Geymdu rásir þess, auðkenni platna og stillingar með því og forðastu að leiðrétta sama styrk tvisvar."
   ]
 }

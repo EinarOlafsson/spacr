@@ -81,56 +81,67 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation med Conda",
+      "title": "Installera spaCR med Conda",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installera det officiella conda-forge-paketet i en separat miljö, kontrollera kanalens faktiska version och identifiera skillnader mot de aktuella modulhandledningarna.",
+      "description": "Skapa en Conda-miljö, installera spaCR från conda-forge och starta programmet.",
       "objectives": [
-        "Skapa och aktivera en separat Conda-miljö.",
-        "Kontrollera kanalpaketet, Qt och diagnostikresultaten.",
-        "Välj nyare pip eller skrivbordsinstallationsprogrammet när kanalen fortfarande har det gamla gränssnittet."
+        "Skapa och aktivera en egen Conda-miljö.",
+        "Installera spaCR från conda-forge.",
+        "Öppna spaCR och uppdatera samma miljö vid behov."
       ],
-      "prerequisite": "En Conda-kompatibel pakethanterare måste redan vara installerad. Inspelningen kontrollerar spaCR 1.5.0.4 från conda-forge på Linux med Python 3.12.14 och Qt 6.11.2 den 10 september 2026. Den rena installationen använder ett nytt privat prefix, enbart conda-forge och en låst kanalversion; kommandokorten visar motsvarande arbetsgång med en namngiven miljö, inte återspelad installationsutmatning. Det verkliga gränssnittet har fortfarande Home (63), inte den nya nästlade strukturen i PyPI/installationsprogram 1.5.0.5. Standardkörningen av spacr-doctor klarade sitt lilla CUDA-minnesallokeringstest men varnade om valfritt CZI-stöd; detta är varken ett hastighetstest eller verifiering av alla analyser och format. Den faktiska inspelningen använder en privat mörk profil med teckensnittsskala 1.5, redan stängd introduktion och oförändrade förinläsningsinställningar, utan den flagga --no-setup som saknar stöd. Andra plattformar har inte testats. Ursprunglig och publicerad berättartext skiljer sig åt, så oförändrad återanvändning av ljud påstås inte.",
+      "prerequisite": "Installera Conda eller Miniforge och öppna sedan en terminal där kommandot conda är tillgängligt.",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "Använd en separat Conda-miljö för spaCR och kontrollera vilken utgåva kanalen faktiskt erbjuder. Vid denna inspelning installerar conda-forge ett punkt fem punkt noll punkt fyra. PyPI och skrivbordsinstallationsprogrammet erbjuder redan ett punkt fem punkt noll punkt fem; dessa versioner är inte utbytbara.",
+          "narration": "Öppna en terminal med Conda. Du skapar en miljö för spaCR, installerar conda-forge-paketet och startar programmet från den miljön.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "Skapa en miljö som heter spacr-conda med Python 3.12 och spaCR från conda-forge med det visade kommandot. Välj ett annat namn om du redan använder det namnet för en annan miljö.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_conda",
-          "narration": "Öppna ett kommandoskal som är förberett för Conda och skapa en ny miljö med Python tre punkt tolv. Kommandokortet använder namnet spacr-conda. Välj ett annat oanvänt namn om det redan finns och håll miljön åtskild från pågående analyser.",
+          "narration": "Conda löser miljön och listar paketplanen. Granska den, skriv y för att godkänna och vänta sedan tills nedladdningen och installationen är klar.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_conda",
-          "narration": "Aktivera miljön och skriv ut sys punkt prefix för att bekräfta var Python hör hemma. Den faktiska kontrollen använder ett längre privat prefix i stället för det korta exempelnamnet. En terminalprompt bevisar inte ensam att rätt tolk används.",
+          "narration": "Aktivera spacr-conda. Kör det visade Python-kommandot för att se miljöns sökväg och kontrollera att det är miljön du just skapade.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_conda",
-          "narration": "Installera paketet med conda-forge uttryckligen angivet som kanal och använd sedan conda list spacr för att granska version och kanal. Den inspelade installationen använde endast conda-forge och låste kanalversionen. Installationen var klar före kontrollbilderna; korten är instruktioner, inte fabricerad terminalutmatning.",
+          "narration": "Kör conda list spacr för att se den installerade versionen och bekräfta att den kommer från conda-forge. När Python och spaCR installeras med ett enda kommando kan Conda lösa alla paket tillsammans, vilket går mycket snabbare än att lägga till spaCR i en befintlig miljö.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Kontrollera spaCR-versionen, Qt-versionen och paketets plats i den installerade miljön. Här är paketet ett punkt fem punkt noll punkt fyra och Qt importeras korrekt. Det identifierar det aktiva paketet, men verifierar inte alla vetenskapliga arbetsflöden eller valfria format.",
+          "narration": "Kontrollera den installerade spaCR-versionen och paketets plats. Spara versionen med dina analysanteckningar så att du kan återvända till samma miljö senare.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Kör spacr-doctor och läs även varningarna. Det lilla GPU-minnesallokeringstestet lyckas här, medan valfritt CZI-stöd saknar ett beroende. Överhoppade kontroller är inte godkända kontroller. Reparationsförslaget gäller den funktionen; bedöm miljöändringar innan de genomförs, särskilt när pakethanterare blandas.",
+          "narration": "Kör spacr-doctor för att kontrollera installationen. Här rapporterar det att vispy, ett centralt beroende, saknas och visar kommandot som installerar det. Kör det kommandot och kör sedan spacr-doctor igen. Följ andra föreslagna steg bara för de filformat eller funktioner du behöver.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Det installerade Conda-paketet öppnas och stängs normalt, men detta är dess äldre Home med sextiotre rutor. Det har inte den nya nästlade modulstrukturen. Anta inte att en lyckad installation innebär att varje skärmbild motsvarar handledningarna för en nyare utgåva.",
-          "hold_after": 0.7
+          "narration": "Skriv spacr för att starta programmet. Gör valen vid första starten och fortsätt sedan med Home-handledningen för att hitta moduler och deras exempeldata.",
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "För det nyare nästlade gränssnittet i de uppdaterade modulhandledningarna använder du den aktuella lektionen om pip eller Platform installers i en separat miljö. Behöver du Conda-kanalen, dokumentera dess faktiska utgåva och kontrollera efter uppdateringar igen. Bevara den version som används för en pågående analys.",
+          "narration": "För att uppdatera senare stänger du spaCR, aktiverar den här miljön och uppdaterar conda-forge-paketet. När conda-forge inte har någon nyare version rapporterar Conda att alla begärda paket redan är installerade. Kontrollera sedan den installerade versionen; lektionerna om pip och installationsprogrammet beskriver de andra installationsvägarna.",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
@@ -138,7 +149,52 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -148,145 +204,202 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Skapa en isolerad Python-miljö, installera det offentliga paketet, kontrollera beroendena och starta den installerade Qt-appen.",
+      "description": "Skapa en isolerad Python-miljö, installera det publika paketet, kontrollera dess beroenden och starta det installerade Qt-programmet.",
       "objectives": [
-        "Hålla spaCR:s beroenden i en egen Python-miljö.",
-        "Kontrollera installerat paket, Qt och varningar om valfria funktioner.",
-        "Öppna Home och medvetet uppdatera rätt miljö."
+        "Skapa och aktivera en virtuell Python-miljö.",
+        "Installera spaCR och kontrollera dess beroenden.",
+        "Starta programmet och uppdatera den avsedda miljön."
       ],
-      "prerequisite": "Lektionen verifierar spaCR 1.5.0.5 från PyPI på Linux med Python 3.12.13, inte en redigerbar installation av ett källkodsträd. Kommandokorten är instruktioner, inte inspelad terminalutmatning; Windows- och macOS-kommandona kördes inte här. Den rena installationen avslutades före de inspelade kontrollerna. De aktuella grundberoendena omfattar Qt. Doctor visar en varning för valfritt CZI-stöd; testet av GPU-minnesallokering hoppas uttryckligen över. GUI-inspelningen använder --no-setup, en privat mörk profil med teckenskala 1.5 och en redan stängd rundtur. Den visar normal öppning och stängning av Home, inte att alla moduler, valfria format, GPU-beräkningar eller andra plattformar fungerar.",
+      "prerequisite": "Installera Python 3.12 och öppna en terminal. Använd aktiveringskommandot för ditt operativsystem och ditt skal.",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "Installera spaCR i en egen Python-miljö. Demonstrationen använder Python 3.12 på Linux och den offentliga PyPI-utgåvan, inte ett utcheckat källkodsträd. Kontrollera python --version innan du väljer tolk för miljön.",
+          "narration": "Öppna en terminal och kontrollera din Python-version. Den här genomgången använder Python 3.12. Håll spaCR i en egen virtuell miljö så att paketen blir lätta att hantera.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_environment",
-          "narration": "Skapa en ny virtuell miljö med kommandot för din plattform. Här är .venv en ny mapp i arbetskatalogen. Python 3.12 måste redan vara installerat; kommandot skapar en miljö, inte Python självt.",
+          "narration": "Skapa en virtuell miljö som heter .venv med kommandot för ditt operativsystem. Då skapas en mapp med den Python-miljö som du ska använda för spaCR.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_environment",
-          "narration": "Aktivera miljön med kommandot för ditt skal. PowerShell, Command Prompt, bash och zsh har olika aktiveringskommandon. Om PowerShell blockerar skriptet använder du Command Prompt eller kör miljöns Python direkt; sänk inte säkerheten för hela datorn.",
+          "narration": "Aktivera .venv med kommandot för ditt skal. Windows PowerShell och Kommandotolken har olika aktiveringskommandon; macOS och Linux använder oftast skalkommandot som visas här.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pip_environment",
-          "narration": "Kör python -m pip --version. Sökvägen ska ligga i den miljö du har valt. Den här riktiga terminalen visar den längre privata sökväg som används för inspelningen. Med python -m pip kopplas paketinstallationen till just den tolken.",
+          "narration": "Kör python -m pip --version. Kontrollera att den visade sökvägen hör till .venv. Använd python -m pip för installationskommandona så att pip använder den här tolken.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_package",
-          "narration": "Uppdatera pip och installera sedan spacr. Lås till 1.5.0.5 för samma utgåva som i lektionen. Den rena installationen avslutades innan dessa kontroller spelades in. Avsätt tid och diskutrymme för vetenskapliga beroenden; de aktuella grundberoendena innehåller redan Qt-komponenterna för skrivbordet.",
+          "narration": "Uppgradera pip och installera sedan spacr. Vänta tills de vetenskapliga paketen har laddats ned och installerats. Det aktuella paketet innehåller de skrivbordskomponenter som behövs för att öppna programmet.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Kontrollera installerad spaCR-version, Qt-version och paketsökväg. Här kommer alla tre från den nya miljön. En lyckad import visar inte att alla valfria format eller analyser fungerar, och inte heller att fönstret går att öppna.",
+          "narration": "Kontrollera den installerade spaCR-versionen och paketets plats med det visade kommandot. Spara versionen tillsammans med dina analysanteckningar.",
           "hold_after": 0.7
         },
         {
           "visual": "04_dependency_check",
-          "narration": "Kör python -m pip check. No broken requirements betyder att de installerade beroendedeklarationerna är förenliga. Lös eventuella konflikter innan du fortsätter; en godkänd kontroll är ingen vetenskaplig validering av analysen.",
+          "narration": "Kör python -m pip check. Om det rapporterar motstridiga krav ska du lösa dem innan du använder miljön.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Kör spacr-doctor och läs varningarna såväl som de godkända kontrollerna. Installationen har en varning för valfritt CZI-stöd och visar ett reparationskommando. Inspelningen använder --no-gpu-probe, så enheten upptäcks men GPU-minnesallokering testas inte. Överhoppade kontroller är inte godkända kontroller.",
+          "narration": "Kör spacr-doctor för att granska installationen och se eventuella saknade valfria funktioner. Följ den föreslagna reparationen bara för de format eller funktioner du behöver.",
           "hold_after": 0.7
         },
         {
           "visual": "10_launch_commands",
-          "narration": "Starta spacr från samma aktiverade miljö. Vid en vanlig första start kan inställningsfrågor visas. Den här begränsade verifieringen använder uttryckligen --no-setup och en förberedd inspelningsprofil; den visar inte hur frågorna besvaras.",
+          "narration": "Starta spacr från den aktiverade miljön. Vid första starten följer du installationsanvisningarna och väljer dina inställningar.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Det här är det riktiga Home-fönstret från det installerade wheel-paketet, med sex kärnmoduler och grupperna Data, Tools och Assays. Det öppnades och stängdes normalt utan att någon analys startades. Fortsätt med Home för navigering, inbäddade verktyg och modullektioner.",
+          "narration": "Home öppnas med kategorierna Core, Data, Tools och Assays. Fortsätt med Home-handledningen för att hitta en modul, läsa in exempeldata och öppna en pipelineöversikt.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "Stäng spaCR inför en uppdatering och aktivera den miljö du vill ändra. Uppdatera paketet, upprepa pip check och spacr-doctor och dokumentera den nya versionen med analysen. Uppdateringar kan ändra beroenden och beteende; ändra inte i tysthet en miljö som används för pågående arbete.",
+          "narration": "För att uppdatera stänger du spaCR och aktiverar den här miljön. Uppgradera paketet och kontrollera sedan version och beroenden igen. Behåll den tidigare miljön om du behöver den för en pågående analys.",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Installationsprogram för olika plattformar",
+      "title": "Installera spaCR med ett installationsprogram",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Välj ett officiellt installationsprogram, förstå automatiskt val av accelerator och frivilliga integritetsval och kontrollera den faktiskt installerade Linux-miljön.",
+      "description": "Ladda ned installationsprogrammet för ditt operativsystem, slutför installationen och öppna spaCR.",
       "objectives": [
-        "Välja det officiella installationsprogrammet för operativsystemet.",
-        "Skilja automatisk acceleration från ett uttryckligt val av enbart CPU.",
-        "Läsa integritetsval, installerade versioner och diagnostiska varningar."
+        "Ladda ned och kör installationsprogrammet för ditt operativsystem.",
+        "Välj ett accelerationsalternativ och inställningar för första starten.",
+        "Öppna spaCR och hitta installationsloggarna om installationen behöver åtgärdas."
       ],
-      "prerequisite": "Inspelningen kontrollerar det offentliga onlineinstallationsprogrammet för Linux x86-64, spaCR 1.5.0.5, jämfört med kontrollsumman den 10 september 2026, med Python 3.12.13, Qt 6.11.2 och Torch 2.14.0+cu132. Den verkliga installationen var klar före kontrollbilderna. Den använde nya privata kataloger för körmiljö och startprogram, befintliga grafiska systembibliotek, --skip-system-deps och --no-launch; inga befintliga miljöer eller systemberoenden ändrades. Fyra referenskort är instruktioner, inte inspelade Windows/macOS-installationer eller påhittad terminalutmatning. Windows/macOS-anvisningarna har bara kontrollerats mot installationsprogrammets aktuella källkod. GUI-inspelningen använder en privat mörk profil, teckensnittsskala 1.5, redan stängd introduktion, förinläsning vid behov och --no-setup, som inte hoppar över den separata integritetsfrågan. Den avvisas med den verkliga Escape-tangenten så att alla frivilliga val är avstängda; de privata inställningarna lästes tillbaka för bekräftelse. Doctor använde --no-gpu-probe; ingen verifiering av allokering, hastighet, analyser eller andra plattformar hävdas. Misslyckade inspelningsförsök bevaras och räknas inte som programfel.",
+      "prerequisite": "Ladda ned det officiella installationsprogrammet för ditt operativsystem och se till att det finns plats för programmet och dess vetenskapliga beroenden.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Använd spaCR:s officiella utgåva på GitHub och välj installationsprogrammet för ditt operativsystem. Onlineinstallationsprogrammen hämtar en privat Python-körmiljö och vetenskapliga beroenden; en befintlig Conda-miljö behövs inte. I detta Linux-exempel jämförde vi den hämtade filen med utgåvans kontrollsumma före körning.",
+          "narration": "Öppna den officiella spaCR-versionen på GitHub och ladda ned installationsprogrammet för ditt operativsystem under Assets. Dessa onlineinstallationsprogram laddar ned Python-körmiljön och de vetenskapliga paketen under installationen. Spara SHA256SUMS.txt från samma version om du vill verifiera nedladdningen.",
           "hold_after": 0.7
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "På Windows väljer du den körbara onlineinstallationsfilen. Den aktuella källkoden förväljer automatisk acceleration; avmarkera den valfria komponenten om du endast vill använda CPU. Kortet förklarar valet men är varken en inspelad Windows-installation eller ett kompatibilitetstest på din dator.",
+          "narration": "I Windows kör du installationsprogrammet och följer anvisningarna. Låt automatisk acceleration vara vald för att använda den hårdvara som stöds och som hittas på datorn, eller välj enbart CPU om det är vad du behöver.",
           "hold_after": 0.7
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "På macOS väljer du det universella onlinepaketet för Intel och Apple silicon. Appens startprogram börjar konfigurera användarens miljö om körmiljön saknas. Kontrollera den officiella källan innan säkerhetsfrågor godkänns och avsätt tid för hämtningar. Det är källkodsgranskad vägledning, inte en utförd macOS-installation.",
+          "narration": "I macOS öppnar du universalpaketet och följer installationsprogrammet. Starta spaCR från programstartaren och låt nedladdningarna vid första starten bli klara. Läs eventuella säkerhetsfrågor och bekräfta att paketet kommer från den officiella versionen.",
           "hold_after": 0.7
         },
         {
           "visual": "11_linux_commands",
-          "narration": "På Linux gör du den verifierade filen körbar och startar den från dess katalog. Automatiskt val av accelerator är nu standard; begär uttryckligen CPU om det behövs. Vår isolerade körning återanvände systembibliotek och privata sökvägar och demonstrerade därför inte installation av systemberoenden.",
+          "narration": "I Linux gör du det nedladdade installationsprogrammet körbart och kör det sedan från en terminal. Automatisk acceleration väljer en backend som stöds. Hjälpen listar --torch-backend cpu för enbart CPU och --skip-system-deps för datorer som redan har Qt:s grafikbibliotek.",
           "hold_after": 0.7
         },
         {
           "visual": "02_installer_backend",
-          "narration": "Läs den verkliga installationsprofilen i stället för att dra slutsatser om beräkningsmotorn från en lyckad start. Här begärdes auto och den valda motorn är CUDA på NVIDIA-hårdvara. Installerad Torch är byggd för CUDA tretton punkt två. Det identifierar valet, men är inget GPU-hastighetstest.",
+          "narration": "Efter installationen registrerar installationsprofilen den valda backenden. Titta där när du vill bekräfta om körmiljön använder CPU:n eller en accelerator som stöds.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Kontrollera paketversion, Qt-import och paketsökväg. Denna privata körmiljö innehåller spaCR ett punkt fem punkt noll punkt fem. Filerna kommer från installationen, inte en redigerbar källkodskopia. Lyckade importer verifierar inte varje analys eller valfritt filformat.",
+          "narration": "Kontrollera den installerade spaCR-versionen. Spara den med dina analysanteckningar, särskilt när du uppdaterar programmet senare.",
           "hold_after": 0.7
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "Den verkliga första starten frågar om frivillig diagnostikdelning, offentliga felrapporter och kontoinställningar. Rapporter skulle vara offentliga, så läs förklaringen. Inspelningen avvisar dialogen med Escape, motsvarande Skip, keep all off. Inga konton ansluts, och privata inställningar bekräftar att delning och rapportåtgärder förblir avstängda.",
+          "narration": "Installationen frågar om valfri delning av diagnostik och om kontokonfiguration. Svara y bara för de alternativ du vill ha; n, standardvalet, håller varje alternativ avstängt. Installationsprogrammet för Windows visar samma val som kryssrutor.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "Efter valet öppnar den installerade appen sin aktuella Home med tjugoen rutor och sex kärnmoduler. Fönstret stängs också normalt. Fortsätt med Home-lektionen om nästlade arbetsflöden och exempeldata; att enbart öppna Home är inget analystest.",
+          "narration": "När Home öppnas fortsätter du med Home-handledningen. Den visar hur du öppnar en modul, hittar testdata och väljer en pipeline för ditt experiment.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "05_doctor",
-          "narration": "Kör spacr-doctor från den installerade körmiljön och läs både varningar och godkända kontroller. Här bekräftas installationsprogrammets motor, men ett valfritt CZI-beroende saknas. GPU-allokering, databas och inställningar hoppades över. En överhoppad kontroll är inte godkänd; bedöm den föreslagna reparationen innan miljön ändras.",
+          "narration": "Om starten eller ett filformat behöver åtgärdas kör du spacr-doctor från den installerade körmiljön. Det listar varje kontroll med en föreslagen åtgärd. I den här installationen med enbart CPU misslyckas GPU-kontrollen som väntat, och PATH-kontrollen flaggar installationsprogrammets egen spacr-startare, som startar samma körmiljö, så ingen av dem behöver ändras här.",
           "hold_after": 0.7
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "Spara install punkt log och install-profile punkt json från den valda installationskatalogen vid felsökning. Granska loggar efter privata uppgifter innan du delar dem. Anteckna versionen för varje analys och uppdatera medvetet. Lektionerna om pip och Conda beskriver de andra installationsvägarna med separata miljöer.",
+          "narration": "Vid installationsproblem hittar du install.log och install-profile.json i installationskatalogen. Granska loggarna innan du delar dem i en supportbegäran. Ange ditt operativsystem och din spaCR-version så att problemet blir lättare att felsöka.",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
@@ -294,32 +407,77 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
       "number": 5,
       "slug": "home",
-      "title": "Home screen and navigation",
+      "title": "Home-skärmen och navigering",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "description": "Öppna en modul från Home, hitta dess relaterade verktyg och exempeldata och välj sedan en pipeline att följa.",
       "objectives": [
-        "Choose a starting module for images, measurements or sequencing reads.",
-        "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Välja en startmodul för bilder, mätvärden eller sekvensläsningar.",
+        "Hitta relaterade verktyg och organismspecifika analyser.",
+        "Läsa in ett exempel, hitta hjälp och öppna en pipelineöversikt."
       ],
-      "prerequisite": "Install spaCR and open the desktop application.",
+      "prerequisite": "Installera spaCR och öppna skrivbordsprogrammet.",
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "narration": "Home är din startpunkt. Klicka på en ruta för att öppna en modul, eller använd sidofältet till vänster. Klicka på Home i sidofältet för att komma tillbaka hit. Flikarna Core, Data, Tools och Assays hjälper dig att hitta uppgiften du vill utföra.",
           "hold_after": 0.7
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "För mikroskopbilder börjar du med Mask för att avgränsa objekt och fortsätter med Measure för att ta fram deras egenskaper och utsnitt. Med Annotate märker du exempelobjekt, och Classify lär sig av märkningarna för att poängsätta fler objekt. Map Barcodes läser sekvensdata. Regression kombinerar de resulterande fenotyppoängen med guideräkningarna för att hitta samband.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -340,7 +498,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "I Data kommer filer in och resultat kontrolleras. Om du redan har bilder, masker eller mättabeller tar Import in dem i ett projekt som de andra modulerna kan läsa. Före ett experiment planerar Experiment Design dina plattor; efteråt visar QC de registrerade kvalitetskontrollerna och Run Compare ställer två körningar sida vid sida.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -360,7 +518,7 @@
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Tools samlar de praktiska redigerarna och utforskarna. I Make Masks rättar du masker, och där öppnas även Cellpose Workbench. Align and Stitch fogar samman överlappande bildrutor till en bild. När du har mätvärden kan du utforska och plotta dem med Image UMAP, Gate Editor och Graph Builder. Varje moduls verktygsfält öppnar dess relaterade verktyg.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -379,7 +537,7 @@
         },
         {
           "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "narration": "Öppna Assays och välj din organism: Toxoplasma, Plasmodium eller Candida. Välj sedan en analys i organismens meny. Öppna till exempel Toxoplasma för plackanalys eller mätningar av värd och patogen. Följ handledningen för den valda analysen för att förbereda dess bilder, masker och mätindata.",
           "hold_after": 0.7,
           "focus_modules": [
             "toxoplasma",
@@ -395,7 +553,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "narration": "Öppna Classify och välj indata med Classifier family. Välj Computer Vision för objektbilder eller Tabular Machine Learning för kolumner med uppmätta egenskaper. De länkade handledningarna tar dig igenom träning, utvärdering och poängsättning för varje familj.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -405,7 +563,7 @@
         },
         {
           "visual": "05_classify_host",
-          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "narration": "När en modell är tränad hjälper verktygsfältet i Classify dig att granska den. Classifier Evaluation visar hur den presterade på undanhållna data, Explain CV Model och Activation visar vad som styr dess beslut, Training Runs jämför träningshistorik och Feature Explorer rangordnar egenskaperna som skiljer dina grupper åt. Håll pekaren över en ikon för att se dess namn.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -418,7 +576,7 @@
         },
         {
           "visual": "06_mask_host",
-          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "narration": "För att prova en modul klickar du på Load test data när det finns. Vänta tills nedladdningen är klar och granska sedan de ifyllda indata och inställningarna. I Mask klickar du på Live för att granska ett synfält innan du trycker på Run. Slå på Time för en tidsserie eller 3D för en volymbild.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -427,17 +585,17 @@
         },
         {
           "visual": "08_help_search",
-          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "narration": "Skriv namnet på en modul, en inställning eller en funktion i sökfältet bredvid Help. Här hittar en sökning på Performance motsvarande sida i Preferences. Klicka på ett resultat för att öppna dess mål. API-resultat öppnar dokumentationen för den valda funktionen.",
           "hold_after": 0.7
         },
         {
           "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "narration": "I Preferences väljer du en Performance-profil för din dator. Laptop använder mindre resurser; de högre profilerna tillåter mer cachning och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat. Dina analysinställningar förblir under din kontroll i varje modul.",
           "hold_after": 0.7
         },
         {
           "visual": "00_home",
-          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "narration": "Gå tillbaka till Home och klicka på Pipeline overviews för att välja ett arbetsflöde. Börja med spaCR screens för en poolad bildbaserad screening, eller välj en väg för bildanalys eller sekvensering för dina data. Nästa handledningar visar hur modulerna hänger ihop, och modullektionerna går sedan igenom varje uppgift.",
           "hold_after": 0.7,
           "related_lessons": [
             "78_spacr_screens",
@@ -455,6 +613,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1465,22 +1663,22 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks: edit labels and prepare training images",
+      "title": "Make Masks: redigera etiketter och förbered träningsbilder",
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Öppna bild- och maskpar, granska och redigera objekt, spara mätvärden och skapa parade träningsutsnitt.",
       "objectives": [
-        "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Öppna bilder med matchande instansmasker och granska objekt i förstoringsglaset.",
+        "Mäta parade synfält och spara en databas med objektegenskaper.",
+        "Rätta etiketter med Undo, ritning, delning och storleksfilter.",
+        "Spara granskade masker och skapa bild- och maskutsnitt för träning."
       ],
-      "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+      "prerequisite": "Förbered en mapp med tvådimensionella bilder och matchande TIFF-filer med instansetiketter i en undermapp som heter masks. Varje mask använder bildfilens namnstam. Arbeta på en kopia när du övar redigering och omskärning. Exemplet använder ER-bilder och cellmasker från Measures nedladdningsbara mikroskopiprojekt.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "Från Home öppnar du Make Masks under Tools. Välj den här redigeraren för att granska och rätta enskilda bildmasker. Öppna mappen med parade bilder och etiketter innan du väljer ett redigeringsverktyg.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -1488,7 +1686,7 @@
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Välj bildmappen. I det här exemplet använder du ER-intensitetsbilderna och motsvarande cellmasker från Measure-exemplet. Håll bildens och maskens dimensioner lika och filnamnen parade.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -1496,17 +1694,17 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+          "narration": "Redigeraren läser in bilden och dess matchande mask från undermappen masks. Färgade etiketter identifierar enskilda objekt. Kontrollera att konturerna följer gränserna i bilden. Om en tillhörande mask saknas börjar du med en tom mask och ritar de objekt du behöver.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Öppna Magnifier settings. Välj Otsu och Region under the mouse för att förhandsgranska tröskelbaserade objekt runt pekaren. Välj ett modellbaserat läge när tröskling inte skiljer dina objekt åt väl.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Slå på Magnifier och håll pekaren över ett objekt för att förstora förhandsvisningen. Flytta över flera objekt för att granska de föreslagna konturerna. Klicka för att lägga till de avgränsade objekten när de ser rätt ut, eller stäng av Magnifier för att fortsätta redigera.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -1517,7 +1715,7 @@
         },
         {
           "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
+          "narration": "Klicka på Features för att mäta bild- och maskpar. Lägg till en rad för varje synfält och välj intensitetsbilderna och motsvarande objektmasker. Kontrollera de manuella tilldelningarna om den automatiska filnamnsmatchningen lämnar filer otilldelade.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1531,7 +1729,7 @@
         },
         {
           "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
+          "narration": "På varje rad väljer du ER-intensitetsbilden i Channel 1 och dess matchande etikettbild i Cell mask. Upprepa för det andra synfältet. Använd de ursprungliga intensitetsbilderna för att mäta fluorescens.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1545,7 +1743,7 @@
         },
         {
           "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
+          "narration": "Granska båda raderna och välj sedan mätinställningarna. Det här exemplet använder en arbetsprocess, en minsta cellstorlek på en pixel och inga sparade PNG-utsnitt. Höj storleksgränsen för att utesluta små objekt när det passar ditt experiment. Klicka på Measure.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1559,7 +1757,7 @@
         },
         {
           "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
+          "narration": "När mätningen är klar öppnar du utdatamappen. Mappen measurements innehåller measurements.db med objektegenskaperna för båda synfälten. Behåll databasen tillsammans med källbilderna, maskerna och inställningarna, och stäng sedan Features för att gå tillbaka till redigeringen.",
           "hold_after": 0.7,
           "focus": [
             650,
@@ -1573,7 +1771,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+          "narration": "Välj det verktyg som passar rättelsen. Brush lägger till pixlar, Erase tar bort pixlar och Erase object tar bort en hel etikett. Draw lägger till ett avgränsat objekt; Divide delar ett. Zoom hjälper dig att granska gränser innan du gör ändringar.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -1584,42 +1782,42 @@
         },
         {
           "visual": "04_erase_one_object",
-          "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+          "narration": "Välj Erase object och klicka inuti objektet du vill ta bort. Kontrollera den uppdaterade konturen och antalet objekt. Använd detta för en oönskad etikett, till exempel skräp eller ett objekt utanför dina analyskriterier.",
           "hold_after": 0.7
         },
         {
           "visual": "06_redo",
-          "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+          "narration": "Klicka på Undo för att återställa borttagningen. Redo tillämpar den igen. Använd dessa historikkontroller för att jämföra en ändring med den tidigare masken och gå sedan tillbaka till den version du vill behålla.",
           "hold_after": 0.7
         },
         {
           "visual": "07_draw_demo_not_annotation",
-          "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+          "narration": "Välj Draw och rita en sluten gräns runt ett saknat objekt. Redigeraren fyller det med en ny etikett. I det här övningssteget ligger konturen i bakgrunden, så ångra den innan du sparar. För träningsdata ritar du objektets verkliga gräns.",
           "hold_after": 0.7
         },
         {
           "visual": "08_divide_demo",
-          "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+          "narration": "Använd Divide när två objekt som rör vid varandra delar en etikett. Rita ett snitt tvärs över hela det sammanhängande området och granska de separerade etiketterna. Ångra delningen om den skär genom ett enda objekt eller lämnar en felaktig gräns.",
           "hold_after": 0.7
         },
         {
           "visual": "08b_contrast_only",
-          "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+          "narration": "Justera Display percentiles så att svaga strukturer blir lättare att granska. Dessa kontroller ändrar bara visningen och bevarar de råa intensitetsvärdena och etiketterna. Återgå till en enhetlig visning när du jämför synfält.",
           "hold_after": 0.7
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "Ange minsta och största objektarea och tryck sedan på Filter för att ta bort etiketter utanför gränserna. Välj gränser som passar dina objekt och granska vad som togs bort. Filtret ändrar masken, så använd Undo om gränsen tar bort användbara objekt.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "När du har granskat ändringarna klickar du på Save mask. Återställ vid behov storleksgränserna till noll för att stänga av dem innan du går vidare till ett annat synfält. Bevara källbilderna och spara granskningsposten tillsammans med de redigerade maskerna.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "Rubrikraden rymmer resten av maskverktygen. När du väljer vikter hittar Model Zoo dem och Model Compare ställer två maskuppsättningar sida vid sida. När fler exempel behöver rättas tar Curate och Open in napari dig tillbaka till redigeringen.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1629,7 +1827,7 @@
         },
         {
           "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "narration": "Rubrikraden öppnar också Model Compare, Model Zoo, Curate och Open in napari. Använd Model Compare för att granska masker sida vid sida, Model Zoo för att välja vikter och granskningsverktygen för att granska eller redigera fler exempel.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -1641,12 +1839,12 @@
         },
         {
           "visual": "12_recrop_written",
-          "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+          "narration": "Välj Recrop och dra en ruta runt de objekt du vill ha i ett mindre träningsfält. Det skriver en ny bild och matchande mask. Objekt som skärs av kanten tas bort, så lämna utrymme runt hela objekt och granska utsnittet.",
           "hold_after": 0.7
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Klicka på Next för att öppna det nya utsnittet. Den ursprungliga bilden och masken sparas i recropped_originals så att de kan återställas. Granska utsnittet och dess etiketter innan du lägger till det i din träningsdatamängd.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -1654,32 +1852,32 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "För att hitta objekt i det aktuella synfältet väljer du Cellpose-modellen och granskar dess inställningar. Det här exemplet använder cpsam, normalisering påslagen, en tröskel för cellsannolikhet på 0 och en flödeströskel på 0,4. Kontrollera om detektionerna ersätter befintliga etiketter eller läggs till dem.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Klicka på Object detection och jämför de resulterande konturerna med bilden. Här väljer modellen det ofullständiga objektet uppe till vänster i stället för den centrala cellen. Ångra ersättningen och justera modellens inställningar innan du försöker igen.",
           "hold_after": 0.7
         },
         {
           "visual": "16_cell_probability",
-          "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+          "narration": "Öppna Cell probability för att granska förgrundspoängkartan. Använd den för att se vilka områden modellen stöder. Ändra förgrundströskeln när det är användbart och kör sedan detektionen igen för att få ett nytt resultat.",
           "hold_after": 0.7
         },
         {
           "visual": "17_flows",
-          "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+          "narration": "Öppna Flows för att granska riktningsvyn. Tröskeln för flödeskonsistens styr vilka detekterade objekt som behålls: lägre värden är strängare, och 0 stänger av kontrollen. Jämför de slutliga maskerna efter varje inställningsändring.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo återställer etiketterna från före detektionen. Behåll den mask som bäst följer bilden och spara den. Fortsätt genom de återstående synfälten och granska varje resultat innan du tar med det i träningen.",
           "hold_after": 0.7
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "narration": "Håll granskade bilder och masker med samma namnstam tillsammans. Använd Train Cellpose för att lära från paren, eller gå tillbaka till Features eller Measure för att ta fram mätvärden. De relaterade handledningarna visar varje nästa steg.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1690,6 +1888,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1904,20 +2142,20 @@
       "app_key": "timelapse",
       "section": "Core",
       "host_app_key": "mask",
-      "description": "Link objects across a time series, inspect their tracks, and prepare the tracked images for measurement.",
+      "description": "Länka objekt genom en tidsserie, granska deras spår och förbered de spårade bilderna för mätning.",
       "objectives": [
-        "Load the example images and masks in Track preview.",
-        "Adjust overlap and inspect object identities across frames.",
-        "Configure a time-series Mask run and find its tracked outputs."
+        "Läsa in exempelbilderna och maskerna i Track preview.",
+        "Justera överlappet och granska objektens identiteter mellan bildrutor.",
+        "Konfigurera en Mask-körning för tidsserier och hitta dess spårade utdata."
       ],
       "example_files": [
         "SYNTHETIC_timelapse_preview.zip"
       ],
-      "prerequisite": "Download and extract SYNTHETIC_timelapse_preview.zip. The teaching example contains eight cell-image frames and matching label images. For a full Mask run on your own data, prepare time-ordered microscopy images and record the acquisition interval.",
+      "prerequisite": "Ladda ned och packa upp SYNTHETIC_timelapse_preview.zip. Undervisningsexemplet innehåller åtta bildrutor med cellbilder och matchande etikettbilder. För en fullständig Mask-körning på egna data förbereder du tidsordnade mikroskopibilder och noterar tidsintervallet mellan bilderna.",
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "Från Home öppnar du Mask och klickar på Timelapse-ikonen uppe till höger för att slå på spårningen. Använd Timelapse för att länka objekt mellan på varandra följande bilder. Först provar vi det länkade exemplet i Track preview och går sedan igenom inställningarna för att bearbeta din egen bildsekvens.",
           "hold_after": 0.7,
           "focus": [
             3708,
@@ -1932,7 +2170,7 @@
         },
         {
           "visual": "09_actual_track_preview",
-          "narration": "Download and extract the example archive below, then click Track preview at the right of the Actions heading. The archive contains an image sequence and a matching mask sequence for eight frames. Keep both folders together so you can select the corresponding images and labels.",
+          "narration": "Ladda ned och packa upp exempelarkivet nedan och klicka sedan på Track preview till höger om rubriken Actions. Arkivet innehåller en bildsekvens och en matchande masksekvens med åtta bildrutor. Håll ihop båda mapparna så att du kan välja motsvarande bilder och etiketter.",
           "hold_after": 0.7,
           "focus": [
             360,
@@ -1943,17 +2181,17 @@
         },
         {
           "visual": "10_actual_image_sequence_folder",
-          "narration": "Choose image_sequences, then field_A01, as the image folder. Select channel zero: each example image contains one cell-intensity channel. Set Frames previewed to eight and Fields to one.",
+          "narration": "Välj image_sequences och sedan field_A01 som bildmapp. Välj kanal 0: varje exempelbild innehåller en enda kanal med cellintensitet. Ställ Frames previewed på 8 och Fields på 1.",
           "hold_after": 0.7
         },
         {
           "visual": "11_actual_mask_sequence_folder",
-          "narration": "Click Masks and select label_sequences, then field_A01. Each label identifies an object in the corresponding image. Leave Keep only full-length tracks off initially so you can inspect tracks that start or end within the sequence.",
+          "narration": "Klicka på Masks och välj label_sequences och sedan field_A01. Varje etikett identifierar ett objekt i motsvarande bild. Låt Keep only full-length tracks vara avstängt i början så att du kan granska spår som börjar eller slutar inom sekvensen.",
           "hold_after": 0.7
         },
         {
           "visual": "12_actual_linked_preview",
-          "narration": "Set the overlap threshold to zero point one and click Run preview. This threshold controls how much adjacent masks must overlap to be linked. Inspect the coloured object identities and the track-length summary. The example produces sixteen tracks spanning all eight frames.",
+          "narration": "Ställ överlappströskeln på 0,1 och klicka på Run preview. Tröskeln styr hur mycket intilliggande masker måste överlappa för att länkas. Granska de färgade objektidentiteterna och sammanfattningen av spårlängder. Exemplet ger sexton spår som sträcker sig över alla åtta bildrutor.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -1964,7 +2202,7 @@
         },
         {
           "visual": "14_actual_overlap_restored",
-          "narration": "Adjust the overlap threshold if objects split into short tracks or link to the wrong neighbours. A higher threshold requires more overlap. After changing it, wait for the preview to finish and click Re-link to inspect the final value. Scrub through several frames before accepting the result.",
+          "narration": "Justera överlappströskeln om objekt delas upp i korta spår eller länkas till fel grannar. En högre tröskel kräver mer överlapp. När du har ändrat den väntar du tills förhandsvisningen är klar och klickar på Re-link för att granska det slutliga värdet. Bläddra igenom flera bildrutor innan du godtar resultatet.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -1975,7 +2213,7 @@
         },
         {
           "visual": "15_actual_final_frame",
-          "narration": "Use the frame slider to follow the same object across the sequence. Play changes how quickly you view the frames. Keep the actual acquisition interval separately for later speed measurements.",
+          "narration": "Använd bildrutereglaget för att följa samma objekt genom sekvensen. Play ändrar hur snabbt du ser bildrutorna. Notera det faktiska tidsintervallet separat för senare hastighetsmätningar.",
           "hold_after": 0.7,
           "focus": [
             379,
@@ -1991,7 +2229,7 @@
         },
         {
           "visual": "05_setting_timelapse_frame_limits",
-          "narration": "For a full run on your own images, set Source and the intensity channels in Mask. This recording imports the settings of a small synthetic eight-frame sequence. Keep each field’s timepoints in order. Frame limits use a start and an excluded end: zero to eight selects the first eight frames.",
+          "narration": "För en fullständig körning på dina egna bilder anger du Source och intensitetskanalerna i Mask. Den här inspelningen importerar inställningarna för en liten syntetisk sekvens med åtta bildrutor. Håll varje synfälts tidpunkter i ordning. Bildrutegränser använder en start och ett uteslutet slut: 0 till 8 väljer de första åtta bildrutorna.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2002,7 +2240,7 @@
         },
         {
           "visual": "05_setting_timelapse_mode",
-          "narration": "Choose the object to track and the tracking mode. The overlap mode, iou, links objects using their masks in adjacent frames. Inspect a short sequence first and choose a mode suited to how far your objects move between frames.",
+          "narration": "Välj objektet som ska spåras och spårningsläget. Överlappsläget iou länkar objekt med hjälp av deras masker i intilliggande bildrutor. Granska först en kort sekvens och välj ett läge som passar hur långt dina objekt rör sig mellan bildrutorna.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2013,7 +2251,7 @@
         },
         {
           "visual": "05_setting_keep_original_images",
-          "narration": "Turn on Keep original images to retain the input images during pipeline cleanup. Set the segmentation model and channels for your data, and check the preview before processing the full sequence.",
+          "narration": "Slå på Keep original images för att behålla indatabilderna när pipelinen städar upp. Ange segmenteringsmodell och kanaler för dina data och kontrollera förhandsvisningen innan du bearbetar hela sekvensen.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2024,7 +2262,7 @@
         },
         {
           "visual": "05_setting_plot",
-          "narration": "Turn on Plot to inspect the generated figures, then click Run. Follow progress in the console and wait for completion. Begin with a short sequence so you can check the masks and track identities before processing a larger experiment.",
+          "narration": "Slå på Plot för att granska de genererade figurerna och klicka sedan på Run. Följ förloppet i konsolen och vänta tills körningen är klar. Börja med en kort sekvens så att du kan kontrollera maskerna och spåridentiteterna innan du bearbetar ett större experiment.",
           "hold_after": 0.7,
           "focus": [
             340,
@@ -2035,7 +2273,7 @@
         },
         {
           "visual": "08_actual_figure_04",
-          "narration": "Inspect the intensity and label planes in the output figures. The run saves tracked arrays in merged and track tables in tracks under the project folder. Continue to Measure, then Motility, to calculate object features and movement from those tracks.",
+          "narration": "Granska intensitets- och etikettplanen i utdatafigurerna. Körningen sparar de spårade matriserna i merged och spårtabellerna i tracks i projektmappen. Fortsätt till Measure och sedan Motility för att beräkna objektegenskaper och rörelse från spåren.",
           "hold_after": 0.7,
           "focus": [
             366,
@@ -2048,6 +2286,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9397,18 +9675,134 @@
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Den här handledningen är inte tillgänglig ännu. Utforska de andra handledningarna under tiden.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 71,
-      "app_key": "investigate_hit",
-      "series": 5,
       "slug": "investigate_hit",
-      "section": "Results and quality control",
-      "host_app_key": "regression"
+      "title": "Investigate Hit: spåra en gen från Regression tillbaka till uppmätta celler",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Skicka en gen från Hit List till Investigate Hit, lägg till mätdatabasen, cellprediktionerna och guideandelarna och läs sedan evidensen på brunnsnivå.",
+      "objectives": [
+        "Öppna en Regression-körning i Hit List, kontrollera q-värden och skicka en gen till Investigate Hit.",
+        "Välja mätdatabas, cellprediktioner, guideandelar och poängkolumn.",
+        "Läsa flikarna för evidens, brunnar, guider och tröskel och hitta de sparade tabellerna."
+      ],
+      "prerequisite": "Packa upp Investigate_Hit_real_screen_example.zip. Allt i det kommer från en och samma verkliga screening: Regression-körningen på Regressions testdata (inställningarna från Regression-handledningen), motsvarande CV-prediktioner per cell och en mätdatabas med samma cellers verkliga mått på form, storlek och intensitet. För att hålla nedladdningen liten innehåller databasen 52 brunnar: alla analyserade brunnar med en guide för gen 225160 och, för var och en, tre brunnar utan den från samma platta. Ingen gen i den här snabba Regression-körningen klarar q ≤ 0,05. Behandla undersökningen som ett genomräknat exempel, inte som en bekräftad träff.",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "Från Home öppnar du Regression. Investigate Hit utgår från en färdig Regression-körning. Den frågar om de uppmätta cellerna i brunnarna bakom en gen ser annorlunda ut än celler i brunnar utan den genen.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Välj Hits för att öppna Hit List. Packa först upp exempelarkivet. Det innehåller en Regression-körning på testdata, motsvarande CV-prediktioner per cell och en mätdatabas för samma celler. Alla tre kommer från en och samma verkliga screening.",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Klicka på Browse och välj mappen guide_permutation i regression_run, results. Det är utdata från testdatakörningen i Regression-handledningen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List rangordnar 325 gener. Läs effekt, P-värde och q-värde för varje rad tillsammans, liksom antalet guider och hur många av dem som stämmer överens.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Ställ Max q på 0,05. Tabellen töms eftersom ingen gen i den här körningen når ett q-värde på högst 0,05. Med 199 permutationer är det minsta möjliga P-värdet 0,005, och det lägsta q-värdet är ungefär 0,27. Det som följer granskar alltså en rangordnad kandidat, inte en bekräftad träff.",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Ställ tillbaka Max q på 1, sök efter 225160 och markera dess rad. Den har effekten 0,34, q-värdet 0,27 och tre guider som alla pekar åt samma håll.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Klicka på Investigate selected. Investigate Hit öppnas med resultatmappen, genen, dess tre guider och en positiv effektriktning redan ifyllda från raden.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "Bredvid Measurements database klickar du på Browse och väljer measurements.db från exemplet. Den innehåller form, storlek och medelintensitet per kanal för 8 915 celler i 52 brunnar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "För Existing CV predictions väljer du cv_predictions.csv. Varje rad är en cells sparade CV-poäng, kopplad till samma uppmätta objekt. Klicka på sökvägen och tryck på Enter så att poängkolumnerna läses in, och behåll sedan pred som fenotyppoängkolumn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "För Well/guide fractions väljer du regression_data.csv i samma resultatmapp. Tabellen skrevs av Regression. Den anger varje guides andel i varje analyserad brunn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Lämna Independent morphology features tomt. Modulen använder då databasens 13 numeriska cellmätningar och utelämnar identifierare, guideandelar och CV-poängen, så att kontrollen inte återanvänder poängen. För din egen databas anger du bara mätkolumner utan saknade värden.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_running",
+          "narration": "Klicka på Investigate hit. Modellen anpassas med en platta i taget undanhållen, så ingen cell poängsätts av en modell som tränats på dess egen platta. En brunns guideandel anger bara utgångsförväntningen för brunnens celler. Den markerar aldrig en cell som bärare av guiden. Exemplet tar några minuter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence visar resultatet. Målbrunnarna har en träfflik prevalens som bara är 0,01 högre än kontrollbrunnarnas. Bootstrapintervallet per brunn går från minus 0,04 till plus 0,06, och P-värdet för den blockade permutationen är ungefär 0,63. Cellerna stöder inte kandidaten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells listar varje brunns guideandel, genomsnittliga träfflika sannolikhet, prevalens och antal celler. Varje brunn räknas som en oberoende enhet, så jämförelsen använder 13 målbrunnar och 39 kontrollbrunnar, inte enskilda celler.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides visar varje målguide för sig. Deras dos-responskurvor pekar åt olika håll, vilket är ytterligare ett skäl att inte behandla genen som en träff.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity upprepar jämförelsen vid sannolikhetsgränser från 0,5 till 0,9. Vid varje gräns ligger skillnaden kvar nära 0,01, så slutsatsen beror inte på gränsen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells rangordnar cellerna efter träfflik sannolikhet, med den ursprungliga poängen och det veck som poängsatte varje cell. Sannolikheterna beskriver träfflik morfologi, inte vilken guide en cell bar på. För bara över klassningar till annoteringen när evidensen på brunnsnivå är övertygande. Undo ångrar en överföring.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "Tabellerna sparas i resultatmappen under hit_investigation och sedan 225160. De innehåller den här inbäddningen och ett manifest, och varje körning sparas dessutom som en ny version i databasen. Exemplet har inga utsnittsbilder, så granskningsgalleriet är tomt. Undersök sedan en gen som klarar din tröskel i en Regression-körning med fler permutationer.",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",

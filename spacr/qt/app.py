@@ -2570,6 +2570,9 @@ class MainWindow(QMainWindow):
         self._sidebar.nav_selected.connect(self._on_drawer_navigated)
         self._sidebar.fold_child_selected.connect(self.open_module)
         self._sidebar.module_hovered.connect(self._show_module_hint)
+        from .widgets.dock import DockEdge
+        self._dock_edge = DockEdge(self._sidebar)
+        row.insertWidget(row.indexOf(self._dock_slot) + 1, self._dock_edge)
 
         from .widgets.drawer import EdgeDrawer
         self._app_drawer = EdgeDrawer(self._stack, self._sidebar,
@@ -3051,7 +3054,7 @@ class MainWindow(QMainWindow):
         self._app_actions: dict[str, QAction] = {}
         self._section_menus: dict[str, QMenu] = {}
         from .widgets.fold_strip import folded_modules
-        from .organisms import ORGANISMS
+        from .organisms import ORGANISMS, workflow
 
         folded = folded_children()
         catalogue = folded_modules()
@@ -3096,6 +3099,10 @@ class MainWindow(QMainWindow):
                             child_action.triggered.connect(
                                 lambda checked=False, k=child: self._open_organism_module(k))
                             self._app_actions[child] = child_action
+                        elif workflow(key, _icon):
+                            child_action.setProperty("organismWorkflow", workflow(key, _icon)[0])
+                            child_action.triggered.connect(
+                                lambda checked=False, o=key, i=_icon: self._open_organism_workflow(o, i))
                         else:
                             child_action.setText(tr("{name} — Coming soon", name=tr(title)))
                             child_action.setEnabled(False)
@@ -3718,6 +3725,19 @@ class MainWindow(QMainWindow):
         else:
             self.open_module(key)
 
+    def _open_organism_workflow(self, organism: str, icon: str) -> None:
+        """Open the existing module behind an organism tile, with its preset.
+
+        :param organism: the organism page key.
+        :param icon: the tile's icon key in that organism's ``workflows``.
+        """
+        from .organisms import workflow
+        from .screens.organism_screen import open_workflow
+
+        route = workflow(organism, icon)
+        if route is not None:
+            open_workflow(self, route)
+
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
         for key, action in getattr(self, "_app_actions", {}).items():
@@ -3789,6 +3809,9 @@ class MainWindow(QMainWindow):
         """
         from .preferences import get_refresh_news
 
+        if self._closing:
+            LOG.debug("Not refreshing the news for a window that is closing")
+            return
         if not get_refresh_news():
             LOG.debug("News refresh is switched off in Preferences")
             return
@@ -4184,18 +4207,39 @@ class MainWindow(QMainWindow):
                 panel.shutdown()
             except Exception:
                 pass
-        for attribute in ("_update_worker", "_news_worker"):
-            worker = getattr(self, attribute, None)
-            if worker is not None:
-                try:
-                    worker.wait(5000)
-                except RuntimeError:
-                    pass
+        self._release_update_workers()
         super().closeEvent(event)
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
                 app.quit()
+
+    _UPDATE_WORKER_WAIT_MS = 5000
+
+    def _release_update_workers(self) -> None:
+        """Wait for the updater threads, and detach any that will not stop.
+
+        Both workers are children of this window, and Qt aborts the whole
+        process when a running QThread is destroyed with its parent. A news
+        fetch has no overall deadline (the socket timeout does not cover name
+        resolution), so it can outlast the wait. A worker still running after
+        it is taken off the window and parked by :func:`bridge.drain_thread`,
+        which keeps it alive until it returns instead of terminating it.
+        The wait is :attr:`_UPDATE_WORKER_WAIT_MS` per worker.
+        """
+        from .bridge import drain_thread
+
+        for attribute in ("_update_worker", "_news_worker"):
+            worker = getattr(self, attribute, None)
+            if worker is None:
+                continue
+            try:
+                if worker.wait(self._UPDATE_WORKER_WAIT_MS):
+                    continue
+                worker.setParent(None)
+            except RuntimeError:
+                continue
+            drain_thread(worker, timeout_ms=0)
 
     def dock_mode(self) -> str:
         """The user's dock preference — ``auto`` / ``locked`` / ``hidden``.
@@ -4290,11 +4334,14 @@ class MainWindow(QMainWindow):
         if mode == "locked":
             if sidebar.parent() is not slot:
                 slot.layout().addWidget(sidebar)
-            sidebar.setFixedWidth(sidebar.fitting_width())
+            sidebar.setFixedWidth(sidebar.column_width())
             sidebar.show()
             slot.show()
         else:
             slot.hide()
+        edge = getattr(self, "_dock_edge", None)
+        if edge is not None:
+            edge.setVisible(mode == "locked")
 
         action = getattr(self, "_act_all_apps", None)
         if action is not None:
@@ -4841,7 +4888,21 @@ class MainWindow(QMainWindow):
         return said
 
     def _on_nav_selected(self, key: str):
-        """Navigate to app ``key``, lazily instantiating its screen on first use."""
+        """Navigate to app ``key``, lazily instantiating its screen on first use.
+
+        A CALL THAT ARRIVES WHILE A SCREEN IS BEING OPENED WAITS FOR IT. The
+        open lets the event loop breathe between its steps (see
+        :meth:`_breathe_while_opening`), and a timer or a queued signal
+        delivered in a breath may ask for another module. Running that
+        request inside the half-finished open would build or show a second
+        screen in the middle of the first, so it is posted and runs as soon
+        as the first open has returned.
+        """
+        if getattr(self, "_opening_a_screen", False):
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(0, self, lambda: self._on_nav_selected(key))
+            return
         interaction_started = _timing.interval_started("navigation", key)
         if key == "__home__":
             try:
@@ -4857,47 +4918,86 @@ class MainWindow(QMainWindow):
                 budget_s=_timing.HOME_BUDGET_S,
             )
             return
+        from . import screens as _screens_package
+        from .i18n import ui_language_resolved_once
+
+        import time as _time
+
+        self._opening_a_screen = True
+        _screens_package._start_breathing_while_a_window_opens(
+            _time.perf_counter())
+        try:
+            with ui_language_resolved_once():
+                self._open_a_module_screen(key, interaction_started)
+        finally:
+            self._opening_a_screen = False
+            _screens_package._stop_breathing_while_a_window_opens()
+
+    def _open_a_module_screen(self, key: str, interaction_started) -> None:
+        """Build ``key``'s screen if it is new, then put it on show.
+
+        THE STEPS ARE SEPARATED BY BREATHS. Building, theming, joining the
+        stack and translating a heavy screen used to run back to back, so
+        their costs added into one freeze -- measured on Regression as one
+        event-loop gap that began inside the screen factory and ended after
+        the first show. Each step is now followed by
+        :meth:`_breathe_while_opening`, so the ambient backdrop and the rest
+        of the event loop run between them and the worst freeze is the
+        longest single step instead of their sum. The "Preparing" card
+        stays up until the screen is on show, so the breaths never show a
+        page that is still being assembled.
+
+        :param key: the module to open.
+        :param interaction_started: the navigation interval's start, for the
+            readiness watch.
+        """
         if key in self._screens and self._screen_scale_is_stale(key):
             self._rebuild_for_scale(key)
         built_now = key not in self._screens
-        if built_now:
-            card = self._show_preparing(key)
-            try:
-                self._screens[key] = self._build_screen(key)
-                self._screen_scales[key] = _current_font_scale()
-            except Exception as exc:                          # noqa: BLE001
-                LOG.exception("Could not open the %s screen", key)
-                self._say_a_module_would_not_open(key, exc)
-                return
-            finally:
-                self._hide_preparing(card)
-            try:
-                self._theme_screen(self._screens[key], key)
-            except Exception:
-                LOG.exception("Could not theme the %s screen", key)
-            self._a_page_joined_the_stack(self._screens[key])
-            self._stack.addWidget(self._screens[key])
-            self._drop_a_redundant_screen_backdrop(self._screens[key])
-            try:
-                from .i18n import retranslate_widget_tree
-                retranslate_widget_tree(self._screens[key])
-            except Exception:
-                LOG.exception("Could not translate the %s screen", key)
+        card = None
         try:
-            from .screens.settings_model import retarget_field_tooltips
-
-            retarget_field_tooltips(self._screens[key])
-        except Exception:
-            LOG.exception("Could not retarget help on the %s screen", key)
-        detach = getattr(self._screens[key], "_detach_what_the_form_hides",
-                         None)
-        if built_now and callable(detach):
+            if built_now:
+                card = self._show_preparing(key)
+                try:
+                    self._screens[key] = self._build_screen(key)
+                    self._screen_scales[key] = _current_font_scale()
+                except Exception as exc:                      # noqa: BLE001
+                    LOG.exception("Could not open the %s screen", key)
+                    self._say_a_module_would_not_open(key, exc)
+                    return
+                self._breathe_while_opening()
+                try:
+                    self._theme_screen(self._screens[key], key)
+                except Exception:
+                    LOG.exception("Could not theme the %s screen", key)
+                self._a_page_joined_the_stack(self._screens[key])
+                self._stack.addWidget(self._screens[key])
+                self._drop_a_redundant_screen_backdrop(self._screens[key])
+                self._breathe_while_opening()
+                try:
+                    from .i18n import retranslate_widget_tree
+                    retranslate_widget_tree(self._screens[key])
+                except Exception:
+                    LOG.exception("Could not translate the %s screen", key)
             try:
-                detach()
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not detach the hidden settings",
-                          exc_info=True)
-        self._stack.setCurrentWidget(self._screens[key])
+                from .screens.settings_model import retarget_field_tooltips
+
+                retarget_field_tooltips(self._screens[key])
+            except Exception:
+                LOG.exception("Could not retarget help on the %s screen", key)
+            detach = getattr(self._screens[key], "_detach_what_the_form_hides",
+                             None)
+            if built_now and callable(detach):
+                try:
+                    detach()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not detach the hidden settings",
+                              exc_info=True)
+            if built_now:
+                self._breathe_while_opening()
+            self._stack.setCurrentWidget(self._screens[key])
+        finally:
+            self._hide_preparing(card)
         _timing.watch_interactive(
             self._screens[key], "interactive module", key,
             started_at=interaction_started,
@@ -4909,6 +5009,22 @@ class MainWindow(QMainWindow):
         name = tr(next((n for k, n, _d, _s in APPS if k == key), key))
         self._status_app_label.setText(name)
         self.statusBar().showMessage(tr("Opened {name}", name=name), 2000)
+
+    @staticmethod
+    def _breathe_while_opening() -> None:
+        """Let the event loop run once between two steps of a module open.
+
+        User input is held back, as in the settings panel's own breaths
+        (``SettingsModel._build_sections``), so a click cannot land on a
+        page that is half assembled; timers, paints and queued signals run,
+        which is what keeps the ambient backdrop moving and the interface
+        answering the window manager while a heavy screen is put together.
+        A navigation request delivered here waits for the open in progress
+        (:meth:`_on_nav_selected`).
+        """
+        from .screens import _breathe_while_a_window_opens
+
+        _breathe_while_a_window_opens()
 
     def _on_zoo_compare_requested(self, request: dict) -> None:
         """Open Model Compare preloaded with the two models the zoo selected.
@@ -5440,6 +5556,7 @@ class MainWindow(QMainWindow):
         try:
             with _timing.span("build screen", key):
                 screen = self._build_screen_timed(key)
+                _screens_package._breathe_while_a_window_opens()
                 from .screens.map_barcodes import install_folds_on
 
                 install_folds_on(screen)
@@ -5842,6 +5959,37 @@ def _start_settings_prewarm() -> threading.Thread:
     return thread
 
 
+_ICON_WARM_AFTER_MS = 1500
+
+
+def _start_icon_prewarm() -> Optional[threading.Thread]:
+    """Re-ink the bundled app icons on a worker thread, for the active theme.
+
+    See :func:`spacr.qt.iconset._warm_the_bundled_icons` for what this saves:
+    the icon decoding that a module's first open otherwise pays inside its
+    freeze. The theme is resolved here, on the GUI thread, because it reads
+    preferences. ``launch`` starts this :data:`_ICON_WARM_AFTER_MS` after
+    the window is shown, the same wait the pipeline preloader uses, so Home
+    paints first.
+    """
+    try:
+        theme = iconset.active_theme()
+    except Exception:                                        # noqa: BLE001
+        return None
+
+    def warm():
+        """Fill the icon caches, and never let a bad file reach the GUI."""
+        try:
+            iconset._warm_the_bundled_icons(theme)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("Could not prewarm the bundled icons", exc_info=True)
+
+    thread = threading.Thread(target=warm, name="spacr-icon-prewarm",
+                              daemon=True)
+    thread.start()
+    return thread
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     _timing.begin()
@@ -6014,6 +6162,9 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     if not in_safe_mode():
         _start_settings_prewarm()
+        from PySide6.QtCore import QTimer
+
+        QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
 
     def _drain_ai():
         """Stop every job runner before Qt starts destroying widgets.

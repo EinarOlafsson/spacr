@@ -1,0 +1,211 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_add_nucleus_channel",
+      "source": "Cellpose 3 reads two channels as [cyto, nucleus]. When True, a cell segmented by a Cellpose 3 model also receives the nucleus channel as its second channel, as cyto, cyto2 and cyto3 were trained; when False, the model sees the cell channel alone. Read only for objects whose model is a Cellpose 3 model. Default True.",
+      "source_sha256": "d631089a1ee0864029818d8f9f726458f39b5205411583062033d2a88c93126e",
+      "translation": "O Cellpose 3 lê dois canais como [cyto, nucleus]. Quando True, uma célula segmentada por um modelo do Cellpose 3 também recebe o canal do núcleo como segundo canal, como cyto, cyto2 e cyto3 foram treinados; quando False, o modelo vê apenas o canal da célula. Lido somente para objetos cujo modelo é um modelo do Cellpose 3. Padrão True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_augment",
+      "source": "When True, Cellpose 3 averages its prediction over flipped copies of overlapping tiles, which is slower and can steady borderline objects. It stands in for net averaging, which Cellpose 3.1 no longer offers. Read only for objects whose model is a Cellpose 3 model. Default False.",
+      "source_sha256": "080c75e97c3d3b3da9696e73d75b570c4421ef79621a2b6c85ea150e2ce549e7",
+      "translation": "Quando True, o Cellpose 3 calcula a média da sua predição sobre cópias espelhadas de blocos sobrepostos, o que é mais lento e pode estabilizar objetos limítrofes. Isso substitui a média de redes, que o Cellpose 3.1 não oferece mais. Lido somente para objetos cujo modelo é um modelo do Cellpose 3. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_percentile_high",
+      "source": "Upper percentile of Cellpose 3's per-channel normalization: this intensity becomes 1 before the model sees the image. Lowering it brightens dim objects and saturates bright ones. Cellpose 3's models were trained with 99. Read only for Cellpose 3 models. Default 99.0.",
+      "source_sha256": "64e621df61884f1e2b7588a43155ace3ad04e09bbdb8837dff2d56451d081ba4",
+      "translation": "Percentil superior da normalização por canal do Cellpose 3: essa intensidade se torna 1 antes de o modelo ver a imagem. Diminuí-lo clareia objetos fracos e satura os claros. Os modelos do Cellpose 3 foram treinados com 99. Lido somente para modelos do Cellpose 3. Padrão 99.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_percentile_low",
+      "source": "Lower percentile of Cellpose 3's per-channel normalization: this intensity becomes 0 before the model sees the image. Raising it darkens more of the background. Cellpose 3's models were trained with 1. Read only for Cellpose 3 models. Default 1.0.",
+      "source_sha256": "1db0aad2167a90e426b06865f541c3798b18e6f1bd6102fe767f84de5db7221e",
+      "translation": "Percentil inferior da normalização por canal do Cellpose 3: essa intensidade se torna 0 antes de o modelo ver a imagem. Aumentá-lo escurece mais o fundo. Os modelos do Cellpose 3 foram treinados com 1. Lido somente para modelos do Cellpose 3. Padrão 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_resample",
+      "source": "When True, Cellpose 3 computes flows at the image's original size before building masks, which gives smoother outlines at some cost in time; when False, it builds them at the rescaled size. Read only for objects whose model is a Cellpose 3 model. Default True.",
+      "source_sha256": "98c41f5fd00fa7aa189fa07d648b8ebdceffb00c12a5c26ed0089e4c6adc15c5",
+      "translation": "Quando True, o Cellpose 3 calcula os fluxos no tamanho original da imagem antes de construir as máscaras, o que dá contornos mais suaves ao custo de algum tempo; quando False, ele as constrói no tamanho redimensionado. Lido somente para objetos cujo modelo é um modelo do Cellpose 3. Padrão True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose3_size_model",
+      "source": "When True, a named Cellpose 3 model estimates each image's object diameter with its own size model, which is slower and, on Toxoplasma vacuoles, far less accurate; when False, the object's diameter setting is used, or its magnification default when blank. Read only for Cellpose 3 models. Default False.",
+      "source_sha256": "5699e735e899567e2786bdfc4b627fa8e5f52a295662d323b8a54529131a593b",
+      "translation": "Quando True, um modelo nomeado do Cellpose 3 estima o diâmetro dos objetos de cada imagem com seu próprio modelo de tamanho, o que é mais lento e, em vacúolos de Toxoplasma, bem menos preciso; quando False, usa-se a configuração de diâmetro do objeto ou, quando vazia, o padrão da sua ampliação. Lido somente para modelos do Cellpose 3. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background",
+      "source": "Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
+      "source_sha256": "5dd1d7203d14829df4d61e0a8b992e7bbb16028aefb738f7bf8e2d3e06f2b1b4",
+      "translation": "Subtração de fundo para cada canal de segmentação selecionado após a correção de iluminação e antes da normalização, a primeira etapa da cadeia de realce que Criar máscaras (Make Masks) ajusta. rolling_ball remove uma superfície ajustada com o raio abaixo e nivela a iluminação irregular; tophat mantém o que é mais claro que os arredores e é mais rápido; none é desativado. Defina o raio maior que o maior objeto. Uma execução retomada recusa entradas de Máscaras geradas com uma cadeia diferente. Padrão 'none'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background_radius",
+      "source": "Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
+      "source_sha256": "a34eda8a367c04d30ce8bd60f479060f44436790f8a141c061c2cc166179c15c",
+      "translation": "Raio em pixels da bola rolante ou do disco top-hat. Deixe-o maior que o maior objeto e menor que a escala em que a iluminação varia; um raio abaixo do tamanho do objeto remove os objetos junto com o fundo. Padrão 50."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_background_scale",
+      "source": "Fraction of full size the background is estimated at, above 0 and at most 1. The surface is scaled back up before subtraction, so only the estimate is smaller; 1.0 is scikit-image's exact answer and is slow on large fields. Default 0.5.",
+      "source_sha256": "ab8cf3b7e8238fad27bbf7fdf278a283a4415d2bc020c89739fc2445554f988b",
+      "translation": "Fração do tamanho total em que o fundo é estimado, acima de 0 e no máximo 1. A superfície é ampliada de volta antes da subtração, então apenas a estimativa é menor; 1.0 é a resposta exata do scikit-image e é lenta em campos grandes. Padrão 0.5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe",
+      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without blowing out the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+      "source_sha256": "f465bb6876b67694c23711b4799fbf90b9a58525d353c2a759931cec2532ed77",
+      "translation": "Equalização adaptativa de histograma com contraste limitado, por bloco em vez de sobre o campo inteiro. Destaca objetos em um canto escuro sem saturar o centro claro e amplifica o ruído em blocos vazios, o que o limite de corte restringe. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe_clip",
+      "source": "CLAHE clip limit, above 0 and at most 1. Higher gives more contrast and more amplified noise in tiles that hold only background; unused unless enhance_clahe is on. Default 0.01.",
+      "source_sha256": "76965f4475f12af7b1956a80a90a18e1d4af145d1f58549e3c9164d5080adabe",
+      "translation": "Limite de corte do CLAHE, acima de 0 e no máximo 1. Valores maiores dão mais contraste e mais ruído amplificado em blocos que contêm apenas fundo; não é usado a menos que enhance_clahe esteja ativado. Padrão 0.01."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe_tile",
+      "source": "Side of one CLAHE tile in pixels, at least 8. Make it larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself. Default 64.",
+      "source_sha256": "2b49b6e9b3cc896678dfb8d67fd029e85672d6128c140e490950841978bdb83b",
+      "translation": "Lado de um bloco do CLAHE em pixels, no mínimo 8. Deixe-o maior que um objeto e menor que a escala em que a iluminação varia; um bloco do tamanho de um objeto equaliza o objeto contra ele mesmo. Padrão 64."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_denoise",
+      "source": "Smoothing after background subtraction and the PSF, before the contrast curves. gaussian is a Gaussian filter with the strength as sigma in pixels; median removes speckle and keeps edges; bilateral and nlm (non-local means) keep edges better and are slow on whole fields; tv is total-variation (Chambolle), the edge-preserving smoother offered in place of anisotropic diffusion; none is off. Default 'none'.",
+      "source_sha256": "ee987370df03140f44631dca0ce4164973ae949bc2deebd4658106c7286d9fdc",
+      "translation": "Suavização após a subtração de fundo e a PSF, antes das curvas de contraste. gaussian é um filtro gaussiano com a intensidade como sigma em pixels; median remove ruído pontual e preserva bordas; bilateral e nlm (médias não locais) preservam melhor as bordas e são lentos em campos inteiros; tv é variação total (Chambolle), o suavizador que preserva bordas oferecido no lugar da difusão anisotrópica; none é desativado. Padrão 'none'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_denoise_strength",
+      "source": "How much smoothing, above 0: the Gaussian's sigma in pixels, the median's and the bilateral's disk radius, the non-local means cut-off in multiples of the measured noise, or ten times the total-variation weight on 0..1. Default 1.0.",
+      "source_sha256": "968d3d0c77d8aa3ac68feab003ef260bf22ba325135c6a848b990872866258b7",
+      "translation": "Quanto suavizar, acima de 0: o sigma da gaussiana em pixels, o raio do disco da mediana e do filtro bilateral, o limite das médias não locais em múltiplos do ruído medido, ou dez vezes o peso da variação total em 0..1. Padrão 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_equalize",
+      "source": "Global histogram equalisation of each selected channel plane, the strongest of the contrast curves. A field that is mostly background has its background stretched across half the range. Default False.",
+      "source_sha256": "f1c95f6e2047ca41d41bea12188ae4f6cf8126d6ffd647444ca40ea879e56735",
+      "translation": "Equalização global do histograma de cada plano de canal selecionado, a mais forte das curvas de contraste. Em um campo composto principalmente de fundo, o fundo é esticado por metade da faixa. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_gamma",
+      "source": "Exponent the intensities are raised to on 0..1, above 0; 1.0 is off. Below 1 lifts the dim end so faint objects rise out of the background; above 1 pushes it down and keeps only the bright ones. Default 1.0.",
+      "source_sha256": "361e660fac3030c578d3a9fc6e68ee7835618b68d7bfa5d1b1914d86e7e2e1bd",
+      "translation": "Expoente ao qual as intensidades são elevadas em 0..1, acima de 0; 1.0 é desativado. Abaixo de 1, eleva a extremidade escura para que objetos fracos se destaquem do fundo; acima de 1, rebaixa-a e mantém apenas os objetos claros. Padrão 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_log",
+      "source": "Logarithmic transform on 0..1, log(1 + gain x) / log(1 + gain), applied after gamma. It compresses the bright end and lifts the dim one, more strongly near zero than a gamma below 1 does. Default False.",
+      "source_sha256": "4c70381dd320b9d0c270a34b724eef682e8fc9353814df8e34c4bbfe650eced4",
+      "translation": "Transformação logarítmica em 0..1, log(1 + gain x) / log(1 + gain), aplicada após o gama. Ela comprime a extremidade clara e eleva a escura, com mais força perto de zero do que um gama abaixo de 1. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_log_gain",
+      "source": "Factor the unit-interval intensities are multiplied by before the logarithm, above 0. Larger compresses the bright end harder; as it goes to zero the curve becomes the identity. Unused unless enhance_log is on. Default 10.0.",
+      "source_sha256": "59fc6e3b4f9ee6372e5c861c3dd25ec8c8d516c5371484b3c2cb031301c0dbfe",
+      "translation": "Fator pelo qual as intensidades no intervalo unitário são multiplicadas antes do logaritmo, acima de 0. Valores maiores comprimem mais a extremidade clara; à medida que tende a zero, a curva se torna a identidade. Não é usado a menos que enhance_log esteja ativado. Padrão 10.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_clip",
+      "source": "Clip each selected channel plane to two percentiles of its own intensities before the contrast curves. Removes hot and dead pixels from the range the curves are drawn on without stretching anything, so intensity thresholds keep their units. Default False.",
+      "source_sha256": "ed106e48038ea67f82ac2741d4399464fb21f91e5600c4d1442ab82c5d6ffd38",
+      "translation": "Corta cada plano de canal selecionado em dois percentis das próprias intensidades antes das curvas de contraste. Remove pixels quentes e mortos da faixa em que as curvas são desenhadas sem esticar nada, de modo que os limiares de intensidade mantêm suas unidades. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_high",
+      "source": "Upper percentile of the enhancement chain's percentile clip, at most 100 and above the lower percentile. Pixels brighter than this percentile of their own plane are lowered to it. Default 99.0.",
+      "source_sha256": "a686edc681176dcbaa520f43bd984b53d06668693a5968396fabe7a910f97949",
+      "translation": "Percentil superior do corte por percentil da cadeia de realce, no máximo 100 e acima do percentil inferior. Pixels mais claros que esse percentil do próprio plano são reduzidos até ele. Padrão 99.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_percentile_low",
+      "source": "Lower percentile of the enhancement chain's percentile clip, at least 0 and below the upper percentile. Pixels darker than this percentile of their own plane are raised to it. Default 1.0.",
+      "source_sha256": "d5151af6931a0f2ce88769f18f6c6ad74d005d400a785a662c0eaade0a1595df",
+      "translation": "Percentil inferior do corte por percentil da cadeia de realce, no mínimo 0 e abaixo do percentil superior. Pixels mais escuros que esse percentil do próprio plano são elevados até ele. Padrão 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen",
+      "source": "Unsharp mask after the contrast curves. Makes edges steeper so a threshold lands on the boundary; too much amount puts a bright rim around every object and a dark moat outside it. Default False.",
+      "source_sha256": "f80e503ae01722b15bcc53b6ff97ab87312256209f10b34ce0621d6518bb9fce",
+      "translation": "Máscara de nitidez após as curvas de contraste. Torna as bordas mais íngremes para que um limiar caia sobre o contorno; intensidade excessiva cria um anel claro ao redor de cada objeto e um fosso escuro fora dele. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen_amount",
+      "source": "How much of the unsharp mask is added back, at least 0. One is a normal sharpen; above 2 the halos around objects start to become objects of their own. Default 1.0.",
+      "source_sha256": "ef5a48dfa756047713630b1f2668981c7452b635a5cac757f04d9a03cef3f5d9",
+      "translation": "Quanto da máscara de nitidez é adicionado de volta, no mínimo 0. Um é uma nitidez normal; acima de 2, os halos ao redor dos objetos começam a se tornar objetos próprios. Padrão 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sharpen_radius",
+      "source": "Blur radius in pixels the unsharp mask is built from, above 0: about the scale of the edges to sharpen. Unused unless enhance_sharpen is on. Default 1.0.",
+      "source_sha256": "755c40375db19b9dfc23c7b410255c16a15e47bb10fb29317cf1bf168205f8df",
+      "translation": "Raio de desfoque em pixels a partir do qual a máscara de nitidez é construída, acima de 0: aproximadamente a escala das bordas a realçar. Não é usado a menos que enhance_sharpen esteja ativado. Padrão 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_sqrt",
+      "source": "Square-root transform on 0..1, applied after the logarithm: the curve a gamma of 0.5 draws, offered by name. It lifts the dim end of every selected channel before detection. Default False.",
+      "source_sha256": "5492478078058e15a3b4eba808b57729424b91d24cc59b9019cad84d6007eb2e",
+      "translation": "Transformação de raiz quadrada em 0..1, aplicada após o logaritmo: a curva que um gama de 0.5 desenha, oferecida pelo nome. Ela eleva a extremidade escura de cada canal selecionado antes da detecção. Padrão False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_spot_detector",
+      "source": "Which detector finds the sequencing spots each field's reads are called at. 'native' is spaCR's own spot score and the only one this plate was validated with. 'spotnet' is DeepCell's SpotNet, a trained spot detector run in an environment of its own; its positions go through the same bases, calls and assignment to nuclei, and ops_read_threshold no longer applies. SpotNet's models are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be installed from the Model Zoo, and its weights need a free DeepCell access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. It decodes one field at a time. Default 'native'.",
+      "source_sha256": "edda98fd31da19d81f11b2d6e7a2d689841eaa9a7722dd63c497211a698fdddd",
+      "translation": "Qual detector encontra os pontos de sequenciamento nos quais as leituras de cada campo são determinadas. 'native' é a pontuação de pontos própria do spaCR e a única com a qual esta placa foi validada. 'spotnet' é o SpotNet da DeepCell, um detector de pontos treinado executado em um ambiente próprio; suas posições passam pelas mesmas bases, chamadas de bases e atribuição aos núcleos, e ops_read_threshold deixa de se aplicar. Os modelos do SpotNet são licenciados SOMENTE PARA USO ACADÊMICO NÃO COMERCIAL, ele precisa ser instalado pela Biblioteca de modelos (Model Zoo), e seus pesos exigem um token de acesso gratuito da DeepCell em DEEPCELL_ACCESS_TOKEN ou ~/.spacr/deepcell_token. Ele decodifica um campo por vez. Padrão 'native'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_fwhm_um",
+      "source": "Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
+      "source_sha256": "8cd70f74d9eb3b2d6adcd9a40610d115ebf39c76c1cc28f532970222b0efe04a",
+      "translation": "Padrão None (não definido). Largura total a meia altura (FWHM) gaussiana [Y, X] em micrômetros; ambos os valores devem ser positivos e finitos. Sem definição, Máscaras e Série temporal calculam 0.51 × comprimento de onda de emissão / NA a partir dos metadados da imagem ou de psf_objective (520 nm, NA 0.75: 0.354 µm por padrão), uma aproximação da PSF ideal de campo amplo, não uma resolução medida. Medição exige que seja definida explicitamente."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_image_sampling_um",
+      "source": "Default None (unset). Image pixel spacing [Y, X] in micrometers; both numbers must be positive and finite. Unset with a Gaussian PSF, Mask and timelapse infer it from the first source image's OME/ImageJ calibration, else camera pixel / magnification of psf_objective (6.5 µm / 20 = 0.325 µm by default), and print each value's source. Measure and measured kernels require it explicitly.",
+      "source_sha256": "3d02205c40eae1d7fe29a5a55faa5186693092bd2e541c8bd51fbd30874c1fd2",
+      "translation": "Padrão None (não definido). Espaçamento dos pixels da imagem [Y, X] em micrômetros; ambos os números devem ser positivos e finitos. Sem definição e com uma PSF gaussiana, Máscaras e Série temporal o inferem da calibração OME/ImageJ da primeira imagem de origem, ou então como pixel da câmera / ampliação de psf_objective (6.5 µm / 20 = 0.325 µm por padrão), e informam a origem de cada valor. Medição e kernels medidos exigem que seja definido explicitamente."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "psf_objective",
+      "source": "Objective used to infer PSF calibration that is left unset: auto reads magnification, numerical aperture, immersion and pixel size from the first source image's OME metadata and otherwise assumes a 20x/0.75 air objective; a table row such as 10x/0.30 air, 40x/0.95 air, 60x/1.40 oil or 100x/1.45 oil uses that objective's values, with a 6.5 µm camera pixel and 520 nm emission unless the metadata says otherwise. Explicit psf_image_sampling_um and psf_fwhm_um always win. Default auto.",
+      "source_sha256": "f19fbe9131eb425633e0949d28055117c8df9e5a7a21100dbe2adec220098d19",
+      "translation": "Objetiva usada para inferir a calibração da PSF que não foi definida: auto lê ampliação, abertura numérica, imersão e tamanho de pixel dos metadados OME da primeira imagem de origem e, caso contrário, assume uma objetiva a seco 20x/0.75; uma linha da tabela como 10x/0.30 a seco, 40x/0.95 a seco, 60x/1.40 óleo ou 100x/1.45 óleo usa os valores dessa objetiva, com pixel de câmera de 6.5 µm e emissão de 520 nm, a menos que os metadados indiquem outra coisa. psf_image_sampling_um e psf_fwhm_um explícitos sempre prevalecem. Padrão auto."
+    }
+  ]
+}

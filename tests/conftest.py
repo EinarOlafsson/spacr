@@ -928,6 +928,54 @@ def _no_room_on_the_gpu():
             f"and this needs about {GPU_ROOM_MB}")
 
 
+class _LiveQtWidgetRef:
+    """A pytest-qt widget reference that forgets a widget Qt already deleted.
+
+    pytest-qt keeps a weak reference to each ``qtbot.addWidget`` widget and,
+    at teardown, calls ``close()`` on whatever the reference still returns.
+    A ``WA_DeleteOnClose`` dialog the test closed on purpose (Escape on the
+    QC field browser, the user closing a text report) is destroyed by the
+    ``DeferredDelete`` pytest-qt delivers just before that loop. Its Python
+    wrapper lives on only while an uncollected reference cycle holds it, and
+    with automatic collection off (``spacr.qt.gc_policy``) that depends on
+    which tests the worker ran before. When it does live on, ``close()``
+    raises "Internal C++ object already deleted" and the next test's setup
+    reports "previous item was not torn down properly". A widget whose C++
+    side is gone has nothing left to close, so it resolves to ``None`` here,
+    which is exactly what pytest-qt does for a collected wrapper.
+    """
+
+    def __init__(self, ref):
+        self._ref = ref
+
+    def __call__(self):
+        widget = self._ref()
+        if widget is None:
+            return None
+        try:
+            import shiboken6
+        except ImportError:
+            return widget
+        return widget if shiboken6.isValid(widget) else None
+
+
+@pytest.hookimpl(wrapper=True, tryfirst=True)
+def pytest_runtest_teardown(item):
+    """Let pytest-qt close only the registered widgets Qt has not deleted.
+
+    ``tryfirst`` puts this outside pytest-qt's own ``trylast`` teardown
+    wrapper, so the references are replaced before pytest-qt reads them. The
+    check itself is lazy: it runs when pytest-qt resolves each reference,
+    after it has delivered the pending deletions.
+    """
+    widgets = getattr(item, "qt_widgets", None)
+    if widgets:
+        item.qt_widgets = [
+            (_LiveQtWidgetRef(ref), before_close)
+            for ref, before_close in widgets]
+    return (yield)
+
+
 def pytest_runtest_setup(item):
     """Skip a GPU-marked test when the shared card has no room for it.
 

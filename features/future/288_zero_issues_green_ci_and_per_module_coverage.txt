@@ -5446,3 +5446,50 @@ splitter resize, rather than assuming30msis enough. All original hover,
 selection, clear and text-height assertions remain.12checks pass with the
 limited CI-like font configuration. No runtime/UI change; native Qt2crash is
 still a separate unresolved issue and the full current CI run remains live.
+
+2026-09-25 (late) — ORDER-DEPENDENT QT FAILURES FOUND, TODAY'S MODULES MEASURED
+Every nightly run since 36020180024 (09-24 15:26) was cancelled by the next
+push, so nothing was triggered; the failing ids of 36020180024 and the three
+order-dependent ones today's triage left were reproduced locally instead.
+CPU only, tools/run_capped.sh 8G, one pytest at a time. Coverage below is
+statement+branch over every test file naming the module (not the whole
+suite), so a real CI number can only be equal or higher. Nothing pushed.
+
+Test / module                              | Cause                                                          | Outcome
+-------------------------------------------|----------------------------------------------------------------|-------------------------
+Qt1 qc_field_browser + gate_console_sizing  | pytest-qt close() on a WA_DeleteOnClose dialog Qt had deleted;| fixed c8e6fd2fe (conftest
+ Qt2 annotate_uncovered_paths (4)           | wrapper alive only via an uncollected cycle (gc_policy), so    |  resolves dead widgets to
+                                            | it depended on the worker's earlier tests. Reproduced by      |  None, as pytest-qt does
+                                            | holding the wrapper; exact CI error pair appears              |  for collected ones)
+Cov0 test_cov_qt_app SIGABRT (3 workers +   | "QThread: Destroyed while thread is still running": Home's    | fixed 2dc355d93 (product:
+ both serial recoveries)                    | news fetch started after the launch test's window closed; a   |  no refresh while closing,
+                                            | fresh runner has no news cache, so the fetch was real. Repro  |  a worker outliving the
+                                            | with a 3 s fetch                                              |  wait is detached+parked)
+volumetric z/t run + shape-only obj filter  | zip(masks, None): no filter images outside 'project'          | fixed baf40be92 (product)
+test_the_preview_offers_only_cellpose_models| stale after 503 and again after 525                            | fixed d39edcf8b, db02ec78e
+cellpose3 one-click (5) + magnifier zoo btn | stale after 525 (cellpose_dino kind) / 504                     | fixed 7c7e5d10a
+test_nested_functions (model_zoo_picker)    | 504 nested helpers undocumented                               | 91cb01b19; nightly's own
+                                            |                                                               |  docstrings won the merge
+test_readme_presentation (2) embeddings tile| 527 redrew the icon, not the generated tile                   | fixed 05a2c5a55
+test_the_settings_flow_artefacts (2)        | object_filters, psf_objective, _default_diameter, 65 sections | fixed 41ff948f7, 259614f88
+point_spread.py                             | 88.94%                                                         | 95.67%, b46ab0d48
+eliding.py (baseline 100%)                  | 94.94%, ProgressLine API unrun                                 | 100%, 8cb414ae8
+segmentation_views.py                       | 85.64%                                                         | 98.43%, 55c1b8427
+plaque_preview.py                           | 89.41%                                                         | 91.18%, 48c00a371
+object.py (baseline 100%)                   | 99.50%                                                         | 100% of its gaps run,
+                                            |                                                               |  fcdac6a10 + baf40be92
+dnd_handlers.py (baseline 43/13)            | 109/42 uncovered                                               | 26/7, 54062b8ee
+mask_engine.py (baseline 11/11)             | 24/17 uncovered                                                | 5/10, 808c2db22
+mask_comparison / _segmentation_backends /  | 95.17% / 96.09% / 100%                                         | no change needed
+ diameter                                   |                                                               |
+test_docstring_correctness (2 counts)       | callables 9767 vs 9735, API 11793 vs 11758 (after merge)       | pin (docs)
+test_api_i18n_extractor reviewed surface    | 11793 vs 11758 (+35)                                           | pin (docs)
+test_built_nested_helper_api empty rollout  | en.json API manifest lacks today's public symbols              | pin (docs)
+tests/qt/test_i18n_caption_ratchet          | new captions missing from en.UI_SOURCES                        | pin (i18n lane)
+test_packaging_metadata (2)                 | CITATION DOI and conda recipe still 1.5.0.9                    | left: release metadata
+                                            |                                                               |  (maintainer)
+
+Left: whether the whole suite is green and every module clears the gate
+can only be said by a completed CI run, and none has completed since
+09-24. Non-network tests that show a MainWindow still make a real GitHub
+releases request on a fresh runner; 2dc355d93 makes that safe, not absent.

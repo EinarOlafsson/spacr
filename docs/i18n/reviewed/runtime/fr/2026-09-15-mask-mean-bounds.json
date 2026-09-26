@@ -5,48 +5,6 @@
   "records": [
     {
       "table": "setting_labels",
-      "key": "cell_min_intensity",
-      "source_sha256": "b68dd69e77c7d29f9cfbce12120c02d5f276ded1ef95be72c9707a231ca1da20",
-      "source": "Cell min intensity",
-      "translation": "Intensité minimale des cellules"
-    },
-    {
-      "table": "setting_labels",
-      "key": "cell_max_intensity",
-      "source_sha256": "bbb79089090e99292c8bc1278fda189cfaf7756ca7927660dbb9d83df656532b",
-      "source": "Cell max intensity",
-      "translation": "Intensité maximale des cellules"
-    },
-    {
-      "table": "setting_labels",
-      "key": "nucleus_min_intensity",
-      "source_sha256": "438e489b5b23d47278c1722786288223ea5aa6f3750aa2de2a005099190a7fcc",
-      "source": "Nucleus min intensity",
-      "translation": "Intensité minimale des noyaux"
-    },
-    {
-      "table": "setting_labels",
-      "key": "nucleus_max_intensity",
-      "source_sha256": "d368b0ff375ab4026a6344d3b3af967f29fd7ee8696d32aabc4b20ad936d0ec3",
-      "source": "Nucleus max intensity",
-      "translation": "Intensité maximale des noyaux"
-    },
-    {
-      "table": "setting_labels",
-      "key": "pathogen_min_intensity",
-      "source_sha256": "aca7095fd0b18d9668efe62254f505d5f4c94dd99c5a139770ec525bafdc8f68",
-      "source": "Pathogen min intensity",
-      "translation": "Intensité minimale des agents pathogènes"
-    },
-    {
-      "table": "setting_labels",
-      "key": "pathogen_max_intensity",
-      "source_sha256": "80852ead2ab46166386e6fc734b7213f6c20937040439d288e60798082a6295c",
-      "source": "Pathogen max intensity",
-      "translation": "Intensité maximale des agents pathogènes"
-    },
-    {
-      "table": "setting_labels",
       "key": "organelle_min_intensity",
       "source_sha256": "981462a2376bccbf97a10e8cb32020e83bd66817548263994291dafcb529eafd",
       "source": "Organelle 1 — Min intensity",
@@ -100,48 +58,6 @@
       "source_sha256": "976d29c9b54dc0b60739f728f136fca9674f1d212fa9c83b636ad65a992c8f16",
       "source": "Organelle 4 — Max intensity",
       "translation": "Organite 4 — Intensité maximale"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_min_intensity",
-      "source_sha256": "68aad2538c67164612d23f8d32c17f003acda8738d497e0b1b944f57f3d4bb7c",
-      "source": "Delete cell objects whose mean pixel intensity in cell_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Supprime les objets cellulaires dont l’intensité moyenne des pixels, calculée sur l’ensemble de l’objet dans son propre canal cell_channel, est inférieure à cette valeur. L’intensité est exprimée dans les unités brutes de l’image d’origine. Les objets dont la moyenne est exactement égale à la limite sont conservés. Augmentez cette limite pour exclure les objets de faible intensité. Ce filtre est appliqué après la segmentation, aussi bien lors des exécutions de Mask que dans Live Preview. 0 désactive uniquement cette limite. Valeur par défaut : 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_max_intensity",
-      "source_sha256": "f94400c9c8d7904d7bbb51e08e54eeca8bf537f9cd6c2c2337df04a7893ba5e5",
-      "source": "Delete cell objects whose mean pixel intensity in cell_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Supprime les objets cellulaires dont l’intensité moyenne des pixels, calculée sur l’ensemble de l’objet dans son propre canal cell_channel, est supérieure à cette valeur. L’intensité est exprimée dans les unités brutes de l’image d’origine. Les objets dont la moyenne est exactement égale à la limite sont conservés. Abaissez une limite positive pour exclure davantage d’objets lumineux. Ce filtre est appliqué après la segmentation, aussi bien lors des exécutions de Mask que dans Live Preview. 0 désactive uniquement cette limite. Valeur par défaut : 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_min_intensity",
-      "source_sha256": "49e3fbe983ff2bd7ecc6b7ec3023f35a57ba7ccaff37f61ad33eadabce30a02b",
-      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Supprime les objets correspondant à des noyaux cellulaires dont l’intensité moyenne des pixels, calculée sur l’ensemble de l’objet dans son propre canal nucleus_channel, est inférieure à cette valeur. L’intensité est exprimée dans les unités brutes de l’image d’origine. Les objets dont la moyenne est exactement égale à la limite sont conservés. Augmentez cette limite pour exclure les objets de faible intensité. Ce filtre est appliqué après la segmentation, aussi bien lors des exécutions de Mask que dans Live Preview. 0 désactive uniquement cette limite. Valeur par défaut : 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_max_intensity",
-      "source_sha256": "e545f1e4ae2b0768ad5965e3a194dba4a20fc56dc2fed02e37246e74c163c3af",
-      "source": "Delete nucleus objects whose mean pixel intensity in nucleus_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Supprime les objets correspondant à des noyaux cellulaires dont l’intensité moyenne des pixels, calculée sur l’ensemble de l’objet dans son propre canal nucleus_channel, est supérieure à cette valeur. L’intensité est exprimée dans les unités brutes de l’image d’origine. Les objets dont la moyenne est exactement égale à la limite sont conservés. Abaissez une limite positive pour exclure davantage d’objets lumineux. Ce filtre est appliqué après la segmentation, aussi bien lors des exécutions de Mask que dans Live Preview. 0 désactive uniquement cette limite. Valeur par défaut : 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_min_intensity",
-      "source_sha256": "6edf30d7b7cabc061a168cb5d37e2e9ea66314683277b8f034f469288ce8ce27",
-      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is below this value, measured in the original image's raw units. Equality is retained. Raise it to reject dim objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Supprime les objets pathogènes dont l’intensité moyenne des pixels, calculée sur l’ensemble de l’objet dans son propre canal pathogen_channel, est inférieure à cette valeur. L’intensité est exprimée dans les unités brutes de l’image d’origine. Les objets dont la moyenne est exactement égale à la limite sont conservés. Augmentez cette limite pour exclure les objets de faible intensité. Ce filtre est appliqué après la segmentation, aussi bien lors des exécutions de Mask que dans Live Preview. 0 désactive uniquement cette limite. Valeur par défaut : 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_max_intensity",
-      "source_sha256": "a412cdbc074156beeb0642913f4d3255982c7b10ce4a64886dd84cf86bc563e3",
-      "source": "Delete pathogen objects whose mean pixel intensity in pathogen_channel is above this value, measured in the original image's raw units. Equality is retained. Lower a positive bound to reject more bright objects. Applied after segmentation in both Mask runs and Live Preview. 0 disables this bound. Default 0.",
-      "translation": "Supprime les objets pathogènes dont l’intensité moyenne des pixels, calculée sur l’ensemble de l’objet dans son propre canal pathogen_channel, est supérieure à cette valeur. L’intensité est exprimée dans les unités brutes de l’image d’origine. Les objets dont la moyenne est exactement égale à la limite sont conservés. Abaissez une limite positive pour exclure davantage d’objets lumineux. Ce filtre est appliqué après la segmentation, aussi bien lors des exécutions de Mask que dans Live Preview. 0 désactive uniquement cette limite. Valeur par défaut : 0."
     },
     {
       "table": "setting_tooltips",

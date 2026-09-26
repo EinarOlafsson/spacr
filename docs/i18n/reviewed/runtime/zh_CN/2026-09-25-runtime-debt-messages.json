@@ -69,20 +69,6 @@
     },
     {
       "table": "ui",
-      "key": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
-      "source": "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
-      "source_sha256": "c374731b1b2c4eec70eb888649b01ba12d6b48523762ee67263e16d45f3af320",
-      "translation": "本页全部八个疟原虫模块均处于计划阶段。其描述定义的是预期读出，而非可用的分析流程。PlasmoDB 和 UniProt 提供基因组和蛋白质背景，用于选择标记和解释结果。顶复门寄生虫示意图有助于讨论与弓形虫共有的区室，但并不能证明某个蛋白在两种生物中定位相同。"
-    },
-    {
-      "table": "ui",
-      "key": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
-      "source": "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
-      "source_sha256": "f3daa1382843e31a232a9ecc036eba4b9ae12183a86a6f0b22dfe2fd6285368b",
-      "translation": "“抗真菌药物反应”是一个拟议的浓度–反应工作流程，用于分析真菌生长和形态。将其与“形态”或“生物膜”结合，有助于描述处理过程中哪些图像特征发生了变化。全部八个念珠菌模块目前均处于计划阶段，其图块标记为“即将推出”。Candida Genome Database 和 UniProt 提供基因和蛋白质注释，以支持标记选择和结果解释。"
-    },
-    {
-      "table": "ui",
       "key": "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
       "source": "Applied to what the detector found, not to the image. Opening erases what is thinner than the radius, which breaks two objects joined by a bridge; Closing fills what is thinner, which joins one object broken into pieces.",
       "source_sha256": "4f7d1ccf5c5c273c5cdd3b5fcf4f86d3cf79768b7ea378ac035863195d35f42e",
@@ -258,13 +244,6 @@
     },
     {
       "table": "ui",
-      "key": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
-      "source": "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
-      "source_sha256": "b4a8acea49fc2990a3ba506c91ffd1d86f8049dd25e2fb8e4774c09b37444de8",
-      "translation": "“上皮侵入”计划用于区分胞外真菌与被上皮细胞内化的真菌。“吞噬作用”将测量吞噬细胞的摄取。两者都需要一种区分接触与内化的方法，例如适当的差异标记或空间信息。请将宿主细胞群体和真菌形态与摄取读出一并报告。"
-    },
-    {
-      "table": "ui",
       "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
       "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
       "source_sha256": "4d90cb622f7b5cb3f16195794f79550e39b97dea772275f26cd280e005d9923a",
@@ -325,13 +304,6 @@
       "source": "Flatten the histogram of the whole region at once, so every brightness band ends up with the same number of pixels. It is the strongest of the contrast steps and the least respectful of the data: a field that is mostly background has its background stretched across half the range.",
       "source_sha256": "69b290e0d6c71dfe9ff67646482b0d6e03a1b609d9408b638511995918e232c8",
       "translation": "一次性展平整个区域的直方图，使每个亮度区间的像素数相同。这是对比度步骤中最强、也最不尊重原始数据的一种：以背景为主的视野，其背景会被拉伸到半个范围。"
-    },
-    {
-      "table": "ui",
-      "key": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
-      "source": "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
-      "source_sha256": "ebfb1c9811c74671d5842f0a8f7a663cdad6815e6a0622cb58809571a838e266",
-      "translation": "“配子体成熟度”是一个拟议的工作流程，用于在有合适标记和参考标注时分析与发育阶段和性别相关的图像特征。“药物反应成像”将把生长和形态与浓度联系起来。请与这些测量一起记录物种、起始阶段和暴露时长：否则阶段组成的变化可能被误认为寄生虫数量的变化。"
     },
     {
       "table": "ui",
@@ -479,13 +451,6 @@
       "source": "Leica LIF (public samples), named like A01/FRAP.lif. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes LIF, so these are public sample files by Sean Warren and Michael Goelzer, CC BY 4.0: time series, a z-stack and a tile scan. They have no masks, so they go through the Format Converter.",
       "source_sha256": "a2d14ccfb2aa62e37b5bec4d9fbf60a86358d1d582186c21cd4ec7d81a1add5d",
       "translation": "Leica LIF（公开样本），命名类似 A01/FRAP.lif。命名方式：auto。填充 Format Converter：仅图像，然后进行预览。\n\n没有开源库能写入 LIF，因此这些是 Sean Warren 和 Michael Goelzer 提供的公开样本文件，采用 CC BY 4.0 许可：时间序列、z 堆栈和拼接扫描。它们没有掩膜，因此需通过 Format Converter 处理。"
-    },
-    {
-      "table": "ui",
-      "key": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
-      "source": "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
-      "source_sha256": "ae13b680adfb10492d7bda64d4b0f36ce4765cf0b32bd763df25fb690455fac1",
-      "translation": "“肝期生长”计划测量肝细胞内寄生虫的数量和大小。“子孢子运动性”将关注滑行轨迹或痕迹，而“细胞穿越”将研究寄生虫路径上的宿主细胞损伤。穿越、有效侵入和随后的生长是不同的结果：它们的图像标记、观察时间和分母需要分别定义。"
     },
     {
       "table": "ui",
@@ -1266,31 +1231,10 @@
     },
     {
       "table": "ui",
-      "key": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
-      "source": "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
-      "source_sha256": "3db2af90e552d9f1ff09084d9fcc2467ba0a8907b230de616dd7257c8a266014",
-      "translation": "计划中的“逸出”模块将关注空泡破裂和寄生虫逸出；“滑行运动”将定量胞外痕迹和运动。“缓殖子转化”将研究阶段标记和包囊壁读出，而“宿主细胞损伤”将描述单层的损失。这些是拟议的工作流程，因此其图块标记为“即将推出”。固定图像、时间序列和阶段特异性标记回答的是不同问题，应根据预期读出进行选择。"
-    },
-    {
-      "table": "ui",
       "key": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
       "source": "The preview's settings, in two tabs: Figure (finding the plaque wells and reading the figure) and Plaque detection (the plaque model and its thresholds).",
       "source_sha256": "6e0c370bb9d95162771a35b59788beb7866ce81eb66ce6a73d44196cc8ff72d3",
       "translation": "预览的设置，分为两个选项卡：图版（查找蚀斑孔并读取图版）和蚀斑检测（蚀斑模型及其阈值）。"
-    },
-    {
-      "table": "ui",
-      "key": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
-      "source": "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
-      "source_sha256": "77f3167fe2cb6f5c77b1e1b654a69b6404b54a6ad078b463adfa86b873a8e483",
-      "translation": "拟议的“黏附”模块将统计与宿主细胞表面相关联的真菌细胞。“生物膜”将关注群体生长，包括覆盖面积，以及在采集含深度信息时的厚度。单个二维视野可以描述表面覆盖率，但仅凭它无法确定生物膜厚度。请根据终点选择单平面或体成像。"
-    },
-    {
-      "table": "ui",
-      "key": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
-      "source": "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
-      "source_sha256": "1ed3b2e9fa86adf509f980a162693fab21484b44ddb9780c3f59e54f573546e6",
-      "translation": "拟议的“寄生虫血症”模块将统计受感染红细胞占全部红细胞的比例。“血期分期”将区分环状体、滋养体和裂殖体，以便将阶段组成的变化与感染频率一并考察。“裂殖子侵入”将关注进入红细胞的过程。这些读出结合起来，有助于区分新感染细胞减少与已在细胞内的寄生虫发育改变。"
     },
     {
       "table": "ui",

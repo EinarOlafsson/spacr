@@ -1,20 +1,32 @@
 {
-  "lesson": "62_feature_dictionary", "language": "zh-CN",
-  "english_sha256": "1e20922e62908000209a58019ff7d20436c5ce4a7e846c14865c6d48df2c49d7",
-  "review": {"kind": "Parent editorial rewrite; rejected draft mean-to-median substitution, missing negation about units, organelle mistranslation and corrupted GUI labels", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Feature Dictionary：查询含义、单位和计算函数",
-  "description": "使用 Help 菜单中的实际词典查找特征定义，按概念和对象筛选，并区分通用文档与项目中实际可用的测量结果。",
-  "objectives": ["从 Help 打开词典，按概念或测量名称搜索。", "使用实际的概念和对象筛选，不修改项目数据。", "阅读单位、计算函数和注意事项，包括面积与体积的区别。", "复制定义文本，区分查询面板与通过 Python 导出项目专用词典。"],
-  "prerequisite": "无需项目、下载或模型；本课浏览内置定义。不进行测量、绘图、AI 请求、GPU 任务或文件导出。示例列名存在于 Database Browser 使用的真实测量数据库中，但此处词典并不加载该数据库。当前面板列出数百个细胞器角色名称；通过原有滚动控件可查看下面的计算函数和注释。文本只复制到录制环境的独立桌面剪贴板中。",
+  "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Feature Dictionary：查找定义和单位",
+  "description": "按测量名称或概念搜索，阅读定义和单位，并复制有用的参考文字。",
+  "objectives": [
+    "按名称或概念查找定义。",
+    "用概念和对象过滤器缩小结果范围。",
+    "阅读单位和备注，然后复制定义。"
+  ],
+  "prerequisite": "准备好一个测量列名，或者从大小、强度这类概念入手。内置词典无需加载项目即可打开。",
   "scenes": [
-    "打开 Help，再选择 Feature Dictionary。这是查询内置测量定义的窗口，不是 Home 中的独立工作流程，也不是需要运行的分析流程。无需下载数据集或模型。",
-    "输入一个概念，例如 size。结果随输入更新；选择 Area 即可查看定义。这里的数量表示匹配的定义数，不是测量到的细胞数，也不是已确认存在于项目中的列数。",
-    "实际的下拉菜单按概念和对象类型筛选。这里选择 intensity 和 cell，会返回十三个定义。这些筛选只缩小词典范围，不改变图像数据或分析设置。进行下一次查询前，恢复为 Any concept 和 Any object。",
-    "按照屏幕显示的完整列名，搜索细胞通道一的平均强度。选中的 Mean intensity 条目解释像素统计量及其单位。按名称搜索只是查找文档，不会检查该列的数值，也不能证明当前项目中存在这一列。",
-    "向下滚动，查看 Channel、Module 和 Computed by。这里的引用标明测量的实现，包括扩展区域属性函数。词典只是查找定义，并不重新计算测量结果。Python 查询接口位于 feature_dict 模块中。",
-    "现在搜索 cell_area。阅读 Unit 中的条件说明：二维分析报告以像素表示的面积，而同一个列名在三维中表示体积。该行的 measurement_units 字段决定体积采用图像像素单位的立方，还是立方微米。不要仅凭列名推断物理单位。",
-    "除了主要定义，还要阅读 Note。已经用物理单位表示的三维数值，不应再次换算。要生成项目专用文档，Python 的 describe_database 和 export_dictionary 函数会检查数据库，并解析其中记录的测量单位；它们不是此面板中的按钮。",
-    "没有匹配项的查询不会显示定义。这说明词典没有找到匹配内容，并不意味着数据不能包含自定义特征。可以改用已知名称或更宽泛的概念；不要把缺少文档当作科学结果。",
-    "恢复 Area 条目，选中详细文本并复制。本次录制验证了实际复制的选区。图形界面没有 Run 或 Export 操作：复制文本不同于通过 Python 创建项目专用词典文件。完成后关闭窗口；没有任何分析被修改。"
+    "打开Help，然后选择Feature Dictionary。当您想理解结果表或图中的某个测量列时，就使用这个窗口。",
+    "在搜索框中输入size，并在结果中选择Area。定义显示在右侧，匹配列表会随着输入实时更新。",
+    "选择一个概念和对象类型来缩小定义范围。试试intensity和cell。要进行更宽泛的搜索，请把选择器恢复为Any concept和Any object。",
+    "搜索cell_channel_1_mean_intensity并选择Mean intensity。阅读统计量和单位，了解该列描述的内容。",
+    "向下滚动到Channel、Module和Computed by查看更多细节。可以把其中列出的计算函数作为查阅API参考的起点。",
+    "查找cell_area并阅读Unit。在二维测量中它表示面积；在三维测量中它表示体积。换算数值之前，请检查项目中记录的测量单位。",
+    "阅读Note了解限定说明，例如数值已用物理单位表示。如需获取数据库中实际存在的列的词典，请在Python中使用describe_database和export_dictionary。",
+    "如果没有匹配的定义，请清除过滤器，改用更宽泛的词或列的确切名称。自定义特征可能需要参考创建它们的工作流程的文档。",
+    "选中定义文字并复制到您的笔记中。需要项目专用的词典文件时，请使用Python的导出函数，然后回到您的表格或图。"
   ]
 }

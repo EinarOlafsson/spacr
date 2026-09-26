@@ -1,33 +1,37 @@
 {
   "lesson": "56_lineage",
-  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
-  "review_type": "source-pinned editorial translation",
-  "native_speaker_reviewed": false,
-  "listening_reviewed": false,
+  "english_sha256": "7fcbf79152a032546ff9ec5c185ab283c7c8f2a495b89d073fbf60cfa0c2014d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "nb",
-  "title": "Lineage: objekter inni celler og verifiserte foreldrecellebilder",
-  "description": "Undersøk lagrede relasjoner, visningsgrenser og riktig foreldrebilde uten å godta feil erstatningsbilder for manglende barn.",
+  "title": "Lineage: bla gjennom foreldreobjekter og innholdet deres",
+  "description": "Åpne lagrede forelder-barn-relasjoner, velg en familie og undersøk et tilhørende utsnitt av foreldrecellen i Annotate.",
   "objectives": [
-    "Åpne Lineage i Database Browser og bygg det reelle treet.",
-    "Skill fullstendige tall, synlige familier og identiteter med type.",
-    "Gjenkjenn feil erstatning og undersøk bare den verifiserte forelderen.",
-    "Bruk innebygd zoom og skill Python-eksport fra GUI-kontroller."
+    "Laste inn målinger og utvide forelder-barn-relasjoner.",
+    "Velge objekter og samtidig kontrollere synsfelt og objekttype.",
+    "Åpne et tilhørende utsnitt av foreldrecellen og hente hele hierarkiet via Python."
   ],
-  "prerequisite": "Bruk det nedlastede Annotate-eksemplet med samsvarende målinger og cellebilder. Graph Builder-arkivet har samme database uten bilder; Lineage-arkivet har verifisert API-CSV og gjennomgang, ikke en erstatningsdatabase. Ikke bruk den feilaktige reserveløsningen til å identifisere eller merke manglende barn.",
+  "prerequisite": "Last ned det komplette Annotate-eksemplet med måledatabasen og de tilhørende celleutsnittene. Graph Builders arkiv med bare databasen kan ikke gi bilder. Eksemplet inneholder bare celleutsnitt: dobbeltklikk på en foreldercelle for å undersøke et utsnitt. Den nåværende familiehandlingen Open crops kan erstatte manglende barneutsnitt med utsnitt av urelaterte celler; unngå den med dette eksemplet.",
   "scenes": [
-    "Finn Database Browser under Help og åpne det underordnede Lineage. Her betyr lineage lagrede relasjoner om hva som ligger inni hva. Det er ikke celledelingshistorie, genetisk avstamning eller ny segmentering. Databasekontrollene rundt visningen tilhører vertsmodulen.",
-    "Velg measurements.db fra det reelle Annotate-eksemplet og bygg treet. Vi bruker en uendret privat kopi. Utvid Object og skillelinjen hvis teksten blir trang. Numre gjentas mellom bildefelt og objekttyper; et tall alene er ikke en identitet.",
-    "Hele kilden inneholder 2 341 celler, 2 682 kjerner og 2 178 objekter i tabellen pathogen. Bare 2 000 foreldrefamilier vises i treet. 341 er utelatt fra visningen, ikke slettet fra databasen.",
-    "Sammendraget sier at ingen celler er tomme fordi en kjerne også teller som barn. Det betyr ikke at alle har et pathogen-objekt: 1 168 har ikke det. Ingen ufestede barn betyr at alle registrerte foreldre finnes, ikke at segmenteringen er biologisk korrekt.",
-    "Utvid en forelder for å se barna. I dette feltet inneholder celle tre kjerne fem og pathogen én ifølge lagrede koblinger. Dette er identiteter med type, ikke utbyttbare tall. Å velge ett barn er forskjellig fra å velge hele familien.",
-    "Select with contents publiserer forelderen og barna. Å velge en forelder sammen med et barn krever ingen ekstra kopi av barnet. Nøklene beholder bildefelt og type, men nøkkelkolonnen er skjult. Publisering beviser ikke at et tilsvarende bildeutsnitt finnes.",
-    "Store familier trenger inspeksjon, ikke automatisk biologisk tolkning. Eksemplet har én familie med totalt 33 objekter. Relasjonene kan gjenspeile segmenterings- eller opptaksfeil. Treet rapporterer lagrede koblinger og validerer ikke uvanlige antall som oppdagelser.",
-    "Et klikk på overskriften sorterer viste familier uten å endre relasjonene. Grensen på 2 000 foreldre gjelder fortsatt. Vi kontrollerte hver synlig identitet, hver foreldrekobling og hele hierarkiet. En sortert eller avkortet visning er ikke en redigert måletabell.",
-    "Open crops trenger Annotate som bildeviser. Den faktiske meldingen ber om å åpne Annotate først. En manglende viser er forskjellig fra et manglende bilde. Last det tilsvarende prosjektet før bildeforespørsler, ikke en annen kjøring med tilfeldigvis lignende numre.",
-    "Det nedlastede prosjektet gir reelle celleutsnitt. Arkivet med bare databasen inneholder ikke bildene. Vi bruker hele det samsvarende eksemplet og bevarer alle originaler. Å åpne kilden trener ingen klassifikator og fastsetter ingen nye etiketter.",
-    "Denne versjonen har en alvorlig begrensning. Familien med tre objekter viser celle tre og deretter de uvedkommende cellene fem og én i stedet for ønsket kjerne og pathogen. Kilden har bare cellebilder. Avvis erstatningen og ikke merk bildene som manglende barn. Tutorialen reparerer ikke feilen.",
-    "Det verifiserte alternativet er snevrere: gå tilbake til Lineage og dobbeltklikk bare foreldrecellen. I motsetning til Open crops sendes kun forelderen, ikke familien. Annotate viser nøyaktig ønsket utsnitt. Identitet og originalbytes er kontrollert; det innebærer ikke støtte for barnebilder.",
-    "Hold Skift og klikk på forelderens miniatyr for å forstørre eksisterende forhåndsvisning uten å tildele klasse. Escape gjenoppretter rutenettet. Det hjelper inspeksjonen, men skaper ikke ekstra oppløsning. Et vanlig venstreklikk annoterer og er ikke zoomgesten som vises.",
-    "Build tree oppdaterer visningen. I Python gir read_object_tables, build_forest og lineage_frame samme struktur. Den lenkede CSV-en har alle 7 201 noder, også familier utenfor visningen. Den ble skrevet via API-et, ikke en Lineage-eksportknapp, og er ikke biologisk validering."
+    "Fra Home åpner du Database Browser og deretter Lineage. Bruk treet til å se hvilke målte objekter som er lagret inne i hver foreldercelle.",
+    "Bla til measurements.db fra Annotate-eksemplet og klikk på Build tree. Gjør kolonnen Object og skillelinjen bredere for å lese etikettene. Identifiser et objekt ut fra synsfelt og type i tillegg til nummer.",
+    "Databasen inneholder 2 341 celler. Treet viser opptil 2 000 foreldrefamilier. Bruk Python-eksporten som vises senere i leksjonen, når du trenger alle familiene.",
+    "Les sammendraget over treet. En kjerne teller som barn, så en celle med innhold kan likevel mangle patogenobjekt. Bruk barnetypene til å tolke hver familie.",
+    "Utvid en forelder for å se barna. Her inneholder celle 3 kjerne 5 og patogen 1. Velg den bestemte objekttypen du vil undersøke.",
+    "Bruk Select with contents for å velge forelderen og barna samtidig. De valgte identitetene inkluderer synsfelt og objekttype. Velg et barn alene når du bare trenger det objektet.",
+    "Utvid en stor familie for å undersøke innholdet. Eksemplet inneholder én familie med 33 objekter. Undersøk de tilhørende bildene når et antall virker uvanlig.",
+    "Klikk på en kolonneoverskrift for å sortere familiene som vises. Sorteringen beholder de lagrede relasjonene og visningsgrensen på 2 000 foreldre.",
+    "For å se utsnitt åpner du først Annotate og laster inn det tilhørende eksempelprosjektet. Hvis du ser meldingen som ber om Annotate, åpner du det før du ber om bilder fra Lineage.",
+    "Bruk hele det nedlastede prosjektet, som inneholder celleutsnittene. Hold databasen og bildene fra samme kjøring samlet, slik at objektidentitetene samsvarer.",
+    "Unngå Open crops for en hel familie i dette eksemplet. Manglende kjerne- og patogenutsnitt kan bli erstattet med utsnitt av urelaterte celler. Gå tilbake til treet og velg bare foreldrecellen.",
+    "Dobbeltklikk på foreldrecellen i Lineage. Annotate åpner det tilhørende celleutsnittet for denne forelderen. Det er utsnittet som finnes i det nedlastede eksemplet.",
+    "Skift-klikk på miniatyrbildet av forelderen for å forstørre forhåndsvisningen, og trykk deretter på Esc for å gå tilbake. Et vanlig venstreklikk setter en annoteringsklasse, så bruk Shift når du bare vil undersøke.",
+    "Klikk på Build tree for å oppdatere visningen. For hele hierarkiet i Python bruker du read_object_tables, build_forest og lineage_frame, og lagrer tabellen som CSV. Den lenkede eksempel-CSV-filen inneholder alle 7 201 noder."
   ]
 }

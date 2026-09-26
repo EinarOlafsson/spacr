@@ -102,56 +102,67 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation with Conda",
+      "title": "Install spaCR with Conda",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Install the official conda-forge package in a separate environment, verify the actual channel version, and recognize when that version differs from the current module tutorials.",
+      "description": "Create a Conda environment, install spaCR from conda-forge and launch the application.",
       "objectives": [
         "Create and activate a dedicated Conda environment.",
-        "Verify the installed channel package, Qt and diagnostic results.",
-        "Choose the newer pip or desktop-installer route when the channel still has the older interface."
+        "Install spaCR from conda-forge.",
+        "Open spaCR and update the same environment when needed."
       ],
-      "prerequisite": "A Conda-compatible manager must already be installed. This recording verifies conda-forge spaCR 1.5.0.4 on Linux, with Python 3.12.14 and Qt 6.11.2, on 2026-09-10. The clean installation used a new private prefix, only conda-forge, and the pinned channel version; command cards illustrate the corresponding named-environment workflow rather than replaying installation output. The actual GUI still has Home (63), not the new nested layout in PyPI/installer 1.5.0.5. Default spacr-doctor performed its small CUDA allocation check successfully but warned about optional CZI support; this is not a speed benchmark or verification of every analysis or format. The native capture uses a private dark profile at font scale 1.5 with the tour already dismissed, unchanged preload defaults and no unsupported --no-setup flag. Other platforms were not tested. Original authoring and published narration differ, so unchanged audio reuse is not claimed.",
+      "prerequisite": "Install Conda or Miniforge, then open a terminal where the conda command is available.",
       "scenes": [
         {
           "visual": "02_conda_environment",
-          "narration": "Use a dedicated Conda environment for spaCR, and check which release the channel actually provides. At this recording, conda-forge installs one point five point zero point four. PyPI and the desktop installer already offer one point five point zero point five; these are not interchangeable version labels.",
+          "narration": "Open a Conda-enabled terminal. You will create an environment for spaCR, install the conda-forge package and launch the application from that environment.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_create_conda_command",
+          "narration": "Create an environment named spacr-conda with Python three point twelve and spaCR from conda-forge, using the displayed command. Choose another name if you already use that name for a different environment.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_conda",
-          "narration": "Open a Conda-enabled shell and create a new environment with Python three point twelve. The command card uses the name spacr-conda. Choose another unused name if it already exists, and keep this environment separate from ongoing analyses.",
+          "narration": "Conda solves the environment and lists its package plan. Review it, type y to accept, then wait for the download and installation to finish.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_conda",
-          "narration": "Activate the environment and print sys dot prefix to confirm where Python belongs. The actual verification uses a longer private prefix instead of the short example name. A terminal prompt alone is not proof that you are using the intended interpreter.",
+          "narration": "Activate spacr-conda. Run the displayed Python command to see the environment path, and check that it is the environment you just created.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_conda",
-          "narration": "Install the channel-qualified conda-forge package, then use conda list spacr to inspect the version and channel. Our recorded installation used only conda-forge and pinned the channel release. Its installation completed before the verification frames; these cards are instructions, not fabricated terminal output.",
+          "narration": "Run conda list spacr to see the installed version and confirm that it comes from conda-forge. Installing Python and spaCR in one command lets Conda resolve every package together, which is much faster than adding spaCR to an existing environment.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Check the spaCR version, Qt version and package location in the installed environment. Here the package is one point five point zero point four and Qt imports successfully. This proves which package is active, not that every scientific workflow or optional format has been validated.",
+          "narration": "Check the installed spaCR version and package location. Keep that version with your analysis notes so you can return to the same environment later.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Run spacr-doctor and read the warnings too. Here its small GPU allocation check succeeds, while optional CZI support has a missing dependency. Skipped checks are not passes. The suggested repair concerns that feature; assess any environment changes before applying it, especially when mixing package managers.",
+          "narration": "Run spacr-doctor to check the installation. Here it reports that vispy, a core dependency, is missing, and shows the command that installs it. Run that command, then run spacr-doctor again. Follow other suggested steps only for the file formats or features you need.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "The installed Conda package opens and closes normally, but this is its older Home with sixty-three tiles. It does not have the new nested module layout. Do not assume that a successful installation means every screen matches tutorials for a newer release.",
-          "hold_after": 0.7
+          "narration": "Enter spacr to launch the application. Complete any first-launch choices, then continue with the Home tutorial to find modules and their example data.",
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "10_current_release_choice",
-          "narration": "For the newer nested interface shown in the refreshed module tutorials, use the current pip or Platform installers lesson in a separate environment. If you need the Conda channel, keep track of its actual release and check again for updates. Preserve the version used for an ongoing analysis.",
+          "narration": "To update later, close spaCR, activate this environment and update the conda-forge package. When conda-forge has no newer build, Conda reports that all requested packages are already installed. Check the installed version afterwards; the pip and installer lessons cover the other installation routes.",
           "related_lessons": [
             "01_pypi_github",
             "03_pip_install",
@@ -159,7 +170,52 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "03_pip_install",
@@ -171,143 +227,200 @@
       "section": "spaCR",
       "description": "Create an isolated Python environment, install the public package, verify its dependencies, and launch the installed Qt application.",
       "objectives": [
-        "Keep spaCR's dependencies in a dedicated Python environment.",
-        "Verify the installed package, Qt and optional-feature warnings.",
-        "Launch Home and update the intended environment deliberately."
+        "Create and activate a Python virtual environment.",
+        "Install spaCR and check its dependencies.",
+        "Launch the application and update the intended environment."
       ],
-      "prerequisite": "This lesson verifies public PyPI spaCR 1.5.0.5 on Linux with Python 3.12.13, not an editable checkout. Command-reference cards are instructions, not recorded terminal output; Windows and macOS commands were not executed here. The actual clean installation completed before the recorded verification. Current base dependencies include Qt. Doctor reports an optional CZI warning; its GPU allocation probe is explicitly skipped. The native GUI capture uses --no-setup, a private dark profile at font scale 1.5, and an already-dismissed tour. It proves a normal Home launch and close, not every module, optional format, GPU computation or another platform.",
+      "prerequisite": "Install Python 3.12 and open a terminal. Use the activation command for your operating system and shell.",
       "scenes": [
         {
           "visual": "01_python_version",
-          "narration": "Install spaCR in its own Python environment. This demonstration uses Python three point twelve on Linux and the public PyPI release, not a source checkout. Check python dash dash version before choosing the interpreter for your environment.",
+          "narration": "Open a terminal and check your Python version. This walkthrough uses Python three point twelve. Keep spaCR in a dedicated virtual environment so its packages are easy to manage.",
           "hold_after": 0.7
         },
         {
           "visual": "07_create_environment",
-          "narration": "Create a new virtual environment with the command for your platform. Here dot venv is a new folder in your working directory. Python three point twelve must already be installed; this command creates an environment, not Python itself.",
+          "narration": "Create a virtual environment named dot venv with the command for your operating system. This creates a folder containing the Python environment you will use for spaCR.",
           "hold_after": 0.7
         },
         {
           "visual": "08_activate_environment",
-          "narration": "Activate that environment using the command for your shell. PowerShell, Command Prompt, bash and zsh use different activation commands. If PowerShell blocks the script, use Command Prompt or call the environment's Python directly; do not weaken machine-wide security settings.",
+          "narration": "Activate dot venv using the command for your shell. Windows PowerShell and Command Prompt have different activation commands; macOS and Linux usually use the shell command shown here.",
           "hold_after": 0.7
         },
         {
           "visual": "02_pip_environment",
-          "narration": "Run python dash m pip dash dash version. Its location should point inside the environment you chose. This actual terminal shows the longer private path used for the recording. Using python dash m pip ties package installation to that interpreter.",
+          "narration": "Run python dash m pip dash dash version. Check that the displayed path belongs to dot venv. Use python dash m pip for the installation commands so pip uses this interpreter.",
           "hold_after": 0.7
         },
         {
           "visual": "09_install_package",
-          "narration": "Upgrade pip, then install spacr. Pinning one point five point zero point five reproduces this lesson's release. The clean installation completed before these verification frames. Allow time and disk space for scientific dependencies; current base dependencies already include the Qt desktop components.",
+          "narration": "Upgrade pip, then install spacr. Wait for the scientific packages to finish downloading and installing. The current package includes the desktop components needed to open the application.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Check the installed spaCR version, Qt version and package path. All three come from the new environment here. An import alone does not prove that every optional format or analysis works, and it does not prove the window will open.",
+          "narration": "Check the installed spaCR version and package location with the displayed command. Save the version alongside your analysis notes.",
           "hold_after": 0.7
         },
         {
           "visual": "04_dependency_check",
-          "narration": "Run python dash m pip check. No broken requirements means the installed dependency declarations are consistent. If it reports a conflict, resolve it before proceeding; a successful check is not a scientific validation of an analysis.",
+          "narration": "Run python dash m pip check. If it reports conflicting requirements, resolve those conflicts before using the environment.",
           "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Run spacr-doctor and read warnings as well as passes. This installation has an optional CZI warning, with its repair command shown. The recording uses dash dash no gpu probe, so it detects the device but does not test a GPU allocation. Skipped checks are not passes.",
+          "narration": "Run spacr-doctor to inspect the installation and see any missing optional features. Follow the suggested repair only for the formats or capabilities you need.",
           "hold_after": 0.7
         },
         {
           "visual": "10_launch_commands",
-          "narration": "Launch spacr from the same activated environment. A normal first launch may ask setup questions. This bounded verification explicitly uses dash dash no setup and a prepared recording profile, so it does not demonstrate answering those questions.",
+          "narration": "Launch spacr from the activated environment. On the first launch, follow the setup prompts and choose your preferences.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "This is the actual Home window from the installed wheel, with the six core modules and the Data, Tools and Assays groups. It opened and closed normally without starting an analysis. Continue with Home for navigation, nested tools and the module tutorials.",
+          "narration": "Home opens with the Core, Data, Tools and Assays categories. Continue to the Home tutorial to find a module, load example data and open a pipeline overview.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "11_update_intentionally",
-          "narration": "For an update, close spaCR and activate the environment you intend to change. Upgrade the package, repeat pip check and spacr-doctor, and record the resulting version with your analysis. Upgrades can change dependencies and behaviour; do not silently change an environment supporting ongoing work.",
+          "narration": "To update, close spaCR and activate this environment. Upgrade the package, then check its version and dependencies again. Keep the previous environment if you need it for an ongoing analysis.",
           "related_lessons": [
             "01_pypi_github",
             "04_platform_installers"
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Platform installers",
+      "title": "Install spaCR with a desktop installer",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Choose an official desktop installer, understand automatic accelerator selection and optional privacy choices, and verify the actual installed Linux runtime.",
+      "description": "Download the installer for your operating system, complete setup and open spaCR.",
       "objectives": [
-        "Select the official installer for the operating system.",
-        "Distinguish automatic acceleration from an explicit CPU-only choice.",
-        "Read privacy choices, installed versions and diagnostic warnings."
+        "Download and run the installer for your operating system.",
+        "Choose an acceleration option and first-launch preferences.",
+        "Open spaCR and find installation logs if setup needs attention."
       ],
-      "prerequisite": "This recording verifies the checksum-matched public Linux x86-64 online installer for spaCR 1.5.0.5 on 2026-09-10, with Python 3.12.13, Qt 6.11.2 and Torch 2.14.0+cu132. The real install finished before these verification frames. It used a new private runtime and launcher directory, existing system GUI libraries, --skip-system-deps and --no-launch; no existing environment or system dependency was changed. Four reference cards are instructions, not recorded Windows/macOS installations or fabricated terminal output. Windows/macOS guidance was checked against current installer source only. The GUI recording uses a private dark profile at font scale 1.5, a dismissed tour, on-demand preload and --no-setup, which does not bypass the separate privacy prompt. Native Escape rejects that prompt with every optional choice off; the private preferences were read back. Doctor used --no-gpu-probe; no allocation, speed, analysis or other-platform validation is claimed. Earlier failed recorder takes are retained, not counted as application defects.",
+      "prerequisite": "Download the official installer for your operating system and allow space for the application and its scientific dependencies.",
       "scenes": [
         {
           "visual": "08_official_release",
-          "narration": "Use the official spaCR GitHub release and match the installer to your operating system. The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required. For this Linux example, we checked the downloaded file against the release checksum before running it.",
+          "narration": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system. These online installers download the Python runtime and scientific packages during setup. Keep SHA256SUMS dot txt from the same release if you want to verify the download.",
           "hold_after": 0.7
         },
         {
           "visual": "09_windows_guidance",
-          "narration": "On Windows, select the online setup executable. The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation. This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer.",
+          "narration": "On Windows, run the setup executable and follow its prompts. Leave automatic acceleration selected to use the supported hardware detected on your computer, or choose CPU-only operation if that is what you need.",
           "hold_after": 0.7
         },
         {
           "visual": "10_macos_guidance",
-          "narration": "On macOS, select the universal online package for Intel and Apple silicon. The app launcher starts per-user setup if its runtime is missing. Verify the official source before approving security prompts, and allow time for downloads. This is source-reviewed guidance, not an executed macOS installation.",
+          "narration": "On macOS, open the universal package and follow the installer. Start spaCR from its application launcher, and allow the first-run downloads to finish. Read any security prompt and confirm that the package came from the official release.",
           "hold_after": 0.7
         },
         {
           "visual": "11_linux_commands",
-          "narration": "On Linux, make the verified download executable and run it from its folder. Automatic accelerator selection is now the default; request the CPU backend explicitly if that is what you need. Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies.",
+          "narration": "On Linux, make the downloaded installer executable, then run it from a terminal. Automatic acceleration selects a supported backend. The help lists dash dash torch-backend cpu for CPU-only operation, and dash dash skip-system-deps for computers that already have the Qt graphics libraries.",
           "hold_after": 0.7
         },
         {
           "visual": "02_installer_backend",
-          "narration": "Read the actual install profile rather than inferring the backend from a successful launch. Here the request was auto and the selected backend is CUDA on NVIDIA hardware. The installed Torch build is CUDA thirteen point two. This identifies the selection; it is not a GPU speed benchmark.",
+          "narration": "After setup, the installation profile records the selected backend. Check this when you want to confirm whether the runtime uses CPU or a supported accelerator.",
           "hold_after": 0.7
         },
         {
           "visual": "03_installed_versions",
-          "narration": "Check the installed package version, Qt import and package path. This private runtime contains spaCR one point five point zero point five. Its files come from the installation, not an editable source checkout. Successful imports do not validate every analysis or optional file format.",
+          "narration": "Check the installed spaCR version. Keep it with your analysis notes, especially when you update the application later.",
           "hold_after": 0.7
         },
         {
           "visual": "07_privacy_keep_off",
-          "narration": "The real first launch asks about optional diagnostic sharing, public issue reports and account setup. Reports would be public, so read the explanation. This recording rejects the dialog with Escape, equivalent to Skip, keep all off. No accounts are connected, and the private preferences confirm that sharing and issue actions remain off.",
+          "narration": "Setup asks about optional diagnostic sharing and account setup. Answer y only for the options you want; n, the default, keeps each one off. The Windows installer shows the same choices as checkboxes.",
           "hold_after": 0.7
         },
         {
           "visual": "06_installed_home",
-          "narration": "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules. The window closes normally too. Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test.",
+          "narration": "When Home opens, continue with the Home tutorial. It shows how to open a module, find test data and choose a pipeline for your experiment.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            48,
+            318,
+            2712,
+            1332
+          ]
         },
         {
           "visual": "05_doctor",
-          "narration": "Run spacr-doctor from the installed runtime and read warnings as well as passes. Here it confirms the installer backend but warns about a missing optional CZI dependency. This run skipped GPU allocation, database and settings checks. A skipped check is not a pass; assess the suggested repair before changing the environment.",
+          "narration": "If startup or a file format needs attention, run spacr-doctor from the installed runtime. It lists each check with a suggested fix. On this CPU-only installation the GPU check fails as expected, and the PATH check flags the installer’s own spacr launcher, which starts this same runtime, so neither needs a change here.",
           "hold_after": 0.7
         },
         {
           "visual": "12_logs_and_versions",
-          "narration": "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem. Review logs for private information before sharing them. Record the version used for each analysis, and treat updates deliberately. The pip and Conda lessons describe the separate environment-based installation routes.",
+          "narration": "For installation problems, find install dot log and install-profile dot json in the installation directory. Review the logs before sharing them with a support request. Include your operating system and spaCR version so the problem is easier to diagnose.",
           "related_lessons": [
             "01_pypi_github",
             "02_conda_install",
@@ -315,7 +428,52 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     },
     {
       "id": "05_home",
@@ -476,6 +634,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -1711,6 +1909,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -2069,6 +2307,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -9420,17 +9698,132 @@
       "id": "71_investigate_hit",
       "number": 71,
       "slug": "investigate_hit",
-      "title": "Investigate Hit",
+      "title": "Investigate Hit: trace a Regression gene back to measured cells",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Results and quality control",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Coming soon",
-      "host_app_key": "regression"
+      "host_app_key": "regression",
+      "section": "Regression",
+      "example_files": [
+        "Investigate_Hit_real_screen_example.zip"
+      ],
+      "description": "Send a Hit List gene to Investigate Hit, add the measurement database, cell predictions and guide fractions, then read the well-level evidence.",
+      "objectives": [
+        "Open a Regression run in Hit List, check q-values and send one gene to Investigate Hit.",
+        "Choose the measurement database, cell predictions, guide fractions and score column.",
+        "Read the evidence, wells, guides and threshold tabs and find the saved tables."
+      ],
+      "prerequisite": "Extract Investigate_Hit_real_screen_example.zip. Everything in it comes from one real screen: the Regression run on Regression's test data (the settings from the Regression tutorial), the matching per-cell CV predictions, and a measurement database with the same cells' real shape, size and intensity measurements. To keep the download small, the database holds 52 wells: every analysed well with a guide for gene 225160, and three wells without one from the same plate for each. No gene in this quick Regression run passes q ≤ 0.05. Treat the investigation as a worked example, not a confirmed hit.",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "narration": "From Home, open Regression. Investigate Hit starts from a finished Regression run. It asks whether the measured cells in the wells behind one gene look different from cells in wells without that gene.",
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_hit_list_open",
+          "narration": "Choose Hits to open Hit List. Extract the example archive first. It contains a Regression run on the test data, the matching per-cell CV predictions, and a measurement database for the same cells. All three come from one real screen.",
+          "related_lessons": [
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_choose_regression_run",
+          "narration": "Click Browse and select the guide_permutation folder inside regression_run, results. This is the output of the Regression tutorial's test-data run.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_ranked_genes",
+          "narration": "Hit List ranks three hundred twenty-five genes. Read the effect, P value and q-value of each row together, along with the number of guides and how many of them agree.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_no_gene_passes_q",
+          "narration": "Set Max q to zero point zero five. The table empties because no gene passes q at or below zero point zero five in this run. With one hundred ninety-nine permutations, the smallest possible P value is zero point zero zero five, and the lowest q-value is about zero point two seven. So what follows checks a ranked candidate, not a confirmed hit.",
+          "related_lessons": [
+            "75_regression_diagnostics"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_selected_gene",
+          "narration": "Set Max q back to one, search for two two five one six zero, and select its row. It has an effect of zero point three four, a q-value of zero point two seven, and three guides that all agree in direction.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_investigate_prefilled",
+          "narration": "Click Investigate selected. Investigate Hit opens with the results folder, the gene, its three guides and a positive effect direction already filled in from that row.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_choose_database",
+          "narration": "Next to Measurements database, click Browse and choose measurements.db from the example. It holds shape, size and mean channel intensity for eight thousand nine hundred fifteen cells in fifty-two wells.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_choose_predictions",
+          "narration": "For Existing CV predictions, choose cv_predictions.csv. Each row is one cell's saved CV score, keyed to the same measured object. Click the path and press Enter so the score columns are read, then keep pred as the phenotype score column.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_choose_fractions",
+          "narration": "For Well/guide fractions, choose regression_data.csv in the same results folder. Regression wrote this table. It gives each guide's fraction in each analysed well.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_form_ready",
+          "narration": "Leave Independent morphology features empty. The module then uses the database's thirteen numeric cell measurements and leaves out identifiers, guide fractions and the CV score, so this check does not reuse the score. For your own database, list only measurement columns that contain no missing values.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_running",
+          "narration": "Click Investigate hit. The model is fitted with one plate held out at a time, so no cell is scored by a model trained on its own plate. A well's guide fraction only sets the starting expectation for that well's cells. It never marks a cell as carrying the guide. This example takes a few minutes.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_evidence",
+          "narration": "Evidence gives the result. Target wells have a hit-like prevalence only zero point zero one higher than control wells. The well bootstrap interval runs from minus zero point zero four to plus zero point zero six, and the blocked permutation P value is about zero point six three. The cells do not support this candidate.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_wells",
+          "narration": "Wells lists each well's guide fraction, mean hit-like probability, prevalence and cell count. Each well counts as one independent unit, so the comparison uses thirteen target wells and thirty-nine control wells, not individual cells.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_guides",
+          "narration": "Guides shows each target guide separately. Their dose responses point in different directions, which is one more reason not to treat this gene as a hit.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_threshold_sensitivity",
+          "narration": "Threshold sensitivity repeats the comparison at probability cut-offs from zero point five to zero point nine. At every cut-off the difference stays close to zero point zero one, so the conclusion does not depend on the cut-off.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_candidate_cells",
+          "narration": "Candidate cells ranks the cells by hit-like probability, with the original score and the fold that scored each cell. These probabilities describe hit-like morphology, not which guide a cell carried. Promote calls to annotation only when the well-level evidence is convincing. Undo reverses a promotion.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_control_fitted_embedding",
+          "narration": "The tables are saved in the results folder under hit_investigation, then two two five one six zero. They include this embedding and a manifest, and each run is also stored as a new version in the database. The example has no crop images, so the review gallery stays empty. Next, investigate a gene that passes your threshold in a Regression run with more permutations.",
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "72_volcano_explorer",
