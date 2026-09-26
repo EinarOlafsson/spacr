@@ -363,7 +363,12 @@ def _read_plane(source: Optional[Tuple[str, Optional[int]]],
     on this plate, and tifffile raises ValueError on a short read -- "failed
     to read 4380800 bytes, got 2578" -- which a handler for OSError lets
     through to end the run. ``IndexError`` joins them because a file with no
-    series at all answers the same question.
+    series at all answers the same question. ``tifffile.TiffFileError``
+    joins them because it derives from ``Exception`` alone, not from
+    ValueError: a ZERO-BYTE file raises "not a TIFF file b''". On this plate
+    that is ``c4/10X_c4_B3_CY3_Site-59.tif``, an lftp download that never
+    finished and left its ``.lftp-pget-status`` beside it, and on 2026-09-26
+    that one file failed all of well B3 in the decode phase after 45 minutes.
 
     THE CHANNEL IS TAKEN ON THE AXIS THE FILE SAYS IT IS ON -- see
     :func:`_channel_axis` -- AND EVERY OTHER NON-IMAGE AXIS AT 0. On this
@@ -379,14 +384,15 @@ def _read_plane(source: Optional[Tuple[str, Optional[int]]],
         if unreadable is not None:
             unreadable.append((path, "not a file"))
         return None
-    try:
-        import tifffile
+    import tifffile
 
+    try:
         with tifffile.TiffFile(path) as handle:
             series = handle.series[0]
             axes = str(getattr(series, "axes", "") or "")
             array = np.asarray(series.asarray())
-    except (OSError, ValueError, IndexError) as failure:
+    except (OSError, ValueError, IndexError,
+            getattr(tifffile, "TiffFileError", ValueError)) as failure:
         if unreadable is not None:
             unreadable.append((path, f"{type(failure).__name__}: {failure}"[:200]))
         return None
@@ -1002,7 +1008,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         columns=["plate", "well", "site", "centre_y", "centre_x", "sbs_site",
                  "is_anchor", "inliers", "alignment_residual_px",
                  "raster_residual_px"])
-    stored = _replace_well_rows(db, "ops_phenotype", frame, plate, well)
+    _replace_well_rows(db, "ops_phenotype", frame, plate, well)
 
     residuals = [record["raster_residual_px"] for record in records]
     report = {
@@ -1022,7 +1028,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         "fields_mapped": len(mapping),
         "fields_off_the_stitch": len(predicted) - len(mapping),
         "sbs_tiles_used": len(set(mapping.values())),
-        "ops_phenotype_rows": stored,
+        "ops_phenotype_rows": int(len(frame)),
         "unreadable": unreadable,
         "seconds": round(time.perf_counter() - started, 1),
     }
@@ -1572,7 +1578,10 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         ``ops_spot_detector``.
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
-    :returns: the decode report.
+    :returns: the decode report. Its ``ops_barcodes_rows`` and
+        ``ops_reads_rows`` count this well's rows only, the number a
+        ``plate``/``well`` filter on the stored table returns;
+        ``ops_reads_rows`` is None when reads were not stored.
     :raises ValueError: when the objects are not ready.
     """
     import multiprocessing
@@ -1677,13 +1686,15 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     } for object_id, row in sorted(assigned.items())],
         columns=["plate", "well", "object_id", "barcode", "quality", "n_reads",
                  "n_agreeing", "fraction", "n_cycles", "mapped_guide"])
-    stored = _replace_well_rows(db, "ops_barcodes", frame, plate, well)
+    _replace_well_rows(db, "ops_barcodes", frame, plate, well)
     reads_rows = None
     if store_reads:
         tick = time.perf_counter()
         reads = _reads_frame(plate, well, placements, decoded, cycles, _BASES)
-        reads_rows = _replace_well_rows(db, "ops_reads", reads, plate, well)
-        _say(f"{well} decode: ops_reads holds {reads_rows} rows "
+        table_rows = _replace_well_rows(db, "ops_reads", reads, plate, well)
+        reads_rows = int(len(reads))
+        _say(f"{well} decode: stored {reads_rows} ops_reads rows for this well, "
+             f"{table_rows} in the table "
              f"({round(time.perf_counter() - tick, 1)} s)")
 
     spots = sum(r["spots"] for r in decoded)
@@ -1713,7 +1724,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                                                for row in assigned.values())
                                            if library else None),
         "objects_mapped": int((frame["mapped_guide"] != "").sum()) if library else None,
-        "ops_barcodes_rows": stored, "ops_reads_rows": reads_rows,
+        "ops_barcodes_rows": int(len(frame)), "ops_reads_rows": reads_rows,
         "read_threshold": threshold, "footprint": footprint,
         "spot_detector": detector,
         "base_channels": list(channels), "workers": workers,
@@ -1726,6 +1737,13 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
              f"{footprint:g} PX OF A NUCLEUS, below the {_MIN_CONTAINMENT:.0%} "
              "gate. The reads are not where the objects are; check the "
              "segmentation and the footprint before trusting these barcodes.")
+    if report["unreadable"]:
+        first_path, first_reason = report["unreadable"][0]
+        _say(f"{well} decode: WARNING {len(report['unreadable'])} source "
+             "file(s) could not be read and were left out; each costs its "
+             "cycle in that one field, not the well. First: "
+             f"{os.path.basename(str(first_path))} ({first_reason}). All are "
+             "listed under the report's decode.unreadable.")
     _say(f"{well} decode: {len(assigned)} objects assigned from {spots} spots "
          f"in {len(decoded)} fields, {report['total_seconds']} s")
     return report

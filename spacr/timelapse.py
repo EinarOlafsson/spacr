@@ -742,9 +742,10 @@ def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, image
 
     tracks_path = os.path.join(os.path.dirname(src), 'tracks')
     os.makedirs(tracks_path, exist_ok=True)
-    tracks_df.to_csv(
-        os.path.join(tracks_path, f'timeflows_tracks_{object_type}_{name}.csv'),
-        index=False)
+    from .tabular import write_table
+
+    write_table(tracks_df, os.path.join(
+        tracks_path, f'timeflows_tracks_{object_type}_{name}.csv'))
 
     if plot or save:
         _visualize_and_save_timelapse_stack_with_tracks(

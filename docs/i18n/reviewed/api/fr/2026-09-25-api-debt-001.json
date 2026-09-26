@@ -562,7 +562,9 @@
       "source_sha256": "42def4f4e810fa598323cc7fdbd455915764d7944e457a30a384f482d09f80e1",
       "context": "An object whose model setting reads ``cellpose3:<model or weights path>``, or any object when ``segmentation_backend`` is ``'cellpose3'``, is segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own environment; what it returns enters the same lines as a Cellpose-SAM result, so the saved masks and the database rows are written the same.",
       "translation": "Un objet dont le réglage de modèle vaut ``cellpose3:<model or weights path>``, ou tout objet lorsque ``segmentation_backend`` vaut ``'cellpose3'``, est segmenté par ``_cellpose3_masks`` dans l’environnement propre au backend Cellpose 3 ; ce qu’il renvoie emprunte le même chemin qu’un résultat Cellpose-SAM, de sorte que les masques enregistrés et les lignes de la base de données sont écrits de la même façon.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#6",

@@ -12,9 +12,9 @@ WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track
 paints its own text -- "step 2 of 3", "45%", "312 MB / 690 MB (45%)" -- draws
 a 13 px caption into those 8 px, so only the top half of each glyph reaches
 the screen, and at 50 % GUI scale the track is 4 px and almost nothing does.
-The maintainer's report was "the text e.g. step 1 of 3 or 10% is cut off".
+A caption such as "step 1 of 3" or "10%" is cut off.
 
-THE DESIGN the maintainer chose is "thin bar + label":
+THE DESIGN is "thin bar + label":
 
     [████████░░░░░░░░░░░░]  step 2 of 3 · 45%
     Downloading torch… 312 MB of 690 MB · 4.2 MB/s · 1 min 30 s left

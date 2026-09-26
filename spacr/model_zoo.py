@@ -2070,9 +2070,9 @@ _BIOIMAGEIO_DINO = ("cellposedino", "cellpose dino", "cpdino")
 BIOIMAGEIO_CACHE_HOURS = 24
 
 #: The smallest weights file that can hold a Cellpose network. Cellpose 3's
-#: is 26 MB and Cellpose-SAM's 1.2 GB. One bioimage.io Cellpose package (OC1
-#: Project 11, happy-elephant, measured 2026-09-25) publishes a 1596-byte
-#: stand-in instead, and its own code downloads the real checkpoint from
+#: is 26 MB and Cellpose-SAM's 1.2 GB. At least one bioimage.io Cellpose
+#: package (OC1 Project 11, happy-elephant) publishes a 1596-byte stand-in
+#: instead, and its own code downloads the real checkpoint from
 #: GitHub when it runs; a row offering that file would download it, load it
 #: and fail, or worse.
 _BIOIMAGEIO_MIN_WEIGHTS = 1 << 20

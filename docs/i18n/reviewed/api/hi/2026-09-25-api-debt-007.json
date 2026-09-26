@@ -4674,7 +4674,9 @@
       "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
       "translation": "समायोजित मास्क के लिए वैकल्पिक अलग फ़ोल्डर। None पुराना स्थान-पर (in-place) व्यवहार बनाए रखता है। अलग फ़ोल्डर सभी स्रोत मास्क को बाइट-दर-बाइट अपरिवर्तित रखता है, और हर चयनित फ़ील्ड हर बार बुलाए जाने पर अपने स्रोत से फिर से बनाया जाता है, बाधित कार्य के बाद भी।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.check_mask_folder#3",

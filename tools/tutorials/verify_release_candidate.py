@@ -55,7 +55,7 @@ def check_sentence_cues(page):
                                    timeout=30000)
             page.evaluate('(seconds) => { seekTo(seconds); elements.video.pause(); }', requested)
             page.wait_for_function('!elements.video.seeking && !elements.audio.seeking && elements.video.readyState >= 2',
-                                   timeout=30000)
+                                   timeout=90000)
             page.wait_for_timeout(150)
             actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
                 video: elements.video.currentTime,
@@ -231,12 +231,15 @@ def verify(root, *, placeholders_only=False, published=None):
                     # A cold seek may still be loading media or decoding a frame,
                     # including local files while other media jobs are active.
                     # Keep the clock tolerance unchanged while waiting for it.
+                    # A hosted seek waits on the media host, which can take
+                    # well over 15 s when it is congested (the player holds
+                    # narration meanwhile); the agreement is still < 0.5 s.
                     try:
                         page.wait_for_function('''!videoClockCorrectionPending &&
                             !elements.video.seeking && !elements.audio.seeking &&
                             Math.abs(elements.video.currentTime -
                                 videoTimeFromAudio(elements.audio.currentTime)) < .5''',
-                            timeout=15000, polling=50)
+                            timeout=15000 if media_root is None else 90000, polling=50)
                     except Exception:
                         # Keep the failure's state for diagnosis; the check still fails.
                         state = page.evaluate('''() => ({lesson: activeLesson?.id,

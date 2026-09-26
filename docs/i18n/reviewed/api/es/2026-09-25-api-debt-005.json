@@ -2018,7 +2018,9 @@
       "source_sha256": "28aeefdb811ae70f189dee69d6e8fcf4688b426e67235601a9d0c5f3e567652b",
       "context": "The button is placed with the other actions, before the Magnifier and the settings toggle, so that pair stays together at the end of the row whatever is added after them.",
       "translation": "El botón se coloca con las demás acciones, antes de Magnifier y del conmutador de ajustes, para que esa pareja siga junta al final de la fila se añada lo que se añada después.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter#0",
@@ -2554,7 +2556,9 @@
       "source_sha256": "da7ed3a577519a636daa1c049ec9a397e29f7f6452c19eb74bb9093e94f41618",
       "context": "A ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a bioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all: Cellpose 4 would load such a checkpoint and segment nonsense with it. It is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own environment, as Mask generation loads it.",
       "translation": "Un modelo ``cellpose3:<name or path>`` -- un modelo estándar de Cellpose 3 o un punto de control de Cellpose 3 de bioimage.io -- no es en absoluto un modelo de Cellpose 4: Cellpose 4 cargaría ese punto de control y segmentaría disparates con él. Lo carga :func:`_backend_model`, en el entorno propio del motor Cellpose 3, igual que lo carga la generación de máscaras.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.load_cellpose_model#4",
@@ -4674,7 +4678,9 @@
       "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
       "translation": "carpeta separada opcional para las máscaras ajustadas. None conserva el comportamiento histórico de modificar en el lugar. Una carpeta separada mantiene todas las máscaras de origen idénticas byte a byte, y cada campo seleccionado se reconstruye a partir de su origen en cada invocación, también después de un trabajo interrumpido.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.check_mask_folder#3",

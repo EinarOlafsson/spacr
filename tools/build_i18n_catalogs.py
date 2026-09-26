@@ -522,6 +522,9 @@ _PROTECT_PATTERNS = (
         # not a numpydoc declaration, and may be translated normally.
         r"(?<![:\w])(?<!:param )(?<!:type )(?<!:return )"
         r"(?<!:ivar )(?<!:cvar )(?<!:var )"
+        # ``:raises ValueError: sequence/limit ...`` names an exception, then
+        # prose; "ValueError: sequence" is not a declaration of that type.
+        r"(?<!:raises )"
         # "settings dictionary: iterable sweep values" is narrative prose,
         # not a declaration of a parameter called dictionary. Keep a real
         # standalone "dictionary: iterable" declaration protected below.

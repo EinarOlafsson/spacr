@@ -703,7 +703,7 @@ class _MasksConsole(QWidget):
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
         self._last = None
-        self._relay.connect(self.say)
+        self._relay.connect(self.post)
         self.stream_updates = 0
         self._stream_lock = threading.Lock()
         self._stream_pending = None
@@ -720,7 +720,7 @@ class _MasksConsole(QWidget):
         stop = backends._listen_to_workers(self._worker_said)
         self.destroyed.connect(lambda *_args: stop())
 
-    def say(self, text: str, kind: str = "info") -> None:
+    def post(self, text: str, kind: str = "info") -> None:
         """Write one line.
 
         :param text: what to say; blank is ignored.
@@ -7677,9 +7677,13 @@ class MakeMasksScreen(QWidget):
         outer.addWidget(self._body_stack, 1)
 
         nav = QWidget()
-        nav_row = QHBoxLayout(nav)
-        nav_row.setContentsMargins(0, 0, 0, 0)
-        nav_row.setSpacing(SPACING["sm"])
+        outer_row = QHBoxLayout(nav)
+        outer_row.setContentsMargins(0, 0, 0, 0)
+        outer_row.setSpacing(SPACING["sm"])
+        from .app_screen import _WrappingButtonStrip
+
+        nav_row = _WrappingButtonStrip(SPACING["sm"])
+        outer_row.addLayout(nav_row)
         self._btn_open = QPushButton("Open folder…")
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
@@ -7749,11 +7753,11 @@ class MakeMasksScreen(QWidget):
         self._btn_skip.clicked.connect(self._on_skip)
         nav_row.addWidget(self._btn_skip)
 
-        nav_row.addStretch(1)
+        outer_row.addStretch(1)
         self._status_label = _StatusLabel("Ready.")
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
-        nav_row.addWidget(self._status_label)
+        outer_row.addWidget(self._status_label)
         outer.addWidget(nav)
 
     def _build_fold_strip(self) -> FoldStrip:
@@ -8598,7 +8602,7 @@ class MakeMasksScreen(QWidget):
         an action: it stays lit for as long as the settings are on
         screen. The tools wider than the window scroll; the pair does
         not, so the way back to the settings is never scrolled out of
-        sight (item 419, the maintainer's choice of 2026-09-25). A
+        sight. A
         stretch after the last tool keeps the tools against the left
         edge, above the settings they sit over.
 
@@ -10428,11 +10432,11 @@ class MakeMasksScreen(QWidget):
 
         :param text: the line.
         :param kind: ``progress``, ``stream``, ``info``, ``warning`` or
-            ``error``; see :meth:`_MasksConsole.say`. A ``stream`` line (an
+            ``error``; see :meth:`_MasksConsole.post`. A ``stream`` line (an
             install's own output) goes to the console only, which throttles
             it; the corner keeps the task's own words.
         """
-        self._masks_console.say(text, kind)
+        self._masks_console.post(text, kind)
         if kind != "stream":
             self._status_label.set_quietly(text)
 
@@ -10445,7 +10449,7 @@ class MakeMasksScreen(QWidget):
         """
         stripped = str(text or "").rstrip()
         running = stripped.endswith(("…", "..."))
-        self._masks_console.say(stripped, "progress" if running else "info")
+        self._masks_console.post(stripped, "progress" if running else "info")
 
     def _build_shortcut_panel(self) -> QWidget:
         """The gestures, one terse line each.
@@ -11665,7 +11669,7 @@ class MakeMasksScreen(QWidget):
             "Equalise the histogram inside each tile rather than over the "
             "whole field, with a limit on how much any one level may be "
             "stretched. It is what brings out objects in a dim corner "
-            "without blowing out the bright middle. It also amplifies "
+            "without saturating the bright middle. It also amplifies "
             "noise in empty tiles, which is what the clip limit is for.")
         card.body_layout.addWidget(self._enh_clahe)
 

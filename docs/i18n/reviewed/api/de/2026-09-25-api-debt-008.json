@@ -2162,7 +2162,9 @@
       "source_sha256": "40374c0333bcf5d0c12d6cd6f4418a7e2cf844bd649a11bd9829ee9554176695",
       "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has its first PDF read the way a dropped one is, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
       "translation": "Einmal pro Quelle und Modus gefragt, und nur, solange die Ansicht angezeigt wird. Bei einem ``src``, das ein PDF oder einen Ordner mit PDFs nennt, wird im Figure-Modus -- schon vorher oder nachdem die Antwort zu ihm gewechselt hat -- das erste PDF so gelesen wie ein abgelegtes, sodass die Vorschau und der Lauf den Abbildungsordner der Publikation erhalten statt eines PDF, das sie nicht öffnen können.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.check_the_src#3",
@@ -2346,7 +2348,9 @@
       "source_sha256": "2b7407611fc209fb0443dac29a62c5dafbe648ac0402c0045057d5ae4cc12929",
       "context": "image paths sorted by name; empty when there are none.",
       "translation": "Bildpfade nach Namen sortiert; leer, wenn es keine gibt.",
-      "review_basis": "MT draft kept after AI review"
+      "review_basis": "MT draft kept after AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_box#0",
@@ -3186,7 +3190,9 @@
       "source_sha256": "7901c5b1ff077fc23be6f70cea27611f39b1a78524c0d860f81f146a094623ce",
       "context": "segmentation settings; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` and ``cellprob`` are read, each with a default.",
       "translation": "Segmentierungseinstellungen; ``model``, ``channel``, ``normalise``, ``lo_pct``, ``hi_pct``, ``diameter``, ``flow_threshold`` und ``cellprob`` werden gelesen, jeweils mit einem Standardwert.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.timelapse_preview.segment_sequence#2",

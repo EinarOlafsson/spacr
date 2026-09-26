@@ -4887,7 +4887,7 @@ Read by ``_read_chain_settings``.
 enhance_clahe
 -------------
 
-(bool) - Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without blowing out the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.
+(bool) - Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without saturating the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -19680,7 +19680,7 @@ Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_se
 timelapse_mode
 --------------
 
-(str) - Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.
+(str) - Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or 3D data at a higher computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; 'iou' links masks by overlap and may fail when objects move far between frames; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

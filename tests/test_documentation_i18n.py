@@ -820,6 +820,37 @@ def test_reviewed_genus_name_may_equal_english_only_where_listed():
     )
 
 
+def test_raises_field_is_not_read_as_a_type_declaration():
+    """``:raises X: word`` is an exception name and prose, not ``X: type``.
+
+    The numpydoc-declaration protector read ``ValueError: sequence`` in
+    ``spacr.timeflows_model.ctc_pairs`` as a declaration, so every locale's
+    whole-document literal check failed on a correctly translated field.
+    """
+    from build_i18n_catalogs import _PROTECT_PATTERNS, _syntax_preserved
+
+    source = (
+        ":raises ValueError: sequence/limit, duplicate frame identities or "
+        "annotation\n    arrays are invalid."
+    )
+    translated = (
+        ":raises ValueError: la séquence ou la limite, les identités de trame "
+        "en double ou les tableaux d'annotations sont invalides."
+    )
+    assert not any(
+        "ValueError: sequence" in match.group(0)
+        for pattern in _PROTECT_PATTERNS
+        for match in pattern.finditer(source)
+    )
+    assert _syntax_preserved(source, translated, check_emphasis=False)
+    # A real numpydoc declaration is still held byte for byte.
+    declaration = "values : sequence of values to check."
+    assert not _syntax_preserved(
+        declaration, "valeurs : séquence des valeurs à vérifier.",
+        check_emphasis=False,
+    )
+
+
 def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
     tmp_path, monkeypatch,
 ):
