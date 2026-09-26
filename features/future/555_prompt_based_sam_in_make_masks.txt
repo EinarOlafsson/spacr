@@ -3,7 +3,7 @@ CLICK- AND BOX-PROMPTED SEGMENTATION (micro-SAM) IN MAKE MASKS
 Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). On the
 CPU a click after the first embedding takes 0.2 to 1.3 s on a 1024 px
 field and 0.4 to 2.0 s on a 2 k field, on a machine under heavy load; the
-GPU timing is under "Timings". What is left is under "Not done".
+GPU was not free to time it. What is left is under "Not done".
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -109,8 +109,11 @@ prompts = the median point of a ground-truth object, then its bounding box)
       box prompt IoU 0.84-0.97; one central point 0.11-0.96 (a single
       point on a vacuole often picks one parasite in it -- more points or
       a box fix it, which is what the refinement is for).
-    GPU: see the note below if the queued run (tools/gpu_turn.sh 555-sam)
-    finished; otherwise it was withdrawn and is left to do.
+    GPU: not measured. The run was queued with tools/gpu_turn.sh 555-sam
+    at 16:25 and withdrawn at 17:52: the card was held by another
+    session's job (livecell-binary-sets) since 13:23. The script is
+    /mnt/firecuda2/codex/scratch-docs/555/e2e.py <backends> cuda 0, against
+    the environment built there.
 
 ALPHA: widgets: MakeMasksPromptCategory (the holder of the Segment by
 prompt category, MakeMasksScreen._prompt_card; hiding it hides the
@@ -141,7 +144,8 @@ Tests
     lane (test_i18n_caption_ratchet, make_masks_settings_explain_themselves).
 
 Not done
-    * GPU timing, unless the note below records it.
+    * GPU timing (the done-when's "under a second" on a GPU is expected
+      from the CPU numbers but not measured).
     * No translations: the captions and the zoo row's prose are listed as
       awaiting the catalog lane; promotion needs them.
     * One model (vit_b_lm). vit_l_lm, the EM/histopathology models and a
