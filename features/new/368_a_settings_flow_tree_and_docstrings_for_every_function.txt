@@ -801,3 +801,8 @@ test_public_docstrings_matches_reviewed_visible_coverage (+14 public
 symbols), and it is red identically with this commit's code change removed,
 so it is other items' public additions awaiting the docs lane's catalog
 regeneration, not this sweep.
+
+2026-09-25, after merging nightly: the plaque_preview change that landed
+meanwhile (seed_well_boxes now reads figure_confidence, figure_detector,
+figure_imgsz, src) staled 4 sections; regenerated again, 7489
+cross-references. Settings-flow pins and the API-link test: 11 passed.
