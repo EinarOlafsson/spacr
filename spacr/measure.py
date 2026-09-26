@@ -63,7 +63,7 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 from dataclasses import dataclass, field as dataclasses_field
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 from scipy.stats import pearsonr, skew, kurtosis, mode
 import multiprocessing as mp
 from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, binary_erosion, gaussian_filter, center_of_mass, convolve, find_objects
@@ -2751,6 +2751,671 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         conn.close()
 
 
+_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity')
+_CONFLUENCY_TABLE = 'confluency'
+_CONFLUENCY_WELL_TABLE = 'confluency_well'
+_CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
+_CONFLUENCY_SEPARATION_MIN = 3.2
+_CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
+_CONFLUENCY_INTENSITY_FRACTION = 0.25
+
+
+@dataclass
+class _ConfluencyResult:
+    """Covered area of one field and how it was decided.
+
+    ``confluency`` is the covered fraction of the field, 0 to 1.
+    ``source`` is the method actually used, never ``auto``. ``threshold``
+    is the automatic cut in the units of that method (local standard
+    deviation of the 0-1 scaled image for texture, raw intensity for
+    intensity, ``None`` for masks). ``separation`` is how far apart the two
+    pixel classes were, in pooled standard deviations; a field whose
+    classes did not separate is decided whole and ``uniform`` is true.
+    """
+
+    covered: np.ndarray
+    confluency: float
+    source: str
+    threshold: Optional[float] = None
+    separation: Optional[float] = None
+    uniform: bool = False
+    channel: Optional[int] = None
+
+    @property
+    def covered_px(self) -> int:
+        """Number of covered pixels."""
+        return int(np.count_nonzero(self.covered))
+
+    @property
+    def field_px(self) -> int:
+        """Number of pixels in the field."""
+        return int(self.covered.size)
+
+
+def _confluency_plane(array):
+    """Reduce a field to one 2-D plane; a z-stack is max-projected.
+
+    :param array: a 2-D image or mask, or a ``(Z, Y, X)`` stack.
+    :returns: the 2-D plane.
+    """
+    plane = np.asarray(array)
+    if plane.ndim == 3:
+        plane = plane.max(axis=0)
+    if plane.ndim != 2:
+        raise ValueError(
+            f"confluency needs a 2-D field or a (Z, Y, X) stack, got shape "
+            f"{plane.shape}")
+    return plane
+
+
+def _otsu_separation(values):
+    """Otsu's cut and how far apart the two classes it makes are.
+
+    :param values: 1-D finite values.
+    :returns: ``(threshold, separation)``; separation is the difference of
+        the class means over the pooled within-class standard deviation.
+        A single Gaussian split this way gives about 2.6, two real classes
+        give well above :data:`_CONFLUENCY_SEPARATION_MIN`.
+    """
+    values = np.asarray(values, dtype=np.float64)
+    if values.size < 4 or np.ptp(values) == 0:
+        return float(values.mean()) if values.size else 0.0, 0.0
+    threshold = float(filters.threshold_otsu(values))
+    low = values[values <= threshold]
+    high = values[values > threshold]
+    if low.size < 2 or high.size < 2:
+        return threshold, 0.0
+    within = (low.size * low.var() + high.size * high.var()) / values.size
+    separation = (high.mean() - low.mean()) / sqrt(max(within, 1e-12))
+    return threshold, float(separation)
+
+
+def _unit_scaled(plane):
+    """Scale a plane to 0-1 between its 0.5th and 99.5th percentiles.
+
+    :param plane: 2-D image.
+    :returns: float64 plane clipped to ``[0, 1]``; all zeros when flat.
+    """
+    x = np.asarray(plane, dtype=np.float64)
+    lo, hi = np.percentile(x, [0.5, 99.5])
+    if hi <= lo:
+        return np.zeros_like(x)
+    return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
+
+
+def _local_sd(x, window):
+    """Standard deviation in a square window around every pixel.
+
+    :param x: float 2-D plane.
+    :param window: window side in pixels.
+    :returns: the local standard deviation, same shape as ``x``.
+    """
+    from scipy.ndimage import uniform_filter
+    mean = uniform_filter(x, window, mode='reflect')
+    mean_sq = uniform_filter(x * x, window, mode='reflect')
+    return np.sqrt(np.clip(mean_sq - mean * mean, 0.0, None))
+
+
+def _texture_ratio(x, window):
+    """Median local standard deviation over the pixel noise level.
+
+    About 1 on an empty, flat field and several times that on one covered
+    by cells, whatever the stain. It decides a field whose pixels do not
+    separate into two classes, because such a field is either all
+    background or all monolayer.
+
+    :param x: 0-1 scaled plane.
+    :param window: window side in pixels.
+    :returns: the ratio.
+    """
+    from skimage.restoration import estimate_sigma
+    noise = float(estimate_sigma(x))
+    return float(np.median(_local_sd(x, window))) / max(noise, 1e-9)
+
+
+def _clean_coverage(covered, radius):
+    """Smooth a coverage mask: open, close, and drop specks and pinholes.
+
+    The image is reflected at its edges first so that a cell sheet running
+    off the field is not eroded there.
+
+    :param covered: boolean plane.
+    :param radius: structuring-element radius in pixels.
+    :returns: the cleaned boolean plane.
+    """
+    from scipy.ndimage import binary_closing, binary_opening
+    radius = max(1, int(radius))
+    pad = 3 * radius
+    work = np.pad(np.asarray(covered, dtype=bool), pad, mode='reflect')
+    disk = morphology.disk(radius)
+    work = binary_opening(work, structure=disk)
+    work = binary_closing(work, structure=disk)
+    smallest = int(np.pi * (2 * radius) ** 2)
+    work = morphology.remove_small_holes(work, smallest)
+    work = morphology.remove_small_objects(work, smallest)
+    return work[pad:-pad, pad:-pad]
+
+
+def _texture_coverage(image, window=15):
+    """Covered area of a brightfield or phase field, from local texture.
+
+    Cells scatter light and so vary from pixel to pixel; bare plastic is
+    flat. The local standard deviation in a ``window``-pixel square is
+    split by Otsu's method on its logarithm, which finds the two levels.
+    The final cut sits halfway between the two levels in variance, which
+    puts the edge where half the window is covered, so the coverage is not
+    inflated by half a window all round every cell. Pixels whose window is
+    perfectly flat (saturated or zero-padded borders) are left out of the
+    threshold estimate and count as uncovered.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param window: texture window side in pixels; roughly the width of the
+        thinnest cell process that should count as covered.
+    :returns: :class:`_ConfluencyResult` with ``source='texture'``.
+    """
+    window = max(3, int(window))
+    x = _unit_scaled(_confluency_plane(image))
+    sd = _local_sd(x, window)
+    textured = sd > 1e-9
+    if not textured.any():
+        return _ConfluencyResult(np.zeros(x.shape, dtype=bool), 0.0,
+                                'texture', None, 0.0, True)
+    log_sd = np.log(sd[textured])
+    lo, hi = np.percentile(log_sd, [0.5, 99.5])
+    cut, separation = _otsu_separation(np.clip(log_sd, lo, hi))
+    if separation < _CONFLUENCY_SEPARATION_MIN:
+        full = _texture_ratio(x, window) >= _CONFLUENCY_TEXTURE_RATIO_MIN
+        covered = np.full(x.shape, bool(full))
+        return _ConfluencyResult(covered, float(full), 'texture', None,
+                                separation, True)
+    first = np.zeros(x.shape, dtype=bool)
+    first[textured] = log_sd > cut
+    band = window // 2 + 1
+    variance = sd * sd
+    core_on = binary_erosion(first, iterations=band)
+    core_off = binary_erosion(~first & textured, iterations=band)
+    on = variance[core_on] if core_on.any() else variance[first]
+    off = (variance[core_off] if core_off.any()
+           else variance[~first & textured])
+    level = 0.5 * (float(np.median(on)) + float(np.median(off)))
+    covered = _clean_coverage((variance > level) & textured, window // 4)
+    return _ConfluencyResult(covered, float(covered.mean()), 'texture',
+                            sqrt(level), separation, False)
+
+
+def _intensity_coverage(image, sigma=1.0):
+    """Covered area of a fluorescent cytoplasm or membrane stain.
+
+    The plane is smoothed, its brightest 0.1 % clipped so a few saturated
+    spots cannot capture Otsu's cut, and split by Otsu's method. The cut
+    is then moved a quarter of the way up from the background level to the
+    stained level (medians of the two classes away from their edges), so
+    the dim rim of each cell counts as covered, which is where hand-drawn
+    and Cellpose outlines put it. On the Toxoplasma PV ground-truth fields
+    Otsu alone reported half the covered area.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param sigma: Gaussian smoothing in pixels before thresholding.
+    :returns: :class:`_ConfluencyResult` with ``source='intensity'``.
+    """
+    plane = np.asarray(_confluency_plane(image), dtype=np.float64)
+    ceiling = float(np.percentile(plane, 99.9))
+    x = gaussian_filter(np.minimum(plane, ceiling), sigma)
+    cut, separation = _otsu_separation(x.ravel())
+    if separation < _CONFLUENCY_SEPARATION_MIN:
+        full = _texture_ratio(_unit_scaled(plane), 15) >= (
+            _CONFLUENCY_TEXTURE_RATIO_MIN)
+        return _ConfluencyResult(np.full(x.shape, bool(full)), float(full),
+                                'intensity', None, separation, True)
+    above = x > cut
+    core_on = binary_erosion(above, iterations=3)
+    core_off = binary_erosion(~above, iterations=8)
+    stained = float(np.median(x[core_on] if core_on.sum() > 100 else x[above]))
+    background = float(np.median(
+        x[core_off] if core_off.sum() > 100 else x[~above]))
+    level = background + _CONFLUENCY_INTENSITY_FRACTION * (stained - background)
+    covered = _clean_coverage(x > level, 2)
+    return _ConfluencyResult(covered, float(covered.mean()), 'intensity',
+                            level, separation, False)
+
+
+def _mask_coverage(mask):
+    """Covered area as the union of every labelled cell.
+
+    :param mask: 2-D label image, or a ``(Z, Y, X)`` label stack (a pixel is
+        covered when any plane labels it).
+    :returns: :class:`_ConfluencyResult` with ``source='masks'``.
+    """
+    covered = _confluency_plane(np.asarray(mask) > 0).astype(bool)
+    return _ConfluencyResult(covered, float(covered.mean()), 'masks')
+
+
+def _resolve_confluency_source(settings):
+    """The method a run uses, with ``auto`` answered.
+
+    ``auto`` is the cell masks when the run has a cell mask, and texture
+    otherwise, because texture works on any channel, brightfield included.
+
+    :param settings: Measure settings; reads ``confluency_source`` and
+        ``cell_mask_dim``.
+    :returns: ``'masks'``, ``'texture'`` or ``'intensity'``.
+    :raises ValueError: for a source outside :data:`_CONFLUENCY_SOURCES`.
+    """
+    source = str(settings.get('confluency_source') or 'auto').strip().lower()
+    if source not in _CONFLUENCY_SOURCES:
+        raise ValueError(
+            f"Setting: confluency_source is {source!r}; use one of "
+            f"{', '.join(_CONFLUENCY_SOURCES)}.")
+    has_cells = settings.get('cell_mask_dim') is not None
+    if source == 'auto':
+        return 'masks' if has_cells else 'texture'
+    if source == 'masks' and not has_cells:
+        raise ValueError(
+            "Setting: confluency_source is 'masks' but cell_mask_dim is "
+            "blank, so there are no cell masks to cover the field with. "
+            "Set cell_mask_dim, or choose texture or intensity.")
+    return source
+
+
+def _confluency_channel(settings):
+    """The merged-array channel a texture or intensity source reads.
+
+    :param settings: Measure settings; reads ``confluency_channel`` and,
+        when it is blank, the first entry of ``channels``.
+    :returns: the channel index.
+    """
+    channel = settings.get('confluency_channel')
+    if channel is None or channel == '':
+        channels = settings.get('channels') or [0]
+        channel = channels[0]
+    return int(channel)
+
+
+def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
+                     channel=None):
+    """Covered fraction of one field by the chosen source.
+
+    :param image: the channel to read for ``texture`` and ``intensity``.
+    :param cell_mask: the cell label image for ``masks``.
+    :param source: ``auto`` (masks when ``cell_mask`` is given, else
+        texture), ``masks``, ``texture`` or ``intensity``.
+    :param window: texture window in pixels.
+    :param channel: recorded on the result; not used to read anything.
+    :returns: :class:`_ConfluencyResult`.
+    :raises ValueError: for an unknown source or a missing input.
+    """
+    source = str(source or 'auto').strip().lower()
+    if source not in _CONFLUENCY_SOURCES:
+        raise ValueError(f"unknown confluency source {source!r}; use one of "
+                         f"{', '.join(_CONFLUENCY_SOURCES)}")
+    if source == 'auto':
+        source = 'masks' if cell_mask is not None else 'texture'
+    if source == 'masks':
+        if cell_mask is None:
+            raise ValueError("the masks confluency source needs a cell mask")
+        return _mask_coverage(cell_mask)
+    if image is None:
+        raise ValueError(f"the {source} confluency source needs an image")
+    result = (_texture_coverage(image, window) if source == 'texture'
+              else _intensity_coverage(image))
+    result.channel = None if channel is None else int(channel)
+    return result
+
+
+def _confluency_overlay(image, covered, *, color=(255, 170, 0), alpha=0.35):
+    """An RGB preview of the covered area over the field.
+
+    The field is shown in grey, the covered area tinted, and the edge of the
+    covered area drawn solid, so gaps in the monolayer read at a glance.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param covered: boolean coverage plane of the same shape.
+    :param color: tint as an RGB triple.
+    :param alpha: tint opacity inside the covered area.
+    :returns: ``uint8`` array of shape ``(Y, X, 3)``.
+    """
+    grey = (_unit_scaled(_confluency_plane(image)) * 255.0)
+    rgb = np.repeat(grey[..., None], 3, axis=-1)
+    covered = np.asarray(covered, dtype=bool)
+    tint = np.asarray(color, dtype=np.float64)
+    rgb[covered] = (1.0 - alpha) * rgb[covered] + alpha * tint
+    edge = find_boundaries(covered, mode='inner')
+    rgb[edge] = tint
+    return np.clip(rgb, 0, 255).astype(np.uint8)
+
+
+def _confluency_figure(image, result, title):
+    """A matplotlib figure of :func:`_confluency_overlay` for the run's plots.
+
+    :param image: the plane the overlay is drawn on.
+    :param result: the field's :class:`_ConfluencyResult`.
+    :param title: the field name.
+    :returns: the figure.
+    """
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(6, 6))
+        ax.imshow(_confluency_overlay(image, result.covered))
+        ax.set_title(f"{title}: {result.confluency:.1%} covered "
+                     f"({result.source})")
+        ax.axis('off')
+    return fig
+
+
+def _measure_field_confluency(data, settings, channel_arrays=None,
+                             cell_mask=None):
+    """Confluency of one merged field as the run's settings ask for it.
+
+    ``masks`` reads the cell mask plane as Mask wrote it, before Measure's
+    size filters: confluency is about the monolayer, not about which cells
+    are kept for measurement.
+
+    :param data: the merged array, ``(Y, X, C)`` or ``(Z, Y, X, C)``.
+    :param settings: Measure settings.
+    :param channel_arrays: the preprocessed measured channels, used for the
+        confluency channel when it is one of ``channels``.
+    :param cell_mask: the cell label plane as loaded, before any filter;
+        read from ``data`` at ``cell_mask_dim`` when omitted.
+    :returns: ``(result, plane)`` where ``plane`` is the image the overlay
+        should be drawn on.
+    """
+    source = _resolve_confluency_source(settings)
+    channel = _confluency_channel(settings)
+    measured = list(settings.get('channels') or [])
+    if channel_arrays is not None and channel in measured:
+        plane = np.asarray(channel_arrays[..., measured.index(channel)])
+    else:
+        if channel >= data.shape[-1]:
+            raise ValueError(
+                f"Setting: confluency_channel is {channel}, but the merged "
+                f"array has {data.shape[-1]} planes.")
+        plane = np.asarray(data[..., channel])
+    if source == 'masks':
+        if cell_mask is None:
+            cell_mask = data[..., settings['cell_mask_dim']]
+        result = _mask_coverage(cell_mask)
+    else:
+        result = _field_confluency(
+            plane, source=source,
+            window=int(settings.get('confluency_window') or 15),
+            channel=channel)
+    return result, plane
+
+
+def _monolayer_ok(confluency, qc_threshold):
+    """Whether a monolayer passes QC: covered fraction at or above the cut.
+
+    :param confluency: covered fraction, 0 to 1.
+    :param qc_threshold: the lowest acceptable fraction; ``None`` passes.
+    :returns: bool.
+    """
+    if qc_threshold is None:
+        return True
+    return bool(float(confluency) >= float(qc_threshold))
+
+
+def _write_confluency_record(source_folder, file_name, settings, result):
+    """Upsert one field's confluency into ``measurements.db:confluency``.
+
+    :param source_folder: the run folder holding ``measurements/``.
+    :param file_name: the merged field's stem.
+    :param settings: Measure settings.
+    :param result: the field's :class:`_ConfluencyResult`.
+    """
+    from . import schema
+    from .database_concurrency import connect, transaction
+
+    qc_threshold = settings.get('confluency_qc_threshold')
+    field = schema.parse_field_stem(
+        file_name, timelapse=bool(settings.get('timelapse', False)))
+    values = {
+        **field.to_dict(include_prcf=True),
+        'timeID': field.timeID,
+        'file_name': file_name,
+        'confluency_source': result.source,
+        'confluency_channel': (None if result.source == 'masks'
+                               else result.channel),
+        'confluency': float(result.confluency),
+        'covered_px': result.covered_px,
+        'field_px': result.field_px,
+        'confluency_threshold': result.threshold,
+        'confluency_separation': result.separation,
+        'confluency_uniform': int(bool(result.uniform)),
+        'confluency_qc_threshold': (None if qc_threshold is None
+                                    else float(qc_threshold)),
+        'monolayer_ok': int(_monolayer_ok(result.confluency, qc_threshold)),
+    }
+    columns = tuple(values)
+    db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    conn = connect(db_path, timeout=30)
+    try:
+        with transaction(conn, attempts=8, busy_timeout=30):
+            conn.execute(
+                f'''CREATE TABLE IF NOT EXISTS {_CONFLUENCY_TABLE} (
+                       plateID TEXT NOT NULL,
+                       rowID TEXT NOT NULL,
+                       columnID TEXT NOT NULL,
+                       fieldID TEXT NOT NULL,
+                       timeID TEXT,
+                       prc TEXT NOT NULL,
+                       prcf TEXT PRIMARY KEY,
+                       file_name TEXT NOT NULL,
+                       confluency_source TEXT NOT NULL,
+                       confluency_channel INTEGER,
+                       confluency REAL NOT NULL,
+                       covered_px INTEGER NOT NULL,
+                       field_px INTEGER NOT NULL,
+                       confluency_threshold REAL,
+                       confluency_separation REAL,
+                       confluency_uniform INTEGER NOT NULL,
+                       confluency_qc_threshold REAL,
+                       monolayer_ok INTEGER NOT NULL
+                   )''')
+            quoted = ', '.join(f'"{column}"' for column in columns)
+            placeholders = ', '.join('?' for _ in columns)
+            updates = ', '.join(
+                f'"{column}" = excluded."{column}"'
+                for column in columns if column != 'prcf')
+            conn.execute(
+                f'INSERT INTO {_CONFLUENCY_TABLE} ({quoted}) '
+                f'VALUES ({placeholders}) ON CONFLICT(prcf) DO UPDATE SET '
+                f'{updates}',
+                tuple(values[column] for column in columns))
+    finally:
+        conn.close()
+
+
+def _read_confluency(db_path):
+    """The per-field confluency table, or an empty frame when there is none.
+
+    :param db_path: a ``measurements.db``.
+    :returns: one row per field.
+    """
+    from .database_concurrency import connect
+    if not os.path.isfile(db_path):
+        return pd.DataFrame()
+    conn = connect(db_path, readonly=True)
+    try:
+        present = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+            (_CONFLUENCY_TABLE,)).fetchone()
+        if not present:
+            return pd.DataFrame()
+        return pd.read_sql_query(f'SELECT * FROM {_CONFLUENCY_TABLE}', conn)
+    finally:
+        conn.close()
+
+
+def _confluency_by_well(fields, qc_threshold=None):
+    """Aggregate per-field confluency to one row per well.
+
+    ``confluency`` is pooled: covered pixels over imaged pixels across the
+    well's fields, so a small field does not count as much as a large one.
+    The mean, median, minimum and spread of the per-field values sit beside
+    it, because a well whose mean is fine but one of whose fields is bare
+    is a settling gradient worth seeing. Time-lapse fields keep their
+    ``timeID``, one row per well per timepoint.
+
+    :param fields: the per-field table (:func:`_read_confluency`).
+    :param qc_threshold: the monolayer QC cut; ``None`` reads it from the
+        fields' ``confluency_qc_threshold``.
+    :returns: one row per well with ``n_fields``, ``covered_px``,
+        ``field_px``, ``confluency``, ``confluency_mean``,
+        ``confluency_median``, ``confluency_min``, ``confluency_sd``,
+        ``fields_below_qc``, ``confluency_qc_threshold`` and
+        ``monolayer_ok``.
+    """
+    if fields is None or fields.empty:
+        return pd.DataFrame()
+    keys = list(_CONFLUENCY_WELL_KEYS)
+    if 'timeID' in fields.columns and fields['timeID'].notna().any():
+        keys.append('timeID')
+    if qc_threshold is None and 'confluency_qc_threshold' in fields.columns:
+        known = fields['confluency_qc_threshold'].dropna()
+        qc_threshold = float(known.iloc[-1]) if not known.empty else None
+    rows = []
+    for name, block in fields.groupby(keys, dropna=False, sort=True):
+        identity = dict(zip(keys, name if isinstance(name, tuple) else (name,)))
+        covered = int(block['covered_px'].sum())
+        total = int(block['field_px'].sum())
+        pooled = covered / total if total else float('nan')
+        per_field = block['confluency'].astype(float)
+        rows.append({
+            **identity,
+            'prc': f"{identity['plateID']}_{identity['rowID']}_"
+                   f"{identity['columnID']}",
+            'n_fields': int(len(block)),
+            'covered_px': covered,
+            'field_px': total,
+            'confluency': pooled,
+            'confluency_mean': float(per_field.mean()),
+            'confluency_median': float(per_field.median()),
+            'confluency_min': float(per_field.min()),
+            'confluency_sd': (float(per_field.std(ddof=1))
+                              if len(per_field) > 1 else 0.0),
+            'fields_below_qc': int(sum(
+                not _monolayer_ok(value, qc_threshold) for value in per_field)),
+            'confluency_qc_threshold': qc_threshold,
+            'monolayer_ok': int(_monolayer_ok(pooled, qc_threshold)),
+        })
+    return pd.DataFrame(rows)
+
+
+def _aggregate_confluency_by_well(db_path, qc_threshold=None):
+    """Rebuild ``measurements.db:confluency_well`` from the field table.
+
+    Rebuilt whole rather than appended, so a field re-measured or dropped
+    since the last run is reflected rather than counted twice.
+
+    :param db_path: a ``measurements.db`` holding a ``confluency`` table.
+    :param qc_threshold: the monolayer QC cut; ``None`` keeps the one each
+        field was written with.
+    :returns: the per-well frame written, empty when there were no fields.
+    """
+    from .database_concurrency import connect, transaction
+
+    wells = _confluency_by_well(_read_confluency(db_path), qc_threshold)
+    if wells.empty:
+        return wells
+    conn = connect(db_path, timeout=30)
+    try:
+        with transaction(conn, attempts=8, busy_timeout=30):
+            conn.execute(f'DROP TABLE IF EXISTS {_CONFLUENCY_WELL_TABLE}')
+            wells.to_sql(_CONFLUENCY_WELL_TABLE, conn, index=False)
+    finally:
+        conn.close()
+    return wells
+
+
+def _read_confluency_wells(source):
+    """The per-well confluency frame from a database path or a frame.
+
+    :param source: a ``measurements.db`` path, or a frame already in the
+        :func:`_confluency_by_well` shape.
+    :returns: the per-well frame, empty when none was written.
+    """
+    if isinstance(source, pd.DataFrame):
+        return source
+    from .database_concurrency import connect
+    if not source or not os.path.isfile(source):
+        return pd.DataFrame()
+    conn = connect(source, readonly=True)
+    try:
+        tables = {row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        if _CONFLUENCY_WELL_TABLE in tables:
+            return pd.read_sql_query(
+                f'SELECT * FROM {_CONFLUENCY_WELL_TABLE}', conn)
+    finally:
+        conn.close()
+    return _confluency_by_well(_read_confluency(source))
+
+
+def _monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
+                 well_of=None, qc_threshold=None):
+    """Join per-well confluency onto any per-well table, as filter and denominator.
+
+    The plaque and infection assays count things per well; a thin or torn
+    monolayer makes those counts smaller for a reason that has nothing to
+    do with the treatment. This adds the well's ``confluency`` and
+    ``monolayer_ok`` to every row, and for each of ``value_columns`` a
+    ``<column>_per_confluency`` column -- the value over the covered
+    fraction, i.e. per fully covered field -- so wells can be compared per
+    unit of monolayer and wells failing QC dropped.
+
+    :param frame: rows carrying ``plateID``, ``rowID`` and ``columnID``,
+        or a ``file`` column when ``well_of`` is given.
+    :param confluency: a ``measurements.db`` path or a per-well frame from
+        :func:`_confluency_by_well`.
+    :param value_columns: counts or areas to divide by the covered fraction.
+    :param drop_failing: drop rows whose well fails monolayer QC.
+    :param well_of: optional callable turning a row into a
+        ``(plateID, rowID, columnID)`` triple, for tables named by file
+        (a plaque image named after its well).
+    :param qc_threshold: re-decide ``monolayer_ok`` at this cut instead of
+        the one the run wrote.
+    :returns: a new frame; rows with no confluency for their well get
+        ``NaN`` confluency and ``monolayer_ok`` of ``NaN``, never a pass.
+    """
+    wells = _read_confluency_wells(confluency)
+    out = frame.copy()
+    keys = list(_CONFLUENCY_WELL_KEYS)
+    if well_of is not None:
+        triples = [tuple(well_of(row)) for _, row in out.iterrows()]
+        for index, key in enumerate(keys):
+            out[key] = [triple[index] for triple in triples]
+    missing = [key for key in keys if key not in out.columns]
+    if missing:
+        raise ValueError(
+            f"_monolayer_qc needs the well columns {missing}; pass well_of "
+            f"to derive them.")
+    if wells.empty:
+        out['confluency'] = np.nan
+        out['monolayer_ok'] = np.nan
+    else:
+        if 'timeID' in wells.columns and wells['timeID'].notna().any() and (
+                'timeID' in out.columns):
+            keys = keys + ['timeID']
+        table = wells[keys + ['confluency', 'monolayer_ok']].copy()
+        if qc_threshold is not None:
+            table['monolayer_ok'] = [
+                int(_monolayer_ok(value, qc_threshold))
+                for value in table['confluency']]
+        for key in keys:
+            out[key] = out[key].astype(str)
+            table[key] = table[key].astype(str)
+        out = out.drop(columns=[c for c in ('confluency', 'monolayer_ok')
+                                if c in out.columns])
+        out = out.merge(table, how='left', on=keys)
+    for column in value_columns:
+        cover = out['confluency'].astype(float)
+        out[f'{column}_per_confluency'] = (
+            out[column].astype(float) / cover.where(cover > 0))
+    if drop_failing:
+        out = out[out['monolayer_ok'] == 1].reset_index(drop=True)
+    return out
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -2859,6 +3524,11 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                 if not np.allclose(psf_spacing, measure_spacing, rtol=1e-6, atol=0):
                     raise ValueError('PSF sampling conflicts with Measure voxel calibration')
             channel_arrays = psf_plan.apply(channel_arrays, cancel=psf_cancel)
+
+        confluency_cells = (
+            np.array(data[..., settings['cell_mask_dim']], copy=True)
+            if settings.get('confluency')
+            and settings.get('cell_mask_dim') is not None else None)
 
         if settings['cell_mask_dim'] is not None:
             cell_mask = data[..., settings['cell_mask_dim']].astype(data_type)
@@ -3120,6 +3790,18 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 
         _write_intensity_rescale_record(
             source_folder, file_name, settings, rescale_record, psf_record)
+
+        if settings.get('confluency'):
+            confluency_result, confluency_plane = _measure_field_confluency(
+                data, settings, channel_arrays, cell_mask=confluency_cells)
+            _write_confluency_record(
+                source_folder, file_name, settings, confluency_result)
+            if settings['verbose']:
+                print(f"{file_name}: {confluency_result.confluency:.1%} "
+                      f"covered ({confluency_result.source})")
+            if settings['plot']:
+                figs[f'{file_name}__confluency'] = _confluency_figure(
+                    confluency_plane, confluency_result, file_name)
 
         if volumetric and (settings['save_png'] or settings['save_arrays'] or settings['plot']):
             print(f"3-D field {file_name}: measurements written, but no PNG "
@@ -3440,6 +4122,8 @@ def measure_crop(settings):
                     settings, src_fldr, explicit_keys=explicit_mask_keys)
                 settings = get_measure_crop_settings(settings)
                 settings = measure_test_mode(settings)
+                if settings.get('confluency'):
+                    _resolve_confluency_source(settings)
 
                 from .database_concurrency import enable_wal_where_safe
                 _measurements_dir = os.path.join(
@@ -3697,6 +4381,15 @@ def measure_crop(settings):
                                            'measurements', 'measurements.db')
                     ledger.finalize(
                         artifact=db_path if os.path.isfile(db_path) else None)
+
+                if settings.get('confluency') and os.path.isfile(db_path):
+                    wells = _aggregate_confluency_by_well(
+                        db_path, settings.get('confluency_qc_threshold'))
+                    if not wells.empty:
+                        failing = int((wells['monolayer_ok'] == 0).sum())
+                        print(f"Confluency: {len(wells)} well(s) in "
+                              f"measurements.db:{_CONFLUENCY_WELL_TABLE}, "
+                              f"{failing} below the monolayer QC threshold.")
 
                 if settings['timelapse']:
                     if settings['timelapse_objects'] == 'nucleus':

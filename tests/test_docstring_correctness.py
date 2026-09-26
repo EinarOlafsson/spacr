@@ -2577,7 +2577,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # digest below).
     # 19,385 -> 19,444 on 2026-09-26, +59, all on item 545's eighteen
     # roi_callables; no existing signature changed.
-    assert sum(len(item.parameters) for item in callables) == 19_444
+    # 19,444 -> 19,445 on 2026-09-26 with item 541: infection_report's
+    # optional `monolayer_filter` keyword.
+    assert sum(len(item.parameters) for item in callables) == 19_445
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2741,7 +2743,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-09-26 for item 545, proved by subtraction: dropping its
     # eighteen roi_callables rows returns d6171327..., the previous pin,
     # byte for byte.
-) == "82154dd92cd785cedd0c7f5f21ab354c77c5780511b153658a11ea54573822fe"
+    # Item 541 on 2026-09-26 (was 82154dd9...): infection.infection_report
+    # gained the optional keyword monolayer_filter.
+) == "fc7bacea9833e98837e29d39e83787d545527cc5e3ae6decd181b2764f3e055f"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

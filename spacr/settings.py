@@ -1663,6 +1663,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('spatial_neighbor_radius', 50)
     settings.setdefault('bystander_measurements', False)
     settings.setdefault('bystander_reach_in_diameters', 1.0)
+    settings.setdefault('confluency', False)
+    settings.setdefault('confluency_source', 'auto')
+    settings.setdefault('confluency_channel', None)
+    settings.setdefault('confluency_window', 15)
+    settings.setdefault('confluency_qc_threshold', 0.8)
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3420,6 +3425,11 @@ expected_types = {
     "radial_dist": bool,
     "bystander_measurements": bool,
     "bystander_reach_in_diameters": float,
+    "confluency": bool,
+    "confluency_source": str,
+    "confluency_channel": (int, type(None)),
+    "confluency_window": int,
+    "confluency_qc_threshold": (float, int, type(None)),
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4597,6 +4607,11 @@ tooltips = {
     "png_size": "(list of int) - Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
     "positive_control_id": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run image preparation before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into floating-point arrays. Keep True for unprocessed input; set False only when the normalized arrays already exist, because segmentation requires those arrays. Default True.",
+    "confluency": "(bool) - Measure confluency, the fraction of each field covered by cells, and write it to measurements.db: one row per field in the confluency table and one per well in confluency_well, with a monolayer_ok flag the plaque and infection assays can filter on or divide by. Works for any channel (brightfield, phase or a fluorescent stain) or straight from the cell masks, as confluency_source decides. With plot on, each field also gets an overlay of the covered area. Default False.",
+    "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+    "confluency_channel": "(int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+    "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+    "confluency_qc_threshold": "(float or None) - Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5238,6 +5253,11 @@ categories = {
         "t_stack", "t_axis_order", "t_axis", "frame_interval_s",
         "t_track_backend", "t_link_threshold", "t_max_displacement_px",
         "t_max_displacement_um", "t_project_for_tracking",
+    ],
+
+    "Confluency (Alpha)": [
+        "confluency", "confluency_source", "confluency_channel",
+        "confluency_window", "confluency_qc_threshold",
     ],
 
     "Motility (beta)": motility_settings,
@@ -6770,6 +6790,11 @@ ALPHA_FEATURES = {
     493: {
         'settings': ('mask_parallel', 'mask_gpu_indices'),
         'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
+    },
+    541: {
+        'settings': ('confluency', 'confluency_source', 'confluency_channel',
+                     'confluency_window', 'confluency_qc_threshold'),
+        'widgets': ('MeasureConfluencyToggle',),
     },
     545: {
         'widgets': ('MakeMasksRoisButton',),

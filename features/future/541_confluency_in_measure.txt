@@ -1,6 +1,9 @@
 CONFLUENCY IN MEASURE, FOR ANY CHANNEL
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure writes confluency per field
+and per well with a monolayer QC flag, from texture, intensity or cell masks;
+the infection report and any per-well table use it as filter and denominator;
+the Measure preview draws the covered area. Hidden with Alpha features.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -25,3 +28,86 @@ WHAT TO BUILD
 DONE WHEN
     Confluency agrees with hand-drawn coverage within 5 % on brightfield and
     fluorescent test fields and appears in the measurement database.
+
+2026-09-26 — Implemented as Alpha
+    Measure computes confluency, the covered fraction of each field, when
+    `confluency` is on. `confluency_source` picks how, per run: auto (the
+    default: cell masks when the run has cell masks, texture otherwise),
+    masks (union of the segmented cells as Mask wrote them, before
+    Measure's size filters), texture (brightfield/phase: local standard
+    deviation in a `confluency_window` square, split by Otsu on its log,
+    then cut halfway between the two levels in variance so the edge is not
+    inflated by half a window) or intensity (fluorescent cytoplasm or
+    membrane stains: Otsu on the smoothed, 99.9 %-clipped channel, then the
+    cut moved a quarter of the way from background to stained level so dim
+    cell rims count). A field whose pixels do not separate into two classes
+    (separation under 3.2 pooled SDs) is decided whole, empty or confluent,
+    by its texture-to-noise ratio. A z-stack is max-projected.
+    Code: spacr/measure.py (_texture_coverage, _intensity_coverage,
+    _mask_coverage, _field_confluency, _measure_field_confluency,
+    _confluency_overlay, _confluency_by_well, _aggregate_confluency_by_well,
+    _monolayer_qc); spacr/infection.py (infection_report); the Measure
+    preview in spacr/qt/widgets/measure_preview.py. No new modules. The
+    helpers are underscored on purpose, as 569's are: a public name joins
+    the API documentation inventory, whose catalogs only the docs lane
+    regenerates. Making them public is a docs-lane change.
+    Database: measurements.db:confluency, one row per field (source,
+    channel, confluency, covered_px, field_px, automatic threshold,
+    separation, monolayer_ok), and confluency_well, rebuilt at the end of
+    each run: pooled confluency (covered over imaged pixels), per-field
+    mean/median/min/SD, fields_below_qc and monolayer_ok against
+    `confluency_qc_threshold` (default 0.8). Time-lapse keeps timeID.
+    Filter and denominator: infection_report gains `confluency` and
+    `parasites_per_confluency` metrics and a monolayer_ok column whenever
+    the run measured confluency, and `monolayer_filter=True` drops wells
+    that fail QC. measure._monolayer_qc joins confluency onto any per-well
+    table (a plaque per_image table through `well_of`), adds
+    `<column>_per_confluency` and can drop failing wells. analyze_plaques
+    itself is not wired: its images carry no plate/row/column, so the join
+    has to be told the well.
+    Preview: with plot on, each field gets a <field>/confluency.pdf overlay
+    in results/; the Measure preview has a Confluency toggle that runs the
+    same function on the loaded field and shows the tinted covered area and
+    the percentage with its QC verdict.
+    Accuracy: synthetic fields of known coverage 0-100 % agree within 1
+    percentage point for texture (brightfield) and intensity (fluorescent),
+    exactly for masks. The ten Toxo PV Make Masks fields against their
+    hand-drawn ground truth: intensity within 1.1 points on every field
+    (Otsu alone gave half the drawn area), texture within 1.2. Sixteen
+    plate1 fields, cell stain (channel 1) against the fields' Cellpose cell
+    masks: intensity within 3.5 points, texture within 4.9 -- the DONE WHEN
+    5 % holds, with texture the weaker of the two on fluorescence, as
+    expected.
+    Tests: tests/test_confluency_in_measure.py (synthetic sources, uniform
+    fields, z-stacks, source resolution, overlay, real Toxo PV and plate1
+    fields, the measure_crop end to end for three sources with the per-field
+    and per-well tables and QC flag, per-well pooling, _monolayer_qc as
+    filter/denominator on a plaque-style table, the infection report) and
+    tests/qt/test_measure_confluency_preview.py (overlay, auto source from
+    the panel's cell slice, failure reporting, Alpha gating).
+    Not done: a manual threshold override; a hand-drawn brightfield
+    reference field (none exists in the example data, so brightfield rests
+    on the synthetic fields); wiring the flag into analyze_plaques.
+ALPHA: settings confluency, confluency_source, confluency_channel,
+confluency_window, confluency_qc_threshold (Measure category "Confluency
+(Alpha)"); widgets: MeasureConfluencyToggle, the Confluency button in the
+Measure preview (its MeasureConfluencyOverlay label is shown only through
+it). Registered as ALPHA_FEATURES[541] in spacr/settings.py after 569 reached
+nightly; the preview asks preferences._is_alpha_visible for the toggle.
+
+2026-09-26 — Merged nightly (569's gate), registered, reran
+    Registered as ALPHA_FEATURES[541] (settings and the preview toggle);
+    the preview's toggle asks preferences._is_alpha_visible, so it follows
+    Preferences -> Show alpha features (off by default) like the rest of the
+    window. Regenerated after the merge: the settings-flow page and index,
+    the setting consumer map and API targets, and the 02_measure_and_crop
+    notebook's settings list. Ratchets moved: tooltip default claims 736 ->
+    744 (four confluency claims in Measure and External Masks), the
+    public-callable parameter sum (+1: 19,444 -> 19,445 after 545) and its digest
+    (infection_report's optional monolayer_filter), five keys declared in
+    KEYS_ADDED_BY_REGROUP, the Measure category order, and seven captions
+    held in _AWAITING_CATALOG_REBUILD for the catalog lane (no catalog was
+    edited). Tests: tests/test_confluency_in_measure.py 30 and
+    tests/qt/test_measure_confluency_preview.py 4 pass; the settings,
+    tooltip, flow, API-link, docstring and alpha-gate suites show no failure
+    that the same nightly without 541 does not also show.

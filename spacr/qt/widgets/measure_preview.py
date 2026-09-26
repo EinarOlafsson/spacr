@@ -336,6 +336,45 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
     return {"crops": crops, "error": ""}
 
 
+_CONFLUENCY_SETTING_KEYS = (
+    "confluency_source", "confluency_channel", "confluency_window",
+    "confluency_qc_threshold",
+)
+
+
+def _compute_confluency_preview(data: np.ndarray,
+                               settings: Dict[str, Any]) -> Dict[str, Any]:
+    """Covered area of one merged field, with its overlay. Worker-safe.
+
+    Runs exactly what a Measure run with ``confluency`` on would run for
+    this field, :func:`spacr.measure._measure_field_confluency`, so the
+    preview and the database agree.
+
+    :param data: merged ``(H, W, C)`` array.
+    :param settings: ``channels``, ``cell_mask_dim`` and the
+        ``confluency_*`` settings.
+    :returns: ``{overlay, confluency, source, monolayer_ok, error}``;
+        ``overlay`` is a ``uint8`` RGB array, and a failure is returned as
+        ``error`` rather than raised.
+    """
+    from spacr.measure import (
+        _confluency_overlay, _measure_field_confluency, _monolayer_ok)
+
+    try:
+        result, plane = _measure_field_confluency(data, settings)
+    except Exception as exc:
+        return {"overlay": None, "confluency": None, "source": "",
+                "monolayer_ok": None, "error": str(exc)}
+    return {
+        "overlay": _confluency_overlay(plane, result.covered),
+        "confluency": result.confluency,
+        "source": result.source,
+        "monolayer_ok": _monolayer_ok(
+            result.confluency, settings.get("confluency_qc_threshold")),
+        "error": "",
+    }
+
+
 def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
     """``pm`` with its corners rounded, at the density it was drawn at.
 
@@ -524,6 +563,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._load_token = 0
         self._crop_token = 0
         self._loading_fov = False
+        self._confluency_settings: Dict[str, Any] = {}
+        self._confluency_token = 0
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_controls()
         self._build_ui()
@@ -765,6 +806,16 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         actions.addWidget(self._run_btn)
         actions.addWidget(self._cancel_btn)
         actions.addWidget(self._settings_btn)
+        from ..i18n import tr
+        self._confluency_btn = QPushButton(tr("Confluency"))
+        self._confluency_btn.setObjectName("MeasureConfluencyToggle")
+        self._confluency_btn.setCheckable(True)
+        self._confluency_btn.setProperty("maturity", "alpha")
+        self._confluency_btn.setToolTip(tr(
+            "Show the area of this field Measure would count as covered by "
+            "cells, using the Confluency settings of the run."))
+        self._confluency_btn.toggled.connect(self._on_confluency_toggled)
+        actions.addWidget(self._confluency_btn)
         actions.addWidget(self._status, 1)
         from .preview_scale import install_preview_scale
         self._scale_control = install_preview_scale(self, "measure", actions)
@@ -774,6 +825,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if current_scale() != 1.0:
             self._on_gui_scale(current_scale())
         root.addLayout(actions)
+
+        self._confluency_view = QLabel(self)
+        self._confluency_view.setObjectName("MeasureConfluencyOverlay")
+        self._confluency_view.setAlignment(Qt.AlignCenter)
+        self._confluency_view.hide()
+        root.addWidget(self._confluency_view)
+        self._refresh_alpha_visibility()
 
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
@@ -1244,6 +1302,96 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 widget.setValue(-1)
         self._refresh_source_selectors()
         self.refresh()
+        if self._confluency_btn.isChecked():
+            self._refresh_confluency()
+
+    def _refresh_alpha_visibility(self) -> None:
+        """Show the confluency preview only when alpha features are shown.
+
+        Item 541 registers the toggle and its overlay in
+        ``spacr.settings.ALPHA_FEATURES``; this asks the same gate the rest
+        of the window uses. Hiding it also switches it off, so no overlay is
+        left on screen from a control the user can no longer see.
+        """
+        from ..preferences import _is_alpha_visible
+
+        visible = _is_alpha_visible(
+            "widgets", self._confluency_btn.objectName())
+        if not visible and self._confluency_btn.isChecked():
+            self._confluency_btn.setChecked(False)
+        self._confluency_btn.setVisible(visible)
+
+    def _confluency_preview_settings(self) -> Dict[str, Any]:
+        """The settings the confluency preview runs with.
+
+        :returns: the run's ``confluency_*`` values over the defaults, with
+            this panel's channels and cell mask slice.
+        """
+        from spacr.settings import get_measure_crop_settings
+
+        defaults = get_measure_crop_settings({})
+        settings = {key: defaults[key] for key in _CONFLUENCY_SETTING_KEYS}
+        settings.update(self._confluency_settings)
+        settings["channels"] = (
+            _parse_channels(self._measurement_channels.text()) or [0])
+        settings["cell_mask_dim"] = _optional_spin_value(
+            self._mask_dims["cell"])
+        return settings
+
+    def _on_confluency_toggled(self, on: bool) -> None:
+        """Draw or clear the covered-area overlay.
+
+        :param on: whether the overlay is wanted.
+        """
+        if on:
+            self._refresh_confluency()
+            return
+        self._confluency_token += 1
+        self._confluency_view.clear()
+        self._confluency_view.hide()
+
+    def _refresh_confluency(self) -> None:
+        """Compute the loaded field's covered area on a worker and draw it."""
+        if self._data is None:
+            self.set_preview_status(self.PREVIEW_SOURCE_HINT)
+            return
+        data = self._data
+        settings = self._confluency_preview_settings()
+        self._confluency_token += 1
+        token = self._confluency_token
+        self._jobs.submit(
+            lambda: _compute_confluency_preview(data, settings),
+            lambda result, _t=token: self._on_confluency_ready(_t, result))
+
+    def _on_confluency_ready(self, token: int, result) -> None:
+        """Show the overlay and the covered fraction. GUI thread only.
+
+        :param token: which request this answers; stale ones are dropped.
+        :param result: the dict from :func:`_compute_confluency_preview`.
+        """
+        from ..i18n import tr
+        from .live_preview import numpy_to_qpixmap
+
+        if token != self._confluency_token or not isinstance(result, dict):
+            return
+        if not self._confluency_btn.isChecked():
+            return
+        if result.get("error"):
+            self._status.setText(tr("Confluency failed: {error}",
+                                    error=result["error"]))
+            self._confluency_view.hide()
+            return
+        pixmap = numpy_to_qpixmap(result["overlay"])
+        side = max(160, self._thumb_px * 3)
+        self._confluency_view.setPixmap(pixmap.scaled(
+            side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self._confluency_view.show()
+        verdict = (tr("monolayer QC passed") if result.get("monolayer_ok")
+                   else tr("below the monolayer QC threshold"))
+        self._status.setText(tr(
+            "Confluency {percent} ({source}), {verdict}",
+            percent=f"{100.0 * float(result['confluency']):.1f} %",
+            source=result.get("source", ""), verdict=verdict))
 
     def shutdown(self) -> None:
         """Abandon anything in flight and leave no QThread behind."""
@@ -1491,6 +1639,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         if "png_channel_mapping" in settings or "png_dims" in settings:
             self._png_dims.set_value(_resolve_png_mapping(settings))
+
+        for key in _CONFLUENCY_SETTING_KEYS:
+            if key in settings:
+                self._confluency_settings[key] = settings[key]
+        self._refresh_alpha_visibility()
+        if self._confluency_btn.isChecked():
+            self._refresh_confluency()
 
         if settings.get("src"):
             self._auto_load_from_src(settings["src"])

@@ -765,6 +765,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # by `mask_gpu_indices` (blank means every visible one). Both sit in Mask's
     # Runtime & Reliability group beside `n_jobs` and `batch_size`.
     "mask_parallel", "mask_gpu_indices",
+    # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
+    # confluency switch, its source, channel, texture window and monolayer
+    # QC cut, under their own "Confluency (Alpha)" heading.
+    "confluency", "confluency_source", "confluency_channel",
+    "confluency_window", "confluency_qc_threshold",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -1439,7 +1444,11 @@ def _rendered_sections(app_key):
         ("measure", [
             "Input & Experiment", "Mask & Channel Mapping",
             "Illumination Correction", "Point Spread Function",
-            "Measurement Features", "Object Filtering", "Crop Output",
+            "Measurement Features",
+            # Item 541, 2026-09-26: confluency sits after the features it
+            # is measured beside, as an Alpha heading of its own.
+            "Confluency (Alpha)",
+            "Object Filtering", "Crop Output",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",
         ]),
