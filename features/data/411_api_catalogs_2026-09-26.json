@@ -414,19 +414,11 @@
     "xfail_reasons": "the nine per-locale inventory tests and the browser-selector test xfail on the same 11710 pin; the four README tests are pre-existing README incompatibilities"
   },
   "pin_moves_needed_not_made": {
-    "from": 11710,
-    "to": 11721,
-    "sites": [
-      "tests/test_api_i18n_extractor.py:1277 expected",
-      "tests/test_api_i18n_extractor.py:1320",
-      "tests/test_api_i18n_frontend.py:127 REAL_SYMBOL_COUNT",
-      "tests/test_documentation_i18n.py:213 DOCUMENTATION_API_SYMBOL_COUNT_RATCHET",
-      "tests/test_docstring_correctness.py:3147"
-    ]
+    "superseded": "Rebased onto origin/nightly 745025fd4, which pins 11_816 and carries the 11816-symbol English manifest; no 11_721 pin move is needed."
   },
   "known_issues": [
-    "spacr.timeflows_model.ctc_pairs fails the whole-document literal contract in all nine locales: the numpydoc-declaration protector in tools/build_i18n_catalogs.py treats \":raises ValueError: sequence/limit\" as a declaration \"ValueError: sequence\" (its lookbehinds exclude :param/:type/:return/:ivar/:cvar/:var but not :raises). Every block passes on its own. Pre-existing in the committed catalogs; fix is (?<!:raises ) in that lookbehind chain or a docstring reword.",
+    "spacr.timeflows_model.ctc_pairs failed the whole-document literal contract in all nine locales because the numpydoc-declaration protector read \":raises ValueError: sequence\" as a declaration. Fixed after this receipt: (?<!:raises ) added in tools/build_i18n_catalogs.py with test_raises_field_is_not_read_as_a_type_declaration.",
     "README audit failures (code/link/RST roles, link targets) are pre-existing and outside the API catalogs.",
-    "origin/nightly (745025fd4) already carries an 11816-symbol English manifest (97 symbols added, 40 changed, 2 removed relative to this branch). After merging nightly these catalogs are stale for those symbols and need another measure/prep/review round."
+    "After the rebase onto origin/nightly 745025fd4 (11816 symbols) the catalogs lack or carry stale text for the symbols added/changed there; a delta round is prepared in /mnt/firecuda2/codex/scratch-docs/work-api-delta."
   ]
 }
