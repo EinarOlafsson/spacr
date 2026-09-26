@@ -1578,7 +1578,9 @@
       "source_sha256": "708891c2f29bb13997bdb477620da9a1e65dd51762548cdfab30e28cbe7535d2",
       "context": "It takes plaque images, folders of them, both mixed, and in Figure mode a paper's PDF. Before this handler Plaque Assay was given Make Masks' policy, which refused a folder it could not use with Make Masks' sentence.",
       "translation": "它接受蚀斑图像、蚀斑图像文件夹、两者的混合，以及在 Figure 模式下论文的 PDF。在有这个处理器之前，Plaque Assay 使用的是 Make Masks 的策略，它会用 Make Masks 的那句话拒绝它无法使用的文件夹。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.accepts_multiple#0",
@@ -1634,7 +1636,9 @@
       "source_sha256": "236f68222d442b5ce5a261ef3b9305f357d51e05b58addd3555d1a698de309f9",
       "context": "A plaque image, a PDF, or a folder with plaque images or PDFs in it.",
       "translation": "蚀斑图像、PDF，或包含蚀斑图像或 PDFs 的文件夹。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.PlaqueDropHandler.error_message#0",
@@ -3269,12 +3273,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.fractal_cascade.render_into#8",
+      "label": "spacr.qt.widgets.fractal_cascade.render_into#9",
       "source": "Refuse: the cascade CPU backend needs Numba, which is absent.",
       "source_sha256": "9235ddaf877e94859b2aa4cf685c35378586f6002ebe026e91877a785f902728",
       "context": "Refuse: the cascade CPU backend needs Numba, which is absent.",
       "translation": "拒绝执行：级联 CPU 后端需要 Numba，而 Numba 不存在。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.qt.widgets.fractal_cascade.render_into#8"
     },
     {
       "label": "spacr.qt.widgets.fractal_mandelbrot.SteeringCamera.configure#2",
@@ -3578,7 +3583,9 @@
       "source_sha256": "55b9730f63c778956be431fa02020fd871c9d1b547ad8cfda40229aa3b7fabef",
       "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a 2 x 2 grid of samples per pixel.",
       "translation": "``1`` 或更小时在每个像素中心取一个样本；更大的值会对每个像素的 2 x 2 样本网格取平均。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_space.sample_space#2",

@@ -13,7 +13,9 @@
       "label": "spacr.qt.organisms#1",
       "source": "The assay keys are existing pipeline identifiers. A proposal has no route, so the organism pages cannot accidentally run an unimplemented analysis. Artwork provenance, licences and checksums ship in organism_sources.json.",
       "source_sha256": "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f",
-      "translation": "Les clés d’essai sont des identifiants de pipelines existants. Une proposition n’a pas de route de navigation ; les pages d’organismes ne peuvent donc pas lancer par erreur une analyse non implémentée. La provenance, les licences et les sommes de contrôle des illustrations sont fournies dans organism_sources.json."
+      "translation": "Les clés d’essai sont des identifiants de pipelines existants. Une proposition n’a pas de route de navigation ; les pages d’organismes ne peuvent donc pas lancer par erreur une analyse non implémentée. La provenance, les licences et les sommes de contrôle des illustrations sont fournies dans organism_sources.json.",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.",

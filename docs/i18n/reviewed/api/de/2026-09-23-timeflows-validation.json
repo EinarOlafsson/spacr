@@ -300,14 +300,17 @@
       "label": "spacr.timeflows_model.ctc_pairs#6",
       "source": "the pairs, in time order.",
       "source_sha256": "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
-      "translation": "Die Paare in zeitlicher Reihenfolge."
+      "translation": "Die Paare in zeitlicher Reihenfolge.",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
-      "label": "spacr.timeflows_model.ctc_pairs#7",
+      "label": "spacr.timeflows_model.ctc_pairs#8",
       "source": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
       "source_sha256": "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df",
-      "translation": "Sequenz oder Grenze, doppelte Bildidentitäten oder Annotationsarrays sind ungültig."
+      "translation": "Sequenz oder Grenze, doppelte Bildidentitäten oder Annotationsarrays sind ungültig.",
+      "rebound_from": "spacr.timeflows_model.ctc_pairs#7"
     },
     {
       "context": "Train the time head, then the whole network, on track-labelled pairs.",

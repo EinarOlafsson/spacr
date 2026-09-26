@@ -368,7 +368,9 @@
       "label": "spacr.qt.organisms.ORGANISMS#1",
       "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
       "source_sha256": "f37bf8ce9110aae2d5a319c4a44ca5e30e2f7dcef42ebdabbdd1f4c2b445e693",
-      "translation": "每条记录提供显示名称、描述、生物学来源 URL、随附示意图文件名及示意图说明。``sections`` 包含标题、正文和关联实验键的三元组；``links`` 包含显示标签与 URL 的二元组。``modules`` 包含路由键、标题、描述和图标键的元组。``None`` 路由表示计划中的实验，其功能块无法启动分析。``starplast`` 从 Toxoplasma 页面启动外部应用；它既不是 spaCR 分析注册表的键，也不是分割后端。显示文本在使用时翻译；路由键、URL 和资源名称保持不变。"
+      "translation": "每条记录提供显示名称、描述、生物学来源 URL、随附示意图文件名及示意图说明。``sections`` 包含标题、正文和关联实验键的三元组；``links`` 包含显示标签与 URL 的二元组。``modules`` 包含路由键、标题、描述和图标键的元组。``None`` 路由表示计划中的实验，其功能块无法启动分析。``starplast`` 从 Toxoplasma 页面启动外部应用；它既不是 spaCR 分析注册表的键，也不是分割后端。显示文本在使用时翻译；路由键、URL 和资源名称保持不变。",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Build upright artwork, a multi-select legend and compartment descriptions.",

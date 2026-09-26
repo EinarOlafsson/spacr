@@ -978,7 +978,9 @@
       "source_sha256": "eddb96607ced804c33e56264d5e402ecae5303f79079c518665f05ef9f72b39a",
       "context": "``object_filters`` maps an object type (``cell``, ``nucleus``, ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so each object type is filtered on its own properties. A missing or empty setting is no filters. The legacy ``{object}_min_area`` family is migrated by :func:`legacy_filters` where it is read, not here.",
       "translation": "``object_filters`` 는 객체 유형(``cell``, ``nucleus``, ``pathogen``, ``organelle`` 또는 소기관 슬롯)을 필터 목록에 매핑하므로, 각 객체 유형은 자체 속성으로 필터링됩니다. 설정이 없거나 비어 있으면 필터가 없습니다. 레거시 ``{object}_min_area`` 계열은 여기서가 아니라 그것을 읽는 곳에서 :func:`legacy_filters` 가 마이그레이션합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.settings_filters#2",

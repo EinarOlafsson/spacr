@@ -1,8 +1,5 @@
 """Right-click a picture and save it, as a PNG or as a PDF.
 
-    "here the user should be able to right click on the images to save them
-     as png or pdf" -- the maintainer, 2026-09-24 (item 505)
-
 A picture on screen is often the thing somebody wants in a slide an hour
 later, and the route to it was a screenshot of a window, at the window's
 resolution, with the surrounding chrome in it. This saves THE PICTURE, at

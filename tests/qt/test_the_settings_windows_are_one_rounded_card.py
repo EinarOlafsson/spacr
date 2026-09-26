@@ -146,7 +146,15 @@ class TestThereIsNoBoxBehindTheCard:
 
     def test_a_dialog_with_its_own_stylesheet_keeps_it(self, glassed):
         """Appended rather than replaced, or a dialog that styled itself
-        loses that styling the moment it opens."""
+        loses that styling the moment it opens.
+
+        Read once the dialog is shown. Since item 284 the rule joins the
+        dialog's own rules and a dialog not yet shown wears them from its
+        first show, in the window sheet's one styling pass, rather than
+        being restyled for the one rule now and again at the show. That is
+        also the only moment the glass filter calls this in the app: while
+        the dialog is being shown.
+        """
         from spacr.qt.widgets.glass import make_frameless
 
         dialog = QDialog()
@@ -154,10 +162,19 @@ class TestThereIsNoBoxBehindTheCard:
         dialog.setStyleSheet("QLabel { color: #ff0000; }")
         try:
             make_frameless(dialog)
+            dialog.show()
+            for _ in range(10):
+                glassed.processEvents()
             sheet = dialog.styleSheet()
             assert "#ff0000" in sheet
             assert "transparent" in sheet
+            assert sheet.index("#ff0000") < sheet.rindex("transparent"), (
+                "the card's rule is appended after the dialog's own")
+            label = dialog.findChild(QLabel)
+            assert label.palette().color(label.foregroundRole()).name() \
+                == "#ff0000", "the dialog's own rule no longer styles it"
         finally:
+            dialog.close()
             dialog.deleteLater()
 
 
