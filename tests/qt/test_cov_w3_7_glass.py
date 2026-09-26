@@ -549,16 +549,18 @@ def test_a_filter_that_will_not_come_off_is_still_forgotten(qapp,
     # Bound before the patch, so this file can put the application back the
     # way it found it: a filter left on the QApplication would glass every
     # dialog built by every test after this one.
-    really_remove = qapp.removeEventFilter
+    from spacr.qt.gil_priority import _stop_watching_application_events
 
-    monkeypatch.setattr(type(qapp), "removeEventFilter",
-                        lambda self, obj: (_ for _ in ()).throw(
+    really_remove = _stop_watching_application_events
+
+    monkeypatch.setattr(glass, "_stop_watching_application_events",
+                        lambda app, obj: (_ for _ in ()).throw(
                             RuntimeError("already gone")))
     try:
         assert glass.uninstall_glass_everywhere() is True
         assert glass._INSTALLED is None
     finally:
-        really_remove(installed)
+        really_remove(qapp, installed)
 
 
 def test_an_event_the_installer_cannot_read_is_swallowed(qapp):

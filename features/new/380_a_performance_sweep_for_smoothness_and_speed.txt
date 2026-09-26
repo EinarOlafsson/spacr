@@ -25,6 +25,12 @@ Status:    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09; THE THEME
            the table). Opens paint frames while they build, so several take
            longer at that load; still OPEN on the ceiling. xvfb numbers now
            exist; macOS/Windows and a real compositor still do not.
+           2026-09-26, AREAS 3 AND 5: the thirteen application-wide Python
+           event filters share one hub that calls a filter only for its own
+           event types; a screen's first stylesheet fell ~2.5x (Make Masks
+           650-790 -> 250-280 ms thread CPU at load 90-100) and at load
+           11-13 no module crosses 500 ms (6 of 6 runs; nightly 6 of 6 do).
+           Preferences is still over at load 15-21. See 284's note.
 Requested: 2026-09-07, verbatim -- "do an in depth performance sweep to check
            and fix any performance defects in starting spacr, running the
            themes, or starting the moduals and handelling the widgets and
@@ -2166,3 +2172,21 @@ the 150 ms threshold. The remaining floor is each screen's first
 setStyleSheet (one Qt call, 360-590 ms CPU on the heavy screens at load
 70-80): a widget-count or sheet-size question for this item's theme area.
 380 REMAINS OPEN; no other-platform or quiet-machine evidence was possible.
+
+2026-09-26 — ONE EVENT HUB INSTEAD OF THIRTEEN APPLICATION FILTERS
+See 284's dated note and features/data/284_event_hub_2026-09-26.json. Area 3
+(starting the modules) and area 5 (handling the widgets): a screen's first
+setStyleSheet delivers ~7 events per widget (6,288 on Make Masks), and each
+went through every Python filter on the QApplication. Those filters now sit
+behind one hub in spacr.qt.gil_priority that reads the event type once and
+calls only the filters that named it; Qt's ordering, consumption and removal
+rules are kept, and a test pins them. Sheet thread CPU at load 90-100: Make
+Masks 648-791 -> 251-278 ms, Regression 616-813 -> 276-312, Mask 566-640 ->
+215-251, Preferences 721-1140 -> 200-269. The rules themselves were the
+smaller half (one trivial rule cost half of the full 59 KB sheet), so the
+sheet's text was left as it is. Annotate no longer imports pandas, and pandas
+is imported on a worker after the first module screen. Final sweep, nightly
+-> branch, load 10.9-12.9, offscreen 4 pairs and xvfb 2 pairs: runs with any
+interval over 500 ms 6 of 6 -> 0 of 6; Regression open 1.6 -> 0.7 s, Make
+Masks 1.3 -> 0.6 s. 380 REMAINS OPEN: Preferences' show is over the ceiling
+at load 15-21, and nothing here is macOS, Windows or a real compositor.

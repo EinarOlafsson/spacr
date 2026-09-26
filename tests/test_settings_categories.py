@@ -148,7 +148,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "summarize_organelles_by", "tables", "target", "target_height", "target_intensity_min",
     "target_layer", "target_sequence", "target_unique_count", "target_width", "test",
     "test_images", "test_mode", "test_nr", "test_size", "test_split", "threshold_method",
-    "threshold_multiplier", "timelapse", "timelapse_displacement", "timelapse_frame_limits",
+    "threshold_multiplier", "timeflows_model", "timelapse", "timelapse_displacement", "timelapse_frame_limits",
     "timelapse_memory", "timelapse_mode", "timelapse_objects", "timelapse_remove_transient",
     "top_features", "toxo", "trackastra_linking", "trackastra_model", "tracked_object",
     "train", "train_channels", "transform", "treatment_loc", "treatment_plate_metadata",

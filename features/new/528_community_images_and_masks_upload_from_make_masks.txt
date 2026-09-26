@@ -159,3 +159,17 @@ For the maintainer to decide
   (with 396/507/529 files in the same run: 77 passed).
   No new tr() strings (the refusal is model_share's, which holds no Qt,
   like the empty-mask refusal beside it). No new public callables.
+
+
+2026-09-26 -- LEFTOVER CLOSED: images and masks go through the upload Space
+
+  The note above left: "A new name needs a new dataset repo, and only the
+  owner's token can create one; anyone else is told to ask the maintainer.
+  Accepting contributions through the central upload Space would let first
+  uploads to a new name go through." Done under 523 (see its note of this
+  date): with no Hugging Face login, or a login that cannot create the
+  community_<name> dataset, "Contribute images and masks…" sends the
+  contribution folder to the upload Space, which checks the pairs, types
+  and sizes and opens the pull request (creating the dataset with its
+  README first when it is new). Tests in
+  tests/qt/test_523_upload_space_takes_community_contributions.py.

@@ -1,0 +1,2064 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.plaque_preview.build_plaque_preview_card#0",
+      "source": "Build the Plaque Assay ``Live preview`` card and panel, unplaced.",
+      "source_sha256": "501e212c9e26e7fb1dcd3278d2e28f11945eb32d9c8dc432002ba59f8804a5f9",
+      "context": "Build the Plaque Assay ``Live preview`` card and panel, unplaced.",
+      "translation": "Plaque Assay का ``Live preview`` कार्ड और पैनल बनाएँ, बिना रखे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.build_plaque_preview_card#1",
+      "source": "the screen.",
+      "source_sha256": "7208722366104a9670be1e6bfce4039b7d24f62f253bc1e0792885cf86697804",
+      "context": "the screen.",
+      "translation": "पेज।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.check_the_src#0",
+      "source": "Ask about the mode for a new ``src`` when it holds the other mode's input.",
+      "source_sha256": "7d03d84056492aade8fb2981a74c743d6559b7fffb36ecbb5fa80893c8a8c3b0",
+      "context": "Ask about the mode for a new ``src`` when it holds the other mode's input.",
+      "translation": "जब नए ``src`` में दूसरे मोड का इनपुट हो, तब मोड के बारे में पूछें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.check_the_src#1",
+      "source": "Asked once per source and mode, and only while the screen is on screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has its first PDF read the way a dropped one is, so the preview and the run get the paper's figure folder rather than a PDF they cannot open.",
+      "source_sha256": "40374c0333bcf5d0c12d6cd6f4418a7e2cf844bd649a11bd9829ee9554176695",
+      "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has its first PDF read the way a dropped one is, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
+      "translation": "प्रति स्रोत और मोड एक बार पूछा जाता है, और केवल तब जब पेज दिखाई दे रहा हो। Figure मोड में जो ``src`` किसी PDF, या PDFs वाले फ़ोल्डर को नामित करता है -- पहले से, या उत्तर द्वारा उस मोड में बदले जाने के बाद -- उसकी पहली PDF वैसे ही पढ़ी जाती है जैसे ड्रॉप की गई फ़ाइल, ताकि पूर्वावलोकन और रन को ऐसी PDF के बजाय जिसे वे खोल नहीं सकते, पेपर का फ़िगर फ़ोल्डर मिले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.check_the_src#3",
+      "source": "``src`` as the form holds it.",
+      "source_sha256": "69528d3f8ef31ac7a64df7d043a0781d204dd56868781a95d3a3f9ba39647ade",
+      "context": "``src`` as the form holds it.",
+      "translation": "``src`` जैसा फ़ॉर्म में है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.check_the_src#4",
+      "source": "the question asked, or ``''``.",
+      "source_sha256": "d0ef81411da5b8e0e322f087661dbfda9f0f844bb881ae3616393f13bb3346b3",
+      "context": "the question asked, or ``''``.",
+      "translation": "पूछा गया प्रश्न, या ``''``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.choose_plaque_mode#0",
+      "source": "Put Plaque Assay in ``mode`` the way its switch does.",
+      "source_sha256": "4f4b8ad2700e9965c9bf8679b290631a162dd33be32c2330e1a63f4a12c2db08",
+      "context": "Put Plaque Assay in ``mode`` the way its switch does.",
+      "translation": "Plaque Assay को ``mode`` में वैसे ही रखें जैसे उसका स्विच करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detect_figure#0",
+      "source": "Figure mode's Run preview: find the plaque wells and read the text.",
+      "source_sha256": "3400113349e14fea123d81fb92361b28147eb5c2a71fc594e869b89369763be0",
+      "context": "Figure mode's Run preview: find the plaque microplate sample positions and read the text.",
+      "translation": "Figure मोड का Run preview: प्लाक वेल खोजें और पाठ पढ़ें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detect_figure#1",
+      "source": "Nothing is segmented here: Run preview detects the plaque wells, and a separate Plaque preview button segments the plaques of the highlighted row and well box (:func:`segment_well`).",
+      "source_sha256": "cb6c95f674b5092edacf322dd473691b97ede4c241a2e3eabb3c8da304b3a337",
+      "context": "Nothing is segmented here: Run preview detects the plaque microplate sample positions, and a separate Plaque preview button segments the plaques of the highlighted row and well box (:func:`segment_well`).",
+      "translation": "यहाँ कुछ भी सेगमेंट नहीं किया जाता: Run preview प्लाक वेल पहचानता है, और एक अलग Plaque preview बटन हाइलाइट की गई पंक्ति और वेल बॉक्स के प्लाक सेगमेंट करता है (:func:`segment_well`)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detect_figure#2",
+      "source": "the figure.",
+      "source_sha256": "d10a268f828f82d1341d9ca3ec59163fdb63a4d7766129e02fcaf25bf8b09f8f",
+      "context": "the figure.",
+      "translation": "फ़िगर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detect_figure#3",
+      "source": "the module's settings.",
+      "source_sha256": "317a5bf2f6d2a4a5ac54a3d1d7df2619e8c344836414177224c42e3cee8b03fc",
+      "context": "the module's settings.",
+      "translation": "मॉड्यूल की सेटिंग्स।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detect_figure#4",
+      "source": "passed to :func:`spacr.plaque_papers.find_plaque_regions`; the zoo detector when None.",
+      "source_sha256": "ee6d50647bb02822a1c600e0386dc6beadecac30bedbce2f87d24bbe00a9e5ab",
+      "context": "passed to :func:`spacr.plaque_papers.find_plaque_regions`; the zoo detector when None.",
+      "translation": ":func:`spacr.plaque_papers.find_plaque_regions` को दिया जाता है; None होने पर zoo डिटेक्टर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detect_figure#5",
+      "source": "``fn(path) -> [Word]``; RapidOCR, followed by the enlarged second reading, when None.",
+      "source_sha256": "b7fa463f77e3886cac57ad431c6b0aa56238616e1c2e3d3ec9fcf47b39a749dd",
+      "context": "``fn(path) -> [Word]``; RapidOCR, followed by the enlarged second reading, when None.",
+      "translation": "``fn(path) -> [Word]``; None होने पर RapidOCR, उसके बाद बड़ी की गई दूसरी रीडिंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detect_figure#6",
+      "source": "``{'path', 'image', 'regions', 'words', 'words_source'}``, or ``{'error', 'entry'}``. A PDF's text layer saved beside the figure (``text_layer.json``) is read before any OCR.",
+      "source_sha256": "ebede6ddfcff30ed6a41f055aa9e8fae9aeace610f6e2f5e34d6226b9474fc4d",
+      "context": "``{'path', 'image', 'regions', 'words', 'words_source'}``, or ``{'error', 'entry'}``. A PDF's text layer saved beside the figure (``text_layer.json``) is read before any OCR.",
+      "translation": "``{'path', 'image', 'regions', 'words', 'words_source'}``, या ``{'error', 'entry'}``। फ़िगर के बगल में सहेजी गई PDF की टेक्स्ट लेयर (``text_layer.json``) किसी भी OCR से पहले पढ़ी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detector_choices#0",
+      "source": "What the detector box offers: the zoo's plaque-image detectors.",
+      "source_sha256": "89082680268ca5563d4b9b2587ebbd9550a37325965f271ab5c06d3cc1535924",
+      "context": "What the detector box offers: the zoo's plaque-image detectors.",
+      "translation": "डिटेक्टर बॉक्स क्या प्रस्तुत करता है: zoo के प्लाक-छवि डिटेक्टर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detector_choices#1",
+      "source": "zoo entries; the zoo's own listing when None.",
+      "source_sha256": "5bbebd1383d3cbe26d63addd105d519a26d151ab42cb804d058723427fa082a0",
+      "context": "zoo entries; the zoo's own listing when None.",
+      "translation": "zoo प्रविष्टियाँ; None होने पर zoo की अपनी सूची।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.detector_choices#2",
+      "source": "zoo keys, newest first.",
+      "source_sha256": "66764a73fa5062bf2078a6b29fd42c3a4c80672872d5052be6da490812725c8d",
+      "context": "zoo keys, newest first.",
+      "translation": "zoo कुंजियाँ, सबसे नई पहले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.figure_pass#0",
+      "source": "Figure mode on one figure: find, read and segment, as the run does.",
+      "source_sha256": "edac44d8bdef6d0390d6fc407390b27c0bfd49c31077730a8e28ccf84fa30d5e",
+      "context": "Figure mode on one figure: find, read and segment, as the run does.",
+      "translation": "एक फ़िगर पर Figure मोड: खोजें, पढ़ें और सेगमेंट करें, जैसे रन करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.figure_pass#1",
+      "source": "The annotation itself is left to :func:`annotate_figure`, which is cheap and is repeated whenever a legend is pasted.",
+      "source_sha256": "d103bd8cb65ed77affe5731b86ff83a90d6a56f4027914a33d355337049c9440",
+      "context": "The annotation itself is left to :func:`annotate_figure`, which is cheap and is repeated whenever a legend is pasted.",
+      "translation": "एनोटेशन स्वयं :func:`annotate_figure` पर छोड़ा जाता है, जो सस्ता है और हर बार लेजेंड चिपकाए जाने पर दोहराया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.figure_pass#6",
+      "source": "``fn(crop) -> labels``; the run's plaque model when None.",
+      "source_sha256": "e8f8335c9c74202a0bac4e13575f51c53f61afc6f50ec967717b3a18a30f6923",
+      "context": "``fn(crop) -> labels``; the processing session's plaque model when None.",
+      "translation": "``fn(crop) -> labels``; None होने पर रन का प्लाक मॉडल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.figure_pass#7",
+      "source": "``{'path', 'overlay', 'regions', 'words', 'counts', 'mean_areas', 'note'}``, or ``{'error', 'entry'}``.",
+      "source_sha256": "e182c0dc3a90f5b249b3a98738b02f1084803fb3aae643d89707f8ad3f26cd93",
+      "context": "``{'path', 'overlay', 'regions', 'words', 'counts', 'mean_areas', 'note'}``, or ``{'error', 'entry'}``.",
+      "translation": "``{'path', 'overlay', 'regions', 'words', 'counts', 'mean_areas', 'note'}``, या ``{'error', 'entry'}``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.follow_the_input#0",
+      "source": "Ask about the mode when the input is for the other one, and switch.",
+      "source_sha256": "6bf559670bd5d90add5cb8e2affd4a05f218a199ec89aa73a64e851c534a3576",
+      "context": "Ask about the mode when the input is for the other one, and switch.",
+      "translation": "जब इनपुट दूसरे मोड के लिए हो, तब मोड के बारे में पूछें, और बदलें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.follow_the_input#1",
+      "source": "Used for a drop (:class:`spacr.qt.dnd_handlers.PlaqueDropHandler`) and for a new ``src`` (:func:`_follow_the_src`).",
+      "source_sha256": "469bd3a077106200205654c567d6cf022d2adcd925ba60c24846dcafb7454288",
+      "context": "Used for a drop (:class:`spacr.qt.dnd_handlers.PlaqueDropHandler`) and for a new ``src`` (:func:`_follow_the_src`).",
+      "translation": "ड्रॉप (:class:`spacr.qt.dnd_handlers.PlaqueDropHandler`) और नए ``src`` (:func:`_follow_the_src`) के लिए उपयोग किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.follow_the_input#3",
+      "source": "PDFs found.",
+      "source_sha256": "427052316020bfab80bd934296a044981538c642b51ad409058fdda2572dd3a7",
+      "context": "PDFs found.",
+      "translation": "पाई गई PDFs।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.follow_the_input#4",
+      "source": "plaque images found.",
+      "source_sha256": "67a27aee460d30e5f223ff2679390b1181a632302fac0649010bf9bc04a83ede",
+      "context": "plaque images found.",
+      "translation": "पाई गई प्लाक छवियाँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.follow_the_input#5",
+      "source": "paper folders found.",
+      "source_sha256": "f1ea76da99aa117400e0886db0bbccd1bfd10526eed6d304990e89dcca3e1c16",
+      "context": "paper folders found.",
+      "translation": "पाए गए पेपर फ़ोल्डर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.follow_the_input#6",
+      "source": "what was dropped or found, as the person knows it.",
+      "source_sha256": "e20f97c4521db17c0a4cd19a93e4e9fa36fb52edead39ccd8f3a5276beb4d88a",
+      "context": "what was dropped or found, as the person knows it.",
+      "translation": "जो छोड़ा गया या पाया गया, जैसा उपयोगकर्ता उसे जानता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.follow_the_input#7",
+      "source": "the mode the input is to be read in, now current, or None to leave it unread.",
+      "source_sha256": "a0fd0e12802723c22a524b890fa0657a0ac3f52b3146c2f95b8b63d061899bbe",
+      "context": "the mode the input is to be read in, now current, or None to leave it unread.",
+      "translation": "वह मोड जिसमें इनपुट पढ़ा जाना है, जो अब वर्तमान है, या उसे बिना पढ़े छोड़ने के लिए None।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.images_in#0",
+      "source": "The images directly inside ``src``, as the run lists them.",
+      "source_sha256": "a2588dc8c3176d8b88dde8731bbe0b16dfff9077ef9722c9fba564c26ca62489",
+      "context": "The images directly inside ``src``, as the run lists them.",
+      "translation": "``src`` के सीधे भीतर की छवियाँ, जैसे रन उन्हें सूचीबद्ध करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.images_in#1",
+      "source": "a folder, or one image file.",
+      "source_sha256": "ab5fd72d60b3ddb74413b9373b254d7a52544f92d9dad1983fd4d7cf44f6e4b4",
+      "context": "a folder, or one image file.",
+      "translation": "एक फ़ोल्डर, या एक छवि फ़ाइल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.images_in#2",
+      "source": "image paths sorted by name; empty when there are none.",
+      "source_sha256": "2b7407611fc209fb0443dac29a62c5dafbe648ac0402c0045057d5ae4cc12929",
+      "context": "image paths sorted by name; empty when there are none.",
+      "translation": "नाम के अनुसार क्रमबद्ध छवि पथ; कोई न होने पर खाली।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_box#0",
+      "source": "The dialog that asks :func:`input_mode_question`'s question.",
+      "source_sha256": "0224186997914aefad0cf332228beed2c145696c08c11403b98374420b7f6b79",
+      "context": "The dialog that asks :func:`input_mode_question`'s question.",
+      "translation": "वह डायलॉग जो :func:`input_mode_question` का प्रश्न पूछता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_box#1",
+      "source": "A :class:`QMessageBox`, so it wears the same glass card as every other dialog spaCR opens. Each answer button carries the mode it chooses in its ``plaque_mode`` property; Cancel carries ``''``.",
+      "source_sha256": "2eb3540db5ea497e33b01fa43d7508d6982d11fa9d8fbd963de3e50cf4947505",
+      "context": "A :class:`QMessageBox`, so it wears the same glass card as every other dialog spaCR opens. Each answer button carries the mode it chooses in its ``plaque_mode`` property; Cancel carries ``''``.",
+      "translation": "एक :class:`QMessageBox`, ताकि उस पर वही ग्लास कार्ड हो जो spaCR द्वारा खोले गए हर दूसरे डायलॉग पर होता है। हर उत्तर बटन अपनी ``plaque_mode`` प्रॉपर्टी में वह मोड रखता है जिसे वह चुनता है; Cancel ``''`` रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_box#3",
+      "source": ":data:`TO_FIGURE`, :data:`TO_PLAQUE` or :data:`MIXED`.",
+      "source_sha256": "355aa38f5b8333348cb4c38e942bb0b334ec3da1f61d6d92d408f9d48e17655a",
+      "context": ":data:`TO_FIGURE`, :data:`TO_PLAQUE` or :data:`MIXED`.",
+      "translation": ":data:`TO_FIGURE`, :data:`TO_PLAQUE` या :data:`MIXED`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_box#5",
+      "source": "the mode Plaque Assay is in.",
+      "source_sha256": "73f921610f73bf9eb55ebd54b46c8ceec9767a0c98098fdd1a0991baff48ad14",
+      "context": "the mode Plaque Assay is in.",
+      "translation": "वह मोड जिसमें Plaque Assay है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_box#6",
+      "source": "how many PDFs or paper folders were found.",
+      "source_sha256": "80f3d11355f20bc696872f4aae9f38b9dd1d8968fb3d041c42ab6527399fabde",
+      "context": "how many PDFs or paper folders were found.",
+      "translation": "कितनी PDFs या पेपर फ़ोल्डर पाए गए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_box#7",
+      "source": "how many images were found.",
+      "source_sha256": "dc1c370b733888b44a5b68d54224d9cd6c593cc3fd1444b78a672bdc3c18f756",
+      "context": "how many images were found.",
+      "translation": "कितनी छवियाँ पाई गईं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_box#8",
+      "source": "the dialog, not yet shown.",
+      "source_sha256": "b3511584d1915bea9f88bb3770ecdfc2e171a60a1d520579819faf08eb053344",
+      "context": "the dialog, not yet shown.",
+      "translation": "डायलॉग, अभी दिखाया नहीं गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#0",
+      "source": "Which question, if any, what was found asks about the mode.",
+      "source_sha256": "0db55d825940d44f9c6c5e22b670d5cd7a6b20defeab92c193b28f6b6bd62624",
+      "context": "Which question, if any, what was found asks about the mode.",
+      "translation": "जो पाया गया वह मोड के बारे में कौन-सा प्रश्न पूछता है, यदि कोई हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#1",
+      "source": "Item 518: PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "source_sha256": "15261313469c9c3e67f145132d2fe6448057d81da96d40e0f7f2952dd4fc23ac",
+      "context": "Item 518: PDFs are read in Figure mode and plaque images in Plaque mode, so input for the other mode asks to switch, and input for both asks which to read.",
+      "translation": "आइटम 518: PDFs Figure मोड में और प्लाक छवियाँ Plaque मोड में पढ़ी जाती हैं, इसलिए दूसरे मोड का इनपुट बदलने के लिए पूछता है, और दोनों के लिए इनपुट पूछता है कि कौन-सा पढ़ना है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#3",
+      "source": "images found outside a figure folder.",
+      "source_sha256": "e02d202f0342b2cfba3967412f01dfae0b9e67ac30a9af34b52da6611d12db8a",
+      "context": "images found outside a figure folder.",
+      "translation": "फ़िगर फ़ोल्डर के बाहर पाई गई छवियाँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#4",
+      "source": "folders a paper was fetched into (they hold its ``paper.json``, ``legends.csv`` or ``text_layer.json``).",
+      "source_sha256": "4b32f0c8eaf4a27a6c8c262a191f77b71e9a15074bf3116d91857727f2dd760e",
+      "context": "folders a paper was fetched into (they hold its ``paper.json``, ``legends.csv`` or ``text_layer.json``).",
+      "translation": "वे फ़ोल्डर जिनमें कोई पेपर लाया गया था (उनमें उसकी ``paper.json``, ``legends.csv`` या ``text_layer.json`` होती है)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.input_mode_question#6",
+      "source": ":data:`TO_FIGURE`, :data:`TO_PLAQUE`, :data:`MIXED`, or ``''`` when the input fits the mode.",
+      "source_sha256": "f193674832a24a6e5e656a09d846b566f768b0e12f3811133a9d5a4e9f9ad7b5",
+      "context": ":data:`TO_FIGURE`, :data:`TO_PLAQUE`, :data:`MIXED`, or ``''`` when the input fits the mode.",
+      "translation": ":data:`TO_FIGURE`, :data:`TO_PLAQUE`, :data:`MIXED`, या ``''`` जब इनपुट मोड के अनुकूल हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.install_plaque_mode#0",
+      "source": "Put the Plaque | Figure switch at the top of the settings and bind it.",
+      "source_sha256": "53cf19dfb03fc4649cc419e535bd30d9d900c9dbfdfcf70fa3c8c168bc4f2924",
+      "context": "Put the Plaque | Figure switch at the top of the settings and bind it.",
+      "translation": "Plaque | Figure स्विच को सेटिंग्स के शीर्ष पर रखें और उसे बाँधें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.install_plaque_mode#1",
+      "source": "The form's ``plaque_mode`` control is the one source of truth. Both switches -- this one and the preview's -- write it, and follow it when something else changes it, such as a loaded settings file. Its row is hidden, because the switch speaks for it, and so are the settings the other mode does not read.",
+      "source_sha256": "0ececa5c3f88a300695d5aab7683dc5b2591e67b865ed40bfebe7789897d65b7",
+      "context": "The form's ``plaque_mode`` control is the one source of truth. Both switches -- this one and the preview's -- write it, and follow it when something else changes it, such as a loaded settings file. Its row is hidden, because the switch speaks for it, and so are the settings the other mode does not read.",
+      "translation": "फ़ॉर्म का ``plaque_mode`` नियंत्रण ही सत्य का एकमात्र स्रोत है। दोनों स्विच -- यह और पूर्वावलोकन वाला -- इसमें लिखते हैं, और जब कोई और चीज़, जैसे लोड की गई सेटिंग्स फ़ाइल, इसे बदलती है तो इसका अनुसरण करते हैं। इसकी पंक्ति छिपी रहती है, क्योंकि स्विच इसका प्रतिनिधित्व करता है, और वे सेटिंग्स भी छिपी रहती हैं जिन्हें दूसरा मोड नहीं पढ़ता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.install_plaque_mode#3",
+      "source": "the switch, or None when the screen has no settings column.",
+      "source_sha256": "7f0d0fa53f1ad699df67fdb629de0d03c320a5d5990e745d992e01db5c2169b8",
+      "context": "the switch, or None when the application view has no settings column.",
+      "translation": "स्विच, या None जब पेज में कोई सेटिंग्स स्तंभ न हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.keys_hidden_in#0",
+      "source": "The settings that do not apply in ``mode`` and come off the form.",
+      "source_sha256": "8a36bdd7ed0885dd989183462010f6abbdee456558e050637706c6fe492e9518",
+      "context": "The settings that do not apply in ``mode`` and come off the form.",
+      "translation": "वे सेटिंग्स जो ``mode`` में लागू नहीं होतीं और फ़ॉर्म से हटा दी जाती हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.keys_hidden_in#1",
+      "source": "the plaque mode.",
+      "source_sha256": "cfe7bd9cbafe217aafc51cdc56d939593dbaea0d86f5d1fc4a467b3b467a1202",
+      "context": "the plaque mode.",
+      "translation": "प्लाक मोड।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.keys_hidden_in#2",
+      "source": "setting keys.",
+      "source_sha256": "8e2aa459f0370924a6ccf4a65efd1cca40201a6372fec2556deb53054885ea51",
+      "context": "setting names.",
+      "translation": "सेटिंग कुंजियाँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.load_display_image#0",
+      "source": "One image as ``H x W x 3`` ``uint8`` RGB, whatever it was stored as.",
+      "source_sha256": "16bd11958f312648ed4744f25ebcd863ee736e2e7efda2f7a257db6a497f73cd",
+      "context": "One image as ``H x W x 3`` ``uint8`` RGB, whatever it was stored as.",
+      "translation": "एक छवि ``H x W x 3`` ``uint8`` RGB के रूप में, चाहे वह किसी भी रूप में संग्रहीत हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.load_display_image#1",
+      "source": "the image file.",
+      "source_sha256": "cfee20e0f1533a4073e5bec8b7908914deb70f198312fa7f7540897a843995d9",
+      "context": "the image file.",
+      "translation": "छवि फ़ाइल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.load_display_image#2",
+      "source": "the pixels.",
+      "source_sha256": "3f160266b96143071e19b8e430217a9fb0d00b3763ba46eb897833e48971f86d",
+      "context": "the pixels.",
+      "translation": "पिक्सेल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.load_overlay_style#0",
+      "source": "The style remembered from the last session.",
+      "source_sha256": "39032c19f7cc32c34e05a6e09eabfedd6134f7b41f62404bfa1952d1b4233bd1",
+      "context": "The style remembered from the last session.",
+      "translation": "पिछले सत्र से याद रखी गई शैली।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.load_overlay_style#1",
+      "source": "the stored :class:`OverlayStyle`, or the default when nothing was stored or the stored value cannot be read.",
+      "source_sha256": "5757c3157a6dfe3314d1ca5cb20419e9b65af18e0ee23cdb0110de76f7e98692",
+      "context": "the stored :class:`OverlayStyle`, or the default when nothing was stored or the stored value cannot be read.",
+      "translation": "संग्रहीत :class:`OverlayStyle`, या कुछ संग्रहीत न होने पर या संग्रहीत मान पढ़ा न जा सकने पर डिफ़ॉल्ट।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.missing_papers_packages#0",
+      "source": "The ``spacr[papers]`` packages this environment cannot import.",
+      "source_sha256": "cad40d662c63030d7f25bc8e7897561bb1493b66e82282ed97260c8cffdb9d4d",
+      "context": "The ``spacr[papers]`` packages this environment cannot import.",
+      "translation": "``spacr[papers]`` के वे पैकेज जिन्हें यह परिवेश आयात नहीं कर सकता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.missing_papers_packages#1",
+      "source": "Asked with :func:`importlib.util.find_spec`, which does not import anything -- importing ultralytics rewrites its settings file.",
+      "source_sha256": "b7efa2be36edf75d1d560d38cca365d7cfb8a7d5efbaa1bbe5ddfc78bc8daee0",
+      "context": "Asked with :func:`importlib.util.find_spec`, which does not import anything -- importing ultralytics rewrites its settings file.",
+      "translation": ":func:`importlib.util.find_spec` से पूछा जाता है, जो कुछ भी आयात नहीं करता -- ultralytics को आयात करने से उसकी सेटिंग्स फ़ाइल फिर से लिखी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.missing_papers_packages#2",
+      "source": "``fn(module) -> bool``, for tests.",
+      "source_sha256": "1db0927814a6cc456c7d1201fa49f64230005e97cb9a167e3d91db8f579db34b",
+      "context": "``fn(module) -> bool``, for tests.",
+      "translation": "``fn(module) -> bool``, परीक्षणों के लिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.missing_papers_packages#3",
+      "source": "display names of the missing packages, empty when all are here.",
+      "source_sha256": "d4f8ead6056fe50c498c1c8181c9a85138732396f6b83e1989ed49e600078665",
+      "context": "display names of the missing packages, empty when all are here.",
+      "translation": "अनुपस्थित पैकेजों के प्रदर्शन नाम, सभी मौजूद होने पर खाली।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.normalise_mode#0",
+      "source": "The mode a setting value names, ``'plaque'`` for anything unknown.",
+      "source_sha256": "3ae22f3fc668552b27e69f751f7cb7d80fdbdf42c47cbcfbace533172af5b10c",
+      "context": "The mode a setting value names, ``'plaque'`` for anything unknown.",
+      "translation": "वह मोड जिसे कोई सेटिंग मान नामित करता है, किसी भी अज्ञात के लिए ``'plaque'``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.normalise_mode#1",
+      "source": "``'plaque'``, ``'figure'``, any case, or anything else.",
+      "source_sha256": "ff04396dd77bad81acf369d74f994c5fa411babb9513c9b0e68b77a9fe57692b",
+      "context": "``'plaque'``, ``'figure'``, any case, or anything else.",
+      "translation": "``'plaque'``, ``'figure'``, किसी भी अक्षर-आकार में, या कुछ और।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.object_palette#0",
+      "source": "The object ids in a label image and one distinct colour for each.",
+      "source_sha256": "7cfe03281799c54111f1e761548f7e70e3cffd0629a3a89466b412d8dc9db288",
+      "context": "The object ids in a label image and one distinct colour for each.",
+      "translation": "लेबल छवि में ऑब्जेक्ट id और हर एक के लिए एक अलग रंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.object_palette#1",
+      "source": "The palette is the Mask preview's ``color (random)`` one (:func:`spacr.qt.widgets.live_preview._random_outline_palette`), so an object keeps its colour across the Overlay and Objects tabs and across a change of thickness or opacity.",
+      "source_sha256": "ab5e0b83623cd29cafd1979bf8642fa98ad39863e10bb7a448e720d7c021100e",
+      "context": "The palette is the Mask preview's ``color (random)`` one (:func:`spacr.qt.widgets.live_preview._random_outline_palette`), so an object keeps its colour across the Overlay and Objects tabs and across a change of thickness or opacity.",
+      "translation": "पैलेट Mask पूर्वावलोकन का ``color (random)`` पैलेट है (:func:`spacr.qt.widgets.live_preview._random_outline_palette`), ताकि कोई ऑब्जेक्ट Overlay और Objects टैब में, और मोटाई या अपारदर्शिता बदलने पर भी, अपना रंग बनाए रखे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.object_palette#2",
+      "source": "a label image, 0 = background.",
+      "source_sha256": "5bb8fa43cfe2f84df35ba977334e095d944650f3101af7cb12db84ad887fbeb7",
+      "context": "a label image, 0 = background.",
+      "translation": "एक लेबल छवि, 0 = पृष्ठभूमि।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.object_palette#3",
+      "source": "``(ids, colours)``: sorted positive ids and an ``N x 3`` ``uint8`` array.",
+      "source_sha256": "819b01add0080644443af63b22e9825b1baeb01293cd8dacf260433f61804f70",
+      "context": "``(ids, colours)``: sorted positive ids and an ``N x 3`` ``uint8`` array.",
+      "translation": "``(ids, colours)``: क्रमबद्ध धनात्मक id और एक ``N x 3`` ``uint8`` ऐरे।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.outline_labels#0",
+      "source": "Draw the boundary of every labelled object onto an image.",
+      "source_sha256": "87fcb12a3bf6fb2a4ed5f243bc23bc7baf5a1363418f889d7eeb7656058e7e0e",
+      "context": "Draw the boundary of every labelled object onto an image.",
+      "translation": "हर लेबल किए गए ऑब्जेक्ट की सीमा छवि पर बनाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.outline_labels#1",
+      "source": "``H x W x 3`` image; changed in place.",
+      "source_sha256": "613a65845a1b35780158386379f9bc59ab4ffbad8b2381255c9127c6372ba00b",
+      "context": "``H x W x 3`` image; changed in place.",
+      "translation": "``H x W x 3`` छवि; उसी स्थान पर बदली जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.outline_labels#3",
+      "source": "the outline colour.",
+      "source_sha256": "974f45abf1905af219a4802f4bfc39c6e1d8e2c1e29a6a235952ab12601a2878",
+      "context": "the outline colour.",
+      "translation": "रूपरेखा का रंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.outline_labels#4",
+      "source": "``(y, x)`` where ``labels`` sits inside ``rgb``.",
+      "source_sha256": "7abeb7204337991f7f2ce0794d3567d1b8733a47bf5c77554e52300c19096099",
+      "context": "``(y, x)`` where ``labels`` sits inside ``rgb``.",
+      "translation": "``(y, x)`` जहाँ ``labels`` ``rgb`` के भीतर स्थित है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.overlay_colour#0",
+      "source": "A colour setting as ``'random'`` or an ``(r, g, b)`` triple.",
+      "source_sha256": "7406a928c1103d19a985b7d32f3cf643a312c008e179c767927a6fdf4e4c46b5",
+      "context": "A colour setting as ``'random'`` or an ``(r, g, b)`` triple.",
+      "translation": "रंग सेटिंग ``'random'`` या ``(r, g, b)`` त्रिक के रूप में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.overlay_colour#1",
+      "source": "``'random'``, a ``#rrggbb`` string, a :class:`QColor` or a triple.",
+      "source_sha256": "bc68e8ccf731174a6a09013deeb88f9307926b01bc1850e3905ce2e6c32df6f0",
+      "context": "``'random'``, a ``#rrggbb`` string, a :class:`QColor` or a triple.",
+      "translation": "``'random'``, ``#rrggbb`` स्ट्रिंग, :class:`QColor` या एक त्रिक।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.overlay_colour#2",
+      "source": "what an unreadable value means.",
+      "source_sha256": "f64eabb35fae96feb0d56b6057e8f2de4b5b32faf7efc2fd698c5c3bc618a514",
+      "context": "what an unreadable value means.",
+      "translation": "अपठनीय मान का क्या अर्थ है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.overlay_colour#3",
+      "source": "``'random'`` or a tuple of three ints in 0..255.",
+      "source_sha256": "ec5b61525db3ac64f950409f0c3e1914de1ac1cfafe0a0c9102bc71675d0d2c1",
+      "context": "``'random'`` or a tuple of three ints in 0..255.",
+      "translation": "``'random'`` या 0..255 में तीन ints का tuple।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.paper_folder_name#0",
+      "source": "The sub-folder a paper's figures are fetched into.",
+      "source_sha256": "b26eeec75c15f7705258d8dc81bfd386d2f9df139991cb5abec9f8b947b32630",
+      "context": "The sub-folder a paper's figures are fetched into.",
+      "translation": "वह उप-फ़ोल्डर जिसमें किसी पेपर के फ़िगर लाए जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.paper_folder_name#2",
+      "source": "a name safe on every file system: a PDF's stem, or the reference with every character that is not a letter, digit, dot or dash turned into ``_``.",
+      "source_sha256": "dddcb648ea61a35edbce84db43ba8cc59e684561a582621d8fb839a29269737e",
+      "context": "a name safe on every file system: a PDF's stem, or the reference with every character that is not a letter, digit, dot or dash turned into ``_``.",
+      "translation": "हर फ़ाइल सिस्टम पर सुरक्षित नाम: PDF का स्टेम, या संदर्भ जिसमें अक्षर, अंक, बिंदु या डैश के अलावा हर वर्ण ``_`` में बदल दिया गया हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.papers_install_message#0",
+      "source": "What Figure mode says when its optional packages are missing.",
+      "source_sha256": "03f9a2fcdec0b416a144482493b6ebed1c8203cd0e204d507b1f0fd35720b671",
+      "context": "What Figure mode says when its optional packages are missing.",
+      "translation": "वैकल्पिक पैकेज अनुपस्थित होने पर Figure मोड क्या कहता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.papers_install_message#1",
+      "source": "names from :func:`missing_papers_packages`.",
+      "source_sha256": "023de49ac5f2a01dcdfc1b67e2b199f89b58f9783a839ca8570e8645ab36b7c0",
+      "context": "names from :func:`missing_papers_packages`.",
+      "translation": ":func:`missing_papers_packages` से मिले नाम।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.papers_install_message#2",
+      "source": "one paragraph with the install command.",
+      "source_sha256": "21f0e60b45c81c3d8c4d72ad28b9bea9e3ca26e405e011aef4919f41b3c337ce",
+      "context": "one paragraph with the install command.",
+      "translation": "इंस्टॉल कमांड सहित एक अनुच्छेद।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.parse_sizes#0",
+      "source": "Detector inference sizes from a setting value.",
+      "source_sha256": "78136de974d8b97f7c2914bf084288c855439ed52e0a0d73d0a265097a9d6fe2",
+      "context": "Detector inference sizes from a setting value.",
+      "translation": "सेटिंग मान से डिटेक्टर अनुमान आकार।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.parse_sizes#1",
+      "source": "``'640,1280'``, a list of numbers, or one number.",
+      "source_sha256": "d151e468f0dbcca2d7f23bae29c4435ac47974598c9a83223af1724d411f313e",
+      "context": "``'640,1280'``, a list of numbers, or one number.",
+      "translation": "``'640,1280'``, संख्याओं की सूची, या एक संख्या।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.parse_sizes#2",
+      "source": "the positive sizes, in order; the defaults when none parse.",
+      "source_sha256": "a7a6d06d73a17403b82c566a975070ada2fd9858c77285fdbca60cf8a6849875",
+      "context": "the positive sizes, in order; the defaults when none parse.",
+      "translation": "धनात्मक आकार, क्रम में; कोई पार्स न होने पर डिफ़ॉल्ट।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#0",
+      "source": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
+      "source_sha256": "c9ac856460759e28637d0b04edc0c94c2038fd8e2f6d8565a54636058c12621f",
+      "context": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
+      "translation": "प्लाक मॉडल बॉक्स क्या प्रस्तुत करता है: zoo प्लाक मॉडल, फिर ``bundled``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
+      "source": "setting values, newest zoo model first.",
+      "source_sha256": "944439dbb28b43685d91e2e73e2d4bb103602a1ac30cb3e214e935796e88ef07",
+      "context": "setting values, newest zoo model first.",
+      "translation": "सेटिंग मान, सबसे नया zoo मॉडल पहले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_pass#0",
+      "source": "Plaque mode on one image: segment it and count what was found.",
+      "source_sha256": "d526adb429af09eb2c3cf805b4a1c2a610f633d3825f44327f814ea14242eddd",
+      "context": "Plaque mode on one image: segment it and count what was found.",
+      "translation": "एक छवि पर Plaque मोड: उसे सेगमेंट करें और जो मिला उसे गिनें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_pass#1",
+      "source": "Runs on a worker thread; touches no widget.",
+      "source_sha256": "f919e13e3dc32d49ba11923e6ff58815731bab7b53bf5516e1fdaf1349dedb7f",
+      "context": "Executes on a background execution unit; touches no widget.",
+      "translation": "वर्कर थ्रेड पर चलता है; किसी विजेट को नहीं छूता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_pass#4",
+      "source": "``fn(path) -> labels`` or ``fn(path) -> (labels, flows)`` with ``flows`` as :func:`spacr.plaque.plaque_flow_outputs` gives it; the run's model, with its flows, when None.",
+      "source_sha256": "1123ced6fdeb8d2387ff5886bc2806828619f013e6a044f4ed8b4d4d7d87e7bb",
+      "context": "``fn(path) -> labels`` or ``fn(path) -> (labels, flows)`` with ``flows`` as :func:`spacr.plaque.plaque_flow_outputs` gives it; the processing session's model, with its flows, when None.",
+      "translation": "``fn(path) -> labels`` या ``fn(path) -> (labels, flows)``, जिसमें ``flows`` वैसे हों जैसे :func:`spacr.plaque.plaque_flow_outputs` देता है; None होने पर रन का मॉडल, उसके flows सहित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_pass#5",
+      "source": "``{'path', 'image', 'labels', 'overlay', 'flow_rgb', 'cellprob', 'count', 'mean_area', 'areas', 'note'}``, or ``{'error', 'entry'}`` when the model cannot be used. ``flow_rgb`` and ``cellprob`` are None when the segmenter gave no flows.",
+      "source_sha256": "2938684842a08e6a0ab4ff66d5b373babb37aa2bad91123d7775d2d68ac2c9ef",
+      "context": "``{'path', 'image', 'labels', 'overlay', 'flow_rgb', 'cellprob', 'count', 'mean_area', 'areas', 'note'}``, or ``{'error', 'entry'}`` when the model cannot be used. ``flow_rgb`` and ``cellprob`` are None when the segmenter gave no flows.",
+      "translation": "``{'path', 'image', 'labels', 'overlay', 'flow_rgb', 'cellprob', 'count', 'mean_area', 'areas', 'note'}``, या मॉडल उपयोग न हो सकने पर ``{'error', 'entry'}``। जब सेगमेंटर ने कोई flows नहीं दिए, तब ``flow_rgb`` और ``cellprob`` None होते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_rows#0",
+      "source": "One row per plaque, with the per-plaque values the run writes.",
+      "source_sha256": "55335cd8fdc1c1a7f5f914aeab61c039a09a9ccfad4b7835f9e7eec32e128ce3",
+      "context": "One row per plaque, with the per-plaque values the run writes.",
+      "translation": "प्रति प्लाक एक पंक्ति, उन प्रति-प्लाक मानों के साथ जो रन लिखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_rows#1",
+      "source": "The columns of the run's ``per_plaque`` table (:func:`spacr.submodules.analyze_plaques`), with the ratio taken to the median plaque in this well. The ratio to the panel median needs every well of the panel and is added by the caller.",
+      "source_sha256": "447e6771eb1e4c99d305f83b6270a6f24a7baf8c53c95fde086b0da2d80f635b",
+      "context": "The columns of the run's ``per_plaque`` table (:func:`spacr.submodules.analyze_plaques`), with the ratio taken to the median plaque in this microplate sample position. The ratio to the panel median needs every microplate sample position of the panel and is added by the caller.",
+      "translation": "रन की ``per_plaque`` तालिका (:func:`spacr.submodules.analyze_plaques`) के स्तंभ, इस वेल के माध्यिका प्लाक के सापेक्ष अनुपात के साथ। पैनल माध्यिका के सापेक्ष अनुपात के लिए पैनल के हर वेल की आवश्यकता होती है और उसे कॉलर जोड़ता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_rows#3",
+      "source": "dicts with ``plaque_id``, ``area_px``, ``area_vs_well_median``, ``perimeter_px``, ``equivalent_diameter_px``, ``eccentricity``, ``solidity``, ``centroid_y`` and ``centroid_x``.",
+      "source_sha256": "1c744667cad70fc9f3d146d5fe2f692a2130433c42bcc228cdd7838857af4f4a",
+      "context": "key-value mappings with ``plaque_id``, ``area_px``, ``area_vs_well_median``, ``perimeter_px``, ``equivalent_diameter_px``, ``eccentricity``, ``solidity``, ``centroid_y`` and ``centroid_x``.",
+      "translation": "``plaque_id``, ``area_px``, ``area_vs_well_median``, ``perimeter_px``, ``equivalent_diameter_px``, ``eccentricity``, ``solidity``, ``centroid_y`` और ``centroid_x`` वाले dicts।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.prepare_figure_review#0",
+      "source": "Read review sidecars and infer rulers on a worker, without Qt access.",
+      "source_sha256": "2a2a404d3f61367aa759a1620cd96fce2b6359331b28d211ffc8859fca335d7d",
+      "context": "Read review sidecars and infer rulers on a worker, without Qt access.",
+      "translation": "Qt तक पहुँच के बिना, एक वर्कर पर समीक्षा साइडकार पढ़ें और रूलर का अनुमान लगाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.prepare_figure_review#1",
+      "source": "detected figure including image, regions, words and path.",
+      "source_sha256": "7be65225cc8da23233c93d2cf619b58ad759c841741aea2a5e397f406025f03b",
+      "context": "detected figure including image, regions, words and path.",
+      "translation": "छवि, क्षेत्रों, शब्दों और पथ सहित पहचाना गया फ़िगर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.prepare_figure_review#2",
+      "source": "snapshot of preview settings.",
+      "source_sha256": "c26a93c8443e2b9fe9e9b1303415d6a6ebacb5acac08d0ffc69fc762c88c8abe",
+      "context": "snapshot of preview settings.",
+      "translation": "पूर्वावलोकन सेटिंग्स का स्नैपशॉट।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.prepare_figure_review#3",
+      "source": "supplied legend; None reads legends.csv beside the image.",
+      "source_sha256": "c90193e9fced2c4f54e038815e775e17f0d6348f0533ce0e2fa0a9fa4ace566c",
+      "context": "supplied legend; None reads legends.csv beside the image.",
+      "translation": "दिया गया लेजेंड; None होने पर छवि के बगल वाली legends.csv पढ़ी जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.prepare_figure_review#4",
+      "source": "optional snapshot of current annotations, preserving manual calibration, condition edits and approval during reannotation.",
+      "source_sha256": "33cd4a7e7a2fc33fad19aaf6f9f798e41acad2452bc9628c7473f2f5a2f214e5",
+      "context": "optional snapshot of current annotations, preserving manual calibration, condition edits and approval during reannotation.",
+      "translation": "वर्तमान एनोटेशन का वैकल्पिक स्नैपशॉट, जो पुनः एनोटेशन के दौरान मैनुअल कैलिब्रेशन, स्थिति संपादन और स्वीकृति को बनाए रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.prepare_figure_review#5",
+      "source": "result copy with review_caption, annotations and automatic_scales.",
+      "source_sha256": "16463d76e23d2335ac7a96ff850ad6dce891a9b92386c5aaa414896a29316179",
+      "context": "result copy with review_caption, annotations and automatic_scales.",
+      "translation": "review_caption, annotations और automatic_scales सहित परिणाम की प्रति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.region_at#0",
+      "source": "Which box a point on the figure falls in.",
+      "source_sha256": "5ce9c431a260f5d1813cf8361d2bb602d2d375295c9c471449e6891a855f15b4",
+      "context": "Which box a point on the figure falls in.",
+      "translation": "फ़िगर पर कोई बिंदु किस बॉक्स में आता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.region_at#1",
+      "source": "the detected wells.",
+      "source_sha256": "759d3a2678f8cf9ffb8af3562d1908dc7da1ea60f4ef4f7cb6d64c0a10d90430",
+      "context": "the detected microplate sample positions.",
+      "translation": "पहचाने गए वेल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.region_at#2",
+      "source": "figure column.",
+      "source_sha256": "a330e5d2bb2d84c3256f4c5ed182c989f0215a292a811adfb164497da6784f32",
+      "context": "figure column.",
+      "translation": "फ़िगर स्तंभ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.region_at#3",
+      "source": "figure row.",
+      "source_sha256": "4b31d29548455d4a6849477b3617ab842118ec5f1d12c09aacef04071eae816f",
+      "context": "figure row.",
+      "translation": "फ़िगर पंक्ति।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.region_at#4",
+      "source": "the index of the smallest box holding the point, or None.",
+      "source_sha256": "1505ecc80dfd18f2c3a1113468acc53158f0aa2d013c7b6fd27f0cd8e7839916",
+      "context": "the index of the smallest box holding the point, or None.",
+      "translation": "बिंदु को रखने वाले सबसे छोटे बॉक्स का इंडेक्स, या None।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.remember_the_input#0",
+      "source": "Note that ``source`` was settled for ``mode``, so writing it into ``src`` does not ask again.",
+      "source_sha256": "9e67a42870a27c23b5d78e0b9d4fb609fd7164d234744e08a5c87ca6dd6431f4",
+      "context": "Note that ``source`` was settled for ``mode``, so writing it into ``src`` does not ask again.",
+      "translation": "दर्ज करें कि ``source`` को ``mode`` के लिए तय कर लिया गया था, ताकि उसे ``src`` में लिखने पर फिर से न पूछा जाए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.remember_the_input#2",
+      "source": "the folder or file.",
+      "source_sha256": "5959ffe06ec326f8c6d4eb964f8e01570385dc76b53ca607bda82446f3dc53fe",
+      "context": "the folder or file.",
+      "translation": "फ़ोल्डर या फ़ाइल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.remember_the_input#3",
+      "source": "the mode it was settled for; the current one when None.",
+      "source_sha256": "5dd840818ce313903d58636dfc00eabfcbc922744bd7c8c4a387cf10341723b7",
+      "context": "the mode it was settled for; the current one when None.",
+      "translation": "वह मोड जिसके लिए इसे तय किया गया था; None होने पर वर्तमान मोड।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.render_objects#0",
+      "source": "The label image alone, one colour per object on black.",
+      "source_sha256": "adcff4729c90db09961ce996ec508c0803a8841653f9d44d69f8c61f82532ef0",
+      "context": "The label image alone, one colour per object on black.",
+      "translation": "केवल लेबल छवि, काले पर प्रति ऑब्जेक्ट एक रंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.render_objects#1",
+      "source": "Drawn by :func:`spacr.qt.widgets.segmentation_views.render_labels`, so a plaque mask has the colours a Mask generation mask has.",
+      "source_sha256": "8db0cbf3eb983f090d99ad3e56fed2e34b6ab805e0ea55ba98718bfd8de41b13",
+      "context": "Drawn by :func:`spacr.qt.widgets.segmentation_views.render_labels`, so a plaque mask has the colours a Mask generation mask has.",
+      "translation": ":func:`spacr.qt.widgets.segmentation_views.render_labels` द्वारा बनाया गया, ताकि प्लाक मास्क के रंग वही हों जो Mask निर्माण मास्क के होते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.render_objects#2",
+      "source": "a label image, 0 = background, or None.",
+      "source_sha256": "e7893bd8cbfa0b8bf1165f20e9150ec30012e5c8052244e01034e3eab95ed5d6",
+      "context": "a label image, 0 = background, or None.",
+      "translation": "एक लेबल छवि, 0 = पृष्ठभूमि, या None।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.render_objects#3",
+      "source": "``H x W x 3`` ``uint8``, or None when there is nothing to draw.",
+      "source_sha256": "cc9b6fa7d017366dab833fe6e24e7878ee3e8114fdb81e60fb69c98a07bd3c79",
+      "context": "``H x W x 3`` ``uint8``, or None when there is nothing to draw.",
+      "translation": "``H x W x 3`` ``uint8``, या बनाने को कुछ न होने पर None।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.render_overlay#0",
+      "source": "Draw the labelled objects onto an image as outlines or a filled overlay.",
+      "source_sha256": "189b8bf125d76797865215fcf2e16f983ff2d8525c30401f3c47f341cbe431c1",
+      "context": "Draw the labelled objects onto an image as outlines or a filled overlay.",
+      "translation": "लेबल किए गए ऑब्जेक्ट को छवि पर रूपरेखा या भरे हुए ओवरले के रूप में बनाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.render_overlay#1",
+      "source": "``H x W x 3`` ``uint8`` image; changed in place.",
+      "source_sha256": "cb96b1bc6dd37f2a9baf0a7757160c181fa6c16500d3bc0dbbcc3fe004f31a9d",
+      "context": "``H x W x 3`` ``uint8`` image; changed in place.",
+      "translation": "``H x W x 3`` ``uint8`` छवि; उसी स्थान पर बदली जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.render_overlay#3",
+      "source": "the :class:`OverlayStyle`; yellow one-pixel outlines when None, which is what the preview always drew.",
+      "source_sha256": "364f2c22d01e455a982e248bb792aeec206ce9612a07bdba6ae5e63143624e8d",
+      "context": "the :class:`OverlayStyle`; yellow one-pixel outlines when None, which is what the preview always drew.",
+      "translation": ":class:`OverlayStyle`; None होने पर पीली एक-पिक्सेल रूपरेखाएँ, जो पूर्वावलोकन हमेशा बनाता था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.resolve_detector#0",
+      "source": "The detector checkpoint a key names, found without a download.",
+      "source_sha256": "7ec73245fc28884927063ec94efe2391903d227c37e3c053b0d4375af152fc77",
+      "context": "The detector checkpoint a key names, found without a download.",
+      "translation": "किसी कुंजी द्वारा नामित डिटेक्टर चेकपॉइंट, बिना डाउनलोड के खोजा गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.resolve_detector#1",
+      "source": "Looks where the run looks: the path itself, the zoo entry's own path, ``~/.spacr/models`` and the run's model cache under ``<src>/plaque_figures/models``.",
+      "source_sha256": "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
+      "context": "Looks where the processing session looks: the path itself, the zoo entry's own path, ``~/.spacr/models`` and the processing session's model cache under ``<src>/plaque_figures/models``.",
+      "translation": "वहीं देखता है जहाँ रन देखता है: स्वयं पथ, zoo प्रविष्टि का अपना पथ, ``~/.spacr/models`` और ``<src>/plaque_figures/models`` के अंतर्गत रन का मॉडल कैश।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.resolve_detector#2",
+      "source": "a zoo key or a checkpoint path.",
+      "source_sha256": "87daec165530d1d8eda70388fa42f1bfd5bcfa412c661b4d43d18f9e4302e447",
+      "context": "a zoo key or a checkpoint path.",
+      "translation": "zoo कुंजी या चेकपॉइंट पथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.resolve_detector#3",
+      "source": "the figure folder.",
+      "source_sha256": "49b035fdfee8303bb110eb93902be437fb7319806830b5d4ad626b0f1ca27166",
+      "context": "the figure folder.",
+      "translation": "फ़िगर फ़ोल्डर।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.resolve_detector#4",
+      "source": "``(path, note, entry)``; ``path`` is ``''`` when it is not here, and ``entry`` is what a download would fetch.",
+      "source_sha256": "39fd303f269673ababb067832d65618868f7db02e6299ed23113e3ffe7f9c119",
+      "context": "``(path, note, entry)``; ``path`` is ``''`` when it is not here, and ``entry`` is what a download would fetch.",
+      "translation": "``(path, note, entry)``; जब यह यहाँ न हो तो ``path`` का मान ``''`` होता है, और ``entry`` वह है जो डाउनलोड लाएगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.resolve_plaque_model#0",
+      "source": "The checkpoint the plaque run would segment with, found without a download.",
+      "source_sha256": "799dd18f2d7f7ccf60a69eac87bbad761af2f009a660cd3c6a0288a627451d30",
+      "context": "The checkpoint the plaque run would segment with, found without a download.",
+      "translation": "वह चेकपॉइंट जिससे प्लाक रन सेगमेंट करेगा, बिना डाउनलोड के खोजा गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.resolve_plaque_model#1",
+      "source": "The run's own resolver answers (:func:`spacr.submodules._resolve_plaque_model` with ``fetch=False``), so the preview cannot drift from it.",
+      "source_sha256": "593aa02bfde2008d8b896f8712ee6afbf09fddaf825dba183c9c8acf6172fdf2",
+      "context": "The run's own resolver answers (:func:`spacr.submodules._resolve_plaque_model` with ``fetch=False``), so the preview cannot drift from it.",
+      "translation": "रन का अपना रिज़ॉल्वर उत्तर देता है (:func:`spacr.submodules._resolve_plaque_model`, ``fetch=False`` के साथ), ताकि पूर्वावलोकन उससे भटक न सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.resolve_plaque_model#3",
+      "source": "``(path, note, entry)``: the path, or ``''`` when it is not on this machine; a sentence to show; and the zoo entry that a download would fetch, when there is one.",
+      "source_sha256": "1a0ce501a367142d488b55752b68b449c2a9e82dddf72d1e39e315f34dd2a826",
+      "context": "``(path, note, entry)``: the path, or ``''`` when it is not on this machine; a sentence to show; and the zoo entry that a download would fetch, when there is one.",
+      "translation": "``(path, note, entry)``: पथ, या ``''`` जब यह इस मशीन पर न हो; दिखाने के लिए एक वाक्य; और वह zoo प्रविष्टि जिसे डाउनलोड लाएगा, जब कोई हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well#0",
+      "source": "Find the plaques in one detected well of a figure.",
+      "source_sha256": "17e37585db5e1862ef508b116ade6368b7a1e8f3489eb428e4151008b64a0356",
+      "context": "Find the plaques in one detected well of a figure.",
+      "translation": "किसी फ़िगर के एक पहचाने गए वेल में प्लाक खोजें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well#1",
+      "source": "Runs on a worker thread; touches no widget. The model and its thresholds are the Plaque settings, through the same :func:`spacr.plaque.segment_plaque_image` Plaque mode uses.",
+      "source_sha256": "8fb6d5920b1685d71a61359315f3d8de148f905409e61624682db445f80c7b48",
+      "context": "Executes on a background execution unit; touches no widget. The model and its thresholds are the Plaque settings, through the same :func:`spacr.plaque.segment_plaque_image` Plaque mode uses.",
+      "translation": "वर्कर थ्रेड पर चलता है; किसी विजेट को नहीं छूता। मॉडल और उसके थ्रेशोल्ड Plaque सेटिंग्स हैं, उसी :func:`spacr.plaque.segment_plaque_image` के माध्यम से जिसका Plaque मोड उपयोग करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well#3",
+      "source": "the well's box.",
+      "source_sha256": "7f5b1720eed11bcdd9a71ad2ec8eb42311c4f628422ee8bfc889cf91cd3994a2",
+      "context": "the microplate sample position's box.",
+      "translation": "वेल का बॉक्स।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well#5",
+      "source": "``fn(crop) -> labels`` or ``fn(crop) -> (labels, flows)`` with ``flows`` as :func:`spacr.plaque.plaque_flow_outputs` gives it; the plaque model, with its flows, when None.",
+      "source_sha256": "f877590d4a010a977e5493fe2b359dbbc412254185df27d89d076ba60519f50d",
+      "context": "``fn(crop) -> labels`` or ``fn(crop) -> (labels, flows)`` with ``flows`` as :func:`spacr.plaque.plaque_flow_outputs` gives it; the plaque model, with its flows, when None.",
+      "translation": "``fn(crop) -> labels`` या ``fn(crop) -> (labels, flows)``, जिसमें ``flows`` वैसे हों जैसे :func:`spacr.plaque.plaque_flow_outputs` देता है; None होने पर प्लाक मॉडल, उसके flows सहित।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well#6",
+      "source": "``{'labels', 'flow_rgb', 'cellprob', 'rows', 'count', 'mean_area', 'note'}``, or ``{'error', 'entry'}``. ``flow_rgb`` and ``cellprob`` are None when the segmenter gave no flows.",
+      "source_sha256": "8cc30ed632e804abcf9bd5cc19aabf60240c119222f30a80a068ed797bbcfc21",
+      "context": "``{'labels', 'flow_rgb', 'cellprob', 'rows', 'count', 'mean_area', 'note'}``, or ``{'error', 'entry'}``. ``flow_rgb`` and ``cellprob`` are None when the segmenter gave no flows.",
+      "translation": "``{'labels', 'flow_rgb', 'cellprob', 'rows', 'count', 'mean_area', 'note'}``, या ``{'error', 'entry'}``। जब सेगमेंटर ने कोई flows नहीं दिए, तब ``flow_rgb`` और ``cellprob`` None होते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.session_style#0",
+      "source": "The style a new panel starts from.",
+      "source_sha256": "91f3c2990374347cffdbae11166e2179b651432ef778a058d05f713d1c1d218c",
+      "context": "The style a new panel starts from.",
+      "translation": "वह शैली जिससे नया पैनल शुरू होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.session_style#1",
+      "source": "the style this session last chose, else the one remembered from the last session, else the default.",
+      "source_sha256": "c79dbecf3450ac8b528472a5177256c17015e040f47e37b6aa33b99ba9cc21d3",
+      "context": "the style this session last chose, else the one remembered from the last session, else the default.",
+      "translation": "इस सत्र में अंतिम बार चुनी गई शैली, अन्यथा पिछले सत्र से याद रखी गई शैली, अन्यथा डिफ़ॉल्ट।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.store_overlay_style#0",
+      "source": "Remember ``style`` for the next session.",
+      "source_sha256": "2f9707c6973ef57c21e84d29bff8df1be9f3e959376e17f8a33f55538a85b83b",
+      "context": "Remember ``style`` for the next session.",
+      "translation": "अगले सत्र के लिए ``style`` याद रखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.store_overlay_style#1",
+      "source": "the style to keep.",
+      "source_sha256": "22bad727675a9692c12d04bf9b4bfef75709eef9fbfdc3b554cdf7f4fed40292",
+      "context": "the style to keep.",
+      "translation": "रखी जाने वाली शैली।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.write_legend#0",
+      "source": "Store one figure's legend in ``legends.csv``, keeping the others.",
+      "source_sha256": "8c29ec759eceaeb63b5b28f98a99b61e2740504fcfd9d132473405598eff42bf",
+      "context": "Store one figure's legend in ``legends.csv``, keeping the others.",
+      "translation": "एक फ़िगर का लेजेंड ``legends.csv`` में संग्रहीत करें, बाकी को बनाए रखते हुए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.write_legend#1",
+      "source": "the CSV (``file`` and ``legend`` columns).",
+      "source_sha256": "f0fcda3806d6667a905146d205f20a7fd2e01426eca3a19b1f8cfd6595aaef37",
+      "context": "the CSV (``file`` and ``legend`` columns).",
+      "translation": "CSV (``file`` और ``legend`` स्तंभ)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.write_legend#3",
+      "source": "the legend text.",
+      "source_sha256": "348cbe74cb1d56b238a9747f50c5e3bfb4fc096507acec60d87353d226911981",
+      "context": "the legend text.",
+      "translation": "लेजेंड पाठ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.PlateDesign#5",
+      "source": ":data:`EDGE_USE` or :data:`EDGE_LEAVE_EMPTY`.",
+      "source_sha256": "2f2366c76bd78da0c18ec3720030b0d82845a9f2e2d912d729a299795803b35c",
+      "context": ":data:`EDGE_USE` or :data:`EDGE_LEAVE_EMPTY`.",
+      "translation": ":data:`EDGE_USE` या :data:`EDGE_LEAVE_EMPTY`।",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.PlateTemplate#0",
+      "source": "A ready-made design, shipped with spaCR, that a user starts from.",
+      "source_sha256": "97e4770e587ef79cd4c156d84155c438cc96fa6ace51573b47c4b8b8a6819932",
+      "context": "A ready-made design, shipped with spaCR, that a user starts from.",
+      "translation": "spaCR के साथ आने वाला तैयार डिज़ाइन, जिससे उपयोगकर्ता शुरू करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.PlateTemplate#1",
+      "source": "the file's stem, stable across releases, e.g. ``04_384_crispr_screen``. The numeric prefix fixes the menu order.",
+      "source_sha256": "eed4e87d6fd02314c8fc0a9c0e8895d091fed1d8836c49b1e1cb21b3fcdc3fc2",
+      "context": "the file's stem, stable across releases, e.g. ``04_384_crispr_screen``. The numeric prefix fixes the menu order.",
+      "translation": "फ़ाइल का स्टेम, रिलीज़ों में स्थिर, उदाहरण ``04_384_crispr_screen``। संख्यात्मक उपसर्ग मेनू क्रम तय करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.PlateTemplate#2",
+      "source": "the menu entry.",
+      "source_sha256": "0c973ccab2c8933d765e2f98908d49309bb148d32d375c8033dc7b6af45d24c6",
+      "context": "the menu entry.",
+      "translation": "मेनू प्रविष्टि।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.PlateTemplate#3",
+      "source": "what the layout is for and what its findings mean.",
+      "source_sha256": "3c541af03ced74e9dbf50a8de012013649e916593528ef27ce4c305915ac3d09",
+      "context": "what the layout is for and what its findings mean.",
+      "translation": "लेआउट किसलिए है और उसके निष्कर्षों का क्या अर्थ है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.PlateTemplate#4",
+      "source": "the design itself; loading a template replaces the form with it apart from the plate name, which stays the user's.",
+      "source_sha256": "542e990cd1c9a567bc0631ba7ff8b43e950e3dfba56ca1978d6b0923673521c9",
+      "context": "the design itself; loading a template replaces the form with it apart from the plate name, which stays the user's.",
+      "translation": "स्वयं डिज़ाइन; टेम्पलेट लोड करने पर फ़ॉर्म इससे बदल जाता है, प्लेट नाम को छोड़कर, जो उपयोगकर्ता का ही रहता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.design_from_record#0",
+      "source": "Rebuild a :class:`PlateDesign` from the mapping ``plate_map.json`` holds.",
+      "source_sha256": "33011ee6d86c7f28b0573da29a930801b1032c889d1da50e29d9892e0c268c0d",
+      "context": "Rebuild a :class:`PlateDesign` from the mapping ``plate_map.json`` holds.",
+      "translation": ":class:`PlateDesign` को उस मैपिंग से फिर से बनाएँ जो ``plate_map.json`` में है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.design_from_record#1",
+      "source": "The same keys :func:`write_design` writes, so an exported design and a shipped template are read by one function. Missing keys take the :class:`PlateDesign` defaults; findings and well counts in the record are ignored, because they are recomputed from the design.",
+      "source_sha256": "ef9ccd0706d2d971c8536824457eb980f96848a22d1560811112c57cf887e3ba",
+      "context": "The same structured-data names :func:`write_design` writes, so an exported design and a shipped template are read by one function. Missing structured-data names take the :class:`PlateDesign` defaults; findings and microplate sample position counts in the record are ignored, because they are recomputed from the design.",
+      "translation": "वही कुंजियाँ जो :func:`write_design` लिखता है, ताकि निर्यात किया गया डिज़ाइन और साथ आया टेम्पलेट एक ही फ़ंक्शन से पढ़े जाएँ। अनुपस्थित कुंजियाँ :class:`PlateDesign` के डिफ़ॉल्ट लेती हैं; रिकॉर्ड में निष्कर्ष और वेल गिनतियाँ अनदेखी की जाती हैं, क्योंकि उनकी गणना डिज़ाइन से फिर से की जाती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.design_from_record#2",
+      "source": "the mapping.",
+      "source_sha256": "4cb05aaf4ea3fbbc7f62eaa7222c0d909246d9ab682be360bb1b0082513fd1ec",
+      "context": "the mapping.",
+      "translation": "मैपिंग।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.design_from_record#3",
+      "source": "the design.",
+      "source_sha256": "51569698135e901190978b5feac2b6c4b060332171611db120a7a9966bf636bb",
+      "context": "the design.",
+      "translation": "डिज़ाइन।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.design_from_record#4",
+      "source": "when a condition or the design is invalid, with the message the dataclass gives.",
+      "source_sha256": "2c9237273d7e407c521397a174e6d66ec772419b00ea92066f1d6c07c133a908",
+      "context": "when a condition or the design is invalid, with the message the dataclass gives.",
+      "translation": "जब कोई स्थिति या डिज़ाइन अमान्य हो, dataclass द्वारा दिए गए संदेश के साथ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.format_findings#1",
+      "source": "layout findings, one output line each in the order given, prefixed ``STOP``, ``!`` or ``-`` by severity; an empty sequence gives the no-problems sentence.",
+      "source_sha256": "2b691085477f3a002367f8111f20e1a04f64fd6c2645dbca60bfd45569d75019",
+      "context": "layout findings, one output line each in the order given, prefixed ``STOP``, ``!`` or ``-`` by severity; an empty sequence gives the no-problems sentence.",
+      "translation": "लेआउट निष्कर्ष, दिए गए क्रम में हर एक के लिए आउटपुट की एक पंक्ति, गंभीरता के अनुसार ``STOP``, ``!`` या ``-`` उपसर्ग के साथ; खाली अनुक्रम \"कोई समस्या नहीं\" वाला वाक्य देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.is_edge#3",
+      "source": "number of rows on the plate.",
+      "source_sha256": "c6d772f6482ff2c04f3b68c8f449aae1bebad387cb8ff7b48e76375d54acc0c1",
+      "context": "number of rows on the laboratory microplate.",
+      "translation": "प्लेट पर पंक्तियों की संख्या।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.is_edge#4",
+      "source": "number of columns on the plate.",
+      "source_sha256": "21989605997f2928feb1e104cc00a2cb3d6e722dc88f48a7b007a923394944af",
+      "context": "number of columns on the laboratory microplate.",
+      "translation": "प्लेट पर स्तंभों की संख्या।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.plate_shape#1",
+      "source": "number of wells: 6, 12, 24, 48, 96, 384 or 1536; any other value raises :class:`ValueError`.",
+      "source_sha256": "a57c302ed962e0ae00d776a6286fc5e204ab92d1121c25b1170fc262946bf55a",
+      "context": "number of microplate sample positions: 6, 12, 24, 48, 96, 384 or 1536; any other value raises :class:`ValueError`.",
+      "translation": "वेलों की संख्या: 6, 12, 24, 48, 96, 384 या 1536; कोई अन्य मान :class:`ValueError` त्रुटि उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.plate_templates#0",
+      "source": "The layouts shipped in ``spacr/resources/plate_templates``, in order.",
+      "source_sha256": "14cb28b76a9a24e527285b9d5a5493a8c8e41bcf6421bffe4e9cc825abea3a45",
+      "context": "The layouts shipped in ``spacr/resources/plate_templates``, in order.",
+      "translation": "``spacr/resources/plate_templates`` में साथ आने वाले लेआउट, क्रम में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.plate_templates#1",
+      "source": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised: one bad template must not take the others off the menu.",
+      "source_sha256": "8002df1aa881f4bf52016412cb593be5165d31e5b2ef26a2b3da7a100655ddf7",
+      "context": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised: one bad template must not take the others off the menu.",
+      "translation": "हर कॉल पर पैकेज डेटा से पढ़ा जाता है; फ़ोल्डर में कुछ छोटी फ़ाइलें हैं और यह केवल तब पढ़ा जाता है जब Experiment Design अपना मेनू बनाता है। जो फ़ाइल पार्स नहीं होती, उस पर त्रुटि उठाने के बजाय उसे छोड़ दिया जाता है: एक खराब टेम्पलेट को बाकी को मेनू से नहीं हटाना चाहिए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_layout.plate_templates#2",
+      "source": "every template that loaded, sorted by key.",
+      "source_sha256": "55d9fe1fc3a2fb2a9edcae599b0a1e924a0bc6d3458a676821b5e0c3fa3a978e",
+      "context": "every template that loaded, sorted by key.",
+      "translation": "हर लोड हुआ टेम्पलेट, कुंजी के अनुसार क्रमबद्ध।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.drag_to#4",
+      "source": "the pointer position in global screen coordinates (a ``QPoint``); nothing happens unless a press has set an anchor well.",
+      "source_sha256": "4c419c956ef15ab4b3ad9e8101ae8f9c8227ae93322101bd4153852acd86b35b",
+      "context": "the pointer position in global screen coordinates (a ``QPoint``); nothing happens unless a press has set an anchor well.",
+      "translation": "वैश्विक डिस्प्ले निर्देशांकों में पॉइंटर की स्थिति (एक ``QPoint``); जब तक किसी प्रेस ने एंकर वेल सेट न किया हो, कुछ नहीं होता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.set_layout_size#2",
+      "source": "number of wells on the plate: 6, 12, 24, 96, 384 or 1536; any other value raises ``WellSpecError``.",
+      "source_sha256": "a4dbd5e23a68406a18d67c245ace754d078b17bbbf61fadebd3defe7e5b0f692",
+      "context": "number of microplate sample positions on the laboratory microplate: 6, 12, 24, 96, 384 or 1536; any other value raises ``WellSpecError``.",
+      "translation": "प्लेट पर वेलों की संख्या: 6, 12, 24, 96, 384 या 1536; कोई अन्य मान ``WellSpecError`` त्रुटि उठाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker.well_at#2",
+      "source": "a point in global screen coordinates (a ``QPoint``).",
+      "source_sha256": "d21b39da59655d5cf558cf9332a279d6a8434935c7054589e0dc501ed8229d42",
+      "context": "a point in global screen coordinates (a ``QPoint``).",
+      "translation": "वैश्विक डिस्प्ले निर्देशांकों में एक बिंदु (एक ``QPoint``)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_contract.LivePreviewContract.preview_stale#1",
+      "source": "the preview generation a result was started under, as :meth:`preview_token` returned it; ``None`` or a value that is not an integer is never stale.",
+      "source_sha256": "58df7f73a362d9902f11259b9d46b60c1c546d4e4c8768d5918b73731f1cdc11",
+      "context": "the preview generation a result was started under, as :meth:`preview_token` returned it; ``None`` or a value that is not an integer is never stale.",
+      "translation": "वह पूर्वावलोकन पीढ़ी जिसके अंतर्गत परिणाम शुरू हुआ था, जैसा :meth:`preview_token` ने लौटाया; ``None`` या पूर्णांक न होने वाला मान कभी पुराना नहीं माना जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_contract.LivePreviewContract.set_preview_busy#1",
+      "source": "true while a preview pass runs (cancel enabled, run disabled), false otherwise; a panel without either button skips it.",
+      "source_sha256": "3b4547f141b014c63bae29b302d4267900cb79a9d916e985289d1bd1dbbc993b",
+      "context": "true while a preview pass runs (cancel enabled, run disabled), false otherwise; a panel without either button skips it.",
+      "translation": "पूर्वावलोकन पास चलते समय सत्य (cancel सक्षम, run अक्षम), अन्यथा असत्य; जिस पैनल में इनमें से कोई बटन नहीं है वह इसे छोड़ देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_contract.LivePreviewContract.set_preview_status#2",
+      "source": "the sentence to show; converted to ``str`` and translated. A panel with no status label ignores it.",
+      "source_sha256": "93997c2329521efbf78dbf570df7c9b1a40db7b59c2a0e684c74e7c7ccaadfe7",
+      "context": "the sentence to show; converted to ``str`` and translated. A panel with no status label ignores it.",
+      "translation": "दिखाया जाने वाला वाक्य; ``str`` में रूपांतरित और अनूदित किया जाता है। बिना स्थिति लेबल वाला पैनल इसे अनदेखा करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls#7",
+      "source": ":func:`install_preview_scale` — each preview's own scale slider, from :mod:`spacr.qt.widgets.preview_scale` and re-exported here so every shared preview control is importable from one place.",
+      "source_sha256": "df689a894f459d2587a48a2e96a2edb4230005c46777161045caefb901b516db",
+      "context": ":func:`install_preview_scale` — each preview's own scale slider, from :mod:`spacr.qt.widgets.preview_scale` and re-exported here so every shared preview control is importable from one place.",
+      "translation": ":func:`install_preview_scale` — हर पूर्वावलोकन का अपना स्केल स्लाइडर, :mod:`spacr.qt.widgets.preview_scale` से, और यहाँ फिर से निर्यात किया गया ताकि हर साझा पूर्वावलोकन नियंत्रण एक ही जगह से आयात किया जा सके।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSet#2",
+      "source": "``(plateID, wellID, fieldID)`` as the acquisition regex reports them, or ``(\"\", \"\", <file name>)`` for a name it does not understand.",
+      "source_sha256": "8341ce76749e55935c89a59b3dba1268f123f87af30e394dcfab26e1a35e1e8a",
+      "context": "``(plateID, wellID, fieldID)`` as the acquisition regex reports them, or ``(\"\", \"\", <file name>)`` for a name it does not understand.",
+      "translation": "``(plateID, wellID, fieldID)`` जैसा अधिग्रहण regex उन्हें बताता है, या ऐसे नाम के लिए ``(\"\", \"\", <file name>)`` जिसे वह नहीं समझता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSet#3",
+      "source": "folder the files live in.",
+      "source_sha256": "c3c0be39995355594c25725dab2a272ea53a90faad1b1a98ebf765825a071359",
+      "context": "folder the files live in.",
+      "translation": "वह फ़ोल्डर जिसमें फ़ाइलें हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSet#4",
+      "source": "``{channel ID: file name}``, one representative file per channel.",
+      "source_sha256": "e92ccb932ef7d303bd7223500c7460ef3df141e6edcf9b66d6275363240dc1e2",
+      "context": "``{channel ID: file name}``, one representative file per channel.",
+      "translation": "``{channel ID: file name}``, प्रति चैनल एक प्रतिनिधि फ़ाइल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSet#5",
+      "source": "``{channel ID: [file name, ...]}``, every plane in acquisition order.",
+      "source_sha256": "1caa7cd65aac5f4cf60754063b9f859d823e44a041860364b07ebba02a479297",
+      "context": "``{channel ID: [file name, ...]}``, every image layer in acquisition order.",
+      "translation": "``{channel ID: [file name, ...]}``, अधिग्रहण क्रम में हर प्लेन।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.adopt#2",
+      "source": "the folder the enumeration is of; it becomes the cached folder.",
+      "source_sha256": "f9e8faaef10ba6e8da8e2ddf68fdcfd561e9c8b8230aa4a32f9b6300a447de47",
+      "context": "the folder the enumeration is of; it becomes the cached folder.",
+      "translation": "वह फ़ोल्डर जिसकी गणना की गई है; यह कैश किया गया फ़ोल्डर बन जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.adopt#3",
+      "source": "the image sets enumerated from it.",
+      "source_sha256": "2377a35b439eb417d812f2ee28d3dd7d1faba7a34b813ecd88627b3ed9729e66",
+      "context": "the image sets enumerated from it.",
+      "translation": "उससे गिने गए छवि सेट।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.adopt#4",
+      "source": "the channel IDs found across the folder.",
+      "source_sha256": "ed3c1d7757198b066bef3a6b93eebceb3032e7845ff9979218f766f65319e09a",
+      "context": "the channel IDs found across the folder.",
+      "translation": "फ़ोल्डर में पाई गई चैनल ID।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.adopt#5",
+      "source": "naming dialect the sets were grouped with.",
+      "source_sha256": "3c3f19b26d1528f9f847e6beedccbecff8b555381e8e824f847ad88ae9ddc5e9",
+      "context": "naming dialect the sets were grouped with.",
+      "translation": "वह नामकरण शैली जिससे सेट समूहित किए गए।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.adopt#6",
+      "source": "pattern body when ``metadata_type='custom'``.",
+      "source_sha256": "fdcd720190a4a713e6a4837c648372c29c9baedaa7d6c08608f07fd74587ba36",
+      "context": "pattern body when ``metadata_type='custom'``.",
+      "translation": "``metadata_type='custom'`` होने पर पैटर्न का मुख्य भाग।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.describe#2",
+      "source": "how many sets the dropdown lists.",
+      "source_sha256": "1889b15acdc0ad42a4b5902b01cfb684bc3721327485dd87a4bc866d7f9568a8",
+      "context": "how many sets the dropdown lists.",
+      "translation": "ड्रॉपडाउन कितने सेट सूचीबद्ध करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate#2",
+      "source": "folder to enumerate.",
+      "source_sha256": "2f6154095a6cca57416f4f65543c16f4be0d9c8cb34398c105f45fe4fe65bca5",
+      "context": "folder to enumerate.",
+      "translation": "गिना जाने वाला फ़ोल्डर।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate#3",
+      "source": "lower-case suffixes that count as a source, as :func:`enumerate_image_sets` takes them.",
+      "source_sha256": "80a2a92a28fed9dad741498f86d19c8e20e58af581c3f2a1cdaf44316d2b5b04",
+      "context": "lower-case suffixes that count as a source, as :func:`enumerate_image_sets` takes them.",
+      "translation": "छोटे अक्षरों वाले प्रत्यय जो स्रोत माने जाते हैं, जैसे :func:`enumerate_image_sets` उन्हें लेता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate#4",
+      "source": "naming dialect, see :func:`spacr.utils._get_regex`.",
+      "source_sha256": "0d40a886685b2ebf574bdd364802e86006abb76239a3b4392aeb4413f2aa3840",
+      "context": "naming dialect, see :func:`spacr.utils._get_regex`.",
+      "translation": "नामकरण शैली, :func:`spacr.utils._get_regex` देखें।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate#6",
+      "source": "re-scan even when the cache key matches.",
+      "source_sha256": "1ee13642821b728fd3db0221e6f2e605d96dc8b4c35295f1880cce185b00600f",
+      "context": "re-scan even when the cache structured-data name matches.",
+      "translation": "कैश कुंजी मेल खाने पर भी फिर से स्कैन करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate_paths#2",
+      "source": "the folder the listing belongs to; its string form is the cache key.",
+      "source_sha256": "c4cf77e6b141aae9b7685915c6a878841fca2de22d29fe0d632dc4b25796d280",
+      "context": "the folder the listing belongs to; its string form is the cache structured-data name.",
+      "translation": "वह फ़ोल्डर जिससे सूची संबंधित है; उसका स्ट्रिंग रूप कैश कुंजी है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate_paths#3",
+      "source": "a no-argument callable returning the source paths, each wrapped by :func:`sets_from_paths`.",
+      "source_sha256": "472df844f73ca327a7335058479f9ec5849f3df069687c3145b8090e134ba03b",
+      "context": "a no-argument callable returning the source paths, each wrapped by :func:`sets_from_paths`.",
+      "translation": "बिना आर्ग्युमेंट वाला callable जो स्रोत पथ लौटाता है, हर एक :func:`sets_from_paths` द्वारा लपेटा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate_paths#4",
+      "source": "call ``lister`` even when the folder is cached.",
+      "source_sha256": "e2758822f24a584533a93ec2944a4ce46cdf585ae1083f516d2ab2c3326d600d",
+      "context": "call ``lister`` even when the folder is cached.",
+      "translation": "फ़ोल्डर कैश होने पर भी ``lister`` कॉल करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.pin#2",
+      "source": "the set to pin; ``None`` or a set not in the current enumeration leaves the pin unchanged.",
+      "source_sha256": "9e88e5bae7e571a0a495957b8699497159e603e437d28fec26d5f1c5014f6278",
+      "context": "the set to pin; ``None`` or a set not in the current enumeration leaves the pin unchanged.",
+      "translation": "पिन किया जाने वाला सेट; ``None`` या वर्तमान गणना में न होने वाला सेट पिन को अपरिवर्तित छोड़ता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.set_for_path#2",
+      "source": "a file path (``str`` or path-like) or ``None``; only its file name is looked up among the sets' channel files.",
+      "source_sha256": "acd34454fb40bbb35f321a4a778f9b9250bea3d8577b69417540504eef0cdd59",
+      "context": "a file path (``str`` or path-like) or ``None``; only its file name is looked up among the sets' channel files.",
+      "translation": "फ़ाइल पथ (``str`` या path-like) या ``None``; सेटों की चैनल फ़ाइलों में केवल उसका फ़ाइल नाम खोजा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.set_max#1",
+      "source": "the new cap, converted with ``int``; zero or less means no cap. A change clears the pin.",
+      "source_sha256": "45d976399a6333cd2edaa7dbfc77f9de2c025e7d2802e6dc800ffb8c9b29ecf6",
+      "context": "the new cap, converted with ``int``; zero or less means no cap. A change clears the pin.",
+      "translation": "नई सीमा, ``int`` से रूपांतरित; शून्य या कम का अर्थ है कोई सीमा नहीं। परिवर्तन पिन को हटा देता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.apply_sample_to_combo#2",
+      "source": "the sets dropdown to refill.",
+      "source_sha256": "a2323d95e2a3b2e749a31a1929c5cc89c5dcf1bcc7dee8deae6b62d519c11e4c",
+      "context": "the sets dropdown to refill.",
+      "translation": "फिर से भरा जाने वाला सेट ड्रॉपडाउन।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.apply_sample_to_combo#3",
+      "source": "the cap spin box, or ``None`` to leave the sampler's cap as it is.",
+      "source_sha256": "8413796720cfd1916e1fe2164f3abdc46df4c04b92edb0dba0a50d13e51f6919",
+      "context": "the cap spin box, or ``None`` to leave the sampler's cap as it is.",
+      "translation": "सीमा वाला spin box, या sampler की सीमा को वैसा ही छोड़ने के लिए ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.apply_sample_to_combo#4",
+      "source": "an already-enumerated :class:`ImageSetSampler`.",
+      "source_sha256": "129e279dd09ceabce5f99a0aa55e31dcf4dd9fbaba92a8e6fbb92119ff6b618a",
+      "context": "an already-enumerated :class:`ImageSetSampler`.",
+      "translation": "पहले से गिना गया :class:`ImageSetSampler`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.apply_sample_to_combo#5",
+      "source": "the file loaded now (or ``None``); its set is kept in the sample and selected.",
+      "source_sha256": "eee468255465d3ddb7bb3e7247742ea35480f1f3c576f5eece90cfda6f531cbd",
+      "context": "the file loaded now (or ``None``); its set is kept in the sample and selected.",
+      "translation": "अभी लोड की गई फ़ाइल (या ``None``); उसका सेट नमूने में रखा और चुना जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.apply_sample_to_combo#6",
+      "source": "text placed before the sample sentence in the dropdown's tooltip.",
+      "source_sha256": "9536ed301d2f9a3896b26dab074f47caffa3a048748c4177c8bf0d549482af37",
+      "context": "text placed before the sample sentence in the dropdown's tooltip.",
+      "translation": "ड्रॉपडाउन के टूलटिप में नमूना वाक्य से पहले रखा गया पाठ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.channel_labels#1",
+      "source": "number of channels; ``Ch 0`` up to ``Ch n-1`` are listed (a negative count lists none).",
+      "source_sha256": "d8a88d20f2d77920c6b43da45b7c41e3cd2327c4b158b8e4744d80ae7c56d169",
+      "context": "number of channels; ``Ch 0`` up to ``Ch n-1`` are listed (a negative count lists none).",
+      "translation": "चैनलों की संख्या; ``Ch 0`` से ``Ch n-1`` तक सूचीबद्ध होते हैं (ऋणात्मक संख्या कुछ भी सूचीबद्ध नहीं करती)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.channel_labels#2",
+      "source": "put :data:`ALL_CHANNELS` first.",
+      "source_sha256": "4684c34ceb7154a3bca4db9652c545c0b05ce5fcef23fa499069a5344529bbaa",
+      "context": "put :data:`ALL_CHANNELS` first.",
+      "translation": ":data:`ALL_CHANNELS` को पहले रखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.channel_view#2",
+      "source": "an array of shape (H, W, C), or anything else (returned as is); ``None`` is returned unchanged.",
+      "source_sha256": "1ac912f30245aadf82b436633a01d4045c9a1da78723d7ab01220701accd31e0",
+      "context": "an array of shape (H, W, C), or anything else (returned as is); ``None`` is returned unchanged.",
+      "translation": "(H, W, C) आकार का ऐरे, या कुछ और (जैसा है वैसा लौटाया जाता है); ``None`` अपरिवर्तित लौटाया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.channel_view#3",
+      "source": "index into the last axis, or ``None`` for all channels.",
+      "source_sha256": "1c5070f1607c6bae7c8656e9d22f56e8676668da68a879393e5519ae07bc263e",
+      "context": "index into the last axis, or ``None`` for all channels.",
+      "translation": "अंतिम अक्ष में इंडेक्स, या सभी चैनलों के लिए ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.configure_max_sets_box#2",
+      "source": "the cap spin box; its suffix, maximum and enabled state are set with signals blocked, and it is enabled only for more than one set.",
+      "source_sha256": "bb90786e3bc099264351f5639759652ec4ef9bec261491fbb963c4e438b2fcfc",
+      "context": "the cap spin box; its suffix, maximum and enabled state are set with signals blocked, and it is enabled only for more than one set.",
+      "translation": "सीमा वाला spin box; उसका प्रत्यय, अधिकतम और सक्षम अवस्था सिग्नल रोककर सेट किए जाते हैं, और यह केवल एक से अधिक सेट होने पर सक्षम होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.configure_max_sets_box#3",
+      "source": "number of image sets in the folder; negative counts as 0.",
+      "source_sha256": "e6c6596ba4533c24ab99f2e2617522c9847b294ff164e338a635aa739c7d28ba",
+      "context": "number of image sets in the folder; negative counts as 0.",
+      "translation": "फ़ोल्डर में छवि सेटों की संख्या; ऋणात्मक को 0 माना जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.enumerate_image_sets#1",
+      "source": "Reads the directory with :func:`os.scandir` — on Linux that answers \"is this a file?\" straight out of the dirent, so no ``stat`` is issued per entry — and matches each name against :func:`~spacr.utils._get_regex`. Names the regex understands are grouped by ``(plateID, wellID, fieldID)``; names it does not become one set each, so an ad-hoc folder of ``a.tif``/``b.tif`` still lists exactly as it always did. Names that start with a dot are skipped, as a run skips them: the ``._<name>`` sidecars macOS writes on exFAT and network volumes end in ``.tif`` too and hold no image.",
+      "source_sha256": "9f792719722ce813ad26ea7d5ebcf854d44a4aff6cf39a371eb403e80e7aaa27",
+      "context": "Reads the directory with :func:`os.scandir` — on Linux that answers \"is this a file?\" straight out of the dirent, so no ``stat`` is issued per entry — and matches each name against :func:`~spacr.utils._get_regex`. Names the regex understands are grouped by ``(plateID, wellID, fieldID)``; names it does not become one set each, so an ad-hoc folder of ``a.tif``/``b.tif`` still lists exactly as it always did. Names that start with a dot are skipped, as a processing session skips them: the ``._<name>`` sidecars macOS writes on exFAT and network volumes end in ``.tif`` too and hold no image.",
+      "translation": "डायरेक्टरी को :func:`os.scandir` से पढ़ता है — Linux पर यह \"क्या यह फ़ाइल है?\" का उत्तर सीधे dirent से देता है, इसलिए प्रति प्रविष्टि कोई ``stat`` जारी नहीं होता — और हर नाम का मिलान :func:`~spacr.utils._get_regex` से करता है। जिन नामों को regex समझता है वे ``(plateID, wellID, fieldID)`` के अनुसार समूहित होते हैं; जिन्हें नहीं समझता वे हर एक अलग सेट बनते हैं, इसलिए ``a.tif``/``b.tif`` वाला तदर्थ फ़ोल्डर अब भी ठीक वैसे ही सूचीबद्ध होता है जैसे हमेशा होता था। बिंदु से शुरू होने वाले नाम छोड़ दिए जाते हैं, जैसे रन उन्हें छोड़ता है: macOS जो ``._<name>`` साइडकार exFAT और नेटवर्क वॉल्यूम पर लिखता है, वे भी ``.tif`` पर समाप्त होते हैं और उनमें कोई छवि नहीं होती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sample_image_sets#3",
+      "source": "the entries to draw from, in display order.",
+      "source_sha256": "ac7d29255a43d3dd57eaeae4695908194e9eb5acebc0530c1cc654a7f08cddad",
+      "context": "the entries to draw from, in display order.",
+      "translation": "वे प्रविष्टियाँ जिनमें से चुनना है, प्रदर्शन क्रम में।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sample_image_sets#4",
+      "source": "the most entries to return.",
+      "source_sha256": "bf4422c7f19a19bedd0db4734872e6ab26f39a82200e5fe8d5e796b5f9ec84b2",
+      "context": "the most entries to return.",
+      "translation": "लौटाई जाने वाली अधिकतम प्रविष्टियाँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sample_image_sets#5",
+      "source": "seed for :class:`random.Random`, so the same seed draws the same positions.",
+      "source_sha256": "b389787b3f11f9489ded37f8c163f4f9c95730faa8b0926de60b4d5295eb2078",
+      "context": "seed for :class:`random.Random`, so the same seed draws the same positions.",
+      "translation": ":class:`random.Random` के लिए रैंडम सीड, ताकि वही सीड वही स्थितियाँ चुने।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sample_seed#3",
+      "source": "the folder being sampled; only its name is used.",
+      "source_sha256": "2c3447ff1aa160f32e470a6fd7ef9d43d5a21d63988188bb0cd49d12e373a106",
+      "context": "the folder being sampled; only its name is used.",
+      "translation": "नमूना लिया जा रहा फ़ोल्डर; केवल उसके नाम का उपयोग होता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sample_seed#4",
+      "source": "number of image sets in it.",
+      "source_sha256": "c1109b71012707b3e7b3bcff81b9f52ea3a30d8955b7492a2075cfca04000f85",
+      "context": "number of image sets in it.",
+      "translation": "उसमें छवि सेटों की संख्या।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sample_seed#5",
+      "source": "the sample cap.",
+      "source_sha256": "e79e47e7052ff690b766c34916a8cfb73d50b13a21c1d2d669075208f216302f",
+      "context": "the sample cap.",
+      "translation": "नमूने की सीमा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sample_seed#6",
+      "source": "a counter that changes the seed for a re-draw.",
+      "source_sha256": "b11d3b954c95ecb42de4dc2dcfaf87abcf7910c1694548033d25e03bdb30d8ae",
+      "context": "a counter that changes the seed for a re-draw.",
+      "translation": "एक काउंटर जो दोबारा चुनने के लिए रैंडम सीड बदलता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.selected_channel#2",
+      "source": "a channel dropdown filled from :func:`channel_labels`; a ``Ch <n>`` entry gives ``n``, anything else ``None``.",
+      "source_sha256": "e1035ab1fe944793ee088ca2a03c75461c675b08476d9bfa402802019e9bd05a",
+      "context": "a channel dropdown filled from :func:`channel_labels`; a ``Ch <n>`` entry gives ``n``, anything else ``None``.",
+      "translation": ":func:`channel_labels` से भरा गया चैनल ड्रॉपडाउन; ``Ch <n>`` प्रविष्टि ``n`` देती है, बाकी कुछ भी ``None``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sets_from_paths#2",
+      "source": "the sources (folders or files, ``str`` or path-like); each becomes a set keyed ``(\"\", \"\", <name>)`` in its parent folder.",
+      "source_sha256": "d14c4fad0ad150986880f5836be045cee3dadb63d9e6c290896f04094853bcbb",
+      "context": "the sources (folders or files, ``str`` or path-like); each becomes a set keyed ``(\"\", \"\", <name>)`` in its parent folder.",
+      "translation": "स्रोत (फ़ोल्डर या फ़ाइलें, ``str`` या path-like); हर एक अपने पैरेंट फ़ोल्डर में ``(\"\", \"\", <name>)`` कुंजी वाला सेट बनता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sibling_sources#1",
+      "source": "Names that start with a dot are left out, as a Mask run leaves them out: on exFAT, FAT and many network shares macOS writes a ``._<name>`` sidecar beside every file, with the same ending and no image in it.",
+      "source_sha256": "09fc1c58e1b3ec67ea01b3362462a02e0c72c72496d596b1684be8790f134df7",
+      "context": "Names that start with a dot are left out, as a Mask run leaves them out: on exFAT, FAT and many network shares macOS writes a ``._<name>`` sidecar beside every file, with the same ending and no image in it.",
+      "translation": "बिंदु से शुरू होने वाले नाम छोड़ दिए जाते हैं, जैसे Mask रन उन्हें छोड़ता है: exFAT, FAT और कई नेटवर्क शेयरों पर macOS हर फ़ाइल के बगल में ``._<name>`` साइडकार लिखता है, उसी अंत वाली और बिना किसी छवि के।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh#0",
+      "source": "A Refresh button for every live preview: read src again and reload.",
+      "source_sha256": "8f72ebaeedbc77c3b3724a951eee752255ea316ab7bf13f14be6115b5e0e96b5",
+      "context": "A Refresh button for every live preview: read src again and reload.",
+      "translation": "हर लाइव पूर्वावलोकन के लिए एक Refresh बटन: src फिर से पढ़ें और फिर से लोड करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh#1",
+      "source": "The previews load their first field from ``src`` once, on their own. When the folder changes under the same path, or the automatic load picked nothing because the path was wrong at the time, the user needs a way to say \"look again\". This is that button, one implementation for all of them, because each preview only differs in the name of its loader.",
+      "source_sha256": "8d4e7f652f183b1a8d515191a689ef6f89c34d31e3cd46aaf9dae1d0f4a217fb",
+      "context": "The previews load their first field from ``src`` once, on their own. When the folder changes under the same path, or the automatic load picked nothing because the path was wrong at the time, the user needs a way to say \"look again\". This is that button, one implementation for all of them, because each preview only differs in the name of its loader.",
+      "translation": "पूर्वावलोकन अपना पहला फ़ील्ड ``src`` से एक बार, स्वयं लोड करते हैं। जब उसी पथ के अंतर्गत फ़ोल्डर बदल जाता है, या स्वचालित लोड ने कुछ नहीं चुना क्योंकि उस समय पथ गलत था, तब उपयोगकर्ता को \"look again\" कहने का एक तरीका चाहिए। यही वह बटन है, सभी के लिए एक कार्यान्वयन, क्योंकि हर पूर्वावलोकन केवल अपने लोडर के नाम में अलग है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.current_src#0",
+      "source": "The source path the screen's form holds right now.",
+      "source_sha256": "7950f87d1f87761c4f6b5f80597deb200fb3de27127c024611328061a084d209",
+      "context": "The source path the screen's form holds right now.",
+      "translation": "वह स्रोत पथ जो पेज के फ़ॉर्म में अभी है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.current_src#2",
+      "source": "the path, or ``\"\"``.",
+      "source_sha256": "3848bbec789cfc5939f9f17121ccaa0baed0dc18bcdfaf95a23a4dae5f85b6e9",
+      "context": "the path, or ``\"\"``.",
+      "translation": "पथ, या ``\"\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.install_refresh_button#0",
+      "source": "Add a Refresh button to a preview card's title row.",
+      "source_sha256": "fcfaa000197c22500cb9d7cf5fc25d0f41da7c24cce722298c3141fa78c539aa",
+      "context": "Add a Refresh button to a preview card's title row.",
+      "translation": "पूर्वावलोकन कार्ड की शीर्षक पंक्ति में Refresh बटन जोड़ें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.install_refresh_button#2",
+      "source": "the preview's :class:`~spacr.qt.widgets.card.Card`.",
+      "source_sha256": "24f4ece784db175852d66fd527cf217e92bcfa769f08914cfb7afed9fbe43ec2",
+      "context": "the preview's :class:`~spacr.qt.widgets.card.Card`.",
+      "translation": "पूर्वावलोकन का :class:`~spacr.qt.widgets.card.Card`।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.install_refresh_button#3",
+      "source": "the preview panel it reloads.",
+      "source_sha256": "817a730e3700e0494ebfd1ff556630fbc8b71a97cccf1c21054d5836ff2ce7db",
+      "context": "the preview panel it reloads.",
+      "translation": "वह पूर्वावलोकन पैनल जिसे यह फिर से लोड करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.install_refresh_button#4",
+      "source": "asked for the panel at the click instead of ``panel``, for a card whose panel is built the first time the card is shown and so does not exist when the button does.",
+      "source_sha256": "77f0ed77a03944bfe86e432810244ca21d19aa9090e24388658a040aeeae9e84",
+      "context": "asked for the panel at the click instead of ``panel``, for a card whose panel is built the first time the card is shown and so does not exist when the button does.",
+      "translation": "क्लिक के समय ``panel`` के बजाय इससे पैनल माँगा जाता है, उस कार्ड के लिए जिसका पैनल पहली बार कार्ड दिखाए जाने पर बनता है और इसलिए बटन बनने के समय मौजूद नहीं होता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.install_refresh_button#5",
+      "source": "the button, or ``None`` when the card has no title row to take it.",
+      "source_sha256": "1cf69a15f01d4c0f2c80b30df4bffa1df27be8e67a26c484de95d3ab360fbcb8",
+      "context": "the button, or ``None`` when the card has no title row to take it.",
+      "translation": "बटन, या ``None`` जब कार्ड में उसे रखने के लिए कोई शीर्षक पंक्ति न हो।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.reload_from_src#0",
+      "source": "Check the screen's src and reload ``panel`` from it.",
+      "source_sha256": "89810fa695ec8d77b959913993c90eaba5f73e32f97c1c34736c25e0acd4f0be",
+      "context": "Check the screen's src and reload ``panel`` from it.",
+      "translation": "पेज का src जाँचें और उससे ``panel`` फिर से लोड करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.reload_from_src#1",
+      "source": "the module screen whose form holds ``src``.",
+      "source_sha256": "87712193b7dc140ad6a54394526f13d0cecbe93abcbf6774bfc8dff89517a995",
+      "context": "the module application view whose form holds ``src``.",
+      "translation": "वह मॉड्यूल पेज जिसके फ़ॉर्म में ``src`` है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.reload_from_src#2",
+      "source": "the preview panel to reload.",
+      "source_sha256": "8041484818a75e2aabb456a8280424ec1cdb55f96cba9903482dd07bb494f5e7",
+      "context": "the preview panel to reload.",
+      "translation": "फिर से लोड किया जाने वाला पूर्वावलोकन पैनल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_refresh.reload_from_src#3",
+      "source": "whether a load was started.",
+      "source_sha256": "7cc95d12a54fb18688ad2f6f1b94eea366db50becdc88a0a67ecd5c1a273d386",
+      "context": "whether a load was started.",
+      "translation": "क्या लोड शुरू किया गया।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#0",
+      "source": "One scale slider per live preview, scaling that preview alone (item 471).",
+      "source_sha256": "ee8bf065edb400a30ce7dbc6e4720c9e272fc20a3e6afc71c7d19b68cc0404a8",
+      "context": "One scale slider per live preview, scaling that preview alone (item 471).",
+      "translation": "हर लाइव पूर्वावलोकन के लिए एक स्केल स्लाइडर, जो केवल उसी पूर्वावलोकन को स्केल करता है (आइटम 471)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#1",
+      "source": "The whole-GUI scale (:mod:`spacr.qt.gui_scale`) is fixed at startup and applies everywhere. A preview wants its own: a Mask preview on a laptop may need to shrink its controls to give the images room, while the settings beside it stay readable. Every preview -- Mask, Measure, Plaque, Timelapse, Motility and the image-UMAP views -- installs the same control through :func:`install_preview_scale`, so there is one implementation of it.",
+      "source_sha256": "e23224975232a890315c270eea2de964d75d2c20ec93b1e5c777bbba43d0561f",
+      "context": "The whole-GUI scale (:mod:`spacr.qt.gui_scale`) is fixed at startup and applies everywhere. A preview wants its own: a Mask preview on a laptop may need to shrink its controls to give the images room, while the settings beside it stay readable. Every preview -- Mask, Measure, Plaque, Timelapse, Motility and the image-UMAP views -- installs the same control through :func:`install_preview_scale`, so there is one implementation of it.",
+      "translation": "पूरे GUI का स्केल (:mod:`spacr.qt.gui_scale`) स्टार्टअप पर तय होता है और हर जगह लागू होता है। पूर्वावलोकन को अपना स्केल चाहिए: लैपटॉप पर Mask पूर्वावलोकन को छवियों के लिए जगह देने हेतु अपने नियंत्रण छोटे करने पड़ सकते हैं, जबकि उसके बगल की सेटिंग्स पठनीय रहें। हर पूर्वावलोकन -- Mask, Measure, Plaque, Timelapse, Motility और image-UMAP व्यू -- :func:`install_preview_scale` के माध्यम से एक ही नियंत्रण स्थापित करता है, इसलिए इसका एक ही कार्यान्वयन है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#10",
+      "source": "A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "source_sha256": "4e9e46511a7bc261ae82185b1937bd36319e36dac451378ffb1e819acb20289d",
+      "context": "A window opened from the preview is not the preview (item 522). A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
+      "translation": "पूर्वावलोकन से खोली गई विंडो पूर्वावलोकन नहीं है (आइटम 522)। पैनल को पैरेंट मानने वाला डायलॉग अपनी अलग विंडो है, फिर भी Qt पैनल की स्केल की गई शीट उसमें भी लागू कर देता है, और ट्रैवर्सल ने उसे पैनल के चाइल्ड में पाया: 150 % पर एक सेटिंग्स डायलॉग के बटन 59 px ऊँचे थे, हर दूसरे डायलॉग के 40 px नहीं। ऐसी विंडो और उसके भीतर सब कुछ 100 % पर रखा जाता है, और विंडो की अपनी शीट उन आकारों को, जो उसे अन्यथा स्केल होकर विरासत में मिलते, 100 % पर फिर से कहती है -- पॉलिश होते समय सेट की गई, इसलिए पहली बार लेआउट होने से पहले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#11",
+      "source": "Each preview remembers its own scale, under ``prefs/preview_scale/<name>``.",
+      "source_sha256": "803bbf383bc6feadca770f52b1307e48647a5e8226e7c759bb478beb8077b1df",
+      "context": "Each preview remembers its own scale, under ``prefs/preview_scale/<name>``.",
+      "translation": "हर पूर्वावलोकन अपना स्केल ``prefs/preview_scale/<name>`` के अंतर्गत याद रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#2",
+      "source": "WHAT IT SCALES, LIVE, WITHOUT A RESTART. Everything inside the preview that spaCR sized in pixels:",
+      "source_sha256": "505294fbae7c9bda8a18a586e3e566ad0b9ce95ae9f03bdd48ced95d0c28935e",
+      "context": "What it scales, LIVE, without a restart. Everything inside the preview that spaCR sized in pixels:",
+      "translation": "यह क्या स्केल करता है, लाइव, बिना पुनरारंभ के। पूर्वावलोकन के भीतर वह सब कुछ जिसका आकार spaCR ने पिक्सेल में तय किया:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#3",
+      "source": "style-sheet sizes -- font sizes, paddings, margins, minimum and maximum widths and heights, radii -- both the ones the preview inherits from the application sheet and the ones its widgets set on themselves. Border widths are left alone, so a 1 px rule stays a rule;",
+      "source_sha256": "214246d1819ba9d1b9fa1169fffc195436bf0e2a11c7922124151735a1569baa",
+      "context": "style-sheet sizes -- font sizes, paddings, margins, minimum and maximum widths and heights, radii -- both the ones the preview inherits from the application sheet and the ones its widgets set on themselves. Border widths are left alone, so a 1 px rule stays a rule;",
+      "translation": "स्टाइल-शीट आकार -- फ़ॉन्ट आकार, padding, margin, न्यूनतम और अधिकतम चौड़ाई और ऊँचाई, त्रिज्याएँ -- दोनों, वे जो पूर्वावलोकन एप्लिकेशन शीट से विरासत में लेता है और वे जो उसके विजेट स्वयं पर सेट करते हैं। बॉर्डर की चौड़ाई नहीं बदली जाती, ताकि 1 px रेखा रेखा ही रहे;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#4",
+      "source": "minimum, maximum and fixed widget sizes set in code;",
+      "source_sha256": "3500bb6dacf281067d16517571562ecd55a58aff4f8344ec0b57ad57766e5b6b",
+      "context": "minimum, maximum and fixed widget sizes set in code;",
+      "translation": "कोड में सेट किए गए न्यूनतम, अधिकतम और निश्चित विजेट आकार;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#5",
+      "source": "layout margins and spacing;",
+      "source_sha256": "254b7b020e247ced41b54bac7f7df1b9db376971f386660312cf11ce9f72a234",
+      "context": "layout margins and spacing;",
+      "translation": "लेआउट margin और spacing;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#6",
+      "source": "button icon sizes;",
+      "source_sha256": "6635282f8e735ccf4162b6fc5a4b2a6e3e77c3415c3a52695fc173c1835d44ce",
+      "context": "button icon sizes;",
+      "translation": "बटन आइकन के आकार;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#7",
+      "source": "and, through :meth:`PreviewScaler.add_hook`, what only the panel knows how to redraw: Measure's crop thumbnails, a matplotlib figure's dots and labels (:func:`scale_figure_canvas`).",
+      "source_sha256": "9da3fa8e95a8b790538695d77053dd2e37cdfc9eaa485fb888ac227f05362907",
+      "context": "and, through :meth:`PreviewScaler.add_hook`, what only the panel knows how to redraw: Measure's extracted image region thumbnails, a matplotlib figure's dots and labels (:func:`scale_figure_canvas`).",
+      "translation": "और, :meth:`PreviewScaler.add_hook` के माध्यम से, वह जिसे केवल पैनल फिर से बनाना जानता है: Measure के क्रॉप थंबनेल, matplotlib फ़िगर के बिंदु और लेबल (:func:`scale_figure_canvas`)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#8",
+      "source": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
+      "source_sha256": "486ee91ca372d7c6eb3d76e29b516c8d246805b79f1b12d8d160abf65710d9fb",
+      "context": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
+      "translation": "हर मान का अपना आधार विजेट पर याद रखा जाता है, इसलिए स्केलिंग हमेशा उसी आकार से होती है जो कोड ने माँगा था और कभी संचित नहीं होती। कोड द्वारा बाद में फिर से सेट किया गया आकार नया आधार बन जाता है। 100 % पर कुछ भी नहीं छुआ जाता -- न शीट, न आकार, न प्रॉपर्टी -- इसलिए डिफ़ॉल्ट स्केल पर पूर्वावलोकन वही है जो इस मॉड्यूल के अस्तित्व से पहले था।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale#9",
+      "source": "The slider itself is exempt: at 10 % the thing that brings the preview back must still be there to grab, and double-clicking its value returns to 100 %. ``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).",
+      "source_sha256": "0a345bc3529dcf336309c0cc6de81d3f9b7913e581f5a22427b705d51713cb6e",
+      "context": "The slider itself is exempt: at 10 % the thing that brings the preview back must still be there to grab, and double-clicking its value returns to 100 %. ``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).",
+      "translation": "स्लाइडर स्वयं इससे मुक्त है: 10 % पर भी पूर्वावलोकन को वापस लाने वाली चीज़ पकड़ने के लिए वहाँ रहनी चाहिए, और उसके मान पर डबल-क्लिक करने से 100 % पर लौटते हैं। ``Ctrl+Alt+0`` हर पूर्वावलोकन को रीसेट करता है (:func:`reset_all_preview_scales`)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl#0",
+      "source": "The slider and its percentage: compact, and exempt from its own scale.",
+      "source_sha256": "84d87f75b3c78c2e880baea3988501ce9cd64d8971df5c3a0ec1125d7f29a192",
+      "context": "The slider and its percentage: compact, and exempt from its own scale.",
+      "translation": "स्लाइडर और उसका प्रतिशत: संक्षिप्त, और अपने ही स्केल से मुक्त।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl#1",
+      "source": "the preview's scaler.",
+      "source_sha256": "a614d8db0dff5c96d049be6a52cb98f44adc3a0f692e4c9adc5ea4bd6d8d2e99",
+      "context": "the preview's scaler.",
+      "translation": "पूर्वावलोकन का scaler।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl#2",
+      "source": "owning widget.",
+      "source_sha256": "6e48e348623bb4f66da15bd5781edb2c32c5158b244b7ba13f77ce9469be7c38",
+      "context": "owning widget.",
+      "translation": "स्वामी विजेट।",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl#3",
+      "source": "Build the slider at the preview's saved scale.",
+      "source_sha256": "1bb42db8a3edf2793a20c06d0d9ea1ea3a8dd91404e10765eee6f7224e3409b3",
+      "context": "Build the slider at the preview's saved scale.",
+      "translation": "पूर्वावलोकन के सहेजे गए स्केल पर स्लाइडर बनाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.eventFilter#0",
+      "source": "Double-clicking the percentage goes back to 100 %.",
+      "source_sha256": "abc70db3ac29042564a4790fef8ef351e2e5f8635652406167f383db82d5afdb",
+      "context": "Double-clicking the percentage goes back to 100 %.",
+      "translation": "प्रतिशत पर डबल-क्लिक करने से 100 % पर वापस जाते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.eventFilter#1",
+      "source": "the widget the event is for.",
+      "source_sha256": "d3eaec174ec06f21766591bc16fd47a8493b212d471aed44c3fd457f78145665",
+      "context": "the widget the event is for.",
+      "translation": "वह विजेट जिसके लिए इवेंट है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.eventFilter#2",
+      "source": "the event; a double-click on the value is consumed.",
+      "source_sha256": "7feb50e81bd0a232f178e6154e75318b37a0b444bfa3811ad01fdc6bb6d0ccf3",
+      "context": "the event; a double-click on the value is consumed.",
+      "translation": "इवेंट; मान पर डबल-क्लिक उपभोग किया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.set_percent#0",
+      "source": "Move the slider (and so the preview) to ``percent``.",
+      "source_sha256": "feb1c309f5e3273857c5fbc3b73d5c1b55fdb8a6845f4af6aadcfa59f4ca8146",
+      "context": "Move the slider (and so the preview) to ``percent``.",
+      "translation": "स्लाइडर (और इसलिए पूर्वावलोकन) को ``percent`` पर ले जाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaleControl.set_percent#1",
+      "source": "the scale in percent, 10 to 200.",
+      "source_sha256": "0fbfdad1323971bab42df7c968cd190320c679d21ac691e0189be253df1e1774",
+      "context": "the scale in percent, 10 to 200.",
+      "translation": "प्रतिशत में स्केल, 10 से 200।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler#0",
+      "source": "Scales one preview's subtree, and keeps it scaled as it grows.",
+      "source_sha256": "17be4f8ba3cd4425cbee9a2605428fadad78a9ec802f58e05d4046389e07be4c",
+      "context": "Scales one preview's subtree, and keeps it scaled as it grows.",
+      "translation": "एक पूर्वावलोकन के सबट्री को स्केल करता है, और बढ़ने पर भी उसे स्केल किया हुआ रखता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler#2",
+      "source": "the key its scale is saved under.",
+      "source_sha256": "4791ea9eeeb5d22e63ac714c9db4ab12a23159574601e3ecf0013ca861bd6019",
+      "context": "the key its scale is saved under.",
+      "translation": "वह कुंजी जिसके अंतर्गत उसका स्केल सहेजा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler#3",
+      "source": "the starting scale; the saved one by default.",
+      "source_sha256": "0545874eceea6148ed3b68249518d407b590424afe1d96e5aa109a9a54bc51ab",
+      "context": "the starting scale; the saved one by default.",
+      "translation": "प्रारंभिक स्केल; डिफ़ॉल्ट रूप से सहेजा गया स्केल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler#4",
+      "source": "Remember the preview and apply its saved scale once it is built.",
+      "source_sha256": "c67758b6a1f5ab929c718d318d7d210f1fa53e18fd0e5e556f1680070874c069",
+      "context": "Remember the preview and apply its saved scale once it is built.",
+      "translation": "पूर्वावलोकन याद रखें और बन जाने पर उसका सहेजा गया स्केल लागू करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.add_hook#0",
+      "source": "Call ``hook(scale)`` after every change, and once now if scaled.",
+      "source_sha256": "f559916bef459be4c848d397297ce18ade745b7e1151c6e0716a0791a39c52bf",
+      "context": "Call ``hook(scale)`` after every change, and once now if scaled.",
+      "translation": "हर परिवर्तन के बाद ``hook(scale)`` कॉल करें, और स्केल किया हुआ हो तो अभी एक बार।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.add_hook#1",
+      "source": "For what a panel draws itself -- a thumbnail size, a figure's dpi -- which no style sheet or size constraint reaches.",
+      "source_sha256": "7baed2c03644d5557ce1720e2e605b12a5e8e38d8f22791dbc37c675e3a1b597",
+      "context": "For what a panel draws itself -- a thumbnail size, a figure's dpi -- which no style sheet or size constraint reaches.",
+      "translation": "उसके लिए जो पैनल स्वयं बनाता है -- थंबनेल आकार, फ़िगर का dpi -- जहाँ कोई स्टाइल शीट या आकार बाध्यता नहीं पहुँचती।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.add_hook#2",
+      "source": "called with the new scale; an exception it raises is logged, never passed on.",
+      "source_sha256": "ab398cef092dd574ea7a426dcedccf4e60d90ecab63e9dd5c4cce6b7169daa1b",
+      "context": "called with the new scale; an exception it raises is logged, never passed on.",
+      "translation": "नए स्केल के साथ कॉल किया जाता है; इससे उठने वाला अपवाद लॉग किया जाता है, कभी आगे नहीं भेजा जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.apply#0",
+      "source": "Put the current scale on every widget of the preview.",
+      "source_sha256": "ddc35192de55943c9213968627e07bee8bbd732e4d01ff72d6c5a1a6c0144b7a",
+      "context": "Put the current scale on every widget of the preview.",
+      "translation": "पूर्वावलोकन के हर विजेट पर वर्तमान स्केल लागू करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.eventFilter#0",
+      "source": "Scale what joins the preview later, and sheets set on it later.",
+      "source_sha256": "0a5baa85dfa0c9107150f4e5274b8e419364e1cc814d6e1ef5adf2144908ade0",
+      "context": "Scale what joins the preview later, and sheets set on it later.",
+      "translation": "जो बाद में पूर्वावलोकन से जुड़ता है उसे, और बाद में उस पर सेट की गई शीटों को स्केल करें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.eventFilter#1",
+      "source": "Read through ``getattr``: a garbage collection that breaks a cycle through this object clears its attributes while Qt still delivers it events, and a filter that raised then would put an error in the event loop for a preview that is already going away.",
+      "source_sha256": "6565016249dfa804975d8309e3120f120c44dba1ba85cec698151ca8871e6e57",
+      "context": "Read through ``getattr``: a garbage collection that breaks a cycle through this object clears its attributes while Qt still delivers it events, and a filter that raised then would put an error in the event loop for a preview that is already going away.",
+      "translation": "``getattr`` के माध्यम से पढ़ा जाता है: इस ऑब्जेक्ट से होकर जाने वाले चक्र को तोड़ने वाला garbage collection इसके एट्रिब्यूट साफ़ कर देता है जबकि Qt अब भी इसे इवेंट भेजता है, और उस समय त्रुटि उठाने वाला फ़िल्टर पहले से बंद हो रहे पूर्वावलोकन के लिए इवेंट लूप में त्रुटि डाल देगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.eventFilter#3",
+      "source": "the event; never consumed.",
+      "source_sha256": "53b472cf807768c3567287c7c6f0940b462ee0fac48054b72b4ac194c6f2e211",
+      "context": "the event; never consumed.",
+      "translation": "इवेंट; कभी उपभोग नहीं किया जाता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.name#0",
+      "source": "The key this preview's scale is saved under.",
+      "source_sha256": "8d6534ab41bf8268bddbd18b16dbce110636a4f5111aa8a6d2e4dbe7c4b1ac5e",
+      "context": "The key this preview's scale is saved under.",
+      "translation": "वह कुंजी जिसके अंतर्गत इस पूर्वावलोकन का स्केल सहेजा जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.refresh#0",
+      "source": "Rebuild after the application sheet changed (Zoom, theme).",
+      "source_sha256": "c0fcfb2f26d189297bcfd99f6873ecd13307b4ea29335dc4ee4dc239b4695f1d",
+      "context": "Rebuild after the application sheet changed (Zoom, theme).",
+      "translation": "एप्लिकेशन शीट बदलने (Zoom, थीम) के बाद फिर से बनाएँ।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.scale#0",
+      "source": "The preview's current scale.",
+      "source_sha256": "7c968373ae85a721dc5296b42a21e0e9609e558417d6f9b74da52228f29ab3ee",
+      "context": "The preview's current scale.",
+      "translation": "पूर्वावलोकन का वर्तमान स्केल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.set_scale#0",
+      "source": "Scale the preview to ``scale`` now, and remember it.",
+      "source_sha256": "fbe25b91643751f399dc9b78e0391b79d27470535c4ddcaebcf61b2c7452c461",
+      "context": "Scale the preview to ``scale`` now, and remember it.",
+      "translation": "पूर्वावलोकन को अभी ``scale`` पर स्केल करें, और उसे याद रखें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.set_scale#1",
+      "source": "the factor, 1.0 = 100 %.",
+      "source_sha256": "42637bacbd2437fc33c5962970a8f3fb00c3fa95b39bedf8ff42c55f56e3203a",
+      "context": "the factor, 1.0 = 100 %.",
+      "translation": "गुणक, 1.0 = 100 %।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.set_scale#2",
+      "source": "save it for this preview's next opening.",
+      "source_sha256": "8dca9042fb42b7a22bc98191bb9ea8f2a1f6b793ca4927ef3aed6fd5f4e80cb8",
+      "context": "save it for this preview's next opening.",
+      "translation": "इसे इस पूर्वावलोकन के अगली बार खुलने के लिए सहेजें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.PreviewScaler.set_scale#3",
+      "source": "the scale applied, after clamping.",
+      "source_sha256": "30be6a5a43221445a4230a63af18e5ec62a703516adda60f4d61cb191ae9e836",
+      "context": "the scale applied, after clamping.",
+      "translation": "सीमित करने के बाद लागू किया गया स्केल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.clamp_preview_scale#0",
+      "source": "``value`` as a float inside the slider's bounds (1.0 if unreadable).",
+      "source_sha256": "2635e14d74fb4a3bb92a4ccdab1395e12eeed61ed852b29478a8d074047cdf13",
+      "context": "``value`` as a float inside the slider's bounds (1.0 if unreadable).",
+      "translation": "``value`` स्लाइडर की सीमाओं के भीतर float के रूप में (पढ़ा न जा सके तो 1.0)।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.clamp_preview_scale#1",
+      "source": "anything a stored preference may hold.",
+      "source_sha256": "5b272ee48cb043b9fa2e9e64e054989541229ae7d7ea01eda69efe69fdfc836d",
+      "context": "anything a stored preference may hold.",
+      "translation": "कुछ भी जो संग्रहीत प्राथमिकता में हो सकता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.get_preview_scale#0",
+      "source": "The saved scale of the preview called ``name``.",
+      "source_sha256": "facb1c24e81a991bdbe0d92f9c9cd55501ada5d34e0656e5b6709a3d5fb89047",
+      "context": "The saved scale of the preview called ``name``.",
+      "translation": "``name`` नाम वाले पूर्वावलोकन का सहेजा गया स्केल।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.get_preview_scale#1",
+      "source": "the preview's key, e.g. ``\"mask\"``.",
+      "source_sha256": "c229f2c7a0333b7f309e179fefde7c2b5035e619b3fe9a2d6b0abc32c391eb99",
+      "context": "the preview's key, e.g. ``\"mask\"``.",
+      "translation": "पूर्वावलोकन की कुंजी, उदाहरण ``\"mask\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.install_preview_scale#0",
+      "source": "Give ``panel`` its own scale slider, saved under ``name``.",
+      "source_sha256": "9f816bd84fda3dd0288c32c34cf79d48730faac102ff86a5ceb71a5ef9bb7574",
+      "context": "Give ``panel`` its own scale slider, saved under ``name``.",
+      "translation": "``panel`` को ``name`` के अंतर्गत सहेजा जाने वाला अपना स्केल स्लाइडर दें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.install_preview_scale#1",
+      "source": "the preview panel whose contents the slider scales.",
+      "source_sha256": "037ef72edb30acd745137356d8bb12e60fb69dbd6c80cae88e8597d797bde0c1",
+      "context": "the preview panel whose contents the slider scales.",
+      "translation": "वह पूर्वावलोकन पैनल जिसकी सामग्री को स्लाइडर स्केल करता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.install_preview_scale#2",
+      "source": "the key its scale is saved under, e.g. ``\"mask\"``.",
+      "source_sha256": "4beacf34524cebee9e0cd7c0ab4248306e9062a1757999b23e6dacfb0f902730",
+      "context": "the key its scale is saved under, e.g. ``\"mask\"``.",
+      "translation": "वह कुंजी जिसके अंतर्गत उसका स्केल सहेजा जाता है, उदाहरण ``\"mask\"``।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.install_preview_scale#3",
+      "source": "the row to put the slider in when the panel is not in a preview card; ``None`` leaves it to the caller.",
+      "source_sha256": "d9d5aa647d027ea26961644cf979c181a170349c27a2b34850a19c0df73d6bbb",
+      "context": "the row to put the slider in when the panel is not in a preview card; ``None`` leaves it to the caller.",
+      "translation": "जब पैनल किसी पूर्वावलोकन कार्ड में न हो, तब स्लाइडर रखने वाली पंक्ति; ``None`` इसे कॉलर पर छोड़ता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

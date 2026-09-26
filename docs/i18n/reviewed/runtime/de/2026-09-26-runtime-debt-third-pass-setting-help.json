@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cam_type",
+      "source": "Which attribution map is computed. 'gradcam' weights target_layer feature maps by their pooled gradients; 'saliency_image' and 'saliency_channel' map the input gradient, summed or per stain. Also selectable: 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency' (SmoothGrad) and 'chefer' (ViT relevance). Methods that do not fit model_type are greyed with the reason. Default 'gradcam'.",
+      "source_sha256": "f43fc0b7ee018dcd7bd1152e0e317849a7172e7d6a2bf82cf6a79ea96266802b",
+      "translation": "Welche Attributionskarte berechnet wird. 'gradcam' gewichtet die Merkmalskarten von target_layer mit ihren gepoolten Gradienten; 'saliency_image' und 'saliency_channel' bilden den Eingabegradienten ab, summiert oder pro Färbung. Ebenfalls wählbar: 'torchcam_gradcam'/'torchcam_gradcam_pp', 'hirescam', 'ablation_cam', 'gradient_shap'/'deeplift_shap', 'saliency' (SmoothGrad) und 'chefer' (ViT-Relevanz). Verfahren, die nicht zu model_type passen, sind mit Begründung ausgegraut. Standard 'gradcam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_min_size",
+      "source": "(Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
+      "source_sha256": "cdf0150ca36c53dbdf46818eb148c35d36d1377ba09e6c04d79b95fce47eeef7",
+      "translation": "(Veraltet) Flächenuntergrenze in Pixeln, die während der Messung auf Zell-Labels angewendet wird: Jede Zelle, die kleiner ist, wird aus der Maske gelöscht, bevor Merkmale extrahiert werden. Ersetzt durch eine 'area'-Zeile für cell in object_filters, die bereits bei der Segmentierung filtert; diese Einstellung wird aber weiterhin angewendet, wenn Sie sie setzen. 0 oder None deaktiviert sie. Standard 8000."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_min_size",
+      "source": "(Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.",
+      "source_sha256": "a0dc3a5865dc45bba0cedfb7371f47941b3c670788eeefbebe58a5169b4c905d",
+      "translation": "(Veraltet) Minimale Zellkerngröße in Pixel^2, angewendet während measure_crop: Labels mit weniger Pixeln werden aus der Kernmaske gelöscht, bevor irgendein Merkmal gemessen wird, sodass diese Kerne nie die Datenbank erreichen. 0 (Standard) deaktiviert sie. Verwenden Sie stattdessen eine 'area'-Zeile für nucleus in object_filters, die bereits bei der Segmentierung filtert."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "object_filters",
+      "source": "Object filters on any scalar scikit-image regionprop, per object type, for example {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. An object is kept when min <= value <= max; a missing side is off. Intensity properties read the object's own raw channel. An area minimum is also Cellpose's min_size. An old file's cell_min_area and the other retired per-object bounds become rows here when it loads. Default {}.",
+      "source_sha256": "b8f9bbb826555ba601874ca1633cfb8a58466e88135cd957b39d39bc8ae85a65",
+      "translation": "Objektfilter auf jeder skalaren regionprop von scikit-image, pro Objekttyp, zum Beispiel {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. Ein Objekt wird behalten, wenn min <= value <= max gilt; eine fehlende Seite ist deaktiviert. Intensitätseigenschaften lesen den eigenen Rohkanal des Objekts. Ein Flächenminimum ist zugleich min_size von Cellpose. cell_min_area und die übrigen ausgemusterten Objektgrenzen einer alten Datei werden beim Laden zu Zeilen hier. Standard {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_spot_detector",
+      "source": "Which detector finds the sequencing spots. 'native' is spaCR's own spot score, the one this pipeline was validated with. 'spotnet' is DeepCell's SpotNet, run in its own environment; its spots go through the same base calls and nucleus assignment, and ops_read_threshold no longer applies. SpotNet is licensed for NON-COMMERCIAL ACADEMIC USE ONLY, installs from the Model Zoo and needs a DeepCell token in ~/.spacr/deepcell_token. Default 'native'.",
+      "source_sha256": "85b1f79a5061c2c21f9b914f16f97b5e47ec057e545a72eaa2ff90f02328f596",
+      "translation": "Welcher Detektor die Sequenzierungsspots findet. 'native' ist der eigene Spot-Score von spaCR, mit dem diese Pipeline validiert wurde. 'spotnet' ist SpotNet von DeepCell und läuft in einer eigenen Umgebung; seine Spots durchlaufen dieselben Basen-Calls und dieselbe Zuordnung zu Zellkernen, und ops_read_threshold gilt nicht mehr. SpotNet ist NUR FÜR NICHTKOMMERZIELLE AKADEMISCHE NUTZUNG lizenziert, wird über den Modellzoo installiert und benötigt ein DeepCell-Token in ~/.spacr/deepcell_token. Standard 'native'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_min_size",
+      "source": "(Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
+      "source_sha256": "af4eb72511f64c614d1f1d06ec4bbe58dd30f8e22c5645814ef853e976efe3c0",
+      "translation": "(Veraltet) Minimale Fläche eines Pathogenobjekts in Quadratpixeln, während der Messung angewendet: Jedes Label mit weniger Pixeln wird aus der Pathogenmaske gelöscht, bevor Merkmale extrahiert werden. 0, der Standardwert, deaktiviert sie. Ersetzt durch eine 'area'-Zeile für pathogen in object_filters, die stattdessen bereits bei der Segmentierung filtert."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_importance_methods",
+      "source": "Feature-importance measures to report: 'gain' (the model's native split gain; not available for histogram gradient boosting), 'permutation' (held-out score drop when one feature is shuffled) and 'shap' (mean absolute SHAP; needs the optional shap package). Each is written as a column of feature_importance.csv and a panel of the ranked bar plot. Default ['gain', 'permutation', 'shap'].",
+      "source_sha256": "d99d6348318afaa8341c4caebb8446bf8698aa9374e42d09c99bd59e8b1aaf4c",
+      "translation": "Auszugebende Maße der Merkmalswichtigkeit: 'gain' (der native Split-Gain des Modells; nicht verfügbar für Histogram Gradient Boosting), 'permutation' (Abfall des Scores auf zurückgehaltenen Daten, wenn ein Merkmal permutiert wird) und 'shap' (mittlerer absoluter SHAP-Wert; erfordert das optionale Paket shap). Jedes wird als Spalte in feature_importance.csv und als Feld des sortierten Balkendiagramms geschrieben. Standard ['gain', 'permutation', 'shap']."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_shap_explainer",
+      "source": "How SHAP is computed: 'tree' (exact TreeSHAP for tree ensembles), 'kernel' (model-agnostic KernelSHAP against a k-means background; slow, capped at 100 explained objects) or 'auto' (TreeSHAP, falling back to KernelSHAP for a model it cannot read). Default 'auto'.",
+      "source_sha256": "375b2be9fd7cf630bc41c6d6d258264d142b7f0c93a2ba4fb62244ba402dbb2a",
+      "translation": "Wie SHAP berechnet wird: 'tree' (exaktes TreeSHAP für Baum-Ensembles), 'kernel' (modellunabhängiges KernelSHAP gegen einen k-Means-Hintergrund; langsam, auf 100 erklärte Objekte begrenzt) oder 'auto' (TreeSHAP, mit Rückfall auf KernelSHAP bei einem Modell, das es nicht lesen kann). Standard 'auto'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timeflows_model",
+      "source": "Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
+      "source_sha256": "88edfe30ad6d529a1bc4f650979f9110137ca67279a8b4fe9a29d29d5507af94",
+      "translation": "Pfad zu einem trainierten Timeflows-Checkpoint, dem experimentellen zeitlichen Cellpose von spaCR, das vorhersagt, wohin sich das Zentrum jedes Objekts im nächsten Frame bewegt, und Masken anhand dieser Vorhersagen verknüpft. Wird nur bei timelapse_mode='timeflows' herangezogen, was nie der Standard ist: Auf den bisher gemessenen zurückgehaltenen Filmen schlägt es die Verknüpfung über Überlappung ('iou') nicht. Es wird kein Checkpoint heruntergeladen; lassen Sie das Feld leer, sofern Sie keinen trainiert haben. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_mode",
+      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or three-dimensional data at increased computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; and 'iou' links masks by overlap and may fail when inter-frame displacement is large; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+      "source_sha256": "387d42e3a0d187c4f6aac5d9a20a96854693853b5515de01e3f24d2b903436a2",
+      "translation": "Tracking-Backend, das Objekte zwischen Frames verknüpft. 'trackastra' ist ein vortrainierter Transformer mit teilungsbewusster Verknüpfung; 'ultrack' optimiert Segmentierung und Verknüpfung gemeinsam und unterstützt dichte oder dreidimensionale Daten bei höherem Rechenaufwand; 'trackpy' verwendet einen konfigurierbaren Suchradius und ein Frame-Gedächtnis; 'btrack' verwendet ein Bewegungsmodell; 'iou' verknüpft Masken über Überlappung und kann bei großer Verschiebung zwischen Frames versagen; 'timeflows' ist das experimentelle zeitliche Cellpose von spaCR, benötigt einen trainierten Checkpoint in timeflows_model und hat 'iou' auf zurückgehaltenen Filmen noch nicht übertroffen. Standard 'trackastra'."
+    }
+  ]
+}

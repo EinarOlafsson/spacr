@@ -88,9 +88,40 @@ from types import MappingProxyType
 from typing import Any, Iterable, Mapping, Optional, Tuple
 
 import numpy as np
-import pandas as pd
 
 from . import schema
+
+
+class _PandasOnFirstUse:
+    """A module's ``pd`` until it first uses pandas, then pandas itself.
+
+    Every function in this module takes or returns a frame, but importing
+    it is not using it: ``spacr.qt.linked_selection`` imports it for the
+    :class:`Selection` and :class:`ObjectRequest` types, and a screen that
+    registers an object opener imports that at module scope. Annotate is
+    such a screen, and pandas was 64 % of the worst event-loop gap of its
+    first open (item 284, 2026-09-25) although nothing in the open touches
+    a frame. The first attribute read here imports pandas and replaces this
+    placeholder with the module, so every later ``pd.`` is the module's own
+    attribute lookup. ``spacr.suggest``, which Annotate imports for one
+    constant, uses it the same way.
+
+    :param namespace: the ``globals()`` of the module whose ``pd`` this is.
+    """
+
+    def __init__(self, namespace) -> None:
+        """Remember whose ``pd`` to replace."""
+        self._namespace = namespace
+
+    def __getattr__(self, name):
+        """Import pandas, make it the module's ``pd``, and read ``name``."""
+        import pandas
+
+        self._namespace["pd"] = pandas
+        return getattr(pandas, name)
+
+
+pd = _PandasOnFirstUse(globals())
 
 __all__ = [
     "FilterError",

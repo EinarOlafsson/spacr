@@ -3869,190 +3869,207 @@
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
       "section": "Tools",
-      "title": "Training Runs: compare curves and settings",
-      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
+      "title": "Training Runs: confrontare curve e impostazioni",
+      "description": "Carica i log di addestramento, sovrapponi le metriche, confronta le impostazioni ed esplora le fold della validazione incrociata.",
       "objectives": [
-        "Find saved runs and select the ones to compare.",
-        "Overlay training and validation metrics and inspect settings differences.",
-        "Switch between individual folds and their mean and standard deviation."
+        "Trovare le esecuzioni salvate e selezionare quelle da confrontare.",
+        "Sovrapporre metriche di addestramento e validazione ed esaminare le differenze di impostazioni.",
+        "Passare dalle singole fold alla loro media e deviazione standard."
       ],
-      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
+      "prerequisite": "Scarica ed estrai l’esempio sintetico di Training Runs collegato. Le sue curve sono dati di esercitazione. Per la tua analisi, seleziona una cartella principale che contenga i file train.csv e validation.csv salvati insieme alle impostazioni di ogni esecuzione. Conserva risultati di valutazione indipendenti con il modello quando ne valuti le prestazioni.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
+          "narration": "Da Home, apri Classify, poi Training Runs. Usa questo strumento per confrontare i log di avanzamento e le impostazioni di addestramenti salvati. Il campione collegato contiene curve sintetiche per esercitarti con i comandi.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
-          ]
+          ],
+          "speech_text": "Da Home, apri Classify, poi Training Runs. Usa questo strumento per confrontare i log di avanzamento e le impostazioni di addestramenti salvati. Il campione collegato contiene curve sintetiche per esercitarti con i comandi."
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Work through the screen in order: choose a folder to find runs, pick them in the list, then choose a Metric and Folds and click Overlay selected. Begin with the parent folder that holds your runs.",
+          "narration": "Procedi nella schermata in ordine: scegli una cartella per trovare le esecuzioni, selezionale nell’elenco, poi scegli Metric e Folds e fai clic su Overlay selected. Parti dalla cartella principale che contiene le tue esecuzioni.",
           "hold_after": 0.7,
           "focus": [
             465,
             310,
             3350,
             1650
-          ]
+          ],
+          "speech_text": "Procedi nella schermata in ordine: scegli una cartella per trovare le esecuzioni, selezionale nell’elenco, poi scegli Metric e Folds e fai clic su Overlay selected. Parti dalla cartella principale che contiene le tue esecuzioni."
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
+          "narration": "Estrai il campione collegato e fai clic su Choose folder. Seleziona la sua cartella training_runs, poi conferma la scelta. Per i tuoi progetti, seleziona una cartella principale che contenga le cartelle delle esecuzioni e i relativi log CSV salvati.",
           "hold_after": 0.7,
           "focus": [
             1555,
             790,
             1410,
             965
-          ]
+          ],
+          "speech_text": "Estrai il campione collegato e fai clic su Choose folder. Seleziona la sua cartella training_runs, poi conferma la scelta. Per i tuoi progetti, seleziona una cartella principale che contenga le cartelle delle esecuzioni e i relativi log CSV salvati."
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
+          "narration": "Analizza la cartella ed esamina le esecuzioni trovate. Il campione contiene gli esempi baseline, tuned e cross_validated, più una voce incompleta. Seleziona le esecuzioni utilizzabili che vuoi confrontare.",
           "hold_after": 0.7,
           "focus": [
             465,
             530,
             940,
             285
-          ]
+          ],
+          "speech_text": "Analizza la cartella ed esamina le esecuzioni trovate. Il campione contiene gli esempi baseline, tuned e cross_validated, più una voce incompleta. Seleziona le esecuzioni utilizzabili che vuoi confrontare."
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
+          "narration": "Leggi gli avvisi sulle voci incomplete. La mancanza di train.csv, validation.csv o delle impostazioni può impedire la visualizzazione di curve o impostazioni. Individua la cartella completa dell’esecuzione prima di aggiungerla a un confronto.",
           "hold_after": 0.7,
           "focus": [
             465,
             1845,
             3350,
             175
-          ]
+          ],
+          "speech_text": "Leggi gli avvisi sulle voci incomplete. La mancanza di train.csv, validation.csv o delle impostazioni può impedire la visualizzazione di curve o impostazioni. Individua la cartella completa dell’esecuzione prima di aggiungerla a un confronto."
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
+          "narration": "Seleziona baseline e tuned, poi scegli accuracy in Metric. Il menu elenca le colonne numeriche disponibili nei log selezionati. Scegli loss o un’altra metrica registrata quando risponde alla domanda del tuo confronto.",
           "hold_after": 0.7,
           "focus": [
             465,
             1680,
             940,
             300
-          ]
+          ],
+          "speech_text": "Seleziona baseline e tuned, poi scegli accuracy in Metric. Il menu elenca le colonne numeriche disponibili nei log selezionati. Scegli loss o un’altra metrica registrata quando risponde alla domanda del tuo confronto."
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
+          "narration": "Fai clic su Overlay selected. Le curve di addestramento sono tratteggiate e quelle di validazione continue. Leggi ogni esecuzione e ogni suddivisione nella legenda. Ogni curva termina alla propria ultima epoca registrata.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "Fai clic su Overlay selected. Le curve di addestramento sono tratteggiate e quelle di validazione continue. Leggi ogni esecuzione e ogni suddivisione nella legenda. Ogni curva termina alla propria ultima epoca registrata."
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
+          "narration": "Esamina il confronto delle impostazioni sotto il grafico. Evidenzia differenze come dimensione del batch, numero di epoche e tasso di apprendimento. Usalo per capire cosa è cambiato tra le esecuzioni prima di interpretarne le curve.",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ]
+          ],
+          "speech_text": "Esamina il confronto delle impostazioni sotto il grafico. Evidenzia differenze come dimensione del batch, numero di epoche e tasso di apprendimento. Usalo per capire cosa è cambiato tra le esecuzioni prima di interpretarne le curve."
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
+          "narration": "La riga dell’ambiente separa le impostazioni di esecuzione, come il numero di processi, dalla configurazione dell’addestramento. Leggila insieme alle differenze di configurazione quando confronti esecuzioni fatte su macchine diverse.",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ]
+          ],
+          "speech_text": "La riga dell’ambiente separa le impostazioni di esecuzione, come il numero di processi, dalla configurazione dell’addestramento. Leggila insieme alle differenze di configurazione quando confronti esecuzioni fatte su macchine diverse."
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
+          "narration": "Fai clic su una curva di validazione per vederne l’ultimo e il miglior valore registrato, con le relative epoche. Usa la stessa regola di selezione quando confronti le esecuzioni. Valuta il checkpoint selezionato su dati indipendenti per stimarne le prestazioni.",
           "hold_after": 0.7,
           "focus": [
             465,
             2000,
             3350,
             105
-          ]
+          ],
+          "speech_text": "Fai clic su una curva di validazione per vederne l’ultimo e il miglior valore registrato, con le relative epoche. Usa la stessa regola di selezione quando confronti le esecuzioni. Valuta il checkpoint selezionato su dati indipendenti per stimarne le prestazioni."
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
+          "narration": "Scegli loss in Metric per aggiornare l’asse verticale e la sovrapposizione. Confronta le traiettorie di addestramento e di validazione, compresa la loro direzione verso la fine dell’addestramento.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "Scegli loss in Metric per aggiornare l’asse verticale e la sovrapposizione. Confronta le traiettorie di addestramento e di validazione, compresa la loro direzione verso la fine dell’addestramento."
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
+          "narration": "Seleziona tuned e cross_validated, scegli accuracy, poi fai clic su Overlay selected. Apri Folds e scegli se mostrare le singole fold, la loro media e deviazione standard, oppure entrambe.",
           "hold_after": 0.7,
           "focus": [
             465,
             1730,
             940,
             175
-          ]
+          ],
+          "speech_text": "Seleziona tuned e cross_validated, scegli accuracy, poi fai clic su Overlay selected. Apri Folds e scegli se mostrare le singole fold, la loro media e deviazione standard, oppure entrambe."
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
+          "narration": "Scegli la media più o meno la deviazione standard per riassumere le curve delle fold. Ogni banda mostra una deviazione standard campionaria tra le fold disponibili in quell’epoca. Leggi la banda come variazione tra le fold.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "Scegli la media più o meno la deviazione standard per riassumere le curve delle fold. Ogni banda mostra una deviazione standard campionaria tra le fold disponibili in quell’epoca. Leggi la banda come variazione tra le fold."
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
+          "narration": "Scegli entrambe per mostrare le curve delle singole fold insieme alla loro media. Confronta le fold per vedere se un riepilogo nasconde un’esecuzione con una traiettoria diversa.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "Scegli entrambe per mostrare le curve delle singole fold insieme alla loro media. Confronta le fold per vedere se un riepilogo nasconde un’esecuzione con una traiettoria diversa."
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
+          "narration": "Scegli la vista per fold per mostrare solo le curve individuali. Il confronto delle impostazioni si aggiorna con le esecuzioni selezionate. Tieni presente l’intervallo di epoche di ogni curva quando confronti dove si è fermato l’addestramento.",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             1315
-          ]
+          ],
+          "speech_text": "Scegli la vista per fold per mostrare solo le curve individuali. Il confronto delle impostazioni si aggiorna con le esecuzioni selezionate. Tieni presente l’intervallo di epoche di ogni curva quando confronti dove si è fermato l’addestramento."
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
-          "hold_after": 0.7
+          "narration": "Torna a Metric per confrontare un’altra grandezza registrata, oppure cambia le esecuzioni selezionate per restringere il confronto. Tieni insieme i log CSV originali e le impostazioni, così potrai riaprire lo stesso confronto.",
+          "hold_after": 0.7,
+          "speech_text": "Torna a Metric per confrontare un’altra grandezza registrata, oppure cambia le esecuzioni selezionate per restringere il confronto. Tieni insieme i log CSV originali e le impostazioni, così potrai riaprire lo stesso confronto."
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
+          "narration": "Per un’analisi tramite script, usa find_runs e load_run in spacr.train_compare, poi compare_runs e plot_curves. Conserva il confronto insieme al modello e ai risultati di valutazione indipendenti quando scegli la successiva configurazione di addestramento.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "41_classify"
-          ]
+          ],
+          "speech_text": "Per un’analisi tramite script, usa find_runs e load_run in spàker.train_compare, poi compare_runs e plot_curves. Conserva il confronto insieme al modello e ai risultati di valutazione indipendenti quando scegli la successiva configurazione di addestramento."
         }
       ],
       "example_files": [
@@ -4061,6 +4078,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4596,29 +4653,30 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer: inspect wells and export a heatmap table",
+      "title": "Plate Viewer: esaminare i pozzetti ed esportare una tabella di heatmap",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
+      "description": "Carica le misure di esempio, confronta caratteristiche e conteggi per pozzetto, esamina i singoli pozzetti ed esporta la tabella filtrata.",
       "objectives": [
-        "Open Plate Viewer from Graph Builder and load example measurements.",
-        "Choose a feature, aggregation and minimum object count.",
-        "Inspect well details and export the current well grid."
+        "Aprire Plate Viewer da Graph Builder e caricare le misure di esempio.",
+        "Scegliere una caratteristica, un’aggregazione e un numero minimo di oggetti.",
+        "Esaminare i dettagli dei pozzetti ed esportare la griglia dei pozzetti corrente."
       ],
-      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
+      "prerequisite": "Usa Load test data in Plate Viewer per l’esempio scaricabile, oppure apri il file measurements.db del tuo progetto misurato. L’esempio contiene 2.341 cellule in quattro pozzetti; usa misure che coprano l’intera piastra quando valuti pattern spaziali.",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+          "narration": "Da Home, apri Graph Builder in Data, poi scegli Plate Viewer. Usalo per riassumere le misure degli oggetti per pozzetto ed esaminarne la distribuzione sulla piastra.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
-          ]
+          ],
+          "speech_text": "Da Home, apri Graph Builder in Data, poi scegli Plate Viewer. Usalo per riassumere le misure degli oggetti per pozzetto ed esaminarne la distribuzione sulla piastra."
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
+          "narration": "Fai clic su Load test data per aprire l’esempio scaricabile. Per i tuoi dati, scegli un database di misure o la sua cartella di esecuzione e fai clic su Open. L’esempio contiene quattro pozzetti misurati.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -4629,71 +4687,120 @@
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "Fai clic su Load test data per aprire l’esempio scaricabile. Per i tuoi dati, scegli un database di misure o la sua cartella di esecuzione e fai clic su Open. L’esempio contiene quattro pozzetti misurati."
         },
         {
           "visual": "03_example_mean",
-          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
+          "narration": "Scegli cell come Table, cell_area come Measurement e plate1 come Plate. Imposta Per well su mean per visualizzare l’area cellulare media. La mediana riduce l’influenza di oggetti insolitamente grandi o piccoli.",
           "hold_after": 0.7,
           "focus": [
             335,
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "Scegli cell come Table, cell_area come Measurement e plate1 come Plate. Imposta Per well su mean per visualizzare l’area cellulare media. La mediana riduce l’influenza di oggetti insolitamente grandi o piccoli."
         },
         {
           "visual": "04_colour_scale",
-          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
+          "narration": "Scegli una scala di colori. L’intervallo robusto usa i percentili dal secondo al novantottesimo, così un pozzetto estremo non comprime i colori degli altri.",
           "hold_after": 0.7,
           "focus": [
             335,
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "Scegli una scala di colori. L’intervallo robusto usa i percentili dal secondo al novantottesimo, così un pozzetto estremo non comprime i colori degli altri."
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
-          "hold_after": 0.7
+          "narration": "Fai clic su Render e confronta i pozzetti colorati. Leggi il rapporto sull’effetto bordo accanto alla heatmap, controllando la disposizione della piastra e la copertura misurata. Usa misure su tutta la piastra quando valuti pattern di bordo, di riga o di colonna.",
+          "hold_after": 0.7,
+          "speech_text": "Fai clic su Render e confronta i pozzetti colorati. Leggi il rapporto sull’effetto bordo accanto alla heatmap, controllando la disposizione della piastra e la copertura misurata. Usa misure su tutta la piastra quando valuti pattern di bordo, di riga o di colonna."
         },
         {
           "visual": "05_well_detail",
-          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
-          "hold_after": 0.7
+          "narration": "Fai clic su un pozzetto misurato per vederne l’identificatore, il numero di oggetti e il valore visualizzato. Usa questi identificatori per ritrovare lo stesso pozzetto nelle immagini o nei risultati esportati.",
+          "hold_after": 0.7,
+          "speech_text": "Fai clic su un pozzetto misurato per vederne l’identificatore, il numero di oggetti e il valore visualizzato. Usa questi identificatori per ritrovare lo stesso pozzetto nelle immagini o nei risultati esportati."
         },
         {
           "visual": "06_count",
-          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
+          "narration": "Imposta Per well su count per confrontare il numero di oggetti. Questa vista ti aiuta a individuare i pozzetti con meno oggetti segmentati prima di interpretare le differenze nelle caratteristiche.",
           "hold_after": 0.7,
           "focus": [
             340,
             300,
             1800,
             1300
-          ]
+          ],
+          "speech_text": "Imposta Per well su count per confrontare il numero di oggetti. Questa vista ti aiuta a individuare i pozzetti con meno oggetti segmentati prima di interpretare le differenze nelle caratteristiche."
         },
         {
           "visual": "07_filtered",
-          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
-          "hold_after": 0.7
+          "narration": "Alza Min objects per well per escludere i pozzetti con troppo pochi oggetti per il tuo confronto. Con seicentouno restano due dei quattro pozzetti di questo esempio. I pozzetti esclusi appaiono vuoti, non come misure pari a zero.",
+          "hold_after": 0.7,
+          "speech_text": "Alza Min objects per well per escludere i pozzetti con troppo pochi oggetti per il tuo confronto. Con seicentouno restano due dei quattro pozzetti di questo esempio. I pozzetti esclusi appaiono vuoti, non come misure pari a zero."
         },
         {
           "visual": "08_save_csv",
-          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
-          "hold_after": 0.7
+          "narration": "Fai clic su Export well grid CSV, scegli un nome di file e salva. Il CSV contiene i pozzetti mantenuti dal filtro corrente, con identificatori, conteggi, valori visualizzati e annotazioni spaziali.",
+          "hold_after": 0.7,
+          "speech_text": "Fai clic su Export well grid CSV, scegli un nome di file e salva. Il CSV contiene i pozzetti mantenuti dal filtro corrente, con identificatori, conteggi, valori visualizzati e annotazioni spaziali."
         },
         {
           "visual": "09_exported",
-          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
-          "hold_after": 0.7
+          "narration": "Conserva la tabella esportata con le impostazioni di misura e aggregazione. Abbassa il conteggio minimo per rivedere i pozzetti esclusi, oppure scegli un’altra misura per il confronto successivo.",
+          "hold_after": 0.7,
+          "speech_text": "Conserva la tabella esportata con le impostazioni di misura e aggregazione. Abbassa il conteggio minimo per rivedere i pozzetti esclusi, oppure scegli un’altra misura per il confronto successivo."
         }
       ],
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4776,140 +4883,192 @@
       "app_key": "convert",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "Format Converter: preview and convert image files",
-      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
+      "title": "Format Converter: anteprima e conversione di file immagine",
+      "description": "Seleziona una cartella di origine, controlla i nomi di destinazione e le assegnazioni dei canali, poi converti le immagini e riprendi il lavoro già completato.",
       "objectives": [
-        "Choose source and destination folders with the correct acquisition layout.",
-        "Preview target names, fields and channel assignments.",
-        "Convert the files and use Resume for completed fields."
+        "Scegliere le cartelle di origine e di destinazione con il layout di acquisizione corretto.",
+        "Visualizzare in anteprima nomi di destinazione, campi e assegnazioni dei canali.",
+        "Convertire i file e usare Resume per i campi già completati."
       ],
-      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
+      "prerequisite": "Prepara una cartella di file immagine supportati e conserva i loro metadati di acquisizione. Puoi esercitarti con le due immagini TIFF del tutorial Import Project. Imposta il layout e la gestione di Z in base alla tua acquisizione.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
+          "narration": "Da Home, apri Import Project e scegli Format Converter. Usalo per preparare i file immagine e i nomi dei file per il passo successivo dell’analisi.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
             "74_import_images"
-          ]
+          ],
+          "speech_text": "Da Home, apri Import Project e scegli Format Converter. Usalo per preparare i file immagine e i nomi dei file per il passo successivo dell’analisi."
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "The converter works in one direction: from Source, through Preview, into Destination. Preview shows where every source file will land before anything is written, so you can check the assignments; Convert then writes them.",
+          "narration": "Il convertitore lavora in una sola direzione: da Source, attraverso Preview, verso Destination. Preview mostra dove finirà ogni file di origine prima che venga scritto qualcosa, così puoi controllare le assegnazioni; poi Convert li scrive.",
           "hold_after": 0.7,
           "focus": [
             460,
             600,
             3370,
             1190
-          ]
+          ],
+          "speech_text": "Il convertitore lavora in una sola direzione: da Source, attraverso Preview, verso Destination. Preview mostra dove finirà ogni file di origine prima che venga scritto qualcosa, così puoi controllare le assegnazioni; poi Convert li scrive."
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
+          "narration": "Scegli la cartella che contiene le immagini di origine. Questo esempio usa due TIFF a canale singolo. Tieni a disposizione i metadati di acquisizione originali per controllare i nomi convertiti.",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
-          ]
+          ],
+          "speech_text": "Scegli la cartella che contiene le immagini di origine. Questo esempio usa due TIFF a canale singolo. Tieni a disposizione i metadati di acquisizione originali per controllare i nomi convertiti."
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
-          "hold_after": 0.7
+          "narration": "Scegli una nuova cartella di destinazione. Il convertitore vi scrive le nuove immagini insieme a un file di corrispondenze; conserva a parte le immagini originali.",
+          "hold_after": 0.7,
+          "speech_text": "Scegli una nuova cartella di destinazione. Il convertitore vi scrive le nuove immagini insieme a un file di corrispondenze; conserva a parte le immagini originali."
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
+          "narration": "Imposta Layout in base alle tue cartelle. Per la cartella piatta dell’esempio, scegli l’opzione delle immagini direttamente nella cartella di origine e seleziona la regola di denominazione delle piastre che ti serve. Per un albero di cartelle per piastra e pozzetto, scegli il layout corrispondente.",
           "hold_after": 0.7,
           "focus": [
             460,
             815,
             3370,
             200
-          ]
+          ],
+          "speech_text": "Imposta Layout in base alle tue cartelle. Per la cartella piatta dell’esempio, scegli l’opzione delle immagini direttamente nella cartella di origine e seleziona la regola di denominazione delle piastre che ti serve. Per un albero di cartelle per piastra e pozzetto, scegli il layout corrispondente."
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
+          "narration": "Scegli come gestire i piani Z. Mantieni tutti i piani se ti serve l’intero stack, usa la proiezione di massima intensità per un’immagine proiettata, oppure scegli il primo piano quando è quello l’input previsto. Questo esempio contiene un piano per file.",
           "hold_after": 0.7,
           "focus": [
             460,
             870,
             3370,
             100
-          ]
+          ],
+          "speech_text": "Scegli come gestire i piani Z. Mantieni tutti i piani se ti serve l’intero stack, usa la proiezione di massima intensità per un’immagine proiettata, oppure scegli il primo piano quando è quello l’input previsto. Questo esempio contiene un piano per file."
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
+          "narration": "Premi Preview. Esamina ogni assegnazione dall’origine alla destinazione, comprese piastra, pozzetto, campo e canale. I nomi indicizzati sono identità assegnate; usa i metadati originali per confermare a quali condizioni sperimentali corrispondono.",
           "hold_after": 0.7,
           "focus": [
             460,
             995,
             3370,
             790
-          ]
+          ],
+          "speech_text": "Premi Preview. Esamina ogni assegnazione dall’origine alla destinazione, comprese piastra, pozzetto, campo e canale. I nomi indicizzati sono identità assegnate; usa i metadati originali per confermare a quali condizioni sperimentali corrispondono."
         },
         {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
+          "narration": "Controlla From field e From channel insieme ai nomi di destinazione. Gli indici dei canali negli array e i numeri dei canali nei nomi dei file possono seguire convenzioni diverse. Verifica che ogni destinazione contenga il piano immagine che intendi analizzare.",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ]
+          ],
+          "speech_text": "Controlla From field e From channel insieme ai nomi di destinazione. Gli indici dei canali negli array e i numeri dei canali nei nomi dei file possono seguire convenzioni diverse. Verifica che ogni destinazione contenga il piano immagine che intendi analizzare."
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
+          "narration": "Se una corrispondenza è sbagliata, cambia il layout di origine o le impostazioni di conversione e rifai l’anteprima. La tabella di anteprima è di sola lettura.",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ]
+          ],
+          "speech_text": "Se una corrispondenza è sbagliata, cambia il layout di origine o le impostazioni di conversione e rifai l’anteprima. La tabella di anteprima è di sola lettura."
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
+          "narration": "Premi Convert e leggi il riepilogo finale dei file convertiti, non riusciti e saltati. Apri un’immagine convertita per controllarne dimensioni e canali prima di passare alla segmentazione o alla misura.",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ]
+          ],
+          "speech_text": "Premi Convert e leggi il riepilogo finale dei file convertiti, non riusciti e saltati. Apri un’immagine convertita per controllarne dimensioni e canali prima di passare alla segmentazione o alla misura."
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
+          "narration": "Conserva conversion_map.csv insieme alle immagini convertite. Registra i percorsi di origine e destinazione, le identità assegnate e lo stato della conversione. Tieni accanto i metadati di acquisizione originali.",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ]
+          ],
+          "speech_text": "Conserva conversion_map.csv insieme alle immagini convertite. Registra i percorsi di origine e destinazione, le identità assegnate e lo stato della conversione. Tieni accanto i metadati di acquisizione originali."
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
+          "narration": "Per un’esecuzione successiva con la stessa origine, lo stesso piano e la stessa destinazione, attiva Resume. I campi compatibili già completati possono essere riutilizzati. Leggi il riepilogo per vedere quali file sono stati convertiti e quali erano già presenti.",
           "hold_after": 0.7,
           "focus": [
             2700,
             825,
             1130,
             190
-          ]
+          ],
+          "speech_text": "Per un’esecuzione successiva con la stessa origine, lo stesso piano e la stessa destinazione, attiva Resume. I campi compatibili già completati possono essere riutilizzati. Leggi il riepilogo per vedere quali file sono stati convertiti e quali erano già presenti."
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

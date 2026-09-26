@@ -3869,190 +3869,207 @@
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
       "section": "Tools",
-      "title": "Training Runs: compare curves and settings",
-      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
+      "title": "Training Runs：比较曲线和设置",
+      "description": "加载训练日志，叠加指标，比较设置，并查看交叉验证的各折。",
       "objectives": [
-        "Find saved runs and select the ones to compare.",
-        "Overlay training and validation metrics and inspect settings differences.",
-        "Switch between individual folds and their mean and standard deviation."
+        "找到保存的运行，并选择要比较的运行。",
+        "叠加训练和验证指标，并检查设置差异。",
+        "在单独的各折与其平均值和标准差之间切换。"
       ],
-      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
+      "prerequisite": "下载并解压链接的合成Training Runs示例。其中的曲线是练习数据。对于您自己的分析，请选择一个上级文件夹，其中包含保存的train.csv和validation.csv文件以及每次运行的设置。评估性能时，请把独立的评估结果与模型放在一起。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
+          "narration": "从Home打开Classify，然后打开Training Runs。使用这个工具比较已保存训练运行的进度日志和设置。链接的样本包含用于练习控件的合成曲线。",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
-          ]
+          ],
+          "speech_text": "从主页打开Classify，然后打开Training Runs。使用这个工具比较已保存训练运行的进度日志和设置。链接的样本包含用于练习控件的合成曲线。"
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Work through the screen in order: choose a folder to find runs, pick them in the list, then choose a Metric and Folds and click Overlay selected. Begin with the parent folder that holds your runs.",
+          "narration": "按顺序使用这个界面：选择一个文件夹来查找运行，在列表中勾选它们，然后选择Metric和Folds，并点击Overlay selected。从存放您各次运行的上级文件夹开始。",
           "hold_after": 0.7,
           "focus": [
             465,
             310,
             3350,
             1650
-          ]
+          ],
+          "speech_text": "按顺序使用这个界面：选择一个文件夹来查找运行，在列表中勾选它们，然后选择Metric和Folds，并点击Overlay selected。从存放您各次运行的上级文件夹开始。"
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
+          "narration": "解压链接的样本，点击Choose folder。选择其中的training_runs文件夹，然后确认。对于您自己的项目，请选择包含各运行文件夹及其保存的CSV日志的上级文件夹。",
           "hold_after": 0.7,
           "focus": [
             1555,
             790,
             1410,
             965
-          ]
+          ],
+          "speech_text": "解压链接的样本，点击Choose folder。选择其中的training_runs文件夹，然后确认。对于您自己的项目，请选择包含各运行文件夹及其保存的CSV日志的上级文件夹。"
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
+          "narration": "扫描文件夹并检查找到的运行。样本包含baseline、tuned和cross_validated三个示例，外加一个不完整的条目。选择您想比较的可用运行。",
           "hold_after": 0.7,
           "focus": [
             465,
             530,
             940,
             285
-          ]
+          ],
+          "speech_text": "扫描文件夹并检查找到的运行。样本包含baseline、tuned和cross_validated三个示例，外加一个不完整的条目。选择您想比较的可用运行。"
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
+          "narration": "查看关于不完整条目的警告。缺少train.csv、validation.csv或设置，可能导致曲线或设置无法显示。在加入比较之前，请找到完整的运行文件夹。",
           "hold_after": 0.7,
           "focus": [
             465,
             1845,
             3350,
             175
-          ]
+          ],
+          "speech_text": "查看关于不完整条目的警告。缺少train.csv、validation.csv或设置，可能导致曲线或设置无法显示。在加入比较之前，请找到完整的运行文件夹。"
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
+          "narration": "勾选baseline和tuned，然后在Metric中选择accuracy。菜单列出所选日志中可用的数值列。当loss或其他已记录的指标更能回答您的比较问题时，请选择它。",
           "hold_after": 0.7,
           "focus": [
             465,
             1680,
             940,
             300
-          ]
+          ],
+          "speech_text": "勾选baseline和tuned，然后在Metric中选择accuracy。菜单列出所选日志中可用的数值列。当loss或其他已记录的指标更能回答您的比较问题时，请选择它。"
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
+          "narration": "点击Overlay selected。训练曲线为虚线，验证曲线为实线。在图例中识别每次运行和每种数据划分。每条曲线都在其自身最后记录的轮次结束。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "点击Overlay selected。训练曲线为虚线，验证曲线为实线。在图例中识别每次运行和每种数据划分。每条曲线都在其自身最后记录的轮次结束。"
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
+          "narration": "查看图下方的设置比较。它会突出显示批大小、轮数和学习率等差异。在解读曲线之前，先用它确认各次运行之间改变了什么。",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ]
+          ],
+          "speech_text": "查看图下方的设置比较。它会突出显示批大小、轮数和学习率等差异。在解读曲线之前，先用它确认各次运行之间改变了什么。"
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
+          "narration": "环境这一行把执行设置（例如工作进程数）与训练配置区分开。比较在不同机器上完成的运行时，请把这一行与配置差异结合起来阅读。",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ]
+          ],
+          "speech_text": "环境这一行把执行设置（例如工作进程数）与训练配置区分开。比较在不同机器上完成的运行时，请把这一行与配置差异结合起来阅读。"
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
+          "narration": "点击一条验证曲线，查看其最后和最佳的记录值以及对应的轮次。比较运行时请使用相同的选择规则。要评估所选检查点的性能，请在独立数据上进行评估。",
           "hold_after": 0.7,
           "focus": [
             465,
             2000,
             3350,
             105
-          ]
+          ],
+          "speech_text": "点击一条验证曲线，查看其最后和最佳的记录值以及对应的轮次。比较运行时请使用相同的选择规则。要评估所选检查点的性能，请在独立数据上进行评估。"
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
+          "narration": "在Metric中选择loss，更新纵轴和叠加图。比较训练和验证的变化轨迹，包括它们在训练接近结束时的走向。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "在Metric中选择loss，更新纵轴和叠加图。比较训练和验证的变化轨迹，包括它们在训练接近结束时的走向。"
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
+          "narration": "选择tuned和cross_validated，选择accuracy，然后点击Overlay selected。打开Folds，选择显示单独的各折、它们的平均值和标准差，还是两者都显示。",
           "hold_after": 0.7,
           "focus": [
             465,
             1730,
             940,
             175
-          ]
+          ],
+          "speech_text": "选择tuned和cross_validated，选择accuracy，然后点击Overlay selected。打开Folds，选择显示单独的各折、它们的平均值和标准差，还是两者都显示。"
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
+          "narration": "选择平均值加减标准差来汇总各折曲线。每条色带表示该轮次下各可用折之间的一个样本标准差。请把色带理解为各折之间的差异。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "选择平均值加减标准差来汇总各折曲线。每条色带表示该轮次下各可用折之间的一个样本标准差。请把色带理解为各折之间的差异。"
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
+          "narration": "选择两者都显示，即可把单独的各折曲线与它们的平均值一起显示。比较各折，看看汇总是否掩盖了某次轨迹不同的运行。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "选择两者都显示，即可把单独的各折曲线与它们的平均值一起显示。比较各折，看看汇总是否掩盖了某次轨迹不同的运行。"
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
+          "narration": "选择按折显示，只显示单独的曲线。设置比较会随您选择的运行而更新。比较训练在哪里结束时，请留意每条曲线的轮次范围。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             1315
-          ]
+          ],
+          "speech_text": "选择按折显示，只显示单独的曲线。设置比较会随您选择的运行而更新。比较训练在哪里结束时，请留意每条曲线的轮次范围。"
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
-          "hold_after": 0.7
+          "narration": "回到Metric比较另一个已记录的量，或者更改所选运行以缩小比较范围。请把原始CSV日志和设置放在一起，以便重新打开同样的比较。",
+          "hold_after": 0.7,
+          "speech_text": "回到Metric比较另一个已记录的量，或者更改所选运行以缩小比较范围。请把原始CSV日志和设置放在一起，以便重新打开同样的比较。"
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
+          "narration": "如需用脚本分析，请使用spacr.train_compare中的find_runs和load_run，然后使用compare_runs和plot_curves。选择下一个训练配置时，请把比较结果与您的模型和独立评估结果放在一起。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "41_classify"
-          ]
+          ],
+          "speech_text": "如需用脚本分析，请使用斯佩克尔.train_compare中的find_runs和load_run，然后使用compare_runs和plot_curves。选择下一个训练配置时，请把比较结果与您的模型和独立评估结果放在一起。"
         }
       ],
       "example_files": [
@@ -4061,6 +4078,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4596,29 +4653,30 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer: inspect wells and export a heatmap table",
+      "title": "Plate Viewer：检查孔并导出热图表格",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
+      "description": "加载示例测量数据，比较孔水平的特征和计数，检查单个孔，并导出过滤后的表格。",
       "objectives": [
-        "Open Plate Viewer from Graph Builder and load example measurements.",
-        "Choose a feature, aggregation and minimum object count.",
-        "Inspect well details and export the current well grid."
+        "从Graph Builder打开Plate Viewer并加载示例测量数据。",
+        "选择特征、汇总方式和最小对象数。",
+        "检查孔的详细信息，并导出当前的孔网格。"
       ],
-      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
+      "prerequisite": "使用Plate Viewer中的Load test data打开可下载的示例，或者打开您已测量项目的measurements.db。示例包含分布在四个孔中的2,341个细胞；评估空间模式时，请使用覆盖您整块板的测量数据。",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+          "narration": "从Home打开Data中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
-          ]
+          ],
+          "speech_text": "从主页打开Data中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。"
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
+          "narration": "点击Load test data打开可下载的示例。对于您自己的数据，请选择测量数据库或其运行文件夹，然后点击Open。示例包含四个已测量的孔。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -4629,71 +4687,120 @@
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "点击Load test data打开可下载的示例。对于您自己的数据，请选择测量数据库或其运行文件夹，然后点击Open。示例包含四个已测量的孔。"
         },
         {
           "visual": "03_example_mean",
-          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
+          "narration": "在Table中选择cell，在Measurement中选择cell_area，在Plate中选择plate1。把Per well设为mean，以显示平均细胞面积。中位数可以降低异常大或异常小对象的影响。",
           "hold_after": 0.7,
           "focus": [
             335,
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "在Table中选择cell，在Measurement中选择cell_area，在Plate中选择plate1。把Per well设为mean，以显示平均细胞面积。中位数可以降低异常大或异常小对象的影响。"
         },
         {
           "visual": "04_colour_scale",
-          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
+          "narration": "选择一个颜色标尺。稳健范围使用第二到第九十八百分位数，这样单个极端的孔不会压缩其他孔的颜色差异。",
           "hold_after": 0.7,
           "focus": [
             335,
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "选择一个颜色标尺。稳健范围使用第二到第九十八百分位数，这样单个极端的孔不会压缩其他孔的颜色差异。"
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
-          "hold_after": 0.7
+          "narration": "点击Render并比较着色的孔。阅读热图旁边的边缘效应报告，检查板布局和测量覆盖范围。评估边缘、行或列的模式时，请使用覆盖整块板的测量数据。",
+          "hold_after": 0.7,
+          "speech_text": "点击Render并比较着色的孔。阅读热图旁边的边缘效应报告，检查板布局和测量覆盖范围。评估边缘、行或列的模式时，请使用覆盖整块板的测量数据。"
         },
         {
           "visual": "05_well_detail",
-          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
-          "hold_after": 0.7
+          "narration": "点击一个已测量的孔，查看其标识符、对象数量和显示的数值。在图像或导出结果中查找同一个孔时，请使用这些标识符。",
+          "hold_after": 0.7,
+          "speech_text": "点击一个已测量的孔，查看其标识符、对象数量和显示的数值。在图像或导出结果中查找同一个孔时，请使用这些标识符。"
         },
         {
           "visual": "06_count",
-          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
+          "narration": "把Per well设为count，比较对象数量。在解读特征差异之前，这个视图可以帮您找出分割对象较少的孔。",
           "hold_after": 0.7,
           "focus": [
             340,
             300,
             1800,
             1300
-          ]
+          ],
+          "speech_text": "把Per well设为count，比较对象数量。在解读特征差异之前，这个视图可以帮您找出分割对象较少的孔。"
         },
         {
           "visual": "07_filtered",
-          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
-          "hold_after": 0.7
+          "narration": "提高Min objects per well，排除对象太少、不适合比较的孔。设为六百零一时，本例四个孔中剩下两个。被排除的孔显示为空白，而不是零值测量。",
+          "hold_after": 0.7,
+          "speech_text": "提高Min objects per well，排除对象太少、不适合比较的孔。设为六百零一时，本例四个孔中剩下两个。被排除的孔显示为空白，而不是零值测量。"
         },
         {
           "visual": "08_save_csv",
-          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
-          "hold_after": 0.7
+          "narration": "点击Export well grid CSV，选择文件名并保存。CSV包含当前过滤条件保留下来的孔，以及它们的标识符、计数、显示值和空间注释。",
+          "hold_after": 0.7,
+          "speech_text": "点击Export well grid CSV，选择文件名并保存。CSV包含当前过滤条件保留下来的孔，以及它们的标识符、计数、显示值和空间注释。"
         },
         {
           "visual": "09_exported",
-          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
-          "hold_after": 0.7
+          "narration": "把导出的表格与测量和汇总设置放在一起。降低最小计数可以重新显示被排除的孔，也可以为下一次比较选择另一项测量。",
+          "hold_after": 0.7,
+          "speech_text": "把导出的表格与测量和汇总设置放在一起。降低最小计数可以重新显示被排除的孔，也可以为下一次比较选择另一项测量。"
         }
       ],
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4776,140 +4883,192 @@
       "app_key": "convert",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "Format Converter: preview and convert image files",
-      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
+      "title": "Format Converter：预览并转换图像文件",
+      "description": "选择源文件夹，检查目标名称和通道分配，然后转换图像，并继续已完成的工作。",
       "objectives": [
-        "Choose source and destination folders with the correct acquisition layout.",
-        "Preview target names, fields and channel assignments.",
-        "Convert the files and use Resume for completed fields."
+        "按照正确的采集布局选择源文件夹和目标文件夹。",
+        "预览目标名称、视野和通道分配。",
+        "转换文件，并对已完成的视野使用Resume。"
       ],
-      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
+      "prerequisite": "准备一个包含受支持图像文件的文件夹，并保留它们的采集元数据。您可以使用Import Project教程中的两张TIFF图像进行练习。请根据您自己的采集方式设置布局和Z处理方式。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
+          "narration": "从Home打开Import Project，然后选择Format Converter。用它为下一步分析准备图像文件和文件名。",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
             "74_import_images"
-          ]
+          ],
+          "speech_text": "从主页打开Import Project，然后选择Format Converter。用它为下一步分析准备图像文件和文件名。"
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "The converter works in one direction: from Source, through Preview, into Destination. Preview shows where every source file will land before anything is written, so you can check the assignments; Convert then writes them.",
+          "narration": "转换器只按一个方向工作：从Source出发，经过Preview，到达Destination。Preview会在写入任何内容之前显示每个源文件将放到哪里，方便您检查分配；随后由Convert写出文件。",
           "hold_after": 0.7,
           "focus": [
             460,
             600,
             3370,
             1190
-          ]
+          ],
+          "speech_text": "转换器只按一个方向工作：从Source出发，经过Preview，到达Destination。Preview会在写入任何内容之前显示每个源文件将放到哪里，方便您检查分配；随后由Convert写出文件。"
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
+          "narration": "选择包含源图像的文件夹。本例使用两张单通道TIFF。检查转换后的名称时，请把原始采集元数据放在手边。",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
-          ]
+          ],
+          "speech_text": "选择包含源图像的文件夹。本例使用两张单通道TIFF。检查转换后的名称时，请把原始采集元数据放在手边。"
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
-          "hold_after": 0.7
+          "narration": "选择一个新的目标文件夹。转换器会把新图像和一个映射文件写到那里；请另外保留您的原始图像。",
+          "hold_after": 0.7,
+          "speech_text": "选择一个新的目标文件夹。转换器会把新图像和一个映射文件写到那里；请另外保留您的原始图像。"
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
+          "narration": "根据您的文件夹结构设置Layout。对于示例中的扁平文件夹，请选择图像直接位于源文件夹中的选项，并选择所需的板命名规则。对于按板和孔组织的目录树，请选择对应的布局。",
           "hold_after": 0.7,
           "focus": [
             460,
             815,
             3370,
             200
-          ]
+          ],
+          "speech_text": "根据您的文件夹结构设置Layout。对于示例中的扁平文件夹，请选择图像直接位于源文件夹中的选项，并选择所需的板命名规则。对于按板和孔组织的目录树，请选择对应的布局。"
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
+          "narration": "选择Z平面的处理方式。需要完整堆栈时保留所有平面，需要投影图像时使用最大投影，或者在第一个平面就是预期输入时选择它。本例每个文件只有一个平面。",
           "hold_after": 0.7,
           "focus": [
             460,
             870,
             3370,
             100
-          ]
+          ],
+          "speech_text": "选择Z平面的处理方式。需要完整堆栈时保留所有平面，需要投影图像时使用最大投影，或者在第一个平面就是预期输入时选择它。本例每个文件只有一个平面。"
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
+          "narration": "按下Preview。检查从源到目标的每一项分配，包括板、孔、视野和通道。带编号的名称是分配的标识；请用原始元数据确认它们对应哪些实验条件。",
           "hold_after": 0.7,
           "focus": [
             460,
             995,
             3370,
             790
-          ]
+          ],
+          "speech_text": "按下Preview。检查从源到目标的每一项分配，包括板、孔、视野和通道。带编号的名称是分配的标识；请用原始元数据确认它们对应哪些实验条件。"
         },
         {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
+          "narration": "对照目标名称检查From field和From channel。数组中的通道索引和文件名中的通道编号可能采用不同的约定。请确认每个目标都包含您打算分析的图像平面。",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ]
+          ],
+          "speech_text": "对照目标名称检查From field和From channel。数组中的通道索引和文件名中的通道编号可能采用不同的约定。请确认每个目标都包含您打算分析的图像平面。"
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
+          "narration": "如果某项映射不对，请更改源布局或转换设置，然后再次预览。预览表是只读的。",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ]
+          ],
+          "speech_text": "如果某项映射不对，请更改源布局或转换设置，然后再次预览。预览表是只读的。"
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
+          "narration": "按下Convert，阅读关于已转换、失败和跳过文件的最终汇总。在继续进行分割或测量之前，打开一张转换后的图像，检查它的尺寸和通道。",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ]
+          ],
+          "speech_text": "按下Convert，阅读关于已转换、失败和跳过文件的最终汇总。在继续进行分割或测量之前，打开一张转换后的图像，检查它的尺寸和通道。"
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
+          "narration": "把conversion_map.csv与转换后的图像放在一起。它记录源路径和目标路径、分配的标识以及转换状态。请把原始采集元数据也放在旁边。",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ]
+          ],
+          "speech_text": "把conversion_map.csv与转换后的图像放在一起。它记录源路径和目标路径、分配的标识以及转换状态。请把原始采集元数据也放在旁边。"
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
+          "narration": "以后使用相同的源、方案和目标再次运行时，请开启Resume。兼容的已完成视野可以重复使用。阅读汇总，查看哪些文件被转换了，哪些原本就已存在。",
           "hold_after": 0.7,
           "focus": [
             2700,
             825,
             1130,
             190
-          ]
+          ],
+          "speech_text": "以后使用相同的源、方案和目标再次运行时，请开启Resume。兼容的已完成视野可以重复使用。阅读汇总，查看哪些文件被转换了，哪些原本就已存在。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

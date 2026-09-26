@@ -2156,7 +2156,24 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # source, target, upload); MakeMasksScreen.contribute_images_and_masks.
     # +3 more with item 474: organisms.workflow, organism_screen.open_workflow
     # and OrganismScreen.open_workflow.
-    assert len(callables) == len(by_symbol) == 9_735
+    # 9,735 -> 9,789 on 2026-09-26, +56 / -2 beyond those by set difference
+    # against 4f6c58418 (nightly 88a0ee002): 34 from item 529 (live_zoom's
+    # ColumnTextScale and its nine methods, font_size_rules,
+    # install_column_text_scale, register_text_column, scaled_font_sheet;
+    # preferences' get/set_dock_width and get/set_runtime_text_scale;
+    # Dock.clamp_width, column_width, set_column_width; DockEdge and its
+    # eight methods; ConsolePanel.apply_column_text_scale; SettingsSearchBar
+    # sizeHint, minimumSizeHint, resizeEvent); 10 from item 18 (seven in
+    # attribution, surrogate.importance_method_availability and
+    # rank_feature_importance, ExplainCvPanel.importance_methods); 3 from
+    # 533 (prerun's DiameterDialog, diameter_dialog, diameter_screen_of, less
+    # diameter_panel and install_diameter_panel); 523's
+    # MaskCuration.delete_object and model_share.central_contribute; 224's
+    # permutation_qc.plot_residual_by_position and write_permutation_qc;
+    # 511's mask_engine.object_filter_area_floor and parse_object_filters;
+    # 356's SettingsWidgets.organelle_keys_to_spawn and
+    # spawn_organelle_slots; 477's ImageRuler.calibrate_from_file.
+    assert len(callables) == len(by_symbol) == 9_789
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2222,13 +2239,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # namedtuple with the 47 from 03a02c3b8.
         # Item 528: +5 function, +5 method, +1 constructor.
         # Item 474: +2 function, +1 method.
-        "function": 4_343,
+        # 2026-09-26: +24 function (+26 / -2), +29 method, +3 constructor
+        # (ColumnTextScale, DockEdge, DiameterDialog); see the callable total.
+        "function": 4_365,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_205,
+        "method": 4_234,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
-        "constructor": 449,
+        "constructor": 452,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
@@ -2278,7 +2297,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # which is what those two buckets are for.
         # 9,522 -> 9,630 -> 9,640 -> 9,687 on 2026-09-25, as the total.
         # 9,716 -> 9,727 with item 528's eleven, as the total.
-        "autoapi": 9_730,
+        # 9,730 -> 9,784 on 2026-09-26, +56 / -2, as the total.
+        "autoapi": 9_784,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2326,7 +2346,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
     # 9,534 -> 9,642 -> 9,652 -> 9,699 on 2026-09-25: +108, +10, +47.
     # 9,728 -> 9,739 with item 528's eleven, one prose variant each.
-    assert sum(item.variant_count for item in callables) == 9_742
+    # 9,742 -> 9,796 on 2026-09-26, +56 / -2 with the total, one each.
+    assert sum(item.variant_count for item in callables) == 9_796
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2339,7 +2360,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # the five days has exactly one variant, and the seven
         # two-variant ones are unmoved.
         # 9,520 -> 9,628 -> 9,638 -> 9,685 on 2026-09-25, as the sum above.
-        1: 9_725,
+        # 9,725 -> 9,782 on 2026-09-26, as the sum above.
+        1: 9_782,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2383,13 +2405,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # PictureCanvas and SegmentationViews; 444 with SpotDetectorCombo; 445
     # with ObjectFilterList; 447 with ContributeDialog and ConsentDialog (523);
     # after merging nightly (503/507/525/526), 448; 449 with
-    # ContributeMasksDialog (528).
+    # ContributeMasksDialog (528); 452 on 2026-09-26 with ColumnTextScale,
+    # DockEdge (529) and DiameterDialog (533).
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 449
+    ) == 452
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 449
+    ) == 452
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2538,7 +2561,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # plus nightly b315c0342's unpinned rows.
     # 19,260 -> 19,279 with item 528: its eleven callables' parameters plus
     # write_contribution's optional `notes`.
-    assert sum(len(item.parameters) for item in callables) == 19_279
+    # 19,279 -> 19,385 on 2026-09-26 against 4f6c58418: +96 on the 59 new
+    # callables (474's three included), -3 with prerun's two retired diameter
+    # helpers, +13 optional keywords on ten existing callables (named at the
+    # digest below).
+    assert sum(len(item.parameters) for item in callables) == 19_385
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2574,7 +2601,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 9,929 -> 9,935 with item 528: masks_dataset_target's name,
     # pair_images_and_masks' two folders, pairs_match's report,
     # read_label_mask's path and ContributeMasksDialog.use's source.
-    assert sum(len(item.required_parameters) for item in callables) == 9_935
+    # 9,935 -> 9,991 on 2026-09-26 against 4f6c58418: +59 on the new
+    # callables, -2 with the retired diameter helpers, and -1 because
+    # model_share.contribute's `token` is no longer required.
+    assert sum(len(item.required_parameters) for item in callables) == 9_991
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2684,7 +2714,18 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 523's returns ac7eb37a....
     # Item 528 on 2026-09-25 (was 79352d36...): its eleven new rows and
     # write_contribution's optional `notes`.
-) == "1623279dca91344116af6a48892ea14c8ac9ceb855862d8e2b98686298c7ebaa"
+    # 2026-09-26 on nightly 88a0ee002 (was 1623279d..., 4f6c58418's own
+    # digest): dropping the 59 new rows, restoring prerun.diameter_panel and
+    # install_diameter_panel, and restoring the prior rows of eleven
+    # callables returns 1623279d... byte for byte. The eleven gained optional
+    # keywords (ExplainCvPanel.run_analysis and fit_surrogate:
+    # importance_methods, shap_explainer; render_figure_to_png: for_print,
+    # write_pdf; fractal_cascade.render_into: samples; fractal_travel
+    # Settings: supersampling; PreviewRequest: source_path;
+    # MeasurementComparePanel: results; read_run_tables: progress;
+    # suggest_from_scores: withhold_rejected; ctc_pairs: gaps) or, for
+    # model_share.contribute, made `token` optional.
+) == "d61713278b8e524a064a88137dff4909463b36c11c1cd8574c589d65919d4174"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3183,7 +3224,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # b315c0342, whose 503/507/525/526 additions were unpinned there.
     # 11,746 -> 11,758 on 2026-09-25: item 528's eleven callables (named at
     # the callable inventory) and the ContributeMasksDialog class.
-    assert len(docs) == 11_758
+    # 11,758 -> 11,816 on 2026-09-26, +60 / -2 by set difference against
+    # 4f6c58418 on nightly 88a0ee002: the 59 final_pass_callables below and
+    # live_preview.BOUND_ROWS, less prerun's diameter_panel and
+    # install_diameter_panel.
+    assert len(docs) == 11_816
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3438,20 +3483,74 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     assert len(merged_callables) == 47
     assert merged_callables <= rendered_documented_callables.keys()
+    # 2026-09-26: the 59 public callables nightly 88a0ee002 added after
+    # 4f6c58418, named by item at the callable inventory.
+    final_pass_callables = {
+        *(f'spacr.attribution.{name}'
+          for name in ('applicable_methods', 'architecture_kind',
+                       'cam_type_applicability', 'cam_type_choices',
+                       'chefer_relevance', 'method_applicability',
+                       'resolve_cam_type')),
+        'spacr.curation.MaskCuration.delete_object',
+        'spacr.permutation_qc.plot_residual_by_position',
+        'spacr.permutation_qc.write_permutation_qc',
+        'spacr.qt.live_zoom.ColumnTextScale',
+        *(f'spacr.qt.live_zoom.ColumnTextScale.{name}'
+          for name in ('eventFilter', 'register', 'reset', 'restyle',
+                       'restyle_all', 'root_of', 'roots', 'scale',
+                       'set_scale')),
+        *(f'spacr.qt.live_zoom.{name}'
+          for name in ('font_size_rules', 'install_column_text_scale',
+                       'register_text_column', 'scaled_font_sheet')),
+        'spacr.qt.mask_engine.object_filter_area_floor',
+        'spacr.qt.mask_engine.parse_object_filters',
+        'spacr.qt.organisms.workflow',
+        *(f'spacr.qt.preferences.{name}'
+          for name in ('get_dock_width', 'get_runtime_text_scale',
+                       'set_dock_width', 'set_runtime_text_scale')),
+        *(f'spacr.qt.prerun.{name}'
+          for name in ('DiameterDialog', 'diameter_dialog',
+                       'diameter_screen_of')),
+        'spacr.qt.screens.model_explanation.ExplainCvPanel.importance_methods',
+        'spacr.qt.screens.organism_screen.OrganismScreen.open_workflow',
+        'spacr.qt.screens.organism_screen.open_workflow',
+        'spacr.qt.screens.settings_model.SettingsWidgets.organelle_keys_to_spawn',
+        'spacr.qt.screens.settings_model.SettingsWidgets.spawn_organelle_slots',
+        *(f'spacr.qt.settings_search.SettingsSearchBar.{name}'
+          for name in ('minimumSizeHint', 'resizeEvent', 'sizeHint')),
+        'spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale',
+        *(f'spacr.qt.widgets.dock.Dock.{name}'
+          for name in ('clamp_width', 'column_width', 'set_column_width')),
+        'spacr.qt.widgets.dock.DockEdge',
+        *(f'spacr.qt.widgets.dock.DockEdge.{name}'
+          for name in ('enterEvent', 'leaveEvent', 'mouseDoubleClickEvent',
+                       'mouseMoveEvent', 'mousePressEvent',
+                       'mouseReleaseEvent', 'paintEvent',
+                       'retranslate_dynamic_content')),
+        'spacr.qt.widgets.image_ruler.ImageRuler.calibrate_from_file',
+        'spacr.qt.widgets.model_share.central_contribute',
+        'spacr.surrogate.importance_method_availability',
+        'spacr.surrogate.rank_feature_importance',
+    }
+    assert len(final_pass_callables) == 59
+    assert final_pass_callables <= rendered_documented_callables.keys()
     prior = (rendered_documented_callables.keys() - incoming_callables
              - quality_and_host_callables - classification_callables - example_callables
              - preview_callables - current_additions - session_callables
-             - rebase_callables - merged_callables) | {
+             - rebase_callables - merged_callables
+             - final_pass_callables) | {
                  "spacr.qt.app.demo_label_for_app",
                  "spacr.qt.widgets.plaque_preview.render_cellprob"}
     # 9,442 -> 9,471 on 2026-09-25: item 523 plus nightly b315c0342's rows.
     # 9,471 -> 9,482 with item 528's eleven.
-    assert len(prior - pipeline_callables) == 9_482
-    assert len(prior - pipeline_callables - validation_functions) == 9_476
+    # 9,482 -> 9,480 on 2026-09-26: prerun's diameter_panel and
+    # install_diameter_panel retired (533); the 59 arrivals are named above.
+    assert len(prior - pipeline_callables) == 9_480
+    assert len(prior - pipeline_callables - validation_functions) == 9_474
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
-    # 9,727 with item 528's eleven.
-    assert len(rendered_documented_callables) == 9_727
+    # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
+    assert len(rendered_documented_callables) == 9_784
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

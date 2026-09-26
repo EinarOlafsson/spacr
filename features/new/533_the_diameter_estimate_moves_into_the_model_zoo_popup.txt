@@ -1,7 +1,7 @@
 THE DIAMETER ESTIMATE MOVES INTO THE MODEL ZOO POPUP
 
-Status: OPEN, filed 2026-09-26. Not started.
-Owner: unassigned. Related: 516 (the diameter estimate itself), 503/504/525
+Status: DONE, 2026-09-26. Filed 2026-09-26.
+Owner: Claude. Related: 516 (the diameter estimate itself), 503/504/525
 (the model zoo picker in Mask generation).
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -23,3 +23,47 @@ DONE WHEN
 The main screen no longer shows the diameter panel; the Model zoo popup has
 the button; the new popup shows the same information and still applies the
 estimates to the settings (offscreen tests for each).
+
+DONE, 2026-09-26
+The Mask generation screen no longer carries the diameter panel.
+`spacr.qt.prerun.install` now installs only Measure's QC banner, and
+`prerun.register` wraps only the Measure factory, so the Mask screen is built
+by chaining's factory exactly as before, minus the panel.
+`install_diameter_panel` and `diameter_panel` are gone.
+
+The Model zoo popup (`ModelZooPicker`) walks up from the widget that opened
+it (`prerun.diameter_screen_of`). When that is the Mask generation screen,
+or anything inside it such as the per-object model cell or a
+`*_model_name` field's button, a "Measure diameters…" button sits at the
+bottom left, beside the dialog's own buttons. Opened from anywhere else,
+there is no button.
+
+Pressing it opens `prerun.DiameterDialog`. This is a QDialog, so
+spacr.qt.widgets.glass gives it the card, the rounded corners and the rim,
+and it holds the whole `DiameterPanel`: the measure button, one row per
+object type with the value, the 10th-90th percentile range, object and field
+counts, confidence and method, the note, "Use N" per row and "Use all". A
+red Close sits at the bottom right. The panel still writes through the
+opening screen's settings model, so "Use" lands in that screen's
+`<object>_diameter`. The popup opens window-modal on the zoo and is reused,
+not rebuilt, and it closes when the zoo does. The last measurement is kept on
+the screen (`_diameter_estimates`), so the next popup, even from a later zoo
+window, shows it again without measuring twice.
+
+Screenshot: /tmp/spacr-533-scratch/diameter_popup.png (offscreen, glass
+installed, estimator faked with cell 31.6, nucleus 12.2 and pathogen
+unusable, after Use all). It shows the rows with their evidence and notes,
+"pathogen: no estimate", "Set cell_diameter, nucleus_diameter." and Close in
+red. zoo.png there shows the button bottom-left in the zoo.
+
+Tests: tests/qt/test_the_diameter_estimate_lives_in_the_model_zoo.py has 7
+cases on the real Mask screen with the estimator faked: the panel is gone
+from the screen; the button is in the zoo, including when the zoo is opened
+from a control inside the screen; there is no button elsewhere; the button
+opens the popup, which shows the estimates and notes, and Use and Use all
+update the settings; the popup is reused and closes with the zoo; the popup
+wears the dress. The existing panel tests in tests/qt/test_prerun.py and
+tests/test_cov_w2_4_prerun.py now build the panel through its popup. The
+install tests became popup tests, plus new ones for the screen lookup and
+for the remembered measurement. The register count test now also asserts
+that the Mask factory is left alone.

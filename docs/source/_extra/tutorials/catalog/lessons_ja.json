@@ -3869,190 +3869,207 @@
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
       "section": "Tools",
-      "title": "Training Runs: compare curves and settings",
-      "description": "Load training logs, overlay metrics, compare settings and explore cross-validation folds.",
+      "title": "Training Runs：曲線と設定を比較する",
+      "description": "学習ログを読み込み、指標を重ねて表示し、設定を比較して、交差検証のフォールドを調べます。",
       "objectives": [
-        "Find saved runs and select the ones to compare.",
-        "Overlay training and validation metrics and inspect settings differences.",
-        "Switch between individual folds and their mean and standard deviation."
+        "保存された実行を見つけ、比較するものを選ぶ。",
+        "学習と検証の指標を重ねて表示し、設定の違いを確認する。",
+        "個々のフォールドと、その平均と標準偏差の表示を切り替える。"
       ],
-      "prerequisite": "Download and extract the linked synthetic Training Runs example. Its curves are practice data. For your own analysis, select a parent folder containing saved train.csv and validation.csv files with each run’s settings. Keep independent evaluation results with your model when assessing performance.",
+      "prerequisite": "リンク先の合成Training Runsの例をダウンロードして展開します。曲線は練習用のデータです。自分の解析では、各実行の設定とともに保存されたtrain.csvとvalidation.csvを含む親フォルダーを選びます。性能を評価するときは、独立した評価結果をモデルと一緒に保管してください。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Classify, then Training Runs. Use this tool to compare the progress logs and settings from saved training runs. The linked sample contains synthetic curves for practising the controls.",
+          "narration": "HomeからClassifyを開き、続いてTraining Runsを開きます。このツールでは、保存された学習の実行について、進捗ログと設定を比較できます。リンク先のサンプルには、操作を練習するための合成の曲線が入っています。",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify"
-          ]
+          ],
+          "speech_text": "ホームからClassifyを開き、続いてTraining Runsを開きます。このツールでは、保存された学習の実行について、進捗ログと設定を比較できます。リンク先のサンプルには、操作を練習するための合成の曲線が入っています。"
         },
         {
           "visual": "01_current_training_runs_fold",
-          "narration": "Work through the screen in order: choose a folder to find runs, pick them in the list, then choose a Metric and Folds and click Overlay selected. Begin with the parent folder that holds your runs.",
+          "narration": "画面は順番に進めます。フォルダーを選んで実行を見つけ、一覧で選択し、MetricとFoldsを選んでOverlay selectedをクリックします。まず、実行が入っている親フォルダーから始めます。",
           "hold_after": 0.7,
           "focus": [
             465,
             310,
             3350,
             1650
-          ]
+          ],
+          "speech_text": "画面は順番に進めます。フォルダーを選んで実行を見つけ、一覧で選択し、MetricとFoldsを選んでOverlay selectedをクリックします。まず、実行が入っている親フォルダーから始めます。"
         },
         {
           "visual": "02_synthetic_source_folder_picker",
-          "narration": "Extract the linked sample and click Choose folder. Select its training_runs folder, then confirm the choice. For your own projects, select a parent folder containing the run folders and their saved CSV logs.",
+          "narration": "リンク先のサンプルを展開し、Choose folderをクリックします。そのtraining_runsフォルダーを選び、選択を確定します。自分のプロジェクトでは、実行フォルダーと保存されたCSVログを含む親フォルダーを選びます。",
           "hold_after": 0.7,
           "focus": [
             1555,
             790,
             1410,
             965
-          ]
+          ],
+          "speech_text": "リンク先のサンプルを展開し、Choose folderをクリックします。そのtraining_runsフォルダーを選び、選択を確定します。自分のプロジェクトでは、実行フォルダーと保存されたCSVログを含む親フォルダーを選びます。"
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Scan the folder and inspect the discovered runs. The sample has baseline, tuned and cross_validated examples, plus one incomplete entry. Select the usable runs you want to compare.",
+          "narration": "フォルダーを走査し、見つかった実行を確認します。サンプルには、baseline、tuned、cross_validatedの例と、不完全な項目が一つ含まれています。比較に使える実行を選びます。",
           "hold_after": 0.7,
           "focus": [
             465,
             530,
             940,
             285
-          ]
+          ],
+          "speech_text": "フォルダーを走査し、見つかった実行を確認します。サンプルには、baseline、tuned、cross_validatedの例と、不完全な項目が一つ含まれています。比較に使える実行を選びます。"
         },
         {
           "visual": "03_synthetic_runs_and_real_warnings",
-          "narration": "Check warnings on incomplete entries. Missing train.csv, validation.csv or settings can prevent curves or settings from appearing. Locate the complete run folder before adding it to a comparison.",
+          "narration": "不完全な項目についての警告を確認します。train.csv、validation.csv、設定のいずれかが欠けていると、曲線や設定が表示されないことがあります。比較に加える前に、完全な実行フォルダーを探してください。",
           "hold_after": 0.7,
           "focus": [
             465,
             1845,
             3350,
             175
-          ]
+          ],
+          "speech_text": "不完全な項目についての警告を確認します。train.csv、validation.csv、設定のいずれかが欠けていると、曲線や設定が表示されないことがあります。比較に加える前に、完全な実行フォルダーを探してください。"
         },
         {
           "visual": "04b_actual_metric_choices",
-          "narration": "Tick baseline and tuned, then choose accuracy under Metric. The menu lists the numeric columns available in the selected logs. Choose loss or another recorded metric when it answers your comparison question.",
+          "narration": "baselineとtunedにチェックを入れ、Metricでaccuracyを選びます。メニューには、選んだログにある数値の列が表示されます。比較で知りたいことに合う場合は、lossやほかの記録された指標を選びます。",
           "hold_after": 0.7,
           "focus": [
             465,
             1680,
             940,
             300
-          ]
+          ],
+          "speech_text": "baselineとtunedにチェックを入れ、Metricでaccuracyを選びます。メニューには、選んだログにある数値の列が表示されます。比較で知りたいことに合う場合は、lossやほかの記録された指標を選びます。"
         },
         {
           "visual": "05_actual_synthetic_accuracy_overlay",
-          "narration": "Click Overlay selected. Training curves are dashed and validation curves are solid. Read each run and split in the legend. Each curve ends at its own final recorded epoch.",
+          "narration": "Overlay selectedをクリックします。学習の曲線は破線、検証の曲線は実線で表示されます。凡例で、それぞれの実行とデータの区分を確認します。各曲線は、それぞれ最後に記録されたエポックで終わります。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "Overlay selectedをクリックします。学習の曲線は破線、検証の曲線は実線で表示されます。凡例で、それぞれの実行とデータの区分を確認します。各曲線は、それぞれ最後に記録されたエポックで終わります。"
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "Inspect the settings comparison below the plot. It highlights differences such as batch size, epoch count and learning rate. Use it to identify what changed between the runs before interpreting their curves.",
+          "narration": "グラフの下にある設定の比較を確認します。バッチサイズ、エポック数、学習率などの違いが強調表示されます。曲線を解釈する前に、実行の間で何が変わったかをここで確かめます。",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ]
+          ],
+          "speech_text": "グラフの下にある設定の比較を確認します。バッチサイズ、エポック数、学習率などの違いが強調表示されます。曲線を解釈する前に、実行の間で何が変わったかをここで確かめます。"
         },
         {
           "visual": "06_actual_synthetic_settings_diff",
-          "narration": "The environment row separates execution settings, such as worker count, from training configuration. Read these alongside the configuration differences when comparing runs made on different machines.",
+          "narration": "環境の行では、ワーカー数などの実行時の設定が、学習の構成とは分けて示されます。異なるマシンで行った実行を比べるときは、構成の違いと合わせて読みます。",
           "hold_after": 0.7,
           "focus": [
             1390,
             1490,
             2420,
             360
-          ]
+          ],
+          "speech_text": "環境の行では、ワーカー数などの実行時の設定が、学習の構成とは分けて示されます。異なるマシンで行った実行を比べるときは、構成の違いと合わせて読みます。"
         },
         {
           "visual": "07_actual_series_pick_best_and_last_epochs",
-          "narration": "Click a validation curve to see its last and best recorded values and epochs. Use the same selection rule when comparing runs. Evaluate a selected checkpoint on independent data to assess its performance.",
+          "narration": "検証の曲線をクリックすると、最後と最良の記録値とそのエポックが表示されます。実行を比べるときは、同じ選択基準を使います。選んだチェックポイントの性能は、独立したデータで評価してください。",
           "hold_after": 0.7,
           "focus": [
             465,
             2000,
             3350,
             105
-          ]
+          ],
+          "speech_text": "検証の曲線をクリックすると、最後と最良の記録値とそのエポックが表示されます。実行を比べるときは、同じ選択基準を使います。選んだチェックポイントの性能は、独立したデータで評価してください。"
         },
         {
           "visual": "08_actual_synthetic_loss_overlay",
-          "narration": "Choose loss under Metric to update the vertical axis and overlay. Compare the training and validation trajectories, including their direction near the end of training.",
+          "narration": "Metricでlossを選ぶと、縦軸と重ね表示が更新されます。学習の終わり近くでの向きも含めて、学習と検証の推移を比べます。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "Metricでlossを選ぶと、縦軸と重ね表示が更新されます。学習の終わり近くでの向きも含めて、学習と検証の推移を比べます。"
         },
         {
           "visual": "08b_actual_fold_choices",
-          "narration": "Select tuned and cross_validated, choose accuracy, then click Overlay selected. Open Folds and choose whether to display individual folds, their mean and standard deviation, or both.",
+          "narration": "tunedとcross_validatedを選び、accuracyを選んでから、Overlay selectedをクリックします。Foldsを開き、個々のフォールド、その平均と標準偏差、または両方のどれを表示するかを選びます。",
           "hold_after": 0.7,
           "focus": [
             465,
             1730,
             940,
             175
-          ]
+          ],
+          "speech_text": "tunedとcross_validatedを選び、accuracyを選んでから、Overlay selectedをクリックします。Foldsを開き、個々のフォールド、その平均と標準偏差、または両方のどれを表示するかを選びます。"
         },
         {
           "visual": "09_actual_synthetic_fold_mean_sd",
-          "narration": "Choose mean plus or minus standard deviation to summarize the fold curves. Each band shows one sample standard deviation across the available folds at that epoch. Read the band as variation across folds.",
+          "narration": "フォールドの曲線を要約するには、平均プラスマイナス標準偏差を選びます。各帯は、そのエポックで利用できるフォールドの間の標本標準偏差一つ分を示します。帯は、フォールド間のばらつきとして読みます。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "フォールドの曲線を要約するには、平均プラスマイナス標準偏差を選びます。各帯は、そのエポックで利用できるフォールドの間の標本標準偏差一つ分を示します。帯は、フォールド間のばらつきとして読みます。"
         },
         {
           "visual": "10_actual_synthetic_folds_and_mean",
-          "narration": "Choose both to show the individual fold curves together with their mean. Compare the folds to see whether a summary hides a run with a different trajectory.",
+          "narration": "両方を選ぶと、個々のフォールドの曲線が平均と一緒に表示されます。フォールドを比べて、要約の陰に異なる推移の実行が隠れていないかを確認します。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             960
-          ]
+          ],
+          "speech_text": "両方を選ぶと、個々のフォールドの曲線が平均と一緒に表示されます。フォールドを比べて、要約の陰に異なる推移の実行が隠れていないかを確認します。"
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Choose per fold to show only the individual curves. The settings comparison updates with your selected runs. Keep each curve’s epoch range in mind when comparing where training ended.",
+          "narration": "フォールドごとの表示を選ぶと、個々の曲線だけが表示されます。設定の比較は、選んだ実行に合わせて更新されます。学習がどこで終わったかを比べるときは、各曲線のエポックの範囲に注意してください。",
           "hold_after": 0.7,
           "focus": [
             1390,
             530,
             2420,
             1315
-          ]
+          ],
+          "speech_text": "フォールドごとの表示を選ぶと、個々の曲線だけが表示されます。設定の比較は、選んだ実行に合わせて更新されます。学習がどこで終わったかを比べるときは、各曲線のエポックの範囲に注意してください。"
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "Return to Metric to compare another logged quantity, or change the selected runs to narrow the comparison. Keep the original CSV logs and settings together so the same comparison can be reopened.",
-          "hold_after": 0.7
+          "narration": "ほかの記録された量を比べるにはMetricに戻り、比較を絞り込むには選択する実行を変えます。同じ比較をもう一度開けるように、元のCSVログと設定は一緒に保管しておきます。",
+          "hold_after": 0.7,
+          "speech_text": "ほかの記録された量を比べるにはMetricに戻り、比較を絞り込むには選択する実行を変えます。同じ比較をもう一度開けるように、元のCSVログと設定は一緒に保管しておきます。"
         },
         {
           "visual": "11_actual_synthetic_per_fold_curves",
-          "narration": "For scripted analysis, use find_runs and load_run in spacr.train_compare, then compare_runs and plot_curves. Keep the comparison with your model and independent evaluation results when choosing the next training configuration.",
+          "narration": "スクリプトで解析する場合は、spacr.train_compareのfind_runsとload_runを使い、続いてcompare_runsとplot_curvesを使います。次の学習の構成を選ぶときは、比較をモデルと独立した評価結果と一緒に保管しておきましょう。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "41_classify"
-          ]
+          ],
+          "speech_text": "スクリプトで解析する場合は、スペーカー.train_compareのfind_runsとload_runを使い、続いてcompare_runsとplot_curvesを使います。次の学習の構成を選ぶときは、比較をモデルと独立した評価結果と一緒に保管しておきましょう。"
         }
       ],
       "example_files": [
@@ -4061,6 +4078,46 @@
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4596,29 +4653,30 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer: inspect wells and export a heatmap table",
+      "title": "Plate Viewer：ウェルを確認し、ヒートマップの表を書き出す",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Load the example measurements, compare well-level features and counts, inspect individual wells and export the filtered table.",
+      "description": "例の測定値を読み込み、ウェル単位の特徴量と数を比べ、個々のウェルを確認して、フィルター後の表を書き出します。",
       "objectives": [
-        "Open Plate Viewer from Graph Builder and load example measurements.",
-        "Choose a feature, aggregation and minimum object count.",
-        "Inspect well details and export the current well grid."
+        "Graph BuilderからPlate Viewerを開き、例の測定値を読み込む。",
+        "特徴量、集計方法、最小の物体数を選ぶ。",
+        "ウェルの詳細を確認し、現在のウェルグリッドを書き出す。"
       ],
-      "prerequisite": "Use Load test data in Plate Viewer for the downloadable example, or open your measured project’s measurements.db. The example contains 2,341 cells across four wells; use measurements spanning your own plate when assessing spatial patterns.",
+      "prerequisite": "ダウンロードできる例を使うにはPlate ViewerのLoad test dataを使い、自分のデータでは測定済みプロジェクトのmeasurements.dbを開きます。例には四つのウェルにわたる2,341個の細胞が含まれています。空間的なパターンを評価するときは、プレート全体にわたる測定値を使ってください。",
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+          "narration": "HomeからDataのGraph Builderを開き、Plate Viewerを選びます。物体の測定値をウェルごとに要約し、プレート上での分布を確認するために使います。",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
-          ]
+          ],
+          "speech_text": "ホームからDataのGraph Builderを開き、Plate Viewerを選びます。物体の測定値をウェルごとに要約し、プレート上での分布を確認するために使います。"
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Load test data to open the downloadable example. For your own data, choose a measurements database or its run folder and click Open. The example contains four measured wells.",
+          "narration": "Load test dataをクリックして、ダウンロードできる例を開きます。自分のデータでは、測定データベースかその実行フォルダーを選び、Openをクリックします。例には測定済みのウェルが四つあります。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -4629,71 +4687,120 @@
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "Load test dataをクリックして、ダウンロードできる例を開きます。自分のデータでは、測定データベースかその実行フォルダーを選び、Openをクリックします。例には測定済みのウェルが四つあります。"
         },
         {
           "visual": "03_example_mean",
-          "narration": "Choose cell as the Table, cell_area as the Measurement and plate1 as the Plate. Set Per well to mean to display average cell area. Median reduces the influence of unusually large or small objects.",
+          "narration": "Tableでcell、Measurementでcell_area、Plateでplate1を選びます。平均の細胞面積を表示するには、Per wellをmeanにします。中央値を使うと、極端に大きい物体や小さい物体の影響が小さくなります。",
           "hold_after": 0.7,
           "focus": [
             335,
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "Tableでcell、Measurementでcell_area、Plateでplate1を選びます。平均の細胞面積を表示するには、Per wellをmeanにします。中央値を使うと、極端に大きい物体や小さい物体の影響が小さくなります。"
         },
         {
           "visual": "04_colour_scale",
-          "narration": "Choose a colour scale. The robust range uses the second to ninety-eighth percentiles, which keeps an extreme well from compressing the colours of the others.",
+          "narration": "カラースケールを選びます。ロバストな範囲では二パーセンタイルから九十八パーセンタイルまでを使うので、極端な一つのウェルがほかのウェルの色の差を押しつぶすことがありません。",
           "hold_after": 0.7,
           "focus": [
             335,
             240,
             3450,
             330
-          ]
+          ],
+          "speech_text": "カラースケールを選びます。ロバストな範囲では二パーセンタイルから九十八パーセンタイルまでを使うので、極端な一つのウェルがほかのウェルの色の差を押しつぶすことがありません。"
         },
         {
           "visual": "03_example_mean",
-          "narration": "Click Render and compare the coloured wells. Read the edge-effect report beside the heatmap, checking plate layout and measured coverage. Use measurements across your plate when assessing edge, row or column patterns.",
-          "hold_after": 0.7
+          "narration": "Renderをクリックし、色分けされたウェルを比べます。ヒートマップの横にあるエッジ効果のレポートを読み、プレートのレイアウトと測定の範囲を確認します。端、行、列のパターンを評価するときは、プレート全体の測定値を使ってください。",
+          "hold_after": 0.7,
+          "speech_text": "Renderをクリックし、色分けされたウェルを比べます。ヒートマップの横にあるエッジ効果のレポートを読み、プレートのレイアウトと測定の範囲を確認します。端、行、列のパターンを評価するときは、プレート全体の測定値を使ってください。"
         },
         {
           "visual": "05_well_detail",
-          "narration": "Click a measured well to see its identifier, object count and displayed value. Use these identifiers when finding the same well in your images or exported results.",
-          "hold_after": 0.7
+          "narration": "測定済みのウェルをクリックすると、その識別子、物体数、表示されている値がわかります。画像や書き出した結果で同じウェルを探すときは、これらの識別子を使います。",
+          "hold_after": 0.7,
+          "speech_text": "測定済みのウェルをクリックすると、その識別子、物体数、表示されている値がわかります。画像や書き出した結果で同じウェルを探すときは、これらの識別子を使います。"
         },
         {
           "visual": "06_count",
-          "narration": "Set Per well to count to compare object numbers. This view helps you find wells with fewer segmented objects before interpreting feature differences.",
+          "narration": "物体の数を比べるには、Per wellをcountにします。この表示を使うと、特徴量の違いを解釈する前に、セグメンテーションされた物体が少ないウェルを見つけられます。",
           "hold_after": 0.7,
           "focus": [
             340,
             300,
             1800,
             1300
-          ]
+          ],
+          "speech_text": "物体の数を比べるには、Per wellをcountにします。この表示を使うと、特徴量の違いを解釈する前に、セグメンテーションされた物体が少ないウェルを見つけられます。"
         },
         {
           "visual": "07_filtered",
-          "narration": "Raise Min objects per well to exclude wells with too few objects for your comparison. At six hundred one, two of this example’s four wells remain. Excluded wells appear as blanks rather than zero measurements.",
-          "hold_after": 0.7
+          "narration": "比較に使うには物体が少なすぎるウェルを除くには、Min objects per wellを上げます。六百一にすると、この例の四つのウェルのうち二つが残ります。除外されたウェルは、ゼロの測定値ではなく空白として表示されます。",
+          "hold_after": 0.7,
+          "speech_text": "比較に使うには物体が少なすぎるウェルを除くには、Min objects per wellを上げます。六百一にすると、この例の四つのウェルのうち二つが残ります。除外されたウェルは、ゼロの測定値ではなく空白として表示されます。"
         },
         {
           "visual": "08_save_csv",
-          "narration": "Click Export well grid CSV, choose a filename and save. The CSV contains the wells retained by the current filter, with their identifiers, counts, displayed values and spatial annotations.",
-          "hold_after": 0.7
+          "narration": "Export well grid CSVをクリックし、ファイル名を選んで保存します。CSVには、現在のフィルターで残ったウェルが、識別子、数、表示値、空間的な注記とともに含まれます。",
+          "hold_after": 0.7,
+          "speech_text": "Export well grid CSVをクリックし、ファイル名を選んで保存します。CSVには、現在のフィルターで残ったウェルが、識別子、数、表示値、空間的な注記とともに含まれます。"
         },
         {
           "visual": "09_exported",
-          "narration": "Keep the exported table with the measurement and aggregation settings. Lower the minimum count to bring excluded wells back into view, or choose another measurement for your next comparison.",
-          "hold_after": 0.7
+          "narration": "書き出した表は、測定と集計の設定と一緒に保管します。除外したウェルをもう一度表示するには最小数を下げ、次の比較には別の測定項目を選びます。",
+          "hold_after": 0.7,
+          "speech_text": "書き出した表は、測定と集計の設定と一緒に保管します。除外したウェルをもう一度表示するには最小数を下げ、次の比較には別の測定項目を選びます。"
         }
       ],
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },
@@ -4776,140 +4883,192 @@
       "app_key": "convert",
       "host_app_key": "foreign",
       "section": "Data",
-      "title": "Format Converter: preview and convert image files",
-      "description": "Select a source folder, check the target names and channel assignments, then convert images and resume completed work.",
+      "title": "Format Converter：画像ファイルをプレビューして変換する",
+      "description": "元のフォルダーを選び、変換先の名前とチャネルの割り当てを確認してから、画像を変換し、完了済みの作業を再開します。",
       "objectives": [
-        "Choose source and destination folders with the correct acquisition layout.",
-        "Preview target names, fields and channel assignments.",
-        "Convert the files and use Resume for completed fields."
+        "正しい撮影レイアウトで、元のフォルダーと出力先フォルダーを選ぶ。",
+        "変換先の名前、フィールド、チャネルの割り当てをプレビューする。",
+        "ファイルを変換し、完了済みのフィールドにはResumeを使う。"
       ],
-      "prerequisite": "Prepare a folder of supported image files and retain their acquisition metadata. You can practise with the two TIFF images used in the Import Project tutorial. Set the layout and Z handling for your own acquisition.",
+      "prerequisite": "対応する画像ファイルのフォルダーを用意し、撮影時のメタデータを保存しておきます。Import Projectのチュートリアルで使う二つのTIFF画像で練習できます。レイアウトとZの扱いは、自分の撮影に合わせて設定してください。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Import Project and choose Format Converter. Use it to prepare image files and filenames for the next analysis step.",
+          "narration": "HomeからImport Projectを開き、Format Converterを選びます。次の解析の段階に向けて、画像ファイルとファイル名を準備するために使います。",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import",
             "74_import_images"
-          ]
+          ],
+          "speech_text": "ホームからImport Projectを開き、Format Converterを選びます。次の解析の段階に向けて、画像ファイルとファイル名を準備するために使います。"
         },
         {
           "visual": "01b_current_converter_fold",
-          "narration": "The converter works in one direction: from Source, through Preview, into Destination. Preview shows where every source file will land before anything is written, so you can check the assignments; Convert then writes them.",
+          "narration": "コンバーターは一方向に動きます。Sourceから、Previewを経て、Destinationへと進みます。Previewは、何かを書き込む前に、それぞれの元ファイルがどこに置かれるかを示すので、割り当てを確認できます。その後、Convertで書き出します。",
           "hold_after": 0.7,
           "focus": [
             460,
             600,
             3370,
             1190
-          ]
+          ],
+          "speech_text": "コンバーターは一方向に動きます。Sourceから、Previewを経て、Destinationへと進みます。Previewは、何かを書き込む前に、それぞれの元ファイルがどこに置かれるかを示すので、割り当てを確認できます。その後、Convertで書き出します。"
         },
         {
           "visual": "02_real_source_folder",
-          "narration": "Choose the folder containing your source images. This example uses two single-channel TIFFs. Keep the original acquisition metadata available when checking the converted names.",
+          "narration": "元の画像が入っているフォルダーを選びます。この例では、単一チャネルのTIFFを二つ使います。変換後の名前を確認するときのために、元の撮影メタデータを手元に置いておきます。",
           "hold_after": 0.7,
           "related_lessons": [
             "36_import"
-          ]
+          ],
+          "speech_text": "元の画像が入っているフォルダーを選びます。この例では、単一チャネルのTIFFを二つ使います。変換後の名前を確認するときのために、元の撮影メタデータを手元に置いておきます。"
         },
         {
           "visual": "03_new_private_destination",
-          "narration": "Choose a new destination folder. The converter writes the new images there together with a mapping file; retain your original images separately.",
-          "hold_after": 0.7
+          "narration": "新しい出力先フォルダーを選びます。コンバーターは、新しい画像と対応表のファイルをそこに書き出します。元の画像は別に保管してください。",
+          "hold_after": 0.7,
+          "speech_text": "新しい出力先フォルダーを選びます。コンバーターは、新しい画像と対応表のファイルをそこに書き出します。元の画像は別に保管してください。"
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Set Layout to match your folders. Choose images directly in source for the example’s flat folder, and select the plate-naming rule you need. For a plate-and-well directory tree, choose its corresponding layout.",
+          "narration": "Layoutをフォルダーの構成に合わせます。例のような平らなフォルダーでは、元のフォルダーに画像が直接ある設定を選び、必要なプレートの命名規則を選びます。プレートとウェルごとのディレクトリー構成には、それに対応するレイアウトを選びます。",
           "hold_after": 0.7,
           "focus": [
             460,
             815,
             3370,
             200
-          ]
+          ],
+          "speech_text": "Layoutをフォルダーの構成に合わせます。例のような平らなフォルダーでは、元のフォルダーに画像が直接ある設定を選び、必要なプレートの命名規則を選びます。プレートとウェルごとのディレクトリー構成には、それに対応するレイアウトを選びます。"
         },
         {
           "visual": "04_explicit_flat_single_plane_settings",
-          "narration": "Choose how to handle Z planes. Keep every plane when you need the full stack, use maximum projection for a projected image, or choose the first plane when that is the intended input. This example contains one plane per file.",
+          "narration": "Zの各面の扱いを選びます。スタック全体が必要ならすべての面を残し、投影画像には最大値投影を使い、最初の面が目的の入力であればそれを選びます。この例では、各ファイルに面が一つだけあります。",
           "hold_after": 0.7,
           "focus": [
             460,
             870,
             3370,
             100
-          ]
+          ],
+          "speech_text": "Zの各面の扱いを選びます。スタック全体が必要ならすべての面を残し、投影画像には最大値投影を使い、最初の面が目的の入力であればそれを選びます。この例では、各ファイルに面が一つだけあります。"
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "Press Preview. Inspect every source-to-target assignment, including plate, well, field and channel. Indexed names are assigned identities; use the original metadata to confirm which experimental conditions they represent.",
+          "narration": "Previewを押します。プレート、ウェル、フィールド、チャネルを含め、元から変換先へのすべての割り当てを確認します。番号付きの名前は割り当てられた識別子です。どの実験条件に当たるかは、元のメタデータで確かめてください。",
           "hold_after": 0.7,
           "focus": [
             460,
             995,
             3370,
             790
-          ]
+          ],
+          "speech_text": "Previewを押します。プレート、ウェル、フィールド、チャネルを含め、元から変換先へのすべての割り当てを確認します。番号付きの名前は割り当てられた識別子です。どの実験条件に当たるかは、元のメタデータで確かめてください。"
         },
         {
           "visual": "06_preview_source_channel_and_plane_provenance",
-          "narration": "Review From field and From channel alongside the target names. Channel indexes in arrays and channel numbers in filenames can use different conventions. Check that each target contains the image plane you intend to analyse.",
+          "narration": "変換先の名前と並べて、From fieldとFrom channelを確認します。配列内のチャネルの番号と、ファイル名に含まれるチャネルの番号では、数え方が異なることがあります。それぞれの変換先に、解析したい画像の面が入っていることを確認します。",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ]
+          ],
+          "speech_text": "変換先の名前と並べて、From fieldとFrom channelを確認します。配列内のチャネルの番号と、ファイル名に含まれるチャネルの番号では、数え方が異なることがあります。それぞれの変換先に、解析したい画像の面が入っていることを確認します。"
         },
         {
           "visual": "05_preview_no_output_written",
-          "narration": "If a mapping is wrong, change the source layout or conversion settings and preview again. The preview table is read-only.",
+          "narration": "対応が間違っている場合は、元のレイアウトか変換の設定を変えて、もう一度プレビューします。プレビューの表は読み取り専用です。",
           "hold_after": 0.7,
           "focus": [
             460,
             1020,
             2750,
             180
-          ]
+          ],
+          "speech_text": "対応が間違っている場合は、元のレイアウトか変換の設定を変えて、もう一度プレビューします。プレビューの表は読み取り専用です。"
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Press Convert and read the completion summary for converted, failed and skipped files. Open a converted image to inspect its dimensions and channels before continuing to segmentation or measurement.",
+          "narration": "Convertを押し、変換、失敗、スキップされたファイルについての最後の要約を読みます。セグメンテーションや測定に進む前に、変換した画像を一つ開いて、大きさとチャネルを確認します。",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ]
+          ],
+          "speech_text": "Convertを押し、変換、失敗、スキップされたファイルについての最後の要約を読みます。セグメンテーションや測定に進む前に、変換した画像を一つ開いて、大きさとチャネルを確認します。"
         },
         {
           "visual": "07_actual_conversion_complete",
-          "narration": "Keep conversion_map.csv with the converted images. It records source and target paths, assigned identities and conversion status. Retain the original acquisition metadata alongside it.",
+          "narration": "conversion_map.csvは、変換した画像と一緒に保管します。元と変換先のパス、割り当てた識別子、変換の状態が記録されています。元の撮影メタデータもその横に保管しておきます。",
           "hold_after": 0.7,
           "focus": [
             460,
             1580,
             3370,
             210
-          ]
+          ],
+          "speech_text": "conversion_map.csvは、変換した画像と一緒に保管します。元と変換先のパス、割り当てた識別子、変換の状態が記録されています。元の撮影メタデータもその横に保管しておきます。"
         },
         {
           "visual": "08_resume_enabled",
-          "narration": "For a later run with the same source, plan and destination, enable Resume. Compatible completed fields can be reused. Read the summary to see which files were converted and which were already present.",
+          "narration": "同じ元フォルダー、同じ計画、同じ出力先で後から実行する場合は、Resumeをオンにします。互換性のある完了済みのフィールドは再利用できます。要約を読んで、どのファイルが変換され、どのファイルがすでにあったかを確認します。",
           "hold_after": 0.7,
           "focus": [
             2700,
             825,
             1130,
             190
-          ]
+          ],
+          "speech_text": "同じ元フォルダー、同じ計画、同じ出力先で後から実行する場合は、Resumeをオンにします。互換性のある完了済みのフィールドは再利用できます。要約を読んで、どのファイルが変換され、どのファイルがすでにあったかを確認します。"
         }
       ],
       "narration_voices": {
         "en": [
           "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
         ]
       }
     },

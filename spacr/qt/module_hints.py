@@ -184,6 +184,8 @@ def install_module_hints(window) -> Optional[_ModuleHints]:
     app = QApplication.instance()
     if app is None:
         return None
+    from .gil_priority import _watch_application_events
+
     hints = _ModuleHints(window)
-    app.installEventFilter(hints)
+    _watch_application_events(app, hints, (QEvent.Type.ToolTip,))
     return hints

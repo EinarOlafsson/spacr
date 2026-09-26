@@ -64,6 +64,8 @@ from PySide6.QtGui import QFont
 
 from PySide6.QtWidgets import QApplication, QWidget
 
+from .gil_priority import _watch_application_events
+
 LOG = logging.getLogger(__name__)
 
 #: What one wheel notch is worth, as a fraction of 100 %.
@@ -155,6 +157,10 @@ def _scaled_font(base: QFont, ratio: float,
         font.setPointSizeF(target)
         return font
     return None
+
+
+_ZOOM_KINDS = frozenset((QEvent.KeyPress, QEvent.KeyRelease, QEvent.Wheel,
+                         QEvent.WindowDeactivate))
 
 
 class LiveZoomFilter(QObject):
@@ -473,7 +479,7 @@ def install_live_zoom(app=None) -> Optional[LiveZoomFilter]:
         return existing
     parent = app if isinstance(app, QObject) else None
     live_zoom = LiveZoomFilter(parent)
-    app.installEventFilter(live_zoom)
+    _watch_application_events(app, live_zoom, _ZOOM_KINDS)
     setattr(app, _FILTER_ATTRIBUTE, live_zoom)
     return live_zoom
 
@@ -851,7 +857,7 @@ def install_column_text_scale(app=None) -> Optional[ColumnTextScale]:
     if existing is not None:
         return existing
     column_text = ColumnTextScale(app if isinstance(app, QObject) else None)
-    app.installEventFilter(column_text)
+    _watch_application_events(app, column_text, _COLUMN_KINDS)
     setattr(app, _COLUMN_FILTER_ATTRIBUTE, column_text)
     return column_text
 

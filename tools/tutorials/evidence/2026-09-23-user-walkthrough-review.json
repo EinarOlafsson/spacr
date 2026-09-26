@@ -291,9 +291,7 @@
       "newly_authored": false,
       "manual_review": "source rewritten; live narration aligned",
       "automated_review_flags": [],
-      "incompatible_translation_reviews": [
-        "12_map_barcodes.reviewed"
-      ],
+      "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
       "published_rewrite": true
     },
@@ -371,13 +369,27 @@
     },
     {
       "lesson": "19_train_cellpose",
-      "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
-      "scene_count": 11,
+      "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+      "scene_count": 13,
       "source_revised": true,
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
-      "incompatible_translation_reviews": [],
+      "incompatible_translation_reviews": [
+        "da",
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "it",
+        "ja",
+        "ko",
+        "nb",
+        "pt-BR",
+        "sv",
+        "zh-CN"
+      ],
       "prepared_rewrite": false,
       "published_rewrite": false
     },

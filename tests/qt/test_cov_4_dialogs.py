@@ -40,6 +40,8 @@ def test_a_refused_install_does_not_consume_the_filter_slot(qapp):
         assert dialogs.detach_all_dialogs(qapp) is False
     finally:
         if dialogs._DETACHER is not None:
-            qapp.removeEventFilter(dialogs._DETACHER)
+            from spacr.qt.gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(qapp, dialogs._DETACHER)
         dialogs._DETACHER = None
         dialogs._DETACHED_APP = None

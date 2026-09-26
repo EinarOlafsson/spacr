@@ -181,13 +181,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "ops_spot_detector",
-      "source": "Which detector finds the sequencing spots each field's reads are called at. 'native' is spaCR's own spot score and the only one this plate was validated with. 'spotnet' is DeepCell's SpotNet, a trained spot detector run in an environment of its own; its positions go through the same bases, calls and assignment to nuclei, and ops_read_threshold no longer applies. SpotNet's models are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be installed from the Model Zoo, and its weights need a free DeepCell access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. It decodes one field at a time. Default 'native'.",
-      "source_sha256": "edda98fd31da19d81f11b2d6e7a2d689841eaa9a7722dd63c497211a698fdddd",
-      "translation": "用于查找测序斑点的检测器，每个视野的读段在这些斑点处进行碱基判读。'native' 是 spaCR 自带的斑点评分，也是此板唯一经过验证的检测器。'spotnet' 是 DeepCell 的 SpotNet，一种在独立环境中运行的训练好的斑点检测器；其位置会经过相同的碱基、判读和细胞核分配步骤，ops_read_threshold 不再适用。SpotNet 的模型仅限非商业学术用途（NON-COMMERCIAL ACADEMIC USE ONLY），必须从模型库安装，其权重需要在 DEEPCELL_ACCESS_TOKEN 或 ~/.spacr/deepcell_token 中提供免费的 DeepCell 访问令牌。它一次解码一个视野。默认值 'native'。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "psf_fwhm_um",
       "source": "Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
       "source_sha256": "8cd70f74d9eb3b2d6adcd9a40610d115ebf39c76c1cc28f532970222b0efe04a",

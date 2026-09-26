@@ -568,14 +568,18 @@ class AvailabilityPanel(QFrame):
         """Start watching the application for events, if not already watching."""
         app = QApplication.instance()
         if app is not None and not self._filtering:
-            app.installEventFilter(self)
+            from ..gil_priority import _watch_application_events
+
+            _watch_application_events(app, self, (QEvent.MouseButtonPress,))
             self._filtering = True
 
     def _remove_filter(self) -> None:
         """Stop watching the application for events."""
         app = QApplication.instance()
         if app is not None and self._filtering:
-            app.removeEventFilter(self)
+            from ..gil_priority import _stop_watching_application_events
+
+            _stop_watching_application_events(app, self)
         self._filtering = False
 
     def eventFilter(self, obj, event):

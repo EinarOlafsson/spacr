@@ -4377,7 +4377,9 @@ def install_dialog_translation(app) -> None:
 
     event_filter = _DialogTranslationFilter(app)
     app._spacr_dialog_i18n_filter = event_filter
-    app.installEventFilter(event_filter)
+    from .gil_priority import _watch_application_events
+
+    _watch_application_events(app, event_filter, (shown,))
 
 
 __all__ = [
