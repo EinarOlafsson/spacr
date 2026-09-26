@@ -1,0 +1,1552 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#1",
+      "source": ":func:`normalize_uint16` for an integer field, so a detector reads the exact numbers the canvas paints; a float field has no integer range to fill and comes back on 0..1 instead.",
+      "source_sha256": "f7eb889a5ee6bf6dc19ad685cae2df807c5c33fe45f53234227fbaa9a2a28f59",
+      "context": ":func:`normalize_uint16` for an integer field, so a detector reads the exact numbers the canvas paints; a float field has no integer range to fill and comes back on 0..1 instead.",
+      "translation": ":func:`normalize_uint16` fyrir heiltölusjónsvið, svo greinir lesi nákvæmlega þær tölur sem striginn teiknar; fleytitölusjónsvið hefur ekkert heiltölubil til að fylla og kemur í staðinn til baka á 0..1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#3",
+      "source": "the percentile mapped to the bottom of the range.",
+      "source_sha256": "1e60c06fc62dd7777e8c247eb1bce132adf2d85e9e1bbed99480cd4954058118",
+      "context": "the percentile mapped to the bottom of the range.",
+      "translation": "hundraðshlutamarkið sem varpað er á neðri enda bilsins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#4",
+      "source": "the percentile mapped to the top.",
+      "source_sha256": "6787dd65ddd04687679de9ed63d09d0e29f874d5308e5862fea3c4ce60e27dea",
+      "context": "the percentile mapped to the top.",
+      "translation": "hundraðshlutamarkið sem varpað er á efri endann.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#5",
+      "source": "the stretched field, the same shape.",
+      "source_sha256": "bdd9efc92e98baa977d3ab9ba5fb4c11ebaaabbda110dd3a0ca7f9845ffb33bd",
+      "context": "the stretched field, the same shape.",
+      "translation": "teygða sjónsviðið, sama lögun.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_uint16#1",
+      "source": "integer-typed image (any integer dtype, despite the name); clipped to its ``lower_pct`` and ``upper_pct`` percentiles. An empty array is returned as is.",
+      "source_sha256": "917d96b03fcbddd459d27ed2450883aec43a00c62a0a19dcc7748a668071faaa",
+      "context": "integer-typed image (any integer dtype, despite the name); clipped to its ``lower_pct`` and ``upper_pct`` percentiles. An empty array is returned as is.",
+      "translation": "mynd af heiltölugerð (hvaða heiltölu-dtype sem er, þrátt fyrir heitið); klippt að ``lower_pct`` og ``upper_pct`` hundraðshlutamörkum sínum. Tómu fylki er skilað eins og það er.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.overlay_mask#1",
+      "source": "2-D grayscale or RGB image in the 16-bit range; it is divided by 256 to reach 8 bits.",
+      "source_sha256": "3c087d6c6e54fe41e08f548a2d69f3e8aa6b22deb840a0e775ed8374d9644c27",
+      "context": "2-D grayscale or RGB image in the 16-bit range; it is divided by 256 to reach 8 bits.",
+      "translation": "2-D grátóna- eða RGB-mynd á 16-bita bilinu; henni er deilt með 256 til að ná 8 bitum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.overlay_mask#2",
+      "source": "label mask with the image's height and width; each label gets a fixed pseudo-random colour and 0 stays unblended.",
+      "source_sha256": "a190ffb20026e8e47904159bb5edcf5c56ccc606a56405ce45c81665fa31dd49",
+      "context": "label mask with the image's height and width; each label gets a fixed pseudo-random colour and 0 stays unblended.",
+      "translation": "merkjagríma með hæð og breidd myndarinnar; hvert merki fær fastan gervislembilit og 0 helst óblandað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_disk#1",
+      "source": "2-D mask, modified in place; the square is clipped to it.",
+      "source_sha256": "1759f9e7b99e0635acac9d0c7caafea6b2f95fc7891e0d38bac30b47d80e297d",
+      "context": "2-D mask, modified in place; the square is clipped to it.",
+      "translation": "2-D gríma, breytt á staðnum; ferningurinn er klipptur að henni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_disk#2",
+      "source": "centre column in pixels.",
+      "source_sha256": "80979d618d01aa9855aec75bc203dbd602765cc072a8047137756282f7ea3b6d",
+      "context": "centre column in pixels.",
+      "translation": "miðjudálkur í pixlum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_disk#3",
+      "source": "centre row in pixels.",
+      "source_sha256": "5c85835bed541c9f2a73ac9f7b3603f7c3b17b0db359792d1c5e3ff65bf570b1",
+      "context": "centre row in pixels.",
+      "translation": "miðjuröð í pixlum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_disk#4",
+      "source": "half-width of the square in pixels; values below 1 are treated as 1.",
+      "source_sha256": "1b0f550301b8ebbcd91ffa2afd7c34c387d6404460200f2e16c3c25c36c4f11a",
+      "context": "half-width of the square in pixels; values below 1 are treated as 1.",
+      "translation": "hálf breidd ferningsins í pixlum; gildi undir 1 eru meðhöndluð sem 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#1",
+      "source": "2-D mask, modified in place.",
+      "source_sha256": "c36f9c0bae4e16e7678abe0b5d90353ba429b90b12e2356d3fd879bcb021e492",
+      "context": "2-D mask, modified in place.",
+      "translation": "2-D gríma, breytt á staðnum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#2",
+      "source": "start column in pixels.",
+      "source_sha256": "7d620165dadba4d059166250bfb4e550a54b33895fd34e1288f85eb52ba8f3b5",
+      "context": "start column in pixels.",
+      "translation": "upphafsdálkur í pixlum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#3",
+      "source": "start row in pixels.",
+      "source_sha256": "2dcd09618732035c8c90f2683741aa16e532d37ee4412321996c97482429dad4",
+      "context": "start row in pixels.",
+      "translation": "upphafsröð í pixlum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#4",
+      "source": "end column in pixels.",
+      "source_sha256": "75916a952a8e38439d8c5c5e885622b7a6bea12b2d3fe83626975b08db069ec8",
+      "context": "end column in pixels.",
+      "translation": "lokadálkur í pixlum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#5",
+      "source": "end row in pixels.",
+      "source_sha256": "947148f8254b7389b023b0a0306b4922f08740cfe6a1269367f4088cb1e4da88",
+      "context": "end row in pixels.",
+      "translation": "lokaröð í pixlum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.paint_line#6",
+      "source": "half-width of each stamp; see :func:`paint_disk`.",
+      "source_sha256": "fe6d9670d4b7bd4e7efede338a6984f83f822b278502dde5972d85823a9b54b6",
+      "context": "half-width of each stamp; see :func:`paint_disk`.",
+      "translation": "hálf breidd hvers stimpils; sjá :func:`paint_disk`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#0",
+      "source": "Report shared, missing, orphaned and incompletely enclosed object IDs.",
+      "source_sha256": "b56889789374ad6045f467bc4f910d6c2d951a3361bd6d641a3eb5fc831a2faa",
+      "context": "Report shared, missing, orphaned and incompletely enclosed object IDs.",
+      "translation": "Tilkynna sameiginleg, vantandi, munaðarlaus og ófullkomlega umlukin hlutaauðkenni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#1",
+      "source": "nonempty 2-D nonnegative integer primary labels.",
+      "source_sha256": "12ee15dab189b0b99af406cf0d6f9bde203b2f8b054a67fe8d764c28a2fe4e91",
+      "context": "nonempty 2-D nonnegative integer primary labels.",
+      "translation": "2-D aðalmerki af óneikvæðum heiltölum sem eru ekki tóm.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#2",
+      "source": "secondary labels of the same shape. Sparse and uint64 IDs are compared exactly, including values above signed int64.",
+      "source_sha256": "391ceea12639a6b2c055c7c79d6898920a1c7f8f1f5193b6ff003de92d9f2b5c",
+      "context": "secondary labels of the same shape. Sparse and uint64 IDs are compared exactly, including values above signed int64.",
+      "translation": "aukamerki af sömu lögun. Dreifð og uint64-auðkenni eru borin nákvæmlega saman, þar með talin gildi yfir formerktu int64.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#3",
+      "source": ":class:`PrimarySecondaryReport`; no array is modified. An ID match means the IDs agree, not that spatial overlap was used to infer or repair a parent assignment.",
+      "source_sha256": "1be24cbaf7843a9a6f760b089437e3fa0465df1c46d8246fbad281d54f4dd2c4",
+      "context": ":class:`PrimarySecondaryReport`; no array is modified. An ID match means the IDs agree, not that spatial overlap was used to infer or repair a parent assignment.",
+      "translation": ":class:`PrimarySecondaryReport`; engu fylki er breytt. Samsvörun auðkenna þýðir að auðkennin eru sammála, ekki að rúmfræðileg skörun hafi verið notuð til að álykta um eða lagfæra foreldrisúthlutun.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.primary_secondary_report#4",
+      "source": "mismatched shapes or invalid label arrays.",
+      "source_sha256": "ecd89ebb40bfc14ec4733cd7d06fbf4885e18834c5566bc7168c3b7837807cd9",
+      "context": "mismatched shapes or invalid label arrays.",
+      "translation": "ósamræmdar lögunir eða ógild merkjafylki.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.property_needs_intensity#0",
+      "source": "Whether the regionprop ``name`` measures pixel values.",
+      "source_sha256": "39e31cec8869769c2bc3a2e53de0637b216367f6a8e81f5de2273b9467591a59",
+      "context": "Whether the regionprop ``name`` measures pixel values.",
+      "translation": "Hvort regionprop-eiginleikinn ``name`` mælir pixlagildi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_curation#0",
+      "source": "Every verdict recorded for ``folder``, keyed by image path.",
+      "source_sha256": "c273fa0829419fcf5bb3cdc46c3143c0820340bace0b7d32c58e8408cbf0ed6b",
+      "context": "Every verdict recorded for ``folder``, keyed by image path.",
+      "translation": "Hvert mat sem skráð er fyrir ``folder``, lyklað eftir myndslóð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_curation#1",
+      "source": "A file that is missing, empty or unreadable is NO VERDICTS rather than an error: this is a curation aid, and refusing to open a folder because its CSV was edited by hand would be the wrong trade.",
+      "source_sha256": "a912b8dfd949bcffa895fde99a603e4b6acf65daecd5f5034177f19c38b4110b",
+      "context": "A file that is missing, empty or unreadable is no verdicts rather than an error: this is a curation aid, and refusing to open a folder because its CSV was edited by hand would be the wrong trade.",
+      "translation": "Skrá sem vantar, er tóm eða ólæsileg þýðir ENGIN MÖT frekar en villa: þetta er hjálpartæki við yfirferð, og að neita að opna möppu af því að CSV-skrá hennar var breytt í höndunum væri röng málamiðlun.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_curation#3",
+      "source": "image path -> the row, as strings.",
+      "source_sha256": "80cc32dffd316f347387c8a0899aca0a9197cdc83e22a6278a15f1a19bd22944",
+      "context": "image path -> the row, as strings.",
+      "translation": "myndslóð -> röðin, sem strengir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_recrop_manifest#1",
+      "source": "image folder whose :func:`recrop_archive_dir` holds the manifest; a missing, unreadable or non-list manifest gives ``[]``.",
+      "source_sha256": "25d7cb30d80537ba31d7f268ee28888cd41cd5bb99de48ed217826c7bb4e1333",
+      "context": "image folder whose :func:`recrop_archive_dir` holds the manifest; a missing, unreadable or non-list manifest gives ``[]``.",
+      "translation": "myndamappa þar sem :func:`recrop_archive_dir` geymir yfirlitsskrána; yfirlitsskrá sem vantar, er ólæsileg eða er ekki listi gefur ``[]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#0",
+      "source": "Read a Cellpose ``_seg.npy`` bundle as the dict it holds.",
+      "source_sha256": "624c081795d499b304df7a9197dfe53d5529045f80429fb67bb4bd42ba5f93f3",
+      "context": "Read a Cellpose ``_seg.npy`` bundle as the key-value mapping it holds.",
+      "translation": "Lesa Cellpose ``_seg.npy`` búnt sem orðabókina sem það geymir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#1",
+      "source": "A bundle is a pickle, and unpickling runs whatever the file says, so a bundle is only ever read from a queue folder the curator chose -- the same trust the external curation tool and Cellpose itself extend to it.",
+      "source_sha256": "7f60461257706399349ca61ab34c208e6c721d9af856172bfee9b820877d477a",
+      "context": "A bundle is a pickle, and unpickling runs whatever the file says, so a bundle is only ever read from a work list folder the curator chose -- the same trust the external curation tool and Cellpose itself extend to it.",
+      "translation": "Búnt er pickle, og afsúrsun keyrir hvað sem skráin segir, svo búnt er aðeins nokkurn tíma lesið úr biðraðarmöppu sem yfirferðaraðilinn valdi -- sama traust og ytra yfirferðartólið og Cellpose sjálft sýna því.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#2",
+      "source": "the bundle.",
+      "source_sha256": "d4e19dcdca1df93796f50f785a3acbc33de5b94b262e2573c334ffe37eb7c290",
+      "context": "the bundle.",
+      "translation": "búntið.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#3",
+      "source": "the bundle's dict, with every key it was written with.",
+      "source_sha256": "0ecd1dde5d0a1f22d346f6e867047398745bc957ba1d11b3934e0d7868a7683e",
+      "context": "the bundle's key-value mapping, with every structured-data name it was written with.",
+      "translation": "orðabók búntsins, með hverjum lykli sem hún var skrifuð með.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.read_seg_bundle#4",
+      "source": "when the file does not hold a dict with a ``masks`` entry.",
+      "source_sha256": "f49ce633bc8b3e3c6a661c1bd00ceb5d381e4fa00261cad675903cdb74f5f81b",
+      "context": "when the file does not hold a key-value mapping with a ``masks`` entry.",
+      "translation": "þegar skráin geymir ekki orðabók með ``masks`` færslu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#0",
+      "source": "Record one verdict, replacing any the field already had.",
+      "source_sha256": "8df423fa323cd87096d261d2fb958fc3a2f7f628eac21646cd7c3d454c0594bb",
+      "context": "Record one verdict, replacing any the field already had.",
+      "translation": "Skrá eitt mat, og skipta út hverju mati sem sjónsviðið hafði þegar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#1",
+      "source": "ONE ROW PER FIELD. Keep and then Discard on the same image leaves the later verdict and nothing else, because two rows that disagree are worse than no file -- whoever reads it downstream would have to guess which press came last, and a CSV does not say.",
+      "source_sha256": "ee96b4e31173f5c6d2cbc4b0cfdee06ce2cc00c09de9e304fd0fbcb2d428db76",
+      "context": "One row per microscope field of view. Keep and then Discard on the same image leaves the later verdict and nothing else, because two rows that disagree are worse than no file -- whoever reads it downstream would have to guess which press came last, and a CSV does not say.",
+      "translation": "EIN RÖÐ FYRIR HVERT SJÓNSVIÐ. Halda og síðan Henda á sömu mynd skilur eftir seinna matið og ekkert annað, því tvær raðir sem eru ósammála eru verri en engin skrá -- hver sem les hana síðar í ferlinu þyrfti að giska á hvor smellurinn kom síðast, og CSV-skrá segir það ekki.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#2",
+      "source": "Written to a dot-name in the same folder and renamed over the target, so a reader never sees half a file and a crash leaves the old one whole. The same shape as :func:`_write_bundle` above.",
+      "source_sha256": "7533a45751bf9a7a8e416f92c9615ab0f2648c387d4220f639ee87120517a9fa",
+      "context": "Written to a dot-name in the same folder and renamed over the target, so a reader never sees half a file and a crash leaves the old one whole. The same shape as :func:`_write_bundle` above.",
+      "translation": "Skrifuð undir punktheiti í sömu möppu og endurnefnd yfir markskrána, svo lesandi sér aldrei hálfa skrá og hrun skilur gömlu skrána eftir heila. Sama form og :func:`_write_bundle` hér að ofan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#4",
+      "source": "the field being judged.",
+      "source_sha256": "1bba90d8477c6164d2e15309067f2ffbd5e308772cb0dd64707bd8081ec8793f",
+      "context": "the field being judged.",
+      "translation": "sjónsviðið sem verið er að meta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#5",
+      "source": "its mask, from :func:`mask_save_path`.",
+      "source_sha256": "1d2f2c17041f1ff9e05a41edde44fdb390725957c2a94d46aae66abbe07b1965",
+      "context": "its mask, from :func:`mask_save_path`.",
+      "translation": "gríma þess, frá :func:`mask_save_path`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#6",
+      "source": "how many objects the mask holds right now.",
+      "source_sha256": "8fc38ce3f0ae54702e454d52b62e643fad21e5eb772345c79e414247ef269bee",
+      "context": "how many objects the mask holds right now.",
+      "translation": "hversu marga hluti gríman geymir akkúrat núna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#7",
+      "source": "True for Keep, False for Discard.",
+      "source_sha256": "82e149cfa713bb0690239c94caf8518fef4b85bcd609da1e952e76526d9e3c1b",
+      "context": "True for Keep, False for Discard.",
+      "translation": "True fyrir Halda, False fyrir Henda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.record_curation#8",
+      "source": "the CSV's path.",
+      "source_sha256": "25396ced467465dd74ff7ae682de646c7c251d41859c3e1d05051a97a2067c59",
+      "context": "the CSV's path.",
+      "translation": "slóð CSV-skrárinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.recrop_archive_dir#1",
+      "source": "image folder; the archive is its :data:`RECROP_ARCHIVE_DIRNAME` subfolder. Nothing is created.",
+      "source_sha256": "c7a84863b664c13eed6254471cf31e75be67fccbd908635d58a7b39582017591",
+      "context": "image folder; the archive is its :data:`RECROP_ARCHIVE_DIRNAME` subfolder. Nothing is created.",
+      "translation": "myndamappa; skjalasafnið er :data:`RECROP_ARCHIVE_DIRNAME` undirmappa hennar. Ekkert er búið til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.recrop_child_name#3",
+      "source": "the field being cut.",
+      "source_sha256": "85990aafa3011d4300e12a02ba229cb043498f1a2eed6b93cca767342365e770",
+      "context": "the field being cut.",
+      "translation": "sjónsviðið sem verið er að skera.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.recrop_child_name#4",
+      "source": "the child image's extension. Ignored for a bundle, whose child is a bundle too, ``<field>__rNN_seg.npy``, because a TIFF written into a folder of bundles would make it two layouts at once.",
+      "source_sha256": "0148dee76dea46d5ad487ae8fdc2cc928cf4bb334251d9ee09c681a09731cfa3",
+      "context": "the child image's extension. Ignored for a bundle, whose child is a bundle too, ``<field>__rNN_seg.npy``, because a TIFF written into a folder of bundles would make it two layouts at once.",
+      "translation": "ending barnsmyndarinnar. Hunsað fyrir búnt, þar sem barnið er líka búnt, ``<field>__rNN_seg.npy``, því TIFF-skrá sem skrifuð væri í möppu af búntum myndi gera hana að tveimur uppsetningum í einu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.recrop_child_name#6",
+      "source": "the child's file name.",
+      "source_sha256": "794261a24536777611da19ea0ebe0a779ea3a404b23bec1f3f6c60921537eafd",
+      "context": "the child's file name.",
+      "translation": "skráarheiti barnsins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.relabel_objects#1",
+      "source": "label or binary mask; every pixel above 0 is foreground and the result keeps its dtype.",
+      "source_sha256": "5a0c0fc4f890730de0e020b0fb66fadb8d1a25b4e4d21f0bfc54e4f6ade13195",
+      "context": "label or binary mask; every pixel above 0 is foreground and the result keeps its dtype.",
+      "translation": "merkja- eða tvígild gríma; hver pixill yfir 0 er forgrunnur og niðurstaðan heldur dtype sinni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.relative_tolerance#3",
+      "source": "intensity image whose max minus min sets the range; an empty array gives ``1.0``.",
+      "source_sha256": "5dad790f1332571cc17897cabe5db0e535723f9c86c1b3db7e14157586bda8d8",
+      "context": "intensity image whose max minus min sets the range; an empty array gives ``1.0``.",
+      "translation": "styrkleikamynd þar sem hámark mínus lágmark ákvarðar bilið; tómt fylki gefur ``1.0``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.relative_tolerance#4",
+      "source": "share of that range, in percent (``5`` means 5 %).",
+      "source_sha256": "e306fd07d42eaf99ff1a8dec69cdfa4932136dd26066cb8ef884877b8dcef8c4",
+      "context": "share of that range, in percent (``5`` means 5 %).",
+      "translation": "hluti af því bili, í prósentum (``5`` þýðir 5 %).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.remove_small_objects#1",
+      "source": "label or binary mask; every pixel above 0 is foreground. The survivors are relabelled 1..N in the input's dtype.",
+      "source_sha256": "fe131edd28a4a747e82c83cdf124bd8ee0b8b8cb1bc998c38cfb103aef8ab7d8",
+      "context": "label or binary mask; every pixel above 0 is foreground. The survivors are relabelled 1..N in the input's dtype.",
+      "translation": "merkja- eða tvígild gríma; hver pixill yfir 0 er forgrunnur. Þeir sem lifa af eru endurmerktir 1..N í dtype inntaksins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.remove_small_objects#2",
+      "source": "smallest component to keep, in pixels; 0 or less returns a copy unchanged.",
+      "source_sha256": "eac35ab95f7d7a4753c09f068fb5e84c1e4b71d4d4a33f6f03141a9aed200f1c",
+      "context": "smallest component to keep, in pixels; 0 or less returns a copy unchanged.",
+      "translation": "minnsti þáttur sem á að halda, í pixlum; 0 eða minna skilar óbreyttu afriti.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.retire_recropped_original#1",
+      "source": "The source image, mask, and curation ledger are moved to ``<folder>/recropped_originals`` and recorded in :data:`RECROP_MANIFEST`. This removes the multi-object source from the training queue without deleting it. A bundle goes with its ledger and with any display image of its stem beside it, as the external curation tool moved its ``.png``.",
+      "source_sha256": "4f7ced9f30622818b98822e60c1ee49e87eb549eeec09c263307c40fa1c51246",
+      "context": "The source image, mask, and curation ledger are moved to ``<folder>/recropped_originals`` and recorded in :data:`RECROP_MANIFEST`. This removes the multi-object source from the training work list without deleting it. A bundle goes with its ledger and with any display image of its stem beside it, as the external curation tool moved its ``.png``.",
+      "translation": "Upprunamyndin, gríman og yfirferðarbókhaldið eru færð í ``<folder>/recropped_originals`` og skráð í :data:`RECROP_MANIFEST`. Þetta fjarlægir upprunann með mörgum hlutum úr þjálfunarbiðröðinni án þess að eyða honum. Búnt fer með bókhaldi sínu og með hverri birtingarmynd af stofni þess við hliðina, eins og ytra yfirferðartólið færði ``.png`` sína.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#1",
+      "source": "Object ids are preserved -- see :func:`canonical_labels` for what that costs and why the alternative is worse. A ``_seg.npy`` bundle is written back into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the TIFF to the sibling layout's masks folder.",
+      "source_sha256": "58e4f435f3deef69bb9c086657670f27f02c6b9386ea1c791cf1928290c71db7",
+      "context": "Object ids are preserved -- see :func:`canonical_labels` for what that costs and why the alternative is worse. A ``_seg.npy`` bundle is written back into itself by :func:`save_seg_bundle`, and ``masks_dir`` moves the TIFF to the sibling layout's masks folder.",
+      "translation": "Hlutaauðkenni eru varðveitt -- sjá :func:`canonical_labels` um hvað það kostar og hvers vegna hinn kosturinn er verri. ``_seg.npy`` búnt er skrifað aftur í sjálft sig af :func:`save_seg_bundle`, og ``masks_dir`` færir TIFF-skrána í grímumöppu sibling-uppsetningarinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#3",
+      "source": "source image name; its extension is discarded and its stem becomes the TIFF mask name. A name ending in :data:`SEG_SUFFIX` is the bundle to write into.",
+      "source_sha256": "c0bea415c9505292362f509f2f28f66eb6845411ec88366ee918dcabf9510772",
+      "context": "source image name; its extension is discarded and its stem becomes the TIFF mask name. A name ending in :data:`SEG_SUFFIX` is the bundle to write into.",
+      "translation": "heiti upprunamyndar; endingu hennar er hent og stofn hennar verður heiti TIFF-grímunnar. Heiti sem endar á :data:`SEG_SUFFIX` er búntið sem á að skrifa í.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_mask#7",
+      "source": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
+      "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
+      "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
+      "translation": "varðveita nákvæm auðkenni aðal-/aukahluta án þess að túlka grímur með einu gildi sem tvígildar eða skipta ótengdum hlutum. Skýri hamurinn staðfestir óneikvæð 2-D heiltölumerki og hafnar auðkennum yfir 65535 áður en skrifað er; hann endurnúmerar þau aldrei hljóðlaust.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#0",
+      "source": "Write edited labels back into the bundle they came from.",
+      "source_sha256": "7a308b9b06106321911de80e4f94356a56c56fba0e139e3431e7b235d062a770",
+      "context": "Write edited labels back into the bundle they came from.",
+      "translation": "Skrifa breytt merki aftur í búntið sem þau komu úr.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#1",
+      "source": "Every key the bundle already had is kept -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter``, and any other -- and ``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys are DERIVED from the masks and would describe the old ones if left:",
+      "source_sha256": "fc5d86098182f1227cb9b6b5d7aeb7f0afcd738c36b3c320f09fd759653b23ee",
+      "context": "Every key the bundle already had is kept -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter``, and any other -- and ``masks`` is replaced by :func:`canonical_labels` of ``mask``. Two keys are DERIVED from the masks and would describe the old ones if left:",
+      "translation": "Hverjum lykli sem búntið hafði þegar er haldið -- ``img``, ``flows``, ``filename``, ``source_image``, ``diameter``, og öllum öðrum -- og ``masks`` er skipt út fyrir :func:`canonical_labels` af ``mask``. Tveir lyklar eru LEIDDIR af grímunum og myndu lýsa þeim gömlu ef þeir væru látnir vera:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#2",
+      "source": "``outlines`` is redrawn by :func:`seg_outlines`;",
+      "source_sha256": "e1377f06d0b8e311a9b249f41d9e66d13cfc87c38c192e251ba6ae9eb690c292",
+      "context": "``outlines`` is redrawn by :func:`seg_outlines`;",
+      "translation": "``outlines`` er teiknað upp á nýtt af :func:`seg_outlines`;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#3",
+      "source": "``ismanual``, one flag per object, is resized to the new largest id: an id the bundle already flagged keeps its flag, and an id beyond the old list was drawn in this editor, so it is flagged manual.",
+      "source_sha256": "4512d8585bda3c7f00bc28a4bf6e04bd87c3369e5ed99dee191eb404407b5ed6",
+      "context": "``ismanual``, one flag per object, is resized to the new largest id: an id the bundle already flagged keeps its flag, and an id beyond the old list was drawn in this editor, so it is flagged manual.",
+      "translation": "``ismanual``, eitt flagg fyrir hvern hlut, fær nýja stærð miðað við nýja hæsta auðkennið: auðkenni sem búntið flaggaði þegar heldur flaggi sínu, og auðkenni handan gamla listans var teiknað í þessum ritli, svo það er flaggað sem handvirkt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#5",
+      "source": "the edited labels.",
+      "source_sha256": "1ff7977629fe768d38f93c120a633a45b75678e61dccaaa054ec047b409375df",
+      "context": "the edited labels.",
+      "translation": "breyttu merkin.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#6",
+      "source": "keep every supplied label exactly, including a lone ID or disconnected pieces with the same ID. Labels must fit uint16.",
+      "source_sha256": "bb39147b837252cc70c8038f9bd16e634ec249100a8e6bf7bac1dd32577d5ba3",
+      "context": "keep every supplied label exactly, including a lone ID or disconnected pieces with the same ID. Labels must fit uint16.",
+      "translation": "halda hverju gefnu merki nákvæmlega, þar með talið stöku auðkenni eða ótengdum hlutum með sama auðkenni. Merki verða að passa í uint16.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_seg_bundle#8",
+      "source": "when ``path`` is not a bundle.",
+      "source_sha256": "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf",
+      "context": "when ``path`` is not a bundle.",
+      "translation": "þegar ``path`` er ekki búnt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#0",
+      "source": "Grow secondary objects from labelled primaries with a seeded watershed.",
+      "source_sha256": "3170bdb4c52eaf2bc6d1ee9c7e677a201002e93870844c75ef852d55a2142241",
+      "context": "Grow secondary objects from labelled primaries with a seeded watershed.",
+      "translation": "Rækta aukahluti út frá merktum aðalhlutum með fræsettum vatnaskilum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#1",
+      "source": "Every positive primary label is a marker, including all its pixels. Intensity growth follows the negative, optionally Gaussian-smoothed image. Distance growth floods a flat surface from the primary pixels. Common stop thresholds constrain four-connected paths around excluded pixels; seed_fraction trims after growth. This is not unrestricted Euclidean nearest-primary assignment. Neither mode is CellProfiler's distance/intensity Propagation algorithm.",
+      "source_sha256": "a990898d19f4db95d3ba41b520ea08d001d3bf0197622377d8cc291ed1e9c40e",
+      "context": "Every positive primary label is a marker, including all its pixels. Intensity growth follows the negative, optionally Gaussian-smoothed image. Distance growth floods a flat surface from the primary pixels. Common stop thresholds constrain four-connected paths around excluded pixels; seed_fraction trims after growth. This is not unrestricted Euclidean nearest-primary assignment. Neither mode is CellProfiler's distance/intensity Propagation algorithm.",
+      "translation": "Hvert jákvætt aðalmerki er merki fyrir vatnaskil, þar með taldir allir pixlar þess. Vöxtur eftir styrk fylgir neikvæðu myndinni, valfrjálst mýktri með Gauss-síu. Vöxtur eftir fjarlægð flæðir flatt yfirborð frá pixlum aðalhlutanna. Sameiginlegir stöðvunarþröskuldar takmarka fjórtengdar leiðir í kringum útilokaða pixla; seed_fraction snyrtir eftir vöxt. Þetta er ekki óheft evklíðsk úthlutun til næsta aðalhlutar. Hvorugur hamurinn er Propagation-reiknirit CellProfiler byggt á fjarlægð/styrk.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#10",
+      "source": "minimum secondary area after hole filling; 0 disables filtering. The whole primary footprint counts toward the area.",
+      "source_sha256": "04a750409c1f7ff3d2facc6c9e350deedfe04aecb75ca72b4c8f0af4a0daa637",
+      "context": "minimum secondary area after hole filling; 0 disables filtering. The whole primary footprint counts toward the area.",
+      "translation": "lágmarksflatarmál aukahlutar eftir fyllingu gata; 0 gerir síun óvirka. Allt fótspor aðalhlutarins telst með í flatarmálinu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#11",
+      "source": "fill enclosed background pixels per label before filtering. Does not overwrite another primary's labelled pixels.",
+      "source_sha256": "9f3dfd0f5b46bfe0c0a27ffdb5868ae83414cd35e9b32f450430f341b3986941",
+      "context": "fill enclosed background pixels per label before filtering. Does not overwrite another primary's labelled pixels.",
+      "translation": "fylla lokaða bakgrunnspixla í hverju merki fyrir síun. Yfirskrifar ekki merkta pixla annars aðalhlutar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#12",
+      "source": "``intensity`` (default) uses negative image intensity; ``distance`` floods a flat surface. Common stop rules constrain paths; the primary-relative fraction trims after growth. Both retain the same stop rules and exact primary IDs. Distance can help when bright structures attract an intensity basin across cells.",
+      "source_sha256": "a8ccadc1b366f855a88d42b26289b8b4c9b2632d8741d6d691bea89531a33ff4",
+      "context": "``intensity`` (default) uses negative image intensity; ``distance`` floods a flat surface. Common stop rules constrain paths; the primary-relative fraction trims after growth. Both retain the same stop rules and exact primary IDs. Distance can help when bright structures attract an intensity basin across cells.",
+      "translation": "``intensity`` (sjálfgefið) notar neikvæðan myndstyrk; ``distance`` flæðir flatt yfirborð. Sameiginlegar stöðvunarreglur takmarka leiðir; hlutfallið miðað við aðalhlut snyrtir eftir vöxt. Bæði halda sömu stöðvunarreglum og nákvæmum auðkennum aðalhluta. Fjarlægð getur hjálpað þegar bjartar byggingar draga styrkleikavatnasvið yfir frumur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#13",
+      "source": ":class:`SecondaryResult`, including ID relationship diagnostics. Empty primary masks yield an empty result and no common stop level.",
+      "source_sha256": "ae9007960a26c15cd0a16109b40762ec050e56d1e510d58ba06778eb4b459a43",
+      "context": ":class:`SecondaryResult`, including ID relationship diagnostics. Empty primary masks yield an empty result and no common stop level.",
+      "translation": ":class:`SecondaryResult`, þar með talin greining á venslum auðkenna. Tómar aðalgrímur gefa tóma niðurstöðu og ekkert sameiginlegt stöðvunarstig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#14",
+      "source": "invalid images, labels, shape, sigma, stop rule, rule-specific stop value or negative minimum area.",
+      "source_sha256": "b816949f8ccf52296c0fb687f0f3c46fbca702e0c8074591d0a0b38e8aa307c1",
+      "context": "invalid images, labels, shape, sigma, stop rule, rule-specific stop value or negative minimum area.",
+      "translation": "ógildar myndir, merki, lögun, sigma, stöðvunarregla, stöðvunargildi sem er sértækt fyrir reglu eða neikvætt lágmarksflatarmál.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#2",
+      "source": "The four rules in :data:`PROPAGATE_STOPS` use processed intensities. ``absolute``, ``percentile`` and ``threshold`` restrict growth with a common foreground mask. ``seed_fraction`` trims each watershed basin at a fraction of the brightest processed pixel inside its primary. That ratio is not a quantile and depends on background offset. With a dark nucleus in a cytoplasmic channel, use a common threshold instead of a nucleus-relative peak ratio.",
+      "source_sha256": "19d5ca2454ed0cbbc92a2df588de29ae1417f8654160f613bfac0fa50a1e4880",
+      "context": "The four rules in :data:`PROPAGATE_STOPS` use processed intensities. ``absolute``, ``percentile`` and ``threshold`` restrict growth with a common foreground mask. ``seed_fraction`` trims each watershed basin at a fraction of the brightest processed pixel inside its primary. That ratio is not a quantile and depends on background offset. With a dark nucleus in a cytoplasmic image data channel, use a common threshold instead of a nucleus-relative peak ratio.",
+      "translation": "Reglurnar fjórar í :data:`PROPAGATE_STOPS` nota unnin styrkleikagildi. ``absolute``, ``percentile`` og ``threshold`` takmarka vöxt með sameiginlegri forgrunnsgrímu. ``seed_fraction`` snyrtir hvert vatnasvið við hlutfall af bjartasta unna pixlinum innan aðalhlutar þess. Það hlutfall er ekki hlutfallsmark og er háð bakgrunnshliðrun. Með dökkum kjarna í umfrymisrás, notaðu sameiginlegan þröskuld í stað topphlutfalls miðað við kjarna.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#3",
+      "source": "Primary pixels are always included before minimum-area filtering, even below the threshold. Hole filling can also restore below-threshold pixels. Filtering can remove a whole secondary together with its seed; the missing ID is reported. Remaining labels retain their primary IDs exactly, without splitting or renumbering disconnected components. Sparse IDs use compact internal markers, never arrays sized by max ID.",
+      "source_sha256": "c41f991374b50ce6c5daa4400a56120b28de055012135f2fc1d46578571cb5ac",
+      "context": "Primary pixels are always included before minimum-area filtering, even below the threshold. Hole filling can also restore below-threshold pixels. Filtering can remove a whole secondary together with its seed; the missing ID is reported. Remaining labels retain their primary IDs exactly, without splitting or renumbering disconnected components. Sparse IDs use compact internal markers, never arrays sized by max ID.",
+      "translation": "Pixlar aðalhluta eru alltaf teknir með fyrir síun eftir lágmarksflatarmáli, jafnvel undir þröskuldinum. Fylling gata getur einnig endurheimt pixla undir þröskuldi. Síun getur fjarlægt heilan aukahlut ásamt fræi hans; auðkennið sem vantar er tilkynnt. Eftirstandandi merki halda auðkennum aðalhluta sinna nákvæmlega, án skiptingar eða endurnúmerunar ótengdra þátta. Dreifð auðkenni nota þjöppuð innri merki, aldrei fylki af stærð hæsta auðkennis.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#4",
+      "source": "finite nonempty 2-D intensities, converted to float32. The caller supplies normalization, background correction or inversion.",
+      "source_sha256": "1d9f0243902d1877e96434a1f379698f9fe395d9ca11600cef797d24c93f825e",
+      "context": "finite nonempty 2-D intensities, converted to float32. The caller supplies normalization, background correction or inversion.",
+      "translation": "endanleg 2-D styrkleikagildi sem eru ekki tóm, umbreytt í float32. Kallandinn sér um stöðlun, bakgrunnsleiðréttingu eða umhverfingu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#5",
+      "source": "same-shape nonnegative integer primary labels; 0 means background. The returned labels retain this dtype and these IDs.",
+      "source_sha256": "9294fdc6cd3d4f5d12d25e5306cbd454e83fc02593e3f1fddd2ccd0ea90c985c",
+      "context": "same-shape nonnegative integer primary labels; 0 means background. The returned labels retain this dtype and these IDs.",
+      "translation": "óneikvæð heiltölu-aðalmerki af sömu lögun; 0 þýðir bakgrunnur. Skiluð merki halda þessari dtype og þessum auðkennum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#6",
+      "source": "finite nonnegative Gaussian sigma in pixels; 0 disables smoothing. Smoothing affects growth and threshold estimation.",
+      "source_sha256": "245ef6666ac5a2caf77720a081cc203a93015e93265ee954e276196f0111d87a",
+      "context": "finite nonnegative Gaussian sigma in pixels; 0 disables smoothing. Smoothing affects growth and threshold estimation.",
+      "translation": "endanlegt, óneikvætt Gauss-sigma í pixlum; 0 gerir mýkingu óvirka. Mýking hefur áhrif á vöxt og mat þröskulds.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#7",
+      "source": "one of :data:`PROPAGATE_STOPS`, default ``\"threshold\"``.",
+      "source_sha256": "1c0828447a44f562ce574d89234db2b282e702318233dfbe434bd33f33245ddb",
+      "context": "one of :data:`PROPAGATE_STOPS`, default ``\"threshold\"``.",
+      "translation": "ein af :data:`PROPAGATE_STOPS`, sjálfgefið ``\"threshold\"``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#8",
+      "source": "intensity for ``absolute``, percentile in [0,100] for ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored by ``threshold``. Fractions require nonnegative processed intensities.",
+      "source_sha256": "bf6921247cbde56bcf58da2165bb7633a76ad9cc8b95235809bad6e552b60b08",
+      "context": "intensity for ``absolute``, percentile in [0,100] for ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored by ``threshold``. Fractions require nonnegative processed intensities.",
+      "translation": "styrkur fyrir ``absolute``, hundraðshlutamark á [0,100] fyrir ``percentile``, eða hlutfall á [0,1] fyrir ``seed_fraction``. Hunsað af ``threshold``. Hlutföll krefjast óneikvæðra unninna styrkleikagilda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.secondary_object_instances#9",
+      "source": "global threshold algorithm, default ``\"otsu\"``; read only for ``threshold``. The full supplied image determines it.",
+      "source_sha256": "76235a3210b833aa86172c5dcd565b50d459416b856b9a71f5c2d7eea3a3f6ce",
+      "context": "global threshold algorithm, default ``\"otsu\"``; read only for ``threshold``. The full supplied image determines it.",
+      "translation": "reiknirit altæks þröskulds, sjálfgefið ``\"otsu\"``; aðeins lesið fyrir ``threshold``. Öll gefna myndin ákvarðar hann.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#0",
+      "source": "The ``outlines`` entry of a bundle, redrawn for ``labels``.",
+      "source_sha256": "0de796d648cb529b43ca4019762636e0aa8c609a67b62eeb1efc8f8daaa5bfb0",
+      "context": "The ``outlines`` entry of a bundle, redrawn for ``labels``.",
+      "translation": "``outlines`` færsla búnts, teiknuð upp á nýtt fyrir ``labels``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#1",
+      "source": "A pixel is on an outline when it belongs to an object and one of its four neighbours does not belong to the same one. ``like`` is the entry the bundle had: an entry holding only 0 and 1 gets a 0/1 outline back, and one holding ids gets each outline pixel's id, which is what Cellpose's own ``masks_flows_to_seg`` writes. An entry of all zeros says nothing about its form and gets ids, Cellpose's default.",
+      "source_sha256": "eefc7e1eeb93730216a904afa50d62335f5087300c96d013670deab94f8d00ab",
+      "context": "A pixel is on an outline when it belongs to an object and one of its four neighbours does not belong to the same one. ``like`` is the entry the bundle had: an entry holding only 0 and 1 gets a 0/1 outline back, and one holding ids gets each outline pixel's id, which is what Cellpose's own ``masks_flows_to_seg`` writes. An entry of all zeros says nothing about its form and gets ids, Cellpose's default.",
+      "translation": "Pixill er á útlínu þegar hann tilheyrir hlut og einn af fjórum nágrönnum hans tilheyrir ekki sama hlut. ``like`` er færslan sem búntið hafði: færsla sem geymir aðeins 0 og 1 fær 0/1-útlínu til baka, og færsla sem geymir auðkenni fær auðkenni hvers útlínupixils, sem er það sem eigið ``masks_flows_to_seg`` Cellpose skrifar. Færsla sem er öll núll segir ekkert um form sitt og fær auðkenni, sjálfgefið í Cellpose.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#2",
+      "source": "the labels being saved.",
+      "source_sha256": "736f0a546513d04e6ff2139a92b245fc6b378f0122914da1ddaf9bf8a0b6442a",
+      "context": "the labels being saved.",
+      "translation": "merkin sem verið er að vista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#3",
+      "source": "the bundle's previous ``outlines``, for its form and type.",
+      "source_sha256": "83f2b8e35f4a5d7e69475a9b1de485c46b7dcece9648a8ff532dbde8f7b0d65a",
+      "context": "the bundle's previous ``outlines``, for its form and type.",
+      "translation": "fyrri ``outlines`` búntsins, fyrir form þess og gerð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.seg_outlines#4",
+      "source": "the new outlines, the shape of ``labels``.",
+      "source_sha256": "ab7ad2edbc51b758a6e006cf1984eef65fd953f182eff33852093c35ff31fe47",
+      "context": "the new outlines, the shape of ``labels``.",
+      "translation": "nýju útlínurnar, af lögun ``labels``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#0",
+      "source": "The ``object_filters`` list a Mask run applies to ``object_type``.",
+      "source_sha256": "28d6ba989a7d6f6b6d030526be145b9dbc4fe032c2ce4eb160c30baae1cfc41c",
+      "context": "The ``object_filters`` list a Mask run applies to ``object_type``.",
+      "translation": "``object_filters`` listinn sem Mask-keyrsla beitir á ``object_type``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#1",
+      "source": "``object_filters`` maps an object type (``cell``, ``nucleus``, ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so each object type is filtered on its own properties. A missing or empty setting is no filters. The legacy ``{object}_min_area`` family is migrated by :func:`legacy_filters` where it is read, not here.",
+      "source_sha256": "eddb96607ced804c33e56264d5e402ecae5303f79079c518665f05ef9f72b39a",
+      "context": "``object_filters`` maps an object type (``cell``, ``nucleus``, ``pathogen``, ``organelle`` or an organelle slot) to its filter list, so each object type is filtered on its own properties. A missing or empty setting is no filters. The legacy ``{object}_min_area`` family is migrated by :func:`legacy_filters` where it is read, not here.",
+      "translation": "``object_filters`` varpar hlutagerð (``cell``, ``nucleus``, ``pathogen``, ``organelle`` eða frumulíffærahólfi) á síulista sinn, svo hver hlutagerð er síuð eftir eigin eiginleikum. Stilling sem vantar eða er tóm þýðir engar síur. Eldri ``{object}_min_area`` fjölskyldan er færð yfir af :func:`legacy_filters` þar sem hún er lesin, ekki hér.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#2",
+      "source": "the Mask run's settings; ``None`` is no filters.",
+      "source_sha256": "3cb684a8cc652063ffc227b0cbe1ff6c4870befe1d45825466b1586f90663552",
+      "context": "the Mask processing session's settings; ``None`` is no filters.",
+      "translation": "stillingar Mask-keyrslunnar; ``None`` þýðir engar síur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#3",
+      "source": "the object type whose list is wanted.",
+      "source_sha256": "8802ff9f040fd83ecb22bdffe0e5eb1dd521fcba625b9aa8dee3eca489ee10e4",
+      "context": "the object type whose list is wanted.",
+      "translation": "hlutagerðin sem óskað er eftir lista fyrir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.settings_filters#4",
+      "source": "when the setting is not a mapping, names an object type spaCR does not segment, or holds an invalid filter.",
+      "source_sha256": "49b85cc1942416327c4a3fa1ecbc06f5bd4ba1a82a367da587ba3ff64e3af3b5",
+      "context": "when the setting is not a mapping, names an object type spaCR does not segment, or holds an invalid filter.",
+      "translation": "þegar stillingin er ekki vörpun, nefnir hlutagerð sem spaCR hlutar ekki, eða geymir ógilda síu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#0",
+      "source": "Erode every object by ``distance`` pixels, each one on its own.",
+      "source_sha256": "bb257eb0e55315468426f5d1fb67af96184c84f69cc38e32aa8f14cf2b08955a",
+      "context": "Erode every object by ``distance`` pixels, each one on its own.",
+      "translation": "Rýra hvern hlut um ``distance`` pixla, hvern fyrir sig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#1",
+      "source": "Each object is eroded against everything that is not itself -- background AND the objects touching it -- so two objects sharing a border both pull back from it and the seam between them widens. Eroding the foreground as one binary would instead leave that seam untouched, which is the opposite of what a curator reaching for Shrink wants.",
+      "source_sha256": "9dcc5db550ff7ffb6659c66531ded0edfa9677d5f382b54ea6f8c390475a2375",
+      "context": "Each object is eroded against everything that is not itself -- background AND the objects touching it -- so two objects sharing a border both pull back from it and the seam between them widens. Eroding the foreground as one binary would instead leave that seam untouched, which is the opposite of what a curator reaching for Shrink wants.",
+      "translation": "Hver hlutur er rýrður á móti öllu sem er ekki hann sjálfur -- bakgrunni OG hlutunum sem snerta hann -- svo tveir hlutir sem deila mörkum draga sig báðir til baka frá þeim og samskeytin milli þeirra breikka. Að rýra forgrunninn sem eina tvígilda mynd myndi í staðinn láta samskeytin ósnert, sem er andstæða þess sem yfirferðaraðili sem grípur til Shrink vill.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#2",
+      "source": "AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS. That is what erosion means, and the screen says how many went rather than letting them go quietly; the edit is one undo step, so the way back is one press.",
+      "source_sha256": "a238c8fa2afcf39aa37605a48434329c62e932af1bec42b64cf72615a1a7aa5f",
+      "context": "An object thinner than twice the distance disappears. That is what erosion means, and the screen says how many went rather than letting them go quietly; the edit is one undo step, so the way back is one press.",
+      "translation": "HLUTUR SEM ER MJÓRRI EN TVÖFÖLD FJARLÆGÐIN HVERFUR. Það er það sem rýrnun merkir, og skjámyndin segir hversu margir fóru frekar en að láta þá hverfa hljóðlaust; breytingin er eitt afturköllunarskref, svo leiðin til baka er einn smellur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#3",
+      "source": "The image border counts as background, matching :func:`scipy.ndimage.binary_erosion`'s own default, so an object the field cut off pulls back from the cut too.",
+      "source_sha256": "a236c17a251b95ac07d3b58bd9043ea70f889eafb514fa1b21f13af7fd9b2e08",
+      "context": "The image border counts as background, matching :func:`scipy.ndimage.binary_erosion`'s own default, so an object the microscope field of view cut off pulls back from the cut too.",
+      "translation": "Brún myndarinnar telst bakgrunnur, í samræmi við eigið sjálfgefið gildi :func:`scipy.ndimage.binary_erosion`, svo hlutur sem sjónsviðið skar af dregur sig líka til baka frá skurðinum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#4",
+      "source": "Each object is eroded inside its own bounding box, so the cost follows the area of the objects rather than the area of the field -- the same reason :func:`canonical_labels` works in boxes.",
+      "source_sha256": "261283968e340e8c4fd03cd88213e0334ec35c98aef77b2ec9d2675133aa8e88",
+      "context": "Each object is eroded inside its own bounding box, so the cost follows the area of the objects rather than the area of the field -- the same reason :func:`canonical_labels` works in boxes.",
+      "translation": "Hver hlutur er rýrður innan eigin afmörkunarkassa, svo kostnaðurinn fylgir flatarmáli hlutanna frekar en flatarmáli sjónsviðsins -- sama ástæða og :func:`canonical_labels` vinnur í kössum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#6",
+      "source": "pixels to erode by. 0 or less returns a copy.",
+      "source_sha256": "0b2247cc029a8121a347d15844561ed90c4dfbf8b49c42860661b50da7e29b49",
+      "context": "pixels to erode by. 0 or less returns a copy.",
+      "translation": "pixlar sem á að rýra um. 0 eða minna skilar afriti.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.shrink_objects#7",
+      "source": "a mask of the same dtype, holding the ids that survived.",
+      "source_sha256": "ba004ba596c04717d0eef65ed3affc2f1d8d94d4a58ff9680516c1e259d72619",
+      "context": "a mask of the same dtype, holding the ids that survived.",
+      "translation": "gríma af sömu dtype, sem geymir auðkennin sem lifðu af.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#0",
+      "source": "Cut the object under (x, y) where its halves meet; ``(mask, new_ids)``.",
+      "source_sha256": "4debbc613fcd09b24080942e5520a5da32e2cc73134a677d763a99c053a10c54",
+      "context": "Cut the object under (x, y) where its halves meet; ``(mask, new_ids)``.",
+      "translation": "Skera hlutinn undir (x, y) þar sem helmingar hans mætast; ``(mask, new_ids)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#1",
+      "source": "What Ctrl + left click does. The cut is a watershed on the object's own distance to background, the same recipe :func:`_split_touching_objects` runs on a whole field: every local maximum of that distance is one half's middle and the ridge between two of them is the waist where they meet.",
+      "source_sha256": "55ca4181d6a12ffdabe18ea016f0baf63dfcbce42ac9991ef748421c842ead18",
+      "context": "What Ctrl + left click does. The cut is a watershed on the object's own distance to background, the same recipe :func:`_split_touching_objects` runs on a whole microscope field of view: every local maximum of that distance is one half's middle and the ridge between two of them is the waist where they meet.",
+      "translation": "Það sem Ctrl + vinstrismellur gerir. Skurðurinn er vatnaskil á eigin fjarlægð hlutarins frá bakgrunni, sama uppskrift og :func:`_split_touching_objects` keyrir á heilt sjónsvið: hvert staðbundið hágildi þeirrar fjarlægðar er miðja eins helmings og hryggurinn milli tveggja þeirra er mittið þar sem þeir mætast.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#10",
+      "source": "``(mask, new_ids)`` -- a new mask and the ids the split created, or a copy and an empty list when the click was on background, outside the field, or on an object with one centre.",
+      "source_sha256": "f24a32c3b2b6d5887bfe86d6b57275f0ee74a9cf1217689455d52b02f86842bc",
+      "context": "``(mask, new_ids)`` -- a new mask and the ids the split created, or a copy and an empty list when the click was on background, outside the microscope field of view, or on an object with one centre.",
+      "translation": "``(mask, new_ids)`` -- ný gríma og auðkennin sem skiptingin bjó til, eða afrit og tómur listi þegar smellt var á bakgrunn, utan sjónsviðsins eða á hlut með eina miðju.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#2",
+      "source": "Three decisions, and the first is the one to read:",
+      "source_sha256": "36c42bdd262d90dc86cb016838f9d76279817e644605317957d261ffc8983eb0",
+      "context": "Three decisions, and the first is the one to read:",
+      "translation": "Þrjár ákvarðanir, og sú fyrsta er sú sem á að lesa:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#3",
+      "source": "**AN OBJECT WITH ONE CENTRE IS LEFT ALONE** and reported as such, rather than being halved through the click. A single click carries no direction, so a forced cut would have to invent one, and the object that needs cutting is almost always a pair that merged -- which has two centres. The gesture for a cut the user aims themselves already exists and is the Divide tool (:func:`divide_object`).",
+      "source_sha256": "408c50c31ac03b58d80a8721de5ba0d39ec23dc0a1ca05a50631c8033b923f84",
+      "context": "**An object with one centre is left alone** and reported as such, rather than being halved through the click. A single click carries no direction, so a forced cut would have to invent one, and the object that needs cutting is almost always a pair that merged -- which has two centres. The gesture for a cut the user aims themselves already exists and is the Divide tool (:func:`divide_object`).",
+      "translation": "**HLUTUR MEÐ EINA MIÐJU ER LÁTINN VERA** og tilkynntur sem slíkur, frekar en að vera helmingaður í gegnum smellinn. Stakur smellur ber enga stefnu, svo þvingaður skurður þyrfti að finna hana upp, og hluturinn sem þarf að skera er nánast alltaf par sem rann saman -- sem hefur tvær miðjur. Hreyfingin fyrir skurð sem notandinn miðar sjálfur er þegar til og er Divide-tólið (:func:`divide_object`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#4",
+      "source": "**The largest piece keeps the id** and the others are given ids above the mask's top label, which is :func:`canonical_labels`' own rule, so splitting and then saving renumbers nothing.",
+      "source_sha256": "6d0d02a837721c41bda8d43e0f700fb165bb5c030d00384667b788c94061349d",
+      "context": "**The largest piece keeps the id** and the others are given ids above the mask's top label, which is :func:`canonical_labels`' own rule, so splitting and then saving renumbers nothing.",
+      "translation": "**Stærsti hlutinn heldur auðkenninu** og hinir fá auðkenni yfir hæsta merki grímunnar, sem er eigin regla :func:`canonical_labels`, svo skipting og síðan vistun endurnúmerar ekkert.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#5",
+      "source": "**NO PIXEL IS LOST.** Every pixel of the object ends up under one of the new ids. ``min_area`` sets how far apart two centres must be to count as two (:func:`_split_touching_objects`' seed spacing) and is NOT applied as a drop here: a hand edit moves pixels between ids, and a gesture that quietly erased the smaller half would be a delete wearing a split's name.",
+      "source_sha256": "c0bd7e372bf6c7c4f0366bd9ac2a4b013b4c33ce1aa975d45686b85a227bbc49",
+      "context": "**No pixel is lost.** Every pixel of the object ends up under one of the new ids. ``min_area`` sets how far apart two centres must be to count as two (:func:`_split_touching_objects`' seed spacing) and is NOT applied as a drop here: a hand edit moves pixels between ids, and a gesture that quietly erased the smaller half would be a delete wearing a split's name.",
+      "translation": "**ENGINN PIXILL TAPAST.** Hver pixill hlutarins endar undir einu af nýju auðkennunum. ``min_area`` ákvarðar hversu langt á milli tvær miðjur verða að vera til að teljast tvær (fræbil :func:`_split_touching_objects`) og er EKKI beitt sem sleppingu hér: handvirk breyting færir pixla milli auðkenna, og hreyfing sem eyddi minni helmingnum hljóðlaust væri eyðing í dulargervi skiptingar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#7",
+      "source": "column clicked, in image pixels.",
+      "source_sha256": "4088399933763f8f90c0d7ebcb800cadbea8a0bd66bd7b769e26fd8e31c0d926",
+      "context": "column clicked, in image pixels.",
+      "translation": "dálkurinn sem smellt var á, í pixlum myndarinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#8",
+      "source": "row clicked, in image pixels.",
+      "source_sha256": "cdd0aa0ee2029b4d36f5b51f2d29f50a0d6201f99e9027ccad2e00925e5e3d4d",
+      "context": "row clicked, in image pixels.",
+      "translation": "röðin sem smellt var á, í pixlum myndarinnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.split_object_at#9",
+      "source": "the smallest object the screen is willing to keep, in pixels; it sets the seed spacing, so an object this size is not itself cut in two.",
+      "source_sha256": "f651bc23ff1350b2402185a4bd5d68e08324e4c9142c39857690affbb8bf3c4f",
+      "context": "the smallest object the screen is willing to keep, in pixels; it sets the seed spacing, so an object this size is not itself cut in two.",
+      "translation": "minnsti hlutur sem skjámyndin er fús til að halda, í pixlum; hann ákvarðar fræbilið, svo hlutur af þessari stærð er ekki sjálfur skorinn í tvennt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.threshold_algorithms#0",
+      "source": "Every threshold algorithm name, global then local.",
+      "source_sha256": "04421cf0cee56a409c25224536e4233e2909c8766b3421e8d7e48ed2d8ddde3e",
+      "context": "Every threshold algorithm name, global then local.",
+      "translation": "Öll heiti þröskuldsreiknirita, altæk og síðan staðbundin.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.write_recrop#2",
+      "source": "A field cut from a ``_seg.npy`` bundle becomes a bundle of its own, holding ``img``, ``masks``, empty ``flows`` and a ``filename`` naming the parent and the box -- the form the external curation tool gave its recrops, so either tool can open the other's.",
+      "source_sha256": "feccbe613b009fc5e9a4d31c56923593f728e549db7cbb16a48693a0ab72f8f7",
+      "context": "A field cut from a ``_seg.npy`` bundle becomes a bundle of its own, holding ``img``, ``masks``, empty ``flows`` and a ``filename`` naming the parent and the box -- the form the external curation tool gave its recrops, so either tool can open the other's.",
+      "translation": "Sjónsvið sem skorið er úr ``_seg.npy`` búnti verður eigið búnt, sem geymir ``img``, ``masks``, tómt ``flows`` og ``filename`` sem nefnir foreldrið og kassann -- formið sem ytra yfirferðartólið gaf myndskurðum sínum, svo hvort tól getur opnað skrár hins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.maturity.reason_for#2",
+      "source": "the app's registry key, e.g. ``\"align\"``; converted to ``str`` and looked up in :data:`PROMOTIONS`, then :data:`AFFIRMED`, then :data:`RETIREMENTS`.",
+      "source_sha256": "cc7e019b443f41e651be3c3703bb698bb2ac6c1ebee1787939fdd5c4a0910e7b",
+      "context": "the app's registry key, e.g. ``\"align\"``; converted to ``str`` and looked up in :data:`PROMOTIONS`, then :data:`AFFIRMED`, then :data:`RETIREMENTS`.",
+      "translation": "skráarlykill forritsins, t.d. ``\"align\"``; umbreytt í ``str`` og flett upp í :data:`PROMOTIONS`, síðan :data:`AFFIRMED`, síðan :data:`RETIREMENTS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install#0",
+      "source": "Install a model from inside spaCR, without freezing the window.",
+      "source_sha256": "8315d25b5fc073737b6d46cd6397b47cbe52ad1ab86487d299de2f36e99a158e",
+      "context": "Install a model from inside spaCR, without freezing the window.",
+      "translation": "Setja upp líkan innan úr spaCR, án þess að frysta gluggann.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install#1",
+      "source": "Two kinds of thing are installed from a click: a segmentation backend, which is a Python package added to the running environment with ``pip`` (DINOCell and SAMCell, :data:`spacr.model_zoo.INSTALLABLE_BACKENDS`), and a Cellpose checkpoint from the model zoo, which is a file downloaded and verified by :func:`spacr.model_zoo.install`. Both can take minutes, so both run off the GUI thread: :class:`PackageInstall` runs ``pip`` as a child process watched from the event loop, and :class:`CheckpointDownload` runs the zoo's download on a worker thread. Each reports progress while it runs and a single result when it ends, and a failure is a message rather than an exception, so a failed install leaves the screen that started it working.",
+      "source_sha256": "df8fab2cf5d50d95c95e9ae0e4ffe8849d18785af492986f624a9a56e9d144b8",
+      "context": "Two kinds of thing are installed from a click: a segmentation backend, which is a Python package added to the executing environment with ``pip`` (DINOCell and SAMCell, :data:`spacr.model_zoo.INSTALLABLE_BACKENDS`), and a Cellpose checkpoint from the model zoo, which is a file downloaded and verified by :func:`spacr.model_zoo.install`. Both can take minutes, so both run off the main GUI execution path: :class:`PackageInstall` runs ``pip`` as a child process watched from the event loop, and :class:`CheckpointDownload` runs the zoo's download on a background execution unit. Each reports progress while it executes and a single result when it ends, and a failure is a message rather than an exception, so a failed install leaves the application view that started it working.",
+      "translation": "Tvenns konar hlutir eru settir upp með smelli: hlutunarbakendi, sem er Python-pakki sem bætt er við keyrsluumhverfið með ``pip`` (DINOCell og SAMCell, :data:`spacr.model_zoo.INSTALLABLE_BACKENDS`), og Cellpose-vistunarpunktur úr líkanasafninu, sem er skrá sem er sótt og sannreynd af :func:`spacr.model_zoo.install`. Hvort tveggja getur tekið mínútur, svo hvort tveggja keyrir utan GUI-þráðarins: :class:`PackageInstall` keyrir ``pip`` sem barnaferli sem fylgst er með úr atburðalykkjunni, og :class:`CheckpointDownload` keyrir niðurhal líkanasafnsins á vinnsluþræði. Hvort um sig tilkynnir framvindu á meðan það keyrir og eina niðurstöðu þegar því lýkur, og bilun eru skilaboð frekar en undantekning, svo misheppnuð uppsetning skilur skjámyndina sem hóf hana eftir virka.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install#2",
+      "source": ":class:`SegmentationBackendCombo` is the Mask module's choice of segmentation backend: every backend is listed, one that is not installed is greyed, and choosing it offers to install it and selects it once installed. Make Masks offers the same backends, in the same way, in its Live magnifier Mode box.",
+      "source_sha256": "3a7c7eb204fa952cc5cfef59d293b0bcce1b3b93a5a4daed76ef36a329a02b5b",
+      "context": ":class:`SegmentationBackendCombo` is the Mask module's choice of segmentation backend: every backend is listed, one that is not installed is greyed, and choosing it offers to install it and selects it once installed. Make Masks offers the same backends, in the same way, in its Live magnifier Mode box.",
+      "translation": ":class:`SegmentationBackendCombo` er val Mask-einingarinnar á hlutunarbakenda: hver bakendi er talinn upp, bakendi sem er ekki uppsettur er grár, og að velja hann býður uppsetningu og velur hann þegar hann er uppsettur. Make Masks býður sömu bakenda, á sama hátt, í Mode-reit Live-stækkunarglersins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#0",
+      "source": "Download and verify one model-zoo checkpoint off the GUI thread.",
+      "source_sha256": "da4daf6f56769b0fd8bd20dfc1047169f44c7086167711d40629b99d6f47551b",
+      "context": "Download and verify one model-zoo checkpoint off the main GUI execution path.",
+      "translation": "Sækja og sannreyna einn vistunarpunkt úr líkanasafninu utan GUI-þráðarins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#1",
+      "source": "Goes through :func:`spacr.model_zoo.install`, so the file is checked against its published digest before it is put where it belongs, and a failure leaves the destination as it was. Like :class:`PackageInstall` it keeps itself alive until its thread has ended, so the widget that started it can be deleted without taking a running thread with it.",
+      "source_sha256": "063a329c2adc1ff42fee91a2c7cdce9668ea277dc437a947bf792a12e779cef7",
+      "context": "Goes through :func:`spacr.model_zoo.install`, so the file is checked against its published digest before it is put where it belongs, and a failure leaves the destination as it was. Like :class:`PackageInstall` it keeps itself alive until its independent execution path has ended, so the widget that started it can be deleted without taking an executing independent execution path with it.",
+      "translation": "Fer í gegnum :func:`spacr.model_zoo.install`, svo skráin er borin saman við birta samantekt hennar áður en hún er sett þar sem hún á heima, og bilun skilur áfangastaðinn eftir eins og hann var. Eins og :class:`PackageInstall` heldur það sér á lífi þar til þráður þess hefur lokið, svo hægt er að eyða græjunni sem hóf það án þess að taka þráð í keyrslu með sér.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#10",
+      "source": "skip the checksum requirement.",
+      "source_sha256": "600c27a471f6fe1fb89d6fbba21da618b2ba4f94ffb0f1a9066fa8808c0e8d87",
+      "context": "skip the checksum requirement.",
+      "translation": "sleppa kröfunni um gátsummu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#2",
+      "source": "the zoo's :class:`spacr.model_zoo.ModelEntry`.",
+      "source_sha256": "5e87f98cba45300dbfeb70c995abc604133fefa2dbbc24171740c81debde05fd",
+      "context": "the zoo's :class:`spacr.model_zoo.ModelEntry`.",
+      "translation": ":class:`spacr.model_zoo.ModelEntry` líkanasafnsins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#3",
+      "source": "where the checkpoint goes.",
+      "source_sha256": "0b2f1a96e112e491c251a753f247806bb001f53ec72e3eb2a7cd2b750b746a0c",
+      "context": "where the checkpoint goes.",
+      "translation": "hvert vistunarpunkturinn fer.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#4",
+      "source": "owner; give it none, for the reason above.",
+      "source_sha256": "27df6d99c57c33cafe478855bb85e924793309a47ec7100b25b6efa234272fc6",
+      "context": "owner; give it none, for the reason above.",
+      "translation": "eigandi; gefðu honum engan, af ástæðunni hér að ofan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#5",
+      "source": "accept an entry that publishes no checksum. Only for an entry that has none, and only after the user has said so.",
+      "source_sha256": "505ebea288615f5eeb48cd8c5a793571858ca6d027a797c76b35c4c6388a00f4",
+      "context": "accept an entry that publishes no checksum. Only for an entry that has none, and only after the user has said so.",
+      "translation": "samþykkja færslu sem birtir enga gátsummu. Aðeins fyrir færslu sem hefur enga, og aðeins eftir að notandinn hefur sagt svo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#6",
+      "source": "Prepare the download without starting it.",
+      "source_sha256": "0b03ae517c79839cb7603526666a98e45b1870c68baa187fef52ebaec583cb3a",
+      "context": "Prepare the download without starting it.",
+      "translation": "Undirbúa niðurhalið án þess að hefja það.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#7",
+      "source": "the zoo entry.",
+      "source_sha256": "d0e38abf000587ceb0573fc1d10cf783a157359f4d7971c1b0f0740bd3e5f58c",
+      "context": "the zoo entry.",
+      "translation": "færslan í líkanasafninu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#8",
+      "source": "destination folder.",
+      "source_sha256": "139d37a5970afd1279a45ce1f05acb789f0f9d83797d1ed56f1d1cceb8dd6fb0",
+      "context": "destination folder.",
+      "translation": "áfangamappa.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload#9",
+      "source": "owner.",
+      "source_sha256": "0d4e0e77a921be5f17b48fba016c0b1879a3b9e548262f9f9bcdac59f1d9dd82",
+      "context": "owner.",
+      "translation": "eigandi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.cancel#0",
+      "source": "Stop the download at its next chunk, and report it as cancelled.",
+      "source_sha256": "66ffee53b704222c549e2f72514cd53b83895fce9e80cd074b46563360c8b2f4",
+      "context": "Stop the download at its next chunk, and report it as cancelled.",
+      "translation": "Stöðva niðurhalið við næsta bút og tilkynna það sem hætt við.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.cancel#1",
+      "source": "Returns at once: the thread ends on its own, and the partial file is removed by :func:`spacr.model_zoo.fetch`.",
+      "source_sha256": "eb45019ccc16ce2fa44746536de80a250dde3172bf5f86658ec231407402c376",
+      "context": "Returns at once: the thread ends on its own, and the partial file is removed by :func:`spacr.model_zoo.fetch`.",
+      "translation": "Skilar strax: þráðurinn endar af sjálfu sér, og :func:`spacr.model_zoo.fetch` fjarlægir hálfkláruðu skrána.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.is_running#0",
+      "source": "Whether the download thread is still running.",
+      "source_sha256": "f706ec222d52424e583ce1d3f7593b130a20f6811eb217b28f2f8331a4ec21fa",
+      "context": "Whether the download thread is still running.",
+      "translation": "Hvort niðurhalsþráðurinn er enn í keyrslu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.start#0",
+      "source": "Start the download on its own thread.",
+      "source_sha256": "faba6051c0ea3447616ce4f40aee8eb9e6a04c826bb80584ea5ea6ebb1242d7a",
+      "context": "Start the download on its own thread.",
+      "translation": "Hefja niðurhalið á eigin þræði.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.start#1",
+      "source": "True once the thread is running.",
+      "source_sha256": "4528dc45b7f72f25b7a704dd0073b7b9c200baabc5fdf1a3273c6aacff167e8b",
+      "context": "True once the thread is running.",
+      "translation": "True þegar þráðurinn er kominn í keyrslu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.wait#0",
+      "source": "Block until the download thread has ended.",
+      "source_sha256": "b6ba74d076c239bc37fbe5a4d573e23625bd5fcc0cb1b19ec6cabee6420a64ca",
+      "context": "Block until the download thread has ended.",
+      "translation": "Blokka þar til niðurhalsþráðurinn hefur lokið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.wait#1",
+      "source": "how long to wait.",
+      "source_sha256": "52767b23ad5379d361b723da8ce6d7c3a813d2da5f2fef782282e1b2ae868f2c",
+      "context": "how long to wait.",
+      "translation": "hversu lengi á að bíða.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.CheckpointDownload.wait#2",
+      "source": "True when it has ended.",
+      "source_sha256": "8625d64197483458bb9436c55ace070a9eb67af93769bc3f4aaafaef6a742d23",
+      "context": "True when it has ended.",
+      "translation": "True þegar honum er lokið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#0",
+      "source": "One ``pip install`` in a child process, watched from the event loop.",
+      "source_sha256": "0059d486d379e71feac64c21ef08c9b75fa67440f04792edb2dba624c822b837",
+      "context": "One ``pip install`` in a child process, watched from the event loop.",
+      "translation": "Eitt ``pip install`` í barnaferli, sem fylgst er með úr atburðalykkjunni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#1",
+      "source": "Nothing waits on the process: its output arrives through :attr:`progressed` as it is written, and :attr:`finished` fires once, with whether it worked and what to tell the user. A process that cannot start finishes at once, unsuccessfully.",
+      "source_sha256": "f5936dd7cb8087f29f37996a4e233bea22d0ef0b26b53dbad5b4f16212e90b35",
+      "context": "Nothing waits on the process: its output arrives through :attr:`progressed` as it is written, and :attr:`finished` fires once, with whether it worked and what to tell the user. A process that cannot start finishes at once, unsuccessfully.",
+      "translation": "Ekkert bíður eftir ferlinu: úttak þess berst í gegnum :attr:`progressed` um leið og það er skrifað, og :attr:`finished` fer af stað einu sinni, með upplýsingum um hvort það virkaði og hvað eigi að segja notandanum. Ferli sem ekki er hægt að ræsa lýkur strax, án árangurs.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#2",
+      "source": "Give it no parent. It keeps itself alive while ``pip`` runs, because a child process deleted with its owner is killed, and ``pip`` killed half way through an install can leave the environment broken.",
+      "source_sha256": "7d1db1b42e77c61955f385b6b2b754feb6fbdf9bd06dca1162d6528a7ebd586d",
+      "context": "Give it no parent. It keeps itself alive while ``pip`` runs, because a child process deleted with its owner is killed, and ``pip`` killed half way through an install can leave the environment broken.",
+      "translation": "Gefðu því engan eiganda. Það heldur sér á lífi á meðan ``pip`` keyrir, því barnaferli sem eytt er með eiganda sínum er drepið, og ``pip`` sem drepið er í miðri uppsetningu getur skilið umhverfið eftir bilað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#3",
+      "source": "what to install, for example ``'spacr[samcell]'``.",
+      "source_sha256": "66709eb9c11ec099cd060a80ca49e0815f23435ceb5cd7e21d31995266707966",
+      "context": "what to install, for example ``'spacr[samcell]'``.",
+      "translation": "hvað á að setja upp, til dæmis ``'spacr[samcell]'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#4",
+      "source": "owner, if the caller insists on one.",
+      "source_sha256": "7136fff6694f87242c4ed45b7e0c0ce85d006849f5db1077b1b2599cb627ee32",
+      "context": "owner, if the caller insists on one.",
+      "translation": "eigandi, ef kallandinn krefst hans.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#5",
+      "source": "the program and arguments to run instead of :func:`pip_command`, for a caller that needs a different installer.",
+      "source_sha256": "86f32e806dd05f35c30a4847aa976e8bba81834e180d2a0874c12d143cdcfa84",
+      "context": "the program and arguments to run instead of :func:`pip_command`, for a caller that needs a different installer.",
+      "translation": "forritið og viðföngin sem á að keyra í stað :func:`pip_command`, fyrir kallanda sem þarf annað uppsetningarforrit.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#6",
+      "source": "Prepare the install without starting it.",
+      "source_sha256": "2e25b0890b12b5d537911da8db834b98a7e608f7b236621fcdad82962aca7b18",
+      "context": "Prepare the install without starting it.",
+      "translation": "Undirbúa uppsetninguna án þess að hefja hana.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#7",
+      "source": "what to install.",
+      "source_sha256": "8b79979dc98719b5340aebd83eba09295d1d3c91e50fdbc0d4f38606a909a815",
+      "context": "what to install.",
+      "translation": "hvað á að setja upp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall#9",
+      "source": "a replacement for :func:`pip_command`.",
+      "source_sha256": "60f87d71a31a60fdd69edd06fe8e2701ae625e71136afeeb75b124a7712024b7",
+      "context": "a replacement for :func:`pip_command`.",
+      "translation": "staðgengill fyrir :func:`pip_command`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall.cancel#0",
+      "source": "Stop the installer, and report it as not having worked.",
+      "source_sha256": "c1e1404d26338f7e95f09f8a57e40c452052a3852122a2f95bacfda431b68488",
+      "context": "Stop the installer, and report it as not having worked.",
+      "translation": "Stöðva uppsetningarforritið og tilkynna að það hafi ekki virkað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall.is_running#0",
+      "source": "Whether the installer is still running.",
+      "source_sha256": "6471a54eccf2f447b5dec20768444fabd2815bb84bdf0ae8a2560d8cd757b381",
+      "context": "Whether the installer is still running.",
+      "translation": "Hvort uppsetningarforritið er enn í keyrslu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall.output#0",
+      "source": "Everything the installer has written so far.",
+      "source_sha256": "ebdf89c0ea771362c515a6de9c3316d44e49ebc5ca2a2234f9bc6a0d4d29eb8f",
+      "context": "Everything the installer has written so far.",
+      "translation": "Allt sem uppsetningarforritið hefur skrifað hingað til.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall.start#0",
+      "source": "Start the installer.",
+      "source_sha256": "0ff4d07beddd5a4e8628022a0c52fdf62251cfc695b83d554f310562ea77804c",
+      "context": "Start the installer.",
+      "translation": "Ræsa uppsetningarforritið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.PackageInstall.start#1",
+      "source": "False when it could not be started, in which case :attr:`finished` has already said so.",
+      "source_sha256": "32bce1ddc3af83a993a6ac4177291eb033ce77bdbb5ec27afb0e8ba46f7191b6",
+      "context": "False when it could not be started, in which case :attr:`finished` has already said so.",
+      "translation": "False þegar ekki var hægt að ræsa það, og þá hefur :attr:`finished` þegar sagt frá því.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#0",
+      "source": "The Mask module's ``segmentation_backend``: every backend, always.",
+      "source_sha256": "6b74d9073a6d08381c984776523dfb08d3e67dc94b2b5fb2bb2b24c3742e9a07",
+      "context": "The Mask module's ``segmentation_backend``: every backend, always.",
+      "translation": "``segmentation_backend`` Mask-einingarinnar: hver bakendi, alltaf.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#1",
+      "source": "Cellpose is always first and always installed. DINOCell and SAMCell are listed whether or not their packages are here; one that is missing is greyed, with a tooltip saying so, and choosing it asks before running ``pip`` in the background. The box goes back to the backend it was on while the install runs, so the setting never names a backend that cannot load, and selects the new backend once it is installed.",
+      "source_sha256": "eb52f9ff2239f47f673ef993a80077a1566d6627f5268639f8005996f066771c",
+      "context": "Cellpose is always first and always installed. DINOCell and SAMCell are listed whether or not their packages are here; one that is missing is greyed, with a tooltip saying so, and choosing it asks before executing ``pip`` in the background. The box goes back to the backend it was on while the install runs, so the setting never names a backend that cannot load, and selects the new backend once it is installed.",
+      "translation": "Cellpose er alltaf fyrst og alltaf uppsett. DINOCell og SAMCell eru talin upp hvort sem pakkar þeirra eru hér eða ekki; sá sem vantar er grár, með verkfæraábendingu sem segir það, og að velja hann spyr áður en ``pip`` er keyrt í bakgrunni. Reiturinn fer aftur á bakendann sem hann var á á meðan uppsetningin keyrir, svo stillingin nefnir aldrei bakenda sem ekki getur hlaðist, og velur nýja bakendann þegar hann er uppsettur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#2",
+      "source": "The stored value of each row is the setting's own value (``'cellpose'``, ``'dinocell'``, ``'samcell'``), so the settings form reads and writes it as it reads and writes any other dropdown.",
+      "source_sha256": "aa457fc78cbc5ebab3f6a0bda6af85c469b350d69522c1d9424043fdea881a26",
+      "context": "The stored value of each row is the setting's own value (``'cellpose'``, ``'dinocell'``, ``'samcell'``), so the settings form reads and writes it as it reads and writes any other dropdown.",
+      "translation": "Vistað gildi hverrar raðar er eigið gildi stillingarinnar (``'cellpose'``, ``'dinocell'``, ``'samcell'``), svo stillingaformið les það og skrifar eins og hvern annan fellilista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#3",
+      "source": "the value to start on.",
+      "source_sha256": "c7623ff24a2c0621c5a31641229972dd2aed38e48dd08e75c6e6339e44773b2a",
+      "context": "the value to start on.",
+      "translation": "gildið sem á að byrja á.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo#5",
+      "source": "List the backends and select ``default``.",
+      "source_sha256": "8ce771b0c97f3c98b19007b03890e536a3fd274afdeea589048f738be1a37c72",
+      "context": "List the backends and select ``default``.",
+      "translation": "Telja upp bakendana og velja ``default``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.missing#0",
+      "source": "The backends listed but not installed, by name.",
+      "source_sha256": "d8831683216422fdb5b47fc5855e533551be665b881f134a1aa3c92697c12549",
+      "context": "The backends listed but not installed, by name.",
+      "translation": "Bakendarnir sem eru taldir upp en ekki uppsettir, eftir heiti.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.missing#1",
+      "source": "Installed means \"can segment now\", which is either an environment of its own under ``~/.spacr/backends`` or -- the older arrangement, still honoured -- the package importable in spaCR's own environment. :func:`spacr._segmentation_backends._backend_state` answers both with file checks and no import, so this stays cheap enough to ask while the box is being built.",
+      "source_sha256": "c02cf45c422ecf9575f0c0ba5d22535d3dec1a8f11883f728af4539d20119559",
+      "context": "Installed means \"can segment now\", which is either an environment of its own under ``~/.spacr/backends`` or -- the older arrangement, still honoured -- the package importable in spaCR's own environment. :func:`spacr._segmentation_backends._backend_state` answers both with file checks and no import, so this stays cheap enough to ask while the box is being built.",
+      "translation": "Uppsett þýðir \"can segment now\", sem er annaðhvort eigið umhverfi undir ``~/.spacr/backends`` eða -- eldra fyrirkomulagið, sem enn er virt -- pakkinn innflytjanlegur í eigin umhverfi spaCR. :func:`spacr._segmentation_backends._backend_state` svarar hvoru tveggja með skráaathugunum og án innflutnings, svo þetta er nógu ódýrt til að spyrja á meðan verið er að byggja reitinn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#0",
+      "source": "Install backend ``name`` into an environment of its own.",
+      "source_sha256": "02e34d41a118d254990b37cf08183eabab8c51e34278d7f143dafcdb26fe9655",
+      "context": "Install backend ``name`` into an environment of its own.",
+      "translation": "Setja bakendann ``name`` upp í eigið umhverfi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#1",
+      "source": "THE DESTINATION CHANGED, NOT THE GESTURE. A greyed row installs itself when it is chosen. It used to run ``pip install \"spacr[<backend>]\"`` against the environment spaCR is running in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the GUI thread, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
+      "source_sha256": "38f7b8d8fa3e0e692bcbc56a74593de36868a0662d0f786e3c9e301fa33a7814",
+      "context": "The destination changed, not the gesture. A greyed row installs itself when it is chosen. It used to execute ``pip install \"spacr[<backend>]\"`` against the environment spaCR is executing in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the main GUI execution path, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
+      "translation": "ÁFANGASTAÐURINN BREYTTIST, EKKI HREYFINGIN. Grá röð setur sig upp þegar hún er valin. Áður keyrði hún ``pip install \"spacr[<backend>]\"`` á umhverfið sem spaCR keyrir í; hver bakendi fær nú einangrað umhverfi, svo uppsetningin fer í staðinn í gegnum eigin glugga Model Zoo: utan GUI-þráðarins, með framvindu og Hætta við, í ``~/.spacr/backends/<name>``, og eigið umhverfi spaCR er aldrei breytt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#2",
+      "source": "a backend name.",
+      "source_sha256": "280f8e3db1f9f4ac1d4d83eda205d9f87c7059898bdaa0d850d6aef3feec0ed2",
+      "context": "a backend name.",
+      "translation": "heiti bakenda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#3",
+      "source": "True when the backend can segment afterwards.",
+      "source_sha256": "aeba2d92c2c8775ef656ae65783ff841b06baf76ff501297fb3ca4eca2fa872d",
+      "context": "True when the backend can segment afterwards.",
+      "translation": "True þegar bakendinn getur hlutað á eftir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.refresh_installed#0",
+      "source": "Grey the backends that are not installed, and only those.",
+      "source_sha256": "980554b271e019bfc084efa97490589d66a250f2114d04541c275bc3bd032ce6",
+      "context": "Grey the backends that are not installed, and only those.",
+      "translation": "Gera bakendana sem eru ekki uppsettir gráa, og aðeins þá.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.setCurrentText#0",
+      "source": "Select the row whose caption, or stored value, is ``text``.",
+      "source_sha256": "0c918a7f777889870be6d9def30a8dda12487ee1b50b81ff1c749a5f8ab320c9",
+      "context": "Select the row whose caption, or stored value, is ``text``.",
+      "translation": "Velja röðina þar sem yfirskriftin, eða vistaða gildið, er ``text``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SegmentationBackendCombo.setCurrentText#1",
+      "source": "a caption such as ``'SAMCell'`` or a value such as ``'samcell'``; anything else leaves the selection alone.",
+      "source_sha256": "7c46cad04c6753ea0695dbb1b1611fff17c4bab67ca6818f0a340cdc93b14a6b",
+      "context": "a caption such as ``'SAMCell'`` or a value such as ``'samcell'``; anything else leaves the selection alone.",
+      "translation": "yfirskrift eins og ``'SAMCell'`` eða gildi eins og ``'samcell'``; allt annað lætur valið í friði.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#0",
+      "source": "The OPS module's ``ops_spot_detector``: spaCR's own, or SpotNet.",
+      "source_sha256": "6b638a66ddd27519dbe1d48fff8038026d909bb07a0f7908d9b0781d858f5740",
+      "context": "The OPS module's ``ops_spot_detector``: spaCR's own, or SpotNet.",
+      "translation": "``ops_spot_detector`` OPS-einingarinnar: eiginn greinir spaCR, eða SpotNet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#1",
+      "source": "spaCR's own detector is first, the default and always usable. SpotNet is listed whether or not it can run; when its environment or its DeepCell token is missing its row is disabled and its tooltip says which, and either way the tooltip states its non-commercial licence, because this box is where a person chooses it.",
+      "source_sha256": "2645b131fcb0ef398a7f8880b46366b18f8e5144cb02a27706efb90c32d4d850",
+      "context": "spaCR's own detector is first, the default and always usable. SpotNet is listed whether or not it can run; when its environment or its DeepCell token is missing its row is disabled and its tooltip says which, and either way the tooltip states its non-commercial licence, because this box is where a person chooses it.",
+      "translation": "Eiginn greinir spaCR er fyrstur, sjálfgefinn og alltaf nothæfur. SpotNet er talið upp hvort sem það getur keyrt eða ekki; þegar umhverfi þess eða DeepCell-tóka vantar er röð þess óvirk og verkfæraábendingin segir hvort, og í báðum tilvikum tilgreinir verkfæraábendingin leyfi þess sem er ekki til viðskiptanota, því þessi reitur er þar sem manneskja velur það.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#2",
+      "source": "the value to start on, ``'native'`` or ``'spotnet'``.",
+      "source_sha256": "2223d6ffa4d2e69a9aaa11ef1c9e0132b0bc68a78c11398ce93b079b2a338961",
+      "context": "the value to start on, ``'native'`` or ``'spotnet'``.",
+      "translation": "gildið sem á að byrja á, ``'native'`` eða ``'spotnet'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#4",
+      "source": "``() -> (ready, reason)``; SpotNet's own check when None, a stand-in in tests.",
+      "source_sha256": "b4d1422e4bd0ea541c4a2611a3976e68689eca370a873789e681481adb35275a",
+      "context": "``() -> (ready, reason)``; SpotNet's own check when None, a stand-in in tests.",
+      "translation": "``() -> (ready, reason)``; eigin athugun SpotNet þegar None, staðgengill í prófunum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo#5",
+      "source": "List the detectors, disable SpotNet if it cannot run, select.",
+      "source_sha256": "07a1a8888483acf37f56f0f6eaa4e44f1eab6609c29763d0ca86576df9c34cb5",
+      "context": "List the detectors, disable SpotNet if it cannot run, select.",
+      "translation": "Telja upp greinana, gera SpotNet óvirkt ef það getur ekki keyrt, velja.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.refresh#0",
+      "source": "Enable SpotNet's row only when it can run, and say why not.",
+      "source_sha256": "62bf713a143594afa112c55cbe7a0e726cb4e916d58220e0fb761c68fb9da044",
+      "context": "Enable SpotNet's row only when it can run, and say why not.",
+      "translation": "Virkja röð SpotNet aðeins þegar það getur keyrt, og segja hvers vegna ekki.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.refresh#1",
+      "source": "SpotNet's ``(ready, reason)``.",
+      "source_sha256": "a6fae124fd018d99f0550d935bbd5bf24a2bd6b809c73f7d6552a8b9f1fee241",
+      "context": "SpotNet's ``(ready, reason)``.",
+      "translation": "``(ready, reason)`` SpotNet.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.setCurrentText#0",
+      "source": "Select the row whose caption or value is ``text``, if usable.",
+      "source_sha256": "f53a58eaf09bcbaacfd28ef84758aca2ebfb16a7f49fa848f016a6397bc59ac1",
+      "context": "Select the row whose caption or value is ``text``, if usable.",
+      "translation": "Velja röðina þar sem yfirskriftin eða gildið er ``text``, ef hún er nothæf.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.SpotDetectorCombo.setCurrentText#1",
+      "source": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone.",
+      "source_sha256": "57820363ed8045e1868ed1479301fde9625955270e70b4e069ed1f4d1b1fc481",
+      "context": "a caption or stored value; a row that is not installed (disabled), or no match, leaves the selection alone.",
+      "translation": "yfirskrift eða vistað gildi; röð sem er ekki uppsett (óvirk), eða engin samsvörun, lætur valið í friði.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_row#0",
+      "source": "The :func:`backend_rows` row for one backend.",
+      "source_sha256": "e6df5a8867d86b44daac669f7862805a26a243ef7805a15445fb2fd089f2caaa",
+      "context": "The :func:`backend_rows` row for one backend.",
+      "translation": ":func:`backend_rows` röðin fyrir einn bakenda.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_row#1",
+      "source": "a backend name such as ``'samcell'``.",
+      "source_sha256": "f0c61f2bd000e4412d15147e6ec7460133f4ad7e667de85dcd670fba8d06c17b",
+      "context": "a backend name such as ``'samcell'``.",
+      "translation": "heiti bakenda eins og ``'samcell'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_row#2",
+      "source": "the row, or ``None`` for a name the zoo does not list.",
+      "source_sha256": "7cb1befdedf64aefa430fda803011a66bcd9e9aec4acb4ca935fda322bbce0d1",
+      "context": "the row, or ``None`` for a name the zoo does not list.",
+      "translation": "röðin, eða ``None`` fyrir heiti sem líkanasafnið telur ekki upp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_rows#0",
+      "source": "Every installable segmentation backend, as the model zoo lists it.",
+      "source_sha256": "30cebeec4d443046244d0ff5602a0ea6d089a0ee97dd4a3dcf5fbf1d0afbd19b",
+      "context": "Every installable segmentation backend, as the model zoo lists it.",
+      "translation": "Allir hlutunarbakendar sem hægt er að setja upp, eins og líkanasafnið telur þá upp.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.backend_rows#1",
+      "source": "``(name, label, pip requirement, import name)`` per backend, in the zoo's order.",
+      "source_sha256": "f4dbf16003c920dc46abfbfb14f3c46e8f6f92995b52711a7b660b2cb6146e70",
+      "context": "``(name, label, pip requirement, import name)`` per backend, in the zoo's order.",
+      "translation": "``(name, label, pip requirement, import name)`` fyrir hvern bakenda, í röð líkanasafnsins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.can_install_packages#0",
+      "source": "Whether this build of spaCR can add a package to itself.",
+      "source_sha256": "bb9370681aa52fd9e7a7683b8865f664ed09a2bd8598c320558631a72a02b119",
+      "context": "Whether this build of spaCR can add a package to itself.",
+      "translation": "Hvort þessi útgáfa af spaCR getur bætt pakka við sjálfa sig.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.can_install_packages#1",
+      "source": "A frozen application has no ``pip`` to run: its interpreter is the application binary.",
+      "source_sha256": "52bd99753c70a6ced0f13f7635daf88751d406bcc1dd28d769e74e8cabea297f",
+      "context": "A frozen application has no ``pip`` to run: its interpreter is the application binary.",
+      "translation": "Fryst forrit hefur ekkert ``pip`` til að keyra: túlkur þess er forritsskráin sjálf.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.can_install_packages#2",
+      "source": "False inside a frozen build.",
+      "source_sha256": "2671c165aba38df592f8410ca001ce3b8326a93f083f437ac767b6dcc8e33020",
+      "context": "False inside a frozen build.",
+      "translation": "False innan frystrar útgáfu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#0",
+      "source": "Ask before installing a backend, and say what the install risks.",
+      "source_sha256": "a242703dd08d28176a4a9745def315e6222fb78d295ae4ea93c1d4c54bf12b81",
+      "context": "Ask before installing a backend, and say what the install risks.",
+      "translation": "Spyrja áður en bakendi er settur upp, og segja hvað uppsetningin hættir á.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#1",
+      "source": "the widget the question belongs to.",
+      "source_sha256": "f6738c161aa0966491c4b21ed92c45123f4679b57a553fe0a5641aeb3863de4f",
+      "context": "the widget the question belongs to.",
+      "translation": "græjan sem spurningin tilheyrir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#2",
+      "source": "the backend's name, for example ``'SAMCell'``.",
+      "source_sha256": "2844635f65690d061656aa7fdaf40738d51888ed6b31c1fb7d62624babd9d657",
+      "context": "the backend's name, for example ``'SAMCell'``.",
+      "translation": "heiti bakendans, til dæmis ``'SAMCell'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#3",
+      "source": "what is passed to ``pip install``.",
+      "source_sha256": "408afd1e2c951a2fb778ac5d11611960ac8752fa6d9a71b62e49b6f69e7fd256",
+      "context": "what is passed to ``pip install``.",
+      "translation": "það sem er sent til ``pip install``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#4",
+      "source": "True when the user agreed.",
+      "source_sha256": "e771f1bce41224da784b955e05a4aac895146df69891a0083b25d5d96b8b7af8",
+      "context": "True when the user agreed.",
+      "translation": "True þegar notandinn samþykkti.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.human_bytes#0",
+      "source": "A byte count a person can read, such as ``'1.2 GB'``.",
+      "source_sha256": "c3f4c256a09db9fef1ad8c873c1f6e74e074c9145a6275bcb2d9c68889ae08a7",
+      "context": "A byte count a person can read, such as ``'1.2 GB'``.",
+      "translation": "Bætafjöldi sem manneskja getur lesið, t.d. ``'1.2 GB'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.human_bytes#1",
+      "source": "bytes.",
+      "source_sha256": "c5aa1db676ac061cd8e7e7c80a4fa52cc67fa98ad791728be5f1a013f062838f",
+      "context": "Size measured in bytes.",
+      "translation": "bæti.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.model_install.human_bytes#2",
+      "source": "the text, or ``''`` for an unknown (zero) size.",
+      "source_sha256": "b0dd0b6ff0d3ec6b4ddd567ec7d455f1a184592d3cdcd52644d9775b90e3d86e",
+      "context": "the text, or ``''`` for an unknown (zero) size.",
+      "translation": "textinn, eða ``''`` fyrir óþekkta (núll) stærð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.is_importable#0",
+      "source": "Whether ``module`` can be imported here, without importing it.",
+      "source_sha256": "9baba2740b93e5c004c3a3c05a1c3671a0614ebd0b8918d9e18c7cd02d687979",
+      "context": "Whether ``module`` can be imported here, without importing it.",
+      "translation": "Hvort hægt er að flytja ``module`` inn hér, án þess að flytja það inn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.is_importable#1",
+      "source": "the top-level import name.",
+      "source_sha256": "7294d933274722609f89b8556f160aa5df5bfee0a862569669503648c13d611b",
+      "context": "the top-level import name.",
+      "translation": "innflutningsheiti efsta stigs.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.is_importable#2",
+      "source": "True when Python can find it.",
+      "source_sha256": "aff86f1b31a31678d6e0955f719b3861c2e909fa1c36a7aef02c01669566b257",
+      "context": "True when Python can find it.",
+      "translation": "True þegar Python getur fundið það.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.pip_command#0",
+      "source": "The command that installs ``requirement`` into this environment.",
+      "source_sha256": "54ba582721fe8e78ff0e19586d22b897a53111801f9cce66a646d7aedfaeaab7",
+      "context": "The command that installs ``requirement`` into this environment.",
+      "translation": "Skipunin sem setur ``requirement`` upp í þessu umhverfi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.pip_command#1",
+      "source": "``python -m pip`` with the interpreter spaCR is running on, so the package lands where this process imports from.",
+      "source_sha256": "dfd07f9e93318865f58dd05ca857abdcfc0a898c11b19a47d4f8597ead33acd7",
+      "context": "``python -m pip`` with the interpreter spaCR is executing on, so the package lands where this process imports from.",
+      "translation": "``python -m pip`` með túlkinum sem spaCR keyrir á, svo pakkinn lendir þar sem þetta ferli flytur inn frá.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.pip_command#2",
+      "source": "a pip requirement, for example ``'spacr[samcell]'``.",
+      "source_sha256": "79deba4bde08622ac8dd234f6636f717bc266080f717aa3ada9f12affff67fa1",
+      "context": "a pip requirement, for example ``'spacr[samcell]'``.",
+      "translation": "pip-krafa, til dæmis ``'spacr[samcell]'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.model_install.pip_command#3",
+      "source": "the program followed by its arguments.",
+      "source_sha256": "2599d62d0353bf7b96eb5ee97bc1981f3c02a4d62bfff1c9f6277e7faebd205e",
+      "context": "the program followed by its arguments.",
+      "translation": "forritið og á eftir því viðföng þess.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.module_hints.install_module_hints#2",
+      "source": "the main window; it parents the filter, and its ``_show_module_hint(key)`` method is called to show each hovered module's hint.",
+      "source_sha256": "575c4cf0db0f083d26dbe82b8d6f1aa7e0d1e6f38defe85e384a5edf5a3cb360",
+      "context": "the main window; it parents the filter, and its ``_show_module_hint(key)`` method is called to show each hovered module's hint.",
+      "translation": "aðalglugginn; hann er foreldri síunnar, og kallað er á ``_show_module_hint(key)`` aðferð hans til að sýna vísbendingu hverrar einingar sem bendillinn er yfir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.module_hints.module_hint_text#2",
+      "source": "the hovered widget; its module name and summary Qt properties are read. ``None`` or a deleted widget gives ``\"\"``, and a line longer than :data:`MAX_HINT_CHARS` is cut at a word with an ellipsis.",
+      "source_sha256": "dd43587d6535df0a82747a6edf788a03ee70b638b2e4703d99607142b3d9e270",
+      "context": "the hovered widget; its module name and summary Qt properties are read. ``None`` or a deleted widget gives ``\"\"``, and a line longer than :data:`MAX_HINT_CHARS` is cut at a word with an ellipsis.",
+      "translation": "græjan sem bendillinn er yfir; heiti einingar og samantekt úr Qt-eiginleikum hennar eru lesin. ``None`` eða eydd græja gefur ``\"\"``, og lína sem er lengri en :data:`MAX_HINT_CHARS` er skorin við orð með úrfellingarpunktum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.night_themes#0",
+      "source": "The ten night themes, each a palette, a backdrop and a sound set.",
+      "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+      "context": "The ten night themes, each a palette, a backdrop and a sound set.",
+      "translation": "Næturþemun tíu, hvert litaspjald, bakgrunnur og hljóðasafn.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.night_themes#1",
+      "source": "A night theme is one choice that moves three things at once: the colours the interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten because of this module), which ambient animation runs behind it and in which colours (:mod:`spacr.qt.widgets.ambient`), and which set of sounds spaCR plays if the user has ever switched sound on (:mod:`spacr.qt.sound_synth`). Choosing one in Preferences therefore changes how spaCR looks *and* how it sounds, which is the whole point of the family.",
+      "source_sha256": "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
+      "context": "A night theme is one choice that moves three things at once: the colours the interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten because of this module), which ambient animation runs behind it and in which colours (:mod:`spacr.qt.widgets.ambient`), and which set of sounds spaCR plays if the user has ever switched sound on (:mod:`spacr.qt.sound_synth`). Choosing one in Preferences therefore changes how spaCR looks *and* how it sounds, which is the whole point of the family.",
+      "translation": "Næturþema er eitt val sem færir þrennt í einu: litina sem viðmótið er málað í (:data:`spacr.qt.theme.THEMES` stækkar um tíu vegna þessarar einingar), hvaða umhverfishreyfimynd keyrir á bak við það og í hvaða litum (:mod:`spacr.qt.widgets.ambient`), og hvaða hljóðasafn spaCR spilar ef notandinn hefur einhvern tíma kveikt á hljóði (:mod:`spacr.qt.sound_synth`). Að velja eitt í Preferences breytir því hvernig spaCR lítur út *og* hvernig það hljómar, sem er allur tilgangur fjölskyldunnar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.night_themes#2",
+      "source": "This module is Qt-free on purpose, the same way :mod:`spacr.qt.sound_synth` is: :mod:`spacr.qt.preferences` imports it to validate a stored theme name and must not pull QtGui or QtWidgets in while doing so. It holds data and three lookups and imports nothing from the rest of spaCR, so :mod:`spacr.qt.theme`, :mod:`spacr.qt.widgets.ambient` and :mod:`spacr.qt.sound_synth` can all read from it without a cycle.",
+      "source_sha256": "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
+      "context": "This module is Qt-free on purpose, the same way :mod:`spacr.qt.sound_synth` is: :mod:`spacr.qt.preferences` imports it to validate a stored theme name and must not pull QtGui or QtWidgets in while doing so. It holds data and three lookups and imports nothing from the rest of spaCR, so :mod:`spacr.qt.theme`, :mod:`spacr.qt.widgets.ambient` and :mod:`spacr.qt.sound_synth` can all read from it without a cycle.",
+      "translation": "Þessi eining er viljandi laus við Qt, á sama hátt og :mod:`spacr.qt.sound_synth`: :mod:`spacr.qt.preferences` flytur hana inn til að staðfesta vistað heiti þema og má ekki draga inn QtGui eða QtWidgets á meðan. Hún geymir gögn og þrjár uppflettingar og flytur ekkert inn frá restinni af spaCR, svo :mod:`spacr.qt.theme`, :mod:`spacr.qt.widgets.ambient` og :mod:`spacr.qt.sound_synth` geta öll lesið úr henni án hringtengingar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.night_themes#3",
+      "source": "THE PALETTES ARE LITERALS RATHER THAN A RECIPE. Each one was generated from a hue and a saturation over a shared lightness ramp, then checked against :func:`spacr.qt.theme.contrast_failures` and :func:`spacr.qt.theme.page_separation_failures` and written down. Keeping the numbers here rather than the recipe means the published colours are the reviewed colours, no solver runs at import, and ``tests/qt/test_ten_night_themes.py`` judges what actually ships.",
+      "source_sha256": "9e416ff9a6db162726dfb91a00e8b61ff0fa6476d05142c39c4c7ba3da2c3633",
+      "context": "The palettes are literals rather than a recipe. Each one was generated from a hue and a saturation over a shared lightness ramp, then checked against :func:`spacr.qt.theme.contrast_failures` and :func:`spacr.qt.theme.page_separation_failures` and written down. Keeping the numbers here rather than the recipe means the published colours are the reviewed colours, no solver runs at import, and ``tests/qt/test_ten_night_themes.py`` judges what actually ships.",
+      "translation": "LITASPJÖLDIN ERU FASTAR FREKAR EN UPPSKRIFT. Hvert þeirra var myndað út frá litblæ og mettun yfir sameiginlegan birtustiga, síðan athugað með :func:`spacr.qt.theme.contrast_failures` og :func:`spacr.qt.theme.page_separation_failures` og skrifað niður. Að geyma tölurnar hér frekar en uppskriftina þýðir að birtu litirnir eru yfirförnu litirnir, enginn leysir keyrir við innflutning, og ``tests/qt/test_ten_night_themes.py`` metur það sem raunverulega er gefið út.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

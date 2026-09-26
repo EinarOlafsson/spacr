@@ -4109,6 +4109,14 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
+      "label": "spacr.qt.mask_engine.invert_for_detection#23",
+      "source": "a NEW array of the input's dtype. The original is never touched: the readout and the filter must keep reporting the raw values whatever the detector was shown.",
+      "source_sha256": "7f7c70e57e77688caea2b7ab371128f7d378ffe777cf34ddf3deaffc8809973f",
+      "context": "a NEW array of the input's dtype. The original is never touched: the readout and the filter must keep reporting the raw values whatever the detector was shown.",
+      "translation": "NÝTT fylki með dtype inntaksins. Upprunalega fylkið er aldrei snert: álesturinn og sían verða að halda áfram að tilkynna hráu gildin hvað sem greininum var sýnt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
       "label": "spacr.qt.mask_engine.invert_for_detection#3",
       "source": ":func:`invert_intensity` complements the DTYPE and is what \"Invert image\" draws with. It has to be exactly reversible, because a curator leaves it on all day, and nothing downstream reads its result.",
       "source_sha256": "20b7e5f9841d1cd7b815708613b12375768b11ade6de9a8ca96bba65a8e855ee",
@@ -4154,6 +4162,646 @@
       "source_sha256": "20550882ae3477dbb3e809c68513c60a25496740069c327688ea7678e97b53c3",
       "context": "1 object, 100% of the microscope field of view -- everything",
       "translation": "1 hlutur, 100% af sjónsviðinu -- allt",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#0",
+      "source": "Return the photographic complement of ``image``: dark becomes bright.",
+      "source_sha256": "bd3b486693874b0f7527bc462831d7b9a74ab217327e4a8caa0171f4f96c6fa6",
+      "context": "Return the photographic complement of ``image``: dark becomes bright.",
+      "translation": "Skila ljósmyndafræðilegri fyllingu ``image``: dökkt verður bjart.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#1",
+      "source": "Low intensity becomes high intensity and vice versa, fitted to the dtype. WHAT IS BUILT IS THE COMPLEMENT, ``dtype_max - value``, NOT THE RECIPROCAL, for three reasons that are worth having written down because the reciprocal is the obvious first thought:",
+      "source_sha256": "4ff231cc4df36e3ecc6be0da73df2a777af0310b7bb54201e1a91ba20c93ea04",
+      "context": "Low intensity becomes high intensity and vice versa, fitted to the dtype. what is built is the complement, ``dtype_max - value``, not the reciprocal, for three reasons that are worth having written down because the reciprocal is the obvious first thought:",
+      "translation": "Lítill styrkur verður mikill styrkur og öfugt, aðlagað að dtype. ÞAÐ SEM ER BYGGT ER FYLLINGIN, ``dtype_max - value``, EKKI UMHVERFAN, af þremur ástæðum sem vert er að hafa skrifaðar niður því umhverfan er augljósa fyrsta hugmyndin:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#2",
+      "source": "it is what every image viewer means by Invert, so the picture that comes back is the one a reader expects from Invert;",
+      "source_sha256": "de0ffdcdf6d1285e06d67e1adb74436e44ce9097089d1fee7006db01597e88e6",
+      "context": "it is what every image viewer means by Invert, so the picture that comes back is the one a reader expects from Invert;",
+      "translation": "það er það sem hver myndskoðari á við með Invert, svo myndin sem kemur til baka er sú sem lesandi býst við af Invert;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#3",
+      "source": "it is EXACTLY reversible on an integer field -- inverting twice returns the identical array, which is what makes it safe to leave switched on while curating, and is asserted by comparing arrays;",
+      "source_sha256": "06bae63760cca3b2589b15108c00bdda656ac7cbec3b8b017675d6f6b8e35659",
+      "context": "it is EXACTLY reversible on an integer field -- inverting twice returns the identical array, which is what makes it safe to leave switched on while curating, and is asserted by comparing arrays;",
+      "translation": "það er NÁKVÆMLEGA afturkræft á heiltölusjónsviði -- tvöföld umhverfing skilar nákvæmlega sama fylki, sem er það sem gerir óhætt að hafa það virkt á meðan yfirferð fer fram, og það er staðfest með samanburði fylkja;",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#4",
+      "source": "``1/value`` divides by zero on every background pixel, and it squashes the bright end non-linearly, so two objects a thousand counts apart come back indistinguishable while the background explodes.",
+      "source_sha256": "712e964d4ec4305b3c6dae792a7b785abd54d79a8996c74f74f6ea478070b28c",
+      "context": "``1/value`` divides by zero on every background pixel, and it squashes the bright end non-linearly, so two objects a thousand counts apart come back indistinguishable while the background explodes.",
+      "translation": "``1/value`` deilir með núlli á hverjum bakgrunnspixli, og það þjappar bjarta endanum ólínulega, svo tveir hlutir sem eru þúsund talningum frá hvor öðrum koma til baka óaðgreinanlegir á meðan bakgrunnurinn springur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#5",
+      "source": "The reciprocal remains a reasonable SECOND mode for anyone who wants a log-like lift of the dim end; it is not this one.",
+      "source_sha256": "970409c266e941a7045204da1e24cc16aa795ba9b9f079062e4570c9f5744d00",
+      "context": "The reciprocal remains a reasonable SECOND mode for anyone who wants a log-like lift of the dim end; it is not this one.",
+      "translation": "Umhverfan er áfram skynsamlegur ANNAR hamur fyrir þá sem vilja lógaritmalíka lyftingu á daufa endanum; hún er ekki þessi hamur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#6",
+      "source": "WHICH RANGE IS COMPLEMENTED depends on the dtype, because fitting to the dtype only has a meaning where the dtype has ends:",
+      "source_sha256": "b9dec447baaed356068e863deead62cf21ba7e6dd5b9e54642ac6a32b0979f8a",
+      "context": "Which range is complemented depends on the dtype, because fitting to the dtype only has a meaning where the dtype has ends:",
+      "translation": "HVAÐA BIL ER FYLLT fer eftir dtype, því aðlögun að dtype hefur aðeins merkingu þar sem dtype hefur enda:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#7",
+      "source": "``unsigned integers`` the dtype's own range, so a ``uint16`` field is ``65535 - value``. A 12-bit camera writing into ``uint16`` therefore comes back in the top sixteenth of the range; a display that stretches by percentiles puts that back where a reader can see it, and the array is still exactly invertible, which a data-range complement would not be across two fields of different brightness. ``signed integers`` ``iinfo.min + iinfo.max - value``, the same complement on the range the dtype actually spans. ``bool`` logical not. ``floating point`` the ARRAY'S OWN range, ``min + max - value``, because a float image has no dtype maximum worth speaking of. The complement of a range maps its ends onto each other, so a second call computes the same two ends and comes back to the original -- but NOT bit for bit: ``s - (s - x)`` rounds twice, and the round trip is out by up to one unit in the last place of ``s``. Measured on a 200x200 field over 0..65535: 0.002 in ``float32`` and 4e-12 in ``float64``, against an interval of one count. The round trip is EXACT for every integer and boolean dtype, which is every dtype a field is read in.",
+      "source_sha256": "6ea3a594264382be86b2ed4104f114ef1775e471ce2771fa183fc36ca2e7cdb0",
+      "context": "``unsigned integers`` the dtype's own range, so a ``uint16`` microscope field of view is ``65535 - value``. A 12-bit camera writing into ``uint16`` therefore comes back in the top sixteenth of the range; a display that stretches by percentiles puts that back where a reader can see it, and the array is still exactly invertible, which a data-range complement would not be across two microscope fields of view of different brightness. ``signed integers`` ``iinfo.min + iinfo.max - value``, the same complement on the range the dtype actually spans. ``bool`` logical not. ``floating point`` the array's own range, ``min + max - value``, because a float image has no dtype maximum worth speaking of. The complement of a range maps its ends onto each other, so a second call computes the same two ends and comes back to the original -- but NOT bit for bit: ``s - (s - x)`` rounds twice, and the round trip is out by up to one unit in the last place of ``s``. Measured on a 200x200 microscope field of view over 0..65535: 0.002 in ``float32`` and 4e-12 in ``float64``, against an interval of one count. The round trip is EXACT for every integer and boolean dtype, which is every dtype a microscope field of view is read in.",
+      "translation": "``unsigned integers`` eigið bil dtype, svo ``uint16`` sjónsvið verður ``65535 - value``. 12-bita myndavél sem skrifar í ``uint16`` kemur því til baka í efsta sextánda hluta bilsins; birting sem teygir eftir hundraðshlutamörkum setur það aftur þangað sem lesandi getur séð það, og fylkið er enn nákvæmlega umhverfanlegt, sem fylling eftir gagnabili væri ekki yfir tvö sjónsvið með ólíka birtu. ``signed integers`` ``iinfo.min + iinfo.max - value``, sama fylling á bilinu sem dtype spannar í raun. ``bool`` rökleg neitun. ``floating point`` EIGIÐ BIL FYLKISINS, ``min + max - value``, því fleytitölumynd hefur ekkert dtype-hámark sem vert er að nefna. Fylling bils varpar endum þess hvor á annan, svo annað kall reiknar sömu tvo endana og kemur aftur að upprunanum -- en EKKI bita fyrir bita: ``s - (s - x)`` námundar tvisvar, og hringferðin skeikar um allt að eina einingu í síðasta sæti ``s``. Mælt á 200x200 sjónsviði yfir 0..65535: 0.002 í ``float32`` og 4e-12 í ``float64``, á móti bili upp á eina talningu. Hringferðin er NÁKVÆM fyrir hverja heiltölu- og sannleiksgildis-dtype, sem er hver dtype sem sjónsvið er lesið í.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#8",
+      "source": "any numeric or boolean array. It is not modified.",
+      "source_sha256": "42c2e2a94b4c793a50edbadf38c0fe6f534fc65e9366e954bb8aa8cf1a304667",
+      "context": "any numeric or boolean array. It is not modified.",
+      "translation": "hvaða tölulegt fylki eða sannleiksgildisfylki sem er. Því er ekki breytt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_intensity#9",
+      "source": "a new array of the same shape and dtype.",
+      "source_sha256": "8919bed90e76d85480d1634f052e0a8b38d33e02796c5689fc7b9645914b3eef",
+      "context": "a new array of the same shape and dtype.",
+      "translation": "nýtt fylki af sömu lögun og dtype.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_mask#0",
+      "source": "Swap object and background in a LABEL image, and relabel.",
+      "source_sha256": "43b776cf2adcc8b3214ee60897390513f72732bf94bd7a111337da2a4c865423",
+      "context": "Swap object and background in a LABEL image, and relabel.",
+      "translation": "Víxla hlut og bakgrunni í MERKJAMYND, og endurmerkja.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_mask#1",
+      "source": "NOT AN INTENSITY INVERSION -- that is :func:`invert_intensity`, and the Make Masks screen's \"Invert image\" is wired to that one. This flips the MASK: every labelled pixel becomes background and every background pixel becomes foreground, and what comes out is then labelled afresh. On an ordinary field the background is one connected region, so what comes back is a SINGLE field-sized object with holes where the objects were -- which is why it looks as if it does not invert at all: one flat overlay over the whole frame reads as nothing having happened.",
+      "source_sha256": "1993c18c1a24eb00eb33b285bc01a721bfefa7117f7001d7c86af6f1275ae448",
+      "context": "Not an intensity inversion -- that is :func:`invert_intensity`, and the Make Masks screen's \"Invert image\" is wired to that one. This flips the MASK: every labelled pixel becomes background and every background pixel becomes foreground, and what comes out is then labelled afresh. On an ordinary field the background is one connected region, so what comes back is a SINGLE field-sized object with holes where the objects were -- which is why it looks as if it does not invert at all: one flat overlay over the whole frame reads as nothing having happened.",
+      "translation": "EKKI UMHVERFING STYRKS -- það er :func:`invert_intensity`, og \"Invert image\" á Make Masks-skjámyndinni er tengt við það. Þetta víxlar GRÍMUNNI: hver merktur pixill verður bakgrunnur og hver bakgrunnspixill verður forgrunnur, og það sem kemur út er síðan merkt upp á nýtt. Á venjulegu sjónsviði er bakgrunnurinn eitt samfellt svæði, svo það sem kemur til baka er EINN hlutur á stærð við sjónsviðið með götum þar sem hlutirnir voru -- og þess vegna lítur út fyrir að það umhverfi alls ekki: ein flöt yfirlögn yfir allan rammann lítur út eins og ekkert hafi gerst.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_mask#2",
+      "source": "It is kept because it is a real thing to want -- a curator who has outlined the space BETWEEN the cells has drawn the complement of what is wanted -- but under the name that says what it does.",
+      "source_sha256": "0ab73b73feedfad673d77a8ba177a0cfe86d1c284f1e5370fff82ddfe8633b1d",
+      "context": "It is kept because it is a real thing to want -- a curator who has outlined the space BETWEEN the cells has drawn the complement of what is wanted -- but under the name that says what it does.",
+      "translation": "Því er haldið því það er raunverulegt að vilja það -- yfirferðaraðili sem hefur dregið útlínur rýmisins MILLI frumnanna hefur teiknað fyllingu þess sem óskað er -- en undir heitinu sem segir hvað það gerir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_mask#3",
+      "source": "label mask; every pixel above 0 counts as object. The result keeps its dtype.",
+      "source_sha256": "11f00c1aa5d9c0e0b0d16883852f365977f5d7c38b59d203694f2a6b0c96d93c",
+      "context": "label mask; every pixel above 0 counts as object. The result keeps its dtype.",
+      "translation": "merkjagríma; hver pixill yfir 0 telst hlutur. Niðurstaðan heldur dtype sinni.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#0",
+      "source": "Normalise ``image`` to 0..1 on its OWN range, take ``1 - v``, fit back.",
+      "source_sha256": "8675cfd11142814fd1e0be362fb8a5a7110ed50b641f38c661bfc8ff49593a5c",
+      "context": "Normalise ``image`` to 0..1 on its OWN range, take ``1 - v``, fit back.",
+      "translation": "Staðla ``image`` á 0..1 á EIGIN bili hennar, taka ``1 - v``, aðlaga til baka.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#1",
+      "source": "THE ONE INVERSION. The field is normalised to 0..1 and every pixel becomes ``1 - value``, which gives an image that Otsu and the magnifier can work on when the objects are dark. That is the reason for the button.",
+      "source_sha256": "1ea5ae17e66c964b75dbea69c04eb1a2c6cce63f86cb24b88e246c1bfa1766e3",
+      "context": "The one inversion. The microscope field of view is normalised to 0..1 and every pixel becomes ``1 - value``, which gives an image that Otsu and the magnifier can work on when the objects are dark. That is the reason for the button.",
+      "translation": "EINA UMHVERFINGIN. Sjónsviðið er staðlað á 0..1 og hver pixill verður ``1 - value``, sem gefur mynd sem Otsu og stækkunarglerið geta unnið með þegar hlutirnir eru dökkir. Það er ástæðan fyrir hnappnum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#2",
+      "source": "So the purpose is a DETECTOR reading dark objects, and the picture the curator sees has to be the picture the detector reads -- one switch, one meaning. That decision replaced the two inversions this module used to carry for Make Masks, :func:`invert_intensity` (the dtype complement, drawn but never detected on) and :func:`invert_for_detection` (detected on but never drawn). Both are kept for callers outside Make Masks and neither is what the screen uses now.",
+      "source_sha256": "d3c9674db7046d4986b4a126eb0fa05603dd647de749cf5e9e9772d9c37e7dcf",
+      "context": "So the purpose is a DETECTOR reading dark objects, and the picture the curator sees has to be the picture the detector reads -- one switch, one meaning. That decision replaced the two inversions this module used to carry for Make Masks, :func:`invert_intensity` (the dtype complement, drawn but never detected on) and :func:`invert_for_detection` (detected on but never drawn). Both are kept for callers outside Make Masks and neither is what the screen uses now.",
+      "translation": "Tilgangurinn er því GREINIR sem les dökka hluti, og myndin sem yfirferðaraðilinn sér verður að vera myndin sem greinirinn les -- einn rofi, ein merking. Sú ákvörðun kom í stað umhverfinganna tveggja sem þessi eining bar áður fyrir Make Masks, :func:`invert_intensity` (dtype-fyllingin, teiknuð en aldrei greint á) og :func:`invert_for_detection` (greint á en aldrei teiknuð). Báðum er haldið fyrir kallendur utan Make Masks og hvorug er það sem skjámyndin notar nú.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#3",
+      "source": "WHY NORMALISING FIRST IS THE POINT AND NOT A DETAIL. The Otsu threshold correction is a MULTIPLIER on an absolute level, so what it means depends on where the field's intensities sit. A dtype complement moves a 12-bit field (216..4095) up into 61440..65535, and a correction of 0.8 then asks for a cut below every pixel present while 1.3 asks for one above them all -- the dial becomes an on/off switch, which is the measurement recorded in :func:`invert_for_detection`. Normalising to the field's own range first puts EVERY field on the same 0..1 span before the multiplier is applied, so one correction value means the same thing on the next image.",
+      "source_sha256": "d1158ca3ef8d80a1bc68b67cb909e38f2a41d5e73f344949ee9d7fa05945d63d",
+      "context": "Why normalising first is the point and not a detail. The Otsu threshold correction is a MULTIPLIER on an absolute level, so what it means depends on where the microscope field of view's intensities sit. A dtype complement moves a 12-bit microscope field of view (216..4095) up into 61440..65535, and a correction of 0.8 then asks for a cut below every pixel present while 1.3 asks for one above them all -- the dial becomes an on/off switch, which is the measurement recorded in :func:`invert_for_detection`. Normalising to the microscope field of view's own range first puts EVERY microscope field of view on the same 0..1 span before the multiplier is applied, so one correction value means the same thing on the next image.",
+      "translation": "HVERS VEGNA STÖÐLUN FYRST ER KJARNINN EN EKKI SMÁATRIÐI. Leiðrétting Otsu-þröskuldsins er MARGFALDARI á algilt stig, svo merking hennar fer eftir því hvar styrkleikagildi sjónsviðsins liggja. Dtype-fylling færir 12-bita sjónsvið (216..4095) upp á 61440..65535, og leiðrétting upp á 0.8 biður þá um skurð undir hverjum pixli sem er til staðar á meðan 1.3 biður um skurð yfir þeim öllum -- stillihnappurinn verður kveikt/slökkt-rofi, sem er mælingin sem skráð er í :func:`invert_for_detection`. Stöðlun að eigin bili sjónsviðsins fyrst setur HVERT sjónsvið á sömu 0..1 spönnina áður en margfaldaranum er beitt, svo eitt leiðréttingargildi merkir það sama á næstu mynd.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#4",
+      "source": "WHAT IS GIVEN UP, said plainly: this is not exactly reversible on the original numbers the way the dtype complement was. Inverting a field rescales it to the full range, and the original span cannot be recovered from the result. It does not need to be -- the screen keeps the untouched array and re-derives this one, so nothing measured, filtered or saved ever sees it -- but a caller that inverts an array and keeps only the result has lost where it sat.",
+      "source_sha256": "738b20a3252ea2ed73497d6cf8330edb6bc1354463c5883a961f6d92fd5dcae9",
+      "context": "What is given up, said plainly: this is not exactly reversible on the original numbers the way the dtype complement was. Inverting a field rescales it to the full range, and the original span cannot be recovered from the result. It does not need to be -- the screen keeps the untouched array and re-derives this one, so nothing measured, filtered or saved ever sees it -- but a caller that inverts an array and keeps only the result has lost where it sat.",
+      "translation": "HVAÐ ER GEFIÐ EFTIR, sagt hreint út: þetta er ekki nákvæmlega afturkræft á upprunalegu tölunum eins og dtype-fyllingin var. Umhverfing sjónsviðs kvarðar það upp á fullt bil, og ekki er hægt að endurheimta upprunalegu spönnina úr niðurstöðunni. Það þarf ekki -- skjámyndin heldur ósnerta fylkinu og leiðir þetta út aftur, svo ekkert sem er mælt, síað eða vistað sér það nokkurn tíma -- en kallandi sem umhverfir fylki og heldur aðeins niðurstöðunni hefur tapað því hvar það lá.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#5",
+      "source": "THE RETURN DTYPE IS THE INPUT'S, because the display path hands the result to :func:`normalize_uint16`, which reads ``np.iinfo`` and raises on a float. An integer field comes back spanning that dtype's full range; a float field comes back in 0..1, where a float already belongs.",
+      "source_sha256": "137c2562e448a3fc3274dd7daa1cec4fea459d6a30bc103a679fd3b1b5fe1136",
+      "context": "The return dtype is the input's, because the display path hands the result to :func:`normalize_uint16`, which reads ``np.iinfo`` and produces an error on a float. An integer field comes back spanning that dtype's full range; a float field comes back in 0..1, where a float already belongs.",
+      "translation": "DTYPE SKILAGILDISINS ER SÚ SAMA OG INNTAKSINS, því birtingarleiðin afhendir niðurstöðuna :func:`normalize_uint16`, sem les ``np.iinfo`` og kastar villu á fleytitölu. Heiltölusjónsvið kemur til baka og spannar allt bil þeirrar dtype; fleytitölusjónsvið kemur til baka á 0..1, þar sem fleytitala á þegar heima.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#6",
+      "source": "A FLAT FIELD has no range to normalise onto. ``v - min`` is 0 everywhere, so the normalised value is taken as 0 and the inverse as 1: a flat field inverts to a flat bright one, which is the literal reading of the formula and is what an inversion of \"no contrast\" should look like.",
+      "source_sha256": "1c299d387626b5b01c2dbd685e716b941fd3abfc4bf43def6868dcb43cc5f9ab",
+      "context": "A flat field has no range to normalise onto. ``v - min`` is 0 everywhere, so the normalised value is taken as 0 and the inverse as 1: a flat field inverts to a flat bright one, which is the literal reading of the formula and is what an inversion of \"no contrast\" should look like.",
+      "translation": "FLATT SJÓNSVIÐ hefur ekkert bil til að staðla á. ``v - min`` er 0 alls staðar, svo staðlaða gildið er tekið sem 0 og umhverfan sem 1: flatt sjónsvið umhverfist í flatt bjart sjónsvið, sem er bókstaflegur lestur formúlunnar og er það sem umhverfing á \"no contrast\" ætti að líta út.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#7",
+      "source": "the field, of any shape and any real dtype.",
+      "source_sha256": "d3a5c7b4808bba0ad594cffd81dcff91d1284053e0ec011dd546a15739869dfe",
+      "context": "the field, of any shape and any real dtype.",
+      "translation": "sjónsviðið, af hvaða lögun og hvaða rauntölu-dtype sem er.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.invert_normalized#8",
+      "source": "a new array, same shape, same dtype, inverted.",
+      "source_sha256": "87ebb87d9aee2cbcca399b68ed3305cbcb6433b101760dfbbb7c5296fcfb69ab",
+      "context": "a new array, same shape, same dtype, inverted.",
+      "translation": "nýtt fylki, sama lögun, sama dtype, umhverft.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.is_seg_bundle#0",
+      "source": "Whether ``filename`` names a Cellpose ``_seg.npy`` bundle.",
+      "source_sha256": "4074e3319545fd302c8d0b8f8b6add3b8f7f92fa204d9a59b5cfc700a92c5e0d",
+      "context": "Whether ``filename`` names a Cellpose ``_seg.npy`` bundle.",
+      "translation": "Hvort ``filename`` nefnir Cellpose ``_seg.npy`` búnt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.is_seg_bundle#1",
+      "source": "a file name or path.",
+      "source_sha256": "2fdbda77e20fca84780c95222a2ceb374606b6b05de91711eb39955d7206b100",
+      "context": "a file name or path.",
+      "translation": "skráarheiti eða slóð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.is_seg_bundle#2",
+      "source": "``True`` when it ends in :data:`SEG_SUFFIX`, which is how a ``seg`` queue's fields are named in the editor's file list.",
+      "source_sha256": "8d08ea4e2b9e164e23f3d06a4f198c33d284339268baf47a90b4219d07695622",
+      "context": "``True`` when it ends in :data:`SEG_SUFFIX`, which is how a ``seg`` work list's fields are named in the editor's file list.",
+      "translation": "``True`` þegar það endar á :data:`SEG_SUFFIX`, sem er hvernig sjónsvið ``seg`` biðraðar eru nefnd í skráalista ritilsins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.legacy_filters#0",
+      "source": "The four old hard-coded bounds as entries of the filter list.",
+      "source_sha256": "078b2a80dad7dfd82418d413c312833a9e10e89d36e312d5b0dd50de951f3351",
+      "context": "The four old hard-coded bounds as entries of the filter list.",
+      "translation": "Gömlu fjögur harðkóðuðu mörkin sem færslur í síulistanum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.legacy_filters#1",
+      "source": "This is the migration: 0 meant off for each old bound, and it becomes a missing side here, so an old settings file or call is judged by the one filter engine with the answer it always had. Area becomes ``area`` and mean intensity becomes ``intensity_mean``; equality was kept before and is kept now.",
+      "source_sha256": "a26f2e2da7118a505fcb39c6da32dde9bfe8f135c9a5a3ec24151e1d2095a36d",
+      "context": "This is the migration: 0 meant off for each old bound, and it becomes a missing side here, so an old settings file or call is judged by the one filter engine with the answer it always had. Area becomes ``area`` and mean intensity becomes ``intensity_mean``; equality was kept before and is kept now.",
+      "translation": "Þetta er yfirfærslan: 0 þýddi óvirkt fyrir hvert gamalt mark, og það verður hlið sem vantar hér, svo gömul stillingaskrá eða kall er metið af einu síuvélinni með svarinu sem það hafði alltaf. Flatarmál verður ``area`` og meðalstyrkur verður ``intensity_mean``; jöfnuði var haldið áður og er haldið nú.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.list_images#1",
+      "source": "directory to list (not recursively); an empty value or a missing directory gives ``[]``. Only names ending in :data:`IMAGE_EXTS`, case-insensitively, are kept.",
+      "source_sha256": "b0be52ca52882f6ed1b0fc397f93dbc16b69d7d972190789f8c4fc230700d698",
+      "context": "directory to list (not recursively); an empty value or a missing directory gives ``[]``. Only names ending in :data:`IMAGE_EXTS`, case-insensitively, are kept.",
+      "translation": "mappa sem á að telja upp (ekki endurkvæmt); tómt gildi eða mappa sem vantar gefur ``[]``. Aðeins heitum sem enda á :data:`IMAGE_EXTS`, óháð hástöfum, er haldið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#0",
+      "source": "Load an image and its accompanying mask.",
+      "source_sha256": "5250057c18de49e55abf1889d1667fbd8621788521f0266002a5198ccbf91ff7",
+      "context": "Load an image and its accompanying mask.",
+      "translation": "Hlaða mynd og grímunni sem henni fylgir.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#5",
+      "source": "A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is read by :func:`load_seg_bundle` instead.",
+      "source_sha256": "c824b0d9667e223cb6e974a1f77a8795593cfecbf7c02e7b88509738d441ed57",
+      "context": "A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is read by :func:`load_seg_bundle` instead.",
+      "translation": "``filename`` sem endar á :data:`SEG_SUFFIX` er Cellpose-búnt og er í staðinn lesið af :func:`load_seg_bundle`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#6",
+      "source": "the folder holding the image, or the bundle.",
+      "source_sha256": "3268376744c3aa635e176e1ffe486ffcfa0839c8971e2bd4cd5cc17667309b46",
+      "context": "the folder holding the image, or the bundle.",
+      "translation": "mappan sem geymir myndina, eða búntið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#7",
+      "source": "the image, or the ``_seg.npy`` bundle, to load.",
+      "source_sha256": "06c3b6005871c9aff0755ef333108a85b9e367fe29cdeaedb7f75c3791bbc754",
+      "context": "the image, or the ``_seg.npy`` bundle, to load.",
+      "translation": "myndin, eða ``_seg.npy`` búntið, sem á að hlaða.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_image_and_mask#8",
+      "source": "where the masks are, when not in ``<folder>/masks``; see :func:`masks_folder`.",
+      "source_sha256": "2a9368963cf8c125e5a0950e9223687924349a703021c6a2e4b7f788f20262d8",
+      "context": "where the masks are, when not in ``<folder>/masks``; see :func:`masks_folder`.",
+      "translation": "hvar grímurnar eru, þegar þær eru ekki í ``<folder>/masks``; sjá :func:`masks_folder`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#0",
+      "source": "Load a Cellpose bundle as the editor's ``(image, mask)`` pair.",
+      "source_sha256": "ecc6eefbe5538c34d71a0a582f35571392107c89e3e29a95d2e1743981cc52f3",
+      "context": "Load a Cellpose bundle as the editor's ``(image, mask)`` pair.",
+      "translation": "Hlaða Cellpose-búnti sem ``(image, mask)`` pari ritilsins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#1",
+      "source": "the ``_seg.npy`` bundle.",
+      "source_sha256": "1a7791c876b3a03ecd04ffd813bfde5c8e9607f0a8fe4c6f119695186ba13c18",
+      "context": "the ``_seg.npy`` bundle.",
+      "translation": "``_seg.npy`` búntið.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#2",
+      "source": "``(image, mask)``, checked and converted exactly as :func:`load_image_and_mask` converts a TIFF pair.",
+      "source_sha256": "06b914af78e20f22e3caa360b97b5af2dda14b82e41c4e932964fe78565e9842",
+      "context": "``(image, mask)``, checked and converted exactly as :func:`load_image_and_mask` converts a TIFF pair.",
+      "translation": "``(image, mask)``, athugað og umbreytt nákvæmlega eins og :func:`load_image_and_mask` umbreytir TIFF-pari.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_seg_bundle#3",
+      "source": "for a file that is not a bundle, a bundle with no image to show, or labels that do not fit the image.",
+      "source_sha256": "67b14b18f207e8af712b9f66deacd03f488cadbfd37dae6ed11ef64edd6d2a64",
+      "context": "for a file that is not a bundle, a bundle with no image to show, or labels that do not fit the image.",
+      "translation": "fyrir skrá sem er ekki búnt, búnt án myndar til að sýna, eða merki sem passa ekki við myndina.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#1",
+      "source": "intensity image, 2-D or with channels on the last axis; distances are taken over the channel values.",
+      "source_sha256": "2d59208e9b6905cb67ad993c00dcbccb9e8f30d5a56e0c728787870a9f1ca4d5",
+      "context": "intensity image, 2-D or with image data channels on the last axis; distances are taken over the image data channel values.",
+      "translation": "styrkleikamynd, 2-D eða með rásir á aftasta ás; fjarlægðir eru teknar yfir rásagildin.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#2",
+      "source": "mask with the same height and width as ``image``; it is copied, not modified.",
+      "source_sha256": "16e5dc2b659e4471c07b7f60b4b7348cacdf6ebff2897225693ac140a31a4893",
+      "context": "mask with the same height and width as ``image``; it is copied, not modified.",
+      "translation": "gríma með sömu hæð og breidd og ``image``; hún er afrituð, ekki breytt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#3",
+      "source": "seed column in pixels.",
+      "source_sha256": "d1a4a8f099b22d4f717a5e6ed88b6c6f4e9ebdd1d456fa6f576ee64af9778dbc",
+      "context": "seed column in pixels.",
+      "translation": "dálkur fræsins í pixlum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#4",
+      "source": "seed row in pixels. A seed outside the image returns ``mask`` unchanged.",
+      "source_sha256": "af68bcedc6a7f3e76a2a7b1335fecf5df57b03faad46a27c5b4d936023175aa1",
+      "context": "seed row in pixels. A seed outside the image returns ``mask`` unchanged.",
+      "translation": "röð fræsins í pixlum. Fræ utan myndarinnar skilar ``mask`` óbreyttu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.magic_wand#5",
+      "source": "largest distance from the seed value that still fills, in the image's own intensity units; see :func:`relative_tolerance`.",
+      "source_sha256": "6d95194dbe98aa6d299ad567ccdff2faf3bfd77a40490302c898266797509a0c",
+      "context": "largest distance from the seed value that still fills, in the image's own intensity units; see :func:`relative_tolerance`.",
+      "translation": "mesta fjarlægð frá gildi fræsins sem enn fyllir, í eigin styrkleikaeiningum myndarinnar; sjá :func:`relative_tolerance`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.mask_save_path#1",
+      "source": ":func:`load_image_and_mask` will accept a mask under the image's own extension, but everything :func:`save_mask` writes lands on ``<masks folder>/<stem>.tif``. The ledger is keyed on the file that was actually written, so both have to agree on one name; ask here rather than rebuilding it at each call site.",
+      "source_sha256": "dabf556af9d691b0f11cb4b5e6bfb0e498bbf460f10aa28400df8719a2d5ea89",
+      "context": ":func:`load_image_and_mask` will accept a mask under the image's own extension, but everything :func:`save_mask` writes lands on ``<masks folder>/<stem>.tif``. The ledger is keyed on the file that was actually written, so both have to agree on one name; ask here rather than rebuilding it at each call site.",
+      "translation": ":func:`load_image_and_mask` samþykkir grímu undir eigin endingu myndarinnar, en allt sem :func:`save_mask` skrifar lendir á ``<masks folder>/<stem>.tif``. Bókhaldið er lyklað eftir skránni sem raunverulega var skrifuð, svo bæði verða að vera sammála um eitt heiti; spyrðu hér frekar en að endurbyggja það á hverjum kallstað.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.mask_save_path#3",
+      "source": "the field's image, or its ``_seg.npy`` bundle.",
+      "source_sha256": "9d95c8a71f9d8f20c7da076b377137784e6cf4fd3a2a1a28a4e705f344e6f76b",
+      "context": "the microscope field of view's image, or its ``_seg.npy`` bundle.",
+      "translation": "mynd sjónsviðsins, eða ``_seg.npy`` búnt þess.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.mask_save_path#4",
+      "source": "where the masks are, when not in ``<folder>/masks``.",
+      "source_sha256": "63d74b26c05f8a2e7b0f3411c6114e24a908d54712cac898a7f166c4270dc4d9",
+      "context": "where the masks are, when not in ``<folder>/masks``.",
+      "translation": "hvar grímurnar eru, þegar þær eru ekki í ``<folder>/masks``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.mask_save_path#5",
+      "source": "the mask's path; for a bundle, the bundle itself, which is where its labels are written back.",
+      "source_sha256": "67270ea32d82556f322142b19bcc2587f5d0809a49324a9ff316c10d426d1942",
+      "context": "the mask's path; for a bundle, the bundle itself, which is where its labels are written back.",
+      "translation": "slóð grímunnar; fyrir búnt, búntið sjálft, þangað sem merki þess eru skrifuð aftur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.masks_folder#0",
+      "source": "Where the masks of the images in ``folder`` are kept.",
+      "source_sha256": "ac1a71d3b559389c6eeecc0bc7ff257ce9c3172ee2aa6ee2df43bf7964a369f8",
+      "context": "Where the masks of the images in ``folder`` are kept.",
+      "translation": "Hvar grímur myndanna í ``folder`` eru geymdar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.masks_folder#2",
+      "source": "the masks folder, when it is not beneath ``folder`` -- the ``sibling`` layout's ``<root>/masks`` beside ``<root>/images``.",
+      "source_sha256": "269a1d52a08090cb2edc00f14a0c937e83315a9be91d7964c491d0bb4d3eb273",
+      "context": "the masks folder, when it is not beneath ``folder`` -- the ``sibling`` layout's ``<root>/masks`` beside ``<root>/images``.",
+      "translation": "grímumappan, þegar hún er ekki undir ``folder`` -- í ``sibling`` uppsetningunni ``<root>/masks`` við hlið ``<root>/images``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.masks_folder#3",
+      "source": "``masks_dir`` when given, else ``<folder>/masks``.",
+      "source_sha256": "b3b6947bc9e9ae9a45f4f41b1663aa6d8f808e805a886f78c5575753a13a821f",
+      "context": "``masks_dir`` when given, else ``<folder>/masks``.",
+      "translation": "``masks_dir`` þegar það er gefið, annars ``<folder>/masks``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#0",
+      "source": "Segment bright objects with local maxima and an intensity watershed.",
+      "source_sha256": "3d0242f8d2c0f35efe02af593c9488aa052df619400b626bf8bedc4fcc209556",
+      "context": "Segment bright objects with local maxima and an intensity watershed.",
+      "translation": "Hluta bjarta hluti með staðbundnum hágildum og styrkleikavatnaskilum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#1",
+      "source": "Convert the field to float32, optionally blur it, and find centres with :func:`skimage.feature.peak_local_max`. Use those centres as markers for :func:`skimage.segmentation.watershed` on the negative blurred image. Distinct centres can split touching objects; noise can create extra centres, while smoothing or large centre spacing can remove real ones. No existing primary-object mask is accepted. This implementation has no CellProfiler propagation cost or distance/intensity weighting.",
+      "source_sha256": "770c56a17a312b495f584954e405707d8cbabd7c3136f40bf05aefc6d57f9551",
+      "context": "Convert the microscope field of view to float32, optionally blur it, and find centres with :func:`skimage.feature.peak_local_max`. Use those centres as markers for :func:`skimage.segmentation.watershed` on the negative blurred image. Distinct centres can split touching objects; noise can create extra centres, while smoothing or large centre spacing can remove real ones. No existing primary-object mask is accepted. This implementation has no CellProfiler propagation cost or distance/intensity weighting.",
+      "translation": "Umbreyta sjónsviðinu í float32, mýkja það valfrjálst, og finna miðjur með :func:`skimage.feature.peak_local_max`. Nota þær miðjur sem merki fyrir :func:`skimage.segmentation.watershed` á neikvæðu mýktu myndinni. Aðgreindar miðjur geta skipt hlutum sem snertast; suð getur búið til aukamiðjur, á meðan mýking eða stórt bil milli miðja getur fjarlægt raunverulegar. Engin fyrirliggjandi gríma aðalhluta er samþykkt. Þessi útfærsla hefur hvorki útbreiðslukostnað CellProfiler né vigtun eftir fjarlægð/styrk.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#10",
+      "source": "Gaussian standard deviation in pixels; default 2.0. Positive values smooth both seed finding and growth; zero disables blur. Increasing it can suppress noise peaks or merge real peaks. Make Masks offers 0 to 50; the direct API also skips negative values.",
+      "source_sha256": "5042b051168b5e0ffc63ecd9dc2d52b8f4dbb58cb8d322f956a2c15c7602c29c",
+      "context": "Gaussian standard deviation in pixels; default 2.0. Positive values smooth both seed finding and growth; zero disables blur. Increasing it can suppress noise peaks or merge real peaks. Make Masks offers 0 to 50; the direct API also skips negative values.",
+      "translation": "staðalfrávik Gauss-síunnar í pixlum; sjálfgefið 2.0. Jákvæð gildi mýkja bæði fræleit og vöxt; núll gerir mýkingu óvirka. Hækkun getur bælt suðtoppa eða sameinað raunverulega toppa. Make Masks býður 0 til 50; beint API sleppir líka neikvæðum gildum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#11",
+      "source": "centre separation in pixels; default 10. Passed to peak finding as ``max(1, int(min_distance))``, using its default Chebyshev distance. Increasing it suppresses nearby candidate seeds; reducing it can split an object into several detections. Make Masks offers 1 to 500.",
+      "source_sha256": "345e788b01f3a6d4c6d19c5c6712357c9c2da13cd789f402343f149023be43fa",
+      "context": "centre separation in pixels; default 10. Passed to peak finding as ``max(1, int(min_distance))``, using its default Chebyshev distance. Increasing it suppresses nearby candidate seeds; reducing it can split an object into several detections. Make Masks offers 1 to 500.",
+      "translation": "bil milli miðja í pixlum; sjálfgefið 10. Sent til toppaleitar sem ``max(1, int(min_distance))``, með sjálfgefinni Chebyshev-fjarlægð hennar. Hækkun bælir nálæg fræ sem koma til greina; lækkun getur skipt hlut í nokkrar greiningar. Make Masks býður 1 til 500.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#12",
+      "source": "default 90.0. Candidate maxima must exceed this intensity, or the intensity at this percentile when ``seed_level_is_percentile`` is true. Percentiles must be between 0 and 100. Increasing the floor excludes dimmer candidate centres; it does not directly set the final object boundary.",
+      "source_sha256": "b984384fbe6b853063458706b6ed46c41b59ddc7a06bb04d9080641040141621",
+      "context": "default 90.0. Candidate maxima must exceed this intensity, or the intensity at this percentile when ``seed_level_is_percentile`` is true. Percentiles must be between 0 and 100. Increasing the floor excludes dimmer candidate centres; it does not directly set the final object boundary.",
+      "translation": "sjálfgefið 90.0. Hágildi sem koma til greina verða að vera yfir þessum styrk, eða styrknum við þetta hundraðshlutamark þegar ``seed_level_is_percentile`` er satt. Hundraðshlutamörk verða að vera á milli 0 og 100. Hækkun gólfsins útilokar daufari miðjur sem koma til greina; það ákvarðar ekki beint endanleg mörk hlutarins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#13",
+      "source": "default true. Compute the seed floor from all blurred input pixels; false uses an absolute intensity. A crop and a whole field can yield different percentile floors.",
+      "source_sha256": "f562b864c0bd9c8b5569f5fd752fd067c8bb2f87582660659dcec256f4f85f44",
+      "context": "default true. Compute the seed floor from all blurred input pixels; false uses an absolute intensity. An extracted image region and a whole microscope field of view can yield different percentile floors.",
+      "translation": "sjálfgefið satt. Reikna frægólfið út frá öllum mýktum inntakspixlum; ósatt notar algildan styrk. Myndskurður og heilt sjónsvið geta gefið ólík hundraðshlutagólf.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#14",
+      "source": "default false. If true, exclude candidate centres within the effective ``min_distance`` of the input edge. This does not remove every object whose grown boundary touches the edge.",
+      "source_sha256": "89a18539bc679e918b3b89c100b1ddd909ae06f552ace667f54cf120cd73b67b",
+      "context": "default false. If true, exclude candidate centres within the effective ``min_distance`` of the input edge. This does not remove every object whose grown boundary touches the edge.",
+      "translation": "sjálfgefið ósatt. Ef satt, útiloka miðjur sem koma til greina innan virks ``min_distance`` frá brún inntaksins. Þetta fjarlægir ekki hvern hlut þar sem ræktuð mörk snerta brúnina.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#15",
+      "source": "default ``\"seed_fraction\"``; one of :data:`PROPAGATE_STOPS`, with the behavior described above.",
+      "source_sha256": "b4a44d5716399d3db185fb1902bd7306428ee6e13651eb19f4574dd062fbb5aa",
+      "context": "default ``\"seed_fraction\"``; one of :data:`PROPAGATE_STOPS`, with the behavior described above.",
+      "translation": "sjálfgefið ``\"seed_fraction\"``; ein af :data:`PROPAGATE_STOPS`, með hegðuninni sem lýst er hér að ofan.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#16",
+      "source": "default 0.4. For ``seed_fraction``, use a ratio from 0 to 1 with nonnegative intensities; increasing it removes dimmer basin pixels before hole filling. For ``absolute``, use an intensity; for ``percentile``, use 0 to 100. Higher common thresholds shrink the eligible mask. Ignored for ``threshold``. The API does not clip ratios or absolute values; the GUI number box alone does not enforce rule-specific limits.",
+      "source_sha256": "f31903a6a5cfeb2bcf5c3e5d94d4e53f70bd6e8d14627694d686c909badba0ea",
+      "context": "default 0.4. For ``seed_fraction``, use a ratio from 0 to 1 with nonnegative intensities; increasing it removes dimmer basin pixels before hole filling. For ``absolute``, use an intensity; for ``percentile``, use 0 to 100. Higher common thresholds shrink the eligible mask. Ignored for ``threshold``. The API does not clip ratios or absolute values; the GUI number box alone does not enforce rule-specific limits.",
+      "translation": "sjálfgefið 0.4. Fyrir ``seed_fraction``, notaðu hlutfall frá 0 til 1 með óneikvæðum styrkleikagildum; hækkun fjarlægir daufari pixla vatnasviðs fyrir fyllingu gata. Fyrir ``absolute``, notaðu styrk; fyrir ``percentile``, notaðu 0 til 100. Hærri sameiginlegir þröskuldar minnka gjaldgengu grímuna. Hunsað fyrir ``threshold``. API klippir hvorki hlutföll né algild gildi; talnareitur GUI einn og sér framfylgir ekki mörkum sem eru sértæk fyrir reglu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#17",
+      "source": "default ``\"otsu\"``; a key of :data:`GLOBAL_THRESHOLDS`, read only for ``stop=\"threshold\"``. The threshold is estimated from the blurred field or crop.",
+      "source_sha256": "fc206ee06e89bfa715d0740a85a7ac28dbd10cf75a0a6c954d12fc5bf36d7f22",
+      "context": "default ``\"otsu\"``; a structured-data name of :data:`GLOBAL_THRESHOLDS`, read only for ``stop=\"threshold\"``. The threshold is estimated from the blurred microscope field of view or extracted image region.",
+      "translation": "sjálfgefið ``\"otsu\"``; lykill í :data:`GLOBAL_THRESHOLDS`, aðeins lesinn fyrir ``stop=\"threshold\"``. Þröskuldurinn er metinn út frá mýkta sjónsviðinu eða myndskurðinum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#18",
+      "source": "default 0, disabling size removal. Labels with fewer than ``int(min_area)`` pixels after hole filling are discarded. Increasing it removes small labels without merging touching ones.",
+      "source_sha256": "91b0f8f28b9e17ac121f78b98953251f89854dbbe27398fde9b2e5703ba58e91",
+      "context": "default 0, disabling size removal. Labels with fewer than ``int(min_area)`` pixels after hole filling are discarded. Increasing it removes small labels without merging touching ones.",
+      "translation": "sjálfgefið 0, sem gerir fjarlægingu eftir stærð óvirka. Merki með færri en ``int(min_area)`` pixla eftir fyllingu gata er hent. Hækkun fjarlægir lítil merki án þess að sameina merki sem snertast.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#19",
+      "source": "default true. Fill enclosed background pixels per label before size filtering. False preserves those holes.",
+      "source_sha256": "641882b4df7f28c73ee77dad7764cc545ff7616ff25765d06961fabf3271dffa",
+      "context": "default true. Fill enclosed background pixels per label before size filtering. False preserves those holes.",
+      "translation": "sjálfgefið satt. Fylla lokaða bakgrunnspixla í hverju merki fyrir síun eftir stærð. False varðveitir þau göt.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#2",
+      "source": "The four stop rules operate on the blurred values:",
+      "source_sha256": "2603fad68cb5a4c80040515c9a2ede5d07265c5a25810010b867c0dacd4df8fb",
+      "context": "The four stop rules operate on the blurred values:",
+      "translation": "Stöðvunarreglurnar fjórar verka á mýktu gildin:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#20",
+      "source": ":class:`PropagateResult` containing an int32 label array (0 is background, surviving labels are 1 through N), the original seed count, and the common stop level. The level is None for ``seed_fraction`` or when no seeds were found. A constant image or an overly high seed floor can return all-zero labels and zero seeds; an empty stop mask or size filtering can remove every seeded object.",
+      "source_sha256": "aee5db6e7941a88b0ef305760fa539c3bcaae716070f96f3d9d9179e8a9dfc35",
+      "context": ":class:`PropagateResult` containing an int32 label array (0 is background, surviving labels are 1 through N), the original seed count, and the common stop level. The level is None for ``seed_fraction`` or when no seeds were found. A constant image or an overly high seed floor can return all-zero labels and zero seeds; an empty stop mask or size filtering can remove every seeded object.",
+      "translation": ":class:`PropagateResult` sem inniheldur int32-merkjafylki (0 er bakgrunnur, merki sem lifa af eru 1 til N), upprunalegan fjölda fræja og sameiginlega stöðvunarstigið. Stigið er None fyrir ``seed_fraction`` eða þegar engin fræ fundust. Föst mynd eða of hátt frægólf getur skilað merkjum sem eru öll núll og engum fræjum; tóm stöðvunargríma eða síun eftir stærð getur fjarlægt hvern hlut sem fékk fræ.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#21",
+      "source": "for an unknown stop rule, an empty or non-2-D image, an out-of-range percentile when evaluated, or an unknown global threshold algorithm when that rule is evaluated.",
+      "source_sha256": "b01a14fa5d8774ee0ae25ab6169ef026bb8dfde91df3e3bd28aef0e45d6b313e",
+      "context": "for an unknown stop rule, an empty or non-2-D image, an out-of-range percentile when evaluated, or an unknown global threshold algorithm when that rule is evaluated.",
+      "translation": "fyrir óþekkta stöðvunarreglu, tóma mynd eða mynd sem er ekki 2-D, hundraðshlutamark utan bils þegar það er metið, eða óþekkt reiknirit altæks þröskulds þegar sú regla er metin.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#22",
+      "source": "For example, ``maxima_propagate_instances(image, sigma=2, min_distance=10, seed_level=90, stop=\"seed_fraction\", stop_value=0.4, min_area=20)`` retains each basin above 40 percent of its seed intensity before filling holes and removing labels smaller than 20 pixels.",
+      "source_sha256": "75001c6f7594f352859f72455b2dac58fa9c42d505ae4746550e532bcaa66278",
+      "context": "For example, ``maxima_propagate_instances(image, sigma=2, min_distance=10, seed_level=90, stop=\"seed_fraction\", stop_value=0.4, min_area=20)`` retains each basin above 40 percent of its seed intensity before filling holes and removing labels smaller than 20 pixels.",
+      "translation": "Til dæmis heldur ``maxima_propagate_instances(image, sigma=2, min_distance=10, seed_level=90, stop=\"seed_fraction\", stop_value=0.4, min_area=20)`` hverju vatnasviði yfir 40 prósentum af styrk fræs þess áður en göt eru fyllt og merki minni en 20 pixlar fjarlægð.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#3",
+      "source": "``seed_fraction`` first partitions the entire image by watershed, then retains pixels at or above ``stop_value`` times their basin's seed intensity. This is an intensity ratio, not a quantile. Adding a background offset changes the relative cut; equal measurements of bright and dim objects are not guaranteed. Trimming can leave disconnected pieces with the same label.",
+      "source_sha256": "cc5db9d74f5ba309bf9a9a13029f5499dc216db0103be25ec22df424e8befb8e",
+      "context": "``seed_fraction`` first partitions the entire image by watershed, then retains pixels at or above ``stop_value`` times their basin's seed intensity. This is an intensity ratio, not a quantile. Adding a background offset changes the relative cut; equal measurements of bright and dim objects are not guaranteed. Trimming can leave disconnected pieces with the same label.",
+      "translation": "``seed_fraction`` skiptir fyrst allri myndinni með vatnaskilum, og heldur síðan pixlum við eða yfir ``stop_value`` sinnum styrk fræs vatnasviðs þeirra. Þetta er styrkleikahlutfall, ekki hlutfallsmark. Að bæta við bakgrunnshliðrun breytir hlutfallslega skurðinum; jafnar mælingar bjartra og daufra hluta eru ekki tryggðar. Snyrting getur skilið eftir ótengda hluta með sama merki.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#4",
+      "source": "``absolute`` restricts the watershed to pixels at or above ``stop_value``, in the input's intensity units.",
+      "source_sha256": "1636e794ec0d2574891d9dd33a5f3d5e1a66292b23f21300966a5c035e4edfb6",
+      "context": "``absolute`` restricts the watershed to pixels at or above ``stop_value``, in the input's intensity units.",
+      "translation": "``absolute`` takmarkar vatnaskilin við pixla við eða yfir ``stop_value``, í styrkleikaeiningum inntaksins.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#5",
+      "source": "``percentile`` uses that percentile of all blurred input pixels as the common threshold. Changing the crop can change this level.",
+      "source_sha256": "54394b3e01936aebea099f6ada995cd5115b5ffa20934b7717210c22876179d6",
+      "context": "``percentile`` uses that percentile of all blurred input pixels as the common threshold. Changing the extracted image region can change this level.",
+      "translation": "``percentile`` notar það hundraðshlutamark allra mýktra inntakspixla sem sameiginlegan þröskuld. Breyting á myndskurðinum getur breytt þessu stigi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#6",
+      "source": "``threshold`` obtains the common level from ``stop_algorithm`` and ignores ``stop_value``.",
+      "source_sha256": "ed5237306718775f643933b475f9cffab974512e65fc6be6096a1b5221fba1d2",
+      "context": "``threshold`` obtains the common level from ``stop_algorithm`` and ignores ``stop_value``.",
+      "translation": "``threshold`` fær sameiginlega stigið frá ``stop_algorithm`` og hunsar ``stop_value``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#7",
+      "source": "Fill holes per label if requested, then discard labels smaller than ``min_area`` and renumber survivors. Hole filling can restore pixels below the selected intensity cut. The seed count is recorded before these operations and can exceed the number of surviving objects.",
+      "source_sha256": "a1e84906bb68953c426aa8687b69df976426497a3729d3cbb030399b6814893e",
+      "context": "Fill holes per label if requested, then discard labels smaller than ``min_area`` and renumber survivors. Hole filling can restore pixels below the selected intensity cut. The seed count is recorded before these operations and can exceed the number of surviving objects.",
+      "translation": "Fylla göt í hverju merki ef beðið er um það, henda síðan merkjum sem eru minni en ``min_area`` og endurnúmera þau sem lifa af. Fylling gata getur endurheimt pixla undir völdum styrkleikaþröskuldi. Fjöldi fræja er skráður fyrir þessar aðgerðir og getur verið meiri en fjöldi hluta sem lifa af.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#8",
+      "source": "Input preparation is the caller's responsibility: this function does not normalize intensities, subtract background, or invert dark objects. Use finite 2-D values; NaNs and infinities are not sanitized. Make Masks supplies the processed field or crop after its selected enhancements. Absolute levels and peak ratios therefore depend on that preparation.",
+      "source_sha256": "3ac4c6837a220a94eb5ee8d5445073782321d2c9bab85727330dfa6da3c49131",
+      "context": "Input preparation is the caller's responsibility: this function does not normalize intensities, subtract background, or invert dark objects. Use finite 2-D values; NaNs and infinities are not sanitized. Make Masks supplies the processed microscope field of view or extracted image region after its selected enhancements. Absolute levels and peak ratios therefore depend on that preparation.",
+      "translation": "Undirbúningur inntaks er á ábyrgð kallandans: þetta fall staðlar ekki styrkleikagildi, dregur ekki frá bakgrunn og umhverfir ekki dökka hluti. Notaðu endanleg 2-D gildi; NaNs og óendanleg gildi eru ekki hreinsuð. Make Masks leggur til unna sjónsviðið eða myndskurðinn eftir valdar myndaukningar. Algild stig og topphlutföll eru því háð þeim undirbúningi.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.maxima_propagate_instances#9",
+      "source": "nonempty 2-D intensity array, converted to float32 without range rescaling. Output coordinates and shape match this array.",
+      "source_sha256": "6a0cd626e992b7110fcbb89692ec354594cce77ebbd22ec28c14b7522b5fa05f",
+      "context": "nonempty 2-D intensity array, converted to float32 without range rescaling. Output coordinates and shape match this array.",
+      "translation": "2-D styrkleikafylki sem er ekki tómt, umbreytt í float32 án endurkvörðunar bils. Hnit og lögun úttaks samsvara þessu fylki.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.next_label#2",
+      "source": "label mask; an empty array gives 1.",
+      "source_sha256": "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218",
+      "context": "label mask; an empty array gives 1.",
+      "translation": "merkjagríma; tómt fylki gefur 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalise_filters#0",
+      "source": "``filters`` as the canonical list of ``{property, min, max}`` dicts.",
+      "source_sha256": "f9583dd3e3aaf71a6b035a91079c3d131fe0de7502c215990a323d5fa619dace",
+      "context": "``filters`` as the canonical list of ``{property, min, max}`` key-value mappings.",
+      "translation": "``filters`` sem staðlaður listi af ``{property, min, max}`` orðabókum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalise_filters#1",
+      "source": "Accepts the list itself, one dict, ``(property, min, max)`` tuples, or the list written as JSON or as a Python literal (a settings file stores it as text). Every entry is checked here, once, so a typo in a property name fails when the list is read rather than on the hundredth field.",
+      "source_sha256": "819254ed9b89b10d6a15c236512178da4ecc61ca3f7bfcdb8ce56c2efd75469c",
+      "context": "Accepts the list itself, one key-value mapping, ``(property, min, max)`` tuples, or the list written as JSON or as a Python literal (a settings file stores it as text). Every entry is checked here, once, so a typo in a property name fails when the list is read rather than on the hundredth field.",
+      "translation": "Samþykkir listann sjálfan, eina orðabók, ``(property, min, max)`` túplur, eða listann skrifaðan sem JSON eða sem Python-fasta (stillingaskrá geymir hann sem texta). Hver færsla er athuguð hér, einu sinni, svo innsláttarvilla í heiti eiginleika bregst þegar listinn er lesinn frekar en á hundraðasta sjónsviðinu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalise_filters#2",
+      "source": "the list, one dict, tuples, or their JSON/literal text; ``None`` is no filters.",
+      "source_sha256": "e469e207df81724a927c84ce26ca83456e5c0ad53783ca7944fd24c046b1637f",
+      "context": "the list, one key-value mapping, tuples, or their JSON/literal text; ``None`` is no filters.",
+      "translation": "listinn, ein orðabók, túplur, eða JSON-/fastatexti þeirra; ``None`` þýðir engar síur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalise_filters#3",
+      "source": "also refuse a minimum above its maximum. The engine itself reads lists with ``strict=False``, because a migrated legacy pair such as ``min_area=10, max_area=5`` always meant \"remove every object\" and must go on meaning it.",
+      "source_sha256": "e1c7baee8f09b90490b90cb86a25e8e485f0294431c4d96cdb0b9845826bfac7",
+      "context": "also refuse a minimum above its maximum. The engine itself reads lists with ``strict=False``, because a migrated legacy pair such as ``min_area=10, max_area=5`` always meant \"remove every object\" and must go on meaning it.",
+      "translation": "hafna líka lágmarki yfir hámarki sínu. Vélin sjálf les lista með ``strict=False``, því yfirfært eldra par eins og ``min_area=10, max_area=5`` þýddi alltaf \"remove every object\" og verður að halda áfram að þýða það.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalise_filters#4",
+      "source": "for an unknown property, an unknown key, a bound that is not a finite number, or (strict) a minimum above its maximum.",
+      "source_sha256": "d846d75152311fb3c032e7c9488ffe100eb64574bdc29fc392429d637cedbddc",
+      "context": "for an unknown property, an unknown key, a bound that is not a finite number, or (strict) a minimum above its maximum.",
+      "translation": "fyrir óþekktan eiginleika, óþekktan lykil, mark sem er ekki endanleg tala, eða (strict) lágmark yfir hámarki sínu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.mask_engine.normalize_for_detection#0",
+      "source": "``image`` stretched between two percentiles, as Make Masks draws it.",
+      "source_sha256": "583d95509702cf4a278fb6baf0e8a97b67d8fe7ef2bc4ecc9bb54dd1eb87cc43",
+      "context": "``image`` stretched between two percentiles, as Make Masks draws it.",
+      "translation": "``image`` teygð milli tveggja hundraðshlutamarka, eins og Make Masks teiknar hana.",
       "review_basis": "written from the English (no current MT draft)"
     }
   ]
