@@ -2698,7 +2698,9 @@
       "source_sha256": "c5612469082f8c5f4d1c921458f8ba1f61dbef7958af69e2578f8e2bacd5553f",
       "context": "screen — the two operating systems whose own folders have spaces in them. A UNC path was not a path at all: nothing here started at ``\\\\``. What is left is the tail of the LAST component of an unquoted path, since only a separator can prove that a space is inside the path rather than after it; a quoted path is taken whole, and the title and every ``repr``-ed settings value are quoted.",
       "translation": "screeningen — de två operativsystem vars egna mappar har mellanslag i namnen. En UNC-sökväg var inte ens en sökväg: ingenting här började vid ``\\\\``. Det som återstår är slutet av den SISTA komponenten i en ociterad sökväg, eftersom endast en avgränsare kan bevisa att ett mellanslag ligger inuti sökvägen och inte efter den; en citerad sökväg tas i sin helhet, och titeln och varje ``repr``-formaterat inställningsvärde citeras.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.issue_report.strip_report_paths#5",

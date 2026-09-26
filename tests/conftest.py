@@ -1047,11 +1047,30 @@ class _LiveQtWidgetRef:
         widget = self._ref()
         if widget is None:
             return None
-        try:
-            import shiboken6
-        except ImportError:
+        if _REAL_QT_IS_VALID is None:
             return widget
-        return widget if shiboken6.isValid(widget) else None
+        return widget if _REAL_QT_IS_VALID(widget) else None
+
+
+def _real_qt_is_valid():
+    """``shiboken6.isValid`` as imported, before any test can replace it.
+
+    pytest-qt resolves the widget references during teardown, while a
+    test's ``monkeypatch`` is still in force. A test that replaces
+    ``shiboken6.isValid`` to exercise a fallback
+    (``tests/qt/test_live_zoom_endings.py`` makes it raise ImportError)
+    would otherwise have that replacement answer for pytest-qt too, and
+    the error it raises lands in teardown and fails the next test's setup
+    with "previous item was not torn down properly".
+    """
+    try:
+        from shiboken6 import isValid
+    except ImportError:
+        return None
+    return isValid
+
+
+_REAL_QT_IS_VALID = _real_qt_is_valid()
 
 
 @pytest.hookimpl(wrapper=True, tryfirst=True)

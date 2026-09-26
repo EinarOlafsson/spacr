@@ -7,6 +7,19 @@ import spacr.qt.app as app_module
 from spacr.qt.widgets.section import Section, _sections_below
 
 
+# Every nucleus row Mask builds at "All settings", nucleus_channel included.
+# Measured 2026-09-26 (item 43/288): 13 before item 511 (ed845f885^), 9 after.
+# 511 retired nucleus_{min,max}_{area,intensity} into object_filters rows,
+# which is exactly the four that went; the same 9 are there after one and
+# after two rebuilds, so no rebuild drops a row. This was "> 10" while those
+# four were still on the form.
+NUCLEUS_ROWS = 9
+# Of those, the ones a committed nucleus channel shows. nucleus_model_name
+# stays hidden after the commit, before 511 (12 of 13, measured on
+# ed845f885^) as after it (8 of 9); the old "> 10" allowed for it too.
+NUCLEUS_ROWS_SHOWN = NUCLEUS_ROWS - 1
+
+
 @pytest.fixture(scope="module")
 def mask(qapp):
     win = app_module.MainWindow()
@@ -237,7 +250,8 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         qapp.processEvents()
         widgets = screen._settings_model._widgets
         nucleus = [k for k in widgets if k.startswith("nucleus_")]
-        assert len(nucleus) > 10, f"only {len(nucleus)} nucleus rows built"
+        assert len(nucleus) >= NUCLEUS_ROWS, (
+            f"only {len(nucleus)} nucleus rows built")
         shown = [k for k in nucleus if not widgets[k].isHidden()]
         assert shown == ["nucleus_channel"], shown
 
@@ -252,7 +266,9 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         assert win._screens["mask"] is screen, "the commit reloaded the module"
 
         shown = [k for k in nucleus if not widgets[k].isHidden()]
-        assert len(shown) > 10, f"only {len(shown)} nucleus settings came back"
+        assert len(shown) >= NUCLEUS_ROWS_SHOWN, (
+            f"only {len(shown)} nucleus settings came back; still hidden: "
+            f"{sorted(set(nucleus) - set(shown))}")
         categories = _categories(screen)
         assert any("Nucleus" in c for c in categories), categories
         assert str((screen._settings_model.collect() or {}).get(
@@ -324,7 +340,7 @@ def test_two_rebuilds_keep_what_the_first_one_set(qapp):
         values = screen._settings_model.collect() or {}
         assert str(values.get("nucleus_channel")) == "1"
         assert len([k for k in screen._settings_model._widgets
-                    if k.startswith("nucleus_")]) > 10
+                    if k.startswith("nucleus_")]) >= NUCLEUS_ROWS
     finally:
         win.close()
 

@@ -59,8 +59,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     assert len(catalog["lessons"]) == 85
     # Native Embeddings replaces eleven historical scenes with nine; current Plate Viewer adds two;
     # native Timelapse has 12 scenes (was 16), native OPS 12 (was 9), Conda 9 (was 8);
-    # Investigate Hit, no longer held, adds its 18.
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1098
+    # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11).
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1100
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -422,6 +422,10 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     for lesson in published["lessons"]:
         lesson.pop("poster", None)
         lesson.pop("silent", None)
+        # "web" names a lesson's web copy on the media revision
+        # (build_appended_candidate --host-web): a publication field like
+        # poster/silent, not narration, so lessons_en.json does not carry it.
+        lesson.pop("web", None)
     assert published == english, (
         "the public lesson_catalog.js does not match lessons_en.json")
 

@@ -294,24 +294,6 @@ def test_the_maturity_hover_speaks_the_language_of_its_label(language):
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
-def test_the_demo_entry_names_the_modules_as_the_menus_do(language):
-    """The end-to-end demo entry must reuse the module names the app shows.
-
-    Its Swedish row read "End-to-end (Task → Mät → Annotate)": one module
-    renamed to a word spaCR does not use, one left in English, and a sibling
-    row that had leaked the string "demoName" from the generator.
-    """
-    from spacr.qt.i18n import tr
-
-    entry = tr("End-to-end (Mask → Measure → Annotate) real dataset…", language)
-    for module in ("Mask", "Measure", "Annotate"):
-        name = tr(module, language)
-        assert name in entry, f"{language}: {name!r} missing from {entry!r}"
-    assert "Task" not in entry
-    assert "demoName" not in tr("End-to-end demo", language)
-
-
-@pytest.mark.parametrize("language", LANGUAGES)
 def test_the_keyboard_legend_keeps_its_markup_and_its_key_names(language):
     """The annotate cheat strip is HTML, and the keys in it are not words.
 

@@ -2,11 +2,13 @@
 AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
 ================================================================================
 
-Status:    2026-09-25: DONE here in code; remaining: the full-plate run of
-           wells A2, B1, B2, B3 (A1 and A3 complete in
-           /mnt/wd4tb/spacr_testdata/ops_plate_run), BLOCKED because the NAS
-           (/nas_mnt/data) does not answer and the plate's tiles exist only
-           there. Restart command in the 2026-09-25 note at the end.
+Status:    2026-09-26: DONE. The full plate 20200202_6W-LaC024A ran to the
+           end: all six wells complete, plate_summary.json failed = {},
+           8,017,661 objects, 2,612,758 assigned, spot library-exact rate
+           0.7317. Per-well table in the 2026-09-26 notes at the end. Open
+           follow-ups, not blockers: B2's non-library spot excess needs a
+           --store-reads B2 run to attribute; decode's *_rows report the
+           table total (see FOUND IN PASSING).
            SHIPPED AND RUNNING; THE CODE HALF OF WHAT WAS LEFT IS DONE AND
            REVIEWED, 2026-09-19. The button, `spacr-run ops`,
            validate.APP_FUNCTIONS and the OPS API link all reach
@@ -6107,3 +6109,153 @@ process dies, rerun the launcher: the driver resumes per well.
 Not done on this run: `--store-reads B2` (B2's lower exact-match rate). The
 reads table is about thirty million rows per well and 95% of /mnt/wd4tb is
 already used (186 GB free), so it was left for a deliberate, separate run.
+
+2026-09-26 -- THE 2026-09-25 RUN: FIVE WELLS COMPLETE, B3 FAILED ON ONE EMPTY FILE
+The restart got its GPU turn at 21:38 and finished at 01:16 with rc=1.
+A1 and A3 were skipped as complete; A2 (3,074 s), B1 (3,498 s) and B2
+(3,830 s) completed from their stitch. A2 now places 1281/1281 phenotype
+fields from 6 anchors, which confirms the 680438073 fix on the GPU run. B3
+stitched (333/333, 624/624 edges, median 0.15 px), placed 1281/1281
+phenotype fields and numbered 1,267,305 objects, then failed in decode
+between field 50 and 75 with `TiffFileError: not a TIFF file b''`, after
+2,696 s.
+
+CAUSE: A ZERO-BYTE SOURCE FILE, NOT THE POWER OUTAGE. Listing every B3 file
+under 100 KB on the NAS (read-only, through tools/nas_guard.sh) finds
+    c4/10X_c4_B3_CY3_Site-59.tif          0 bytes, 2025-10-31 16:08
+    c11/10X_c11_B3_CY3_Site-1.tif     1,448 bytes, 2025-10-30
+    c7/10X_c7_B3_A594_Site-284.tif    4,096 bytes, 2025-11-01
+    c8/10X_c8_B3_CY7_Site-274.tif     2,896 bytes, 2025-11-02
+Each has a `.lftp-pget-status` file beside it: these are lftp downloads
+that never finished, a year ago. Site 59 is in the 50-75 decode window. The
+three truncated files raise ValueError, which _read_plane already records
+and survives (the other wells carry 1-5 such files each; see each report's
+decode.unreadable). The empty file raises tifffile.TiffFileError, which
+derives from Exception and not from ValueError (tifffile 2023.4.12), so it
+escaped the handler and ended the well. Nothing on the NAS was changed.
+
+FIX b74543fb5: _read_plane also catches tifffile.TiffFileError and records
+the file under decode.unreadable with its reason, so a field loses only
+that cycle, the same as a truncated file. The decode phase now prints
+"<well> decode: WARNING n source file(s) could not be read ..." naming the
+first file whenever decode.unreadable is non-empty; before this, those
+files were only in the JSON. Tests: a zero-byte TIFF raises a non-ValueError;
+_read_plane returns None with "TiffFileError: not a TIFF file" for an empty
+file and a non-TIFF file; _decode_field with a zero-byte cycle file keeps
+the other cycles and every barcode (parametrized next to the truncated
+case); a run_ops decode with a zero-byte file completes, assigns all three
+nuclei, and prints the WARNING line that the intact run does not.
+50 tests in the four ops engine/driver files pass (8G cap, no CUDA).
+
+B3 RERUN: from a new frozen snapshot src_b74543fb5 (git archive of spacr/
+and the four tools at b74543fb5; apart from ops_engine.py, the only ops_*
+difference from src_4819fd244 is help text in ops_settings.py), launcher
+launch_2026-09-26.sh (same nas_guard -> gpu_turn -> run_capped 64G pattern,
+no --wells, so A1-B2 skip and plate_summary covers all six wells), started
+08:01 with setsid nohup and queued behind 493-acc-parallel,
+358-narr-voices-2 and bench-segmentation-532-vitl. The failed B3 record
+and the five-well summary from 01:16 are kept in
+ops_plate_run/failed_2026-09-26/.
+
+B2'S LOWER EXACT-MATCH RATE: WHAT THE DATA ON DISK SHOWS
+The library-exact rate is exact spots / all spots. Its two parts, from each
+report's decode section (exact = rate x spots):
+
+                             A1         A2         A3         B1         B2
+  spots               3,265,717  3,605,648  3,149,214  3,314,420  3,886,421
+  exact spots        ~2,545,300 ~2,682,960 ~2,411,000 ~2,435,770 ~2,587,580
+  non-exact spots      ~720,420   ~922,690   ~738,200   ~878,650 ~1,298,840
+  spots per object        2.553      2.471      2.431      2.600      2.695
+  assigned / objects     0.3581     0.3161     0.3419     0.3306     0.2969
+  assigned exact/assigned 0.9444    0.9442     0.9316     0.9498     0.9325
+  unreadable files            2          1          5          0          4
+
+B2 does not find fewer library barcodes: its ~2.59 M exact spots are within
+the other wells' 2.41-2.68 M. What it has is ~1.30 M non-library spots,
+400-580 K more than any other well, at the same read threshold (315). That
+excess alone moves the rate from ~0.75 to 0.666. The four unreadable files
+explain at most about one point: each takes one cycle from one field, and 4
+of 333 fields is about 47 K spots. The excess is not local. Binning objects
+on a 12 x 12 grid, B2's assigned fraction is lower across the whole well
+(median bin 0.302, p10 0.260, p90 0.327, against 0.318-0.364 medians
+elsewhere), with the same centre-to-rim falloff as the other wells, so no
+region, tile or field is responsible. So B2 is a whole-well excess of
+detections that do not decode to the library: more background or
+off-target peaks crossing a fixed threshold, or noisier base calls. The
+per-spot intensities that would tell those apart are not stored, because
+ops_reads was off. `--store-reads B2` on a deliberate separate run (about
+thirty million rows) is what can settle it.
+
+FOUND IN PASSING, NOT FIXED: decode's `ops_barcodes_rows` and
+`ops_reads_rows` are _replace_well_rows' return value, which is the whole
+table's row count after the write, not this well's (A2 reports 1,362,133 =
+A1+A2+A3; B2 reports 2,211,711 = the plate). tools/run_ops_plate.py
+_stored_reads_match compares ops_reads_rows with a per-well COUNT, so a
+second well run with --store-reads would never match and would rerun on
+every resume. It matters only when two or more wells store reads.
+
+2026-09-26 13:13 EDT -- FULL PLATE COMPLETE: B3 RERUN FINISHED rc=0
+The B3 rerun (launch_2026-09-26.sh, source src_b74543fb5) got its GPU turn
+at 12:37:52 and finished at 13:13:53. A1, A2, A3, B1 and B2 were skipped as
+complete; B3 ran from its stitch and completed in 2,145 s. The same
+source files that ended it at 01:16 were recorded and survived, and the log
+carries the new line:
+  OPS: B3 decode: WARNING 4 source file(s) could not be read and were left
+  out; each costs its cycle in that one field, not the well. ...
+B3 decode.unreadable, by field -> cycle lost:
+  Site-1   c11 CY3   ValueError: failed to read 4380800 bytes, got 1130
+  Site-59  c4  CY3   TiffFileError: not a TIFF file b''   (the 0-byte file)
+  Site-274 c8  CY7   ValueError: failed to read 4380800 bytes, got 2578
+  Site-284 c7  A594  ValueError: failed to read 4380800 bytes, got 3778
+All 333 fields decoded (329 with 11 cycles, 4 with 10); none skipped.
+
+PER-WELL RESULTS (results/<well>.json; spot rate = library-exact spots /
+all spots; "exact" = assigned objects whose barcode is in the library)
+
+  well  objects    spots      assigned  exact    mapped   spot rate  exact/assigned
+  A1    1,278,978  3,265,717  458,021   432,571  441,746  0.7794     0.9444
+  A2    1,459,363  3,605,648  461,280   435,549  443,499  0.7441     0.9442
+  A3    1,295,251  3,149,214  442,832   412,531  426,350  0.7656     0.9316
+  B1    1,274,559  3,314,420  421,362   400,197  405,679  0.7349     0.9498
+  B2    1,442,205  3,886,421  428,216   399,306  411,038  0.6658     0.9325
+  B3    1,267,305  3,144,709  401,047   370,238  384,528  0.7118     0.9232
+  plate 8,017,661 20,366,129 2,612,758 2,450,392          0.7317     0.9378
+
+Stitch: 1998/1998 tiles, 3743/3744 edges (B1 refused one), residual median
+0.15-0.20 px, max 0.56-1.34 px per well. Phenotype: 7686/7686 fields
+placed. Containment 0.9977-0.9983 in every well; no cycle or channel
+refused anywhere. Unreadable source files per well: A1 2, A2 1, A3 5, B1 0,
+B2 4, B3 4 (16 in all; all are lftp leftovers on the NAS).
+
+plate_summary.json (written 13:13:52): wells 6, failed {}, totals: tiles
+1998/1998, edges 3743/3744, phenotype fields 7686/7686, objects 8,017,661,
+spots 20,366,129, library_exact_rate 0.7317, objects_assigned 2,612,758,
+objects_assigned_library_exact 2,450,392, channels_refused 0,
+wells_with_cycles_refused [], summed well seconds 16,869.8; db
+measurements.db 1,176,846,336 bytes; this invocation 2,145.4 s.
+
+B3 AGAINST THE B2 ANALYSIS ABOVE: B3's rate (0.7118) is also below the
+A-row wells, but for a different reason from B2. B3 has the fewest spots on
+the plate (3.14 M) and ~2.24 M exact spots, the lowest count, with ~0.91 M
+non-exact, which is in the range of A2 and B1. So B3 finds fewer library
+reads, while B2 finds as many as the others plus ~0.4-0.6 M extra
+non-library ones. On the spot rate every A well (0.744-0.779) is above
+every B well (0.666-0.735), which may reflect a per-row difference in
+sequencing or imaging. The per-object exact fraction does not follow the
+rows (B1 has the plate's highest, 0.9498). The reports cannot separate
+those causes; the per-read table can.
+
+2026-09-26 15:05 EDT -- FIXED: THE ROW COUNTS DECODE RECORDS ARE PER WELL
+The "FOUND IN PASSING, NOT FIXED" bug above is fixed in commit 5f460c5c3.
+Decode now reports ops_barcodes_rows and ops_reads_rows as the rows it
+wrote for that well, and the phenotype phase does the same for
+ops_phenotype_rows. _replace_well_rows still returns the table total, and
+the decode log line gives both numbers. _stored_reads_match is unchanged:
+it already counted per well. Old result files still load. One recorded
+while another well's reads were in the table reruns once and is then
+written with the per-well count. No plate run so far stored reads, so no
+existing result file is affected. Regression:
+tests/test_the_ops_engine_runs_a_well_end_to_end.py::
+test_two_wells_with_stored_reads_resume_without_rerunning decodes two
+wells with stored reads, resumes through the real driver and asserts
+neither reruns. Before the fix, A2 reran.

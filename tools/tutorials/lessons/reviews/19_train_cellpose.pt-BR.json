@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
+  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -13,22 +13,24 @@
   "title": "Treinar um modelo do Cellpose",
   "description": "Prepare pares de imagem e máscara, ajuste um modelo de segmentação no Cellpose Workbench e aplique o checkpoint salvo.",
   "objectives": [
-    "Carregar imagens e as máscaras de rótulos de objetos correspondentes.",
-    "Escolher o modelo inicial, as configurações de treinamento e a pasta de saída.",
-    "Executar o treinamento, encontrar o checkpoint e testá-lo em imagens separadas."
+    "Inspecionar no Make Masks as imagens e as máscaras de rótulos de objetos correspondentes.",
+    "Escolher a pasta de treinamento, o modelo inicial, o cronograma de treinamento e o local de saída.",
+    "Executar o treinamento, encontrar o checkpoint e aplicá-lo a imagens separadas."
   ],
-  "prerequisite": "Baixe e extraia o exemplo indicado com seis pares, ou prepare suas próprias imagens e as máscaras de rótulos inteiros correspondentes. Inspecione e corrija as máscaras no Make Masks antes de treinar.",
+  "prerequisite": "Baixe e extraia o exemplo indicado: seis imagens de treinamento com máscaras, mais três imagens separadas para o Apply. Ou prepare suas próprias imagens e as máscaras de rótulos inteiros correspondentes, e inspecione-as no Make Masks antes de treinar.",
   "scenes": [
-    "Na tela Home, abra Tools e depois Make Masks. Abra o Cellpose Workbench pela barra de ferramentas e escolha a aba Train. Você vai treinar a partir de imagens e das máscaras de rótulos de objetos e depois usar o modelo salvo em Apply.",
-    "Extraia o exemplo indicado e defina Source como a pasta de treinamento dele. A pasta contém seis imagens e uma subpasta masks. Deixe mask source vazio para usar essa subpasta, ou escolha uma pasta separada com as suas máscaras.",
-    "Cada imagem precisa de uma máscara correspondente com a mesma altura e largura. Os valores da máscara identificam os objetos: zero é o fundo e cada objeto tem seu próprio inteiro positivo. Inspecione os contornos no Make Masks e corrija os rótulos antes de usá-los no treinamento.",
-    "Neste exemplo em tons de cinza, deixe a seleção de canais vazia. Em uma imagem multicanal, selecione até três índices de canal contados a partir de zero, por exemplo zero e dois para o primeiro e o terceiro canais. Defina channel axis se a detecção automática não identificar a dimensão dos canais.",
-    "Escolha um modelo base. O padrão, cpsam, parte do Cellpose-SAM; um caminho de checkpoint continua o treinamento de um modelo existente. Digite um nome de modelo e escolha Save path para a saída, ou deixe vazio para salvar dentro do projeto.",
-    "Defina o número de épocas e o tamanho do lote. Para uma primeira execução rápida, use duas épocas e tamanho de lote um. Mais épocas dão ao modelo mais atualizações de treinamento, e lotes maiores usam mais memória. A taxa de aprendizado controla o tamanho de cada atualização; comece pelo valor padrão exibido.",
-    "Mantenha a normalização ativada, com os percentis um e noventa e nove como ponto de partida. Eles controlam a faixa de intensidade usada em cada canal. Scale range controla a variação do tamanho das imagens durante o treinamento. Minimum training masks exclui imagens com poucos objetos rotulados.",
-    "Para acompanhar a perda de validação, escolha uma pasta separada de imagens de validação e as máscaras correspondentes. Mantenha esses campos separados das entradas de treinamento. Deixe as pastas de validação vazias quando não tiver um conjunto separado.",
-    "Revise as pastas de entrada, o nome do modelo e o local de saída e pressione Run. Acompanhe o progresso do treinamento no console. Quando a execução termina, o console mostra o caminho do checkpoint a usar na segmentação.",
-    "Se você definiu um Save path, procure dentro da subpasta models dele. No local padrão, o checkpoint fica dentro da pasta de origem, em models, cellpose_model, models. Mantenha o checkpoint junto com as configurações de treinamento.",
-    "Abra Apply e escolha uma pasta de imagens separada. Confira se Custom model aponta para o checkpoint desejado e inspecione uma prévia antes de processar a pasta inteira. O Apply grava as máscaras ao lado dessas imagens, em uma subpasta masks. Use campos rotulados separados para avaliar os resultados."
+    "Na tela Home, abra Tools e depois Make Masks. Abra o Cellpose Workbench pela barra de ferramentas; ele abre na aba Train. Você vai treinar a partir de imagens e das máscaras de rótulos de objetos e depois usar o modelo salvo em Apply.",
+    "Extraia o exemplo indicado. A pasta training dele tem seis imagens e uma subpasta masks, e a pasta apply tem três imagens separadas para depois. Clique no botão de pasta ao lado de Image source folder e escolha training. Deixe Mask source folder vazio para usar a subpasta masks, ou escolha outra pasta de máscaras.",
+    "Cada imagem precisa de uma máscara com a mesma altura e largura. Zero é o fundo, e cada objeto tem seu próprio número positivo. Abra a pasta de treinamento no Make Masks para inspecionar os rótulos e corrigi-los antes de treinar. Esta imagem tem noventa e cinco células rotuladas.",
+    "Este exemplo é em tons de cinza, então deixe Channels vazio. Em uma imagem multicanal, adicione até três números de canal contados a partir de zero, por exemplo zero e dois para o primeiro e o terceiro canais. Defina Channel axis somente se a detecção automática não encontrar a dimensão dos canais.",
+    "Mantenha Base model em cpsam para partir do Cellpose-SAM, ou digite o caminho de um checkpoint para continuar treinando um modelo anterior. Digite um Model name; aqui é tutorial cells. Deixe Checkpoint folder vazio para salvar dentro da pasta de origem, ou escolha outra pasta.",
+    "Defina N epochs e Batch size. Esta execução rápida usa dez épocas com tamanho de lote um. Mais épocas dão ao modelo mais atualizações de treinamento, e lotes maiores usam mais memória. Para começar, mantenha a taxa de aprendizado exibida.",
+    "Mantenha Normalize ativado, com os percentis um e noventa e nove como ponto de partida. Eles definem a faixa de intensidade usada em cada canal. Scale range varia o tamanho das imagens durante o treinamento, e Min train masks ignora imagens com menos objetos rotulados.",
+    "Para acompanhar a perda de validação, escolha uma Validation image folder separada e a Validation mask folder correspondente. Nunca reutilize ali imagens de treinamento. Deixe as duas vazias quando não tiver um conjunto rotulado separado, como neste exemplo.",
+    "Confira as pastas, o nome do modelo e o local de saída e pressione Run. O painel Figures mostra as imagens de treinamento acima das máscaras, e o console acompanha o progresso. Nesta GPU, dez épocas com seis imagens terminaram em menos de um minuto.",
+    "Quando o treinamento termina, o console mostra o caminho do checkpoint. No local padrão, ele fica na pasta de origem, em models, cellpose model, models. O nome do arquivo acrescenta ao nome do modelo a arquitetura e o número de épocas. Guarde-o junto com as configurações de treinamento.",
+    "Abra a aba Apply. Custom model agora aponta para o checkpoint que você treinou. Defina Source como a pasta apply do exemplo, cujas imagens vêm de poços que não foram usados no treinamento. Defina Channels como zero e Percentiles como dois e noventa e nove. Desative Fill in para que células que se tocam continuem separadas, e ative Save e Verbose.",
+    "Abra o Live preview, escolha uma imagem e pressione Run preview, com o mesmo canal e os mesmos percentis. Ele segmenta essa imagem com o seu checkpoint, que aqui encontra setenta e seis células. Ajuste as configurações aqui antes de processar a pasta inteira.",
+    "Pressione Run. O Apply grava uma máscara por imagem em uma subpasta masks ao lado dessas imagens, e Verbose mostra cada resultado como uma figura. Aqui as três máscaras contêm setenta e seis, quarenta e oito e cinquenta e cinco células. Antes de usar um modelo em um experimento inteiro, compare as máscaras dele com campos rotulados separadamente."
   ]
 }

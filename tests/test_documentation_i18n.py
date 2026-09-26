@@ -212,7 +212,9 @@ TOOLS = ROOT / "tools"
 # 11,710 on nightly 03a02c3b8: +49 / -0, named in test_api_i18n_extractor.
 # 11,758 with item 528's twelve, named in test_api_i18n_extractor.
 # 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_816
+# 11,834 on 2026-09-26: item 545's eighteen ROI callables, named in
+# test_docstring_correctness.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_834
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -815,6 +817,37 @@ def test_reviewed_genus_name_may_equal_english_only_where_listed():
     assert all(
         isinstance(languages, frozenset) and languages <= set(builder.MODEL_SPECS)
         for languages in allowed.values()
+    )
+
+
+def test_raises_field_is_not_read_as_a_type_declaration():
+    """``:raises X: word`` is an exception name and prose, not ``X: type``.
+
+    The numpydoc-declaration protector read ``ValueError: sequence`` in
+    ``spacr.timeflows_model.ctc_pairs`` as a declaration, so every locale's
+    whole-document literal check failed on a correctly translated field.
+    """
+    from build_i18n_catalogs import _PROTECT_PATTERNS, _syntax_preserved
+
+    source = (
+        ":raises ValueError: sequence/limit, duplicate frame identities or "
+        "annotation\n    arrays are invalid."
+    )
+    translated = (
+        ":raises ValueError: la séquence ou la limite, les identités de trame "
+        "en double ou les tableaux d'annotations sont invalides."
+    )
+    assert not any(
+        "ValueError: sequence" in match.group(0)
+        for pattern in _PROTECT_PATTERNS
+        for match in pattern.finditer(source)
+    )
+    assert _syntax_preserved(source, translated, check_emphasis=False)
+    # A real numpydoc declaration is still held byte for byte.
+    declaration = "values : sequence of values to check."
+    assert not _syntax_preserved(
+        declaration, "valeurs : séquence des valeurs à vérifier.",
+        check_emphasis=False,
     )
 
 

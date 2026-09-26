@@ -3146,7 +3146,9 @@
       "source_sha256": "40374c0333bcf5d0c12d6cd6f4418a7e2cf844bd649a11bd9829ee9554176695",
       "context": "Asked once per source and mode, and only while the application view is on application view. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode -- already, or after the answer switched to it -- has its first PDF read the way a dropped one is, so the preview and the processing session get the paper's figure folder rather than a PDF they cannot open.",
       "translation": "对每个来源和模式只询问一次，并且只在界面正在显示时询问。``src`` 如果指向一个 PDF 或一个 PDFs 文件夹，并且处于 Figure 模式（原本就是，或回答后切换到该模式），就会像拖放的文件那样读取其第一个 PDF，因此预览和运行得到的是论文的图文件夹，而不是它们无法打开的 PDF。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.check_the_src#3",
@@ -3362,7 +3364,9 @@
       "source_sha256": "2b7407611fc209fb0443dac29a62c5dafbe648ac0402c0045057d5ae4cc12929",
       "context": "image paths sorted by name; empty when there are none.",
       "translation": "按名称排序的图像路径；没有图像时为空。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.input_mode_box#0",
