@@ -1,0 +1,421 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add an image to annotate.",
+      "source": "Add an image to annotate.",
+      "source_sha256": "afaa5cef6b5505a90f69afa41e6f43ee1bbfa56bfac0027a9708a4d34bff5ff6",
+      "translation": "Bættu við mynd til að merkja."
+    },
+    {
+      "table": "ui",
+      "key": "Add images…",
+      "source": "Add images…",
+      "source_sha256": "4f6ff1e1cc88c2f1c2aa16e01d019f3dfb26c4152ec7553e6051610033c90c05",
+      "translation": "Bæta við myndum…"
+    },
+    {
+      "table": "ui",
+      "key": "An images folder and a masks folder",
+      "source": "An images folder and a masks folder",
+      "source_sha256": "603fc2884720c357b3c9856046a3bf021ca81799f5db3dac6a9ca66561b01c8d",
+      "translation": "Myndamappa og grímumappa"
+    },
+    {
+      "table": "ui",
+      "key": "Auto (TreeSHAP, else KernelSHAP)",
+      "source": "Auto (TreeSHAP, else KernelSHAP)",
+      "source_sha256": "5635b0d02593ffb2bf705f76ca0f3b8897ef991d6a4d9dd4040cecea376464e4",
+      "translation": "Sjálfvirkt (TreeSHAP, annars KernelSHAP)"
+    },
+    {
+      "table": "ui",
+      "key": "Before your first contribution",
+      "source": "Before your first contribution",
+      "source_sha256": "d4b6ed34bf463c3bdc1369000aa9a170e8874ff9ed56a6b09c2c6311263e59b4",
+      "translation": "Áður en þú leggur fyrst til gögn"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the images folder",
+      "source": "Choose the images folder",
+      "source_sha256": "e762f7b9225b4e360c512ecceea19cccae9d2d7f7deb6048983abe8ca2afd106",
+      "translation": "Veldu myndamöppuna"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the masks folder",
+      "source": "Choose the masks folder",
+      "source_sha256": "7b7b9c118d7449741085d5618295611413f013cd822f05433f477e85e772e58d",
+      "translation": "Veldu grímumöppuna"
+    },
+    {
+      "table": "ui",
+      "key": "Contribute images and masks",
+      "source": "Contribute images and masks",
+      "source_sha256": "64ed325311ac7da8fa712b8883c4a2613b759cb14e0c88a4b145c5832a1ecc3f",
+      "translation": "Leggja til myndir og grímur"
+    },
+    {
+      "table": "ui",
+      "key": "Contribute images and masks…",
+      "source": "Contribute images and masks…",
+      "source_sha256": "29c248e5c0248a139b862abbbf0d233d877c8c924c428ce32fe8e47141ae0985",
+      "translation": "Leggja til myndir og grímur…"
+    },
+    {
+      "table": "ui",
+      "key": "Contribute training data",
+      "source": "Contribute training data",
+      "source_sha256": "275f11bfbc2cbfa2205294a60eb9c8ba374151cdc38c2ff59e6818526d1b1606",
+      "translation": "Leggja til þjálfunargögn"
+    },
+    {
+      "table": "ui",
+      "key": "Contribute training data…",
+      "source": "Contribute training data…",
+      "source_sha256": "73ce898fd7f80d2d718cd5eb726dbeebea14d244d99ce5f549a34996e1c9b087",
+      "translation": "Leggja til þjálfunargögn…"
+    },
+    {
+      "table": "ui",
+      "key": "Could not open the diameter estimate.",
+      "source": "Could not open the diameter estimate.",
+      "source_sha256": "c6f4c8f72e92ee4bedf4564c5aa276961094dcc2633a5110442039182cd58211",
+      "translation": "Ekki tókst að opna mat á þvermáli."
+    },
+    {
+      "table": "ui",
+      "key": "Delete object",
+      "source": "Delete object",
+      "source_sha256": "0b1bbb000e5830538652afb065b1b31c6484d285118539b4332c98274fe07f34",
+      "translation": "Eyða hlut"
+    },
+    {
+      "table": "ui",
+      "key": "Dock width",
+      "source": "Dock width",
+      "source_sha256": "885ed70d9ce5a3e509a949f843afdbd8bb7752b8ecbec851b605ea3c6e8cc195",
+      "translation": "Breidd festispjalds"
+    },
+    {
+      "table": "ui",
+      "key": "Every image has its mask. Ready.",
+      "source": "Every image has its mask. Ready.",
+      "source_sha256": "21bf71c27ec2aa5b7f05b268342fdcafb4facd6ff8f520c47b9672613b1a25cb",
+      "translation": "Hver mynd hefur sína grímu. Tilbúið."
+    },
+    {
+      "table": "ui",
+      "key": "Feature importance (gain)",
+      "source": "Feature importance (gain)",
+      "source_sha256": "78fc6bb52d0bf030f12ac22b00692f9f3eb781200fa6322ea1acf4666fce1f36",
+      "translation": "Mikilvægi eiginleika (ávinningur)"
+    },
+    {
+      "table": "ui",
+      "key": "Images ({patterns})",
+      "source": "Images ({patterns})",
+      "source_sha256": "d700cdbc260457feaab8dc83a361d1b720b723a4cca1f78d347277a3d6c55a19",
+      "translation": "Myndir ({patterns})"
+    },
+    {
+      "table": "ui",
+      "key": "Images folder",
+      "source": "Images folder",
+      "source_sha256": "459446bd7310096e00ed9314e2573083a903b408c8a98ebd21907317a33488ec",
+      "translation": "Myndamappa"
+    },
+    {
+      "table": "ui",
+      "key": "Images to annotate",
+      "source": "Images to annotate",
+      "source_sha256": "b32712df91b55f938302e4c1c33e13a4c305259f21b7daab2b84f3629f28ee7a",
+      "translation": "Myndir til að merkja"
+    },
+    {
+      "table": "ui",
+      "key": "Importance methods",
+      "source": "Importance methods",
+      "source_sha256": "4383edf462f3f07976c67706b474cc04db2ea264335c5e39d8faa3ddfbf58017",
+      "translation": "Mikilvægisaðferðir"
+    },
+    {
+      "table": "ui",
+      "key": "KernelSHAP",
+      "source": "KernelSHAP",
+      "source_sha256": "b9bb3386aa31345c4828c668b0d9485e8689e09a363ef3df3f971e78d0f4b401",
+      "translation": "KernelSHAP-aðferð"
+    },
+    {
+      "table": "ui",
+      "key": "Leave this image out",
+      "source": "Leave this image out",
+      "source_sha256": "d26541d3bb80bdd782a02e6b85947b20de443f168e497244ce697365c9e7d574",
+      "translation": "Sleppa þessari mynd"
+    },
+    {
+      "table": "ui",
+      "key": "Masks folder",
+      "source": "Masks folder",
+      "source_sha256": "c55a5639bbd13aa2d9a51437ab1636d35dc8479759564f2ad103b363c1d5cb7a",
+      "translation": "Grímumappa"
+    },
+    {
+      "table": "ui",
+      "key": "Measure diameters",
+      "source": "Measure diameters",
+      "source_sha256": "39de60bf693a0a5906f7aba44c5562d16caccf2f15762b422d96e8fa7e7bf45d",
+      "translation": "Mæla þvermál"
+    },
+    {
+      "table": "ui",
+      "key": "Measure diameters…",
+      "source": "Measure diameters…",
+      "source_sha256": "b184e84b73001fe01f882934b8f943942cf6aca74bfee84fcde5e920c9c19d27",
+      "translation": "Mæla þvermál…"
+    },
+    {
+      "table": "ui",
+      "key": "Name the dataset first.",
+      "source": "Name the dataset first.",
+      "source_sha256": "4b4b25c05afb1ad6817e9fc962bd5d34eeefe171ba337d004fd081821eb0c06f",
+      "translation": "Gefðu gagnasafninu fyrst nafn."
+    },
+    {
+      "table": "ui",
+      "key": "No gRNA is selected.",
+      "source": "No gRNA is selected.",
+      "source_sha256": "bf4308dbae03315b30057fc2dcb8160f8fc911ee6f25f5745db3b7f37060d78f",
+      "translation": "Ekkert gRNA er valið."
+    },
+    {
+      "table": "ui",
+      "key": "No image here has a saved mask yet.",
+      "source": "No image here has a saved mask yet.",
+      "source_sha256": "92927edc1c5b09977f605b9a9a10fd155cb807636b401f959107138809d2d150",
+      "translation": "Engin mynd hér er enn með vistaða grímu."
+    },
+    {
+      "table": "ui",
+      "key": "No image with the same name for: {names}",
+      "source": "No image with the same name for: {names}",
+      "source_sha256": "b07d096f511ba6433a80f651930d6f2a90eb638000c583dbb3ded7463ab91846",
+      "translation": "Engin mynd með sama nafni fyrir: {names}"
+    },
+    {
+      "table": "ui",
+      "key": "No mask with the same name for: {names}",
+      "source": "No mask with the same name for: {names}",
+      "source_sha256": "b9b9e42054496319a57d68ae170304e909b2e27d621bb221948fbd8db0958e51",
+      "translation": "Engin gríma með sama nafni fyrir: {names}"
+    },
+    {
+      "table": "ui",
+      "key": "Not applicable to {model}: {reason}",
+      "source": "Not applicable to {model}: {reason}",
+      "source_sha256": "d9284aed44f6f7488f7529c4b459d97355aeb842092e85982b0e9dfedff2c783",
+      "translation": "Á ekki við {model}: {reason}"
+    },
+    {
+      "table": "ui",
+      "key": "Not applicable: {reason}",
+      "source": "Not applicable: {reason}",
+      "source_sha256": "aa6316b39feba879b8d3dd4f839694da2389439a1e36655042ef69c5dd4d0ac8",
+      "translation": "Á ekki við: {reason}"
+    },
+    {
+      "table": "ui",
+      "key": "Not ready: {why}.",
+      "source": "Not ready: {why}.",
+      "source_sha256": "f7860216164bae32c757f91ac10bbcff11f5d6aa7994fcf580624f722a2d208a",
+      "translation": "Ekki tilbúið: {why}."
+    },
+    {
+      "table": "ui",
+      "key": "Not sent: the licence was not agreed to.",
+      "source": "Not sent: the licence was not agreed to.",
+      "source_sha256": "2b381adff54c9940b760a15a87ee25f86d2c5f762824dc49ff21b9614f806255",
+      "translation": "Ekki sent: leyfið var ekki samþykkt."
+    },
+    {
+      "table": "ui",
+      "key": "Not sent: {why}",
+      "source": "Not sent: {why}",
+      "source_sha256": "803a9d4689245a38f6fb5943acc275bb02bcebbef449fc67fbf8eb73d4a5443e",
+      "translation": "Ekki sent: {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Notes",
+      "source": "Notes",
+      "source_sha256": "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+      "translation": "Athugasemdir"
+    },
+    {
+      "table": "ui",
+      "key": "Ready: {name} and its mask.",
+      "source": "Ready: {name} and its mask.",
+      "source_sha256": "fecdca9b3bd70ff120482f8d7d1c054009ccdd4531ac49b27a15887475ecc6e6",
+      "translation": "Tilbúið: {name} og gríma hennar."
+    },
+    {
+      "table": "ui",
+      "key": "SHAP explainer",
+      "source": "SHAP explainer",
+      "source_sha256": "3c77ea622abdffd14220dd746238e8de1f0bf240561c4a2e46eab4f57c382c26",
+      "translation": "SHAP-skýrir"
+    },
+    {
+      "table": "ui",
+      "key": "Skip failed",
+      "source": "Skip failed",
+      "source_sha256": "491e45ae86076b1a4110ee64bf922ce78e7fbf2321a17657b43f33b67f599f46",
+      "translation": "Ekki tókst að sleppa"
+    },
+    {
+      "table": "ui",
+      "key": "Source paper",
+      "source": "Source paper",
+      "source_sha256": "32adca6c15934cf9d05a38c7e5e18b5a24999a551e32eda9082649bffeec75d2",
+      "translation": "Upprunagrein"
+    },
+    {
+      "table": "ui",
+      "key": "The image on screen and its mask: {name}",
+      "source": "The image on screen and its mask: {name}",
+      "source_sha256": "d0591ae4a614886843c6fdacf1c158fb9818dd20b40f6723720e8886ffa8818b",
+      "translation": "Myndin á skjánum og gríma hennar: {name}"
+    },
+    {
+      "table": "ui",
+      "key": "TreeSHAP",
+      "source": "TreeSHAP",
+      "source_sha256": "d07d642fed918145ae8a9e1eb9022bd44f773feb8606a03bb92ec498ca45baf1",
+      "translation": "TreeSHAP-aðferð"
+    },
+    {
+      "table": "ui",
+      "key": "Unchanged, nothing rewritten → {path}",
+      "source": "Unchanged, nothing rewritten → {path}",
+      "source_sha256": "994f1bbc5cf92295a6b2bac576cbe229103b76902ca7a64dc2406766e67ebcc8",
+      "translation": "Óbreytt, ekkert endurskrifað → {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Upload",
+      "source": "Upload",
+      "source_sha256": "865e89de78d94c747184d6a7e6f5244b453d8062343c07e014ae698cfb0260e8",
+      "translation": "Hlaða upp"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed: {why}",
+      "source": "Upload failed: {why}",
+      "source_sha256": "6c177870b861c7c81c693f39b43b4d97a09264b3ba189ea3b4e0d50bd6bacd5d",
+      "translation": "Upphleðsla mistókst: {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Uploading…",
+      "source": "Uploading…",
+      "source_sha256": "5ce44dd77dae789f322b4bc032812a77a989e90c31928743f4fbdb26321011c2",
+      "translation": "Hleð upp…"
+    },
+    {
+      "table": "ui",
+      "key": "What is it?",
+      "source": "What is it?",
+      "source_sha256": "bbff7b98d6da70612cb94badd2dde68a4dbe1107104b55f330a2225c8ebf55b2",
+      "translation": "Hvað er þetta?"
+    },
+    {
+      "table": "ui",
+      "key": "Which gRNAs to plot",
+      "source": "Which gRNAs to plot",
+      "source_sha256": "add0a362569b0bbb53d1b5b02af59573df1fe2f51ccc744dbe39ff8f6bb97234",
+      "translation": "Hvaða gRNAs á að teikna"
+    },
+    {
+      "table": "ui",
+      "key": "Which selected wells to draw",
+      "source": "Which selected wells to draw",
+      "source_sha256": "5fb0d5b7a8d3f9caf426e7cbb18c4d08ba98efde1e19d74220c747f7e20eb113",
+      "translation": "Hvaða valda brunna á að teikna"
+    },
+    {
+      "table": "ui",
+      "key": "an upload is already running",
+      "source": "an upload is already running",
+      "source_sha256": "039dbdc03475afd9799ced369092d344acbd6d8a9fe546cd0d56dea47cd575ee",
+      "translation": "upphleðsla er þegar í gangi"
+    },
+    {
+      "table": "ui",
+      "key": "and {n} more",
+      "source": "and {n} more",
+      "source_sha256": "827ab9506d94034b79eb6577da0214b83e4482d6535c6e5a17898735e332ee4e",
+      "translation": "og {n} til viðbótar"
+    },
+    {
+      "table": "ui",
+      "key": "selected wells ({n}): {names}",
+      "source": "selected wells ({n}): {names}",
+      "source_sha256": "095fdbbe40cdca063c588e76af46c2b4731a4ac507fd3a3e2cde38d0c803f0d3",
+      "translation": "valdir brunnar ({n}): {names}"
+    },
+    {
+      "table": "ui",
+      "key": "selected wells…",
+      "source": "selected wells…",
+      "source_sha256": "d9e6d1e4a03bd6603e3a673a1bd47156569058704a6925cd889cec8109dddf9b",
+      "translation": "valdir brunnar…"
+    },
+    {
+      "table": "ui",
+      "key": "this model",
+      "source": "this model",
+      "source_sha256": "32d199f2cdf3b1ed9e5a04c3a83b2f133debc9ce77d113e104cdb2ef50598d64",
+      "translation": "þetta líkan"
+    },
+    {
+      "table": "ui",
+      "key": "{images} images, {masks} masks.",
+      "source": "{images} images, {masks} masks.",
+      "source_sha256": "0d750476cb58e3d8a3b9f9e333504d1ed365a3a5d372143ada56f799a4840b5a",
+      "translation": "{images} myndir, {masks} grímur."
+    },
+    {
+      "table": "ui",
+      "key": "{name}: finding a first guess…",
+      "source": "{name}: finding a first guess…",
+      "source_sha256": "6fcdd48fe33f80d6ac578579ee85a62885f9ae8625b122a31e67969f99957807",
+      "translation": "{name}: fyrsta ágiskun í vinnslu…"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: not annotated yet",
+      "source": "{name}: not annotated yet",
+      "source_sha256": "e48ccd279e219c9faade2f52ea0a1024c16635f155ad682f2fd1daff0e09b742",
+      "translation": "{name}: ekki merkt enn"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {count} boxes",
+      "source": "{name}: {count} boxes",
+      "source_sha256": "43578d625f38e6f84d460d80ffc6d530cf2bd462f419a4e39fc36f7db97b1d78",
+      "translation": "{name}: {count} rammar"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {count} plaques",
+      "source": "{name}: {count} plaques",
+      "source_sha256": "d75f2e4df299052e5e23fc15780e9a9432699bee41876f83ebce4d7a5faf1639",
+      "translation": "{name}: {count} skellur"
+    }
+  ]
+}
