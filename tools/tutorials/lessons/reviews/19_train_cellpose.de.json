@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
+  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -13,22 +13,24 @@
   "title": "Ein Cellpose-Modell trainieren",
   "description": "Bereiten Sie Bild-Masken-Paare vor, passen Sie ein Segmentierungsmodell im Cellpose Workbench an und wenden Sie den gespeicherten Checkpoint an.",
   "objectives": [
-    "Bilder und die passenden Objektlabel-Masken laden.",
-    "Ausgangsmodell, Trainingseinstellungen und Ausgabeordner wählen.",
-    "Das Training ausführen, den Checkpoint finden und an separaten Bildern testen."
+    "Bilder und passende Objektlabel-Masken in Make Masks prüfen.",
+    "Trainingsordner, Ausgangsmodell, Trainingsplan und Ausgabeort wählen.",
+    "Das Training ausführen, den Checkpoint finden und auf separate Bilder anwenden."
   ],
-  "prerequisite": "Laden Sie das verlinkte Beispiel mit sechs Paaren herunter und entpacken Sie es, oder bereiten Sie eigene Bilder und passende Masken mit ganzzahligen Labels vor. Prüfen und korrigieren Sie die Masken vor dem Training in Make Masks.",
+  "prerequisite": "Laden Sie das verlinkte Beispiel herunter und entpacken Sie es: sechs Trainingsbilder mit Masken sowie drei separate Bilder für Apply. Oder bereiten Sie eigene Bilder und passende Masken mit ganzzahligen Labels vor und prüfen Sie sie vor dem Training in Make Masks.",
   "scenes": [
-    "Öffnen Sie von Home aus Tools und dann Make Masks. Öffnen Sie über dessen Werkzeugleiste Cellpose Workbench und wählen Sie den Reiter Train. Sie trainieren mit Bildern und ihren Objektlabel-Masken und verwenden das gespeicherte Modell dann unter Apply.",
-    "Entpacken Sie das verlinkte Beispiel und setzen Sie Source auf dessen Trainingsordner. Der Ordner enthält sechs Bilder und einen Unterordner masks. Lassen Sie mask source leer, um diesen Unterordner zu verwenden, oder wählen Sie einen separaten Ordner mit Ihren Masken.",
-    "Jedes Bild braucht eine passende Maske mit derselben Höhe und Breite. Die Maskenwerte kennzeichnen Objekte: 0 ist Hintergrund, und jedes Objekt hat eine eigene positive ganze Zahl. Prüfen Sie die Umrisse in Make Masks und korrigieren Sie Labels, bevor Sie sie zum Training verwenden.",
-    "Lassen Sie für dieses Graustufenbeispiel die Kanalauswahl leer. Wählen Sie bei einem Mehrkanalbild bis zu drei nullbasierte Kanalindizes, etwa 0 und 2 für den ersten und dritten Kanal. Setzen Sie channel axis, wenn die automatische Erkennung die Kanaldimension nicht findet.",
-    "Wählen Sie ein Basismodell. Das Standardmodell cpsam startet von Cellpose-SAM; ein Checkpoint-Pfad setzt das Training eines vorhandenen Modells fort. Geben Sie einen Modellnamen ein und wählen Sie Save path für die Ausgabe, oder lassen Sie ihn leer, um im Projekt zu speichern.",
-    "Legen Sie die Anzahl der Epochen und die Batchgröße fest. Verwenden Sie für einen schnellen ersten Lauf 2 Epochen und Batchgröße 1. Mehr Epochen geben dem Modell mehr Trainingsschritte, größere Batches brauchen mehr Speicher. Die Lernrate bestimmt die Schrittgröße; beginnen Sie mit dem angezeigten Standardwert.",
-    "Lassen Sie die Normierung mit dem 1. und 99. Perzentil als Ausgangspunkt eingeschaltet. Diese legen den Intensitätsbereich für jeden Kanal fest. Scale range steuert die Variation der Bildgröße während des Trainings. Minimum training masks schließt Bilder mit zu wenigen gelabelten Objekten aus.",
-    "Um den Validierungsverlust zu verfolgen, wählen Sie einen separaten Ordner mit Validierungsbildern und die passenden Masken. Halten Sie diese Felder von den Trainingseingaben getrennt. Lassen Sie die Validierungsordner leer, wenn Sie keinen separaten Satz haben.",
-    "Prüfen Sie Eingabeordner, Modellnamen und Ausgabeort und drücken Sie dann Run. Verfolgen Sie den Trainingsfortschritt in der Konsole. Nach Abschluss nennt die Konsole den Checkpoint-Pfad für die Segmentierung.",
-    "Bei einem ausdrücklichen Save path sehen Sie in dessen Unterordner models nach. Beim Standardort liegt der Checkpoint im Quellordner unter models/cellpose_model/models. Bewahren Sie den Checkpoint zusammen mit Ihren Trainingseinstellungen auf.",
-    "Öffnen Sie Apply und wählen Sie einen separaten Bildordner. Prüfen Sie, dass Custom model auf den gewünschten Checkpoint zeigt, und sehen Sie sich eine Vorschau an, bevor Sie den ganzen Ordner verarbeiten. Apply schreibt Masken neben diese Bilder in einen Unterordner masks. Verwenden Sie separate gelabelte Bildfelder, um die Ergebnisse zu bewerten."
+    "Öffnen Sie von Home aus Tools und dann Make Masks. Öffnen Sie über dessen Werkzeugleiste Cellpose Workbench; es startet auf dem Reiter Train. Sie trainieren mit Bildern und ihren Objektlabel-Masken und verwenden das gespeicherte Modell dann unter Apply.",
+    "Entpacken Sie das verlinkte Beispiel. Sein Ordner training enthält sechs Bilder und einen Unterordner masks, sein Ordner apply drei separate Bilder für später. Klicken Sie auf die Ordnerschaltfläche neben Image source folder und wählen Sie training. Lassen Sie Mask source folder leer, um den Unterordner masks zu verwenden, oder wählen Sie einen anderen Maskenordner.",
+    "Jedes Bild braucht eine Maske mit derselben Höhe und Breite. 0 ist Hintergrund, und jedes Objekt hat eine eigene positive Zahl. Öffnen Sie den Trainingsordner in Make Masks, um die Labels vor dem Training zu prüfen und zu korrigieren. Dieses Bild hat 95 gelabelte Zellen.",
+    "Dieses Beispiel ist ein Graustufenbild, lassen Sie Channels also leer. Fügen Sie bei einem Mehrkanalbild bis zu drei nullbasierte Kanalnummern hinzu, etwa 0 und 2 für den ersten und dritten Kanal. Setzen Sie Channel axis nur, wenn die automatische Erkennung die Kanaldimension nicht findet.",
+    "Lassen Sie Base model auf cpsam, um von Cellpose-SAM zu starten, oder geben Sie einen Checkpoint-Pfad ein, um ein früheres Modell weiterzutrainieren. Geben Sie einen Model name ein; hier tutorial cells. Lassen Sie Checkpoint folder leer, um im Quellordner zu speichern, oder wählen Sie einen anderen Ordner.",
+    "Legen Sie N epochs und Batch size fest. Dieser schnelle Lauf verwendet 10 Epochen mit Batchgröße 1. Mehr Epochen geben dem Modell mehr Trainingsschritte, größere Batches brauchen mehr Speicher. Behalten Sie zu Beginn die angezeigte Lernrate bei.",
+    "Lassen Sie Normalize mit dem 1. und 99. Perzentil als Ausgangspunkt eingeschaltet. Diese legen den Intensitätsbereich für jeden Kanal fest. Scale range variiert die Bildgröße während des Trainings, und Min train masks überspringt Bilder mit weniger gelabelten Objekten.",
+    "Um den Validierungsverlust zu verfolgen, wählen Sie einen separaten Validation image folder und seinen Validation mask folder. Verwenden Sie dort nie Trainingsbilder erneut. Lassen Sie beide leer, wenn Sie wie in diesem Beispiel keinen separaten gelabelten Satz haben.",
+    "Prüfen Sie Ordner, Modellnamen und Ausgabeort und drücken Sie dann Run. Das Feld Figures zeigt die Trainingsbilder über ihren Masken, und die Konsole verfolgt den Fortschritt. Auf dieser GPU waren 10 Epochen mit sechs Bildern in unter einer Minute fertig.",
+    "Nach dem Training nennt die Konsole den Checkpoint-Pfad. Beim Standardort liegt er im Quellordner unter models/cellpose_model/models. Der Dateiname ergänzt Ihren Modellnamen um Architektur und Epochenzahl. Bewahren Sie ihn zusammen mit Ihren Trainingseinstellungen auf.",
+    "Öffnen Sie den Reiter Apply. Custom model zeigt jetzt auf den trainierten Checkpoint. Setzen Sie Source auf den Ordner apply des Beispiels, dessen Bilder aus Wells stammen, die nicht zum Training verwendet wurden. Setzen Sie Channels auf 0 und Percentiles auf 2 und 99. Schalten Sie Fill in aus, damit sich berührende Zellen getrennt bleiben, und schalten Sie Save und Verbose ein.",
+    "Öffnen Sie Live preview, wählen Sie ein Bild und drücken Sie Run preview, mit demselben Kanal und denselben Perzentilen. Das Bild wird mit Ihrem Checkpoint segmentiert; hier werden 76 Zellen gefunden. Passen Sie hier die Einstellungen an, bevor Sie den ganzen Ordner verarbeiten.",
+    "Drücken Sie Run. Apply schreibt pro Bild eine Maske in einen Unterordner masks neben diesen Bildern, und Verbose zeigt jedes Ergebnis als Abbildung. Hier enthalten die drei Masken 76, 48 und 55 Zellen. Vergleichen Sie die Masken eines Modells mit separat gelabelten Bildfeldern, bevor Sie es für ein ganzes Experiment verwenden."
   ]
 }

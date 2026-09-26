@@ -256,3 +256,36 @@ def test_a_well_decoded_in_worker_processes_counts_its_fields_out(tmp_path, caps
                                  for site in sites}
     assert decode["ops_barcodes_rows"] == 0 and decode["objects_assigned"] == 0
     assert "OPS: A1 decode: 25 of 25 fields" in capsys.readouterr().out
+
+
+def test_a_zero_byte_cycle_file_is_warned_about_and_does_not_end_the_well(
+        tmp_path, capsys):
+    """372, 2026-09-26: one empty sequencing file failed all of well B3.
+
+    ``c4/10X_c4_B3_CY3_Site-59.tif`` is 0 bytes on the NAS, an lftp download
+    that never finished. tifffile says "not a TIFF file" with an error that
+    is not a ValueError, and it ended the well at decode field 59. Here the
+    same kind of file costs cycle 3 of the one field: the well completes,
+    every nucleus is still assigned, the file and its reason are in the
+    report, and the run prints a WARNING line that it did not print before.
+    """
+    _field(tmp_path / "raw", 0, 4, _rings())
+    settings, db = _well(tmp_path, {0: (0, 0)}, SIZE)
+    _objects(db, CENTRES, AREA)
+
+    whole = ops_engine.run_ops(settings, phases=("decode",))["wells"]["A1"]["decode"]
+    before = capsys.readouterr().out
+    empty = tmp_path / "raw" / "c3" / "10X_c3_A1_A594_Site-0.tif"
+    empty.write_bytes(b"")
+    lost = ops_engine.run_ops(settings, phases=("decode",))["wells"]["A1"]["decode"]
+    after = capsys.readouterr().out
+
+    assert whole["unreadable"] == [] and "WARNING" not in before
+    assert whole["objects_assigned"] == 3
+    assert [path for path, _reason in lost["unreadable"]] == [str(empty)]
+    assert lost["unreadable"][0][1].startswith("TiffFileError: not a TIFF file")
+    assert lost["cycles_missing"] == {"0": [3]}
+    assert lost["skipped"] == {}
+    assert lost["objects_assigned"] == 3
+    assert "OPS: A1 decode: WARNING 1 source file(s) could not be read" in after
+    assert "10X_c3_A1_A594_Site-0.tif (TiffFileError: not a TIFF file" in after

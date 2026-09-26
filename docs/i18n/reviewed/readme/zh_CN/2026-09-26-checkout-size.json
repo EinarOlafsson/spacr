@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_method": "Numeric re-measurement only: the checkout size and its date change; wording is the reviewed 2026-09-24 translation. Native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source_sha256": "5f3d4d1cd6b907871ff9b11d9c8197872917cac92856e85359ba88190cd55fd0",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1353 MB checkout (measured 2026-09-26), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "在 2026-09-15 的测量中，完整克隆下载了 5.8 GB。向浅克隆添加 ``--filter=blob:none`` 没有减少其测得的下载量。nightly 中受 Git 跟踪的文件检出后共占 1353 MB（2026-09-26 测量），不含 Git 历史。下载大小和耗时随分支而变化。"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "6b3225d25bd412b98d2bf28badb27f8519f7c58a8b62d166d536a9b38d64c44b",
+  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -13,22 +13,24 @@
   "title": "Tren en Cellpose-modell",
   "description": "Forbered par av bilder og masker, finjuster en segmenteringsmodell i Cellpose Workbench og bruk det lagrede sjekkpunktet.",
   "objectives": [
-    "Laste inn bilder og tilhørende objektetikettmasker.",
-    "Velge startmodell, treningsinnstillinger og utdatamappe.",
-    "Kjøre treningen, finne sjekkpunktet og prøve det på separate bilder."
+    "Undersøke bilder og tilhørende objektetikettmasker i Make Masks.",
+    "Velge treningsmappe, startmodell, treningsplan og utdataplassering.",
+    "Kjøre treningen, finne sjekkpunktet og bruke det på separate bilder."
   ],
-  "prerequisite": "Last ned og pakk ut det lenkede eksemplet med seks par, eller forbered egne bilder og tilhørende masker med heltallsetiketter. Undersøk og rett maskene i Make Masks før trening.",
+  "prerequisite": "Last ned og pakk ut det lenkede eksemplet: seks treningsbilder med masker og tre separate bilder for Apply. Eller forbered egne bilder og tilhørende masker med heltallsetiketter, og undersøk dem i Make Masks før trening.",
   "scenes": [
-    "Fra Home åpner du Tools og deretter Make Masks. Åpne Cellpose Workbench fra verktøylinjen og velg fanen Train. Du trener ut fra bilder og objektetikettmaskene deres, og bruker deretter den lagrede modellen i Apply.",
-    "Pakk ut det lenkede eksemplet og sett Source til treningsmappen. Mappen inneholder seks bilder og en undermappe masks. La mask source stå tomt for å bruke undermappen, eller velg en egen mappe med maskene dine.",
-    "Hvert bilde trenger én tilhørende maske med samme høyde og bredde. Maskeverdiene identifiserer objekter: 0 er bakgrunn, og hvert objekt har sitt eget positive heltall. Undersøk omrissene i Make Masks og rett etiketter før du bruker dem til trening.",
-    "La kanalvalget stå tomt for dette gråtoneeksemplet. For et flerkanalsbilde velger du opptil tre nullbaserte kanalindekser, for eksempel 0 og 2 for første og tredje kanal. Angi channel axis hvis den automatiske gjenkjenningen ikke finner kanaldimensjonen.",
-    "Velg en basismodell. Standardmodellen cpsam starter fra Cellpose-SAM; en bane til et sjekkpunkt fortsetter treningen av en eksisterende modell. Skriv inn et modellnavn og velg Save path for utdata, eller la det stå tomt for å lagre i prosjektet.",
-    "Angi antall epoker og batchstørrelse. For en rask første kjøring bruker du 2 epoker og batchstørrelse 1. Flere epoker gir modellen flere treningsoppdateringer, og større batcher bruker mer minne. Læringsraten styrer størrelsen på oppdateringene; start med den viste standardverdien.",
-    "La normaliseringen være på med 1. og 99. persentil som utgangspunkt. De styrer intensitetsområdet for hver kanal. Scale range styrer variasjonen i bildestørrelse under trening. Minimum training masks utelater bilder med for få merkede objekter.",
-    "For å følge valideringstapet velger du en egen mappe med valideringsbilder og tilhørende masker. Hold disse feltene atskilt fra treningsinndataene. La valideringsmappene stå tomme når du ikke har et eget sett.",
-    "Gå gjennom inndatamapper, modellnavn og utdataplassering, og trykk deretter på Run. Følg treningsfremdriften i konsollen. Når kjøringen er ferdig, oppgir konsollen banen til sjekkpunktet som skal brukes til segmentering.",
-    "Med en eksplisitt Save path ser du i undermappen models der. Med standardplasseringen ligger sjekkpunktet i kildemappen under models/cellpose_model/models. Behold sjekkpunktet sammen med treningsinnstillingene.",
-    "Åpne Apply og velg en separat bildemappe. Kontroller at Custom model peker på sjekkpunktet du ønsker, og se på en forhåndsvisning før du kjører hele mappen. Apply skriver masker ved siden av bildene i en undermappe masks. Bruk separate merkede synsfelt til å vurdere resultatene."
+    "Fra Home åpner du Tools og deretter Make Masks. Åpne Cellpose Workbench fra verktøylinjen; den starter på fanen Train. Du trener ut fra bilder og objektetikettmaskene deres, og bruker deretter den lagrede modellen i Apply.",
+    "Pakk ut det lenkede eksemplet. Mappen training inneholder seks bilder og en undermappe masks, og mappen apply inneholder tre separate bilder til senere. Klikk på mappeknappen ved siden av Image source folder og velg training. La Mask source folder stå tomt for å bruke undermappen masks, eller velg en annen maskemappe.",
+    "Hvert bilde trenger én maske med samme høyde og bredde. 0 er bakgrunn, og hvert objekt har sitt eget positive tall. Åpne treningsmappen i Make Masks for å undersøke etikettene og rette dem før trening. Dette bildet har 95 merkede celler.",
+    "Eksemplet er i gråtoner, så la Channels stå tomt. For et flerkanalsbilde legger du til opptil tre nullbaserte kanalnumre, for eksempel 0 og 2 for første og tredje kanal. Angi Channel axis bare hvis den automatiske gjenkjenningen ikke finner kanaldimensjonen.",
+    "Behold Base model på cpsam for å starte fra Cellpose-SAM, eller skriv inn en bane til et sjekkpunkt for å fortsette treningen av en tidligere modell. Skriv inn et Model name; her tutorial cells. La Checkpoint folder stå tomt for å lagre i kildemappen, eller velg en annen mappe.",
+    "Angi N epochs og Batch size. Denne raske kjøringen bruker 10 epoker med batchstørrelse 1. Flere epoker gir modellen flere treningsoppdateringer, og større batcher bruker mer minne. Behold den viste læringsraten til å begynne med.",
+    "La Normalize være på med 1. og 99. persentil som utgangspunkt. De angir intensitetsområdet for hver kanal. Scale range varierer bildestørrelsen under trening, og Min train masks hopper over bilder med færre merkede objekter.",
+    "For å følge valideringstapet velger du en egen Validation image folder og tilhørende Validation mask folder. Bruk aldri treningsbilder der på nytt. La begge stå tomme når du, som i dette eksemplet, ikke har et eget merket sett.",
+    "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften. På denne GPU-en ble 10 epoker på seks bilder ferdige på under ett minutt.",
+    "Når treningen er ferdig, oppgir konsollen banen til sjekkpunktet. Med standardplasseringen ligger det i kildemappen under models/cellpose_model/models. Filnavnet legger arkitektur og antall epoker til modellnavnet. Behold det sammen med treningsinnstillingene.",
+    "Åpne fanen Apply. Custom model peker nå på sjekkpunktet du trente. Sett Source til eksemplets mappe apply, der bildene kommer fra brønner som ikke ble brukt til trening. Sett Channels til 0 og Percentiles til 2 og 99. Slå av Fill in slik at celler som berører hverandre, holdes atskilt, og slå på Save og Verbose.",
+    "Åpne Live preview, velg ett bilde og trykk på Run preview med samme kanal og persentiler. Bildet segmenteres med sjekkpunktet ditt, som her finner 76 celler. Juster innstillingene her før du kjører hele mappen.",
+    "Trykk på Run. Apply skriver én maske per bilde i en undermappe masks ved siden av bildene, og Verbose viser hvert resultat som en figur. Her inneholder de tre maskene 76, 48 og 55 celler. Sammenlign en modells masker med separat merkede synsfelt før du bruker den på et helt eksperiment."
   ]
 }

@@ -188,6 +188,7 @@ _KEY_PANE_OPACITY = "prefs/pane_opacity"
 _KEY_FIELD_FADE = "prefs/field_fade"
 _KEY_SHOW_ALPHA = "prefs/show_alpha"
 _KEY_SHOW_BETA = "prefs/show_beta"
+_KEY_SHOW_ALPHA_FEATURES = "prefs/show_alpha_features"
 _KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
 _KEY_AMBIENT_THEME   = "prefs/ambient_theme"
 _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
@@ -4864,6 +4865,94 @@ def maturity_is_visible(stage: str) -> bool:
     return True
 
 
+DEFAULT_SHOW_ALPHA_FEATURES = False
+
+
+def _get_show_alpha_features() -> bool:
+    """Whether features built from the future list are shown (default off).
+
+    Separate from :func:`get_show_alpha`, which is about a module's
+    maturity stage. This one hides everything registered in
+    ``spacr.settings.ALPHA_FEATURES`` until the user turns it on.
+    """
+    return _as_bool(
+        _settings().value(_KEY_SHOW_ALPHA_FEATURES,
+                          DEFAULT_SHOW_ALPHA_FEATURES),
+        DEFAULT_SHOW_ALPHA_FEATURES)
+
+
+def _set_show_alpha_features(on: bool) -> None:
+    """Show or hide every feature registered with the alpha gate.
+
+    Flushed at once, because the open screens re-read it as soon as the
+    Preferences dialog closes.
+
+    :param on: true to show alpha features, false to hide them.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_SHOW_ALPHA_FEATURES, bool(on))
+    settings.sync()
+
+
+def _is_alpha_visible(kind=None, name=None, choice=None) -> bool:
+    """THE alpha gate: whether something should be on screen right now.
+
+    With no arguments, whether alpha features are shown at all. With a kind
+    and a name, True for anything not registered in
+    ``spacr.settings.ALPHA_FEATURES`` and, for a registered thing,
+    whether the Show alpha features preference is on.
+
+    :param kind: one of ``spacr.settings.ALPHA_KINDS``, or None.
+    :param name: the settings key, object name, module key or model key.
+    :param choice: with ``kind='choices'``, the dropdown entry asked about.
+    """
+    if _get_show_alpha_features():
+        return True
+    if kind is None:
+        return False
+    from ..settings import _is_alpha
+
+    return not _is_alpha(kind, name, choice)
+
+
+def _apply_alpha_widgets(root) -> int:
+    """Hide or restore every registered alpha widget and action under ``root``.
+
+    Found by object name. A widget is hidden only if it was showing, and it
+    is marked when hidden, so turning the preference back on restores just
+    the ones this hid; a label its owner keeps hidden until a run starts is
+    left for its owner to show.
+
+    :param root: a widget whose children are walked, itself included.
+    :returns: how many widgets or actions changed.
+    """
+    from PySide6.QtCore import QObject
+
+    from ..settings import _alpha_names
+
+    shown = _get_show_alpha_features()
+    changed = 0
+    for name in sorted(_alpha_names("widgets")):
+        found = list(root.findChildren(QObject, name))
+        if root.objectName() == name:
+            found.append(root)
+        for thing in found:
+            try:
+                hidden = (thing.isHidden() if hasattr(thing, "isHidden")
+                          else not thing.isVisible())
+                if not shown and not hidden:
+                    thing.setProperty("_spacr_alpha_hid", True)
+                    thing.setVisible(False)
+                    changed += 1
+                elif shown and thing.property("_spacr_alpha_hid"):
+                    thing.setProperty("_spacr_alpha_hid", False)
+                    thing.setVisible(True)
+                    changed += 1
+            except RuntimeError:
+                continue
+    return changed
+
+
 def color_blind_continuous_cmap() -> str:
     """Return a matplotlib colormap name safe for the active CB mode.
 
@@ -6395,10 +6484,19 @@ class PreferencesDialog:
             "signed off. Stable and Alpha features are unaffected."
         )
         beta_check.setChecked(get_show_beta())
+        alpha_features_check = Toggle(tr("Show alpha features"))
+        alpha_features_check.setObjectName("ShowAlphaFutureFeatures")
+        alpha_features_check.setToolTip(tr(
+            "Show the settings, controls, screens and models built from the "
+            "future-features list that are not yet released. Off hides them; "
+            "saved values still reach every run."
+        ))
+        alpha_features_check.setChecked(_get_show_alpha_features())
         maturity_col = QVBoxLayout()
         maturity_col.setContentsMargins(0, 0, 0, 0)
         maturity_col.addWidget(alpha_check)
         maturity_col.addWidget(beta_check)
+        maturity_col.addWidget(alpha_features_check)
         modules.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
 
         figure_save_mode_combo = QComboBox()
@@ -7174,6 +7272,10 @@ class PreferencesDialog:
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
+                _alpha_features = dlg.findChild(
+                    QWidget, "ShowAlphaFutureFeatures")
+                if _alpha_features is not None:
+                    _alpha_features.setChecked(_get_show_alpha_features())
                 if sound_page is not None:
                     sound_page.reset()
             finally:
@@ -7248,6 +7350,9 @@ class PreferencesDialog:
             set_db_browser_editable(db_edit_check.isChecked())
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
+            alpha_features = dlg.findChild(QWidget, "ShowAlphaFutureFeatures")
+            if alpha_features is not None:
+                _set_show_alpha_features(alpha_features.isChecked())
             set_figure_save_mode(figure_save_mode_combo.currentData())
             set_figure_format(fig_format_combo.currentData())
             for shape, combo in default_graph_combos.items():

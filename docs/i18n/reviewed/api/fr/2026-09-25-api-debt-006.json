@@ -4674,7 +4674,9 @@
       "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
       "translation": "dossier séparé facultatif pour les masques ajustés. None conserve le comportement historique de modification sur place. Un dossier séparé laisse tous les masques source identiques octet pour octet, et chaque champ sélectionné est reconstruit à partir de sa source à chaque appel, y compris après un travail interrompu.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.check_mask_folder#3",

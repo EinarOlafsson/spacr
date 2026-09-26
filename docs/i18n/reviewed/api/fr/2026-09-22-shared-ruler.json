@@ -27,7 +27,9 @@
       "label": "spacr.qt.widgets.image_ruler.ImageRuler#2",
       "source": "Hosts pass their widget-to-image mapping to :meth:`handle` and inverse mapping to :meth:`paint`. Zoom and pan never change the measured length. Pixel units are always shown. Physical units require explicit, validated calibration through :meth:`set_spacing`; camera magnification is never guessed. Right-click clears while the tool is active. Start with no line, no calibration and drawing disabled.",
       "source_sha256": "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c",
-      "translation": "Les composants hôtes transmettent leur conversion des coordonnées du widget vers l’image à :meth:`handle` et la conversion inverse à :meth:`paint`. Le zoom et le déplacement ne modifient jamais la longueur mesurée. Les unités en pixels sont toujours affichées. Les unités physiques nécessitent un étalonnage explicite et validé via :meth:`set_spacing` ; le grossissement de la caméra n’est jamais supposé. Un clic droit efface la ligne lorsque l’outil est actif. L’état initial ne comporte ni ligne ni étalonnage, et le dessin est désactivé."
+      "translation": "Les composants hôtes transmettent leur conversion des coordonnées du widget vers l’image à :meth:`handle` et la conversion inverse à :meth:`paint`. Le zoom et le déplacement ne modifient jamais la longueur mesurée. Les unités en pixels sont toujours affichées. Les unités physiques nécessitent un étalonnage explicite et validé via :meth:`set_spacing` ; le grossissement de la caméra n’est jamais supposé. Un clic droit efface la ligne lorsque l’outil est actif. L’état initial ne comporte ni ligne ni étalonnage, et le dessin est désactivé.",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Remove the line without changing tool activation or calibration.",

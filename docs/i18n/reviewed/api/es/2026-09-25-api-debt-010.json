@@ -813,12 +813,13 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.widgets.fractal_cascade.render_into#8",
+      "label": "spacr.qt.widgets.fractal_cascade.render_into#9",
       "source": "Refuse: the cascade CPU backend needs Numba, which is absent.",
       "source_sha256": "9235ddaf877e94859b2aa4cf685c35378586f6002ebe026e91877a785f902728",
       "context": "Refuse: the cascade CPU backend needs Numba, which is absent.",
       "translation": "Rechaza: el motor de CPU de la cascada necesita Numba, que no está disponible.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.qt.widgets.fractal_cascade.render_into#8"
     },
     {
       "label": "spacr.qt.widgets.fractal_mandelbrot.SteeringCamera.configure#2",
@@ -1122,7 +1123,9 @@
       "source_sha256": "55b9730f63c778956be431fa02020fd871c9d1b547ad8cfda40229aa3b7fabef",
       "context": "``1`` or less takes one sample at each pixel centre; anything larger averages a 2 x 2 grid of samples per pixel.",
       "translation": "``1`` o menos toma una muestra en el centro de cada píxel; cualquier valor mayor promedia una rejilla de 2 x 2 muestras por píxel.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fractal_space.sample_space#2",
@@ -3509,12 +3512,13 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3",
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#4",
       "source": "the module's settings dict (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
       "source_sha256": "96135371fed57deda24a9362d148af2f2570a1b1dfd6da9138a9e4502a0a3e7d",
       "context": "the module's settings key-value mapping (``None`` is treated as empty); a copy is kept for the Pre and Post routes.",
       "translation": "el dict de ajustes del módulo (``None`` se trata como vacío); se guarda una copia para las vías Pre y Post.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings#3"
     },
     {
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview#0",
