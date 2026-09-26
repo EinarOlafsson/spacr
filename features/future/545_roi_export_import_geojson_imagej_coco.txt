@@ -98,11 +98,20 @@ Not done
     QuPath's documented GeoJSON keys. A "Save mask" after a multi-part
     import splits a label lying in separated pieces, which is Make Masks'
     own one-id-one-object rule, not the importer's.
+    The English API manifest (docs/source/_static/i18n/api/en.json) was NOT
+    regenerated (catalog/manifest files are not edited in this lane), so
+    tests/test_documentation_i18n.py::
+    test_documentation_api_catalog_inventory_and_hashes_are_current[en]
+    reports the new mask_io symbols as missing until the docs lane runs
+    tools/build_documentation_i18n.py. The symbol-count pins
+    (test_docstring_correctness, test_api_i18n_extractor/_frontend,
+    test_documentation_i18n) were moved by the eighteen new callables, and
+    the signature digest was proved by subtraction to move by them alone.
 
-ALPHA: widgets: MakeMasksScreen._btn_rois (the "ROIs..." button) and its
-menu entries MakeMasksScreen._roi_actions[export_field_geojson,
-export_field_imagej, export_field_coco, export_all_geojson,
-export_all_imagej, export_all_coco, import_field, import_all_geojson,
-import_all_imagej, import_all_coco]; no settings keys. The button is shown
-through preferences.maturity_is_visible("alpha") until item 569's registry
-exists (not on nightly as of this note) and should be registered there.
+ALPHA: widgets: MakeMasksRoisButton (MakeMasksScreen._btn_rois, the
+"ROIs..." button; hiding it hides its whole menu: export this field /
+every field as GeoJSON, RoiSet or COCO, import into this field, import for
+every field); no settings keys, choices, apps or models. Registered in
+spacr.settings.ALPHA_FEATURES under 545 (item 569's gate), applied when the
+button is built and live by the app when the preference changes. The API
+functions in spacr.mask_io are not gated (API, not GUI).

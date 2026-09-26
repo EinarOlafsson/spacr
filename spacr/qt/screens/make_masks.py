@@ -8115,8 +8115,10 @@ class MakeMasksScreen(QWidget):
     def _build_roi_button(self) -> QPushButton:
         """The "ROIs" button: masks out to and in from QuPath, Fiji and COCO.
 
-        An ALPHA feature (item 545): the button is shown only while
-        Preferences -> "Show alpha features" is on. Its menu exports the
+        An ALPHA feature (item 545): the button is registered as
+        ``MakeMasksRoisButton`` in :data:`spacr.settings.ALPHA_FEATURES`, so
+        it is shown only while Preferences -> "Show alpha features" is on.
+        Its menu exports the
         field on screen or every field of the folder or queue, and imports a
         file back into the field on screen or into every field, through
         :func:`spacr.mask_io.export_rois` and
@@ -8125,7 +8127,7 @@ class MakeMasksScreen(QWidget):
         :returns: the button, with its menu.
         """
         from ..i18n import tr
-        from ..preferences import maturity_is_visible
+        from ..preferences import _apply_alpha_widgets
 
         button = QPushButton(tr("ROIs…"), self)
         button.setCursor(Qt.PointingHandCursor)
@@ -8170,7 +8172,8 @@ class MakeMasksScreen(QWidget):
                 lambda _checked=False, run=slot: run())
             self._roi_actions[key] = action
         button.setMenu(menu)
-        button.setVisible(maturity_is_visible("alpha"))
+        button.setObjectName("MakeMasksRoisButton")
+        _apply_alpha_widgets(button)
         self._btn_rois = button
         return button
 

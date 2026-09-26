@@ -2247,10 +2247,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 474: +2 function, +1 method.
         # 2026-09-26: +24 function (+26 / -2), +29 method, +3 constructor
         # (ColumnTextScale, DockEdge, DiameterDialog); see the callable total.
-        "function": 4_365,
+        # Item 545: +14 function (mask_io), +4 method (MakeMasksScreen).
+        "function": 4_379,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_234,
+        "method": 4_238,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         "constructor": 452,
@@ -2304,7 +2305,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,522 -> 9,630 -> 9,640 -> 9,687 on 2026-09-25, as the total.
         # 9,716 -> 9,727 with item 528's eleven, as the total.
         # 9,730 -> 9,784 on 2026-09-26, +56 / -2, as the total.
-        "autoapi": 9_784,
+        # 9,784 -> 9,802 with item 545's eighteen, as the total.
+        "autoapi": 9_802,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2353,7 +2355,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 9,534 -> 9,642 -> 9,652 -> 9,699 on 2026-09-25: +108, +10, +47.
     # 9,728 -> 9,739 with item 528's eleven, one prose variant each.
     # 9,742 -> 9,796 on 2026-09-26, +56 / -2 with the total, one each.
-    assert sum(item.variant_count for item in callables) == 9_796
+    # 9,796 -> 9,814 with item 545's eighteen, one prose variant each.
+    assert sum(item.variant_count for item in callables) == 9_814
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2367,7 +2370,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # two-variant ones are unmoved.
         # 9,520 -> 9,628 -> 9,638 -> 9,685 on 2026-09-25, as the sum above.
         # 9,725 -> 9,782 on 2026-09-26, as the sum above.
-        1: 9_782,
+        # 9,782 -> 9,800 with item 545, as the sum above.
+        1: 9_800,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2571,7 +2575,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # callables (474's three included), -3 with prerun's two retired diameter
     # helpers, +13 optional keywords on ten existing callables (named at the
     # digest below).
-    assert sum(len(item.parameters) for item in callables) == 19_385
+    # 19,385 -> 19,444 on 2026-09-26, +59, all on item 545's eighteen
+    # roi_callables; no existing signature changed.
+    assert sum(len(item.parameters) for item in callables) == 19_444
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2610,7 +2616,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 9,935 -> 9,991 on 2026-09-26 against 4f6c58418: +59 on the new
     # callables, -2 with the retired diameter helpers, and -1 because
     # model_share.contribute's `token` is no longer required.
-    assert sum(len(item.required_parameters) for item in callables) == 9_991
+    # 9,991 -> 10,016 on 2026-09-26, +25, all on item 545's eighteen.
+    assert sum(len(item.required_parameters) for item in callables) == 10_016
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2731,7 +2738,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # MeasurementComparePanel: results; read_run_tables: progress;
     # suggest_from_scores: withhold_rejected; ctc_pairs: gaps) or, for
     # model_share.contribute, made `token` optional.
-) == "d61713278b8e524a064a88137dff4909463b36c11c1cd8574c589d65919d4174"
+    # Moved 2026-09-26 for item 545, proved by subtraction: dropping its
+    # eighteen roi_callables rows returns d6171327..., the previous pin,
+    # byte for byte.
+) == "82154dd92cd785cedd0c7f5f21ab354c77c5780511b153658a11ea54573822fe"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3542,11 +3552,24 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     assert len(final_pass_callables) == 59
     assert final_pass_callables <= rendered_documented_callables.keys()
+    roi_callables = {
+        f"spacr.mask_io.{name}" for name in (
+            "object_polygons", "masks_to_geojson", "geojson_to_masks",
+            "masks_to_roiset", "roiset_to_masks", "rle_encode", "rle_decode",
+            "masks_to_coco", "coco_image_names", "coco_to_masks",
+            "roi_format", "roi_suffix", "export_rois", "import_rois")
+    } | {
+        f"spacr.qt.screens.make_masks.MakeMasksScreen.{name}" for name in (
+            "export_field_rois", "export_all_rois", "import_field_rois",
+            "import_all_rois")
+    }
+    assert len(roi_callables) == 18
+    assert roi_callables <= rendered_documented_callables.keys()
     prior = (rendered_documented_callables.keys() - incoming_callables
              - quality_and_host_callables - classification_callables - example_callables
              - preview_callables - current_additions - session_callables
              - rebase_callables - merged_callables
-             - final_pass_callables) | {
+             - final_pass_callables - roi_callables) | {
                  "spacr.qt.app.demo_label_for_app",
                  "spacr.qt.widgets.plaque_preview.render_cellprob"}
     # 9,442 -> 9,471 on 2026-09-25: item 523 plus nightly b315c0342's rows.
@@ -3558,7 +3581,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
-    assert len(rendered_documented_callables) == 9_784
+    # 9,802 with item 545's eighteen roi_callables.
+    assert len(rendered_documented_callables) == 9_802
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

@@ -1,7 +1,8 @@
 """Item 545 in Make Masks: the field on screen or the whole queue, out and back.
 
 Driven offscreen through the screen's own methods (the file dialogs are the
-only part not exercised). The button is an ALPHA feature: shown only while
+only part not exercised). The button is an ALPHA feature, registered as
+``MakeMasksRoisButton`` in ``spacr.settings.ALPHA_FEATURES``: shown only while
 Preferences -> "Show alpha features" is on.
 """
 from __future__ import annotations
@@ -61,10 +62,16 @@ def test_the_button_is_hidden_unless_alpha_features_are_shown(
     from spacr.qt.screens.make_masks import MakeMasksScreen
 
     for shown in (False, True):
-        monkeypatch.setattr(preferences, "get_show_alpha", lambda s=shown: s)
+        monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                            lambda s=shown: s)
         widget = MakeMasksScreen()
         qtbot.addWidget(widget)
-        assert widget._btn_rois.isVisibleTo(widget) is shown
+        assert widget._btn_rois.objectName() == "MakeMasksRoisButton"
+        assert widget._btn_rois.isHidden() is not shown
+        monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                            lambda s=shown: not s)
+        preferences._apply_alpha_widgets(widget)
+        assert widget._btn_rois.isHidden() is shown
 
 
 @pytest.mark.parametrize("fmt,suffix", (("geojson", ".geojson"),
