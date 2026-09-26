@@ -1,0 +1,448 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#3",
+      "source": "absolute spread between the largest and smallest interval that still counts as constant.",
+      "source_sha256": "c86b78cc428de2a45e8ed743943a917d686039cc2f0261f1bafdcd66ab6c1a1b",
+      "context": "absolute spread between the largest and smallest interval that still counts as constant.",
+      "translation": "dispersão absoluta entre o maior e o menor intervalo que ainda conta como constante.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.frame_interval_summary#4",
+      "source": "dict with ``interval``, ``spread``, ``source`` (``'measured'``, ``'stated'`` or ``'missing'``) and ``verdict``.",
+      "source_sha256": "32debbb4e5f55f6839c4a1d15643d0048ff7f057441132962406ed1c4c82ef7a",
+      "context": "key-value mapping with ``interval``, ``spread``, ``source`` (``'measured'``, ``'stated'`` or ``'missing'``) and ``verdict``.",
+      "translation": "dicionário com ``interval``, ``spread``, ``source`` (``'measured'``, ``'stated'`` ou ``'missing'``) e ``verdict``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_frames#0",
+      "source": "Measure every labelled object in every frame.",
+      "source_sha256": "639c15640edef566f7bd8f8fdd10a74860aba43995a594dbc4665b8737b2186f",
+      "context": "Measure every labelled object in every frame.",
+      "translation": "Mede cada objeto rotulado em cada quadro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_frames#2",
+      "source": "``DataFrame`` with one row per object per frame and the columns ``frame``, ``label``, ``area``, ``y``, ``x`` and ``diameter``, where the diameter is the area-equivalent circle diameter in pixels.",
+      "source_sha256": "909c273d6b155b58a8db1510fcdb07232e7d48f6736b40b16fe70211ba239189",
+      "context": "``DataFrame`` with one row per object per frame and the columns ``frame``, ``label``, ``area``, ``y``, ``x`` and ``diameter``, where the diameter is the area-equivalent circle diameter in pixels.",
+      "translation": "``DataFrame`` com uma linha por objeto por quadro e as colunas ``frame``, ``label``, ``area``, ``y``, ``x`` e ``diameter``, em que o diâmetro é o diâmetro, em pixels, do círculo de mesma área.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_spans#0",
+      "source": "Summarise where each label lives in the movie.",
+      "source_sha256": "4da880ca45a65e63e90b39e4c7ccd2cdd56eb3dd1744649cda2842a757f084f8",
+      "context": "Summarise where each label lives in the movie.",
+      "translation": "Resume onde cada rótulo aparece no filme.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.label_spans#2",
+      "source": "``DataFrame`` with one row per label carrying ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` and ``missing_frames``. ``n_missing`` counts frames between the first and the last appearance in which the label is absent, which is the only kind of gap that can hide a recycled id.",
+      "source_sha256": "098de28ac9d91e9335c7456ce07899feee9923fbb6acfbca2cd1634adc89c75b",
+      "context": "``DataFrame`` with one row per label carrying ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` and ``missing_frames``. ``n_missing`` counts frames between the first and the last appearance in which the label is absent, which is the only kind of gap that can hide a recycled id.",
+      "translation": "``DataFrame`` com uma linha por rótulo contendo ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` e ``missing_frames``. ``n_missing`` conta os quadros entre a primeira e a última aparição em que o rótulo está ausente, que é o único tipo de lacuna capaz de esconder um id reciclado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#0",
+      "source": "Read a label stack from a file or a folder of frames.",
+      "source_sha256": "3ce10360e6b4bfd1140accfef03fe58087ea8594863ba64126d1547a1aa25ebd",
+      "context": "Read a label stack from a file or a folder of frames.",
+      "translation": "Lê uma pilha de rótulos de um arquivo ou de uma pasta de quadros.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#1",
+      "source": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
+      "source_sha256": "7c1049011d7348f225794f7036a8746f04e2b2a08a27444793a106753b22b15e",
+      "context": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
+      "translation": "arquivo ``.npy``, arquivo ``.tif``/``.tiff`` ou uma pasta com um arquivo por quadro, lidos em ordem alfabética de nome.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#2",
+      "source": "``(T, Y, X)`` integer array.",
+      "source_sha256": "bbd223fe617db5d8c97f14a5c4f5ce36d5e8f12ab99030ac871ce0236281d03f",
+      "context": "``(T, Y, X)`` integer array.",
+      "translation": "array de inteiros ``(T, Y, X)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.load_label_stack#3",
+      "source": "when the folder holds nothing readable, or the suffix is not one of the three above.",
+      "source_sha256": "2c99e07ce0cfbe7a3b80d84b5acbc08c820d560b9b0eedd91f06185cf3ad45f7",
+      "context": "when the folder holds nothing readable, or the suffix is not one of the three above.",
+      "translation": "quando a pasta não contém nada legível ou o sufixo não é um dos três acima.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#0",
+      "source": "Run the QC over one or more label stacks and print the table.",
+      "source_sha256": "296dd7c61debdc466a8f4dd0fa40afdaf9f72015f2b26ee4ad976c9328a75195",
+      "context": "Run the QC over one or more label stacks and print the table.",
+      "translation": "Executa o QC sobre uma ou mais pilhas de rótulos e imprime a tabela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#1",
+      "source": "command line arguments; ``sys.argv[1:]`` when ``None``.",
+      "source_sha256": "a6bb0bb1668e347e033a2bc7a19927342d952fb8b8c62135b53e513e4bb5ccba",
+      "context": "command line arguments; ``sys.argv[1:]`` when ``None``.",
+      "translation": "argumentos de linha de comando; ``sys.argv[1:]`` quando ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.main#2",
+      "source": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
+      "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
+      "context": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
+      "translation": "``0`` quando nenhuma verificação falhou, ``1`` quando alguma falhou. Uma falha aqui é uma afirmação sobre a ANOTAÇÃO, não sobre este programa: significa que os dados não sustentam o que o plano do timeflows pressupõe sobre eles.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#0",
+      "source": "List every label that disappears and comes back, and judge each one.",
+      "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
+      "context": "List every label that disappears and comes back, and judge each one.",
+      "translation": "Lista cada rótulo que desaparece e depois volta, e avalia cada um.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#1",
+      "source": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
+      "source_sha256": "c1baf2ba619a070b8a036b9c4e851c5944b6ba9cbd3df487d2faeb53c57e8a6f",
+      "context": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
+      "translation": "Um id reciclado -- o mesmo número dado a um objeto não relacionado depois que o primeiro saiu -- é o defeito ao qual todo o plano está exposto, e ele parece exatamente uma lacuna de rastreamento de um quadro. O que os distingue é a distância: um objeto real que deixou de ser detectado em um quadro é reencontrado perto de onde estava e, em geral, ainda sobrepondo a própria máscara. Por isso, cada lacuna é relatada com a distância percorrida por quadro ausente, a sobreposição entre a máscara antes da lacuna e a máscara depois dela, e a distância que um objeto contínuo nos mesmos dados percorre em um quadro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#3",
+      "source": "the table :func:`label_frames` returns, when it has already been measured. Measured here when ``None``.",
+      "source_sha256": "a37a91151f2c9e8cdb75d2ceb12e52596b7b35f2a1378bf7b171bbaa26c012cd",
+      "context": "the table :func:`label_frames` returns, when it has already been measured. Measured here when ``None``.",
+      "translation": "a tabela que :func:`label_frames` retorna, quando já foi medida. É medida aqui quando ``None``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#4",
+      "source": "distance per missing frame, in pixels, above which a gap is called reuse. ``None`` measures it from the data as :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the continuous per-frame displacement, falling back to the median object diameter when nothing in the stack survives a frame.",
+      "source_sha256": "a9077fc5c166b691a4775d18b8fc343f6d49625da56001ab10051db081a4d052",
+      "context": "distance per missing frame, in pixels, above which a gap is called reuse. ``None`` measures it from the data as :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the continuous per-frame displacement, falling back to the median object diameter when nothing in the stack survives a frame.",
+      "translation": "distância por quadro ausente, em pixels, acima da qual uma lacuna é classificada como reutilização. ``None`` a mede a partir dos dados como :data:`REUSE_DISPLACEMENT_FACTOR` vezes o percentil 95 do deslocamento contínuo por quadro, recorrendo ao diâmetro mediano dos objetos quando nada na pilha sobrevive a um quadro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc.recycled_labels#5",
+      "source": "``DataFrame`` with one row per gap: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and ``verdict`` (``'gap'`` or ``'reuse-suspected'``).",
+      "source_sha256": "826d4e20a58bc4247ec0b1e1b919f6b4668201552844dbca4e3f6f323f2db3b7",
+      "context": "``DataFrame`` with one row per gap: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and ``verdict`` (``'gap'`` or ``'reuse-suspected'``).",
+      "translation": "``DataFrame`` com uma linha por lacuna: ``label``, ``gap_start``, ``gap_end``, ``gap_frames``, ``displacement``, ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` e ``verdict`` (``'gap'`` ou ``'reuse-suspected'``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timelapse.automated_motility_assay#2",
+      "source": "dict of assay settings; see ``get_automated_motility_assay_default_settings`` for keys including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
+      "source_sha256": "6b64508bcb3db07b855edf6e851ab479a8ebcab82a7751e795d3f9f19a58adda",
+      "context": "key-value mapping of assay settings; see ``get_automated_motility_assay_default_settings`` for structured-data names including ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim``, and ``reuse_existing_measurements``.",
+      "translation": "dicionário de configurações do ensaio; veja ``get_automated_motility_assay_default_settings`` para as chaves, incluindo ``src``, ``db_table_name``, ``n_jobs``, ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``, ``infection_intensity_strategy``, ``infection_intensity_mode``, ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``, ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``, ``infection_hist_percentile``, ``make_mask_panel``, ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``, ``motility_origin_xlim``, ``motility_origin_ylim`` e ``reuse_existing_measurements``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.uniprot.Resolution#1",
+      "source": "``'bundled'``, ``'accession'``, ``'organism'`` or ``'unknown'``.",
+      "source_sha256": "87346797c09dc811073f7e2efb9ff89bc954c2d6f4c027567c6d94037f26da5a",
+      "context": "``'bundled'``, ``'accession'``, ``'organism'`` or ``'unknown'``.",
+      "translation": "``'bundled'``, ``'accession'``, ``'organism'`` ou ``'unknown'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater#5",
+      "source": "It also answers Home's News panel, through :func:`fetch_release_notes`: the published releases, cached for a day, so a running copy can show a release newer than the one bundled in its own wheel.",
+      "source_sha256": "0e7dc016793ee4ca9c3efac211012bb100c2424a61828b5b80dd3417f193c667",
+      "context": "It also answers Home's News panel, through :func:`fetch_release_notes`: the published releases, cached for a day, so a running copy can show a release newer than the one bundled in its own wheel.",
+      "translation": "Também atende o painel de Notícias da tela Início, por meio de :func:`fetch_release_notes`: as versões publicadas, mantidas em cache por um dia, para que uma cópia em execução possa mostrar uma versão mais nova que a incluída no próprio wheel.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.PackageChange.describe#0",
+      "source": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
+      "source_sha256": "1fb0f487a65bf4e090df523d3d710ba630a6eade161a41d22857ef2a0f6650fa",
+      "context": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
+      "translation": "``'numpy 1.26.4 -> 2.2.6'`` ou ``'cuml-cu12 26.8.0 (new)'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#0",
+      "source": "The repository's releases, newest first, or ``[]``.",
+      "source_sha256": "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
+      "context": "The repository's releases, newest first, or ``[]``.",
+      "translation": "As versões publicadas do repositório, da mais nova para a mais antiga, ou ``[]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#1",
+      "source": "NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
+      "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
+      "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
+      "translation": "NUNCA CHAME ISTO NA THREAD DA GUI. Esta função abre um socket. O painel de Notícias da tela Início a solicita pelo mesmo :class:`_UpdateWorker` em que a verificação manual de atualizações é executada, depois que a página já foi exibida.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#2",
+      "source": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
+      "source_sha256": "9c8f9d735106e346dcb83b0bdd2b598bca41999abde8f32fc6bc56166655395f",
+      "context": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
+      "translation": "Sem autenticação, porque a alternativa seria um token que o usuário não tem. Isso significa o limite de requisições compartilhado por endereço, e é por isso que a resposta fica em cache por um dia e toda falha é silenciosa: o ``spacr/resources/release_notes.json`` incluído continua sendo a fonte de verdade offline, e uma lista vazia simplesmente o deixa como está.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#3",
+      "source": "request timeout in seconds. Short on purpose.",
+      "source_sha256": "683518d92d4d70fc6ea8b92a696d78f230cda680870e99eec4cc2dfa61b68c30",
+      "context": "request timeout in seconds. Short on purpose.",
+      "translation": "tempo limite da requisição, em segundos. Curto de propósito.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#4",
+      "source": "how old a cached answer may be before it is asked again, in seconds.",
+      "source_sha256": "9b0b3f334aeb242980613aa333fbc09ab61078ae0ed1724ad3401262b7ffa1ec",
+      "context": "how old a cached answer may be before it is asked again, in seconds.",
+      "translation": "idade máxima, em segundos, de uma resposta em cache antes que ela seja solicitada de novo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.fetch_release_notes#5",
+      "source": "release records shaped like the bundled resource's, or an empty list when the answer is unavailable for any reason at all.",
+      "source_sha256": "b6df52cba5b0cb072e39cd81c374730d8a36e4857495705144f09ff1fdec9b26",
+      "context": "release records shaped like the bundled resource's, or an empty list when the answer is unavailable for any reason at all.",
+      "translation": "registros de versões no mesmo formato do recurso incluído, ou uma lista vazia quando a resposta não está disponível por qualquer motivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#0",
+      "source": "Launch the updated Qt application after the old event loop has stopped.",
+      "source_sha256": "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
+      "context": "Launch the updated Qt application after the old event loop has stopped.",
+      "translation": "Inicia o aplicativo Qt atualizado depois que o antigo laço de eventos terminou.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#1",
+      "source": "process identifier of the detached replacement application.",
+      "source_sha256": "df7bffe98977459e3629ebbd6df90bf7b5a73b2f150eb0f13c1399867f7646e4",
+      "context": "process identifier of the detached replacement application.",
+      "translation": "identificador do processo do aplicativo substituto desanexado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.launch_updated_app#2",
+      "source": "the replacement could not be started.",
+      "source_sha256": "c1bc615c92ef69f5875a3aacdfa3c47b58cb0e8561a586baa8e7151397d4806d",
+      "context": "the replacement could not be started.",
+      "translation": "não foi possível iniciar o substituto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.news_cache_path#0",
+      "source": "Where the fetched release list is remembered between launches.",
+      "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
+      "context": "Where the fetched release list is remembered between launches.",
+      "translation": "Onde a lista de versões obtida é guardada entre uma inicialização e outra.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.run_pip_upgrade#2",
+      "source": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "source_sha256": "0d823b21391fd6e582c7f79a809383d7870af304a14633c0cd3a95dab6e867eb",
+      "context": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
+      "translation": "instala exatamente esta versão oferecida e a verifica em um processo novo antes de relatar sucesso. None mantém uma atualização sem versão fixada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#0",
+      "source": "Upgrade this interpreter, optionally to the exact version offered.",
+      "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
+      "context": "Upgrade this interpreter, optionally to the exact version offered.",
+      "translation": "Atualiza este interpretador, opcionalmente para a versão exata oferecida.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "allow prerelease packages.",
+      "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
+      "context": "allow prerelease packages.",
+      "translation": "permite pacotes de pré-lançamento.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.updater.upgrade_command#2",
+      "source": "explicit version selected by the update check.",
+      "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
+      "context": "explicit version selected by the update check.",
+      "translation": "versão explícita selecionada pela verificação de atualizações.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.ResNet.initialize_base#4",
+      "source": "``'imagenet'`` or ``'none'``.",
+      "source_sha256": "96f001c0da20357e41ea89d5767ceb0cebd011f10fee5ccfb7e63b904bf5d433",
+      "context": "``'imagenet'`` or ``'none'``.",
+      "translation": "``'imagenet'`` ou ``'none'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#10",
+      "source": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every field finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected field set.",
+      "source_sha256": "0b483d7e974fd7bf8fed14df4cbebc83f61407b8f7b7e074e855fc405e605482",
+      "context": "if the three folders contain different numbers of files or mismatched filenames, or a mask is truncated, nonnumeric, empty, not two-dimensional or has different dimensions from its partners. Available organelle masks are checked too. Header-only validation of every microscope field of view finishes before any mask is changed or workers are started. An explicit output folder must differ from every source folder and must not contain masks outside the selected microscope field of view set.",
+      "translation": "se as três pastas contêm números diferentes de arquivos ou nomes de arquivo que não correspondem, ou se uma máscara está truncada, não é numérica, está vazia, não é bidimensional ou tem dimensões diferentes das máscaras correspondentes. As máscaras de organelas disponíveis também são verificadas. A validação apenas dos cabeçalhos de todos os campos termina antes que qualquer máscara seja alterada ou que qualquer worker seja iniciado. Uma pasta de saída explícita deve ser diferente de todas as pastas de origem e não pode conter máscaras fora do conjunto de campos selecionado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.adjust_cell_masks#8",
+      "source": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected field is rebuilt from its source on each invocation, including after interrupted work.",
+      "source_sha256": "467d09c9e1f87bf1f27ef4d0e376a132dfc8dede5e04feec25be780793b6a2b3",
+      "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work.",
+      "translation": "pasta separada opcional para as máscaras ajustadas. None preserva o comportamento histórico de ajuste no próprio local. Uma pasta separada mantém todas as máscaras de origem idênticas byte a byte, e cada campo selecionado é reconstruído a partir da origem em cada chamada, inclusive após um trabalho interrompido.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#3",
+      "source": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "source_sha256": "31f7b901992dd6f980688625984d84045eaa65d0a70d4eef3a0b87d167ceffdd",
+      "context": "accepted for the callers that pass it. Only structurally complete mask arrays are counted whether or not it is set, so an empty or truncated array left by an interrupted run is re-queued.",
+      "translation": "aceito para os chamadores que o passam. Apenas arrays de máscara estruturalmente completos são contados, esteja ele definido ou não, de modo que um array vazio ou truncado deixado por uma execução interrompida volta para a fila.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.check_mask_folder#4",
+      "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
+      "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
+      "context": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing microscope field of view and do not force complete microscope fields of view to execute again.",
+      "translation": "``True`` quando a pasta de máscaras não existe ou quando algum nome de arquivo de pilha esperado não tem uma máscara completa. Máscaras não relacionadas não podem substituir um campo ausente e não obrigam campos completos a serem processados de novo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.lasso_reg#3",
+      "source": "``'lasso'`` or ``'ridge'``.",
+      "source_sha256": "d87fa963235100757ae8ed6593bae68208f8fc409a82246858a5a52fddf2f82d",
+      "context": "``'lasso'`` or ``'ridge'``.",
+      "translation": "``'lasso'`` ou ``'ridge'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.measure_test_mode#2",
+      "source": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a field. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which plane is which, and a ``test/merged`` without it is read as a legacy folder, against the default plane order.",
+      "source_sha256": "a2d5c1b9d11d5a9d6577513db0262d1fd5101ac12e26bd74ef1e43e1b4efeade",
+      "context": "Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never measured in place of a microscope field of view. The folder's ``.spacr_plane_layout.json`` is copied across as well when it exists: it is what says which image layer is which, and a ``test/merged`` without it is read as a legacy folder, against the default image layer order.",
+      "translation": "Somente arrays ``.npy`` visíveis são amostrados, de modo que um arquivo auxiliar ``._`` do macOS nunca é medido no lugar de um campo. O ``.spacr_plane_layout.json`` da pasta também é copiado quando existe: é ele que diz qual plano é qual, e um ``test/merged`` sem ele é lido como uma pasta legada, segundo a ordem padrão dos planos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.merge_split_objects#14",
+      "source": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "source_sha256": "4de9b1bac442db49e4259666396b504d6cea95e039ed10d68ce1974c225f7c6f",
+      "context": "object filter entries (any scalar regionprop with a minimum and a maximum), judged with the bounds above in one pass.",
+      "translation": "entradas de filtro de objetos (qualquer regionprop escalar com um mínimo e um máximo), avaliadas com os limites acima em uma única passagem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.preprocess_data#7",
+      "source": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "source_sha256": "a9f96a9d58b325a2d70df263552d73dd8c68dfdba5be167f70e0dcd418571ecf",
+      "context": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` or ``combat``.",
+      "translation": "``none``, ``center``, ``zscore``, ``robust_zscore``, ``control_center`` ou ``combat``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#10",
+      "source": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "source_sha256": "76b0e4af2a3fc6d2357c3b9f80f7433cc87f90478ca56302d89f698e65e6cacb",
+      "context": "if the matching cell or nuclei mask file is missing, or a mask file holds pickled objects: masks are plain arrays, and nothing is unpickled.",
+      "translation": "se o arquivo de máscara de célula ou de núcleo correspondente estiver ausente, ou se um arquivo de máscara contiver objetos serializados com pickle: máscaras são arrays simples, e nada é desserializado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#3",
+      "source": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a run killed during the write leaves the previous whole mask, never a truncated one.",
+      "source_sha256": "40d7b307f3b754fd749a196f732cca4b0ebdfbed5a27dae5238e1a060c132a31",
+      "context": "folder of cell masks (overwritten in place). The adjusted mask replaces the old one atomically, so a processing session killed during the write leaves the previous whole mask, never a truncated one.",
+      "translation": "pasta de máscaras de células (sobrescritas no próprio local). A máscara ajustada substitui a antiga de forma atômica, de modo que uma execução interrompida durante a gravação deixa a máscara anterior inteira, nunca uma truncada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.process_mask_file_adjust_cell#8",
+      "source": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "source_sha256": "f8c93a039ab2ba106c1d26d3d9460fc245fca4618e2ef00bbae69f77142870cf",
+      "context": "optional separate destination for adjusted masks. None retains in-place adjustment. An explicit destination must differ from every source mask folder, including through directory symlinks.",
+      "translation": "destino separado opcional para as máscaras ajustadas. None mantém o ajuste no próprio local. Um destino explícito deve ser diferente de todas as pastas de máscaras de origem, inclusive por meio de links simbólicos de diretório.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#7",
+      "source": "``'dbscan'`` or ``'kmeans'``.",
+      "source_sha256": "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
+      "context": "``'dbscan'`` or ``'kmeans'``.",
+      "translation": "``'dbscan'`` ou ``'kmeans'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.utils.search_reduction_and_clustering#8",
+      "source": "``'umap'`` or ``'tsne'``.",
+      "source_sha256": "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
+      "context": "``'umap'`` or ``'tsne'``.",
+      "translation": "``'umap'`` ou ``'tsne'``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.validate.validate_settings#1",
+      "source": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is run.",
+      "source_sha256": "2d227b6d455184e300aee08b223db31e785aacf26c66d29ca620ba9d1607f878",
+      "context": "Image data are checked through headers and directory listings. An enabled PSF also loads its size-limited kernel to validate calibration and values; no image processing or GPU inference is executed.",
+      "translation": "Os dados de imagem são verificados por meio de cabeçalhos e listagens de diretório. Uma PSF ativada também carrega seu kernel de tamanho limitado para validar a calibração e os valores; nenhum processamento de imagem nem inferência em GPU é executado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.workspace.save#4",
+      "source": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "source_sha256": "a346a4ae4445c5dc4561ae4ad35ae319000466eb9c1891dca8984101a62ce716",
+      "context": "``'off'``, ``'reference'``, or ``'copy'``.",
+      "translation": "``'off'``, ``'reference'`` ou ``'copy'``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes#2",
+      "source": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "source_sha256": "b1cd5d7b1f5318210eed9d03ee95f35b395bf4ad0eaf117296a216030c7f9e2b",
+      "context": "``(Z, Y, X)`` or ``(Z, Y, X, C)``.",
+      "translation": "``(Z, Y, X)`` ou ``(Z, Y, X, C)``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes_4d#4",
+      "source": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "source_sha256": "fde87c2383a2d70fb2c91dde4d3faa2d1ceb0b76201245a613cfe1e501a11f75",
+      "context": "``(T, Z, Y, X)`` or ``(T, Z, Y, X, C)``.",
+      "translation": "``(T, Z, Y, X)`` ou ``(T, Z, Y, X, C)``.",
+      "review_basis": "MT draft kept after AI review"
+    },
+    {
+      "label": "spacr.zstack.format_4d#2",
+      "source": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "source_sha256": "cdea53d430d950ea001e7e755164a8faffff42e026296f0452b52aacfaa161b4",
+      "context": "a :class:`TStackResult` or a :class:`TrackResult`.",
+      "translation": "um :class:`TStackResult` ou um :class:`TrackResult`.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  ]
+}
