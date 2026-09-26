@@ -3,9 +3,8 @@ EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
 Status:    2026-09-25: DONE here; remaining: docs lane only -- the
-           consolidated i18n pass ("Loading stopped" missing in hi/is; the
            quiet_crop_paths docstring in the reviewed API packs other than
-           de). Today the Embeddings tile was redrawn from 527's new outline
+           de ("Loading stopped" reached hi/is on nightly the same day). Today the Embeddings tile was redrawn from 527's new outline
            icon, which had left the README guard red.
            ~95%, 2026-09-20. Every part of the REQUEST is built and
            measured: equal gutters, Make Masks the only module section the
@@ -894,3 +893,6 @@ qt/test_the_embedding_screen_loads_its_own_crops) 117 passed.
 REMAINING (docs lane): "Loading stopped" is translated in de/es/fr/ko/pt/
 zh_CN but not hi/is; spacr.crops.quiet_crop_paths is in the reviewed API
 pack for de only. No code is owed under 366.
+
+2026-09-25, after merging nightly: the hi/is runtime catalogs now carry
+this item's strings (checked by grep of spacr/qt/i18n_catalogs/hi.py, is.py).
