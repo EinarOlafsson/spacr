@@ -693,6 +693,58 @@ def read_label_mask(path: Any) -> Any:
     return labels
 
 
+def _image_size(path: Any) -> Optional[Tuple[int, int]]:
+    """An image file's ``(height, width)`` from its header, or None.
+
+    A TIFF is read through its series axes, so a channel or z axis in front
+    of Y and X does not count as a size; anything else goes through PIL.
+    None when the file cannot be read this way, so a format only a reader
+    plug-in knows is left for the reviewer rather than refused.
+    """
+    path = Path(str(path))
+    try:
+        if path.suffix.lower() in (".tif", ".tiff"):
+            import tifffile
+
+            with tifffile.TiffFile(str(path)) as tif:
+                series = tif.series[0]
+                axes, shape = str(series.axes), tuple(series.shape)
+            if "Y" in axes and "X" in axes:
+                return int(shape[axes.index("Y")]), int(shape[axes.index("X")])
+            return None
+        from PIL import Image
+
+        with Image.open(path) as handle:
+            width, height = handle.size
+        return int(height), int(width)
+    except Exception:
+        return None
+
+
+def _size_mismatches(items: Any) -> list:
+    """Masks-layout items whose source image and mask differ in size.
+
+    :returns: one ``"name: image W x H, mask W x H"`` line per mismatch.
+    """
+    import numpy as np
+
+    out = []
+    for item in items:
+        labels = item.get("labels")
+        if labels is None or not item.get("source"):
+            continue
+        shape = np.asarray(labels).shape
+        if len(shape) < 2:
+            continue
+        size = _image_size(item["source"])
+        if size is None or size == (int(shape[0]), int(shape[1])):
+            continue
+        out.append(f"{item.get('name') or Path(str(item['source'])).name}: "
+                   f"image {size[1]} x {size[0]}, "
+                   f"mask {int(shape[1])} x {int(shape[0])}")
+    return out
+
+
 def write_contribution(target: str, items: Any, dest: Any, *,
                        consent: Dict[str, Any],
                        contribution_id: str = "", notes: str = "") -> Path:
@@ -700,7 +752,10 @@ def write_contribution(target: str, items: Any, dest: Any, *,
 
     Refuses the whole contribution when any image has no annotation: an
     image without boxes or masks teaches a model that it holds nothing,
-    which is almost never true of an image somebody chose to send.
+    which is almost never true of an image somebody chose to send. In the
+    masks layout it also refuses, before writing anything, any image whose
+    mask is not the image's own size, naming each one with both sizes: a
+    mask of another size does not lie on its image.
 
     :param target: ``"figures"`` (boxes layout), ``"plaques"`` or any other
         community name (masks layout); see :func:`community_repo`.
@@ -739,6 +794,13 @@ def write_contribution(target: str, items: Any, dest: Any, *,
     if bare:
         raise ValueError("these images have no annotations and cannot be "
                          "sent: " + ", ".join(bare))
+    if layout != BOXES_LAYOUT:
+        mismatched = _size_mismatches(items)
+        if mismatched:
+            raise ValueError(
+                "these images and their masks are not the same size (width x "
+                "height, in pixels), so the masks would not lie on the "
+                "images: " + "; ".join(mismatched))
     repo_id = community_repo(target)
     stamp = datetime.datetime.now(datetime.timezone.utc)
     ident = contribution_id or (stamp.strftime("%Y%m%d-%H%M%S-")

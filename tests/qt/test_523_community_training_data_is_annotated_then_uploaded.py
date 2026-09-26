@@ -332,3 +332,93 @@ def test_the_consent_helper_asks_once_for_every_screen(prefs):
     assert msd.ask_community_consent(ask=lambda: asked.append(1) or True)
     assert msd.ask_community_consent(ask=lambda: asked.append(2) or True)
     assert asked == [1]
+
+
+def _widget_point_on(canvas, layer, label):
+    from PySide6.QtCore import QPoint
+
+    view = canvas._ensure_canvas()
+    for y in range(4, canvas.height() - 4, 3):
+        for x in range(4, canvas.width() - 4, 3):
+            around = {layer.label_at_world(view.world_at(y + dy, x + dx))
+                      for dy in (-4, -1, 0, 3) for dx in (-4, -1, 0, 3)}
+            if around == {label}:
+                return QPoint(x, y)
+    raise AssertionError(f"label {label} is not on screen")
+
+
+def test_a_whole_plaque_is_deleted_with_one_click_and_recorded(panel, qtbot, tmp_path):
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    image = _png(tmp_path / "well.png")
+    panel.load_source_async(str(tmp_path))
+    assert panel.run_preview(segment=_square)
+    upload = _Upload()
+    dialog = panel.contribute_training_data(upload=upload)
+    qtbot.addWidget(dialog)
+    _consent(dialog)
+    dialog.resize(900, 600)
+    dialog.show()
+    page = dialog.editor(image)
+    canvas = page.canvas
+    qtbot.waitUntil(lambda: canvas.width() > 100)
+    session = page.brush.session
+
+    page.delete_button.click()
+    assert page.delete_button.isChecked()
+    assert not page.brush.paint_button.isChecked()
+    assert canvas.tool is page._delete_tool
+
+    QTest.mouseClick(canvas, Qt.LeftButton, Qt.NoModifier,
+                     _widget_point_on(canvas, page.layer, 0))
+    assert set(np.unique(page.labels())) == {0, 1, 2}
+    assert [e.kind for e in session.log.edits] == []
+
+    QTest.mouseClick(canvas, Qt.LeftButton, Qt.NoModifier,
+                     _widget_point_on(canvas, page.layer, 2))
+    assert set(np.unique(page.labels())) == {0, 1}
+    assert int((page.labels() == 1).sum()) == 400
+    edit = session.log.edits[-1]
+    assert (edit.kind, edit.target, edit.n_changed) == ("delete", 2, 100)
+    assert page.deleted_objects() == [{"label": 2, "pixels": 100,
+                                       "seeded": True}]
+
+    QTest.keyClick(canvas, Qt.Key_Backspace)
+    assert set(np.unique(page.labels())) == {0, 1, 2}
+    assert page.deleted_objects() == []
+    assert session.log.edits[-1].kind == "undo"
+
+    QTest.mouseClick(canvas, Qt.LeftButton, Qt.NoModifier,
+                     _widget_point_on(canvas, page.layer, 2))
+    assert set(np.unique(page.labels())) == {0, 1}
+
+    page.brush.paint_button.click()
+    assert not page.delete_button.isChecked()
+    assert canvas.tool is page.brush.tool
+
+    assert dialog.upload()
+    folder, _kind = upload.calls[0]
+    meta = json.loads((folder / "meta" / "well.json").read_text())
+    assert meta["deleted_objects"] == [{"label": 2, "pixels": 100,
+                                        "seeded": True}]
+    assert meta["provenance"]["removed"] == [2]
+    assert meta["objects"] == 1
+
+
+def test_the_curation_session_deletes_a_whole_object_as_one_undoable_stroke():
+    from spacr.curation import MaskCuration
+    from spacr.layers import LayerStack
+
+    data = _square().astype(np.int64)
+    layer = LayerStack().add_labels(data.copy(), name="m")
+    session = MaskCuration(layer)
+    assert session.delete_object(0) is None
+    assert session.delete_object(9) is None
+    assert len(session.log) == 0
+    edit = session.delete_object(1)
+    assert (edit.kind, edit.target, edit.n_changed) == ("delete", 1, 400)
+    assert not (np.asarray(layer.data) == 1).any()
+    assert (np.asarray(layer.data) == 2).sum() == 100
+    session.undo()
+    assert np.array_equal(np.asarray(layer.data), data)

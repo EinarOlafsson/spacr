@@ -350,3 +350,26 @@ def test_a_save_after_an_edit_still_writes(screen, nested):
     written = imageio.imread(seed)
     assert not np.any(written[12:18, 12:18]), "the edit did not reach disk"
     assert "Saved" in screen._status_label.text()
+
+
+def test_an_edited_save_records_the_count_the_file_holds(screen, nested):
+    """ITEM 396: the count is taken after `canonical_labels`, not before.
+
+    The seed's label 1 lies in two pieces; an edit elsewhere on the field
+    keeps it that way, the save splits it, and the file holds three
+    objects. The record said two, the canvas's count before the split.
+    """
+    seed = _split_seed(nested)
+    queue = build_queue(nested, order="name")
+    assert screen.open_queue(queue) is True
+    screen._current_index = screen._image_files.index("f_01.tif")
+    screen._load_current()
+
+    edited = screen._canvas.mask.copy()
+    edited[12:14, 12:18] = 0
+    screen._canvas.mask = edited
+    screen._on_save()
+
+    on_disk = imageio.imread(seed)
+    assert int(np.count_nonzero(np.unique(on_disk))) == 3
+    assert read_status(nested)["f_01"].n_objects == 3
