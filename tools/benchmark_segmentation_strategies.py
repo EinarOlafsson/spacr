@@ -25,6 +25,11 @@ Datasets (read from spaCR's example-data cache, never modified):
   REFERENCE, not curated ground truth, so a Cellpose-SAM score on it would
   be circular and is not run. plate1_E01_1_1 is left out: StarDist's
   diameter reference (``_STARDIST_DIAMETER``) was measured on it.
+* ``bacteria_omnipose`` (opt-in, item 553): the seven bacteria images of
+  Omnipose's own ``docs/test_files`` (pinned commit, fetched into
+  ``<out>/../omnipose_test``), their first channel as the object, scored
+  against the ``masks/*_cp_masks.tif`` Omnipose ships beside them -- its own
+  saved output, a REFERENCE rather than independent ground truth.
 * ``training_sample``: the PV training-dataset samples of item 450
   (``mask_datasets/toxoplasma_pv_random2`` and ``toxoplasma_pv``), the fields
   with objects plus two curated negatives, minus any field already in
@@ -81,6 +86,12 @@ SAMPLES = (EXAMPLE / "mask_datasets/toxoplasma_pv_random2",
 NUCLEI_PLATE1 = EXAMPLE / "plate1/merged"
 NUCLEI_PLATE1_FIELDS = 4
 NUCLEI_PLATE1_HELD_OUT = "plate1_E01_1_1"
+OMNIPOSE_COMMIT = "2adc9aaaacee84107ecae230b00283706f27d157"
+OMNIPOSE_TESTS = (f"https://raw.githubusercontent.com/kevinjohncutler/"
+                  f"omnipose/{OMNIPOSE_COMMIT}/docs/test_files/")
+OMNIPOSE_IMAGES = ("Sample000033.png", "Sample000193.png", "Sample000252.png",
+                   "Sample000306.tiff", "caulo_15.tif", "e1t1_crop.tif",
+                   "ec_5I_t141xy5c1.tif")
 PV_MODELS = Path("/mnt/wd4tb/af3/projects/toxoplasma_pv_model")
 PV_SPLIT = PV_MODELS / "metrics/final_r6/split.csv"
 MODEL_SEARCH = (Path("/tmp/spacr-525-scratch/models"),)
@@ -141,6 +152,10 @@ BASE_MODELS = (
              "general", "instanseg:fluorescence_nuclei_and_cells#nuclei"),
     Strategy("instanseg_cells", "InstanSeg fluorescence, cells (item 552)",
              "general", "instanseg:fluorescence_nuclei_and_cells#cells"),
+    Strategy("omnipose_phase", "Omnipose bact_phase_omni (item 553)",
+             "general", "omnipose:bact_phase_omni"),
+    Strategy("omnipose_fluor", "Omnipose bact_fluor_omni (item 553)",
+             "general", "omnipose:bact_fluor_omni"),
     Strategy("pv_r2", "Toxoplasma PV v1 (cpsam r2)", "in_distribution",
              "@pv_r2"),
     Strategy("pv_r5", "Toxoplasma PV v2 (cpsam r5)", "in_distribution",
@@ -200,9 +215,21 @@ def _pv_split(path: Path) -> Dict[str, str]:
         return {row["stem"]: row["set"] for row in csv.DictReader(handle)}
 
 
-def collect_fields(names: List[str], split: Dict[str, str]) -> List[Field]:
+def collect_fields(names: List[str], split: Dict[str, str],
+                   out: Optional[Path] = None) -> List[Field]:
     """The fields of each named dataset, with their truth and diameter."""
     fields: List[Field] = []
+    if "bacteria_omnipose" in names:
+        folder = fetch_omnipose_tests(
+            (out or Path("/tmp/spacr-bench-scratch/cpu")).parent
+            / "omnipose_test")
+        for name in OMNIPOSE_IMAGES:
+            image = folder / name
+            item = _field("bacteria_omnipose", image,
+                          folder / "masks" / f"{image.stem}_cp_masks.tif",
+                          split)
+            item.extra["channel"] = "last0"
+            fields.append(item)
     if "toxo_pv" in names:
         for image in sorted(TOXO_PV.glob("*.tif")):
             truth = TOXO_PV / "ground_truth_masks" / image.name
@@ -246,12 +273,40 @@ def collect_fields(names: List[str], split: Dict[str, str]) -> List[Field]:
 
 
 def _read_plane(path, plane=None) -> np.ndarray:
-    """A TIFF, or one plane of a merged ``.npy`` stack (last axis)."""
+    """A TIFF or PNG, or one plane of a merged ``.npy`` stack (last axis).
+
+    ``plane='last0'`` takes the first plane of a last-axis RGB(A) image and
+    leaves a grey one alone.
+    """
     path = Path(path)
-    array = np.load(path) if path.suffix == ".npy" else tifffile.imread(path)
+    if path.suffix == ".npy":
+        array = np.load(path)
+    elif path.suffix.lower() == ".png":
+        import imageio.v3 as iio
+
+        array = np.asarray(iio.imread(path))
+    else:
+        array = tifffile.imread(path)
     if plane is None:
         return array
+    if plane == "last0":
+        return array[..., 0] if array.ndim == 3 else array
     return array[..., int(plane)] if path.suffix == ".npy" else array[int(plane)]
+
+
+def fetch_omnipose_tests(dest: Path) -> Path:
+    """Omnipose's own bacteria test images and masks, at a pinned commit."""
+    import urllib.request
+
+    (dest / "masks").mkdir(parents=True, exist_ok=True)
+    for name in OMNIPOSE_IMAGES:
+        stem = Path(name).stem
+        for remote in (name, f"masks/{stem}_cp_masks.tif"):
+            target = dest / remote
+            if not target.is_file():
+                target.write_bytes(urllib.request.urlopen(
+                    OMNIPOSE_TESTS + remote, timeout=60).read())
+    return dest
 
 
 def _truth_of(item: "Field") -> np.ndarray:
@@ -718,7 +773,7 @@ def main(argv=None) -> int:
 
     datasets = [d for d in args.datasets.split(",") if d]
     split = _pv_split(PV_SPLIT)
-    fields = collect_fields(datasets, split)
+    fields = collect_fields(datasets, split, out)
     if args.fields:
         keep = set(args.fields.split(","))
         fields = [f for f in fields if f.stem in keep]

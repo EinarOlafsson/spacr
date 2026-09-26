@@ -6779,6 +6779,12 @@ ALPHA_FEATURES = {
         'models': ('instanseg_v1', 'instanseg_fluorescence_nuclei_and_cells',
                    'instanseg_brightfield_nuclei'),
     },
+    553: {
+        'models': ('omnipose_v1', 'omnipose_bact_phase_omni',
+                   'omnipose_bact_fluor_omni', 'omnipose_worm_omni',
+                   'omnipose_worm_bact_omni', 'omnipose_worm_high_res_omni',
+                   'omnipose_cyto2_omni'),
+    },
 }
 
 

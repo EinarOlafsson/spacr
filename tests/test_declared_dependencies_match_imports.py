@@ -146,6 +146,8 @@ IMPORT_TO_DIST = {
     "PIL": "pillow",
     "PySide6": "PySide6",
     "cv2": "opencv-python-headless",
+    # Omnipose (item 553) ships its Cellpose fork inside its own wheel.
+    "cellpose_omni": "omnipose",
     "cuml": "cuml-cu12",
     "cupy": "cupy-cuda12x",
     # `cupyx` is a SUBPACKAGE of the same distribution, not a second
@@ -208,6 +210,7 @@ ISOLATED_WORKER_IMPORTS = {
     "csbdeep": ("_StarDistAdapter",),
     "tensorflow": ("_tensorflow_device",),
     "instanseg": ("_InstanSegAdapter",),
+    "cellpose_omni": ("_OmniposeAdapter",),
 }
 BACKEND_SOURCE = PKG / "_segmentation_backends.py"
 

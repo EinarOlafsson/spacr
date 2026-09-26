@@ -37,7 +37,7 @@ _base_settings = _wiring._base_settings
 _write_npz = _wiring._write_npz
 _artifacts = _wiring._artifacts
 
-PREFIXED = ("stardist", "instanseg")
+PREFIXED = ("stardist", "instanseg", "omnipose")
 
 
 @pytest.fixture(autouse=True)
@@ -606,3 +606,87 @@ def test_instanseg_loads_a_torchscript_file_and_refuses_a_missing_one(
     with pytest.raises(FileNotFoundError, match="no InstanSeg model"):
         SB._InstanSegAdapter(str(tmp_path / "gone"), "cpu",
                              instanseg_class=_FakeInstanSeg)
+
+
+# ===========================================================================
+# Omnipose (item 553)
+# ===========================================================================
+
+def test_omnipose_pins_its_package_and_says_its_licence_is_noncommercial():
+    spec = SB._SPECS["omnipose"]
+    assert spec.requirements == ("omnipose==1.1.4", "ncolor==1.5.3")
+    assert spec.torch == ("torch", "torchvision")
+    assert spec.models[0] == "bact_phase_omni"
+    assert "NonCommercial" in spec.licence
+    assert "NOT open source" in spec.licence_note
+    assert "noncommercial purposes only" in spec.licence_note
+
+
+def test_omnipose_keeps_its_downloads_inside_its_environment(tmp_path):
+    env = str(tmp_path / "env")
+    assert SB._worker_env("omnipose", env)["CELLPOSE_LOCAL_MODELS_PATH"] == (
+        os.path.join(env, "models"))
+
+
+class _FakeOmniModel:
+    """``cellpose_omni.models.CellposeModel`` as far as the adapter sees it."""
+
+    built = []
+
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.calls = []
+        type(self).built.append(self)
+
+    def eval(self, x, **kwargs):
+        self.calls.append(dict(kwargs, shape=np.shape(x)))
+        h, w = np.shape(x)[:2]
+        return (_known_labels((h, w)),
+                [np.full((h, w, 3), 5, np.uint8),
+                 np.ones((2, h, w), np.float32),
+                 np.full((h, w), -1.5, np.float32),
+                 np.zeros((h, w), np.float32)], None)
+
+
+def _fake_omni():
+    _FakeOmniModel.built = []
+    return types.SimpleNamespace(CellposeModel=_FakeOmniModel)
+
+
+def test_omnipose_answers_in_cellpose_sams_shapes():
+    adapter = SB._OmniposeAdapter("bact_fluor_omni", "cpu",
+                                  models_module=_fake_omni())
+    built = _FakeOmniModel.built[0]
+    assert built.kwargs["model_type"] == "bact_fluor_omni"
+    assert built.kwargs["gpu"] is False
+    masks, flows, styles = adapter.eval(
+        [np.ones((24, 30, 2), np.float32)], channel_axis=-1,
+        normalize=False, diameter=17.0, min_size=2, flow_threshold=0.6,
+        cellprob_threshold=-1.0, resample=False, batch_size=1)
+    assert styles is None
+    assert masks[0].shape == (24, 30) and int(masks[0].max()) == 2
+    rgb, d_p, distance, last = flows[0]
+    assert rgb.shape == (24, 30, 3) and d_p.shape == (2, 24, 30)
+    assert distance.shape == (24, 30) and last is None
+    [call] = built.calls
+    assert call["shape"] == (24, 30), "the object's own plane"
+    assert call["channels"] == [0, 0] and call["omni"] is True
+    assert call["rescale"] is None and call["normalize"] is True
+    assert (call["flow_threshold"], call["mask_threshold"]) == (0.6, -1.0)
+    assert call["resample"] is False
+    assert adapter.ignored == {"diameter"}
+    assert any("normalize=False" in t for t in adapter.translated)
+
+
+def test_omnipose_reads_a_checkpoints_shape_and_refuses_a_missing_file(
+        tmp_path, monkeypatch):
+    path = tmp_path / "my_omni_model"
+    path.write_bytes(b"weights")
+    monkeypatch.setattr(SB, "_omnipose_shape", lambda p: (1, 3))
+    SB._OmniposeAdapter(str(path), "cpu", models_module=_fake_omni())
+    kwargs = _FakeOmniModel.built[0].kwargs
+    assert kwargs["pretrained_model"] == str(path)
+    assert (kwargs["nchan"], kwargs["nclasses"], kwargs["omni"]) == (1, 3, True)
+    with pytest.raises(FileNotFoundError, match="no Omnipose model"):
+        SB._OmniposeAdapter(str(tmp_path / "gone"), "cpu",
+                            models_module=_fake_omni())

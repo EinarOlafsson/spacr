@@ -243,6 +243,7 @@ toxo_pv: 0.656 CPU against 0.674 GPU; all others within 0.01).
   stardist_fluo (551)         general           1748   910  0.360  0.692  0.474   0.371  0.823  0.489    16.3     4.8
   instanseg_cells (552)       general           1324   910  0.514  0.747  0.609   0.328  0.752  0.630   117.5     4.8
   instanseg_nuclei (552)      general            615   910  0.467  0.315  0.376   0.198  0.731  0.415    97.9     4.8
+  omnipose_phase (553)        general           5716   910  0.001  0.008  0.002   0.000  0.575  0.001   102.8     4.8
 
   -- toxo_pv: F1 at IoU 0.5 per field
   field                                            pv_r2       pv_r5       pv_r6 dino_vitb+d   dino_vitl dino_vitb+c dino_vitb+t dino_vitb+d   dino_vitb dino_vitb+l dino_vitb+d       cpsam    cpsam_v2    cp3_cyto   cp3_cyto2 dino_vitb+f dino_vitb+b dino_vitb+f   cp3_cyto3  cp3_nuclei     oc1_p66
@@ -465,6 +466,8 @@ promise). Their rows are in the CPU toxo_pv table above, marked with the item.
   output 0.376 / 0.198 (615 objects, recall 0.32). 98-118 s per field at
   load ~85. Better than StarDist on PVs, still below every Cellpose model,
   and loose outlines (mean matched IoU 0.75). Not for PVs.
+  Omnipose bact_phase_omni (553), toxo_pv: F1@.5 0.002 (5,716 objects). A
+  bacteria model; listed so the table is complete.
 
 NUCLEI (opt-in dataset nuclei_plate1). StarDist and InstanSeg are nucleus
 models, so they are also scored on nuclei: four 1994 x 1994 40x fields of
@@ -496,6 +499,25 @@ percentile normalisation maps the whole field to 1.0 and every model
 (cpsam, cp3_nuclei, StarDist) finds nothing. That is a property of the
 synthetic data, not of the models.
 
+BACTERIA (opt-in dataset bacteria_omnipose, item 553): Omnipose's own seven
+demo images (docs/test_files at commit 2adc9aaaacee; five phase-contrast
+fields and a Caulobacter one), 621 cells, scored against the masks the
+repository ships beside them -- Omnipose's own saved output, a REFERENCE
+that favours Omnipose, not independent ground truth. Diameter = each
+field's reference median.
+
+  strategy                    family             obj    GT   P@.5   R@.5  F1@.5  F1@.75   mIoU  fldF1  eval s  prep s
+  cp3_cyto3                   general            607   621  0.964  0.942  0.953   0.936  0.883  0.882    18.8     2.0
+  omnipose_phase (553)        general            644   621  0.935  0.969  0.952   0.926  0.920  0.928    18.8     2.0
+  omnipose_fluor (553)        general           2709   621  0.000  0.000  0.000   0.000  0.000  0.000    57.6     2.0
+  stardist_fluo (551)         general            686   621  0.000  0.000  0.000   0.000  0.000  0.000     2.1     2.0
+
+  Omnipose's phase model and Cellpose 3 cyto3 tie pooled; Omnipose's
+  outlines are tighter (mean matched IoU 0.920 against 0.883) and it wins
+  on 4 of 7 fields (per-field mean F1 0.928 against 0.882). The two
+  fluorescence models find the background of these phase-contrast fields.
+  cpsam was stopped after one field (510 s on the loaded CPU, F1@.5 0.930).
+
 Reproduce (receipts in /tmp/spacr-55x-scratch/bench/cpu/results):
   CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu tools/run_capped.sh 16G python \
     tools/benchmark_segmentation_strategies.py --device cpu --threads 8 \
@@ -503,4 +525,5 @@ Reproduce (receipts in /tmp/spacr-55x-scratch/bench/cpu/results):
     --datasets toxo_pv --strategies stardist_fluo
   (and --datasets nuclei_plate1 --strategies stardist_fluo,cp3_nuclei,
   instanseg_nuclei; --datasets toxo_pv --strategies instanseg_nuclei,
-  instanseg_cells)
+  instanseg_cells,omnipose_phase; --datasets bacteria_omnipose --strategies
+  omnipose_phase,omnipose_fluor,cp3_cyto3,stardist_fluo)

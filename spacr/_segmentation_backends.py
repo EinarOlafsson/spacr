@@ -194,6 +194,16 @@ _INSTANSEG_MODELS = ("fluorescence_nuclei_and_cells", "brightfield_nuclei")
 #: and 17 px it found 34, 39 and 40 objects of median 51, 81 and 77 px.
 _INSTANSEG_DIAMETER = 26.0
 
+#: Omnipose (item 553): Cellpose-style flows on a distance field, for
+#: bacteria and other elongated or filamentous cells. Chosen through an
+#: object's model setting, ``omnipose:<model or file>``.
+_OMNIPOSE = "omnipose"
+
+#: Omnipose's own 2-D models (``omnipose.core``'s boundary-field lists),
+#: the phase-contrast bacteria model first.
+_OMNIPOSE_MODELS = ("bact_phase_omni", "bact_fluor_omni", "worm_omni",
+                    "worm_bact_omni", "worm_high_res_omni", "cyto2_omni")
+
 _RESTORATION_MODELS = tuple(
     f"{operation}_{structure}"
     for operation in ("denoise", "deblur", "oneclick")
@@ -486,6 +496,39 @@ _SPECS = {
             "results; item 532 scores it on spaCR's own fields."),
         prefix="instanseg:", default_model="fluorescence_nuclei_and_cells",
         alpha=True),
+    _OMNIPOSE: _BackendSpec(
+        name=_OMNIPOSE, label="Omnipose", module="omnipose",
+        probe=("omnipose.core", "cellpose_omni.models"),
+        distribution="omnipose",
+        requirements=("omnipose==1.1.4", "ncolor==1.5.3"),
+        torch=("torch", "torchvision"), python=((3, 11), (3, 13)),
+        licence="Omnipose NonCommercial License (University of Washington)",
+        licence_note=(
+            "Omnipose is NOT open source: omnipose 1.1.4 carries the "
+            "Omnipose NonCommercial License (Copyright 2021 University of "
+            "Washington), which permits use, modification and "
+            "redistribution for noncommercial purposes only; commercial use "
+            "needs a licence from UW CoMotion (license@uw.edu). That is not "
+            "the licence spaCR carries. Its models are downloaded by "
+            "Omnipose itself from the kevinjohncutler/omnipose-models GitHub "
+            "repository, which names no licence of its own, into the "
+            "backend's own folder. spaCR ships none of it. Read the licence "
+            "before using Omnipose for anything commercial."),
+        homepage="https://github.com/kevinjohncutler/omnipose", size_gb=4.0,
+        models=_OMNIPOSE_MODELS,
+        blurb=(
+            "Omnipose, for bacteria and other elongated or filamentous "
+            "cells, with its bact_phase_omni, bact_fluor_omni, worm and "
+            "cyto2_omni models or an Omnipose checkpoint. It runs in an "
+            "environment of its own; its masks, flows and distance field "
+            "come back in Cellpose-SAM's shapes. Noncommercial use only."),
+        published=(
+            "Published results: Cutler et al., 'Omnipose: a high-precision "
+            "morphology-independent solution for bacterial cell "
+            "segmentation', Nature Methods 2022 (doi:10.1038/s41592-022-"
+            "01639-4). spaCR has not scored it against those results; "
+            "item 553 scores it on Omnipose's own bacteria test images."),
+        prefix="omnipose:", default_model="bact_phase_omni", alpha=True),
     _DINOCELL: _BackendSpec(
         name=_DINOCELL, label="DINOCell", module="dinocell",
         probe=("dinocell.main", "dinocell.model", "dinocell.pipeline",
@@ -1480,6 +1523,9 @@ def _worker_env(name, env):
     InstanSeg downloads its models to ``INSTANSEG_BIOIMAGEIO_PATH``, and
     otherwise into its own package folder.
 
+    Omnipose, like Cellpose, downloads its models to
+    ``CELLPOSE_LOCAL_MODELS_PATH``, and otherwise to ``~/.cellpose``.
+
     SAMCell has two downloads: its fine-tuned checkpoint uses Torch's hub
     cache, and its SAM backbone uses Transformers and Hugging Face. Both
     are scoped to the environment; legacy Transformers cache overrides
@@ -1500,6 +1546,9 @@ def _worker_env(name, env):
     elif name == _INSTANSEG:
         environ["INSTANSEG_BIOIMAGEIO_PATH"] = os.path.join(
             env, "instanseg_models")
+    elif name == _OMNIPOSE:
+        environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(
+            env, "models")
     elif name in (_DINOCELL, _SAMCELL):
         environ["HF_HOME"] = os.path.join(env, "huggingface")
         for variable in _HF_CACHE_VARIABLES:
@@ -3416,12 +3465,107 @@ def _instanseg_options(model_name, object_type=None):
     return {"target": target}
 
 
+class _OmniposeAdapter(_PrefixedAdapter):
+    """Omnipose, inside its own environment (item 553).
+
+    A named model is one of Omnipose's own, built as Omnipose builds it
+    (``cellpose_omni.models.CellposeModel(model_type=...)``), which fetches
+    its weights into ``CELLPOSE_LOCAL_MODELS_PATH`` inside the backend's
+    folder. A path is an Omnipose checkpoint; its input channels and output
+    classes are read from the weights, because Omnipose would otherwise
+    build a network of its default shape and fail to load them.
+
+    THE SETTINGS. Each plane is segmented as one grey channel
+    (``channels=[0, 0]``) with ``omni=True``, Omnipose's own percentile
+    normalisation (spaCR's scaling is linear, so this is the normalisation
+    of the raw plane) and no rescaling: Omnipose's bacterial models are
+    used at the image's own scale, which is how Omnipose runs them, so the
+    diameter is named as not honoured. The flow threshold is Omnipose's
+    flow threshold and the cell-probability threshold is its
+    ``mask_threshold`` on the distance field, both logits of the same kind
+    Cellpose's are; resampling is Omnipose's own ``resample``. Its flows
+    come back as Cellpose's do: the RGB flow, ``dP`` and, where Cellpose
+    has the cell probability, Omnipose's distance field.
+
+    :param model: a name from :data:`_OMNIPOSE_MODELS` or a checkpoint path.
+    :param device: a torch device name.
+    :param models_module: ``cellpose_omni.models``, or a stand-in for tests.
+    :raises FileNotFoundError: for a path that names no file.
+    """
+
+    name = _OMNIPOSE
+    unsupported = ("diameter",)
+
+    def __init__(self, model="bact_phase_omni", device="cpu",
+                 models_module=None):
+        """Build the network and load its weights on ``device``."""
+        super().__init__()
+        import torch
+
+        if models_module is None:
+            from cellpose_omni import models as models_module
+        self.model = model
+        where = torch.device(device)
+        gpu = where.type != "cpu"
+        if model in _OMNIPOSE_MODELS:
+            self._model = models_module.CellposeModel(
+                gpu=gpu, model_type=model, device=where)
+        elif os.path.isfile(model):
+            nchan, nclasses = _omnipose_shape(model)
+            self._model = models_module.CellposeModel(
+                gpu=gpu, pretrained_model=model, device=where, nchan=nchan,
+                nclasses=nclasses, dim=2, omni=True)
+        else:
+            raise FileNotFoundError(
+                f"no Omnipose model called {model!r}: it is not one of "
+                f"{', '.join(_OMNIPOSE_MODELS)}, and no file is there. "
+                f"Omnipose would have run cyto in its place without a "
+                f"word.")
+
+    def _segment(self, plane, normalize=True, flow_threshold=None,
+                 cellprob_threshold=None, resample=None, **other):
+        """Omnipose's masks and distance field for one plane."""
+        if normalize is False:
+            self.translated.add(
+                "normalize=False became Omnipose's percentile "
+                "normalisation, which its models were trained on")
+        output = self._model.eval(
+            np.asarray(plane, np.float32), channels=[0, 0], rescale=None,
+            omni=True, normalize=True,
+            flow_threshold=0.4 if flow_threshold is None
+            else float(flow_threshold),
+            mask_threshold=0.0 if cellprob_threshold is None
+            else float(cellprob_threshold),
+            resample=True if resample is None else bool(resample),
+            tile=False, augment=False, verbose=False)
+        return output[0], list(output[1])[:3]
+
+
+def _omnipose_shape(path):
+    """``(input channels, output classes)`` of an Omnipose checkpoint.
+
+    Read from the weights: the first convolution's input channels, and the
+    output layer's channels less the one extra flow component a 2-D model
+    has, which is how ``CellposeModel`` counts classes.
+    """
+    import torch
+
+    state = torch.load(path, map_location="cpu", weights_only=True)
+    state = state.get("state_dict", state) if isinstance(state, dict) else state
+    convs = [value for value in state.values()
+             if hasattr(value, "ndim") and value.ndim == 4]
+    if not convs:
+        raise ValueError(f"{os.path.basename(path)} holds no Omnipose network")
+    return int(convs[0].shape[1]), int(convs[-1].shape[0]) - 1
+
+
 #: Backend name -> in-process class. Tests replace entries with stubs.
 _BACKEND_CLASSES = {_DINOCELL: _DinoCellBackend, _SAMCELL: _SamCellBackend}
 
 #: Backend name -> the worker adapter of a prefixed backend.
 _PREFIXED_ADAPTERS = {_STARDIST: _StarDistAdapter,
-                      _INSTANSEG: _InstanSegAdapter}
+                      _INSTANSEG: _InstanSegAdapter,
+                      _OMNIPOSE: _OmniposeAdapter}
 
 
 def _worker_device(requested=None):
