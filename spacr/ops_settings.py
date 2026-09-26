@@ -169,16 +169,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "thirty million rows -- so turn it on for a well or two rather than "
         "for a plate. Default False.",
     "ops_spot_detector":
-        "(str) - Which detector finds the sequencing spots each field's "
-        "reads are called at. 'native' is spaCR's own spot score and the "
-        "only one this plate was validated with. 'spotnet' is DeepCell's "
-        "SpotNet, a trained spot detector run in an environment of its own; "
-        "its positions go through the same bases, calls and assignment to "
-        "nuclei, and ops_read_threshold no longer applies. SpotNet's models "
-        "are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be "
-        "installed from the Model Zoo, and its weights need a free DeepCell "
-        "access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. "
-        "It decodes one field at a time. Default 'native'.",
+        "(str) - Which detector finds the sequencing spots. 'native' is spaCR's own spot score, the one this pipeline was validated with. 'spotnet' is DeepCell's SpotNet, run in its own environment; its spots go through the same base calls and nucleus assignment, and ops_read_threshold no longer applies. SpotNet is licensed for NON-COMMERCIAL ACADEMIC USE ONLY, installs from the Model Zoo and needs a DeepCell token in ~/.spacr/deepcell_token. Default 'native'.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "
