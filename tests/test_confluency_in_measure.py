@@ -27,16 +27,16 @@ from scipy import ndimage as ndi
 
 from spacr import measure
 from spacr.measure import (
-    CONFLUENCY_TABLE,
-    CONFLUENCY_WELL_TABLE,
-    confluency_by_well,
-    confluency_overlay,
-    field_confluency,
-    intensity_coverage,
-    mask_coverage,
-    monolayer_qc,
-    resolve_confluency_source,
-    texture_coverage,
+    _CONFLUENCY_TABLE,
+    _CONFLUENCY_WELL_TABLE,
+    _confluency_by_well,
+    _confluency_overlay,
+    _field_confluency,
+    _intensity_coverage,
+    _mask_coverage,
+    _monolayer_qc,
+    _resolve_confluency_source,
+    _texture_coverage,
 )
 
 SHAPE = (384, 384)
@@ -83,7 +83,7 @@ def _labels(covered):
 @pytest.mark.parametrize("fraction", FRACTIONS)
 def test_texture_source_recovers_known_brightfield_coverage(fraction):
     truth = _truth(fraction)
-    result = texture_coverage(_brightfield(truth))
+    result = _texture_coverage(_brightfield(truth))
     assert result.source == "texture"
     assert abs(result.confluency - truth.mean()) <= TOLERANCE
     assert result.covered.shape == SHAPE
@@ -92,7 +92,7 @@ def test_texture_source_recovers_known_brightfield_coverage(fraction):
 @pytest.mark.parametrize("fraction", FRACTIONS)
 def test_intensity_source_recovers_known_fluorescent_coverage(fraction):
     truth = _truth(fraction)
-    result = intensity_coverage(_fluorescent(truth))
+    result = _intensity_coverage(_fluorescent(truth))
     assert result.source == "intensity"
     assert abs(result.confluency - truth.mean()) <= TOLERANCE
 
@@ -100,7 +100,7 @@ def test_intensity_source_recovers_known_fluorescent_coverage(fraction):
 @pytest.mark.parametrize("fraction", FRACTIONS)
 def test_mask_source_is_the_union_of_the_cells(fraction):
     truth = _truth(fraction)
-    result = mask_coverage(_labels(truth))
+    result = _mask_coverage(_labels(truth))
     assert result.source == "masks"
     assert result.covered_px == int(truth.sum())
     assert result.confluency == pytest.approx(truth.mean())
@@ -108,8 +108,8 @@ def test_mask_source_is_the_union_of_the_cells(fraction):
 
 def test_a_field_whose_pixels_do_not_split_is_decided_whole():
     """An empty field and a full monolayer both give one pixel class."""
-    empty = texture_coverage(_brightfield(np.zeros(SHAPE, dtype=bool)))
-    full = texture_coverage(_brightfield(np.ones(SHAPE, dtype=bool)))
+    empty = _texture_coverage(_brightfield(np.zeros(SHAPE, dtype=bool)))
+    full = _texture_coverage(_brightfield(np.ones(SHAPE, dtype=bool)))
     assert empty.uniform and empty.confluency == 0.0
     assert full.uniform and full.confluency == 1.0
 
@@ -117,29 +117,29 @@ def test_a_field_whose_pixels_do_not_split_is_decided_whole():
 def test_a_z_stack_is_max_projected():
     truth = _truth(0.35)
     stack = np.stack([np.zeros(SHAPE, dtype=np.uint16), _labels(truth)])
-    assert mask_coverage(stack).confluency == pytest.approx(truth.mean())
+    assert _mask_coverage(stack).confluency == pytest.approx(truth.mean())
 
 
 def test_auto_uses_the_cell_masks_when_the_run_has_them():
-    assert resolve_confluency_source({"cell_mask_dim": 4}) == "masks"
-    assert resolve_confluency_source({"cell_mask_dim": None}) == "texture"
-    assert resolve_confluency_source(
+    assert _resolve_confluency_source({"cell_mask_dim": 4}) == "masks"
+    assert _resolve_confluency_source({"cell_mask_dim": None}) == "texture"
+    assert _resolve_confluency_source(
         {"cell_mask_dim": 4, "confluency_source": "intensity"}) == "intensity"
     with pytest.raises(ValueError, match="cell_mask_dim"):
-        resolve_confluency_source(
+        _resolve_confluency_source(
             {"cell_mask_dim": None, "confluency_source": "masks"})
     with pytest.raises(ValueError, match="confluency_source"):
-        resolve_confluency_source({"confluency_source": "guess"})
+        _resolve_confluency_source({"confluency_source": "guess"})
     truth = _truth(0.6)
-    by_masks = field_confluency(_brightfield(truth), _labels(truth))
-    by_texture = field_confluency(_brightfield(truth))
+    by_masks = _field_confluency(_brightfield(truth), _labels(truth))
+    by_texture = _field_confluency(_brightfield(truth))
     assert by_masks.source == "masks" and by_texture.source == "texture"
 
 
 def test_the_overlay_tints_exactly_the_covered_area():
     truth = _truth(0.35)
     image = _fluorescent(truth)
-    overlay = confluency_overlay(image, truth, color=(255, 0, 0), alpha=1.0)
+    overlay = _confluency_overlay(image, truth, color=(255, 0, 0), alpha=1.0)
     assert overlay.shape == SHAPE + (3,) and overlay.dtype == np.uint8
     assert (overlay[truth][:, 1] == 0).all()
     grey = overlay[~truth]
@@ -168,11 +168,11 @@ def test_real_toxo_pv_fields_match_their_hand_drawn_ground_truth():
         image = tifffile.imread(path)
         drawn = tifffile.imread(
             str(folder / "ground_truth_masks" / os.path.basename(path))) > 0
-        by_intensity = intensity_coverage(image).confluency
-        by_texture = texture_coverage(image).confluency
+        by_intensity = _intensity_coverage(image).confluency
+        by_texture = _texture_coverage(image).confluency
         assert abs(by_intensity - drawn.mean()) <= TOLERANCE, path
         assert abs(by_texture - drawn.mean()) <= TOLERANCE, path
-        assert mask_coverage(drawn).confluency == pytest.approx(drawn.mean())
+        assert _mask_coverage(drawn).confluency == pytest.approx(drawn.mean())
 
 
 def test_real_plate1_field_matches_its_cell_masks():
@@ -185,9 +185,9 @@ def test_real_plate1_field_matches_its_cell_masks():
         data = np.load(path, mmap_mode="r")
         cells = np.asarray(data[..., 4])
         stain = np.asarray(data[..., 1])
-        truth = mask_coverage(cells).confluency
-        assert abs(intensity_coverage(stain).confluency - truth) <= 0.05, path
-        assert abs(texture_coverage(stain).confluency - truth) <= 0.05, path
+        truth = _mask_coverage(cells).confluency
+        assert abs(_intensity_coverage(stain).confluency - truth) <= 0.05, path
+        assert abs(_texture_coverage(stain).confluency - truth) <= 0.05, path
 
 
 def _settings(merged, **over):
@@ -236,9 +236,9 @@ def test_measure_writes_confluency_per_field_and_per_well(tmp_path, source,
 
     db = tmp_path / "measurements" / "measurements.db"
     with sqlite3.connect(db) as conn:
-        fields = pd.read_sql_query(f"SELECT * FROM {CONFLUENCY_TABLE}", conn)
+        fields = pd.read_sql_query(f"SELECT * FROM {_CONFLUENCY_TABLE}", conn)
         wells = pd.read_sql_query(
-            f"SELECT * FROM {CONFLUENCY_WELL_TABLE}", conn)
+            f"SELECT * FROM {_CONFLUENCY_WELL_TABLE}", conn)
 
     assert len(fields) == 4
     expected_source = "masks" if source == "auto" else source
@@ -269,13 +269,13 @@ def test_the_per_well_table_pools_pixels_and_counts_fields_below_qc():
         "covered_px": [100, 100, 0], "field_px": [100, 200, 100],
         "confluency_qc_threshold": [0.6] * 3,
     })
-    wells = confluency_by_well(fields)
+    wells = _confluency_by_well(fields)
     row = wells.iloc[0]
     assert row["confluency"] == pytest.approx(0.5)
     assert row["confluency_mean"] == pytest.approx(0.5)
     assert row["fields_below_qc"] == 2
     assert row["monolayer_ok"] == 0
-    assert confluency_by_well(fields, qc_threshold=0.4).iloc[0][
+    assert _confluency_by_well(fields, qc_threshold=0.4).iloc[0][
         "monolayer_ok"] == 1
 
 
@@ -295,14 +295,14 @@ def test_monolayer_qc_is_a_filter_and_a_denominator_for_plaque_tables():
         field = parse_field_stem(row["file"].replace(".tif", "_1"))
         return field.plateID, field.rowID, field.columnID
 
-    joined = monolayer_qc(plaques, wells, value_columns=("plaque_count",),
+    joined = _monolayer_qc(plaques, wells, value_columns=("plaque_count",),
                           well_of=well_of)
     assert list(joined["plaque_count_per_confluency"].round(6)[:2]) == [
         20.0, 20.0]
     assert joined["monolayer_ok"].isna().iloc[2]
-    kept = monolayer_qc(plaques, wells, drop_failing=True, well_of=well_of)
+    kept = _monolayer_qc(plaques, wells, drop_failing=True, well_of=well_of)
     assert list(kept["file"]) == ["plate1_A01.tif"]
-    stricter = monolayer_qc(plaques, wells, well_of=well_of,
+    stricter = _monolayer_qc(plaques, wells, well_of=well_of,
                             qc_threshold=0.95)
     assert list(stricter["monolayer_ok"][:2]) == [0, 0]
 
@@ -332,7 +332,7 @@ def test_infection_report_carries_confluency_and_can_drop_thin_monolayers(
 
     for well, fraction in (("plate1_A01_1", 0.9), ("plate1_B02_1", 0.3)):
         truth = _truth(fraction)
-        result = mask_coverage(_labels(truth))
+        result = _mask_coverage(_labels(truth))
         measure._write_confluency_record(
             str(tmp_path), well, {"confluency_qc_threshold": 0.5}, result)
 

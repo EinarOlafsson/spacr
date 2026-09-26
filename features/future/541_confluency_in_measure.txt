@@ -43,11 +43,14 @@ DONE WHEN
     cell rims count). A field whose pixels do not separate into two classes
     (separation under 3.2 pooled SDs) is decided whole, empty or confluent,
     by its texture-to-noise ratio. A z-stack is max-projected.
-    Code: spacr/measure.py (texture_coverage, intensity_coverage,
-    mask_coverage, field_confluency, measure_field_confluency,
-    confluency_overlay, confluency_by_well, aggregate_confluency_by_well,
-    monolayer_qc); spacr/infection.py (infection_report); the Measure
-    preview in spacr/qt/widgets/measure_preview.py. No new modules.
+    Code: spacr/measure.py (_texture_coverage, _intensity_coverage,
+    _mask_coverage, _field_confluency, _measure_field_confluency,
+    _confluency_overlay, _confluency_by_well, _aggregate_confluency_by_well,
+    _monolayer_qc); spacr/infection.py (infection_report); the Measure
+    preview in spacr/qt/widgets/measure_preview.py. No new modules. The
+    helpers are underscored on purpose, as 569's are: a public name joins
+    the API documentation inventory, whose catalogs only the docs lane
+    regenerates. Making them public is a docs-lane change.
     Database: measurements.db:confluency, one row per field (source,
     channel, confluency, covered_px, field_px, automatic threshold,
     separation, monolayer_ok), and confluency_well, rebuilt at the end of
@@ -57,7 +60,7 @@ DONE WHEN
     Filter and denominator: infection_report gains `confluency` and
     `parasites_per_confluency` metrics and a monolayer_ok column whenever
     the run measured confluency, and `monolayer_filter=True` drops wells
-    that fail QC. measure.monolayer_qc joins confluency onto any per-well
+    that fail QC. measure._monolayer_qc joins confluency onto any per-well
     table (a plaque per_image table through `well_of`), adds
     `<column>_per_confluency` and can drop failing wells. analyze_plaques
     itself is not wired: its images carry no plate/row/column, so the join
@@ -78,7 +81,7 @@ DONE WHEN
     Tests: tests/test_confluency_in_measure.py (synthetic sources, uniform
     fields, z-stacks, source resolution, overlay, real Toxo PV and plate1
     fields, the measure_crop end to end for three sources with the per-field
-    and per-well tables and QC flag, per-well pooling, monolayer_qc as
+    and per-well tables and QC flag, per-well pooling, _monolayer_qc as
     filter/denominator on a plaque-style table, the infection report) and
     tests/qt/test_measure_confluency_preview.py (overlay, auto source from
     the panel's cell slice, failure reporting, Alpha gating).
@@ -91,3 +94,20 @@ confluency_window, confluency_qc_threshold (Measure category "Confluency
 Measure preview (its MeasureConfluencyOverlay label is shown only through
 it). Registered as ALPHA_FEATURES[541] in spacr/settings.py after 569 reached
 nightly; the preview asks preferences._is_alpha_visible for the toggle.
+
+2026-09-26 — Merged nightly (569's gate), registered, reran
+    Registered as ALPHA_FEATURES[541] (settings and the preview toggle);
+    the preview's toggle asks preferences._is_alpha_visible, so it follows
+    Preferences -> Show alpha features (off by default) like the rest of the
+    window. Regenerated after the merge: the settings-flow page and index,
+    the setting consumer map and API targets, and the 02_measure_and_crop
+    notebook's settings list. Ratchets moved: tooltip default claims 736 ->
+    744 (four confluency claims in Measure and External Masks), the
+    public-callable parameter sum 19,385 -> 19,386 and its digest
+    (infection_report's optional monolayer_filter), five keys declared in
+    KEYS_ADDED_BY_REGROUP, the Measure category order, and seven captions
+    held in _AWAITING_CATALOG_REBUILD for the catalog lane (no catalog was
+    edited). Tests: tests/test_confluency_in_measure.py 30 and
+    tests/qt/test_measure_confluency_preview.py 4 pass; the settings,
+    tooltip, flow, API-link, docstring and alpha-gate suites show no failure
+    that the same nightly without 541 does not also show.

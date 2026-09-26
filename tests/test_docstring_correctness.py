@@ -2565,7 +2565,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # callables (474's three included), -3 with prerun's two retired diameter
     # helpers, +13 optional keywords on ten existing callables (named at the
     # digest below).
-    assert sum(len(item.parameters) for item in callables) == 19_385
+    # 19,385 -> 19,386 on 2026-09-26 with item 541: infection_report's
+    # optional `monolayer_filter` keyword.
+    assert sum(len(item.parameters) for item in callables) == 19_386
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2725,7 +2727,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # MeasurementComparePanel: results; read_run_tables: progress;
     # suggest_from_scores: withhold_rejected; ctc_pairs: gaps) or, for
     # model_share.contribute, made `token` optional.
-) == "d61713278b8e524a064a88137dff4909463b36c11c1cd8574c589d65919d4174"
+    # Item 541 on 2026-09-26 (was d6171327...): infection.infection_report
+    # gained the optional keyword monolayer_filter.
+) == "99f9fd013ccd57c199057b6357c3a09629af485851c7abae3c448a40c56bf553"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

@@ -2751,17 +2751,17 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         conn.close()
 
 
-CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity')
-CONFLUENCY_TABLE = 'confluency'
-CONFLUENCY_WELL_TABLE = 'confluency_well'
-CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
-CONFLUENCY_SEPARATION_MIN = 3.2
-CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
-CONFLUENCY_INTENSITY_FRACTION = 0.25
+_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity')
+_CONFLUENCY_TABLE = 'confluency'
+_CONFLUENCY_WELL_TABLE = 'confluency_well'
+_CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
+_CONFLUENCY_SEPARATION_MIN = 3.2
+_CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
+_CONFLUENCY_INTENSITY_FRACTION = 0.25
 
 
 @dataclass
-class ConfluencyResult:
+class _ConfluencyResult:
     """Covered area of one field and how it was decided.
 
     ``confluency`` is the covered fraction of the field, 0 to 1.
@@ -2815,7 +2815,7 @@ def _otsu_separation(values):
     :returns: ``(threshold, separation)``; separation is the difference of
         the class means over the pooled within-class standard deviation.
         A single Gaussian split this way gives about 2.6, two real classes
-        give well above :data:`CONFLUENCY_SEPARATION_MIN`.
+        give well above :data:`_CONFLUENCY_SEPARATION_MIN`.
     """
     values = np.asarray(values, dtype=np.float64)
     if values.size < 4 or np.ptp(values) == 0:
@@ -2896,7 +2896,7 @@ def _clean_coverage(covered, radius):
     return work[pad:-pad, pad:-pad]
 
 
-def texture_coverage(image, window=15):
+def _texture_coverage(image, window=15):
     """Covered area of a brightfield or phase field, from local texture.
 
     Cells scatter light and so vary from pixel to pixel; bare plastic is
@@ -2911,22 +2911,22 @@ def texture_coverage(image, window=15):
     :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
     :param window: texture window side in pixels; roughly the width of the
         thinnest cell process that should count as covered.
-    :returns: :class:`ConfluencyResult` with ``source='texture'``.
+    :returns: :class:`_ConfluencyResult` with ``source='texture'``.
     """
     window = max(3, int(window))
     x = _unit_scaled(_confluency_plane(image))
     sd = _local_sd(x, window)
     textured = sd > 1e-9
     if not textured.any():
-        return ConfluencyResult(np.zeros(x.shape, dtype=bool), 0.0,
+        return _ConfluencyResult(np.zeros(x.shape, dtype=bool), 0.0,
                                 'texture', None, 0.0, True)
     log_sd = np.log(sd[textured])
     lo, hi = np.percentile(log_sd, [0.5, 99.5])
     cut, separation = _otsu_separation(np.clip(log_sd, lo, hi))
-    if separation < CONFLUENCY_SEPARATION_MIN:
-        full = _texture_ratio(x, window) >= CONFLUENCY_TEXTURE_RATIO_MIN
+    if separation < _CONFLUENCY_SEPARATION_MIN:
+        full = _texture_ratio(x, window) >= _CONFLUENCY_TEXTURE_RATIO_MIN
         covered = np.full(x.shape, bool(full))
-        return ConfluencyResult(covered, float(full), 'texture', None,
+        return _ConfluencyResult(covered, float(full), 'texture', None,
                                 separation, True)
     first = np.zeros(x.shape, dtype=bool)
     first[textured] = log_sd > cut
@@ -2939,11 +2939,11 @@ def texture_coverage(image, window=15):
            else variance[~first & textured])
     level = 0.5 * (float(np.median(on)) + float(np.median(off)))
     covered = _clean_coverage((variance > level) & textured, window // 4)
-    return ConfluencyResult(covered, float(covered.mean()), 'texture',
+    return _ConfluencyResult(covered, float(covered.mean()), 'texture',
                             sqrt(level), separation, False)
 
 
-def intensity_coverage(image, sigma=1.0):
+def _intensity_coverage(image, sigma=1.0):
     """Covered area of a fluorescent cytoplasm or membrane stain.
 
     The plane is smoothed, its brightest 0.1 % clipped so a few saturated
@@ -2956,16 +2956,16 @@ def intensity_coverage(image, sigma=1.0):
 
     :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
     :param sigma: Gaussian smoothing in pixels before thresholding.
-    :returns: :class:`ConfluencyResult` with ``source='intensity'``.
+    :returns: :class:`_ConfluencyResult` with ``source='intensity'``.
     """
     plane = np.asarray(_confluency_plane(image), dtype=np.float64)
     ceiling = float(np.percentile(plane, 99.9))
     x = gaussian_filter(np.minimum(plane, ceiling), sigma)
     cut, separation = _otsu_separation(x.ravel())
-    if separation < CONFLUENCY_SEPARATION_MIN:
+    if separation < _CONFLUENCY_SEPARATION_MIN:
         full = _texture_ratio(_unit_scaled(plane), 15) >= (
-            CONFLUENCY_TEXTURE_RATIO_MIN)
-        return ConfluencyResult(np.full(x.shape, bool(full)), float(full),
+            _CONFLUENCY_TEXTURE_RATIO_MIN)
+        return _ConfluencyResult(np.full(x.shape, bool(full)), float(full),
                                 'intensity', None, separation, True)
     above = x > cut
     core_on = binary_erosion(above, iterations=3)
@@ -2973,24 +2973,24 @@ def intensity_coverage(image, sigma=1.0):
     stained = float(np.median(x[core_on] if core_on.sum() > 100 else x[above]))
     background = float(np.median(
         x[core_off] if core_off.sum() > 100 else x[~above]))
-    level = background + CONFLUENCY_INTENSITY_FRACTION * (stained - background)
+    level = background + _CONFLUENCY_INTENSITY_FRACTION * (stained - background)
     covered = _clean_coverage(x > level, 2)
-    return ConfluencyResult(covered, float(covered.mean()), 'intensity',
+    return _ConfluencyResult(covered, float(covered.mean()), 'intensity',
                             level, separation, False)
 
 
-def mask_coverage(mask):
+def _mask_coverage(mask):
     """Covered area as the union of every labelled cell.
 
     :param mask: 2-D label image, or a ``(Z, Y, X)`` label stack (a pixel is
         covered when any plane labels it).
-    :returns: :class:`ConfluencyResult` with ``source='masks'``.
+    :returns: :class:`_ConfluencyResult` with ``source='masks'``.
     """
     covered = _confluency_plane(np.asarray(mask) > 0).astype(bool)
-    return ConfluencyResult(covered, float(covered.mean()), 'masks')
+    return _ConfluencyResult(covered, float(covered.mean()), 'masks')
 
 
-def resolve_confluency_source(settings):
+def _resolve_confluency_source(settings):
     """The method a run uses, with ``auto`` answered.
 
     ``auto`` is the cell masks when the run has a cell mask, and texture
@@ -2999,13 +2999,13 @@ def resolve_confluency_source(settings):
     :param settings: Measure settings; reads ``confluency_source`` and
         ``cell_mask_dim``.
     :returns: ``'masks'``, ``'texture'`` or ``'intensity'``.
-    :raises ValueError: for a source outside :data:`CONFLUENCY_SOURCES`.
+    :raises ValueError: for a source outside :data:`_CONFLUENCY_SOURCES`.
     """
     source = str(settings.get('confluency_source') or 'auto').strip().lower()
-    if source not in CONFLUENCY_SOURCES:
+    if source not in _CONFLUENCY_SOURCES:
         raise ValueError(
             f"Setting: confluency_source is {source!r}; use one of "
-            f"{', '.join(CONFLUENCY_SOURCES)}.")
+            f"{', '.join(_CONFLUENCY_SOURCES)}.")
     has_cells = settings.get('cell_mask_dim') is not None
     if source == 'auto':
         return 'masks' if has_cells else 'texture'
@@ -3017,7 +3017,7 @@ def resolve_confluency_source(settings):
     return source
 
 
-def confluency_channel(settings):
+def _confluency_channel(settings):
     """The merged-array channel a texture or intensity source reads.
 
     :param settings: Measure settings; reads ``confluency_channel`` and,
@@ -3031,7 +3031,7 @@ def confluency_channel(settings):
     return int(channel)
 
 
-def field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
+def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
                      channel=None):
     """Covered fraction of one field by the chosen source.
 
@@ -3041,28 +3041,28 @@ def field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
         texture), ``masks``, ``texture`` or ``intensity``.
     :param window: texture window in pixels.
     :param channel: recorded on the result; not used to read anything.
-    :returns: :class:`ConfluencyResult`.
+    :returns: :class:`_ConfluencyResult`.
     :raises ValueError: for an unknown source or a missing input.
     """
     source = str(source or 'auto').strip().lower()
-    if source not in CONFLUENCY_SOURCES:
+    if source not in _CONFLUENCY_SOURCES:
         raise ValueError(f"unknown confluency source {source!r}; use one of "
-                         f"{', '.join(CONFLUENCY_SOURCES)}")
+                         f"{', '.join(_CONFLUENCY_SOURCES)}")
     if source == 'auto':
         source = 'masks' if cell_mask is not None else 'texture'
     if source == 'masks':
         if cell_mask is None:
             raise ValueError("the masks confluency source needs a cell mask")
-        return mask_coverage(cell_mask)
+        return _mask_coverage(cell_mask)
     if image is None:
         raise ValueError(f"the {source} confluency source needs an image")
-    result = (texture_coverage(image, window) if source == 'texture'
-              else intensity_coverage(image))
+    result = (_texture_coverage(image, window) if source == 'texture'
+              else _intensity_coverage(image))
     result.channel = None if channel is None else int(channel)
     return result
 
 
-def confluency_overlay(image, covered, *, color=(255, 170, 0), alpha=0.35):
+def _confluency_overlay(image, covered, *, color=(255, 170, 0), alpha=0.35):
     """An RGB preview of the covered area over the field.
 
     The field is shown in grey, the covered area tinted, and the edge of the
@@ -3085,23 +3085,23 @@ def confluency_overlay(image, covered, *, color=(255, 170, 0), alpha=0.35):
 
 
 def _confluency_figure(image, result, title):
-    """A matplotlib figure of :func:`confluency_overlay` for the run's plots.
+    """A matplotlib figure of :func:`_confluency_overlay` for the run's plots.
 
     :param image: the plane the overlay is drawn on.
-    :param result: the field's :class:`ConfluencyResult`.
+    :param result: the field's :class:`_ConfluencyResult`.
     :param title: the field name.
     :returns: the figure.
     """
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(6, 6))
-        ax.imshow(confluency_overlay(image, result.covered))
+        ax.imshow(_confluency_overlay(image, result.covered))
         ax.set_title(f"{title}: {result.confluency:.1%} covered "
                      f"({result.source})")
         ax.axis('off')
     return fig
 
 
-def measure_field_confluency(data, settings, channel_arrays=None,
+def _measure_field_confluency(data, settings, channel_arrays=None,
                              cell_mask=None):
     """Confluency of one merged field as the run's settings ask for it.
 
@@ -3118,8 +3118,8 @@ def measure_field_confluency(data, settings, channel_arrays=None,
     :returns: ``(result, plane)`` where ``plane`` is the image the overlay
         should be drawn on.
     """
-    source = resolve_confluency_source(settings)
-    channel = confluency_channel(settings)
+    source = _resolve_confluency_source(settings)
+    channel = _confluency_channel(settings)
     measured = list(settings.get('channels') or [])
     if channel_arrays is not None and channel in measured:
         plane = np.asarray(channel_arrays[..., measured.index(channel)])
@@ -3132,16 +3132,16 @@ def measure_field_confluency(data, settings, channel_arrays=None,
     if source == 'masks':
         if cell_mask is None:
             cell_mask = data[..., settings['cell_mask_dim']]
-        result = mask_coverage(cell_mask)
+        result = _mask_coverage(cell_mask)
     else:
-        result = field_confluency(
+        result = _field_confluency(
             plane, source=source,
             window=int(settings.get('confluency_window') or 15),
             channel=channel)
     return result, plane
 
 
-def monolayer_ok(confluency, qc_threshold):
+def _monolayer_ok(confluency, qc_threshold):
     """Whether a monolayer passes QC: covered fraction at or above the cut.
 
     :param confluency: covered fraction, 0 to 1.
@@ -3159,7 +3159,7 @@ def _write_confluency_record(source_folder, file_name, settings, result):
     :param source_folder: the run folder holding ``measurements/``.
     :param file_name: the merged field's stem.
     :param settings: Measure settings.
-    :param result: the field's :class:`ConfluencyResult`.
+    :param result: the field's :class:`_ConfluencyResult`.
     """
     from . import schema
     from .database_concurrency import connect, transaction
@@ -3182,7 +3182,7 @@ def _write_confluency_record(source_folder, file_name, settings, result):
         'confluency_uniform': int(bool(result.uniform)),
         'confluency_qc_threshold': (None if qc_threshold is None
                                     else float(qc_threshold)),
-        'monolayer_ok': int(monolayer_ok(result.confluency, qc_threshold)),
+        'monolayer_ok': int(_monolayer_ok(result.confluency, qc_threshold)),
     }
     columns = tuple(values)
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
@@ -3191,7 +3191,7 @@ def _write_confluency_record(source_folder, file_name, settings, result):
     try:
         with transaction(conn, attempts=8, busy_timeout=30):
             conn.execute(
-                f'''CREATE TABLE IF NOT EXISTS {CONFLUENCY_TABLE} (
+                f'''CREATE TABLE IF NOT EXISTS {_CONFLUENCY_TABLE} (
                        plateID TEXT NOT NULL,
                        rowID TEXT NOT NULL,
                        columnID TEXT NOT NULL,
@@ -3217,7 +3217,7 @@ def _write_confluency_record(source_folder, file_name, settings, result):
                 f'"{column}" = excluded."{column}"'
                 for column in columns if column != 'prcf')
             conn.execute(
-                f'INSERT INTO {CONFLUENCY_TABLE} ({quoted}) '
+                f'INSERT INTO {_CONFLUENCY_TABLE} ({quoted}) '
                 f'VALUES ({placeholders}) ON CONFLICT(prcf) DO UPDATE SET '
                 f'{updates}',
                 tuple(values[column] for column in columns))
@@ -3225,7 +3225,7 @@ def _write_confluency_record(source_folder, file_name, settings, result):
         conn.close()
 
 
-def read_confluency(db_path):
+def _read_confluency(db_path):
     """The per-field confluency table, or an empty frame when there is none.
 
     :param db_path: a ``measurements.db``.
@@ -3238,15 +3238,15 @@ def read_confluency(db_path):
     try:
         present = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-            (CONFLUENCY_TABLE,)).fetchone()
+            (_CONFLUENCY_TABLE,)).fetchone()
         if not present:
             return pd.DataFrame()
-        return pd.read_sql_query(f'SELECT * FROM {CONFLUENCY_TABLE}', conn)
+        return pd.read_sql_query(f'SELECT * FROM {_CONFLUENCY_TABLE}', conn)
     finally:
         conn.close()
 
 
-def confluency_by_well(fields, qc_threshold=None):
+def _confluency_by_well(fields, qc_threshold=None):
     """Aggregate per-field confluency to one row per well.
 
     ``confluency`` is pooled: covered pixels over imaged pixels across the
@@ -3256,7 +3256,7 @@ def confluency_by_well(fields, qc_threshold=None):
     is a settling gradient worth seeing. Time-lapse fields keep their
     ``timeID``, one row per well per timepoint.
 
-    :param fields: the per-field table (:func:`read_confluency`).
+    :param fields: the per-field table (:func:`_read_confluency`).
     :param qc_threshold: the monolayer QC cut; ``None`` reads it from the
         fields' ``confluency_qc_threshold``.
     :returns: one row per well with ``n_fields``, ``covered_px``,
@@ -3267,7 +3267,7 @@ def confluency_by_well(fields, qc_threshold=None):
     """
     if fields is None or fields.empty:
         return pd.DataFrame()
-    keys = list(CONFLUENCY_WELL_KEYS)
+    keys = list(_CONFLUENCY_WELL_KEYS)
     if 'timeID' in fields.columns and fields['timeID'].notna().any():
         keys.append('timeID')
     if qc_threshold is None and 'confluency_qc_threshold' in fields.columns:
@@ -3294,14 +3294,14 @@ def confluency_by_well(fields, qc_threshold=None):
             'confluency_sd': (float(per_field.std(ddof=1))
                               if len(per_field) > 1 else 0.0),
             'fields_below_qc': int(sum(
-                not monolayer_ok(value, qc_threshold) for value in per_field)),
+                not _monolayer_ok(value, qc_threshold) for value in per_field)),
             'confluency_qc_threshold': qc_threshold,
-            'monolayer_ok': int(monolayer_ok(pooled, qc_threshold)),
+            'monolayer_ok': int(_monolayer_ok(pooled, qc_threshold)),
         })
     return pd.DataFrame(rows)
 
 
-def aggregate_confluency_by_well(db_path, qc_threshold=None):
+def _aggregate_confluency_by_well(db_path, qc_threshold=None):
     """Rebuild ``measurements.db:confluency_well`` from the field table.
 
     Rebuilt whole rather than appended, so a field re-measured or dropped
@@ -3314,14 +3314,14 @@ def aggregate_confluency_by_well(db_path, qc_threshold=None):
     """
     from .database_concurrency import connect, transaction
 
-    wells = confluency_by_well(read_confluency(db_path), qc_threshold)
+    wells = _confluency_by_well(_read_confluency(db_path), qc_threshold)
     if wells.empty:
         return wells
     conn = connect(db_path, timeout=30)
     try:
         with transaction(conn, attempts=8, busy_timeout=30):
-            conn.execute(f'DROP TABLE IF EXISTS {CONFLUENCY_WELL_TABLE}')
-            wells.to_sql(CONFLUENCY_WELL_TABLE, conn, index=False)
+            conn.execute(f'DROP TABLE IF EXISTS {_CONFLUENCY_WELL_TABLE}')
+            wells.to_sql(_CONFLUENCY_WELL_TABLE, conn, index=False)
     finally:
         conn.close()
     return wells
@@ -3331,7 +3331,7 @@ def _read_confluency_wells(source):
     """The per-well confluency frame from a database path or a frame.
 
     :param source: a ``measurements.db`` path, or a frame already in the
-        :func:`confluency_by_well` shape.
+        :func:`_confluency_by_well` shape.
     :returns: the per-well frame, empty when none was written.
     """
     if isinstance(source, pd.DataFrame):
@@ -3343,15 +3343,15 @@ def _read_confluency_wells(source):
     try:
         tables = {row[0] for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
-        if CONFLUENCY_WELL_TABLE in tables:
+        if _CONFLUENCY_WELL_TABLE in tables:
             return pd.read_sql_query(
-                f'SELECT * FROM {CONFLUENCY_WELL_TABLE}', conn)
+                f'SELECT * FROM {_CONFLUENCY_WELL_TABLE}', conn)
     finally:
         conn.close()
-    return confluency_by_well(read_confluency(source))
+    return _confluency_by_well(_read_confluency(source))
 
 
-def monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
+def _monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
                  well_of=None, qc_threshold=None):
     """Join per-well confluency onto any per-well table, as filter and denominator.
 
@@ -3366,7 +3366,7 @@ def monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
     :param frame: rows carrying ``plateID``, ``rowID`` and ``columnID``,
         or a ``file`` column when ``well_of`` is given.
     :param confluency: a ``measurements.db`` path or a per-well frame from
-        :func:`confluency_by_well`.
+        :func:`_confluency_by_well`.
     :param value_columns: counts or areas to divide by the covered fraction.
     :param drop_failing: drop rows whose well fails monolayer QC.
     :param well_of: optional callable turning a row into a
@@ -3379,7 +3379,7 @@ def monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
     """
     wells = _read_confluency_wells(confluency)
     out = frame.copy()
-    keys = list(CONFLUENCY_WELL_KEYS)
+    keys = list(_CONFLUENCY_WELL_KEYS)
     if well_of is not None:
         triples = [tuple(well_of(row)) for _, row in out.iterrows()]
         for index, key in enumerate(keys):
@@ -3387,7 +3387,7 @@ def monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
     missing = [key for key in keys if key not in out.columns]
     if missing:
         raise ValueError(
-            f"monolayer_qc needs the well columns {missing}; pass well_of "
+            f"_monolayer_qc needs the well columns {missing}; pass well_of "
             f"to derive them.")
     if wells.empty:
         out['confluency'] = np.nan
@@ -3399,7 +3399,7 @@ def monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
         table = wells[keys + ['confluency', 'monolayer_ok']].copy()
         if qc_threshold is not None:
             table['monolayer_ok'] = [
-                int(monolayer_ok(value, qc_threshold))
+                int(_monolayer_ok(value, qc_threshold))
                 for value in table['confluency']]
         for key in keys:
             out[key] = out[key].astype(str)
@@ -3792,7 +3792,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             source_folder, file_name, settings, rescale_record, psf_record)
 
         if settings.get('confluency'):
-            confluency_result, confluency_plane = measure_field_confluency(
+            confluency_result, confluency_plane = _measure_field_confluency(
                 data, settings, channel_arrays, cell_mask=confluency_cells)
             _write_confluency_record(
                 source_folder, file_name, settings, confluency_result)
@@ -4123,7 +4123,7 @@ def measure_crop(settings):
                 settings = get_measure_crop_settings(settings)
                 settings = measure_test_mode(settings)
                 if settings.get('confluency'):
-                    resolve_confluency_source(settings)
+                    _resolve_confluency_source(settings)
 
                 from .database_concurrency import enable_wal_where_safe
                 _measurements_dir = os.path.join(
@@ -4383,12 +4383,12 @@ def measure_crop(settings):
                         artifact=db_path if os.path.isfile(db_path) else None)
 
                 if settings.get('confluency') and os.path.isfile(db_path):
-                    wells = aggregate_confluency_by_well(
+                    wells = _aggregate_confluency_by_well(
                         db_path, settings.get('confluency_qc_threshold'))
                     if not wells.empty:
                         failing = int((wells['monolayer_ok'] == 0).sum())
                         print(f"Confluency: {len(wells)} well(s) in "
-                              f"measurements.db:{CONFLUENCY_WELL_TABLE}, "
+                              f"measurements.db:{_CONFLUENCY_WELL_TABLE}, "
                               f"{failing} below the monolayer QC threshold.")
 
                 if settings['timelapse']:

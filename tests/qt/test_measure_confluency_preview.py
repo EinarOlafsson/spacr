@@ -65,16 +65,16 @@ def test_the_overlay_shows_the_covered_fraction_of_the_loaded_field(
 def test_auto_reads_the_panels_cell_mask_slice(panel, tmp_path):
     path, covered = _field(tmp_path)
     panel.load_array(path)
-    settings = panel.confluency_settings()
+    settings = panel._confluency_preview_settings()
     assert settings["cell_mask_dim"] == 4
-    result = MP.compute_confluency_preview(np.load(path), settings)
+    result = MP._compute_confluency_preview(np.load(path), settings)
     assert result["source"] == "masks" and not result["error"]
     assert result["confluency"] == pytest.approx(covered.mean())
 
 
 def test_a_failure_is_reported_not_raised(tmp_path):
     path, _covered = _field(tmp_path)
-    result = MP.compute_confluency_preview(
+    result = MP._compute_confluency_preview(
         np.load(path), {"channels": [0], "cell_mask_dim": None,
                         "confluency_source": "masks"})
     assert result["overlay"] is None and "cell_mask_dim" in result["error"]
@@ -94,6 +94,6 @@ def test_the_button_is_hidden_when_alpha_features_are(qtbot, monkeypatch):
 
     monkeypatch.setattr(preferences, "_get_show_alpha_features",
                         lambda: False)
-    widget.refresh_alpha_visibility()
+    widget._refresh_alpha_visibility()
     assert widget._confluency_btn.isHidden()
     assert not widget._confluency_btn.isChecked()

@@ -336,18 +336,18 @@ def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
     return {"crops": crops, "error": ""}
 
 
-CONFLUENCY_SETTING_KEYS = (
+_CONFLUENCY_SETTING_KEYS = (
     "confluency_source", "confluency_channel", "confluency_window",
     "confluency_qc_threshold",
 )
 
 
-def compute_confluency_preview(data: np.ndarray,
+def _compute_confluency_preview(data: np.ndarray,
                                settings: Dict[str, Any]) -> Dict[str, Any]:
     """Covered area of one merged field, with its overlay. Worker-safe.
 
     Runs exactly what a Measure run with ``confluency`` on would run for
-    this field, :func:`spacr.measure.measure_field_confluency`, so the
+    this field, :func:`spacr.measure._measure_field_confluency`, so the
     preview and the database agree.
 
     :param data: merged ``(H, W, C)`` array.
@@ -358,18 +358,18 @@ def compute_confluency_preview(data: np.ndarray,
         ``error`` rather than raised.
     """
     from spacr.measure import (
-        confluency_overlay, measure_field_confluency, monolayer_ok)
+        _confluency_overlay, _measure_field_confluency, _monolayer_ok)
 
     try:
-        result, plane = measure_field_confluency(data, settings)
+        result, plane = _measure_field_confluency(data, settings)
     except Exception as exc:
         return {"overlay": None, "confluency": None, "source": "",
                 "monolayer_ok": None, "error": str(exc)}
     return {
-        "overlay": confluency_overlay(plane, result.covered),
+        "overlay": _confluency_overlay(plane, result.covered),
         "confluency": result.confluency,
         "source": result.source,
-        "monolayer_ok": monolayer_ok(
+        "monolayer_ok": _monolayer_ok(
             result.confluency, settings.get("confluency_qc_threshold")),
         "error": "",
     }
@@ -831,7 +831,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._confluency_view.setAlignment(Qt.AlignCenter)
         self._confluency_view.hide()
         root.addWidget(self._confluency_view)
-        self.refresh_alpha_visibility()
+        self._refresh_alpha_visibility()
 
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
@@ -1303,9 +1303,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._refresh_source_selectors()
         self.refresh()
         if self._confluency_btn.isChecked():
-            self.refresh_confluency()
+            self._refresh_confluency()
 
-    def refresh_alpha_visibility(self) -> None:
+    def _refresh_alpha_visibility(self) -> None:
         """Show the confluency preview only when alpha features are shown.
 
         Item 541 registers the toggle and its overlay in
@@ -1321,15 +1321,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self._confluency_btn.setChecked(False)
         self._confluency_btn.setVisible(visible)
 
-    def showEvent(self, event):
-        """Re-read the alpha preference each time the panel is shown.
-
-        :param event: the Qt show event.
-        """
-        self.refresh_alpha_visibility()
-        super().showEvent(event)
-
-    def confluency_settings(self) -> Dict[str, Any]:
+    def _confluency_preview_settings(self) -> Dict[str, Any]:
         """The settings the confluency preview runs with.
 
         :returns: the run's ``confluency_*`` values over the defaults, with
@@ -1338,7 +1330,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         from spacr.settings import get_measure_crop_settings
 
         defaults = get_measure_crop_settings({})
-        settings = {key: defaults[key] for key in CONFLUENCY_SETTING_KEYS}
+        settings = {key: defaults[key] for key in _CONFLUENCY_SETTING_KEYS}
         settings.update(self._confluency_settings)
         settings["channels"] = (
             _parse_channels(self._measurement_channels.text()) or [0])
@@ -1352,30 +1344,30 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         :param on: whether the overlay is wanted.
         """
         if on:
-            self.refresh_confluency()
+            self._refresh_confluency()
             return
         self._confluency_token += 1
         self._confluency_view.clear()
         self._confluency_view.hide()
 
-    def refresh_confluency(self) -> None:
+    def _refresh_confluency(self) -> None:
         """Compute the loaded field's covered area on a worker and draw it."""
         if self._data is None:
             self.set_preview_status(self.PREVIEW_SOURCE_HINT)
             return
         data = self._data
-        settings = self.confluency_settings()
+        settings = self._confluency_preview_settings()
         self._confluency_token += 1
         token = self._confluency_token
         self._jobs.submit(
-            lambda: compute_confluency_preview(data, settings),
+            lambda: _compute_confluency_preview(data, settings),
             lambda result, _t=token: self._on_confluency_ready(_t, result))
 
     def _on_confluency_ready(self, token: int, result) -> None:
         """Show the overlay and the covered fraction. GUI thread only.
 
         :param token: which request this answers; stale ones are dropped.
-        :param result: the dict from :func:`compute_confluency_preview`.
+        :param result: the dict from :func:`_compute_confluency_preview`.
         """
         from ..i18n import tr
         from .live_preview import numpy_to_qpixmap
@@ -1648,11 +1640,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if "png_channel_mapping" in settings or "png_dims" in settings:
             self._png_dims.set_value(_resolve_png_mapping(settings))
 
-        for key in CONFLUENCY_SETTING_KEYS:
+        for key in _CONFLUENCY_SETTING_KEYS:
             if key in settings:
                 self._confluency_settings[key] = settings[key]
+        self._refresh_alpha_visibility()
         if self._confluency_btn.isChecked():
-            self.refresh_confluency()
+            self._refresh_confluency()
 
         if settings.get("src"):
             self._auto_load_from_src(settings["src"])

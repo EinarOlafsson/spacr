@@ -1583,14 +1583,14 @@ cell_mask_dim
 |             ``len(...)  [UNRESOLVED]``
 | ``_measure_crop_core`` **-- reads it**
 |     ``_intensity_measurements`` **-- reads it**
+|     ``_measure_field_confluency`` **-- reads it**
+|         ``_resolve_confluency_source`` **-- reads it**
 |     ``_morphological_measurements`` **-- reads it**
-|     :py:func:`~spacr.measure.measure_field_confluency` **-- reads it**
-|         :py:func:`~spacr.measure.resolve_confluency_source` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop` **-- reads it**
 |     ``_record_organelle_caveats``
 |         :py:func:`~spacr.settings.organelle_measurement_caveats` **-- reads it**
-|     :py:func:`~spacr.measure.resolve_confluency_source` **-- reads it**
+|     ``_resolve_confluency_source`` **-- reads it**
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |         :py:func:`~spacr.settings.explain_organelle_measurements`
 |             :py:func:`~spacr.settings.organelle_measurement_caveats` **-- reads it**
@@ -1602,16 +1602,16 @@ cell_mask_dim
 |     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.plot.plot_merged` **-- reads it**
 |     ``display(...)  [UNRESOLVED]``
-| :py:func:`~spacr.qt.widgets.measure_preview.compute_confluency_preview`
-|     :py:func:`~spacr.measure.measure_field_confluency` **-- reads it**
-|         :py:func:`~spacr.measure.resolve_confluency_source` **-- reads it**
-| :py:func:`~spacr.qt.widgets.measure_preview.confluency_settings` **-- reads it**
+| ``_compute_confluency_preview``
+|     ``_measure_field_confluency`` **-- reads it**
+|         ``_resolve_confluency_source`` **-- reads it**
+| ``_confluency_preview_settings`` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan`
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``mask_dims_from_settings``, ``_crop_shape_overrides``, ``_intensity_measurements``, ``_measure_crop_core``, ``_morphological_measurements``, ``measure_crop``, ``measure_field_confluency``, ``resolve_confluency_source``, ``plot_merged``, ``confluency_settings``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
+Read by ``mask_dims_from_settings``, ``_crop_shape_overrides``, ``_intensity_measurements``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_morphological_measurements``, ``_resolve_confluency_source``, ``measure_crop``, ``plot_merged``, ``_confluency_preview_settings``, ``get_measure_crop_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-cell_max_area:
 
@@ -2360,9 +2360,9 @@ channels
 |     :py:func:`~spacr.hyperparam.load_activation_data` **-- reads it**
 | :py:func:`~spacr.illumination.illumination_settings` **-- reads it**
 | ``_measure_crop_core`` **-- reads it**
+|     ``_measure_field_confluency`` **-- reads it**
+|         ``_confluency_channel`` **-- reads it**
 |     ``_morphological_measurements`` **-- reads it**
-|     :py:func:`~spacr.measure.measure_field_confluency` **-- reads it**
-|         :py:func:`~spacr.measure.confluency_channel` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | ``_with_distances`` **-- reads it**
 | :py:func:`~spacr.measure.measure_crop` **-- reads it**
@@ -2379,10 +2379,10 @@ channels
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
-| :py:func:`~spacr.qt.widgets.measure_preview.compute_confluency_preview`
-|     :py:func:`~spacr.measure.measure_field_confluency` **-- reads it**
-|         :py:func:`~spacr.measure.confluency_channel` **-- reads it**
-| :py:func:`~spacr.qt.widgets.measure_preview.confluency_settings` **-- reads it**
+| ``_compute_confluency_preview``
+|     ``_measure_field_confluency`` **-- reads it**
+|         ``_confluency_channel`` **-- reads it**
+| ``_confluency_preview_settings`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.motility_preview.apply_settings` **-- reads it**
 | ``_describe_plan_safe``
 |     :py:func:`~spacr.validate.describe_plan` **-- reads it**
@@ -2399,7 +2399,7 @@ channels
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``v2_channels_from_settings``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``preprocess_img_data``, ``_measure_crop_core``, ``_morphological_measurements``, ``_with_distances``, ``confluency_channel``, ``measure_crop``, ``measure_field_confluency``, ``plot_region``, ``confluency_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_channels``, ``describe_plan``.
+Read by ``v2_channels_from_settings``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``preprocess_img_data``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_morphological_measurements``, ``_with_distances``, ``measure_crop``, ``plot_region``, ``_confluency_preview_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_channels``, ``describe_plan``.
 
 .. _setting-flow-checkpoint_path:
 
@@ -2934,19 +2934,19 @@ confluency_channel
 (int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.
 
 | ``_measure_crop_core``
-|     :py:func:`~spacr.measure.measure_field_confluency`
-|         :py:func:`~spacr.measure.confluency_channel` **-- reads it**
+|     ``_measure_field_confluency``
+|         ``_confluency_channel`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_compute_confluency_preview``
+|     ``_measure_field_confluency``
+|         ``_confluency_channel`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
-| :py:func:`~spacr.qt.widgets.measure_preview.compute_confluency_preview`
-|     :py:func:`~spacr.measure.measure_field_confluency`
-|         :py:func:`~spacr.measure.confluency_channel` **-- reads it**
 
-Read by ``confluency_channel``, ``apply_settings``, ``get_measure_crop_settings``.
+Read by ``_confluency_channel``, ``apply_settings``, ``get_measure_crop_settings``.
 
 .. _setting-flow-confluency_qc_threshold:
 
@@ -2962,10 +2962,10 @@ confluency_qc_threshold
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_compute_confluency_preview`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
-| :py:func:`~spacr.qt.widgets.measure_preview.compute_confluency_preview` **-- reads it**
 
-Read by ``_write_confluency_record``, ``measure_crop``, ``apply_settings``, ``compute_confluency_preview``, ``get_measure_crop_settings``.
+Read by ``_write_confluency_record``, ``measure_crop``, ``_compute_confluency_preview``, ``apply_settings``, ``get_measure_crop_settings``.
 
 .. _setting-flow-confluency_source:
 
@@ -2975,20 +2975,20 @@ confluency_source
 (str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.
 
 | ``_measure_crop_core``
-|     :py:func:`~spacr.measure.measure_field_confluency`
-|         :py:func:`~spacr.measure.resolve_confluency_source` **-- reads it**
+|     ``_measure_field_confluency``
+|         ``_resolve_confluency_source`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
-|     :py:func:`~spacr.measure.resolve_confluency_source` **-- reads it**
+|     ``_resolve_confluency_source`` **-- reads it**
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_compute_confluency_preview``
+|     ``_measure_field_confluency``
+|         ``_resolve_confluency_source`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
-| :py:func:`~spacr.qt.widgets.measure_preview.compute_confluency_preview`
-|     :py:func:`~spacr.measure.measure_field_confluency`
-|         :py:func:`~spacr.measure.resolve_confluency_source` **-- reads it**
 
-Read by ``resolve_confluency_source``, ``apply_settings``, ``get_measure_crop_settings``.
+Read by ``_resolve_confluency_source``, ``apply_settings``, ``get_measure_crop_settings``.
 
 .. _setting-flow-confluency_window:
 
@@ -2998,17 +2998,17 @@ confluency_window
 (int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.
 
 | ``_measure_crop_core``
-|     :py:func:`~spacr.measure.measure_field_confluency` **-- reads it**
+|     ``_measure_field_confluency`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_compute_confluency_preview``
+|     ``_measure_field_confluency`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.measure_preview.apply_settings` **-- reads it**
-| :py:func:`~spacr.qt.widgets.measure_preview.compute_confluency_preview`
-|     :py:func:`~spacr.measure.measure_field_confluency` **-- reads it**
 
-Read by ``measure_field_confluency``, ``apply_settings``, ``get_measure_crop_settings``.
+Read by ``_measure_field_confluency``, ``apply_settings``, ``get_measure_crop_settings``.
 
 .. _setting-flow-consolidate:
 

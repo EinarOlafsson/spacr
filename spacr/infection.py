@@ -321,16 +321,25 @@ def parasites_per_cell(db_path: str) -> pd.DataFrame:
 def _monolayer_by_group(db_path: str, keys: Sequence[str]) -> Dict[tuple, dict]:
     """Confluency per report group, when the Measure run measured it.
 
+    When the Measure run also measured confluency, every row of
+    :func:`infection_report` gains ``monolayer_ok`` and each group two more
+    metrics: ``confluency``, the covered fraction of the imaged area, and
+    ``parasites_per_confluency``, the parasite count over that fraction,
+    which compares wells per unit of monolayer rather than per field imaged.
+    ``infection_report(..., monolayer_filter=True)`` drops the groups whose
+    monolayer failed the confluency QC; it is ignored when no confluency was
+    measured.
+
     :param db_path: path to a ``measurements.db``.
     :param keys: the report's grouping columns; a group with ``fieldID``
         takes that field's own confluency, otherwise the well's pooled one.
     :returns: identity tuple (as strings) -> ``confluency``, ``n_fields``
         and ``monolayer_ok``; empty when the run wrote no confluency.
     """
-    from .measure import confluency_by_well, read_confluency
+    from .measure import _confluency_by_well, _read_confluency
 
     try:
-        fields = read_confluency(db_path)
+        fields = _read_confluency(db_path)
     except Exception:
         return {}
     if fields.empty:
@@ -338,7 +347,7 @@ def _monolayer_by_group(db_path: str, keys: Sequence[str]) -> Dict[tuple, dict]:
     if FIELD_KEY in keys:
         table = fields.assign(n_fields=1)
     else:
-        table = confluency_by_well(fields)
+        table = _confluency_by_well(fields)
     wanted = [key for key in keys if key in table.columns]
     if len(wanted) != len(keys):
         return {}
@@ -361,17 +370,9 @@ def infection_report(db_path: str, *,
     "infected cells" are different populations, and a table that reports only
     the ratios cannot be checked.
 
-    When the Measure run also measured confluency, every row gains
-    ``monolayer_ok`` and each group two more metrics: ``confluency``, the
-    covered fraction of the imaged area, and ``parasites_per_confluency``,
-    the parasite count over that fraction, which compares wells per unit of
-    monolayer rather than per field imaged.
-
     :param db_path: path to a ``measurements.db``.
     :param by_field: group by field as well as well, which is what shows a
         settling gradient a well mean hides.
-    :param monolayer_filter: drop the groups whose monolayer failed the
-        confluency QC; ignored when no confluency was measured.
     :returns: tidy frame -- identity columns, then ``metric``, ``value``,
         ``denominator`` and ``n_denominator``. Empty when there is no cell
         table to count.
