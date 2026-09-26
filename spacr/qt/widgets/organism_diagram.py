@@ -248,6 +248,42 @@ class _CellArtwork(QWidget):
         return QColor(0, 0, 0, round(alpha * 255))
 
 
+class _ReservedColumn(QVBoxLayout):
+    """The diagram's column, which answers its height before it is resized.
+
+    A parent layout asks a widget with a layout for that LAYOUT's height at
+    a width, not the widget's, and a plain column adds up the heights its
+    rows were last fixed to -- the heights for the previous width. So a pane
+    made wider laid the diagram out at its old height and only corrected it
+    in a second pass, after :meth:`OrganismDiagram.resizeEvent` had fixed
+    the rows: in between, the diagram was 157 px too tall with the artwork
+    52 px low inside it, and the first hover was what let the page settle,
+    so the text under the model jumped on a hover.
+
+    :param owner: the diagram whose reserved heights this column reports.
+    """
+
+    def __init__(self, owner: "OrganismDiagram"):
+        """Lay out ``owner`` and answer for its reserved heights."""
+        super().__init__(owner)
+        self._owner = owner
+
+    def hasHeightForWidth(self) -> bool:
+        """Yes, once the rows exist: both follow the width."""
+        return hasattr(self._owner, "caption")
+
+    def heightForWidth(self, width: int) -> int:
+        """The model row, the spacing and the reserved caption at ``width``.
+
+        :param width: the width the parent is about to give the diagram.
+        :returns: the height the rows will be fixed to at that width.
+        """
+        if not hasattr(self._owner, "caption"):
+            return super().heightForWidth(width)
+        row, caption = self._owner._reserved_heights(width)
+        return row + max(0, self.spacing()) + caption
+
+
 class OrganismDiagram(QWidget):
     """A cell illustration and keyboard-accessible compartment selector.
 
@@ -262,7 +298,7 @@ class OrganismDiagram(QWidget):
         self.labels = (COMPARTMENT_SL if app_key == "toxoplasma" else
                        YEAST_LABELS if app_key == "candida" else APICOMPLEXAN_LABELS)
         self.setObjectName("OrganismDiagram")
-        layout = QVBoxLayout(self)
+        layout = _ReservedColumn(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self._layout_width = None
         self._model_row = QWidget(self)
@@ -330,21 +366,44 @@ class OrganismDiagram(QWidget):
         super().resizeEvent(event)
         self._fit_width()
 
+    def _reserved_heights(self, width: int) -> tuple:
+        """The model row's and the caption's heights at ``width``.
+
+        The caption reserves the longest description any compartment can
+        show, so hovering never changes the height.
+
+        :param width: the diagram's width in pixels.
+        :returns: ``(model row height, caption height)``.
+        """
+        cached = getattr(self, "_reserved_cache", None)
+        if cached is not None and cached[0] == width:
+            return cached[1]
+        artwork_width = max(1, (width - scaled_px(10)) * 0.55)
+        row = min(scaled_px(560), max(scaled_px(360), round(artwork_width * 1.25 + 24)))
+        metrics = self.caption.fontMetrics()
+        locations = {"", *self.labels.values()}
+        heights = [metrics.boundingRect(QRect(0, 0, max(1, width), 100000), Qt.TextWordWrap,
+                                       self._description_text(code)).height()
+                   for code in locations]
+        answer = (row, max(heights) + scaled_px(6))
+        self._reserved_cache = (width, answer)
+        return answer
+
     def _fit_width(self) -> None:
-        """Size the model row and all possible descriptions using this width and font."""
+        """Size the model row and all possible descriptions using this width and font.
+
+        The column is laid out again at once: Qt placed the rows at their
+        old heights before this resize reached the diagram, and waiting for
+        the posted relayout would show the artwork and caption there for a
+        frame.
+        """
         if not hasattr(self, "caption") or self.width() == self._layout_width:
             return
         self._layout_width = self.width()
-        artwork_width = max(1, (self.width() - scaled_px(10)) * 0.55)
-        height = min(scaled_px(560), max(scaled_px(360), round(artwork_width * 1.25 + 24)))
-        self._model_row.setFixedHeight(height)
-        metrics = self.caption.fontMetrics()
-        width = max(1, self.width())
-        locations = {"", *self.labels.values()}
-        heights = [metrics.boundingRect(QRect(0, 0, width, 100000), Qt.TextWordWrap,
-                                       self._description_text(code)).height()
-                   for code in locations]
-        self.caption.setFixedHeight(max(heights) + scaled_px(6))
+        row, caption = self._reserved_heights(self.width())
+        self._model_row.setFixedHeight(row)
+        self.caption.setFixedHeight(caption)
+        self.layout().activate()
 
     def changeEvent(self, event) -> None:
         """Recompute reserved text space after an explicit font or language change.
@@ -355,7 +414,9 @@ class OrganismDiagram(QWidget):
         super().changeEvent(event)
         if event.type() in (QEvent.FontChange, QEvent.LanguageChange):
             self._layout_width = None
+            self._reserved_cache = None
             self._fit_width()
+            self.updateGeometry()
 
     def clear_components(self) -> None:
         """Clear all persistent selections and the transient compartment highlight."""
