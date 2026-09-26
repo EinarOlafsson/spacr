@@ -6823,6 +6823,10 @@ ALPHA_FEATURES = {
                      'watch_idle_minutes'),
         'widgets': ('WatchFolderProgress',),
     },
+    570: {
+        'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
+                    'ControlChartExportHits'),
+    },
 }
 
 
