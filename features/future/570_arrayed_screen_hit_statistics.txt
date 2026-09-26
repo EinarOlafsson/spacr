@@ -67,5 +67,11 @@ Control Charts controls: ControlChartHitScore, ControlChartHitRankBy,
 ControlChartHitThreshold, ControlChartHitDirection, ControlChartHitEstimator,
 ControlChartHitScope, ControlChartHitTreatment), ControlChartHitsSection (the
 Hits output section), ControlChartExportHits (the Export hits button). No
-settings keys. Names exported as control_chart.HIT_ALPHA_WIDGETS; 569's
-registry was not on nightly when this was built, so they wait for it.
+settings keys. Registered as ALPHA_FEATURES[570]['widgets'] in
+spacr/settings.py after merging nightly (569's registry); the same names
+are exported as control_chart.HIT_ALPHA_WIDGETS, and a screen test checks
+they hide with Show alpha features off and return with it on. The sixteen
+new tr() captions wait in _AWAITING_CATALOG_REBUILD for the catalog lane;
+the API surface pins move 11,816 -> 11,842 (callables 9,789 -> 9,814),
+each addition named where the pin is, and the documentation locale
+catalogs are not regenerated here.

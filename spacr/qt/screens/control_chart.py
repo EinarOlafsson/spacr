@@ -384,7 +384,7 @@ class ControlChartScreen(QWidget):
         head.addWidget(export)
 
         self._export_hits = QPushButton(tr("Export hits…"), self)
-        self._export_hits.setObjectName(HIT_EXPORT_OBJECT)
+        self._export_hits.setObjectName("ControlChartExportHits")
         self._export_hits.setToolTip(tr(
             "Write the ranked hit table, every well's scores and the plate "
             "summary as CSV, and one plate heatmap per statistic, into a "
@@ -456,7 +456,7 @@ class ControlChartScreen(QWidget):
         hits_layout.addWidget(self.hit_table, 1)
         self._hit_section = outputs.add_section(
             hits, "Hits", persist_key="control_chart/Hits")
-        self._hit_section.setObjectName(HIT_SECTION_OBJECT)
+        self._hit_section.setObjectName("ControlChartHitsSection")
         lower_layout.addWidget(outputs, 1)
         right.add_pane(lower, "Output", stretch=2)
 
@@ -609,7 +609,7 @@ class ControlChartScreen(QWidget):
         :returns: the container.
         """
         box = QWidget(parent)
-        box.setObjectName(HIT_PANEL_OBJECT)
+        box.setObjectName("ControlChartHitPanel")
         form = QFormLayout(box)
         form.setContentsMargins(0, SPACING["sm"], 0, 0)
         form.setSpacing(SPACING["xs"])

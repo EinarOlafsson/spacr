@@ -68,6 +68,29 @@ def test_every_alpha_widget_of_the_option_exists_by_name(screen):
         assert screen.findChildren(QObject, name), name
 
 
+def test_the_option_is_registered_alpha_and_follows_the_switch(
+        screen, tmp_path, monkeypatch):
+    """Item 569's gate: hidden while Show alpha features is off, shown once
+    it is on, and every name the screen exports is in the registry."""
+    from PySide6.QtCore import QObject, QSettings
+
+    from spacr.qt import preferences
+    from spacr.settings import ALPHA_FEATURES, _alpha_names
+
+    path = tmp_path / "alpha.ini"
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(str(path), QSettings.IniFormat))
+    assert set(HIT_ALPHA_WIDGETS) == set(ALPHA_FEATURES[570]["widgets"])
+    assert set(HIT_ALPHA_WIDGETS) <= _alpha_names("widgets")
+    preferences._apply_alpha_widgets(screen)
+    for name in HIT_ALPHA_WIDGETS:
+        assert screen.findChild(QObject, name).isHidden(), name
+    preferences._set_show_alpha_features(True)
+    preferences._apply_alpha_widgets(screen)
+    for name in HIT_ALPHA_WIDGETS:
+        assert not screen.findChild(QObject, name).isHidden(), name
+
+
 def test_off_by_default_and_scores_nothing(screen):
     screen.set_frame(_plates())
     assert not screen._hit_score.isChecked()
