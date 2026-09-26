@@ -2680,6 +2680,47 @@ def _zoo_cellpose_dino_models() -> List[tuple]:
             if path]
 
 
+def _zoo_prefixed_models() -> List[tuple]:
+    """``(model setting, caption)`` for each model of each installed
+    prefixed backend -- StarDist, InstanSeg, Omnipose (items 551-553).
+
+    The setting is ``<prefix><model>``, which :func:`load_cellpose_model`
+    and :func:`_backend_model` run in that backend; the caption is
+    "<backend> · <model>". A backend that is not installed lists nothing
+    here: the Mode box offers its install.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import (_SPECS, _prefixed_names,
+                                           _prefixed_value)
+
+    out = []
+    for name in _prefixed_names():
+        if not _state_ready(name):
+            continue
+        spec = _SPECS[name]
+        out.extend((_prefixed_value(name, model),
+                    tr("{backend} · {model}", backend=spec.label,
+                       model=model))
+                   for model in spec.models
+                   if not _prefixed_alpha_hidden(name, model))
+    return out
+
+
+def _prefixed_alpha_hidden(name: str, model: str) -> bool:
+    """Whether the alpha gate hides backend ``name``'s ``model`` (item 569).
+
+    The model is hidden when its Model Zoo row (``<name>_<model>``) or its
+    backend's row (``<name>_v1``) is registered in
+    ``spacr.settings.ALPHA_FEATURES`` and Show alpha features is off -- the
+    same rows the Model Zoo folds away, so the Mode box and the Model list
+    offer exactly what the zoo shows.
+    """
+    from ..preferences import _is_alpha_visible
+
+    return not (_is_alpha_visible("models", f"{name}_{model}")
+                and _is_alpha_visible("models", f"{name}_v1"))
+
+
 def _zoo_models_of_kind(kind: str) -> List[tuple]:
     """``(key, path or None, entry)`` for every zoo model of ``kind``.
 
@@ -2749,7 +2790,8 @@ def load_cellpose_model(model_name: str):
     is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own
     environment, as Mask generation loads it. A ``cellpose_dino:<path>``
     model, a Cellpose-DINO checkpoint, is loaded the same way in the
-    Cellpose-DINO backend (item 525).
+    Cellpose-DINO backend (item 525), and a ``stardist:``, ``instanseg:``
+    or ``omnipose:`` model in its own backend (items 551-553).
 
     :param model_name: a Cellpose model name, the path of a fine-tuned
         checkpoint, resolved by
@@ -2759,10 +2801,12 @@ def load_cellpose_model(model_name: str):
     import inspect
 
     from ..._segmentation_backends import (_cellpose3_choice,
-                                           _cellpose_dino_choice)
+                                           _cellpose_dino_choice,
+                                           _prefixed_backend)
 
     if (_cellpose3_choice(model_name) is not None
-            or _cellpose_dino_choice(model_name) is not None):
+            or _cellpose_dino_choice(model_name) is not None
+            or _prefixed_backend(model_name) is not None):
         return _backend_model(str(model_name).strip())
 
     import torch
@@ -3326,6 +3370,43 @@ def _offer_cellpose_dino_modes() -> List[str]:
         _MAGNIFIER_BACKENDS[mode] = ("cellpose_dino", label)
         _MAGNIFIER_SEGMENTERS[mode] = _backend_segmenter
         added.append(mode)
+    return added
+
+
+def _offer_prefixed_modes() -> List[str]:
+    """Make each StarDist, InstanSeg and Omnipose model a magnifier mode.
+
+    Items 551-553. ``<prefix><model>`` joins :data:`_MAGNIFIER_BACKENDS`
+    under its backend and the caption "<backend> · <model>", and
+    :data:`_MAGNIFIER_SEGMENTERS` with :func:`_backend_segmenter`, whose
+    :func:`_backend_model` loads it. Every model is listed whether or not
+    its backend is installed; greying and the install offer are the
+    per-backend code every backend mode already has. A model the alpha
+    gate hides (:func:`_prefixed_alpha_hidden`) is not listed, and one
+    listed before Show alpha features was turned off is taken out again
+    the next time the Mode box is built.
+
+    :returns: the modes added, in the backends' order.
+    """
+    from ..i18n import tr
+    from ..._segmentation_backends import (_SPECS, _prefixed_names,
+                                           _prefixed_value)
+
+    added = []
+    for name in _prefixed_names():
+        spec = _SPECS[name]
+        for model in spec.models:
+            mode = _prefixed_value(name, model)
+            if _prefixed_alpha_hidden(name, model):
+                _MAGNIFIER_BACKENDS.pop(mode, None)
+                _MAGNIFIER_SEGMENTERS.pop(mode, None)
+                continue
+            if mode in _MAGNIFIER_BACKENDS:
+                continue
+            _MAGNIFIER_BACKENDS[mode] = (name, tr(
+                "{backend} · {model}", backend=spec.label, model=model))
+            _MAGNIFIER_SEGMENTERS[mode] = _backend_segmenter
+            added.append(mode)
     return added
 
 
@@ -11143,6 +11224,7 @@ class MakeMasksScreen(QWidget):
             self._mag_mode.addItem("Cellpose", "cellpose")
         self._mag_uninstalled = set()
         _offer_cellpose_dino_modes()
+        _offer_prefixed_modes()
         for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
             self._mag_mode.addItem(label, mode)
         self._resync_magnifier_modes()
@@ -12190,7 +12272,9 @@ class MakeMasksScreen(QWidget):
         chosen stays chosen, without a change signal when it did not change.
         Each Cellpose-DINO model downloaded follows, as
         ``cellpose_dino:<path>`` under "Cellpose-DINO · <file>" (item 525),
-        which :func:`load_cellpose_model` runs in its backend.
+        which :func:`load_cellpose_model` runs in its backend, and then
+        each model of an installed StarDist, InstanSeg or Omnipose backend
+        (:func:`_zoo_prefixed_models`, items 551-553).
         """
         from ..i18n import tr
         from ..model_install import UNINSTALLED_GREY
@@ -12222,7 +12306,8 @@ class MakeMasksScreen(QWidget):
                         "from the model zoo and selects it.", name=key),
                         Qt.ToolTipRole)
                 combo.setItemData(combo.count() - 1, True, _ZOO_ROLE)
-            for value, label in _zoo_cellpose_dino_models():
+            for value, label in (_zoo_cellpose_dino_models()
+                                 + _zoo_prefixed_models()):
                 if combo.findData(value) >= 0:
                     continue
                 combo.addItem(label, value)
@@ -12366,11 +12451,14 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
         from ..widgets import model_zoo_picker
-        from ..._segmentation_backends import (_cellpose3_choice,
-                                               _cellpose_dino_choice)
+        from ... import model_zoo
+        from ..._segmentation_backends import (_SPECS, _cellpose3_choice,
+                                               _cellpose_dino_choice,
+                                               _prefixed_backend,
+                                               _prefixed_choice)
 
         path = model_zoo_picker.choose_model(
-            self, kinds=("cellpose", "cellpose3", "cellpose_dino"))
+            self, kinds=model_zoo.mask_model_kinds())
         if not path:
             return None
         path = str(path)
@@ -12385,6 +12473,12 @@ class MakeMasksScreen(QWidget):
             elif dino is not None:
                 label = tr("Cellpose-DINO · {model}",
                            model=os.path.basename(dino) or dino)
+            elif _prefixed_backend(path) is not None:
+                backend = _prefixed_backend(path)
+                model = _prefixed_choice(backend, path)
+                label = tr("{backend} · {model}",
+                           backend=_SPECS[backend].label,
+                           model=os.path.basename(model) or model)
             else:
                 label = os.path.basename(path) or path
             self._cp_model.addItem(label, path)

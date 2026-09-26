@@ -28,6 +28,12 @@ fails minutes after the click.
 """
 from __future__ import annotations
 
+from spacr.model_zoo import mask_model_kinds
+
+#: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
+#: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
+MASK_KINDS = mask_model_kinds()
+
 import pytest
 
 import spacr._segmentation_backends as SB
@@ -113,10 +119,10 @@ def test_the_per_object_model_cell_asks_for_the_cellpose3_kind():
 
 
 @pytest.mark.parametrize("key,expected", [
-    ("cell_model_name", ("cellpose", "cellpose3", "cellpose_dino")),
-    ("nucleus_model_name", ("cellpose", "cellpose3", "cellpose_dino")),
-    ("pathogen_model_name", ("cellpose", "cellpose3", "cellpose_dino")),
-    ("organelleb_model_name", ("cellpose", "cellpose3", "cellpose_dino")),
+    ("cell_model_name", MASK_KINDS),
+    ("nucleus_model_name", MASK_KINDS),
+    ("pathogen_model_name", MASK_KINDS),
+    ("organelleb_model_name", MASK_KINDS),
     ("plaque_model", ("cellpose",)),
     ("custom_model", ("cellpose",)),
     ("pathogen_model", ("cellpose",)),
@@ -220,7 +226,7 @@ def test_clicking_the_model_cell_and_pressing_use_writes_cyto3(
     assert grid.settings()["cell_model_name"] == "cellpose3:cyto3", (
         "item 503: a bare cyto3 is a retired Cellpose name that runs as "
         "cpsam; the prefix is what sends the object to Cellpose 3")
-    assert seen["kinds"] == ObjectSettingsGrid.MODEL_KINDS
+    assert seen["kinds"] == MASK_KINDS
     assert ("cyto3", "cellpose3") in seen["rows"]
     assert grid.settings()["nucleus_model_name"] != "cellpose3:cyto3", (
         "picking for one object changed another")
@@ -280,7 +286,7 @@ def test_the_mask_panels_model_zoo_button_writes_cyto2(
 
     value = field.text() if hasattr(field, "text") else field.get_value()
     assert value == "cellpose3:cyto2"
-    assert seen["kinds"] == ("cellpose", "cellpose3", "cellpose_dino")
+    assert seen["kinds"] == MASK_KINDS
     assert screen._settings_model.collect()["cell_model_name"] == "cellpose3:cyto2"
 
 

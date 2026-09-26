@@ -27,7 +27,8 @@ def _prepare_mask_model(settings, object_type):
     backends require their own resolved-artifact contract before dispatch.
     """
     from ._segmentation_backends import (_backend_name, _cellpose3_is_chosen,
-                                         _cellpose_dino_is_chosen)
+                                         _cellpose_dino_is_chosen,
+                                         _prefixed_is_chosen)
     from .artifacts import material_settings
     from .checkpoint import fingerprint
     from .model_zoo import sha256_file
@@ -38,7 +39,8 @@ def _prepare_mask_model(settings, object_type):
         raise ValueError('Unsupported parallel mask object type')
     if (_backend_name(settings.get('segmentation_backend', 'cellpose')) != 'cellpose'
             or _cellpose3_is_chosen(settings)
-            or _cellpose_dino_is_chosen(settings)):
+            or _cellpose_dino_is_chosen(settings)
+            or _prefixed_is_chosen(settings)):
         raise ValueError('Parallel model preparation currently requires the Cellpose backend')
     prepared = set_default_settings_preprocess_generate_masks(copy.deepcopy(settings))
     model = _get_object_settings(object_type, prepared)['model_name']
