@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Candida：浏览该生物的指南",
+  "description": "浏览Candida指南，探索酵母示意图，并找到可用的通用图像分析流程。",
+  "objectives": [
+    "从Home打开页面并找到主要控件。",
+    "识别可用的输入、操作和输出。",
+    "选择下一个可用的分析或参考资料。"
+  ],
+  "prerequisite": "打开spaCR的Home。指南不需要任何输入文件。Candida专用的检测磁贴目前显示Coming soon。",
+  "scenes": [
+    "在Home中选择Candida。它的指南介绍形态、丝状化、生物膜，以及这种酵母如何与宿主细胞相互作用。",
+    "阅读信息面板时，旁边会显示模块说明；拖动分隔条可以加宽您正在阅读的一侧。",
+    "出芽酵母示意图的用法与其他指南相同。把指针悬停在某个组分上即可阅读说明，选择多个组分可以保持高亮，点击Clear components即可清除选择。",
+    "Candida专用的检测磁贴目前标记为Coming soon，但您仍然可以使用通用工具分析图像。回到Home，在Mask中分割图像，在Measure中测量，并选择适合您的物种和实验的通道与掩膜。",
+    "如需了解基因和蛋白质的详细信息，Candida Genome Database和UniProt的链接会在浏览器中打开。指南不需要输入文件，也不会写出结果；准备好处理图像时，请按照某个可运行模块的教程操作。"
+  ]
+}

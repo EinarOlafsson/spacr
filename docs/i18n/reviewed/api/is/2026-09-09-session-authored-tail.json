@@ -10,11 +10,12 @@
       "translation": "GREINT OG NOTHÆFT ER TILKYNNT HVORT Í SÍNU LAGI. Uppsetningarskjár sem tilkynnir hraðal sem spaCR mun aldrei senda verk á er verri en skjár sem segir ekkert, því þá kennir notandinn vélbúnaði sínum um CPU hraðann. Taugavélar eru öll ástæðan fyrir því að þessi greinarmunur er hér: Neural Engine frá Apple, AI Boost frá Intel og Hexagon frá Qualcomm eru allt raunverulegt kísil án nokkurs færanlegs torch tækis, svo þau eru nefnd sem FUNDIN og aldrei valin."
     },
     {
-      "label": "spacr.active_learning.retrain_round#26",
+      "label": "spacr.active_learning.retrain_round#27",
       "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
-      "translation": "hversu margar óskráðar myndúrklippur á að draga af handahófi og fella að flokknum FJARVERANDI þegar aðeins einn flokkur hefur verið skráður. ``None`` (sjálfgefið) hafnar því í staðinn, eins og áður."
+      "translation": "hversu margar óskráðar myndúrklippur á að draga af handahófi og fella að flokknum FJARVERANDI þegar aðeins einn flokkur hefur verið skráður. ``None`` (sjálfgefið) hafnar því í staðinn, eins og áður.",
+      "rebound_from": "spacr.active_learning.retrain_round#26"
     },
     {
       "label": "spacr.api.MaskConfig#2",
@@ -276,11 +277,12 @@
       "translation": "\"opening map barcodes crashes spacr\" -- þetta er ekki hrun, þetta er frost án nokkurs rakningarstakks, sem er ástæðan fyrir því að ekkert komst í annálana. Kerfisannállinn sýnir `automount request ... triggered by spacr` beint á undan hverri þvinguðu lokun."
     },
     {
-      "label": "spacr.qt.path_probe.isdir#3",
+      "label": "spacr.qt.path_probe.isdir#4",
       "source_sha256": "0796de737f2808ceafe077b85e343892678dde73c217933399a88120bdc0dcc4",
       "source": "WHY `wait` EXISTS, and why it is not the default. The freeze this module was written for came from statting REMEMBERED paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. Nobody asked for it and nobody was waiting on it, so answering from cache and checking later is strictly better.",
       "context": "WHY `wait` EXISTS, and why it is not the default. The freeze this module was written for came from statting REMEMBERED paths -- a passive pass over everything a settings file mentions, on the main GUI execution path, to colour the missing ones red. Nobody asked for it and nobody was waiting on it, so answering from cache and checking later is strictly better.",
-      "translation": "HVERS VEGNA `wait` ER TIL, og hvers vegna það er ekki sjálfgefið. Frostið sem þessi eining var skrifuð vegna kom af því að stat var keyrt á MUNAÐAR slóðir -- óvirk yfirferð yfir allt sem stillingaskrá nefnir, á GUI þræðinum, til að lita þær sem vantaði rauðar. Enginn bað um það og enginn beið eftir því, svo að svara úr skyndiminni og athuga síðar er hreinlega betra."
+      "translation": "HVERS VEGNA `wait` ER TIL, og hvers vegna það er ekki sjálfgefið. Frostið sem þessi eining var skrifuð vegna kom af því að stat var keyrt á MUNAÐAR slóðir -- óvirk yfirferð yfir allt sem stillingaskrá nefnir, á GUI þræðinum, til að lita þær sem vantaði rauðar. Enginn bað um það og enginn beið eftir því, svo að svara úr skyndiminni og athuga síðar er hreinlega betra.",
+      "rebound_from": "spacr.qt.path_probe.isdir#3"
     },
     {
       "label": "spacr.qt.preferences.get_dashboard_watermark#1",

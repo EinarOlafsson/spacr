@@ -142,7 +142,7 @@
     },
     "investigate_hit": {
       "lesson": "71_investigate_hit",
-      "title": "Investigate Hit"
+      "title": "Investigate Hit: trace a Regression gene back to measured cells"
     },
     "layer_viewer": {
       "lesson": "57_layer_viewer",

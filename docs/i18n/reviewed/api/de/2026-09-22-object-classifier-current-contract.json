@@ -36,7 +36,9 @@
       "source": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability.",
       "context": "Counts retain their regression values. Display classes use :func:`bin_parasite_count`; a regressor supplies no class probability.",
       "translation": "Die Anzahlen behalten ihre Regressionswerte. Die angezeigten Klassen werden mit :func:`bin_parasite_count` bestimmt; ein Regressor liefert keine Klassenwahrscheinlichkeit.",
-      "source_sha256": "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528"
+      "source_sha256": "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead.predict#0",

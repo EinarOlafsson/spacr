@@ -1,31 +1,33 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+  "english_sha256": "67f5f50b34186ea7d27a9be6536fcc4fd4c7d6877dd0ad4bf2283093344441c0",
   "review": {
-    "kind": "Parent editorial translation of frozen English; actual Linux installation distinguished from source-reviewed Windows/macOS guidance",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "it",
-  "title": "Programmi di installazione per piattaforma",
-  "description": "Scegli il programma ufficiale, comprendi la selezione automatica dell’acceleratore e le opzioni di riservatezza, quindi verifica l’ambiente Linux realmente installato.",
+  "title": "Installare spaCR con un installer desktop",
+  "description": "Scarica l’installer per il tuo sistema operativo, completa la configurazione e apri spaCR.",
   "objectives": [
-    "Selezionare il programma ufficiale per il sistema operativo.",
-    "Distinguere l’accelerazione automatica dalla scelta esplicita della sola CPU.",
-    "Leggere le opzioni di riservatezza, le versioni installate e gli avvisi diagnostici."
+    "Scaricare ed eseguire l’installer per il tuo sistema operativo.",
+    "Scegliere un’opzione di accelerazione e le preferenze del primo avvio.",
+    "Aprire spaCR e trovare i log di installazione se la configurazione richiede attenzione."
   ],
-  "prerequisite": "Questa registrazione verifica il programma pubblico online per Linux x86-64 di spaCR 1.5.0.5, confrontato con la somma di controllo il 10 settembre 2026, con Python 3.12.13, Qt 6.11.2 e Torch 2.14.0+cu132. L’installazione reale è terminata prima delle immagini di verifica. Ha usato nuove cartelle private per ambiente ed eseguibile di avvio, librerie grafiche di sistema già presenti, --skip-system-deps e --no-launch; nessun ambiente o dipendenza di sistema preesistente è stato modificato. Le quattro schede sono istruzioni, non installazioni Windows/macOS registrate né output di terminale inventato. Le indicazioni Windows/macOS sono state controllate solo nel codice attuale dei programmi di installazione. La cattura usa un profilo scuro privato, scala del carattere 1.5, presentazione già chiusa, precaricamento su richiesta e --no-setup, che non esclude la domanda separata sulla riservatezza. Esc rifiuta quella finestra lasciando disattivate tutte le opzioni; le preferenze private sono state rilette per confermarlo. Doctor usa --no-gpu-probe; non si dichiara la verifica di allocazione, velocità, analisi o altre piattaforme. I tentativi di registrazione falliti sono conservati, non conteggiati come difetti dell’applicazione.",
+  "prerequisite": "Scarica l’installer ufficiale per il tuo sistema operativo e lascia spazio per l’applicazione e le sue dipendenze scientifiche.",
   "scenes": [
-    "Usa la versione ufficiale di spaCR su GitHub e scegli il programma per il tuo sistema operativo. I programmi online scaricano un ambiente Python privato e le dipendenze scientifiche; non serve un ambiente Conda esistente. In questo esempio Linux abbiamo confrontato il file scaricato con la somma di controllo della versione prima di eseguirlo.",
-    "Su Windows seleziona l’eseguibile di installazione online. Il codice attuale preseleziona l’accelerazione automatica; puoi deselezionare quel componente opzionale per usare soltanto la CPU. Questa scheda spiega la scelta, ma non è una registrazione dell’installazione Windows né una prova di compatibilità del tuo computer.",
-    "Su macOS scegli il pacchetto universale online per Intel e Apple silicon. Il programma di avvio avvia la configurazione per utente se manca l’ambiente di esecuzione. Verifica la fonte ufficiale prima di approvare gli avvisi di sicurezza e attendi i download. Sono indicazioni controllate nel codice, non un’installazione macOS eseguita.",
-    "Su Linux rendi eseguibile il file verificato e avvialo dalla sua cartella. La selezione automatica dell’acceleratore è ora predefinita; richiedi esplicitamente la CPU se è ciò che ti serve. La nostra esecuzione isolata riutilizzava librerie di sistema e percorsi privati, quindi non dimostrava l’installazione di dipendenze di sistema.",
-    "Leggi il profilo di installazione reale invece di dedurre il motore da un avvio riuscito. Qui la richiesta era auto e il motore selezionato è CUDA su hardware NVIDIA. La build Torch installata usa CUDA tredici punto due. Questo identifica la scelta; non è una misurazione della velocità GPU.",
-    "Controlla la versione installata, l’importazione di Qt e il percorso del pacchetto. Questo ambiente privato contiene spaCR uno punto cinque punto zero punto cinque. I file provengono dall’installazione, non da una copia modificabile del sorgente. Importazioni riuscite non convalidano ogni analisi o formato opzionale.",
-    "Il vero primo avvio chiede le scelte facoltative per condivisione diagnostica, segnalazioni pubbliche e configurazione degli account. Le segnalazioni sarebbero pubbliche: leggi la spiegazione. Qui rifiutiamo la finestra con Esc, equivalente a Skip, keep all off. Nessun account viene collegato e le preferenze private confermano che condivisione e azioni di segnalazione restano disattivate.",
-    "Dopo questa scelta, l’applicazione installata apre la Home attuale con ventuno riquadri e sei moduli principali. La finestra si chiude anche normalmente. Prosegui con la lezione Home per i flussi annidati e i loro dati di esempio; aprire Home non è di per sé una prova di analisi.",
-    "Esegui spacr-doctor dall’ambiente installato e leggi sia gli avvisi sia le verifiche riuscite. Qui conferma il motore dell’installazione, ma avverte di una dipendenza CZI opzionale mancante. Questa esecuzione salta allocazione GPU, database e impostazioni. Una verifica saltata non è superata; valuta la correzione suggerita prima di cambiare l’ambiente.",
-    "Conserva install punto log e install-profile punto json della cartella d’installazione scelta quando diagnostichi un problema. Controlla le informazioni private nei registri prima di condividerli. Annota la versione di ogni analisi e aggiorna consapevolmente. Le lezioni pip e Conda descrivono gli altri percorsi basati su ambienti separati."
+    "Apri la release ufficiale di spaCR su GitHub e, sotto Assets, scarica l’installer per il tuo sistema operativo. Questi installer online scaricano il runtime Python e i pacchetti scientifici durante la configurazione. Conserva SHA256SUMS punto txt della stessa release se vuoi verificare il download.",
+    "Su Windows, esegui il programma di installazione e segui le richieste. Lascia selezionata l’accelerazione automatica per usare l’hardware compatibile rilevato sul computer, oppure scegli il funzionamento solo CPU se è ciò che ti serve.",
+    "Su macOS, apri il pacchetto universale e segui l’installer. Avvia spaCR dal suo launcher e lascia terminare i download del primo avvio. Leggi ogni avviso di sicurezza e conferma che il pacchetto provenga dalla release ufficiale.",
+    "Su Linux, rendi eseguibile l’installer scaricato, poi avvialo da un terminale. L’accelerazione automatica seleziona un backend compatibile. L’aiuto elenca trattino trattino torch-backend cpu per il funzionamento solo CPU, e trattino trattino skip-system-deps per i computer che hanno già le librerie grafiche di Qt.",
+    "Dopo la configurazione, il profilo di installazione registra il backend selezionato. Controllalo quando vuoi confermare se il runtime usa la CPU o un acceleratore compatibile.",
+    "Controlla la versione installata di spaCR. Conservala con le note di analisi, soprattutto quando aggiornerai l’applicazione in seguito.",
+    "La configurazione chiede della condivisione facoltativa dei dati diagnostici e della configurazione di un account. Rispondi y solo per le opzioni che vuoi; n, il valore predefinito, lascia ciascuna disattivata. L’installer di Windows mostra le stesse scelte come caselle di controllo.",
+    "Quando si apre Home, continua con il tutorial di Home. Mostra come aprire un modulo, trovare dati di prova e scegliere una pipeline per il tuo esperimento.",
+    "Se l’avvio o un formato di file richiede attenzione, esegui spacr-doctor dal runtime installato. Elenca ogni controllo con una correzione suggerita. In questa installazione solo CPU il controllo della GPU fallisce come previsto, e il controllo del PATH segnala il launcher spacr dell’installer stesso, che avvia questo stesso runtime; quindi qui nessuno dei due richiede modifiche.",
+    "Per i problemi di installazione, cerca install punto log e install-profile punto json nella cartella di installazione. Rivedi i log prima di condividerli in una richiesta di assistenza. Indica il sistema operativo e la versione di spaCR, così il problema è più facile da diagnosticare."
   ]
 }

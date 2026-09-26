@@ -1,19 +1,29 @@
 {
-  "lesson": "06_api", "language": "ko",
-  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
-  "review": {"kind": "Editorial caption translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
-  "title": "Python API와 현재의 헤드리스 작업 흐름",
-  "description": "설치된 배치 진입점을 확인하고, 대화형 도구와 Python 함수를 구분하며, 분석을 실행했다고 주장하지 않고 실제 예제의 모의 실행을 살펴봅니다.",
-  "objectives": ["활성 Python 환경에서 패키지 버전을 확인합니다.", "현재 명령 키와 실제로 호출하는 함수를 확인합니다.", "대화형 작업, Python 함수, 배치 명령을 구분합니다.", "무인 실행 전에 모의 실행의 설정, 종료 상태, 한계를 읽습니다."],
-  "prerequisite": "먼저 설치 강의를 완료하세요. 시연하는 사전 점검에는 Regression 강의에서 다운로드한 짝지어진 데이터와 저장한 설정을 사용합니다. 이 컴퓨터의 경로를 자신의 경로로 바꾸세요. 이 녹화에서는 분석이나 보고서를 생성하지 않습니다.",
+  "lesson": "06_api",
+  "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Python API와 배치 명령",
+  "description": "분석 함수를 찾고, 저장된 설정을 불러오고, 입력을 확인한 뒤 터미널에서 spaCR을 실행합니다.",
+  "objectives": [
+    "설치된 배치 명령과 그 Python 함수를 찾습니다.",
+    "함수 시그니처와 API 참조를 확인합니다.",
+    "분석을 실행하기 전에 저장된 설정을 확인합니다."
+  ],
+  "prerequisite": "spaCR을 설치하고 그 Python 환경을 활성화하세요. Regression 튜토리얼을 따라 점수와 개수를 짝지은 표를 준비하고 분석 설정을 저장하세요. 명령에는 자신의 파일 경로를 사용하세요.",
   "scenes": [
-    "spaCR를 설치한 환경에서 패키지를 가져오고 버전을 출력합니다. 실제 터미널에는 버전 일 점 오 점 영 점 사가 표시됩니다. 오래된 환경은 다른 함수와 설정을 제공할 수 있으므로 명령을 따라 하기 전에 자신의 버전을 확인하세요.",
-    "list 옵션과 함께 spacr-run을 실행합니다. 배치 부분에는 mask, measure, classify_merged 등을 포함한 정확한 명령 키와 Python 진입점이 표시됩니다. Home 화면의 이름이나 중첩 버튼이 자동으로 배치 명령이 되는 것은 아닙니다. 강의 제목으로 키를 추측하지 말고 설치된 목록을 확인하세요.",
-    "regression에 describe를 사용하면 spacr.ml의 perform_regression 함수, 기본값을 제공하는 함수, 입력 요구 사항을 볼 수 있습니다. 명령을 실제 분석 함수와 연결하는 정보입니다. 여기서 사용한 짝지어진 데이터의 저장 설정은 연결된 Regression 예제에서 가져온 것이며, 가상의 측정 폴더가 아닙니다.",
-    "Annotate는 대화형 작업입니다. 실제로 spacr-run annotate를 호출하면 종료 상태 이가 반환되고 배치 등가 기능이 없다는 설명이 나옵니다. 잘라낸 이미지에 레이블을 지정하려면 데스크톱 앱의 Annotate를 사용하세요. 이 예상된 거부는 설치가 잘못되었다는 증거가 아닙니다.",
-    "일부 기능은 대응하는 배치 키 없이 Python API를 제공합니다. 여기서는 spacr.report에서 build_report를 가져와 실제 함수 시그니처를 확인합니다. 함수를 호출하거나 보고서를 생성하지는 않습니다. spacr-run report가 있다고 가정하지 말고 함수의 문서와 인수를 확인하세요.",
-    "regression에 저장한 설정 파일을 전달하고 dry-run 옵션을 추가합니다. 실제 명령은 설정을 확정하고 사전 점검을 수행한 다음 perform_regression이 호출되지 않았다고 명시합니다. 종료 상태와 메시지를 읽으세요. 이 녹화에서는 추가 회귀 분석을 시작하거나 그 분석 결과를 기록하지 않았습니다.",
-    "사전 점검에 오류가 없다고 해서 전체 분석의 성공이나 과학적 타당성이 입증되지는 않습니다. 이 버전의 일반 계획은 측정 데이터베이스를 언급하지만, 여기서 회귀 분석은 짝지어진 표를 사용합니다. 모듈의 실제 입력을 확인하고 무인 실행에 의존하기 전에 제한된 규모로 시험 실행하세요.",
-    "분석을 실제로 실행하려는 경우에만 dry-run을 제거하세요. 정확한 설정, 입력 식별자, 패키지 버전, 콘솔 로그를 출력과 함께 보관하세요. 시연된 실행은 연결된 모듈 강의를 참고하고, Python 스크립트를 작성할 때는 함수의 현재 API 문서를 확인하세요."
+    "spaCR을 설치한 Python 환경을 활성화하세요. 표시된 명령으로 spacr를 가져오고 버전을 출력하세요. 나중에 같은 실행을 재현할 수 있도록 버전을 분석 노트와 함께 기록해 두세요.",
+    "spacr-run --list를 실행해 사용할 수 있는 배치 명령을 찾으세요. 목록에는 각 명령의 키와 해당 Python 함수가 표시됩니다. mask, measure, regression처럼 작업에 맞는 명령을 고르세요. Annotate에서 이미지에 라벨을 붙이는 것 같은 대화형 작업에는 데스크톱 애플리케이션을 쓰세요.",
+    "spacr-run --describe regression을 실행하세요. 필수 입력, 기본값, 함수 이름을 읽으세요. 여기서 배치 명령은 spacr.ml의 perform_regression을 호출합니다. API 참조에서 그 함수를 열어 매개변수와 반환 결과를 읽으세요.",
+    "Python에서 필요한 함수를 가져오고 시그니처를 확인하세요. 이 예제는 spacr.report에서 build_report를 가져옵니다. API 참조에서 같은 이름을 찾아 필수 인수를 준비하고, 스크립트나 노트북에서 함수를 호출하세요.",
+    "모듈 워크플로의 설정을 저장한 뒤 --settings로 그 파일을 넘기세요. --dry-run을 추가하면 구성과 입력 경로를 확인할 수 있습니다. 이 Regression 예제에서는 설정이 플레이트마다 표현형 점수와 가이드 개수를 짝짓습니다. 계속하기 전에 메시지를 읽고 빠진 입력을 채우세요.",
+    "분석을 실행하려면 --dry-run 없이 같은 명령을 실행하세요. 명령이 끝날 때까지 콘솔을 지켜본 뒤, 그 모듈의 튜토리얼과 API 페이지에 설명된 출력을 확인하세요. 설정 파일, 입력 표, 패키지 버전, 콘솔 로그를 결과와 함께 보관하세요."
   ]
 }

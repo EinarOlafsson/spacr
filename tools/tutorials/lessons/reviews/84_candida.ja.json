@@ -1,0 +1,28 @@
+{
+  "lesson": "84_candida",
+  "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Candida：生物種ガイドを見て回る",
+  "description": "Candidaのガイドを見て、酵母の図を調べ、利用できる一般的な画像解析のワークフローを見つけます。",
+  "objectives": [
+    "Homeからページを開き、主な操作部分を見つける。",
+    "利用できる入力、操作、出力を確認する。",
+    "次に使える解析や参考資料を選ぶ。"
+  ],
+  "prerequisite": "spaCRのHomeを開いてください。ガイドには入力ファイルは必要ありません。Candida専用のアッセイのタイルには、現在Coming soonと表示されています。",
+  "scenes": [
+    "HomeからCandidaを選びます。このガイドでは、形態、菌糸形成、バイオフィルム、そして酵母と宿主細胞との相互作用を扱っています。",
+    "モジュールの説明を横に表示したまま情報パネルを読み、読んでいる側を広げたいときは区切り線をドラッグします。",
+    "出芽酵母の図は、ほかのガイドと同じように使えます。構成要素にポインターを合わせると説明が読め、いくつか選ぶと強調表示が残り、Clear componentsで選択が解除されます。",
+    "Candida専用のアッセイのタイルは、今のところComing soonと表示されていますが、一般的なツールで画像を解析することはできます。Homeに戻り、Maskでセグメンテーションし、Measureで測定します。チャネルとマスクは、対象の種と実験に合わせて選んでください。",
+    "遺伝子やタンパク質の詳細は、Candida Genome DatabaseとUniProtのリンクからブラウザーで確認できます。ガイドは入力ファイルを必要とせず、出力も書き出しません。画像を処理する準備ができたら、実行できるモジュールのチュートリアルに進みましょう。"
+  ]
+}
