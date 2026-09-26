@@ -1,0 +1,132 @@
+{
+ "item": "447",
+ "lesson": "53_prediction_profiler",
+ "date": "2026-09-26",
+ "scope": "Fresh native CPU capture of Regression -> Prediction Profiler from the neutral root (run_neutral_capture.sh, offline, dark/Blobs) replacing the 2026-09-09 capture whose frames showed a maintainer path. Current English narration, scene and visual IDs unchanged; English af_heart track, 4K master, poster and 1440p web copy staged. Not published.",
+ "new_capture": true,
+ "recorder": "tools/tutorials/run_neutral_capture.sh <stage> spacr-env python --module profiler --capture-name profiler_current_20260926 (SPACR_TUTORIAL_OFFLINE=1)",
+ "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/profiler_current_20260926",
+ "capture_provenance": {
+  "commit": "34b35467eb3f7921d50de3cf35bd0dd36de26426",
+  "version": "1.5.1.0",
+  "module": "profiler",
+  "download_requested": false,
+  "dataset_cache": "/tmp/spacr-tutorials/example_data",
+  "app_source_modified": false,
+  "cache_isolated_with_bind_mount": true,
+  "completed_capture": true
+ },
+ "scientific_acceptance": {
+  "accepted": true,
+  "input_bytes_preserved": true,
+  "checked_curve_values": 338,
+  "visible_example_path": "/tmp/spacr-tutorials/profiler_runs/SYNTHETIC-OLS-tujfnidr/example"
+ },
+ "visual_ids": [
+  "01_regression_host",
+  "03_explicit_synthetic_coefficients_picker",
+  "05_link_options_keep_identity",
+  "04_loaded_identity_model",
+  "06_hold_b_at_one",
+  "07_hold_b_at_zero",
+  "08_reset_midpoints",
+  "09_sweep_second_input",
+  "10_eleven_grid_points",
+  "11_hold_a_at_one"
+ ],
+ "capture_sha256": {
+  "01_regression_host": "9e94454d06890b4f1513d788195fea7fa003c27b81608e75fe6b9e5d7b990b2e",
+  "03_explicit_synthetic_coefficients_picker": "3edcf05433bbd1185e5601b5b95379bd9ede61a269333e70ce483f750a2222db",
+  "05_link_options_keep_identity": "e45baace6d63ae3ae8bee93b2cd012d1aa9c0dd568e7d60f9ed8688ec1b1fe3b",
+  "04_loaded_identity_model": "75475638751bbdc43e944885f2a9dbe04804fa2742dcc8917dc7d4a47160ae12",
+  "06_hold_b_at_one": "f84cc6776481c45d3bdc0a562db83f9f7742fd439578b37fe8b058c7c6f970e1",
+  "07_hold_b_at_zero": "19b885ffc4ea6a574c7f8d30ee90ae52843de1299642a39006c71bd54807a3c0",
+  "08_reset_midpoints": "2418dedecbefe25e0fb443f89c642c68c00f2e5fa669ed28b50b830409e2f5cc",
+  "09_sweep_second_input": "4a2a38b31934fc6e51f5b5b7446bc1355b8935ec8adc9262775f10ef1347d24b",
+  "10_eleven_grid_points": "33773435ddfbbfcc4504d225e9a55ba6e5a4c3a563a1d3281b594001ca12ff9c",
+  "11_hold_a_at_one": "43dd01840e8e519f99a414c4936b44fff5af32f69a9f37408dff39580ebc2fef"
+ },
+ "english": {
+  "lesson_sha256_canonical": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "unchanged": true,
+  "translation_reviews_bound_to": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "note": "Narration, captions and the lesson object are byte-identical; the 13 source-pinned reviews still match."
+ },
+ "spotlights": {
+  "focus_map": "tools/tutorials/lessons/53_prediction_profiler.focus.json",
+  "reason": "The current GUI layout moved the status line, Link and Points controls; spotlights re-measured on the new frames and pinned to their hashes. Scene 03 keeps its authored spotlight."
+ },
+ "media": {
+  "af_heart_m4a_sha256": "4dae5eff5cc6487ae855ccef93953702487b6d5c79b8300b570aa548d591b6a0",
+  "af_heart_timing_sha256": "5ff7326d2b70a80431bd72aea402141527f2db3aac1c168f85273cfa8b213be1",
+  "af_heart_regenerated": false,
+  "af_heart_reason": "renderer found the track current for the unchanged script; decode/fingerprint check re-run (audio-checks.en-af_heart.json)",
+  "master_sha256": "19f225fcbac8483bc3e85fca95889355c19e8a0ecb3debc8cb457ff862a38dfb",
+  "poster_sha256": "f446ab44ed60619f4524e7b38bb2898cebf59ffe7a2c3d2cf9986506004bff34",
+  "web_rendition": {
+   "lesson": "53_prediction_profiler",
+   "accepted": true,
+   "master_sha256": "19f225fcbac8483bc3e85fca95889355c19e8a0ecb3debc8cb457ff862a38dfb",
+   "rendition_sha256": "48bbc143a1ece8a8c422d637f3fc0b9736fb592f70aec08d40ac0dc342e14012",
+   "bytes": 2609036,
+   "frames": 2749,
+   "dimensions": [
+    2560,
+    1440
+   ],
+   "all_frame_presentation_times_match": true,
+   "full_decode_passed": true,
+   "publisher_sha256": "87f34c499bf35e6ec0316645fcfa4d2285fd1c98db819ee890b8e5efc0fcc05b",
+   "encoder_arguments": [
+    "-threads",
+    "2",
+    "-filter_threads",
+    "2",
+    "-vf",
+    "scale='min(2560,iw)':-2",
+    "-vsync",
+    "0",
+    "-c:v",
+    "libx264",
+    "-crf",
+    "28",
+    "-preset",
+    "veryfast",
+    "-tune",
+    "ssim",
+    "-g",
+    "60",
+    "-pix_fmt",
+    "yuv420p",
+    "-an",
+    "-movflags",
+    "+faststart"
+   ],
+   "retained_published_sha256": null,
+   "elapsed_seconds": 33.49,
+   "visual_review_complete": false,
+   "narration_regenerated": false,
+   "original_master_changed": false,
+   "published": false
+  }
+ },
+ "checks": {
+  "english_track_decode_and_fingerprint": true,
+  "sentence_cues_passed": true,
+  "web_playback_passed": true,
+  "frame_sweep": {
+   "tool": "tools/tutorials/sample_tutorial_frames.py",
+   "frames_per_video": 10,
+   "path_offenders": [],
+   "light_frame_lessons": [],
+   "images_checked": 22
+  }
+ },
+ "superseded": {
+  "old_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/profiler_synthetic_ols_native (untouched)",
+  "old_stage_media_backup": "/mnt/firecuda2/codex/scratch-docs/t447/backup-53-before",
+  "old_web_rendition": "/mnt/firecuda2/codex/scratch-docs/t447/superseded-web-renditions/53_prediction_profiler.2026-09-23"
+ },
+ "published": false,
+ "listening_review": false
+}

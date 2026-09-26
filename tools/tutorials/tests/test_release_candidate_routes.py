@@ -83,7 +83,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
-    assert manifest['narration_tracks'] == 420
+    assert manifest['narration_tracks'] == 628
     local = {Path(r['path']).parts[2] for r in manifest['files']
              if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
     hosted = {Path(r['path']).parts[1] for r in manifest['files']
