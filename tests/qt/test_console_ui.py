@@ -193,7 +193,18 @@ def test_console_sections_have_independent_resizable_height_handles(
     assert isinstance(first, _StdoutBlock)
     assert isinstance(second, _StdoutBlock)
     assert first._height_handle.toolTip().startswith("Drag to resize")
-    assert first._height_handle.cursor().shape() == Qt.SizeVerCursor
+    # THE NATIVE ARROW, as everywhere in the application (cb1fe44d6): the
+    # startup installs `cursor_policy`, which turns a resize cursor back
+    # into the OS arrow. Asserting SizeVerCursor held only in a process
+    # that had never installed it -- this file alone -- and failed in a
+    # serial `pytest tests/qt` where an earlier test had (features/new/47).
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.widgets.cursor_policy import install_cursor_policy
+
+    install_cursor_policy(QApplication.instance())
+    first._height_handle.setCursor(Qt.SizeVerCursor)
+    assert first._height_handle.cursor().shape() == Qt.ArrowCursor
 
     first.set_user_height(180)
     second.set_user_height(96)
