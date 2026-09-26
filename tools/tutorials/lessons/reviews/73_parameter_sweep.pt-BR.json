@@ -1,31 +1,33 @@
 {
-  "language": "pt-BR",
-  "title": "Varredura de parâmetros",
-  "description": "Execute duas tentativas em Regression e diferencie a conclusão do cálculo de uma inferência válida.",
-  "objectives": [
-    "Selecionar quatro pares ordenados de arquivos de escores e contagens.",
-    "Limitar a grade a duas tentativas e um processo, depois consultar resultados salvos.",
-    "Separar as famílias de coeficientes e destacar verificações de inferência reprovadas."
-  ],
-  "prerequisite": "Use os quatro pares de placas baixados na aula Regression e uma nova pasta de saída. As duas tentativas ridge reprovam nas verificações de inferência: não são descobertas biológicas validadas. Só alpha varia, 0.01 e 0.1; inferência paramétrica, médias por poço e nenhuma transformação ficam explícitas. Nem todas as configurações do formulário principal são herdadas. n_rows_fitted conta 1174 coeficientes, não 620 poços nem 2955 linhas preparadas. Confira sweep_results.csv e as configurações reais: a tabela omite alpha e os pareceres de qualidade. API: spacr.parameter_sweep.SweepSpace e run_sweep_parallel. Sem benchmark de GPU, chamada externa à IA, aprovação de falante nativo ou publicação.",
-  "scenes": [
-    "Abra Regression e depois Parameter sweep, no canto inferior direito. Esse fluxo fica dentro de Regression, não em um bloco separado da Home. A aula Regression explica como baixar os quatro pares de arquivos de escores e contagens reutilizados aqui.",
-    "Confira as listas de entrada da própria varredura. Elas começam vazias mesmo quando o formulário principal contém dados pareados. Adicione os quatro arquivos de escores e os quatro de contagens na mesma ordem de placas. Escolha uma nova pasta de saída para não sobrescrever uma análise anterior.",
-    "Marque apenas alpha, com zero vírgula zero um e zero vírgula um. As linhas desmarcadas ainda fornecem configurações fixas. Aqui escolhemos explicitamente ridge, inferência paramétrica, médias por poço e nenhuma transformação. Essa receita limitada demonstra o funcionamento; não é uma recomendação para seu experimento.",
-    "Selecione grid, no máximo duas tentativas e um processo de trabalho; clique em Estimate. Duas combinações válidas significa que as configurações são permitidas, não que as conclusões estatísticas sejam válidas. A estimativa pressupõe um minuto por tentativa; não é um benchmark. Leia os limites de recursos antes de iniciar.",
-    "Clique em Start sweep, não no botão Run do formulário principal. Cada tentativa grava em sua própria pasta. Essas duas tentativas reais rodam em sequência; mais processos exigem mais recursos. O exemplo usa regressão em CPU, não aceleração por GPU, e não precisa de nenhuma solicitação à spaCR AI.",
-    "As duas linhas mostram ok porque o cálculo terminou. Porém, as duas verificações de inferência salvas mostram fail. A tabela omite esses pareceres e o alpha variável: confira o arquivo completo de resultados e as configurações de cada tentativa. Não escolha um modelo só porque ele produz mais valores P ajustados pequenos.",
-    "Selecione a primeira linha e clique em Show figures for selected row. Isso lê resultados salvos sem ajustar novamente o modelo. A vista de guias contém setecentas e noventa e duas linhas de coeficientes, incluindo um intercepto; o gráfico exclui esse termo e mostra setecentas e noventa e uma guias. A altura representa o logaritmo decimal negativo do valor P bruto.",
-    "Mude Level para Gene. A tabela passa a ter trezentas e oitenta e duas linhas, incluindo seu intercepto, e o gráfico mostra trezentos e oitenta e um genes. Guias e genes são famílias de coeficientes separadas. Mudar a vista não valida a inferência reprovada nem cria evidência independente.",
-    "Volte às guias: as linhas e os pontos originais reaparecem, e os arquivos salvos permanecem iguais. O campo rows fitted do resumo é enganoso aqui: conta linhas de coeficientes, não poços. Diferencie o número de amostras de entrada, os coeficientes de saída e a família mostrada ao relatar uma análise.",
-    "Consulte juntos as configurações, o resumo e os arquivos de controle de qualidade salvos. Um gráfico ou uma explicação de IA não certifica um desenho de estudo. Regression Diagnostics apresenta outras verificações; a referência API documenta a execução da varredura. Este exemplo ensina um fluxo reproduzível e seus limites, não descobertas biológicas validadas."
-  ],
   "lesson": "73_parameter_sweep",
-  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "english_sha256": "8f164d56e7d6d48b866022bb05940e29cf343154681c65517a51ce2676825346",
   "review": {
-    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
-  }
+  },
+  "language": "pt-BR",
+  "title": "Parameter Sweep: comparar ensaios salvos do Regression",
+  "description": "Especifique as entradas pareadas e as configurações dos ensaios, execute uma varredura pequena e depois inspecione as configurações, as figuras e as verificações de inferência de cada ensaio.",
+  "objectives": [
+    "Selecionar arquivos pareados de pontuações e contagens e uma pasta de saída para a varredura.",
+    "Escolher as configurações variáveis e fixas, estimar o número de ensaios e executar.",
+    "Inspecionar os ensaios salvos e a qualidade da inferência antes de compará-los."
+  ],
+  "prerequisite": "Baixe os quatro pares de pontuações e contagens por placa do tutorial do Regression. Use a mesma ordem de placas e uma pasta de saída nova. Os dois ensaios ridge mostrados terminam, mas não passam nas verificações de qualidade da inferência; separe o status do cálculo da adequação estatística.",
+  "scenes": [
+    "Na tela Home, abra Regression e depois Parameter sweep, no canto inferior direito. Use os quatro pares de exemplo de pontuações e contagens do tutorial do Regression.",
+    "Adicione os quatro arquivos de pontuações e os quatro arquivos de contagens às listas próprias da varredura, na mesma ordem de placas. Confira essas listas mesmo que o formulário principal do Regression já tenha entradas. Escolha uma pasta de saída nova.",
+    "Marque alpha e digite zero vírgula zero um e zero vírgula um. As configurações desmarcadas ficam fixas. Neste exemplo, defina explicitamente ridge, inferência paramétrica, agregação pela média no nível do poço e nenhuma transformação.",
+    "Escolha a amostragem Grid, Maximum trials em dois e um processo de trabalho e clique em Estimate. Confira o número de combinações e os limites de recursos antes de executar. Considere a estimativa de tempo aproximada.",
+    "Clique em Start sweep. Cada ensaio grava na própria pasta. Com um processo de trabalho, os dois ensaios rodam em sequência; escolha um número de processos compatível com os recursos disponíveis.",
+    "Inspecione as linhas concluídas e depois abra sweep_results.csv e os arquivos de configuração e de controle de qualidade de cada ensaio. Os dois ensaios mostrados terminam o cálculo, mas não passam nas verificações de inferência, então um status de execução ok não basta para escolher um modelo.",
+    "Selecione a primeira linha e clique em Show figures for selected row. Inspecione os resultados por guia e os rótulos dos eixos. O gráfico omite o intercepto da tabela de coeficientes.",
+    "Mude Level para Gene para inspecionar a família de genes separadamente. Confira as linhas, os efeitos e os resultados de controle de qualidade antes de compará-la com a visualização por guia.",
+    "Volte para Guide. Leia o suporte amostral nos arquivos de entrada e de diagnóstico: no exemplo, o resumo de linhas ajustadas conta linhas de coeficientes de saída, e não poços.",
+    "Mantenha as configurações, o resumo e os arquivos de controle de qualidade de cada ensaio junto com as figuras. Use o Regression Diagnostics para uma inspeção mais aprofundada, ou SweepSpace e run_sweep no Python para uma comparação por script."
+  ]
 }
