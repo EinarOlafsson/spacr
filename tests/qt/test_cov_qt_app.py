@@ -2424,17 +2424,27 @@ def launched(qapp, qtbot, monkeypatch, tmp_path):
         # 4 == 1 (three launches' threads plus its own) whenever xdist gave
         # both files one worker. Closed the way the tests that close by hand
         # do; hidden if the close is refused, since hiding is what stops the
-        # backdrop. Windows a test already closed are left alone.
+        # backdrop.
+        #
+        # AND DELETED, the ones a test closed by hand included. `launch`
+        # owns its window, not pytest-qt, and a MainWindow is not
+        # WA_DeleteOnClose: closed, it was still a LIVE top-level window,
+        # with its menus, dock and home page, for the rest of the process.
+        # A serial `pytest tests/qt` carried nine of them by a third of the
+        # way through, restyled on every theme change after that
+        # (features/new/47).
         for window in [w for w in qapp.topLevelWidgets()
                        if w not in state["before"]
-                       and isinstance(w, MainWindow) and w.isVisible()]:
-            try:
-                _close_owned_screens(window)
-                window.close()
-            except Exception:                                # noqa: BLE001
-                pass
+                       and isinstance(w, MainWindow)]:
             if window.isVisible():
-                window.hide()
+                try:
+                    _close_owned_screens(window)
+                    window.close()
+                except Exception:                            # noqa: BLE001
+                    pass
+                if window.isVisible():
+                    window.hide()
+            window.deleteLater()
 
 
 def test_launch_opens_the_requested_app(launched, qtbot):
