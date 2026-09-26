@@ -2,7 +2,12 @@
 TYPING A CHANNEL NUMBER SHOULD REVEAL ITS CATEGORY, NOT RELOAD THE MODULE
 ================================================================================
 
-Status:    DONE 2026-09-02 for case 1, which is what was asked. Committing
+Status:    DONE. Case 2 done 2026-09-25 (last entry): raising
+           `number_of_organelles` no longer rebuilds the screen either --
+           the new slots' controls are built and laid out in place, every
+           existing control keeps its identity, 479-585 ms against a
+           1,795 ms rebuild. What follows is the case-1 history.
+           DONE 2026-09-02 for case 1, which is what was asked. Committing
            a value into an object channel cost a full screen rebuild -- 455 ms
            and a DIFFERENT screen object in the window's stack, taking every
            uncommitted edit, scroll position and open fold with it -- to
@@ -153,3 +158,62 @@ Also repaired here: `test_cov_r4_app_screen` asserted a failed download
 restores the caption "Load the example images", which the button has not said
 since the three example-data buttons became one "Load test data…". It was
 pinning a name that had moved rather than the behaviour it is about.
+
+
+--------------------------------------------------------------------------------
+2026-09-25: CASE 2 DONE -- THE COUNT SPAWNS ITS SLOTS WITHOUT A RELOAD
+--------------------------------------------------------------------------------
+
+The count's commit now goes to `AppScreen._follow_the_organelle_count`
+instead of `_rebuild_the_form`:
+
+  * LOWERING, or raising within slots already built: the same in-place
+    object-rule pass a channel gets (`_show_the_objects_the_run_has`); the
+    rule already hides slots above the count, and `collect()` already
+    drops them unless they hold something.
+  * RAISING PAST THE BUILT SLOTS: `SettingsWidgets.organelle_keys_to_spawn`
+    names the keys first, the screen checks it has a heading for every
+    category they fall in, then `spawn_organelle_slots` builds exactly those
+    controls (values from `_defaults` when a file already carried the slot,
+    otherwise cloned from the shipped first slot -- the rebuild's rule) and
+    wires each new role's type/diameter/preset signals once
+    (`_connect_the_signals_of_role`, split out of
+    `_connect_object_visibility_signals`). `grow_to_fit_the_organelle_count`
+    used to REPLACE `_defaults` with the shipped ones, which would have
+    dropped imported hidden values; it now only adds missing keys.
+  * PLACEMENT: a flat category gets the new rows inserted beside the slots
+    before them in declared order, as "waiting" rows -- the field spans a
+    form row and the object rule captions it in place when the slot's
+    channel is set, the mechanism rows of absent objects already use. A
+    category split by object gets a new sub-heading per slot. A category
+    still waiting to be opened is opened first. A top-level category with no
+    heading at all -- Mask's two organelle categories at a count of 0 -- is
+    built by the normal section path and inserted where the layout lists
+    it. The new slot's channel is watched like the panel's own switches,
+    and a mounted per-object table (364) is reseeded, so the slot is a new
+    COLUMN there.
+  * FALLBACK to the full rebuild only when a run owns the screen (it defers
+    as before), the panel is drawn as tabs, or a nested category has no
+    heading to receive rows.
+
+MEASURED on Mask, offscreen: 0->1 479 ms, 1->2 585 ms, 2->3 583 ms, 3->1
+78 ms, all the same screen object; a full rebuild at 3 took 1,795 ms. The
+47 organelleb_* controls spawned in place are exactly the set a rebuild
+builds (compared key for key).
+
+The checks this file set: slots 1 and 2 keep their widgets and slot 3's
+are added (tested); a value typed into an unrelated field survives (every
+control that existed before the raise is the same object after, and an
+uncommitted spin-box value is kept). The pinned
+`test_the_organelle_count_still_spawns_its_settings` is replaced by the
+in-place tests; test_cov_r4_app_screen's two watcher tests now expect the
+count's slot to be `_follow_the_organelle_count`.
+
+Tests: tests/qt/test_a_channel_number_reveals_rather_than_reloads.py 11
+passed (7 new: in-place spawn with every prior control unchanged, 2->3,
+the new channel row captioned next to slot 1's, the new channel revealing
+its settings, lowering in place, the per-object table gaining a column,
+the run-in-flight fallback). Every other tests/qt file naming
+number_of_organelles (23 files) passes except test_settings_search's two,
+which fail identically on nightly without this change (cellpose3 rows
+unreachable; an order-dependent size check).
