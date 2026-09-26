@@ -5,6 +5,1478 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
+      "label": "spacr.qt.resonance.settle#5",
+      "source": "``w`` from :func:`lattice`.",
+      "source_sha256": "ccc7ad666e173571c62295fb4459acc9efbf3e1873b7b8f25086d8cbc565b307",
+      "context": "``w`` from :func:`lattice`.",
+      "translation": "``w`` 이며, :func:`lattice` 에서 얻습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.badge_colors#1",
+      "source": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "source_sha256": "0c2206c2088e848e5484cc623481cf99006ab4f39513f371125b9f4fcd00950e",
+      "context": "Item 512. A suggestion is amber, a confirmed suggestion green and a rejected one red -- the theme's own warning, success and error colours, so the badge follows a theme change the way the rest of the chrome does. The glyph is drawn in the theme's background colour, which is black on the dark theme and near-white on the light one; each of those fills was chosen against it and reads at better than 4.5:1 in both. None of the three is a class colour, so a badge is never read as a class.",
+      "translation": "항목 512. 제안은 호박색, 확정된 제안은 초록색, 거부된 제안은 빨간색입니다. 테마 자체의 경고, 성공, 오류 색상이므로, 배지는 나머지 화면 요소와 마찬가지로 테마 변경을 따릅니다. 글리프는 테마의 배경 색상으로 그려지는데, 어두운 테마에서는 검정, 밝은 테마에서는 거의 흰색입니다. 각 채우기 색상은 그에 맞춰 선택되어 두 경우 모두 4.5:1 보다 나은 대비로 읽힙니다. 셋 중 어느 것도(None of the three) 클래스 색상이 아니므로 배지가 클래스로 읽히는 일은 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.grid_that_fits#0",
+      "source": "``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.",
+      "source_sha256": "20135f404e68d411c61c5eed4261cb2502d5c5b56f43d729b2d98d26c6e484a6",
+      "context": "``(rows, cols)`` of ``tile_w`` x ``tile_h`` tiles that fit a room.",
+      "translation": "``(rows, cols)`` 이며, 공간에 들어가는 ``tile_w`` x ``tile_h`` 타일의 행과 열 수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#2",
+      "source": "``+c``, ``-c`` or None.",
+      "source_sha256": "b3186cfc999b0e7779b2b8b9130b702a65a1ea890407ecca59ec3a78f611c136",
+      "context": "``+c``, ``-c`` or None.",
+      "translation": "``+c``, ``-c`` 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#3",
+      "source": "the crop's label, a suggestion or None.",
+      "source_sha256": "ce8ad95e3d0c344a2dce6eb6619b8166ef8aad51f79eebb4c2b6521331c52aef",
+      "context": "the extracted image region's label, a suggestion or None.",
+      "translation": "추출 이미지 영역의 레이블, 제안 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.annotate.verdict_contradicts#4",
+      "source": "True when the verdict should be withdrawn.",
+      "source_sha256": "73e11c14d760fcfdc29fbb1689940c8f282b5fe3792973cc3ac15ff84b100302",
+      "context": "True when the verdict should be withdrawn.",
+      "translation": "판정을 철회해야 하면 True 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#0",
+      "source": "Name a card someone else put in the runtime splitter.",
+      "source_sha256": "cc61228c9f64ca0ae97936ef05e9e269d3c9bfe246cd3e49bfcca1068d60a24c",
+      "context": "Name a card someone else put in the runtime splitter.",
+      "translation": "다른 곳에서 런타임 분할기에 넣은 카드에 이름을 붙입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#1",
+      "source": ":mod:`spacr.qt.preview_registry` inserts a declared preview above the console; adopting it makes it collapse by its title, resize by its edge, and -- as a preview -- take the height when it is shown.",
+      "source_sha256": "f3656b4f90486eaa074c101aed27b80d2fdf856e97543885f46457682a2a8274",
+      "context": ":mod:`spacr.qt.preview_registry` inserts a declared preview above the console; adopting it makes it collapse by its title, resize by its edge, and -- as a preview -- take the height when it is shown.",
+      "translation": ":mod:`spacr.qt.preview_registry` 는 선언된 미리 보기를 콘솔 위에 삽입합니다. 이를 받아들이면 제목으로 접히고, 가장자리로 크기가 조정되며, 미리 보기로서 표시될 때 높이를 차지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#2",
+      "source": "the card, already in the runtime splitter.",
+      "source_sha256": "dffb1a3b1cbe5a97b4e9eb53147039614150d5ba550bc87a6e8a2c39e7d356bf",
+      "context": "the card, already in the runtime splitter.",
+      "translation": "이미 런타임 분할기에 있는 카드입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#3",
+      "source": "whether showing it collapses the console, System, the buttons and the settings column.",
+      "source_sha256": "b9b606fdc4906e085da96d42eeb30f15c9e8721c5124b14ecd8f7b99a44d1c7e",
+      "context": "whether showing it collapses the console, System, the buttons and the settings column.",
+      "translation": "이를 표시할 때 콘솔, System, 버튼, 설정 열을 접을지 여부입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.adopt_runtime_pane#4",
+      "source": "the pane, or None when this screen has no such splitter.",
+      "source_sha256": "023be284c097d9524411add8f7218854a0f128e8ca2d1a4b88e2cb5b8a9e4694",
+      "context": "the pane, or None when this screen has no such splitter.",
+      "translation": "창이며, 이 화면에 그런 분할기가 없으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict#2",
+      "source": "setting key to value mapping; legacy key names are translated first, and it is merged over the current values.",
+      "source_sha256": "e2c1e926747cd4c93f095026ecab13f06fb8af5d97d72cc566982d1390c865a5",
+      "context": "setting name to value mapping; legacy structured-data name names are translated first, and it is merged over the current values.",
+      "translation": "설정 키-값 매핑입니다. 레거시 키 이름은 먼저 변환되며, 현재 값 위에 병합됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state#2",
+      "source": "mapping with ``app_key`` and ``settings`` keys, as saved with the workspace; anything that is not a dict, names another module, or has no settings applies nothing.",
+      "source_sha256": "98adbeaeda257e21da97d8cbfd7eb70829e6b5d1fb43babf9460ad098739a1aa",
+      "context": "mapping with ``app_key`` and ``settings`` structured-data names, as saved with the workspace; anything that is not a key-value mapping, names another module, or has no settings applies nothing.",
+      "translation": "작업 공간과 함께 저장된 ``app_key`` 와 ``settings`` 키를 가진 매핑입니다. 사전이 아니거나, 다른 모듈을 가리키거나, 설정이 없으면 아무것도 적용하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.changeEvent#5",
+      "source": "the state-change event; it is passed to the base class, and only its type is read -- ``ApplicationPaletteChange`` and ``PaletteChange`` re-theme the backdrops.",
+      "source_sha256": "130ce0831eacb82cd98a32a206c09fe6689912c0d54c5703598e66dd9d43879f",
+      "context": "the state-change event; it is passed to the base class, and only its type is read -- ``ApplicationPaletteChange`` and ``PaletteChange`` re-theme the backdrops.",
+      "translation": "상태 변경 이벤트입니다. 기본 클래스에 전달되며 유형만 읽습니다. ``ApplicationPaletteChange`` 와 ``PaletteChange`` 는 배경의 테마를 다시 적용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.closeEvent#2",
+      "source": "the close event; ignored (so the screen stays open) when the worker is still running three seconds after the cancel request.",
+      "source_sha256": "49ffd506b6f618a3e2eb51bc2710b1c67b4b3b0c0808d93d914d967736430f8a",
+      "context": "the close event; ignored (so the screen stays open) when the worker is still executing three seconds after the cancel request.",
+      "translation": "닫기 이벤트입니다. 취소 요청 후 세 초가 지나도 작업자가 실행 중이면 무시되어 화면이 열린 채로 남습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.dimension_is_on#1",
+      "source": "``\"z\"`` (3D) or ``\"t\"`` (time); a dimension this screen does not track reads as off.",
+      "source_sha256": "aed0168fcabb17073bb3f5939e1618c647ba45c7c6a28e6fdfb9fd2ec9d9e6aa",
+      "context": "``\"z\"`` (3D) or ``\"t\"`` (time); a dimension this screen does not track reads as off.",
+      "translation": "``\"z\"`` (3D) 또는 ``\"t\"`` (시간)입니다. 이 화면이 추적하지 않는 차원은 꺼진 것으로 읽힙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.dimension_switch#1",
+      "source": "``\"z\"`` for the 3D toggle or ``\"t\"`` for the Time toggle.",
+      "source_sha256": "627134b258d861188c2b8d44fddd41b6ebb175b56a45e880f075f319896c3337",
+      "context": "``\"z\"`` for the 3D toggle or ``\"t\"`` for the Time toggle.",
+      "translation": "3D 토글이면 ``\"z\"``, Time 토글이면 ``\"t\"`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.eventFilter#1",
+      "source": "the watched widget; its ``settingsCategory`` or ``settingKey`` property decides whether a category blurb or a setting's help is shown.",
+      "source_sha256": "d7fa144a6cd7dfb7588bc2bee4d63e0af8fa147b69862ee2dc4139efe056a831",
+      "context": "the watched widget; its ``settingsCategory`` or ``settingKey`` property decides whether a category blurb or a setting's help is shown.",
+      "translation": "감시 대상 위젯입니다. 그 ``settingsCategory`` 또는 ``settingKey`` 속성에 따라 범주 설명 또는 설정 도움말을 보여 줄지 결정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.eventFilter#2",
+      "source": "the filtered event; a ``ToolTip`` on a widget with hover help is swallowed, ``Enter`` shows the help and ``Leave`` hides it, and every event is otherwise passed to the base class.",
+      "source_sha256": "0977194cb24229afdd2b33cd834c5f4974541c8bc07e11858abf6a119366d1a9",
+      "context": "the filtered event; a ``ToolTip`` on a widget with hover help is swallowed, ``Enter`` shows the help and ``Leave`` hides it, and every event is otherwise passed to the base class.",
+      "translation": "필터링된 이벤트입니다. 마우스 올림 도움말이 있는 위젯의 ``ToolTip`` 은 삼키고, ``Enter`` 는 도움말을 보여 주고 ``Leave`` 는 숨기며, 그 밖의 모든 이벤트는 기본 클래스에 전달합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#0",
+      "source": "Fill the OPS settings with the test data, fetching it when needed.",
+      "source_sha256": "d1faefdfb9001b443829b7bc97fc69078a5a7afe8b985e3050052cff8ed766b1",
+      "context": "Fill the OPS settings with the test data, fetching it when needed.",
+      "translation": "필요하면 테스트 데이터를 가져와 OPS 설정을 채웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#2",
+      "source": "replaces the cache folder, for tests.",
+      "source_sha256": "712f27328e107f729f2e189c432c99c13a5f0175620d4c3e1489ac8e3a9602ce",
+      "context": "replaces the cache folder, for tests.",
+      "translation": "테스트용으로 캐시 폴더를 대체합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example#3",
+      "source": "the settings that were applied; empty while a download is still running or after a failure.",
+      "source_sha256": "a7fd94076f09b924b6e2a78c696d3846d4124137d1626f6bd71af00bb488a38d",
+      "context": "the settings that were applied; empty while a download is still executing or after a failure.",
+      "translation": "적용된 설정입니다. 다운로드가 아직 실행 중이거나 실패한 후에는 비어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.paintEvent#2",
+      "source": "the paint event; handed to the base class only when there is no page fill. The fill always covers the whole screen, not just the event's region.",
+      "source_sha256": "439477830c58ef32e5cd58d4cc5895bafbe050f5dfdf796c4dfd037439340a4d",
+      "context": "the paint event; handed to the base class only when there is no page fill. The fill always covers the whole application view, not just the event's region.",
+      "translation": "페인트 이벤트입니다. 페이지 채우기가 없을 때만 기본 클래스에 넘깁니다. 채우기는 항상 이벤트 영역만이 아니라 화면 전체를 덮습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.pick_wells_for#1",
+      "source": "the settings field holding a well specification; its ``text()`` seeds the picker and ``setText()`` receives the choice when the field has them.",
+      "source_sha256": "9b2bcc03911dcd0b7a54130878dbaff80ba9f54fea7cbed2731a28f44296d08c",
+      "context": "the settings microscope field of view holding a microplate sample position specification; its ``text()`` seeds the picker and ``setText()`` receives the choice when the microscope field of view has them.",
+      "translation": "시료 위치 지정을 담은 설정 필드입니다. 필드에 해당 메서드가 있으면 그 ``text()`` 가 선택기의 초기값이 되고 ``setText()`` 가 선택 결과를 받습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#0",
+      "source": "Put ``folder`` in this module's ``src`` field. Returns whether it took.",
+      "source_sha256": "88866acf67e97d5525ef039e74c9c6e79a0c0687e728edee7293beb01d5a0ec3",
+      "context": "Put ``folder`` in this module's ``src`` field. Returns whether it took.",
+      "translation": "``folder`` 를 이 모듈의 ``src`` 필드에 넣습니다. 적용되었는지 여부를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#1",
+      "source": "The counterpart of Make Masks' ``_open_folder`` for a module screen: a module does not open a folder, it runs on one. Reaches the widget the same way :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift on where ``src`` lives.",
+      "source_sha256": "13822cc9f525cd1c975921f35bcdfc3cdc67f73cc24b57cfc2f2d8a628e76212",
+      "context": "The counterpart of Make Masks' ``_open_folder`` for a module application view: a module does not open a folder, it executes on one. Reaches the widget the same way :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift on where ``src`` lives.",
+      "translation": "모듈 화면에서 Make Masks 의 ``_open_folder`` 에 해당하는 것입니다. 모듈은 폴더를 여는 것이 아니라 폴더에서 실행됩니다. :meth:`_put_the_measure_example_in_place` 와 같은 방식으로 위젯에 접근하므로 두 경로가 ``src`` 의 위치에 대해 어긋날 수 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#2",
+      "source": "the folder to run on, as a path or a string.",
+      "source_sha256": "235b9d8d91f97a062bc6cfdb843cd0d851c316d3103bf846659be898b08eaf55",
+      "context": "the folder to execute on, as a path or a string.",
+      "translation": "실행할 폴더이며, 경로 또는 문자열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#3",
+      "source": "True when the screen has a ``src`` field and it took the value.",
+      "source_sha256": "7d90a65b0311b88a6a14c39576fe912973e043b65ccfde21b75c2077635d0475",
+      "context": "True when the screen has a ``src`` field and it took the value.",
+      "translation": "화면에 ``src`` 필드가 있고 값이 적용되었으면 True 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.refresh_maturity_visibility#1",
+      "source": "ALSO THE ONE PLACE A SECTION'S VISIBILITY IS DECIDED. Maturity is not the only reason a category is not on the form -- a category every one of whose settings needs a z axis is not on a flat plate's form either -- and two functions each calling ``setVisible`` on the same card is how a card comes back the next time Preferences is saved. So the dimension switches are answered here as well, and the settings search hands visibility back to this method for the same reason. A heading the object rule holds back, because the run has none of its objects, stays hidden here too.",
+      "source_sha256": "76b113e55b805b540d92c6fa6471da8bffd04ac948d9715597dd7ae0ba261d7e",
+      "context": "Also the one place a section's visibility is decided. Maturity is not the only reason a category is not on the form -- a category every one of whose settings needs a z axis is not on a flat laboratory microplate's form either -- and two functions each calling ``setVisible`` on the same card is how a card comes back the next time Preferences is saved. So the dimension switches are answered here as well, and the settings search hands visibility back to this method for the same reason. A heading the object rule holds back, because the processing session has none of its objects, stays hidden here too.",
+      "translation": "섹션의 표시 여부를 결정하는 유일한 곳이기도 합니다. 범주가 양식에 없는 이유는 성숙도만이 아닙니다. 모든 설정에 z 축이 필요한 범주는 평면 마이크로플레이트의 양식에도 없습니다. 두 함수가 같은 카드에 각각 ``setVisible`` 을 호출하면 다음에 Preferences 를 저장할 때 카드가 다시 나타나게 됩니다. 따라서 차원 스위치도 여기서 처리하며, 같은 이유로 설정 검색도 표시 여부를 이 메서드에 넘깁니다. 처리 세션에 해당 객체가 없어 객체 규칙이 숨기는 제목도 여기서 숨겨진 채로 남습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reveal_settings#0",
+      "source": "Open the settings column if it is collapsed; the user asked.",
+      "source_sha256": "5f51409bded3dda972e6dc4cecfc6302156f193abe910fa46d01ed7f483cd6d6",
+      "context": "Open the settings column if it is collapsed; the user asked.",
+      "translation": "설정 열이 접혀 있으면 엽니다. 사용자가 요청했기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reveal_settings#1",
+      "source": "Ctrl+F puts the caret in the settings search, which cannot take it from a column folded away to the left.",
+      "source_sha256": "5b9c24db957580bc3c3ca4c7154ed9119515d8fc535513afb9da5b84ea1a64ec",
+      "context": "Ctrl+F puts the caret in the settings search, which cannot take it from a column folded away to the left.",
+      "translation": "Ctrl+F 는 설정 검색에 커서를 두는데, 왼쪽으로 접힌 열에서는 커서를 받을 수 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reveal_settings#2",
+      "source": "whether the column is open now.",
+      "source_sha256": "30d2cc61c7eed7f8f9ff908ea7a97386f88d989f18bc34f78282a6fa0369b8cd",
+      "context": "whether the column is open now.",
+      "translation": "이제 열이 열려 있는지 여부입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.run_photograph#1",
+      "source": "the run's output folder; looked up by absolute path, and an empty value gives ``None``.",
+      "source_sha256": "4ea76d6ac1b054e197adc6e94abc3387e6a1c8cdf0a6c2f401ef74339d725378",
+      "context": "the processing session's output folder; looked up by absolute path, and an empty value gives ``None``.",
+      "translation": "처리 세션의 출력 폴더입니다. 절대 경로로 조회하며, 빈 값이면 ``None`` 을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.set_dimension#2",
+      "source": "``\"z\"`` (3D) or ``\"t\"`` (time); a dimension this screen does not track is ignored.",
+      "source_sha256": "9b6609230ca7789362f58f807f3b9700ed61c96f4abb56c02da9137ec419ce67",
+      "context": "``\"z\"`` (3D) or ``\"t\"`` (time); a dimension this screen does not track is ignored.",
+      "translation": "``\"z\"`` (3D) 또는 ``\"t\"`` (시간)입니다. 이 화면이 추적하지 않는 차원은 무시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.set_dimension#3",
+      "source": "``True`` to show the dimension's settings, ``False`` to hide them.",
+      "source_sha256": "513467f3df6e7286529271de2718c4cb30883d1eeef42be660c528fdfe49aa04",
+      "context": "``True`` to show the dimension's settings, ``False`` to hide them.",
+      "translation": "차원의 설정을 보여 주려면 ``True``, 숨기려면 ``False`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.setting_row_is_visible#3",
+      "source": "settings key of the row; a category still waiting to be built is built first so its row can be read.",
+      "source_sha256": "93e060ba8f38719a50a1a998e1462e1613b7348670edc6a29be1940282b68e0e",
+      "context": "setting name of the row; a category still waiting to be built is built first so its row can be read.",
+      "translation": "행의 설정 키입니다. 아직 만들어지기를 기다리는 범주는 행을 읽을 수 있도록 먼저 만들어집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.showEvent#2",
+      "source": "the show event; passed to the base class, and only a non-spontaneous (application-initiated) show begins a new view for the focus-collapse rule.",
+      "source_sha256": "0a49927392d9fa62fa9620aed8b6cadb271656b462238621e47e4a31b3493ba4",
+      "context": "the show event; passed to the base class, and only a non-spontaneous (application-initiated) show begins a new view for the focus-collapse rule.",
+      "translation": "표시 이벤트입니다. 기본 클래스에 전달되며, 자발적이지 않은(애플리케이션이 시작한) 표시만 포커스 접기 규칙의 새 보기를 시작합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.show_category_hint#2",
+      "source": "the category heading as built; its blurb is read from the section's recorded blurbs, falling back to :func:`category_tooltip`, and the translated heading is shown in capitals before it.",
+      "source_sha256": "dd2f55face201a7847b40b2858e21a693268ac29533c4828c4fd450891edd405",
+      "context": "the category heading as built; its blurb is read from the section's recorded blurbs, falling back to :func:`category_tooltip`, and the translated heading is shown in capitals before it.",
+      "translation": "만들어진 범주 제목입니다. 그 설명은 섹션에 기록된 설명에서 읽으며, 없으면 :func:`category_tooltip` 으로 대체하고, 번역된 제목을 그 앞에 대문자로 보여 줍니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.ModuleHeader.add_trailing#2",
+      "source": "the control to append to the header row; it is also returned, so a caller can build and keep it in one expression.",
+      "source_sha256": "55a1c6e92844869608574b27525736aaa8299a012b0090a65c4c063ae8540739",
+      "context": "the control to append to the header row; it is also returned, so a caller can build and keep it in one expression.",
+      "translation": "헤더 행에 덧붙일 컨트롤입니다. 반환되기도 하므로 호출자는 식 하나로 만들고 보관할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.QtGui_QListWidgetItem_helper#2",
+      "source": "the Matplotlib figure to render as a PNG thumbnail; a render failure leaves the item without an icon.",
+      "source_sha256": "a4ffaa94bfcbcf5977c97e62b8329521bf4cb59e0c93230d5b236b4b6559e29a",
+      "context": "the Matplotlib figure to render as a PNG thumbnail; a render failure leaves the item without an icon.",
+      "translation": "PNG 썸네일로 렌더링할 Matplotlib 그림입니다. 렌더링에 실패하면 항목에 아이콘이 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.QtGui_QListWidgetItem_helper#3",
+      "source": "zero-based position in the history; the item's text is ``#<idx + 1>``.",
+      "source_sha256": "a2619669e89fe8007a741396c377ffb2625786ae26e64035cd0332d34f0b0b0b",
+      "context": "zero-based position in the history; the item's text is ``#<idx + 1>``.",
+      "translation": "기록에서의 영부터 시작하는 위치입니다. 항목의 텍스트는 ``#<idx + 1>`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.module_maturity#3",
+      "source": "``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``.",
+      "source_sha256": "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854",
+      "context": "``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``.",
+      "translation": "``\"alpha\"``, ``\"beta\"`` 또는 ``\"stable\"`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.setting_dimension#2",
+      "source": "settings key, matched exactly against the z (3-D) and t (time-lapse and motility) setting sets of :func:`dimension_settings`.",
+      "source_sha256": "3773f4da0e6dc5b4d036f7bae02f56e1ad2a7bd797fb0b75e901414ebdc57267",
+      "context": "setting name, matched exactly against the z (3-D) and t (time-lapse and motility) setting sets of :func:`dimension_settings`.",
+      "translation": "설정 키이며, :func:`dimension_settings` 의 z (3-D) 및 t (타임랩스와 운동성) 설정 집합과 정확히 일치시킵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.settings_section_maturity#2",
+      "source": "the module's registry key, whose stage comes from :func:`module_maturity`.",
+      "source_sha256": "4ae0ce5a67d7061ee536a0e03cf3ea86dd9163c60549074eb8eb4d6f92f493d6",
+      "context": "the module's registry key, whose stage comes from :func:`module_maturity`.",
+      "translation": "모듈의 레지스트리 키이며, 그 단계는 :func:`module_maturity` 에서 가져옵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.settings_section_maturity#3",
+      "source": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"`` or contains ``\"(alpha)\"``, beta likewise, and stable otherwise.",
+      "source_sha256": "356d41706743ff8f9a99cf9f8eae045ea5c947595ef09896d6564e8aced85f45",
+      "context": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"`` or contains ``\"(alpha)\"``, beta likewise, and stable otherwise.",
+      "translation": "섹션 제목입니다. 대소문자 구분 없이 비교하며, ``\"alpha\"`` 이거나 ``\"(alpha)\"`` 를 포함하면 alpha, beta 도 마찬가지이고, 그 밖에는 stable 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen.load_queue_from#1",
+      "source": "queue JSON file read with :func:`spacr.batch.load_queue`; on success it also becomes the file the run keeps up to date.",
+      "source_sha256": "1c5f5ac4f76a4fa8b7da08673d54f87f7c85efdff3a8eaaae5572c26b5e4b852",
+      "context": "work list JSON file read with :func:`spacr.batch.load_queue`; on success it also becomes the file the run keeps up to date.",
+      "translation": ":func:`spacr.batch.load_queue` 로 읽는 대기열 JSON 파일입니다. 성공하면 처리 세션이 계속 갱신하는 파일도 이것이 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen.move_selected#1",
+      "source": "number of queue places to move the selected job; negative moves it earlier, and the new position is clamped to the queue.",
+      "source_sha256": "62fdbf013fa80bf7102916f594b1233e293e1c2f476132e3e4bb9299b3fc61b1",
+      "context": "number of software job list places to move the selected job; negative moves it earlier, and the new position is clamped to the software job list.",
+      "translation": "선택된 작업을 옮길 대기열 자리 수입니다. 음수이면 앞으로 옮기며, 새 위치는 대기열 범위로 제한됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen.row_status#1",
+      "source": "zero-based table row; an empty string is returned when it has no Status cell.",
+      "source_sha256": "b7e4f27a30de857f0891bb1f3a61d8da0923567c52d66adc267fde7c394cb13a",
+      "context": "zero-based table row; an empty string is returned when it has no Status cell.",
+      "translation": "영부터 시작하는 표 행 번호입니다. Status 셀이 없으면 빈 문자열을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen.row_values#1",
+      "source": "zero-based table row; a missing cell reads as an empty string.",
+      "source_sha256": "3ea5386193f011b7d11f1ab87930357a6c5ee1b83dfa0833aee70cda4b93ee4e",
+      "context": "zero-based table row; a missing cell reads as an empty string.",
+      "translation": "영부터 시작하는 표 행 번호입니다. 없는 셀은 빈 문자열로 읽힙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen.save_queue_to#1",
+      "source": "destination queue JSON file, written by :func:`spacr.batch.save_queue`; on success it also becomes the file the run keeps up to date.",
+      "source_sha256": "0a5f2f365c7c41ec9e234804c5dfbbb60ea83c5ce2cbf6c475b14aeea7e0adbe",
+      "context": "destination work list JSON file, written by :func:`spacr.batch.save_queue`; on success it also becomes the file the run keeps up to date.",
+      "translation": ":func:`spacr.batch.save_queue` 가 기록하는 대상 대기열 JSON 파일입니다. 성공하면 처리 세션이 계속 갱신하는 파일도 이것이 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen.select_job#1",
+      "source": "identifier of the queued job; False is returned when no row shows it.",
+      "source_sha256": "397d713377598363cd37323149b5a57dc302aabe1054be0a8c7ea1ac219eb2a2",
+      "context": "identifier of the queued job; False is returned when no row shows it.",
+      "translation": "대기열에 있는 작업의 식별자입니다. 그 작업을 보여 주는 행이 없으면 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen.set_runner#1",
+      "source": "callable ``runner(job, settings_path, log_path)`` returning the job's exit code, passed to :func:`spacr.batch.run_queue` for every job; None lets :func:`~spacr.batch.run_queue` use its subprocess default.",
+      "source_sha256": "1b0b99cd25b61b7ee972db6c3b4e4fe1e30dd991967b040a8cc6685954a5a585",
+      "context": "callable ``runner(job, settings_path, log_path)`` returning the job's exit code, passed to :func:`spacr.batch.run_queue` for every job; None lets :func:`~spacr.batch.run_queue` use its subprocess default.",
+      "translation": "작업의 종료 코드를 반환하는 호출 가능 객체 ``runner(job, settings_path, log_path)`` 이며, 모든 작업에 대해 :func:`spacr.batch.run_queue` 에 전달됩니다. None 이면 :func:`~spacr.batch.run_queue` 가 기본 하위 프로세스 방식을 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation.ClassifierEvaluationScreen.closeEvent#2",
+      "source": "the close event; it is not inspected, only passed on to the base class once the workers are drained.",
+      "source_sha256": "ae234583e3738301c1b44ba9fcac1b7b6aa1d12a44c75067b40e00217aac66ba",
+      "context": "the close event; it is not inspected, only passed on to the base class once the workers are drained.",
+      "translation": "닫기 이벤트입니다. 검사하지 않으며, 작업자가 비워진 뒤 기본 클래스에 전달하기만 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation.ClassifierEvaluationScreen.open_cell#3",
+      "source": "``\"high\"`` for the confident (sure and wrong) half of the open cell or ``\"low\"`` for the unconfident half; a value the cell rejects is reported in the status line.",
+      "source_sha256": "a507d2db0cb519427c48566fdceb34342af9040eafdac601194e1c509140ef2e",
+      "context": "``\"high\"`` for the confident (sure and wrong) half of the open cell or ``\"low\"`` for the unconfident half; a value the cell rejects is reported in the status line.",
+      "translation": "열린 셀의 확신하는(확신했지만 틀린) 절반이면 ``\"high\"``, 확신하지 않는 절반이면 ``\"low\"`` 입니다. 셀이 거부하는 값은 상태 줄에 보고됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation.ClassifierEvaluationScreen.show_cell#1",
+      "source": "annotated class naming the confusion-matrix row.",
+      "source_sha256": "d2b160621dd44a3dbfcc84e382a345720427a44c47f0f34e76c210ba9f76e0f1",
+      "context": "annotated class naming the confusion-matrix row.",
+      "translation": "혼동 행렬의 행을 가리키는 주석 클래스입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation.ClassifierEvaluationScreen.show_cell#2",
+      "source": "model-predicted class naming the confusion-matrix column.",
+      "source_sha256": "5b4aee25da598763525770cf39834f2c6be40828c8b9b009d0d54c56a1a2691e",
+      "context": "model-predicted class naming the confusion-matrix column.",
+      "translation": "혼동 행렬의 열을 가리키는 모델 예측 클래스입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.classify.LazyFlowViewSection.hideEvent#1",
+      "source": "the hide event; it is passed on to the base class unchanged.",
+      "source_sha256": "3bced4d36e15261d78bbe4cb564df453f56d3f87f104a5ae65215633c3ef6ecb",
+      "context": "the hide event; it is passed on to the base class unchanged.",
+      "translation": "숨김 이벤트이며, 그대로 기본 클래스에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.classify.LazyFlowViewSection.showEvent#1",
+      "source": "the show event; it is passed on to the base class unchanged.",
+      "source_sha256": "525c6cbf243b1f93add8aeb0c272771d20da7a8b5a949cb721c9d44672835877",
+      "context": "the show event; it is passed on to the base class unchanged.",
+      "translation": "표시 이벤트이며, 그대로 기본 클래스에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.classify.install_flowview#1",
+      "source": "the host screen; nothing is mounted unless its ``app_key`` is ``'classify_merged'`` and it has a ``_settings_content`` widget with a layout.",
+      "source_sha256": "43f462e7e884266375a8f9981854ffe8dd7db357e28c54ec3a1480a503e27318",
+      "context": "the host application view; nothing is mounted unless its ``app_key`` is ``'classify_merged'`` and it has a ``_settings_content`` widget with a layout.",
+      "translation": "호스트 화면입니다. 그 ``app_key`` 가 ``'classify_merged'`` 이고 레이아웃을 가진 ``_settings_content`` 위젯이 있을 때만 설치됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.classify.install_folds#1",
+      "source": "the Classify screen that receives the FlowView section and the fold strip.",
+      "source_sha256": "0ebe85ae0c5dd7be82a4f5fedbde76ceed218e4f5371012c307ab61c0e8c671f",
+      "context": "the Classify application view that receives the FlowView section and the fold strip.",
+      "translation": "FlowView 섹션과 접기 띠를 받는 Classify 화면입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.control_chart.ControlChartCanvas.set_result#1",
+      "source": "the control chart to draw, or ``None`` for an empty axis.",
+      "source_sha256": "ccf1083d43e85ed7717527f4001be295af5aa9ce88f50d03acdf795304d98d8b",
+      "context": "the control chart to draw, or ``None`` for an empty axis.",
+      "translation": "그릴 관리도, 또는 빈 축이면 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.control_chart.ControlChartCanvas.set_result#2",
+      "source": "the text drawn on the empty axis; empty shows \"no chart yet\".",
+      "source_sha256": "b2e86af006112048a3c0b616ff6455ef74cb19fc98921f85a3e7b1b42a8926fa",
+      "context": "the text drawn on the empty axis; empty shows \"no chart yet\".",
+      "translation": "빈 축에 그릴 텍스트입니다. 비어 있으면 \"no chart yet\" 을 보여 줍니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.control_chart.ControlChartScreen.export_points#1",
+      "source": "the CSV file to write, without an index column. Nothing is written, and ``None`` is returned, when nothing has been charted yet.",
+      "source_sha256": "cbeaba4aa5a8a8cc30c25286a85425da972fbbd51cdc756ec9efcacfa0665cd7",
+      "context": "the CSV file to write, without an index column. Nothing is written, and ``None`` is returned, when nothing has been charted yet.",
+      "translation": "인덱스 열 없이 기록할 CSV 파일입니다. 아직 아무것도 그리지 않았으면 아무것도 기록하지 않고 ``None`` 을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.control_chart.ControlChartScreen.load_path#1",
+      "source": "a CSV, TSV or TXT file (by extension), read as one table; any other path is opened as a SQLite measurement database and its tables are listed in the picker.",
+      "source_sha256": "52ea2f6b5ab96ab7955ecf20dd28a279894efdbcec48f241f16c61bfe0283ba0",
+      "context": "a CSV, TSV or TXT file (by extension), read as one table; any other path is opened as a SQLite measurement database and its tables are listed in the picker.",
+      "translation": "하나의 표로 읽는 CSV, TSV 또는 TXT 파일(확장자 기준)입니다. 그 밖의 경로는 SQLite 측정 데이터베이스로 열고 그 테이블을 선택기에 나열합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.control_chart.ControlChartScreen.load_path#2",
+      "source": "the database table to read, also selected in the picker when the database has it; ``None`` reads the picker's current table.",
+      "source_sha256": "a6032775d6f8fbf6206ebb41d91d3b6b14f3558447dbeb596f0b5c295cebe3f0",
+      "context": "the database table to read, also selected in the picker when the database has it; ``None`` reads the picker's current table.",
+      "translation": "읽을 데이터베이스 테이블이며, 데이터베이스에 있으면 선택기에서도 선택됩니다. ``None`` 이면 선택기의 현재 테이블을 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.control_chart.ControlChartScreen.set_frame#1",
+      "source": "the table to chart; its columns fill the pickers before the chart is recomputed.",
+      "source_sha256": "bf5b101222490209909f637c7aade6db42e6d9fa53ef8c17744a4a45946929cc",
+      "context": "the table to chart; its columns fill the pickers before the chart is recomputed.",
+      "translation": "그릴 표입니다. 차트를 다시 계산하기 전에 그 열이 선택기를 채웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.control_chart.ControlChartScreen.set_frame#2",
+      "source": "the source line to show; empty shows the row and column counts.",
+      "source_sha256": "f62e50be073e6821b6fa94a9bb5808b7970d9d37a66357953c17a1b2a9b23650",
+      "context": "the source line to show; empty shows the row and column counts.",
+      "translation": "보여 줄 출처 줄입니다. 비어 있으면 행 수와 열 수를 보여 줍니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.preview_value#1",
+      "source": "zero-based row of the preview table.",
+      "source_sha256": "68f9c823f9bc8181192959dd762ce2d8e0b9ffc32d8c29cdf82fd4028220a4ac",
+      "context": "zero-based row of the preview table.",
+      "translation": "미리 보기 표의 영부터 시작하는 행 번호입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.preview_value#2",
+      "source": "column name in the plan frame, e.g. ``\"target\"``; an unknown column or out-of-range row gives ``\"\"``.",
+      "source_sha256": "c2e76566472ea250a3d3be160174a7a15c727bd79f9d8c33cf24766463dbf60a",
+      "context": "column name in the plan frame, e.g. ``\"target\"``; an unknown column or out-of-range row gives ``\"\"``.",
+      "translation": "계획 프레임의 열 이름입니다(예: ``\"target\"``). 알 수 없는 열이나 범위를 벗어난 행은 ``\"\"`` 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.set_destination#1",
+      "source": "the output folder; ``None`` or empty clears the field.",
+      "source_sha256": "e07fe0c79707d56cf44b56137fad81fd3e6321abba2a468763edd12ebbf47cd8",
+      "context": "the output folder; ``None`` or empty clears the field.",
+      "translation": "출력 폴더입니다. ``None`` 이거나 비어 있으면 필드를 지웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.set_layout_mode#1",
+      "source": "``\"auto\"``, ``\"plate_well\"``, ``\"well\"`` or ``\"flat\"``; any other value raises :class:`ValueError`.",
+      "source_sha256": "516e3c3c9a95e653eb9c3d9ede10ed0ee0c844807ddf12e32f35f1f3bab3da2d",
+      "context": "``\"auto\"``, ``\"plate_well\"``, ``\"well\"`` or ``\"flat\"``; any other value raises :class:`ValueError`.",
+      "translation": "``\"auto\"``, ``\"plate_well\"``, ``\"well\"`` 또는 ``\"flat\"`` 입니다. 그 밖의 값이면 :class:`ValueError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.set_plate_naming#1",
+      "source": "``\"index\"`` (``plate1``, ``plate2``, …) or ``\"name\"`` (keep the folder name); any other value raises :class:`ValueError`.",
+      "source_sha256": "e6af33ac7ab95ecbf527a1e4a9cccc8e886880c0fb288603b8fe85a38681de23",
+      "context": "``\"index\"`` (``plate1``, ``plate2``, …) or ``\"name\"`` (keep the folder name); any other value raises :class:`ValueError`.",
+      "translation": "``\"index\"`` (``plate1``, ``plate2``, …) 또는 ``\"name\"`` (폴더 이름 유지)입니다. 그 밖의 값이면 :class:`ValueError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.set_resume#1",
+      "source": "``True`` to switch the Resume toggle on.",
+      "source_sha256": "fbdbacfb315628667f05f4f5fb0e546891d8839184f3ce1286bf4d5405bdfa0c",
+      "context": "``True`` to switch the Resume toggle on.",
+      "translation": "Resume 토글을 켜려면 ``True`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.set_source#1",
+      "source": "the source folder; when no destination is set yet, the destination becomes a sibling folder named after it with a ``_yokogawa`` suffix.",
+      "source_sha256": "dc6296eefd6d362fb1ea7224e7730996515fbfe5b7a75735ec8bfce6ebca8579",
+      "context": "the source folder; when no destination is set yet, the destination becomes a sibling folder named after it with a ``_yokogawa`` suffix.",
+      "translation": "원본 폴더입니다. 대상이 아직 설정되지 않았으면, 대상은 원본 폴더 이름에 ``_yokogawa`` 접미사를 붙인 형제 폴더가 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.set_z_handling#1",
+      "source": "``\"keep\"`` (every plane), ``\"max\"`` (max-project) or ``\"first\"`` (first plane only); any other value raises :class:`ValueError`.",
+      "source_sha256": "ed267c6f96ef394fff8a9ee2c70b99ec9ab80fb9344ebf91e2861c2951c72493",
+      "context": "``\"keep\"`` (every image layer), ``\"max\"`` (max-project) or ``\"first\"`` (first image layer only); any other value raises :class:`ValueError`.",
+      "translation": "``\"keep\"`` (모든 평면), ``\"max\"`` (최대 투영) 또는 ``\"first\"`` (첫 번째 평면만)입니다. 그 밖의 값이면 :class:`ValueError` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.convert.PlanTableModel.set_frame#1",
+      "source": "the plan frame from :meth:`ConversionPlan.to_frame`; ``None`` or an empty frame shows an empty table with every preview column.",
+      "source_sha256": "63d2d2598f319cb6119aad3494ae0e105a16ab621a49538b332aada727c847bd",
+      "context": "the plan frame from :meth:`ConversionPlan.to_frame`; ``None`` or an empty frame shows an empty table with every preview column.",
+      "translation": ":meth:`ConversionPlan.to_frame` 에서 얻은 계획 프레임입니다. ``None`` 이거나 빈 프레임이면 모든 미리 보기 열이 있는 빈 표를 보여 줍니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.curate.CurateScreen.attach_brush#1",
+      "source": "the labels layer the new :class:`BrushPanel` edits; any previous brush panel is stopped and removed first.",
+      "source_sha256": "c29615668fcd5e53fc5cb048e925b53d76a499e10fe0791a1ce533e1344cec2b",
+      "context": "the labels layer the new :class:`BrushPanel` edits; any previous brush panel is stopped and removed first.",
+      "translation": "새 :class:`BrushPanel` 이 편집하는 레이블 레이어입니다. 이전 브러시 패널은 먼저 중지되고 제거됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.DataManagerScreen.execute_prune#2",
+      "source": "the prune plan to carry out; its own ``token`` is passed as the confirmation to :func:`spacr.data_manager.prune`.",
+      "source_sha256": "cb1caed8028967ea493b0e44ba6818515dae72f739c4e709393a53d6f00f60a5",
+      "context": "the prune plan to carry out; its own ``token`` is passed as the confirmation to :func:`spacr.data_manager.prune`.",
+      "translation": "실행할 정리 계획입니다. 그 자체의 ``token`` 이 :func:`spacr.data_manager.prune` 에 확인으로 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.DataManagerScreen.set_destination#1",
+      "source": "the archive destination folder; stored as a string and shown, and any previous archive plan is discarded.",
+      "source_sha256": "c0411e050200e4b095d1860c42b82efdd4c6cc13493179c71fd2bc5de620dc77",
+      "context": "the archive destination folder; stored as a string and shown, and any previous archive plan is discarded.",
+      "translation": "아카이브 대상 폴더입니다. 문자열로 저장되어 표시되며, 이전 아카이브 계획은 버려집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.DataManagerScreen.set_project#1",
+      "source": "the project folder to show and scan; previous scan results and plans are discarded.",
+      "source_sha256": "6af32fcf5e3deb9e3e8eeac96bd472ffcfbe6c5becc1b92d885ce38c7c3e168f",
+      "context": "the project folder to show and scan; previous scan results and plans are discarded.",
+      "translation": "표시하고 검사할 프로젝트 폴더입니다. 이전 검사 결과와 계획은 버려집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.column_affinity#3",
+      "source": "``INTEGER``, ``TEXT``, ``BLOB``, ``REAL``, or ``NUMERIC``.",
+      "source_sha256": "1a918c4a97e9f06e7251938e8b6ffcfd1de4ce30579fc903c3aba5607afb2d56",
+      "context": "``INTEGER``, ``TEXT``, ``BLOB``, ``REAL``, or ``NUMERIC``.",
+      "translation": "``INTEGER``, ``TEXT``, ``BLOB``, ``REAL`` 또는 ``NUMERIC`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.closeEvent#2",
+      "source": "the close event; it is passed on unchanged to the base-class handler after the workers are drained.",
+      "source_sha256": "666002b403997c68fe80daff0ff124ac26fd19d8c772a8e5904645eed2890b98",
+      "context": "the close event; it is passed on unchanged to the base-class handler after the workers are drained.",
+      "translation": "닫기 이벤트입니다. 작업자가 비워진 뒤 그대로 기본 클래스 핸들러에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#1",
+      "source": "the ``spacr.cli.MODULES`` key to select in the module box; an unknown key leaves the selection unchanged.",
+      "source_sha256": "2c5e7f93b0450489df990ac9d1d71581fb6527f70bb050c7d9026305cb699485",
+      "context": "the ``spacr.cli.MODULES`` key to select in the module box; an unknown key leaves the selection unchanged.",
+      "translation": "모듈 상자에서 선택할 ``spacr.cli.MODULES`` 키입니다. 알 수 없는 키는 선택을 그대로 둡니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.configure_submission#2",
+      "source": "the settings to submit; a shallow copy is kept and used instead of a settings file until the path field is edited.",
+      "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50",
+      "context": "the settings to submit; a shallow copy is kept and used instead of a settings file until the path field is edited.",
+      "translation": "제출할 설정입니다. 얕은 사본을 보관하며, 경로 필드를 편집하기 전까지 설정 파일 대신 사용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.hideEvent#1",
+      "source": "the hide event; passed on unchanged to the base class.",
+      "source_sha256": "d792731aa15eba204c94ede400b87f471aa160cdf8950d99fed76feb43659eb0",
+      "context": "the hide event; passed on unchanged to the base class.",
+      "translation": "숨김 이벤트이며, 그대로 기본 클래스에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.showEvent#1",
+      "source": "the show event; passed on unchanged to the base class before polling restarts (when auto-polling is on).",
+      "source_sha256": "f48453e68e367130be2d1eff074c2b216f1ca4724add1c6b6d549032496c81d0",
+      "context": "the show event; passed on unchanged to the base class before polling restarts (when auto-polling is on).",
+      "translation": "표시 이벤트이며, (자동 폴링이 켜져 있으면) 폴링을 다시 시작하기 전에 그대로 기본 클래스에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.dose_response#5",
+      "source": "**The Curve picker offers the asymmetric model and does not choose it.** Four-parameter is what Fit uses until someone says otherwise, and a five-parameter fit says in its own report whether the fifth parameter earned itself. A screen that picked the better-fitting model per group would hand back a plate whose EC50s came from two different models, compared as though they had not.",
+      "source_sha256": "88ffdf0cc95f3d1795b6eaee4e9066d4afa3e4a45aaddeb64c23a5c2c638983f",
+      "context": "**The Curve picker offers the asymmetric model and does not choose it.** Four-parameter is what Fit uses until someone says otherwise, and a five-parameter fit says in its own report whether the fifth parameter earned itself. A screen that picked the better-fitting model per group would hand back a plate whose EC50s came from two different models, compared as though they had not.",
+      "translation": "**Curve 선택기는 비대칭 모델을 제공하지만 선택하지는 않습니다.** 누군가 달리 지정하기 전까지 Fit 은 네 매개변수 모델을 사용하며, 다섯 매개변수 적합은 다섯 번째 매개변수가 제 몫을 했는지를 자체 보고서에서 알려 줍니다. 그룹마다 더 잘 맞는 모델을 고르는 화면은, 서로 다른 두 모델에서 나온 EC50s 를 같은 모델에서 나온 것처럼 비교하는 마이크로플레이트를 돌려주게 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.dose_response.DoseResponseScreen.set_frame#2",
+      "source": "the measurement table; its columns fill the concentration, response, group, plate, control, host and second-dose pickers.",
+      "source_sha256": "9a11aa98048cca8f9f80e11a117694ce1921579d03ad74c2dd2edc2b7e68d98b",
+      "context": "the measurement table; its columns fill the concentration, response, group, laboratory microplate, control, host and second-dose pickers.",
+      "translation": "측정 표입니다. 그 열이 농도, 반응, 그룹, 마이크로플레이트, 대조군, 숙주, 두 번째 용량 선택기를 채웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.dose_response.DoseResponseScreen.show_group#1",
+      "source": "position of the curve in the last fit's groups; out of range, or with no fit yet, nothing happens.",
+      "source_sha256": "989cdbe2c3097fd14623256957915ab8aee077de2759e7ba03819b4e19931de8",
+      "context": "position of the curve in the last fit's groups; out of range, or with no fit yet, nothing happens.",
+      "translation": "마지막 적합의 그룹에서 곡선의 위치입니다. 범위를 벗어나거나 아직 적합이 없으면 아무 일도 일어나지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings#3",
+      "source": "**What it is for.** Giving every object a vector that no label went into. The measured panel says how big a cell is and how bright each stain was; an embedding says what the cell LOOKS like, in a few hundred numbers a pretrained backbone produces without being told what to look for. That is what makes it worth having beside the panel rather than instead of it -- a phenotype nobody thought to measure is in the vector, and is in no column.",
+      "source_sha256": "feab472a4a0d56851e6f39e72585f4c4adfa529a7492a0d6a39dda6468fe9204",
+      "context": "**What it is for.** Giving every object a vector that no label went into. The measured panel says how big a cell is and how bright each stain was; an embedding says what the cell LOOKS like, in a few hundred numbers a pretrained backbone produces without being told what to look for. That is what makes it worth having beside the panel rather than instead of it -- a phenotype nobody thought to measure is in the vector, and is in no column.",
+      "translation": "**용도.** 레이블이 전혀 개입하지 않은 벡터를 모든 객체에 부여합니다. 측정 패널은 세포가 얼마나 크고 각 염색이 얼마나 밝았는지 알려 주고, 임베딩은 사전 학습된 백본이 무엇을 볼지 지시받지 않고 만든 수백 개의 숫자로 세포가 어떻게 보이는지를 알려 줍니다. 그래서 패널 대신이 아니라 패널 옆에 둘 가치가 있습니다. 아무도 측정할 생각을 하지 못한 표현형은 벡터에는 있지만 어떤 열에도 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings#4",
+      "source": "**What it needs.** Crops, and a choice about the channels. The crops come from the row at the top of the screen, which is :mod:`spacr.crop_loader`: either a ``measurements.db``, narrowed to one object class, one plate or any condition its crop table supports, or a folder of crop PNGs. Whichever it is, the pixels are read the way every other screen reads them -- :func:`spacr.crops.resolve_crop_source` decides between the crops already under ``data/`` and cutting them from ``merged/*.npy``, and says which it chose. Nothing has to be prepared first: a plate that has been through Measure with crop output on is ready.",
+      "source_sha256": "593ed395d1497d523d53149ef7aa31e45eecfc91360220ca9e9892173847853f",
+      "context": "**What it needs.** Extracted image regions, and a choice about the channels. The extracted image regions come from the row at the top of the application view, which is :mod:`spacr.crop_loader`: either a ``measurements.db``, narrowed to one object class, one laboratory microplate or any condition its extracted-image-region table supports, or a folder of extracted image region PNGs. Whichever it is, the pixels are read the way every other application view reads them -- :func:`spacr.crops.resolve_crop_source` decides between the extracted image regions already under ``data/`` and cutting them from ``merged/*.npy``, and says which it chose. Nothing has to be prepared first: a laboratory microplate that has been through Measure with extracted image region output on is ready.",
+      "translation": "**필요한 것.** 추출 이미지 영역과 채널에 대한 선택입니다. 추출 이미지 영역은 화면 맨 위의 행, 즉 :mod:`spacr.crop_loader` 에서 가져옵니다. 한 객체 클래스, 한 마이크로플레이트, 또는 추출 이미지 영역 테이블이 지원하는 조건으로 좁힌 ``measurements.db`` 이거나, 추출 이미지 영역 PNGs 폴더입니다. 어느 쪽이든 픽셀은 다른 모든 화면과 같은 방식으로 읽습니다. :func:`spacr.crops.resolve_crop_source` 가 이미 ``data/`` 아래에 있는 추출 이미지 영역을 쓸지 ``merged/*.npy`` 에서 잘라 낼지 결정하고, 무엇을 골랐는지 알려 줍니다. 먼저 준비할 것은 없습니다. 추출 이미지 영역 출력을 켜고 Measure 를 거친 마이크로플레이트라면 준비된 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings#5",
+      "source": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two runs' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. THE MATRIX LIVES IN THE SCREEN AND IS NOT YET WRITTEN ANYWHERE: the table below shows the first few dimensions of the first fifty objects, and there is no export button. Reaching the whole matrix means :func:`spacr.embeddings.embed_array` from Python for now.",
+      "source_sha256": "9a991138a908810b3726a633e2b84817e6f051d0df369879abb4494956be8ae9",
+      "context": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two processing sessions' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. the matrix lives in the screen and is not yet written anywhere: the table below shows the first few dimensions of the first fifty objects, and there is no export button. Reaching the whole matrix means :func:`spacr.embeddings.embed_array` from Python for now.",
+      "translation": "**산출물.** 객체마다 한 행, 차원마다 한 열이며, 열 이름은 채널별 정책에서는 ``emb_c<channel>_<dimension>``, 투영에서는 ``emb_<dimension>`` 이고, 이를 만든 모델 저장소 항목(백본, 정책, 이 컴퓨터에 있는 가중치의 체크섬)이 함께 붙습니다. 두 처리 세션의 차원 17 은 세 가지가 모두 일치하지 않는 한 같은 숫자일 뿐 같은 것이 아니며, 그래서 항목은 로그 한 줄이 아니라 결과의 일부입니다. 행렬은 화면 안에만 있고 아직 어디에도 기록되지 않습니다. 아래 표는 처음 오십 개 객체의 처음 몇 차원을 보여 주며, 내보내기 버튼은 없습니다. 행렬 전체에 접근하려면 지금은 Python 에서 :func:`spacr.embeddings.embed_array` 를 사용해야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings#6",
+      "source": "**What to do next.** Treat the columns as a feature source, not as a result. They are consumed exactly as the measured panel is -- a reduction to see whether the objects separate, a regression against the perturbation, a retrieval to find the objects most like one you picked. Which is also the warning the screen repeats under the table: a single dimension is not a phenotype, and the only honest way to read one of these numbers is through something that takes the whole vector.",
+      "source_sha256": "27b053b768ec700ceb0403d50c8e6d31c2753cbd6f9aa1e812bdf94b4ff706e1",
+      "context": "**What to do next.** Treat the columns as a feature source, not as a result. They are consumed exactly as the measured panel is -- a reduction to see whether the objects separate, a regression against the perturbation, a retrieval to find the objects most like one you picked. Which is also the warning the screening experiment repeats under the table: a single dimension is not a phenotype, and the only honest way to read one of these numbers is through something that takes the whole vector.",
+      "translation": "**다음 단계.** 열을 결과가 아니라 특징 소스로 다루십시오. 열은 측정 패널과 똑같이 사용됩니다. 객체가 분리되는지 보기 위한 차원 축소, 섭동에 대한 회귀, 고른 객체와 가장 비슷한 객체를 찾는 검색입니다. 이것은 표 아래에 반복해서 표시되는 경고이기도 합니다. 단일 차원은 표현형이 아니며, 이 숫자 하나를 정직하게 읽는 유일한 방법은 벡터 전체를 받는 무언가를 통하는 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen#1",
+      "source": "The crop loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a worker thread, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
+      "source_sha256": "efa905cc9d85d0b55f405c6708fbb7b889cfca53a9a71fe22c8043374f250fcf",
+      "context": "The extracted image region loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a background execution unit, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
+      "translation": "인코더 컨트롤 위의 추출 이미지 영역 로더가 화면의 진입점입니다. :mod:`spacr.crop_loader` 가 선택을 계획하고, 이 화면이 작업자 실행 경로에서 페이지별로 읽으며, 로드가 끝날 때마다 :meth:`set_crops` (예전에는 Python 에서만 접근할 수 있었음)를 호출합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen#3",
+      "source": "``False`` runs the embedding and the crop load inline, emitting the same signals in the same order, so a test drives the screen synchronously without the behaviour diverging.",
+      "source_sha256": "c17fab76f40cc958c3d9c0712600d4479516d5512156685a5e50d23da7a79654",
+      "context": "``False`` runs the embedding and the extracted image region load inline, emitting the same signals in the same order, so a test drives the screen synchronously without the behaviour diverging.",
+      "translation": "``False`` 이면 임베딩과 추출 이미지 영역 로드를 인라인으로 실행하고 같은 시그널을 같은 순서로 내보내므로, 테스트는 동작이 달라지지 않게 화면을 동기적으로 구동할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.choose_path#0",
+      "source": "Ask for the database or the folder, and remember the answer.",
+      "source_sha256": "9bd756d49b15faff091b49694c959fe512f647a5e1d51782e4f8c9cf2891524f",
+      "context": "Ask for the database or the folder, and remember the answer.",
+      "translation": "데이터베이스 또는 폴더를 묻고, 그 답을 기억합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.choose_path#1",
+      "source": "what was chosen, or ``''`` when the dialog was dismissed, so a caller can tell a cancel from a choice.",
+      "source_sha256": "0ebdee5cfaa90d9275b0e935f174d118559c4a4a92c0f123de066a30f465c912",
+      "context": "what was chosen, or ``''`` when the dialog was dismissed, so a caller can tell a cancel from a choice.",
+      "translation": "선택된 것이며, 대화 상자를 닫았으면 ``''`` 이므로 호출자가 취소와 선택을 구별할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+      "source": "The stop flag is set FIRST. ``shutdown`` waits a bounded time and then parks a worker that outlasts it, so a load told to stop between pages finishes in one page instead of reading the rest of the plate into an array whose screen has gone.",
+      "source_sha256": "940621b8ce4edb757e3bbc40852030570c090827c47dd1a8c8f0ab3ca20226db",
+      "context": "The stop flag is set FIRST. ``shutdown`` waits a bounded time and then parks a worker that outlasts it, so a load told to stop between pages finishes in one page instead of reading the rest of the plate into an array whose screen has gone.",
+      "translation": "중지 플래그를 먼저 설정합니다. ``shutdown`` 은 제한된 시간 동안 기다린 뒤 그보다 오래 걸리는 작업자를 대기시키므로, 페이지 사이에서 중지를 지시받은 로드는 화면이 사라진 배열로 마이크로플레이트의 나머지를 읽어 들이는 대신 한 페이지 안에 끝납니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_query#0",
+      "source": "The :class:`spacr.crop_loader.CropQuery` the controls describe.",
+      "source_sha256": "488086df21572e14e36ff5d4007e5401da8bc70870f4411f31f4b5f9b55fccc2",
+      "context": "The :class:`spacr.crop_loader.CropQuery` the controls describe.",
+      "translation": "컨트롤이 기술하는 :class:`spacr.crop_loader.CropQuery` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_query#1",
+      "source": "the query a press of Load would run, which is what makes the panel testable without pressing anything.",
+      "source_sha256": "52a9797fa6d200b9a58c7817ef50825217bf4aac3246c4e28e12db956f8836d3",
+      "context": "the query a press of Load would run, which is what makes the panel testable without pressing anything.",
+      "translation": "Load 를 누르면 실행될 쿼리이며, 이 덕분에 아무것도 누르지 않고도 패널을 테스트할 수 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_record#0",
+      "source": "What the last load actually read, as the loader recorded it.",
+      "source_sha256": "d72b1d500b4a98a92eb059f9d4c70425970c8399d1f14dae223379b5a71fa359",
+      "context": "What the last load actually read, as the loader recorded it.",
+      "translation": "로더가 기록한, 마지막 로드가 실제로 읽은 내용입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.crop_source#0",
+      "source": "Which kind of place the crops come from.",
+      "source_sha256": "198425cab2a7a3df2d8e7471be745aaa9d86cf56fdcafde98171e2134680e16f",
+      "context": "Which kind of place the extracted image regions come from.",
+      "translation": "추출 이미지 영역을 가져오는 곳의 종류입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205",
+      "context": "An extracted image region load counts. It is the longer of the two jobs by far -- a plate of extracted image regions off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
+      "translation": "추출 이미지 영역 로드도 포함됩니다. 두 작업 중 훨씬 긴 쪽이며(네트워크 마운트에서 마이크로플레이트의 추출 이미지 영역을 읽으면 몇 분이 걸림), 그 동안 유휴 상태로 보고하는 화면은 실행 중인 읽기 위로 창이 닫히게 할 것입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_loading#0",
+      "source": "Whether a crop load is in flight.",
+      "source_sha256": "67d882f598d5815116c5b9363f40480e0269805eaf63cc4313616a1c4b8692bd",
+      "context": "Whether an extracted image region load is in flight.",
+      "translation": "추출 이미지 영역 로드가 진행 중인지 여부입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.load_crops#0",
+      "source": "Plan the selection, then read it a page at a time.",
+      "source_sha256": "22ac714f6d2a1cf8b9205a56b196ffe1d6cf0c20c412075911fdfb5975e8b81e",
+      "context": "Plan the selection, then read it a page at a time.",
+      "translation": "선택을 계획한 다음 한 페이지씩 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.load_crops#1",
+      "source": "TWO JOBS, NOT ONE, and the split is the point: planning is a count and a select, so it comes back in milliseconds and the screen can say what was matched -- or why nothing was -- before committing to read a single pixel. Only then does the second job start, and it reports after every page.",
+      "source_sha256": "9a32c20722c0e0eac213e341635d0907d9d2eeb9902b22b90c428cb1dabe8931",
+      "context": "Two jobs, NOT ONE, and the split is the point: planning is a count and a select, so it comes back in milliseconds and the screen can say what was matched -- or why nothing was -- before committing to read a single pixel. Only then does the second job start, and it reports after every page.",
+      "translation": "작업은 하나가 아니라 둘이며, 그 분리가 핵심입니다. 계획은 개수 세기와 선택이므로 밀리초 만에 돌아오며, 화면은 픽셀 하나라도 읽기 전에 무엇이 일치했는지, 또는 왜 아무것도 일치하지 않았는지 알려 줄 수 있습니다. 그다음에야 두 번째 작업이 시작되며, 페이지마다 보고합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.stop_loading#0",
+      "source": "Stop a load between pages, keeping the pages already read.",
+      "source_sha256": "dae140400894e3b41394a742371cbf8eff42a348510df5ce7832c800b989d897",
+      "context": "Stop a load between pages, keeping the pages already read.",
+      "translation": "이미 읽은 페이지는 유지한 채, 페이지 사이에서 로드를 중지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.stop_loading#1",
+      "source": "The flag is checked before each page rather than inside one, so a stop costs at most one page and never leaves a half-written crop in the stack.",
+      "source_sha256": "8229dcff458889275a58dd9d0a0d148140b22af52274cb38ee692b2bb8c6f9ef",
+      "context": "The flag is checked before each page rather than inside one, so a stop costs at most one page and never leaves a half-written extracted image region in the stack.",
+      "translation": "플래그는 페이지 안이 아니라 각 페이지 전에 확인하므로, 중지 비용은 최대 한 페이지이며 스택에 절반만 기록된 추출 이미지 영역을 남기지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.begin_well_drag#1",
+      "source": "the anchor well's row index, counting from zero.",
+      "source_sha256": "8abdc839189a45b4aeea6cf15f39e7077b0315e20e19b0e52c90243750dc4a7c",
+      "context": "the anchor well's row index, counting from zero.",
+      "translation": "기준 시료 위치의 행 인덱스이며, 영부터 셉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.begin_well_drag#2",
+      "source": "the anchor well's column index, counting from zero.",
+      "source_sha256": "415fc3f361cafa2de21f55733986994f0578b3d6990eb0c980a0f1aa8c69fdd9",
+      "context": "the anchor well's column index, counting from zero.",
+      "translation": "기준 시료 위치의 열 인덱스이며, 영부터 셉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.drag_wells_to#1",
+      "source": "the pointer as a ``QPoint`` in global screen coordinates; ignored when no drag is anchored, when it is over no well, or when the well has not changed since the last call.",
+      "source_sha256": "bbad6a560bcde22160289d62a35bd8868772e7c80e97c0df1cf2532e0abe16de",
+      "context": "the pointer as a ``QPoint`` in global screen coordinates; ignored when no drag is anchored, when it is over no well, or when the well has not changed since the last call.",
+      "translation": "전역 화면 좌표의 ``QPoint`` 로 나타낸 포인터입니다. 드래그 기준점이 없거나, 어떤 시료 위치 위에도 있지 않거나, 마지막 호출 이후 시료 위치가 바뀌지 않았으면 무시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.load_template#0",
+      "source": "Replace the design with the shipped template called ``key``.",
+      "source_sha256": "a2ec202dbf37dc1f2d02eb6340af2f668ec498641c973864c3c5c98d9ec11e2e",
+      "context": "Replace the design with the shipped template called ``key``.",
+      "translation": "설계를 ``key`` 라는 이름의 제공 템플릿으로 대체합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.load_template#1",
+      "source": "Everything but the plate name is replaced: the name has to match the image files the user will acquire, which no template can know.",
+      "source_sha256": "645722d273a72fec5d835c1420b92d61d519abbc04c2c843364513e90f898b66",
+      "context": "Everything but the plate name is replaced: the name has to match the image files the user will acquire, which no template can know.",
+      "translation": "마이크로플레이트 이름을 제외한 모든 것을 대체합니다. 이름은 사용자가 획득할 이미지 파일과 일치해야 하며, 어떤 템플릿도 이를 알 수 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.load_template#2",
+      "source": "a template key, see :meth:`template_keys`.",
+      "source_sha256": "3b0f274020cb3488f3cdf77ed44564c6678507d2644efe46ececdcaa23b0b60d",
+      "context": "a template key, see :meth:`template_keys`.",
+      "translation": "템플릿 키입니다. :meth:`template_keys` 를 참조하십시오.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.load_template#3",
+      "source": "whatever the menu action passes; ignored.",
+      "source_sha256": "10f83e47927f4a0a152ce62d156c6f8a798384cb1be290488e89ba1dddfb5001",
+      "context": "whatever the menu action passes; ignored.",
+      "translation": "메뉴 동작이 전달하는 모든 값이며, 무시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.load_template#4",
+      "source": "True when the template was found and loaded.",
+      "source_sha256": "63257006e311e33ccff3b8becc552ee307ae5875490c75fc866e2cbbe71d3451",
+      "context": "True when the template was found and loaded.",
+      "translation": "템플릿을 찾아 로드했으면 True 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.template_keys#0",
+      "source": "The keys of the templates on the menu, in menu order.",
+      "source_sha256": "d0eb7f103c8e3c81fc189c700a373fdf94abe718bc2ba0f8703e239cb76a5d6f",
+      "context": "The keys of the templates on the menu, in menu order.",
+      "translation": "메뉴에 있는 템플릿의 키이며, 메뉴 순서를 따릅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design.ExperimentDesignScreen.well_at#1",
+      "source": "a ``QPoint`` in global screen coordinates, mapped into each well's own coordinates to test containment.",
+      "source_sha256": "bb4852ad8cd92a1d79baa764ee41dc89a107ff54e6d8a729e6caeee6ef76ed9b",
+      "context": "a ``QPoint`` in global screen coordinates, mapped into each microplate sample position's own coordinates to test containment.",
+      "translation": "전역 화면 좌표의 ``QPoint`` 이며, 포함 여부를 확인하기 위해 각 시료 위치 자체의 좌표로 매핑됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.load_path#1",
+      "source": "a ``.csv``, ``.tsv`` or ``.txt`` table, or any other file treated as a measurement database whose table names fill the table picker.",
+      "source_sha256": "f9d9a5e5bc562ec7251a3c172ffacd5a90c6407d77a997001cda4383f47a3efc",
+      "context": "a ``.csv``, ``.tsv`` or ``.txt`` table, or any other file treated as a measurement database whose table names fill the table picker.",
+      "translation": "``.csv``, ``.tsv`` 또는 ``.txt`` 표, 또는 측정 데이터베이스로 취급되어 그 테이블 이름이 테이블 선택기를 채우는 그 밖의 파일입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.feature_explorer.FeatureExplorerScreen.load_path#2",
+      "source": "the database table to read; ``None`` reads the table currently chosen in the picker.",
+      "source_sha256": "c36f9878a41eb9843fef9bf9535831978993aae597144f51bb17bf807cf007ce",
+      "context": "the database table to read; ``None`` reads the table currently chosen in the picker.",
+      "translation": "읽을 데이터베이스 테이블입니다. ``None`` 이면 선택기에서 현재 선택된 테이블을 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ColumnMapModel.map_at#1",
+      "source": "zero-based table row.",
+      "source_sha256": "9a9da4dc46c13e1f826369609b819769a226196c7d2181fc7a3a49b1e0385089",
+      "context": "zero-based table row.",
+      "translation": "영부터 시작하는 표 행 번호입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ColumnMapModel.row_of#1",
+      "source": "the foreign table's column name, compared as a string with each mapping's ``source``.",
+      "source_sha256": "38f5fdac5b71147349f1cf3f601fb99d3b105de33346629fd1d1cec9f0bf3d4d",
+      "context": "the foreign table's column name, compared as a string with each mapping's ``source``.",
+      "translation": "외부 테이블의 열 이름이며, 각 매핑의 ``source`` 와 문자열로 비교합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ColumnMapModel.set_maps#1",
+      "source": "the :class:`spacr.foreign.ColumnMap` rows to show, in order; ``None`` empties the table.",
+      "source_sha256": "28171ec9240cdea458d45d0370c88bc3c387c537389446459045a38dae7a793f",
+      "context": "the :class:`spacr.foreign.ColumnMap` rows to show, in order; ``None`` empties the table.",
+      "translation": "보여 줄 :class:`spacr.foreign.ColumnMap` 행이며, 순서대로입니다. ``None`` 이면 표를 비웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ColumnMapModel.set_status#2",
+      "source": "mapping of source column name to status word; ``None`` clears every status.",
+      "source_sha256": "901b0ac46e21efbbab342345c9f707714c8452f59a6ac84f8d051d25699e3a46",
+      "context": "mapping of source column name to status word; ``None`` clears every status.",
+      "translation": "원본 열 이름에서 상태 단어로의 매핑입니다. ``None`` 이면 모든 상태를 지웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.add_mask_folder#1",
+      "source": "storage name of a mask class in :data:`OBJECT_CHOICES`, e.g. ``\"cell\"``; surrounding whitespace is ignored.",
+      "source_sha256": "8f5302014ed95e746067ea3ba0412ef94fcde6faa0afe646f6fe03268c11a8a3",
+      "context": "storage name of a mask class in :data:`OBJECT_CHOICES`, e.g. ``\"cell\"``; surrounding whitespace is ignored.",
+      "translation": ":data:`OBJECT_CHOICES` 에 있는 마스크 클래스의 저장 이름입니다(예: ``\"cell\"``). 앞뒤 공백은 무시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.add_mask_folder#2",
+      "source": "folder holding that class's masks; replaces any folder already registered for the class.",
+      "source_sha256": "27630f0c9c665edc2389db71026b97b0a6d42375525c027a7a36ecc16c229577",
+      "context": "folder holding that class's masks; replaces any folder already registered for the class.",
+      "translation": "그 클래스의 마스크를 담은 폴더입니다. 그 클래스에 이미 등록된 폴더를 대체합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.clear_mask_folders#0",
+      "source": "Forget every mask folder, so a new set does not inherit the last.",
+      "source_sha256": "6a5adfc144d33e63cc0bfb580f9b8d35a477ea1af122cac3d0efbdb692d9dced",
+      "context": "Forget every mask folder, so a new set does not inherit the last.",
+      "translation": "모든 마스크 폴더를 잊으므로, 새 세트가 이전 세트를 물려받지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.custom_regex#0",
+      "source": "The pattern typed for the Custom convention.",
+      "source_sha256": "f3505b3904aa9c46bca8137912d1e8da59028752f823327f1f30151ca9c73668",
+      "context": "The pattern typed for the Custom convention.",
+      "translation": "Custom 규칙용으로 입력한 패턴입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.load_mapping#1",
+      "source": "column-map CSV written by :meth:`save_mapping` or :func:`spacr.foreign.save_column_map`, possibly edited. A read error is shown in the status line and returns ``False``.",
+      "source_sha256": "6d6b149bb8b5ea84816324018bc7dede68302661a60fc1e48acb1e65718b3dbe",
+      "context": "column-map CSV written by :meth:`save_mapping` or :func:`spacr.foreign.save_column_map`, possibly edited. A read error is shown in the status line and returns ``False``.",
+      "translation": ":meth:`save_mapping` 또는 :func:`spacr.foreign.save_column_map` 이 기록한(편집되었을 수도 있는) 열 매핑 CSV 입니다. 읽기 오류는 상태 줄에 표시되고 ``False`` 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.metadata_type#0",
+      "source": "The chosen convention's key; ``NAMING_AUTO`` for folders.",
+      "source_sha256": "73bf0a62963f2bd9250d27be06523439a75407b2323484f71a6ba8f14355174c",
+      "context": "The chosen convention's key; ``NAMING_AUTO`` for folders.",
+      "translation": "선택된 규칙의 키입니다. 폴더이면 ``NAMING_AUTO`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.remove_mask_folder#1",
+      "source": "storage name of the mask class; returns ``False`` when no folder is registered for it.",
+      "source_sha256": "dd5392950c43393677b5f6cbc4c7c2a1af7503885865adb798b79c34c1627d24",
+      "context": "storage name of the mask class; returns ``False`` when no folder is registered for it.",
+      "translation": "마스크 클래스의 저장 이름입니다. 그 클래스에 등록된 폴더가 없으면 ``False`` 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.save_mapping#1",
+      "source": "destination CSV file, written by :func:`spacr.foreign.save_column_map`. Returns ``False`` when there is nothing to save or the write fails.",
+      "source_sha256": "837844c5cc0e40c118ba5fa969e87621eabf71b11876f3ce7cf5eb93bf71d9ea",
+      "context": "destination CSV file, written by :func:`spacr.foreign.save_column_map`. Returns ``False`` when there is nothing to save or the write fails.",
+      "translation": ":func:`spacr.foreign.save_column_map` 이 기록하는 대상 CSV 파일입니다. 저장할 것이 없거나 기록에 실패하면 ``False`` 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_custom_regex#0",
+      "source": "Set the pattern the Custom convention parses by.",
+      "source_sha256": "e56d6879892ed2785acb758033b63c33c04fd165bda923711e9cbf00ea30bdd7",
+      "context": "Set the pattern the Custom convention parses by.",
+      "translation": "Custom 규칙이 구문 분석에 사용하는 패턴을 설정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_custom_regex#1",
+      "source": "a regular expression with named groups ``wellID``, ``fieldID`` and ``chanID``; ``''`` clears it.",
+      "source_sha256": "8fb9bcf22e7e25637e569f20d9ca42aee4923a6b300de86d2986ded9cb8f0a3d",
+      "context": "a regular expression with named groups ``wellID``, ``fieldID`` and ``chanID``; ``''`` clears it.",
+      "translation": "이름 있는 그룹 ``wellID``, ``fieldID``, ``chanID`` 를 가진 정규식입니다. ``''`` 이면 지웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_destination#1",
+      "source": "folder the import is written to; ``None`` or empty clears the field.",
+      "source_sha256": "63a4b99d807fd5d3f726258b95a6eed1d2f16b418b54c79899694335f03ffbf1",
+      "context": "folder the import is written to; ``None`` or empty clears the field.",
+      "translation": "가져온 데이터를 기록할 폴더입니다. ``None`` 이거나 비어 있으면 필드를 지웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_images#1",
+      "source": "the foreign image folder. When the destination is still empty it is filled with this path plus ``_spacr``.",
+      "source_sha256": "cd6d3b2c9946d0f3f63e2eb90648d66927efbec6b11547333d572cc3589ba7a1",
+      "context": "the foreign image folder. When the destination is still empty it is filled with this path plus ``_spacr``.",
+      "translation": "외부 이미지 폴더입니다. 대상이 아직 비어 있으면 이 경로에 ``_spacr`` 를 붙인 값으로 채웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_mapping_value#2",
+      "source": "zero-based mapping row.",
+      "source_sha256": "b8f2a9368baeab8dd216b1ea3ef183485ba616dd55206c77beea4efc08203a91",
+      "context": "zero-based mapping row.",
+      "translation": "영부터 시작하는 매핑 행 번호입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_mapping_value#3",
+      "source": "column name from :data:`MAP_COLUMNS`, e.g. ``\"target\"``; an unknown or read-only column returns ``False``.",
+      "source_sha256": "e00da9176331b2be964231a40a17469d957eaf1fc33eec21ac8d870a5e06cc23",
+      "context": "column name from :data:`MAP_COLUMNS`, e.g. ``\"target\"``; an unknown or read-only column returns ``False``.",
+      "translation": ":data:`MAP_COLUMNS` 의 열 이름입니다(예: ``\"target\"``). 알 수 없거나 읽기 전용인 열이면 ``False`` 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_mapping_value#4",
+      "source": "new cell text; surrounding whitespace is stripped.",
+      "source_sha256": "d34ba3762a91d88d200fa157042561e8e38f5ad8dc5a82d80bd1f47bc1cea834",
+      "context": "new cell text; surrounding whitespace is stripped.",
+      "translation": "새 셀 텍스트이며, 앞뒤 공백은 제거됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_measurements#1",
+      "source": "the foreign measurement table file; ``None`` or empty clears the field.",
+      "source_sha256": "36256d08301b9003f235cf191e803e6d8d25fb1d8fbb8b59ab50826efbf69c6c",
+      "context": "the foreign measurement table file; ``None`` or empty clears the field.",
+      "translation": "외부 측정 테이블 파일입니다. ``None`` 이거나 비어 있으면 필드를 지웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_metadata_type#0",
+      "source": "Choose the filename convention the files are read by.",
+      "source_sha256": "c076e9ac36925aa9b000aba220f20a9c955c304852364b23d09e5bddcae89a69",
+      "context": "Choose the filename convention the files are read by.",
+      "translation": "파일을 읽을 때 사용할 파일 이름 규칙을 선택합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_metadata_type#1",
+      "source": "a key from :func:`naming_choices`; ``''`` means folders.",
+      "source_sha256": "86427b0300d0eefe1edc6a192db26b53ac008f3a0edc8ec9d2216279ed5c7442",
+      "context": "a key from :func:`naming_choices`; ``''`` means folders.",
+      "translation": ":func:`naming_choices` 의 키입니다. ``''`` 이면 폴더를 뜻합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_metadata_type#2",
+      "source": "False, with the reason inline, for a key the list lacks.",
+      "source_sha256": "626276e23c2db295f407cd7edf1b514a0b8f601e90bc31569dc59e3dbd443d04",
+      "context": "False, with the reason inline, for a key the list lacks.",
+      "translation": "목록에 없는 키이면 이유를 함께 표시하고 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_on_conflict#1",
+      "source": "``\"refuse\"`` or ``\"rename\"``, as in :data:`CONFLICT_CHOICES`; anything else raises ``ValueError``.",
+      "source_sha256": "fb1527f8129aa4c430640ed5348371bfc2dc65ad8a000f5e4d0c1e9c32d79a10",
+      "context": "``\"refuse\"`` or ``\"rename\"``, as in :data:`CONFLICT_CHOICES`; anything else raises ``ValueError``.",
+      "translation": "``\"refuse\"`` 또는 ``\"rename\"`` 이며, :data:`CONFLICT_CHOICES` 에 있는 값입니다. 그 밖의 값이면 ``ValueError`` 가 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_pixel_size#1",
+      "source": "micrometres per pixel, as a number or text; it is shown as typed and parsed later by :meth:`pixel_size`.",
+      "source_sha256": "a32cf4ce0c936935c111dc20fedf7bd015278b50ffb74a1268a1c786757ba8f7",
+      "context": "micrometres per pixel, as a number or text; it is shown as typed and parsed later by :meth:`pixel_size`.",
+      "translation": "픽셀당 마이크로미터이며, 숫자 또는 텍스트입니다. 입력한 그대로 표시되고 나중에 :meth:`pixel_size` 가 구문 분석합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.naming_choices#0",
+      "source": "Every filename convention Import can read, as ``(key, label)``.",
+      "source_sha256": "eeb65e3a806b9144333022e3683234da5e4fa2e4e50f89996c40460cfd9974ed",
+      "context": "Every filename convention Import can read, as ``(key, label)``.",
+      "translation": "Import 가 읽을 수 있는 모든 파일 이름 규칙을 ``(key, label)`` 형식으로 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.naming_choices#1",
+      "source": "The SAME list Mask's ``metadata_type`` offers, read from :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can parse is a plate Import can parse and the two lists cannot drift. Folders come first because they are what Import did before it knew any convention; the vendor conventions follow in Mask's vendor order, each labelled with its vendor and marked when spaCR is guessing about it.",
+      "source_sha256": "d73c9885b1f5c35f67498044a8d03246049409a1173b4aeea479044957075f30",
+      "context": "The SAME list Mask's ``metadata_type`` offers, read from :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can parse is a plate Import can parse and the two lists cannot drift. Folders come first because they are what Import did before it knew any convention; the vendor conventions follow in Mask's vendor order, each labelled with its vendor and marked when spaCR is guessing about it.",
+      "translation": "Mask 의 ``metadata_type`` 이 제공하는 것과 같은 목록이며, :func:`spacr.regex_infer._metadata_convention_menu` 에서 읽으므로 Mask 가 구문 분석할 수 있는 마이크로플레이트는 Import 도 구문 분석할 수 있고 두 목록이 어긋날 수 없습니다. 폴더가 먼저 오는데, Import 가 어떤 규칙도 알기 전에 하던 방식이기 때문입니다. 공급업체 규칙은 Mask 의 공급업체 순서로 뒤따르며, 각각 공급업체 이름이 붙고 spaCR 이 추측하는 경우 표시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.naming_choices#2",
+      "source": "the choices, ``NAMING_AUTO`` first.",
+      "source_sha256": "ca8eac46dc8282927d0a21f89899e9f5ad446be6bd12fb81bd871bacea73072a",
+      "context": "the choices, ``NAMING_AUTO`` first.",
+      "translation": "선택지이며, ``NAMING_AUTO`` 가 첫 번째입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.apply_settings#2",
+      "source": "the complete new :class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`; it replaces the current settings and is passed to the gate canvas and the search panel.",
+      "source_sha256": "9ea6c68bc9ded0b5631272b4b1888232c0918b37ad7cdea8d545f657266d956d",
+      "context": "the complete new :class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`; it replaces the current settings and is passed to the data-selection boundary canvas and the search panel.",
+      "translation": "완전한 새 :class:`~spacr.qt.widgets.gate_settings.GateEditorSettings` 입니다. 현재 설정을 대체하며, 게이트 캔버스와 검색 패널에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.ask_axis_cutoffs#2",
+      "source": "``\"x\"`` or ``\"y\"``; an axis with no measurement chosen returns ``None`` without asking.",
+      "source_sha256": "2a4d112e33199d7ed44ac90e66735b520a7a748ceb0df2fdd9ccc5a2f42fee37",
+      "context": "``\"x\"`` or ``\"y\"``; an axis with no measurement chosen returns ``None`` without asking.",
+      "translation": "``\"x\"`` 또는 ``\"y\"`` 입니다. 측정값이 선택되지 않은 축이면 묻지 않고 ``None`` 을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.axis_column#1",
+      "source": "``\"x\"`` or ``\"y\"``; converted to ``str``, and any other value gives ``\"\"``.",
+      "source_sha256": "c4e8f6ee161acc40ff17da9f188ff6a2eecbc3019eddc6e83ad752b2d665ed8a",
+      "context": "``\"x\"`` or ``\"y\"``; converted to ``str``, and any other value gives ``\"\"``.",
+      "translation": "``\"x\"`` 또는 ``\"y\"`` 입니다. ``str`` 로 변환되며, 그 밖의 값은 ``\"\"`` 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.axis_menu_items#2",
+      "source": "``\"x\"`` or ``\"y\"``; the menu is built for the measurement currently drawn on it.",
+      "source_sha256": "3715431c73a17ad150ce7bc57c43af58f6ff78a735fbb06cbf34b0d7a3b46968",
+      "context": "``\"x\"`` or ``\"y\"``; the menu is built for the measurement currently drawn on it.",
+      "translation": "``\"x\"`` 또는 ``\"y\"`` 입니다. 메뉴는 현재 그 축에 그려진 측정값에 대해 만들어집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.axis_under#3",
+      "source": "the click position as a ``QPoint`` in the gate canvas widget's own coordinates.",
+      "source_sha256": "e93536aba81aa0ccfdbe10d0cfaf2db78318bf7382f1183f74701a5ea3d41c46",
+      "context": "the click position as a ``QPoint`` in the data-selection boundary canvas widget's own coordinates.",
+      "translation": "게이트 캔버스 위젯 자체의 좌표로 나타낸 ``QPoint`` 형식의 클릭 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.clear_axis_cutoffs#1",
+      "source": "``\"x\"`` or ``\"y\"``; an axis with no measurement chosen, or with no cutoffs set, returns False.",
+      "source_sha256": "05e57bf52ff272e93af635208a9210cde71f8cda9453b7713a0a2db1245a4d46",
+      "context": "``\"x\"`` or ``\"y\"``; an axis with no measurement chosen, or with no cutoffs set, returns False.",
+      "translation": "``\"x\"`` 또는 ``\"y\"`` 입니다. 측정값이 선택되지 않았거나 차단값이 설정되지 않은 축이면 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.eventFilter#0",
+      "source": "Keep the side panel's page level with the graph as rows come and go.",
+      "source_sha256": "866c47cec6d07c673b21a35bf1ea3150be08fbb2cdb1b76a8c6ce9a5c3c48aed",
+      "context": "Keep the side panel's page level with the graph as rows come and go.",
+      "translation": "행이 추가되고 제거되어도 측면 패널의 페이지가 그래프와 같은 높이를 유지하게 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.eventFilter#1",
+      "source": "the graph's splitter or the side tabs.",
+      "source_sha256": "cfb82e47a722c438b34b432aa67dff598c85a7092f9db4940e492829afb3b885",
+      "context": "the graph's splitter or the side tabs.",
+      "translation": "그래프의 분할기 또는 측면 탭입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.eventFilter#2",
+      "source": "the event.",
+      "source_sha256": "f3efd0f168c29395cb299b53657b248f21ba0932a39bbc67e2d3ba990723c524",
+      "context": "the event.",
+      "translation": "이벤트입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.eventFilter#3",
+      "source": "False, so the event is handled as usual.",
+      "source_sha256": "834e672af3050be9abaa0f4938cc92b7bfd3a09eb4ebae5ccd44e3ce03081547",
+      "context": "False, so the event is handled as usual.",
+      "translation": "이벤트를 평소대로 처리하도록 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_filters#2",
+      "source": "a JSON filter-set file written by :meth:`save_filters`. A file that cannot be read is reported on the source line and gives an empty list.",
+      "source_sha256": "192dbc7005fd0966c8e461da86c24b756231a7bea2947dfe6bfe24c22b1d971f",
+      "context": "a JSON filter-set file written by :meth:`save_filters`. A file that cannot be read is reported on the source line and gives an empty list.",
+      "translation": ":meth:`save_filters` 가 기록한 JSON 필터 세트 파일입니다. 읽을 수 없는 파일은 소스 줄에 보고되며 빈 목록을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#2",
+      "source": "a JSON gate file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
+      "source_sha256": "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495",
+      "context": "a JSON data-selection boundary file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
+      "translation": ":meth:`save_gates` 가 기록한 JSON 게이트 파일입니다. 읽을 수 없는 파일은 소스 줄에 보고되며 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_path#1",
+      "source": "a CSV, TSV or TXT file (by extension), read as one table; any other path is opened as a SQLite measurement database and its tables are listed in the picker. It becomes the only database in the working set.",
+      "source_sha256": "04b42f117676caea81d6dad718060f3583068d0da01133579cb149dc5ed4d793",
+      "context": "a CSV, TSV or TXT file (by extension), read as one table; any other path is opened as a SQLite measurement database and its tables are listed in the picker. It becomes the only database in the working set.",
+      "translation": "하나의 표로 읽는 CSV, TSV 또는 TXT 파일(확장자 기준)입니다. 그 밖의 경로는 SQLite 측정 데이터베이스로 열고 그 테이블을 선택기에 나열합니다. 이것이 작업 집합의 유일한 데이터베이스가 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_paths#3",
+      "source": "the SQLite measurement databases to merge, as paths; each is converted to ``str``, and an empty list does nothing.",
+      "source_sha256": "a85a55f4e08e2cc66472fbebfb04725e912f4e65b4791fccf070bcc98d3736eb",
+      "context": "the SQLite measurement databases to merge, as paths; each is converted to ``str``, and an empty list does nothing.",
+      "translation": "병합할 SQLite 측정 데이터베이스의 경로입니다. 각각 ``str`` 로 변환되며, 빈 목록이면 아무것도 하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_paths#4",
+      "source": "the table to read from every database; ``None`` uses the first table of the first database.",
+      "source_sha256": "e5e52ac4d2f18322922a91c83f7d94c56541d48619ac0bca8a14a7421ceae4a8",
+      "context": "the table to read from every database; ``None`` uses the first table of the first database.",
+      "translation": "모든 데이터베이스에서 읽을 테이블입니다. ``None`` 이면 첫 번째 데이터베이스의 첫 번째 테이블을 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.remove_database#3",
+      "source": "the database's chip label or its path. An unknown name, or the last remaining database, does nothing.",
+      "source_sha256": "1631d7aa734f9e556d20a82a457a1b1c79939b0e11db57f308bf909229c9cdea",
+      "context": "the database's chip label or its path. An unknown name, or the last remaining database, does nothing.",
+      "translation": "데이터베이스의 칩 레이블 또는 경로입니다. 알 수 없는 이름이거나 마지막 남은 데이터베이스이면 아무것도 하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.remove_table#2",
+      "source": "the table name. A table not in the working set, or the last remaining table, does nothing.",
+      "source_sha256": "6891bf937ff73ff085457fb0c8f42b90d8a35745c5de0afdf0119545e736f6da",
+      "context": "the table name. A table not in the working set, or the last remaining table, does nothing.",
+      "translation": "테이블 이름입니다. 작업 집합에 없는 테이블이거나 마지막 남은 테이블이면 아무것도 하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_filters#1",
+      "source": "the file to write the current filter set to, as JSON; an existing file is overwritten.",
+      "source_sha256": "6cbb0aaef7d6a54104a31455db405f472f4297c473b4279f22b4af24235909de",
+      "context": "the file to write the current filter set to, as JSON; an existing file is overwritten.",
+      "translation": "현재 필터 세트를 JSON 으로 기록할 파일입니다. 기존 파일은 덮어씁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#1",
+      "source": "the file to write the gating strategy to, as JSON; an existing file is overwritten.",
+      "source_sha256": "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f",
+      "context": "the file to write the data-selection filtering strategy to, as JSON; an existing file is overwritten.",
+      "translation": "게이팅 전략을 JSON 으로 기록할 파일입니다. 기존 파일은 덮어씁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.set_axis_cutoffs#2",
+      "source": "``\"x\"`` or ``\"y\"``; an axis with no measurement chosen does nothing.",
+      "source_sha256": "3fb441a213bec8c06da8e261e7b91c834743045f93fa2cc11f9536a24ceb24af",
+      "context": "``\"x\"`` or ``\"y\"``; an axis with no measurement chosen does nothing.",
+      "translation": "``\"x\"`` 또는 ``\"y\"`` 입니다. 측정값이 선택되지 않은 축이면 아무것도 하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.set_axis_cutoffs#3",
+      "source": "the lowest value to show, or ``None``.",
+      "source_sha256": "687708f3fd3be0b96ca80509fbcc6f956583973e8da11cf5aa410f2664a439a6",
+      "context": "the lowest value to show, or ``None``.",
+      "translation": "표시할 가장 낮은 값, 또는 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.set_axis_cutoffs#4",
+      "source": "the highest value to show, or ``None``.",
+      "source_sha256": "eafbb36a8fadfa7485851dc4b4dc8c4ace808fc1dbae6c176fd70e0ddfbb4193",
+      "context": "the highest value to show, or ``None``.",
+      "translation": "표시할 가장 높은 값, 또는 ``None`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.set_axis_scale#2",
+      "source": "``\"x\"`` or ``\"y\"``; it names the ``<axis>_scale`` settings field, and a value with no such field does nothing.",
+      "source_sha256": "51688bf64d30347e0ac009578593ee9b6816e75c1208d183f1eabd02abce1085",
+      "context": "``\"x\"`` or ``\"y\"``; it names the ``<axis>_scale`` settings field, and a value with no such field does nothing.",
+      "translation": "``\"x\"`` 또는 ``\"y\"`` 입니다. ``<axis>_scale`` 설정 필드를 가리키며, 그런 필드가 없는 값이면 아무것도 하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.set_axis_scale#3",
+      "source": "a matplotlib axis scale, one of :data:`~spacr.qt.widgets.gate_settings.AXIS_SCALES` (``\"linear\"``, ``\"log\"``, ``\"symlog\"`` or ``\"logit\"``).",
+      "source_sha256": "edccc2a8360a05872c735ce30992e6ffb721c05bd27bea0bf4df89b1ccf4ba94",
+      "context": "a matplotlib axis scale, one of :data:`~spacr.qt.widgets.gate_settings.AXIS_SCALES` (``\"linear\"``, ``\"log\"``, ``\"symlog\"`` or ``\"logit\"``).",
+      "translation": "matplotlib 축 척도이며, :data:`~spacr.qt.widgets.gate_settings.AXIS_SCALES` 중 하나입니다(``\"linear\"``, ``\"log\"``, ``\"symlog\"`` 또는 ``\"logit\"``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.graph_builder.GraphBuilderScreen.load_path#4",
+      "source": "a ``.csv``, ``.tsv`` or ``.txt`` file, read as delimited text, or any other file, opened read-only as a SQLite database.",
+      "source_sha256": "a7eb5abd381e612e4da3e40b491ec55df7eb16d0c5436f5e36d5ecadcf16f601",
+      "context": "a ``.csv``, ``.tsv`` or ``.txt`` file, read as delimited text, or any other file, opened read-only as a SQLite database.",
+      "translation": "구분자 텍스트로 읽는 ``.csv``, ``.tsv`` 또는 ``.txt`` 파일, 또는 읽기 전용 SQLite 데이터베이스로 여는 그 밖의 파일입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.graph_builder.GraphBuilderScreen.set_frame#1",
+      "source": "the table to chart; handed to the graph builder and the filter panel, and its row and column counts label the source unless ``label`` is given.",
+      "source_sha256": "dbcea219767b489264162886a1c7719b47487cb2651931095f6719dc27ba62ea",
+      "context": "the table to chart; handed to the graph builder and the filter panel, and its row and column counts label the source unless ``label`` is given.",
+      "translation": "그릴 표입니다. 그래프 빌더와 필터 패널에 전달되며, ``label`` 이 주어지지 않으면 그 행 수와 열 수가 소스의 레이블이 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.graph_builder.table_names#1",
+      "source": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically, with ``sqlite_`` internals left out.",
+      "source_sha256": "7513d0f858711ce00e43fd24a5e8d7902d59b41014ef674debe3844ed538085c",
+      "context": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically, with ``sqlite_`` internals left out.",
+      "translation": "읽기 전용으로 여는 SQLite 측정 데이터베이스의 경로입니다. 선호 테이블(``object``, ``cell``, ``nucleus``, …)이 먼저 오고, 나머지는 알파벳순이며, ``sqlite_`` 내부 테이블은 제외됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.hit_list.HitListScreen.closeEvent#1",
+      "source": "the close event, passed on to the base class after the worker is shut down.",
+      "source_sha256": "1ddce84bc663d59b6ce762f7936e42ff99a6c5e8ebb0f184d54e0839cea13ed8",
+      "context": "the close event, passed on to the base class after the worker is shut down.",
+      "translation": "닫기 이벤트이며, 작업자가 종료된 뒤 기본 클래스에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.hit_list.HitListScreen.export#2",
+      "source": "``\"csv\"``, ``\"markdown\"`` or ``\"html\"``.",
+      "source_sha256": "51b689f5399a5b90ed30dbcf14d9bff8a0127184224e7d850d58adf23543aabd",
+      "context": "``\"csv\"``, ``\"markdown\"`` or ``\"html\"``.",
+      "translation": "``\"csv\"``, ``\"markdown\"`` 또는 ``\"html\"`` 입니다.",
+      "review_basis": "MT draft edited in AI review"
+    },
+    {
+      "label": "spacr.qt.screens.hit_list.HitListScreen.load_folder#1",
+      "source": "the regression results folder, shown in the folder field and read by :func:`spacr.hits.build_hit_list` on a worker. An empty value only asks the user to choose one.",
+      "source_sha256": "14f36c29d7a00366215871af62f659cbc115906aea7780efd842f6ff324d6041",
+      "context": "the regression results folder, shown in the folder field and read by :func:`spacr.hits.build_hit_list` on a worker. An empty value only asks the user to choose one.",
+      "translation": "회귀 결과 폴더이며, 폴더 필드에 표시되고 작업자에서 :func:`spacr.hits.build_hit_list` 가 읽습니다. 빈 값이면 사용자에게 폴더를 고르라고만 요청합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.hit_list.HitListScreen.set_metadata_files#1",
+      "source": "annotation files to join to the hit list, replacing the current ones; each is stored as a string.",
+      "source_sha256": "ba69ae03c497759421633d215157712c24a20ed1f5c7efa22720f982652e3799",
+      "context": "annotation files to join to the hit list, replacing the current ones; each is stored as a string.",
+      "translation": "히트 목록에 결합할 주석 파일이며, 현재 파일을 대체합니다. 각각 문자열로 저장됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.HyperparamPanel.closeEvent#2",
+      "source": "the close event, passed on to the base class after a running sweep worker is asked to stop and waited for up to 3 s.",
+      "source_sha256": "1a073f87d020247fde7c5089689be14971bd5d0765602207cf83a604adaf36ec",
+      "context": "the close event, passed on to the base class after an executing sweep worker is asked to stop and waited for up to 3 s.",
+      "translation": "닫기 이벤트이며, 실행 중인 탐색 작업자에 중지를 요청하고 최대 3 s 동안 기다린 뒤 기본 클래스에 전달됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.HyperparamPanel.set_walk_axes#1",
+      "source": "parameter name to ``{'start': ..., 'resolution': ...}``; names outside ``UMAP_WALK_PARAMETERS`` raise :class:`ValueError`, and resolution is raised to at least 2.",
+      "source_sha256": "5ec0e1b9d83c100f9c5099487114bd371d998373bd46f32078952be5c7323d0f",
+      "context": "parameter name to ``{'start': ..., 'resolution': ...}``; names outside ``UMAP_WALK_PARAMETERS`` raise :class:`ValueError`, and resolution is raised to at least 2.",
+      "translation": "매개변수 이름에서 ``{'start': ..., 'resolution': ...}`` 로의 매핑입니다. ``UMAP_WALK_PARAMETERS`` 밖의 이름이면 :class:`ValueError` 가 발생하며, resolution 은 최소 2 로 올려집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.HyperparamPanel.show_trial#1",
+      "source": "the trial whose stored ``embedding`` (and optional ``cluster_labels``, ``backend`` and ``n_components``) in ``extra_metrics`` is shown; returns False when it has no embedding.",
+      "source_sha256": "610a757c575636ba4918c0dc11cd52bdd14ca098da15b33139f39f409c1c18e1",
+      "context": "the trial whose stored ``embedding`` (and optional ``cluster_labels``, ``backend`` and ``n_components``) in ``extra_metrics`` is shown; returns False when it has no embedding.",
+      "translation": "저장된 ``embedding`` (및 선택적 ``cluster_labels``, ``backend``, ``n_components``)을 ``extra_metrics`` 에 가진, 보여 줄 시행입니다. 임베딩이 없으면 False 를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.HyperparamPanel.walk_start_for#2",
+      "source": "the UMAP parameter name.",
+      "source_sha256": "a8ea41c849686e4422d5d9ece838f4c2f87117d2a5cc849c3c0322ba2ace6d0d",
+      "context": "the UMAP parameter name.",
+      "translation": "UMAP 매개변수 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.build_hyperparam_card#3",
+      "source": "return ``None`` for the panel and leave the card's body empty. The screen fills it with :func:`_fill_hyperparam_card` when the card is first shown, so a module whose search nobody opens does not build and polish its ~130 widgets at open.",
+      "source_sha256": "2a689c51c0e247988eaf0b88c222d0589eef8ca2a4113a555b44a0a4de6f2a47",
+      "context": "return ``None`` for the panel and leave the card's body empty. The application view fills it with :func:`_fill_hyperparam_card` when the card is first shown, so a module whose search nobody opens does not build and polish its ~130 widgets at open.",
+      "translation": "패널에 대해 ``None`` 을 반환하고 카드 본문을 비워 둡니다. 화면은 카드가 처음 표시될 때 :func:`_fill_hyperparam_card` 로 이를 채우므로, 아무도 탐색을 열지 않는 모듈은 열 때 약 130 개의 위젯을 만들고 스타일링하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
       "label": "spacr.qt.widgets.formula.Binary#3",
       "source": "the right operand's node.",
       "source_sha256": "b32b0ef6f8cd74b7a32fc47d4b5590a690400674f276e4ae3521843abd71948f",
