@@ -1,18 +1,29 @@
 {
-  "lesson": "21_model_compare", "language": "is", "english_sha256": "225fa51401501fa7e2f3ccdd9491fbdb3cc9b3ca5592ec794df79f955df6d5be",
-  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
-  "title": "Model Compare: núverandi viðmót og samræmi raunverulegra maska",
-  "description": "Opnaðu innbyggða samanburðinn, lestu inn raunveruleg myndsvið og berðu saman vistaðar hlutaskiptingar með API-inu. Samræmi sannar hvorki nákvæmni né að keyrsla líkana í viðmótinu hafi verið lagfærð.",
-  "objectives": ["Finndu Model Compare í Make Masks og lestu inn sýnimyndsviðin.", "Greindu á milli núverandi ósamræmis í Cellpose og virka API-sins fyrir maskasamanburð.", "Túlkaðu fjölda, samsvörun og skörun án þess að kalla aðra niðurstöðuna rétta."],
-  "prerequisite": "spaCR 1.5.0.7 nightly og Cellpose 4.2.1.1. Viðmótið sendir invert-viðfangið sem er ekki stutt. Við lesum aðeins inn myndir, keyrum ekki líkön, setjum ekki inn tilbúnar niðurstöður og breytum ekki forritinu. spacr.model_compare.compare_masks ber saman raunverulega vistaða runuvinnslu og forskoðun úr cell_pair_02.tif í Apply Cellpose: sömu cpsam-vogir en ólík forvinnsla. Hvorugur maskinn er rétt viðmið merkt af sérfræðingum; ekkert líkan er keyrt hér. Varðveittu auðkenni myndsviðs, rúmfræði mynddíla, forvinnslu og tætigildi skráa. Sömu stærðir sanna ekki sömu upprunamynd. Skriptan og gögn sem fylgja henni auðkenna frumskrár. Notaðu nýja úttaksmöppu. Samræmi staðfestir ekki nákvæmni, röðun líkana, líffræðilegt réttmæti eða frammistöðu á óháðum myndum.",
+  "lesson": "21_model_compare",
+  "english_sha256": "2e2af2044db01642db76b3e444c2b4d0c162c8d05b4fb245e8af6def09705a54",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Model Compare: berðu saman vistaðar aðgreiningargrímur",
+  "description": "Hlaðu inn tveimur grímum af sömu mynd, keyrðu niðurhalanlegu samanburðarskriftuna og skoðaðu skörunarstig og yfirlagnir.",
+  "objectives": [
+    "Velja grímur af sama sjónsviði með samsvarandi dílalögun.",
+    "Keyra dæmið um samanburð vistaðra grímna.",
+    "Lesa samræmistöfluna og skoða mun á mörkum."
+  ],
+  "prerequisite": "Sæktu og dragðu út tengda Model Compare-dæmið. Það inniheldur eina mynd, tvær vistaðar grímur og Python-hjálparskriftu. Notaðu umhverfi með spaCR uppsettu og veldu nýja úttaksmöppu utan útdregnu inntakanna. Dæmið ber saman tvo forvinnslukosti með sömu cpsam-vigtum; mat á nákvæmni krefst yfirfarinna viðmiðunarmerkja.",
   "scenes": [
-    "Model Compare er inni í Make Masks og ber saman hlutaskiptingu sömu myndsviða. Kennslan sýnir núverandi viðmót og síðan virkt API fyrir maskasamanburð með tveimur raunverulegum vistuðum niðurstöðum.",
-    "Viðmótið aðskilur stillingar Model A og Model B. Skráðu nákvæmlega vogir og forvinnslu í hverjum samanburði. Ólík nöfn eða fleiri hlutir sanna ekki betri niðurstöðu. Töflur fyrir færibreytur og niðurstöður eru tómar áður en samanburður er keyrður.",
-    "Sláðu inn raunverulegu sýnimöppuna og ýttu á Load. Hér hlaðast þrjú upprunaleg myndsvið inn og Compare verður virkt. Að lesa inn myndir er ekki það sama og að keyra líkön með árangri. Við höfum hvorki búið til maska né fyllt samanburðartöfluna á þessum skjá.",
-    "Uppsetta Cellpose-útgáfan hafnar invert-viðfanginu sem bakendi þessa viðmóts sendir enn. Raunveruleg athugun á skilgreiningu fallsins sýnir ósamræmið án líkanakeyrslu. Við felum það ekki. Næsta dæmi notar compare_masks beint á fyrirliggjandi merktar myndir.",
-    "Báðir maskarnir tilheyra sömu raunverulegu mynd úr Apply Cellpose-kennslunni. Annar er vistað úttak runuvinnslu, hinn vistuð lifandi forskoðun. Þeir nota sama líkan með ólíkri forvinnslu, ekki tvö samkeppnissett af vogum. Hvorugur er þekkt rétt viðmið.",
-    "API-ið sýnir 94 hluti í A og 95 í B, með 91 samsvarandi pari. Meðalskörun para er um 0,96 og leiðréttur Rand-stuðull um 0,961. Þetta lýsir samræmi, ekki nákvæmni eða sigurvegara.",
-    "Skoðaðu yfirlagðar myndir sem voru raunverulega vistaðar. Hægra svæðið merkir mynddíla þar sem flokkun sem forgrunnur er ólík. Það sýnir ekki allan mun á merkjum einstakra hluta. Svipaður fjöldi getur falið ólík mörk, skiptingar eða sameiningar. Skoðaðu því myndirnar líka.",
-    "Skriptan sannreynir hverja samsvarandi skörun óháð út frá upprunalegu mynddílunum og prófar viðmið með eins möskum. Geymdu CSV, mynd, auðkenni frumgagna og forvinnslu saman. Notaðu óháð yfirfarnar merkingar og myndir sem voru teknar frá fyrir mat áður en þú fullyrðir um nákvæmni eða velur líkan."
+    "Frá Home opnarðu Make Masks og velur Model Compare. Notaðu þetta ferli til að skoða mun á aðgreiningu á sömu mynd. Yfirferðin notar tengda dæmið með vistuðum grímum og Python-hjálparskriftu þess.",
+    "Geymdu vigta líkansins og forvinnslustillingar með hverju grímusafni. Þegar þú undirbýrð eigin samanburð notarðu sömu sjónsvið og sömu dílalögun svo að skörun hluta vísi til samsvarandi staða í myndinni.",
+    "Dragðu tengda dæmið út. Inntökin eru image.tif, batch.tif og preview.npy. Báðar grímurnar lýsa sama sjónsviði; þær voru búnar til með sama líkani og ólíkum forvinnslustillingum. Haltu upprunalegu skráarheitunum fyrir meðfylgjandi skriftuna.",
+    "Keyrðu meðfylgjandi hjálparskriftu í spaCR-Python-umhverfinu þínu. Stilltu upprunann á inntaksmöppu dæmisins og úttakið á nýja niðurstöðumöppu. Útprentaða samantektin sýnir fjölda hluta, paraða hluti, meðalskörun paraðra hluta og leiðréttan Rand-stuðul. Meira samræmi þýðir að grímurnar líkjast meira; það eitt og sér sker ekki úr um hvor gríman sé rétt.",
+    "Opnaðu comparison.png. Berðu yfirlagnir grímnanna tveggja saman við myndina og skoðaðu klofnanir, samruna og tilfærslur marka. Hægra spjaldið auðkennir díla þar sem aðild að forgrunni er ólík. Athugaðu líka mörk hluta sem snertast í yfirlögnunum.",
+    "Opnaðu comparison.csv fyrir tölulegar niðurstöður og geymdu hana með comparison.png, inntökunum og skráðum stillingum. Notaðu yfirfarnar viðmiðunargrímur og dæmigerð sjónsvið þegar þú berð saman nákvæmni aðgreiningar eða velur líkan fyrir tilraunina."
   ]
 }
