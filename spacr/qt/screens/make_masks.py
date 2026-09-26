@@ -7674,9 +7674,13 @@ class MakeMasksScreen(QWidget):
         outer.addWidget(self._body_stack, 1)
 
         nav = QWidget()
-        nav_row = QHBoxLayout(nav)
-        nav_row.setContentsMargins(0, 0, 0, 0)
-        nav_row.setSpacing(SPACING["sm"])
+        outer_row = QHBoxLayout(nav)
+        outer_row.setContentsMargins(0, 0, 0, 0)
+        outer_row.setSpacing(SPACING["sm"])
+        from .app_screen import _WrappingButtonStrip
+
+        nav_row = _WrappingButtonStrip(SPACING["sm"])
+        outer_row.addLayout(nav_row)
         self._btn_open = QPushButton("Open folder…")
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
@@ -7745,11 +7749,11 @@ class MakeMasksScreen(QWidget):
         self._btn_skip.clicked.connect(self._on_skip)
         nav_row.addWidget(self._btn_skip)
 
-        nav_row.addStretch(1)
+        outer_row.addStretch(1)
         self._status_label = _StatusLabel("Ready.")
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
-        nav_row.addWidget(self._status_label)
+        outer_row.addWidget(self._status_label)
         outer.addWidget(nav)
 
     def _build_fold_strip(self) -> FoldStrip:
