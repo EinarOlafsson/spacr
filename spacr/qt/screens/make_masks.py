@@ -13366,7 +13366,10 @@ class MakeMasksScreen(QWidget):
 
         A save that changed nothing writes nothing: the field is still
         recorded as done, with the object count of the file already on disk,
-        but that file is left byte for byte as it was.
+        but that file is left byte for byte as it was. An edited save
+        records the object count of the labels as written, after
+        :func:`spacr.qt.mask_engine.canonical_labels` has split any label
+        lying in separated pieces, so the count matches the file.
         """
         if not self._image_files or self._canvas.mask is None:
             return
@@ -13381,6 +13384,7 @@ class MakeMasksScreen(QWidget):
             self._status_label.setText(
                 tr("Unchanged, nothing rewritten → {path}").format(path=path))
             return
+        preserve_ids = getattr(self._canvas, 'preserve_ids', False)
         try:
             self._validate_secondary_save()
             path = engine.save_mask(
@@ -13388,7 +13392,7 @@ class MakeMasksScreen(QWidget):
                 self._image_files[self._current_index],
                 self._canvas.mask,
                 log=self._log,
-                preserve_ids=getattr(self._canvas, 'preserve_ids', False),
+                preserve_ids=preserve_ids,
                 **self._layout_kwargs(),
             )
         except Exception as e:
@@ -13396,7 +13400,9 @@ class MakeMasksScreen(QWidget):
             return
         edits = len(self._log) if self._log is not None else 0
         note = f"  ({edits} edit(s) recorded)" if edits else ""
-        objects = int(np.count_nonzero(np.unique(self._canvas.mask)))
+        written = engine.canonical_labels(self._canvas.mask,
+                                          preserve_ids=preserve_ids)
+        objects = int(np.count_nonzero(np.unique(written)))
         self._note_curated(self._image_files[self._current_index],
                            n_objects=objects)
         self._status_label.setText(f"Saved → {path}{note}")
