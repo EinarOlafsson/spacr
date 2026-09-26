@@ -1,32 +1,35 @@
 {
   "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
   "language": "fr",
-  "english_sha256": "52964f24e8fcce5bb7a34b3ffb5cbafd7898d648ce8344a6c8403bca17894867",
-  "review": {"kind": "Parent editorial translation checked against frozen English and actual capture; rejected misleading machine-draft wording", "independent_peer_review": false, "native_speaker_signoff": false},
-  "title": "Report : examiner et partager les résultats enregistrés sans relancer l’analyse",
-  "description": "Générez un rapport à partir de l’exemple réel External Masks, distinguez la fin du traitement de l’absence de preuves de contrôle qualité et examinez le véritable HTML autonome avant de le partager.",
+  "title": "Report : créer un document à partir des résultats d’un projet",
+  "description": "Choisissez un projet terminé, sélectionnez le format de sortie et la limite de figures, puis générez et lisez son rapport.",
   "objectives": [
-    "Trouver Report dans Help et analyser une copie séparée d’un projet existant.",
-    "Distinguer les états de traitement enregistrés, les contrôles qualité indisponibles et la provenance d’exécution manquante.",
-    "Générer du HTML avec les véritables commandes de format, de plafond des figures et de sortie.",
-    "Examiner les tables enregistrées, les figures vectorielles répertoriées et les paramètres sauvegardés sans prétendre à une nouvelle analyse ni à un masquage automatique des données privées."
+    "Choisir un projet terminé et examiner les sections de rapport disponibles.",
+    "Régler le format, la limite de figures et le nom du fichier de sortie.",
+    "Générer le rapport et examiner ses résultats, ses paramètres et sa provenance."
   ],
-  "prerequisite": "Utilisez le projet réel à deux champs produit dans External Masks, avec 103 cellules et leurs étiquettes fournies. L’enregistrement utilise une copie privée complète, vérifiée octet par octet, pour protéger le projet accepté. Une précédente analyse directe du dossier source a créé un WAL SQLite vide et un fichier auxiliaire de mémoire partagée sans modifier les données existantes ; l’analyse en lecture seule ne garantit pas que SQLite ne crée aucun fichier auxiliaire. Aucun pipeline ni contrôle qualité n’est relancé. Aucun journal d’exécution ne correspond à cette copie privée. Les 103 lignes de cytoplasme dupliquent les régions cellulaires, pas un compartiment indépendant. Cette démonstration de Report ne comporte ni téléchargement distinct de données de test, ni aperçu de segmentation en direct, ni interaction avec AI.",
+  "prerequisite": "Partez d’un projet spaCR terminé qui contient ses paramètres enregistrés, ses mesures et ses figures. Vous pouvez réutiliser le projet du tutoriel External Masks. Report rassemble des fichiers déjà présents dans le projet.",
   "scenes": [
-    "Ouvrez Help, puis Report. Cet utilitaire rassemble les fichiers et résultats existants du projet dans un document ; il ne relance ni segmentation, ni mesures, ni analyses de contrôle qualité. Il se trouve dans Help, pas sur une tuile indépendante de Home.",
-    "Cliquez sur Choose run folder… et sélectionnez la copie privée du projet External Masks terminé. Elle contient deux champs d’image acquis et leurs résultats mesurés. Tous les fichiers originaux sont conservés dans la copie et le projet source accepté reste inchangé pendant l’enregistrement.",
-    "Après l’analyse du dossier, lisez attentivement le message vert Complete. Il indique que chaque étape de traitement enregistrée a traité tous ses éléments. C’est une déclaration de fin de traitement, pas une preuve d’exactitude de la segmentation ni de réussite du contrôle qualité.",
-    "La liste des sections indique leur disponibilité ; ce n’est pas une liste permettant de choisir celles à inclure. Cinq sections sur huit sont trouvées. La provenance d’exécution, Segmentation QC et Plate QC sont indisponibles ; leurs explications restent dans le rapport généré au lieu de disparaître.",
-    "Les véritables choix de Format sont HTML, PDF et Both. Nous conservons HTML pour cette démonstration. PDF est décrit comme une transcription avec matplotlib ; cela ne garantit pas une mise en page identique à celle du navigateur. Seul le HTML est généré et examiné ici.",
-    "Réglez Embed at most sur trois figures. Ce plafond limite les figures matricielles intégrées. Notre projet contient six PDF vectoriels, que Report répertorie sans les intégrer. Augmenter le plafond ne transformerait pas ces PDF en aperçus d’images.",
-    "Cliquez sur Choose output… et choisissez un nouveau nom de fichier HTML hors du projet source. Cette interface n’offre aucun réglage du titre, des auteurs ou d’exclusion des données privées. Examinez les chemins et métadonnées avant le partage ; Report ne les masque pas automatiquement.",
-    "Cliquez sur Generate report et attendez la confirmation d’écriture. Cette opération crée uniquement le fichier HTML choisi dans le répertoire de sortie. Open peut le transmettre au visualiseur du bureau ; ici, nous examinons exactement ce fichier directement dans Chrome, sans cliquer sur Open.",
-    "Le véritable document s’ouvre sous forme d’un seul fichier HTML local, sans requête de ressource externe. Les liens du sommaire identifient les huit sections. La bannière conserve l’état de fin de traitement et indique que zéro figure sur six est intégrée ; elle ne dissimule pas les preuves manquantes.",
-    "Run status reproduit le véritable enregistrement de measure_crop : deux éléments tentés, deux réussis et zéro échec. Aucun enregistrement de fin de traitement n’a été fabriqué. Ces nombres décrivent les champs traités, pas le nombre de cellules ni un score de validation scientifique.",
-    "Aucune exécution du journal ne désigne ce dossier copié. Le rapport précise que ses versions affichées par défaut décrivent la machine qui le génère, pas une provenance reconstruite pour l’analyse. Les contrôles qualité de segmentation et de plaque manquants restent également visibles : indisponible ne signifie pas réussi.",
-    "Key figures répertorie les six PDF sources et explique pourquoi ils ne sont pas intégrés. Leurs chemins désignent les figures avant filtrage, après filtrage et de recadrages pour les deux champs. Consultez External Masks pour voir ces véritables figures ; ce rapport ne les rasterise pas.",
-    "Statistics and result tables indique cent trois lignes cellulaires, autant de lignes de cytoplasme et de liens PNG. Dans cet exemple avec uniquement des masques cellulaires, le cytoplasme duplique les régions des cellules. N’additionnez pas ces tables comme des cellules indépendantes. Les totaux de la base incluent des paramètres et d’autres lignes auxiliaires.",
-    "Dépliez la véritable section des paramètres sauvegardés pour examiner son aperçu. Ces valeurs proviennent du fichier de paramètres du projet, pas d’un journal d’exécution récupéré. Le nombre de lignes ne prouve pas que chaque paramètre est distinct et cet enregistrement ne lit pas toutes les lignes à voix haute.",
-    "En Python, spacr.report.collect_report rassemble un objet Report. build_report collecte les données et écrit le format demandé, puis renvoie une liste de chemins de sortie. Utilisez l’interface ou l’API pour partager les preuves enregistrées avec leurs limites ; aucune ne remplace un contrôle qualité manquant, n’établit la validité biologique ni ne supprime les métadonnées sensibles à votre place."
+    "Ouvrez Help, puis Report. Cet outil rassemble dans un document les résultats, les figures et les paramètres d’un projet terminé.",
+    "Cliquez sur Choose run folder et sélectionnez votre projet. Pour cet exemple, utilisez le projet à deux champs d’External Masks, en gardant ensemble ses mesures, ses paramètres et ses figures.",
+    "Lisez l’état du traitement après l’analyse du dossier. Complete signifie que les étapes de traitement enregistrées sont terminées. Examinez séparément les résultats de contrôle qualité disponibles pour évaluer l’analyse.",
+    "Consultez la liste des sections pour voir quels éléments du projet sont disponibles. Une section manquante reste signalée dans le rapport. Ajoutez au projet les sorties d’analyse correspondantes si vous avez besoin de cette section.",
+    "Choisissez HTML, PDF ou Both sous Format. Le HTML s’ouvre dans un navigateur ; le PDF fournit une version document. Cet exemple utilise HTML.",
+    "Réglez Embed at most pour limiter le nombre de figures matricielles incluses dans le document. Les PDF vectoriels sont listés comme fichiers sources plutôt qu’en aperçus intégrés. Choisissez une limite plus basse pour un rapport compact.",
+    "Cliquez sur Choose output et saisissez le nom du fichier de destination. Vérifiez que le format choisi et l’extension concordent. Avant de partager le rapport, vérifiez les chemins de projet et les métadonnées qu’il contient.",
+    "Appuyez sur Generate report et attendez la confirmation de l’écriture du fichier. Ouvrez le fichier HTML enregistré dans un navigateur pour examiner le résultat.",
+    "Utilisez les liens de la table des matières pour passer d’une section à l’autre. Commencez par le résumé du traitement, puis examinez les figures, les tables de résultats et les paramètres enregistrés.",
+    "Ouvrez Key figures pour trouver les figures du projet. Suivez les emplacements de fichiers indiqués pour les PDF vectoriels, ou examinez les aperçus matriciels intégrés lorsqu’ils sont disponibles.",
+    "Consultez Statistics and result tables pour voir les tables d’objets disponibles et leur nombre de lignes. Cet exemple limité aux cellules a des régions de cellule et de cytoplasme identiques ; considérez-les comme des mesures des mêmes cellules.",
+    "Dépliez Saved settings pour examiner la configuration conservée avec le projet. Gardez le rapport avec les fichiers du projet lorsque vous partagez une analyse qui renvoie à des figures externes."
   ]
 }
