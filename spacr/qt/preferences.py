@@ -5520,11 +5520,11 @@ class PreferencesDialog:
             _sync_console_enabled(_level)
 
         _debug_file_toggle = log_level_toggles[logging.DEBUG][0]
-        _debug_file_toggle.setToolTip(
+        _debug_file_toggle.setToolTip(tr(
             "While verbose logging is on (Modules tab), DEBUG is always "
             "written to the log files, so this switch stays on. Turn "
             "verbose logging off to choose it yourself. Your own choice "
-            "is kept for when you do.")
+            "is kept for when you do."))
         _chosen_debug = [logging.DEBUG in _chosen_log_file_levels()]
 
         def _remember_the_debug_choice(checked) -> None:
@@ -6172,7 +6172,7 @@ class PreferencesDialog:
         form.addRow(tr("Colour-blind mode"), cb_combo)
 
         verbose_check = Toggle(tr("Enable verbose logging"))
-        verbose_check.setToolTip(
+        verbose_check.setToolTip(tr(
             "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. "
             "It also lets cellpose report which model it loaded, and it "
             "records which buttons you pressed. That trail is what makes a "
@@ -6189,7 +6189,7 @@ class PreferencesDialog:
             "does not trace every function call. "
             "That tracer is a separate tool for developers, and nothing "
             "here turns it on."
-        )
+        ))
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
 
@@ -7097,6 +7097,16 @@ class PreferencesDialog:
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
+                _chosen_debug[0] = logging.DEBUG in _chosen_log_file_levels()
+                default_file_levels = set(get_log_file_levels())
+                default_console_levels = set(get_log_console_levels())
+                for level, (file_toggle, _c) in log_level_toggles.items():
+                    file_toggle.setChecked(level in default_file_levels)
+                for level, (_f, console_toggle) in log_level_toggles.items():
+                    _sync_console_enabled(level)
+                    console_toggle.setChecked(
+                        console_toggle.isEnabled()
+                        and level in default_console_levels)
                 _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
