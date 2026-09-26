@@ -2,7 +2,12 @@
 TEST DATA FOR EVERY MODULE THAT READS A MEASUREMENTS DB, AND PLATE TEMPLATES
 ================================================================================
 
-Status:    BUILT 2026-09-21, not yet on nightly. Nine screens have the
+Status:    DONE here, on nightly (7c4ac005a), re-verified 2026-09-25;
+           remaining: docs lane -- the ten new public docstrings are in the
+           English API catalog and the reviewed German pack, not yet in the
+           es/fr/hi/is/ko/pt/sv/zh_CN reviewed API packs. The two runtime
+           strings are now translated in all eight locales.
+           Originally: BUILT 2026-09-21. Nine screens have the
            button, eight were considered and left without it (below), and
            Experiment Design has four templates. Verified against the real
            download, not only the mocked one.
@@ -123,3 +128,14 @@ LEFT FOR THE MAINTAINER OR A LATER PASS
   ExperimentDesignScreen.load_template / template_keys) are not yet in the
   documentation catalogs, and the surface pins do not include them. Those
   pins were already red on 608e5e6bf before this item.
+
+2026-09-25 -- ON NIGHTLY, RE-VERIFIED; ONLY API TRANSLATIONS LEFT
+* 7c4ac005a is an ancestor of nightly a93f937d2.
+* tests/qt/test_modules_that_read_a_measurements_db_offer_test_data.py: 22
+  passed; tests/qt/test_measurements_example_completion.py: 9 passed
+  (offscreen).
+* "Load template…" and its tooltip are in de/es/fr/hi/is/ko/pt/zh_CN runtime
+  catalogs (the first bullet above is closed).
+* The ten docstrings are in docs/source/_static/i18n/api/en.json and in
+  docs/i18n/reviewed/api/de/; the other eight reviewed API packs do not name
+  design_from_record yet. That is the docs lane's API translation pass.
