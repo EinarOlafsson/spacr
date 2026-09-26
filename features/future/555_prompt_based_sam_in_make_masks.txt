@@ -1,6 +1,9 @@
 CLICK- AND BOX-PROMPTED SEGMENTATION (micro-SAM) IN MAKE MASKS
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). On the
+CPU a click after the first embedding takes 0.2 to 1.3 s on a 1024 px
+field and 0.4 to 2.0 s on a 2 k field, on a machine under heavy load; the
+GPU timing is under "Timings". What is left is under "Not done".
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -26,3 +29,130 @@ DONE WHEN
     On a real field, clicking an object gives its mask in under a second
     after the first embedding; positive/negative clicks refine it; accepted
     masks land in the label image with provenance.
+
+
+2026-09-26 -- IMPLEMENTED AS ALPHA
+
+What was built
+    micro-SAM 1.8.14 (vit_b_lm, the light-microscopy generalist) as a
+    backend of its own, "microsam", in spacr/_segmentation_backends.py,
+    installed and run by the same machinery as Cellpose 3 and
+    Cellpose-DINO: its own venv under ~/.spacr/backends/microsam, a worker
+    speaking the JSON protocol, the Model Zoo row and install dialog, the
+    lock, the log and the self-test. It is not a segmentation_backend
+    value (segments=False); it only answers prompts.
+
+    Install: micro-sam declares napari, PyQt6, bioimageio.core, torch-em
+    and trackastra, and trackastra pulls motile[gurobi], i.e. the
+    PROPRIETARY gurobipy. The prompt path imports none of them, so the
+    spec gained `without_dependencies`: the path's own dependencies are
+    installed normally (segment-anything-py 1.0.1, python-elf 0.9.2,
+    bioimage-cpp 0.9.0, xxhash, zarr, pooch, imageio, scikit-image, tqdm)
+    and micro-sam itself with --no-deps; the self-test imports
+    micro_sam.util and micro_sam.prompt_based_segmentation, so a missing
+    dependency fails the install, not the first click. Weights (375 MB
+    vit_b_lm plus its decoder, CC-BY-4.0 on bioimage.io) are fetched into
+    the environment (MICROSAM_CACHEDIR) on the first prompt, so
+    uninstalling removes them. Measured install on this machine: 291 s,
+    6.1 GB with PyPI's CUDA torch 2.14.0.
+
+    Worker ops: sam_embed (embeds one field, kept by a content key, last 4
+    fields kept; fields over 1536 px are tiled 1024 + 256 halo as
+    micro-SAM's annotator does) and sam_prompt (points (y, x) with 1/0
+    labels, a box (y0, x0, y1, x1), or both -> the object's mask as .npy;
+    a field with no embedding answers LookupError). On the CPU a prompt
+    runs on at most 4 torch threads: on this 16-thread machine under a
+    load average of 40-70, the decoder took 1.9-3.0 s on 16 threads and
+    0.25-0.85 s on 4.
+
+    GUI client: _PromptClient (GUI process, no torch): tries the prompt,
+    and only on LookupError sends the field, embeds, and asks again, so a
+    click on an embedded field sends no image.
+
+    Make Masks: a "Segment by prompt" category (under the Live magnifier)
+    with a "Prompt with micro-SAM" toggle, an Overlap rule (Clip / Skip /
+    Replace, default Clip) and Add object / Discard. While on, on the
+    canvas: left click = point on the object, right click = point off it,
+    left drag = box, Backspace takes the last prompt back, Escape discards,
+    Enter adds. Shift/Alt pan and the Ctrl edits still work; the Live
+    magnifier and prompting switch each other off. Prompts run on a
+    background thread (_NewestRequestWorker: a click while busy replaces
+    the waiting one), the outline is drawn translucent over the field with
+    the points and the box, and the console says when micro-SAM starts,
+    embeds (with its time and device), and fails; the worker's own output
+    (the weight download, tiling progress) streams into the console like
+    every backend's. Turning it on with micro-SAM missing opens the same
+    install dialog as the Model Zoo, with its progress in the console.
+    The field is shown to micro-SAM stretched between the canvas's own
+    display percentiles (micro-SAM would otherwise min-max a 16-bit field
+    with hot pixels to near black), and the embedding key is a hash of
+    that picture, so returning to a field reuses its embedding.
+
+    Add object = one edit: engine._paste_region_objects with the Overlap
+    rule, a new id one past the top, one undo step, one ledger entry of
+    kind "prompt" with tool, model, points, box, score, device, the
+    environment's package versions and the embedding key (provenance);
+    Save mask writes it with the ledger like any other edit. Moving to
+    another field discards an unaccepted outline.
+
+Timings (vit_b_lm; Toxoplasma PV example fields, 1994 x 1994 uint16;
+prompts = the median point of a ground-truth object, then its bounding box)
+    CPU, 16 threads, machine load average 40-70 (other sessions):
+      worker start + model load, first prompt of the session: ~20-25 s
+      embedding 1024 x 1024 crop (one tile): 33-39 s
+      embedding full 1994 x 1994 field (4 tiles): 131-185 s
+      click after the embedding, 1024 crop: 0.23-1.25 s (9 objects)
+      click after the embedding, full field: 0.44-2.05 s point,
+        0.41-2.05 s box (12 objects); before the 4-thread cap 3.0-4.9 s
+      first-time weight download (EBI S3, ~220 KB/s here): ~30 min
+    Accuracy against the ground truth (not a benchmark, 21 objects):
+      box prompt IoU 0.84-0.97; one central point 0.11-0.96 (a single
+      point on a vacuole often picks one parasite in it -- more points or
+      a box fix it, which is what the refinement is for).
+    GPU: see the note below if the queued run (tools/gpu_turn.sh 555-sam)
+    finished; otherwise it was withdrawn and is left to do.
+
+ALPHA: widgets: MakeMasksPromptCategory (the holder of the Segment by
+prompt category, MakeMasksScreen._prompt_card; hiding it hides the
+toggle, the Overlap rule and Add object / Discard, and prompting reads no
+clicks while it is hidden); models: microsam_v1 (the Model Zoo row, and
+with it the zoo's install / uninstall of micro-SAM). No settings keys,
+choices or apps. Registered in spacr.settings.ALPHA_FEATURES under 555.
+tests/qt/test_555_prompt_based_sam_in_make_masks.py checks both hidden
+with the preference off and shown with it on, live both ways.
+
+Tests
+    tests/qt/test_555_prompt_based_sam_in_make_masks.py (11, CPU, no
+    micro-SAM needed): the install plan (--no-deps step, nothing of napari
+    / PyQt6 / trackastra / gurobipy), the cache folder; the worker with a
+    stand-in micro_sam (embed once, points / negative points / box / both,
+    LookupError before embedding, tiling above 1536 px, keeping 4 fields);
+    the client with a stand-in worker (embeds only when missing, never
+    kills the model on cancel, announces a worker start, says where to
+    install); the screen with a stand-in client (alpha gate, install offer
+    on toggle, click -> outline -> Add object = one undo step + ledger
+    provenance + Save mask writes it, right click / box / Backspace /
+    Escape, a lone negative point asks for a positive one, moving field
+    discards). Tests changed: the backend listing now has microsam_v1; the
+    adapter-imports ratchet lists micro-SAM's worker functions; the backend
+    card translation check skips alpha-registered backends (their prose is
+    reviewed at promotion); the category list test counts only categories
+    on the panel; micro-SAM's captions are listed as awaiting the catalog
+    lane (test_i18n_caption_ratchet, make_masks_settings_explain_themselves).
+
+Not done
+    * GPU timing, unless the note below records it.
+    * No translations: the captions and the zoo row's prose are listed as
+      awaiting the catalog lane; promotion needs them.
+    * One model (vit_b_lm). vit_l_lm, the EM/histopathology models and a
+      model choice are not offered; micro-SAM's automatic (AIS) mode and
+      3-D / time-series prompting are not used.
+    * A box and points that fall in different tiles of a tiled field are
+      refused by micro-SAM (its own RuntimeError, shown in the console).
+    * The embedding is recomputed if the contrast (display percentiles) or
+      Invert changes, because the model is shown what the curator sees.
+    * Prompt points are not kept after Add object; the ledger has them.
+    * No docs page: it is hidden behind Show alpha features.
+    * The weight download is slow from EBI S3 here (~30 min once); a
+      pre-fetch during install was not added.
+

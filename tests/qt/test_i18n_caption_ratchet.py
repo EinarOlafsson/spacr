@@ -1167,6 +1167,53 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'starting',
     'stopped',
     '{done}/{total} {role} batches done, {failed} failed',
+    # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
+    # feature: its caption, controls, tooltips and console lines.
+    'Segment by prompt',
+    'Click on one object, or drag a box round it, and micro-SAM outlines '
+    'it. Right-click marks what is not the object. Enter adds the outline '
+    'as a new object.',
+    'Prompt with micro-SAM',
+    'While on, a left click on the image marks the object, a right click '
+    'marks what is not the object and a left drag draws a box round it. '
+    'micro-SAM runs in an environment of its own; the first click on a '
+    'field waits while it embeds the field, and later clicks reuse that '
+    'embedding. If micro-SAM is not installed, turning this on offers to '
+    'install it. The Live magnifier is turned off while this is on. '
+    'Default off.',
+    'What the accepted object does where the mask already has an object. '
+    'Clip keeps only its unlabelled pixels, so no existing object loses a '
+    'pixel. Skip adds nothing if it touches an existing object. Replace '
+    'lets it take every pixel it covers, which is how an object a model '
+    'split into pieces is made one again. Default Clip.',
+    'Add object',
+    "Add the outline micro-SAM drew as one new object: one edit, undone by "
+    "one Ctrl+Z, written by Save mask and recorded in the field's curation "
+    "ledger with the prompt, the model and the micro-SAM version. Enter on "
+    "the image does the same. Default unavailable until an outline is "
+    "shown.",
+    'Throw away the points, the box and the outline, and start again on '
+    'another object. Nothing had been added to the mask. Escape on the '
+    'image does the same. Default unavailable until there is a prompt.',
+    'Nothing was added: under the Overlap rule the outline leaves nothing '
+    'that is not already an object.',
+    'Prompt-based segmentation runs micro-SAM, which is not installed yet.',
+    'Prompting needs micro-SAM, which is not installed.',
+    'Prompting off. The objects it added stay in the mask.',
+    'Prompting on: click the object, right-click what is not it, or drag a '
+    'box round it; Enter adds the outline.',
+    'Put a point on the object, or drag a box round it, before points off '
+    'it.',
+    'micro-SAM added object {ids} — Ctrl+Z to undo',
+    'micro-SAM could not segment: {error}',
+    'micro-SAM embedded this field in {embed:.1f} s on {device}; the prompt '
+    'then took {prompt:.2f} s.',
+    'micro-SAM is embedding this field; the first prompt on a field waits '
+    'for it…',
+    'micro-SAM is starting in its own environment…',
+    'micro-SAM outlined nothing; add a point or draw a box.',
+    'micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds it, '
+    'Backspace takes the last prompt back, Escape discards it.',
 })
 
 

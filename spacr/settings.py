@@ -6774,6 +6774,10 @@ ALPHA_FEATURES = {
     545: {
         'widgets': ('MakeMasksRoisButton',),
     },
+    555: {
+        'widgets': ('MakeMasksPromptCategory',),
+        'models': ('microsam_v1',),
+    },
 }
 
 

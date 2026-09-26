@@ -182,9 +182,12 @@ CATEGORIES = ("Brush", "Magic wand", "Display", "Filter",
 def _categories(made):
     from spacr.qt.widgets.section import Section
 
+    # A category hidden as an alpha feature (Segment by prompt, item 555,
+    # while Show alpha features is off) is not on the panel.
     found = [w for w in made._settings_scroll.findChildren(Section)
              if w.parentWidget() is not None
-             and not isinstance(w.parentWidget().parentWidget(), Section)]
+             and not isinstance(w.parentWidget().parentWidget(), Section)
+             and w.isVisibleTo(made._settings_scroll)]
     return {title: section for title, section in made._settings_categories
             if section in found}
 
