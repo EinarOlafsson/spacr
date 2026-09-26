@@ -1059,7 +1059,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "surrogate_min_fidelity_improvement",
         )),
         ("Importance & diagnostics", (
-            "surrogate_n_repeats", "surrogate_shap_max_samples",
+            "surrogate_importance_methods", "surrogate_n_repeats",
+            "surrogate_shap_explainer", "surrogate_shap_max_samples",
             "surrogate_exclude", "surrogate_correlation_threshold",
         )),
         ("Output & runtime", ("dst", "verbose")),
