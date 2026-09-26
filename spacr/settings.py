@@ -6771,6 +6771,9 @@ ALPHA_FEATURES = {
         'settings': ('mask_parallel', 'mask_gpu_indices'),
         'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
     },
+    545: {
+        'widgets': ('MakeMasksRoisButton',),
+    },
 }
 
 

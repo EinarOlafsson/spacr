@@ -93,9 +93,21 @@ def test_a_property_spacr_never_hard_coded_filters_objects():
 
 
 def test_an_intensity_property_without_an_intensity_image_is_refused():
+    """spaCR refuses before scikit-image is called, on every supported skimage.
+
+    intensity_min, not intensity_std: intensity_std arrived in skimage
+    0.23, and on the minimum supported 0.22 it is correctly refused as a
+    property that release does not have, before the intensity check is
+    reached. intensity_min exists in every release spaCR supports.
+    """
     labels, _image = field()
-    with pytest.raises(ValueError, match="intensity_std measures pixel values"):
-        engine.filter_removals(labels, [{"property": "intensity_std", "max": 1}])
+    with pytest.raises(ValueError, match="intensity_min measures pixel values"):
+        engine.filter_removals(labels, [{"property": "intensity_min", "max": 1}])
+    if "intensity_std" in engine.filter_properties(intensity=True):
+        with pytest.raises(ValueError,
+                           match="intensity_std measures pixel values"):
+            engine.filter_removals(
+                labels, [{"property": "intensity_std", "max": 1}])
     with pytest.raises(ValueError, match="cannot run on a mask alone"):
         _filter_objects(labels.copy(), None,
                         filters=[{"property": "intensity_mean", "min": 1}])
