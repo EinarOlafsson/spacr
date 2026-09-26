@@ -6796,6 +6796,9 @@ ALPHA_FEATURES = {
                      'confluency_window', 'confluency_qc_threshold'),
         'widgets': ('MeasureConfluencyToggle',),
     },
+    545: {
+        'widgets': ('MakeMasksRoisButton',),
+    },
 }
 
 

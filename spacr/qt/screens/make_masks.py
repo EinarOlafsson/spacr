@@ -154,8 +154,10 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
+    QMenu,
     QMessageBox,
     QPlainTextEdit,
     QProgressBar,
@@ -7693,6 +7695,7 @@ class MakeMasksScreen(QWidget):
         from ..make_masks_datasets import install_dataset_button
         nav_row.addWidget(install_dataset_button(self))
         nav_row.addWidget(self._build_contribute_button())
+        nav_row.addWidget(self._build_roi_button())
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -8112,6 +8115,407 @@ class MakeMasksScreen(QWidget):
         if show:
             dialog.show()
         return dialog
+
+    def _build_roi_button(self) -> QPushButton:
+        """The "ROIs" button: masks out to and in from QuPath, Fiji and COCO.
+
+        An ALPHA feature (item 545): the button is registered as
+        ``MakeMasksRoisButton`` in :data:`spacr.settings.ALPHA_FEATURES`, so
+        it is shown only while Preferences -> "Show alpha features" is on.
+        Its menu exports the
+        field on screen or every field of the folder or queue, and imports a
+        file back into the field on screen or into every field, through
+        :func:`spacr.mask_io.export_rois` and
+        :func:`spacr.mask_io.import_rois`.
+
+        :returns: the button, with its menu.
+        """
+        from ..i18n import tr
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("ROIs…"), self)
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Export the masks as QuPath GeoJSON, an ImageJ RoiSet or COCO "
+            "JSON, one outline per object with its id and class, or import "
+            "one of those files back as masks."))
+        menu = QMenu(button)
+        self._roi_actions = {}
+        entries = (
+            ("export_field_geojson", tr("Export this field as QuPath GeoJSON…"),
+             lambda: self._on_export_field_rois("geojson")),
+            ("export_field_imagej", tr("Export this field as an ImageJ RoiSet…"),
+             lambda: self._on_export_field_rois("imagej")),
+            ("export_field_coco", tr("Export this field as COCO JSON…"),
+             lambda: self._on_export_field_rois("coco")),
+            None,
+            ("export_all_geojson",
+             tr("Export every field as QuPath GeoJSON…"),
+             lambda: self._on_export_all_rois("geojson")),
+            ("export_all_imagej", tr("Export every field as ImageJ RoiSets…"),
+             lambda: self._on_export_all_rois("imagej")),
+            ("export_all_coco", tr("Export every field as one COCO JSON…"),
+             lambda: self._on_export_all_rois("coco")),
+            None,
+            ("import_field", tr("Import ROIs into this field…"),
+             self._on_import_field_rois),
+            ("import_all_geojson", tr("Import QuPath GeoJSON for every field…"),
+             lambda: self._on_import_all_rois("geojson")),
+            ("import_all_imagej", tr("Import ImageJ RoiSets for every field…"),
+             lambda: self._on_import_all_rois("imagej")),
+            ("import_all_coco", tr("Import COCO JSON for every field…"),
+             lambda: self._on_import_all_rois("coco")),
+        )
+        for entry in entries:
+            if entry is None:
+                menu.addSeparator()
+                continue
+            key, text, slot = entry
+            action = menu.addAction(text)
+            action.triggered.connect(
+                lambda _checked=False, run=slot: run())
+            self._roi_actions[key] = action
+        button.setMenu(menu)
+        button.setObjectName("MakeMasksRoisButton")
+        _apply_alpha_widgets(button)
+        self._btn_rois = button
+        return button
+
+    def _roi_object_type(self) -> str:
+        """The object type the masks of this folder are exported as.
+
+        A masks folder named for its objects -- ``cell_mask_stack``,
+        ``nucleus_masks`` -- gives that name; anything else gives
+        :data:`spacr.mask_io.DEFAULT_OBJECT_TYPE`.
+
+        :returns: the object type.
+        """
+        from ...mask_io import DEFAULT_OBJECT_TYPE
+
+        folder = engine.masks_folder(self._folder or "", self._masks_dir)
+        name = os.path.basename(os.path.normpath(folder))
+        match = re.match(r"^(.+?)_masks?(?:_stack)?$", name)
+        return match.group(1) if match else DEFAULT_OBJECT_TYPE
+
+    def _roi_fields(self) -> List[tuple]:
+        """Every field of the folder or queue, as ``(index, folder, name)``.
+
+        :returns: the fields, in queue order.
+        """
+        return [(i, self._field_folders[i] if self._field_folders
+                 else self._folder, name)
+                for i, name in enumerate(self._image_files or [])]
+
+    def _roi_field_labels(self, index: int, folder: str, name: str):
+        """The labels of one field: on screen for the current one, else saved.
+
+        :param index: the field's place in the queue.
+        :param folder: the folder the field lies in.
+        :param name: the field's image file name.
+        :returns: the label mask; zeros for a field with no saved mask.
+        """
+        if index == self._current_index and self._canvas.mask is not None:
+            return np.array(self._canvas.mask, copy=True)
+        _image, mask = engine.load_image_and_mask(folder, name,
+                                                  **self._layout_kwargs())
+        return mask
+
+    def export_field_rois(self, path: str, fmt: Optional[str] = None) -> str:
+        """Write the mask on screen as QuPath GeoJSON, a RoiSet or COCO JSON.
+
+        :param path: the file to write.
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``; default from
+            the suffix of ``path``.
+        :returns: the path written, or ``""`` when no field is open.
+        """
+        from ...mask_io import export_rois
+
+        if not self._image_files or self._canvas.mask is None:
+            return ""
+        name = self._image_files[self._current_index]
+        written = export_rois(self._canvas.mask, path, fmt,
+                              object_type=self._roi_object_type(),
+                              file_name=name)
+        return str(written)
+
+    def export_all_rois(self, target: str, fmt: str) -> List[str]:
+        """Write every field's mask as ROIs.
+
+        GeoJSON and ImageJ are one file per field in the folder ``target``
+        (``<stem>.geojson``, ``<stem>_RoiSet.zip``), the way QuPath and Fiji
+        open them beside the image; COCO is one dataset file, ``target``,
+        holding every field. The field on screen is exported as it is on
+        screen; the others as saved. Fields without objects are left out.
+
+        :param target: the folder (GeoJSON, ImageJ) or file (COCO).
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :returns: the files written.
+        """
+        from ... import mask_io
+
+        fmt = mask_io.roi_format(target, fmt)
+        kind = self._roi_object_type()
+        written: List[str] = []
+        dataset = None
+        for index, folder, name in self._roi_fields():
+            labels = self._roi_field_labels(index, folder, name)
+            if labels is None or not np.any(labels):
+                continue
+            stem = os.path.splitext(os.path.basename(name))[0]
+            if fmt == "coco":
+                dataset = mask_io.masks_to_coco(labels, file_name=name,
+                                                object_type=kind,
+                                                dataset=dataset)
+                continue
+            suffix = ".geojson" if fmt == "geojson" else "_RoiSet.zip"
+            out = mask_io.export_rois(labels, os.path.join(target, stem + suffix),
+                                      fmt, object_type=kind, file_name=name)
+            written.append(str(out))
+        if fmt == "coco" and dataset is not None:
+            import json
+
+            os.makedirs(os.path.dirname(os.path.abspath(target)), exist_ok=True)
+            with open(target, "w", encoding="utf-8") as handle:
+                json.dump(dataset, handle)
+            written.append(str(target))
+        return written
+
+    def _pick_roi_type(self, masks: dict, object_type: Optional[str]):
+        """The one object type an import puts on the single-layer canvas.
+
+        :param masks: the imported masks by object type.
+        :param object_type: the type asked for, or ``None``.
+        :returns: the chosen type, or ``None`` when the user cancelled.
+        """
+        from ..i18n import tr
+
+        if object_type in masks:
+            return object_type
+        names = list(masks)
+        if self._roi_object_type() in masks:
+            names.remove(self._roi_object_type())
+            names.insert(0, self._roi_object_type())
+        if len(names) == 1 or is_headless() or object_type is not None:
+            return names[0]
+        chosen, accepted = QInputDialog.getItem(
+            self, tr("Import ROIs"),
+            tr("The file holds several object types. Which one goes on "
+               "this field?"), names, 0, False)
+        return chosen if accepted else None
+
+    def import_field_rois(self, path: str, fmt: Optional[str] = None,
+                          object_type: Optional[str] = None) -> int:
+        """Replace the mask on screen with the objects of a ROI file.
+
+        One edit on the undo stack and in the curation ledger; nothing is
+        written until the mask is saved. A file of several object types puts
+        ``object_type`` on the canvas, else the folder's own type, else the
+        user's choice.
+
+        :param path: the GeoJSON, RoiSet or COCO file.
+        :param fmt: its format; default from the file.
+        :param object_type: the object type to take.
+        :returns: the number of objects on screen afterwards, or ``-1`` when
+            nothing was imported.
+        """
+        from ...mask_io import import_rois
+
+        if not self._image_files or self._canvas.mask is None:
+            return -1
+        current = self._canvas.mask
+        name = self._image_files[self._current_index]
+        masks = import_rois(path, current.shape, fmt, file_name=name)
+        if not masks:
+            return -1
+        kind = self._pick_roi_type(masks, object_type)
+        if kind is None:
+            return -1
+        labels = masks[kind]
+        dtype = current.dtype
+        if labels.size and int(labels.max()) > np.iinfo(dtype).max:
+            dtype = labels.dtype
+        new = labels.astype(dtype, copy=False)
+        self._apply_op(lambda _mask: new, "import_rois",
+                       source=os.path.basename(str(path)), object_type=kind)
+        return int(np.count_nonzero(np.unique(new)))
+
+    def _roi_file_for(self, source: str, fmt: str, name: str) -> str:
+        """The file in ``source`` that holds one field's ROIs, or ``""``.
+
+        :param source: the folder the ROI files are in.
+        :param fmt: ``"geojson"`` or ``"imagej"``.
+        :param name: the field's image file name.
+        :returns: the first of the usual names that exists.
+        """
+        stem = os.path.splitext(os.path.basename(name))[0]
+        suffixes = ((".geojson", ".json") if fmt == "geojson"
+                    else ("_RoiSet.zip", ".zip", ".roi"))
+        for suffix in suffixes:
+            candidate = os.path.join(source, stem + suffix)
+            if os.path.isfile(candidate):
+                return candidate
+        return ""
+
+    def import_all_rois(self, source: str, fmt: str,
+                        object_type: Optional[str] = None) -> List[str]:
+        """Import ROIs for every field that has them and save them as masks.
+
+        GeoJSON and ImageJ files are found in the folder ``source`` by the
+        field's stem (``<stem>.geojson``, ``<stem>_RoiSet.zip`` ...); a COCO
+        ``source`` is one file matched on ``file_name``. Each matched field's
+        mask is written as :meth:`_on_save` writes it; the field on screen is
+        replaced on the canvas instead, as one undoable edit, and saved with
+        the rest when the user saves it.
+
+        :param source: the folder (GeoJSON, ImageJ) or file (COCO).
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :param object_type: the object type to take from files of several;
+            default the folder's own type, else the first in the file.
+        :returns: the names of the fields that were given masks.
+        """
+        from ... import mask_io
+
+        fmt = mask_io.roi_format(source, fmt)
+        coco_names = mask_io.coco_image_names(source) if fmt == "coco" else []
+        done: List[str] = []
+        for index, folder, name in self._roi_fields():
+            if fmt == "coco":
+                base = os.path.basename(name)
+                stems = {os.path.splitext(os.path.basename(n))[0]
+                         for n in coco_names}
+                if (base not in {os.path.basename(n) for n in coco_names}
+                        and os.path.splitext(base)[0] not in stems):
+                    continue
+                path = source
+            else:
+                path = self._roi_file_for(source, fmt, name)
+                if not path:
+                    continue
+            if index == self._current_index and self._canvas.mask is not None:
+                if self.import_field_rois(path, fmt, object_type
+                                          or self._roi_object_type()) >= 0:
+                    done.append(name)
+                continue
+            _image, mask = engine.load_image_and_mask(folder, name,
+                                                      **self._layout_kwargs())
+            masks = mask_io.import_rois(path, mask.shape, fmt, file_name=name)
+            if not masks:
+                continue
+            wanted = object_type or self._roi_object_type()
+            labels = masks.get(wanted, next(iter(masks.values())))
+            engine.save_mask(folder, name, labels, **self._layout_kwargs())
+            done.append(name)
+        return done
+
+    def _roi_filter(self, fmt: str) -> str:
+        """The file-dialog filter for one ROI format.
+
+        :param fmt: ``"geojson"``, ``"imagej"`` or ``"coco"``.
+        :returns: the filter text.
+        """
+        from ..i18n import tr
+
+        return {"geojson": tr("QuPath GeoJSON (*.geojson)"),
+                "imagej": tr("ImageJ RoiSet (*.zip)"),
+                "coco": tr("COCO JSON (*.json)")}[fmt]
+
+    def _on_export_field_rois(self, fmt: str) -> None:
+        """Ask where, then export the field on screen."""
+        from ...mask_io import roi_suffix
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        name = self._image_files[self._current_index]
+        stem = os.path.splitext(os.path.basename(name))[0]
+        default = stem + ("_RoiSet.zip" if fmt == "imagej" else roi_suffix(fmt))
+        path, _filter = QFileDialog.getSaveFileName(
+            self, tr("Export ROIs"),
+            os.path.join(self._folder or os.getcwd(), default),
+            self._roi_filter(fmt))
+        if not path:
+            return
+        try:
+            written = self.export_field_rois(path, fmt)
+        except (ImportError, ValueError, OSError) as exc:
+            self._warn(tr("Export failed"), str(exc))
+            return
+        self._status_label.setText(tr("ROIs exported → {path}", path=written))
+
+    def _on_export_all_rois(self, fmt: str) -> None:
+        """Ask where, then export every field."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        start = self._folder or os.getcwd()
+        if fmt == "coco":
+            target, _filter = QFileDialog.getSaveFileName(
+                self, tr("Export ROIs"),
+                os.path.join(start, "annotations_coco.json"),
+                self._roi_filter(fmt))
+        else:
+            target = QFileDialog.getExistingDirectory(
+                self, tr("Folder for the ROI files"), start)
+        if not target:
+            return
+        try:
+            written = self.export_all_rois(target, fmt)
+        except (ImportError, ValueError, OSError) as exc:
+            self._warn(tr("Export failed"), str(exc))
+            return
+        self._status_label.setText(tr(
+            "{n} ROI file(s) written → {path}", n=len(written), path=target))
+
+    def _on_import_field_rois(self) -> None:
+        """Ask for a ROI file, then import it into the field on screen."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        filters = ";;".join([
+            tr("ROI files (*.geojson *.json *.zip *.roi)"),
+            self._roi_filter("geojson"), self._roi_filter("imagej"),
+            self._roi_filter("coco")])
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Import ROIs"), self._folder or os.getcwd(), filters)
+        if not path:
+            return
+        try:
+            count = self.import_field_rois(path)
+        except (ImportError, ValueError, OSError, KeyError) as exc:
+            self._warn(tr("Import failed"), str(exc))
+            return
+        if count >= 0:
+            self._status_label.setText(tr(
+                "{n} object(s) imported from {path}; save to keep them",
+                n=count, path=os.path.basename(path)))
+
+    def _on_import_all_rois(self, fmt: str) -> None:
+        """Ask for the ROI files, confirm, then import them for every field."""
+        from ..i18n import tr
+
+        if not self._image_files:
+            return
+        start = self._folder or os.getcwd()
+        if fmt == "coco":
+            source, _filter = QFileDialog.getOpenFileName(
+                self, tr("Import ROIs"), start, self._roi_filter(fmt))
+        else:
+            source = QFileDialog.getExistingDirectory(
+                self, tr("Folder of ROI files"), start)
+        if not source or not self._confirm(
+                tr("Import ROIs"),
+                tr("Replace the saved mask of every field that has ROIs in "
+                   "{path}?", path=os.path.basename(source))):
+            return
+        try:
+            done = self.import_all_rois(source, fmt)
+        except (ImportError, ValueError, OSError, KeyError) as exc:
+            self._warn(tr("Import failed"), str(exc))
+            return
+        self._status_label.setText(tr(
+            "ROIs imported for {n} field(s)", n=len(done)))
 
     def save_curated_mask(self) -> str:
         """Write the labels Curate corrected back to the mask file.

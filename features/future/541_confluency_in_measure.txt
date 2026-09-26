@@ -103,7 +103,7 @@ nightly; the preview asks preferences._is_alpha_visible for the toggle.
     the setting consumer map and API targets, and the 02_measure_and_crop
     notebook's settings list. Ratchets moved: tooltip default claims 736 ->
     744 (four confluency claims in Measure and External Masks), the
-    public-callable parameter sum 19,385 -> 19,386 and its digest
+    public-callable parameter sum (+1: 19,444 -> 19,445 after 545) and its digest
     (infection_report's optional monolayer_filter), five keys declared in
     KEYS_ADDED_BY_REGROUP, the Measure category order, and seven captions
     held in _AWAITING_CATALOG_REBUILD for the catalog lane (no catalog was
