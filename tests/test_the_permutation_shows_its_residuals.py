@@ -11,6 +11,8 @@ block non-swappable.
 """
 from __future__ import annotations
 
+import pathlib
+
 import numpy as np
 import pytest
 
@@ -192,7 +194,10 @@ class TestTheQcFolder:
         qc = tmp_path / QC_DIRNAME
         assert qc.is_dir()
         assert report["qc"]["dir"] == str(qc)
-        assert (qc / "residual_by_position_score.png").stat().st_size > 0
+        figure = pathlib.Path(report["qc"]["figure"])
+        assert figure.parent == qc
+        assert figure.stem == "residual_by_position_score"
+        assert figure.stat().st_size > 0
         assert (qc / "exchangeability_score.json").is_file()
 
     def test_the_report_on_disk_names_the_remedy(self, tmp_path):
@@ -330,4 +335,6 @@ def test_the_real_permutation_branch_writes_its_qc(tmp_path):
                                     _settings("grna"))
     qc = tmp_path / "regression_qc"
     assert (qc / "exchangeability_pred.json").is_file()
-    assert (qc / "residual_by_position_pred.png").is_file()
+    written = [p for p in qc.glob("residual_by_position_pred.*") if p.is_file()]
+    assert len(written) == 1, sorted(qc.iterdir())
+    assert written[0].stat().st_size > 0

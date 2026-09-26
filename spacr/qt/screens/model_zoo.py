@@ -140,6 +140,26 @@ def _stem_version(entry) -> tuple:
     return key, f"v{getattr(entry, 'version', '') or 1}"
 
 
+def _model_is_alpha_hidden(entry) -> bool:
+    """Whether the alpha gate hides this Model Zoo row right now (item 569).
+
+    A row is registered in ``spacr.settings.ALPHA_FEATURES`` under
+    ``models`` by its key, its name or its family stem.
+
+    :param entry: a :class:`spacr.model_zoo.ModelEntry`.
+    :returns: True while Preferences -> Show alpha features is off and the
+        row is registered.
+    """
+    from ..preferences import _is_alpha_visible
+
+    if _is_alpha_visible():
+        return False
+    names = {str(getattr(entry, "key", "") or ""),
+             str(getattr(entry, "name", "") or ""),
+             _stem_version(entry)[0]}
+    return any(not _is_alpha_visible("models", name) for name in names if name)
+
+
 def _status_of(entry) -> str:
     """One word for whether this version is usable right now.
 
@@ -710,7 +730,14 @@ class ModelZooScreen(QWidget):
             row = self._row_of_group(group)
             if row is not None:
                 self._table.setRowHidden(
-                    row, zoo.source_of(entry) not in enabled)
+                    row,
+                    zoo.source_of(entry) not in enabled
+                    or _model_is_alpha_hidden(entry))
+
+    def _refresh_alpha_visibility(self) -> None:
+        """Re-fold the table after Show alpha features changes (item 569)."""
+        self._apply_source_filter()
+        self._update_controls()
 
     def _sources_changed(self) -> None:
         """A heading was clicked: re-fold the table, and re-list if the

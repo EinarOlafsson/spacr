@@ -1147,7 +1147,12 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 508 and 509 left here, and they are in en.UI_SOURCES now.
 # 493, 2026-09-26: the parallel GPU mask controls, their greyed-out
 # reasons, the Cluster Distribution profile and the per-GPU progress line.
+# 569, 2026-09-26: the Show alpha features switch and its tooltip.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    'Show alpha features',
+    'Show the settings, controls, screens and models built from the '
+    'future-features list that are not yet released. Off hides them; saved '
+    'values still reach every run.',
     'GPU {device}: {done}/{total} {state}',
     'Mask generation: segment batches on every GPU allocated to the job',
     'Needs two or more compatible CUDA or ROCm GPUs; {count} found on this '

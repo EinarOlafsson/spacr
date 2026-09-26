@@ -830,6 +830,7 @@ def rst_for(data: dict, keys: Optional[List[str]] = None) -> str:
         # Indentation is non-breaking spaces because RST collapses ordinary
         # leading whitespace inside a line block and the shape carries the
         # meaning.
+        linked = set()
         for row in body:
             depth = (len(row) - len(row.lstrip())) // 4
             text = row.strip()
@@ -839,14 +840,24 @@ def rst_for(data: dict, keys: Optional[List[str]] = None) -> str:
             pad = "\u00a0" * (depth * 4)
             if text.endswith("[UNRESOLVED]"):
                 lines.append(f"| {pad}``{text}``")
-            elif reader:
+                continue
+            linked.add(text)
+            if reader:
                 lines.append(f"| {pad}{_link(text)} **-- reads it**")
             else:
                 lines.append(f"| {pad}{_link(text)}")
         lines.append("")
         readers = sorted({h["function"] for h in reads[key]
                           if not _supplies_the_default(h["function"])})
-        lines.append("Read by " + ", ".join(_link(r) for r in readers) + ".")
+        # ONE LINK PER FUNCTION PER SECTION. Every reader named here is, in
+        # practice, already a clickable node of the tree just above it, and
+        # linking it a second time cost 2,034 of the page's 7,533
+        # cross-references on 2026-09-26 (item 43) -- a quarter of the
+        # docs-job ratchet below for no link the reader did not already
+        # have. A reader the tree does not show keeps its link.
+        lines.append("Read by " + ", ".join(
+            f"``{r.rsplit('.', 1)[-1]}``" if r in linked else _link(r)
+            for r in readers) + ".")
         lines.append("")
     lines.insert(2, f"{drawn} settings, of {len(reads)} read anywhere.")
     lines.insert(3, "")

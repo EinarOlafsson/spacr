@@ -1383,6 +1383,9 @@ class ModelZooPicker(QDialog):
             # thing that is not installed.
             entries = [e for e in entries
                        if e.kind in self._kinds or e.kind == "backend"]
+        from ..screens.model_zoo import _model_is_alpha_hidden
+
+        entries = [e for e in entries if not _model_is_alpha_hidden(e)]
         self._entries = entries
 
         self._rebuild(entries)

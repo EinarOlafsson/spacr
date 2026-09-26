@@ -6757,3 +6757,77 @@ tooltips.update({
     'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
     'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
 })
+
+
+ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models')
+
+
+ALPHA_FEATURES = {
+    426: {
+        'settings': ('timeflows_model',),
+        'choices': {'timelapse_mode': ('timeflows',)},
+    },
+    493: {
+        'settings': ('mask_parallel', 'mask_gpu_indices'),
+        'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
+    },
+}
+
+
+def _alpha_names(kind):
+    """Every name registered as alpha under ``kind``, across all items.
+
+    ``ALPHA_FEATURES`` is the one registry of everything built from
+    ``features/future`` that ships as an alpha feature -- the maintainer's
+    rule of 2026-09-26 (item 569, ``features/README.md``): hidden unless
+    Preferences -> Show alpha features is on. Each entry is keyed by the item
+    number and lists what that item adds under the kinds in ``ALPHA_KINDS``:
+    ``settings`` (settings keys, hidden from the form, the settings search
+    and its counts), ``choices`` (``{key: (dropdown values,)}``), ``widgets``
+    (Qt object names of buttons, checkboxes, labels, menu actions or
+    panels), ``apps`` (module keys: tile, sidebar, menu and palette together)
+    and ``models`` (Model Zoo keys, names or family stems). A feature is
+    marked in this one place and promoted out of alpha by deleting its entry.
+
+    Hiding is a display decision only: a saved or typed alpha setting still
+    reaches the run, and headless and command-line runs never consult the
+    registry.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :returns: a frozenset of names; for ``choices`` the settings keys that
+        carry alpha entries.
+    :raises ValueError: for a kind that is not in ``ALPHA_KINDS``.
+    """
+    if kind not in ALPHA_KINDS:
+        raise ValueError(
+            f'unknown alpha kind {kind!r}; expected one of {ALPHA_KINDS}')
+    names = set()
+    for entry in ALPHA_FEATURES.values():
+        names.update(entry.get(kind, ()) or ())
+    return frozenset(str(name) for name in names)
+
+
+def _alpha_choices(key):
+    """The dropdown entries of settings ``key`` that are alpha.
+
+    :param key: a settings key, such as ``'timelapse_mode'``.
+    :returns: a frozenset of the entries' values, empty when none are alpha.
+    """
+    values = set()
+    for entry in ALPHA_FEATURES.values():
+        values.update((entry.get('choices') or {}).get(str(key), ()) or ())
+    return frozenset(str(value) for value in values)
+
+
+def _is_alpha(kind, name, choice=None):
+    """Whether ``name`` of ``kind`` is registered with the alpha gate.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :param name: the settings key, object name, module key or model key.
+    :param choice: with ``kind='choices'``, the dropdown entry asked about;
+        without it the question is whether ``name`` has any alpha entry.
+    :returns: True when registered.
+    """
+    if kind == 'choices' and choice is not None:
+        return str(choice) in _alpha_choices(name)
+    return str(name) in _alpha_names(kind)

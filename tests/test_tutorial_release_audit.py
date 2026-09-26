@@ -422,6 +422,10 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     for lesson in published["lessons"]:
         lesson.pop("poster", None)
         lesson.pop("silent", None)
+        # "web" names a lesson's web copy on the media revision
+        # (build_appended_candidate --host-web): a publication field like
+        # poster/silent, not narration, so lessons_en.json does not carry it.
+        lesson.pop("web", None)
     assert published == english, (
         "the public lesson_catalog.js does not match lessons_en.json")
 

@@ -1392,8 +1392,9 @@ def app_is_visible(key: str) -> bool:
         preference.
     """
     try:
-        from .preferences import maturity_is_visible
-        return maturity_is_visible(app_stage(key))
+        from .preferences import _is_alpha_visible, maturity_is_visible
+        return (maturity_is_visible(app_stage(key))
+                and _is_alpha_visible("apps", key))
     except Exception:
         return True
 
@@ -3739,6 +3740,13 @@ class MainWindow(QMainWindow):
                     refresh()
                 except Exception:
                     pass
+            refresh = getattr(screen, "_refresh_alpha_visibility", None)
+            if callable(refresh):
+                try:
+                    refresh()
+                except Exception:
+                    LOG.debug("could not apply the alpha gate",
+                              exc_info=True)
             try:
                 self._drop_a_redundant_screen_backdrop(screen)
             except Exception:
@@ -3756,6 +3764,12 @@ class MainWindow(QMainWindow):
             self._sidebar.refresh_visibility()
         except Exception:
             pass
+        try:
+            from .preferences import _apply_alpha_widgets
+
+            _apply_alpha_widgets(self)
+        except Exception:
+            LOG.debug("could not apply the alpha gate", exc_info=True)
 
     def refresh_language(self) -> None:
         """Apply the persisted language to existing static UI text."""
@@ -5372,6 +5386,13 @@ class MainWindow(QMainWindow):
             _install_settings_search(page)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not install the settings search strip early",
+                      exc_info=True)
+        try:
+            from .preferences import _apply_alpha_widgets
+
+            _apply_alpha_widgets(page)
+        except Exception:
+            LOG.debug("could not apply the alpha gate to a new page",
                       exc_info=True)
 
     def stylesheet_roots(self):

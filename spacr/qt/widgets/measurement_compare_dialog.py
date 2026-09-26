@@ -636,7 +636,7 @@ class MeasurementComparePanel(QWidget):
         guides = _top_hits(self._objects, results)
         if not guides:
             members = [m for group in self._groups.values()
-                       for m in (group or ())]
+                       if group is not None for m in group]
             guides = _guides_at(self._objects, members)
         self._selected_guides = [str(g) for g in guides]
         self._selected_wells = None
@@ -740,7 +740,7 @@ class MeasurementComparePanel(QWidget):
             none); any explicit well subset is cleared so wells are derived
             from them.
         """
-        self._selected_guides = [str(g) for g in (guides or ())]
+        self._selected_guides = [str(g) for g in (() if guides is None else guides)]
         self._selected_wells = None
         self.refresh()
 
