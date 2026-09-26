@@ -181,13 +181,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "ops_spot_detector",
-      "source": "Which detector finds the sequencing spots each field's reads are called at. 'native' is spaCR's own spot score and the only one this plate was validated with. 'spotnet' is DeepCell's SpotNet, a trained spot detector run in an environment of its own; its positions go through the same bases, calls and assignment to nuclei, and ops_read_threshold no longer applies. SpotNet's models are licensed for NON-COMMERCIAL ACADEMIC USE ONLY, it has to be installed from the Model Zoo, and its weights need a free DeepCell access token in DEEPCELL_ACCESS_TOKEN or ~/.spacr/deepcell_token. It decodes one field at a time. Default 'native'.",
-      "source_sha256": "edda98fd31da19d81f11b2d6e7a2d689841eaa9a7722dd63c497211a698fdddd",
-      "translation": "Détecteur qui repère les spots de séquençage auxquels les lectures de chaque champ sont appelées. 'native' est le score de spots propre à spaCR et le seul avec lequel cette plaque a été validée. 'spotnet' est SpotNet de DeepCell, un détecteur de spots entraîné exécuté dans son propre environnement ; ses positions passent par les mêmes bases, appels et affectations aux noyaux, et ops_read_threshold ne s’applique plus. Les modèles de SpotNet sont sous licence pour un USAGE ACADÉMIQUE NON COMMERCIAL UNIQUEMENT, SpotNet doit être installé depuis Model Zoo, et ses poids nécessitent un jeton d’accès DeepCell gratuit dans DEEPCELL_ACCESS_TOKEN ou ~/.spacr/deepcell_token. Il décode un champ à la fois. Valeur par défaut : 'native'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "psf_fwhm_um",
       "source": "Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
       "source_sha256": "8cd70f74d9eb3b2d6adcd9a40610d115ebf39c76c1cc28f532970222b0efe04a",
