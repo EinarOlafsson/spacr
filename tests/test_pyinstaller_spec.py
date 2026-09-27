@@ -151,7 +151,10 @@ def test_non_core_packages_cannot_leak_from_the_build_environment() -> None:
     }
 
 
-@pytest.mark.parametrize("library", ["_C.so", "_C.abi3.so", "_C.pyd", "_C.dylib"])
+@pytest.mark.parametrize("library", [
+    "_C.so", "_C.abi3.so", "_C.pyd", "_C.dylib",
+    "_C_stable.so", "_C_stable.abi3.so", "_C_stable.pyd", "_C_stable.dylib",
+])
 def test_torchvision_operator_library_is_passed_to_binary_analysis(library):
     """Directly loaded ops must reach binary analysis on every platform."""
     tree = _tree()
@@ -180,7 +183,10 @@ def test_torchvision_operator_library_is_passed_to_binary_analysis(library):
     assert actual is expected
 
 
-@pytest.mark.parametrize("libraries", [[], [("/wheel/torchvision/image.so", "torchvision")]])
+@pytest.mark.parametrize("libraries", [
+    [], [("/wheel/torchvision/image.so", "torchvision")],
+    [("/wheel/torchvision/_C_unrelated.so", "torchvision")],
+])
 def test_missing_torchvision_ops_abort_the_build(libraries):
     """A bundle without _C must fail during collection, before a native run."""
     collector = next(n for n in _tree().body if isinstance(n, ast.FunctionDef)

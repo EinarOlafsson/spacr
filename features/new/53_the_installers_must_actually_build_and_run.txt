@@ -271,3 +271,17 @@ The builder now requests libpython3-dev, whose versioned dependency includes
 the shared runtime required for freezing. Shell syntax passes; a fresh native
 build and installed-artifact smoke are still required. Receipt:
 features/data/53_debian_shared_python_2026-09-27.json.
+
+STATUS 2026-09-27 — current native dependency repairs
+Run36345082025 built all3 native artifacts. Linux installed launches required
+libxcb-shape0; Windows/macOS reached Measure but lacked TorchVision operators.
+The builder/runtime Debian dependency and targeted operator collection were
+repaired with14 focused tests passing. Run36347645045 then exposed an overly
+narrow collection guard: current0.29 wheels use _C_stable, not _C. Exact wheels
+and loader source from all3 platforms establish the renamed library identity.
+The guard now accepts both exact identities and retains rejection of unrelated
+libraries. Expanded tests and the next native build remain pending. Receipts:
+features/data/53_native_xcb_torchvision_failure_2026-09-27/README.md and
+features/data/53_torchvision_stable_library_2026-09-27.json.
+No successful native small run or full updater/backend/account/consent closure
+is claimed by these packaging repairs.

@@ -120,7 +120,8 @@ def _torchvision_binaries():
     # The maintained hook asks for hidden import torchvision._C, but these
     # wheels load it with torch.ops.load_library instead. Native CI found no
     # _C in the resulting bundle and failed while registering torchvision::nms.
-    if not any(Path(source).name.startswith("_C.") for source, _ in libraries):
+    if not any(Path(source).name.startswith(("_C.", "_C_stable."))
+               for source, _ in libraries):
         raise RuntimeError("torchvision's _C operator library was not collected")
     return libraries
 
