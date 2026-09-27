@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-k7eyzglt",
-  "manifest_sha256": "d78ed9be399191658d7b68bac4c1496884ad0a71d34051c707d1e6740a0394b3",
+  "private_candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-dbc6wwi7",
+  "manifest_sha256": "bca6cdb51706c8f6f9ef10ccbf3ba15c4b8d5688b74f965f861e79d70d75763b",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -259,7 +259,7 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "04cb8660d998138c71e7081f33cad4fa7562bf7265aec10ec6e1b861c1ff5520",
+      "sha256": "9251b4fdb322904c8f6a7daa6aa4dd13eabe68785a601d3a61cbdccc9e817863",
       "bytes": 15621
     },
     {
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "07678fdbe807f4dda9bbf2f4ef359a5821a7f3ebcf543c7e1f780dbc7cd57e7d",
+      "sha256": "d8f34676de9850718e89dba4b8b6f72fee2ceb6ae98f1b4d9586791afcedde41",
       "bytes": 16356
     },
     {
@@ -319,8 +319,8 @@
     },
     {
       "path": "web/production/07_mask/poster.jpg",
-      "sha256": "f7c4c23eba955da86b08af29680b61f907a62ba81c19bfc0c5369a94dd9a9c6b",
-      "bytes": 460453
+      "sha256": "afa163eaaf42ec7994fc16a8884136a07d6e9cf915a6e46e0da84e5c3e6a653a",
+      "bytes": 213951
     },
     {
       "path": "web/production/08_measure/poster.jpg",
@@ -409,23 +409,23 @@
     },
     {
       "path": "web/production/25_recruitment/poster.jpg",
-      "sha256": "1fbe6850a60fe6325bd3dd0b1dcb0e4097672ab297126176af0540c97aff2658",
-      "bytes": 179704
+      "sha256": "5e0696b7936614d56d0f362d73fe36bd092d44893af5ed711fd1b4ce80d743e7",
+      "bytes": 186172
     },
     {
       "path": "web/production/26_invasion/poster.jpg",
-      "sha256": "b2a1cb0c205376f2da087b716bb02347a98e16946c94e991013b2c08596bd29b",
-      "bytes": 128902
+      "sha256": "3daf9d44a90eecfc773073fdf5d8aecde9d930670aafc3e9233ada3560e7dd63",
+      "bytes": 127004
     },
     {
       "path": "web/production/27_replication/poster.jpg",
-      "sha256": "a2a1abec304d5987ef1a2dffb8127bdc2ded5449b181ab6dffd86c1964746144",
-      "bytes": 136558
+      "sha256": "fb3780daa91be66e6b5c95bb3d12a594d49420509ccf85a601a5cc287754b8d9",
+      "bytes": 135248
     },
     {
       "path": "web/production/28_training_runs/poster.jpg",
-      "sha256": "fd431d8038a68a35ff0b7463937683c144cc81c66af2784bfd4663dd4c7774a2",
-      "bytes": 195417
+      "sha256": "46e4d12523ddaac09e4f2caa8b1830b0299f9a78d741fcf69e166707b60bef38",
+      "bytes": 195209
     },
     {
       "path": "web/production/29_report/poster.jpg",
@@ -434,8 +434,8 @@
     },
     {
       "path": "web/production/30_plate_queue/poster.jpg",
-      "sha256": "03576be8c4435f53457d0fc539111a9237f7b3f69a7983b3a2f2113c7453a57b",
-      "bytes": 204116
+      "sha256": "bf228ee077bb875e1b3b596b1fcea1f4ae51fe1337fcb995b80a8e049d579645",
+      "bytes": 201677
     },
     {
       "path": "web/production/31_external_masks/poster.jpg",
@@ -479,8 +479,8 @@
     },
     {
       "path": "web/production/39_classifier_evaluation/poster.jpg",
-      "sha256": "5d1779019b698ae7b59c46475077e226d14688b563f4d7596e1d3f3348ee4c7d",
-      "bytes": 146194
+      "sha256": "da3b7747046e8a69e1097a5d4337772583c1df375dcca0cbc6c27869617d7c5e",
+      "bytes": 146033
     },
     {
       "path": "web/production/40_run_history/poster.jpg",
@@ -524,8 +524,8 @@
     },
     {
       "path": "web/production/48_hit_list/poster.jpg",
-      "sha256": "31625244b46198ddb8cb996aa9f7ee79f192a02cbf2cf95b12d5e822888ee7ca",
-      "bytes": 241130
+      "sha256": "ff4c2314cbd17eb6f453054349a0e2ec766935c1c78c470bc4c8bfb942a142bf",
+      "bytes": 237748
     },
     {
       "path": "web/production/49_methods_results/poster.jpg",
@@ -609,8 +609,8 @@
     },
     {
       "path": "web/production/65_feature_explorer/poster.jpg",
-      "sha256": "174ad7da210ff267091ebdbb5f56c3002f102f569664f5710c40c87f02d2f842",
-      "bytes": 171944
+      "sha256": "aa13c69c986765af90e3c12da1104b2ecabb192e0c9834b28ce9f46a9781e279",
+      "bytes": 171611
     },
     {
       "path": "web/production/66_outliers/poster.jpg",
@@ -634,8 +634,8 @@
     },
     {
       "path": "web/production/70_explain_cv/poster.jpg",
-      "sha256": "2b218eec06a899935c000215a552326bb74f4cc3a61f375c852e22857fc21d26",
-      "bytes": 148869
+      "sha256": "f0c0310d43f510a5d895056244cb016c5f79761736bdff7d69b45a8be5e20f94",
+      "bytes": 148633
     },
     {
       "path": "web/production/71_investigate_hit/poster.jpg",
@@ -644,8 +644,8 @@
     },
     {
       "path": "web/production/72_volcano_explorer/poster.jpg",
-      "sha256": "f9babf30219feb56a0726f8135d55d401dc17eb89213fa70c41038db388b9cd0",
-      "bytes": 241045
+      "sha256": "6e12581dd59a09d2b64bdc63cce1293edabccd3cf02f904aa8c5bdd5ab61ece3",
+      "bytes": 237244
     },
     {
       "path": "web/production/73_parameter_sweep/poster.jpg",
@@ -719,8 +719,8 @@
     },
     {
       "path": "web/translation-compatibility.json",
-      "sha256": "ba88a50aec1ffce268c19db119fe307f163a52fd5e9a95903ef29642159a1917",
-      "bytes": 6624
+      "sha256": "fe8e0a0c1b54c3c1778d72e28aa2b75403545a2f1220ecc27d538fafcaf6839b",
+      "bytes": 61403
     },
     {
       "path": "web/voice_catalog.js",
@@ -729,13 +729,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "d78ed9be399191658d7b68bac4c1496884ad0a71d34051c707d1e6740a0394b3",
-      "bytes": 911963
+      "sha256": "bca6cdb51706c8f6f9ef10ccbf3ba15c4b8d5688b74f965f861e79d70d75763b",
+      "bytes": 1198730
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "0b1407b6504ebc3756fc6f14ebd357c25eb15614d1d248d2322f0fe15467a71f",
-      "bytes": 117183
+      "sha256": "3af8c7e6df8983e42cd2c2538ca24f38ad78baa62ea847dcd705ca527791cd26",
+      "bytes": 117176
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -752,10 +752,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "candidate-voices-19-20260926-k7eyzglt",
-    "tag": "tutorials-voices-19-20260926-k7eyzglt",
-    "commit": "ab38673a5e966085f65afd4faa81e05049da8aa5",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/ab38673a5e966085f65afd4faa81e05049da8aa5"
+    "branch": "candidate-redact-b1-20260927-dbc6wwi7",
+    "tag": "tutorials-redact-b1-20260927-dbc6wwi7",
+    "commit": "be5acc81a8bcb233a96d9999c1534018fa461a47",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/be5acc81a8bcb233a96d9999c1534018fa461a47"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }
