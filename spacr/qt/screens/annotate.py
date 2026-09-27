@@ -841,6 +841,65 @@ class _RetrainWorker(QThread):
             pass
 
 
+class _SimilarityWorker(QThread):
+    """Find the crops most like one crop, off the GUI thread.
+
+    The first search on a source reads every measurement table into one
+    feature matrix, which takes seconds on a real plate; the index it builds
+    is handed back with the answer so the screen can keep it and every later
+    search on the same source costs only the lookup.
+    """
+
+    done = Signal(object)
+    failed = Signal(str)
+
+    def __init__(self, db_path: str, image_type: Optional[str], key: str,
+                 index: Any = None, k: int = 100, parent=None):
+        """Carry one search's inputs onto a worker thread.
+
+        :param db_path: the database whose crops are searched.
+        :param image_type: substring filter on the crop key.
+        :param key: the ``png_path`` of the crop to match.
+        :param index: an index built earlier for the same source, or
+            ``None`` to build one.
+        :param k: how many similar crops to return.
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self._db_path = db_path
+        self._image_type = image_type
+        self._key = key
+        self._index = index
+        self._k = int(k)
+
+    def run(self):
+        """Build the index if needed, search it, and hand back the hits."""
+        try:
+            from ... import active_learning as al
+            index = self._index
+            if index is None:
+                index = al._similarity_index(self._db_path,
+                                             image_type=self._image_type)
+            started = time.perf_counter()
+            hits = index.like(self._key, self._k)
+            seconds = time.perf_counter() - started
+        except Exception as exc:
+            try:
+                self.failed.emit(f"{type(exc).__name__}: {exc}")
+            except RuntimeError:
+                pass
+            return
+        try:
+            if self.isInterruptionRequested():
+                return
+            self.done.emit({"index": index, "hits": hits, "key": self._key,
+                            "db_path": self._db_path,
+                            "image_type": self._image_type,
+                            "seconds": seconds})
+        except RuntimeError:
+            pass
+
+
 class _SuggestWorker(QThread):
     """Fit a round, then write its opinion down as proposed labels.
 
@@ -2842,6 +2901,8 @@ class AnnotateScreen(QWidget):
         self._queue_summary: str = ""
         self._round_index = 0
         self._retrain_worker: Optional[_RetrainWorker] = None
+        self._similar_worker: Optional[_SimilarityWorker] = None
+        self._similar_cache: Optional[Tuple[str, Any, Any]] = None
         #: The Suggest run, kept separate from the retrain above so
         #: one can be running while the other is retired. They fit
         #: the same kind of model and must not be the same slot.
@@ -3097,6 +3158,7 @@ class AnnotateScreen(QWidget):
         self._btn_settings.clicked.connect(self._on_open_settings)
         row.addWidget(self._btn_settings)
         row.addWidget(self._build_blind_toggle())
+        row.addWidget(self._build_similar_button())
 
         self._btn_prev = QPushButton("Back")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -4160,6 +4222,7 @@ class AnnotateScreen(QWidget):
         self.setFocus(Qt.OtherFocusReason)
         self._object_request = None
         self._object_rows = None
+        self._similar_cache = None
         self._last_round = None
         self._refresh_round_state()
         self._refresh_total(then=self._rebuild_and_load)
@@ -4199,6 +4262,123 @@ class AnnotateScreen(QWidget):
         _apply_alpha_widgets(button)
         self._btn_blind = button
         return button
+
+    def _build_similar_button(self) -> QPushButton:
+        """The Like this button: show the crops most like the current one.
+
+        Searches every crop of the open source by its measured features
+        (:func:`spacr.active_learning._similarity_index`) and pins the grid
+        to the query and its closest matches, most similar first, through
+        :meth:`open_object_request`, so a rare class found once can be
+        labelled many times. An alpha feature, registered as
+        ``AnnotateFindSimilar`` in :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button.
+        """
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Like this"), self)
+        button.setObjectName("AnnotateFindSimilar")
+        button.setIcon(iconset.icon("classify"))
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Show the 100 crops whose measurements are most like the "
+            "selected crop, the one with the ring, most similar first, so a "
+            "rare class found once can be labelled many times. The first "
+            "search on a source reads its measurements and takes a few "
+            "seconds; later ones are instant. Back to all crops by opening "
+            "the source again. Default not run."))
+        button.clicked.connect(self._on_find_similar)
+        _apply_alpha_widgets(button)
+        self._btn_similar = button
+        return button
+
+    def _similar_query_key(self) -> Optional[str]:
+        """The ``png_path`` of the selected crop, ``None`` on an empty page."""
+        slot = self._focus_slot
+        if not self._slot_is_valid(slot):
+            return None
+        return str(self._page_paths[slot][0])
+
+    def _on_find_similar(self) -> None:
+        """Search for the crops most like the current one, off the GUI thread."""
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, tr("Open a source first"),
+                tr("Open an experiment source before searching it."))
+            return
+        if self._similar_worker is not None:
+            self._status_label.setText(tr("A search is already running."))
+            return
+        key = self._similar_query_key()
+        if key is None:
+            self._status_label.setText(tr("No crop is selected to match."))
+            return
+        cache = self._similar_cache
+        index = None
+        if cache is not None and cache[:2] == (self._settings.db_path,
+                                               self._settings.image_type):
+            index = cache[2]
+        self._btn_similar.setEnabled(False)
+        self._status_label.setText(
+            tr("Finding crops like this one…") if index is not None
+            else tr("Reading the measurements to compare crops by…"))
+        worker = _SimilarityWorker(self._settings.db_path,
+                                   self._settings.image_type, key,
+                                   index=index, parent=self)
+        worker.done.connect(self._on_similar_done)
+        worker.failed.connect(self._on_similar_failed)
+        worker.finished.connect(self._on_similar_finished)
+        self._similar_worker = worker
+        worker.start()
+
+    @Slot(object)
+    def _on_similar_done(self, result) -> None:
+        """Keep the index and pin the grid to the query and its matches."""
+        from ...selection import ObjectRequest
+
+        if result["db_path"] != self._settings.db_path:
+            return
+        self._similar_cache = (result["db_path"], result["image_type"],
+                               result["index"])
+        hits = result["hits"]
+        keys = [result["key"]] + [str(k) for k in hits["key"]]
+        name = os.path.basename(result["key"])
+        request = ObjectRequest(
+            keys=keys,
+            reason=tr("{name} and the {n} crops most like it, most similar "
+                      "first").format(name=name, n=len(hits)),
+            source="similarity",
+            context={"similarity": dict(zip(hits["key"],
+                                            hits["similarity"]))})
+        self.open_object_request(request)
+        self._status_label.setText(
+            tr("Searched {n} crops in {ms} ms.").format(
+                n=f"{len(result['index']):,}",
+                ms=f"{result['seconds'] * 1000:.0f}"))
+
+    @Slot(str)
+    def _on_similar_failed(self, message: str) -> None:
+        """Say why the search could not run."""
+        self._status_label.setText(
+            tr("Could not search for similar crops: {msg}").format(
+                msg=message))
+
+    @Slot()
+    def _on_similar_finished(self) -> None:
+        """Retire the search thread on the GUI thread."""
+        worker = self._similar_worker
+        self._similar_worker = None
+        self._btn_similar.setEnabled(True)
+        if worker is None:
+            return
+        try:
+            worker.done.disconnect(self._on_similar_done)
+            worker.failed.disconnect(self._on_similar_failed)
+            worker.finished.disconnect(self._on_similar_finished)
+        except (RuntimeError, TypeError):
+            pass
+        _retire(worker)
 
     def _set_blind_checked(self, on: bool) -> None:
         """Move the Blind switch without asking it to act."""
@@ -6541,6 +6721,19 @@ class AnnotateScreen(QWidget):
                       exc_info=True)
         self._total_jobs.shutdown()
         self._report_jobs.shutdown()
+        similar = self._similar_worker
+        if similar is not None:
+            similar.requestInterruption()
+            stopped = drain_thread(similar, timeout_ms=CLOSE_DRAIN_MS)
+            self._similar_worker = None
+            try:
+                similar.done.disconnect(self._on_similar_done)
+                similar.failed.disconnect(self._on_similar_failed)
+                similar.finished.disconnect(self._on_similar_finished)
+            except (RuntimeError, TypeError):
+                pass
+            if stopped:
+                _retire(similar)
         retrain = self._retrain_worker
         if retrain is not None:
             retrain.requestInterruption()

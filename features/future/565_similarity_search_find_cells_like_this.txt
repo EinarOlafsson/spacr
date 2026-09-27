@@ -1,6 +1,6 @@
 GPU SIMILARITY SEARCH: "FIND CELLS LIKE THIS" OVER MILLIONS OF CROPS
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -20,3 +20,43 @@ WHAT TO BUILD
 DONE WHEN
     A query over 1M+ embeddings returns in under a second; retrieved cells
     share the query's labelled class at a high rate on a labelled set.
+
+ALPHA: 2026-09-27 -- Annotate's "Like this" button (ALPHA_FEATURES[565],
+    widget AnnotateFindSimilar), hidden until Preferences -> Show alpha
+    features is on.
+
+WHAT WAS BUILT (2026-09-27)
+    spacr/active_learning.py: _SimilarityIndex (exact cosine search over
+    median-centred, SD-scaled, row-normalised features; FAISS IndexFlatIP,
+    moved to every visible GPU when FAISS has GPU support, else a blocked
+    NumPy matrix product), _similarity_index (reads the measurement features
+    through round_features, dropping position/bookkeeping columns, or takes
+    any feature frame such as an embeddings.embed_array result),
+    _similarity_agreement (precision@k of labelled neighbours vs chance, per
+    class) and _similarity_columns.
+    Annotate: "Like this" searches from the selected crop off the GUI thread,
+    caches the index per source, and pins the grid to the query plus its 100
+    nearest crops (most similar first) through open_object_request, so hits
+    are labelled in place to seed rare classes for active learning.
+
+MEASURED (CPU only; the GPU was held by a training job, FAISS not installed)
+    Query time: 1.2M x 128 random float32 vectors, NumPy backend, one query
+    for 100 neighbours 0.07-0.13 s (index build 13 s, once per source).
+    tests/test_similarity_search.py pins a 1M x 32 query under 1 s.
+    Labelled set: datasets_/plate1 (2185 crops, 878 measurement features;
+    class = the crop folder's infection state, which spaCR derived from
+    object counts, so partly circular with the features). precision@10:
+    all 0.79 vs chance 0.39; uninfected 0.96 (chance 0.53), multiple
+    pathogens 0.72 (0.22), single pathogen 0.47 (0.25). Rarest classes:
+    multiple nuclei + multiple pathogens (2 %) 0.52, lift 25x.
+    That plate is an old-format database (prcfo carries a leading "p"), so
+    round_features joins nothing on it and the check passed the features in
+    directly.
+
+WHAT IS LEFT
+    - Measure on a human-annotated set and on crop embeddings (DINOv2 /
+      timm via spacr.embeddings) rather than measurements; embeddings are
+      not stored in measurements.db yet, so the button uses measurements.
+    - A GPU FAISS timing (pip install faiss-cpu or faiss-gpu; optional,
+      not in setup.py) and a multi-plate/screen-wide index across databases.
+    - Choice of k and of "unlabelled only" from the screen; k is fixed at 100.

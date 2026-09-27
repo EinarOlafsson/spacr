@@ -7100,6 +7100,9 @@ ALPHA_FEATURES = {
         'widgets': ('MakeMasksPromptCategory',),
         'models': ('microsam_v1',),
     },
+    565: {
+        'widgets': ('AnnotateFindSimilar',),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
