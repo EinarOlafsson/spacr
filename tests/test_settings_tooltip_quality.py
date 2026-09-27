@@ -904,7 +904,20 @@ def test_real_default_claims_have_no_unrecorded_drift():
         "colony_too_many", "colony_too_few", "colony_threshold",
         "colony_min_area_px")}
     assert item_542 <= compared_pairs
-    # 869 -> 879 on 2026-09-27, +10/-0 (item 549): the ten microscope
+    # 869 -> 877 on 2026-09-27, +8/-0 (item 578): the eight
+    # segmentation-robustness claims -- robustness_report (False),
+    # robustness_fields (4), robustness_crop (512),
+    # robustness_diameter_factors ([0.75, 1.25]), robustness_flow_thresholds
+    # ([0.2, 0.6]), robustness_cellprob_thresholds ([-2.0, 2.0]),
+    # robustness_enhancement (True) and robustness_tolerance (0.2) -- each
+    # resolved by Make Masks only.
+    item_578 = {("mask", key) for key in (
+        "robustness_report", "robustness_fields", "robustness_crop",
+        "robustness_diameter_factors", "robustness_flow_thresholds",
+        "robustness_cellprob_thresholds", "robustness_enhancement",
+        "robustness_tolerance")}
+    assert item_578 <= compared_pairs
+    # 877 -> 887 on 2026-09-27, +10/-0 (item 549): the ten microscope
     # feedback settings, each ending in a parseable default and resolved by
     # Mask only (Timelapse hides them and is not in APPS).
     item_549 = {("mask", key) for key in (
@@ -914,7 +927,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         "microscope_event_query", "microscope_max_events",
         "microscope_timepoints", "microscope_interval_seconds")}
     assert item_549 <= compared_pairs
-    assert comparisons == 879
+    assert comparisons == 887
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -937,13 +950,16 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 3: item 543's vendor flat-field profile in three apps, pinned above.
     # + 2: item 546's CellProfiler pipeline in two apps, pinned above.
     # + 7: item 542's colony-counting claims in Plaque Assay, pinned above.
+    # + 8: item 578's segmentation-robustness claims in Make Masks, pinned
+    # above.
     # + 10: item 549's microscope feedback claims in Mask, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)
             + len(item_580) + len(item_543) + len(item_546)
-            + len(item_583) + len(item_542) + len(item_549) == comparisons)
+            + len(item_583) + len(item_542) + len(item_578)
+            + len(item_549) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19

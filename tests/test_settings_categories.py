@@ -877,6 +877,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "colony_counting", "colony_dilution", "colony_plated_volume_ul",
     "colony_too_many", "colony_too_few", "colony_polarity",
     "colony_threshold", "colony_min_area_px",
+    # NEW SETTINGS, not a regrouping (item 578, 2026-09-27): Make Masks'
+    # segmentation-robustness report switch, its sample size and crop, the
+    # diameter factors, flow and cell-probability thresholds and enhancement
+    # it tries, and the tolerance beyond which a setting is fragile, under
+    # their own "Segmentation Robustness (Alpha)" heading.
+    "robustness_report", "robustness_fields", "robustness_crop",
+    "robustness_diameter_factors", "robustness_flow_thresholds",
+    "robustness_cellprob_thresholds", "robustness_enhancement",
+    "robustness_tolerance",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -1540,7 +1549,11 @@ def _rendered_sections(app_key):
             # is where they are declared.
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
-            "Quality Control", "Volumetric Processing (Beta)",
+            "Quality Control",
+            # Item 578, 2026-09-27: the robustness report re-segments after
+            # the masks and their QC exist.
+            "Segmentation Robustness (Alpha)",
+            "Volumetric Processing (Beta)",
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
         ]),

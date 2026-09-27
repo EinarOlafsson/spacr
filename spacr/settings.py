@@ -1069,6 +1069,14 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('cellpose3_percentile_high', 99.0)
 
     settings.setdefault('seg_qc', 'report')
+    settings.setdefault('robustness_report', False)
+    settings.setdefault('robustness_fields', 4)
+    settings.setdefault('robustness_crop', 512)
+    settings.setdefault('robustness_diameter_factors', [0.75, 1.25])
+    settings.setdefault('robustness_flow_thresholds', [0.2, 0.6])
+    settings.setdefault('robustness_cellprob_thresholds', [-2.0, 2.0])
+    settings.setdefault('robustness_enhancement', True)
+    settings.setdefault('robustness_tolerance', 0.2)
     settings.setdefault('seg_qc_min_objects', 10)
     settings.setdefault('seg_qc_count_ratio', 0.25)
     settings.setdefault('seg_qc_size_ratio', 1.4)
@@ -3909,6 +3917,14 @@ expected_types = {
     'image_qc_saturation_level':dict,
     'image_qc_max_nonfinite':float,
     "seg_qc_min_objects":int,
+    "robustness_report": bool,
+    "robustness_fields": int,
+    "robustness_crop": (int, type(None)),
+    "robustness_diameter_factors": (list, str),
+    "robustness_flow_thresholds": (list, str),
+    "robustness_cellprob_thresholds": (list, str),
+    "robustness_enhancement": bool,
+    "robustness_tolerance": (float, int),
     "seg_qc_count_ratio":float,
     "seg_qc_size_ratio":float,
     "seg_qc_border_fraction":float,
@@ -4499,6 +4515,14 @@ tooltips = {
     'image_qc_saturation_level': '(dict) - Acquisition saturation level by channel, for example {0: 4095, 2: 65535}. Set 4095 for a 12-bit detector stored in uint16. Missing integer levels use the dtype ceiling; floating images require an explicit level if saturation exclusion is enabled. Default {}.',
     'image_qc_max_nonfinite': '(float) - Maximum fraction of NaN or infinite pixels allowed per screened channel. Exceeding it flags the field; exclusion occurs only in exclude mode. Range 0-1; default 0.',
     "seg_qc": "(str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+    "robustness_report": "(bool) - After the masks are made, re-segment a few sampled fields with the diameter, the flow and cell-probability thresholds and contrast enhancement each moved a little, and report how much the object count, median area, mean object intensity and the objects themselves change. Settings whose results move more than robustness_tolerance are flagged fragile. Writes qc/segmentation_robustness_<object>.csv and a heatmap. Two-dimensional Cellpose-SAM runs only. Default False.",
+    "robustness_fields": "(int) - How many fields the robustness report samples at random (seeded by random_seed) and re-segments at every grid point. More fields give a steadier verdict; each field costs one segmentation per grid point. Default 4.",
+    "robustness_crop": "(int or None) - Side in pixels of the centre crop the robustness report cuts from each sampled field, to keep the grid fast, on a CPU especially. Blank or 0 re-segments whole fields. Default 512.",
+    "robustness_diameter_factors": "(list) - Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+    "robustness_flow_thresholds": "(list) - Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
+    "robustness_cellprob_thresholds": "(list) - Cell-probability thresholds the robustness report tries in place of the run's own, one at a time. Lower grows objects and finds faint ones; higher shrinks or drops them. Default [-2.0, 2.0].",
+    "robustness_enhancement": "(bool) - Also re-segment each sampled field after contrast-limited adaptive histogram equalisation (CLAHE), to see whether contrast enhancement changes what the model finds. Default True.",
+    "robustness_tolerance": "(float) - Largest median relative change in object count, median area or mean intensity, or share of the run's objects not found again, that still counts as stable. A grid point beyond it is flagged fragile. Default 0.2.",
     "seg_qc_min_objects": "(int) - Fields with fewer objects than this are classified as near-empty, and robust per-field size statistics are suppressed because the median absolute deviation is unstable for very small samples. Increase the value for confluent cell plates expected to contain hundreds of objects per field; reduce it to 3-5 for low-multiplicity pathogen assays in which few objects per field are expected. Default 10.",
     "seg_qc_count_ratio": "(float) - Permitted ratio between a field's object count and the plate median before the field is flagged. A value of 0.25 flags counts below one quarter of the median or above its reciprocal, four times the median. Calibrate this threshold with representative control plates when expected object density varies by assay. Default 0.25.",
     "seg_qc_size_ratio": "(float) - Fold change in a field's median object diameter, measured against the plate median, that marks it as fused or fragmented when its object count has moved in the opposite direction. Merging two equal objects into one increases equivalent diameter by a factor of approximately 1.41, while dividing one object into two produces the reciprocal change; the default therefore reflects the expected geometric ratio. Default 1.4.",
@@ -5417,6 +5441,12 @@ categories = {
     "Cellpose 3": ["cellpose3_add_nucleus_channel", "cellpose3_size_model", "cellpose3_resample", "cellpose3_augment", "cellpose3_percentile_low", "cellpose3_percentile_high"],
 
     "Segmentation QC": ["seg_qc", "seg_qc_min_objects", "seg_qc_count_ratio", "seg_qc_size_ratio", "seg_qc_border_fraction", "seg_qc_outlier_mad", "seg_qc_outlier_fraction", "seg_qc_foreground_fraction", "seg_qc_split_ratio", "seg_qc_min_diameter", "seg_qc_tiny_fraction", "seg_qc_max_object_fraction", "seg_qc_plate_fail_fraction"],
+
+    "Segmentation Robustness (Alpha)": ["robustness_report", "robustness_fields",
+                                        "robustness_crop", "robustness_diameter_factors",
+                                        "robustness_flow_thresholds",
+                                        "robustness_cellprob_thresholds",
+                                        "robustness_enhancement", "robustness_tolerance"],
 
     "Timelapse": timelapse_settings,
 
@@ -7298,6 +7328,13 @@ ALPHA_FEATURES = {
         'widgets': ('PowerArrayedPlanner',),
     },    563: {
         'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
+    },
+    578: {
+        'settings': ('robustness_report', 'robustness_fields',
+                     'robustness_crop', 'robustness_diameter_factors',
+                     'robustness_flow_thresholds',
+                     'robustness_cellprob_thresholds',
+                     'robustness_enhancement', 'robustness_tolerance'),
     },
     582: {
         'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',

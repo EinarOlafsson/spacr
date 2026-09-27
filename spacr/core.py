@@ -195,6 +195,11 @@ def preprocess_generate_masks(settings):
         - ``motility_analysis`` — when timelapse is enabled, analyze the
           completed merged frames once per plate, rebuilding measurements
           from the current masks rather than reusing an older assay table.
+        - ``robustness_report`` — after the masks exist, re-segment a few
+          sampled fields over a small grid of diameters, thresholds and
+          contrast enhancement and write a stability report per object to
+          ``qc/segmentation_robustness_<object>.csv``, flagging the settings
+          the results are fragile to.
         - ``dry_run`` — validate only: inspect the input folders, print the
           preflight report and plan and return, without writing anything or
           loading a model.
@@ -557,6 +562,13 @@ def preprocess_generate_masks(settings):
                                     n_jobs=1, time_ls=time_ls,
                                     batch_size=None,
                                     operation_type=f'{organelle_role}_mask_gen')
+
+                        if settings.get('robustness_report'):
+                            from .object import _run_robustness_report
+                            for robust_role in ('cell', 'nucleus', 'pathogen'):
+                                if settings.get(f'{robust_role}_channel') is not None:
+                                    cancellation_checkpoint()
+                                    _run_robustness_report(mask_src, settings, robust_role)
 
                         adjusted_cells = None
                         if settings['adjust_cells']:
