@@ -7398,7 +7398,7 @@ class PreferencesDialog:
         integrity_check = None
         if _is_alpha_visible("widgets", _FIG_INTEGRITY_WIDGET):
             integrity_check = Toggle(tr("Check figure integrity on export"))
-            integrity_check.setObjectName(_FIG_INTEGRITY_WIDGET)
+            integrity_check.setObjectName("FigureIntegrityCheck")
             integrity_check.setToolTip(tr(
                 "When an image figure or montage is saved, warn if panels "
                 "meant for comparison use different display ranges, if "
