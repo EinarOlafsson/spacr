@@ -37791,7 +37791,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_backend",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37800,7 +37800,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_backend",
-    "line": 1478,
+    "line": 1673,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37811,7 +37811,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_background_positive_rate",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37820,7 +37820,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_background_positive_rate",
-    "line": 1471,
+    "line": 1666,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37831,7 +37831,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_cells_per_well",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37840,7 +37840,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_cells_per_well",
-    "line": 1467,
+    "line": 1662,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37851,7 +37851,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_constructs_per_well",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37860,7 +37860,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_constructs_per_well",
-    "line": 1470,
+    "line": 1665,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37871,7 +37871,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_detection_auroc",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37880,7 +37880,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_detection_auroc",
-    "line": 1476,
+    "line": 1671,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37891,7 +37891,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_effect_fold",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37900,7 +37900,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_effect_fold",
-    "line": 1472,
+    "line": 1667,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37911,7 +37911,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_hit_rate",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37920,7 +37920,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_hit_rate",
-    "line": 1473,
+    "line": 1668,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37931,7 +37931,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_n_genes",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37940,7 +37940,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_n_genes",
-    "line": 1464,
+    "line": 1659,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37951,7 +37951,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_n_grnas_per_gene",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37960,7 +37960,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_n_grnas_per_gene",
-    "line": 1465,
+    "line": 1660,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37971,7 +37971,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_n_plates",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -37980,7 +37980,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_n_plates",
-    "line": 1469,
+    "line": 1664,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -37991,7 +37991,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_n_replicates",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -38000,7 +38000,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_n_replicates",
-    "line": 1475,
+    "line": 1670,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -38011,7 +38011,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_reads_per_well",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -38020,7 +38020,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_reads_per_well",
-    "line": 1474,
+    "line": 1669,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -38031,7 +38031,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_score_per",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -38040,7 +38040,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_score_per",
-    "line": 1466,
+    "line": 1661,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -38051,7 +38051,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_seed",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -38060,7 +38060,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_seed",
-    "line": 1477,
+    "line": 1672,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -38071,7 +38071,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_wells_per_plate",
-    "line": 1448,
+    "line": 1643,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -38080,7 +38080,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_wells_per_plate",
-    "line": 1468,
+    "line": 1663,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
