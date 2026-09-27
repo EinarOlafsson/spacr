@@ -1130,6 +1130,14 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('watch_settle_seconds', 10.0)
     settings.setdefault('watch_poll_seconds', 5.0)
     settings.setdefault('watch_idle_minutes', 0.0)
+    settings.setdefault('cloud_anonymous', False)
+    settings.setdefault('cloud_profile', '')
+    settings.setdefault('cloud_endpoint', '')
+    settings.setdefault('cloud_cache', '')
+    settings.setdefault('cloud_wells', '')
+    settings.setdefault('cloud_fields', 0)
+    settings.setdefault('cloud_level', 0)
+    settings.setdefault('cloud_results', '')
 
     settings.setdefault('z_stack', False)
     settings.setdefault('z_segmentation_mode', 'project')
@@ -1662,6 +1670,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('dry_run', False)
     settings.setdefault('test_nr', 10)
     settings.setdefault('channels', [0,1,2,3])
+    settings.setdefault('cloud_anonymous', False)
+    settings.setdefault('cloud_profile', '')
+    settings.setdefault('cloud_endpoint', '')
+    settings.setdefault('cloud_cache', '')
+    settings.setdefault('cloud_results', '')
 
     settings.setdefault('save_measurements',True)
     settings.setdefault('radial_dist', True)
@@ -1685,6 +1698,15 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('profiling_correlation_threshold', 0.9)
     settings.setdefault('profiling_phenotype_column', '')
     settings.setdefault('profiling_databases', [])
+    settings.setdefault('cell_cycle', False)
+    settings.setdefault('cell_cycle_method', 'measurements')
+    settings.setdefault('cell_cycle_channel', None)
+    settings.setdefault('cell_cycle_gates', None)
+    settings.setdefault('cell_cycle_mitotic_ratio', 1.8)
+    settings.setdefault('cell_cycle_fucci_channels', None)
+    settings.setdefault('cell_cycle_labels', '')
+    settings.setdefault('cell_cycle_model', '')
+    settings.setdefault('cell_cycle_epochs', 20)
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3310,6 +3332,14 @@ expected_types = {
     "watch_settle_seconds": float,
     "watch_poll_seconds": float,
     "watch_idle_minutes": float,
+    "cloud_anonymous": bool,
+    "cloud_profile": str,
+    "cloud_endpoint": str,
+    "cloud_cache": str,
+    "cloud_wells": str,
+    "cloud_fields": int,
+    "cloud_level": int,
+    "cloud_results": str,
     "save": bool,
     "plot": bool,
     "tensorboard": bool,
@@ -3462,6 +3492,15 @@ expected_types = {
     "profiling_correlation_threshold": (float, int),
     "profiling_phenotype_column": str,
     "profiling_databases": list,
+    "cell_cycle": bool,
+    "cell_cycle_method": str,
+    "cell_cycle_channel": (int, type(None)),
+    "cell_cycle_gates": (list, type(None)),
+    "cell_cycle_mitotic_ratio": (float, int, type(None)),
+    "cell_cycle_fucci_channels": (list, type(None)),
+    "cell_cycle_labels": str,
+    "cell_cycle_model": str,
+    "cell_cycle_epochs": int,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4473,6 +4512,14 @@ tooltips = {
     "watch_settle_seconds": "(float) - How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
     "watch_poll_seconds": "(float) - How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
     "watch_idle_minutes": "(float) - Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+    "cloud_anonymous": "(bool) - Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+    "cloud_profile": "(str) - Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+    "cloud_endpoint": "(str) - Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+    "cloud_cache": "(str) - Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+    "cloud_wells": "(str) - Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+    "cloud_fields": "(int) - Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+    "cloud_level": "(int) - Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+    "cloud_results": "(str) - Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
@@ -4659,6 +4706,15 @@ tooltips = {
     "profiling_correlation_threshold": "(float) - Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
     "profiling_phenotype_column": "(str) - Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
     "profiling_databases": "(list) - Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+    "cell_cycle": "(bool) - Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+    "cell_cycle_method": "(str) - How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+    "cell_cycle_channel": "(int or None) - The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+    "cell_cycle_gates": "(list or None) - Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+    "cell_cycle_mitotic_ratio": "(float or None) - A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+    "cell_cycle_fucci_channels": "(list or None) - Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+    "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+    "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+    "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5289,7 +5345,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -5312,6 +5368,13 @@ categories = {
         "profiling_negative_control", "profiling_normalization",
         "profiling_feature_selection", "profiling_correlation_threshold",
         "profiling_phenotype_column", "profiling_databases",
+    ],
+
+    "Cell Cycle (Alpha)": [
+        "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
+        "cell_cycle_gates", "cell_cycle_mitotic_ratio",
+        "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
+        "cell_cycle_epochs",
     ],
 
     "Motility (beta)": motility_settings,
@@ -6845,6 +6908,12 @@ ALPHA_FEATURES = {
         'settings': ('mask_parallel', 'mask_gpu_indices'),
         'widgets': ('DistributedAllocatedGpus', 'MaskGpuProgress'),
     },
+    535: {
+        'settings': ('cell_cycle', 'cell_cycle_method', 'cell_cycle_channel',
+                     'cell_cycle_gates', 'cell_cycle_mitotic_ratio',
+                     'cell_cycle_fucci_channels', 'cell_cycle_labels',
+                     'cell_cycle_model', 'cell_cycle_epochs'),
+    },
     541: {
         'settings': ('confluency', 'confluency_source', 'confluency_channel',
                      'confluency_window', 'confluency_qc_threshold'),
@@ -6869,6 +6938,12 @@ ALPHA_FEATURES = {
                      'watch_settle_seconds', 'watch_poll_seconds',
                      'watch_idle_minutes'),
         'widgets': ('WatchFolderProgress',),
+    },
+    550: {
+        'settings': ('cloud_anonymous', 'cloud_profile', 'cloud_endpoint',
+                     'cloud_cache', 'cloud_wells', 'cloud_fields',
+                     'cloud_level', 'cloud_results'),
+        'widgets': ('CloudSourceBrowse',),
     },
     551: {
         'models': ('stardist_v1', 'stardist_2D_versatile_fluo',

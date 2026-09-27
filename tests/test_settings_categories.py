@@ -779,12 +779,26 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "profiling_negative_control", "profiling_normalization",
     "profiling_feature_selection", "profiling_correlation_threshold",
     "profiling_phenotype_column", "profiling_databases",
+    # NEW SETTINGS, not a regrouping (item 535, 2026-09-26): Measure's
+    # cell-cycle phase call -- the switch, the method, the DNA channel, the
+    # gates, the mitotic cut, FUCCI, the training labels, a trained model
+    # and the torch epochs -- under their own "Cell Cycle (Alpha)" heading.
+    "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
+    "cell_cycle_gates", "cell_cycle_mitotic_ratio",
+    "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
+    "cell_cycle_epochs",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
     # stop beside it in Mask's Workflow & Test Run group.
     "watch_folder", "watch_pipeline", "watch_measure_settings",
     "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes",
+    # A NEW SETTING GROUP, not a regrouping: `src` of Make Masks and Measure
+    # may name cloud storage. Where credentials come from, the cache folder,
+    # the OME-Zarr wells, fields and level to fetch, and where results are
+    # copied back sit beside `src` in Input & Metadata / Input & Experiment.
+    "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache",
+    "cloud_wells", "cloud_fields", "cloud_level", "cloud_results",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -1463,6 +1477,9 @@ def _rendered_sections(app_key):
             # Item 541, 2026-09-26: confluency sits after the features it
             # is measured beside, as an Alpha heading of its own.
             "Confluency (Alpha)",
+            # Item 535, 2026-09-26: the cell-cycle phase call follows, read
+            # from the nuclei the features above measured.
+            "Cell Cycle (Alpha)",
             "Object Filtering", "Crop Output",
             # Item 547, 2026-09-26: profiling runs on the finished tables,
             # so its Alpha heading follows the outputs it reads.
