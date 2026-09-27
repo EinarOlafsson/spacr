@@ -1,6 +1,6 @@
 VIRTUAL STAINING: PREDICT A FLUORESCENT CHANNEL FROM BRIGHTFIELD/PHASE
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27 (CPU-validated; no GPU run).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -21,3 +21,61 @@ WHAT TO BUILD
 DONE WHEN
     On held-out paired fields, predicted channels segment to within a stated
     F1 of the real stain's segmentation (item 532 method).
+
+ALPHA: 2026-09-27. Registered in spacr.settings.ALPHA_FEATURES[558]:
+  widgets: CellposeWorkbenchVirtualStain (the Cellpose Workbench's
+  "Virtual staining..." button, under the Train/Apply tabs). Hidden unless
+  Preferences -> Show alpha features is on. tests/qt/
+  test_virtual_stain_alpha_gate.py pins the gate and that a folder given
+  while hidden still reaches the run.
+
+WHAT WAS BUILT (2026-09-27, all private helpers in spacr/deep_spacr.py)
+  _VirtualStainUNet   small 2-D U-Net (base filters, depth levels, BN+ReLU,
+                      transposed-conv up, linear 1x1 head).
+  _train_virtual_stain(fields, sources, target, scale, crop, per_field,
+                      epochs, ...)  block-average by `scale`, percentile-
+                      normalise every plane (1-99.8), fresh random crops with
+                      flips/quarter turns each epoch, L1 loss, AdamW.
+  _predict_virtual_stain  whole field in one pass, reflect-padded, resized
+                      back to full resolution.
+  _vs_segment         Otsu + distance watershed; the SAME segmenter is run
+                      on the real and the predicted stain (pluggable:
+                      _virtual_stain_scorecard(segment=...) takes any
+                      plane -> labels callable, e.g. Cellpose).
+  _virtual_stain_scorecard  per held-out field: Pearson r, SSIM, PSNR,
+                      NRMSE, and object F1/precision/recall at IoU 0.5 and
+                      0.75 via spacr.scorecard.match_objects (item 532's
+                      optimal one-to-one matcher), real stain = reference.
+                      A baseline row segments the input plane itself.
+  _save_virtual_stain / _load_virtual_stain  torch state dict + settings.
+  _virtual_stain_from_folder  folder of .npy/.tif fields, last quarter held
+                      out, writes <folder>/virtual_stain/virtual_stain_c<t>.pt,
+                      <field>_virtual_c<t>.npy and virtual_stain_scores.csv.
+  The button asks for a folder and "inputs > target" (default "1 > 0") and
+  runs _virtual_stain_from_folder with 20 epochs off the GUI thread.
+  Tests: tests/test_virtual_staining.py (synthetic inverted-blob pairs: the
+  model learns, beats the input, save/load round trip, folder run output).
+
+CPU RUN (2026-09-27; GPU held by another session, none queued)
+  Data: toxo_mito example plate1/merged (16 fields, 1994x1994, 40x).
+  Task: predict channel 0 (nucleus stain) from channel 1 (cell stain).
+  Split by WELL: train E01, E02, L01 (12 fields); test L02 (4 fields).
+  Model: base 16, depth 3, scale 4 (fields 498 px, nuclei ~21 px), crop
+  128, 32 crops/field/epoch, batch 16, lr 1e-3, 20 epochs, 8 CPU threads.
+  1,294 s wall (~40-60 s/epoch on a loaded machine); final L1 0.025.
+  Held-out mean over 4 fields (same Otsu/watershed on both, IoU matching):
+                          Pearson  SSIM   F1@0.5  F1@0.75
+    predicted stain        0.879   0.833  0.701   0.370
+    input channel alone    0.634   0.756  0.262   0.015
+  Per field F1@0.5 predicted / input: L02_10 0.684/0.261, L02_11
+  0.612/0.222, L02_1 0.735/0.391, L02_9 0.774/0.175.
+  Against spaCR's Cellpose-SAM nucleus masks (plane 5; a reference, not
+  curated truth), F1@0.5 with the same simple segmenter: real stain
+  0.601/0.643/0.808/0.786 (mean 0.710), predicted 0.642/0.717/0.691/0.796
+  (mean 0.712), input 0.391/0.379/0.423/0.331. So with this segmenter the
+  predicted stain is as good as the real stain for COUNTING against that
+  reference, but outlines are looser (F1@0.75 0.37 vs real).
+  Honest caveats: 4 test fields from one well of one plate; the input is a
+  fluorescence cell stain, not brightfield/phase (plate1 has no label-free
+  channel); the segmenter is a threshold watershed, weaker than Cellpose.
+  Script: /mnt/wd4tb/scratch/558/run.py (outside the repo).
