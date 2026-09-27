@@ -8475,6 +8475,8 @@ Read by ``illumination_settings``, ``prepare_illumination_model``.
 illumination_vendor_profile
 ---------------------------
 
+Path to the flat-field correction the microscope software saved, used instead of estimating one from the fields: a Harmony Index.idx.xml or FFC profile (Operetta, Opera Phenix), or a shading reference image (.tif, .czi, .npy) from ZEN, Nikon or Olympus. Harmony profiles are applied at Harmony's own scale, so the corrected pixels match Harmony's corrected export. Empty means estimate. Default empty.
+
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.io.preprocess_img_data`

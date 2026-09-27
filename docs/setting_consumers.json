@@ -7946,7 +7946,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 6752,
+    "line": 6829,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -7955,7 +7955,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 6754,
+    "line": 6831,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -7964,7 +7964,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 10976,
+    "line": 11306,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -7973,7 +7973,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 10976,
+    "line": 11306,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -7982,7 +7982,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11092,
+    "line": 11422,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -12147,7 +12147,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 13342,
+    "line": 13672,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -23231,7 +23231,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 5578,
+    "line": 5655,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_LiveMagnifier._primary_request_values"
