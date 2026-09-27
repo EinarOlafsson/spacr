@@ -17031,9 +17031,10 @@ Read by ``preprocess_generate_masks``, ``_concatenate_and_normalize_impl``.
 rank_by
 -------
 
+| ``_structure_activity`` **-- reads it**
 | :py:func:`~spacr.sp_stats.report` **-- reads it**
 
-Read by ``report``.
+Read by ``_structure_activity``, ``report``.
 
 .. _setting-flow-recursive:
 
@@ -21693,11 +21694,12 @@ value_col
 
 (str) - Measurement column compared with threshold to classify each object as positive. Objects strictly above the threshold are annotated 'above'; the remainder are annotated 'below', and the reported percentage per well is the fraction above. Select the column representing the phenotype, such as a recruitment ratio or mean intensity. Results from different value_col settings are not directly comparable. Default None; must be supplied.
 
+| ``_structure_activity`` **-- reads it**
 | :py:func:`~spacr.sp_stats.report` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_percent_positive` **-- reads it**
 |     :py:func:`~spacr.settings.default_settings_analyze_percent_positive` **-- reads it**
 
-Read by ``default_settings_analyze_percent_positive``, ``report``, ``analyze_percent_positive``.
+Read by ``default_settings_analyze_percent_positive``, ``_structure_activity``, ``report``, ``analyze_percent_positive``.
 
 .. _setting-flow-var_weights:
 

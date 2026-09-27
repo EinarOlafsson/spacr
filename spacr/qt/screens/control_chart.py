@@ -122,6 +122,22 @@ HIT_SECTION_OBJECT = "ControlChartHitsSection"
 HIT_EXPORT_OBJECT = "ControlChartExportHits"
 HIT_ALPHA_WIDGETS = (HIT_PANEL_OBJECT, HIT_SECTION_OBJECT, HIT_EXPORT_OBJECT)
 
+#: Object names of the compound option of hit scoring: the compound-table
+#: picker in the controls and the structures and SAR output section. Both
+#: are registered with the alpha gate.
+_CHEMISTRY_PANEL_OBJECT = "ControlChartChemistry"
+_CHEMISTRY_SECTION_OBJECT = "ControlChartChemistrySection"
+_CHEMISTRY_ALPHA_WIDGETS = (_CHEMISTRY_PANEL_OBJECT,
+                            _CHEMISTRY_SECTION_OBJECT)
+
+#: The structure-activity table's columns on screen: field and header.
+_SAR_COLUMNS = (
+    ("compound", "Compound"), ("cluster", "Cluster"), ("hit", "Hit"),
+    ("potency", "Potency"), ("phenotype", "Phenotype"),
+    ("cytotoxicity_index", "Cytotoxicity"), ("nearest_hit", "Nearest hit"),
+    ("similarity_to_hit", "Similarity"), ("smiles", "SMILES"),
+)
+
 #: How many ranked hits the on-screen table lists; the export has them all.
 _MAX_HIT_ROWS = 200
 
@@ -341,6 +357,10 @@ class ControlChartScreen(QWidget):
         self._hit_result = None
         self._hit_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._hit_jobs.job_failed.connect(self._on_hit_failed)
+        self._compounds: Optional[pd.DataFrame] = None
+        self._chemistry = None
+        self._chem_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._chem_jobs.job_failed.connect(self._on_chemistry_failed)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -457,6 +477,10 @@ class ControlChartScreen(QWidget):
         self._hit_section = outputs.add_section(
             hits, "Hits", persist_key="control_chart/Hits")
         self._hit_section.setObjectName("ControlChartHitsSection")
+        self._chem_section = outputs.add_section(
+            self._build_chemistry_output(lower), "Structures and SAR",
+            persist_key="control_chart/Structures and SAR")
+        self._chem_section.setObjectName(_CHEMISTRY_SECTION_OBJECT)
         lower_layout.addWidget(outputs, 1)
         right.add_pane(lower, "Output", stretch=2)
 
@@ -677,7 +701,80 @@ class ControlChartScreen(QWidget):
             "export. Leave empty for a screen without replicates."))
         self._hit_treatment.currentTextChanged.connect(self._on_hit_changed)
         form.addRow(tr("Treatment"), self._hit_treatment)
+        form.addRow(self._build_chemistry_panel(box))
         return box
+
+    def _build_chemistry_panel(self, parent: QWidget) -> QWidget:
+        """The compound option: a compound table with SMILES for the wells.
+
+        :param parent: the hit-scoring container.
+        :returns: the container, hidden by one name by the alpha gate.
+        """
+        box = QWidget(parent)
+        box.setObjectName(_CHEMISTRY_PANEL_OBJECT)
+        form = QFormLayout(box)
+        form.setContentsMargins(0, SPACING["xs"], 0, 0)
+        form.setSpacing(SPACING["xs"])
+        pick = QPushButton(tr("Compounds…"), box)
+        pick.setObjectName("ControlChartCompoundsButton")
+        pick.setToolTip(tr(
+            "A CSV or Excel table with a SMILES column and a compound name, "
+            "and a well column (with a plate column when plates differ) or "
+            "names matching the Treatment column. Hits are then drawn with "
+            "their structures, clustered by similarity and exported as SAR "
+            "tables. Clustering needs RDKit (pip install rdkit)."))
+        pick.clicked.connect(self._choose_compounds)
+        self._compound_label = QLabel(tr("no compound table"), box)
+        self._compound_label.setObjectName("ControlChartCompoundsLabel")
+        self._compound_label.setWordWrap(True)
+        form.addRow(pick, self._compound_label)
+        self._chem_similarity = QDoubleSpinBox(box)
+        self._chem_similarity.setObjectName("ControlChartClusterSimilarity")
+        self._chem_similarity.setRange(0.3, 1.0)
+        self._chem_similarity.setSingleStep(0.05)
+        self._chem_similarity.setValue(0.6)
+        self._chem_similarity.setToolTip(tr(
+            "The Tanimoto similarity of Morgan fingerprints (radius 2) a hit "
+            "needs to a cluster's centre to join it; other compounds join "
+            "the cluster of their most similar hit at the same similarity. "
+            "Default 0.6."))
+        self._chem_similarity.valueChanged.connect(self._recompute_chemistry)
+        form.addRow(tr("Cluster similarity"), self._chem_similarity)
+        return box
+
+    def _build_chemistry_output(self, parent: QWidget) -> QWidget:
+        """The structures of the hit compounds and the SAR table.
+
+        :param parent: the output column.
+        :returns: the section body.
+        """
+        from matplotlib.figure import Figure
+
+        body = QWidget(parent)
+        layout = QVBoxLayout(body)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["xs"])
+        self.chem_summary = QLabel(tr(
+            "Load a compound table to draw the hits' structures."), body)
+        self.chem_summary.setObjectName("ControlChartChemistrySummary")
+        self.chem_summary.setWordWrap(True)
+        layout.addWidget(self.chem_summary)
+        self.chem_figure = Figure(figsize=(8.0, 3.0))
+        self.chem_canvas = _canvas_class()(self.chem_figure)
+        self.chem_canvas.setObjectName("ControlChartStructures")
+        self.chem_canvas.setMinimumHeight(200)
+        layout.addWidget(self.chem_canvas, 2)
+        self.sar_table = QTableWidget(0, len(_SAR_COLUMNS), body)
+        install_sorting(self.sar_table)
+        self.sar_table.setObjectName("ControlChartSarTable")
+        self.sar_table.setHorizontalHeaderLabels(
+            [tr(label) for _key, label in _SAR_COLUMNS])
+        self.sar_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.sar_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.sar_table.verticalHeader().setVisible(False)
+        self.sar_table.setMinimumHeight(90)
+        layout.addWidget(self.sar_table, 1)
+        return body
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Chart ``frame``. The one call a host needs.
@@ -932,6 +1029,7 @@ class ControlChartScreen(QWidget):
                 self.hit_table.setItem(row, column, table_item(text))
         self.hit_table.setSortingEnabled(True)
         self.hit_table.resizeColumnsToContents()
+        self._recompute_chemistry()
 
     def _show_hit_refusal(self, message: str) -> None:
         """Say why the hits could not be scored, in the hits section.
@@ -941,6 +1039,7 @@ class ControlChartScreen(QWidget):
         self._hit_result = None
         self.hit_table.setRowCount(0)
         self.hit_summary.setText(message)
+        self._recompute_chemistry()
 
     def _on_hit_failed(self, message: str) -> None:
         """Log and show a refused hit scoring.
@@ -978,9 +1077,138 @@ class ControlChartScreen(QWidget):
         from ...sp_stats import write_hit_report
 
         written = write_hit_report(self._hit_result, folder)
+        if self._chemistry is not None:
+            from ...sp_stats import _write_sar_report
+
+            written.update(_write_sar_report(self._chemistry, folder))
         self._source.setText(tr("hit report written to {folder}",
                                 folder=os.path.basename(folder) or folder))
         return written
+
+    def _choose_compounds(self) -> None:
+        """Ask for a compound table and load it."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, tr("Compound table with SMILES"), "",
+            tr("Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)"))
+        if path:
+            self._load_compounds(path)
+
+    def _load_compounds(self, source) -> bool:
+        """Attach a compound table to the wells and redraw the hits.
+
+        :param source: a path or a DataFrame, read by
+            :func:`spacr.sp_stats._read_compound_map`.
+        :returns: whether the table was usable.
+        """
+        from ...sp_stats import HitScoringError, _read_compound_map
+
+        try:
+            self._compounds = _read_compound_map(source)
+        except (HitScoringError, OSError, ValueError) as exc:
+            self._compounds = None
+            self._compound_label.setText(str(exc))
+            self._recompute_chemistry()
+            return False
+        name = (os.path.basename(source) if isinstance(source, str)
+                else tr("table"))
+        self._compound_label.setText(tr(
+            "{name}: {count} compound(s)", name=name,
+            count=self._compounds["compound"].nunique()))
+        self._recompute_chemistry()
+        return True
+
+    def _recompute_chemistry(self, *_args) -> None:
+        """Link the shown hits to their compounds, off the GUI thread.
+
+        Needs a hit scoring and a compound table; the host toxicity of a
+        measurement database with a viability step is read alongside.
+
+        :param _args: whatever the emitting signal passes; ignored.
+        """
+        result, compounds = self._hit_result, self._compounds
+        if result is None or compounds is None:
+            self._show_chemistry(None, tr(
+                "Load a compound table to draw the hits' structures."))
+            return
+        from ...sp_stats import _host_toxicity, _structure_activity
+
+        path = self._path
+        if path and str(path).lower().endswith((".csv", ".tsv", ".txt")):
+            path = None
+        similarity = float(self._chem_similarity.value())
+
+        def work(r=result, c=compounds, p=path, s=similarity):
+            """Join, cluster and summarise on the worker."""
+            host, selectivity = _host_toxicity(p)
+            return _structure_activity(r, c, host=host,
+                                       selectivity=selectivity,
+                                       similarity=s)
+
+        self._chem_jobs.cancel()
+        self._chem_jobs.submit(work, self._on_chemistry_result)
+
+    def _on_chemistry_result(self, chemistry) -> None:
+        """Show a worker-computed chemistry result. GUI thread only.
+
+        :param chemistry: the ``_ChemistryResult``.
+        """
+        self._show_chemistry(chemistry, chemistry.report())
+
+    def _on_chemistry_failed(self, message: str) -> None:
+        """Log and show a refused chemistry link.
+
+        :param message: the refusal text from the job runner.
+        """
+        LOG.info("compound link refused: %s", message)
+        self._show_chemistry(None, message)
+
+    def _show_chemistry(self, chemistry, message: str) -> None:
+        """Draw the structures and fill the SAR table, or say why not.
+
+        :param chemistry: the result, or ``None``.
+        :param message: the summary line.
+        """
+        from ...sp_stats import _draw_hit_structures
+
+        self._chemistry = chemistry
+        self.chem_summary.setText(message)
+        self.chem_figure.patch.set_alpha(0.0)
+        if chemistry is None:
+            self.chem_figure.clear()
+            self.sar_table.setRowCount(0)
+        else:
+            _draw_hit_structures(self.chem_figure, chemistry)
+            self._fill_sar(chemistry.sar)
+        self.chem_canvas.draw_idle()
+
+    def _fill_sar(self, sar: pd.DataFrame) -> None:
+        """Fill the on-screen SAR table, strongest compounds first.
+
+        :param sar: the structure-activity table.
+        """
+        shown = sar.head(_MAX_HIT_ROWS)
+        self.sar_table.setSortingEnabled(False)
+        self.sar_table.setRowCount(len(shown))
+        for row, (_index, record) in enumerate(shown.iterrows()):
+            for column, (key, _label) in enumerate(_SAR_COLUMNS):
+                value = record.get(key, None)
+                if value is None or (not isinstance(value, str)
+                                     and pd.isna(value)):
+                    text = ""
+                elif isinstance(value, (bool, np.bool_)):
+                    text = tr("yes") if value else ""
+                elif isinstance(value, (float, np.floating)):
+                    text = f"{value:.3g}"
+                else:
+                    text = str(value)
+                self.sar_table.setItem(row, column, table_item(text))
+        self.sar_table.setSortingEnabled(True)
+        self.sar_table.resizeColumnsToContents()
+
+    @property
+    def _chemistry_result(self):
+        """The compound link currently shown, or ``None``."""
+        return self._chemistry
 
     def _on_result(self, result: ControlChartResult) -> None:
         """Show a worker-computed chart. GUI thread only."""
@@ -1134,6 +1362,7 @@ class ControlChartScreen(QWidget):
         """
         self._jobs.shutdown()
         self._hit_jobs.shutdown()
+        self._chem_jobs.shutdown()
         self.canvas.close()
         super().closeEvent(event)
 

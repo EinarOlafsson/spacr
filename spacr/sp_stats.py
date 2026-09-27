@@ -1376,6 +1376,580 @@ def write_hit_report(result: ArrayedHitResult, out_dir, *,
     return written
 
 
+_RDKIT_INSTALL = (
+    "Drawing structures and clustering compounds needs RDKit, and {module} "
+    "could not be imported. Install it into the spaCR environment with "
+    "'pip install rdkit' (or 'conda install -c conda-forge rdkit') and "
+    "reopen spaCR.")
+_SMILES_COLUMNS = ("smiles", "canonical_smiles", "isomeric_smiles")
+_COMPOUND_COLUMNS = ("compound", "compound_id", "compound_name", "name",
+                     "treatment", "id")
+_CHEMISTRY_SIMILARITY = 0.6
+_MORGAN_RADIUS = 2
+_MORGAN_BITS = 2048
+_STRUCTURE_LIMIT = 24
+
+
+def _rdkit():
+    """RDKit's ``Chem``, ``DataStructs`` and ``Draw``, imported on first use.
+
+    :returns: ``(Chem, DataStructs, Draw)``.
+    :raises ImportError: with the install instructions when RDKit is absent.
+    """
+    from .tabular import _require_optional
+
+    chem = _require_optional("rdkit.Chem", _RDKIT_INSTALL)
+    data_structs = _require_optional("rdkit.DataStructs", _RDKIT_INSTALL)
+    draw = _require_optional("rdkit.Chem.Draw", _RDKIT_INSTALL)
+    from rdkit import RDLogger
+
+    RDLogger.DisableLog("rdApp.*")
+    return chem, data_structs, draw
+
+
+def _rdkit_available() -> bool:
+    """Whether RDKit can be imported, without importing it twice."""
+    try:
+        _rdkit()
+    except ImportError:
+        return False
+    return True
+
+
+def _column_named(frame: pd.DataFrame, names: Sequence[str]) -> Optional[str]:
+    """The first column of ``frame`` whose name matches ``names``, any case."""
+    lower = {str(column).lower(): column for column in frame.columns}
+    for name in names:
+        if name in lower:
+            return lower[name]
+    return None
+
+
+def _read_compound_map(source) -> pd.DataFrame:
+    """A compound table: which compound, with which SMILES, is in which well.
+
+    Read through :func:`spacr.tabular.read_table` (CSV, TSV, Excel, Parquet)
+    or taken as a frame. A SMILES column is required (``smiles``,
+    ``canonical_smiles`` or ``isomeric_smiles``, any case). The compound is
+    named by ``compound``, ``compound_id``, ``compound_name``, ``name``,
+    ``treatment`` or ``id``, and is the SMILES itself when none is present.
+    Wells are placed by a well column (``A01``), a ``prc`` or a row and
+    column pair, with an optional plate column; a table without well
+    positions is joined to the screen by compound name instead.
+
+    :param source: a path or a DataFrame; a frame this function returned
+        is passed through unchanged.
+    :returns: ``compound``, ``smiles`` and, when the table places wells,
+        ``row_index`` and ``column_index``, plus ``plateID`` when it names
+        plates.
+    :raises HitScoringError: without a SMILES column or any SMILES.
+    """
+    from . import plate_qc
+    from .tabular import read_table
+
+    frame = (source.copy() if isinstance(source, pd.DataFrame)
+             else read_table(source, report=None))
+    if frame.attrs.get("compound_map"):
+        return frame
+    smiles_col = _column_named(frame, _SMILES_COLUMNS)
+    if smiles_col is None:
+        raise HitScoringError(
+            "the compound table has no SMILES column; name one 'smiles'")
+    name_col = _column_named(frame, _COMPOUND_COLUMNS)
+    out = pd.DataFrame({"smiles": frame[smiles_col].astype(str).str.strip()})
+    out["compound"] = (frame[name_col].astype(str).str.strip() if name_col
+                       else out["smiles"])
+    keep = out["smiles"].ne("") & frame[smiles_col].notna()
+    if "wellID" in frame.columns and "well" not in frame.columns:
+        frame = frame.rename(columns={"wellID": "well"})
+    try:
+        located, _notes = plate_qc._identify_wells(frame)
+    except ValueError:
+        located = None
+    if located is not None:
+        rows = located["rowID"].map(plate_qc.parse_row_label)
+        cols = located["columnID"].map(plate_qc.parse_column_label)
+        if (rows.notna() & cols.notna()).any():
+            out["row_index"] = rows
+            out["column_index"] = cols
+            keep &= rows.notna() & cols.notna()
+            if plate_qc._first_column(frame, ("plateID", "plate_name",
+                                              "plate")) or (
+                    "prc" in frame.columns):
+                out["plateID"] = located["plateID"].astype(str)
+    out = out[keep].reset_index(drop=True)
+    if not len(out):
+        raise HitScoringError("the compound table lists no SMILES")
+    for column in ("row_index", "column_index"):
+        if column in out.columns:
+            out[column] = out[column].astype(int)
+    out.attrs["compound_map"] = True
+    return out
+
+
+def _attach_compounds(wells: pd.DataFrame, compounds: pd.DataFrame
+                      ) -> pd.DataFrame:
+    """The scored wells with each well's ``compound`` and ``smiles``.
+
+    Joined by plate position when the compound table places wells (on every
+    plate alike when it names none), otherwise by compound name against the
+    screen's ``treatment`` column.
+
+    :param wells: the ``wells`` of an :class:`ArrayedHitResult`.
+    :param compounds: from :func:`_read_compound_map`.
+    :returns: ``wells`` with ``compound`` and ``smiles``; wells without a
+        compound keep them empty.
+    :raises HitScoringError: when the two tables share no key.
+    """
+    base = wells.drop(columns=[c for c in ("compound", "smiles")
+                               if c in wells.columns])
+    if "row_index" in compounds.columns:
+        keys = ["row_index", "column_index"]
+        if "plateID" in compounds.columns:
+            keys = ["plateID"] + keys
+        table = compounds.drop_duplicates(keys)[keys + ["compound", "smiles"]]
+        right = table.assign(**({"plateID": table["plateID"].astype(str)}
+                                if "plateID" in keys else {}))
+        left = base.assign(**({"plateID": base["plateID"].astype(str)}
+                              if "plateID" in keys else {}))
+        joined = left.merge(right, on=keys, how="left")
+        joined["plateID"] = base["plateID"].to_numpy()
+    elif "treatment" in base.columns:
+        table = compounds.drop_duplicates("compound")[["compound", "smiles"]]
+        joined = base.assign(compound=base["treatment"].astype(str)).merge(
+            table, on="compound", how="left")
+        joined.loc[joined["smiles"].isna(), "compound"] = None
+    else:
+        raise HitScoringError(
+            "the compound table places no wells, so it is joined by compound "
+            "name: pick the Treatment column that names each well's compound")
+    joined.index = wells.index
+    joined.attrs = dict(wells.attrs)
+    return joined
+
+
+def _fingerprints(smiles: Sequence[str]):
+    """Morgan fingerprints (radius 2, 2048 bits) and canonical SMILES.
+
+    :param smiles: SMILES strings.
+    :returns: ``(fingerprints, canonical)``, each ``None`` where the SMILES
+        does not parse.
+    :raises ImportError: with the install instructions without RDKit.
+    """
+    chem, _data_structs, _draw = _rdkit()
+    from rdkit.Chem import rdFingerprintGenerator
+
+    generator = rdFingerprintGenerator.GetMorganGenerator(
+        radius=_MORGAN_RADIUS, fpSize=_MORGAN_BITS)
+    prints, canonical = [], []
+    for text in smiles:
+        mol = chem.MolFromSmiles(str(text)) if text else None
+        prints.append(None if mol is None else generator.GetFingerprint(mol))
+        canonical.append(None if mol is None else chem.MolToSmiles(mol))
+    return prints, canonical
+
+
+def _butina(prints: Sequence, similarity: float) -> List[Tuple[int, ...]]:
+    """Butina clustering on Tanimoto similarity.
+
+    Every compound whose similarity to a centroid reaches ``similarity``
+    joins it; centroids are taken in order of how many neighbours they have,
+    ties by position, so the result does not depend on the platform.
+
+    :param prints: fingerprints, all valid.
+    :param similarity: the Tanimoto similarity a member needs to its
+        centroid, between 0 and 1.
+    :returns: clusters as index tuples, centroid first, largest first.
+    """
+    _chem, data_structs, _draw = _rdkit()
+    n = len(prints)
+    neighbours = []
+    for i in range(n):
+        sims = np.asarray(data_structs.BulkTanimotoSimilarity(prints[i],
+                                                              list(prints)))
+        neighbours.append(set(np.flatnonzero(sims >= similarity).tolist()))
+    left = set(range(n))
+    clusters = []
+    for centroid in sorted(range(n), key=lambda i: (-len(neighbours[i]), i)):
+        if centroid not in left:
+            continue
+        members = sorted(neighbours[centroid] & left - {centroid})
+        clusters.append((centroid, *members))
+        left -= {centroid, *members}
+    return clusters
+
+
+@dataclass
+class _ChemistryResult:
+    """A scored compound screen with structures, clusters and SAR tables.
+
+    :param sar: one row per compound: SMILES, cluster, potency, phenotype
+        and host toxicity.
+    :param clusters: one row per cluster of hit compounds.
+    :param wells: the scored wells with ``compound`` and ``smiles``.
+    :param options: the options the hits were scored with.
+    :param similarity: the Tanimoto similarity that joined a cluster.
+    :param notes: sentences about what could not be done and why.
+    :param clustered: whether RDKit clustered the compounds.
+    """
+
+    sar: pd.DataFrame
+    clusters: pd.DataFrame
+    wells: pd.DataFrame
+    options: Dict[str, Any]
+    similarity: float = _CHEMISTRY_SIMILARITY
+    notes: List[str] = _field(default_factory=list)
+    clustered: bool = False
+
+    def report(self) -> str:
+        """The result in sentences, for a text panel or a log."""
+        hits = int(self.sar["hit"].sum()) if len(self.sar) else 0
+        lines = [f"{len(self.sar)} compound(s), {hits} hit compound(s)."]
+        if self.clustered:
+            lines.append(
+                f"{len(self.clusters)} cluster(s) of hits at Tanimoto "
+                f"{self.similarity:g} (Morgan radius "
+                f"{_MORGAN_RADIUS}, {_MORGAN_BITS} bits).")
+        lines.extend(self.notes)
+        return "\n".join(lines)
+
+
+def _host_toxicity(source) -> Tuple[Optional[pd.DataFrame],
+                                    Optional[pd.DataFrame]]:
+    """The per-well host viability and per-compound selectivity of a run.
+
+    Read from the ``viability_well`` and ``viability_selectivity`` tables
+    that Measure's viability step writes into ``measurements.db``.
+
+    :param source: the database path, or ``None``.
+    :returns: ``(wells, selectivity)``, each ``None`` when absent.
+    """
+    import os
+
+    from .tabular import database_tables, read_table
+
+    if not source or not os.path.isfile(str(source)):
+        return None, None
+    try:
+        tables = database_tables(source)
+    except Exception:
+        return None, None
+    wells = selectivity = None
+    if "viability_well" in tables:
+        wells = read_table(source, table="viability_well", report=None)
+    if "viability_selectivity" in tables:
+        selectivity = read_table(source, table="viability_selectivity",
+                                 report=None)
+    return wells, selectivity
+
+
+def _host_by_well(scored: pd.DataFrame, host: Optional[pd.DataFrame]
+                  ) -> pd.DataFrame:
+    """``viability`` and ``cytotoxicity_index`` for each scored well.
+
+    :param scored: wells with ``plateID``, ``row_index`` and ``column_index``.
+    :param host: per-well host toxicity keyed by plate, row and column, or
+        ``None``.
+    :returns: ``scored`` with the host columns joined, NaN where unmeasured.
+    """
+    from . import plate_qc
+
+    columns = [c for c in ("viability", "cytotoxicity_index")
+               if host is not None and c in host.columns]
+    if not columns:
+        return scored
+    try:
+        located, _notes = plate_qc._identify_wells(host)
+    except ValueError:
+        return scored
+    table = pd.DataFrame({
+        "plateID": located["plateID"].astype(str),
+        "row_index": located["rowID"].map(plate_qc.parse_row_label),
+        "column_index": located["columnID"].map(plate_qc.parse_column_label),
+        **{c: pd.to_numeric(located[c], errors="coerce") for c in columns}})
+    table = table.dropna(subset=["row_index", "column_index"])
+    table = table.groupby(["plateID", "row_index", "column_index"],
+                          as_index=False)[columns].mean()
+    left = scored.drop(columns=[c for c in columns if c in scored.columns])
+    left = left.assign(plateID=left["plateID"].astype(str))
+    joined = left.merge(table, on=["plateID", "row_index", "column_index"],
+                        how="left")
+    joined.index = scored.index
+    joined["plateID"] = scored["plateID"].to_numpy()
+    return joined
+
+
+def _structure_activity(result: ArrayedHitResult, compounds, *,
+                        host: Optional[pd.DataFrame] = None,
+                        selectivity: Optional[pd.DataFrame] = None,
+                        similarity: float = _CHEMISTRY_SIMILARITY,
+                        cluster: Optional[bool] = None) -> _ChemistryResult:
+    """Link the hits of a compound screen to their structures.
+
+    Each sample well gets its compound and SMILES; wells of one compound are
+    pooled into a structure-activity row with its potency (the median of the
+    ranking statistic, and the best rank), its phenotype (the median of the
+    scored measurement), its host toxicity (median viability and
+    cytotoxicity index from Measure's viability step, and the selectivity
+    index when a dose-response was fitted) and whether any of its wells was
+    called. With RDKit the hit compounds are clustered by Butina on Tanimoto
+    similarity of Morgan fingerprints; every other compound joins the
+    cluster of its most similar hit when it reaches the same similarity, so
+    a cluster lists its inactive analogues next to its hits.
+
+    :param result: the scored screen.
+    :param compounds: a compound table or its path, see
+        :func:`_read_compound_map`.
+    :param host: per-well host toxicity (``viability_well``), or ``None``.
+    :param selectivity: per-compound selectivity
+        (``viability_selectivity``), or ``None``.
+    :param similarity: the Tanimoto similarity that joins a cluster.
+    :param cluster: cluster with RDKit; ``None`` clusters when RDKit is
+        installed and notes the install command when it is not.
+    :returns: a :class:`_ChemistryResult`.
+    :raises HitScoringError: for a compound table the screen cannot use.
+    :raises ImportError: with ``cluster=True`` and no RDKit.
+    """
+    if not 0.0 < float(similarity) <= 1.0:
+        raise HitScoringError("the cluster similarity must be in (0, 1]")
+    table = _read_compound_map(compounds)
+    wells = _attach_compounds(result.wells, table)
+    wells = _host_by_well(wells, host)
+    notes: List[str] = []
+    samples = wells[(wells["role"] == ROLE_SAMPLE) & wells["compound"].notna()]
+    missing = int(((wells["role"] == ROLE_SAMPLE)
+                   & wells["compound"].isna()).sum())
+    if missing:
+        notes.append(f"{missing} sample well(s) have no compound in the "
+                     f"compound table.")
+    if not len(samples):
+        raise HitScoringError(
+            "no sample well matched the compound table; check its well or "
+            "compound names")
+    method = result.options["rank_by"]
+    aggregate = {"smiles": ("smiles", "first"),
+                 "n_wells": ("prc", "size"),
+                 "n_hit_wells": ("hit", "sum"),
+                 "potency": (method, "median"),
+                 "best_rank": ("rank", "min"),
+                 "phenotype": ("value", "median")}
+    for column in ("viability", "cytotoxicity_index"):
+        if column in samples.columns:
+            aggregate[column] = (column, "median")
+    sar = samples.assign(hit=samples["hit"].astype(bool)).groupby(
+        "compound", sort=False).agg(**aggregate).reset_index()
+    sar["n_hit_wells"] = sar["n_hit_wells"].astype(int)
+    sar["hit"] = sar["n_hit_wells"] > 0
+    sar.insert(sar.columns.get_loc("potency"), "statistic", method)
+    sar.insert(sar.columns.get_loc("phenotype"), "measurement",
+               result.options.get("value_col", ""))
+    if selectivity is not None and "compound" in selectivity.columns:
+        extra = selectivity.drop_duplicates("compound").copy()
+        extra["compound"] = extra["compound"].astype(str)
+        extra = extra.rename(columns={c: f"selectivity_{c}" for c in
+                                      extra.columns if c != "compound"})
+        sar = sar.merge(extra, on="compound", how="left")
+    sar = sar.sort_values(["best_rank", "compound"], na_position="last",
+                          ignore_index=True)
+    sar["cluster"] = pd.array([pd.NA] * len(sar), dtype="Int64")
+    sar["nearest_hit"] = None
+    sar["similarity_to_hit"] = np.nan
+    sar["smiles_valid"] = pd.array([pd.NA] * len(sar), dtype="boolean")
+    clusters = pd.DataFrame(columns=["cluster", "centroid", "centroid_smiles",
+                                     "n_hits", "n_analogues", "best_potency",
+                                     "best_rank", "median_cytotoxicity_index",
+                                     "members"])
+    clustered = False
+    if cluster is None:
+        cluster = _rdkit_available()
+        if not cluster:
+            notes.append(_RDKIT_INSTALL.format(module="rdkit"))
+    if cluster:
+        sar, clusters = _cluster_sar(sar, float(similarity), notes)
+        clustered = True
+    sar.attrs = {"statistic": method,
+                 "measurement": result.options.get("value_col", "")}
+    return _ChemistryResult(sar=sar, clusters=clusters, wells=wells,
+                            options=dict(result.options),
+                            similarity=float(similarity), notes=notes,
+                            clustered=clustered)
+
+
+def _cluster_sar(sar: pd.DataFrame, similarity: float, notes: List[str]):
+    """Fill the cluster columns of a SAR table and summarise the clusters.
+
+    :param sar: the SAR table, strongest first.
+    :param similarity: the Tanimoto similarity that joins a cluster.
+    :param notes: appended to with unparsed SMILES.
+    :returns: ``(sar, clusters)``; clusters are numbered from 1 in order of
+        their strongest hit.
+    """
+    _chem, data_structs, _draw = _rdkit()
+    sar = sar.copy()
+    prints, canonical = _fingerprints(sar["smiles"].tolist())
+    valid = np.asarray([p is not None for p in prints])
+    sar["smiles_valid"] = pd.array(valid, dtype="boolean")
+    sar["canonical_smiles"] = canonical
+    if (~valid).any():
+        bad = sar.loc[~valid, "compound"].astype(str).tolist()
+        notes.append(f"{len(bad)} SMILES could not be read and are not "
+                     f"clustered: {', '.join(bad[:5])}"
+                     + (" ..." if len(bad) > 5 else ""))
+    hit_rows = np.flatnonzero(valid & sar["hit"].to_numpy(dtype=bool))
+    groups = _butina([prints[i] for i in hit_rows], similarity)
+    groups = sorted(groups, key=lambda g: min(hit_rows[i] for i in g))
+    label = np.zeros(len(sar), dtype=int)
+    centroid_of = {}
+    for number, group in enumerate(groups, start=1):
+        for i in group:
+            label[hit_rows[i]] = number
+        centroid_of[number] = hit_rows[group[0]]
+    hit_prints = [prints[i] for i in hit_rows]
+    nearest = [None] * len(sar)
+    best = np.full(len(sar), np.nan)
+    for row in np.flatnonzero(valid):
+        if not hit_prints:
+            break
+        sims = np.asarray(data_structs.BulkTanimotoSimilarity(prints[row],
+                                                              hit_prints))
+        if label[row]:
+            sims[list(hit_rows).index(row)] = -1.0
+        top = int(np.argmax(sims))
+        if sims[top] < 0:
+            continue
+        nearest[row] = str(sar.at[hit_rows[top], "compound"])
+        best[row] = float(sims[top])
+        if not label[row] and sims[top] >= similarity:
+            label[row] = label[hit_rows[top]]
+    sar["cluster"] = pd.array([v if v else pd.NA for v in label],
+                              dtype="Int64")
+    sar["nearest_hit"] = nearest
+    sar["similarity_to_hit"] = best
+    rows = []
+    for number in range(1, len(groups) + 1):
+        members = sar[sar["cluster"] == number]
+        hits = members[members["hit"]]
+        centre = sar.loc[centroid_of[number]]
+        rows.append({
+            "cluster": number, "centroid": centre["compound"],
+            "centroid_smiles": centre["smiles"], "n_hits": len(hits),
+            "n_analogues": int((~members["hit"]).sum()),
+            "best_potency": hits["potency"].iloc[0] if len(hits) else np.nan,
+            "best_rank": hits["best_rank"].min(),
+            "median_cytotoxicity_index": (
+                members["cytotoxicity_index"].median()
+                if "cytotoxicity_index" in members.columns else np.nan),
+            "members": ";".join(members["compound"].astype(str))})
+    return sar, pd.DataFrame(rows, columns=[
+        "cluster", "centroid", "centroid_smiles", "n_hits", "n_analogues",
+        "best_potency", "best_rank", "median_cytotoxicity_index", "members"])
+
+
+def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
+                         limit: int = _STRUCTURE_LIMIT,
+                         target: str = "screen") -> int:
+    """Draw the hit compounds' structures into ``figure``, grouped by cluster.
+
+    One tile per hit compound, strongest cluster first, each labelled with
+    its name, cluster, potency and, when measured, cytotoxicity index, and
+    framed in its cluster's colour.
+
+    :param figure: a matplotlib figure; it is cleared first.
+    :param chemistry: the result to draw.
+    :param limit: the most tiles drawn.
+    :param target: ``'screen'`` or ``'print'``, for the label ink.
+    :returns: how many structures were drawn; 0 draws a sentence instead.
+    """
+    from matplotlib import colormaps
+
+    from .figures.style import resolve_ink
+
+    figure.clear()
+    ink = resolve_ink(target)
+    sar = chemistry.sar
+    hits = sar[sar["hit"]]
+    if "smiles_valid" in hits.columns:
+        hits = hits[hits["smiles_valid"].fillna(False).astype(bool)]
+    if len(hits) and chemistry.clustered:
+        hits = hits.sort_values(["cluster", "best_rank"], na_position="last")
+    hits = hits.head(int(limit))
+    if not chemistry.clustered or not len(hits):
+        ax = figure.add_subplot(111)
+        ax.set_axis_off()
+        text = (_RDKIT_INSTALL.format(module="rdkit")
+                if not chemistry.clustered else "No hit compound to draw.")
+        ax.text(0.5, 0.5, text, ha="center", va="center", wrap=True,
+                fontsize=9, color=ink, transform=ax.transAxes)
+        return 0
+    chem, _data_structs, draw = _rdkit()
+    ncols = min(6, len(hits))
+    nrows = int(np.ceil(len(hits) / ncols))
+    palette = colormaps["tab10"]
+    statistic = HIT_METHOD_LABELS.get(sar.attrs.get("statistic", ""),
+                                      sar.attrs.get("statistic", "score"))
+    for slot, (_i, row) in enumerate(hits.iterrows()):
+        ax = figure.add_subplot(nrows, ncols, slot + 1)
+        image = draw.MolToImage(chem.MolFromSmiles(row["smiles"]),
+                                size=(300, 300))
+        ax.imshow(np.asarray(image))
+        ax.set_xticks([])
+        ax.set_yticks([])
+        colour = palette((int(row["cluster"]) - 1) % 10)
+        for spine in ax.spines.values():
+            spine.set_edgecolor(colour)
+            spine.set_linewidth(2.0)
+        caption = (f"cluster {int(row['cluster'])} · "
+                   f"{statistic} {row['potency']:.3g}")
+        tox = row.get("cytotoxicity_index")
+        if tox is not None and pd.notna(tox):
+            caption += f"\ncytotoxicity {tox:.3g}"
+        ax.set_title(str(row["compound"]), fontsize=8, color=ink)
+        ax.set_xlabel(caption, fontsize=7, color=ink)
+    figure.tight_layout(pad=0.6)
+    return len(hits)
+
+
+def _write_sar_report(chemistry: _ChemistryResult, out_dir, *,
+                      target: Optional[str] = None) -> Dict[str, str]:
+    """Write the structure-activity tables and the hit structure sheet.
+
+    :param chemistry: the result to write.
+    :param out_dir: folder to write into; created if absent.
+    :param target: ``'screen'`` or ``'print'``; default the preference.
+    :returns: ``{name: path}``: ``sar_table`` (one row per compound),
+        ``sar_wells`` (every well with its compound), ``sar_clusters`` when
+        clustered, and ``hit_structures`` when a structure was drawn.
+    """
+    import os
+
+    from matplotlib.figure import Figure
+
+    from .figures.style import theme_target
+    from .plot import save_figure
+    from .tabular import write_table
+
+    os.makedirs(out_dir, exist_ok=True)
+    written: Dict[str, str] = {}
+    tables = {"sar_table": chemistry.sar, "sar_wells": chemistry.wells}
+    if chemistry.clustered:
+        tables["sar_clusters"] = chemistry.clusters
+    for name, table in tables.items():
+        path = os.path.join(str(out_dir), f"{name}.csv")
+        write_table(table, path, canonicalise=False)
+        written[name] = path
+    if chemistry.clustered:
+        count = int(chemistry.sar["hit"].sum())
+        ncols = max(1, min(6, count))
+        nrows = max(1, int(np.ceil(min(count, _STRUCTURE_LIMIT) / ncols)))
+        figure = Figure(figsize=(2.0 * ncols, 2.3 * nrows))
+        if _draw_hit_structures(figure, chemistry,
+                                target=target or theme_target()):
+            written["hit_structures"] = save_figure(
+                figure, os.path.join(str(out_dir), "hit_structures.png"),
+                close=True, announce_colours=False)
+    return written
+
+
 _PROFILE_KEYS = ("plateID", "rowID", "columnID")
 _PROFILE_TABLES = ("cell", "cytoplasm", "nucleus", "pathogen")
 _PROFILE_AGGREGATIONS = ("median", "mean")
