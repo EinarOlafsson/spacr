@@ -846,6 +846,358 @@ def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
     }
 
 
+_MIL_WELL_COLUMN = "wellID"
+_MIL_LABEL_COLUMN = "well_label"
+
+
+def _mil_well_column(frame: Any, well_column: str) -> str:
+    """The well column to use.
+
+    The one named, or a plain ``well`` column when the default is asked for
+    and only that spelling is present.
+    """
+    if (well_column not in frame.columns and well_column == _MIL_WELL_COLUMN
+            and "well" in frame.columns):
+        return "well"
+    return well_column
+
+
+def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
+              label_column: str = _MIL_LABEL_COLUMN,
+              feature_columns: Optional[Sequence[str]] = None,
+              positive: Any = None):
+    """Group a per-cell table into one bag of cells per well.
+
+    Feature columns default to the embedding columns when the table has any,
+    else to every numeric column other than the well and label columns.
+    Cells with a missing feature are dropped. Every cell of a well must carry
+    the same label.
+
+    :param frame: one row per cell.
+    :param well_column: column naming each cell's well.
+    :param label_column: column carrying the well's label on every row.
+    :param feature_columns: the columns to learn from.
+    :param positive: the label value that marks a positive well; defaults to
+        1 or True when the labels are 0/1 or boolean.
+    :returns: ``(bags, labels, wells, rows, cells)``: one float32 array
+        per well, a 0/1 array, the well names, each bag's row positions in
+        ``cells``, and the rows that were kept.
+    :raises ValueError: for a missing column, a well with two labels, labels
+        that are not two classes, or fewer than two wells in each class.
+    """
+    import pandas as pd
+
+    well_column = _mil_well_column(frame, well_column)
+    for column in (well_column, label_column):
+        if column not in frame.columns:
+            raise ValueError(f"the table has no {column!r} column")
+    if feature_columns is None:
+        feature_columns = [c for c in frame.columns
+                           if str(c).startswith(EMBEDDING_PREFIX)]
+        if not feature_columns:
+            feature_columns = [
+                c for c in frame.select_dtypes("number").columns
+                if c not in (well_column, label_column)]
+    feature_columns = list(feature_columns)
+    if not feature_columns:
+        raise ValueError("the table has no numeric feature columns")
+    kept = frame.dropna(
+        subset=feature_columns + [well_column, label_column]
+    ).reset_index(drop=True)
+    values = kept[label_column]
+    classes = set(values.unique().tolist())
+    if positive is None:
+        if classes <= {0, 1} or classes <= {True, False}:
+            positive = 1
+        else:
+            raise ValueError(
+                f"{label_column} holds {sorted(map(str, classes))}; give "
+                "0/1, or name the positive label")
+    if len(classes) != 2 or positive not in classes:
+        raise ValueError(
+            f"{label_column} must hold two classes, one of them {positive!r}")
+    bags, labels, wells, rows = [], [], [], []
+    matrix = kept[feature_columns].to_numpy(dtype=np.float32)
+    for well, group in kept.groupby(well_column, sort=True):
+        seen = group[label_column].unique()
+        if len(seen) != 1:
+            raise ValueError(f"well {well!r} carries more than one label")
+        bags.append(matrix[group.index.to_numpy()])
+        labels.append(int(seen[0] == positive))
+        wells.append(well)
+        rows.append(group.index.to_numpy())
+    labels = np.asarray(labels, dtype=np.int64)
+    if min(labels.sum(), len(labels) - labels.sum()) < 2:
+        raise ValueError("well labels need at least two wells in each class")
+    return bags, labels, wells, rows, kept
+
+
+def _mil_fit(bags: Sequence[np.ndarray], labels: Sequence[int], *,
+             hidden: int = 32, epochs: int = 60, batch: int = 8,
+             lr: float = 5e-3, weight_decay: float = 1e-3,
+             dropout: float = 0.1, seed: int = 0):
+    """Train a gated-attention multiple-instance classifier on CPU.
+
+    Each cell passes through one small layer; a gated attention head weighs
+    the cells of a well and the weighted mean is classified (Ilse, Tomczak
+    and Welling 2018). Features are standardised on the training cells.
+    Only the well label is used; which cells carry it is learned.
+
+    :param bags: one ``(cells, features)`` array per well.
+    :param labels: 0/1 per well.
+    :param hidden: width of the cell layer and the attention head.
+    :param epochs: passes over the wells.
+    :param batch: wells per step, padded and masked.
+    :param lr: Adam learning rate.
+    :param weight_decay: Adam weight decay.
+    :param dropout: dropout on the cell layer while training.
+    :param seed: seeds torch and the well order.
+    :returns: a fitted model for :func:`_mil_predict`.
+    """
+    import torch
+    from torch import nn
+
+    torch.manual_seed(int(seed))
+    stacked = np.concatenate(list(bags), axis=0).astype(np.float64)
+    centre = stacked.mean(axis=0)
+    scale = stacked.std(axis=0)
+    scale[scale < 1e-8] = 1.0
+    width = stacked.shape[1]
+
+    class _Attention(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.cell = nn.Sequential(nn.Linear(width, hidden), nn.ReLU(),
+                                      nn.Dropout(dropout))
+            self.value = nn.Linear(hidden, hidden)
+            self.gate = nn.Linear(hidden, hidden)
+            self.weight = nn.Linear(hidden, 1)
+            self.head = nn.Linear(hidden, 1)
+
+        def forward(self, x, mask):
+            h = self.cell(x)
+            logits = self.weight(torch.tanh(self.value(h))
+                                 * torch.sigmoid(self.gate(h))).squeeze(-1)
+            logits = logits.masked_fill(~mask, float("-inf"))
+            attention = torch.softmax(logits, dim=1)
+            pooled = (attention.unsqueeze(-1) * h).sum(dim=1)
+            evidence = (self.head(h).squeeze(-1) - self.head.bias)
+            return self.head(pooled).squeeze(-1), attention, evidence
+
+    model = _Attention()
+    tensors = [torch.from_numpy(((b - centre) / scale).astype(np.float32))
+               for b in bags]
+    target = torch.as_tensor(np.asarray(labels), dtype=torch.float32)
+    optimiser = torch.optim.Adam(model.parameters(), lr=lr,
+                                 weight_decay=weight_decay)
+    loss_fn = nn.BCEWithLogitsLoss()
+    rng = np.random.default_rng(int(seed))
+    model.train()
+    for _ in range(int(epochs)):
+        order = rng.permutation(len(tensors))
+        for start in range(0, len(order), max(1, int(batch))):
+            chunk = order[start:start + max(1, int(batch))]
+            x, mask = _mil_pad([tensors[i] for i in chunk], torch)
+            optimiser.zero_grad()
+            logit, _, _ = model(x, mask)
+            loss_fn(logit, target[chunk]).backward()
+            optimiser.step()
+    model.eval()
+    return {"model": model, "centre": centre, "scale": scale}
+
+
+def _mil_pad(tensors, torch):
+    """Stack bags of different sizes into one padded batch and its mask."""
+    longest = max(int(t.shape[0]) for t in tensors)
+    x = torch.zeros(len(tensors), longest, int(tensors[0].shape[1]))
+    mask = torch.zeros(len(tensors), longest, dtype=torch.bool)
+    for i, t in enumerate(tensors):
+        x[i, :t.shape[0]] = t
+        mask[i, :t.shape[0]] = True
+    return x, mask
+
+
+def _mil_predict(fitted: Mapping[str, Any], bags: Sequence[np.ndarray]):
+    """Well probabilities, per-cell attention and per-cell evidence.
+
+    Attention is returned as each cell's weight times the number of cells
+    in its well, so 1 is an equal share and values are comparable between
+    wells of different sizes. Because the well classifier is linear, a
+    well's score is the attention-weighted sum of each cell's evidence: the
+    classifier applied to the cell alone, positive toward the positive
+    label. Attention says which cells the model looked at; evidence says
+    which way each of them pointed.
+
+    :returns: ``(probabilities, attention, evidence)``: one probability per
+        well, and one attention and one evidence array per well.
+    """
+    import torch
+
+    model = fitted["model"]
+    probabilities, attention, evidence = [], [], []
+    with torch.no_grad():
+        for bag in bags:
+            x = torch.from_numpy(((np.asarray(bag, dtype=np.float64)
+                                   - fitted["centre"]) / fitted["scale"])
+                                 .astype(np.float32)).unsqueeze(0)
+            mask = torch.ones(1, x.shape[1], dtype=torch.bool)
+            logit, weights, score = model(x, mask)
+            probabilities.append(float(torch.sigmoid(logit)[0]))
+            attention.append(weights[0].numpy() * x.shape[1])
+            evidence.append(score[0].numpy())
+    return np.asarray(probabilities), attention, evidence
+
+
+def _mil_summaries(bags: Sequence[np.ndarray], spread: bool = False):
+    """Each well's mean cell, with the per-feature SD appended if asked."""
+    rows = []
+    for bag in bags:
+        bag = np.asarray(bag, dtype=np.float64)
+        parts = [bag.mean(axis=0)]
+        if spread:
+            parts.append(bag.std(axis=0))
+        rows.append(np.concatenate(parts))
+    return np.asarray(rows)
+
+
+def _mil_scorecard(bags: Sequence[np.ndarray], labels: Sequence[int], *,
+                   responders: Optional[Sequence[np.ndarray]] = None,
+                   folds: int = 4, seed: int = 0,
+                   **fit: Any) -> Dict[str, float]:
+    """Cross-validated well AUROC for attention MIL against mean baselines.
+
+    Wells are split into stratified folds; each fold is predicted by a
+    model trained on the others. The baselines are an L2 logistic
+    regression on each well's mean cell, and on its mean and SD. When the
+    truly responding cells are known (a planted or annotated set), the
+    held-out attention is also scored as a ranking of responders above the
+    other cells of the positive wells.
+
+    :param bags: one ``(cells, features)`` array per well.
+    :param labels: 0/1 per well.
+    :param responders: optional boolean array per well marking responders.
+    :param folds: cross-validation folds, capped by the smaller class.
+    :param seed: fold split and model seed.
+    :param fit: passed to :func:`_mil_fit`.
+    :returns: ``mil_auroc``, ``mean_auroc``, ``mean_sd_auroc``, ``wells``
+        and, with ``responders``, ``attention_auroc`` and
+        ``evidence_auroc``.
+    """
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score
+    from sklearn.model_selection import StratifiedKFold
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    labels = np.asarray(labels, dtype=np.int64)
+    folds = max(2, min(int(folds), int(labels.sum()),
+                       int(len(labels) - labels.sum())))
+    split = StratifiedKFold(folds, shuffle=True, random_state=int(seed))
+    mil = np.zeros(len(labels))
+    base = {False: np.zeros(len(labels)), True: np.zeros(len(labels))}
+    attention: List[Optional[np.ndarray]] = [None] * len(labels)
+    evidence: List[Optional[np.ndarray]] = [None] * len(labels)
+    for train, test in split.split(np.zeros(len(labels)), labels):
+        fitted = _mil_fit([bags[i] for i in train], labels[train],
+                          seed=seed, **fit)
+        probs, weights, scores = _mil_predict(fitted,
+                                              [bags[i] for i in test])
+        mil[test] = probs
+        for i, w, e in zip(test, weights, scores):
+            attention[i] = w
+            evidence[i] = e
+        for spread in (False, True):
+            clf = make_pipeline(StandardScaler(),
+                                LogisticRegression(max_iter=2000))
+            clf.fit(_mil_summaries([bags[i] for i in train], spread),
+                    labels[train])
+            base[spread][test] = clf.predict_proba(
+                _mil_summaries([bags[i] for i in test], spread))[:, 1]
+    card = {"mil_auroc": float(roc_auc_score(labels, mil)),
+            "mean_auroc": float(roc_auc_score(labels, base[False])),
+            "mean_sd_auroc": float(roc_auc_score(labels, base[True])),
+            "wells": float(len(labels))}
+    if responders is not None:
+        truth = np.concatenate([np.asarray(responders[i], dtype=bool)
+                                for i in np.flatnonzero(labels)])
+        positive = np.flatnonzero(labels)
+        if 0 < truth.sum() < len(truth):
+            for name, values in (("attention", attention),
+                                 ("evidence", evidence)):
+                score = np.concatenate([values[i] for i in positive])
+                card[f"{name}_auroc"] = float(roc_auc_score(truth, score))
+    return card
+
+
+def _synthetic_mil_bags(wells: int = 24, cells: int = 60,
+                        features: int = 16, fraction: float = 0.15,
+                        shift: float = 3.0, well_noise: float = 0.5,
+                        seed: int = 0):
+    """Wells of Gaussian cells with responders planted in the positive half.
+
+    Every cell is standard normal plus a per-well offset of SD
+    ``well_noise``; in positive wells a ``fraction`` of cells is moved by
+    ``shift`` along one fixed direction. The well mean moves only by
+    ``fraction * shift``, so a mean-feature classifier has to find a small
+    shift under well-to-well noise while the responders stand out.
+
+    :returns: ``(bags, labels, responders)``.
+    """
+    rng = np.random.default_rng(int(seed))
+    direction = rng.normal(size=features)
+    direction /= np.linalg.norm(direction)
+    bags, labels, responders = [], [], []
+    for well in range(int(wells)):
+        positive = well % 2
+        bag = (rng.normal(size=(cells, features))
+               + rng.normal(scale=well_noise, size=features))
+        hit = np.zeros(cells, dtype=bool)
+        if positive:
+            hit[rng.choice(cells, max(1, int(round(fraction * cells))),
+                           replace=False)] = True
+            bag[hit] += shift * direction
+        bags.append(bag.astype(np.float32))
+        labels.append(positive)
+        responders.append(hit)
+    return bags, np.asarray(labels, dtype=np.int64), responders
+
+
+def _mil_from_table(frame: Any, *, folds: int = 4, seed: int = 0,
+                    well_column: str = _MIL_WELL_COLUMN,
+                    label_column: str = _MIL_LABEL_COLUMN,
+                    feature_columns: Optional[Sequence[str]] = None,
+                    positive: Any = None, **fit: Any):
+    """Learn which cells carry a well-level label, from a per-cell table.
+
+    A model trained on every well gives each cell its attention and each
+    well its probability; the scorecard comes from cross-validation, so the
+    AUROCs are for wells the model did not see.
+
+    :param frame: one row per cell, as :func:`_mil_bags` reads it.
+    :returns: ``(cells, wells, scorecard)``: the input rows that were used,
+        with ``mil_attention`` and ``mil_evidence`` added (see
+        :func:`_mil_predict`); one row per well with its label and
+        ``mil_probability``; and :func:`_mil_scorecard`'s numbers.
+    """
+    import pandas as pd
+
+    well_column = _mil_well_column(frame, well_column)
+    bags, labels, wells, rows, kept = _mil_bags(
+        frame, well_column=well_column, label_column=label_column,
+        feature_columns=feature_columns, positive=positive)
+    card = _mil_scorecard(bags, labels, folds=folds, seed=seed, **fit)
+    fitted = _mil_fit(bags, labels, seed=seed, **fit)
+    probs, attention, evidence = _mil_predict(fitted, bags)
+    index = np.concatenate(rows)
+    cells = kept.iloc[index].reset_index(drop=True)
+    cells["mil_attention"] = np.concatenate(attention)
+    cells["mil_evidence"] = np.concatenate(evidence)
+    well_frame = pd.DataFrame({well_column: wells, label_column: labels,
+                               "mil_probability": probs,
+                               "cells": [len(b) for b in bags]})
+    return cells, well_frame, card
+
+
 #: Key prefix for an encoder's model-zoo entry. Distinct from a checkpoint's
 #: filename-derived key because an encoder has no file of spaCR's own -- it is
 #: named by backbone and policy, which together are what a later run must

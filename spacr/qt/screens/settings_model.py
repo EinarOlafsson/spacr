@@ -1281,6 +1281,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
         ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
+        ("GPU Measurement (Alpha)", ("@GPU Measurement (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Plate Barcode Linkage (Alpha)", ("@Plate Barcode Linkage (Alpha)",)),
@@ -2700,6 +2701,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "decay, or histogram matching. Corrected intensities are written "
         "beside the measured ones with the method, and the fitted decay is "
         "plotted.",
+    "GPU MEASUREMENT (ALPHA)":
+        "Per-object intensity statistics, GLCM homogeneity and Zernike "
+        "moments computed for all objects of a field at once on a CUDA GPU, "
+        "matching the CPU values within float tolerance. Without a GPU the "
+        "CPU path runs.",
     "PROFILING (ALPHA)":
         "Image-based profiling after Measure: one profile per well from the "
         "object tables, annotated from a plate map, normalised per plate "

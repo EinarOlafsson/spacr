@@ -802,6 +802,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # correction of a timelapse run's intensities, under its own
     # "Bleach Correction (Alpha)" heading.
     "bleach_correction",
+    # A NEW SETTING, not a regrouping (item 566, 2026-09-27): per-object
+    # measurement on a CUDA GPU, under its own "GPU Measurement (Alpha)"
+    # heading.
+    "measure_gpu",
     # A NEW SETTING GROUP, not a regrouping (item 537, 2026-09-27): lineage
     # trees from the tracker's division links, appended to the Timelapse
     # category and shown under "Lineage Trees (Alpha)" on the Timelapse app.
@@ -1592,6 +1596,9 @@ def _rendered_sections(app_key):
             # Item 539, 2026-09-26: bleach correction rescales the
             # intensities the features above measured.
             "Bleach Correction (Alpha)",
+            # Item 566, 2026-09-27: GPU measurement computes the features
+            # above on the device, as an Alpha heading of its own.
+            "GPU Measurement (Alpha)",
             # Item 536, 2026-09-26: wound closure follows confluency, whose
             # texture and intensity methods it builds on.
             "Wound Closure (Alpha)",
