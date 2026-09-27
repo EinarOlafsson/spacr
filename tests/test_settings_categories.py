@@ -745,6 +745,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
     # and the folder the tables go to.
     "anndata_format", "anndata_tidy_dir",
+    # 543, alpha: a vendor flat-field profile (Harmony XML, ZEN shading
+    # reference) read in place of the estimated illumination field.
+    "illumination_vendor_profile",
     # The robust and regularised regression fits: knobs that belong to one
     # estimator rather than to all of them.
     "l1_ratio", "quantile", "huber_t",
