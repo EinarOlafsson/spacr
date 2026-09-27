@@ -62,7 +62,7 @@ print(json.dumps({
 
 
 @pytest.mark.timing
-def test_the_gui_keeps_answering_while_it_preloads():
+def test_the_gui_keeps_answering_while_it_preloads(request):
     """The measurement that justifies the change, as a test.
 
     MARKED `timing` AND EXCLUDED FROM THE PARALLEL SWEEP. It measures how
@@ -101,6 +101,13 @@ def test_the_gui_keeps_answering_while_it_preloads():
 
     if os.environ.get("PYTEST_XDIST_WORKER"):
         pytest.skip("a timing measurement cannot share the machine")
+    # 2026-09-27 (item 43): opt-in only. A serial run is not a quiet machine
+    # either: the coverage runner's one-file recoveries and local replays run
+    # it beside other work, and it failed there at 1.4 s while passing 3/3
+    # alone on the same host minutes later. `-m timing` is the one request
+    # that says the machine is free.
+    if "timing" not in (request.config.getoption("markexpr") or ""):
+        pytest.skip("run with -m timing on an otherwise idle machine")
 
     environment = dict(os.environ)
     environment.setdefault("QT_QPA_PLATFORM", "offscreen")

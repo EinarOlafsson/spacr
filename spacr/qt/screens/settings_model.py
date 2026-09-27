@@ -1266,6 +1266,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
         ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
         ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
+        ("Viability (Alpha)", ("@Viability (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2693,6 +2694,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "channels is estimated from single-stain control wells, and every "
         "field is unmixed with that matrix before it is segmented or "
         "measured. The matrix is printed and recorded with the run.",
+    "VIABILITY (ALPHA)":
+        "Live and dead cells, called after measuring from a dead stain, a "
+        "live stain, both, or nuclear morphology, with thresholds fitted "
+        "per plate or set by hand. Writes per-well viability, a live-cell "
+        "index and a cytotoxicity index scaled to the control wells, each "
+        "plate's Z', and with a plate map the dose-response of viability "
+        "beside that of infection, so parasite killing can be told from "
+        "host toxicity.",
     "CONFLUENCY (ALPHA)":
         "How much of each field is covered by cells, measured per field and "
         "per well into measurements.db with a monolayer QC flag: from the "

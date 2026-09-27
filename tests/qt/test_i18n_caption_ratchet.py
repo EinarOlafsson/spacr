@@ -1156,6 +1156,13 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
+    # 540, 2026-09-26: the Viability (Alpha) category help on Measure.
+    "Live and dead cells, called after measuring from a dead stain, a live "
+    "stain, both, or nuclear morphology, with thresholds fitted per plate or "
+    "set by hand. Writes per-well viability, a live-cell index and a "
+    "cytotoxicity index scaled to the control wells, each plate's Z', and "
+    "with a plate map the dose-response of viability beside that of "
+    "infection, so parasite killing can be told from host toxicity.",
     # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
     # 580, 2026-09-27: the Intensity Calibration (Alpha) category help on
     # Measure.
