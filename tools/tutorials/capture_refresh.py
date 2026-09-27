@@ -62,6 +62,8 @@ def main() -> int:
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
+    parser.add_argument('--manager-source', type=Path, help='Existing real project inside the private stage; preserve its registry and operate only on a verified bound clone')
+    parser.add_argument('--external-input-root', type=Path, help='Private byte-identical copies of the retained Foreign inputs, preserving their original manifest and relative paths')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
@@ -86,6 +88,7 @@ def main() -> int:
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
+    parser.add_argument('--sweep-input-root', type=Path, help='Private byte-identical copies of the original sweep CSVs; preserve the settings manifest and relative paths')
     parser.add_argument('--pca-host-only', action='store_true',
                         help='Recapture only the native Image UMAP PCA entry point; no data load or fit')
     parser.add_argument('--timeout', type=float, default=600)
@@ -93,6 +96,12 @@ def main() -> int:
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
     args = parser.parse_args()
+    if args.manager_source is not None and args.module != 'data_manager':
+        parser.error('--manager-source requires --module data_manager')
+    if args.external_input_root is not None and args.module != 'external_masks':
+        parser.error('--external-input-root requires --module external_masks')
+    if args.sweep_input_root is not None and args.module != 'parameter_sweep':
+        parser.error('--sweep-input-root requires --module parameter_sweep')
     if args.pca_host_only and (args.module != 'pca' or args.run or args.download or args.preview):
         parser.error('--pca-host-only requires pca without run/download/preview')
     if args.preferences_alpha_toggle_scene and (args.run or args.download or args.preview):
@@ -202,7 +211,7 @@ def main() -> int:
             state = stage / 'data_manager_state' / f'{args.capture_name or args.module}.json'
             if state.exists():
                 raise RuntimeError('Use a new capture name for a fresh private Data Manager project')
-            prepared = prepare(stage)
+            prepared = prepare(stage, source=args.manager_source)
             write_json(state, prepared)
             # Keep the original readable at an immutable alias, then shadow
             # only its original pathname with the verified disposable copy.
@@ -493,7 +502,8 @@ def main() -> int:
     elif args.module == 'parameter_sweep':
         from capture_parameter_sweep import record_sweep
         record_sweep(app, window, stage, captures, capture,
-                     settle, write_json, args.timeout, existing=args.sweep_from)
+                     settle, write_json, args.timeout, existing=args.sweep_from,
+                     input_root=args.sweep_input_root)
     elif args.module == 'feature_dict':
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,
@@ -725,7 +735,7 @@ def main() -> int:
         if args.module == 'external_masks':
             from capture_external_masks import record_external_masks
             record_external_masks(app, window, screen, stage, captures, capture,
-                                  settle, write_json, args.timeout)
+                                  settle, write_json, args.timeout, input_root=args.external_input_root)
         if args.module == 'model_zoo':
             if args.model_zoo_inventory:
                 from capture_model_inventory import record_inventory

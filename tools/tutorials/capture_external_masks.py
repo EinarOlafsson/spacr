@@ -44,8 +44,34 @@ def check_retained_console_state(before, after):
         raise RuntimeError('The native preference change altered the ordered figure images')
 
 
+def private_input_records(manifest, stage, input_root):
+    """Resolve byte-identical retained inputs without rewriting their manifest."""
+    records = deepcopy(manifest['records'])
+    if input_root is None:
+        return records
+    stage, input_root = Path(stage).resolve(), Path(input_root).resolve()
+    if not input_root.is_dir() or not input_root.is_relative_to(stage):
+        raise ValueError('Retained input root must be a directory inside the private stage')
+    old_run = Path(manifest['run'])
+    if not old_run.is_absolute() or old_run.parent.name != 'foreign_runs':
+        raise ValueError('The retained manifest does not identify its original Foreign workspace')
+    old_root = old_run.parent.parent
+    for record in records:
+        for key in ('source', 'image', 'mask'):
+            original = Path(record[key])
+            if not original.is_absolute() or not original.is_relative_to(old_root):
+                raise ValueError('Retained input path leaves its original workspace')
+            candidate = (input_root / original.relative_to(old_root)).resolve()
+            if not candidate.is_relative_to(input_root) or not candidate.is_file():
+                raise ValueError('Retained input copy is missing or leaves the private input root')
+            if _digest(candidate) != record[key + '_sha256']:
+                raise ValueError('Retained input copy differs from the accepted source hash')
+            record[key] = str(candidate)
+    return records
+
+
 def record_external_masks(app, window, screen, stage, captures, capture,
-                          settle, write_json, timeout):
+                          settle, write_json, timeout, *, input_root=None):
     """Preview without writing, then run and independently verify the project."""
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
@@ -72,7 +98,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
     if json.loads(acceptance_path.read_text()).get('accepted') is not True:
         raise RuntimeError('The preserved Foreign input capture was not accepted')
     manifest = json.loads(manifest_path.read_text())
-    records = manifest['records']
+    records = private_input_records(manifest, stage, input_root)
     by_name = {record['neutral_stem']: record for record in records}
     if (len(records) != 2 or set(by_name) != {'fov01', 'fov02'}
             or [by_name[name]['objects'] for name in ('fov01', 'fov02')] != [44, 59]
@@ -110,6 +136,9 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         raise RuntimeError('The private project destination must not exist')
     write_json(captures / 'input_manifest.json', {
         'reused_foreign_manifest': str(manifest_path), 'records': records,
+        'retained_input_root': str(Path(input_root).resolve()) if input_root else None,
+        'retained_manifest_sha256': originals[str(manifest_path)],
+        'retained_manifest_rewritten': False,
         'original_hashes': originals, 'destination': str(destination),
         'measurement_csv_imported': False, 'new_images_generated': False,
         'neutral_names_do_not_preserve_original_wells': True,
