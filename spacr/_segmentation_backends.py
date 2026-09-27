@@ -217,6 +217,20 @@ _OMNIPOSE = "omnipose"
 _OMNIPOSE_MODELS = ("bact_phase_omni", "bact_fluor_omni", "worm_omni",
                     "worm_bact_omni", "worm_high_res_omni", "cyto2_omni")
 
+#: Spotiflow: spot detection by stereographic flow, for puncta, foci, FISH
+#: spots and small parasites. Returns coordinates, not masks; an object
+#: chooses it through its model setting, ``spotiflow:<model or folder>``,
+#: and each spot becomes a small disc of its own label.
+_SPOTIFLOW = "spotiflow"
+
+#: Spotiflow's own 2-D pretrained models, the general one first.
+_SPOTIFLOW_MODELS = ("general", "hybiss", "synth_complex", "fluo_live")
+
+#: The radius, in pixels, of the disc each Spotiflow spot is drawn as in an
+#: object's mask when the object's diameter is blank: a diffraction-limited
+#: spot at 20x to 60x is 2 to 5 px across.
+_SPOTIFLOW_RADIUS = 2
+
 _RESTORATION_MODELS = tuple(
     f"{operation}_{structure}"
     for operation in ("denoise", "deblur", "oneclick")
@@ -586,6 +600,37 @@ _SPECS = {
             "01639-4). spaCR has not scored it against those results; "
             "item 553 scores it on Omnipose's own bacteria test images."),
         prefix="omnipose:", default_model="bact_phase_omni", alpha=True),
+    _SPOTIFLOW: _BackendSpec(
+        name=_SPOTIFLOW, label="Spotiflow", module="spotiflow",
+        probe=("spotiflow.model",), distribution="spotiflow",
+        requirements=("spotiflow==0.6.5",),
+        torch=("torch", "torchvision"), python=((3, 10), (3, 13)),
+        licence="BSD-3-Clause",
+        licence_note=(
+            "Spotiflow 0.6.5 is BSD-3-Clause (Copyright 2023 Albert "
+            "Dominguez Mantes and Martin Weigert). Its general, hybiss, "
+            "synth_complex and fluo_live models are downloaded by Spotiflow "
+            "itself from the weigertlab/spotiflow-models GitHub releases "
+            "(BSD-3-Clause) into the backend's own folder. spaCR ships none "
+            "of it."),
+        homepage="https://github.com/weigertlab/spotiflow", size_gb=3.0,
+        models=_SPOTIFLOW_MODELS,
+        blurb=(
+            "Spotiflow finds SPOTS -- puncta, foci, FISH and sequencing "
+            "spots, small parasites -- with sub-pixel coordinates. It runs "
+            "in an environment of its own. Chosen by an object's model "
+            "setting, each spot becomes a small disc in that object's mask, "
+            "so spots are counted per cell like any other object; in OPS it "
+            "is one of the sequencing-spot detectors."),
+        published=(
+            "Published results: Dominguez Mantes et al., 'Spotiflow: "
+            "accurate and efficient spot detection for fluorescence "
+            "microscopy with deep stereographic flow regression', Nature "
+            "Methods 2025 (doi:10.1038/s41592-025-02662-x). spaCR has not "
+            "scored it against those results; it compared it with the "
+            "native OPS detector and SpotNet on two real sequencing "
+            "fields."),
+        prefix="spotiflow:", default_model="general", alpha=True),
     _DINOCELL: _BackendSpec(
         name=_DINOCELL, label="DINOCell", module="dinocell",
         probe=("dinocell.main", "dinocell.model", "dinocell.pipeline",
@@ -1673,6 +1718,9 @@ def _worker_env(name, env):
     Omnipose, like Cellpose, downloads its models to
     ``CELLPOSE_LOCAL_MODELS_PATH``, and otherwise to ``~/.cellpose``.
 
+    Spotiflow downloads its models to ``SPOTIFLOW_CACHE_DIR``, and
+    otherwise to ``~/.spotiflow``.
+
     SAMCell has two downloads: its fine-tuned checkpoint uses Torch's hub
     cache, and its SAM backbone uses Transformers and Hugging Face. Both
     are scoped to the environment; legacy Transformers cache overrides
@@ -1700,6 +1748,8 @@ def _worker_env(name, env):
     elif name == _OMNIPOSE:
         environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(
             env, "models")
+    elif name == _SPOTIFLOW:
+        environ["SPOTIFLOW_CACHE_DIR"] = os.path.join(env, "models")
     elif name in (_DINOCELL, _SAMCELL):
         environ["HF_HOME"] = os.path.join(env, "huggingface")
         for variable in _HF_CACHE_VARIABLES:
@@ -1874,6 +1924,49 @@ def _detect_spots(image, threshold=0.95, root=None, worker_for=None):
                 allow_pickle=False)
         reply = (worker_for or _worker_for)(_SPOTNET, env).request(
             "detect_spots", image=path, threshold=float(threshold))
+    spots = np.asarray(reply.get("spots") or [], dtype=float)
+    return spots.reshape(-1, 2)
+
+
+def _spotiflow_readiness(root=None):
+    """Whether Spotiflow can detect spots now, and why not when it cannot.
+
+    :returns: ``(ready, reason)``; the reason says what to do.
+    """
+    state = _backend_state(_SPOTIFLOW, root)
+    if not state.ready or state.in_process:
+        return False, (
+            f"Spotiflow is not installed ({state.state}: {state.reason}) "
+            f"Install it from the Model Zoo.")
+    return True, f"Spotiflow is installed in {state.env}."
+
+
+def _spotiflow_spots(image, threshold=None, model=None, root=None,
+                     worker_for=None, device=None):
+    """Spotiflow's spots in one 2-D image, from its own environment.
+
+    :param image: an ``H x W`` array.
+    :param threshold: Spotiflow's probability threshold, 0 to 1; None keeps
+        the threshold it optimised for the model.
+    :param model: a Spotiflow model name or folder; ``general`` when None.
+    :param root: the backends folder.
+    :param worker_for: :func:`_worker_for`, or a stand-in for tests.
+    :param device: the worker's device; its own choice when None.
+    :returns: an ``N x 2`` float array of ``(y, x)`` pixel coordinates.
+    :raises ImportError: when Spotiflow cannot run here, with the reason.
+    """
+    ready, reason = _spotiflow_readiness(root)
+    if not ready:
+        raise ImportError(reason)
+    env = _backend_state(_SPOTIFLOW, root).env
+    with tempfile.TemporaryDirectory(prefix="spacr_spotiflow_") as folder:
+        path = os.path.join(folder, "image.npy")
+        np.save(path, np.ascontiguousarray(image, dtype=np.float32),
+                allow_pickle=False)
+        reply = (worker_for or _worker_for)(_SPOTIFLOW, env).request(
+            "spotiflow_spots", image=path,
+            threshold=None if threshold is None else float(threshold),
+            model=model or _SPECS[_SPOTIFLOW].default_model, device=device)
     spots = np.asarray(reply.get("spots") or [], dtype=float)
     return spots.reshape(-1, 2)
 
@@ -3888,13 +3981,164 @@ def _omnipose_shape(path):
     return int(convs[0].shape[1]), int(convs[-1].shape[0]) - 1
 
 
+def _spotiflow_network(model, device, spotiflow_class=None):
+    """Spotiflow's network for ``model`` on ``device``.
+
+    :param model: a name from :data:`_SPOTIFLOW_MODELS`, which Spotiflow
+        downloads into ``SPOTIFLOW_CACHE_DIR``, or a folder Spotiflow
+        trained a model into.
+    :param device: a torch device name.
+    :param spotiflow_class: ``spotiflow.model.Spotiflow``, or a stand-in.
+    :raises FileNotFoundError: for a path that names no folder.
+    """
+    if spotiflow_class is None:
+        from spotiflow.model import Spotiflow as spotiflow_class
+    where = str(device or "cpu")
+    if model in _SPOTIFLOW_MODELS:
+        return spotiflow_class.from_pretrained(
+            model, map_location=where, verbose=False)
+    if os.path.isdir(model):
+        return spotiflow_class.from_folder(model, map_location=where)
+    raise FileNotFoundError(
+        f"no Spotiflow model called {model!r}: it is not one of "
+        f"{', '.join(_SPOTIFLOW_MODELS)}, and no folder is there.")
+
+
+def _spotiflow_predict(network, plane, threshold=None, device="cpu"):
+    """Spotiflow's spots in one plane, with their probabilities and heatmap.
+
+    Spotiflow normalises the plane to its own 1st and 99.8th percentiles,
+    as its models were trained, and places each spot to sub-pixel precision
+    where the model was trained to.
+
+    :param threshold: Spotiflow's probability threshold, 0 to 1; None keeps
+        the threshold Spotiflow optimised for the model.
+    :returns: ``(spots, probabilities, heatmap)``: ``N x 2`` float ``(y,
+        x)``, ``N`` floats and the ``H x W`` probability map.
+    """
+    plane = np.asarray(plane, np.float32)
+    if plane.ndim != 2 or not all(plane.shape):
+        raise ValueError("Spotiflow needs one nonempty 2-D plane.")
+    if not np.isfinite(plane).all():
+        raise ValueError("Spotiflow image values must be finite.")
+    if threshold is not None:
+        threshold = float(threshold)
+        if not np.isfinite(threshold) or not 0 <= threshold <= 1:
+            raise ValueError("Spotiflow threshold must be between 0 and 1.")
+    points, details = network.predict(
+        plane, prob_thresh=threshold, normalizer="auto", device=device,
+        verbose=False)
+    spots = np.asarray(points, dtype=float).reshape(-1, 2)
+    probabilities = np.asarray(
+        getattr(details, "prob", np.ones(len(spots))), dtype=float).ravel()
+    heatmap = getattr(details, "heatmap", None)
+    heatmap = (np.zeros(plane.shape, np.float32) if heatmap is None
+               else np.asarray(heatmap, np.float32))
+    return spots, probabilities, heatmap
+
+
+def _spot_labels(spots, shape, radius):
+    """A label image with one disc of ``radius`` pixels per spot.
+
+    Spots are labelled 1, 2, ... in the order given; where two discs
+    overlap, the pixel stays with the earlier spot, but every spot keeps
+    its own centre pixel, so every spot inside the image is one object.
+    Spots outside the image, and repeats of a centre pixel, are dropped.
+
+    :param spots: ``N x 2`` ``(y, x)``.
+    :param shape: ``(H, W)``.
+    :param radius: disc radius in pixels, at least 0.
+    :returns: ``uint16`` or ``uint32`` labels.
+    """
+    height, width = int(shape[0]), int(shape[1])
+    labels = np.zeros((height, width), np.uint32)
+    centres = np.rint(np.asarray(spots, float).reshape(-1, 2)).astype(np.int64)
+    inside = ((centres[:, 0] >= 0) & (centres[:, 0] < height)
+              & (centres[:, 1] >= 0) & (centres[:, 1] < width))
+    centres = centres[inside]
+    if len(centres):
+        _, first = np.unique(centres, axis=0, return_index=True)
+        centres = centres[np.sort(first)]
+    reach = max(0, int(math.ceil(float(radius))))
+    dy, dx = np.mgrid[-reach:reach + 1, -reach:reach + 1]
+    disc = (dy ** 2 + dx ** 2) <= float(radius) ** 2 + 1e-9
+    offsets = np.column_stack([dy[disc], dx[disc]])
+    for label, (y, x) in enumerate(centres, start=1):
+        rows, cols = offsets[:, 0] + y, offsets[:, 1] + x
+        keep = (rows >= 0) & (rows < height) & (cols >= 0) & (cols < width)
+        rows, cols = rows[keep], cols[keep]
+        free = labels[rows, cols] == 0
+        labels[rows[free], cols[free]] = label
+    if len(centres):
+        labels[centres[:, 0], centres[:, 1]] = np.arange(
+            1, len(centres) + 1, dtype=np.uint32)
+    dtype = np.uint16 if len(centres) < 2 ** 16 else np.uint32
+    return labels.astype(dtype, copy=False)
+
+
+class _SpotiflowAdapter(_PrefixedAdapter):
+    """Spotiflow, inside its own environment, as an object's model.
+
+    A named model is one of Spotiflow's own, which Spotiflow downloads and
+    checks against its digest; a path is a folder Spotiflow trained a model
+    into.
+
+    THE SETTINGS. Spotiflow finds points, so each spot becomes a disc of
+    its own label: half the object's diameter across when a diameter is
+    set, else :data:`_SPOTIFLOW_RADIUS` pixels, which is how spots reach the
+    per-cell counts every other object does. Spotiflow normalises each
+    plane to its own percentiles, as its models were trained. The
+    cell-probability threshold is a Cellpose logit: its default 0 keeps the
+    threshold Spotiflow optimised for the model, any other value becomes a
+    probability through the logistic function. Spotiflow's heatmap comes
+    back where Cellpose has the cell probability. It has no flow threshold
+    or resampling, and those are named as not honoured.
+
+    :param model: a name from :data:`_SPOTIFLOW_MODELS` or a model folder.
+    :param device: a torch device name.
+    :param spotiflow_class: ``spotiflow.model.Spotiflow``, or a stand-in.
+    """
+
+    name = _SPOTIFLOW
+    unsupported = ("flow_threshold", "resample")
+
+    def __init__(self, model="general", device="cpu", spotiflow_class=None):
+        """Load the network on ``device``."""
+        super().__init__()
+        self.model = model
+        self.device = str(device or "cpu")
+        self._network = _spotiflow_network(model, self.device,
+                                           spotiflow_class)
+
+    def _segment(self, plane, normalize=True, cellprob_threshold=None,
+                 diameter=None, **other):
+        """Spotiflow's spots as discs, and its heatmap, for one plane."""
+        if normalize is False:
+            self.translated.add(
+                "normalize=False became Spotiflow's percentile "
+                "normalisation, which its models were trained on")
+        threshold = (None if not cellprob_threshold
+                     else _probability_threshold(cellprob_threshold))
+        radius = _SPOTIFLOW_RADIUS
+        if diameter:
+            radius = max(1.0, float(diameter) / 2.0)
+            self.translated.add(
+                f"diameter={diameter} became the radius of the disc each "
+                f"spot is drawn as ({radius:g} px)")
+        spots, _probabilities, heatmap = _spotiflow_predict(
+            self._network, plane, threshold, self.device)
+        return (_spot_labels(spots, np.shape(plane), radius),
+                [None, None, heatmap])
+
+
 #: Backend name -> in-process class. Tests replace entries with stubs.
 _BACKEND_CLASSES = {_DINOCELL: _DinoCellBackend, _SAMCELL: _SamCellBackend}
 
 #: Backend name -> the worker adapter of a prefixed backend.
 _PREFIXED_ADAPTERS = {_STARDIST: _StarDistAdapter,
                       _INSTANSEG: _InstanSegAdapter,
-                      _OMNIPOSE: _OmniposeAdapter}
+                      _OMNIPOSE: _OmniposeAdapter,
+                      _SPOTIFLOW: _SpotiflowAdapter}
 
 
 def _worker_device(requested=None):
@@ -4479,6 +4723,32 @@ def _sam_answer(prompts, predictor, embeddings, points, labels, box):
     return mask, scores
 
 
+def _worker_spotiflow_spots(request, adapters):
+    """Find spots in one image with Spotiflow.
+
+    :param request: ``image`` (a ``.npy`` path, ``H x W``), ``model`` (a
+        name or folder; Spotiflow's general model when absent), ``threshold``
+        (0 to 1, or None for the model's own) and ``device``.
+    :param adapters: the worker's cache; each model loads once.
+    :returns: ``{"spots": [[y, x], ...], "probabilities": [...],
+        "device": ...}`` in image pixels.
+    """
+    image = np.load(str(request["image"]), allow_pickle=False)
+    if image.ndim == 3 and image.shape[-1] == 1:
+        image = image[..., 0]
+    model = str(request.get("model") or _SPECS[_SPOTIFLOW].default_model)
+    device = _worker_device(request.get("device"))
+    key = ("spotiflow", model, device)
+    if key not in adapters:
+        adapters[key] = _spotiflow_network(model, device)
+    spots, probabilities, _heatmap = _spotiflow_predict(
+        adapters[key], image, request.get("threshold"), device)
+    if len(spots) and not np.isfinite(spots).all():
+        raise ValueError("Spotiflow coordinates must be finite (y, x) pairs.")
+    return {"spots": spots.tolist(),
+            "probabilities": probabilities.tolist(), "device": str(device)}
+
+
 def _handle(name, request, adapters):
     """Answer one request; every failure becomes an error reply, never a
     dead worker."""
@@ -4505,6 +4775,8 @@ def _handle(name, request, adapters):
             body = _worker_detect(request, adapters)
         elif op == "detect_spots":
             body = _worker_detect_spots(request, adapters)
+        elif op == "spotiflow_spots":
+            body = _worker_spotiflow_spots(request, adapters)
         elif op == "run_cellprofiler":
             body = _worker_run_cellprofiler(request, adapters)
         elif op == "read_text":

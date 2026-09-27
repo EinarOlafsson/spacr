@@ -11,6 +11,13 @@ For editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a
 comma-separated list of ``module`` or ``module:attribute`` references.
 Installed plugins should always use package entry points instead.
 
+Plugins and assay recipes can also be installed from a catalogue, a JSON
+file listing each entry's version, author and licence. A catalogue plugin is
+installed into its own folder under ``~/.spacr/plugins`` (or
+``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never
+replaces or upgrades a package spaCR itself uses; it is discovered like any
+other plugin until it is uninstalled.
+
 Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on``
 (case-insensitively) skips discovery entirely, so no plugin loads from either
 source.
@@ -24,6 +31,12 @@ import re
 import threading
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+
+_CATALOGUE_ENV = "SPACR_PLUGIN_CATALOGUE"
+_PLUGIN_HOME_ENV = "SPACR_PLUGIN_HOME"
+_CATALOGUE_FILE = "catalogue.json"
+_INSTALLED_FILE = "installed.json"
+_CATALOGUE_KINDS = ("plugin", "recipe")
 
 __all__ = [
     "PLUGIN_API_VERSION",
@@ -467,6 +480,14 @@ def _installed_sources() -> Iterable[Tuple[str, Callable[[], Any]]]:
     )):
         normalized = reference if ":" in reference else f"{reference}:plugin"
         yield reference, lambda normalized=normalized: load_object(normalized)
+    try:
+        records = _catalogue_installed()
+    except Exception as exc:
+        yield "catalogue installs", lambda exc=exc: (_ for _ in ()).throw(exc)
+        records = {}
+    for key, record in sorted(records.items()):
+        if record.get("kind") == "plugin":
+            yield key, lambda record=record: _load_catalogue_plugin(record)
 
 
 def _build_registry() -> _Registry:
@@ -585,3 +606,428 @@ def record_diagnostic(
     with _LOCK:
         _registry().diagnostics.append(diagnostic)
     LOG.error("%s: %s%s", plugin, message, f" ({exception})" if exception else "")
+
+
+@dataclass(frozen=True)
+class _CatalogueEntry:
+    """One plugin or recipe offered by a catalogue.
+
+    :param kind: ``"plugin"`` or ``"recipe"``.
+    :param key: unique lower-case identifier used for the install folder.
+    :param name: human-readable name shown in the browser.
+    :param version: the version the catalogue offers.
+    :param author: who wrote and maintains it.
+    :param licence: its licence, as the author states it.
+    :param summary: one or two sentences on what it does.
+    :param homepage: where to read more, or empty.
+    :param source: for a plugin, the pip requirement, wheel or folder to
+        install; for a recipe, a settings JSON file when ``settings`` is empty.
+    :param entry: for a plugin, the ``module:attribute`` of its manifest.
+    :param api_version: the plugin SDK version a plugin targets.
+    :param requirements: libraries a plugin needs beyond spaCR, installed
+        into its own folder.
+    :param app: for a recipe, the spaCR module its settings are for.
+    :param settings: for a recipe, the settings it fills in.
+    :param sha256: optional checksum of a local or downloaded source file.
+    """
+
+    kind: str
+    key: str
+    name: str
+    version: str
+    author: str = ""
+    licence: str = ""
+    summary: str = ""
+    homepage: str = ""
+    source: str = ""
+    entry: str = ""
+    api_version: str = PLUGIN_API_VERSION
+    requirements: Tuple[str, ...] = ()
+    app: str = ""
+    settings: Mapping[str, Any] = field(default_factory=dict)
+    sha256: str = ""
+
+
+def _plugin_home(home: Any = None) -> str:
+    """The folder catalogue installs live in.
+
+    :param home: an explicit folder, which wins.
+    :returns: ``$SPACR_PLUGIN_HOME`` when set, else ``~/.spacr/plugins``.
+    """
+    if home:
+        return os.path.abspath(os.path.expanduser(str(home)))
+    configured = os.environ.get(_PLUGIN_HOME_ENV, "").strip()
+    if configured:
+        return os.path.abspath(os.path.expanduser(configured))
+    return os.path.join(os.path.expanduser("~"), ".spacr", "plugins")
+
+
+def _is_url(source: str) -> bool:
+    """Whether ``source`` is an http(s) address rather than a local path."""
+    return str(source).lower().startswith(("http://", "https://"))
+
+
+def _catalogue_location(source: Any = None) -> str:
+    """Resolve a catalogue argument to a JSON file path or an address.
+
+    :param source: a catalogue file, a folder holding ``catalogue.json``, an
+        http(s) address, or None for ``$SPACR_PLUGIN_CATALOGUE``.
+    :raises ValueError: when no catalogue is given or configured.
+    """
+    source = str(source or os.environ.get(_CATALOGUE_ENV, "")).strip()
+    if not source:
+        raise ValueError(
+            f"no catalogue given; pass one or set {_CATALOGUE_ENV}")
+    if _is_url(source):
+        return source
+    source = os.path.abspath(os.path.expanduser(source))
+    if os.path.isdir(source):
+        source = os.path.join(source, _CATALOGUE_FILE)
+    return source
+
+
+def _read_bytes(location: str) -> bytes:
+    """Read a local file or download an http(s) address."""
+    if _is_url(location):
+        from urllib.request import urlopen
+
+        with urlopen(location, timeout=60) as response:
+            return response.read()
+    with open(location, "rb") as handle:
+        return handle.read()
+
+
+def _resolve_source(base: str, source: str) -> str:
+    """Resolve a source written relative to its catalogue.
+
+    Pip requirements such as ``name>=1.0`` are returned unchanged; a relative
+    path that exists next to the catalogue becomes absolute.
+    """
+    if not source or _is_url(source) or os.path.isabs(source):
+        return source
+    if _is_url(base):
+        from urllib.parse import urljoin
+
+        return urljoin(base, source)
+    candidate = os.path.join(os.path.dirname(base), source)
+    return os.path.abspath(candidate) if os.path.exists(candidate) else source
+
+
+def _entry_from_mapping(value: Any, base: str) -> _CatalogueEntry:
+    """Validate one catalogue row and return it with its sources resolved.
+
+    :raises ValueError: for a missing field, an unknown kind or a bad key.
+    """
+    if not isinstance(value, Mapping):
+        raise TypeError("each catalogue entry must be a mapping")
+    data = {str(k): v for k, v in value.items()}
+    unknown = set(data) - set(_CatalogueEntry.__dataclass_fields__)
+    if unknown:
+        raise ValueError(f"unknown catalogue fields {sorted(unknown)}")
+    for name in ("kind", "key", "name", "version"):
+        if not str(data.get(name, "")).strip():
+            raise ValueError(f"catalogue entry is missing {name!r}")
+    if data["kind"] not in _CATALOGUE_KINDS:
+        raise ValueError(f"catalogue kind must be one of {_CATALOGUE_KINDS}")
+    if not _KEY_RE.match(str(data["key"])):
+        raise ValueError(f"invalid catalogue key {data['key']!r}")
+    data["requirements"] = _tuple_strings(
+        data.get("requirements"), "requirements")
+    settings = data.get("settings") or {}
+    if not isinstance(settings, Mapping):
+        raise TypeError("recipe settings must be a mapping")
+    data["settings"] = dict(settings)
+    for name in ("key", "name", "version", "author", "licence", "summary",
+                 "homepage", "source", "entry", "api_version", "app",
+                 "sha256"):
+        if name in data:
+            data[name] = str(data[name]).strip()
+    entry = _CatalogueEntry(**data)
+    if entry.kind == "plugin":
+        if not _REF_RE.match(entry.entry):
+            raise ValueError(
+                f"plugin {entry.key!r} needs entry 'package.module:attribute'")
+        if not entry.source:
+            raise ValueError(f"plugin {entry.key!r} has no source to install")
+    elif not entry.settings and not entry.source:
+        raise ValueError(f"recipe {entry.key!r} has neither settings nor source")
+    return _CatalogueEntry(**{
+        **entry.__dict__, "source": _resolve_source(base, entry.source)})
+
+
+def _read_catalogue(source: Any = None) -> Tuple[_CatalogueEntry, ...]:
+    """Read and validate a catalogue of plugins and recipes.
+
+    The catalogue is a JSON object with a ``"plugins"`` and a ``"recipes"``
+    list; each row gives at least a key, name and version, and the author,
+    licence and summary the browser shows.
+
+    :param source: see :func:`_catalogue_location`.
+    :returns: the entries, plugins first, each sorted by name.
+    :raises ValueError: for a malformed catalogue or a repeated key.
+    """
+    import json
+
+    location = _catalogue_location(source)
+    data = json.loads(_read_bytes(location).decode("utf-8"))
+    if not isinstance(data, Mapping):
+        raise ValueError("a catalogue must be a JSON object")
+    entries: List[_CatalogueEntry] = []
+    for kind, rows in (("plugin", data.get("plugins", ())),
+                       ("recipe", data.get("recipes", ()))):
+        if not isinstance(rows, Sequence) or isinstance(rows, str):
+            raise ValueError(f"catalogue {kind}s must be a list")
+        entries.extend(sorted(
+            (_entry_from_mapping({"kind": kind, **row}, location)
+             for row in rows),
+            key=lambda item: item.name.lower()))
+    keys = [entry.key for entry in entries]
+    repeated = next((key for key in keys if keys.count(key) > 1), "")
+    if repeated:
+        raise ValueError(f"catalogue repeats key {repeated!r}")
+    return tuple(entries)
+
+
+def _catalogue_installed(home: Any = None) -> Dict[str, Dict[str, Any]]:
+    """The catalogue installs recorded in the plugin home, by key."""
+    import json
+
+    path = os.path.join(_plugin_home(home), _INSTALLED_FILE)
+    if not os.path.isfile(path):
+        return {}
+    with open(path, "r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    return {str(key): dict(value) for key, value in dict(data).items()}
+
+
+def _write_installed(records: Mapping[str, Any], home: Any = None) -> None:
+    """Replace the install record atomically."""
+    import json
+
+    root = _plugin_home(home)
+    os.makedirs(root, exist_ok=True)
+    path = os.path.join(root, _INSTALLED_FILE)
+    temporary = f"{path}.tmp"
+    with open(temporary, "w", encoding="utf-8") as handle:
+        json.dump(dict(records), handle, indent=2, sort_keys=True)
+    os.replace(temporary, path)
+
+
+def _newer(offered: str, installed: str) -> bool:
+    """Whether version ``offered`` is later than ``installed``."""
+    try:
+        from packaging.version import Version
+
+        return Version(offered) > Version(installed)
+    except Exception:
+        return offered != installed
+
+
+def _catalogue_rows(source: Any = None, home: Any = None) -> List[Dict[str, str]]:
+    """What the catalogue browser shows: every entry and its install state.
+
+    :param source: see :func:`_catalogue_location`.
+    :param home: the plugin home, see :func:`_plugin_home`.
+    :returns: one dict per entry with its metadata, the installed version
+        and a ``status`` of ``"available"``, ``"installed"``,
+        ``"update available"`` or ``"incompatible"``.
+    """
+    installed = _catalogue_installed(home)
+    rows = []
+    for entry in _read_catalogue(source):
+        record = installed.get(entry.key, {})
+        have = str(record.get("version", ""))
+        if entry.kind == "plugin" and entry.api_version.split(".", 1)[0] != (
+                PLUGIN_API_VERSION.split(".", 1)[0]):
+            status = "incompatible"
+        elif not have:
+            status = "available"
+        elif _newer(entry.version, have):
+            status = "update available"
+        else:
+            status = "installed"
+        rows.append({
+            "kind": entry.kind, "key": entry.key, "name": entry.name,
+            "version": entry.version, "installed": have,
+            "author": entry.author, "licence": entry.licence,
+            "summary": entry.summary, "homepage": entry.homepage,
+            "app": entry.app, "status": status,
+        })
+    return rows
+
+
+def _checked_bytes(entry: _CatalogueEntry, location: str) -> bytes:
+    """Read ``location`` and check it against the entry's sha256, if given."""
+    import hashlib
+
+    payload = _read_bytes(location)
+    if entry.sha256 and hashlib.sha256(payload).hexdigest() != entry.sha256.lower():
+        raise ValueError(f"{entry.key!r}: {location} does not match its sha256")
+    return payload
+
+
+def _forget_modules_under(folder: str) -> None:
+    """Drop imported modules loaded from ``folder`` and its path entry."""
+    import sys
+
+    folder = os.path.abspath(folder)
+    for name, module in list(sys.modules.items()):
+        where = getattr(module, "__file__", None) or ""
+        if where and os.path.abspath(where).startswith(folder + os.sep):
+            sys.modules.pop(name, None)
+    while folder in sys.path:
+        sys.path.remove(folder)
+    importlib.invalidate_caches()
+
+
+def _load_catalogue_plugin(record: Mapping[str, Any]) -> Any:
+    """Load an installed catalogue plugin from its private folder.
+
+    The folder is appended to ``sys.path``, so a package spaCR already has
+    always wins over a copy in the plugin's folder.
+    """
+    import sys
+
+    folder = str(record["path"])
+    if not os.path.isdir(folder):
+        raise FileNotFoundError(f"plugin folder {folder} is missing")
+    if folder not in sys.path:
+        sys.path.append(folder)
+        importlib.invalidate_caches()
+    return load_object(str(record["entry"]))
+
+
+def _pip(arguments: Sequence[str], runner: Optional[Callable[..., Any]] = None) -> None:
+    """Run pip in spaCR's interpreter and raise with its output on failure."""
+    import subprocess
+    import sys
+
+    command = [sys.executable, "-m", "pip", "install",
+               "--disable-pip-version-check", "--no-input", *arguments]
+    result = (runner or subprocess.run)(
+        command, capture_output=True, text=True, check=False)
+    if result.returncode:
+        raise RuntimeError(
+            "pip could not install the plugin:\n"
+            + (result.stderr or result.stdout or "").strip()[-2000:])
+
+
+def _install_plugin(entry: _CatalogueEntry, root: str,
+                    runner: Optional[Callable[..., Any]] = None) -> Dict[str, Any]:
+    """Install one plugin into a fresh folder and check that it loads."""
+    import shutil
+    import sys
+
+    if entry.api_version.split(".", 1)[0] != PLUGIN_API_VERSION.split(".", 1)[0]:
+        raise ValueError(
+            f"{entry.name} needs plugin SDK {entry.api_version}; "
+            f"spaCR provides {PLUGIN_API_VERSION}")
+    site = os.path.join(root, "site")
+    staging = os.path.join(site, f".{entry.key}.new")
+    final = os.path.join(site, entry.key)
+    shutil.rmtree(staging, ignore_errors=True)
+    os.makedirs(staging)
+    local = os.path.exists(entry.source)
+    if local and os.path.isfile(entry.source):
+        _checked_bytes(entry, entry.source)
+    try:
+        index = (["--no-index", "--find-links",
+                  os.path.dirname(os.path.abspath(entry.source))]
+                 if local else [])
+        _pip(["--no-deps", "--target", staging, *index, entry.source], runner)
+        if entry.requirements:
+            _pip(["--target", staging, *entry.requirements], runner)
+        sys.path.append(staging)
+        importlib.invalidate_caches()
+        try:
+            plugin = _coerce_plugin(load_object(entry.entry))
+        finally:
+            _forget_modules_under(staging)
+        _forget_modules_under(final)
+        shutil.rmtree(final, ignore_errors=True)
+        os.replace(staging, final)
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
+    return {"kind": "plugin", "version": entry.version, "entry": entry.entry,
+            "path": final, "plugin": plugin.name, "name": entry.name}
+
+
+def _install_recipe(entry: _CatalogueEntry, root: str) -> Dict[str, Any]:
+    """Write one recipe's settings where a settings loader can read them."""
+    import json
+
+    settings = dict(entry.settings)
+    if not settings:
+        settings = json.loads(_checked_bytes(entry, entry.source).decode("utf-8"))
+        if not isinstance(settings, dict):
+            raise ValueError(f"recipe {entry.key!r} is not a settings object")
+    folder = os.path.join(root, "recipes")
+    os.makedirs(folder, exist_ok=True)
+    path = os.path.join(folder, f"{entry.key}.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(settings, handle, indent=2, sort_keys=True, default=str)
+    return {"kind": "recipe", "version": entry.version, "app": entry.app,
+            "path": path, "name": entry.name}
+
+
+def _install_from_catalogue(key: str, source: Any = None, home: Any = None,
+                            runner: Optional[Callable[..., Any]] = None
+                            ) -> Dict[str, Any]:
+    """Install or update one catalogue entry and reload the plugins.
+
+    A plugin is installed into a staging folder, loaded and validated there,
+    and only then swapped in for any earlier version, so a failed install or
+    update leaves the previous one working. A recipe's settings are written
+    to ``recipes/<key>.json`` in the plugin home, a file every settings
+    loader reads.
+
+    :param key: the entry's key in the catalogue.
+    :param source: see :func:`_catalogue_location`.
+    :param home: the plugin home, see :func:`_plugin_home`.
+    :param runner: replaces ``subprocess.run`` for pip.
+    :returns: the install record.
+    :raises KeyError: when the catalogue has no such key.
+    """
+    entry = next((item for item in _read_catalogue(source) if item.key == key),
+                 None)
+    if entry is None:
+        raise KeyError(f"the catalogue has no entry {key!r}")
+    root = _plugin_home(home)
+    with _LOCK:
+        record = (_install_plugin(entry, root, runner) if entry.kind == "plugin"
+                  else _install_recipe(entry, root))
+        records = _catalogue_installed(root)
+        records[entry.key] = {**record, "author": entry.author,
+                              "licence": entry.licence}
+        _write_installed(records, root)
+    if entry.kind == "plugin":
+        reload_plugins()
+    return records[entry.key]
+
+
+def _uninstall_from_catalogue(key: str, home: Any = None) -> bool:
+    """Remove an installed catalogue plugin or recipe and reload the plugins.
+
+    :param key: the entry's key.
+    :param home: the plugin home, see :func:`_plugin_home`.
+    :returns: False when nothing by that key was installed.
+    """
+    import shutil
+
+    root = _plugin_home(home)
+    with _LOCK:
+        records = _catalogue_installed(root)
+        record = records.pop(str(key), None)
+        if record is None:
+            return False
+        path = str(record.get("path", ""))
+        if record.get("kind") == "plugin":
+            _forget_modules_under(path)
+            shutil.rmtree(path, ignore_errors=True)
+        elif os.path.isfile(path):
+            os.remove(path)
+        _write_installed(records, root)
+    if record.get("kind") == "plugin":
+        reload_plugins()
+    return True

@@ -1,6 +1,6 @@
 ANOMALY / NOVELTY DETECTION AGAINST NEGATIVE CONTROLS
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -20,3 +20,36 @@ WHAT TO BUILD
 DONE WHEN
     On a screen with known hits, anomaly scores rank the hits above controls
     (AUROC), and top outlier cells are shown for review.
+
+ALPHA: 2026-09-27
+    Built as an alpha option of Control Charts (hidden unless Preferences ->
+    Show alpha features; ALPHA_FEATURES[563] widgets ControlChartAnomaly,
+    ControlChartAnomalySection).
+    - spacr/sp_stats.py: _score_anomalies models the negative-control
+      objects as normal. Features (emb_ embedding columns when present,
+      measurement features otherwise) are centred on each plate's controls,
+      MAD-scaled and projected on the controls' principal components.
+      Detectors, all classical and CPU only: robust Mahalanobis
+      (MinCovDet), kNN distance to controls, isolation forest, and
+      Gaussian-mixture density. Controls are scored cross-fitted (two
+      halves), so the outlier threshold (control quantile, default 0.99)
+      is honest. Wells are ranked by outlier fraction, and the enrichment
+      over the control rate and a robust z are reported. Known hits (positive
+      control, or listed wells/prc/treatments) give well and object AUROC.
+      _draw_anomaly_review shows the top outlier objects (crop tiles when
+      png_path points at files, else marked on control PC1/PC2), and
+      _write_anomaly_report writes CSVs plus the figure through save_figure.
+    - Control Charts: toggle, detector, quantile, known hits and export in
+      the controls; an "Anomalies" output section with ranked wells and the
+      review figure.
+    - Done-when check (tests/test_anomaly_detection_vs_controls.py): on a
+      synthetic 2-plate screen with 4 hit wells per plate whose phenotype
+      is in half the cells, every detector gives well AUROC >= 0.95 (1.0
+      observed) and ranks the 8 hit wells first. It holds under a plate offset.
+      CPU only, small data; no GPU run.
+    LEFT: no deep density model (normalising flow). The brief lists kNN,
+    flow or density; kNN and GMM cover it on the CPU. A flow would be an
+    optional extra. Not yet checked on a real screen with known hits.
+    Object crops show only when the loaded table carries png_path (a
+    png_list join is not done automatically). Captions await a catalog
+    rebuild.

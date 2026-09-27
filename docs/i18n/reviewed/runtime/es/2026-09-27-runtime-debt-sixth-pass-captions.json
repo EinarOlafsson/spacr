@@ -1,0 +1,652 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A Zenodo token is needed.",
+      "source": "A Zenodo token is needed.",
+      "source_sha256": "afc4452b8a793124d756791568454ec575644bd92be27f3c7b6e8a9925965151",
+      "translation": "Se necesita un token de Zenodo."
+    },
+    {
+      "table": "ui",
+      "key": "A token is kept; type one to replace it",
+      "source": "A token is kept; type one to replace it",
+      "source_sha256": "96ba5ea3224061f9e97a5929e304ed379289738b2471f8e261472ac1bcc8f702",
+      "translation": "Hay un token guardado; escriba uno para reemplazarlo"
+    },
+    {
+      "table": "ui",
+      "key": "Affiliation",
+      "source": "Affiliation",
+      "source_sha256": "a3b887a29e39697c4fafdbf2b16b8892b402c3fedc10b85cbfd74d8278813293",
+      "translation": "Afiliación"
+    },
+    {
+      "table": "ui",
+      "key": "Archive package",
+      "source": "Archive package",
+      "source_sha256": "6108c6cefbcf0e1f74261ce8966166d3a0f9f54b004a2c5e4b17c91a03fdb708",
+      "translation": "Paquete de archivo"
+    },
+    {
+      "table": "ui",
+      "key": "Archive package…",
+      "source": "Archive package…",
+      "source_sha256": "3791a32bd148449600f3934d626e0f54c05b54b96a2e75291e2055702520263e",
+      "translation": "Paquete de archivo…"
+    },
+    {
+      "table": "ui",
+      "key": "Arrayed-assay planner",
+      "source": "Arrayed-assay planner",
+      "source_sha256": "b624ad04772fa7c6a4d3fb5608f6fb9a1278de876acd7d92e45f6f5f7b8d9226",
+      "translation": "Planificador de ensayos en placa"
+    },
+    {
+      "table": "ui",
+      "key": "Author",
+      "source": "Author",
+      "source_sha256": "d95082a2ee57f3e40e3050662a346e26a872fd4d0baf57d293ac5a883f0f4ff5",
+      "translation": "Autor"
+    },
+    {
+      "table": "ui",
+      "key": "Authors (Last First; …)",
+      "source": "Authors (Last First; …)",
+      "source_sha256": "1c78eb11e6c86d636e50164129664d53e2ea810f259d65a418df3531a9a5eed3",
+      "translation": "Autores (Apellido Nombre; …)"
+    },
+    {
+      "table": "ui",
+      "key": "Bleach Correction (Alpha)",
+      "source": "Bleach Correction (Alpha)",
+      "source_sha256": "d16aaf960ed389174ded165bee341d53db9c74813c6174c10a3115f6b1eef362",
+      "translation": "Corrección del fotoblanqueo (Alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "Both conditions on every replicate",
+      "source": "Both conditions on every replicate",
+      "source_sha256": "611576469a4aa367af82a3851c5a9d3a37ce650870a42da94cb4c437054f71fd",
+      "translation": "Ambas condiciones en cada réplica"
+    },
+    {
+      "table": "ui",
+      "key": "Catalogue",
+      "source": "Catalogue",
+      "source_sha256": "103451395067d3891c26ab4bd5a33fcb0a387d6c719a32528c3f8ed310c477c6",
+      "translation": "Catálogo"
+    },
+    {
+      "table": "ui",
+      "key": "Catalogue file, folder or address",
+      "source": "Catalogue file, folder or address",
+      "source_sha256": "e9b66002380bf25214e59c3c600b68d136ba5ea403aefb4cd46f7167fb6f9e53",
+      "translation": "Archivo, carpeta o dirección del catálogo"
+    },
+    {
+      "table": "ui",
+      "key": "Cell line",
+      "source": "Cell line",
+      "source_sha256": "ef1470ba05dc08c5fbddb64e124ef7e92b0c69bf2a0a4c50259a6cc6dfca405c",
+      "translation": "Línea celular"
+    },
+    {
+      "table": "ui",
+      "key": "Check figure integrity on export",
+      "source": "Check figure integrity on export",
+      "source_sha256": "1cd6e1d261c75b0b01ae9285d61f4ebdf8f496ac3628dea41dbdce3d97e20986",
+      "translation": "Comprobar la integridad de la figura al exportar"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a run folder first.",
+      "source": "Choose a run folder first.",
+      "source_sha256": "73b29f4fed61cd86e51fdf64b850aa599125a4dbe25038f0fad3bebb43ae583a",
+      "translation": "Elija primero una carpeta de ejecución."
+    },
+    {
+      "table": "ui",
+      "key": "Cluster similarity",
+      "source": "Cluster similarity",
+      "source_sha256": "c0390c18924deea5ddf827088f565491eb2c7ac86c682eff71c034a2c44d70c2",
+      "translation": "Similitud de agrupación"
+    },
+    {
+      "table": "ui",
+      "key": "Colony Counting (Alpha)",
+      "source": "Colony Counting (Alpha)",
+      "source_sha256": "81dc0466d21f5e6b23dcded3ed36aeb84f4ae8c5ef1baed0e0899c7051661e28",
+      "translation": "Recuento de colonias (Alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "Compound table with SMILES",
+      "source": "Compound table with SMILES",
+      "source_sha256": "2927a3758d43e79ac841f0e6fd28a577fbbd3ee6f57d48a42ade659d3f7b983f",
+      "translation": "Tabla de compuestos con SMILES"
+    },
+    {
+      "table": "ui",
+      "key": "Compounds…",
+      "source": "Compounds…",
+      "source_sha256": "8e5e9cf7b09d3f1f5f012ae28e9251db393cd5c238add90cbe513694fcebcf3c",
+      "translation": "Compuestos…"
+    },
+    {
+      "table": "ui",
+      "key": "Contact email",
+      "source": "Contact email",
+      "source_sha256": "6d7fce11ae006a0d90a2e3510148b8508b4f349efdd917a3cc62e4d3dff7d313",
+      "translation": "Correo de contacto"
+    },
+    {
+      "table": "ui",
+      "key": "Copy the images into the package",
+      "source": "Copy the images into the package",
+      "source_sha256": "135b837926ad5f9716137b4c2aec4f7deafa0255d5fa1e725abc1e1b515b7d01",
+      "translation": "Copiar las imágenes en el paquete"
+    },
+    {
+      "table": "ui",
+      "key": "Cost",
+      "source": "Cost",
+      "source_sha256": "204a5eb2cd28bcfdf3be9f8c765948e9e831609e3c57048cdbd6b8a94cf49126",
+      "translation": "Coste"
+    },
+    {
+      "table": "ui",
+      "key": "Could not export the workflow: {error}",
+      "source": "Could not export the workflow: {error}",
+      "source_sha256": "31c2fccaca2b0d1587c111a9cbad67d66e5ead05c1302b5849a6ade555a2d02a",
+      "translation": "No se pudo exportar el flujo de trabajo: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not read the catalogue: {error}",
+      "source": "Could not read the catalogue: {error}",
+      "source_sha256": "0af718673ba725ee99460af871876e3b57ed67ae33e10bf9dbe9308cdc461357",
+      "translation": "No se pudo leer el catálogo: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not read the pilot: {error}",
+      "source": "Could not read the pilot: {error}",
+      "source_sha256": "b1b2849b53ef4dbf15b0bb842dc57edf3005e698ba7ccfa3b821b5675288b153",
+      "translation": "No se pudo leer la tabla piloto: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Database table",
+      "source": "Database table",
+      "source_sha256": "3af63981330ca375eb10f1853b69a116ec7652e348d0f0d2b12334569cb65655",
+      "translation": "Tabla de la base de datos"
+    },
+    {
+      "table": "ui",
+      "key": "Deposit on Zenodo",
+      "source": "Deposit on Zenodo",
+      "source_sha256": "46ede8b883bce533922d36e1281272cc27b54de1e980018259c6d8ed2e2704fe",
+      "translation": "Depositar en Zenodo"
+    },
+    {
+      "table": "ui",
+      "key": "Deposit on Zenodo…",
+      "source": "Deposit on Zenodo…",
+      "source_sha256": "809775838cf3b5c1e3737d1be7221f9ea8625d06e5a536aefd1307f5c0a25486",
+      "translation": "Depositar en Zenodo…"
+    },
+    {
+      "table": "ui",
+      "key": "Depositing on Zenodo…",
+      "source": "Depositing on Zenodo…",
+      "source_sha256": "1a129b18c14a490fd783b25a6f9e6aec96b7c655a12e09eef6bf8aa71be92040",
+      "translation": "Depositando en Zenodo…"
+    },
+    {
+      "table": "ui",
+      "key": "Description",
+      "source": "Description",
+      "source_sha256": "526e0087cc3f254d9f86f6c7d8e23d954c4dfda2b312efc29194ae8a860106ba",
+      "translation": "Descripción"
+    },
+    {
+      "table": "ui",
+      "key": "Effect to detect",
+      "source": "Effect to detect",
+      "source_sha256": "6bc519d63717ea530906e714fb2952fda5ee27a9b384428894e9ca858249d61b",
+      "translation": "Efecto a detectar"
+    },
+    {
+      "table": "ui",
+      "key": "Export workflow into folder",
+      "source": "Export workflow into folder",
+      "source_sha256": "6881775d4903fbb7cc8de4109a71b76e27420199f4cf05fce230a45e6dcb9497",
+      "translation": "Exportar el flujo de trabajo a la carpeta"
+    },
+    {
+      "table": "ui",
+      "key": "Export workflow…",
+      "source": "Export workflow…",
+      "source_sha256": "e62944902fadcbfd1ae4167988d7a724314bb0a18bb29d2128e7f54118f2dc77",
+      "translation": "Exportar flujo de trabajo…"
+    },
+    {
+      "table": "ui",
+      "key": "Field column",
+      "source": "Field column",
+      "source_sha256": "fb8d8b728927a42fbe9ef6e153a056c2e5e6d1b018d8ad2d6cdc946eb432ce7f",
+      "translation": "Columna de campo"
+    },
+    {
+      "table": "ui",
+      "key": "Finding crops like this one…",
+      "source": "Finding crops like this one…",
+      "source_sha256": "209a9a5dd9d7dfc7d58b449d6fb534a29765856febc8bc7650c66addb2b8ecc8",
+      "translation": "Buscando recortes similares…"
+    },
+    {
+      "table": "ui",
+      "key": "Growth protocol",
+      "source": "Growth protocol",
+      "source_sha256": "ea64c5f8083fc05f8035af691a93a407935094b75c6929668afaf359acf7cdc7",
+      "translation": "Protocolo de cultivo"
+    },
+    {
+      "table": "ui",
+      "key": "Imaging method",
+      "source": "Imaging method",
+      "source_sha256": "b81e4cadfba21b1e79de6ed2bd04817e16dad777fc6722fdf4963b9b382fbb47",
+      "translation": "Método de imagen"
+    },
+    {
+      "table": "ui",
+      "key": "Include the masks",
+      "source": "Include the masks",
+      "source_sha256": "a449c95c2551a8582d32d65de1166970d95851e744746b2a85c5181dd01f2a03",
+      "translation": "Incluir las máscaras"
+    },
+    {
+      "table": "ui",
+      "key": "Install or update",
+      "source": "Install or update",
+      "source_sha256": "0c05bbb86523ea831bcab0daee4fb07241c587c97707b6a2d59e4de2f43f2194",
+      "translation": "Instalar o actualizar"
+    },
+    {
+      "table": "ui",
+      "key": "Installed",
+      "source": "Installed",
+      "source_sha256": "f8b32f4e92bd84ce1fcd177bec17d43093de3ee8303bb40c1b9ea521ed6a70f6",
+      "translation": "Instalado"
+    },
+    {
+      "table": "ui",
+      "key": "Installed {name} {version}.",
+      "source": "Installed {name} {version}.",
+      "source_sha256": "5ce61cad2df17bbde9dc3e70c7770284f56d7df83f9cb28b14729b8023ea9186",
+      "translation": "{name} {version} instalado."
+    },
+    {
+      "table": "ui",
+      "key": "Intensity Calibration (Alpha)",
+      "source": "Intensity Calibration (Alpha)",
+      "source_sha256": "eab14c9e0f49d2dafd98c099c80c06e5319bce25ef4463fa621ef18a24d04265",
+      "translation": "Calibración de intensidad (Alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "Its settings are in {path}.",
+      "source": "Its settings are in {path}.",
+      "source_sha256": "37d2f92355adbf0cd0c3fb83ad14547771518aa600d2f2b7c93b581dac541857",
+      "translation": "Su configuración está en {path}."
+    },
+    {
+      "table": "ui",
+      "key": "Keywords (; between several)",
+      "source": "Keywords (; between several)",
+      "source_sha256": "37615cb4f1f03bfe21b04d221c7171ea76270263d34da446e639307e1025da2a",
+      "translation": "Palabras clave (; entre varias)"
+    },
+    {
+      "table": "ui",
+      "key": "Licence",
+      "source": "Licence",
+      "source_sha256": "f3ec8e880a46c8a6fb105396ee5400124f828934a9dd68c668f796cf6d47b1c8",
+      "translation": "Licencia"
+    },
+    {
+      "table": "ui",
+      "key": "License",
+      "source": "License",
+      "source_sha256": "c011d6097bfbc8e936280addcf2e3e7d06ea2223ffd596973191b800a7035c32",
+      "translation": "Licencia"
+    },
+    {
+      "table": "ui",
+      "key": "Like this",
+      "source": "Like this",
+      "source_sha256": "552d2eaeacb34b4beddee630f57a255b0810a09f068cc7255bc33d37eb263ceb",
+      "translation": "Similares"
+    },
+    {
+      "table": "ui",
+      "key": "Lineage Trees (Alpha)",
+      "source": "Lineage Trees (Alpha)",
+      "source_sha256": "04352994ed56099732517d5a42d9a2f0f35616a9cc6c6a392199926f56578a1d",
+      "translation": "Árboles de linaje (Alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "List",
+      "source": "List",
+      "source_sha256": "6f202f54a7b2d8fe42aa804eabe48ef900cdf73a74c570a47fd1b1a4920a051d",
+      "translation": "Lista"
+    },
+    {
+      "table": "ui",
+      "key": "Microscope",
+      "source": "Microscope",
+      "source_sha256": "ad29bc9b8ce93a4bb13d871d4296e3ff75bfc5b7020949fe409b23ad98376d37",
+      "translation": "Microscopio"
+    },
+    {
+      "table": "ui",
+      "key": "No crop is selected to match.",
+      "source": "No crop is selected to match.",
+      "source_sha256": "6455d9b44e2a405b9d016eca1ae239f10faa93cdfcf70beb4cefe528364ab7be",
+      "translation": "No hay ningún recorte seleccionado para comparar."
+    },
+    {
+      "table": "ui",
+      "key": "Organism (; between several)",
+      "source": "Organism (; between several)",
+      "source_sha256": "f43f89f39044a73cf31b2ccc574f5543ef8cf728836c259b43f942fd92bc5875",
+      "translation": "Organismo (; entre varios)"
+    },
+    {
+      "table": "ui",
+      "key": "Personal access token with deposit:write",
+      "source": "Personal access token with deposit:write",
+      "source_sha256": "7a65b0dea888605df7cec55f6bc79e6e6b58427e0a244bb476ef45c6b77302b3",
+      "translation": "Token de acceso personal con deposit:write"
+    },
+    {
+      "table": "ui",
+      "key": "Pilot table",
+      "source": "Pilot table",
+      "source_sha256": "5bb74b7ab3e6849bd7d07c789943fbf1095a0700345d4cdae4a07bf3fc07c714",
+      "translation": "Tabla piloto"
+    },
+    {
+      "table": "ui",
+      "key": "Plan the design",
+      "source": "Plan the design",
+      "source_sha256": "0b0bc13df78e3bb5bc7af9514692e66f0bcf9544d65a79f26e062a7056fd20e4",
+      "translation": "Planificar el diseño"
+    },
+    {
+      "table": "ui",
+      "key": "Plate Barcode Linkage (Alpha)",
+      "source": "Plate Barcode Linkage (Alpha)",
+      "source_sha256": "83d31e59d179b544384fc2054c682a923f79123746cafd7772011c7a95de3b5b",
+      "translation": "Vínculo por código de barras de placa (Alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate map (optional)",
+      "source": "Plate map (optional)",
+      "source_sha256": "622f097bbca28d09572c6ef83ca09bd155d72cc02d4b9d3e8cb3a8089e58af78",
+      "translation": "Mapa de placa (opcional)"
+    },
+    {
+      "table": "ui",
+      "key": "Plugin",
+      "source": "Plugin",
+      "source_sha256": "ab1173eed1d477d9e951c2316a74d1923220e64d1bbaeadf03c88e20576c7450",
+      "translation": "Complemento"
+    },
+    {
+      "table": "ui",
+      "key": "Power",
+      "source": "Power",
+      "source_sha256": "848e96567d6b48d54c0b53017bd6123cefa97d6e0fab0f14c621ec3fd92178f4",
+      "translation": "Potencia"
+    },
+    {
+      "table": "ui",
+      "key": "Public release date",
+      "source": "Public release date",
+      "source_sha256": "07220d1d8af02159c405df101eb6a07fa65c00b8125fab89cc6c27e96a60429c",
+      "translation": "Fecha de publicación"
+    },
+    {
+      "table": "ui",
+      "key": "Publish now (the DOI becomes permanent)",
+      "source": "Publish now (the DOI becomes permanent)",
+      "source_sha256": "eada304852b0c10bb2d765794c47b203c9d0dfc89be8acc36840c76892dbb3cc",
+      "translation": "Publicar ahora (el DOI pasa a ser permanente)"
+    },
+    {
+      "table": "ui",
+      "key": "Recipe",
+      "source": "Recipe",
+      "source_sha256": "aec69352b5b97ce21b850a7bc1f33d93054b531e13b116f1f4ca193a33c13cbd",
+      "translation": "Receta"
+    },
+    {
+      "table": "ui",
+      "key": "Remember the token",
+      "source": "Remember the token",
+      "source_sha256": "c6c571c9953d5ca12d8942113d1511cc6d0e7c4e7110e538d0f37765d1db6fcd",
+      "translation": "Recordar el token"
+    },
+    {
+      "table": "ui",
+      "key": "Replicate column",
+      "source": "Replicate column",
+      "source_sha256": "f34875e29c6aee0c3a97ea7386c6e70f072f9fcb0c34cc79ef096eaefeb0ebe8",
+      "translation": "Columna de réplica"
+    },
+    {
+      "table": "ui",
+      "key": "Sample preparation",
+      "source": "Sample preparation",
+      "source_sha256": "48d866ffeb81a07b83910a263841458fff4e02cd4e7002b0f9dd865bad70fc64",
+      "translation": "Preparación de la muestra"
+    },
+    {
+      "table": "ui",
+      "key": "Screen technology",
+      "source": "Screen technology",
+      "source_sha256": "d0ca19d9dd139ce822581c598b3d8121a4b9b78e3409d48024f2d309c2c07fc3",
+      "translation": "Tecnología de cribado"
+    },
+    {
+      "table": "ui",
+      "key": "Screen type",
+      "source": "Screen type",
+      "source_sha256": "01df74b6c3482a5f04b587ba4f0b488a0fe209ef9dd46739eeca36cb17d16262",
+      "translation": "Tipo de cribado"
+    },
+    {
+      "table": "ui",
+      "key": "Searched {n} crops in {ms} ms.",
+      "source": "Searched {n} crops in {ms} ms.",
+      "source_sha256": "8e26e4999f626f840e9d5e7395418099f9fb3d2c2b17929a9a777555365ccb8d",
+      "translation": "Se buscaron {n} recortes en {ms} ms."
+    },
+    {
+      "table": "ui",
+      "key": "Spectral Unmixing (Alpha)",
+      "source": "Spectral Unmixing (Alpha)",
+      "source_sha256": "d3553f77f4c77b6cce30c39f8a70676df9d09ad4e11d0c5aa569a8ef2749e0a2",
+      "translation": "Desmezcla espectral (Alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "Stage the files in",
+      "source": "Stage the files in",
+      "source_sha256": "dc6030d53e8a52cfa795b45326528363377e96a566dafa5aadd9ff6de6853d5f",
+      "translation": "Preparar los archivos en"
+    },
+    {
+      "table": "ui",
+      "key": "Structures and SAR",
+      "source": "Structures and SAR",
+      "source_sha256": "77bf34e97ab2df70421342af51a4a995a002658d1f6aee42ef9cbb6523ec6f17",
+      "translation": "Estructuras y SAR"
+    },
+    {
+      "table": "ui",
+      "key": "Target power",
+      "source": "Target power",
+      "source_sha256": "82db2536b07cdcc44aa6e8c2a8478979c5a5180837b6dba6d7303dadf1acc378",
+      "translation": "Potencia objetivo"
+    },
+    {
+      "table": "ui",
+      "key": "The Zenodo deposit failed: {error}",
+      "source": "The Zenodo deposit failed: {error}",
+      "source_sha256": "6bf5626bc7ca65d603c615817af7f288e87e6e34b5b0e7548fef2aec267dd27f",
+      "translation": "El depósito en Zenodo falló: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Time To Event (Alpha)",
+      "source": "Time To Event (Alpha)",
+      "source_sha256": "2bd734209806f011d69c46579e198221df8b042ace02103a0408836d7cd29b5c",
+      "translation": "Tiempo hasta el evento (Alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "Treatment protocol",
+      "source": "Treatment protocol",
+      "source_sha256": "e3a1d90fa009d738daafccc240a334df01cd5bd6bcffef80ef3b22d79d48b8c1",
+      "translation": "Protocolo de tratamiento"
+    },
+    {
+      "table": "ui",
+      "key": "Uninstalled {name}.",
+      "source": "Uninstalled {name}.",
+      "source_sha256": "73f0c26200e603ccc9cb40a1fe324e7a0225140886a1fe086829dbc40df3aeca",
+      "translation": "{name} desinstalado."
+    },
+    {
+      "table": "ui",
+      "key": "Viability (Alpha)",
+      "source": "Viability (Alpha)",
+      "source_sha256": "973b649b47ea88f6a46954898ba1ef899c5e28dc5d5e5cd836a7f8b3d665258f",
+      "translation": "Viabilidad (Alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "Well column",
+      "source": "Well column",
+      "source_sha256": "58ecd72d924a5618b329c2da315675b22c3f9562650c4016ecbd252ac3a1016a",
+      "translation": "Columna de pocillo"
+    },
+    {
+      "table": "ui",
+      "key": "Workflow written: {path}",
+      "source": "Workflow written: {path}",
+      "source_sha256": "05f737cebb3f76e0fa2f43b5de4fdb590124f86c3e45a062e521809fd88a6d0b",
+      "translation": "Flujo de trabajo escrito: {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Write the package into",
+      "source": "Write the package into",
+      "source_sha256": "216475d74d9512505a999ba8527987ce9ce8b6de3d3d3195466059e215574da0",
+      "translation": "Escribir el paquete en"
+    },
+    {
+      "table": "ui",
+      "key": "Writing the archive package…",
+      "source": "Writing the archive package…",
+      "source_sha256": "92977d4a13b2c11e89a8740d30215fc6a3de5f04864ef656ecf4822ce79f3312",
+      "translation": "Escribiendo el paquete de archivo…"
+    },
+    {
+      "table": "ui",
+      "key": "Zenodo token",
+      "source": "Zenodo token",
+      "source_sha256": "faf79936ceb5cad28dfec3359950c5f5ffaf1277d8d4fef9bf1e5185add33cb0",
+      "translation": "Token de Zenodo"
+    },
+    {
+      "table": "ui",
+      "key": "available",
+      "source": "available",
+      "source_sha256": "ddd9818abacfde7afed60c93129175401439367a77e69ea93e0ddb3bb38e0bd9",
+      "translation": "disponible"
+    },
+    {
+      "table": "ui",
+      "key": "incompatible",
+      "source": "incompatible",
+      "source_sha256": "62a8b13dcc5471418358086b4a60ef38dd3c269976f5e8339c77e3afdb1a324a",
+      "translation": "no compatible"
+    },
+    {
+      "table": "ui",
+      "key": "no compound table",
+      "source": "no compound table",
+      "source_sha256": "259b166344ed05f67b4adaf620ebc8132228339d1083b604ef7da2621953537e",
+      "translation": "sin tabla de compuestos"
+    },
+    {
+      "table": "ui",
+      "key": "not estimated (taken as 0)",
+      "source": "not estimated (taken as 0)",
+      "source_sha256": "34c97ecfcfcd1b721794fa1f563000a53a4ca27b11d947fc3be892dc9549ab9a",
+      "translation": "no estimado (se toma como 0)"
+    },
+    {
+      "table": "ui",
+      "key": "table",
+      "source": "table",
+      "source_sha256": "0d4fc4a78d3706edccafb665a8b2fdd9309e82c78625bb0f2b8e7bb9e1c4d21c",
+      "translation": "tabla"
+    },
+    {
+      "table": "ui",
+      "key": "update available",
+      "source": "update available",
+      "source_sha256": "a193f8190f8948ff1531e52bcffdb3a7e14e7b57694f3c53a1b7febba80a090d",
+      "translation": "actualización disponible"
+    },
+    {
+      "table": "ui",
+      "key": "yes",
+      "source": "yes",
+      "source_sha256": "8a798890fe93817163b10b5f7bd2ca4d25d84c52739a645a889c173eee7d9d3d",
+      "translation": "sí"
+    },
+    {
+      "table": "ui",
+      "key": "{count} entries in the catalogue.",
+      "source": "{count} entries in the catalogue.",
+      "source_sha256": "413a4e012df789aa50a3df5f2f10fe0461ad71309aec5d2179c39e94efa18069",
+      "translation": "{count} entradas en el catálogo."
+    },
+    {
+      "table": "ui",
+      "key": "{name} failed: {error}",
+      "source": "{name} failed: {error}",
+      "source_sha256": "1eea1fba94ee3002228a958ba64ca2b7b152a577a9734998a29ef80e7e075405",
+      "translation": "{name} falló: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {count} compound(s)",
+      "source": "{name}: {count} compound(s)",
+      "source_sha256": "79f2260abb895a286c8346906c520a8c8b58c4197030b905133cc59bcea56e2a",
+      "translation": "{name}: {count} compuesto(s)"
+    }
+  ]
+}

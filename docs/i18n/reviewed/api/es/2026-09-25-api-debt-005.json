@@ -3470,31 +3470,36 @@
       "source_sha256": "23863d90eb7ce0b6020741383e0b4b6d9595560595ce695bbc8f783105b2d03c",
       "context": "\"here the user should be able to right click on the images to save them as png or pdf\" -- the maintainer, 2026-09-24 (item 505)",
       "translation": "\"aquí el usuario debería poder hacer clic derecho en las imágenes para guardarlas como png o pdf\" -- el mantenedor, 2026-09-24 (elemento 505)",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.widgets.picture_export#2",
+      "label": "spacr.qt.widgets.picture_export#1",
       "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "translation": "Una imagen en pantalla es a menudo lo que alguien quiere en una diapositiva una hora después, y el camino para conseguirla era una captura de pantalla de una ventana, a la resolución de la ventana, con el marco de la interfaz alrededor. Esto guarda LA IMAGEN, a la resolución a la que se representó y no al tamaño al que se esté mostrando, en un archivo que elige el usuario.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.qt.widgets.picture_export#2"
     },
     {
-      "label": "spacr.qt.widgets.picture_export#3",
+      "label": "spacr.qt.widgets.picture_export#2",
       "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "translation": "DOS FORMATOS, Y EL PDF NO ES UN PNG CON OTRA EXTENSIÓN. Un ráster metido en un PDF cumple con el nombre del archivo y nada más; un panel de figura es una página, y una página tiene un tamaño en milímetros. :func:`save_picture` da al PDF una página con la forma propia de la imagen e indica al escritor la resolución que figura en Preferencias, de modo que la imagen queda al tamaño al que se midió y se imprime a esa resolución.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.qt.widgets.picture_export#3"
     },
     {
-      "label": "spacr.qt.widgets.picture_export#4",
+      "label": "spacr.qt.widgets.picture_export#3",
       "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e",
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "translation": "La resolución y el formato predeterminado son los que ya tienen las preferencias de Figures -- :func:`spacr.qt.preferences.get_figure_png_dpi` y :func:`spacr.qt.preferences.get_figure_format` --, de modo que a un usuario que ya ha dicho \"300 DPI, PDF\" no se le pregunta una segunda vez con otras palabras.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.qt.widgets.picture_export#4"
     },
     {
       "label": "spacr.qt.widgets.picture_export.as_image#0",

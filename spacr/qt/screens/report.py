@@ -47,6 +47,7 @@ from PySide6.QtWidgets import (
 
 from ... import report as rep
 from ..bridge import make_thread
+from ..i18n import tr
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import FoldSection
@@ -124,6 +125,8 @@ class ReportScreen(QWidget):
         self._src: str = ""
         self._report: Optional[rep.Report] = None
         self._written: List[str] = []
+        self._archive_problems: List[str] = []
+        self._zenodo_record: Optional[Dict[str, Any]] = None
         self._busy = False
         self._jobs: List[tuple] = []
         self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
@@ -234,6 +237,8 @@ class ReportScreen(QWidget):
         out_row.addWidget(self._btn_pick_out)
         out_row.addWidget(self._btn_generate)
         out_row.addWidget(self._btn_open)
+        out_row.addWidget(self._build_archive_button())
+        out_row.addWidget(self._build_zenodo_button())
         outer.addLayout(out_row)
 
         self._status = QLabel("", self)
@@ -487,6 +492,294 @@ class ReportScreen(QWidget):
         return True
 
 
+    def _build_archive_button(self) -> QPushButton:
+        """The Archive package button: metadata and files for IDR or BioImage Archive.
+
+        Opens :meth:`_archive_dialog`. An alpha feature, registered as
+        ``ReportArchivePackage`` in :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button.
+        """
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Archive package…"), self)
+        button.setObjectName("ReportArchivePackage")
+        button.setToolTip(tr(
+            "Assemble a submission package for the Image Data Resource or "
+            "the BioImage Archive: MIHCSME and REMBI metadata taken from "
+            "the settings spaCR saved, the images and a plate map, plus a "
+            "short form for what spaCR cannot know, with the IDR study and "
+            "library files, a BioStudies study and file list, and MD5 "
+            "checksums. Nothing is uploaded and the run folder is not "
+            "written to. Default not made."))
+        button.clicked.connect(self._on_archive_package)
+        self._btn_archive = button
+        _apply_alpha_widgets(button)
+        return button
+
+    def _archive_labels(self) -> Dict[str, str]:
+        """The caption of each archive form field, keyed as the form is."""
+        return {
+            "title": tr("Title"),
+            "description": tr("Description"),
+            "authors": tr("Authors (Last First; …)"),
+            "email": tr("Contact email"),
+            "affiliation": tr("Affiliation"),
+            "organism": tr("Organism (; between several)"),
+            "cell_line": tr("Cell line"),
+            "technology": tr("Screen technology"),
+            "screen_type": tr("Screen type"),
+            "imaging_method": tr("Imaging method"),
+            "microscope": tr("Microscope"),
+            "growth_protocol": tr("Growth protocol"),
+            "treatment_protocol": tr("Treatment protocol"),
+            "sample_preparation": tr("Sample preparation"),
+            "keywords": tr("Keywords (; between several)"),
+            "license": tr("License"),
+            "release_date": tr("Public release date"),
+            "plate_map": tr("Plate map (optional)"),
+        }
+
+    def _archive_form_rows(self, dialog, form, src: str) -> Dict[str, QLineEdit]:
+        """Add one line per archive form field to ``form``, filled from ``src``.
+
+        :returns: the line edits, keyed as the form is.
+        """
+        defaults = rep._archive_form_defaults(src)
+        labels = self._archive_labels()
+        fields: Dict[str, QLineEdit] = {}
+        for key, required in rep._ARCHIVE_FORM_FIELDS:
+            edit = QLineEdit(defaults.get(key, ""), dialog)
+            edit.setObjectName(f"ArchiveField_{key}")
+            caption = labels[key] + (" *" if required else "")
+            form.addRow(caption, edit)
+            fields[key] = edit
+        return fields
+
+    def _archive_dialog(self):
+        """Build the archive form, filled from the run folder's settings.
+
+        :returns: the dialog, not yet shown, or ``None`` without a folder.
+        """
+        from PySide6.QtWidgets import (QCheckBox, QDialog, QDialogButtonBox,
+                                       QFormLayout)
+
+        raw = self._path_edit.text().strip()
+        src = os.path.abspath(os.path.expanduser(raw)) if raw else ""
+        if not src or not os.path.isdir(src):
+            self._set_status(tr("Choose a run folder first."), error=True)
+            return None
+        dialog = QDialog(self)
+        dialog.setObjectName("ReportArchiveDialog")
+        dialog.setWindowTitle(tr("Archive package"))
+        form = QFormLayout(dialog)
+        fields = self._archive_form_rows(dialog, form, src)
+        out = QLineEdit(os.path.dirname(src.rstrip(os.sep)), dialog)
+        out.setObjectName("ArchiveOutput")
+        form.addRow(tr("Write the package into"), out)
+        copy = QCheckBox(tr("Copy the images into the package"), dialog)
+        copy.setObjectName("ArchiveCopyImages")
+        form.addRow("", copy)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        form.addRow(buttons)
+        dialog.accepted.connect(lambda: self._write_archive(
+            src, out.text().strip(),
+            {k: e.text() for k, e in fields.items()}, copy.isChecked()))
+        return dialog
+
+    def _on_archive_package(self) -> None:
+        """Show the archive form for the folder in the source box."""
+        dialog = self._archive_dialog()
+        if dialog is not None:
+            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+            dialog.open()
+
+    def _write_archive(self, src: str, out: str, form: Dict[str, str],
+                      copy_images: bool = False) -> bool:
+        """Write and validate an archive package off the GUI thread.
+
+        :param src: the run folder.
+        :param out: the folder the package folder is made in.
+        :param form: the form values.
+        :param copy_images: also copy the images into the package.
+        :returns: True when the job was started (or, unthreaded, ran).
+        """
+        target = out or os.path.dirname(src.rstrip(os.sep))
+        self._set_status(tr("Writing the archive package…"))
+
+        def _job():
+            """Write the package, then check it against the templates."""
+            pkg = rep._write_archive_package(src, target, form,
+                                             copy_images=copy_images)
+            return pkg, rep._validate_archive_package(pkg)
+
+        return self._run_job(_job, self._on_archive_written)
+
+    def _on_archive_written(self, result: Any) -> None:
+        """Say where the package went and whether it passed its checks."""
+        pkg, problems = result
+        self._archive_problems = list(problems)
+        if problems:
+            self._set_status(
+                tr("Wrote {path}, but it does not pass: {problems}").format(
+                    path=pkg, problems="; ".join(problems[:4])), error=True)
+            return
+        self._set_status(tr(
+            "Wrote {path}. It passes the IDR, BioStudies and MIHCSME "
+            "checks; nothing was uploaded.").format(path=pkg))
+
+    def _build_zenodo_button(self) -> QPushButton:
+        """The Deposit on Zenodo button: the run as a Zenodo deposit with a DOI.
+
+        Opens :meth:`_zenodo_dialog`. An alpha feature, registered as
+        ``ReportZenodoDeposit`` in :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button.
+        """
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Deposit on Zenodo…"), self)
+        button.setObjectName("ReportZenodoDeposit")
+        button.setToolTip(tr(
+            "Deposit this run on Zenodo so the analysis gets a citable DOI: "
+            "the archive package, settings, run journal, report, result "
+            "tables and, if asked, the masks, with the archive form as its "
+            "metadata. Uses your own Zenodo token, kept in the system "
+            "keyring or a private file. The sandbox, for trying it out, is "
+            "on until you turn it off; a draft is left to publish on Zenodo "
+            "unless you publish here. Default not deposited."))
+        button.clicked.connect(self._on_zenodo_deposit)
+        self._btn_zenodo = button
+        _apply_alpha_widgets(button)
+        return button
+
+    def _zenodo_dialog(self):
+        """Build the Zenodo form: the archive fields, the token and options.
+
+        :returns: the dialog, not yet shown, or ``None`` without a folder.
+        """
+        from PySide6.QtWidgets import (QCheckBox, QDialog, QDialogButtonBox,
+                                       QFormLayout)
+
+        raw = self._path_edit.text().strip()
+        src = os.path.abspath(os.path.expanduser(raw)) if raw else ""
+        if not src or not os.path.isdir(src):
+            self._set_status(tr("Choose a run folder first."), error=True)
+            return None
+        dialog = QDialog(self)
+        dialog.setObjectName("ReportZenodoDialog")
+        dialog.setWindowTitle(tr("Deposit on Zenodo"))
+        form = QFormLayout(dialog)
+        fields = self._archive_form_rows(dialog, form, src)
+        out = QLineEdit(os.path.dirname(src.rstrip(os.sep)), dialog)
+        out.setObjectName("ZenodoOutput")
+        form.addRow(tr("Stage the files in"), out)
+        sandbox = QCheckBox(
+            tr("Use the Zenodo sandbox (a test deposit, no real DOI)"), dialog)
+        sandbox.setObjectName("ZenodoSandbox")
+        sandbox.setChecked(True)
+        form.addRow("", sandbox)
+        token = QLineEdit(dialog)
+        token.setObjectName("ZenodoToken")
+        token.setEchoMode(QLineEdit.Password)
+
+        def _placeholder() -> None:
+            """Say whether a token is already kept for this Zenodo."""
+            kept = bool(rep._load_zenodo_token(sandbox.isChecked()))
+            token.setPlaceholderText(
+                tr("A token is kept; type one to replace it") if kept else
+                tr("Personal access token with deposit:write"))
+
+        _placeholder()
+        sandbox.toggled.connect(lambda _on: _placeholder())
+        form.addRow(tr("Zenodo token"), token)
+        remember = QCheckBox(tr("Remember the token"), dialog)
+        remember.setObjectName("ZenodoRememberToken")
+        remember.setChecked(True)
+        form.addRow("", remember)
+        masks = QCheckBox(tr("Include the masks"), dialog)
+        masks.setObjectName("ZenodoIncludeMasks")
+        form.addRow("", masks)
+        publish = QCheckBox(
+            tr("Publish now (the DOI becomes permanent)"), dialog)
+        publish.setObjectName("ZenodoPublish")
+        form.addRow("", publish)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        form.addRow(buttons)
+        dialog.accepted.connect(lambda: self._deposit_zenodo(
+            src, out.text().strip(),
+            {k: e.text() for k, e in fields.items()}, token=token.text(),
+            sandbox=sandbox.isChecked(), remember=remember.isChecked(),
+            include_masks=masks.isChecked(), publish=publish.isChecked()))
+        return dialog
+
+    def _on_zenodo_deposit(self) -> None:
+        """Show the Zenodo form for the folder in the source box."""
+        dialog = self._zenodo_dialog()
+        if dialog is not None:
+            dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+            dialog.open()
+
+    def _deposit_zenodo(self, src: str, out: str, form: Dict[str, str], *,
+                        token: str = "", sandbox: bool = True,
+                        remember: bool = True, include_masks: bool = False,
+                        publish: bool = False) -> bool:
+        """Deposit the run on Zenodo off the GUI thread.
+
+        A typed token is remembered first when ``remember`` is set; without
+        one the kept token is used.
+
+        :param src: the run folder.
+        :param out: the folder the staged files go in.
+        :param form: the archive form values.
+        :param token: the typed token, or empty for the kept one.
+        :param sandbox: deposit on the Zenodo sandbox.
+        :param remember: keep the typed token for next time.
+        :param include_masks: also deposit the masks.
+        :param publish: publish, making the DOI permanent.
+        :returns: True when the job was started (or, unthreaded, ran).
+        """
+        token = str(token or "").strip()
+        if token and remember:
+            rep._store_zenodo_token(token, sandbox)
+        token = token or rep._load_zenodo_token(sandbox)
+        if not token:
+            self._set_status(tr("A Zenodo token is needed."), error=True)
+            return False
+        target = out or os.path.dirname(src.rstrip(os.sep))
+        self._set_status(tr("Depositing on Zenodo…"))
+
+        def _job():
+            """Stage and upload the deposit; a failure comes back as text."""
+            try:
+                return rep._zenodo_archive_run(
+                    src, target, form, token=token, sandbox=sandbox,
+                    publish=publish, include_masks=include_masks)
+            except (ValueError, RuntimeError, OSError) as exc:
+                return str(exc)
+
+        return self._run_job(_job, self._on_zenodo_done)
+
+    def _on_zenodo_done(self, result: Any) -> None:
+        """Say where the deposit is and its DOI, or why it failed."""
+        self._zenodo_record = result if isinstance(result, dict) else None
+        if not isinstance(result, dict):
+            self._set_status(tr("The Zenodo deposit failed: {error}").format(
+                error=result), error=True)
+            return
+        text = (tr("Published {count} files on Zenodo: DOI {doi}, {url}")
+                if result["published"] else
+                tr("Deposited {count} files as a Zenodo draft at {url}; "
+                   "its reserved DOI is {doi}. Publish it there."))
+        self._set_status(text.format(count=len(result["files"]),
+                                     doi=result["doi"], url=result["url"]))
+
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
         """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
@@ -618,6 +911,8 @@ class ReportScreen(QWidget):
         self._btn_pick_out.setEnabled(idle)
         self._btn_generate.setEnabled(idle and has_src)
         self._btn_open.setEnabled(idle and bool(self._written))
+        self._btn_archive.setEnabled(idle and has_src)
+        self._btn_zenodo.setEnabled(idle and has_src)
         self._format.setEnabled(idle)
         self._figure_cap.setEnabled(idle)
 

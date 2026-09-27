@@ -1777,12 +1777,15 @@
         "171086381d5d85688069d6fb2a6a4f072cfff85695a1e8bd28407af0b6b27333",
         "7222c9060c5d31f4a5f7b8389f022ceb12462659396893b0f69cbf5c89dc73d7",
         "cfd049cc3169c2ca0ae38f83dbf45522d6b6581285766c7e5f1945864edc37e8",
-        "6beb357207f6b4866a41dff6b46731bee9471f738c82dc1f0c0a6bac325a1e3d",
-        "49ffbffdaadd9a5ab7c45eb5d935b4d1bb2814135bfe07060420c9b2eddc2271",
-        "16a8ba9917a04bb807df88640c3f84e194ad4f007c310953e398ba5089931217"
+        "9672502cffbb81a075a474915582dc00a7f415dc29cab34bfac407a5b56e5ae5",
+        "cfd049cc3169c2ca0ae38f83dbf45522d6b6581285766c7e5f1945864edc37e8",
+        "909d858253db54ef559ca22ad578d402f10e2c75f962a34c3cc900173974895a",
+        "5a4fe4acd378454529ccaa48d42281c049934d2e53c0eda28240639026f462d2",
+        "a963f6f17166f1ffcca8826eae3ae77f797bad1db22b194afaa03f307f2c6e73",
+        "cd829f4cf58051944f9804638d8a54ef363b76fdd709bad8e1732cd109b40567"
       ],
-      "source_sha256": "1aa6a2be3819135bc8786f08dad355dc6faf7df7314e7649fa4710b9e717521c",
-      "text": "Run the export from a settings dict. The headless entry point.\n\nThe ``fn(settings)`` shape ``spacr-run``, the Qt Run button and\n:mod:`spacr.validate` all dispatch to, wrapped around\n:func:`export_anndata` -- which keeps its own explicit keyword\nsignature, because a function whose arguments are a dict is a function\nnobody can call from a notebook.\n\nEvery key it reads is one :func:`anndata_export_settings` declares and\n:func:`register_anndata_settings` gave a type and a tooltip, so the form\nthe GUI draws and the keys honoured here are the same list.\n\n:param settings: the run settings. ``src`` is the project root (or the\n    database); everything else falls back to\n    :func:`anndata_export_settings`.\n:returns: the :class:`ExportResult`, whose ``describe()`` is what the\n    console prints.\n:raises ValueError: when ``src`` is empty -- there is nothing to export\n    and no path to name in the message otherwise.\n:raises AnnDataExtraMissing: when ``anndata`` is not installed."
+      "source_sha256": "56796700962603cf6f41768971803bc7239650e40bf5995a08ae69b658342df7",
+      "text": "Run the export from a settings dict. The headless entry point.\n\nThe ``fn(settings)`` shape ``spacr-run``, the Qt Run button and\n:mod:`spacr.validate` all dispatch to, wrapped around\n:func:`export_anndata` -- which keeps its own explicit keyword\nsignature, because a function whose arguments are a dict is a function\nnobody can call from a notebook.\n\nEvery key it reads is one :func:`anndata_export_settings` declares and\n:func:`register_anndata_settings` gave a type and a tooltip, so the form\nthe GUI draws and the keys honoured here are the same list.\n\n:param settings: the run settings. ``src`` is the project root (or the\n    database); everything else falls back to\n    :func:`anndata_export_settings`.\n``anndata_format`` chooses what is written: ``'h5ad'`` the AnnData\nfile, ``'parquet'`` the tidy Parquet tables of :func:`_export_tables`\nin ``anndata_tidy_dir``, ``'r'`` those tables with the R loader script\n(and ``.rds`` data frames when pyreadr is installed), and ``'all'``\nevery one of them. The tables keep float64 features whatever\n``anndata_dtype`` says, which sets the AnnData matrix only.\n\n:param settings: the run settings. ``src`` is the project root (or the\n    database); everything else falls back to\n    :func:`anndata_export_settings`.\n:returns: the :class:`ExportResult` when an ``.h5ad`` was written, and\n    otherwise the tables result; ``describe()`` on either is what the\n    console prints.\n:raises ValueError: when ``src`` is empty -- there is nothing to export\n    and no path to name in the message otherwise -- or\n    ``anndata_format`` is not a known format.\n:raises AnnDataExtraMissing: when ``anndata`` is not installed and the\n    format includes ``.h5ad``.\n:raises ImportError: when pyarrow is not installed and the format\n    includes the tables."
     },
     "spacr.annotation": {
       "source_blocks_sha256": [
@@ -8388,14 +8391,16 @@
         "a473f2d0bf614b72d28dc70798f28ef11e3b59992f652b5eee476a02090b8c37",
         "2daed458812e607f041e55b4d5f2e02a55059df2ed7f124c73170578959ae7cf",
         "3939d488f8884ad019e6dfaa1991e3012947f976103941f59d9425efe8000acd",
+        "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
+        "106d9e026f2d2681cdb69ef5ad5963ed96667ed9f801164f389bd4aad03ab78c",
         "4f9a9dd2a177bcf90eaf317e829c883bb3f9e42425bc29e5ee62034ef0cd8054",
-        "f7383e8196746fc9c737a32678af0f70bcac20e9fa52d8f2d0a7bdcda93b9e06",
+        "30b31ab3af9a0fd2923241906afe7a68ef64a744970d3db94f4e71e823b25d94",
         "a755d65aa524b4e701cdb56381033fade2086658ee6dc75b2ca57e3bad5ecb39",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
       ],
-      "source_sha256": "fd9dc331fad4251a1d0079ddd363ba7db67931c8072c46c26758d80777ded83b",
-      "text": "Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.\n\nGiven a source folder ``src`` of multi-channel images, this pipeline (1)\noptionally consolidates inputs from nested folders, (2) renames files to\nthe Yokogawa layout used downstream, (3) preprocesses per-channel arrays,\n(4) generates masks for cell / nucleus / pathogen / organelle channels\nvia Cellpose (SAM variant), (5) optionally reconciles the cell mask\nagainst nuclei + pathogen overlays, and (6) writes overlay plots and a\n``gen_mask_settings.csv`` next to the outputs.\n\n:param settings: Settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n    Must include ``src`` and at least one of ``cell_channel``,\n    ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.\n    Key entries the function reads:\n\n    - ``src`` (str or list of str) — image folder(s) to process.\n    - ``metadata_type`` — ``'cellvoyager'`` or ``'auto'`` (uses\n      ``custom_regex`` when set).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /\n      ``organelle_channel`` — 0-based channel indices; ``None`` skips.\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``\n      — Cellpose object diameters in pixels.\n    - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment\n      pathogens with, instead of stock ``cpsam``. The pre-SAM\n      ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to\n      ``cpsam``; a PATH to a fine-tune is honoured, and a path that is\n      not there stops the run rather than silently using stock weights.\n    - ``consolidate`` — copy nested images into ``src/consolidated``\n      before processing.\n    - ``preprocess`` / ``masks`` — toggle the two pipeline halves.\n    - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.\n    - ``timelapse`` — enable trackpy linking; forces\n      ``randomize=False``.\n    - ``motility_analysis`` — when timelapse is enabled, analyze the\n      completed merged frames once per plate, rebuilding measurements\n      from the current masks rather than reusing an older assay table.\n    - ``dry_run`` — validate only: inspect the input folders, print the\n      preflight report and plan and return, without writing anything or\n      loading a model.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays,\n    ``measurements.db`` counts and settings CSVs into subfolders of\n    ``src``. When ``dry_run`` is set, returns instead the list of\n    problems from :func:`spacr.validate.run_preflight`.\n:raises ValueError: if ``src`` is missing or of the wrong type, or no\n    segmentation channel is defined.\n\nExample:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSee Also:\n    :func:`spacr.io.preprocess_img_data` — the preprocessing half only.\n    :func:`spacr.measure.measure_crop` — downstream feature extraction."
+      "source_sha256": "ef72da78843ac3b434a9db70550d6ae45e7461cd8a31b8e532d42b39036f3535",
+      "text": "Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.\n\nGiven a source folder ``src`` of multi-channel images, this pipeline (1)\noptionally consolidates inputs from nested folders, (2) renames files to\nthe Yokogawa layout used downstream, (3) preprocesses per-channel arrays,\n(4) generates masks for cell / nucleus / pathogen / organelle channels\nvia Cellpose (SAM variant), (5) optionally reconciles the cell mask\nagainst nuclei + pathogen overlays, and (6) writes overlay plots and a\n``gen_mask_settings.csv`` next to the outputs.\n\n:param settings: Settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n    Must include ``src`` and at least one of ``cell_channel``,\n    ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.\n    Key entries the function reads:\n\n    - ``src`` (str or list of str) — image folder(s) to process.\n    - ``metadata_type`` — ``'cellvoyager'`` or ``'auto'`` (uses\n      ``custom_regex`` when set).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /\n      ``organelle_channel`` — 0-based channel indices; ``None`` skips.\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``\n      — Cellpose object diameters in pixels.\n    - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment\n      pathogens with, instead of stock ``cpsam``. The pre-SAM\n      ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to\n      ``cpsam``; a PATH to a fine-tune is honoured, and a path that is\n      not there stops the run rather than silently using stock weights.\n    - ``consolidate`` — copy nested images into ``src/consolidated``\n      before processing.\n    - ``preprocess`` / ``masks`` — toggle the two pipeline halves.\n    - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.\n    - ``timelapse`` — enable trackpy linking; forces\n      ``randomize=False``.\n    - ``motility_analysis`` — when timelapse is enabled, analyze the\n      completed merged frames once per plate, rebuilding measurements\n      from the current masks rather than reusing an older assay table.\n    - ``dry_run`` — validate only: inspect the input folders, print the\n      preflight report and plan and return, without writing anything or\n      loading a model.\n    - ``watch_folder`` — keep watching ``src`` and analyse each field as\n      its files arrive and stop changing, with ``watch_pipeline``,\n      ``watch_measure_settings``, ``watch_settle_seconds``,\n      ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather\n      in ``src/spacr_watch``, and a record there lets a restarted watch\n      skip the fields already analysed.\n    - ``src`` may also be a cloud address (``s3://``, ``gs://``,\n      ``az://``, ``https://``). An OME-Zarr plate there has only the\n      wells, fields and pyramid level named by ``cloud_wells``,\n      ``cloud_fields`` and ``cloud_level`` fetched, as TIFFs, into a\n      folder under ``cloud_cache``, and the run analyses that folder; a\n      cloud folder of images is mirrored there instead. Credentials come\n      from the standard places, chosen with ``cloud_anonymous``,\n      ``cloud_profile`` and ``cloud_endpoint``, and ``cloud_results``\n      copies the measurements folder back to cloud storage.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays,\n    ``measurements.db`` counts and settings CSVs into subfolders of\n    ``src``. When ``dry_run`` is set, returns instead the list of\n    problems from :func:`spacr.validate.run_preflight`. When\n    ``watch_folder`` is set, returns a dict naming the fields analysed,\n    failed and never completed when the watch ends.\n:raises ValueError: if ``src`` is missing or of the wrong type, or no\n    segmentation channel is defined.\n\nExample:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSee Also:\n    :func:`spacr.io.preprocess_img_data` — the preprocessing half only.\n    :func:`spacr.measure.measure_crop` — downstream feature extraction."
     },
     "spacr.core.preprocess_generate_masks_timelapse": {
       "source_blocks_sha256": [
@@ -14650,10 +14655,11 @@
         "931e58bba324a05a99b80cc992a2f45648bd50b01c20c43aa2b867fe288a24ee",
         "ff5ae474b21ace77cd40a4b3d350dea86bdbdd2972b78c5ada1dda11a3df8e7c",
         "17352ac54a6c544d1f4119b4d501867995674c54f9919baf1acbf745a201111a",
+        "82e8ccf6f8004b41f76d8307dd1cf25d9780f12e100fc538d34dcce6a478c145",
         "fcd33d0ce5132de6c79d01ce90bab72e847d73f908673521fdd5abb36f4beba3"
       ],
-      "source_sha256": "14c4aff8e648b24b4ee535b799fdf24efd90e74633fb7906addbf17950d651c0",
-      "text": "Every plate of a screen as one figure, on one colour scale.\n\n:param frame: long-format frame with a ``prc`` column and ``variable``.\n:param variable: the measurement to aggregate per well.\n:param grouping: ``'mean'``, ``'sum'`` or ``'count'``.\n:param min_count: minimum number of rows required for a well to be drawn.\n:param min_max: colour-scale spec, as\n    :func:`spacr.plot.generate_plate_heatmap` defines it -- but applied\n    ONCE, over every plate at the same time.\n:param cmap: a colormap to override the house ramp. ``None`` uses\n    :func:`plate_ramp`, which is what the style asks for.\n:param target: ``'screen'`` or ``'print'``; defaults to the user's own\n    figure preference.\n:param width: figure width in inches. The HEIGHT is derived from it, so\n    that the wells come out square.\n:param plates: draw only these plates, in this order.\n:param limits: an explicit ``(vmin, vmax)``, overriding ``min_max``.\n    THIS IS WHAT MAKES ONE-PLATE-PER-FIGURE SAFE: a caller that wants a\n    plate to a tile computes :func:`shared_limits` over every plate once\n    and passes the same pair to each figure, so splitting the small\n    multiple up does not silently give each plate its own scale again.\n:returns: ``(figure, Panel)``. With no matrix the panel has ``drawn=False``\n    plus its missing requirements and reason. Otherwise its caption\n    records the actual aggregation, well counts, and shared limits."
+      "source_sha256": "255b5f233cc8e21f46e51b2dfcd69f364b31e7f788e1b9de2001273900582a04",
+      "text": "Every plate of a screen as one figure, on one colour scale.\n\n:param frame: long-format frame with a ``prc`` column and ``variable``.\n:param variable: the measurement to aggregate per well.\n:param grouping: ``'mean'``, ``'sum'`` or ``'count'``.\n:param min_count: minimum number of rows required for a well to be drawn.\n:param min_max: colour-scale spec, as\n    :func:`spacr.plot.generate_plate_heatmap` defines it -- but applied\n    ONCE, over every plate at the same time.\n:param cmap: a colormap to override the house ramp. ``None`` uses\n    :func:`plate_ramp`, which is what the style asks for.\n:param target: ``'screen'`` or ``'print'``; defaults to the user's own\n    figure preference.\n:param width: figure width in inches. The HEIGHT is derived from it, so\n    that the wells come out square.\n:param plates: draw only these plates, in this order.\n:param limits: an explicit ``(vmin, vmax)``, overriding ``min_max``.\n    THIS IS WHAT MAKES ONE-PLATE-PER-FIGURE SAFE: a caller that wants a\n    plate to a tile computes :func:`shared_limits` over every plate once\n    and passes the same pair to each figure, so splitting the small\n    multiple up does not silently give each plate its own scale again.\n:param outline: a column of ``frame``; every well whose mean of it is\n    above zero gets a square outline in the ink colour. A hit call drawn\n    on the score it was called from, without a second figure.\n:returns: ``(figure, Panel)``. With no matrix the panel has ``drawn=False``\n    plus its missing requirements and reason. Otherwise its caption\n    records the actual aggregation, well counts, and shared limits."
     },
     "spacr.figures.plates.draw_plate": {
       "source_blocks_sha256": [
@@ -14716,6 +14722,16 @@
       ],
       "source_sha256": "80029149b24b0ec8862e9029f78c35a5c55d3e7d975dc58b6b1d9d1e32c34947",
       "text": "Create the sequential blue color map used for plate measurements.\n\nParameters\n----------\ntarget : str, default=\"screen\"\n    ``\"print\"`` selects the print ramp. Every other value selects the\n    screen ramp, which avoids the darkest print color so high values\n    remain distinct from a dark interface background.\n\nReturns\n-------\nmatplotlib.colors.Colormap\n    Color map with a transparent bad-value color for unmeasured wells."
+    },
+    "spacr.figures.plates.score_ramp": {
+      "source_blocks_sha256": [
+        "9a9bd00f3df3d07d0010b9f04c73a9051fe7842a2be4b1606033538302923009",
+        "5a9cecbf7013e76f2b6620ff783bf8781b791a66bf90e6999afef9b6ef542e57",
+        "4a9859a40f838004337e02a3765a535e6b472ddcf2e022bcf71684e9d76c55a0",
+        "4440fa586152d0f68537a9971fbb65976956bbe33ded68a51e5991a3415bcb1f"
+      ],
+      "source_sha256": "be9e0d7766ac5b0c31550740da17b8e0fc0ba5cf688796c4ad4aa792acf9610a",
+      "text": "Create the diverging color map used for signed plate scores.\n\nA hit score (SSMD, robust z, B-score) is signed about the negative\ncontrol, which is what a diverging map is for. The ends are the house\n``down`` and ``up`` colours (:data:`spacr.figures.style.ROLES`), so a\nwell scored below the control reads rust and one above it green, the\nsame as on a volcano.\n\n:param target: ``\"print\"`` centres on a near-white; every other value on\n    the light grey of the screen plate ramp.\n:returns: A color map with a transparent bad-value color."
     },
     "spacr.figures.plates.shared_limits": {
       "source_blocks_sha256": [
@@ -25303,10 +25319,85 @@
         "00b0a1afb5b3b44f309dc9761f852a7ce239834b14581a052285a4470f429311",
         "9c46318998ecc9b7b6e7dd5bb2554670da4a1ce47d3cd45293ab34510fa6fb23",
         "a50cece768c1226ad5df1ed9ac49ade533d7150fab808d747b7912452ffb500b",
-        "5b41e31401fbba92e40563d01ae6547b1f588754566c72a6e9790dd4bf95217a"
+        "5b41e31401fbba92e40563d01ae6547b1f588754566c72a6e9790dd4bf95217a",
+        "a7d221ac87b6abdc9cab73fac788436a358640a9414ce7887eb23562f78e4a9a",
+        "b4a646adb6c987e4a0a9006e09a7cf4574f09cbc6d1f479beaa31d5cfe648704",
+        "1a10a6cfc0bca08290c5bbb9ef49a39236eb6354c64886fcdbbbf50c90f3b9f5",
+        "d60b6acfe0b0fe8c574cccdb6d7f288463b7466187f05d758c731f79c93dedb1"
       ],
-      "source_sha256": "4d35e50854dd8e92cd85fb90c1c9962c9867c32a14b138338b7840c6695f6815",
-      "text": "Cellpose mask I/O — write + read masks as EITHER TIFF or NumPy.\n\nIntroduces two helpers to replace scattered ``np.save``/``np.load``\ncalls across :mod:`spacr.object` and :mod:`spacr.io`:\n\n* :func:`save_mask` — writes a single 2-D uint16 mask. Emits\n  ``.tif`` by default (smaller on disk + openable in Fiji /\n  napari) but ``.npy`` is still supported via ``fmt=\"npy\"`` for\n  users who prefer numpy round-trips.\n* :func:`load_mask` — reads a mask regardless of on-disk format.\n  Given a path with no suffix, or a stem, it probes ``.tif``,\n  ``.tiff`` and ``.npy`` in that order and returns the first hit.\n\nBoth helpers preserve uint16 dtype (spaCR's mask convention) and\nreturn arrays with the same shape ``(H, W)``. TIFF is written with\nLZW compression via ``tifffile``.\n\nMigration path for existing scripts:\n\n    # BEFORE\n    np.save(\"foo_mask.npy\", mask.astype(np.uint16))\n    m = np.load(\"foo_mask.npy\")\n\n    # AFTER\n    save_mask(\"foo_mask\", mask)       # writes foo_mask.tif\n    m = load_mask(\"foo_mask\")         # finds foo_mask.tif or foo_mask.npy\n\nThe env var ``SPACR_MASK_FORMAT`` overrides the default across\nthe whole process: set to ``npy`` to keep the old behaviour."
+      "source_sha256": "3264968f4673e874c9d284e5a0a4d608eab865921e2bfbd204d695335522f37f",
+      "text": "Cellpose mask I/O — write + read masks as EITHER TIFF or NumPy.\n\nIntroduces two helpers to replace scattered ``np.save``/``np.load``\ncalls across :mod:`spacr.object` and :mod:`spacr.io`:\n\n* :func:`save_mask` — writes a single 2-D uint16 mask. Emits\n  ``.tif`` by default (smaller on disk + openable in Fiji /\n  napari) but ``.npy`` is still supported via ``fmt=\"npy\"`` for\n  users who prefer numpy round-trips.\n* :func:`load_mask` — reads a mask regardless of on-disk format.\n  Given a path with no suffix, or a stem, it probes ``.tif``,\n  ``.tiff`` and ``.npy`` in that order and returns the first hit.\n\nBoth helpers preserve uint16 dtype (spaCR's mask convention) and\nreturn arrays with the same shape ``(H, W)``. TIFF is written with\nLZW compression via ``tifffile``.\n\nMigration path for existing scripts:\n\n    # BEFORE\n    np.save(\"foo_mask.npy\", mask.astype(np.uint16))\n    m = np.load(\"foo_mask.npy\")\n\n    # AFTER\n    save_mask(\"foo_mask\", mask)       # writes foo_mask.tif\n    m = load_mask(\"foo_mask\")         # finds foo_mask.tif or foo_mask.npy\n\nThe env var ``SPACR_MASK_FORMAT`` overrides the default across\nthe whole process: set to ``npy`` to keep the old behaviour.\n\nMasks as ROIs: QuPath GeoJSON, ImageJ RoiSet and COCO\n------------------------------------------------------\n\nThe second half of this module moves label masks to and from the formats\nother tools curate and train on (item 545): :func:`masks_to_geojson` and\n:func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and\n:func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and\n:func:`coco_to_masks` for COCO-style training sets, and\n:func:`export_rois` / :func:`import_rois` choosing among them by file name.\n\nEvery object is one feature, ROI or annotation, carrying its object type\n(``cell``, ``nucleus`` ...), its object id and its class; the class defaults to\nthe object type. Each object is traced on its own, so objects that touch stay\nseparate. Outlines follow PIXEL EDGES, not pixel centres: a pixel ``(row,\ncol)`` is the square from ``x = col`` to ``col + 1`` and ``y = row`` to\n``row + 1``, the convention QuPath and ImageJ both use. A pixel is inside a\npolygon when its centre is, so a traced outline rasterised back gives the\nobject exactly: no tolerance, holes and several-part objects included. A hole\nis an interior ring (GeoJSON), a path of a composite ROI (ImageJ) or, since a\nCOCO polygon cannot have one, an RLE segmentation (COCO).\n\n``roifile`` is needed only for ImageJ files and is imported when one is read\nor written. COCO RLE is encoded and decoded here, so ``pycocotools`` is never\nrequired; the files it writes are the ones ``pycocotools`` reads."
+    },
+    "spacr.mask_io.coco_image_names": {
+      "source_blocks_sha256": [
+        "be8048f5aeef2b259550786d803880e5a61636629c993dbbfe1ab7ff3e55a4d8",
+        "56a05316abd2a1cad320b89b997bbffe1dd0cdc6f7b9f6311c9f2486a79cd91a",
+        "d27a8d7f4daa61a9f39a20e550797e0149e19b3d34794027f08e1552e7bd53f4"
+      ],
+      "source_sha256": "a2cd10aaef665eccf8a798142bd925bbb44883aa970e11530b2935ba0b477b3f",
+      "text": "The file names of the images a COCO dataset annotates.\n\n:param data: the parsed dataset, or a path to its ``.json`` file.\n:returns: ``images[].file_name``, in file order."
+    },
+    "spacr.mask_io.coco_to_masks": {
+      "source_blocks_sha256": [
+        "1e4afb6b88c1f50eb55d228a8a21d40e8ea56e22c8ad3e0c0551b6623f94f0c9",
+        "9da0e07164f0cb2463df89ec2879e3630e355a2dbfab43707cc24771b566ef8b",
+        "56a05316abd2a1cad320b89b997bbffe1dd0cdc6f7b9f6311c9f2486a79cd91a",
+        "c23417e09d07f1ab2ce0e645344f9e2106b42d144b79fa3f2cee425a4c2fddd3",
+        "a6ebcc9593fad26468de51eddb47fa620ee64dfa4e8ea43f9c467d6eadf6415a",
+        "e5e619292d92bb8bba5618e9fb12b36bda03ed5c9c06b8efb47f9bf445637661",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "271246668b3369fe302734025762136a4b0fd9d8fb1740d2274ac3c9e479c721"
+      ],
+      "source_sha256": "db367dc9ceea8e316438f8b20a88dfc4f8c24b6d418dad67a89a14f2c6c97051",
+      "text": "Rasterise the annotations of one image of a COCO dataset.\n\nPolygons are filled by pixel centre and the parts of one annotation\nunited, as ``pycocotools`` unites them; RLE (compressed or not) is\ndecoded exactly. The object type is ``object_type``, the annotation's\n``object_type``, or its category name; the id is ``object_id`` or the\nnext free one; the class is the category name.\n\n:param data: the parsed dataset, or a path to its ``.json`` file.\n:param file_name: which image, for a dataset of several.\n:param shape: ``(rows, columns)``; default the image entry's height and\n    width.\n:param object_type: put every annotation in this one object type.\n:param with_classes: also return each object's class.\n:returns: ``{object type: uint16 labels}``, or\n    ``(masks, {object type: {id: class}})`` with ``with_classes``.\n:raises ValueError: the image is missing or an RLE does not fit it."
+    },
+    "spacr.mask_io.export_rois": {
+      "source_blocks_sha256": [
+        "e7a8c7302d995df478153a63e3fbcfbc4993302545bd287135c5ff774b3feb81",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "1d3a2debed84677ef704f042c202a1ffbcad81b721e40e4c2a25f4fb548f552b",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "aa59182f435ab447699ebb7b2d8ea7dd3357086dbc89fbb7a49eb6228e719ac9",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "134e61e92760eebdacc0e86d456626d892b100125f7dfdcf3f546b80816be951",
+        "889b26062b8392295731449e1dfa708a61d8cb67aedcf0bb6aa0d8f9017d2acd",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "44682cfdfc9c23ebd78992b17bcda5899933cb238ef4538cfbc11176e3dc943b",
+        "485b69920d37e30bd8a1922443a680a0a27f392caaa0e3315a592f9bc632931f"
+      ],
+      "source_sha256": "0c1ca317911bba27e620f3030014c4bb4200ff5e97af0d1994b8a2bfdb937ce2",
+      "text": "Write label masks as QuPath GeoJSON, an ImageJ RoiSet or COCO JSON.\n\n:param masks: a 2-D label mask, or ``{object type: mask}``.\n:param path: the file to write; its suffix picks the format unless\n    ``fmt`` does (``.geojson``, ``.zip``, ``.json`` for COCO).\n:param fmt: ``\"geojson\"``, ``\"imagej\"`` or ``\"coco\"``.\n:param classes: ``{id: class}`` or ``{object type: {id: class}}``.\n:param object_type: the type of a single mask (default ``\"object\"``).\n:param file_name: the image's name, recorded in GeoJSON ids and COCO\n    ``images``; default the output file's stem.\n:param rle: COCO only: every segmentation as RLE.\n:returns: the path written.\n:raises ImportError: ImageJ output without ``roifile`` installed.\n:raises ValueError: an unknown format or an invalid mask."
+    },
+    "spacr.mask_io.geojson_to_masks": {
+      "source_blocks_sha256": [
+        "3f6ee1488805e87d2a0aa2f0d517cd5e1c09125fa4b8c460d3e6993a4d8faccf",
+        "a551492f878a4be77281ea4ff8e45dfe4fad65033c74a1e37be4c37e86cf03cd",
+        "57c63dcdce8c5a2b3e139673a36ab03782fe6e921afbdfdc773d9ad9422aa067",
+        "b6d48017f916bdf15cf5f24e58936799bf31d4d600e8d2b29c294e5f0ed8d772",
+        "0b1e9987fd024a22678db89b477a375ac2721eb63d82254fc183c19498a0dc50",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "f2f2cb0bbdc347ffd1b8a0314d4a8821e20c1448533a4741cc38890ca44a5623"
+      ],
+      "source_sha256": "c65f3fbf5e64ba48ae9dae3d5f25e720de2b490c96d1463464ec765e01150553",
+      "text": "Rasterise a (QuPath) GeoJSON document into label masks.\n\nA pixel belongs to an object when its centre lies inside the polygon\nand outside its holes; an outline written by :func:`masks_to_geojson`\ntherefore comes back pixel for pixel. The object type is, in order,\n``object_type``, the feature's ``object_type`` property, the type in a\n``\"<type> <id>\"`` name, or its classification -- so a QuPath project\nthat was never in spaCR gives one mask per class. The id is the\n``object_id`` property or measurement, or the id in the name; objects\nwithout one are numbered after the rest.\n\n:param data: the parsed document, or a path to a ``.geojson`` file.\n:param shape: the image's ``(rows, columns)``.\n:param object_type: put every feature in this one object type.\n:param with_classes: also return each object's class.\n:returns: ``{object type: uint16 labels}``, or\n    ``(masks, {object type: {id: class}})`` with ``with_classes``.\n:raises ValueError: the document is not GeoJSON."
+    },
+    "spacr.mask_io.import_rois": {
+      "source_blocks_sha256": [
+        "84c2c3128b363f9d384b6b256890b7df37229c9e9513442ab65981bac03fcf88",
+        "4dbf84b89ca778b809c39d04273d048c9fd8d85fb63aecc2b5ceb328bbb7e893",
+        "fe77ac1c4359f1644ce636aea27897a412df6e6b4bdf164b4cf38ef1de3e6bb5",
+        "38c695f333954f09ccbc95b0a5152f4d4ee6b48b443c2b7955e9a8c17d494d7c",
+        "9ebf8a97f05516b346d4954ffd1622c65d3c13428ce0d3fc450b0389fc9f9705",
+        "9f71f2ca4cdca9fd4261e3f8266a7e8cbf1ecf87cd61a79a1108c9cf81198231",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "92561cd308a9e06c4aa58a73d51de0b922e54589d9da40cc981545fa97b5bbfa",
+        "0682e76e0dbf013a6e78431a85f0d5dff14396e0557e0838f2afca5aa850b4f2"
+      ],
+      "source_sha256": "4ea81f7252c35211c3f44b5a7e614fdfad3871225e2ed9d5037eb593c7a82317",
+      "text": "Read QuPath GeoJSON, an ImageJ RoiSet or COCO JSON into label masks.\n\n:param path: the file.\n:param shape: the image's ``(rows, columns)``; required for GeoJSON and\n    ImageJ, optional for COCO, which records it.\n:param fmt: ``\"geojson\"``, ``\"imagej\"`` or ``\"coco\"``; default from the\n    file (:func:`roi_format`).\n:param file_name: COCO only: which image of a dataset of several.\n:param object_type: put every object in this one object type.\n:param with_classes: also return each object's class.\n:returns: ``{object type: uint16 labels}``, or\n    ``(masks, {object type: {id: class}})`` with ``with_classes``.\n:raises ValueError: no ``shape`` where one is needed, or an unreadable\n    file.\n:raises ImportError: an ImageJ file without ``roifile`` installed."
     },
     "spacr.mask_io.load_mask": {
       "source_blocks_sha256": [
@@ -25319,6 +25410,115 @@
       ],
       "source_sha256": "aa32fed8ae46fff5160f554b338060827022f7b80d9a59be210b9f7d74d250d4",
       "text": "Read a Cellpose mask regardless of on-disk format.\n\n:param path: mask file or extensionless stem to resolve and load.\n\nAccepts a full path (``foo.tif`` / ``foo.npy``) OR a stem\n(``foo``) — in the stem case, tif → tiff → npy is tried and the\nfirst extant file is loaded.\n\n:returns: uint16 2-D array. Shape unchanged.\n:raises FileNotFoundError: when no matching file exists.\n:raises ValueError: stored labels cannot be represented exactly as uint16."
+    },
+    "spacr.mask_io.masks_to_coco": {
+      "source_blocks_sha256": [
+        "02571d8aa155c791b58982eb913b0c218bb9db608ec5d56f21fc64a4f2e788d8",
+        "d13c7028ff16792da028f2bffc235705a2830709d6c8f0be6e156c0062acd0b0",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "65584565b9cdf8d81a8bbbf50e25a1ad39ee16134902bf584cd62796e6ba3e1b",
+        "00f5ae5db19981f9f2d8c3c2d7e51ca0265e19a15255bdbd4fa3d2ff212ebe83",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "df9d09635789b7ac699cee4171f44d6d92612a75855f3440ebf2d986994fd096",
+        "17bfe9324f30b928f46659b35a72cc526b1cf0c351ac6871fa95c2f851e00e13",
+        "948d8b0f43c7c8f14bed521030cc5637495a2a4698f7778d08240efbfd0a171a",
+        "29a4c2c0d1de7109bd94a908c90e6e998205e5178c7ecaa4b109f7be50fc7528"
+      ],
+      "source_sha256": "0ddf3c4463f8f672c15444466687a5542a4a7f981d0b8adfcf503d51d47a23e6",
+      "text": "Label masks as a COCO instance-segmentation dataset.\n\nEach object is one annotation with ``segmentation``, ``area`` (pixels),\n``bbox`` (``[x, y, width, height]`` in pixel corners), ``iscrowd`` 0 and\nspaCR's ``object_type`` and ``object_id``. Categories are the\n``(object type, class)`` pairs: ``name`` is the class and\n``supercategory`` the object type. Segmentations are polygons -- one flat\n``[x1, y1, x2, y2, ...]`` list per part -- except for an object with a\nhole, which a COCO polygon cannot express and which is written as RLE;\n``rle=True`` writes every object as compressed RLE, which is exact\nwhoever reads it.\n\n:param masks: a 2-D label mask, or ``{object type: mask}``.\n:param file_name: the image's file name, as ``images[].file_name``.\n:param classes: ``{id: class}`` or ``{object type: {id: class}}``; an\n    object without one is classified as its object type.\n:param object_type: the type of a single mask (default ``\"object\"``).\n:param rle: write every segmentation as RLE.\n:param dataset: an existing COCO dict to add this image to, as a queue\n    export does; ``None`` starts a new one.\n:returns: the dataset (``dataset`` itself when given).\n:raises ValueError: an invalid mask."
+    },
+    "spacr.mask_io.masks_to_geojson": {
+      "source_blocks_sha256": [
+        "a0d7dabdb51d9bd3e952ca9c3295459a5edc97cf3b67b148a086c0ce23c41496",
+        "f175e7ce68a0cae27ae60a65257b73a6fbd0cb2c8ecaa6438510c8ac3034e24f",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "ca851b08f813b9d87f8fd1c2ec02211b46a3842936babd104ff1732b51c949c0",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "8af787c5f5a9a87a58978686bd1da9cd985dd7e1191892665f69e71d677c7299",
+        "3dfd8270c59c9012e743218ecd5e4ea48203647d5b24222f96cf8a6bd5fb5947",
+        "5d1730822394932c169e22d0e82e77d471c48d2c2205309c34c30aa691841a02",
+        "a57226ce66869e3056095ad946f817a70baebba16a6192aaddbd05ce28126126"
+      ],
+      "source_sha256": "ad778149d78c45f1823979b300346f6ac40c23bc7a23185b350960cc5535c6af",
+      "text": "Label masks as a QuPath GeoJSON ``FeatureCollection``.\n\nOne feature per object: a ``Polygon``, or a ``MultiPolygon`` for an\nobject in several parts, with holes as interior rings and coordinates in\npixels (pixel corners, ``x`` right and ``y`` down). The properties are\nQuPath's own -- ``objectType``, ``classification`` (``name`` and\n``color``), ``name`` and ``isLocked`` -- plus ``object_type`` and\n``object_id``, and ``measurements.object_id`` so the id survives a\nround trip through QuPath, which keeps measurements and names. The\nfeature ``id`` is a UUID derived from the image name, the object type\nand the id, so exporting the same mask twice writes the same file.\n\n:param masks: a 2-D label mask, or ``{object type: mask}``.\n:param classes: the class of each object: ``{id: class}`` for a single\n    mask or ``{object type: {id: class}}``; an object without one is\n    classified as its object type.\n:param object_type: the type of a single mask (default ``\"object\"``).\n:param object_kind: ``\"annotation\"`` or ``\"detection\"``, the QuPath\n    object each feature becomes.\n:param image_name: the image these masks belong to, used to make the\n    feature ids unique across images.\n:returns: the ``FeatureCollection`` as a JSON-ready dict.\n:raises ValueError: an unknown ``object_kind`` or an invalid mask."
+    },
+    "spacr.mask_io.masks_to_roiset": {
+      "source_blocks_sha256": [
+        "99388c80851c859bf23bea55a790aa4e99479e0fc985a9fd9d788506d4d7f24a",
+        "abdb04f7b703f2fb6c9c806e27d7d9b786ad4e474cf5da2f615eca9d6c7829d3",
+        "8c8c9b5c504186b8e1d26267d29e8a88460c99a81d705f4aaa6b868dde0068ff",
+        "1f0e204fb1ec8c33a4c4bf453941f2d73cbe51e9fa790988494fd913bc5bde36",
+        "00f5ae5db19981f9f2d8c3c2d7e51ca0265e19a15255bdbd4fa3d2ff212ebe83",
+        "feb046bc8425d009b3b4032430f60377e73ceaf50ec4554f97111bd682062a06",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "3eced96e5c286896300e90bba8e860b3f81209d0445866a6b5292b1a68b51278",
+        "29a4c2c0d1de7109bd94a908c90e6e998205e5178c7ecaa4b109f7be50fc7528"
+      ],
+      "source_sha256": "0b2b0c9684741f0f785ae4905328ae326599d01bab36266ba816a5afeb455cfe",
+      "text": "Write label masks as an ImageJ/Fiji ``RoiSet.zip``.\n\nAn object in one piece without holes is a traced polygon ROI, the kind\nFiji's wand makes; any other object is a composite ROI whose paths are\nall of its rings. Each ROI is named ``\"<type>-<id>\"`` (unique, and what\nthe ROI Manager lists) and carries ``object_type``, ``object_id`` and\n``class`` as ROI properties.\n\n:param masks: a 2-D label mask, or ``{object type: mask}``.\n:param path: the ``.zip`` to write; replaced if it exists.\n:param classes: ``{id: class}`` or ``{object type: {id: class}}``; an\n    object without one is classified as its object type.\n:param object_type: the type of a single mask (default ``\"object\"``).\n:returns: the path written.\n:raises ImportError: ``roifile`` is not installed.\n:raises ValueError: an invalid mask."
+    },
+    "spacr.mask_io.object_polygons": {
+      "source_blocks_sha256": [
+        "ba30c3a03bdf39d9228ad337058b363d76aee52ac9451eaaa0c6eb212f5ae1ce",
+        "172b0c090ec7aba6610e85b57a054210645ecbbe044febe193e38bab80b07b24",
+        "64c972edda9cd355c43b46b24178f30bbb8a6116340d2a170716a699fa585173",
+        "f44e24ec40c40663f108c8723228c60e3bbf22150c59409635a20cc76addd310"
+      ],
+      "source_sha256": "963c6276635ed12e656bb0d4f51ece7e5b34dc0f6f088a21e203eb0981b681dc",
+      "text": "The polygons that outline one object of a label mask, exactly.\n\n:param mask: 2-D label mask.\n:param label: the object id to outline.\n:returns: one ``[exterior, hole, hole, ...]`` list per 4-connected part\n    of the object; each ring is a closed ``(n, 2)`` integer array of\n    ``x, y`` pixel-corner coordinates. Empty when the id is absent."
+    },
+    "spacr.mask_io.rle_decode": {
+      "source_blocks_sha256": [
+        "1ee272b193a1be06eef95a23fe30c2ee26492d6788dae9bcc386ced280b6fe8b",
+        "d6e3bd05f2968c8b607c0358b8e1f8a32557352cf1e590eab837b021bbdd61a1",
+        "4c3b0595f089783f43db61ad9424c9e076fbadcd291a126a7dd57555eaaf616f",
+        "6d792290e74fd807befc391d39039fcdcdc96e0605200f991a1e121ca2208869"
+      ],
+      "source_sha256": "4b4482025ea0a92bfe5e7c6293eaa4fcdbee0918c8f9ddacf4205abefd236251",
+      "text": "Decode a COCO RLE, compressed (text) or uncompressed (list of runs).\n\n:param rle: ``{\"size\": [rows, columns], \"counts\": ...}``.\n:returns: the 2-D boolean mask.\n:raises ValueError: the runs do not add up to the size."
+    },
+    "spacr.mask_io.rle_encode": {
+      "source_blocks_sha256": [
+        "81b4730f8d56a95d13f3628919682ad145cf2093100562d00de55ad0904ed1f3",
+        "96bfd1ae4a1506f9f7ede6ff4fe2c4b6ff5fb4da473fce2ad0cdb6b66195a70e",
+        "b3ca064b0e1aba306099c06e95426e1da9e83f0fc50725cfe8e4b48ed86c69c4"
+      ],
+      "source_sha256": "59a86f55f3332813a894ea4654ea7c3333a9b8f50bf7239c4a1d0f6e6053cf7c",
+      "text": "COCO run-length encoding of a binary mask, compressed as COCO writes it.\n\n:param binary: 2-D boolean mask.\n:returns: ``{\"size\": [rows, columns], \"counts\": str}``, what\n    ``pycocotools.mask.encode`` returns with ``counts`` as text."
+    },
+    "spacr.mask_io.roi_format": {
+      "source_blocks_sha256": [
+        "2bc5a594d74680558dd3dbe408e768d346487bf9340e3c31fd1c2b66d2d8821a",
+        "4209797fa9d27f3f7486d03f35901d22e919ccf6594c3848cae4c63547c3f896",
+        "4b92ecdf5aabe1e5af0902f01b963935f69842500caed6f4c1e0e6a4dba5d22d",
+        "6a56e13c1ab7d2d453fcf32533bfc9812626466e9c9a52e111e2804ee3d38f97",
+        "d4e2e1cb99203d01b1cd65ced2cb2640e5e754f4bb02fee956db2812555f8378"
+      ],
+      "source_sha256": "824d3a385428807bd8dbf3396aeb97cc5f20b1411eab613d699c451666a2657b",
+      "text": "Which ROI format a file is: ``\"geojson\"``, ``\"imagej\"`` or ``\"coco\"``.\n\n:param path: the file; ``.geojson`` is GeoJSON, ``.zip`` and ``.roi``\n    ImageJ, and an existing ``.json`` is read to tell COCO from GeoJSON\n    (a new one is COCO).\n:param fmt: the answer, when the caller already knows it; ``\"qupath\"``\n    and ``\"roiset\"`` are accepted too.\n:returns: the format.\n:raises ValueError: an unknown ``fmt`` or a file of no known format."
+    },
+    "spacr.mask_io.roi_suffix": {
+      "source_blocks_sha256": [
+        "5e134a8d96ae1e5309e7658ae33975f9cfb6a1842d01597e51931c3872de7533",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "71cf3fc63cc9c38a80834767a0575d55820bd2feea5e87461fd9e76f46c4ba2a"
+      ],
+      "source_sha256": "d33c5017b95fe472f8fd4e2adae67569ae167607227dff2feec26b64d397425e",
+      "text": "The file suffix a ROI format is written with.\n\n:param fmt: ``\"geojson\"``, ``\"imagej\"`` or ``\"coco\"``.\n:returns: ``\".geojson\"``, ``\".zip\"`` or ``\".json\"``."
+    },
+    "spacr.mask_io.roiset_to_masks": {
+      "source_blocks_sha256": [
+        "5517d2277395f15b49ed50cd11c780d24e1b3b10d7f4a3b1781c921d38807860",
+        "893f1f0921228aac030b046a9ba7c7c21455d916e082fb4564c55e4b2db2d956",
+        "5758bf78a469fbea0059f39d6ec4364d0289dc013530a9a4de7676cc635697d3",
+        "b6d48017f916bdf15cf5f24e58936799bf31d4d600e8d2b29c294e5f0ed8d772",
+        "86d589194ab54313e0d6799d34f5ef1df4244ed6bc2b7a3b2e4731e2bc7b8bbd",
+        "55e5ca3e09bd81d6c6f35ca5a51d6c27f4877fb0d6264ddcf0e2abd80577c242",
+        "06a90097c1c065ed82d86907271cb31bda8d4349c15c2e950dbc1898e1127dce",
+        "3eced96e5c286896300e90bba8e860b3f81209d0445866a6b5292b1a68b51278"
+      ],
+      "source_sha256": "93187a370051fb75390fbc2c9a14bf452741a4bc51493feb866a39b5fe3d63e4",
+      "text": "Rasterise an ImageJ ``RoiSet.zip`` (or one ``.roi``) into label masks.\n\nPolygon, freehand, traced, rectangle and oval ROIs are read, and a\ncomposite ROI by the even-odd rule over its paths, as ImageJ fills it;\nlines and points have no area and are skipped. A pixel belongs to a ROI\nwhen its centre is inside, ImageJ's own rule, so a set written by\n:func:`masks_to_roiset` comes back pixel for pixel. Type, id and class\ncome from the ROI properties, else from a ``\"<type>-<id>\"`` name, else\nthe ROI is an ``\"object\"`` numbered after the rest.\n\n:param path: the ``.zip`` or ``.roi`` file.\n:param shape: the image's ``(rows, columns)``.\n:param object_type: put every ROI in this one object type.\n:param with_classes: also return each object's class.\n:returns: ``{object type: uint16 labels}``, or\n    ``(masks, {object type: {id: class}})`` with ``with_classes``.\n:raises ImportError: ``roifile`` is not installed."
     },
     "spacr.mask_io.save_mask": {
       "source_blocks_sha256": [
@@ -25588,7 +25788,7 @@
         "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
         "054741b350d867667f171fa35a8690542cca56ed7ce2af372ca9196eb11b8377",
         "a37185726b85ad3c914d7ce9d24d7408b1490ec0357f1185c3a195d9453deb2c",
-        "6fac3b3c3d6315353854ef93aefd201e216cbbae8b3c2f92dda8874081d9e380",
+        "3d8ecd508f60dfc16456a0d2770f5aad0960c6270c9aaa78ddce6744c1fe756d",
         "4087a34207b4e68d07756e7776e46daec0dba3fbab45e193c8439293c16521b0",
         "fe4e08f552d7009f9e6ad5595de3e7b274d4b59f2d549e847128ae4eaa279d42",
         "aafc35c8e7dd5e02343204022316337ccbaeb83b2f30d905d521d7230b01fe71",
@@ -25605,8 +25805,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
       ],
-      "source_sha256": "d18ecf626386634140d8471f3b7dcd378d5e67ab3c4cf566f604d3af3c6452af",
-      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders.\n    - ``psf_measurement_source`` — original (default) uses the normal\n      rescaled/preprocessed intensities; processed adds an explicitly\n      calibrated PSF before quantitative features. The immutable kernel\n      reaches every worker. Source images and exported crops stay unchanged.\n      Field provenance is saved in ``intensity_rescale``; incompatible\n      existing PSF measurements are refused before any rows are appended.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
+      "source_sha256": "84831429cc9a1e4b67232df48c98c7bff72a67dc2be87aeb20896faa1d8bcc01",
+      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders. A\n      cloud address Make Masks has analysed is measured from the local\n      folder Make Masks staged it in; a cloud folder of merged stacks is\n      mirrored under ``cloud_cache`` first. ``cloud_results`` copies the\n      measurements folder back to cloud storage.\n    - ``psf_measurement_source`` — original (default) uses the normal\n      rescaled/preprocessed intensities; processed adds an explicitly\n      calibrated PSF before quantitative features. The immutable kernel\n      reaches every worker. Source images and exported crops stay unchanged.\n      Field provenance is saved in ``intensity_rescale``; incompatible\n      existing PSF measurements are refused before any rows are appended.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
     },
     "spacr.measure.measure_from_field_table": {
       "source_blocks_sha256": [
@@ -29550,7 +29750,7 @@
       "source_blocks_sha256": [
         "0b7ffdbdf6731edb022b8e88c07b33c5fcb96b3443178f5c338469f4b1430a18",
         "46ab8da3c52e5e9e3ce2eac6c3b1093e7700f9951b9664dc0118d885cb508040",
-        "e9befa8b26a4ea228599e37365b23b620e96419b1053571b5d5464606b30dedd",
+        "dd4a963e2f04dba4853a1c63f327c6b229864b11ad0b7ac61622e72baf7a5f6a",
         "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
         "3b4741714fe14d6366d7ad3a28496a310ee4670705a5cfe56a6640d41a835468",
         "ff0e2dc365436dd7787b99f3fcab7443eac3792d34e42fa13f9efb206d7b8c64",
@@ -29559,8 +29759,8 @@
         "7490cab6cdcf8d211548283b8a53ba6904fa0a270f553c593f3c231a4eb212bf",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "30f0bac4bd76395b57ecc40b356ba3c1ba298a6c6bdf9b997d3d9ee11161f8f1",
-      "text": "Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.\n\nLoads the ``cpsam`` pretrained model — or, when\n``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint\nthe user trained, that checkpoint — iterates over each pre-batched\n``.npz`` file, applies perimeter merging and area/border filtering to 2-D\nmasks, and optionally filters objects by their absolute mean intensity\nin the original own-channel image. It then optionally tracks timelapse\nobjects, saves per-image ``.npy`` masks, and records per-object counts to\nthe run's SQLite database. Time-stack archives must contain one filename\nper timepoint, regardless of the declared time-axis position; each raw\nfilename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its\n``(Y, X, C)`` image for a flat ``TYX`` series. Whole-plate motility analysis\nbelongs to :func:`spacr.core.preprocess_generate_masks` after all object\nmasks have been merged with their images; this generator does not run it.\n\nAn object whose model setting reads ``cellpose3:<model or weights\npath>``, or any object when ``segmentation_backend`` is ``'cellpose3'``,\nis segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own\nenvironment; what it returns enters the same lines as a Cellpose-SAM\nresult, so the saved masks and the database rows are written the same.\nOne whose model setting reads ``cellpose_dino:<checkpoint path>`` is\nsegmented by the Cellpose-DINO backend's worker, which takes the very\n``eval`` call a Cellpose-SAM model takes and returns its shapes (item\n525).\n\n:param src: Directory containing the pre-batched ``.npz`` image stacks.\n:param settings: Pipeline settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n:param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or\n    ``'organelle'``; drives channel/threshold lookups and output folder name.\n:param batch_paths: optional exclusive worker assignment of NPZ paths under\n    ``src``. One model is reused across the assignment; ``None`` keeps the\n    ordinary whole-directory run. An empty assignment loads no model.\n:param on_batch_done: optional callable receiving the archive path after\n    its selected fields have completed. Failed archives are not reported.\n:param run_qc: False lets a parallel coordinator run shared QC once after\n    every worker finishes, instead of writing reports from each worker.\n:returns: None."
+      "source_sha256": "fcd5ba4b06f054783df4793727780d3944cba7fd89a347c04603b1a86a417cc9",
+      "text": "Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.\n\nLoads the ``cpsam`` pretrained model — or, when\n``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint\nthe user trained, that checkpoint — iterates over each pre-batched\n``.npz`` file, applies perimeter merging and area/border filtering to 2-D\nmasks, and optionally filters objects by their absolute mean intensity\nin the original own-channel image. It then optionally tracks timelapse\nobjects, saves per-image ``.npy`` masks, and records per-object counts to\nthe run's SQLite database. Time-stack archives must contain one filename\nper timepoint, regardless of the declared time-axis position; each raw\nfilename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its\n``(Y, X, C)`` image for a flat ``TYX`` series. Whole-plate motility analysis\nbelongs to :func:`spacr.core.preprocess_generate_masks` after all object\nmasks have been merged with their images; this generator does not run it.\n\nAn object whose model setting reads ``cellpose3:<model or weights\npath>``, or any object when ``segmentation_backend`` is ``'cellpose3'``,\nis segmented by ``_cellpose3_masks`` in the Cellpose 3 backend's own\nenvironment; what it returns enters the same lines as a Cellpose-SAM\nresult, so the saved masks and the database rows are written the same.\nOne whose model setting reads ``cellpose_dino:<checkpoint path>`` is\nsegmented by the Cellpose-DINO backend's worker, which takes the very\n``eval`` call a Cellpose-SAM model takes and returns its shapes (item\n525). So is one whose model setting carries a StarDist, InstanSeg or\nOmnipose prefix (``stardist:<model>`` and the rest, items 551-553),\neach in its own backend's worker.\n\n:param src: Directory containing the pre-batched ``.npz`` image stacks.\n:param settings: Pipeline settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n:param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or\n    ``'organelle'``; drives channel/threshold lookups and output folder name.\n:param batch_paths: optional exclusive worker assignment of NPZ paths under\n    ``src``. One model is reused across the assignment; ``None`` keeps the\n    ordinary whole-directory run. An empty assignment loads no model.\n:param on_batch_done: optional callable receiving the archive path after\n    its selected fields have completed. Failed archives are not reported.\n:param run_qc: False lets a parallel coordinator run shared QC once after\n    every worker finishes, instead of writing reports from each worker.\n:returns: None."
     },
     "spacr.object.generate_organelle_masks_sam": {
       "source_blocks_sha256": [
@@ -30233,10 +30433,11 @@
         "e40842638b234d034d5b4bd0354d8ddaf607a7cb5f55f98141bf481b3ce7c70c",
         "a84bf100ff82e8bd5e238ad235960e0b07439db78ae099865bf2242c07c92466",
         "c465b3646868ac8bced85d0ca736571a72baeaa830dbb7d9992ac761e1a2d32a",
-        "f5a19fade1b689c5b19c677830d3e6b8ee97d85b9083521e6f297e4bca4a4b93"
+        "f5a19fade1b689c5b19c677830d3e6b8ee97d85b9083521e6f297e4bca4a4b93",
+        "da9bfbe5a7177c40f39a8ad230dacf5f15cae6f76f14f24bb753282f062d7bdd"
       ],
-      "source_sha256": "14b4ca86e169aafb547cce931928e81b8915e3104ac9054971c244def054439f",
-      "text": "An opened OME-Zarr multiscale image: metadata now, chunks on demand.\n\nReturned by :func:`read_ome_zarr` after reading only the group's JSON, so\nholding one of these says nothing about how much data has been read — the\nanswer is none until :meth:`read` is called, and then only the chunks the\nregion touches.\n\n:param path: the group directory.\n:param axes: every axis, in array order, with level-0 scale and\n    translation on each.\n:param levels: the resolution pyramid, level 0 first.\n:param ngff_version: what the file says it is.\n:param name: the ``multiscales`` name, if any.\n:param channel_names: from the ``omero`` block when present — spaCR has\n    channel names to fill in, so they are read and written rather than\n    dropped.\n:param omero: the raw ``omero`` block, read-only, for the rendering\n    settings this module does not interpret (colours, windows, rdefs).\n:param units_declared: ``False`` when the space axes carried no unit, so\n    :attr:`spacing` is in pixels *because the file said nothing*, not\n    because it said pixels. Never quietly upgraded to micrometers.\n:param multiscale: the raw ``multiscales`` entry, for anything here does\n    not model."
+      "source_sha256": "a17e38378307fff75961c61c9a5392f586baf3e5d3ed0afecf7b9f692778d789",
+      "text": "An opened OME-Zarr multiscale image: metadata now, chunks on demand.\n\nReturned by :func:`read_ome_zarr` after reading only the group's JSON, so\nholding one of these says nothing about how much data has been read — the\nanswer is none until :meth:`read` is called, and then only the chunks the\nregion touches.\n\n:param path: the group directory.\n:param axes: every axis, in array order, with level-0 scale and\n    translation on each.\n:param levels: the resolution pyramid, level 0 first.\n:param ngff_version: what the file says it is.\n:param name: the ``multiscales`` name, if any.\n:param channel_names: from the ``omero`` block when present — spaCR has\n    channel names to fill in, so they are read and written rather than\n    dropped.\n:param omero: the raw ``omero`` block, read-only, for the rendering\n    settings this module does not interpret (colours, windows, rdefs).\n:param units_declared: ``False`` when the space axes carried no unit, so\n    :attr:`spacing` is in pixels *because the file said nothing*, not\n    because it said pixels. Never quietly upgraded to micrometers.\n:param multiscale: the raw ``multiscales`` entry, for anything here does\n    not model.\n\nAn image opened from cloud storage also keeps the opened location, with\nthe credentials it was opened with, so that :meth:`read` reaches the\nchunks the same way."
     },
     "spacr.ome_zarr.OmeZarrImage.__post_init__": {
       "source_blocks_sha256": [
@@ -30413,13 +30614,13 @@
       "source_blocks_sha256": [
         "dddaa7e9162d6926db7e1832d8745ffcbc4ec4948ac49f564b81be80653e9ab0",
         "0278fdaed39e40d2e67b16313d7b18e27476676628664ec3a28c4e6c6f5022b6",
-        "bef73e163cedee7ab83ac1c4fef33f81c0fd7cf1408d0214e2ac3cec58f9a818",
+        "d2ce9f6acb2261caf206277b9ddbe0a0bb4c7e81bae227f23e75cbc8c3673479",
         "cda4fa2fa5c5d05a73fd4ba188411bd7747d5323a709cf125f01177dc6db5499",
         "d946920a83329759a8b06c6a5bd2ee390099879861b6a42b41c13af0bfee6d89",
         "6df452e036a451f89ff45a250d1ae2c68e1bf48e2c2e3f0a1238925ceba7eaae"
       ],
-      "source_sha256": "49967afdbd5411f33f251ceddb1c47969515de494c6c27d553fae1dc0dbfce18",
-      "text": "Open an OME-Zarr group and read its metadata. **No chunk is touched.**\n\nEverything this reads is small JSON: the group's ``.zattrs`` (or the\n``attributes`` of its ``zarr.json``) and one ``.zarray`` per level. So\nasking a 100 GB plate what its levels, shapes, voxel size and channels are\ncosts a few kilobytes, which is the property the whole format exists for.\n\n:param path: the group directory — the one holding ``multiscales``. For a\n    plate that is ``<plate>.zarr/<row>/<column>/<field>``.\n:param multiscale_index: which ``multiscales`` entry to read. NGFF permits\n    several; spaCR reads the first by default and says so here rather than\n    pretending there can only be one.\n:returns: the opened :class:`OmeZarrImage`.\n:raises OmeZarrError: when the directory is not a zarr group, has no\n    ``multiscales``, declares a zarr format spaCR does not read, or\n    carries axis units spaCR will not translate."
+      "source_sha256": "c90a87acfc6f92de15a9065778aa527b973ee7b9f8c45cf2aee9fffab322ba0c",
+      "text": "Open an OME-Zarr group and read its metadata. **No chunk is touched.**\n\nEverything this reads is small JSON: the group's ``.zattrs`` (or the\n``attributes`` of its ``zarr.json``) and one ``.zarray`` per level. So\nasking a 100 GB plate what its levels, shapes, voxel size and channels are\ncosts a few kilobytes, which is the property the whole format exists for.\n\n:param path: the group directory — the one holding ``multiscales``. For a\n    plate that is ``<plate>.zarr/<row>/<column>/<field>``. An\n    ``s3://``, ``gs://``, ``az://`` or ``https://`` address is read from\n    cloud storage, fetching only the metadata files.\n:param multiscale_index: which ``multiscales`` entry to read. NGFF permits\n    several; spaCR reads the first by default and says so here rather than\n    pretending there can only be one.\n:returns: the opened :class:`OmeZarrImage`.\n:raises OmeZarrError: when the directory is not a zarr group, has no\n    ``multiscales``, declares a zarr format spaCR does not read, or\n    carries axis units spaCR will not translate."
     },
     "spacr.ome_zarr.read_ome_zarr_array": {
       "source_blocks_sha256": [
@@ -33178,10 +33379,10 @@
         "e924b69791e2acec75e374e405493f079d55c55bb71e3cccdaac645eb6e56237",
         "4c97fc884e4dc060810c406b34b1d68d0c0d2d0d937f445a7f4ba744ef625f5e",
         "7dd3627d16b785ea616e21f01516278a2a94911494e02ad644410f511726ec04",
-        "ad349bae0c2caa0c869ebdbec7600f465cdc7d5d6ee59e5ebc12691b56dfd5f6"
+        "9001d2b685d615b328bec571dfdcfa775b5e4079af3554cc78f71942569ffcf5"
       ],
-      "source_sha256": "6f19c92b398dc61b277aa541f0eab60dcc9380c3342123a74f16542cdb8750ed",
-      "text": "Write the permutation run's QC into ``<destination>/regression_qc/``.\n\nThe same folder a parametric run writes, so a permutation run's\ndiagnostics are found where every other run's are.\n\n:param destination: the run's results folder.\n:param outcome: the phenotype column the residuals belong to; it names\n    the files, so a multi-outcome run keeps one set per outcome.\n:param residuals: the residuals that WERE PERMUTED.\n:param blocks: the block of each residual.\n:param positions: the position columns, aligned to ``residuals``.\n:param report: :func:`block_residual_report` of the same residuals.\n:param verdict: :func:`exchangeability_verdict` of ``report``.\n:param removed: nuisance columns removed before residualisation.\n:returns: ``{'dir', 'report', 'figure', 'figure_error'}``. The JSON\n    report is always written; ``figure`` is ``None`` and\n    ``figure_error`` says why when there is nothing to draw against."
+      "source_sha256": "6b46edd499c085d4a3e5bbb0043d10e7d66d4cbd22df8c2829c4030e961f2eae",
+      "text": "Write the permutation run's QC into ``<destination>/regression_qc/``.\n\nThe same folder a parametric run writes, so a permutation run's\ndiagnostics are found where every other run's are.\n\n:param destination: the run's results folder.\n:param outcome: the phenotype column the residuals belong to; it names\n    the files, so a multi-outcome run keeps one set per outcome.\n:param residuals: the residuals that WERE PERMUTED.\n:param blocks: the block of each residual.\n:param positions: the position columns, aligned to ``residuals``.\n:param report: :func:`block_residual_report` of the same residuals.\n:param verdict: :func:`exchangeability_verdict` of ``report``.\n:param removed: nuisance columns removed before residualisation.\n:returns: ``{'dir', 'report', 'figure', 'figure_error'}``. The JSON\n    report is always written; ``figure`` is ``None`` and\n    ``figure_error`` says why when there is nothing to draw against.\n    The panel is written by :func:`spacr.plot.save_figure`, so its\n    format and resolution follow the figure preferences as the\n    parametric panels beside it do, and ``figure`` names the file on\n    disk."
     },
     "spacr.picture_settings": {
       "source_blocks_sha256": [
@@ -46735,7 +46936,7 @@
     "spacr.qt.live_zoom.ColumnTextScale": {
       "source_blocks_sha256": [
         "18b43468c94f95fbe22b871d3f57334968a943ed40d1593feb440af6e3b21bcd",
-        "78f79ed142d185430ba34ecabcbcd2bdfb0cd3e053bda3d5f3eaaf3accb9d799",
+        "de6c209e5cb15d6f4384dc85b4e7d871418f587558a079e1624f013c7b916708",
         "47f2cfcc4f71ff37fe537790887e3f37149bb779eed4223f4ff4fb5723dc0ecb",
         "92b0d754b476fbe0e457bbafdb58667506bb21c6c967148bbc681e4d673346bd",
         "ca7e75dc1aaa6ec777f5965a13a5d8d2eb5e5cc14cc55b2d11d0576b2993e177",
@@ -46744,8 +46945,8 @@
         "a99831205c44f8ae864bc77caab958c125f1370ca87d04ee28002a7f7de05ba9",
         "7946f2adc78c8990df6ec45eb4131ce7a142965739870f2c59e38e0e8521e057"
       ],
-      "source_sha256": "0826a8f47521b0ff62756f6c09191efa805601bc6762084b968530eba459fe7e",
-      "text": "Ctrl + wheel over a module screen's right-hand column sizes its text.\n\nItem 529. The maintainer: \"for the pannels to the right holding ctrl and\nscrolling should increase or decrease the font size.\"\n\nONE SIZE FOR EVERY COLUMN, persisted in\n:func:`spacr.qt.preferences.get_runtime_text_scale`. It multiplies the\nsize the rest of the interface has, so the whole-GUI scale (471) and the\nZ gesture (378) still move the column with everything else.\n\nA STYLE SHEET ON THE COLUMN, NOT ``setFont``. The Z gesture's\n``setFont`` is undone by the next repolish (measured: a label set to\n20 px is back at its sheet's 13 px after ``unpolish``/``polish``), and\nthe column's widgets repolish every time a card folds or a run starts.\n:func:`scaled_font_sheet` re-declares the inherited sizes on the column\nitself, which only its descendants see. A widget that sizes its own text\nfrom Python and so outranks any sheet -- the console's entries -- takes\nthe size through an ``apply_column_text_scale(scale)`` method instead.\n\nAN APPLICATION FILTER, because the console and every scroll area in the\ncolumn accept the wheel before a parent could see it. It yields to:\n\n* the Z gesture while Z is held -- Z + wheel is 378's;\n* any widget between the pointer and the column that handles the wheel\n  in Python -- the plaque and live-preview canvases zoom on Ctrl + wheel\n  and a figure canvas has its own scroll -- which keeps the gesture to\n  the text panels;\n* everything outside a registered column.\n\nCtrl+0 with the pointer over a column whose text is not at 100 % puts it\nback; at 100 % the key is left to Go home, which it otherwise is.\nCreate the filter with the stored size and no columns yet."
+      "source_sha256": "f80b33836ed5a9a8c2de462fddfe46190203eca55f1aa9495e7808c9d2dc9d05",
+      "text": "Ctrl + wheel over a module screen's right-hand column sizes its text.\n\nHolding Ctrl and turning the wheel over any panel in that column makes\nits text larger or smaller.\n\nONE SIZE FOR EVERY COLUMN, persisted in\n:func:`spacr.qt.preferences.get_runtime_text_scale`. It multiplies the\nsize the rest of the interface has, so the whole-GUI scale (471) and the\nZ gesture (378) still move the column with everything else.\n\nA STYLE SHEET ON THE COLUMN, NOT ``setFont``. The Z gesture's\n``setFont`` is undone by the next repolish (measured: a label set to\n20 px is back at its sheet's 13 px after ``unpolish``/``polish``), and\nthe column's widgets repolish every time a card folds or a run starts.\n:func:`scaled_font_sheet` re-declares the inherited sizes on the column\nitself, which only its descendants see. A widget that sizes its own text\nfrom Python and so outranks any sheet -- the console's entries -- takes\nthe size through an ``apply_column_text_scale(scale)`` method instead.\n\nAN APPLICATION FILTER, because the console and every scroll area in the\ncolumn accept the wheel before a parent could see it. It yields to:\n\n* the Z gesture while Z is held -- Z + wheel is 378's;\n* any widget between the pointer and the column that handles the wheel\n  in Python -- the plaque and live-preview canvases zoom on Ctrl + wheel\n  and a figure canvas has its own scroll -- which keeps the gesture to\n  the text panels;\n* everything outside a registered column.\n\nCtrl+0 with the pointer over a column whose text is not at 100 % puts it\nback; at 100 % the key is left to Go home, which it otherwise is.\nCreate the filter with the stored size and no columns yet."
     },
     "spacr.qt.live_zoom.ColumnTextScale.eventFilter": {
       "source_blocks_sha256": [
@@ -47619,11 +47820,23 @@
     "spacr.qt.mask_engine.fill_holes": {
       "source_blocks_sha256": [
         "dcf5c9a6c3d42cdacfee0cf82dda4ea5201589046095d5c8e204d476eb3d7c05",
+        "060511a5963a45a4ab93c54df11f2ded756daf66838d7b13c50a91a4335828fd",
         "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
-        "324f21972dfe3d00de9f3ff423ffb008c798db9581c13651442e1e4e1b323309"
+        "3f6405ab7f5ecb1b8bc0ceed13a7a2ff4c0950edcca5e752efb54e7d6d68c2d9"
       ],
-      "source_sha256": "67783294a94f5bad162b8c5798a29fbc226781a725f988d52f01d090e3b7d78f",
-      "text": "Fill enclosed background pixels, optionally retaining primary identities.\n\n:param mask: label image to fill.\n:param preserve_ids: fill per object without merging or renumbering labels.\n    Requires exact uint16-compatible IDs; default retains binary relabeling."
+      "source_sha256": "6ce4e5b0cff159e19cd0d9c2f6737f9efbe2311255bab799c1c71173b3804e20",
+      "text": "Fill enclosed background pixels, optionally retaining primary identities.\n\nHoles are filled per object by :func:`fill_label_holes`, never by\nfilling the foreground and labelling it again: that joined every pair of\ntouching cells into one object (item 588).\n\n:param mask: label image to fill.\n:param preserve_ids: validate the ids as exact primary IDs first\n    (uint16-compatible, via :func:`canonical_labels`). Either way every\n    id is kept. By default a mask with a single foreground value -- a\n    brush-painted binary mask, which carries no ids -- is numbered by\n    connectivity first, as :func:`canonical_labels` numbers it."
+    },
+    "spacr.qt.mask_engine.fill_label_holes": {
+      "source_blocks_sha256": [
+        "9312ce4278b3c81871304169221e74cee28493b8523b3d9f3e7760549f547f2a",
+        "528849e3ad3b9f0f32a552a64d14952125f367b5606308d916d8357d08a9bf99",
+        "f9d43ae649d474b59c186cd19babb479e137403cf6d3b79edf7b65944bbcbc55",
+        "f87566acf3e5c0750eeae4b8cc4cfd12c32c733b394340bf6e5f213692817bd4",
+        "3c936a313c048eec346e55339fa3c8b6ea7325c0d32a8866413d1965f9a80420"
+      ],
+      "source_sha256": "e04c595ff5d5193cedb14ccd9b7d1d1e019540ecbeb1c3fabac86456699f8251",
+      "text": "Close the holes inside each object, keeping every id it already had.\n\nTHE ONE HOLE FILLER FOR LABEL IMAGES. :func:`fill_holes`, the\npropagation step above and :func:`spacr.utils.fill_holes_in_mask` (the\nCellpose ``fill_in`` step) all come here. Filling the binary foreground\nand labelling it afresh with ``ndimage.label`` is what this replaces: it\nmakes every pair of TOUCHING objects one object, so a field of 74\nadjacent cells came back as 8 (item 588). Here nothing is relabelled.\n\n``binary_fill_holes`` over the whole foreground would also fill the gap\nBETWEEN objects that happen to ring a piece of background, so each label\nis filled on its own and written back only onto background: a hole never\noverwrites another object's pixels. Each label is filled inside its own\nbounding box (:func:`scipy.ndimage.find_objects`), which is exact --\nbackground on the edge of the box touches the outside of the box, where\nthis label has no pixels, so it can never be one of its holes -- and\nkeeps a 2048 x 2048 field of hundreds of objects to a fraction of a\nsecond. Smaller boxes claim first, so a hole inside a ring that itself\nsits inside another ring goes to the inner one.\n\n:param labels: a 2-D (or N-D) non-negative integer label image. A\n    boolean mask is labelled by connectivity first, since it carries no\n    ids to keep.\n:returns: an array of the input's dtype (``int32`` for a boolean input)\n    in which every object keeps its id and its holes carry that id."
     },
     "spacr.qt.mask_engine.fill_polygon": {
       "source_blocks_sha256": [
@@ -49545,13 +49758,13 @@
     "spacr.qt.preferences.PreferencesDialog": {
       "source_blocks_sha256": [
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
-        "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
+        "8f9f019940722c43d2670a4fd0b3d2bfaf2709dc6ffb3b643e37661c36f42787",
         "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ],
-      "source_sha256": "6ceea9d63225649b020d318358c4253dc927b1ddbb7fe794eeb56503c8fdd0c0",
-      "text": "Wrapper that builds the modal Preferences dialog on demand.\n\nKept as a factory (not a real class subclass) so this module can\nbe imported headless without pulling in QtWidgets. The real\n:class:`QDialog` is returned by ``PreferencesDialog(parent)``.\nBuild the dialog with the UI language resolved once.\n\nThe scope is the whole reason this wrapper exists. Building this\ndialog was measured asking the preference store what language the\ninterface is in 346 times, through 415 ``QSettings`` reads, and none\nof those answers could differ: nothing runs between them.\n\n:param parent: parent widget, or ``None``.\n:returns: the dialog, ready to ``exec``."
+      "source_sha256": "5346ad6d61a32e5768cb6249f1a30a4bb2ef601f2b1f8ba354edc5573902374c",
+      "text": "Wrapper that builds the modal Preferences dialog on demand.\n\nKept as a factory (not a real class subclass) so this module can\nbe imported headless without pulling in QtWidgets. The real\n:class:`QDialog` -- the subclass :func:`_preferences_window_class`\nmakes on first use -- is returned by ``PreferencesDialog(parent)``.\nBuild the dialog with the UI language resolved once.\n\nThe scope is the whole reason this wrapper exists. Building this\ndialog was measured asking the preference store what language the\ninterface is in 346 times, through 415 ``QSettings`` reads, and none\nof those answers could differ: nothing runs between them.\n\n:param parent: parent widget, or ``None``.\n:returns: the dialog, ready to ``exec``."
     },
     "spacr.qt.preferences.PreferencesDialog.__new__": {
       "source_blocks_sha256": [
@@ -54569,6 +54782,13 @@
       "source_sha256": "d591c658b6401f6f17b31a445462ef5687b1fa1258b8e5d0761475ff97ce0b05",
       "text": "Ask where to write the per-plate table and write it."
     },
+    "spacr.qt.screens.control_chart.ControlChartScreen.choose_hit_export": {
+      "source_blocks_sha256": [
+        "653d299a850b0ced13b78ae9bce28417bfe3473fe7afe65eddf153d997cfa4ab"
+      ],
+      "source_sha256": "653d299a850b0ced13b78ae9bce28417bfe3473fe7afe65eddf153d997cfa4ab",
+      "text": "Ask for a folder and write the hit report into it."
+    },
     "spacr.qt.screens.control_chart.ControlChartScreen.choose_table": {
       "source_blocks_sha256": [
         "b5a8622863fedc9b340c8480f528379995d719c6d3151fc1062dccd55962b62f"
@@ -54584,6 +54804,15 @@
       "source_sha256": "07a1ca7943ee266a164d5adac559bf010403fe26b66e5f387222a5b63f52dc28",
       "text": "Stop background work and unlink before going away.\n\n:param event: the Qt close event."
     },
+    "spacr.qt.screens.control_chart.ControlChartScreen.export_hits": {
+      "source_blocks_sha256": [
+        "4aaa770ce39dcf7b17f6fcf7d938c9d91ac118bb78a873ba900ae242233dda9a",
+        "9e5c6ac06bc6c4f75a1e66f0ceafb31e1bb2a05b1118e4123d1b306fc8346024",
+        "6b81e8eaf27ada8cb4caff8b66080e0d2b6e14d449a49361ecf991110d54d206"
+      ],
+      "source_sha256": "1e5c62e58c9c345b55d18bcb36f470bc3c6f4e40f7a23336bcc63f95ed7ece09",
+      "text": "Write the ranked hit table, the scores and the heatmaps.\n\n:param folder: the folder, created if absent.\n:returns: ``{name: path}`` of what was written, or ``None`` when\n    nothing has been scored."
+    },
     "spacr.qt.screens.control_chart.ControlChartScreen.export_points": {
       "source_blocks_sha256": [
         "d37a69b9b801411c7da6ddf9050b7a9db521ed277d315dedd7b54d0d05264cac",
@@ -54592,12 +54821,27 @@
       "source_sha256": "d6e4e796404be597255c7ae465855b5399cefdd52e3b282172a448269dc79599",
       "text": "Write one row per plate — value, limits, z, rules fired — as CSV.\n\n:param path: the CSV file to write, without an index column. Nothing is\n    written, and ``None`` is returned, when nothing has been charted\n    yet."
     },
+    "spacr.qt.screens.control_chart.ControlChartScreen.hit_options": {
+      "source_blocks_sha256": [
+        "8c9d9cf6ed102d7c6454ac041058dd38b933c98f13273273b04a73c1f163229c",
+        "181b952797072dbde5f13374a7b1746c370e00e680f6c4a464b8e91da1e786a8"
+      ],
+      "source_sha256": "cff33670ca4ab0b92e40371b849bb48dc3dfeff5ab84289ba0001f71436130d4",
+      "text": "The keyword arguments the form gives\n:func:`spacr.sp_stats.score_arrayed_screen`.\n\n:returns: the options; ``negative_levels`` is empty when no negative\n    control is picked."
+    },
+    "spacr.qt.screens.control_chart.ControlChartScreen.hit_result": {
+      "source_blocks_sha256": [
+        "f9df8ebfb949d4acc20e4167d76564447c8331913fdef0af3c66ef5f10c742ed"
+      ],
+      "source_sha256": "f9df8ebfb949d4acc20e4167d76564447c8331913fdef0af3c66ef5f10c742ed",
+      "text": "The hit scoring currently shown, or ``None``."
+    },
     "spacr.qt.screens.control_chart.ControlChartScreen.is_busy": {
       "source_blocks_sha256": [
-        "0bfa38e8545600bd7609584ca54e84e9e29662306f05b7595c84c8465841bf17"
+        "6e35bab927ab00215b7b884c92e26864e6682bc9ed044e4febb7d7ec4a1354a3"
       ],
-      "source_sha256": "0bfa38e8545600bd7609584ca54e84e9e29662306f05b7595c84c8465841bf17",
-      "text": "True while a read or a chart is in flight."
+      "source_sha256": "6e35bab927ab00215b7b884c92e26864e6682bc9ed044e4febb7d7ec4a1354a3",
+      "text": "True while a read, a chart or a hit scoring is in flight."
     },
     "spacr.qt.screens.control_chart.ControlChartScreen.load_path": {
       "source_blocks_sha256": [
@@ -54615,6 +54859,14 @@
       ],
       "source_sha256": "ce9f33674abec723de30d7540e8d6bbeb8dd094557c5c606da165b600f8f7af0",
       "text": "Rebuild the chart from the form, off the GUI thread.\n\nA second request supersedes the first, so dragging the baseline spinner\ndoes not deliver the charts in whatever order the workers finish and\nleave the picture disagreeing with the form."
+    },
+    "spacr.qt.screens.control_chart.ControlChartScreen.rescore_hits": {
+      "source_blocks_sha256": [
+        "97e2950373269fcbf6d8b0b698d90e80ba15a95a8a297602ef9d971816bd5c61",
+        "98b7f589ef9241ff0b75f2c8577d88a497eaa5f33285f025dfccea54e84f55d6"
+      ],
+      "source_sha256": "3d882dc76deee3d8a1d00de08e2feb5d1fdfc23c98eb47a1cf99b2c0291e5542",
+      "text": "Score the hits from the form, off the GUI thread, when turned on.\n\nRuns on its own job runner, so a control chart the engine refuses\n(too few plates for a baseline, say) does not also refuse the hit\nscores, which need no baseline."
     },
     "spacr.qt.screens.control_chart.ControlChartScreen.result": {
       "source_blocks_sha256": [
@@ -59239,6 +59491,27 @@
       "source_sha256": "2312d9ce4a5e53c0b6d724074abf400d0ed9538b2b015e52ac639c285521c241",
       "text": "Ask, then download a zoo Cellpose model and select it when it lands.\n\nThe download goes through :func:`spacr.model_zoo.install` on a worker\nthread (:class:`spacr.qt.model_install.CheckpointDownload`), into the\nfolder the Model zoo picker uses, so either route finds the file the\nother fetched. The bar under the Model row shows the bytes as they\narrive, and the screen stays usable. A model that publishes no\nchecksum is downloaded only after the user has been told spaCR\ncannot then check it.\n\n:param entry: the zoo's record of the model.\n:returns: True when a download was started."
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.export_all_rois": {
+      "source_blocks_sha256": [
+        "71dab42a4c5307f665e3cb858a46a219919e32998a53b37d5a13263a0dce8520",
+        "9abb06528cdec058d488c8bd9b335c62a55f7ca1d7c9da5802885b74164fb78d",
+        "0b61b55dcae33715a7041e8b029549260d2b6d33fad2eb7013d01d81f4cedd96",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "337b782db4b0d5be39ee6cad25cec4ea2f99045820c9579954ad3a3044aa6dd0"
+      ],
+      "source_sha256": "25c74ddb93b34992822b8ec5d3b49a1f9033b94dabd4a7e92312cd065f5cf96f",
+      "text": "Write every field's mask as ROIs.\n\nGeoJSON and ImageJ are one file per field in the folder ``target``\n(``<stem>.geojson``, ``<stem>_RoiSet.zip``), the way QuPath and Fiji\nopen them beside the image; COCO is one dataset file, ``target``,\nholding every field. The field on screen is exported as it is on\nscreen; the others as saved. Fields without objects are left out.\n\n:param target: the folder (GeoJSON, ImageJ) or file (COCO).\n:param fmt: ``\"geojson\"``, ``\"imagej\"`` or ``\"coco\"``.\n:returns: the files written."
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.export_field_rois": {
+      "source_blocks_sha256": [
+        "1a1ffc5184416e240d9f1a567ef780822a8a0875067800360e68b8a4ca31acbb",
+        "f88075dd4a24d339f807a5ae3b49c27cc3aba24d31d8fab471ac98ea6563ace2",
+        "1b675b6af8d361ada2718ccfa95e20d2565c424cfb5238a508b0ed47b976e170",
+        "e83ed660208973ca5f327fcdc7ccc0c9bf427ac7a1f19d7ecf186c594d3e5efe"
+      ],
+      "source_sha256": "9dd9c83dc97a52163b8cdb06be43980899cb1e16819aff8b3918638de3274bad",
+      "text": "Write the mask on screen as QuPath GeoJSON, a RoiSet or COCO JSON.\n\n:param path: the file to write.\n:param fmt: ``\"geojson\"``, ``\"imagej\"`` or ``\"coco\"``; default from\n    the suffix of ``path``.\n:returns: the path written, or ``\"\"`` when no field is open."
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.finish_recrop": {
       "source_blocks_sha256": [
         "0ffd049d0764518054d96a273e078738067804bc1ec9bd87830249666d40c4ee",
@@ -59256,6 +59529,30 @@
       ],
       "source_sha256": "f548e064dd66ac32f79473bacdab25b3b286e45e1c19415658010a541f39e3b5",
       "text": "The folded module's own screen, built on first use and kept.\n\n:param key: one of :data:`FOLD_ORDER`. Keys that share a screen —\n    see :data:`FOLD_HOSTS` — resolve to the one widget that hosts\n    them both.\n:returns: the screen, or ``None`` for a key this screen does not\n    fold."
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.import_all_rois": {
+      "source_blocks_sha256": [
+        "582d9bb10a674fd97eaeca8811735a8473b9f3317babc710445751a80154b7c9",
+        "f82223c20de0bd13ae85b1be131597e5203add50f6b7b0fa4d12a4070568bd93",
+        "0b61b55dcae33715a7041e8b029549260d2b6d33fad2eb7013d01d81f4cedd96",
+        "a87e53653c2f0ce09ae70cbaefbf990ff9dd53b18140abd903661552fbbdb0b7",
+        "52aa55b649a2efebfe47edfa7b7c2df5f73d8b4b23ef4382849e974b795b882a",
+        "f8d2c983087c80f038dab6c55a3f953f5d755c002b547fafe428bcb37372b976"
+      ],
+      "source_sha256": "e089e177550c5da5b932972259627e9a59bd7930bc007330b1c6bd7ea163715c",
+      "text": "Import ROIs for every field that has them and save them as masks.\n\nGeoJSON and ImageJ files are found in the folder ``source`` by the\nfield's stem (``<stem>.geojson``, ``<stem>_RoiSet.zip`` ...); a COCO\n``source`` is one file matched on ``file_name``. Each matched field's\nmask is written as :meth:`_on_save` writes it; the field on screen is\nreplaced on the canvas instead, as one undoable edit, and saved with\nthe rest when the user saves it.\n\n:param source: the folder (GeoJSON, ImageJ) or file (COCO).\n:param fmt: ``\"geojson\"``, ``\"imagej\"`` or ``\"coco\"``.\n:param object_type: the object type to take from files of several;\n    default the folder's own type, else the first in the file.\n:returns: the names of the fields that were given masks."
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.import_field_rois": {
+      "source_blocks_sha256": [
+        "76e4d346a40bb870d20dde7c0f382f8d00d8f2b038b567b2f52fb192513d66e5",
+        "87ac18038f34029a18e710e00c5bc748d9ee36f200fb191ea22653b93c8d4a13",
+        "1df735ac1ca3d8dc12704d373077706343dbb88f64f9b652457830d68dd9c11d",
+        "73e1c26c8d7ec2b9bb6819b504f1a9754d473abc587e6c005d466de4ac1fb785",
+        "c6458171bae709110c0d10e9279b37dad1185b27d6ab604b31556194decc88df",
+        "578e5d3214262c9e47e4ef413e2067cb226a9cca688545987e9fc8e52f2fb494"
+      ],
+      "source_sha256": "b22c7e229982f5b7844619fce4e53aba56e01f97200f9c21e030cb0aab421c5c",
+      "text": "Replace the mask on screen with the objects of a ROI file.\n\nOne edit on the undo stack and in the curation ledger; nothing is\nwritten until the mask is saved. A file of several object types puts\n``object_type`` on the canvas, else the folder's own type, else the\nuser's choice.\n\n:param path: the GeoJSON, RoiSet or COCO file.\n:param fmt: its format; default from the file.\n:param object_type: the object type to take.\n:returns: the number of objects on screen afterwards, or ``-1`` when\n    nothing was imported."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.mask_settings": {
       "source_blocks_sha256": [
@@ -59606,11 +59903,11 @@
         "32db21e6177bed66b6c6b741978b341aae338fab2e969357ddfb3cdb73f72f33",
         "c6919646eb3e2edc5d84dcfff5b7537e34780d0679f66e6aa7de55442a02f049",
         "6b1a211cb51b8406a9c152b8c176aa55090c304da8936035532eb6e73b3f3a40",
-        "843bdd6167c7a4cfb0567c3617de9a4fb99e72f51a2eb7704c86d3e7fce6ebad",
+        "d50fb5f80a1805a55156234d7f1f653bd561a1f9fbb0686e5bb315d1b86640b2",
         "64592ccecc4a9e5944180e42c7cee6ac347fe2dda4c4cb64f7b77ad637dd0f0d"
       ],
-      "source_sha256": "236326cdd86cfeab7f4ba7d3e74f4932f31e3330691bb9564299e26b88092738",
-      "text": "Load a Cellpose model through spaCR's own resolver.\n\n:func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline\nitself calls: it maps every pre-SAM name onto ``cpsam``, keeps a\nfine-tuned checkpoint path as itself, and raises rather than quietly\nsubstituting stock weights for a checkpoint that is not there. Going\naround it with a second, simpler call would give this screen a\ndifferent answer from the run it is meant to be correcting.\n\nON A CPU THE WEIGHTS ARE LOADED IN FLOAT32. Cellpose-SAM loads them in\nbfloat16 by default, and a processor without native bfloat16\narithmetic runs every tile through a slow emulation of it: measured on\nan AMD Ryzen 9 5950X, one 256 px tile took 162-197 s in bfloat16 and\n31-46 s in float32, alternating, under the same load. A whole field is a hundred such tiles, so this is\nthe difference between most of an hour and most of a day. On a GPU\nnothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides\nthere, as it does for the pipeline.\n\nA ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a\nbioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all:\nCellpose 4 would load such a checkpoint and segment nonsense with it. It\nis loaded by :func:`_backend_model`, in the Cellpose 3 backend's own\nenvironment, as Mask generation loads it. A ``cellpose_dino:<path>``\nmodel, a Cellpose-DINO checkpoint, is loaded the same way in the\nCellpose-DINO backend (item 525).\n\n:param model_name: a Cellpose model name, the path of a fine-tuned\n    checkpoint, resolved by\n    :func:`spacr.utils._resolve_cellpose_pretrained`, or\n    ``cellpose3:<name or path>``."
+      "source_sha256": "9c40e289ebb3aec2761f5de2139e98a5b27723fcc313e7817b2d62707817cc0d",
+      "text": "Load a Cellpose model through spaCR's own resolver.\n\n:func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline\nitself calls: it maps every pre-SAM name onto ``cpsam``, keeps a\nfine-tuned checkpoint path as itself, and raises rather than quietly\nsubstituting stock weights for a checkpoint that is not there. Going\naround it with a second, simpler call would give this screen a\ndifferent answer from the run it is meant to be correcting.\n\nON A CPU THE WEIGHTS ARE LOADED IN FLOAT32. Cellpose-SAM loads them in\nbfloat16 by default, and a processor without native bfloat16\narithmetic runs every tile through a slow emulation of it: measured on\nan AMD Ryzen 9 5950X, one 256 px tile took 162-197 s in bfloat16 and\n31-46 s in float32, alternating, under the same load. A whole field is a hundred such tiles, so this is\nthe difference between most of an hour and most of a day. On a GPU\nnothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides\nthere, as it does for the pipeline.\n\nA ``cellpose3:<name or path>`` model -- a stock Cellpose 3 model or a\nbioimage.io Cellpose 3 checkpoint -- is not a Cellpose 4 model at all:\nCellpose 4 would load such a checkpoint and segment nonsense with it. It\nis loaded by :func:`_backend_model`, in the Cellpose 3 backend's own\nenvironment, as Mask generation loads it. A ``cellpose_dino:<path>``\nmodel, a Cellpose-DINO checkpoint, is loaded the same way in the\nCellpose-DINO backend (item 525), and a ``stardist:``, ``instanseg:``\nor ``omnipose:`` model in its own backend (items 551-553).\n\n:param model_name: a Cellpose model name, the path of a fine-tuned\n    checkpoint, resolved by\n    :func:`spacr.utils._resolve_cellpose_pretrained`, or\n    ``cellpose3:<name or path>``."
     },
     "spacr.qt.screens.make_masks.stretch_to_uint8": {
       "source_blocks_sha256": [
@@ -63571,13 +63868,13 @@
     "spacr.qt.screens.settings_model.SettingsWidgets.spawn_organelle_slots": {
       "source_blocks_sha256": [
         "9cc8f1be80b0bf93180e66768d126a13c48dd28f508655183d7bbf0a165de2d2",
-        "35a95e55832d09168f065f70692730cdb417b101a5d3f63f0b18988197e643a6",
+        "8388e14a9859298a58926eec1c39066c6a5dc55eb6d4a7f4ebd777ba81fb1732",
         "b0b253a218902b615a4c751111856471e5e80bc9df270ca8213b53b7bc795a08",
         "4cf336ec5b16ddacdd833ea444256490b6d07306e7049443dba2de6d5b611542",
         "db1e811a1010b15ae3a6447e1e2e6c91ff6f433a7987933927b670ef2d771ec8"
       ],
-      "source_sha256": "b4a42a8e2fef8a51926fb0a080d83d0ee6ec21dc7c375fe817cc7655945c4eb8",
-      "text": "Build the controls a raised ``number_of_organelles`` asks for.\n\nInstruction 356, case 2: raising the count used to rebuild the whole\nscreen, because a slot's controls do not exist until the count says\nso. This builds ONLY the new slots' controls, on the panel already\non screen; every control that existed keeps its identity and\nwhatever the user typed into it. The caller lays the new controls\nout.\n\nEXISTING VALUES WIN. A slot above the count that a settings file\ncarried is already in ``_defaults`` (see :meth:`set_hidden_value`),\nand its control is built holding that value rather than the one the\npanel would invent.\n\n:param count: the new ``number_of_organelles``.\n:returns: the new settings keys with a control, in the order the\n    panel declares them; empty when the count asks for nothing new."
+      "source_sha256": "ed4ec5c5cfce5bb0a3a7196bc0e1fbede6ed1b8ca23e52eefab5d33d6c06fe2e",
+      "text": "Build the controls a raised ``number_of_organelles`` asks for.\n\nA slot's controls do not exist until the count says so, and\nrebuilding the whole screen to add them would discard what the user\nhad typed. This builds ONLY the new slots' controls, on the panel already\non screen; every control that existed keeps its identity and\nwhatever the user typed into it. The caller lays the new controls\nout.\n\nEXISTING VALUES WIN. A slot above the count that a settings file\ncarried is already in ``_defaults`` (see :meth:`set_hidden_value`),\nand its control is built holding that value rather than the one the\npanel would invent.\n\n:param count: the new ``number_of_organelles``.\n:returns: the new settings keys with a control, in the order the\n    panel declares them; empty when the count asks for nothing new."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.tooltip_for": {
       "source_blocks_sha256": [
@@ -74908,13 +75205,13 @@
     "spacr.qt.widgets.dock.DockEdge": {
       "source_blocks_sha256": [
         "f3d58e9e35ff88a829521ea646d1fdfab3c41c3792227c19b955bce269f7ffaa",
-        "f4eb2b686f4264face50f9292e4981d391e541ae4335e0c8f2931682529d1ec5",
+        "51c4db88cb5e9f4051065235d5bfac3c7f3995f28486be3d5c0bb63a29971471",
         "61f1a55c8fe2aac1dde80ae43d84742e9aff21c7e5f6559f1d8bd4c4750806a1",
         "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
         "6f8ea5222b517bab4225b85c30696cc8dae58c371ec63346fd4ea5edf5dd4e41"
       ],
-      "source_sha256": "186036c98c2994ec11a8eaa3d9612e831535136a51224a0c5cf18c6d336fe795",
-      "text": "The strip along the dock's right edge that drags its width (item 529).\n\nThe maintainer, 2026-09-25: \"the user should be able to modify the width\nof the dock when not hidden\". A sibling of the dock's slot rather than a\nsplitter handle, because the dock is a fixed-width layout member and\neverything that measures it (the drawer, the backdrop, the fitting width)\nreads that fixed width. Dragging sets it; releasing stores it; a\ndouble-click forgets it and the column fits its names again. It is\nshown and hidden with the dock, so a hidden dock has no edge to catch.\n\n:param dock: the :class:`Dock` it resizes.\n:param parent: parent widget; ownership only.\nBuild the edge for ``dock``; hidden until the dock is shown."
+      "source_sha256": "5add9ce8a07f0e0969df8e5c405093085a89928829ef588fb131d073907cf0d9",
+      "text": "The strip along the dock's right edge that drags its width (item 529).\n\nDragging it sets the width of the dock while the dock is shown. A\nsibling of the dock's slot rather than a\nsplitter handle, because the dock is a fixed-width layout member and\neverything that measures it (the drawer, the backdrop, the fitting width)\nreads that fixed width. Dragging sets it; releasing stores it; a\ndouble-click forgets it and the column fits its names again. It is\nshown and hidden with the dock, so a hidden dock has no edge to catch.\n\n:param dock: the :class:`Dock` it resizes.\n:param parent: parent widget; ownership only.\nBuild the edge for ``dock``; hidden until the dock is shown."
     },
     "spacr.qt.widgets.dock.DockEdge.enterEvent": {
       "source_blocks_sha256": [
@@ -76155,8 +76452,8 @@
         "134a808c6cb1583cad50f47b9315e1727d962a4e68d11d3eefb9d5c808bbc26e",
         "9d8f04617e9bc1b421ad97f56da964bc39f000489a55a2fa08f8ac0a3e8f8ebe",
         "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
-        "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
-        "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
+        "ef2bf0295c68d121226542d4f7cbc5c166131857cca8d6bce5867832630e9eb6",
+        "a146840b95b410f516856ba329e4b0ba47893311da38d4657babf5a99018c63e",
         "cc28e8f95696103a39adcc4f2f1b66f5dd30fdb1ce5dd1e940aec3240deca4de",
         "e1936aa309118d0cd97be24eb39b34e074fcc576db25d3f96a1e042c2ba0c520",
         "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
@@ -76164,8 +76461,8 @@
         "59ce0c0db0bdd5a2b4ef5510a642294bee7a60fdaf767ea2583da93579b51eff",
         "736c77b30164b7ef9fbb042adb1e5c05357c838cb7eea65beb733f7cade810b7"
       ],
-      "source_sha256": "b2701d32f192cb3f0db68deb827bfa8a2e9b5da63903d7de2373f12145179679",
-      "text": "Qt labels and buttons that elide text without losing the full value.\n\nThe widgets render an ellipsis when space is limited and expose the complete\ntext in a tooltip. Stable size hints prevent layouts from oscillating between\nfull and shortened text.\n\nPROGRESS LINE. :class:`ProgressLine` is a slim progress bar whose numbers sit\nbeside it, where nothing can cut them.\n\nWHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track\n(``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also\npaints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws\na 13 px caption into those 8 px, so only the top half of each glyph reaches\nthe screen, and at 50 % GUI scale the track is 4 px and almost nothing does.\nThe maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".\n\nTHE DESIGN the maintainer chose is \"thin bar + label\":\n\n    [████████░░░░░░░░░░░░]  step 2 of 3 · 45%\n    Downloading torch… 312 MB of 690 MB · 4.2 MB/s · 1 min 30 s left\n\n* the bar paints no text at all and stays the slim track the theme draws;\n* the COUNT beside it (the step and the percentage, the numbers a person is\n  watching) is a plain label that is never elided -- its horizontal size\n  policy is ``Minimum``, so a layout cannot give it less than its text needs;\n* an optional DETAIL line below carries the part that changes and can be\n  long (a file name, a speed, a time left); that part elides, and\n  :meth:`ProgressLine.displayed_text` reports what is really painted.\n\nNo size here is computed from font metrics and then handed to a size setter,\nso the GUI-scale layer (:mod:`spacr.qt.gui_scale`) scales each size once: the\nlabel follows the scaled font, the spacing follows the scaled layout.\n\nThe widget answers the parts of ``QProgressBar``'s API the call sites use\n(``setRange``, ``setValue``, ``setFormat`` with ``%p``/``%v``/``%m``,\n``setTextVisible``, ``format``, ``value`` ...), so swapping one in for a bar\nchanges one line at each site."
+      "source_sha256": "7b33ef6e164887fefe1f7f87aaa3aac0aec4725edc5824ec5d63785d3478f5c5",
+      "text": "Qt labels and buttons that elide text without losing the full value.\n\nThe widgets render an ellipsis when space is limited and expose the complete\ntext in a tooltip. Stable size hints prevent layouts from oscillating between\nfull and shortened text.\n\nPROGRESS LINE. :class:`ProgressLine` is a slim progress bar whose numbers sit\nbeside it, where nothing can cut them.\n\nWHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track\n(``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also\npaints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws\na 13 px caption into those 8 px, so only the top half of each glyph reaches\nthe screen, and at 50 % GUI scale the track is 4 px and almost nothing does.\nA caption such as \"step 1 of 3\" or \"10%\" is cut off.\n\nTHE DESIGN is \"thin bar + label\":\n\n    [████████░░░░░░░░░░░░]  step 2 of 3 · 45%\n    Downloading torch… 312 MB of 690 MB · 4.2 MB/s · 1 min 30 s left\n\n* the bar paints no text at all and stays the slim track the theme draws;\n* the COUNT beside it (the step and the percentage, the numbers a person is\n  watching) is a plain label that is never elided -- its horizontal size\n  policy is ``Minimum``, so a layout cannot give it less than its text needs;\n* an optional DETAIL line below carries the part that changes and can be\n  long (a file name, a speed, a time left); that part elides, and\n  :meth:`ProgressLine.displayed_text` reports what is really painted.\n\nNo size here is computed from font metrics and then handed to a size setter,\nso the GUI-scale layer (:mod:`spacr.qt.gui_scale`) scales each size once: the\nlabel follows the scaled font, the spacing follows the scaled layout.\n\nThe widget answers the parts of ``QProgressBar``'s API the call sites use\n(``setRange``, ``setValue``, ``setFormat`` with ``%p``/``%v``/``%m``,\n``setTextVisible``, ``format``, ``value`` ...), so swapping one in for a bar\nchanges one line at each site."
     },
     "spacr.qt.widgets.eliding.ElidingLabel": {
       "source_blocks_sha256": [
@@ -92379,13 +92676,12 @@
     "spacr.qt.widgets.picture_export": {
       "source_blocks_sha256": [
         "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-        "23863d90eb7ce0b6020741383e0b4b6d9595560595ce695bbc8f783105b2d03c",
         "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
         "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
         "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e"
       ],
-      "source_sha256": "a5bf77f207801e57268199a1b7052d52605b37b4c7597513b0975cd6985490e5",
-      "text": "Right-click a picture and save it, as a PNG or as a PDF.\n\n    \"here the user should be able to right click on the images to save them\n     as png or pdf\" -- the maintainer, 2026-09-24 (item 505)\n\nA picture on screen is often the thing somebody wants in a slide an hour\nlater, and the route to it was a screenshot of a window, at the window's\nresolution, with the surrounding chrome in it. This saves THE PICTURE, at\nthe resolution it was rendered at rather than the size it happens to be\nshown at, into a file of the user's choosing.\n\nTWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster\ndropped into a PDF satisfies the file name and nothing else; a figure panel\nis a page, and a page has a size in millimetres. :func:`save_picture` gives\nthe PDF a page the image's own shape and tells the writer the resolution\nPreferences carries, so the picture lands at the size it was measured at and\nprints at that resolution.\n\nThe resolution and the default format are the ones the Figures preferences\nalready own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and\n:func:`spacr.qt.preferences.get_figure_format` -- so a user who has already\nsaid \"300 DPI, PDF\" is not asked a second time in different words."
+      "source_sha256": "e3cf46c60a811ef1693d93a5d2811ce3a4e57d35a14002f4d5ac22396eb68af2",
+      "text": "Right-click a picture and save it, as a PNG or as a PDF.\n\nA picture on screen is often the thing somebody wants in a slide an hour\nlater, and the route to it was a screenshot of a window, at the window's\nresolution, with the surrounding chrome in it. This saves THE PICTURE, at\nthe resolution it was rendered at rather than the size it happens to be\nshown at, into a file of the user's choosing.\n\nTWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster\ndropped into a PDF satisfies the file name and nothing else; a figure panel\nis a page, and a page has a size in millimetres. :func:`save_picture` gives\nthe PDF a page the image's own shape and tells the writer the resolution\nPreferences carries, so the picture lands at the size it was measured at and\nprints at that resolution.\n\nThe resolution and the default format are the ones the Figures preferences\nalready own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and\n:func:`spacr.qt.preferences.get_figure_format` -- so a user who has already\nsaid \"300 DPI, PDF\" is not asked a second time in different words."
     },
     "spacr.qt.widgets.picture_export.as_image": {
       "source_blocks_sha256": [
@@ -105227,10 +105523,11 @@
         "62789fd9ca307f5731762889e038931a45ffc0bd9d2e466aeaf2b24e6e39f6a1",
         "c19bec0489c8a06f2b15b2850168b9eb279f2540a267de73a0903b9102c54f14",
         "75816c6e25886f663e62522e185a1cdbb1bc60f33df2feb2e960b65a2ad31e7f",
-        "0ca3a41435b330f5517523fc9b1ef4111e366192706f6b7b703f826af9099f1d"
+        "0ca3a41435b330f5517523fc9b1ef4111e366192706f6b7b703f826af9099f1d",
+        "8268982be4a59a166687566f77cbff9be9c2eac1594319ea55bdbd0e07c7e097"
       ],
-      "source_sha256": "39126364b7fc2d44158ef855008edb9683a7bcca2308b1ba76af00a401dd711d",
-      "text": "Run journal — reproducibility record for every pipeline invocation.\n\nEvery time a spaCR pipeline runs (mask / measure / classify / …),\n:func:`open_run` writes a timestamped folder under ``~/.spacr/runs/``\ncontaining everything a reviewer needs to reproduce the result:\n\n::\n\n    ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask/\n        settings.csv          # exact settings dict, Key,Value CSV\n        settings.json         # same, JSON (source of truth for machines)\n        manifest.json         # spaCR version, git hash, python, packages,\n                              # torch / cuda / cellpose, start time,\n                              # end time, elapsed, exit status, model hashes\n        log.txt               # tail of ~/.spacr/logs/spacr.log for the run\n        outputs/              # optional — any pipeline-emitted artifacts\n                              # (masks, DBs, CSVs, plots) copied in\n\nPublic API::\n\n    from spacr.run_journal import open_run\n\n    with open_run(\"mask\", settings) as run:\n        preprocess_generate_masks(settings)\n        run.attach_output(Path(\"/path/to/mask.tif\"))\n        run.set_status(\"success\")\n\nThe context manager records start / end timestamps and yields the\n:class:`Run` object, whose ``dir`` attribute is the run folder. When\nsomething raises it stamps ``\"status\": \"failed\"`` (plus the traceback)\ninto ``manifest.json`` and re-raises; no marker file is written.\n\nConsumers of the journal:\n\n* ``spacr repro <run-folder>`` — replays the run (see\n  :mod:`spacr.cli_repro`).\n* AI Console → \"File as issue\" — includes the last run's manifest\n  when present so bug reports are self-contained.\n* Home screen \"Recent runs\" list — enumerated from\n  :func:`recent_runs` newest first."
+      "source_sha256": "b971f240dda7e74813cc4e911ecf25af1a75c5a29ad931025da4f547cd109891",
+      "text": "Run journal — reproducibility record for every pipeline invocation.\n\nEvery time a spaCR pipeline runs (mask / measure / classify / …),\n:func:`open_run` writes a timestamped folder under ``~/.spacr/runs/``\ncontaining everything a reviewer needs to reproduce the result:\n\n::\n\n    ~/.spacr/runs/2026-07-23_143507_ab12cd34__mask/\n        settings.csv          # exact settings dict, Key,Value CSV\n        settings.json         # same, JSON (source of truth for machines)\n        manifest.json         # spaCR version, git hash, python, packages,\n                              # torch / cuda / cellpose, start time,\n                              # end time, elapsed, exit status, model hashes\n        log.txt               # tail of ~/.spacr/logs/spacr.log for the run\n        outputs/              # optional — any pipeline-emitted artifacts\n                              # (masks, DBs, CSVs, plots) copied in\n\nPublic API::\n\n    from spacr.run_journal import open_run\n\n    with open_run(\"mask\", settings) as run:\n        preprocess_generate_masks(settings)\n        run.attach_output(Path(\"/path/to/mask.tif\"))\n        run.set_status(\"success\")\n\nThe context manager records start / end timestamps and yields the\n:class:`Run` object, whose ``dir`` attribute is the run folder. When\nsomething raises it stamps ``\"status\": \"failed\"`` (plus the traceback)\ninto ``manifest.json`` and re-raises; no marker file is written.\n\nConsumers of the journal:\n\n* ``spacr repro <run-folder>`` — replays the run (see\n  :mod:`spacr.cli_repro`).\n* AI Console → \"File as issue\" — includes the last run's manifest\n  when present so bug reports are self-contained.\n* Home screen \"Recent runs\" list — enumerated from\n  :func:`recent_runs` newest first.\n\nBeside the runs, the journal keeps two records for blinded work.\n:func:`start_blinding` writes a blinding key (coded names and a shuffled\norder) to ``~/.spacr/blinding`` and :func:`unblind` logs who opened it and\nwhen. :func:`lock_analysis` freezes an analysis plan, hashed and timestamped,\nin ``~/.spacr/analysis_locks``; every later run of the same pipeline on the\nsame ``src`` is checked against it by :func:`check_analysis_lock`, and the\nverdict is written into that run's ``manifest.json`` under\n``analysis_lock``, with any difference also listed in\n``provenance_warnings``."
     },
     "spacr.run_journal.MANIFEST_SCHEMA_VERSION": {
       "source_blocks_sha256": [
@@ -105328,6 +105625,18 @@
       "source_sha256": "8b02b6c9fe26eccd3b25566a72ed466e9b30940bd61b6ac786ed42bb653d8ddd",
       "text": "Explicitly stamp ``status`` (``success`` / ``failed`` / …).\n\n:param status: lifecycle state to store on the run."
     },
+    "spacr.run_journal.check_analysis_lock": {
+      "source_blocks_sha256": [
+        "a7dab553cf176267f0dc83ae6090ff6b64dd890fcd37a0b970343a4cc8bb9a66",
+        "fa1d435e1c436efdb5877fa024be6c851d6d98011578205654eeacb7f952c4df",
+        "21c35046c8d05f886c15bdd8240f3c09c0e79b554dc0b7ae203f18b786ae19c0",
+        "09f82ec376a95edec730570ef26a0339cd6171afc441c2382de7f6f3fa6212e1",
+        "04cfcc06ecb6198567eb63a5ad798f1401693b1357367656ab5724c2c8604e0f",
+        "b0c257c3fb76778206d96f0aaca390e18f89edf8aafb0abc32a1b129979b4626"
+      ],
+      "source_sha256": "6b10b5ea09d10e40ef81fea558a8e260ee683414c33bf623550966487d46128f",
+      "text": "Check a run's settings against its preregistered analysis lock.\n\nThe lock is the newest one :func:`lock_analysis` made for ``app_key``\non the settings' ``src``, unless one is passed. The lock is first\nchecked against its own hash, so an edited lock file is caught; then\nevery setting and every hashed file is compared.\n\n:param settings: the settings of the run being checked.\n:param app_key: the pipeline running them.\n:param lock: a lock record to check against instead of the newest one.\n:returns: ``status`` -- ``\"unlocked\"`` (no lock applies),\n    ``\"verified\"`` (nothing changed), ``\"deviation\"`` (changed, and no\n    key on the folder has been unblinded since the lock),\n    ``\"post_hoc\"`` (changed, and a key on the folder was unblinded\n    after the lock), ``\"not_preregistered\"`` (unchanged, but the lock\n    was made after an unblinding) or ``\"tampered\"`` (the lock no\n    longer matches its hash) -- with ``lock_id``, ``sha256``,\n    ``locked_utc``, ``locked_by``, ``deviations`` (``key``, ``locked``,\n    ``now``), ``unblinded_utc`` and a one-sentence ``summary``."
+    },
     "spacr.run_journal.current_run": {
       "source_blocks_sha256": [
         "971e5b66f5f59bd3ad3121746d7158387a56e59ba9584afe2803f664b9b7f67f",
@@ -105417,6 +105726,22 @@
       "source_sha256": "ef6ee8fc8b79fd1720705ab728c28a2dc1e831c0306248c0db98b316ecc226c6",
       "text": "Read a run's ``settings.json`` (falling back to settings.csv).\n\n:param run_dir: journal run directory containing the settings files."
     },
+    "spacr.run_journal.lock_analysis": {
+      "source_blocks_sha256": [
+        "a814af9286c401fd23c822a779a1dbeacb4d1d3d9f20d57c9f1c83295a5f5d42",
+        "b39a0ffbfd1aa184adf4a8273c3ec2c2646fda3903cc42ea1165bc406dfc1da8",
+        "cf47343d42802b2c2950a7f9bd29025f6e5effa678455bf8687dcb0aaf51a6aa",
+        "0177a76b9efd77160351110a56cea8824ddd50a550de3889c91b8f1e2edbf608",
+        "df52c0026a3371e4f91b7f357ac048c82417557d35d9cdc581204bad0c81f868",
+        "1d3fae2a661cbe02803881cb4ca5ca01031c3d2f275510a44688d5dea042ec6f",
+        "fc63e888b1d52c57db4bfd324e65810dbfbba29f34361f37ca4ecde985adfaf8",
+        "4a542f32b49e522cc1bc53100214caede0cb0ad59623ddab592f09bdd5a6794f",
+        "0063f5e246bb561726b8d059577ccdb5c8807e677342a2eeacd3470d2c452a43",
+        "07d8ff4c8fd4fc1d666e2a6174a9471f98898a75a1efce1495955d616fe8c72b"
+      ],
+      "source_sha256": "23700232877f4a709b5b5bdd2cdca0e07525c9bc3e14e03ca09e881f3a0e67e1",
+      "text": "Freeze an analysis plan before its results are seen.\n\nThe settings, the stated hypotheses and thresholds, and the SHA-256 of\nevery model, gate or threshold file the settings name (plus ``files``)\nare written with the time and the user to\n``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on\nevery journalled run of ``app_key`` on the same ``src`` is checked\nagainst the newest lock by :func:`check_analysis_lock`; the verdict goes\ninto the run's ``manifest.json``, and a difference is listed in the\nmanifest's warnings, the report and the methods text.\n\nA lock made after a blinding key on the same folder was unblinded is\nmarked as such, because it was not made blind.\n\n:param settings: the settings the analysis will run with.\n:param app_key: the pipeline it will run in, such as ``\"classify\"``.\n:param hypotheses: the hypotheses, in words.\n:param thresholds: the decision thresholds and gates, in any\n    JSON-compatible form.\n:param files: further files the plan depends on.\n:param note: anything else worth keeping with the plan.\n:returns: the stored lock, including ``lock_id``, ``locked_utc`` and\n    ``sha256``."
+    },
     "spacr.run_journal.open_run": {
       "source_blocks_sha256": [
         "78c164a5dc069306f6cd3928f308d96e9721c26b6d2f6057614c95adb0d01d82",
@@ -105471,6 +105796,31 @@
       ],
       "source_sha256": "4e416702c4df5a1bb0ef5504ff56d05a076b627c256941e69e1ffab5ae2d06e6",
       "text": "Return searchable, dashboard-ready records for all journalled runs.\n\nSearch covers the run id, module, status, settings keys and values, input\nand output paths, warnings, failure traceback, and environment versions.\nCorrupt or interrupted run folders remain visible with an explicit\n``\"corrupt\"``/``\"running\"`` status and diagnostic warnings.\n\n:param query: whitespace-separated case-insensitive terms; every term must\n    occur somewhere in the record.\n:param app_key: optional exact module filter.\n:param status: optional exact status filter.\n:param limit: maximum returned records after newest-first sorting.\n:returns: JSON-friendly record dictionaries. ``dir`` remains a\n    :class:`~pathlib.Path` for convenient GUI use."
+    },
+    "spacr.run_journal.start_blinding": {
+      "source_blocks_sha256": [
+        "51b5579da70f94f9af625e544b505de7a7897a3b5bc7abc01449b410cf3c5e2c",
+        "080ffb3ee121cf59f4dc2a2e91ae7eb5b889cf65d0221e00636749a1395c88c4",
+        "6e49a2b0c5e9912145d5220596754786b869bdcc094a793897636e6794e8e524",
+        "32ba1c38520394afe3e3d96295fd44d70a76d650f2b1dc525f861f85700bbefc",
+        "4e22478174ba1af45dabfea6662bdc2d6dc86b002b7e0e3e980f51a8b9765613",
+        "13de89a3a49d5b276eb0c83c091dcb96c80ed7a00459612aabaa49b692fa077e",
+        "44ca44f7fba042fe8a8cef262f29016cc812d945e675329d5377e18c9df2e3f2"
+      ],
+      "source_sha256": "2280c337b2f253150cb9290b56e14eb45fb9c2d2941da093036ec96823d32956",
+      "text": "Shuffle ``items`` under coded names and keep the key away from them.\n\nBlind scoring: the person scoring sees each item only by its code\n(``B0001``, ``B0002`` and so on, numbered in the shuffled order) and in\nthat order, so neither a name nor its neighbours say which plate, well\nor condition it came from. The key that maps codes back to items is\nwritten to ``~/.spacr/blinding/<key id>.json``, outside the data\nfolder, and every later event on it (unblinding, closing) is appended\nto ``<key id>.log.jsonl`` with who did it and when.\n\n:param items: the things being scored, such as crop paths or image\n    files; repeats are kept once, in first-seen order.\n:param scope: what is being scored, such as ``\"annotate\"``; stored with\n    the key.\n:param src: the experiment folder the items belong to. Analysis locks\n    on the same folder read this key's unblinding record.\n:param seed: the shuffle's seed; a random one is drawn and stored when\n    omitted, so the order can be rebuilt from the key.\n:returns: ``key_id``, ``order`` (the items, shuffled) and ``codes``\n    (``{item: code}``)."
+    },
+    "spacr.run_journal.unblind": {
+      "source_blocks_sha256": [
+        "293cb831413a2d9f9d2f92b3e6f9ae55649ae181386159357c944ec33687833c",
+        "817d1d13e9ec5fd65f8ba037cbb579c1dbeed7f46e7795dc13beb162c401cf00",
+        "be04618d8ac98c5c920b99d0d3aaf2a50c1fb433ce7a64cae4b0678aaf6c2eb1",
+        "98670ccd268892e9d5e0fe49e1abbdfde8ebccc883c58897af9456e0663f12fc",
+        "478a7e9a0ab8e98d55ba67d98bb48f770a24892c4394da556e774230d6de593b",
+        "ff56abacdb9bcd209339792e01bee3d8e0c97b13dbe1f65bd66fd852b0178052"
+      ],
+      "source_sha256": "a612cb96e4f18969703b8e798fc9d80fd3afae4f6890398b8832b85d8fdfec58",
+      "text": "Open a blinding key, and record who opened it and when.\n\nThe record is appended to the key's log before the key is returned, so\nthe identities cannot be read through this call without leaving the\nrecord. An analysis lock on the same folder treats a difference found\nafter this moment as post-hoc.\n\n:param key_id: the key's id, as :func:`start_blinding` returned it.\n:param reason: why it was opened; stored with the record.\n:returns: ``{code: item}``.\n:raises FileNotFoundError: when there is no such key."
     },
     "spacr.run_journal.values_equal": {
       "source_blocks_sha256": [
@@ -110428,10 +110778,92 @@
       "source_blocks_sha256": [
         "02565973eb04ad74df843d4c80b1f7f526827b0259f7e836f2e3ee0dc25c9357",
         "83e3aa188b9d91efbae785f0bfbb6f8585dc1b3b19e2eeaa9c65f542bf47a57d",
-        "54ffbd15c8f7c81b6db6c879f3f8e54dd09686ad622844457b0a8f46e2a837d7"
+        "54ffbd15c8f7c81b6db6c879f3f8e54dd09686ad622844457b0a8f46e2a837d7",
+        "b9b76401bc8c2088e3436718ad642671cac3a991a37ef72f3d2a9ecd22541e52",
+        "d878bf8c6c52ee39b0e709a05a0415bf0a5eeb97e84bc82c5e16798bd9811fa3",
+        "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
+        "9de91e770aa369e114832d84ac787e9a9f64264f60d5d8237ffcf710eb2e0f5c",
+        "37ada0091196229667708318c3d03c2d579ff51e17a9c4ee4918de89446f43d9"
       ],
-      "source_sha256": "27058ff5195ff32085a9142d97679a96c57061340a45b6e869f9a888bfd5b0dd",
-      "text": "Provide statistical tests and multiple-comparison helpers.\n\nGroup-comparison functions delegate test selection to\n:mod:`spacr.figures.stats` while preserving this module's established call\nsignatures and result keys. Two groups use Student's t, Welch's t, or\nMann–Whitney U as supported by the data; larger designs use one-way ANOVA,\nWelch's ANOVA, or Kruskal–Wallis. Results identify the selected test and\ninclude the assumption checks used to select it.\n\n:func:`perform_normality_tests` reports underpowered checks as uninformative,\nand :func:`perform_levene_test` uses the median-centred Brown–Forsythe\nstatistic. Imports of the plotting-backed statistical engine remain local so\ncallers that only need adjustment or contingency-table helpers avoid loading\nthe plotting stack."
+      "source_sha256": "76a588db1faeee4fcc67d87ac755858b93f25b6700fb204a1492a6ebd92e628b",
+      "text": "Provide statistical tests and multiple-comparison helpers.\n\nGroup-comparison functions delegate test selection to\n:mod:`spacr.figures.stats` while preserving this module's established call\nsignatures and result keys. Two groups use Student's t, Welch's t, or\nMann–Whitney U as supported by the data; larger designs use one-way ANOVA,\nWelch's ANOVA, or Kruskal–Wallis. Results identify the selected test and\ninclude the assumption checks used to select it.\n\n:func:`perform_normality_tests` reports underpowered checks as uninformative,\nand :func:`perform_levene_test` uses the median-centred Brown–Forsythe\nstatistic. Imports of the plotting-backed statistical engine remain local so\ncallers that only need adjustment or contingency-table helpers avoid loading\nthe plotting stack.\n\nArrayed-screen hit statistics\n-----------------------------\n\n:func:`score_arrayed_screen` scores every well of an arrayed screen against\nits negative control: robust z (median/MAD), SSMD with the method-of-moments,\nUMVUE and robust estimators for designs with and without replicates (Zhang\n2011, J Biomol Screen 16:775), and the B-score (Brideau et al. 2003), whose\nrow and column effects come from :func:`median_polish`, a port of R's\n``stats::medpolish``. Scores are computed per plate or against the pooled\nnegative control, hits are called at chosen thresholds, and\n:func:`write_hit_report` writes the ranked hit table as CSV and one plate\nheatmap per statistic through :func:`spacr.plot.save_figure`. Wells are\nlocated by :mod:`spacr.plate_qc` and controls named in the\n:mod:`spacr.well_spec` notation, and the per-plate Z' comes from the\ncontrol-chart screen's own :func:`~spacr.qt.widgets.control_chart.zprime_frame`.\n\nThe constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes\nthe MAD of a normal sample estimate its standard deviation (the factor R's\n``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of\nmoments), ``umvue`` (uniformly minimal variance unbiased) and ``robust``\n(median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic:\nSSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off\nfor robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and\n``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so\nthe residuals agree with the B-score cellHTS2 computes.\n\nImage-based profiling\n---------------------\n\nThe profiling helpers turn Measure's per-object tables into well and\ntreatment profiles and score them, following pycytominer and copairs so the\nnumbers agree with those tools on the same features. Each object table is\naggregated to a per-well median, a plate map adds the treatment annotations,\nfeatures are normalised plate by plate against the negative-control wells\n(robust MAD by default), uninformative and redundant features are removed\n(variance, frequency, correlation, missing values and outliers), and\nreplicate wells are collapsed into consensus profiles. Replicate\nreproducibility is scored as mean average precision (mAP) with copairs'\npermutation null and Benjamini-Hochberg correction: phenotypic activity\n(replicates against controls) and, given a phenotype label, phenotypic\nconsistency (treatments that share the label). Percent replicating is\nreported beside it. Profiles are written as CSV and Parquet with\n``Metadata_`` columns, the consensus also as GCT, with an mAP plot and a\nconsensus-similarity heatmap. Measure runs the whole recipe at the end of a\nrun when ``profiling`` is on."
+    },
+    "spacr.sp_stats.ArrayedHitResult": {
+      "source_blocks_sha256": [
+        "83be1a39098c02c134ef53660cbeb6edf34b2e5be75b8cb14995cd68637269ec",
+        "34ffeff07667090aebfb2ef06f4f3a0b741ef477cb9a2582b7966e40f8b2f2b2",
+        "afc192b0486e214561c606af1dbaf69682f90d31cc8bc82c73ae0bb4300e5a3a",
+        "5434a05da5c16db2b3b5bb868a145e196d61f8c5cc6c0b4f8593aaec007b0110",
+        "80b3ed45d280f1320df9b64bf44c3cbf9afba1f5a6b3fb3f4dd1336af13a85d8",
+        "12ebfed565a25a4cf2a1d5ae96a4700ad3e540cdcfc3ee7bed175d10686ddbf2"
+      ],
+      "source_sha256": "9c1a42ac6df09663f4e2393909abeb63a8b1333b551d8881f62b07f351244fcc",
+      "text": "Per-well scores, per-treatment SSMD and per-plate QC of one screen.\n\n:param wells: one row per well with ``robust_z``, ``ssmd``, ``b_score``,\n    ``difference``, the ``hit_<method>`` flags, ``hit`` (by\n    ``options['rank_by']``) and ``rank``.\n:param treatments: replicate SSMD per treatment; empty without a\n    treatment column.\n:param plates: per-plate summary including Z'.\n:param options: the settings the scores were computed with.\n:param notes: sentences about what could not be scored and why."
+    },
+    "spacr.sp_stats.ArrayedHitResult.hits": {
+      "source_blocks_sha256": [
+        "a52e5094db47e7324ffe44f1e62fd9c455e729d406b69311746f242a07c393d7"
+      ],
+      "source_sha256": "a52e5094db47e7324ffe44f1e62fd9c455e729d406b69311746f242a07c393d7",
+      "text": "The called sample wells, strongest first."
+    },
+    "spacr.sp_stats.ArrayedHitResult.report": {
+      "source_blocks_sha256": [
+        "7bbb1faf1303f3b899bd2e420abe03ec9cccf28b7df31378cca312f50307a6b0"
+      ],
+      "source_sha256": "7bbb1faf1303f3b899bd2e420abe03ec9cccf28b7df31378cca312f50307a6b0",
+      "text": "The result in sentences, for a text panel or a log."
+    },
+    "spacr.sp_stats.HitScoringError": {
+      "source_blocks_sha256": [
+        "dce0f94f092c229370cdfd56072e9dce9cfc62edd9ade822ed8d3f33e1adf1a4"
+      ],
+      "source_sha256": "dce0f94f092c229370cdfd56072e9dce9cfc62edd9ade822ed8d3f33e1adf1a4",
+      "text": "Raised when a screen cannot be scored, with the reason and the way out."
+    },
+    "spacr.sp_stats.MedianPolish": {
+      "source_blocks_sha256": [
+        "107902ec1a71382d8de0ff1e216a4d4ce631364fb25738b51716d87bdc30a952",
+        "35fd865062c1e4c5ca558d288060924d71d04b12498936ef0f40640798df9cef",
+        "4731e4dc0fe2a17d60965678bc7bc1c2028b11dbe5950599f853f2035dd0e8db",
+        "e0e8125386e63dcc601774a207434c870606c6471f71ce58857b6e3b5ec87609",
+        "583dec85012f28b7ce1673034a0428357e4acb62a2516871f9eaa6b1d0b85351",
+        "3c8d8df4bc01829362a302e984720e62671278aa41c9470ed08e9a6bd5a69a38",
+        "ad731801f77b18dc45fb1a324b0e77db2b42c3cbbe7396e595091b20b95c962d"
+      ],
+      "source_sha256": "6b9e0c0ca0c47379adb950dcdebd92f007e1ac69b30c43897b7ac804d7083f7d",
+      "text": "Tukey's median polish of one plate: ``x = overall + row + column + residual``.\n\n:param overall: the fitted grand effect.\n:param row: one effect per plate row; NaN for a row with no fitted well.\n:param column: one effect per plate column; NaN likewise.\n:param residuals: the residual matrix; NaN where the input was NaN.\n:param iterations: sweeps run.\n:param converged: whether the relative change fell under the tolerance."
+    },
+    "spacr.sp_stats.MedianPolish.fitted": {
+      "source_blocks_sha256": [
+        "2a6de3ac9cc2e8d60260014b815684441db4bfd77b0af06d4b3edf627ad9b722"
+      ],
+      "source_sha256": "2a6de3ac9cc2e8d60260014b815684441db4bfd77b0af06d4b3edf627ad9b722",
+      "text": "The additive fit ``overall + row + column`` on the full grid."
+    },
+    "spacr.sp_stats.b_scores": {
+      "source_blocks_sha256": [
+        "b473cecad9843f404a206419361d9f450d5cba41c12bae2e537a0226ccca8cc1",
+        "308d2139beeb2a1a302a0abafe68f6be22461fb5f27732a97503030980bf61a4",
+        "8b85e5b85b068dfe34be0e689e01e29ec04972c2d99261f193cdb26f9d1ea37c",
+        "607abaca63ccc64cc4df3c2a1f1ba5ffe842ecea80960fe817865f619f064848",
+        "5524ba8288783b6ea28afcfd4b366da163274d7aa682b974edb8adeb735fea41",
+        "c5bf8a72d3a674efb00efb232f495fa40fe46cff2608a4229edb4c138b7b04b6"
+      ],
+      "source_sha256": "854b6f8ab358b50dc44443244b3f65233901985967f676b5c702577ae61270dd",
+      "text": "B-score of every well on one plate (Brideau et al. 2003).\n\nRow and column effects are fitted by :func:`median_polish` on the wells\nin ``fit_mask`` (normally the sample wells, so a control column does not\nbecome a column effect), then removed from every well on the plate. The\nresiduals are divided by the scaled MAD of the fitted wells' residuals,\nas cellHTS2 does; Brideau's unscaled MAD differs by the constant 1.4826\nonly and ranks the wells identically. A row or column with no fitted\nwell, such as a column holding only controls, has no effect to remove,\nso its wells are scored against the overall and the other effect alone.\n\n:param matrix: the plate, NaN for an absent well.\n:param fit_mask: boolean matrix of the wells the effects are fitted on;\n    ``None`` fits on every finite well.\n:param scale: divide by this instead of the plate's own residual MAD,\n    which is how the pooled scope applies the screen-wide MAD.\n:returns: ``(scores, polish, scale_used)``; a score is NaN for an absent\n    well, and everywhere when the fitted residuals have no spread."
+    },
+    "spacr.sp_stats.call_hits": {
+      "source_blocks_sha256": [
+        "ea1458ebd566093a5ce72160e3827dd75bca87c3ab046b278de1e0ea965c9524",
+        "0a2c6227c2e11c4ee6e4b74bb45642eead295f3e8f16989731b806c928ce69ed",
+        "2d66a8280e973e58f352de260c72816fe5b3676510198626cbbb68d9b8c6a9cf",
+        "61cf0f44904a3b1c3f436fe04df3c0a1b70598e6a30160bb276ee0d36e0d26d6",
+        "c1b0bcf1c758600a34d5561189adeea0ef2763bdba8d8966817c63e9c3eab2ce",
+        "c3ba98f1e5af6a1087b5a7a7faf621bc3a037841abeba682e3d374966b5447b8"
+      ],
+      "source_sha256": "1ab05a206faa50d471c3544afabaaf08fdc4f3205af6f47eb3ad3bc9e48b1c8a",
+      "text": "Which scores pass ``threshold`` in ``direction``. NaN is never a hit.\n\n:param scores: the statistic per well.\n:param threshold: the cut-off; its sign is ignored.\n:param direction: ``both`` (``|s| >= t``), ``up`` (``s >= t``) or ``down``\n    (``s <= -t``).\n:returns: a boolean array.\n:raises HitScoringError: for an unknown direction."
     },
     "spacr.sp_stats.chi_pairwise": {
       "source_blocks_sha256": [
@@ -110456,6 +110888,52 @@
       ],
       "source_sha256": "3850d9e4b8219a9b81de4d9777ba93f91b921d2576fa74c69c8ea4e7862d43c1",
       "text": "Recommend a multiple-comparison correction method for the given design.\n\n:param num_groups: Number of unique groups being compared.\n:param num_data_points: Number of data points per group (balanced groups assumed).\n:returns: One of ``'holm'``, ``'fdr_bh'``, ``'sidak'``, or ``'bonferroni'``."
+    },
+    "spacr.sp_stats.hit_heatmap": {
+      "source_blocks_sha256": [
+        "ffc2e125a2e799a08c6a0af7b3d2c2c690bee9a8fe92600053187c5f1dc9455c",
+        "9b89d5afab61a7fb104e9ce205f6f005872159c487a4928e9520dfdf653e8fb7",
+        "a7d4e468f20d9559fc7151572346c0d56f64d7a4e313dfe112da08f6b9b74f53",
+        "98ffb47a789a2fbd0e282d3847ae76a9e3670ee9a3194ce51329ac0f67e6a99b",
+        "b155abed1c85148789f6a336753f0f3a1e7d99af5320386320ad83b604786146",
+        "39035226d9a89992b6739aa8c77ce2054d132d1c6b9a3caee4a24aa1a5bbcfb7",
+        "508d39c2537d1350fd4944914520223928078bb172bf64ab5b4025de9541d54a"
+      ],
+      "source_sha256": "f18cce4af3df8953cab76c2fb41d2233d71b845296e26f1f102e9f69a96e9534",
+      "text": "Every plate's ``method`` scores on one diverging scale, hits outlined.\n\nDrawn by :func:`spacr.figures.plates.build_plates`, the house plate small\nmultiple, with :func:`spacr.figures.plates.score_ramp` and a scale\nsymmetric about zero, so the same colour is the same score on every plate\nand on either side of the negative control.\n\n:param result: the scored screen.\n:param method: one of :data:`HIT_METHODS`.\n:param target: ``'screen'`` or ``'print'``; default the preference.\n:returns: ``(figure, panel)`` as ``build_plates`` returns them.\n:raises HitScoringError: for an unknown method."
+    },
+    "spacr.sp_stats.hit_table": {
+      "source_blocks_sha256": [
+        "eaaf3c8f0840e42641852025b199bd17edc6f088e679c108f56f378a6f9b6ad9",
+        "b2cfdbb9317a6f44e7224638ed7f367406aec569734394ccdd5d8494e4c8cad4",
+        "67cebccfa994ea7268bd034fe6581f40baf5abe88a8cbe5a8f939005b4ee9d41",
+        "7b5113b093575746f9348e087b6fb170a2e2c99fecb74de9327805338c8fb6f1"
+      ],
+      "source_sha256": "560ae98255bcc335f2331b315f46993f2ee322fe27a0cf510ae3e531fd1906c0",
+      "text": "The ranked hit table: sample wells, strongest first.\n\n:param scored: the ``wells`` of an :class:`ArrayedHitResult`.\n:param hits_only: keep only the called wells.\n:returns: the ranked rows with the identifying columns first."
+    },
+    "spacr.sp_stats.mad": {
+      "source_blocks_sha256": [
+        "c51589ea7af68a3510200c5abad2dab59414ec0545893f5c096a4533fa8cd45c",
+        "5d64e2f8f7c7d3046c22c5ecfd1610f98287605ec763d136df585b67bd0db852",
+        "cd218cf164aaea67c2732cbc01e774683537fe6c2efcfc479b84ef2a3eb85a7d",
+        "0562ef008354d286fe0c362ceb72e86b6e877216d082b4b61ffe97d581364c47"
+      ],
+      "source_sha256": "ada2e3bd5055a34c90fdfc751a62d93c6214fc9e16c4c30a695d0c45a8892064",
+      "text": "Median absolute deviation of the finite entries of ``values``.\n\n:param values: numbers; NaN and infinities are ignored.\n:param scale: multiply by :data:`MAD_SCALE` so the result estimates a\n    normal standard deviation, as R's ``mad()`` does.\n:returns: the MAD, or NaN with no finite value."
+    },
+    "spacr.sp_stats.median_polish": {
+      "source_blocks_sha256": [
+        "560b1f78b5367d82a549b7b41f995efacad1473923434ca7da724c88bcb20fe6",
+        "d616f6fa7cc7de4d5bbe329acd48f44602e885abb68eb20a59535c0c7fe513c0",
+        "4e56661969a67cd337a33a44623e0192631ad78e31cbe7e5b9bf3270e6056fec",
+        "4b85d184b16bac3d7f5faedbdd19518faf1ea3bab83dfbb04a0884d2bce1ac05",
+        "001022ce61546ccf14fb32844ca4fd4b53c7cd130c7df4a869b4ebe72ddfdcc1",
+        "e21db3834b73dd1755b286f2793db288c6bdf82418021066e77bf0cbbdf47d75",
+        "b06c63caf726e921e4afc4bbd4a7cc15eaf3962cea6884d8eb5f0a30331acbab"
+      ],
+      "source_sha256": "50f35fd06eeb75b70a35cd84f7538f236fcd23fa72a4cfc8617fbfa495f67c73",
+      "text": "Tukey's two-way median polish, NaN-aware, following R's ``medpolish``.\n\nThe sweep order, the centring of the effects and the stopping rule are\nR's, so the fit matches ``stats::medpolish(x, na.rm = TRUE)`` and the\ncellHTS2 B-score built on it. A row or column with no finite well gets a\nNaN effect instead of a guessed one.\n\n:param matrix: 2-D array, NaN for a well left out of the fit.\n:param max_iter: most sweeps.\n:param eps: stop when ``|sum|r| - previous| < eps * sum|r|``.\n:returns: the :class:`MedianPolish`.\n:raises HitScoringError: for an input that is not two-dimensional."
     },
     "spacr.sp_stats.perform_levene_test": {
       "source_blocks_sha256": [
@@ -110511,6 +110989,123 @@
       ],
       "source_sha256": "1a1bd4a1398e2039de5a8d7e7368876bbc8aba51aef6de186b93fd0ef08b2858",
       "text": "Run a supported group comparison for each data column.\n\nParameters\n----------\ndf : pandas.DataFrame\n    Data containing the grouping and numeric value columns.\ngrouping_column : str\n    Column identifying each observation's group.\ndata_columns : iterable of str\n    Numeric columns to test.\npaired : bool, default=False\n    Request paired analysis. Paired analysis is not implemented; when\n    enabled, no result rows are returned.\n\nReturns\n-------\nlist of dict\n    Per-column test name, statistic, p-value, sample counts, effect size,\n    and selection rationale. Refused comparisons use\n    ``Test Name='not testable'`` and include the reason.\n\nNotes\n-----\n:func:`spacr.figures.stats.compare` selects Student's t, Welch's t,\nMann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the\navailable groups and informative assumption checks."
+    },
+    "spacr.sp_stats.robust_z_scores": {
+      "source_blocks_sha256": [
+        "7d9c7cda8b7a012d367e91ec7a1bb441cf9453ea8c1363a6bd8a73f531d73ccb",
+        "1dabe0c2767b55cb482069ae53967d303703d8dd3d195bf2b062188f8be788d3",
+        "1b39c6f6c8cee6f49bdb5be7310a98d6e099cbc572d455aa487d6aa298ddbcfc",
+        "fba8c38a51366e6f95a53578416b62e8037d9e624a7238f3999114c41bcede4f",
+        "bc3cb0f34d488dc0f728ddcc03f2d6203fd5ddb18e3a33baf99263a83b4b138e"
+      ],
+      "source_sha256": "07408d3037397597485006fb2a4b0f6c6eb551d2aa10aaa66e6bf2cbfc0c4f5b",
+      "text": "Robust z against a reference: ``(x - median) / (1.4826 MAD)``.\n\nWith the negative-control wells as ``reference`` this is Zhang's z*\nscore: how far a well is from the negative control, in robust standard\ndeviations of the negative control.\n\n:param values: the wells to score.\n:param reference: the reference wells, normally the negative controls.\n:returns: one score per value; NaN everywhere when the reference has\n    fewer than two finite wells or no spread."
+    },
+    "spacr.sp_stats.score_arrayed_screen": {
+      "source_blocks_sha256": [
+        "9fb99a26b7cc9091d43d381e142a2a749ec6d9efa99da18554b5a1cb340c4e30",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "eb0fbf4efae476e3acaf4c560ffaf9052b5f5c84ef09be352a86a15d0eab2903",
+        "b6d212ff30a4d69586131a3fbbbcfd8436bbd7d99d4c984654ed97cfa76ed4ab",
+        "dd00e16da6a28596ceabc5803d0a707ab6af3626dccfa03a3c24587934b2162c",
+        "92125531008e6d7a201cb8d6fa460cf56b1b602f0093cf024b78efcb911746f7"
+      ],
+      "source_sha256": "32446948ce820db4582bc2b8a26f57929c5ab0a6664d53298339f2cf9a658e6c",
+      "text": ":func:`screen_wells` then :func:`score_screen`, in one call.\n\nExample:\n    .. code-block:: python\n\n        from spacr.sp_stats import score_arrayed_screen, write_hit_report\n        result = score_arrayed_screen(\n            df, 'cell_area', negative_wells='c1', positive_wells='c24',\n            treatment_column='gene', rank_by='ssmd', scope='plate')\n        write_hit_report(result, 'results/hits')\n\n:param frame: the measurement table.\n:param value_col: the measurement to score.\n:param options: passed to :func:`score_screen` (``scope``,\n    ``ssmd_estimator``, ``replicate_estimator``, ``thresholds``,\n    ``direction``, ``rank_by``).\n:returns: an :class:`ArrayedHitResult`."
+    },
+    "spacr.sp_stats.score_screen": {
+      "source_blocks_sha256": [
+        "153c8f715f372fda595c3d1599716f06a35c10c8a1524b91cf7b62b411eb3b31",
+        "8000c3a39ec91a2272fb5b1bd8009a7cabbb6266e8ba960a530220a3167cd6f0",
+        "56aa8fd448f4708b446a05e3e86fb43ab116ecd45502222ceebf2376308f3912",
+        "241d958730d37bb250a2579908288d7e7f26b668229ee50faa959992d191f976",
+        "3e40328572b520af1dbb2931bd48c732e1aba27d271d78ec0f92c94314a5f5fa",
+        "1c3d23fcb70a2a24c62f6e6d724bf7b5c85975afd30e8f0936af1c8e0e35bf2b",
+        "c4515f867b1f48ca202e489bb71f1b4fc89a9e7f76e6681d3712da63a08c42d0",
+        "60a29efa0fec66ee57e13e627688db8c77ad3fead15d49472aab7daddc32b153",
+        "2e5dd81677072fc0c9cb34b0defa748f2d7e07eae0f6a6c8f63d99c5f1679eb0",
+        "92125531008e6d7a201cb8d6fa460cf56b1b602f0093cf024b78efcb911746f7",
+        "8c37bd1a6f143b21065e96f9c4cf378cf83105a11fb666ae39f791f4bece3cc8"
+      ],
+      "source_sha256": "2c2c7ae62f6450473f22fd88b0ceb4dbf49d11846f22306e86f989391902dfe0",
+      "text": "Score every well of an arrayed screen against its negative control.\n\nRobust z and SSMD are taken against the negative-control wells of the\nwell's own plate (``scope='plate'``) or of every plate together\n(``scope='pooled'``). The B-score is always fitted per plate, because row\nand column effects belong to a plate; the pooled scope divides by the\nscreen-wide residual MAD instead of each plate's own. Controls are scored\ntoo, which is how a positive control shows the assay window, but only\nsample wells are called as hits.\n\n:param wells: the table :func:`screen_wells` returns.\n:param scope: one of :data:`HIT_SCOPES`.\n:param ssmd_estimator: per-well SSMD estimator, one of\n    :data:`SSMD_ESTIMATORS`.\n:param replicate_estimator: SSMD estimator for treatments with\n    replicates.\n:param thresholds: cut-off per method; missing ones use\n    :data:`DEFAULT_HIT_THRESHOLDS`.\n:param direction: one of :data:`HIT_DIRECTIONS`.\n:param rank_by: the method that decides ``hit`` and ``rank``.\n:returns: an :class:`ArrayedHitResult`.\n:raises HitScoringError: for an unknown option or a screen without\n    negative-control wells."
+    },
+    "spacr.sp_stats.screen_wells": {
+      "source_blocks_sha256": [
+        "9c9d611f4de96ae17e7f8a757615b9f3dd65dcfaebdf6ea80c9d52be75165d4e",
+        "6c1ef7c93c03322285bd17bb8c5a02aee357caebf74758ad9aefcdd9e793fb41",
+        "da46afffa4844bf1f51842dd26b19ea10eabc0494f98e958cf9fe57564c2e0ff",
+        "b6d212ff30a4d69586131a3fbbbcfd8436bbd7d99d4c984654ed97cfa76ed4ab",
+        "f04391af02f772c1405d1058a1ea7316fb4bd5c7c8a7950f761219b6c1efc1ef",
+        "193a840cda188b8e904b93941098f94308291a59b5a07256f4989c1893e78436",
+        "ccbb13107401703fc40b69037e9baa9d94430029554d5584b47304ce365d8d6c",
+        "a0eec928cd9bb9113055c2b2f1a647c51cbe4ea48b3871ff8ce605df0aea7896",
+        "36291fa34d14e877b66ba2393d452951d179dff5aef1926417b5f2224375ef30",
+        "861299008ac97d527214b5ce38e33f55009100a7ff223c88082cb8cc52801cbe",
+        "5dd70c5fedf3344090a612e7f8091273478dc42ae8a331ea030887b2f0274b91",
+        "42574d373bf17c63d84b1d698f555ff6db8d450ce606edf7ca51ce7698bf296e",
+        "b1a78c6e244a017184aaa1fd88716004d64c59d8cc87cf30cce24e808a35c2d8",
+        "58629e2b6373c85eb65b43f6cc3cc3259038e47668987c563ce9f3dc8a8d0448",
+        "a421ccb714f2d4c6b2c5dbb855c8b4cafea7fbbb697d4cab6647892e036138e2"
+      ],
+      "source_sha256": "8d94a53de50b03a3ea7c39568ac4952e4d132aff8ad743f71bbd4e2510a768a5",
+      "text": "Collapse a measurement table to one row per well, with each well's role.\n\nWells are located by the plate-QC reader (:mod:`spacr.plate_qc`: ``prc``,\na rowID/columnID pair or a ``well`` column), so this and the Plate Viewer\nagree about where every object sits. Controls are named by a column and\nits levels, as the control-chart screen names them, or by plate position\nin the ``negative_control_wells`` / ``positive_control_wells`` notation of\n:mod:`spacr.well_spec` (``c1``, ``r1``, ``A01``), or both.\n\n:param frame: per-object or per-well table.\n:param value_col: the measurement to score.\n:param plate_column: column naming the plate; default the reader's choice.\n:param control_column: column holding the control labels.\n:param negative_levels: level(s) of ``control_column`` that are the\n    negative control.\n:param positive_levels: level(s) that are the positive control.\n:param negative_wells: well spec of the negative-control wells.\n:param positive_wells: well spec of the positive-control wells.\n:param treatment_column: column naming what is in each well, for the\n    replicate SSMD; each well keeps its most common value.\n:param grouping: ``mean`` or ``median`` of the objects in a well.\n:param min_count: drop wells with fewer objects than this.\n:returns: one row per well: ``plateID``, ``well``, ``row_index``,\n    ``column_index``, ``prc``, ``n``, ``value``, ``role`` and, when asked,\n    ``treatment``.\n:raises HitScoringError: when the table cannot be scored."
+    },
+    "spacr.sp_stats.ssmd_replicated": {
+      "source_blocks_sha256": [
+        "cfbbe95c6aba10e8cd65e9d4496f23dd8d9250e27be215d8caab758e74b0e2aa",
+        "99689fbd89ec467c3e4ad3826ce97ba8db2eb90154b6d60b910301d19abd2604",
+        "672084351480cd953f5558201178152136e8bef5aff42da653e3dd7b4af16548",
+        "cdfee4274b8694609725d98efd89a8368f9069527dee675a6970cede33fd30ff",
+        "6b7b301e2e6ddacbc3389b54b1765008ac5f5db0d8ae56a6fc546e6b8d08dd36",
+        "4e14e63a7408917b23905e3eaa35b67569359e67666567c626a35684e68bf6f2",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "9eaca03004c08d7e51e54c3f4cb837c43360db41b61c4d65968697244854cd29",
+        "4c5d317304b6a1a7c5dcf0d14e9f650e1fde5b113bf3debc8bcbc528991dce5d"
+      ],
+      "source_sha256": "b44df2d0ab7746f03b3c6ccddfd5f55cd7061b9e2a45f2a91483f7cb581c1535",
+      "text": "SSMD of one treatment from its replicate paired differences.\n\n``differences`` are ``D_j = x_j - median(negative reference)`` for each\nreplicate ``j``, the reference taken on the replicate's own plate (Zhang\n2011, screens with replicates):\n\n* ``mm``: ``mean(D) / sd(D)``;\n* ``umvue``: ``sqrt(2/(n-1)) Gamma((n-1)/2) / Gamma((n-2)/2) mean(D) /\n  sd(D)``, needing ``n >= 3``;\n* ``robust``: ``median(D) / (1.4826 MAD(D))``.\n\n:param differences: the replicate differences of one treatment.\n:param estimator: one of :data:`SSMD_ESTIMATORS`.\n:returns: the SSMD, or NaN with too few replicates or no spread.\n:raises HitScoringError: for an unknown estimator."
+    },
+    "spacr.sp_stats.ssmd_unreplicated": {
+      "source_blocks_sha256": [
+        "a1c285b49ba832306c6dc6e8ae3b1e7997c7b90ba3d86ebe9a31575df1b7bbd4",
+        "e938c04df99b05f933f7ebd3ce8bd0a7b33d580c1f55eb38dbf60bd089449d93",
+        "cbe9147d0fd2071b9cef3a1ab948f4adf823c29a601e7866888a435acedd508c",
+        "267fcb0b37f5095b7139504b293c50937fdea972ef88a93889acf4e93477d479",
+        "3bd45f49d582e30073f20f3274ffe815cfac98214fb7966dd5260ca15616b009",
+        "1b39c6f6c8cee6f49bdb5be7310a98d6e099cbc572d455aa487d6aa298ddbcfc",
+        "ea6263362ac48cfc7af70c1db8ec668661d91996a98256670c85b014768c2fba",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "bb02843fea7375140babd11d4206c7d37597bd52c1444c7c1004a919a7d15d34",
+        "4c5d317304b6a1a7c5dcf0d14e9f650e1fde5b113bf3debc8bcbc528991dce5d"
+      ],
+      "source_sha256": "98dfc83bd62e6fcd1b51b5ad252a781537ce51115800eb7fdb02d318be564af7",
+      "text": "SSMD of single wells against a negative reference, without replicates.\n\nZhang (2011), assuming a tested well has the variability of the negative\nreference ``N``:\n\n* ``mm``: ``(x - mean_N) / (sqrt(2) s_N)``;\n* ``umvue``: ``(x - mean_N) / (sqrt(2 (n_N - 1) / K) s_N)`` with\n  ``K = 2 (Gamma((n_N-1)/2) / Gamma((n_N-2)/2))^2``, needing ``n_N >= 3``;\n* ``robust`` (SSMD*): ``(x - median_N) / (1.4826 sqrt(2) MAD_N)``.\n\n:param values: the wells to score.\n:param reference: the negative-reference wells.\n:param estimator: one of :data:`SSMD_ESTIMATORS`.\n:returns: one SSMD per value; NaN where the reference cannot support the\n    estimator (too few wells, or no spread).\n:raises HitScoringError: for an unknown estimator."
+    },
+    "spacr.sp_stats.treatment_ssmd": {
+      "source_blocks_sha256": [
+        "c30819355fa193dff117b6de57d40e77651935e744cb74630126207fb3a4c5f5",
+        "b329711d0445b97a7a39bd4873e51fb27ec860d83cf6297dec53f87bb9a54015",
+        "e094a173cb88866d36e79406d4eb122f0b4c9e700bde03233b116d1673eabd1d",
+        "e0a1d632a96082ea9a54e6d75f2e78f9cc910fbd5b3e240cddade1b8eef40462",
+        "60a29efa0fec66ee57e13e627688db8c77ad3fead15d49472aab7daddc32b153",
+        "c36deb2ca8ce0ccc241b089c4610b7f0997d5868e16e5e6a00103f762f1007a0"
+      ],
+      "source_sha256": "4698e1d88b74c5b0a9bb7131fa11a36427899eb2bc6a73b3eb8e9cc7602b5404",
+      "text": "Replicate SSMD per treatment from the sample wells' paired differences.\n\n:param scored: the ``wells`` of an :class:`ArrayedHitResult`; without a\n    ``treatment`` column the result is empty.\n:param estimator: one of :data:`SSMD_ESTIMATORS`.\n:param threshold: SSMD cut-off for the ``hit`` call.\n:param direction: one of :data:`HIT_DIRECTIONS`.\n:returns: one row per treatment, strongest first: ``treatment``,\n    ``n_replicates``, ``plates``, ``mean_difference``, ``ssmd_mm``,\n    ``ssmd_umvue``, ``ssmd_robust``, ``ssmd`` (the chosen estimator),\n    ``median_robust_z``, ``median_b_score``, ``hit`` and ``rank``."
+    },
+    "spacr.sp_stats.write_hit_report": {
+      "source_blocks_sha256": [
+        "a503db99955aceeb4cc96d1b048e7146dd86b5422f58a7777298664622ae8f6d",
+        "30e1cd8e7d49718d4eff81697bf78212a054b2fa306fdf047db9ed16bda864d7",
+        "a7d4e468f20d9559fc7151572346c0d56f64d7a4e313dfe112da08f6b9b74f53",
+        "86a434135d545052a8186aec897433db294763b6dd75366029d472d002d65531",
+        "3481676d7acda8cdd2f1d2fe2f61023368e96ccb60eb485478e41b617b6c5061",
+        "4cacb6f834032eecc59ce13a342603fc379a0bfdf8e452184cf332b4dbb387d4",
+        "abaa3a362abd458bfa92df439a60e83fa15f2f8ea3764b07668ebec4ab3ff97d"
+      ],
+      "source_sha256": "c5345c1aefc8a587d96864ac2b2d7f567b532cbab7ae21e6ac1dea9f2d19e13f",
+      "text": "Write the scored screen: CSV tables and one plate heatmap per method.\n\nFigures go through :func:`spacr.plot.save_figure`, so their format,\nresolution and print repaint follow the user's figure preferences. The\nlow-contrast colour warning is off for these: the centre of a diverging\nscore map is near the page colour on purpose, because a score of zero\nis the negative control and is meant to recede.\n\n:param result: the scored screen.\n:param out_dir: folder to write into; created if absent.\n:param methods: which heatmaps to draw.\n:param target: figure target passed to :func:`hit_heatmap`.\n:returns: ``{name: path}`` of everything written: ``hit_table`` (the\n    ranked hits), ``hit_scores_wells``, ``hit_plates``,\n    ``hit_treatments`` with a treatment column, and\n    ``hit_heatmap_<method>`` per figure."
     },
     "spacr.spacr_cellpose": {
       "source_blocks_sha256": [
@@ -111493,11 +112088,11 @@
         "ae6481b9d5437eb31ce783512478cf0899252a880c4bbdcb9029cd262ed810a8",
         "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
         "680de80eb4908c0585b17f463e72ef4e5956b487d327de76e6415f4df6bb252c",
-        "80bef6d5e0c3eaf04e6ab3f0822fb69e7e94193deab59f88447981942c6cf092",
+        "92015d4f07cdd8be43559121fb3c0766b79fd3a125b996550c973f5e145b8f1f",
         "82986ecf462dfdfd667469595eb6a45fe45d1f0be644eb6a8d98b7d38ba92de9"
       ],
-      "source_sha256": "435d82dd2b2bc0b2a6efd990ae654735069668b00027b4acf8f07fa23e18147a",
-      "text": "Read the last retrain's probabilities and propose a label for each crop.\n\nReads rather than re-fits, so the suggestion a reviewer sees and the\nranking the queue uses come from ONE model. A second fit here would drift\nfrom it and there would be no way to tell which was right.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column holding the labels.\n:param png_table: the crop table.\n:param classes: the class value each score column stands for. Defaults to\n    the values already present in the annotation column, in order, which\n    is what the retrain encoded them from.\n:param withhold_rejected: leave out every crop whose suggestion the\n    annotator REJECTED (a negative ``<column>_verdict``). The maintainer,\n    2026-09-25 (item 512): a rejected crop is not suggested again in a\n    later round. It still trains as an example of the other class\n    (:func:`rejected_suggestions`); it is only not proposed.\n:returns: a :class:`Suggestions`; its frame is empty when nothing has been\n    scored, and ``note`` says why."
+      "source_sha256": "1a86d13a5d4271489c988c1ccab08a83196cd0759a99fe122a366df3f23f2de7",
+      "text": "Read the last retrain's probabilities and propose a label for each crop.\n\nReads rather than re-fits, so the suggestion a reviewer sees and the\nranking the queue uses come from ONE model. A second fit here would drift\nfrom it and there would be no way to tell which was right.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column holding the labels.\n:param png_table: the crop table.\n:param classes: the class value each score column stands for. Defaults to\n    the values already present in the annotation column, in order, which\n    is what the retrain encoded them from.\n:param withhold_rejected: leave out every crop whose suggestion the\n    annotator REJECTED (a negative ``<column>_verdict``), so a rejected\n    crop is not suggested again in a later round. It still trains as an example of the other class\n    (:func:`rejected_suggestions`); it is only not proposed.\n:returns: a :class:`Suggestions`; its frame is empty when nothing has been\n    scored, and ``note`` says why."
     },
     "spacr.suggest.verdict_column": {
       "source_blocks_sha256": [
@@ -111825,7 +112420,7 @@
       "source_blocks_sha256": [
         "7da6ec2bf0364f9b13444c9eb8713ae43691da3d7b13a54aaef2decebb6517a8",
         "ca5b3f181df1a3bec9789597fa47baf5eaf4413a546871dc50034d2a28a9cead",
-        "3e3e8e39564e768dbafc5bcc983a9a4a85f5dcbf7f324505637f4efde0cb61cc",
+        "d3628131341f819c95e27b6b1716fc91d00e91d5013b2aa36872a9b31f8870dc",
         "81918d2eda50486ab20c71eb56908307672266bd3b77e833dd9a0d469ad69143",
         "f0ad79e43ee9794c2ad7268f998bc06f8ffd43382e239df846cb871c049f7a3a",
         "52cd23d381650120a31e2e2e2b7dc5f06e7d9a10f7b1ba06691bea728e4659dd",
@@ -111834,8 +112429,8 @@
         "363c2d1f6aa42181692a14da418f154184f3e0532c486644f9c322d537146ae1",
         "826f82993ba50bc9424886992fb8b880b4b2bf4c1733d930b3722ccd03b2f156"
       ],
-      "source_sha256": "0d320b3928b772b957566eae8561d202395f479006fe12ffd2cab84e5a2262c2",
-      "text": "Read one table, whatever it is stored in, with canonical column names.\n\nCSV, TSV, SQLite, Parquet, Feather and Excel, chosen by suffix. A SQLite\npath needs ``table``; every other format ignores it.\n\n:param source: path to the file. ``~`` and ``$VARS`` are expanded.\n:param table: the table name, for a database.\n:param canonicalise: apply the vocabulary. **There is no reason to turn\n    this off on the ordinary path** -- it is what makes the picker and\n    the run agree about what a column is called. Off is for a caller\n    inspecting a file exactly as written.\n:param report: called with each agreeing-collision message; ``print`` by\n    default, ``None`` to silence.\n:param warn: called with each disagreeing-collision message; ``None``\n    routes to :func:`warnings.warn`.\n:param repair_plate_ids: collapse a doubled ``pp`` plate prefix.\n:param kwargs: passed to the underlying pandas reader.\n:returns: a :class:`pandas.DataFrame`."
+      "source_sha256": "67ac68baf1b7855ed9e6b277adbee700c0777c4dc651fc31f1aa0e37c76d4096",
+      "text": "Read one table, whatever it is stored in, with canonical column names.\n\nCSV, TSV, SQLite, Parquet, Feather and Excel, chosen by suffix. A SQLite\npath needs ``table``; every other format ignores it.\n\n:param source: path to the file. ``~`` and ``$VARS`` are expanded. A\n    cloud address (``s3://``, ``gs://``, ``az://``, ``https://``) is read\n    from a cached local copy.\n:param table: the table name, for a database.\n:param canonicalise: apply the vocabulary. **There is no reason to turn\n    this off on the ordinary path** -- it is what makes the picker and\n    the run agree about what a column is called. Off is for a caller\n    inspecting a file exactly as written.\n:param report: called with each agreeing-collision message; ``print`` by\n    default, ``None`` to silence.\n:param warn: called with each disagreeing-collision message; ``None``\n    routes to :func:`warnings.warn`.\n:param repair_plate_ids: collapse a doubled ``pp`` plate prefix.\n:param kwargs: passed to the underlying pandas reader.\n:returns: a :class:`pandas.DataFrame`."
     },
     "spacr.tabular.resolve_path": {
       "source_blocks_sha256": [
@@ -115404,12 +115999,13 @@
     },
     "spacr.utils.fill_holes_in_mask": {
       "source_blocks_sha256": [
-        "5ec978b7390685ee09770845788b9b93775175f2f44f68c69da8973cc3676ee7",
-        "5ed84b2dae89ca55aa1e0c987fc0dcbe0fffbeb03554419e8cdc7a6677d4f151",
-        "b1d7c97855aec827fb2b9469c7095fb55b19a8932f0f4c90b99860838d67e145"
+        "e8e0a0f59fea742ac404a5b3ad7a967922cfff9a51aebb649a939a0f318bbb88",
+        "277fc17c4713dbc6268ac5a5c115c3810387121b67d39975ec259903f1ec004d",
+        "5586cd034eede99a8578e229887a9cfaeff198bafdc17111e2177b26ef12c834",
+        "ec1c2d30f9efac9dd58820a2e8bc12be91e12e62ba20dbba19624c7a3ad6afc7"
       ],
-      "source_sha256": "a548178e5915384e05ec51950fd034ee9d3ee30efa05fd7e0cb43f02e5aca421",
-      "text": "Fill holes in each object in the mask while keeping objects separated.\n\nArgs:\n    mask (np.ndarray): A labeled mask where each object has a unique integer value.\n\nReturns:\n    np.ndarray: A mask with holes filled and original labels preserved."
+      "source_sha256": "b28efd235ffea80311e25fc0fd96aa1d3e9daa58a381dec190d2f8b586cd41da",
+      "text": "Fill the holes inside each object of a label mask, keeping every id.\n\nDelegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole\nfiller for label images. This used to run ``ndimage.label`` over the\nmask first, which made every pair of touching objects one object: with\nCellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent\ncells was saved as 8 (item 588). Now no object is merged or renumbered,\nand a hole takes the id of the object that encloses it.\n\nArgs:\n    mask (np.ndarray): A labeled mask where each object has a unique integer value.\n        A boolean mask is labelled by connectivity first.\n\nReturns:\n    np.ndarray: The mask with holes filled and the original labels preserved,\n    in the input's dtype."
     },
     "spacr.utils.filter_and_save_csv": {
       "source_blocks_sha256": [

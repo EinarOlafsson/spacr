@@ -4090,7 +4090,9 @@
       "source_sha256": "716705a006c51ba98d09012dcb5466281e85fb7d21cc6002817996f7141e970f",
       "context": "WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. The maintainer's report was \"the text e.g. step 1 of 3 or 10% is cut off\".",
       "translation": "原因（第 502 项）。主题把每个 ``QProgressBar`` 都绘制为 8 px 的轨道（``height: 8px; max-height: 8px`` 位于 :mod:`spacr.qt.theme` 中）。如果进度条还自己绘制文字——\"step 2 of 3\"、\"45%\"、\"312 MB / 690 MB (45%)\"——就会把 13 px 的文字画进这 8 px 中，因此每个字形只有上半部分能显示在界面上；在 50 % 的 GUI 缩放下，轨道只有 4 px，几乎什么都显示不出来。维护者的报告是：\"文字，例如 step 1 of 3 或 10%，被截断了\"。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#4",
@@ -4098,7 +4100,9 @@
       "source_sha256": "7ab46fd9cca517c17f57de9c2ba6f927b48c48da68c442fa7074bb01eda156ce",
       "context": "The design the maintainer chose is \"thin bar + label\":",
       "translation": "维护者选择的“设计”是“细进度条 + 标签”：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-27: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11865-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#5",

@@ -854,12 +854,38 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # stop beside it in Mask's Workflow & Test Run group.
     "watch_folder", "watch_pipeline", "watch_measure_settings",
     "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes",
+    # A NEW SETTING GROUP, not a regrouping: a folder watch can send the
+    # objects it finds back to the microscope (`microscope_feedback`), with
+    # the driver, simulated image folder, field positions, pixel-to-stage
+    # transform, event table, query, cap and timelapse beside the watch keys.
+    "microscope_feedback", "microscope_driver", "microscope_simulated_folder",
+    "microscope_positions", "microscope_stage_transform",
+    "microscope_event_table", "microscope_event_query",
+    "microscope_max_events", "microscope_timepoints",
+    "microscope_interval_seconds",
     # A NEW SETTING GROUP, not a regrouping: `src` of Make Masks and Measure
     # may name cloud storage. Where credentials come from, the cache folder,
     # the OME-Zarr wells, fields and level to fetch, and where results are
     # copied back sit beside `src` in Input & Metadata / Input & Experiment.
     "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache",
     "cloud_wells", "cloud_fields", "cloud_level", "cloud_results",
+    # NEW SETTINGS, not a regrouping (item 542, 2026-09-27): Plaque Assay's
+    # colony-counting switch, the dilution and plated volume that turn a
+    # count into CFU/mL, the too-many and too-few flags, and the polarity,
+    # threshold and minimum area of the colony segmentation, under their own
+    # "Colony Counting (Alpha)" heading.
+    "colony_counting", "colony_dilution", "colony_plated_volume_ul",
+    "colony_too_many", "colony_too_few", "colony_polarity",
+    "colony_threshold", "colony_min_area_px",
+    # NEW SETTINGS, not a regrouping (item 578, 2026-09-27): Make Masks'
+    # segmentation-robustness report switch, its sample size and crop, the
+    # diameter factors, flow and cell-probability thresholds and enhancement
+    # it tries, and the tolerance beyond which a setting is fragile, under
+    # their own "Segmentation Robustness (Alpha)" heading.
+    "robustness_report", "robustness_fields", "robustness_crop",
+    "robustness_diameter_factors", "robustness_flow_thresholds",
+    "robustness_cellprob_thresholds", "robustness_enhancement",
+    "robustness_tolerance",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -1523,7 +1549,11 @@ def _rendered_sections(app_key):
             # is where they are declared.
             "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
-            "Quality Control", "Volumetric Processing (Beta)",
+            "Quality Control",
+            # Item 578, 2026-09-27: the robustness report re-segments after
+            # the masks and their QC exist.
+            "Segmentation Robustness (Alpha)",
+            "Volumetric Processing (Beta)",
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
         ]),

@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run.",
+      "source": "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run.",
+      "source_sha256": "f5e7e48285987029493179a04179a0c023793048e6295e2e4c11204263108e38",
+      "translation": "串色校正：根据单染对照孔估计每种染料在其他通道中被读到的比例，并在分割或测量之前用该矩阵对每个视野进行光谱拆分。该矩阵会打印出来并随运行记录。"
+    },
+    {
+      "table": "categories",
+      "key": "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is.",
+      "source": "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is.",
+      "source_sha256": "76eb8b2793a9f91cb04ba1b04eb907cf3bb8b0c9b6a8e9e9ff0c07d98b4136a4",
+      "translation": "在平板或培养皿照片上计数细菌或真菌菌落，而不是空斑：找到培养皿，相对琼脂对菌落取阈值并拆分相互接触的菌落，每块板得到计数、由稀释度和涂布体积算出的 CFU/mL、过多或过少标记以及菌落面积和直径；当“比例尺与时间”给出培养皿尺寸时以毫米表示。"
+    },
+    {
+      "table": "categories",
+      "key": "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed.",
+      "source": "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed.",
+      "source_sha256": "4232c929e0899a6d43296819fd16fc01bf88d09e5120b49e9ea5c2cf3501dd2a",
+      "translation": "根据板条形码从样本记录填充板布局图：每块已成像的板按其条形码在表格或 LIMS 服务中查找，其孔获得记录中的菌株、化合物、浓度、传代数和操作人员，并列出记录与图像之间的每处不一致。"
+    },
+    {
+      "table": "categories",
+      "key": "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event.",
+      "source": "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event.",
+      "source_sha256": "aa277bc2e420b64be5bc3a24e1fac3f6ab09c5d6a9516412f531eb73e3c66a48",
+      "translation": "延时序列中每个被跟踪对象持续到死亡、裂解、逸出、分裂或首次检测等事件的时间，轨迹结束时仍未发生事件的对象在该处删失。各条件通过 Kaplan-Meier 曲线、中位时间、log-rank 检验和 Cox 模型进行比较，结果写入 measurements.db 并绘制在 results/time_to_event 下。"
+    },
+    {
+      "table": "categories",
+      "key": "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation.",
+      "source": "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation.",
+      "source_sha256": "9c33e6c38d5c971aa4059f3acceee0967e9b313887cf38fec2e76d74dfe591d7",
+      "translation": "在每个视野跟踪后，根据跟踪器的分裂链接绘制谱系树，按某项测量着色，支持 Newick 和 CSV 导出，并给出每个谱系的世代时间和姐妹细胞相关性。"
+    },
+    {
+      "table": "categories",
+      "key": "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity.",
+      "source": "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity.",
+      "source_sha256": "4988e2697695151faeaec691a5c2667f117954ec9446e3762e84457b5aa73255",
+      "translation": "测量后根据死细胞染色、活细胞染色、两者或细胞核形态判定活细胞和死细胞，阈值按板拟合或手动设定。写入每孔活力、活细胞指数和按对照孔缩放的细胞毒性指数、每块板的 Z'，有板布局图时还给出活力与感染的剂量–反应曲线，从而区分寄生虫被杀伤与宿主毒性。"
+    },
+    {
+      "table": "categories",
+      "key": "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted.",
+      "source": "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted.",
+      "source_sha256": "b183cae1c7dbf185cb1e89b3d086ef73c073c220755143c226df5da2aada3e17",
+      "translation": "延时强度的光漂白校正，按视野和通道进行：相对第一个时间点的简单比值、拟合的指数衰减或直方图匹配。校正后的强度连同方法写在测量值旁边，并绘制拟合的衰减曲线。"
+    },
+    {
+      "table": "categories",
+      "key": "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working.",
+      "source": "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working.",
+      "source_sha256": "ca161d26ab03972b7aa57bc1771b5a98cbc49568b949dbc42b47c77c0847f7b4",
+      "translation": "测量后在本次运行的视野上运行实验室自己的 CellProfiler 流程，以无界面方式在模型库提供的 CellProfiler 独立环境中运行，并将其逐对象测量结果写在 spaCR 的结果旁边，与 spaCR 的对象匹配，使现有流程可以继续使用。"
+    },
+    {
+      "table": "categories",
+      "key": "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db.",
+      "source": "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db.",
+      "source_sha256": "c678642b44dfcad096bb609026e20e69d01592d4029527e92be265d31c0ab761",
+      "translation": "测量前根据每块板上成像的荧光微球或参照孔，将每次成像会话校准到相同强度：每块板的强度通道乘以使其参照孔与第一块板一致的增益，增益记录在 measurements.db 中。"
+    }
+  ]
+}

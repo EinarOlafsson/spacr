@@ -556,30 +556,40 @@ class SegmentationBackendCombo(QComboBox):
 
 
 class SpotDetectorCombo(QComboBox):
-    """The OPS module's ``ops_spot_detector``: spaCR's own, or SpotNet.
+    """The OPS module's ``ops_spot_detector``: spaCR's own, SpotNet or
+    Spotiflow.
 
     spaCR's own detector is first, the default and always usable. SpotNet
-    is listed whether or not it can run; when its environment or its
-    DeepCell token is missing its row is disabled and its tooltip says
-    which, and either way the tooltip states its non-commercial licence,
-    because this box is where a person chooses it.
+    and Spotiflow are listed whether or not they can run; when one's
+    environment (or SpotNet's DeepCell token) is missing its row is
+    disabled and its tooltip says which. SpotNet's tooltip states its
+    non-commercial licence either way, because this box is where a person
+    chooses it. A saved Spotiflow choice is kept even while its row is
+    disabled or hidden, so the run receives it and says why it cannot run
+    rather than detecting with another detector.
 
-    :param default: the value to start on, ``'native'`` or ``'spotnet'``.
+    :param default: the value to start on, ``'native'``, ``'spotnet'`` or
+        ``'spotiflow'``.
     :param parent: parent widget.
     :param readiness: ``() -> (ready, reason)``; SpotNet's own check when
         None, a stand-in in tests.
+    :param spotiflow_readiness: the same for Spotiflow.
     """
 
     def __init__(self, default: Any = "native",
                  parent: Optional[QWidget] = None,
-                 readiness: Optional[Callable[[], Tuple[bool, str]]] = None):
-        """List the detectors, disable SpotNet if it cannot run, select."""
+                 readiness: Optional[Callable[[], Tuple[bool, str]]] = None,
+                 spotiflow_readiness: Optional[
+                     Callable[[], Tuple[bool, str]]] = None):
+        """List the detectors, disable those that cannot run, select."""
         from .i18n import tr
 
         super().__init__(parent)
         self._readiness = readiness
+        self._spotiflow_readiness = spotiflow_readiness
         self.addItem(tr("spaCR (native)"), "native")
         self.addItem(tr("SpotNet (DeepCell)"), "spotnet")
+        self.addItem(tr("Spotiflow"), "spotiflow")
         self.setItemData(0, tr(
             "spaCR's own spot score, the detector this plate was validated "
             "with."), Qt.ToolTipRole)
@@ -587,7 +597,8 @@ class SpotDetectorCombo(QComboBox):
         self.setCurrentText(default)
 
     def refresh(self) -> Tuple[bool, str]:
-        """Enable SpotNet's row only when it can run, and say why not.
+        """Enable SpotNet's and Spotiflow's rows only when each can run,
+        and say why not.
 
         :returns: SpotNet's ``(ready, reason)``.
         """
@@ -615,18 +626,44 @@ class SpotDetectorCombo(QComboBox):
                 self.setCurrentIndex(0)
         else:
             self.setItemData(1, None, Qt.ForegroundRole)
+        self._refresh_spotiflow()
         return bool(ready), reason
+
+    def _refresh_spotiflow(self) -> None:
+        """Enable Spotiflow's row only when it can run, and say why not."""
+        from .i18n import tr
+
+        try:
+            if self._spotiflow_readiness is not None:
+                ready, reason = self._spotiflow_readiness()
+            else:
+                from .._segmentation_backends import _spotiflow_readiness
+                ready, reason = _spotiflow_readiness()
+        except (KeyError, OSError, ValueError) as exc:
+            ready, reason = False, str(exc)
+        note = tr(
+            "Spotiflow's general model, run in its own environment; its "
+            "spots go through the same base calls and nucleus assignment.")
+        item = self.model().item(2)
+        if item is not None:
+            item.setEnabled(bool(ready))
+        self.setItemData(2, note if ready else f"{reason}\n\n{note}",
+                         Qt.ToolTipRole)
+        self.setItemData(2, None if ready else QBrush(UNINSTALLED_GREY),
+                         Qt.ForegroundRole)
 
     def setCurrentText(self, text: Any) -> None:                # noqa: N802
         """Select the row whose caption or value is ``text``, if usable.
 
         :param text: a caption or stored value; a row that is not installed
-            (disabled), or no match, leaves the selection alone.
+            (disabled), or no match, leaves the selection alone, except
+            Spotiflow's, which is selected whatever its state.
         """
         wanted = "" if text is None else str(text).strip()
         index = self.findText(wanted)
         if index < 0:
             index = self.findData(wanted.lower())
         item = self.model().item(index) if index >= 0 else None
-        if item is not None and item.isEnabled():
+        if item is not None and (item.isEnabled()
+                                 or self.itemData(index) == "spotiflow"):
             self.setCurrentIndex(index)

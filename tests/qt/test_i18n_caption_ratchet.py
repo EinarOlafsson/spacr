@@ -1155,56 +1155,30 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 577, 2026-09-26: the Preferences Notifications tab (alpha).
 # 572, 2026-09-26: the figure integrity toggle on the Preferences Figures
 # tab and its tooltip (alpha).
+# 574, 2026-09-27: the Report screen's Archive package button and form.
+# 579, 2026-09-27: the Report screen's Deposit on Zenodo button and form.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # 554, 2026-09-27: the Spotiflow row of the OPS spot detector box
+    # (alpha).
+    'Spotiflow',
+    "Spotiflow's general model, run in its own environment; its spots go through the same base calls and nucleus assignment.",
+    # 579, 2026-09-27: the Report screen's Deposit on Zenodo button and its
+    # form (alpha).
+    # 582, 2026-09-27: the Preferences Plugins tab, a plugin and recipe
+    # catalogue browser (alpha).
+    # 585, 2026-09-27: the Power screen's alpha arrayed-assay planner.
     # 575, 2026-09-27: Run History's alpha Export workflow button, its
     # menu, folder dialog and status lines.
-    "Export workflow…",
-    "Write this run as a Snakemake or Nextflow workflow that runs the "
-    "same module with the same settings once per plate, with "
-    "spacr-run on this machine, a cluster, or the spaCR container "
-    "image.",
-    "Snakemake…",
-    "Nextflow…",
-    "Export workflow into folder",
-    "Could not export the workflow: {error}",
-    "Workflow written: {path}",
     # 555, 2026-09-26: the Segment by prompt category (micro-SAM), an alpha
     # feature: its caption, controls, tooltips and console lines.
     # 546, 2026-09-27: the CellProfiler (Alpha) category help on Measure.
-    "Runs a lab's own CellProfiler pipeline on this run's fields after "
-    "measuring, headless in CellProfiler's own environment from the Model "
-    "Zoo, and writes its per-object measurements beside spaCR's, matched to "
-    "spaCR's objects, so existing pipelines keep working.",
     # 540, 2026-09-26: the Viability (Alpha) category help on Measure.
-    "Live and dead cells, called after measuring from a dead stain, a live "
-    "stain, both, or nuclear morphology, with thresholds fitted per plate or "
-    "set by hand. Writes per-well viability, a live-cell index and a "
-    "cytotoxicity index scaled to the control wells, each plate's Z', and "
-    "with a plate map the dose-response of viability beside that of "
-    "infection, so parasite killing can be told from host toxicity.",
     # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
     # 580, 2026-09-27: the Intensity Calibration (Alpha) category help on
     # Measure.
-    "Scale every imaging session to the same intensities before "
-    "measuring, from fluorescent beads or reference wells imaged "
-    "on every plate: each plate's intensity channels are "
-    "multiplied by the gain that makes its reference wells match "
-    "the first plate's, and the gains are recorded in "
-    "measurements.db.",
     # 583, 2026-09-27: the Plate Barcode Linkage (Alpha) category help on
     # Measure.
-    "Fill the plate map from sample records by plate barcode: each "
-    "imaged plate is looked up by its barcode in a table or a LIMS "
-    "service, its wells get the strain, compound, concentration, "
-    "passage and operator recorded there, and every mismatch between "
-    "the records and the images is listed.",
     # 571, 2026-09-26: the Time To Event (Alpha) category help on Measure.
-    "How long each tracked object of a timelapse lasts until an event such "
-    "as death, lysis, egress, division or first detection, with objects "
-    "still waiting at the end of their track censored there. Conditions are "
-    "compared with Kaplan-Meier curves, median times, log-rank tests and a "
-    "Cox model, written to measurements.db and drawn under "
-    "results/time_to_event.",
     # 541, 2026-09-26: the Measure preview's Alpha confluency toggle, its
     # status lines, and the Confluency (Alpha) category help.
     # 536, 2026-09-26: the Measure preview's Alpha wound toggle, its status
@@ -1213,34 +1187,25 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # Masks, their notices and questions, and the Lock analysis button and
     # dialog (all alpha).
     # 537, 2026-09-27: the Lineage Trees (Alpha) category help on Timelapse.
-    "Lineage trees drawn from the tracker's division links after each field "
-    'is tracked, coloured by a measurement, with Newick and CSV export and '
-    'per-lineage generation times and sibling correlation.',
     # 539, 2026-09-26: the Bleach Correction (Alpha) category help on Measure.
-    'Photobleaching correction for timelapse intensities, per field and '
-    'channel: a simple ratio to the first timepoint, a fitted exponential '
-    'decay, or histogram matching. Corrected intensities are written beside '
-    'the measured ones with the method, and the fitted decay is plotted.',
     # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
     'Open',
     's3://bucket/folder, gs://, az:// or https://',
     # 565: Annotate's Like this similarity search.
-    'Could not search for similar crops: {msg}',
-    'Finding crops like this one…',
-    'Like this',
-    'No crop is selected to match.',
-    'Open an experiment source before searching it.',
-    'Reading the measurements to compare crops by…',
-    'Searched {n} crops in {ms} ms.',
-    'Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.',
-    '{name} and the {n} crops most like it, most similar first',
     # 538, 2026-09-27: the Spectral Unmixing (Alpha) category help.
-    'Bleed-through correction: how much of each dye is read in the other '
-    'channels is estimated from single-stain control wells, and every field '
-    'is unmixed with that matrix before it is segmented or measured. The '
-    'matrix is printed and recorded with the run.',
-    'Check figure integrity on export',
-    "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off.",
+    # 578, 2026-09-27: the Segmentation Robustness (Alpha) category help.
+    'Re-segments a few sampled fields with the diameter, the thresholds and '
+    'contrast enhancement each moved a little, and reports how much object '
+    'counts, areas and intensities change, flagging the settings the results '
+    'are fragile to.',
+    # 574, 2026-09-27: the Report screen's Archive package button and its
+    # form (alpha).
+    # 542, 2026-09-27: the Colony Counting (Alpha) category help on Plaque
+    # Assay.
+    # 584, 2026-09-27: the compound option of the Control Charts hit
+    # scoring -- structures, clusters and SAR tables (alpha).
+    # 563, 2026-09-27: the anomaly option of Control Charts -- objects
+    # scored against the negative control (alpha).
 })
 
 

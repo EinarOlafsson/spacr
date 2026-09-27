@@ -281,9 +281,17 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
                   "watch_folder", "watch_pipeline", "watch_measure_settings",
                   "watch_settle_seconds", "watch_poll_seconds",
-                  "watch_idle_minutes", "cloud_anonymous", "cloud_profile",
+                  "watch_idle_minutes", "microscope_feedback", "microscope_driver",
+                  "microscope_simulated_folder", "microscope_positions",
+                  "microscope_stage_transform", "microscope_event_table",
+                  "microscope_event_query", "microscope_max_events",
+                  "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile",
                   "cloud_endpoint", "cloud_cache", "cloud_wells",
-                  "cloud_fields", "cloud_level", "cloud_results"},
+                  "cloud_fields", "cloud_level", "cloud_results",
+                  "robustness_report", "robustness_fields", "robustness_crop",
+                  "robustness_diameter_factors", "robustness_flow_thresholds",
+                  "robustness_cellprob_thresholds", "robustness_enhancement",
+                  "robustness_tolerance"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -1182,6 +1190,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "dry_run", "watch_folder", "watch_pipeline",
             "watch_measure_settings", "watch_settle_seconds",
             "watch_poll_seconds", "watch_idle_minutes",
+            "microscope_feedback", "microscope_driver",
+            "microscope_simulated_folder", "microscope_positions",
+            "microscope_stage_transform", "microscope_event_table",
+            "microscope_event_query", "microscope_max_events",
+            "microscope_timepoints", "microscope_interval_seconds",
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
@@ -1209,6 +1222,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
          ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
         ("Quality Control", ("@Segmentation QC",)),
+        ("Segmentation Robustness (Alpha)",
+         ("@Segmentation Robustness (Alpha)",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
         ("Visualization & Diagnostics", (
@@ -1574,6 +1589,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "analyze_plaques": (
         ("Input & Channels", ("src", "masks")),
         ("Scale & Time", ("plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours")),
+        ("Colony Counting (Alpha)", ("@Colony Counting (Alpha)",)),
         ("Experimental Growth Estimates", ("plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours")),
         ("Model", ("diameter",)),
         ("Detection Thresholds", (
@@ -2709,6 +2725,18 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "nucleus measurements, or an image classifier on nucleus crops. Each "
         "writes the same phase column to measurements.db, with the phase "
         "fractions per well among infected and uninfected cells.",
+    "COLONY COUNTING (ALPHA)":
+        "Count bacterial or fungal colonies on plate or dish photos instead "
+        "of plaques: the dish is found, colonies are thresholded against the "
+        "agar and touching ones split, and each plate gets a count, CFU/mL "
+        "from the dilution and plated volume, a too-many or too-few flag, "
+        "and colony areas and diameters, in millimetres when Scale & Time "
+        "says how large the dish is.",
+    "SEGMENTATION ROBUSTNESS (ALPHA)":
+        "Re-segments a few sampled fields with the diameter, the thresholds "
+        "and contrast enhancement each moved a little, and reports how much "
+        "object counts, areas and intensities change, flagging the settings "
+        "the results are fragile to.",
     "SPECTRAL UNMIXING (ALPHA)":
         "Bleed-through correction: how much of each dye is read in the other "
         "channels is estimated from single-stain control wells, and every "

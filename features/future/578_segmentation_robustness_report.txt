@@ -1,6 +1,6 @@
 SEGMENTATION PARAMETER-ROBUSTNESS REPORT
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-27
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -18,3 +18,52 @@ WHAT TO BUILD
 DONE WHEN
     The report runs on a plate sample and flags a deliberately fragile
     setting.
+
+ALPHA: settings robustness_report, robustness_fields, robustness_crop,
+robustness_diameter_factors, robustness_flow_thresholds,
+robustness_cellprob_thresholds, robustness_enhancement, robustness_tolerance
+(Make Masks category "Segmentation Robustness (Alpha)"), registered as
+ALPHA_FEATURES[578] in spacr/settings.py; hidden unless Preferences -> Show
+alpha features is on (tests/qt/test_segmentation_robustness_alpha_gate.py).
+
+2026-09-27 -- Built (branch item-578-work)
+    With robustness_report on, preprocess_generate_masks (v1), once the
+    masks exist, calls spacr.object._run_robustness_report for cell, nucleus
+    and pathogen. It samples robustness_fields fields at random (seeded by
+    random_seed) from the .npz batches, centre-crops them to robustness_crop,
+    and re-segments each with the run's own Cellpose-SAM model at a
+    one-at-a-time grid (spacr.seg_qc._robustness_grid): the run's settings,
+    diameter x each factor, each flow threshold, each cellprob threshold, and
+    CLAHE on (detect_chain). For each grid point it computes object count,
+    median area, mean object intensity and the fraction of baseline objects
+    found again (IoU 0.5). The median absolute relative change over fields,
+    or the loss of matched objects, above robustness_tolerance flags the
+    point FRAGILE with a reason. Writes <plate>/qc/segmentation_robustness_
+    <object>.csv (per grid point), ..._fields.csv (per field and point) via
+    spacr.tabular, a heatmap via save_figure, and prints the summary. It
+    never raises into the run.
+    Done-when check (CPU; the GPU was held by a training job): example plate1,
+    4 fields from E01/E02/L01/L02, nucleus, 3 fields sampled, 192 px crops,
+    cellprob grid [-2, 6] with 6 as the deliberately fragile setting. 156 s
+    on CPU. Result: cellprob 6 FRAGILE (all objects lost, 33% matched),
+    cellprob -2 and both flow thresholds stable, CLAHE FRAGILE (count +100%),
+    diameter x1.25 FRAGILE (67% matched; three nuclei per small crop, so one
+    object is 33%). Script: /mnt/firecuda2/codex/scratch-docs/578/cpu_check.py.
+    Tests: tests/test_segmentation_robustness_report.py (6, synthetic plate
+    whose raised cellprob threshold drops the dim half of the objects: it is
+    flagged, the rest are not) and the alpha gate (2).
+    Pins moved: tooltip default claims 869 -> 877 (eight Make Masks claims),
+    eight keys in KEYS_ADDED_BY_REGROUP, the Make Masks category order, one
+    caption held in _AWAITING_CATALOG_REBUILD. Regenerated the consumer map,
+    settings-flow page and index, API targets and the mask notebooks.
+    After merging nightly: the keys are hidden on the Timelapse panel
+    (_APP_HIDDEN_KEYS), whose defaults share Make Masks'; the model call is
+    a private module-level helper (_robustness_segment), so the documented
+    callable count stays 11,865. CPU check rerun after the merge: same
+    verdicts (395 s with other jobs on the machine).
+    Left: the v2 pipeline (pipeline_style v2) and z/t stacks are not
+    sampled (skipped with a message); only stock or fine-tuned Cellpose-SAM
+    models are re-run, not the Cellpose 3 / DINO / StarDist / InstanSeg /
+    Omnipose backends; no full-factorial grid (one parameter at a time by
+    design); no GUI button to run the report on its own outside a mask run;
+    a GPU-scale run on a full plate is untested.

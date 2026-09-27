@@ -1376,6 +1376,580 @@ def write_hit_report(result: ArrayedHitResult, out_dir, *,
     return written
 
 
+_RDKIT_INSTALL = (
+    "Drawing structures and clustering compounds needs RDKit, and {module} "
+    "could not be imported. Install it into the spaCR environment with "
+    "'pip install rdkit' (or 'conda install -c conda-forge rdkit') and "
+    "reopen spaCR.")
+_SMILES_COLUMNS = ("smiles", "canonical_smiles", "isomeric_smiles")
+_COMPOUND_COLUMNS = ("compound", "compound_id", "compound_name", "name",
+                     "treatment", "id")
+_CHEMISTRY_SIMILARITY = 0.6
+_MORGAN_RADIUS = 2
+_MORGAN_BITS = 2048
+_STRUCTURE_LIMIT = 24
+
+
+def _rdkit():
+    """RDKit's ``Chem``, ``DataStructs`` and ``Draw``, imported on first use.
+
+    :returns: ``(Chem, DataStructs, Draw)``.
+    :raises ImportError: with the install instructions when RDKit is absent.
+    """
+    from .tabular import _require_optional
+
+    chem = _require_optional("rdkit.Chem", _RDKIT_INSTALL)
+    data_structs = _require_optional("rdkit.DataStructs", _RDKIT_INSTALL)
+    draw = _require_optional("rdkit.Chem.Draw", _RDKIT_INSTALL)
+    from rdkit import RDLogger
+
+    RDLogger.DisableLog("rdApp.*")
+    return chem, data_structs, draw
+
+
+def _rdkit_available() -> bool:
+    """Whether RDKit can be imported, without importing it twice."""
+    try:
+        _rdkit()
+    except ImportError:
+        return False
+    return True
+
+
+def _column_named(frame: pd.DataFrame, names: Sequence[str]) -> Optional[str]:
+    """The first column of ``frame`` whose name matches ``names``, any case."""
+    lower = {str(column).lower(): column for column in frame.columns}
+    for name in names:
+        if name in lower:
+            return lower[name]
+    return None
+
+
+def _read_compound_map(source) -> pd.DataFrame:
+    """A compound table: which compound, with which SMILES, is in which well.
+
+    Read through :func:`spacr.tabular.read_table` (CSV, TSV, Excel, Parquet)
+    or taken as a frame. A SMILES column is required (``smiles``,
+    ``canonical_smiles`` or ``isomeric_smiles``, any case). The compound is
+    named by ``compound``, ``compound_id``, ``compound_name``, ``name``,
+    ``treatment`` or ``id``, and is the SMILES itself when none is present.
+    Wells are placed by a well column (``A01``), a ``prc`` or a row and
+    column pair, with an optional plate column; a table without well
+    positions is joined to the screen by compound name instead.
+
+    :param source: a path or a DataFrame; a frame this function returned
+        is passed through unchanged.
+    :returns: ``compound``, ``smiles`` and, when the table places wells,
+        ``row_index`` and ``column_index``, plus ``plateID`` when it names
+        plates.
+    :raises HitScoringError: without a SMILES column or any SMILES.
+    """
+    from . import plate_qc
+    from .tabular import read_table
+
+    frame = (source.copy() if isinstance(source, pd.DataFrame)
+             else read_table(source, report=None))
+    if frame.attrs.get("compound_map"):
+        return frame
+    smiles_col = _column_named(frame, _SMILES_COLUMNS)
+    if smiles_col is None:
+        raise HitScoringError(
+            "the compound table has no SMILES column; name one 'smiles'")
+    name_col = _column_named(frame, _COMPOUND_COLUMNS)
+    out = pd.DataFrame({"smiles": frame[smiles_col].astype(str).str.strip()})
+    out["compound"] = (frame[name_col].astype(str).str.strip() if name_col
+                       else out["smiles"])
+    keep = out["smiles"].ne("") & frame[smiles_col].notna()
+    if "wellID" in frame.columns and "well" not in frame.columns:
+        frame = frame.rename(columns={"wellID": "well"})
+    try:
+        located, _notes = plate_qc._identify_wells(frame)
+    except ValueError:
+        located = None
+    if located is not None:
+        rows = located["rowID"].map(plate_qc.parse_row_label)
+        cols = located["columnID"].map(plate_qc.parse_column_label)
+        if (rows.notna() & cols.notna()).any():
+            out["row_index"] = rows
+            out["column_index"] = cols
+            keep &= rows.notna() & cols.notna()
+            if plate_qc._first_column(frame, ("plateID", "plate_name",
+                                              "plate")) or (
+                    "prc" in frame.columns):
+                out["plateID"] = located["plateID"].astype(str)
+    out = out[keep].reset_index(drop=True)
+    if not len(out):
+        raise HitScoringError("the compound table lists no SMILES")
+    for column in ("row_index", "column_index"):
+        if column in out.columns:
+            out[column] = out[column].astype(int)
+    out.attrs["compound_map"] = True
+    return out
+
+
+def _attach_compounds(wells: pd.DataFrame, compounds: pd.DataFrame
+                      ) -> pd.DataFrame:
+    """The scored wells with each well's ``compound`` and ``smiles``.
+
+    Joined by plate position when the compound table places wells (on every
+    plate alike when it names none), otherwise by compound name against the
+    screen's ``treatment`` column.
+
+    :param wells: the ``wells`` of an :class:`ArrayedHitResult`.
+    :param compounds: from :func:`_read_compound_map`.
+    :returns: ``wells`` with ``compound`` and ``smiles``; wells without a
+        compound keep them empty.
+    :raises HitScoringError: when the two tables share no key.
+    """
+    base = wells.drop(columns=[c for c in ("compound", "smiles")
+                               if c in wells.columns])
+    if "row_index" in compounds.columns:
+        keys = ["row_index", "column_index"]
+        if "plateID" in compounds.columns:
+            keys = ["plateID"] + keys
+        table = compounds.drop_duplicates(keys)[keys + ["compound", "smiles"]]
+        right = table.assign(**({"plateID": table["plateID"].astype(str)}
+                                if "plateID" in keys else {}))
+        left = base.assign(**({"plateID": base["plateID"].astype(str)}
+                              if "plateID" in keys else {}))
+        joined = left.merge(right, on=keys, how="left")
+        joined["plateID"] = base["plateID"].to_numpy()
+    elif "treatment" in base.columns:
+        table = compounds.drop_duplicates("compound")[["compound", "smiles"]]
+        joined = base.assign(compound=base["treatment"].astype(str)).merge(
+            table, on="compound", how="left")
+        joined.loc[joined["smiles"].isna(), "compound"] = None
+    else:
+        raise HitScoringError(
+            "the compound table places no wells, so it is joined by compound "
+            "name: pick the Treatment column that names each well's compound")
+    joined.index = wells.index
+    joined.attrs = dict(wells.attrs)
+    return joined
+
+
+def _fingerprints(smiles: Sequence[str]):
+    """Morgan fingerprints (radius 2, 2048 bits) and canonical SMILES.
+
+    :param smiles: SMILES strings.
+    :returns: ``(fingerprints, canonical)``, each ``None`` where the SMILES
+        does not parse.
+    :raises ImportError: with the install instructions without RDKit.
+    """
+    chem, _data_structs, _draw = _rdkit()
+    from rdkit.Chem import rdFingerprintGenerator
+
+    generator = rdFingerprintGenerator.GetMorganGenerator(
+        radius=_MORGAN_RADIUS, fpSize=_MORGAN_BITS)
+    prints, canonical = [], []
+    for text in smiles:
+        mol = chem.MolFromSmiles(str(text)) if text else None
+        prints.append(None if mol is None else generator.GetFingerprint(mol))
+        canonical.append(None if mol is None else chem.MolToSmiles(mol))
+    return prints, canonical
+
+
+def _butina(prints: Sequence, similarity: float) -> List[Tuple[int, ...]]:
+    """Butina clustering on Tanimoto similarity.
+
+    Every compound whose similarity to a centroid reaches ``similarity``
+    joins it; centroids are taken in order of how many neighbours they have,
+    ties by position, so the result does not depend on the platform.
+
+    :param prints: fingerprints, all valid.
+    :param similarity: the Tanimoto similarity a member needs to its
+        centroid, between 0 and 1.
+    :returns: clusters as index tuples, centroid first, largest first.
+    """
+    _chem, data_structs, _draw = _rdkit()
+    n = len(prints)
+    neighbours = []
+    for i in range(n):
+        sims = np.asarray(data_structs.BulkTanimotoSimilarity(prints[i],
+                                                              list(prints)))
+        neighbours.append(set(np.flatnonzero(sims >= similarity).tolist()))
+    left = set(range(n))
+    clusters = []
+    for centroid in sorted(range(n), key=lambda i: (-len(neighbours[i]), i)):
+        if centroid not in left:
+            continue
+        members = sorted(neighbours[centroid] & left - {centroid})
+        clusters.append((centroid, *members))
+        left -= {centroid, *members}
+    return clusters
+
+
+@dataclass
+class _ChemistryResult:
+    """A scored compound screen with structures, clusters and SAR tables.
+
+    :param sar: one row per compound: SMILES, cluster, potency, phenotype
+        and host toxicity.
+    :param clusters: one row per cluster of hit compounds.
+    :param wells: the scored wells with ``compound`` and ``smiles``.
+    :param options: the options the hits were scored with.
+    :param similarity: the Tanimoto similarity that joined a cluster.
+    :param notes: sentences about what could not be done and why.
+    :param clustered: whether RDKit clustered the compounds.
+    """
+
+    sar: pd.DataFrame
+    clusters: pd.DataFrame
+    wells: pd.DataFrame
+    options: Dict[str, Any]
+    similarity: float = _CHEMISTRY_SIMILARITY
+    notes: List[str] = _field(default_factory=list)
+    clustered: bool = False
+
+    def report(self) -> str:
+        """The result in sentences, for a text panel or a log."""
+        hits = int(self.sar["hit"].sum()) if len(self.sar) else 0
+        lines = [f"{len(self.sar)} compound(s), {hits} hit compound(s)."]
+        if self.clustered:
+            lines.append(
+                f"{len(self.clusters)} cluster(s) of hits at Tanimoto "
+                f"{self.similarity:g} (Morgan radius "
+                f"{_MORGAN_RADIUS}, {_MORGAN_BITS} bits).")
+        lines.extend(self.notes)
+        return "\n".join(lines)
+
+
+def _host_toxicity(source) -> Tuple[Optional[pd.DataFrame],
+                                    Optional[pd.DataFrame]]:
+    """The per-well host viability and per-compound selectivity of a run.
+
+    Read from the ``viability_well`` and ``viability_selectivity`` tables
+    that Measure's viability step writes into ``measurements.db``.
+
+    :param source: the database path, or ``None``.
+    :returns: ``(wells, selectivity)``, each ``None`` when absent.
+    """
+    import os
+
+    from .tabular import database_tables, read_table
+
+    if not source or not os.path.isfile(str(source)):
+        return None, None
+    try:
+        tables = database_tables(source)
+    except Exception:
+        return None, None
+    wells = selectivity = None
+    if "viability_well" in tables:
+        wells = read_table(source, table="viability_well", report=None)
+    if "viability_selectivity" in tables:
+        selectivity = read_table(source, table="viability_selectivity",
+                                 report=None)
+    return wells, selectivity
+
+
+def _host_by_well(scored: pd.DataFrame, host: Optional[pd.DataFrame]
+                  ) -> pd.DataFrame:
+    """``viability`` and ``cytotoxicity_index`` for each scored well.
+
+    :param scored: wells with ``plateID``, ``row_index`` and ``column_index``.
+    :param host: per-well host toxicity keyed by plate, row and column, or
+        ``None``.
+    :returns: ``scored`` with the host columns joined, NaN where unmeasured.
+    """
+    from . import plate_qc
+
+    columns = [c for c in ("viability", "cytotoxicity_index")
+               if host is not None and c in host.columns]
+    if not columns:
+        return scored
+    try:
+        located, _notes = plate_qc._identify_wells(host)
+    except ValueError:
+        return scored
+    table = pd.DataFrame({
+        "plateID": located["plateID"].astype(str),
+        "row_index": located["rowID"].map(plate_qc.parse_row_label),
+        "column_index": located["columnID"].map(plate_qc.parse_column_label),
+        **{c: pd.to_numeric(located[c], errors="coerce") for c in columns}})
+    table = table.dropna(subset=["row_index", "column_index"])
+    table = table.groupby(["plateID", "row_index", "column_index"],
+                          as_index=False)[columns].mean()
+    left = scored.drop(columns=[c for c in columns if c in scored.columns])
+    left = left.assign(plateID=left["plateID"].astype(str))
+    joined = left.merge(table, on=["plateID", "row_index", "column_index"],
+                        how="left")
+    joined.index = scored.index
+    joined["plateID"] = scored["plateID"].to_numpy()
+    return joined
+
+
+def _structure_activity(result: ArrayedHitResult, compounds, *,
+                        host: Optional[pd.DataFrame] = None,
+                        selectivity: Optional[pd.DataFrame] = None,
+                        similarity: float = _CHEMISTRY_SIMILARITY,
+                        cluster: Optional[bool] = None) -> _ChemistryResult:
+    """Link the hits of a compound screen to their structures.
+
+    Each sample well gets its compound and SMILES; wells of one compound are
+    pooled into a structure-activity row with its potency (the median of the
+    ranking statistic, and the best rank), its phenotype (the median of the
+    scored measurement), its host toxicity (median viability and
+    cytotoxicity index from Measure's viability step, and the selectivity
+    index when a dose-response was fitted) and whether any of its wells was
+    called. With RDKit the hit compounds are clustered by Butina on Tanimoto
+    similarity of Morgan fingerprints; every other compound joins the
+    cluster of its most similar hit when it reaches the same similarity, so
+    a cluster lists its inactive analogues next to its hits.
+
+    :param result: the scored screen.
+    :param compounds: a compound table or its path, see
+        :func:`_read_compound_map`.
+    :param host: per-well host toxicity (``viability_well``), or ``None``.
+    :param selectivity: per-compound selectivity
+        (``viability_selectivity``), or ``None``.
+    :param similarity: the Tanimoto similarity that joins a cluster.
+    :param cluster: cluster with RDKit; ``None`` clusters when RDKit is
+        installed and notes the install command when it is not.
+    :returns: a :class:`_ChemistryResult`.
+    :raises HitScoringError: for a compound table the screen cannot use.
+    :raises ImportError: with ``cluster=True`` and no RDKit.
+    """
+    if not 0.0 < float(similarity) <= 1.0:
+        raise HitScoringError("the cluster similarity must be in (0, 1]")
+    table = _read_compound_map(compounds)
+    wells = _attach_compounds(result.wells, table)
+    wells = _host_by_well(wells, host)
+    notes: List[str] = []
+    samples = wells[(wells["role"] == ROLE_SAMPLE) & wells["compound"].notna()]
+    missing = int(((wells["role"] == ROLE_SAMPLE)
+                   & wells["compound"].isna()).sum())
+    if missing:
+        notes.append(f"{missing} sample well(s) have no compound in the "
+                     f"compound table.")
+    if not len(samples):
+        raise HitScoringError(
+            "no sample well matched the compound table; check its well or "
+            "compound names")
+    method = result.options["rank_by"]
+    aggregate = {"smiles": ("smiles", "first"),
+                 "n_wells": ("prc", "size"),
+                 "n_hit_wells": ("hit", "sum"),
+                 "potency": (method, "median"),
+                 "best_rank": ("rank", "min"),
+                 "phenotype": ("value", "median")}
+    for column in ("viability", "cytotoxicity_index"):
+        if column in samples.columns:
+            aggregate[column] = (column, "median")
+    sar = samples.assign(hit=samples["hit"].astype(bool)).groupby(
+        "compound", sort=False).agg(**aggregate).reset_index()
+    sar["n_hit_wells"] = sar["n_hit_wells"].astype(int)
+    sar["hit"] = sar["n_hit_wells"] > 0
+    sar.insert(sar.columns.get_loc("potency"), "statistic", method)
+    sar.insert(sar.columns.get_loc("phenotype"), "measurement",
+               result.options.get("value_col", ""))
+    if selectivity is not None and "compound" in selectivity.columns:
+        extra = selectivity.drop_duplicates("compound").copy()
+        extra["compound"] = extra["compound"].astype(str)
+        extra = extra.rename(columns={c: f"selectivity_{c}" for c in
+                                      extra.columns if c != "compound"})
+        sar = sar.merge(extra, on="compound", how="left")
+    sar = sar.sort_values(["best_rank", "compound"], na_position="last",
+                          ignore_index=True)
+    sar["cluster"] = pd.array([pd.NA] * len(sar), dtype="Int64")
+    sar["nearest_hit"] = None
+    sar["similarity_to_hit"] = np.nan
+    sar["smiles_valid"] = pd.array([pd.NA] * len(sar), dtype="boolean")
+    clusters = pd.DataFrame(columns=["cluster", "centroid", "centroid_smiles",
+                                     "n_hits", "n_analogues", "best_potency",
+                                     "best_rank", "median_cytotoxicity_index",
+                                     "members"])
+    clustered = False
+    if cluster is None:
+        cluster = _rdkit_available()
+        if not cluster:
+            notes.append(_RDKIT_INSTALL.format(module="rdkit"))
+    if cluster:
+        sar, clusters = _cluster_sar(sar, float(similarity), notes)
+        clustered = True
+    sar.attrs = {"statistic": method,
+                 "measurement": result.options.get("value_col", "")}
+    return _ChemistryResult(sar=sar, clusters=clusters, wells=wells,
+                            options=dict(result.options),
+                            similarity=float(similarity), notes=notes,
+                            clustered=clustered)
+
+
+def _cluster_sar(sar: pd.DataFrame, similarity: float, notes: List[str]):
+    """Fill the cluster columns of a SAR table and summarise the clusters.
+
+    :param sar: the SAR table, strongest first.
+    :param similarity: the Tanimoto similarity that joins a cluster.
+    :param notes: appended to with unparsed SMILES.
+    :returns: ``(sar, clusters)``; clusters are numbered from 1 in order of
+        their strongest hit.
+    """
+    _chem, data_structs, _draw = _rdkit()
+    sar = sar.copy()
+    prints, canonical = _fingerprints(sar["smiles"].tolist())
+    valid = np.asarray([p is not None for p in prints])
+    sar["smiles_valid"] = pd.array(valid, dtype="boolean")
+    sar["canonical_smiles"] = canonical
+    if (~valid).any():
+        bad = sar.loc[~valid, "compound"].astype(str).tolist()
+        notes.append(f"{len(bad)} SMILES could not be read and are not "
+                     f"clustered: {', '.join(bad[:5])}"
+                     + (" ..." if len(bad) > 5 else ""))
+    hit_rows = np.flatnonzero(valid & sar["hit"].to_numpy(dtype=bool))
+    groups = _butina([prints[i] for i in hit_rows], similarity)
+    groups = sorted(groups, key=lambda g: min(hit_rows[i] for i in g))
+    label = np.zeros(len(sar), dtype=int)
+    centroid_of = {}
+    for number, group in enumerate(groups, start=1):
+        for i in group:
+            label[hit_rows[i]] = number
+        centroid_of[number] = hit_rows[group[0]]
+    hit_prints = [prints[i] for i in hit_rows]
+    nearest = [None] * len(sar)
+    best = np.full(len(sar), np.nan)
+    for row in np.flatnonzero(valid):
+        if not hit_prints:
+            break
+        sims = np.asarray(data_structs.BulkTanimotoSimilarity(prints[row],
+                                                              hit_prints))
+        if label[row]:
+            sims[list(hit_rows).index(row)] = -1.0
+        top = int(np.argmax(sims))
+        if sims[top] < 0:
+            continue
+        nearest[row] = str(sar.at[hit_rows[top], "compound"])
+        best[row] = float(sims[top])
+        if not label[row] and sims[top] >= similarity:
+            label[row] = label[hit_rows[top]]
+    sar["cluster"] = pd.array([v if v else pd.NA for v in label],
+                              dtype="Int64")
+    sar["nearest_hit"] = nearest
+    sar["similarity_to_hit"] = best
+    rows = []
+    for number in range(1, len(groups) + 1):
+        members = sar[sar["cluster"] == number]
+        hits = members[members["hit"]]
+        centre = sar.loc[centroid_of[number]]
+        rows.append({
+            "cluster": number, "centroid": centre["compound"],
+            "centroid_smiles": centre["smiles"], "n_hits": len(hits),
+            "n_analogues": int((~members["hit"]).sum()),
+            "best_potency": hits["potency"].iloc[0] if len(hits) else np.nan,
+            "best_rank": hits["best_rank"].min(),
+            "median_cytotoxicity_index": (
+                members["cytotoxicity_index"].median()
+                if "cytotoxicity_index" in members.columns else np.nan),
+            "members": ";".join(members["compound"].astype(str))})
+    return sar, pd.DataFrame(rows, columns=[
+        "cluster", "centroid", "centroid_smiles", "n_hits", "n_analogues",
+        "best_potency", "best_rank", "median_cytotoxicity_index", "members"])
+
+
+def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
+                         limit: int = _STRUCTURE_LIMIT,
+                         target: str = "screen") -> int:
+    """Draw the hit compounds' structures into ``figure``, grouped by cluster.
+
+    One tile per hit compound, strongest cluster first, each labelled with
+    its name, cluster, potency and, when measured, cytotoxicity index, and
+    framed in its cluster's colour.
+
+    :param figure: a matplotlib figure; it is cleared first.
+    :param chemistry: the result to draw.
+    :param limit: the most tiles drawn.
+    :param target: ``'screen'`` or ``'print'``, for the label ink.
+    :returns: how many structures were drawn; 0 draws a sentence instead.
+    """
+    from matplotlib import colormaps
+
+    from .figures.style import resolve_ink
+
+    figure.clear()
+    ink = resolve_ink(target)
+    sar = chemistry.sar
+    hits = sar[sar["hit"]]
+    if "smiles_valid" in hits.columns:
+        hits = hits[hits["smiles_valid"].fillna(False).astype(bool)]
+    if len(hits) and chemistry.clustered:
+        hits = hits.sort_values(["cluster", "best_rank"], na_position="last")
+    hits = hits.head(int(limit))
+    if not chemistry.clustered or not len(hits):
+        ax = figure.add_subplot(111)
+        ax.set_axis_off()
+        text = (_RDKIT_INSTALL.format(module="rdkit")
+                if not chemistry.clustered else "No hit compound to draw.")
+        ax.text(0.5, 0.5, text, ha="center", va="center", wrap=True,
+                fontsize=9, color=ink, transform=ax.transAxes)
+        return 0
+    chem, _data_structs, draw = _rdkit()
+    ncols = min(6, len(hits))
+    nrows = int(np.ceil(len(hits) / ncols))
+    palette = colormaps["tab10"]
+    statistic = HIT_METHOD_LABELS.get(sar.attrs.get("statistic", ""),
+                                      sar.attrs.get("statistic", "score"))
+    for slot, (_i, row) in enumerate(hits.iterrows()):
+        ax = figure.add_subplot(nrows, ncols, slot + 1)
+        image = draw.MolToImage(chem.MolFromSmiles(row["smiles"]),
+                                size=(300, 300))
+        ax.imshow(np.asarray(image))
+        ax.set_xticks([])
+        ax.set_yticks([])
+        colour = palette((int(row["cluster"]) - 1) % 10)
+        for spine in ax.spines.values():
+            spine.set_edgecolor(colour)
+            spine.set_linewidth(2.0)
+        caption = (f"cluster {int(row['cluster'])} · "
+                   f"{statistic} {row['potency']:.3g}")
+        tox = row.get("cytotoxicity_index")
+        if tox is not None and pd.notna(tox):
+            caption += f"\ncytotoxicity {tox:.3g}"
+        ax.set_title(str(row["compound"]), fontsize=8, color=ink)
+        ax.set_xlabel(caption, fontsize=7, color=ink)
+    figure.tight_layout(pad=0.6)
+    return len(hits)
+
+
+def _write_sar_report(chemistry: _ChemistryResult, out_dir, *,
+                      target: Optional[str] = None) -> Dict[str, str]:
+    """Write the structure-activity tables and the hit structure sheet.
+
+    :param chemistry: the result to write.
+    :param out_dir: folder to write into; created if absent.
+    :param target: ``'screen'`` or ``'print'``; default the preference.
+    :returns: ``{name: path}``: ``sar_table`` (one row per compound),
+        ``sar_wells`` (every well with its compound), ``sar_clusters`` when
+        clustered, and ``hit_structures`` when a structure was drawn.
+    """
+    import os
+
+    from matplotlib.figure import Figure
+
+    from .figures.style import theme_target
+    from .plot import save_figure
+    from .tabular import write_table
+
+    os.makedirs(out_dir, exist_ok=True)
+    written: Dict[str, str] = {}
+    tables = {"sar_table": chemistry.sar, "sar_wells": chemistry.wells}
+    if chemistry.clustered:
+        tables["sar_clusters"] = chemistry.clusters
+    for name, table in tables.items():
+        path = os.path.join(str(out_dir), f"{name}.csv")
+        write_table(table, path, canonicalise=False)
+        written[name] = path
+    if chemistry.clustered:
+        count = int(chemistry.sar["hit"].sum())
+        ncols = max(1, min(6, count))
+        nrows = max(1, int(np.ceil(min(count, _STRUCTURE_LIMIT) / ncols)))
+        figure = Figure(figsize=(2.0 * ncols, 2.3 * nrows))
+        if _draw_hit_structures(figure, chemistry,
+                                target=target or theme_target()):
+            written["hit_structures"] = save_figure(
+                figure, os.path.join(str(out_dir), "hit_structures.png"),
+                close=True, announce_colours=False)
+    return written
+
+
 _PROFILE_KEYS = ("plateID", "rowID", "columnID")
 _PROFILE_TABLES = ("cell", "cytoplasm", "nucleus", "pathogen")
 _PROFILE_AGGREGATIONS = ("median", "mean")
@@ -3188,3 +3762,838 @@ def _cox_regression(frame, duration, event, covariates, *, alpha=0.05,
                    'lr_p_value': float(chi2.sf(lr_statistic,
                                                len(covariates))),
                    'engine': engine}
+
+
+_NESTED_LEVELS = ('replicate', 'well', 'field', 'cell')
+
+
+def _pooled_variance(values: pd.Series, groups) -> Tuple[float, int]:
+    """Pool the within-group sample variance of ``values`` over ``groups``.
+
+    Groups with a single member carry no information and are skipped.
+
+    :param values: the numbers.
+    :param groups: grouping keys aligned with ``values``.
+    :returns: ``(variance, degrees of freedom)``; ``(nan, 0)`` when no group
+        has two members.
+    """
+    grouped = values.groupby(groups, sort=False)
+    counts = grouped.count()
+    variances = grouped.var(ddof=1)
+    keep = counts > 1
+    dof = int((counts[keep] - 1).sum())
+    if dof == 0:
+        return float('nan'), 0
+    return float(((counts[keep] - 1) * variances[keep]).sum() / dof), dof
+
+
+def _nested_variance_components(frame: pd.DataFrame, value: str, *,
+                                well: str = 'prc', field: str = 'fieldID',
+                                replicate: Optional[str] = None,
+                                condition: Optional[str] = None
+                                ) -> Dict[str, Any]:
+    """Split a pilot plate's per-cell variance into nested components.
+
+    Cells sit in fields, fields in wells and wells in biological replicates.
+    Each level's variance is estimated by the method of moments: the pooled
+    variance of that level's unweighted means within the level above, minus
+    the share the levels below contribute to those means. Estimates below
+    zero are set to zero. Unbiased for balanced pilots and close for mildly
+    unbalanced ones. When ``condition`` is given every level is pooled
+    within conditions, so treatment differences do not inflate the
+    components.
+
+    :param frame: one row per cell.
+    :param value: the per-cell measurement column.
+    :param well: the column naming the well, unique across plates.
+    :param field: the column naming the field within its well.
+    :param replicate: the column naming the biological replicate, or None
+        when the pilot has one; the replicate component is then not
+        estimated and reported as NaN.
+    :param condition: an optional treatment column to pool within.
+    :returns: a dict with ``replicate``, ``well``, ``field`` and ``cell``
+        variances, ``mean``, ``cells_per_field``, ``fields_per_well``,
+        ``wells_per_replicate``, ``n_replicates``, ``n_wells``, ``n_cells``
+        and ``estimated`` (level -> whether the pilot could estimate it).
+    :raises KeyError: when a named column is missing.
+    :raises ValueError: when no finite values remain.
+    """
+    columns = [c for c in (value, well, field, replicate, condition) if c]
+    missing = [c for c in columns if c not in frame.columns]
+    if missing:
+        raise KeyError(f'columns not in the table: {missing}')
+    data = frame[columns].copy()
+    data[value] = pd.to_numeric(data[value], errors='coerce')
+    data = data[np.isfinite(data[value])]
+    if data.empty:
+        raise ValueError(f'no finite values in {value!r}')
+    top = [condition] if condition else []
+    rep = top + ([replicate] if replicate else [])
+    well_key = rep + [well]
+    field_key = well_key + [field]
+    for name, key in (('_c', top), ('_r', rep), ('_w', well_key),
+                      ('_f', field_key)):
+        data[name] = (data[key].astype(str).agg('|'.join, axis=1)
+                      if key else '')
+
+    cell_var, _ = _pooled_variance(data[value], data['_f'])
+    fields = data.groupby('_f', sort=False).agg(
+        mean=(value, 'mean'), n=(value, 'size'), w=('_w', 'first'),
+        r=('_r', 'first'), c=('_c', 'first'))
+    fields['q'] = (0.0 if not np.isfinite(cell_var) else cell_var) / fields['n']
+    field_obs, _ = _pooled_variance(fields['mean'], fields['w'])
+    field_var = (max(0.0, field_obs - float(fields['q'].mean()))
+                 if np.isfinite(field_obs) else float('nan'))
+    below_field = 0.0 if not np.isfinite(field_var) else field_var
+
+    wells = fields.groupby('w', sort=False).agg(
+        mean=('mean', 'mean'), k=('mean', 'size'), qsum=('q', 'sum'),
+        r=('r', 'first'), c=('c', 'first'))
+    wells['q'] = below_field / wells['k'] + wells['qsum'] / wells['k'] ** 2
+    well_obs, _ = _pooled_variance(wells['mean'], wells['r'])
+    well_var = (max(0.0, well_obs - float(wells['q'].mean()))
+                if np.isfinite(well_obs) else float('nan'))
+    below_well = 0.0 if not np.isfinite(well_var) else well_var
+
+    rep_var = float('nan')
+    reps = wells.groupby('r', sort=False).agg(
+        mean=('mean', 'mean'), k=('mean', 'size'), qsum=('q', 'sum'),
+        c=('c', 'first'))
+    if replicate:
+        reps['q'] = below_well / reps['k'] + reps['qsum'] / reps['k'] ** 2
+        rep_obs, _ = _pooled_variance(reps['mean'], reps['c'])
+        if np.isfinite(rep_obs):
+            rep_var = max(0.0, rep_obs - float(reps['q'].mean()))
+    components = {'replicate': rep_var, 'well': well_var,
+                  'field': field_var, 'cell': cell_var}
+    return {
+        **components,
+        'mean': float(data[value].mean()),
+        'cells_per_field': float(fields['n'].mean()),
+        'fields_per_well': float(wells['k'].mean()),
+        'wells_per_replicate': float(reps['k'].mean()),
+        'n_replicates': int(len(reps)) if replicate else 1,
+        'n_wells': int(len(wells)),
+        'n_cells': int(len(data)),
+        'estimated': {k: bool(np.isfinite(v)) for k, v in components.items()},
+    }
+
+
+def _component(components: Dict[str, Any], level: str) -> float:
+    """One variance component, with an unestimated level counted as zero."""
+    value = float(components.get(level, 0.0) or 0.0)
+    return value if np.isfinite(value) else 0.0
+
+
+def _replicate_mean_variance(components: Dict[str, Any], wells: int,
+                             fields: int, cells: float, *,
+                             paired: bool = False) -> float:
+    """Variance of one condition's mean within one biological replicate.
+
+    That mean averages ``cells`` per field, ``fields`` per well and
+    ``wells`` per condition. In a paired design both conditions share the
+    replicate, so its component cancels from their difference and is left
+    out here.
+    """
+    var = (_component(components, 'well') / wells
+           + _component(components, 'field') / (wells * fields)
+           + _component(components, 'cell') / (wells * fields * cells))
+    if not paired:
+        var += _component(components, 'replicate')
+    return var
+
+
+def _arrayed_power(components: Dict[str, Any], effect: float, *,
+                   replicates: int, wells: int, fields: int,
+                   cells: Optional[float] = None, alpha: float = 0.05,
+                   paired: bool = False) -> float:
+    """Power of a two-sided t-test on replicate means for two conditions.
+
+    Each biological replicate contributes one mean per condition. Unpaired,
+    the test is a two-sample t-test with ``2 * replicates - 2`` degrees of
+    freedom; paired (both conditions on every replicate), a paired t-test
+    with ``replicates - 1``. Power comes from the noncentral t distribution.
+
+    :param components: variance components from
+        :func:`_nested_variance_components`.
+    :param effect: the difference between condition means to detect, in the
+        measurement's units.
+    :param replicates: biological replicates per condition.
+    :param wells: wells per condition per replicate.
+    :param fields: fields imaged per well.
+    :param cells: cells per field; the pilot's mean when None.
+    :param alpha: two-sided significance level.
+    :param paired: analyse replicates as pairs.
+    :returns: the probability of a significant result, from 0 to 1.
+    """
+    from scipy.stats import nct, t as student_t
+
+    if cells is None:
+        cells = float(components.get('cells_per_field') or 1.0)
+    replicates = int(replicates)
+    if replicates < 2:
+        return float('nan')
+    var = _replicate_mean_variance(components, wells, fields, cells,
+                                   paired=paired)
+    dof = replicates - 1 if paired else 2 * replicates - 2
+    if var <= 0:
+        return 1.0 if effect else alpha
+    ncp = abs(float(effect)) / np.sqrt(2.0 * var / replicates)
+    crit = student_t.ppf(1.0 - alpha / 2.0, dof)
+    with _warnings.catch_warnings():
+        _warnings.simplefilter('ignore', RuntimeWarning)
+        achieved = nct.sf(crit, dof, ncp) + nct.cdf(-crit, dof, ncp)
+    return float(min(1.0, achieved))
+
+
+def _plan_arrayed_design(components: Dict[str, Any], effect: float, *,
+                         power: float = 0.8, alpha: float = 0.05,
+                         cells: Optional[float] = None, paired: bool = False,
+                         max_replicates: int = 12, max_wells: int = 12,
+                         max_fields: int = 25,
+                         costs: Tuple[float, float, float] = (20.0, 1.0, 0.1)
+                         ) -> pd.DataFrame:
+    """Designs that reach the target power, cheapest first.
+
+    For every wells-per-condition and fields-per-well pair the smallest
+    number of biological replicates that reaches ``power`` is found. Cost
+    per condition is ``replicates * (replicate + wells * (well + fields *
+    field))`` in the units of ``costs``.
+
+    :param components: variance components from
+        :func:`_nested_variance_components`.
+    :param effect: the difference between condition means to detect.
+    :param power: the target power.
+    :param alpha: two-sided significance level.
+    :param cells: cells per field; the pilot's mean when None.
+    :param paired: analyse replicates as pairs.
+    :param max_replicates: largest replicate count considered.
+    :param max_wells: largest wells-per-condition count considered.
+    :param max_fields: largest fields-per-well count considered.
+    :param costs: cost of one replicate, one well and one field.
+    :returns: one row per reachable design with ``replicates``, ``wells``,
+        ``fields``, ``cells_per_field``, ``cells_per_condition``, ``power``
+        and ``cost``, sorted by cost then total cells; empty when nothing
+        within the limits reaches the target.
+    """
+    if cells is None:
+        cells = float(components.get('cells_per_field') or 1.0)
+    rep_cost, well_cost, field_cost = (float(c) for c in costs)
+    rows = []
+    for wells in range(1, int(max_wells) + 1):
+        for fields in range(1, int(max_fields) + 1):
+            for replicates in range(2, int(max_replicates) + 1):
+                achieved = _arrayed_power(
+                    components, effect, replicates=replicates, wells=wells,
+                    fields=fields, cells=cells, alpha=alpha, paired=paired)
+                if achieved >= power:
+                    rows.append({
+                        'replicates': replicates, 'wells': wells,
+                        'fields': fields, 'cells_per_field': cells,
+                        'cells_per_condition':
+                            replicates * wells * fields * cells,
+                        'power': achieved,
+                        'cost': replicates * (rep_cost + wells * (
+                            well_cost + fields * field_cost))})
+                    break
+    columns = ['replicates', 'wells', 'fields', 'cells_per_field',
+               'cells_per_condition', 'power', 'cost']
+    if not rows:
+        return pd.DataFrame(columns=columns)
+    return (pd.DataFrame(rows, columns=columns)
+            .sort_values(['cost', 'cells_per_condition'], kind='stable')
+            .reset_index(drop=True))
+
+
+def _simulate_arrayed_power(components: Dict[str, Any], effect: float, *,
+                            replicates: int, wells: int, fields: int,
+                            cells: Optional[float] = None,
+                            alpha: float = 0.05, paired: bool = False,
+                            n_sim: int = 1000, seed: int = 0,
+                            chunk_cells: int = 4_000_000) -> float:
+    """Estimate the same power by simulating whole experiments.
+
+    Every simulated experiment draws replicate, well, field and cell
+    effects from normal distributions with the given variances, averages
+    cells to fields, fields to wells and wells to one mean per condition
+    per replicate, and runs the same t-test on those means as
+    :func:`_arrayed_power` assumes. Replicate effects are shared by both
+    conditions when ``paired`` and drawn separately otherwise.
+
+    :param components: variance components.
+    :param effect: the true difference between condition means.
+    :param replicates: biological replicates per condition.
+    :param wells: wells per condition per replicate.
+    :param fields: fields per well.
+    :param cells: cells per field, rounded to a whole number; the pilot's
+        mean when None.
+    :param alpha: two-sided significance level.
+    :param paired: share replicate effects and use a paired test.
+    :param n_sim: simulated experiments.
+    :param seed: random seed.
+    :param chunk_cells: simulated cells held in memory at once.
+    :returns: the fraction of simulated experiments that were significant.
+    """
+    from scipy.stats import ttest_ind, ttest_rel
+
+    if cells is None:
+        cells = float(components.get('cells_per_field') or 1.0)
+    cells = max(1, int(round(cells)))
+    sd = {k: np.sqrt(_component(components, k)) for k in _NESTED_LEVELS}
+    rng = np.random.default_rng(seed)
+    per_sim = 2 * replicates * wells * fields * cells
+    step = max(1, int(chunk_cells) // per_sim)
+    hits = 0
+    done = 0
+    shift = np.array([0.0, float(effect)])[None, :, None]
+    while done < n_sim:
+        n = min(step, n_sim - done)
+        rep_shape = (n, 1 if paired else 2, replicates)
+        rep = rng.normal(0.0, sd['replicate'], rep_shape)
+        rep = np.broadcast_to(rep, (n, 2, replicates))
+        well = rng.normal(0.0, sd['well'], (n, 2, replicates, wells))
+        field = rng.normal(0.0, sd['field'],
+                           (n, 2, replicates, wells, fields))
+        cell = rng.normal(0.0, sd['cell'],
+                          (n, 2, replicates, wells, fields, cells))
+        field_means = field + cell.mean(axis=-1)
+        well_means = well + field_means.mean(axis=-1)
+        means = rep + well_means.mean(axis=-1) + shift
+        if paired:
+            p = ttest_rel(means[:, 1], means[:, 0], axis=1).pvalue
+        else:
+            p = ttest_ind(means[:, 1], means[:, 0], axis=1).pvalue
+        hits += int(np.count_nonzero(p < alpha))
+        done += n
+    return hits / float(n_sim)
+
+
+_ANOMALY_METHODS = ("mahalanobis", "knn", "iforest", "gmm")
+_ANOMALY_METHOD_LABELS = {
+    "mahalanobis": "Robust Mahalanobis",
+    "knn": "k-nearest-neighbour distance",
+    "iforest": "Isolation forest",
+    "gmm": "Gaussian mixture density",
+}
+_ANOMALY_ID_COLUMNS = ("prcfo", "prcf", "object_label", "cell_id", "objectID",
+                       "label", "png_path")
+_ANOMALY_MIN_CONTROLS = 20
+_ANOMALY_REVIEW_LIMIT = 24
+
+
+@dataclass
+class _AnomalyResult:
+    """Every object and every well scored for how unlike the negative
+    control it is.
+
+    ``cells`` has one row per object: ``plateID``, ``well``, ``role``,
+    ``score`` (larger is less like the controls), ``control_percentile``
+    (the share of control objects scoring lower), ``outlier`` (beyond the
+    controls' ``quantile``), ``pc1``/``pc2`` (the first two principal
+    components of the control population) and ``source_row`` (the row of
+    the input table), plus whichever identity columns the input carried.
+    ``wells`` has one row per well: ``n``, ``median_score``,
+    ``outlier_fraction``, ``enrichment`` (outlier fraction over the rate
+    expected in controls), ``anomaly_z`` (robust z of the median score
+    against the control wells), ``known_hit`` and ``rank`` (non-control
+    wells, most unlike the controls first).
+    """
+
+    cells: pd.DataFrame
+    wells: pd.DataFrame
+    method: str
+    features: Tuple[str, ...]
+    quantile: float
+    threshold: float
+    n_reference: int
+    auroc: Optional[float] = None
+    cell_auroc: Optional[float] = None
+
+    def ranked_wells(self) -> pd.DataFrame:
+        """The non-control wells, most unlike the controls first."""
+        ranked = self.wells[self.wells["rank"].notna()]
+        return ranked.sort_values("rank").reset_index(drop=True)
+
+    def top_outliers(self, n: int = _ANOMALY_REVIEW_LIMIT) -> pd.DataFrame:
+        """The ``n`` highest-scoring objects outside the negative control."""
+        others = self.cells[self.cells["role"] != ROLE_NEGATIVE]
+        return (others.sort_values("score", ascending=False)
+                .head(int(n)).reset_index(drop=True))
+
+    def report(self) -> str:
+        """A few plain sentences: reference, threshold, top well, AUROC."""
+        label = _ANOMALY_METHOD_LABELS.get(self.method, self.method)
+        lines = [
+            f"{label} on {len(self.features)} feature(s), with "
+            f"{self.n_reference} negative-control object(s) as reference; "
+            f"{len(self.cells)} object(s) in {len(self.wells)} well(s).",
+            f"An object is an outlier beyond the controls' "
+            f"{self.quantile:.3g} quantile (score {self.threshold:.3g}), so "
+            f"about {100 * (1 - self.quantile):.2g}% of control objects are "
+            f"outliers by construction.",
+        ]
+        ranked = self.ranked_wells()
+        if len(ranked):
+            top = ranked.iloc[0]
+            lines.append(
+                f"Most unlike the controls: {top['plateID']} {top['well']}, "
+                f"{100 * top['outlier_fraction']:.1f}% outliers "
+                f"({top['enrichment']:.2g}x the control rate).")
+        if self.auroc is not None:
+            hits = int(self.wells["known_hit"].sum())
+            lines.append(
+                f"Known hits against controls: well AUROC {self.auroc:.3f} "
+                f"over {hits} hit well(s); object AUROC "
+                f"{self.cell_auroc:.3f}.")
+        return "\n".join(lines)
+
+
+def _anomaly_features(frame: pd.DataFrame, exclude: Sequence[str]
+                      ) -> List[str]:
+    """Embedding columns when the table has them, else measurement features.
+
+    :param frame: the per-object table.
+    :param exclude: columns never used as features.
+    :returns: the feature column names.
+    """
+    from .embeddings import EMBEDDING_PREFIX
+
+    embedded = [str(c) for c in frame.columns
+                if str(c).startswith(EMBEDDING_PREFIX)
+                and pd.api.types.is_numeric_dtype(frame[c])]
+    if embedded:
+        return embedded
+    return _profile_features(frame, exclude=exclude)
+
+
+def _anomaly_detector(method: str, reference: np.ndarray, *,
+                      neighbours: int, seed: int):
+    """Fit a detector on control objects; return a scoring function.
+
+    Every score is larger for an object less like the reference.
+
+    :param method: one of ``_ANOMALY_METHODS``.
+    :param reference: the control objects, one row each.
+    :param neighbours: ``k`` of the k-nearest-neighbour distance.
+    :param seed: random state of the randomised detectors.
+    :returns: ``score(points) -> 1-D array``.
+    """
+    if method == "mahalanobis":
+        from sklearn.covariance import MinCovDet
+
+        with _warnings.catch_warnings():
+            _warnings.simplefilter("ignore", RuntimeWarning)
+            model = MinCovDet(random_state=seed).fit(reference)
+        return lambda points: np.sqrt(np.maximum(
+            model.mahalanobis(points), 0.0))
+    if method == "knn":
+        from sklearn.neighbors import NearestNeighbors
+
+        k = max(1, min(int(neighbours), len(reference) - 1))
+        model = NearestNeighbors(n_neighbors=k).fit(reference)
+        return lambda points: model.kneighbors(points)[0].mean(axis=1)
+    if method == "iforest":
+        from sklearn.ensemble import IsolationForest
+
+        model = IsolationForest(n_estimators=200, random_state=seed)
+        model.fit(reference)
+        return lambda points: -model.score_samples(points)
+    from sklearn.mixture import GaussianMixture
+
+    parts = int(max(1, min(4, len(reference) // 100)))
+    model = GaussianMixture(n_components=parts, covariance_type="full",
+                            reg_covar=1e-3, random_state=seed)
+    model.fit(reference)
+    return lambda points: -model.score_samples(points)
+
+
+def _auroc(positive: np.ndarray, negative: np.ndarray) -> Optional[float]:
+    """Area under the ROC curve of ``positive`` scored above ``negative``.
+
+    :returns: the AUROC, or ``None`` when either group is empty.
+    """
+    positive = np.asarray(positive, dtype=float)
+    negative = np.asarray(negative, dtype=float)
+    positive = positive[np.isfinite(positive)]
+    negative = negative[np.isfinite(negative)]
+    if not len(positive) or not len(negative):
+        return None
+    from scipy.stats import rankdata
+
+    ranks = rankdata(np.concatenate([positive, negative]))
+    total = ranks[:len(positive)].sum()
+    n_pos, n_neg = len(positive), len(negative)
+    return float((total - n_pos * (n_pos + 1) / 2.0) / (n_pos * n_neg))
+
+
+def _score_anomalies(frame: pd.DataFrame, *,
+                     control_column: Optional[str] = None,
+                     negative_levels=(), positive_levels=(),
+                     negative_wells=None, known_hits=(),
+                     plate_column: Optional[str] = None,
+                     treatment_column: Optional[str] = None,
+                     method: str = "mahalanobis",
+                     features: Optional[Sequence[str]] = None,
+                     quantile: float = 0.99, neighbours: int = 10,
+                     components: int = 20, max_reference: int = 20000,
+                     seed: int = 0) -> _AnomalyResult:
+    """Score every object and well for how unlike the negative control it is.
+
+    The negative-control objects are the model of normal. Features are
+    centred on each plate's own controls (when a plate has enough of them)
+    and scaled by the controls' median absolute deviation, so plate offsets
+    are not mistaken for phenotypes; principal components fitted on the
+    controls then set the space the detector works in. Embedding columns
+    (``emb_...``) are used when the table has them, measurement features
+    otherwise.
+
+    The control objects are scored cross-fitted: the controls are split in
+    two, a detector is fitted on each half and each half is scored by the
+    other half's detector, so a control is never scored by a model that saw
+    it. Every other object gets the mean of the two detectors' scores. The
+    outlier threshold is the ``quantile`` of the cross-fitted control
+    scores, which makes the control outlier rate ``1 - quantile`` by
+    construction and every well's ``enrichment`` a ratio to that rate.
+
+    Wells are ranked by outlier fraction, then by median score. Known hits
+    (positive-control wells, and wells whose well name, ``prc``, treatment
+    or control label is in ``known_hits``) give the AUROC of the ranking
+    against the negative-control wells.
+
+    All detectors are classical and run on the CPU: ``mahalanobis`` (a
+    minimum-covariance-determinant robust Mahalanobis distance), ``knn``
+    (mean distance to the ``neighbours`` nearest control objects),
+    ``iforest`` (isolation forest) and ``gmm`` (negative log density under a
+    Gaussian mixture).
+
+    :param frame: per-object table with well positions (``prc``, a
+        rowID/columnID pair or a ``well`` column).
+    :param control_column: column holding the control labels.
+    :param negative_levels: level(s) of ``control_column`` that are the
+        negative control.
+    :param positive_levels: level(s) that are the positive control; their
+        wells count as known hits.
+    :param negative_wells: well spec of the negative-control wells.
+    :param known_hits: well names, ``prc`` values or labels of known hits.
+    :param plate_column: column naming the plate; default the reader's.
+    :param treatment_column: column naming what is in each well.
+    :param method: one of ``mahalanobis``, ``knn``, ``iforest``, ``gmm``.
+    :param features: feature columns; default embeddings or measurements.
+    :param quantile: control quantile beyond which an object is an outlier.
+    :param neighbours: ``k`` of the ``knn`` detector.
+    :param components: most principal components kept.
+    :param max_reference: most control objects the detectors are fitted on.
+    :param seed: random state of subsampling and randomised detectors.
+    :returns: the :class:`_AnomalyResult`.
+    :raises HitScoringError: when the table cannot be scored.
+    """
+    from sklearn.decomposition import PCA
+
+    from . import plate_qc, schema, well_spec
+
+    if method not in _ANOMALY_METHODS:
+        raise HitScoringError(
+            f"method must be one of {', '.join(_ANOMALY_METHODS)}, "
+            f"not {method!r}")
+    if not 0.5 <= float(quantile) < 1.0:
+        raise HitScoringError("quantile must be at least 0.5 and below 1")
+    if frame is None or not len(frame):
+        raise HitScoringError("the table is empty")
+    for label, column in (("control", control_column),
+                          ("treatment", treatment_column),
+                          ("plate", plate_column)):
+        if column and column not in frame.columns:
+            raise HitScoringError(
+                f"the {label} column {column!r} is not in the table")
+    negative_levels = _levels(negative_levels)
+    positive_levels = _levels(positive_levels)
+    if (negative_levels or positive_levels) and not control_column:
+        raise HitScoringError(
+            "control levels are named but no control column to find them in")
+    if not negative_levels and not negative_wells:
+        raise HitScoringError("name the negative control to score against")
+    try:
+        located, _notes = plate_qc._identify_wells(frame)
+    except ValueError as exc:
+        raise HitScoringError(str(exc)) from exc
+    if plate_column:
+        located["plateID"] = frame[plate_column].astype(str).to_numpy()
+    located["__source_row__"] = np.arange(len(located))
+    rows = located["rowID"].map(plate_qc.parse_row_label)
+    cols = located["columnID"].map(plate_qc.parse_column_label)
+    keep = rows.notna() & cols.notna()
+    located = located[keep.to_numpy()]
+    if not len(located):
+        raise HitScoringError("no row of the table sits in a readable well")
+    rows = rows[keep].astype(int).to_numpy()
+    cols = cols[keep].astype(int).to_numpy()
+    plates = located["plateID"].astype(str).to_numpy()
+
+    exclude = [c for c in (control_column, treatment_column, plate_column,
+                           "rowID", "columnID", "row_index", "column_index")
+               if c]
+    names = (list(features) if features is not None
+             else _anomaly_features(frame, exclude))
+    missing = [c for c in names if c not in located.columns]
+    if missing:
+        raise HitScoringError(
+            f"the table has no feature column {missing[0]!r}")
+    if not names:
+        raise HitScoringError("the table has no numeric feature to score")
+    values = located[names].apply(pd.to_numeric, errors="coerce")
+    values = values.to_numpy(dtype=float)
+
+    negative = np.zeros(len(located), dtype=bool)
+    positive = np.zeros(len(located), dtype=bool)
+    if control_column:
+        labels = located[control_column].astype(str).to_numpy()
+        negative |= np.isin(labels, list(negative_levels))
+        positive |= np.isin(labels, list(positive_levels))
+    if negative_wells:
+        layout = _layout_for(int(rows.max()), int(cols.max()))
+        try:
+            cells_spec = well_spec.parse(negative_wells, layout)
+        except well_spec.WellSpecError as exc:
+            raise HitScoringError(str(exc)) from exc
+        negative |= np.asarray([(r, c) in cells_spec
+                                for r, c in zip(rows, cols)], dtype=bool)
+    positive &= ~negative
+    if int(negative.sum()) < _ANOMALY_MIN_CONTROLS:
+        raise HitScoringError(
+            f"{int(negative.sum())} negative-control object(s); at least "
+            f"{_ANOMALY_MIN_CONTROLS} are needed as the reference")
+
+    control_values = values[negative]
+    usable = np.isfinite(control_values).mean(axis=0) >= 0.5
+    values, control_values = values[:, usable], control_values[:, usable]
+    names = [n for n, ok in zip(names, usable) if ok]
+    fill = np.nanmedian(control_values, axis=0)
+    values = np.where(np.isfinite(values), values, fill[None, :])
+    centred = values - fill[None, :]
+    for plate in np.unique(plates):
+        on_plate = plates == plate
+        plate_controls = on_plate & negative
+        if int(plate_controls.sum()) >= _ANOMALY_MIN_CONTROLS:
+            centred[on_plate] = (values[on_plate]
+                                 - np.median(values[plate_controls], axis=0))
+    spread = 1.4826 * np.median(np.abs(centred[negative]), axis=0)
+    fallback = centred[negative].std(axis=0)
+    spread = np.where(spread > 0, spread, fallback)
+    informative = spread > 0
+    if not informative.any():
+        raise HitScoringError(
+            "every feature is constant across the negative control")
+    names = [n for n, ok in zip(names, informative) if ok]
+    scaled = centred[:, informative] / spread[informative][None, :]
+
+    rng = np.random.default_rng(seed)
+    control_index = np.flatnonzero(negative)
+    if len(control_index) > int(max_reference):
+        control_index = np.sort(rng.choice(control_index, int(max_reference),
+                                           replace=False))
+    n_keep = int(max(1, min(int(components), scaled.shape[1],
+                            len(control_index) // 2 - 1)))
+    pca = PCA(n_components=n_keep, random_state=seed)
+    pca.fit(scaled[control_index])
+    embedded = pca.transform(scaled)
+
+    shuffled = rng.permutation(control_index)
+    halves = (np.sort(shuffled[: len(shuffled) // 2]),
+              np.sort(shuffled[len(shuffled) // 2:]))
+    detectors = [_anomaly_detector(method, embedded[half],
+                                   neighbours=neighbours, seed=seed)
+                 for half in halves]
+    scores = 0.5 * (detectors[0](embedded) + detectors[1](embedded))
+    scores[halves[1]] = detectors[0](embedded[halves[1]])
+    scores[halves[0]] = detectors[1](embedded[halves[0]])
+    reference_scores = np.sort(scores[control_index])
+    threshold = float(np.quantile(reference_scores, float(quantile)))
+    percentile = (np.searchsorted(reference_scores, scores, side="left")
+                  / float(len(reference_scores)))
+
+    role = np.full(len(located), ROLE_SAMPLE, dtype=object)
+    role[negative] = ROLE_NEGATIVE
+    role[positive] = ROLE_POSITIVE
+    wells_named = np.asarray([plate_qc.well_id(r, c)
+                              for r, c in zip(rows, cols)], dtype=object)
+    cells = pd.DataFrame({
+        "plateID": plates, "well": wells_named, "role": role,
+        "score": scores, "control_percentile": percentile,
+        "outlier": scores > threshold,
+        "pc1": embedded[:, 0],
+        "pc2": embedded[:, 1] if embedded.shape[1] > 1 else 0.0,
+        "source_row": located["__source_row__"].to_numpy(),
+    })
+    cells["prc"] = [schema.compose_prc(p, int(r), int(c))
+                    for p, r, c in zip(plates, rows, cols)]
+    if treatment_column:
+        cells["treatment"] = located[treatment_column].astype(str).to_numpy()
+    if control_column:
+        cells["control"] = located[control_column].astype(str).to_numpy()
+    for column in _ANOMALY_ID_COLUMNS:
+        if column in located.columns and column not in cells.columns:
+            cells[column] = located[column].to_numpy()
+
+    grouped = cells.groupby(["plateID", "well"], sort=True)
+    wells = pd.DataFrame({
+        "prc": grouped["prc"].first(),
+        "n": grouped.size(),
+        "role": grouped["role"].agg(_well_mode),
+        "median_score": grouped["score"].median(),
+        "outlier_fraction": grouped["outlier"].mean(),
+    })
+    if treatment_column:
+        wells["treatment"] = grouped["treatment"].agg(_well_mode)
+    if control_column:
+        wells["control"] = grouped["control"].agg(_well_mode)
+    wells = wells.reset_index()
+    wells["enrichment"] = wells["outlier_fraction"] / (1.0 - float(quantile))
+    is_negative = (wells["role"] == ROLE_NEGATIVE).to_numpy()
+    control_medians = wells.loc[is_negative, "median_score"].to_numpy()
+    if len(control_medians):
+        centre = float(np.median(control_medians))
+        scale = 1.4826 * float(np.median(np.abs(control_medians - centre)))
+        if not scale > 0:
+            scale = float(np.std(control_medians)) or 1.0
+        wells["anomaly_z"] = (wells["median_score"] - centre) / scale
+    else:
+        wells["anomaly_z"] = np.nan
+    wanted = {str(v) for v in (known_hits or ())}
+    known = (wells["role"] == ROLE_POSITIVE).to_numpy()
+    if wanted:
+        for column in ("well", "prc", "treatment", "control"):
+            if column in wells.columns:
+                known |= wells[column].astype(str).isin(wanted).to_numpy()
+    wells["known_hit"] = known & ~is_negative
+    order = (wells[~is_negative]
+             .sort_values(["outlier_fraction", "median_score"],
+                          ascending=False).index)
+    wells["rank"] = np.nan
+    wells.loc[order, "rank"] = np.arange(1, len(order) + 1, dtype=float)
+
+    well_key = wells["outlier_fraction"] + 1e-9 * wells["median_score"].rank()
+    auroc = _auroc(well_key[wells["known_hit"]], well_key[is_negative])
+    cell_auroc = None
+    if auroc is not None:
+        hit_prc = set(wells.loc[wells["known_hit"], "prc"])
+        in_hit = cells["prc"].isin(hit_prc).to_numpy()
+        cell_auroc = _auroc(scores[in_hit], scores[negative])
+    cells.attrs = {"method": method, "quantile": float(quantile)}
+    return _AnomalyResult(
+        cells=cells, wells=wells, method=method, features=tuple(names),
+        quantile=float(quantile), threshold=threshold,
+        n_reference=int(len(control_index)), auroc=auroc,
+        cell_auroc=cell_auroc)
+
+
+def _review_crop(path) -> Optional[np.ndarray]:
+    """An object's image crop read for review, or ``None`` when unreadable."""
+    if not isinstance(path, str) or not path:
+        return None
+    import os
+
+    if not os.path.isfile(path):
+        return None
+    try:
+        from PIL import Image
+
+        with Image.open(path) as image:
+            return np.asarray(image.convert("RGB"))
+    except (OSError, ValueError):
+        return None
+
+
+def _draw_anomaly_review(figure, result: _AnomalyResult, *,
+                         limit: int = _ANOMALY_REVIEW_LIMIT,
+                         target: str = "screen") -> int:
+    """Draw the top outlier objects of ``result`` for review.
+
+    With image crops (a ``png_path`` column pointing at readable files) one
+    tile per outlier, labelled with plate, well and score. Without them the
+    outliers are marked by rank on the controls' first two principal
+    components, over the control objects in grey and every other object.
+
+    :param figure: a matplotlib figure; it is cleared first.
+    :param result: the scored table.
+    :param limit: the most outliers drawn.
+    :param target: ``'screen'`` or ``'print'``, for the label ink.
+    :returns: how many outliers were drawn.
+    """
+    from .figures.style import resolve_ink
+
+    figure.clear()
+    ink = resolve_ink(target)
+    top = result.top_outliers(limit)
+    crops = ([_review_crop(p) for p in top["png_path"]]
+             if "png_path" in top.columns else [])
+    if crops and any(c is not None for c in crops):
+        shown = [(row, crop) for (_i, row), crop
+                 in zip(top.iterrows(), crops) if crop is not None]
+        ncols = min(6, len(shown))
+        nrows = int(np.ceil(len(shown) / ncols))
+        for slot, (row, crop) in enumerate(shown):
+            ax = figure.add_subplot(nrows, ncols, slot + 1)
+            ax.imshow(crop)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_title(f"{row['plateID']} {row['well']}", fontsize=7,
+                         color=ink)
+            ax.set_xlabel(f"score {row['score']:.3g}", fontsize=7, color=ink)
+        figure.tight_layout(pad=0.6)
+        return len(shown)
+    ax = figure.add_subplot(111)
+    cells = result.cells
+    control = (cells["role"] == ROLE_NEGATIVE).to_numpy()
+    ax.scatter(cells.loc[~control, "pc1"], cells.loc[~control, "pc2"], s=4,
+               color="#4c78a8", alpha=0.35, linewidths=0, label="Other")
+    ax.scatter(cells.loc[control, "pc1"], cells.loc[control, "pc2"], s=4,
+               color="#9d9d9d", alpha=0.5, linewidths=0,
+               label="Negative control")
+    ax.scatter(top["pc1"], top["pc2"], s=26, facecolors="none",
+               edgecolors="#e45756", linewidths=1.2, label="Top outlier")
+    for rank, (_i, row) in enumerate(top.head(12).iterrows(), start=1):
+        ax.annotate(f"{rank}", (row["pc1"], row["pc2"]), fontsize=7,
+                    color=ink, xytext=(3, 3), textcoords="offset points")
+    ax.set_xlabel("Control PC 1", color=ink)
+    ax.set_ylabel("Control PC 2", color=ink)
+    ax.tick_params(colors=ink, labelsize=7)
+    ax.legend(fontsize=7, frameon=False, labelcolor=ink)
+    figure.tight_layout(pad=0.6)
+    return int(len(top))
+
+
+def _write_anomaly_report(result: _AnomalyResult, out_dir, *,
+                          target: Optional[str] = None) -> Dict[str, str]:
+    """Write the anomaly scores and the outlier review sheet.
+
+    :param result: the scored table.
+    :param out_dir: folder to write into; created if absent.
+    :param target: ``'screen'`` or ``'print'``; default the preference.
+    :returns: ``{name: path}``: ``anomaly_wells`` (ranked wells),
+        ``anomaly_cells`` (every object), ``anomaly_top_outliers`` and
+        ``anomaly_review`` (the figure).
+    """
+    import os
+
+    from matplotlib.figure import Figure
+
+    from .figures.style import theme_target
+    from .plot import save_figure
+    from .tabular import write_table
+
+    os.makedirs(out_dir, exist_ok=True)
+    written: Dict[str, str] = {}
+    wells = result.wells.sort_values("rank", na_position="last")
+    tables = {"anomaly_wells": wells, "anomaly_cells": result.cells,
+              "anomaly_top_outliers": result.top_outliers()}
+    for name, table in tables.items():
+        path = os.path.join(str(out_dir), f"{name}.csv")
+        write_table(table, path, canonicalise=False)
+        written[name] = path
+    figure = Figure(figsize=(9.0, 6.0))
+    if _draw_anomaly_review(figure, result,
+                            target=target or theme_target()):
+        written["anomaly_review"] = save_figure(
+            figure, os.path.join(str(out_dir), "anomaly_review.png"),
+            close=True, announce_colours=False)
+    return written

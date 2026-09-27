@@ -8,11 +8,12 @@ import pytest
 pytest.importorskip("PySide6")
 
 
-def _combo(qtbot, ready, reason="", default="native"):
+def _combo(qtbot, ready, reason="", default="native", spotiflow=(False, "")):
     from spacr.qt.model_install import SpotDetectorCombo
 
     combo = SpotDetectorCombo(default=default,
-                              readiness=lambda: (ready, reason))
+                              readiness=lambda: (ready, reason),
+                              spotiflow_readiness=lambda: spotiflow)
     qtbot.addWidget(combo)
     return combo
 
@@ -20,7 +21,7 @@ def _combo(qtbot, ready, reason="", default="native"):
 def test_native_is_first_and_chosen(qtbot):
     combo = _combo(qtbot, ready=False, reason="SpotNet is not installed")
     assert [combo.itemData(i) for i in range(combo.count())] == [
-        "native", "spotnet"]
+        "native", "spotnet", "spotiflow"]
     assert combo.currentData() == "native"
 
 
@@ -63,3 +64,40 @@ def test_the_ops_form_uses_the_box_and_collects_native(qtbot, tmp_path,
     assert isinstance(box, SpotDetectorCombo)
     assert not box.model().item(1).isEnabled()
     assert form.collect()["ops_spot_detector"] == "native"
+
+
+def test_spotiflow_is_disabled_with_the_reason_until_installed(qtbot):
+    from PySide6.QtCore import Qt
+
+    reason = "Spotiflow is not installed. Install it from the Model Zoo."
+    combo = _combo(qtbot, ready=False, spotiflow=(False, reason))
+    assert not combo.model().item(2).isEnabled()
+    assert reason in combo.itemData(2, Qt.ToolTipRole)
+    ready = _combo(qtbot, ready=False, spotiflow=(True, ""),
+                   default="spotiflow")
+    assert ready.model().item(2).isEnabled()
+    assert ready.currentData() == "spotiflow"
+
+
+def test_a_saved_spotiflow_choice_is_kept_for_the_run_to_judge(qtbot):
+    combo = _combo(qtbot, ready=False, spotiflow=(False, "not installed"),
+                   default="spotiflow")
+    assert combo.currentData() == "spotiflow"
+
+
+def test_the_spotiflow_row_follows_the_alpha_switch(qtbot, monkeypatch):
+    from spacr.qt import preferences
+    from spacr.qt.screens.app_screen import AppScreen
+
+    combo = _combo(qtbot, ready=False, spotiflow=(True, ""))
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    AppScreen._gate_alpha_choices("ops_spot_detector", combo)
+    assert combo.view().isRowHidden(2)
+    assert not combo.model().item(2).isEnabled()
+    assert not combo.view().isRowHidden(0)
+    combo.setCurrentText("spotiflow")
+    assert combo.currentData() == "spotiflow", "a saved value still runs"
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
+    AppScreen._gate_alpha_choices("ops_spot_detector", combo)
+    assert not combo.view().isRowHidden(2)
+    assert combo.model().item(2).isEnabled()
