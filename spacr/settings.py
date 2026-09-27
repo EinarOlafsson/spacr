@@ -1130,6 +1130,14 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('watch_settle_seconds', 10.0)
     settings.setdefault('watch_poll_seconds', 5.0)
     settings.setdefault('watch_idle_minutes', 0.0)
+    settings.setdefault('cloud_anonymous', False)
+    settings.setdefault('cloud_profile', '')
+    settings.setdefault('cloud_endpoint', '')
+    settings.setdefault('cloud_cache', '')
+    settings.setdefault('cloud_wells', '')
+    settings.setdefault('cloud_fields', 0)
+    settings.setdefault('cloud_level', 0)
+    settings.setdefault('cloud_results', '')
 
     settings.setdefault('z_stack', False)
     settings.setdefault('z_segmentation_mode', 'project')
@@ -1662,6 +1670,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('dry_run', False)
     settings.setdefault('test_nr', 10)
     settings.setdefault('channels', [0,1,2,3])
+    settings.setdefault('cloud_anonymous', False)
+    settings.setdefault('cloud_profile', '')
+    settings.setdefault('cloud_endpoint', '')
+    settings.setdefault('cloud_cache', '')
+    settings.setdefault('cloud_results', '')
 
     settings.setdefault('save_measurements',True)
     settings.setdefault('radial_dist', True)
@@ -3299,6 +3312,14 @@ expected_types = {
     "watch_settle_seconds": float,
     "watch_poll_seconds": float,
     "watch_idle_minutes": float,
+    "cloud_anonymous": bool,
+    "cloud_profile": str,
+    "cloud_endpoint": str,
+    "cloud_cache": str,
+    "cloud_wells": str,
+    "cloud_fields": int,
+    "cloud_level": int,
+    "cloud_results": str,
     "save": bool,
     "plot": bool,
     "tensorboard": bool,
@@ -4453,6 +4474,14 @@ tooltips = {
     "watch_settle_seconds": "(float) - How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
     "watch_poll_seconds": "(float) - How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
     "watch_idle_minutes": "(float) - Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+    "cloud_anonymous": "(bool) - Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+    "cloud_profile": "(str) - Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+    "cloud_endpoint": "(str) - Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+    "cloud_cache": "(str) - Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+    "cloud_wells": "(str) - Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+    "cloud_fields": "(int) - Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+    "cloud_level": "(int) - Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+    "cloud_results": "(str) - Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
     "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
@@ -5260,7 +5289,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -6822,6 +6851,12 @@ ALPHA_FEATURES = {
                      'watch_settle_seconds', 'watch_poll_seconds',
                      'watch_idle_minutes'),
         'widgets': ('WatchFolderProgress',),
+    },
+    550: {
+        'settings': ('cloud_anonymous', 'cloud_profile', 'cloud_endpoint',
+                     'cloud_cache', 'cloud_wells', 'cloud_fields',
+                     'cloud_level', 'cloud_results'),
+        'widgets': ('CloudSourceBrowse',),
     },
     551: {
         'models': ('stardist_v1', 'stardist_2D_versatile_fluo',
