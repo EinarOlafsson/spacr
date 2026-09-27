@@ -1356,6 +1356,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'What you expect to find, and what would count against it.',
     'uncoded field',
     'Watching: {done} analysed, {waiting} waiting, {failed} failed',
+    # 539, 2026-09-26: the Bleach Correction (Alpha) category help on Measure.
+    'Photobleaching correction for timelapse intensities, per field and '
+    'channel: a simple ratio to the first timepoint, a fitted exponential '
+    'decay, or histogram matching. Corrected intensities are written beside '
+    'the measured ones with the method, and the fitted decay is plotted.',
     # 547, 2026-09-26: the Profiling (Alpha) category help on Measure.
     'Image-based profiling after Measure: one profile per well from the '
     'object tables, annotated from a plate map, normalised per plate against '

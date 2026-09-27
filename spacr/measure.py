@@ -5673,6 +5673,11 @@ def measure_crop(settings):
                 if settings.get('cell_cycle') and os.path.isfile(db_path):
                     _run_cell_cycle_step(db_path, settings)
 
+                if (settings['timelapse']
+                        and settings.get('bleach_correction', 'none') != 'none'
+                        and os.path.isfile(db_path)):
+                    _run_bleach_correction_step(db_path, settings)
+
                 if settings['timelapse']:
                     if settings['timelapse_objects'] == 'nucleus':
                         folder_path = settings['src']
@@ -5687,6 +5692,32 @@ def measure_crop(settings):
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+def _run_bleach_correction_step(db_path, settings):
+    """Correct a timelapse run's intensities for photobleaching and say where.
+
+    Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
+    ``bleach_correction`` method. A failure is reported and does not fail
+    the run: the measured tables are already written and are not changed.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-field, per-channel fits, or None when the step failed.
+    """
+    from .timelapse import _correct_timelapse_bleaching
+
+    method = settings.get('bleach_correction')
+    try:
+        fits = _correct_timelapse_bleaching(db_path, method, plot=True)
+    except Exception as exc:
+        print(f"Bleach correction could not be applied: {exc}")
+        return None
+    tables = sorted(fits['object_type'].unique())
+    print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
+          f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
+          f"measurements.db:bleach_correction")
+    return fits
+
 
 def _run_cell_cycle_step(db_path, settings):
     """Call cell-cycle phases at the end of a Measure run and say where.

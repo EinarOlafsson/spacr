@@ -86,6 +86,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'batch_size',
     'bimodality_cutoff',
     'black_background',
+    'bleach_correction',
     'blend',
     'bounding_box',
     'bystander_measurements',

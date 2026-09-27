@@ -1687,6 +1687,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_channel', None)
     settings.setdefault('confluency_window', 15)
     settings.setdefault('confluency_qc_threshold', 0.8)
+    settings.setdefault('bleach_correction', 'none')
     settings.setdefault('profiling', False)
     settings.setdefault('profiling_metadata', '')
     settings.setdefault('profiling_treatment_column', 'columnID')
@@ -3483,6 +3484,7 @@ expected_types = {
     "confluency_channel": (int, type(None)),
     "confluency_window": int,
     "confluency_qc_threshold": (float, int, type(None)),
+    "bleach_correction": str,
     "profiling": bool,
     "profiling_metadata": str,
     "profiling_treatment_column": (str, list),
@@ -4696,6 +4698,7 @@ tooltips = {
     "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
     "confluency_channel": "(int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
     "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+    "bleach_correction": "(str) - Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
     "confluency_qc_threshold": "(float or None) - Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
     "profiling": "(bool) - After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
     "profiling_metadata": "(str) - Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
@@ -5361,6 +5364,10 @@ categories = {
     "Confluency (Alpha)": [
         "confluency", "confluency_source", "confluency_channel",
         "confluency_window", "confluency_qc_threshold",
+    ],
+
+    "Bleach Correction (Alpha)": [
+        "bleach_correction",
     ],
 
     "Profiling (Alpha)": [
@@ -6913,6 +6920,9 @@ ALPHA_FEATURES = {
                      'cell_cycle_gates', 'cell_cycle_mitotic_ratio',
                      'cell_cycle_fucci_channels', 'cell_cycle_labels',
                      'cell_cycle_model', 'cell_cycle_epochs'),
+    },
+    539: {
+        'settings': ('bleach_correction',),
     },
     541: {
         'settings': ('confluency', 'confluency_source', 'confluency_channel',

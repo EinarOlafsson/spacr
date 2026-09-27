@@ -1260,6 +1260,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
+        ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -2646,6 +2647,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "BLEACH CORRECTION (ALPHA)":
+        "Photobleaching correction for timelapse intensities, per field and "
+        "channel: a simple ratio to the first timepoint, a fitted exponential "
+        "decay, or histogram matching. Corrected intensities are written "
+        "beside the measured ones with the method, and the fitted decay is "
+        "plotted.",
     "PROFILING (ALPHA)":
         "Image-based profiling after Measure: one profile per well from the "
         "object tables, annotated from a plate map, normalised per plate "

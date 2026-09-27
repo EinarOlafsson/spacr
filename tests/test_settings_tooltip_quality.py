@@ -828,6 +828,8 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 18: item 550's cloud-source settings, pinned above.
     # + 16: item 535's eight cell-cycle claims in two apps, pinned above.
     # + 12: item 547's six profiling claims in two apps, pinned above.
+    # + 0: item 539's bleach_correction says "Default none.", a combo
+    # choice rather than a literal, and so is not compared.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) == comparisons)

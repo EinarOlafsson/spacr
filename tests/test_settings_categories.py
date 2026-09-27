@@ -790,6 +790,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "cell_cycle_gates", "cell_cycle_mitotic_ratio",
     "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
     "cell_cycle_epochs",
+    # A NEW SETTING, not a regrouping (item 539, 2026-09-26): photobleaching
+    # correction of a timelapse run's intensities, under its own
+    # "Bleach Correction (Alpha)" heading.
+    "bleach_correction",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1483,6 +1487,9 @@ def _rendered_sections(app_key):
             # Item 535, 2026-09-26: the cell-cycle phase call follows, read
             # from the nuclei the features above measured.
             "Cell Cycle (Alpha)",
+            # Item 539, 2026-09-26: bleach correction rescales the
+            # intensities the features above measured.
+            "Bleach Correction (Alpha)",
             "Object Filtering", "Crop Output",
             # Item 547, 2026-09-26: profiling runs on the finished tables,
             # so its Alpha heading follows the outputs it reads.
