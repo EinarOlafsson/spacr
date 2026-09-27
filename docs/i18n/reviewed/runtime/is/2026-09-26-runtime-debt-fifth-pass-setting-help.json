@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_format",
+      "source": "What the export writes. 'h5ad' writes the AnnData file; 'parquet' writes tidy Parquet tables (objects, features, wells, embeddings, provenance) that pandas, arrow and R read with their types kept; 'r' adds load_spacr_export.R, which builds a SingleCellExperiment in R, and .rds data frames when pyreadr is installed; 'all' writes every one. The tables need pyarrow. Default 'h5ad'.",
+      "source_sha256": "4641d38c6c850d298ed14d3d291e57537a3c02eeb243d37b587f5f5c16364c77",
+      "translation": "Hvað útflutningurinn skrifar. 'h5ad' skrifar AnnData-skrána; 'parquet' skrifar snyrtilegar Parquet-töflur (hluti, eiginleika, brunna, ívafninga, uppruna) sem pandas, arrow og R lesa með gerðunum varðveittum; 'r' bætir við load_spacr_export.R, sem byggir SingleCellExperiment í R, og .rds-gagnarömmum þegar pyreadr er uppsett; 'all' skrifar allt. Töflurnar þurfa pyarrow. Sjálfgefið 'h5ad'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_tidy_dir",
+      "source": "Folder for the Parquet tables and the R loader when anndata_format is 'parquet', 'r' or 'all'. Files of the same names in it are replaced. Default <src>/results/<project>_tables.",
+      "source_sha256": "b59da2c719e1798af8902855880a4dba01fa863898d0132f0fa58b0e71d2b86d",
+      "translation": "Mappa fyrir Parquet-töflurnar og R-hleðslutólið þegar anndata_format er 'parquet', 'r' eða 'all'. Skrám með sömu nöfnum í henni er skipt út. Sjálfgefið <src>/results/<project>_tables."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle",
+      "source": "Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
+      "source_sha256": "6d6487cfab9dc5ffb7e1aca80d26a799cecf46e1de0b4518cf69968d41fd46d8",
+      "translation": "Ákvarða frumuhringsfasa hvers kjarna eftir mælingu, út frá DNA-lituninni: G1, S, G2 eða M, auk subG1 og >4N utan toppanna. Skrifar eina línu á kjarna í measurements.db:cell_cycle með ákvörðuninni í cell_cycle_phase, fasahlutföllin á brunn, í heild og í sýktum og ósýktum frumum, í cell_cycle_well, og með plot virkt aðlagað DNA-súlurit hverrar plötu. Þarf mælda kjarna. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_channel",
+      "source": "The merged-array channel holding the DNA stain (DAPI or Hoechst) the phase is read from, counted as in channels; it must be one of the measured channels. Blank uses nucleus_channel, then the first entry of channels. Default None.",
+      "source_sha256": "f69273cbbc964f59d582e2bda4e2301f2e60fc6ddc37bbdcd582354051d5cd98",
+      "translation": "Rás sameinaða fylkisins með DNA-lituninni (DAPI eða Hoechst) sem fasinn er lesinn úr, talin eins og í channels; hún verður að vera ein af mældu rásunum. Autt notar nucleus_channel og síðan fyrstu færslu channels. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_epochs",
+      "source": "Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+      "source_sha256": "35d3320524bc0ee7a51857bc33eeef9eb72fbca702f55d66c96b5fa57e327196",
+      "translation": "Þjálfunarlotur torch-fasaflokkarans. Hann er ResNet-18 þjálfað frá grunni á úrklippum niður í 32 díla, svo hver lota er fljót á GPU og hæg á upptekinni CPU. Hunsað þegar cell_cycle_model nefnir þjálfað líkan. Sjálfgefið 20."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_fucci_channels",
+      "source": "Two merged-array channels of a FUCCI reporter, the G1 reporter (Cdt1) then the S/G2/M reporter (Geminin), both measured. Each is split into positive and negative per plate, and every nucleus gets a fucci_state: early G1, G1, G1/S or S/G2/M. The xgboost method also uses their intensities. Blank skips FUCCI. Default None.",
+      "source_sha256": "38238a35dd7ebf60815b22b017d307e05bdd1684d6d8ad1d99a70d2e701642bb",
+      "translation": "Tvær rásir sameinaða fylkisins frá FUCCI-tilkynni, fyrst G1-tilkynnirinn (Cdt1) og svo S/G2/M-tilkynnirinn (Geminin), báðar mældar. Hvorri er skipt í jákvætt og neikvætt fyrir hverja plötu, og hver kjarni fær fucci_state: snemma G1, G1, G1/S eða S/G2/M. Aðferðin xgboost notar líka styrk þeirra. Autt sleppir FUCCI. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_gates",
+      "source": "Fixed gates [G1/S, S/G2] in DNA content units, where the G1 peak is 2 and the G2 peak 4, for example [2.5, 3.5]. They replace the crossings fitted per plate; the peaks are still fitted to place the units. Read the fitted gates off the saved histogram before editing them. Blank uses the fitted gates. Default None.",
+      "source_sha256": "583b0ebfac84fe91331bba4d835ff43218bd719bfad5381f1a15bd26a77b3c1e",
+      "translation": "Föst valmörk [G1/S, S/G2] í einingum DNA-magns, þar sem G1-toppurinn er 2 og G2-toppurinn 4, til dæmis [2.5, 3.5]. Þau koma í stað skurðpunktanna sem eru aðlagaðir fyrir hverja plötu; topparnir eru áfram aðlagaðir til að staðsetja einingarnar. Lestu aðlöguðu valmörkin af vistaða súluritinu áður en þú breytir þeim. Autt notar aðlöguðu valmörkin. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
+      "translation": "png_list-dálkur með Annotate-merkjum sem aðferðirnar xgboost og torch læra af: 1 til 4 fyrir G1, S, G2 og M, eða heiti fasanna. Merkin eru tengd kjörnum í gegnum frumu þeirra. Autt þjálfar í staðinn á öruggum ákvörðunum valmarkanna, sem kennir lærðu aðferðunum það sem valmörkin segja þegar; merktu kjarna í forfasa og síðfasa til að kenna þeim meira. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_method",
+      "source": "How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
+      "source_sha256": "cc9645da4e6a8379362200ef6bd0caf53a0a153688df35474d7b437b234de187",
+      "translation": "Hvernig fasar eru ákvarðaðir. measurements setur valmörk á DNA-magnssúlurit hverrar plötu, aðlagað sem G1- og G2-toppar með S á milli, og ákvarðar þéttaða 4N-kjarna sem M. xgboost þjálfar eflinn flokkara á kjarnaeiginleikum, torch þjálfar myndflokkara á kjarnaúrklippum með þjálfun Classify; báðar læra af cell_cycle_labels. all keyrir allar þrjár og heldur meirihlutanum. Sjálfgefið measurements."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_mitotic_ratio",
+      "source": "A nucleus past the G1/S gate is called M when its background-subtracted mean DNA intensity is at least this many times the median of the plate's G2 nuclei: condensed mitotic chromatin is brighter. Lower catches more prophase and more bright G2 nuclei. Blank never calls M from intensity and leaves mitotic nuclei in G2. Default 1.8.",
+      "source_sha256": "57e0ad8c755fb15cfa2e762d5366d23f87ff6417b196f72ed3841290a3c21878",
+      "translation": "Kjarni handan G1/S-valmarkanna telst M þegar meðalstyrkur DNA hans, að frádregnum bakgrunni, er að minnsta kosti þetta margfaldur miðgildi G2-kjarna plötunnar: þéttað mítósulitni er bjartara. Lægra gildi grípur fleiri kjarna í forfasa og fleiri bjarta G2-kjarna. Autt ákvarðar aldrei M út frá styrk og skilur mítósukjarna eftir í G2. Sjálfgefið 1.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_model",
+      "source": "A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
+      "source_sha256": "da89a9ff9d1c8ab65ed0d04144e650d5cdefc70b24ec4fc2ec41f88eab7b20c2",
+      "translation": "torch-líkan sem þetta skref þjálfaði áður, með cell_cycle_phases.json við hliðina, beitt á kjarnaúrklippurnar í stað þess að þjálfa nýtt. Notaðu það til að ákvarða fasa annarrar plötu með líkaninu sem var þjálfað á þeirri fyrstu. Hunsað nema cell_cycle_method sé torch eða all. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_anonymous",
+      "source": "Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False.",
+      "source_sha256": "3ccc2e53b2a0bd32e404e0a5fbd47ad151bf7bb045f21b1f4daa56a3fe979801",
+      "translation": "Lesa skýjauppsprettur án auðkenna, fyrir opinber gögn eins og IDR eða Cell Painting Gallery. Þegar slökkt er á þessu nota s3://-uppsprettur AWS-auðkennin í umhverfisbreytunum AWS_*, ~/.aws eða AWS_PROFILE, og eru aðeins lesnar nafnlaust þegar engin finnast; gs:// og az:// nota eigin sjálfgefin auðkenni. spaCR geymir hvorki né prentar auðkenni. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_cache",
+      "source": "Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank.",
+      "source_sha256": "d767cee6467247005aca5ce003cdf66798f2a80d49dec1000207ce043c56b6f1",
+      "translation": "Mappa sem skýjauppsprettur eru sóttar í og greindar í. Hvert src-vistfang fær eigin undirmöppu, svo endurtekin keyrsla endurnýtir það sem var sótt og Measure finnur það sem Make Masks skrifaði. Autt notar ~/.cache/spacr/cloud. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_endpoint",
+      "source": "Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank.",
+      "source_sha256": "e06c15c5cd11032deea8d3a46b61b09473840a024b81b9876c243739d3a71265",
+      "translation": "Vistfang S3-samhæfðu þjónustunnar sem hýsir s3://-uppsprettur, svo sem MinIO- eða Ceph-þjóns, eða https://uk1s3.embassy.ebi.ac.uk fyrir IDR. Autt notar Amazon S3. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_fields",
+      "source": "Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
+      "source_sha256": "3066d6c5eb3e1e0ac8fbad0fe421e7c7b2d9b088ede4d178be155ad8826ea449",
+      "translation": "Sjónsvið á brunn í OME-Zarr-plötu í skýi sem eru sótt, talin frá því fyrsta. 0 sækir öll sjónsvið. Sjálfgefið 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_level",
+      "source": "Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
+      "source_sha256": "d6be4a3a8a1dd13a9cd68a1dbacefebc7e77c751ba9369aa57b55f9e4ecf72fe",
+      "translation": "Upplausnarstig OME-Zarr í skýi sem er sótt. 0 er full upplausn; hvert stig ofar helmingar yfirleitt breidd og hæð, svo stilltu þvermál og stærðarmörk fyrir minni myndirnar. Sjálfgefið 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_profile",
+      "source": "Named AWS profile from ~/.aws/config used for s3:// sources, for example lab-readonly. Only the name is kept; the keys stay in ~/.aws. Blank uses the default AWS credential chain. Default blank.",
+      "source_sha256": "44be8d15ddc98b7363b0631865739886f35ed69d0c6cee26444aef78da9a75ff",
+      "translation": "Nefnt AWS-snið úr ~/.aws/config sem er notað fyrir s3://-uppsprettur, til dæmis lab-readonly. Aðeins nafnið er geymt; lyklarnir haldast í ~/.aws. Autt notar sjálfgefna auðkennakeðju AWS. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_results",
+      "source": "Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
+      "source_sha256": "d127ccb46519062f25da8fc973d433df0aaa28a51c17cfe7c95f625996261467",
+      "translation": "Skýjamappa (s3://, gs:// eða az://) sem mælingamappa keyrslunnar er afrituð í þegar henni lýkur, í eina undirmöppu á hvert src. Autt heldur niðurstöðunum aðeins í staðbundnu möppunni. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cloud_wells",
+      "source": "Wells of a cloud OME-Zarr plate to fetch, such as A1, B03; only these are downloaded, a channel at a time, with z maximum projected. Blank fetches every well, which for a large plate can be many gigabytes. Default blank.",
+      "source_sha256": "208e69ac99c36e9abf30fb8dfbe93944ada1ddd10aabdc4da513e16e2b036115",
+      "translation": "Brunnar í OME-Zarr-plötu í skýi sem eru sóttir, svo sem A1, B03; aðeins þeir eru sóttir, ein rás í einu, með hámarksvörpun yfir z. Autt sækir alla brunna, sem fyrir stóra plötu getur verið mörg gígabæti. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling",
+      "source": "After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
+      "source_sha256": "dc2c206509ac345fe621dcdbca17d43684e5d44a47097c0a3fa7a1b2f961b0a1",
+      "translation": "Eftir að Measure lýkur eru myndbundnir prófílar byggðir úr töflum þess: hver hlutatafla er tekin saman í einn miðgildisprófíl á brunn, plötukortinu í profiling_metadata er bætt við, hver plata er stöðluð gegn neikvæðum viðmiðunarbrunnum sínum, óupplýsandi og umfram eiginleikar eru fjarlægðir, einn samhljóða prófíll er byggður á meðferð og endurtekningarhæfni er skoruð sem meðaltal meðalnákvæmni (mAP) og hlutfall endurtekninga. Niðurstöður fara í measurements/profiles sem CSV, Parquet og GCT með gröfum. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_correlation_threshold",
+      "source": "Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+      "source_sha256": "497bdc5698c78a73118ded35f579bb1f32b2f0aeaa8e24dfee723506b1018606",
+      "translation": "Pearson-fylgni sem tveir eiginleikar teljast umfram yfir í valskrefinu correlation_threshold. Úr hverju slíku pari er fjarlægður sá eiginleiki sem fylgir öllum hinum mest. Lægri gildi halda færri og minna umfram eiginleikum. Sjálfgefið 0.9."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_databases",
+      "source": "Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
+      "source_sha256": "56018344866daa7a080606f5c8d83379a37824a27a241798cbaba7e11a4f5ebf",
+      "translation": "Fleiri measurements.db-skrár til prófílgreiningar ásamt skrám þessarar keyrslu, ein á plötu, svo endurtekningar á ólíkum plötum séu bornar saman á meðan hver plata er áfram stöðluð fyrir sig. Hver plata þarf sérstakt plateID. Sjálfgefið []."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_feature_selection",
+      "source": "Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+      "source_sha256": "c375f4802bb5f45ccd30e6ed7fc14055161904447001c6046ffc4e6a76d6b159",
+      "translation": "Skref eiginleikavals, keyrð í röð eftir stöðlun: variance_threshold fjarlægir nánast núll dreifni, frequency_threshold nánast föst gildi, correlation_threshold þann meira umfram í hverju pari með fylgni yfir profiling_correlation_threshold, drop_na_columns eiginleika sem vantar í yfir 5 % brunna, og drop_outliers hvern eiginleika með algildi yfir 500. Tómur listi heldur öllum eiginleikum. Sjálfgefið öll fimm."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_metadata",
+      "source": "Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
+      "source_sha256": "86856a2ea0e293442885356576249f7b0a3cfd4942736157e94e0ced6a2b2fd5",
+      "translation": "Plötukort fyrir prófílgreiningu: CSV-, TSV-, Excel- eða Parquet-tafla með einni línu á hverja brunnsstöðu, staðsettri með rowID og columnID eða með brunnsdálki eins og A01, auk merkingardálka eins og treatment, dose, gene eða svipgerðarmerkis. Með plateID-dálki er kortið parað plötu fyrir plötu; án hans gildir það um allar plötur. Autt prófílgreinir brunnana aðeins eftir staðsetningu. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_negative_control",
+      "source": "Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
+      "source_sha256": "5b9244226a4a20eaff91e744e604528103e9c9c02dae76a19ff5d28c285d200e",
+      "translation": "Gildi fyrsta profiling_treatment_column sem merkja brunna neikvæðra viðmiða, til dæmis DMSO eða c1. Hver plata er stöðluð gegn eigin viðmiðum, og hver meðferð er skoruð fyrir svipgerðarvirkni: hversu vel endurtekningar hennar finna hver aðra meðal viðmiðanna. Autt staðlar gegn öllum brunnum plötu og sleppir virkniskorinu. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_normalization",
+      "source": "How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
+      "source_sha256": "fc28fbaa7f0105f424fa80a3a28ba72aa673f5bf020a603645a19521d8180aa9",
+      "translation": "Hvernig hver eiginleiki er færður á sameiginlegan kvarða, plötu fyrir plötu. mad_robustize dregur miðgildi viðmiðsins frá og deilir með 1,4826 sinnum MAD viðmiðsins, sem þolir frávikabrunna; standardize notar meðaltal og staðalfrávik; robustize notar miðgildi og fjórðungabil; none heldur samantekin gildi. Viðmiðið er neikvæða viðmiðið, eða allir brunnar þegar ekkert er nefnt. Sjálfgefið mad_robustize."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_phenotype_column",
+      "source": "Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+      "source_sha256": "f8e3e2dcbfe8dedb8e157d488101b59cf37fa32baeb237e4b4e574f0d95159a5",
+      "translation": "Valfrjáls plötukortadálkur með svipgerðarmerki sem ólíkar meðferðir deila, svo sem verkunarmáta, boðleið eða markgen. Ef hann er stilltur eru samhljóða prófílar einnig skoraðir fyrir samkvæmni svipgerðar: hversu vel meðferðir með sama merki finna hver aðra, sem mAP á hvert merki. Sjálfgefið autt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "profiling_treatment_column",
+      "source": "The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
+      "source_sha256": "3584e01563f0ca89421355f5e7199774c3d66704a5052d0b7d61c97d6c20b139",
+      "translation": "Merkingardálkurinn, eða dálkarnir, sem segja hvað hver brunnur fékk. Brunnar sem deila þeim eru endurtekningar og eru sameinaðir í einn samhljóða prófíl. Notaðu dálk úr plötukortinu eins og treatment, treatment og dose saman, eða columnID þegar hver plötudálkur hefur eitt skilyrði. Sjálfgefið columnID."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_channel",
+      "source": "The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+      "source_sha256": "878751f07ce559f6af253b2de378896e916d4dc76a17fcb452c9a4f7606b3d36",
+      "translation": "Rás sameinaða fylkisins sem áferðar- og styrkuppsprettur sárs lesa, talin eins og í channels. Autt notar fyrstu færslu channels. Veldu bjartsviðs- eða fasaskilsplanið fyrir áferð, litunina fyrir styrk. Hunsað af grímuuppsprettunni. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_closure",
+      "source": "Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+      "source_sha256": "687295b08c859fb5e592d4744cc09f573d4ce6eaab466c8520026db0a10c46db",
+      "translation": "Mæla rispu- eða sárgræðslupróf: finna opna sárið í hverjum ramma hvers sjónsviðs og skrifa síðan flatarmál þess, meðal- og lágmarksbreidd, lokunarhraða og helmingslokunartíma fyrir hvert sjónsvið, hvern brunn og hvert skilyrði í measurements.db og results/wound_closure, með lokunarferlum og plötukorti. Rammar eru flokkaðir eftir plötu, brunni og sjónsviði og raðað eftir tímapunkti; fyrsti ramminn ákvarðar hvar rispan er. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_conditions",
+      "source": "Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
+      "source_sha256": "f25b175e0514c3929471612ababb846f817fdb67e07920ee6c24ae03604210e0",
+      "translation": "Skilyrði sem brunnar eru sameinaðir í fyrir lokunarferlana og helmingslokunartímana, sem {name: wells}, brunnarnir sem raðir (r2), dálkar (c3) eða stakir brunnar (B03), til dæmis {'control': 'c1, c2', 'drug': 'c3, c4'}. Brunnur sem er í engu skilyrði er tilkynntur undir eigin nafni. Brunnur má aðeins tilheyra einu skilyrði. Sjálfgefið {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_hours_per_frame",
+      "source": "Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+      "source_sha256": "bbbb7144e62af423a91b852f41d94db2a3026927d31878b9543731bfd22afdff",
+      "translation": "Klukkustundir milli samliggjandi tímapunkta, svo lokunarhraði sé á klukkustund og helmingslokunartími í klukkustundum. Autt telur tímann í römmum. Með voxel_size_xy_um stillt eru breiddir og framhraði einnig gefin upp í míkrómetrum. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_source",
+      "source": "How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+      "source_sha256": "5d1d9d2af4bbead4c5b9bd4af1aae313cbd282ac7019a0374c2a06e8cd261ac2",
+      "translation": "Hvernig opna sárið er greint frá einlaginu. texture les staðbundinn breytileika wound_channel, fyrir bjartsvið og fasaskil. intensity setur þröskuld á wound_channel, fyrir flúrljómandi umfrymis- eða himnulitun. masks telur hvern díl utan bútuðu frumnanna opinn. Skilin eru ákveðin í fyrsta ramma hvers sjónsviðs og haldið fyrir síðari ramma þess. Sjálfgefið texture."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_window",
+      "source": "Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+      "source_sha256": "146bdc2d95eeec0de57e7b983923816b003936584578a24d2ebc0439d6bf55f5",
+      "translation": "Hlið ferningslaga gluggans, í dílum, sem áferðaruppspretta sárs mælir staðbundinn breytileika yfir. Um það bil þvermál einnar frumu í upplausn myndatökunnar: minni fylgir sárbrúninni betur en getur opnað göt í sléttum hlutum einlagsins, stærri brúar mjó bil. Ákvarðar einnig minnsta bilið sem haldið er í síðari römmum. Sjálfgefið 15."
+    }
+  ]
+}
