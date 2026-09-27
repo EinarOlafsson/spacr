@@ -2685,3 +2685,16 @@ REMAINS
  h. Human review. An agent cannot close this, and none has happened:
     native-speaker review in 13 languages and a listening review of every
     voice (owner: maintainer).
+
+STATUS 2026-09-27 — exact remaining narration gap
+The current catalog has 2,243 tracks, not a complete 85 × 27 matrix. Lessons
+01_pypi_github and 06_api have English narration only; their 26 translated
+caption entries fall back to English in the published catalogs. All 26
+source-current translation reviews are available and privately staged; the
+English scripts and existing English audio match. No source rewrite is needed.
+Generate the 52 missing non-English tracks on CPU, preserve the English
+anchors, and republish captions and voices to reach 2,295 tracks. Dependencies
+and all voice packs are present locally. Receipt:
+features/data/358_tutorial_01_06_translation_gap_2026-09-27.json.
+This is AI technical review (Codex), no native-speaker signoff. Human listening
+and native-speaker acceptance remain open as recorded above.
