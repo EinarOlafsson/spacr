@@ -7300,6 +7300,9 @@ ALPHA_FEATURES = {
     562: {
         'widgets': ('EmbeddingsWellMilButton',),
     },
+    561: {
+        'widgets': ('EmbeddingsDinoPretrainButton',),
+    },
     570: {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),

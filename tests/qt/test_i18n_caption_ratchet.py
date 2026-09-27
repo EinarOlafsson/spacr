@@ -1168,6 +1168,16 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Tables (*.csv *.tsv *.parquet *.feather *.xlsx)',
     'Learning from well labels…',
     'Well-label model: held-out well AUROC {mil:.2f} (mean-feature baseline {mean:.2f}) over {wells} wells. Cell attention and well probabilities were written beside the table.',
+    # 561, 2026-09-27: the Embeddings screen's Pretrain on these crops
+    # button (alpha).
+    'Pretrain on these crops…',
+    'Self-supervised (DINO) pretraining of a ResNet-18 on the loaded crops, no labels needed, under the chosen channel policy. Choose a checkpoint file; it is saved after every epoch, and choosing the same file again resumes the run. When it finishes the checkpoint is offered in the Foundation model picker. Slow without a GPU. Default 20 epochs from ImageNet weights at 64 px.',
+    'Load crops first.',
+    'Save the pretrained backbone as',
+    'PyTorch checkpoints (*.pt)',
+    'Pretraining on {n} crops…',
+    'Own DINO: {name}',
+    'Pretrained {epochs} epochs (last loss {loss:.3f}). The checkpoint is chosen in the Foundation model picker; press Embed to use it.',
     # 560, 2026-09-27: the Embeddings screen's Foundation model picker
     # (alpha).
     'Foundation model:',
