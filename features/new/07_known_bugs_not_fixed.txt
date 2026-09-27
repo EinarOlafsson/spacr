@@ -2,7 +2,12 @@
 FOUND, CONFIRMED, DELIBERATELY LEFT
 ================================================================================
 
-Status: DONE — every reachable defect is fixed or explicitly accepted, and
+Status: REOPENED 2026-09-27 — the real Lineage-to-Annotate crop handoff
+        substituted unrelated cells for missing typed children. The bounded
+        resolver repair now passes 57 focused tests and the original real-data
+        query; lesson 56's historical warning and recapture remain pending.
+        See the dated note at the foot. Earlier status preserved:
+        DONE — every reachable defect is fixed or explicitly accepted, and
         the reviewed Korean ``min_cell_count`` entry is in the final catalog.
         Re-verified 2026-09-13: the reviewed record
         docs/i18n/reviewed/runtime/ko/2026-08-30-min-cell-count.json and
@@ -687,3 +692,43 @@ zero runtime orphans in Korean and every other supported locale. Broader API
 and translation quality work remains correctly owned by instruction 306; it
 does not reopen this narrowly recorded tooltip review. No defect deliberately
 left in this file remains a product blocker.
+
+2026-09-27 — Reopened: missing typed crops must not become unrelated cells
+-------------------------------------------------------------------------------
+The genuine lesson 56 capture reproduced a defect already explicitly recorded
+in tools/tutorials/evidence/2026-09-10_lineage_crop_identity_hold.json. It was
+not represented by an open implementation ledger item. This belongs to this
+item's request to fix logic that produces misleading results, rather than
+future 537's temporal division trees.
+
+The family request cell3/nucleus5/pathogen1 in plate1/r12/c1/f1 returned
+cell3/cell5/cell1 from a png_list whose populated cell_id columns explicitly
+identify cell crops. crops_for_object_keys unconditionally removed a missing
+key's type and thereby contradicted its own legacy-only fallback contract.
+
+The resolver now keeps a separate fallback index for genuinely untyped rows.
+Known types, ambiguous populated type columns, and declared-type sentinel
+values cannot supply a different typed object. A conflicting typed alias also
+cannot override a row's declared type. Exact typed matches, untyped first-wins
+selection, escaped metadata, caller ordering, and path deduplication remain.
+Public signatures and docstrings are unchanged.
+
+Validation: tests/test_active_learning_loop.py and
+ tests/qt/test_annotate_active_learning.py: 57 passed in 11.86 seconds, CPU-only,
+4G cap. Added checks include absent children, escaped field IDs, mixed legacy
+and declared rows, ambiguous/sentinel IDs, contradictory aliases, and the
+actual Annotate grid showing one parent with two reported missing children.
+The original function was retained and executed against the exact private
+lesson database (opened read-only): before labels [3,5,1], after [3], two
+missing. Database SHA256 remained
+7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd.
+Receipt: features/data/07_typed_crop_identity_2026-09-27.json.
+The probe first used the wrong capture JSON nesting and stopped before any
+query; the retained schema-error log records that harness error. The corrected
+probe passed. No measurements, crops, source tutorial frames, scripts, or
+narration were changed by this repair.
+
+Still pending: root-owned lesson 56 oracle/warning revision and genuine
+recapture. The old failure evidence remains historical; it must not be
+rewritten as a passing capture. Full item 47 serial acceptance is separate
+and its next-run NOT_READY marker remains set until final integration.

@@ -597,6 +597,47 @@ def test_an_untyped_key_still_opens_one_of_them_as_it_always_did(tmp_path):
     assert len(resolved) == 1
 
 
+@pytest.mark.parametrize("field, encoded", [("f1", "f1"), ("f_1", "f%5F1")])
+def test_missing_typed_children_never_resolve_to_other_cells(tmp_path, field, encoded):
+    db = tmp_path / "measurements.db"
+    with sqlite3.connect(db) as con:
+        pd.DataFrame([dict(png_path=f"/cell/{i}.png", plateID="p1", rowID="r1",
+                           columnID="c1", fieldID=field, cell_id=f"o{i}",
+                           prcfo=f"p1_r1_c1_{field}_{i}")
+                      for i in (1, 3, 5)]).to_sql("png_list", con, index=False)
+    prefix = f"p1_r1_c1_{encoded}_"
+    assert al.crops_for_object_keys(str(db), [prefix + suffix for suffix in
+        ("cell3", "nucleus5", "pathogen1", "cell1", "cell3")]) == [
+            ("/cell/3.png", None), ("/cell/1.png", None)]
+
+
+@pytest.mark.parametrize("declared", [("o1", None), ("o1", "o1"),
+                                     ("omulti", None)])
+def test_typed_fallback_uses_only_genuinely_untyped_rows(tmp_path, declared):
+    db = tmp_path / "measurements.db"
+    common = dict(plateID="p1", rowID="r1", columnID="c1", fieldID="f_1",
+                  prcfo="p1_r1_c1_f_1_1")
+    with sqlite3.connect(db) as con:
+        pd.DataFrame([
+            dict(common, png_path="/declared.png", cell_id=declared[0],
+                 nucleus_id=declared[1]),
+            dict(common, png_path="/legacy.png", cell_id=None, nucleus_id=None),
+        ]).to_sql("png_list", con, index=False)
+    assert al.crops_for_object_keys(str(db), ["p1_r1_c1_f%5F1_pathogen1"]) == [
+        ("/legacy.png", None)]
+    assert al.crops_for_object_keys(str(db), ["p1_r1_c1_f%5F1_1"]) == [
+        ("/declared.png", None)]
+
+
+def test_conflicting_typed_alias_does_not_override_declared_crop_type(tmp_path):
+    db = tmp_path / "measurements.db"
+    with sqlite3.connect(db) as con:
+        pd.DataFrame([dict(png_path="/cell.png", cell_id="o5",
+                           prcfo="p1_r1_c1_f1_nucleus5")]).to_sql(
+                               "png_list", con, index=False)
+    assert al.crops_for_object_keys(str(db), ["p1_r1_c1_f1_nucleus5"]) == []
+
+
 def test_a_typed_key_falls_back_when_the_crop_table_cannot_say_what_it_is(
         tmp_path):
     """A row that has said nothing has not contradicted the key.
