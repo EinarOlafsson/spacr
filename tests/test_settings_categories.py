@@ -778,6 +778,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "cell_cycle_gates", "cell_cycle_mitotic_ratio",
     "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
     "cell_cycle_epochs",
+    # NEW SETTINGS, not a regrouping (item 540, 2026-09-26): Measure's
+    # live/dead call -- the switch, the dead and live stain channels, manual
+    # thresholds, the negative and positive control wells and a plate map
+    # for dose-response -- under their own "Viability (Alpha)" heading.
+    "viability", "viability_dead_channel", "viability_live_channel",
+    "viability_thresholds", "viability_negative_wells",
+    "viability_positive_wells", "viability_plate_map",
     # A NEW SETTING GROUP, not a regrouping: Make Masks can keep watching
     # `src` and analyse each field as it arrives (`watch_folder`), with the
     # pipeline, Measure settings file, settle time, poll interval and idle
@@ -1471,6 +1478,9 @@ def _rendered_sections(app_key):
             # Item 535, 2026-09-26: the cell-cycle phase call follows, read
             # from the nuclei the features above measured.
             "Cell Cycle (Alpha)",
+            # Item 540, 2026-09-26: live/dead viability, read from the same
+            # measured nuclei, after the cell-cycle call.
+            "Viability (Alpha)",
             "Object Filtering", "Crop Output",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",

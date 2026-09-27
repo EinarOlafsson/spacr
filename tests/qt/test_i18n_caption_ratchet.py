@@ -1287,6 +1287,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Write the ranked hit table, every well's scores and the plate summary "
     "as CSV, and one plate heatmap per statistic, into a folder",
     'hit report written to {folder}',
+    # 540, 2026-09-26: the Viability (Alpha) category help on Measure.
+    "Live and dead cells, called after measuring from a dead stain, a live "
+    "stain, both, or nuclear morphology, with thresholds fitted per plate or "
+    "set by hand. Writes per-well viability, a live-cell index and a "
+    "cytotoxicity index scaled to the control wells, each plate's Z', and "
+    "with a plate map the dose-response of viability beside that of "
+    "infection, so parasite killing can be told from host toxicity.",
     # 535, 2026-09-26: the Cell Cycle (Alpha) category help on Measure.
     "The cell-cycle phase of every nucleus, called after measuring from the "
     "DNA stain in one of three interchangeable ways: gates on each plate's "

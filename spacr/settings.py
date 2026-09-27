@@ -1696,6 +1696,13 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('cell_cycle_labels', '')
     settings.setdefault('cell_cycle_model', '')
     settings.setdefault('cell_cycle_epochs', 20)
+    settings.setdefault('viability', False)
+    settings.setdefault('viability_dead_channel', None)
+    settings.setdefault('viability_live_channel', None)
+    settings.setdefault('viability_thresholds', None)
+    settings.setdefault('viability_negative_wells', None)
+    settings.setdefault('viability_positive_wells', None)
+    settings.setdefault('viability_plate_map', '')
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3481,6 +3488,13 @@ expected_types = {
     "cell_cycle_labels": str,
     "cell_cycle_model": str,
     "cell_cycle_epochs": int,
+    "viability": bool,
+    "viability_dead_channel": (int, type(None)),
+    "viability_live_channel": (int, type(None)),
+    "viability_thresholds": (list, type(None)),
+    "viability_negative_wells": (list, str, type(None)),
+    "viability_positive_wells": (list, str, type(None)),
+    "viability_plate_map": str,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4686,6 +4700,13 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+    "viability": "(bool) - Call every cell live or dead after measuring, from a dead stain (propidium iodide, SYTOX, DAPI on unfixed cells), a live stain (calcein), both, or without either from nuclear morphology (pyknotic nuclei). Writes one row per nucleus to measurements.db:viability, per-well viability, live-cell and cytotoxicity index to viability_well, each plate's thresholds and control Z' to viability_qc, and with plot the threshold, plate, control and dose-response figures. Default False.",
+    "viability_dead_channel": "(int or None) - The merged-array channel of the dead stain (propidium iodide, SYTOX, or DAPI added to unfixed cells), counted as in channels; it must be one of the measured channels. Each nucleus's background-subtracted mean intensity is split per plate into two populations, and above the cut is dead. Blank reads no dead stain; with neither stain channel set, dead cells are called from nuclear morphology instead. Default None.",
+    "viability_live_channel": "(int or None) - The merged-array channel of the live stain (calcein-AM), counted as in channels; it must be one of the measured channels. It is read on the nucleus, which calcein fills, split per plate, and above the cut is live. With a dead stain as well, a cell positive for neither is counted unstained, not live. Blank reads no live stain. Default None.",
+    "viability_thresholds": "(list or None) - Manual cuts [dead, live] in background-subtracted mean intensity, for example [150, None], each replacing the automatic per-plate cut of its stain; None keeps that one automatic. Without stain channels the dead entry is the condensation ratio (intensity per area against the plate's typical nucleus, about 3) above which a nucleus is pyknotic. Read the automatic cuts in viability_qc or the threshold figures first. Default None.",
+    "viability_negative_wells": "(list or str) - Untreated or vehicle wells, e.g. ['c1']; rows (r1), columns (c1) and wells (A01) all read. Their mean live-cell count is each plate's reference for the live-cell index, they read 0 on the cytotoxicity index and they are one side of its Z'. Blank leaves the index as the percentage of cells not live. Default None.",
+    "viability_positive_wells": "(list or str) - Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
+    "viability_plate_map": "(str) - A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5339,6 +5360,12 @@ categories = {
         "cell_cycle_gates", "cell_cycle_mitotic_ratio",
         "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
         "cell_cycle_epochs",
+    ],
+
+    "Viability (Alpha)": [
+        "viability", "viability_dead_channel", "viability_live_channel",
+        "viability_thresholds", "viability_negative_wells",
+        "viability_positive_wells", "viability_plate_map",
     ],
 
     "Motility (beta)": motility_settings,
@@ -6877,6 +6904,12 @@ ALPHA_FEATURES = {
                      'cell_cycle_gates', 'cell_cycle_mitotic_ratio',
                      'cell_cycle_fucci_channels', 'cell_cycle_labels',
                      'cell_cycle_model', 'cell_cycle_epochs'),
+    },
+    540: {
+        'settings': ('viability', 'viability_dead_channel',
+                     'viability_live_channel', 'viability_thresholds',
+                     'viability_negative_wells', 'viability_positive_wells',
+                     'viability_plate_map'),
     },
     541: {
         'settings': ('confluency', 'confluency_source', 'confluency_channel',
