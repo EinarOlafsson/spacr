@@ -554,3 +554,18 @@ REMAINS
     (owner: maintainer).
  c. Nobody has listened to "pype" in the rendered audio. Only the phonemes
     are checked (owner: maintainer).
+
+2026-09-27 — CODEX: FIRST REDACTION PUBLICATION RECOVERED
+    Candidate release-candidate-append-dbc6wwi7 contains the 33 lessons in
+    scratch-docs/redact/republish_batch1.txt, retaining their narration and
+    captions. Its publisher had finished before the handoff: 4,654 files
+    were read back with matching SHA256 at immutable media revision
+    be5acc81a8bcb233a96d9999c1534018fa461a47; local and hosted playback
+    receipts pass. Do not upload this candidate again.
+    Receipt: tools/tutorials/evidence/2026-09-27-redaction-batch1-publication.json.
+    Rechecked publication guards: 102 passed, one browser check skipped
+    in the app environment; all 10 hosted-web checks then passed in the
+    tutorial environment with Playwright available.
+    This records publication preparation, not live deployment verification.
+    Remaining: batch 2, lesson 75's neutral recapture, live readback and the
+    visual/listening acceptance above. Item 447 remains open.

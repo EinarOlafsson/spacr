@@ -17356,3 +17356,15 @@ Separately: `build_instruction_index.py --check` fails on a duplicate item
 number, 288. features/future/288_ci_triage_2026-09-25.txt (a0c9e1d47) collides
 with 288_zero_issues…; its owner should renumber it. 00_INDEX.txt regenerates
 unchanged.
+
+2026-09-27 — CODEX: TAKING OVER BOTH HANDED-OFF LANES
+The maintainer has asked Codex to finish the new and future feature lists,
+using both Claude handoffs. Resuming the saved implementation branches in
+isolated worktrees and the tutorial publisher in the Codex checkout. The
+publisher's dbc6wwi7 candidate already completed upload, full hash readback,
+local playback and hosted playback; recovering its commit before any pull.
+Existing redaction and lesson-75 edits are preserved. No reset or checkout
+of either shared nightly tree. Tests stay capped and named; existing GPU
+training and queued GPU turns are untouched. Catalogs will be regenerated
+after the implementation batch. Items retain real-data and maintainer
+acceptance requirements; synthetic validation alone does not close them.
