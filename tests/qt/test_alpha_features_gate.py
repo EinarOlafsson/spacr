@@ -56,6 +56,7 @@ RELEASED_BEFORE_THE_ALPHA_RULE = {
     491: "released before the alpha rule of 2026-09-26",
     501: "released before the alpha rule of 2026-09-26",
     586: "packaging only (Apptainer definition and recipes): nothing in the app to hide",
+    587: "packaging only (offline installer bundle): nothing in the app to hide",
 }
 
 BUILT = re.compile(r"\b(built|implemented|done)\b", re.IGNORECASE)
