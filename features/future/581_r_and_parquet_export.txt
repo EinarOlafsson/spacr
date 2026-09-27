@@ -1,6 +1,9 @@
 EXPORT FOR R (SingleCellExperiment) AND TIDY PARQUET
 
-Status: FILED 2026-09-26. Not started.
+Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). The
+Parquet tables, the R loader and the .rds data frames are built and
+round-trip tested in pandas/pyarrow/pyreadr. Still open: the R half of
+DONE WHEN has not been run -- R is not installed on this machine.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -17,3 +20,101 @@ WHAT TO BUILD
 DONE WHEN
     Exports load in R (SingleCellExperiment) and pandas/arrow with matching
     values.
+
+NOTE 2026-09-26 -- BUILT, AS AN ALPHA FEATURE
+    Where it lives (no new module): spacr/anndata_export/__init__.py and
+    spacr/tabular.py. All helpers are private (underscore) so the public API
+    surface and its i18n pins do not move.
+
+    Shared assembly. build_anndata was split: _assemble_tables does the read,
+    png_list label re-attachment, filter/selection/row_limit, obs/var build
+    and NaN policy; _provenance_record builds the provenance dict. The AnnData
+    path calls both and is otherwise unchanged (the anndata test files pass
+    with anndata 0.10.9 loaded from a scratch --target dir; the two
+    infer_string=True parametrisations of
+    test_empty_calibration_metadata_survives_the_run_button_export fail the
+    same way on the unmodified nightly module with that old anndata, so they
+    are an environment limit, not a regression).
+
+    _export_tables(db, out_dir, r_loader=, rds=, well_statistic=, ...) writes
+    through spacr.tabular:
+      objects.parquet     one row per object: object_key (spaCR's object key,
+                          the join key of every table), plateID/rowID/
+                          columnID/fieldID, prc and wellID (A01) well keys,
+                          object_type -- all categoricals, stored as Parquet
+                          dictionaries -- then metadata, annotation and
+                          prediction columns, then float64 features. Numeric
+                          categoricals (0/1 annotations) are stored as their
+                          numbers, because Parquet reads number dictionaries
+                          back as plain numbers.
+      features.parquet    the var table keyed by `feature` (dictionary
+                          description, unit, channel, family, source table,
+                          missing counts). Written with canonicalise=False,
+                          since `channel` would otherwise become chanID.
+      wells.parquet       one row per well (per well and timeID for a
+                          timelapse): keys, n_objects, condition when
+                          constant, and each feature's mean or median.
+      embeddings.parquet  object_key + X_<name>_<k>, aligned by key through
+                          the AnnData exporter's _align_embedding; X_umap
+                          when compute_umap is on.
+      provenance.parquet  section ('export'/'settings'), key, JSON value.
+    Every file carries a JSON description under the `spacr` key of its
+    Parquet schema metadata (format spacr-tables v1, table role, key columns,
+    feature columns, statistic, full provenance); tabular._parquet_metadata
+    reads it. With r_loader, load_spacr_export.R is written beside them:
+    read_spacr_tables() (arrow, falling back to nanoparquet),
+    read_spacr_provenance() (jsonlite when present) and load_spacr_export()
+    -> SingleCellExperiment (assay `measurements` = features x objects,
+    colData = objects, rowData = features, reducedDims from embeddings,
+    metadata = provenance + wells); `Rscript load_spacr_export.R [dir]
+    [out.rds]` saves the SCE as .rds. With pyreadr installed, each table is
+    also written as <table>.rds (a data.frame; pyreadr stores categoricals
+    as character and ints as double -- the Parquet files keep both).
+    objects.parquet registers in artifacts.db as kind `parquet_tables`, with
+    the measurements-db as input, so a re-run of Measure marks it stale.
+
+    tabular gains _write_parquet (pyarrow, schema metadata, atomic via a
+    pending sibling), _parquet_metadata, _write_rds (pyreadr) and
+    _require_optional. pyarrow and pyreadr are imported only when used; a
+    missing one raises ImportError naming `python -m pip install pyarrow` /
+    `pyreadr`. A missing pyreadr with rds=None is a note, not an error. No
+    new pd.read_*/to_csv/to_sql calls, so the raw-reader ratchet is flat.
+
+    Settings (AnnData Export page folded into Measure): anndata_format
+    ('h5ad' default, 'parquet', 'r', 'all'; a combo) and anndata_tidy_dir
+    (default <src>/results/<project>_tables). run_anndata_export dispatches:
+    'parquet'/'r' need no anndata; 'all' checks anndata before writing
+    anything. Tables are float64 whatever anndata_dtype says.
+
+    For the maintainer: optional dependencies, not added to setup.py --
+    pyarrow (already required by pandas' Parquet path) for the tables and
+    pyreadr for the .rds data frames; a `spacr[r]` or `spacr[tables]` extra
+    naming both would match the existing `spacr[anndata]` extra. R side:
+    arrow or nanoparquet, jsonlite, Bioconductor SingleCellExperiment.
+
+    Tests: tests/test_r_and_parquet_export.py (spaCR's own writers build the
+    database; every table read back through spacr.tabular and pyarrow and
+    compared with assert_frame_equal and by dtype; features compared with
+    the SQLite rows; wells against a groupby mean and median; embedding
+    alignment by key; metadata and provenance; loader contents; pyreadr .rds
+    round trip -- run with pyreadr 0.5.6 from a scratch dir, skipped where it
+    is not installed; missing pyarrow/pyreadr messages; the run entry without
+    anndata; artifact registration). The R check
+    (test_the_r_loader_builds_a_single_cell_experiment) sources the loader,
+    builds the SCE and compares dimensions, the cell_area sum and the
+    reducedDim name; it is SKIPPED here: no Rscript on this machine.
+    tests/qt/test_r_and_parquet_export_alpha_gate.py: hidden/visible.
+
+    Left to do: run the R check on a machine with R + arrow +
+    SingleCellExperiment (the loader has never executed in R); a Measure-page
+    button or menu entry (today it runs from the AnnData Export page and the
+    API); translations of the two new tooltips (next catalog rebuild);
+    promoting _export_tables to public API with the next API catalog
+    rebuild; per-well statistics beyond mean/median and per-well label
+    fractions.
+
+ALPHA: settings: anndata_format, anndata_tidy_dir (the AnnData Export form);
+no choices, widgets, apps or models. Registered in
+spacr.settings.ALPHA_FEATURES under 581, hidden unless Preferences -> Show
+alpha features is on; a saved value still reaches the run, and the API
+(_export_tables) is not gated. 2026-09-26.

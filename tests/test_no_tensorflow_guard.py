@@ -332,16 +332,29 @@ def test_no_module_imports_umap_directly():
 def test_no_tf_import_string_in_source():
     """Belt-and-braces: grep spaCR source for direct TF/stardist imports
     (excluding comments + the logging_util level-setter which only names
-    'tensorflow' as a string to silence its logger)."""
+    'tensorflow' as a string to silence its logger).
+
+    2026-09-26 (item 43, after item 551): a line the grep finds is excused
+    only when it is one of the worker-only sites in
+    ``tests.test_no_tensorflow.WORKER_ONLY_TF_IMPORTS`` -- StarDist's
+    adapter and the device probe, which run in the backend's own
+    environment, never in spaCR's process.
+    """
     import re
     from pathlib import Path
     import spacr
+    from tests.test_no_tensorflow import WORKER_ONLY_TF_IMPORTS, tf_rooted_imports
+
     root = Path(spacr.__file__).parent
     offenders = []
     pat = re.compile(r"^\s*(import|from)\s+(tensorflow|stardist|csbdeep)\b")
     for py in root.rglob("*.py"):
+        excused = set()
+        if py.parent == root:
+            excused = {line for line, _name, scope in tf_rooted_imports(py)
+                       if (py.name, scope) in WORKER_ONLY_TF_IMPORTS}
         for i, line in enumerate(py.read_text(errors="ignore").splitlines(), 1):
-            if pat.match(line):
+            if pat.match(line) and i not in excused:
                 offenders.append(f"{py.relative_to(root)}:{i}: {line.strip()}")
     assert not offenders, (
         "spaCR source contains direct TF-backed imports:\n"

@@ -2922,3 +2922,269 @@ def _profile_measurements(settings: Dict[str, Any], db_path: str, *,
     written = _write_profiles(result, out_dir, db_path=db_path,
                               figures=True)
     return result, written
+
+
+_SURVIVAL_ENGINES = ('lifelines', 'builtin')
+
+
+def _survival_engine(engine=None):
+    """The engine the time-to-event estimators run on.
+
+    ``lifelines`` when it can be imported, because it is the reference the
+    built-in estimators are checked against; otherwise ``builtin``: the
+    Kaplan-Meier and log-rank estimators here and statsmodels' Cox
+    regression with Efron ties. The two agree to the precision the tests
+    pin, so a table does not depend on which one ran.
+
+    :param engine: ``'lifelines'``, ``'builtin'`` or None for the first
+        available.
+    :returns: the engine name.
+    :raises ImportError: ``'lifelines'`` asked for and not installed.
+    :raises ValueError: an unknown engine.
+    """
+    from importlib.util import find_spec
+
+    if engine not in (None, *_SURVIVAL_ENGINES):
+        raise ValueError(f"unknown survival engine {engine!r}; expected one "
+                         f"of {_SURVIVAL_ENGINES}")
+    if engine == 'builtin':
+        return engine
+    if find_spec('lifelines') is None:
+        if engine == 'lifelines':
+            raise ImportError("the lifelines engine needs lifelines: "
+                              "pip install lifelines")
+        return 'builtin'
+    return 'lifelines'
+
+
+def _survival_arrays(durations, events):
+    """Durations and event flags as validated arrays.
+
+    :param durations: time to the event or to censoring, non-negative.
+    :param events: truthy where the event was observed, falsy where the
+        observation was censored.
+    :returns: ``(durations, events)`` as float and bool arrays.
+    :raises ValueError: mismatched lengths, no rows, or a missing or
+        negative duration.
+    """
+    times = np.asarray(durations, dtype=float).ravel()
+    observed = np.asarray(events).astype(bool).ravel()
+    if times.shape != observed.shape:
+        raise ValueError(f"{times.size} durations but {observed.size} "
+                         f"event flags")
+    if not times.size:
+        raise ValueError("no observations to estimate survival from")
+    if not np.all(np.isfinite(times)) or (times < 0).any():
+        raise ValueError("durations must be finite and non-negative")
+    return times, observed
+
+
+def _kaplan_meier(durations, events, *, alpha=0.05, engine=None):
+    """The Kaplan-Meier survival curve with its pointwise confidence band.
+
+    The band is the exponential Greenwood interval, symmetric on the
+    log(-log) scale so it stays between 0 and 1; lifelines and R's
+    ``survfit(conf.type = "log-log")`` use the same. The timeline starts at
+    0 and has one row per distinct duration, event or censoring.
+
+    :param durations: time to the event or to censoring.
+    :param events: truthy where the event was observed.
+    :param alpha: one minus the band's coverage.
+    :param engine: see :func:`_survival_engine`.
+    :returns: a frame with ``time``, ``at_risk``, ``events``, ``censored``,
+        ``survival``, ``ci_lower`` and ``ci_upper``.
+    """
+    times, observed = _survival_arrays(durations, events)
+    if _survival_engine(engine) == 'lifelines':
+        from lifelines import KaplanMeierFitter
+
+        fitter = KaplanMeierFitter(alpha=alpha).fit(times, observed)
+        table = fitter.event_table
+        band = fitter.confidence_interval_survival_function_
+        return pd.DataFrame({
+            'time': table.index.to_numpy(dtype=float),
+            'at_risk': table['at_risk'].to_numpy(dtype=int),
+            'events': table['observed'].to_numpy(dtype=int),
+            'censored': table['censored'].to_numpy(dtype=int),
+            'survival': fitter.survival_function_.iloc[:, 0].to_numpy(),
+            'ci_lower': band.iloc[:, 0].to_numpy(),
+            'ci_upper': band.iloc[:, 1].to_numpy()})
+    timeline = np.unique(np.concatenate([[0.0], times]))
+    at_risk = times.size - np.searchsorted(np.sort(times), timeline,
+                                           side='left')
+    index = np.searchsorted(timeline, times)
+    died = np.bincount(index[observed], minlength=timeline.size)
+    censored = np.bincount(index[~observed], minlength=timeline.size)
+    z = _NormalDist().inv_cdf(1.0 - alpha / 2.0)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        survival = np.cumprod(1.0 - died / at_risk)
+        greenwood = np.cumsum(np.where(
+            died > 0, died / (at_risk * (at_risk - died)), 0.0))
+        log_s = np.log(survival)
+        spread = z * np.sqrt(greenwood) / log_s
+        lower = np.exp(-np.exp(np.log(-log_s) - spread))
+        upper = np.exp(-np.exp(np.log(-log_s) + spread))
+    flat = survival >= 1.0
+    lower[flat] = 1.0
+    upper[flat] = 1.0
+    return pd.DataFrame({'time': timeline, 'at_risk': at_risk.astype(int),
+                         'events': died.astype(int),
+                         'censored': censored.astype(int),
+                         'survival': survival, 'ci_lower': lower,
+                         'ci_upper': upper})
+
+
+def _first_time_at_or_below(times, values, level=0.5):
+    """The first time a survival curve reaches ``level``, or NaN if never.
+
+    :param times: the curve's timeline.
+    :param values: the curve, or one of its bands, on that timeline.
+    :param level: the survival level asked about.
+    :returns: the time as a float.
+    """
+    hit = np.flatnonzero(np.asarray(values, dtype=float) <= level)
+    return (float(np.asarray(times, dtype=float)[hit[0]]) if hit.size
+            else np.nan)
+
+
+def _median_survival(curve):
+    """The median time to event of a Kaplan-Meier curve and its interval.
+
+    The median is the first time the curve is at or below one half; the
+    interval runs from where the lower band reaches one half to where the
+    upper band does, the Brookmeyer-Crowley construction lifelines reports.
+    A curve that never falls to one half has no median: it and any
+    unreached bound are NaN.
+
+    :param curve: a frame from :func:`_kaplan_meier`.
+    :returns: ``(median, lower, upper)``.
+    """
+    times = curve['time']
+    return (_first_time_at_or_below(times, curve['survival']),
+            _first_time_at_or_below(times, curve['ci_lower']),
+            _first_time_at_or_below(times, curve['ci_upper']))
+
+
+def _logrank(durations, events, groups, *, engine=None):
+    """The log-rank test that the groups share one survival curve.
+
+    With k groups the statistic is the k-sample Mantel-Haenszel chi-square
+    on k - 1 degrees of freedom, comparing observed with expected events at
+    every event time, all times weighted equally; with two groups it is the
+    ordinary log-rank test.
+
+    :param durations: time to the event or to censoring.
+    :param events: truthy where the event was observed.
+    :param groups: the group of each observation.
+    :param engine: see :func:`_survival_engine`.
+    :returns: a dict with ``statistic``, ``df``, ``p_value``, ``groups``
+        and, keyed by group, ``observed`` and ``expected`` events.
+    :raises ValueError: fewer than two groups.
+    """
+    from scipy.stats import chi2
+
+    times, observed = _survival_arrays(durations, events)
+    labels = np.asarray(groups, dtype=object).ravel()
+    if labels.shape != times.shape:
+        raise ValueError(f"{times.size} durations but {labels.size} groups")
+    names = sorted(pd.unique(labels), key=str)
+    if len(names) < 2:
+        raise ValueError("the log-rank test needs at least two groups")
+    member = np.stack([labels == name for name in names])
+    k = len(names)
+    obs = np.zeros(k)
+    exp = np.zeros(k)
+    cov = np.zeros((k, k))
+    for t in np.unique(times[observed]):
+        risk = member[:, times >= t].sum(axis=1).astype(float)
+        dead = member[:, (times == t) & observed].sum(axis=1).astype(float)
+        n, d = risk.sum(), dead.sum()
+        obs += dead
+        exp += d * risk / n
+        if n > 1:
+            share = risk / n
+            cov += (d * (n - d) / (n - 1)) * (np.diag(share)
+                                              - np.outer(share, share))
+    if _survival_engine(engine) == 'lifelines':
+        from lifelines.statistics import multivariate_logrank_test
+
+        result = multivariate_logrank_test(times, labels, observed)
+        statistic, p_value = float(result.test_statistic), float(
+            result.p_value)
+    else:
+        diff = (obs - exp)[:-1]
+        statistic = float(diff @ np.linalg.pinv(cov[:-1, :-1]) @ diff)
+        p_value = float(chi2.sf(statistic, k - 1))
+    return {'statistic': statistic, 'df': k - 1, 'p_value': p_value,
+            'groups': tuple(names),
+            'observed': dict(zip(names, obs.tolist())),
+            'expected': dict(zip(names, exp.tolist()))}
+
+
+def _cox_regression(frame, duration, event, covariates, *, alpha=0.05,
+                    engine=None):
+    """A Cox proportional-hazards fit with Efron's handling of ties.
+
+    :param frame: one row per observation.
+    :param duration: the column holding the time to event or censoring.
+    :param event: the column flagging an observed event.
+    :param covariates: the numeric columns to regress on; a condition
+        arrives already coded as 0/1 indicator columns.
+    :param alpha: one minus the coverage of the hazard-ratio intervals.
+    :param engine: see :func:`_survival_engine`.
+    :returns: ``(coefficients, model)``: a frame with one row per covariate
+        (``covariate``, ``coef``, ``hazard_ratio``, ``se``, ``hr_lower``,
+        ``hr_upper``, ``z``, ``p_value``) and a dict with ``n``,
+        ``events``, ``log_likelihood``, the likelihood-ratio test against
+        the model without covariates (``lr_statistic``, ``lr_df``,
+        ``lr_p_value``) and the ``engine``.
+    :raises ValueError: no covariates, or a covariate that is missing or
+        not finite on some row.
+    """
+    from scipy.stats import chi2, norm
+
+    covariates = list(covariates)
+    if not covariates:
+        raise ValueError("a Cox model needs at least one covariate")
+    data = frame[[duration, event, *covariates]].astype(float)
+    if not np.all(np.isfinite(data.to_numpy())):
+        raise ValueError("Cox covariates must be finite on every row; drop "
+                         "or fill the rows that are not")
+    times, observed = _survival_arrays(data[duration], data[event])
+    engine = _survival_engine(engine)
+    if engine == 'lifelines':
+        from lifelines import CoxPHFitter
+
+        fitter = CoxPHFitter(alpha=alpha).fit(data, duration, event)
+        summary = fitter.summary.loc[covariates]
+        coef = summary['coef'].to_numpy(dtype=float)
+        se = summary['se(coef)'].to_numpy(dtype=float)
+        loglik = float(fitter.log_likelihood_)
+        lr_statistic = float(
+            fitter.log_likelihood_ratio_test().test_statistic)
+    else:
+        from statsmodels.duration.hazard_regression import PHReg
+
+        model = PHReg(times, data[covariates].to_numpy(), status=observed,
+                      ties='efron')
+        with _warnings.catch_warnings():
+            _warnings.simplefilter('ignore')
+            fitted = model.fit(method='newton', maxiter=200, gtol=1e-10)
+        coef = np.asarray(fitted.params, dtype=float)
+        se = np.asarray(fitted.bse, dtype=float)
+        loglik = float(model.loglike(coef))
+        lr_statistic = float(2.0 * (loglik - model.loglike(
+            np.zeros(len(covariates)))))
+    z = _NormalDist().inv_cdf(1.0 - alpha / 2.0)
+    zscore = coef / se
+    table = pd.DataFrame({
+        'covariate': covariates, 'coef': coef, 'hazard_ratio': np.exp(coef),
+        'se': se, 'hr_lower': np.exp(coef - z * se),
+        'hr_upper': np.exp(coef + z * se), 'z': zscore,
+        'p_value': 2.0 * norm.sf(np.abs(zscore))})
+    return table, {'n': int(times.size), 'events': int(observed.sum()),
+                   'log_likelihood': loglik, 'lr_statistic': lr_statistic,
+                   'lr_df': len(covariates),
+                   'lr_p_value': float(chi2.sf(lr_statistic,
+                                               len(covariates))),
+                   'engine': engine}

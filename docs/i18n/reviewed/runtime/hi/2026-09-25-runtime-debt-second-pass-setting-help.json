@@ -69,13 +69,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "enhance_clahe",
-      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without blowing out the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
-      "source_sha256": "f465bb6876b67694c23711b4799fbf90b9a58525d353c2a759931cec2532ed77",
-      "translation": "कंट्रास्ट-सीमित अनुकूली हिस्टोग्राम समतलीकरण, पूरे दृश्य क्षेत्र के बजाय प्रति टाइल। यह चमकीले मध्य भाग को अति-संतृप्त किए बिना मंद कोने के ऑब्जेक्टों को उभारता है, और खाली टाइलों में शोर बढ़ाता है, जिसे क्लिप सीमा नियंत्रित करती है। डिफ़ॉल्ट False।"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "enhance_clahe_clip",
       "source": "CLAHE clip limit, above 0 and at most 1. Higher gives more contrast and more amplified noise in tiles that hold only background; unused unless enhance_clahe is on. Default 0.01.",
       "source_sha256": "76965f4475f12af7b1956a80a90a18e1d4af145d1f58549e3c9164d5080adabe",

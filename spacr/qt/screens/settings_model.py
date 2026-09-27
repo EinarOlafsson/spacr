@@ -1260,6 +1260,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Confluency (Alpha)", ("@Confluency (Alpha)",)),
         ("Cell Cycle (Alpha)", ("@Cell Cycle (Alpha)",)),
+        ("Bleach Correction (Alpha)", ("@Bleach Correction (Alpha)",)),
+        ("Wound Closure (Alpha)", ("@Wound Closure (Alpha)",)),
+        ("Time To Event (Alpha)", ("@Time To Event (Alpha)",)),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
@@ -1631,7 +1634,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input Tables", ("src", "anndata_tables")),
         ("Output File", (
             "anndata_out", "anndata_single_table", "anndata_compression",
-            "anndata_dtype",
+            "anndata_dtype", "anndata_format", "anndata_tidy_dir",
         )),
         ("Rows & Missing Values", (
             "anndata_row_limit", "anndata_nan_policy",
@@ -2646,6 +2649,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "out, the interval between frames, which backend links objects, and "
         "how far one may move between frames. For data that is both a "
         "z-stack and a time series.",
+    "BLEACH CORRECTION (ALPHA)":
+        "Photobleaching correction for timelapse intensities, per field and "
+        "channel: a simple ratio to the first timepoint, a fitted exponential "
+        "decay, or histogram matching. Corrected intensities are written "
+        "beside the measured ones with the method, and the fitted decay is "
+        "plotted.",
     "PROFILING (ALPHA)":
         "Image-based profiling after Measure: one profile per well from the "
         "object tables, annotated from a plate map, normalised per plate "
@@ -2654,6 +2663,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reproducibility as mean average precision and percent replicating. "
         "Written as CSV, Parquet and GCT files that pycytominer, copairs and "
         "Morpheus read.",
+    "TIME TO EVENT (ALPHA)":
+        "How long each tracked object of a timelapse lasts until an event "
+        "such as death, lysis, egress, division or first detection, with "
+        "objects still waiting at the end of their track censored there. "
+        "Conditions are compared with Kaplan-Meier curves, median times, "
+        "log-rank tests and a Cox model, written to measurements.db and "
+        "drawn under results/time_to_event.",
     "CELL CYCLE (ALPHA)":
         "The cell-cycle phase of every nucleus, called after measuring from "
         "the DNA stain in one of three interchangeable ways: gates on each "
@@ -2668,6 +2684,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "from a fluorescent stain. Plaque and infection results from a thin "
         "or torn monolayer can then be dropped or divided by the covered "
         "fraction.",
+    "WOUND CLOSURE (ALPHA)":
+        "A scratch or wound-healing assay measured over a time-lapse: the "
+        "open wound in every frame, from the texture of a brightfield or "
+        "phase channel, a fluorescent stain or the cell masks; its area, "
+        "mean and minimum width; and per well and per condition the "
+        "closure curve, closure rate and half-closure time, written to "
+        "measurements.db with figures and a plate map.",
     "MOTILITY (BETA)":
         "The beta motility assay run inline with the mask pipeline: whether "
         "it runs at all, and the per-object tracking parameters it uses. "

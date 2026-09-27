@@ -1687,6 +1687,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_channel', None)
     settings.setdefault('confluency_window', 15)
     settings.setdefault('confluency_qc_threshold', 0.8)
+    settings.setdefault('bleach_correction', 'none')
     settings.setdefault('profiling', False)
     settings.setdefault('profiling_metadata', '')
     settings.setdefault('profiling_treatment_column', 'columnID')
@@ -1707,6 +1708,25 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('cell_cycle_labels', '')
     settings.setdefault('cell_cycle_model', '')
     settings.setdefault('cell_cycle_epochs', 20)
+    settings.setdefault('wound_closure', False)
+    settings.setdefault('wound_source', 'texture')
+    settings.setdefault('wound_channel', None)
+    settings.setdefault('wound_window', 15)
+    settings.setdefault('wound_hours_per_frame', None)
+    settings.setdefault('wound_conditions', {})
+    settings.setdefault('time_to_event', False)
+    settings.setdefault('time_to_event_object', 'cell')
+    settings.setdefault('time_to_event_mode', 'track_end')
+    settings.setdefault('time_to_event_column', '')
+    settings.setdefault('time_to_event_threshold', None)
+    settings.setdefault('time_to_event_persist', 1)
+    settings.setdefault('time_to_event_origin', 'track')
+    settings.setdefault('time_to_event_min_frames', 3)
+    settings.setdefault('time_to_event_hours_per_frame', None)
+    settings.setdefault('time_to_event_group', 'well')
+    settings.setdefault('time_to_event_conditions', None)
+    settings.setdefault('time_to_event_reference', '')
+    settings.setdefault('time_to_event_covariates', None)
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3483,6 +3503,7 @@ expected_types = {
     "confluency_channel": (int, type(None)),
     "confluency_window": int,
     "confluency_qc_threshold": (float, int, type(None)),
+    "bleach_correction": str,
     "profiling": bool,
     "profiling_metadata": str,
     "profiling_treatment_column": (str, list),
@@ -3501,6 +3522,25 @@ expected_types = {
     "cell_cycle_labels": str,
     "cell_cycle_model": str,
     "cell_cycle_epochs": int,
+    "wound_closure": bool,
+    "wound_source": str,
+    "wound_channel": (int, type(None)),
+    "wound_window": int,
+    "wound_hours_per_frame": (float, int, type(None)),
+    "wound_conditions": dict,
+    "time_to_event": bool,
+    "time_to_event_object": str,
+    "time_to_event_mode": str,
+    "time_to_event_column": str,
+    "time_to_event_threshold": (float, int, type(None)),
+    "time_to_event_persist": int,
+    "time_to_event_origin": str,
+    "time_to_event_min_frames": int,
+    "time_to_event_hours_per_frame": (float, int, type(None)),
+    "time_to_event_group": str,
+    "time_to_event_conditions": (list, type(None)),
+    "time_to_event_reference": str,
+    "time_to_event_covariates": (list, type(None)),
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4696,6 +4736,13 @@ tooltips = {
     "confluency_source": "(str) - How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
     "confluency_channel": "(int or None) - The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
     "confluency_window": "(int) - Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+    "bleach_correction": "(str) - Photobleaching correction for a timelapse run, applied after measuring and per field and channel. ratio rescales each timepoint so the median object mean intensity equals the first timepoint's; exponential does the same with a fitted a*exp(-b*t)+c decay; histogram maps each timepoint's intensities onto the first timepoint's distribution. Writes <object>_bleach_corrected and the fits to measurements.db and plots the decay; the measured tables stay unchanged. Ignored unless timelapse. Default none.",
+    "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
+    "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
+    "wound_channel": "(int or None) - The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",
+    "wound_window": "(int) - Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
+    "wound_hours_per_frame": "(float or None) - Hours between consecutive timepoints, so closure rates are per hour and half-closure times are in hours. Blank counts time in frames. With voxel_size_xy_um set, widths and front speeds are also reported in micrometres. Default None.",
+    "wound_conditions": "(dict) - Conditions to pool wells into for the closure curves and half-closure times, as {name: wells}, the wells as rows (r2), columns (c3) or single wells (B03), for example {'control': 'c1, c2', 'drug': 'c3, c4'}. A well in no condition is reported under its own name. A well may belong to one condition only. Default {}.",
     "confluency_qc_threshold": "(float or None) - Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
     "profiling": "(bool) - After Measure finishes, build image-based profiles from its tables: aggregate each object table to one median profile per well, add the plate map in profiling_metadata, normalise each plate against its negative-control wells, remove uninformative and redundant features, build one consensus profile per treatment and score replicate reproducibility as mean average precision (mAP) and percent replicating. Results go to measurements/profiles as CSV, Parquet and GCT with plots. Default False.",
     "profiling_metadata": "(str) - Plate map for profiling: a CSV, TSV, Excel or Parquet table with one row per well position, located by rowID and columnID or by a well column such as A01, plus annotation columns such as treatment, dose, gene or a phenotype label. With a plateID column the map is matched plate by plate; without one it applies to every plate. Blank profiles the wells by position only. Default blank.",
@@ -4715,6 +4762,19 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+    "time_to_event": "(bool) - After measuring a timelapse, follow every tracked object to an event (death, lysis, egress, division, first detection) or to the end of its track, and compare conditions: Kaplan-Meier curves with 95% bands, median time to event per condition and well, log-rank tests and a Cox model. Writes measurements.db:time_to_event and four summary tables, and the curves and hazard ratios under results/time_to_event. Needs tracked objects measured with timelapse on. Default False.",
+    "time_to_event_object": "(str) - The measured object table whose tracks are followed: cell, nucleus, pathogen or cytoplasm. Each object label in a field is one track, since the timelapse module relabels tracked objects with their track ID. Follow host cells for host death or lysis, pathogens for egress or division. Default cell.",
+    "time_to_event_mode": "(str) - What counts as the event. track_end: the object disappears before the movie ends (lysis, egress, detachment, and tracking loss too). annotated: time_to_event_column turns non-zero, or equals the threshold. above or below: the column reaches time_to_event_threshold, such as a death dye. fold_change: the column reaches threshold times its first value, such as a doubled parasite count. Tracks without the event are censored at their last frame. Default track_end.",
+    "time_to_event_column": "(str) - The measurement the event is read from, a column of the object table such as cell_channel_2_mean_intensity, or an Annotate column of png_list holding labels for each object in each frame. Ignored by track_end. Default blank.",
+    "time_to_event_threshold": "(float or None) - The cut the event is read at. For above and below it is in the column's units; for fold_change it is a ratio to the track's first value, 2 for a doubling; for annotated it is the label that marks the event, blank for any non-zero label. Read it off a histogram of the column before trusting the curves. Default None.",
+    "time_to_event_persist": "(int) - Consecutive observed frames the event must hold before it counts; it is dated to the first of them. Raise it to 2 or 3 when a noisy measurement crosses the threshold for one frame and back. Objects already showing the event in their first frame are left out. Default 1.",
+    "time_to_event_origin": "(str) - Where each object's clock starts. track: at the object's own first frame, so objects that appear later (daughters, cells moving in) count from when they are first seen. movie: at the movie's first frame, keeping only the objects present then, the cohort to use when time since infection or treatment matters. Default track.",
+    "time_to_event_min_frames": "(int) - Tracks with fewer observed frames are left out: a track seen once or twice is more often a segmentation or tracking fragment than an object, and with track_end every short fragment would be an event. Default 3.",
+    "time_to_event_hours_per_frame": "(float or None) - Hours between consecutive frames, used to report times in hours; 0.25 for a frame every 15 minutes. It rescales the times and medians but not the tests or hazard ratios of conditions. Blank reports times in frames. Default None.",
+    "time_to_event_group": "(str) - How objects are grouped into the conditions compared, when time_to_event_conditions is blank: well, plate, row, column, field, or a column of the object table read at each track's first frame. Default well.",
+    "time_to_event_conditions": "(list or None) - Conditions named by their wells, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']. Objects in wells no entry names are left out. It replaces time_to_event_group. Blank uses time_to_event_group. Default None.",
+    "time_to_event_reference": "(str) - The condition the others are compared with: every log-rank pair and every hazard ratio is against it. It must be one of the conditions. Blank uses the first entry of time_to_event_conditions, or the first condition in sorted order. Default blank.",
+    "time_to_event_covariates": "(list or None) - Columns of the object table adjusted for in the Cox model, each read at the track's first frame so it is measured before the event, such as ['cell_area']. Their hazard ratios are per unit of the column. Tracks missing a value are left out of the model only. Blank fits the conditions alone. Default None.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -5363,6 +5423,10 @@ categories = {
         "confluency_window", "confluency_qc_threshold",
     ],
 
+    "Bleach Correction (Alpha)": [
+        "bleach_correction",
+    ],
+
     "Profiling (Alpha)": [
         "profiling", "profiling_metadata", "profiling_treatment_column",
         "profiling_negative_control", "profiling_normalization",
@@ -5375,6 +5439,20 @@ categories = {
         "cell_cycle_gates", "cell_cycle_mitotic_ratio",
         "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
         "cell_cycle_epochs",
+    ],
+
+    "Wound Closure (Alpha)": [
+        "wound_closure", "wound_source", "wound_channel", "wound_window",
+        "wound_hours_per_frame", "wound_conditions",
+    ],
+
+    "Time To Event (Alpha)": [
+        "time_to_event", "time_to_event_object", "time_to_event_mode",
+        "time_to_event_column", "time_to_event_threshold",
+        "time_to_event_persist", "time_to_event_origin",
+        "time_to_event_min_frames", "time_to_event_hours_per_frame",
+        "time_to_event_group", "time_to_event_conditions",
+        "time_to_event_reference", "time_to_event_covariates",
     ],
 
     "Motility (beta)": motility_settings,
@@ -6914,10 +6992,19 @@ ALPHA_FEATURES = {
                      'cell_cycle_fucci_channels', 'cell_cycle_labels',
                      'cell_cycle_model', 'cell_cycle_epochs'),
     },
+    539: {
+        'settings': ('bleach_correction',),
+    },
     541: {
         'settings': ('confluency', 'confluency_source', 'confluency_channel',
                      'confluency_window', 'confluency_qc_threshold'),
         'widgets': ('MeasureConfluencyToggle',),
+    },
+    536: {
+        'settings': ('wound_closure', 'wound_source', 'wound_channel',
+                     'wound_window', 'wound_hours_per_frame',
+                     'wound_conditions'),
+        'widgets': ('MeasureWoundToggle',),
     },
     544: {
         'widgets': ('AnnotateBlindToggle', 'MakeMasksBlindToggle'),
@@ -6967,6 +7054,15 @@ ALPHA_FEATURES = {
         'widgets': ('ControlChartHitPanel', 'ControlChartHitsSection',
                     'ControlChartExportHits'),
     },
+    571: {
+        'settings': ('time_to_event', 'time_to_event_object',
+                     'time_to_event_mode', 'time_to_event_column',
+                     'time_to_event_threshold', 'time_to_event_persist',
+                     'time_to_event_origin', 'time_to_event_min_frames',
+                     'time_to_event_hours_per_frame', 'time_to_event_group',
+                     'time_to_event_conditions', 'time_to_event_reference',
+                     'time_to_event_covariates'),
+    },
     572: {
         'widgets': ('FigureIntegrityCheck',),
     },
@@ -6982,6 +7078,9 @@ ALPHA_FEATURES = {
                     'NotifyNtfy', 'NotifyNtfyServer', 'NotifyNtfyTopic',
                     'NotifyNtfyToken', 'NotifySendTest', 'NotifyForgetSecrets',
                     'NotifyTestResult'),
+    },
+    581: {
+        'settings': ('anndata_format', 'anndata_tidy_dir'),
     },
 }
 

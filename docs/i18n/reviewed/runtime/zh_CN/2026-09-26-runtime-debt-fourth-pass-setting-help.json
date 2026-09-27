@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency",
+      "source": "Measure confluency, the fraction of each field covered by cells, and write it to measurements.db: one row per field in the confluency table and one per well in confluency_well, with a monolayer_ok flag the plaque and infection assays can filter on or divide by. Works for any channel (brightfield, phase or a fluorescent stain) or straight from the cell masks, as confluency_source decides. With plot on, each field also gets an overlay of the covered area. Default False.",
+      "source_sha256": "a2d567ea9c3689df6fcf52ce2e970c5fde2dfc20e67b2e86305fb7e84f3b7bb3",
+      "translation": "测量汇合度，即每个视野被细胞覆盖的比例，并写入 measurements.db：confluency 表中每个视野一行，confluency_well 中每个孔一行，并带有 monolayer_ok 标记，空斑和感染分析可据此过滤或作除数。适用于任何通道（明场、相差或荧光染色），也可直接基于细胞掩膜，由 confluency_source 决定。开启 plot 时，每个视野还会得到覆盖区域的叠加图。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture and intensity confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7147e89cfc25f7f1091cc5ee93542723ed6b6e8b285fa10644784164403d765b",
+      "translation": "纹理和强度两种汇合度来源所读取的合并数组通道，编号方式与 channels 相同。留空则使用 channels 的第一项。纹理请选择明场或相差平面，强度请选择细胞质或细胞膜染色。当 confluency_source 解析为掩膜时忽略此项。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_qc_threshold",
+      "source": "Lowest covered fraction, from 0 to 1, at which a field or well passes monolayer QC. Fields and wells below it get monolayer_ok 0 in measurements.db, so plaque and infection results from a thin or torn monolayer can be dropped or divided by the covered fraction. Blank passes every well. Default 0.8.",
+      "source_sha256": "fc1aa1ad92c9e5014c42bd4ff5e7120944b42209f611bb33f4a2b43748890c05",
+      "translation": "视野或孔通过单层 QC 所需的最低覆盖比例，范围 0 到 1。低于此值的视野和孔在 measurements.db 中得到 monolayer_ok 0，因此来自稀薄或破损单层的空斑和感染结果可被剔除，或除以覆盖比例。留空则所有孔都通过。默认值 0.8。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold, for brightfield and phase. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "cc761c6fcbe3b047f13a45397efe2679f6c3d3f4c73fbcc605b9e48dd6bafa59",
+      "translation": "汇合度的判定方式。auto 在运行有细胞掩膜时使用细胞掩膜，否则使用纹理。masks 是所有已分割细胞的并集，在 Measure 的大小过滤之前。texture 以自动阈值读取 confluency_channel 的局部变化，适用于明场和相差。intensity 自动对 confluency_channel 取阈值，适用于荧光细胞质或细胞膜染色。默认值 auto。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "c36dc65f120988bf82b56a3467e86491b7a16da88ea8f1a289d0784a23778d89",
+      "translation": "纹理汇合度来源测量局部变化所用正方形窗口的边长（像素）。大致为应计为覆盖的最细细胞突起的宽度：较小时更贴合边缘，但会把平滑的细胞内部留作孔洞；较大时可跨过狭窄间隙。掩膜和强度来源会忽略此项。默认值 15。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "enhance_clahe",
+      "source": "Contrast-limited adaptive histogram equalisation, per tile rather than over the whole field. Brings out objects in a dim corner without saturating the bright middle, and amplifies noise in empty tiles, which the clip limit bounds. Default False.",
+      "source_sha256": "90d6473ba37b1f946dfef57546245408551042ea9aaeb9f1bd1947418510156d",
+      "translation": "限制对比度的自适应直方图均衡，按图块而不是在整个视野上进行。可突出暗角中的对象而不使明亮的中央饱和，同时会放大空图块中的噪声，这由裁剪限制加以约束。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fill_in",
+      "source": "Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks.",
+      "source_sha256": "44b9e0519c2e8b51d8258f580e717ce8764d61833839384949ae279b2f7fcafc",
+      "translation": "填充 Cellpose Masks (Apply) 写出的每个掩膜中每个对象内部的孔洞。每个对象单独填充并保留其 ID，因此相互接触的对象保持分开，孔洞也不会占用相邻对象的像素。在 Cellpose Masks 中默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_gpu_indices",
+      "source": "GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+      "source_sha256": "23cff63eedc09cc6269f47ee10c179ce024950a7c66e48cf0e31bd39e7db1751",
+      "translation": "mask_parallel 开启时使用的 GPUs，以逗号分隔的数字表示，例如 0,1。留空则使用进程可见的所有 GPU，在集群上即为分配给该作业的 GPUs；少于两个时，运行只使用一个设备。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_parallel",
+      "source": "Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
+      "source_sha256": "4aa8f84644320895f9113991c3dbbb6b1aab52debce1dbee651af7486e84efff",
+      "translation": "在多个 GPUs 上同时分割准备好的细胞、细胞核和病原体批次，每个 GPU 一个模型进程。每个批次只交给一个 GPU，已完成的批次会保留，用相同设置重新运行时会继续处理其余批次。掩膜与单 GPU 运行的结果一致。需要两个或以上 CUDA 或 ROCm GPUs 以及 Cellpose 后端；不适用于延时成像或 t_stack 运行。启用 adjust_cells 时，调整后的细胞写入 masks/adjusted_cell_mask_stack，原始细胞掩膜保留。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "percentiles",
+      "source": "Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps.",
+      "source_sha256": "33c1b48bceefd01eb2a0ef3020e40ce4084df287aaf66905a2e99c57d6b5ce2d",
+      "translation": "两个百分位数 [low, high]，用于在分割前把每张图像的每个通道重新缩放到 0-1，例如 [2, 98]。缩窄窗口可提高暗淡对象的对比度，但会截断明亮对象。设为 None 可自动推导：low 固定为 2，high 取 98/99/99.9/99.99/99.999 中第一个超过 background * Signal_to_noise 的值。在 Cellpose Masks (Apply) 中，None 则让 Cellpose 自行归一化每张图像，与实时预览的做法相同。在 Cellpose 步骤中默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_mode",
+      "source": "Tracking backend used to link objects between frames. 'trackastra' is a pretrained transformer with division-aware linking; 'ultrack' jointly optimizes segmentation and linking and supports dense or 3D data at a higher computational cost; 'trackpy' uses a configurable search radius and frame memory; 'btrack' uses a motion model; 'iou' links masks by overlap and may fail when objects move far between frames; 'timeflows' is spaCR's experimental temporal Cellpose, needs a trained checkpoint in timeflows_model and has not yet beaten 'iou' on held-out movies. Default 'trackastra'.",
+      "source_sha256": "2d47849b1fbbb707e98557c645739ce7cd01d0cbbece48f621148506c42f09e5",
+      "translation": "用于在帧间链接对象的跟踪后端。'trackastra' 是预训练的 Transformer，支持感知分裂的链接；'ultrack' 联合优化分割与链接，支持密集或 3D 数据，但计算成本更高；'trackpy' 使用可配置的搜索半径和帧记忆；'btrack' 使用运动模型；'iou' 按重叠链接掩膜，对象在帧间移动较远时可能失败；'timeflows' 是 spaCR 的实验性时序 Cellpose，需要在 timeflows_model 中提供已训练的检查点，且在留出影片上尚未超过 'iou'。默认值 'trackastra'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_folder",
+      "source": "Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.",
+      "source_sha256": "e1945b9b02af0ec5552ba3fa6349595a7267daca13fb78d3480b2d33938926be",
+      "translation": "让 Make Masks 持续在 src 上运行，并在每个视野的图像到达时对其进行分析，适用于显微镜仍在写入的板。文件在 watch_settle_seconds 内不再变化且可完整读取后被采用；当 channels 的每一项都有文件时，视野被采用。src 中已有的图像优先处理。每个视野单独分析，与 batch_size 为 1 的批量运行相同，结果汇集在 src/spacr_watch 中，其 watch_ledger.json 使重启时可跳过已分析的视野。不适用于延时成像、z_stack 或 t_stack 运行。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_idle_minutes",
+      "source": "Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
+      "source_sha256": "f8b6c2105fec08f67339f572ae5e5d563bd70b47c1ce54eb6ea8e112efb3fb1b",
+      "translation": "当 src 中的内容在这么多分钟内都没有变化时停止监视，并列出始终未完整的视野。0 表示一直监视到按下停止。默认值 0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_measure_settings",
+      "source": "A Measure settings file (.csv or .json, as the Measure screen saves them) that watch_pipeline 'mask_measure' measures every field with. Blank uses Measure's defaults with this run's channels. Default blank.",
+      "source_sha256": "18280c253b0a2c1ddc164ded85c620d8bd3c37fb37ba782c5bdbd742defdb3c1",
+      "translation": "一个 Measure 设置文件（.csv 或 .json，即 Measure 界面保存的格式），watch_pipeline 'mask_measure' 用它测量每个视野。留空则使用 Measure 的默认值和本次运行的通道。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_pipeline",
+      "source": "What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' then runs Measure on the field's merged stacks and appends its rows to src/spacr_watch/measurements/measurements.db. Default 'mask'.",
+      "source_sha256": "74bbca66d83197ea90d44e01e1c8dac8a91f5f80ae0c2de27239e58632ff853c",
+      "translation": "watch_folder 对每个到达的视野执行的操作。'mask' 运行 Make Masks；'mask_measure' 随后对该视野的合并图像栈运行 Measure，并将其行追加到 src/spacr_watch/measurements/measurements.db。默认值 'mask'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_poll_seconds",
+      "source": "How often watch_folder looks in src for new or changed images. A field is picked up about watch_settle_seconds plus this long after its last file stops changing, once the fields before it are done. Default 5.",
+      "source_sha256": "171a24ef2d4d63b4d839a3777115de8a2d18fd75a394dd7f85c0302ff96b5764",
+      "translation": "watch_folder 在 src 中查找新图像或已更改图像的频率。某个视野在其最后一个文件停止变化约 watch_settle_seconds 加上此时长之后、且其前面的视野处理完毕时被处理。默认值 5。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_settle_seconds",
+      "source": "How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
+      "source_sha256": "7e40a4562581b1f508a919a4a548d5cfddaf1990175beae1c55f90e51fb72f0a",
+      "translation": "图像必须保持相同大小和修改时间多久，watch_folder 才会读取它，以免读取显微镜仍在写入的半截文件。网络共享较慢时请调高此值。默认值 10。"
+    }
+  ]
+}
