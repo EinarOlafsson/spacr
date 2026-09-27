@@ -2,21 +2,21 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    DONE for what this file is about, and the shutdown gap it left
-           open is closed: the budget now starts when the last test ends
+Status:    OPEN: the serial run still has not reached its summary.
+           The shutdown budget now starts when the last test ends
            rather than at the end of `pytest_sessionfinish`, so the interval
            between the coverage write and the summary line -- where the
            reported wedge sits, and the one interval nothing was armed for --
            is bounded and names what is holding the process open.
-           OPEN, re-run 2026-09-25/26 (last entry): the full SERIAL
+           Re-run 2026-09-25/26: the full SERIAL
            `pytest tests/qt` still does NOT reach its summary line. It
            passed the old 15% segfault point and the 25% "hang" point
            cleanly, then at 28% was ended by the suite's OWN memory guard
            (tests/conftest.py, 6 GB RSS ceiling), which exited 3 and left
            nothing in the log. Both halves of that are fixed: a run under a
            kernel cap now gets 90% of the cap as its ceiling, and the
-           guard's message reaches the log. A third serial run has not been
-           made.
+           guard's message reaches the log. The next run reached 61% and
+           aborted; see the 2026-09-27 entry at the end.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -1287,3 +1287,15 @@ test_teardown_watchdog_arming and test_test_suite_hygiene pass, except
 test_no_new_assertion_free_tests, which names
 qt/test_bioimageio_rows_in_the_picker.py (already on nightly, not this
 change).
+
+2026-09-27 — RESUME AUDIT: SERIAL RUN ABORTED AT 61%, STILL OPEN
+The inherited /tmp/spacr-47-scratch/serial.log ends at
+outliers_screen::test_set_frame_scans_and_fills_both_result_tables with
+EXIT 134, after the preceding four tests passed. There is no traceback
+proving its cause. This is neither a completed run nor a memory-limit exit.
+The root boundary fixture also forced gc.collect() every twenty tests,
+contradicting its own live-wrapper crash guard. Removed that extra sweep;
+Qt deferred deletes and the application's threshold-driven GC tick remain.
+Focused ownership/GC/fold/import checks: 73 passed in 40.59s, CPU-only under
+8G. This does not establish that the 61% abort is fixed. A serial replay
+with memory and crash evidence is still required before closing this item.

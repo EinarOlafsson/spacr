@@ -121,7 +121,7 @@ from .intensity_rescale import (
     resolve_record as _resolve_intensity_rescale_record,
 )
 
-from .figures.style import figure_style, theme_target
+from .figures.style import _figure_axes, figure_style, theme_target, resolve_ink
 
 
 
@@ -4450,7 +4450,7 @@ def _field_split(groups, fraction=0.2, seed=0):
 
 
 def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
-    """Cell-cycle phase of every nucleus from a gradient-boosted classifier.
+    """Cell-cycle phase of every nucleus from a CPU gradient-boosted classifier.
 
     Trained on the labelled nuclei and applied to all of them. Whole fields
     are first held out to score the classifier on nuclei it never saw; the
@@ -4485,7 +4485,7 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
         return XGBClassifier(
             n_estimators=300, max_depth=4, learning_rate=0.1,
             subsample=0.9, colsample_bytree=0.8, tree_method='hist',
-            random_state=seed, n_jobs=n_jobs, eval_metric='mlogloss')
+            random_state=seed, n_jobs=n_jobs, device='cpu', eval_metric='mlogloss')
 
     report = {'classes': classes,
               'counts': {p: int((labels == p).sum()) for p in classes}}
@@ -4919,15 +4919,16 @@ def _dna_histogram_figure(dna_c, fit, title, phases=None):
     upper = max(6.0, float(np.percentile(values, 99.5)) if values.size else 6)
     grid = np.linspace(0, upper, 600)
     dens = fit.densities(grid * fit.g1 / 2.0) * fit.g1 / 2.0
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(7, 4))
+    with _figure_axes(figsize=(7, 4)) as (fig, ax):
         ax.hist(values, bins=120, range=(0, upper), density=True,
                 color='0.7', label='nuclei')
         for column, name in enumerate(('G1', 'S', 'G2')):
             ax.plot(grid, dens[:, column], label=f'{name} fit')
-        ax.plot(grid, dens.sum(axis=1), color='k', lw=1, label='model')
+        ax.plot(grid, dens.sum(axis=1), color=resolve_ink(theme_target()),
+                lw=1, label='model')
         for gate in fit.gates:
-            ax.axvline(float(fit.c_value(gate)), color='k', ls='--', lw=1)
+            ax.axvline(float(fit.c_value(gate)),
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
         ax.set_xlabel('DNA content (C, G1 peak = 2)')
         ax.set_ylabel('density')
         if phases is not None:
@@ -5283,6 +5284,7 @@ def _wound_axis(wound, margin):
     centres = np.arange(first, last + 1) + 0.5
 
     def inside(offset):
+        """Mark axis samples inside the image at the given normal offset."""
         py = cy + centres * dy + offset * ny
         px = cx + centres * dx + offset * nx
         return ((py >= -0.5) & (py <= height - 0.5)
@@ -5801,9 +5803,8 @@ def _wound_edge_figure(title, panels):
     :param panels: ``[(label, plane, wound)]``.
     :returns: the figure.
     """
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(1, len(panels),
-                                 figsize=(4 * len(panels), 4), squeeze=False)
+    with _figure_axes(1, len(panels), figsize=(4 * len(panels), 4),
+                      squeeze=False) as (fig, axes):
         for ax, (label, plane, wound) in zip(axes[0], panels):
             ax.imshow(_wound_overlay(plane, wound))
             ax.set_title(label)
@@ -5819,8 +5820,7 @@ def _wound_curve_figure(condition_curves, well_curves):
     :param well_curves: per-well curves, drawn faintly behind their mean.
     :returns: the figure.
     """
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(7, 5))
+    with _figure_axes(figsize=(7, 5)) as (fig, ax):
         colours = plt.rcParams['axes.prop_cycle'].by_key().get(
             'color', ['C0'])
         for number, (condition, block) in enumerate(
@@ -5854,9 +5854,8 @@ def _wound_half_closure_figure(summary):
     :returns: the figure.
     """
     use = summary[summary['wound_ok'] == 1]
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(
-            figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5))
+    with _figure_axes(
+            figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5)) as (fig, ax):
         names = sorted(use['condition'].unique())
         for position, condition in enumerate(names):
             values = use.loc[use['condition'] == condition,
@@ -5867,7 +5866,7 @@ def _wound_half_closure_figure(summary):
                       if len(values) > 1 else np.zeros(1))
             ax.scatter(position + jitter, values, s=24, zorder=3)
             ax.hlines(values.mean(), position - 0.25, position + 0.25,
-                      linewidth=2, color='black')
+                      linewidth=2, color=resolve_ink(theme_target()))
         ax.set_xticks(range(len(names)))
         ax.set_xticklabels(names, rotation=45, ha='right')
         unit = use['time_unit'].iloc[0] if len(use) else 'frame'
@@ -5892,9 +5891,8 @@ def _wound_plate_figure(summary, plate):
     layout = plate_layout(wells[['plateID', 'rowID', 'columnID', 'value']],
                           'value', plate=plate)
     grid = layout_matrix(layout)
-    with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(max(5, 0.45 * grid.shape[1] + 2),
-                                        max(3.5, 0.45 * grid.shape[0] + 1.5)))
+    with _figure_axes(figsize=(max(5, 0.45 * grid.shape[1] + 2),
+                              max(3.5, 0.45 * grid.shape[0] + 1.5))) as (fig, ax):
         image = ax.imshow(np.ma.masked_invalid(grid.to_numpy(dtype=float)),
                           cmap='viridis')
         ax.set_xticks(range(grid.shape[1]))
@@ -5953,6 +5951,7 @@ def _wound_closure_tables(merged_dir, settings, figures=None):
                  for time_id, _path, _stem in items]
 
         def planes(items=items):
+            """Yield this field's wound-analysis planes in time order."""
             for _time_id, path, _stem in items:
                 yield _wound_plane(np.load(path, mmap_mode='r'), settings)
 
@@ -6837,10 +6836,9 @@ def _viability_threshold_figure(table, cuts, name, label):
     :returns: the figure.
     """
     stains = [s for s in ('dead', 'live') if name in cuts.get(s, {})]
-    with figure_style(theme_target()):
-        panels = len(stains) + (1 if len(stains) == 2 else 0)
-        fig, axes = plt.subplots(1, max(panels, 1),
-                                 figsize=(4.2 * max(panels, 1), 3.6))
+    panels = len(stains) + (1 if len(stains) == 2 else 0)
+    with _figure_axes(1, max(panels, 1),
+                      figsize=(4.2 * max(panels, 1), 3.6)) as (fig, axes):
         axes = np.atleast_1d(axes)
         plate = table
         key = name if isinstance(name, tuple) else (name,)
@@ -6864,7 +6862,7 @@ def _viability_threshold_figure(table, cuts, name, label):
                 line = float(np.arcsinh(cut.threshold / scale))
                 ax.set_xlabel(f'{stain} stain, arcsinh(intensity / {scale:.3g})')
             ax.hist(shown, bins=80, color='0.6')
-            ax.axvline(line, color='k', ls='--', lw=1)
+            ax.axvline(line, color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.set_ylabel('objects')
             ax.set_title(f'{stain}: cut {cut.threshold:.4g} ({cut.source}), '
                          f'{cut.positive_fraction:.0%} above', fontsize=9)
@@ -6881,9 +6879,9 @@ def _viability_threshold_figure(table, cuts, name, label):
                                np.arcsinh(dead[pick] / d_scale), s=4,
                                label=f'{state} ({int(pick.sum())})')
             ax.axvline(np.arcsinh(cuts['live'][name].threshold / l_scale),
-                       color='k', ls='--', lw=1)
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.axhline(np.arcsinh(cuts['dead'][name].threshold / d_scale),
-                       color='k', ls='--', lw=1)
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
             ax.set_xlabel('live stain (arcsinh)')
             ax.set_ylabel('dead stain (arcsinh)')
             ax.legend(frameon=False, fontsize=7)
@@ -6900,9 +6898,8 @@ def _viability_controls_figure(wells, qc):
     :returns: the figure.
     """
     plates = list(dict.fromkeys(wells['plate_key']))
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(len(plates), 2,
-                                 figsize=(8, 3.2 * len(plates)), squeeze=False)
+    with _figure_axes(len(plates), 2, figsize=(8, 3.2 * len(plates)),
+                      squeeze=False) as (fig, axes):
         rng = np.random.default_rng(0)
         for row, plate in enumerate(plates):
             block = wells[wells['plate_key'] == plate]
@@ -6934,11 +6931,9 @@ def _viability_dose_figure(fits):
     if not compounds:
         return None
     readouts = list(fits)
-    with figure_style(theme_target()):
-        fig, axes = plt.subplots(len(compounds), len(readouts),
-                                 figsize=(3.6 * len(readouts),
-                                          3.0 * len(compounds)),
-                                 squeeze=False)
+    with _figure_axes(len(compounds), len(readouts),
+                      figsize=(3.6 * len(readouts), 3.0 * len(compounds)),
+                      squeeze=False) as (fig, axes):
         for i, compound in enumerate(compounds):
             for j, readout in enumerate(readouts):
                 ax = axes[i, j]
@@ -6953,10 +6948,10 @@ def _viability_dose_figure(fits):
                 result = group.result
                 ax.scatter(result.dose, result.response, s=10)
                 x, y = result.curve()
-                ax.plot(x, y, color='k', lw=1)
+                ax.plot(x, y, color=resolve_ink(theme_target()), lw=1)
                 ec50 = result.ec50
                 if ec50 is not None:
-                    ax.axvline(ec50, color='k', ls=':', lw=1)
+                    ax.axvline(ec50, color=resolve_ink(theme_target()), ls=':', lw=1)
                     ax.set_title(f'{compound}: {readout}, EC50 {ec50:.3g}',
                                  fontsize=9)
         fig.tight_layout()
@@ -8329,7 +8324,7 @@ def _cellprofiler_export(merged_folder, settings, dest):
     :param dest: the folder the TIFFs go in.
     :returns: the written paths.
     """
-    import tifffile
+    from .tiff_io import write_tiff
 
     written = []
     for name in sorted(os.listdir(merged_folder)):
@@ -8346,12 +8341,12 @@ def _cellprofiler_export(merged_folder, settings, dest):
             if plane in labels:
                 continue
             path = os.path.join(dest, f'{stem}_ch{channel}.tif')
-            tifffile.imwrite(path, np.ascontiguousarray(data[..., plane]))
+            write_tiff(path, np.ascontiguousarray(data[..., plane]))
             written.append(path)
             channel += 1
         for role, plane in roles.items():
             path = os.path.join(dest, f'{stem}_{role}_mask.tif')
-            tifffile.imwrite(path, np.ascontiguousarray(
+            write_tiff(path, np.ascontiguousarray(
                 data[..., plane]).astype(np.uint16))
             written.append(path)
     return written

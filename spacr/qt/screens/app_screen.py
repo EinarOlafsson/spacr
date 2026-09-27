@@ -11136,6 +11136,7 @@ class AppScreen(QWidget):
         buttons.rejected.connect(dialog.reject)
 
         def _lock():
+            """Persist the displayed analysis plan and show its immutable identity."""
             record = self._lock_analysis_now(
                 settings, hypotheses.toPlainText(), thresholds.toPlainText(),
                 note.text())

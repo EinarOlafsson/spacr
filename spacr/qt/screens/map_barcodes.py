@@ -2605,6 +2605,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
     """
 
     def __init__(self, screen=None, parent: Optional[QWidget] = None) -> None:
+        """Build the spatial-data controls with no loaded or registered sample."""
         super().__init__(parent)
         self._screen = screen
         self._bundle = None
@@ -2635,6 +2636,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         button.setText(tr("Browse…"))
 
         def browse(_checked=False):
+            """Fill this row from its folder, input-file or output-file picker."""
             if folder:
                 chosen = QFileDialog.getExistingDirectory(self, tr(caption),
                                                           edit.text())

@@ -2285,3 +2285,38 @@ Reproduced against run 36283739124's logs (the last to reach its test jobs).
   Left: the panel's _relay_progress/_relay_started/_relay_result emit on the
   panel itself from worker threads, the same pattern, guarded only by
   RuntimeError. If gw0 still crashes, move those to the shared relay too.
+
+2026-09-27 — CODEX RESUME: CPU CI REPAIR, NOT A GREEN-RUN CLAIM
+Replayed the 65 failure node IDs from Actions run 36304299793 on the
+isolated nightly-derived worktree: 44 failed, 21 passed. Repaired these
+families without raising ratchet ceilings:
+- Power's planner and the plugin catalogue now install shared sorting;
+  catalogue actions resolve a stable entry key after sorting and refresh.
+  The cloud browser uses spaCR's Toggle. Focused checks: 15 passed.
+- Added missing callable docstrings. Scoped subplot construction now keeps
+  colony, robustness, cell-cycle, wound and viability artists in the house
+  style, and guide lines use theme ink. The helper restores rcParams on
+  success and drawing failure. Style-helper/docstring checks: 393 passed.
+- The confluency estimator needs PyWavelets, now declared in core packaging.
+  Its numerical and packaging checks: 83 passed, 2 unavailable-data skips.
+- Microscope and CellProfiler TIFFs now use the canonical writer, preserving
+  their arrays and metadata. Checks: 17 passed, 1 missing-backend skip.
+- Alpha-aware layout/maturity contracts, isolated setup fallback injection,
+  folded settings inventories, import restoration and Qt ownership checks:
+  39 and 73 passed in their two focused runs. Item 47 remains open.
+- Cellpose-SAM mocks declare a complete recorded API; the isolated Omnipose
+  mock has its own exact 1.1.4 contract. 86 passed, 1 missing-weights skip.
+- Replaced stale source-string guards with channel-map, clipboard-depth,
+  image-decode cache and normalized-image/provenance behavior checks:
+  58 passed. Caption helper extraction and instruction-index checks: 19 passed.
+- Broader assay/figure checks: 106 passed, 2 unavailable-data skips, 3 failures
+  in cell-cycle classification. The installed XGBoost 3.4.1 also fails a
+  standalone four-class, device='cpu' fit with cudaErrorNoDevice; binary
+  CPU fitting passes. Explicit CPU selection does not cure that upstream
+  failure. Dependency compatibility is being checked in scratch space,
+  without changing the shared environment or exposing the busy GPU.
+Remaining: merge the saved item-43 coverage work, repair catalog/API freshness
+in the documentation phase, replay remaining CI failures, and obtain an
+actually completed green nightly run. These receipts are CPU-only, with
+named files, private settings and memory caps; they are not full-suite or
+GPU acceptance. Scratch logs: /mnt/wd4tb/scratch/spacr-completion/.

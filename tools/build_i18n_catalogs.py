@@ -3462,10 +3462,16 @@ _HELPER_CAPTION_RULES: dict[
         ("help_search.py", ((3, "text"),)),
     ("preferences.py", "_percent_row"):
         ("preferences.py", ((1, "label_text"), (5, "tip"))),
+    ("preferences.py", "line"):
+        ("preferences.py", ((0, "tip"),)),
     ("prerun.py", "_label"): ("prerun.py", ((0, "text"),)),
     ("prerun.py", "_say"): ("prerun.py", ((0, "text"),)),
     ("screens/annotate.py", "_set_kbd_hint"):
         ("screens/annotate.py", ((0, "text"),)),
+    ("screens/annotate.py", "_set_page_label"):
+        ("screens/annotate.py", ((0, "text"),)),
+    ("screens/control_chart.py", "combo"):
+        ("screens/control_chart.py", ((2, "tip"),)),
     # Writes to the console, which the language pass does not translate.
     ("screens/app_screen.py", "_say"):
         ("screens/app_screen.py", ((0, "message"),)),
@@ -3497,6 +3503,8 @@ _HELPER_CAPTION_RULES: dict[
         ("screens/make_masks.py", ((0, "text"),)),
     ("screens/map_barcodes.py", "_button"):
         ("screens/map_barcodes.py", ((0, "caption"), (1, "hint"))),
+    ("screens/map_barcodes.py", "_path_row"):
+        ("screens/map_barcodes.py", ((1, "caption"), (2, "hint"))),
     ("screens/methods_export.py", "_set_provenance"):
         ("screens/methods_export.py", ((0, "text"),)),
     ("screens/organism_screen.py", "_paragraph"):

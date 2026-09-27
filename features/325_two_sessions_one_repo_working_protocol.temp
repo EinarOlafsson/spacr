@@ -17356,3 +17356,12 @@ Separately: `build_instruction_index.py --check` fails on a duplicate item
 number, 288. features/future/288_ci_triage_2026-09-25.txt (a0c9e1d47) collides
 with 288_zero_issues…; its owner should renumber it. 00_INDEX.txt regenerates
 unchanged.
+
+2026-09-27 — CODEX: CI DEPENDENCY REPAIR (43)
+Claiming setup.py for one missing runtime dependency: confluency's existing
+skimage.restoration.estimate_sigma path needs PyWavelets. Five reproduced
+CI failures reach that path in a core install without pywt. Declaring the
+dependency preserves the estimator rather than changing scientific behavior.
+Validation installs it only in task scratch; no shared Python environment or
+live_cell training environment is modified. All GPU work remains last, per
+the maintainer's latest instruction.

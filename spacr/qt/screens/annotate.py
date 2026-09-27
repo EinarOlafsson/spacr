@@ -1720,6 +1720,7 @@ def _blind_order(rows, rank: Dict[str, int]) -> list:
     import hashlib
 
     def position(row):
+        """Order known crops by the blind key and unseen crops by path hash."""
         path = str(row[0])
         at = rank.get(path)
         if at is not None:
@@ -4444,6 +4445,7 @@ class AnnotateScreen(QWidget):
             return True
         if ask is None:
             def ask():
+                """Confirm revealing crop origins and recording the unblind event."""
                 return QMessageBox.question(
                     self, tr("Unblind?"),
                     tr("Unblinding shows where every crop is from again, "

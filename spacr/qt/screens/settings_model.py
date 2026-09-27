@@ -6603,7 +6603,7 @@ class _CloudBrowserDialog(QDialog):
                  endpoint: str = "", parent: Optional[QWidget] = None) -> None:
         """Build the address row, the listing and the description."""
         super().__init__(parent)
-        from PySide6.QtWidgets import (QCheckBox, QDialogButtonBox,
+        from PySide6.QtWidgets import (QDialogButtonBox,
                                        QListWidget, QPlainTextEdit)
         from ..i18n import tr
 
@@ -6626,7 +6626,7 @@ class _CloudBrowserDialog(QDialog):
         go.clicked.connect(self.open_address)
         row.addWidget(go)
         layout.addLayout(row)
-        self.anonymous = QCheckBox(tr("Public data (no credentials)"), self)
+        self.anonymous = Toggle(tr("Public data (no credentials)"), self)
         self.anonymous.setChecked(bool(anonymous))
         layout.addWidget(self.anonymous)
         self.endpoint = QLineEdit(endpoint or "", self)

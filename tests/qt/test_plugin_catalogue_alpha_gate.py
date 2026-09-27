@@ -110,3 +110,36 @@ def test_an_unreadable_catalogue_says_so(qtbot, prefs, tmp_path):
     assert "Could not read the catalogue" in dlg.findChild(
         QWidget, "PluginCatalogueStatus").text()
     assert dlg.findChild(QWidget, "PluginCatalogueTable").rowCount() == 0
+
+
+def test_sorting_keeps_installation_and_reselection_on_the_chosen_entry(
+        qtbot, prefs, tmp_path):
+    """Sorting the recipe above the plugin must not install the plugin."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QFormLayout
+
+    source = tmp_path / "cat"
+    source.mkdir()
+    _catalogue(source)
+    prefs._set_plugin_catalogue(str(source))
+    host = QWidget()
+    qtbot.addWidget(host)
+    page = prefs._PluginCataloguePage(QFormLayout(host), host)
+    qtbot.wait(1)
+    page.table.sortItems(1, Qt.DescendingOrder)
+    assert page.table.item(0, 1).text() == "Toxoplasma infection assay"
+    page.table.selectRow(0)
+    assert page.selected()["key"] == "toxo_infection"
+    assert page.install_selected()
+    qtbot.wait(1)
+    assert set(plugins._catalogue_installed()) == {"toxo_infection"}
+    assert page.selected()["key"] == "toxo_infection"
+    assert page.selected()["installed"] == "0.2"
+    for row in range(page.table.rowCount()):
+        keys = {page.table.item(row, column).data(Qt.UserRole)
+                for column in range(page.table.columnCount())}
+        assert len(keys) == 1
+    assert page.table.item(0, 1).text() == "Toxoplasma infection assay"
+    assert page.table.item(0, 3).text() == "0.2"
+    assert page.uninstall_selected()
+    assert plugins._catalogue_installed() == {}

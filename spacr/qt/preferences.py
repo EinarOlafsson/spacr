@@ -158,7 +158,7 @@ from __future__ import annotations
 
 import logging
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 
 from .night_themes import NIGHT_THEME_KEYS, is_night_theme, theme_for
 
@@ -5549,6 +5549,9 @@ class _PluginCataloguePage:
         columns = [tr("Type"), tr("Name"), tr("Version"), tr("Installed"),
                    tr("Status"), tr("Author"), tr("Licence")]
         self.table = QTableWidget(0, len(columns))
+        from .widgets.sortable_table import install_sorting
+
+        install_sorting(self.table)
         self.table.setObjectName("PluginCatalogueTable")
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -5582,7 +5585,11 @@ class _PluginCataloguePage:
     def selected(self):
         """The selected catalogue row as a dict, or None."""
         rows = self.table.selectionModel().selectedRows()
-        return self._rows[rows[0].row()] if rows else None
+        if not rows:
+            return None
+        item = self.table.item(rows[0].row(), 0)
+        key = item.data(Qt.UserRole) if item is not None else None
+        return next((row for row in self._rows if row["key"] == key), None)
 
     def _sync_buttons(self) -> None:
         """Offer only the actions the selected row allows."""
@@ -5599,9 +5606,8 @@ class _PluginCataloguePage:
         :returns: False, with the reason on the status line, when the
             catalogue could not be read.
         """
-        from PySide6.QtWidgets import QTableWidgetItem
-
         from .i18n import tr
+        from .widgets.sortable_table import table_item
         from ..plugins import _catalogue_rows
 
         source = self.source.text().strip()
@@ -5619,6 +5625,7 @@ class _PluginCataloguePage:
         states = {"available": tr("available"), "installed": tr("installed"),
                   "update available": tr("update available"),
                   "incompatible": tr("incompatible")}
+        self.table.setRowCount(0)
         self.table.setRowCount(len(self._rows))
         for index, row in enumerate(self._rows):
             values = (kinds.get(row["kind"], row["kind"]), row["name"],
@@ -5626,7 +5633,8 @@ class _PluginCataloguePage:
                       states.get(row["status"], row["status"]),
                       row["author"], row["licence"])
             for column, value in enumerate(values):
-                item = QTableWidgetItem(str(value))
+                item = table_item(str(value))
+                item.setData(Qt.UserRole, row["key"])
                 item.setToolTip(row["summary"] or row["name"])
                 self.table.setItem(index, column, item)
         self.table.resizeColumnsToContents()
@@ -5637,8 +5645,9 @@ class _PluginCataloguePage:
 
     def _select_key(self, key: str) -> None:
         """Select the row for ``key`` again after the table is refilled."""
-        for index, row in enumerate(self._rows):
-            if row["key"] == key:
+        for index in range(self.table.rowCount()):
+            item = self.table.item(index, 0)
+            if item is not None and item.data(Qt.UserRole) == key:
                 self.table.selectRow(index)
                 return
 

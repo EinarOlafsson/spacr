@@ -69,6 +69,7 @@ dependencies = [
     'scipy>=1.12.0,<2.0',
     'cellpose>=4.0.7,<5.0',
     'scikit-image>=0.22.0,<0.28',
+    'PyWavelets>=1.4,<2',
     'scikit-learn>=1.5.0,<2.0',
     'scikit-posthocs>=0.10.0,<0.20',
     'trackpy>=0.6.2,<1.0',

@@ -9242,6 +9242,7 @@ class MakeMasksScreen(QWidget):
 
         if ask is None:
             def ask():
+                """Confirm revealing field paths and recording the unblind event."""
                 return self._confirm(
                     tr("Unblind?"),
                     tr("Unblinding shows every field's file name and folder "

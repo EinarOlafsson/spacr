@@ -97,25 +97,32 @@ class TestTheBoundedWalkToThePanel:
     would otherwise walk to the top of the application on every copy.
     """
 
-    def test_the_second_none_check_cannot_be_reached(self):
-        """`if panel is None: return` after the loop is unreachable.
+    @pytest.mark.parametrize("intermediate_parents", [5, 6])
+    def test_copy_checks_at_most_six_parents(
+            self, panel, monkeypatch, intermediate_parents):
+        """A panel at the sixth parent is reachable; the seventh is not."""
+        from PySide6.QtWidgets import QApplication, QWidget
 
-        The loop already returns on None at its top, and the only way
-        out of it other than that return is the `break`, which happens
-        when the parent HAS `section_text`. So a parent reaching the
-        check below is never None.
+        requested = []
 
-        Pinned to the in-loop return.
-        """
-        import inspect
+        def section_text(bar):
+            requested.append(bar)
+            return "this section"
 
-        source = inspect.getsource(_TopicBar._copy_section)
-        first = source.index("if panel is None:")
-        second = source.index("if panel is None:", first + 1)
-        assert source.index("panel = panel.parent()") > first, (
-            "the None check no longer precedes the walk")
-        assert second > source.index("else:"), (
-            "the second None check is no longer after the loop")
+        monkeypatch.setattr(panel, "section_text", section_text)
+        parent = panel
+        for _ in range(intermediate_parents):
+            parent = QWidget(parent)
+        bar = _make_bar()
+        bar.setParent(parent)
+        QApplication.clipboard().setText("previous contents")
+
+        bar._copy_section()
+
+        reachable = intermediate_parents == 5
+        assert requested == ([bar] if reachable else [])
+        assert QApplication.clipboard().text() == (
+            "this section" if reachable else "previous contents")
 
     def test_a_bar_with_no_panel_above_it_copies_nothing(self, qtbot):
         """The live refusal: nothing to ask for a span.

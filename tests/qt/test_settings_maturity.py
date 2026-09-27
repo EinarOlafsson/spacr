@@ -103,12 +103,14 @@ def test_beta_module_colours_every_settings_section(
     sections = screen.findChildren(Section)
 
     assert sections
-    assert {section.maturity() for section in sections} == {"beta"}
-    assert all(
-        widget.property("settingMaturity") == "beta"
-        for section in sections
-        for _label, widget in section._row_widgets
-    )
+    assert {section.maturity() for section in sections} == {"alpha", "beta"}
+    for section in sections:
+        expected = "alpha" if "(ALPHA)" in section.title() else "beta"
+        assert section.maturity() == expected, section.title()
+        assert all(
+            widget.property("settingMaturity") == expected
+            for _label, widget in section._row_widgets
+        ), section.title()
 
 
 def test_alpha_module_colours_every_settings_section(

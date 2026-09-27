@@ -381,6 +381,21 @@ def figure_style(target: str = "screen", **kwargs):
         yield
 
 
+@contextlib.contextmanager
+def _figure_axes(*args, **kwargs):
+    """Create subplot axes and draw their artists in the selected house style.
+
+    The style remains active for the entire drawing block and is restored
+    even if drawing raises. Arguments pass through to matplotlib's subplots.
+
+    :returns: context manager yielding the figure and its axes.
+    """
+    import matplotlib.pyplot as plt
+
+    with figure_style(theme_target()):
+        yield plt.subplots(*args, **kwargs)
+
+
 def theme_target() -> str:
     """``'screen'`` or ``'print'``, from the user's own figure preferences.
 

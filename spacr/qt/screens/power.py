@@ -944,6 +944,7 @@ class PowerScreen(QWidget):
         headers = [tr("Replicates"), tr("Wells"), tr("Fields"), tr("Power"),
                    tr("Cost")]
         self._plan_table = QTableWidget(0, len(headers))
+        install_sorting(self._plan_table)
         self._plan_table.setHorizontalHeaderLabels(headers)
         self._plan_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._plan_table.verticalHeader().setVisible(False)
@@ -1026,6 +1027,7 @@ class PowerScreen(QWidget):
                  else tr("not estimated (taken as 0)")),
             well=components["well"], field=components["field"],
             cell=components["cell"], cells=components["cells_per_field"])
+        self._plan_table.setRowCount(0)
         self._plan_table.setRowCount(min(10, len(designs)))
         for row, design in enumerate(designs.head(10).itertuples()):
             for col, text in enumerate((

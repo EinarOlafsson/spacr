@@ -2331,6 +2331,7 @@ def _st_register_intensity(moving, fixed, *, max_side: int = 1024
     from skimage.transform import AffineTransform, rescale
 
     def shrink(image):
+        """Return the grayscale registration image and its reduction factor."""
         gray = _st_gray(image)
         factor = min(1.0, float(max_side) / max(gray.shape))
         return (rescale(gray, factor, anti_aliasing=True)
