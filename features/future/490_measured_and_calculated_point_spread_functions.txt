@@ -1,10 +1,27 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
-Status: DONE 2026-09-25. Engine, Make Masks, Mask, Measure and Mask Live preview
+Status: IN PROGRESS 2026-09-27. Engine, Make Masks, Mask, Measure and Mask Live preview
 validated 2026-09-23; real measured 3D PSF application validated 2026-09-24;
-guide in docs/source/point_spread.rst. Owed to the docs lane: 509's optics
-inference in that guide, the PSF captions' catalog rows and a tutorial/animation.
+guide in docs/source/point_spread.rst. Optics inference guide and current
+nine-locale runtime/API coverage verified 2026-09-27. Existing Gaussian PSF
+animation verified; remaining: narrated PSF workflow tutorial scenes.
 Instrument-specific optical accuracy is not claimed.
+
+2026-09-27 documentation follow-up:
+The guide now documents Objective and Infer from images, the optics fold,
+metadata/default source labels, explicit calibration precedence, and the
+distinction between Gaussian inference and measured-kernel/Measure calibration.
+Full-source strict Sphinx dummy validation passed; full HTML build/deployment
+acceptance remains separate. All nine runtime/API catalogs
+are current (8,726 runtime entries and 11,865 API documents per locale).
+Review is AI technical review only, with no native-speaker signoff.
+
+The existing psf_fwhm_um.gif and features/data/411_psf_animation_2026-09-23.json
+already cover Gaussian convolution; their measured animation acceptance is
+retained, not claimed anew. PSF controls are not alpha-gated. The missing
+tutorial should demonstrate Objective/Infer, source labels, Compare/Apply and
+Mask/Measure intensity-source choices with Show alpha features off. Receipt:
+features/data/489_490_guides_2026-09-27.json.
 
 Let users modify images using a measured PSF or a calculated approximate PSF,
 first in Make Masks enhancement, then in Mask generation and Measure after
