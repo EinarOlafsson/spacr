@@ -1,5 +1,6 @@
 """The legacy installer jobs must validate installed artifacts on fresh runners."""
 from pathlib import Path
+import re
 
 import pytest
 
@@ -39,3 +40,13 @@ def test_windows_nsis_template_keeps_runtime_dollars_and_requires_actual_executa
     assert 'Join-Path $Source "spacr.exe"' in source
     assert 'RMDir /r "$INSTDIR"' not in template
     assert '@DELETE_FILES@' in template and '@DELETE_DIRECTORIES@' in template
+
+
+def test_debian_xcb_shape_dependency_exists_on_builder_and_fresh_host():
+    """Both clean targets failed to load Qt because libxcb-shape was absent."""
+    source = (ROOT / 'packaging/build_debian.sh').read_text()
+    builder = re.search(r'needed=\((.*?)\)\nmissing=', source, re.S).group(1).split()
+    depends = re.search(r'^Depends: (.+)$', source, re.M).group(1)
+    runtime = {value.strip().split()[0] for value in depends.split(',')}
+    assert 'libxcb-shape0' in builder
+    assert 'libxcb-shape0' in runtime

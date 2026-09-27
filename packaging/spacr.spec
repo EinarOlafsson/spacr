@@ -12,7 +12,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
+from PyInstaller.utils.hooks import (
+    collect_data_files, collect_dynamic_libs, collect_submodules, copy_metadata,
+)
 
 # Repo root is one dir up from packaging/
 ROOT = Path(SPECPATH).resolve().parent
@@ -110,6 +112,22 @@ datas += copy_metadata("spacr")
 datas += copy_metadata("imageio")
 
 
+def _torchvision_binaries():
+    """Retain torchvision's directly loaded operator library and dependencies."""
+    libraries = collect_dynamic_libs(
+        "torchvision", search_patterns=["*.so", "*.so.*", "*.pyd", "*.dll", "*.dylib"],
+    )
+    # The maintained hook asks for hidden import torchvision._C, but these
+    # wheels load it with torch.ops.load_library instead. Native CI found no
+    # _C in the resulting bundle and failed while registering torchvision::nms.
+    if not any(Path(source).name.startswith("_C.") for source, _ in libraries):
+        raise RuntimeError("torchvision's _C operator library was not collected")
+    return libraries
+
+
+binaries = _torchvision_binaries()
+
+
 # ------------------------------------------------------------------
 # Analysis / bundling
 # ------------------------------------------------------------------
@@ -118,7 +136,7 @@ block_cipher = None
 a = Analysis(
     [ENTRY],
     pathex=[str(ROOT)],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],

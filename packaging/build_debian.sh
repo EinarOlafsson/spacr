@@ -14,7 +14,7 @@ apt_runner=()
 [[ $EUID == 0 ]] || apt_runner=(sudo)
 needed=(python3 python3-venv libpython3-dev binutils dpkg-dev libgl1 libegl1 libglib2.0-0 \
         libx11-6 libxcb1 libxkbcommon0 libxkbcommon-x11-0 libxcb-cursor0 \
-        libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 \
+        libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-shape0 \
         libxcb-xinerama0 libxcb-xkb1 libfontconfig1 libfreetype6 libdbus-1-3 libgomp1)
 missing=()
 for package in "${needed[@]}"; do
@@ -61,7 +61,7 @@ Priority: optional
 Architecture: amd64
 Maintainer: Einar Olafsson <einar.olafsson@gmail.com>
 Installed-Size: $installed_size
-Depends: libc6 (>= $build_libc), libgcc-s1, libstdc++6, libgl1, libegl1, libglib2.0-0, libx11-6, libxcb1, libxkbcommon0, libxkbcommon-x11-0, libxcb-cursor0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, libxcb-xinerama0, libxcb-xkb1, libfontconfig1, libfreetype6, libdbus-1-3, libgomp1
+Depends: libc6 (>= $build_libc), libgcc-s1, libstdc++6, libgl1, libegl1, libglib2.0-0, libx11-6, libxcb1, libxkbcommon0, libxkbcommon-x11-0, libxcb-cursor0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, libxcb-shape0, libxcb-xinerama0, libxcb-xkb1, libfontconfig1, libfreetype6, libdbus-1-3, libgomp1
 Description: spaCR microscopy analysis application with a private CPU runtime
  Bundles Python, Qt and the declared scientific environment under /opt/spacr.
  System Python is not modified. User preferences and analysis outputs are

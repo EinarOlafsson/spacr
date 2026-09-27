@@ -1,7 +1,10 @@
 """Structural guards for the desktop PyInstaller bundle."""
 
 import ast
+import fnmatch
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = ROOT / "packaging" / "spacr.spec"
@@ -146,3 +149,43 @@ def test_non_core_packages_cannot_leak_from_the_build_environment() -> None:
         for element in excludes.elts
         if isinstance(element, ast.Constant)
     }
+
+
+@pytest.mark.parametrize("library", ["_C.so", "_C.abi3.so", "_C.pyd", "_C.dylib"])
+def test_torchvision_operator_library_is_passed_to_binary_analysis(library):
+    """Directly loaded ops must reach binary analysis on every platform."""
+    tree = _tree()
+    collector = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+                     and n.name == "_torchvision_binaries")
+    expected = [(f"/wheel/torchvision/{library}", "torchvision")]
+
+    def collect(package, *, search_patterns):
+        """Use a wheel-shaped file listing without importing Torch or PyInstaller."""
+        assert package == "torchvision"
+        assert any(fnmatch.fnmatch(library, pattern) for pattern in search_patterns)
+        return expected
+
+    namespace = {"Path": Path, "collect_dynamic_libs": collect}
+    exec(compile(ast.Module(body=[collector], type_ignores=[]), str(SPEC), "exec"), namespace)
+    assignment = next(n for n in tree.body if isinstance(n, ast.Assign)
+                      and any(isinstance(t, ast.Name) and t.id == "binaries"
+                              for t in n.targets))
+    exec(compile(ast.Module(body=[assignment], type_ignores=[]), str(SPEC), "exec"), namespace)
+    analysis = next(n.value for n in tree.body if isinstance(n, ast.Assign)
+                    and isinstance(n.value, ast.Call)
+                    and isinstance(n.value.func, ast.Name)
+                    and n.value.func.id == "Analysis")
+    argument = next(k.value for k in analysis.keywords if k.arg == "binaries")
+    actual = eval(compile(ast.Expression(argument), str(SPEC), "eval"), namespace)
+    assert actual is expected
+
+
+@pytest.mark.parametrize("libraries", [[], [("/wheel/torchvision/image.so", "torchvision")]])
+def test_missing_torchvision_ops_abort_the_build(libraries):
+    """A bundle without _C must fail during collection, before a native run."""
+    collector = next(n for n in _tree().body if isinstance(n, ast.FunctionDef)
+                     and n.name == "_torchvision_binaries")
+    namespace = {"Path": Path, "collect_dynamic_libs": lambda *a, **k: libraries}
+    exec(compile(ast.Module(body=[collector], type_ignores=[]), str(SPEC), "exec"), namespace)
+    with pytest.raises(RuntimeError, match="_C operator library was not collected"):
+        namespace["_torchvision_binaries"]()
