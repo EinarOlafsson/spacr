@@ -339,3 +339,17 @@ incorrectly rejected Cocoa's empty dialog title. Its correction binds the
 prompt text/versions/buttons while permitting an empty title only onMac;
 actual repaired-driver execution remains pending. Frozen replacement and
 all remaining backend/account/consent requirements remain OPEN.
+
+STATUS 2026-09-27 — independent frozen helper infrastructure
+The native builds now include a separate stdlib-only updater executable.
+Preparation copies it outside installation roots and gives it independent
+extraction storage and environment. Unsupported frozen replacement families
+remain blocked before removal; this does not enable an online-family fallback.
+The copied onefile helper must never be elevated from user-controlled storage.
+
+Local helper, ownership-boundary, cleanup and packaging checks:216 passed,
+one actual-native-binary test deferred. Artifact-only jobs now copy/hash the
+installed helper, remove the original installation, and run its real CLI with
+an empty PATH and reset extraction environment. Native execution is pending.
+Receipt: features/data/53_standalone_helper_preparation_2026-09-27.json.
+Frozen family transactions and the remaining item53 acceptance remain OPEN.

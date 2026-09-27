@@ -1400,6 +1400,18 @@ def _record_from_json(data: Dict) -> InstallRecord:
     return InstallRecord(**values)
 
 
+def _requires_frozen_adapter(record: InstallRecord) -> bool:
+    """Identify installer families that cannot use an online replacement recipe.
+
+    :param record: the discovered installation to classify.
+    :returns: whether replacement requires a native frozen-family adapter.
+    """
+    return (
+        record.layout in {"windows-offline", "linux-deb"}
+        or (record.layout == "macos-app" and record.root.lower().endswith(".app"))
+    )
+
+
 def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
                      machine: _Machine):
     """Return how the new version replaces an installer-made copy.
@@ -1411,6 +1423,8 @@ def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
     :returns: ``(fetch, install, relaunch)``: the installer download, the
         command that runs it, and the command that starts the new version.
     """
+    if _requires_frozen_adapter(record):
+        raise ValueError("this installer family needs a verified frozen replacement adapter")
     suffix = _ASSET_SUFFIX[record.platform]
     name = f"{_NAME}-{version}-{suffix}"
     target = os.path.join(workdir, name)
@@ -1431,9 +1445,88 @@ def _reinstall_steps(record: InstallRecord, version: str, workdir: str,
     return fetch, install, relaunch
 
 
+def _standalone_helper_command(records: Sequence[InstallRecord], workdir: str,
+                               plan_path: str, machine: _Machine):
+    """Copy the bundled updater outside every removed root without host Python.
+
+    The independently extracted one-file helper contains only this module and
+    Python's standard library. Preparing it does not authorize a replacement
+    recipe or remove an installation.
+
+    :param records: installations whose roots must survive helper preparation.
+    :param workdir: private helper directory outside all installation roots.
+    :param plan_path: update plan inside that private directory.
+    :param machine: current platform, executable and environment description.
+    :returns: helper argv, isolated environment and any preparation error.
+    """
+    def contains(path, root):
+        """Compare canonical paths using the host filesystem's case semantics.
+
+        :param path: candidate nested path.
+        :param root: containing directory to check.
+        :returns: whether the candidate resolves inside the directory.
+        """
+        try:
+            canonical_path = os.path.normcase(os.path.realpath(path))
+            canonical_root = os.path.normcase(os.path.realpath(root))
+            return os.path.commonpath([canonical_path, canonical_root]) == canonical_root
+        except (OSError, ValueError):
+            return False
+
+    bundle = getattr(sys, "_MEIPASS", None)
+    if not getattr(sys, "frozen", False) or not bundle:
+        return None, None, "a frozen application bundle is required"
+    roots = [record.root for record in records if record.kind == "installer"]
+    roots.extend(path for record in records if record.kind == "installer"
+                 for path in record.registrations if path.lower().endswith(".app"))
+    roots.extend([str(bundle), os.path.dirname(machine.executable)])
+    executable_folder = os.path.dirname(os.path.realpath(machine.executable))
+    contents = os.path.dirname(executable_folder)
+    application = os.path.dirname(contents)
+    if (os.path.basename(executable_folder) == "MacOS"
+            and os.path.basename(contents) == "Contents"
+            and application.lower().endswith(".app")):
+        roots.append(application)
+    destination_root = os.path.realpath(workdir)
+    if any(contains(destination_root, root) for root in roots):
+        return None, None, "the standalone updater folder is inside an installation"
+    canonical_plan = os.path.realpath(plan_path)
+    if not contains(canonical_plan, destination_root):
+        return None, None, "the update plan must stay inside the standalone updater folder"
+    name = "spacr-update-helper" + (".exe" if machine.platform == "windows" else "")
+    source = os.path.realpath(os.path.join(str(bundle), name))
+    if not contains(source, str(bundle)) or not os.path.isfile(source):
+        return None, None, "the bundled standalone updater is missing or outside its bundle"
+    target = os.path.join(destination_root, name)
+    runtime = os.path.join(destination_root, "runtime")
+    try:
+        os.makedirs(destination_root, mode=0o700, exist_ok=True)
+        if os.name != "nt" and stat.S_IMODE(os.stat(destination_root).st_mode) & 0o077:
+            return None, None, "the standalone updater folder must be private to its owner"
+        os.mkdir(runtime, mode=0o700)
+        with open(source, "rb") as original, open(target, "xb") as copied:
+            shutil.copyfileobj(original, copied)
+        os.chmod(target, 0o700)
+    except OSError as error:
+        return None, None, f"could not prepare the standalone updater: {error}"
+    environment = dict(machine.environ)
+    environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    for variable in ("PYTHONHOME", "PYTHONPATH"):
+        environment.pop(variable, None)
+    for variable in ("LD_LIBRARY_PATH", "LIBPATH"):
+        previous = environment.pop(variable + "_ORIG", None)
+        if previous is None:
+            environment.pop(variable, None)
+        else:
+            environment[variable] = previous
+    for variable in ("TMPDIR", "TMP", "TEMP"):
+        environment[variable] = runtime
+    return [target, "run-plan", canonical_plan], environment, None
+
+
 def _helper_command(records: Sequence[InstallRecord], workdir: str,
                     module: str, plan_path: str, machine: _Machine):
-    """Choose an interpreter that survives the removal, and the helper's argv.
+    """Choose a standalone helper or interpreter that survives the removal.
 
     :param records: every installation in the plan.
     :param workdir: the helper's folder.
@@ -1441,7 +1534,7 @@ def _helper_command(records: Sequence[InstallRecord], workdir: str,
     :param plan_path: the plan file.
     :param machine: the computer.
     :returns: ``(argv, environment, error)``; ``argv`` is ``None`` when no
-        interpreter outside the removed copies exists.
+        standalone helper or interpreter outside the removed copies exists.
     """
     doomed = [r.root for r in records if r.kind == "installer"]
     tail = ["-I", module, "run-plan", plan_path]
@@ -1449,6 +1542,8 @@ def _helper_command(records: Sequence[InstallRecord], workdir: str,
         bool(getattr(sys, "frozen", False))
         and os.path.realpath(machine.executable) == os.path.realpath(sys.executable)
     )
+    if frozen_executable:
+        return _standalone_helper_command(records, workdir, plan_path, machine)
     if not frozen_executable and not any(
             _inside(machine.executable, root) for root in doomed):
         return [machine.executable, *tail], None, None
@@ -1525,6 +1620,11 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     :returns: the plan as written to ``plan.json``. ``plan["command"]`` is the
         helper's command, or ``None`` with ``plan["error"]`` saying why
         nothing was started.
+
+    Frozen application families currently return an error before spawning or
+    removing anything: their verified, family-preserving replacement adapters
+    are not implemented. The bundled standalone helper does not enable an
+    online-installer fallback for these applications.
     """
     machine = system or _Machine()
     records = list(records)
@@ -1545,9 +1645,15 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
         "workdir": workdir,
         "fetch": None, "install": None, "relaunch": None,
         "command": None, "error": None,
+        "frozen_application": bool(getattr(sys, "frozen", False)),
     }
     if running is None:
         plan["error"] = "the running spaCR is not an installer-made copy"
+    elif plan["frozen_application"] or _requires_frozen_adapter(running):
+        plan["error"] = (
+            "this installation requires a verified frozen replacement adapter; "
+            "run the matching installer instead. Nothing was removed."
+        )
     elif not str(__file__).endswith(".py") or not os.path.isfile(__file__):
         plan["error"] = (
             "standalone updater source is unavailable in this installation; "
@@ -1730,6 +1836,12 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         print("\n".join(lines))
         return code
 
+    planned_records = [_record_from_json(data) for data in plan["records"]]
+    if plan.get("frozen_application") or any(
+            record.running and _requires_frozen_adapter(record)
+            for record in planned_records):
+        lines.append("A verified frozen replacement adapter is required; nothing was changed.")
+        return _finish(2)
     if not (wait or _wait_for_exit)(int(plan["pid"])):
         lines.append("spaCR did not close, so nothing was changed.")
         return _finish(3)

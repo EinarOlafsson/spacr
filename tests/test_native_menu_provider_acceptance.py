@@ -12,6 +12,7 @@ def test_cocoa_menu_check_is_enabled_only_for_the_real_macos_artifact():
     macos = next(s for s in steps if s.get('if') == "matrix.platform == 'macos'")
     windows = next(s for s in steps if s.get('if') == "matrix.platform == 'windows'")
     assert 'SPACR_NATIVE_MENU_SMOKE=1' in macos['run']
+    assert 'native_menu.mode' in macos['run'] and '= in-window-on-cocoa' in macos['run']
     assert 'native_menu.preferences_opened' in macos['run']
     assert 'native_menu.quit_observed' in macos['run']
     assert 'SPACR_NATIVE_MENU_SMOKE' not in windows['run']

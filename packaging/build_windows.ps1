@@ -25,7 +25,7 @@ try {
     }
     if (-not $SkipDependencyInstall) {
         Invoke-CheckedNative "python" @("-m", "pip", "install", "--upgrade", "pip")
-        Invoke-CheckedNative "python" @("-m", "pip", "install", "pyinstaller>=6,<7")
+        Invoke-CheckedNative "python" @("-m", "pip", "install", "pyinstaller>=6.10,<7")
         Invoke-CheckedNative "python" @("-m", "pip", "install", ".")
     }
     Invoke-CheckedNative "python" @("-m", "PyInstaller", "--noconfirm", "--clean", "packaging\spacr.spec")

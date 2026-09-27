@@ -10,6 +10,7 @@ on:
       - packaging/build_debian.sh
       - packaging/spacr.spec
       - packaging/spacr_launcher.py
+      - spacr/install_cleanup.py
       - packaging/verify_claude_native_install.ps1
       - spacr/qt/startup_benchmark.py
 permissions:
@@ -46,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install 'pyinstaller>=6,<7'
+          python -m pip install 'pyinstaller>=6.10,<7'
           if [ '${{ matrix.platform }}' = windows ]; then
             python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           fi
@@ -148,6 +149,20 @@ jobs:
           if ($Process.ExitCode -ne 0) { throw "Frozen application exited $($Process.ExitCode)" }
           $Result = Get-Content $env:SPACR_BENCHMARK_JSON -Raw | ConvertFrom-Json
           if ($Result.status -ne 'passed' -or -not $Result.frozen) { throw 'Frozen smoke did not pass' }
+          $HelperSource = Join-Path $Install '_internal/spacr-update-helper.exe'
+          if (-not (Test-Path $HelperSource -PathType Leaf)) { throw 'Bundled standalone helper is missing' }
+          $HelperRoot = Join-Path $env:RUNNER_TEMP ('standalone-helper-' + [guid]::NewGuid())
+          New-Item -ItemType Directory $HelperRoot | Out-Null
+          $Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+          & "$env:SystemRoot\system32\icacls.exe" $HelperRoot /inheritance:r /grant:r "*${Sid}:(OI)(CI)F"
+          if ($LASTEXITCODE -ne 0) { throw 'Could not make helper directory private' }
+          $Helper = Join-Path $HelperRoot 'spacr-update-helper.exe'
+          $HelperTemp = Join-Path $HelperRoot 'extraction'
+          New-Item -ItemType Directory $HelperTemp | Out-Null
+          $HelperHash = (Get-FileHash $HelperSource -Algorithm SHA256).Hash
+          Copy-Item -LiteralPath $HelperSource -Destination $Helper
+          if ((Get-FileHash $Helper -Algorithm SHA256).Hash -ne $HelperHash) { throw 'Copied helper hash changed' }
+          Set-Content (Join-Path $Receipt 'helper-sha256.txt') $HelperHash
           $Unrelated = Join-Path $Install 'preserved-analysis.txt'
           Set-Content $Unrelated 'This file was not installed by NSIS.'
           $Uninstall = Start-Process (Join-Path $Install 'Uninstall.exe') -ArgumentList '/S' -Wait -PassThru
@@ -157,6 +172,32 @@ jobs:
           if ((Test-Path (Join-Path $Install 'spacr.exe')) -or (Test-Path (Join-Path $Install '_internal'))) { throw 'Uninstall retained packaged runtime files' }
           if (-not (Test-Path $Unrelated) -or -not (Test-Path $Result.database)) { throw 'Uninstall removed analysis data' }
           Set-Content (Join-Path $Receipt 'uninstall.txt') 'Owned executable removed; unrelated and completed analysis files preserved.'
+          if (Test-Path $HelperSource) { throw 'Original bundled helper survived uninstall' }
+          foreach ($Variable in @(Get-ChildItem Env:)) {
+            if ($Variable.Name -match '^(PYTHON|_PYI|LD_|DYLD_)' -or $Variable.Name -in @('LIBPATH','LIBRARY_PATH')) {
+              Remove-Item -LiteralPath ('Env:' + $Variable.Name)
+            }
+          }
+          $env:PATH = ''
+          $env:PYINSTALLER_RESET_ENVIRONMENT = '1'
+          $env:TMPDIR = $env:TMP = $env:TEMP = $HelperTemp
+          $HelperExits = @{}
+          foreach ($Case in @(@{name='help'; arguments=@('--help')}, @{name='run-plan-help'; arguments=@('run-plan','--help')})) {
+            $Stdout = Join-Path $Receipt ('helper-' + $Case.name + '.log')
+            $Stderr = Join-Path $Receipt ('helper-' + $Case.name + '-stderr.log')
+            $Child = Start-Process $Helper -WorkingDirectory $Clean -ArgumentList $Case.arguments -PassThru -RedirectStandardOutput $Stdout -RedirectStandardError $Stderr
+            if (-not $Child.WaitForExit(60000)) {
+              Set-Content (Join-Path $Receipt 'helper-timeout.txt') $Case.name
+              & "$env:SystemRoot\system32\taskkill.exe" /PID $Child.Id /T /F
+              throw 'Copied standalone helper timed out'
+            }
+            $HelperExits[$Case.name] = $Child.ExitCode
+            Set-Content (Join-Path $Receipt ('helper-' + $Case.name + '-exit.txt')) $Child.ExitCode
+            if ($Child.ExitCode -ne 0) { throw 'Copied standalone helper failed' }
+            if ((Get-Content $Stdout -Raw) -notmatch 'install_cleanup' -or (Get-Content $Stdout -Raw) -notmatch 'run-plan') { throw 'Copied helper did not expose its real CLI' }
+          }
+          if ((Get-FileHash $Helper -Algorithm SHA256).Hash -ne $HelperHash) { throw 'Executed helper hash changed' }
+          @{passed=$true; scope='native copied-helper CLI after uninstall, not update execution'; source_commit=$env:SPACR_ACCEPTANCE_SOURCE_COMMIT; source=$HelperSource; helper=$Helper; sha256=$HelperHash; original_removed=$true; path_empty=($env:PATH -eq ''); environment_reset=$true; extraction_root=$HelperTemp; exits=$HelperExits} | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $Receipt 'helper-survival.json')
       - name: Install and launch the actual macOS artifact
         if: matrix.platform == 'macos'
         shell: bash
@@ -170,6 +211,7 @@ jobs:
           dmg=(incoming/dist/*.dmg)
           test "${#dmg[@]}" = 1
           (cd incoming/dist && shasum -a 256 -c ../acceptance/SHA256SUMS)
+          test ! -e "$install_root/spaCR.app" && test ! -L "$install_root/spaCR.app"
           hdiutil attach -readonly -nobrowse -mountpoint "$mount" "${dmg[0]}"
           ditto "$mount/spaCR.app" "$install_root/spaCR.app"
           hdiutil detach "$mount"
@@ -188,10 +230,53 @@ jobs:
           watchdog_pid=$!
           trap 'kill "$watchdog_pid" 2>/dev/null || true' EXIT
           wait "$app_pid"
+          kill "$watchdog_pid" 2>/dev/null || true
+          wait "$watchdog_pid" 2>/dev/null || true
+          trap - EXIT
           test "$(plutil -extract status raw "$receipt/smoke.json")" = passed
           test "$(plutil -extract frozen raw "$receipt/smoke.json")" = true
+          test "$(plutil -extract native_menu.mode raw "$receipt/smoke.json")" = in-window-on-cocoa
           test "$(plutil -extract native_menu.preferences_opened raw "$receipt/smoke.json")" = true
           test "$(plutil -extract native_menu.quit_observed raw "$receipt/smoke.json")" = true
+          helper_source="$install_root/spaCR.app/Contents/Frameworks/spacr-update-helper"
+          test -x "$helper_source"
+          helper_root=$(mktemp -d "$RUNNER_TEMP/standalone-helper.XXXXXX")
+          chmod 700 "$helper_root"
+          helper="$helper_root/spacr-update-helper"
+          helper_temp="$helper_root/extraction"
+          mkdir -m 700 "$helper_temp"
+          helper_hash=$(shasum -a 256 "$helper_source" | cut -d ' ' -f 1)
+          cp -p "$helper_source" "$helper"
+          test "$(shasum -a 256 "$helper" | cut -d ' ' -f 1)" = "$helper_hash"
+          printf '%s\n' "$helper_hash" > "$receipt/helper-sha256.txt"
+          database=$(plutil -extract database raw "$receipt/smoke.json")
+          test "$install_root" = "$RUNNER_TEMP/legacy-install"
+          test -d "$install_root/spaCR.app" && test ! -L "$install_root/spaCR.app"
+          rm -rf -- "$install_root/spaCR.app"
+          test ! -e "$install_root/spaCR.app"
+          test ! -e "$helper_source"
+          test -s "$database"
+          printf '%s\n' 'Only the job-created installed app was removed; analysis database preserved.' > "$receipt/uninstall.txt"
+          run_helper() {
+            label="$1"
+            shift
+            /usr/bin/env -i HOME="$HOME" PATH= PYINSTALLER_RESET_ENVIRONMENT=1 TMPDIR="$helper_temp" TMP="$helper_temp" TEMP="$helper_temp" "$helper" "$@" > "$receipt/helper-$label.log" 2>&1 &
+            helper_pid=$!
+            (/bin/sleep 60; printf '%s\n' "$label" > "$receipt/helper-timeout.txt"; /bin/kill -TERM "$helper_pid" 2>/dev/null || true; /bin/sleep 5; /bin/kill -KILL "$helper_pid" 2>/dev/null || true) &
+            helper_watchdog=$!
+            if wait "$helper_pid"; then helper_status=0; else helper_status=$?; fi
+            kill "$helper_watchdog" 2>/dev/null || true
+            wait "$helper_watchdog" 2>/dev/null || true
+            printf '%s\n' "$helper_status" > "$receipt/helper-$label-exit.txt"
+            test ! -e "$receipt/helper-timeout.txt"
+            test "$helper_status" = 0
+            grep -q install_cleanup "$receipt/helper-$label.log"
+            grep -q run-plan "$receipt/helper-$label.log"
+          }
+          run_helper help --help
+          run_helper run-plan-help run-plan --help
+          test "$(shasum -a 256 "$helper" | cut -d ' ' -f 1)" = "$helper_hash"
+          printf '{"passed":true,"scope":"native copied-helper CLI after app removal, not update execution","sha256":"%s","source_commit":"%s","original_removed":true,"path_empty":true,"environment_reset":true,"help_exit":0,"run_plan_help_exit":0}\n' "$helper_hash" "$SPACR_ACCEPTANCE_SOURCE_COMMIT" > "$receipt/helper-survival.json"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -306,12 +391,35 @@ jobs:
           PATH=/usr/bin:/bin timeout --kill-after=20s 660s xvfb-run -a /usr/bin/spacr --no-setup > "$RUNNER_TEMP/legacy-receipt/application.log" 2>&1
           jq -e '.status == "passed" and .frozen == true and .kind == "debian-frozen"' "$SPACR_BENCHMARK_JSON"
           database=$(jq -r .database "$SPACR_BENCHMARK_JSON")
+          helper_source=/opt/spacr/_internal/spacr-update-helper
+          test -x "$helper_source"
+          helper_root=$(mktemp -d "$RUNNER_TEMP/standalone-helper.XXXXXX")
+          chmod 700 "$helper_root"
+          helper="$helper_root/spacr-update-helper"
+          helper_temp="$helper_root/extraction"
+          mkdir -m 700 "$helper_temp"
+          helper_hash=$(sha256sum "$helper_source" | cut -d ' ' -f 1)
+          cp -p "$helper_source" "$helper"
+          test "$(sha256sum "$helper" | cut -d ' ' -f 1)" = "$helper_hash"
+          printf '%s\n' "$helper_hash" > "$RUNNER_TEMP/legacy-receipt/helper-sha256.txt"
           dpkg --remove spacr
           test ! -e /opt/spacr
           test ! -e /usr/bin/spacr
           test ! -e /usr/share/applications/io.github.olafssonlab.spacr.desktop
           test -s "$database"
           printf '%s\n' 'Package removal preserved the completed analysis database.' > "$RUNNER_TEMP/legacy-receipt/uninstall.txt"
+          test ! -e "$helper_source"
+          for label in help run-plan-help; do
+            if [ "$label" = help ]; then set -- --help; else set -- run-plan --help; fi
+            helper_status=0
+            /usr/bin/timeout --kill-after=5s 60s /usr/bin/env -i HOME="$HOME" PATH= PYINSTALLER_RESET_ENVIRONMENT=1 TMPDIR="$helper_temp" TMP="$helper_temp" TEMP="$helper_temp" "$helper" "$@" > "$RUNNER_TEMP/legacy-receipt/helper-$label.log" 2>&1 || helper_status=$?
+            printf '%s\n' "$helper_status" > "$RUNNER_TEMP/legacy-receipt/helper-$label-exit.txt"
+            test "$helper_status" = 0
+            grep -q install_cleanup "$RUNNER_TEMP/legacy-receipt/helper-$label.log"
+            grep -q run-plan "$RUNNER_TEMP/legacy-receipt/helper-$label.log"
+          done
+          test "$(sha256sum "$helper" | cut -d ' ' -f 1)" = "$helper_hash"
+          jq -n --arg sha256 "$helper_hash" --arg source_commit "$SPACR_ACCEPTANCE_SOURCE_COMMIT" --arg helper "$helper" --arg extraction_root "$helper_temp" '{passed:true,scope:"native copied-helper CLI after package removal, not update execution",sha256:$sha256,source_commit:$source_commit,helper:$helper,extraction_root:$extraction_root,original_removed:true,path_empty:true,environment_reset:true,help_exit:0,run_plan_help_exit:0}' > "$RUNNER_TEMP/legacy-receipt/helper-survival.json"
       - uses: actions/upload-artifact@v7
         if: always()
         with:

@@ -88,6 +88,8 @@ def test_import_time_distribution_metadata_reaches_bundle_analysis() -> None:
     collected = set()
     for node in tree.body:
         if (isinstance(node, ast.Assign)
+                and any(isinstance(target, ast.Name) and target.id == "a"
+                        for target in node.targets)
                 and isinstance(node.value, ast.Call)
                 and isinstance(node.value.func, ast.Name)
                 and node.value.func.id == "Analysis"):
@@ -175,6 +177,8 @@ def test_torchvision_operator_library_is_passed_to_binary_analysis(library):
                               for t in n.targets))
     exec(compile(ast.Module(body=[assignment], type_ignores=[]), str(SPEC), "exec"), namespace)
     analysis = next(n.value for n in tree.body if isinstance(n, ast.Assign)
+                    and any(isinstance(target, ast.Name) and target.id == "a"
+                            for target in n.targets)
                     and isinstance(n.value, ast.Call)
                     and isinstance(n.value.func, ast.Name)
                     and n.value.func.id == "Analysis")

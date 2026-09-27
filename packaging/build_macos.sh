@@ -9,7 +9,7 @@
 #   * macOS 11 (Big Sur) or newer
 #   * python3.9+ on PATH
 #   * spacr installed in the current environment
-#   * pyinstaller >= 6.0
+#   * pyinstaller >= 6.10
 #   * hdiutil (ships with macOS)
 #   * (optional) an Apple Developer ID for real code-signing — otherwise
 #     the .app is signed ad-hoc and Gatekeeper will require right-click
@@ -35,7 +35,7 @@ rm -rf build dist
 echo "==> installing build deps (pip)"
 if [[ ${SPACR_SKIP_BUILD_DEPENDENCIES:-0} != 1 ]]; then
     python3 -m pip install --upgrade pip
-    python3 -m pip install 'pyinstaller>=6,<7'
+    python3 -m pip install 'pyinstaller>=6.10,<7'
     python3 -m pip install .
 fi
 

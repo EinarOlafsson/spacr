@@ -109,7 +109,7 @@ def test_helper_cannot_use_frozen_executable_even_outside_removed_roots(tmp_path
     machine = cleanup._Machine(environ={}, fs_root=str(tmp_path), executable=str(executable))
     command, _, error = cleanup._helper_command([], str(tmp_path), "helper.py", "plan.json", machine)
     assert command is None
-    assert "no Python outside" in error
+    assert "frozen application bundle is required" in error
 
 
 def test_absent_archived_helper_source_returns_a_plan_error_without_spawning(tmp_path, monkeypatch):
@@ -118,7 +118,7 @@ def test_absent_archived_helper_source_returns_a_plan_error_without_spawning(tmp
     root.mkdir()
     marker = root / "analysis.txt"
     marker.write_text("preserve")
-    record = cleanup.InstallRecord(kind="installer", layout="linux-deb", platform="linux",
+    record = cleanup.InstallRecord(kind="installer", layout="linux-online", platform="linux",
                                    root=str(root), running=True)
     machine = cleanup._Machine(environ={}, fs_root=str(tmp_path), executable=str(root / "spacr"))
     monkeypatch.setattr(cleanup, "__file__", str(root / "archive" / "install_cleanup.pyc"))

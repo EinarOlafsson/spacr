@@ -12,9 +12,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from packaging.version import Version
+from PyInstaller import __version__ as PYINSTALLER_VERSION
 from PyInstaller.utils.hooks import (
     collect_data_files, collect_dynamic_libs, collect_submodules, copy_metadata,
 )
+
+if Version(PYINSTALLER_VERSION) < Version("6.10"):
+    raise RuntimeError("The independent updater helper requires PyInstaller >= 6.10")
 
 # Repo root is one dir up from packaging/
 ROOT = Path(SPECPATH).resolve().parent
@@ -133,6 +138,23 @@ binaries = _torchvision_binaries()
 # Analysis / bundling
 # ------------------------------------------------------------------
 block_cipher = None
+
+helper_analysis = Analysis(
+    [str(ROOT / "spacr" / "install_cleanup.py")],
+    pathex=[], binaries=[], datas=[], hiddenimports=[],
+    hookspath=[], runtime_hooks=[],
+    excludes=["spacr", "PySide6", "torch", "numpy"],
+    noarchive=False,
+)
+helper_pyz = PYZ(helper_analysis.pure)
+helper_exe = EXE(
+    helper_pyz, helper_analysis.scripts,
+    helper_analysis.binaries, helper_analysis.datas, [],
+    name="spacr-update-helper", exclude_binaries=False,
+    debug=False, bootloader_ignore_signals=False,
+    strip=False, upx=False, console=True,
+)
+binaries += [(helper_exe.name, ".")]
 
 a = Analysis(
     [ENTRY],

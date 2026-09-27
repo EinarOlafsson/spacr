@@ -29,7 +29,7 @@ trap 'rm -rf -- "$build_env"' EXIT
 python3 -m venv "$build_env/venv"
 build_python="$build_env/venv/bin/python"
 "$build_python" -m pip install --upgrade pip
-"$build_python" -m pip install 'pyinstaller>=6,<7'
+"$build_python" -m pip install 'pyinstaller>=6.10,<7'
 "$build_python" -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 "$build_python" -m pip install .
 "$build_python" -m pip check
