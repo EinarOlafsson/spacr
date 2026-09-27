@@ -7262,6 +7262,9 @@ ALPHA_FEATURES = {
     },    563: {
         'widgets': ('ControlChartAnomaly', 'ControlChartAnomalySection'),
     },
+    568: {
+        'widgets': ('MakeMasksUncertaintyButton',),
+    },
     582: {
         'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',
                     'PluginCatalogueLoad', 'PluginCatalogueTable',

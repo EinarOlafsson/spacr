@@ -1383,6 +1383,23 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Write the anomaly report into',
     "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
     'anomaly report written to {folder}',
+    "Map this field's uncertainty",
+    'Mapping segmentation uncertainty: four detection runs…',
+    'Open a folder before mapping segmentation uncertainty.',
+    'Open a folder before ranking fields by uncertainty.',
+    'Rank the fields, most uncertain first',
+    'Ranked {count} fields by segmentation uncertainty, the most uncertain first.',
+    'Ranking by uncertainty would undo the blind order. Unblind first.',
+    'Ranking {count} fields by segmentation uncertainty: four detection runs each…',
+    'Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.',
+    'Segmentation uncertainty {value} over {count} objects.',
+    'The least certain is object {label} ({value}).',
+    'Uncertainty',
+    'Uncertainty failed',
+    'Uncertainty map discarded because the field changed.',
+    'Uncertainty saved; the open fields changed while ranking, so their order was left alone.',
+    'Uncertainty scores not saved: {error}',
+    'Uncertainty…',
 })
 
 

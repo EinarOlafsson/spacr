@@ -204,7 +204,7 @@ STATUS_FIELDS: List[str] = ["stem", "state", "n_objects", "updated"]
 REVIEWED = frozenset({"done", "skip", "recropped"})
 
 #: Every ordering :func:`order_items` accepts.
-ORDERS: Tuple[str, ...] = ("easy", "prob", "value", "name")
+ORDERS: Tuple[str, ...] = ("easy", "prob", "value", "name", "uncertain")
 
 #: ``easy`` is the default because that is what the external tool settled on
 #: after use: confirm a populated draft rather than draw an empty one.
@@ -222,6 +222,15 @@ MIN_DIAMETER_FOR_VALUE = 40.0
 #: ``+1.0``, larger than any real ``-prob``, and sorts LAST rather than
 #: pretending to be probability zero.
 UNSCORED_PROB = -1.0
+
+#: Per-stem segmentation uncertainty, read by the ``uncertain`` order and
+#: written by :func:`_write_uncertainty`. A file of its own rather than a
+#: column of :data:`SCORES_FILENAME`, so that writing it never shadows the
+#: external tool's probabilities beside the folder.
+_UNCERTAINTY_FILENAME = "curate_uncertainty.csv"
+
+_UNCERTAINTY_FIELDS: List[str] = ["stem", "uncertainty", "n_objects",
+                                  "passes", "model", "updated"]
 
 
 class CurationQueueError(SpacrError):
@@ -1155,6 +1164,77 @@ def load_draft_counts(folder: PathLike, items: Sequence[QueueItem],
     return {item.stem: cache.get(item.stem, 0) for item in items}
 
 
+def _load_uncertainty(folder: PathLike) -> Dict[str, float]:
+    """Read the queue's segmentation uncertainty, when it has been scored.
+
+    :param folder: the queue folder.
+    :returns: ``{stem: uncertainty}`` from ``curate_uncertainty.csv``, and
+        ``{}`` when there is no such file or it cannot be read, which makes
+        the ``uncertain`` order fall back to ``value`` and say so.
+    """
+    path = Path(folder) / _UNCERTAINTY_FILENAME
+    if not path.is_file():
+        return {}
+    scores: Dict[str, float] = {}
+    try:
+        with open(path, newline="", encoding="utf-8") as handle:
+            for raw in csv.DictReader(handle):
+                stem = (raw.get("stem") or "").strip()
+                try:
+                    value = float(raw.get("uncertainty"))
+                except (TypeError, ValueError):
+                    continue
+                if stem:
+                    scores[stem] = value
+    except (OSError, csv.Error, UnicodeDecodeError):
+        return {}
+    return scores
+
+
+def _write_uncertainty(folder: PathLike, rows: Mapping[str, Mapping[str, object]]
+                       ) -> Path:
+    """Merge per-field uncertainty into the queue's ``curate_uncertainty.csv``.
+
+    Rows about stems not given are kept, so scoring half a folder and then
+    the other half leaves one record. Written sorted by stem, through a
+    temporary file and a rename, as the resume record is.
+
+    :param folder: the queue folder.
+    :param rows: ``{stem: {"uncertainty": float, "n_objects": int,
+        "passes": int, "model": str}}``; missing keys are left blank.
+    :returns: the file written.
+    """
+    path = Path(folder) / _UNCERTAINTY_FILENAME
+    merged: Dict[str, Dict[str, object]] = {}
+    if path.is_file():
+        try:
+            with open(path, newline="", encoding="utf-8") as handle:
+                for raw in csv.DictReader(handle):
+                    stem = (raw.get("stem") or "").strip()
+                    if stem:
+                        merged[stem] = {key: raw.get(key, "")
+                                        for key in _UNCERTAINTY_FIELDS}
+        except (OSError, csv.Error, UnicodeDecodeError):
+            merged = {}
+    stamp = datetime.now().isoformat(timespec="seconds")
+    for stem, values in rows.items():
+        row: Dict[str, object] = {key: "" for key in _UNCERTAINTY_FIELDS}
+        row.update({key: values[key] for key in _UNCERTAINTY_FIELDS
+                    if key in values})
+        row["stem"] = stem
+        row["updated"] = stamp
+        merged[stem] = row
+    temporary = path.with_name(path.name + ".tmp")
+    with open(temporary, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=_UNCERTAINTY_FIELDS,
+                                extrasaction="ignore")
+        writer.writeheader()
+        for stem in sorted(merged):
+            writer.writerow(merged[stem])
+    os.replace(temporary, path)
+    return path
+
+
 def _resolve(source, default):
     """Resolve a mapping that may be given as a callable.
 
@@ -1195,10 +1275,12 @@ def resolve_order(order: str, probabilities: Mapping[str, float],
     if order not in ORDERS:
         raise ValueError(
             f"unknown order {order!r}; expected one of {list(ORDERS)}")
-    if order in ("prob", "easy") and not probabilities:
+    if order in ("prob", "easy", "uncertain") and not probabilities:
         where = f" ({scores_hint})" if scores_hint is not None else ""
+        what = ("segmentation uncertainty" if order == "uncertain"
+                else "curation probabilities")
         return "value", (
-            f"! no curation probabilities for this queue{where} -- "
+            f"! no {what} for this queue{where} -- "
             f"falling back to value order instead of {order}")
     return order, None
 
@@ -1231,13 +1313,20 @@ def order_items(items: Iterable[QueueItem], order: str = DEFAULT_ORDER,
     ``value``
         By :func:`value_key`: how much draft there is to correct.
 
+    ``uncertain``
+        Most uncertain segmentation first, the key being
+        ``-probs.get(stem, -1.0)`` with ``probs`` carrying each field's
+        uncertainty from ``curate_uncertainty.csv``. An unscored field sorts
+        last.
+
     Ties are broken by stem, because the list is sorted by stem before any
     of this and Python's sort is stable.
 
     :param items: the fields to order.
     :param order: one of :data:`ORDERS`.
     :param probs: ``{stem: probability}``, or a callable returning one, or
-        ``None`` for none available.
+        ``None`` for none available; for ``uncertain``, ``{stem:
+        uncertainty}``.
     :param counts: ``{stem: n_objects}``, or a callable returning one. When
         ``None``, ``easy`` reads the drafts itself.
     :param announce: where the fallback notice goes; defaults to
@@ -1280,7 +1369,7 @@ def order_items(items: Iterable[QueueItem], order: str = DEFAULT_ORDER,
 
         return sorted(ordered, key=easy_key)
 
-    if order == "prob":
+    if order in ("prob", "uncertain"):
         return sorted(ordered,
                       key=lambda item: -probabilities.get(item.stem,
                                                           UNSCORED_PROB))
@@ -1354,7 +1443,13 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
 
     probabilities: Optional[Mapping[str, float]] = None
     source: Optional[Path] = None
-    if order in ("prob", "easy"):
+    if order == "uncertain":
+        probabilities = _resolve(probs, None)
+        if probabilities is None:
+            probabilities = _load_uncertainty(layout.folder)
+            if probabilities:
+                source = Path(layout.folder) / _UNCERTAINTY_FILENAME
+    elif order in ("prob", "easy"):
         probabilities = _resolve(probs, None)
         if probabilities is None:
             source = scores_path(layout.folder)
@@ -1363,10 +1458,24 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
             f"{external_record(layout.folder, EXTERNAL_SCORES_SUFFIX)}; "
             f"either needs a stem column and one of "
             f"{', '.join(PROB_COLUMNS)}")
+    if order == "uncertain":
+        hint = (f"looked for {Path(layout.folder) / _UNCERTAINTY_FILENAME}; "
+                f"rank the fields by uncertainty in Make Masks to write it")
     effective, notice = resolve_order(order, probabilities or {}, hint)
     if notice is not None:
         notices.append(notice)
         say(notice)
+    elif effective == "uncertain":
+        if source is not None:
+            say(f"segmentation uncertainty from {source}")
+        unscored = [item.stem for item in waiting
+                    if item.stem not in (probabilities or {})]
+        if unscored:
+            notice = (f"! {len(unscored)} of {len(waiting)} field(s) have no "
+                      f"segmentation uncertainty yet; uncertain order ranks "
+                      f"them below every scored field")
+            notices.append(notice)
+            say(notice)
     elif effective in ("prob", "easy"):
         if source is not None:
             say(f"probabilities from {source}")
