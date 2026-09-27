@@ -732,3 +732,35 @@ Still pending: root-owned lesson 56 oracle/warning revision and genuine
 recapture. The old failure evidence remains historical; it must not be
 rewritten as a passing capture. Full item 47 serial acceptance is separate
 and its next-run NOT_READY marker remains set until final integration.
+
+STATUS 2026-09-27 — regression input/count defect repaired; lesson 73 pending
+The retained lesson 73 warning exposed a second concrete defect: prepared
+model_data was overwritten by annotated coefficients, so Sweep called 1,174
+coefficient rows fitted observations instead of distinguishing the 2,955
+prepared rows and 620 wells. The prepared table now remains separate.
+Measured post-cleaning/reshape fit counts are retained for each guide/gene
+fit, including mixed-model observation counts. Unequal level counts stay
+separate; missing counts never fall back to prepared input size. New metric
+columns are excluded from replay settings while custom axes remain intact.
+
+Saved summaries now label prepared counts honestly and persist measured
+records in regression_fit_designs.json for reopening without a model. A
+prepared-to-fit row difference is not labeled excluded samples: aggregation
+changes the observation unit. Saved summary input also preserves textual
+well/guide/gene identifiers, so leading zeros cannot collapse distinct IDs.
+
+Validation (CPU-only, private HOME, 4G): the initial focused run retained
+174 passes and six failures, all caused by the new independent test CSV
+reader converting gene ID 000000 to integer 0. Explicit identifier dtypes
+fixed that harness error without weakening exact equality; those six cases
+then passed. After the separate saved-summary identifier reader correction,
+both existing summary files passed all 145 checks. Real long/wide Ridge,
+grna/gene/both entry points, Patsy row omission, actual mixed CLI fits,
+persisted counts, replay, absent/malformed counts and summary mode contracts
+are covered. All original failure logs remain in the receipt:
+features/data/07_regression_design_counts_2026-09-27.json.
+
+This repair does not change inference or claim a new lesson 73 acceptance.
+Root-owned genuine recapture and independent saved-output verification are
+next. Public return/summary contracts require the coordinated API refresh.
+The running item 47 frozen serial scope is unchanged and is not closed here.
