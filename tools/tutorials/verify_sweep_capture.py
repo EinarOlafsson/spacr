@@ -7,7 +7,7 @@ from pathlib import Path
 
 from build_evaluation_example import sha
 from sweep_evidence import (check_display,check_result_family,count_result_rows,
-                            check_trial_set,check_fitted_support)
+                            check_trial_set,check_fitted_support,check_support_geometry)
 
 
 def verify(capture):
@@ -67,6 +67,7 @@ def verify(capture):
     if not geometry['both_rows_visible'] or geometry['viewport_height']<2*geometry['row_height']:
         raise ValueError('The recorded trial rows do not fit')
     report.update(accepted=True,original_inputs_preserved=True,trial_table_geometry=geometry,
+        visible_fitted_support=check_support_geometry(proof['support_geometry'],rows),
         checked_result_cells=sum(c['table']['cells'] for c in report['family_checks'].values()),
         checked_plot_points=sum(c['plotted_points'] for c in report['family_checks'].values()))
     return report

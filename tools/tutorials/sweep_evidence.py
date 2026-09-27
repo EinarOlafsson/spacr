@@ -1,6 +1,69 @@
 """Independent CSV and GUI checks for the two-trial tutorial sweep."""
 import math
 
+SUPPORT_COLUMNS = ('n_rows_fitted_grna', 'n_wells_grna',
+                   'n_rows_fitted_gene', 'n_wells_gene')
+
+
+def check_support_geometry(evidence, saved):
+    """Require both actual trials' four support cells and headers fully in frame."""
+    def rectangle(value):
+        if not isinstance(value, (list, tuple)) or len(value) != 4:
+            raise ValueError('Missing support rectangle')
+        x, y, width, height = [_finite_number(v, 'support rectangle') for v in value]
+        if width <= 0 or height <= 0:
+            raise ValueError('Empty support rectangle')
+        return x, y, width, height
+
+    def contained(inner, outer):
+        x, y, width, height = rectangle(inner)
+        left, top, wide, high = rectangle(outer)
+        if x < left or y < top or x + width > left + wide or y + height > top + high:
+            raise ValueError('Clipped measured support evidence')
+
+    if evidence.get('frame') != '12_saved_guide_family_restored':
+        raise ValueError('Support is not shown in the narrated frame')
+    viewport, header_viewport = evidence['viewport'], evidence['header_viewport']
+    contained(viewport, evidence['window'])
+    contained(header_viewport, evidence['window'])
+    headers = evidence['headers']
+    if len(headers) != 4 or {h['name'] for h in headers} != set(SUPPORT_COLUMNS):
+        raise ValueError('Missing or duplicate measured support headers')
+    for header in headers:
+        if header['visible'] is not True:
+            raise ValueError('Hidden measured support header')
+        contained(header['rect'], header_viewport)
+    wanted = {str(row['trial_id']): row for row in saved}
+    if len(saved) != 2 or len(wanted) != 2:
+        raise ValueError('Expected two distinct measured trials')
+    expected = {(trial, column) for trial in wanted for column in SUPPORT_COLUMNS}
+    seen = set()
+    rectangles = []
+    for cell in evidence['cells']:
+        key = (str(cell['trial_id']), cell['column'])
+        if key not in expected or key in seen:
+            raise ValueError('Unknown or duplicate measured support cell')
+        seen.add(key)
+        if cell['visible'] is not True:
+            raise ValueError('Hidden measured support cell')
+        contained(cell['rect'], viewport)
+        matching = next(header for header in headers if header['name'] == key[1])
+        x, y, width, height = rectangle(cell['rect'])
+        hx, _, hw, _ = rectangle(matching['rect'])
+        if x < hx or x + width > hx + hw:
+            raise ValueError('Measured support cell is outside its header')
+        if _count(cell['value'], key[1]) != _count(wanted[key[0]].get(key[1]), key[1]):
+            raise ValueError('Visible measured support differs from saved trial')
+        rectangles.append(cell['rect'])
+    if seen != expected:
+        raise ValueError('Missing measured support cells')
+    rectangles += [header['rect'] for header in headers]
+    left, top = min(r[0] for r in rectangles), min(r[1] for r in rectangles)
+    right = max(r[0] + r[2] for r in rectangles)
+    bottom = max(r[1] + r[3] for r in rectangles)
+    return dict(passed=True, trials=2, columns=4, cells=8,
+                frame=evidence['frame'], bounds=[left, top, right-left, bottom-top])
+
 
 def _finite_number(value, label):
     try:

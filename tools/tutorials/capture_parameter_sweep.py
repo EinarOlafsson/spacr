@@ -9,6 +9,62 @@ import time
 from build_evaluation_example import sha
 
 
+def support_geometry(table, window):
+    """Record unclipped actual header/cell bounds in captured window coordinates."""
+    from PySide6.QtCore import QRect
+    from PySide6.QtGui import QRegion
+    from sweep_evidence import SUPPORT_COLUMNS
+
+    def bounds(widget, rect):
+        """Map the whole rectangle without clipping it to the captured window."""
+        origin = widget.mapTo(window, rect.topLeft())
+        return [origin.x(), origin.y(), rect.width(), rect.height()]
+
+    headers = [table.horizontalHeaderItem(c).text() for c in range(table.columnCount())]
+    header = table.horizontalHeader()
+    viewport = table.viewport()
+    evidence = dict(frame="12_saved_guide_family_restored",
+        window=[0, 0, window.width(), window.height()],
+        viewport=bounds(viewport, viewport.rect()),
+        header_viewport=bounds(header.viewport(), header.viewport().rect()),
+        horizontal_scroll=table.horizontalScrollBar().value(), headers=[], cells=[])
+    for name in SUPPORT_COLUMNS:
+        if headers.count(name) != 1:
+            raise ValueError("Missing or repeated measured support column: " + name)
+        column = headers.index(name)
+        rect = QRect(header.sectionViewportPosition(column), 0,
+                     header.sectionSize(column), header.viewport().height())
+        evidence['headers'].append(dict(name=name, rect=bounds(header.viewport(), rect),
+            visible=header.isVisible() and not table.isColumnHidden(column)
+            and QRegion(rect).subtracted(header.viewport().visibleRegion()).isEmpty()))
+        for row in range(table.rowCount()):
+            item = table.item(row, column)
+            rect = table.visualItemRect(item)
+            evidence['cells'].append(dict(trial_id=table.item(row, headers.index('trial_id')).text(),
+                column=name, value=item.text(), rect=bounds(viewport, rect),
+                visible=table.isVisible() and not table.isRowHidden(row)
+                and not table.isColumnHidden(column)
+                and QRegion(rect).subtracted(viewport.visibleRegion()).isEmpty()))
+    return evidence
+
+
+def reveal_support(table, settle):
+    """Use the real horizontal scrollbar to expose the measured support columns."""
+    from PySide6.QtWidgets import QAbstractItemView
+    from sweep_evidence import SUPPORT_COLUMNS
+
+    headers = [table.horizontalHeaderItem(c).text() for c in range(table.columnCount())]
+    first = headers.index(SUPPORT_COLUMNS[0])
+    table.scrollToItem(table.item(0, first), QAbstractItemView.PositionAtTop)
+    header = table.horizontalHeader()
+    scroll = table.horizontalScrollBar()
+    if table.horizontalScrollMode() == QAbstractItemView.ScrollPerPixel:
+        scroll.setValue(scroll.value() + header.sectionViewportPosition(first))
+    else:
+        scroll.setValue(header.visualIndex(first))
+    settle(.3)
+
+
 def prepare(stage,existing=None,*,input_root=None):
     stage=Path(stage).resolve()
     settings=json.loads((stage/'captures/regression_release/batch_settings.json').read_text())
@@ -220,6 +276,10 @@ def record_sweep(app,window,stage,captures,capture,settle,write_json,timeout,*,e
         for _ in range(index):QTest.keyClick(box.view(),Qt.Key_Down)
         QTest.keyClick(box.view(),Qt.Key_Return);settle(.6)
         if panel.results.level()!='grna':raise ValueError('Actual selector did not restore guides')
+        from sweep_evidence import check_support_geometry
+        reveal_support(panel.table, settle)
+        proof['support_geometry'] = support_geometry(panel.table, window)
+        check_support_geometry(proof['support_geometry'], rows)
         result_snapshot('12_saved_guide_family_restored')
         tabs=panel.results.tabs;bar=tabs.tabBar()
         index=tabs.indexOf(panel.results._summary)

@@ -348,6 +348,36 @@ def test_the_table_on_disk_is_read_and_shown(screen, tmp_path):
     assert screen.table.horizontalHeaderItem(0).text() == "trial_id"
 
 
+def test_saved_trial_table_preserves_distinct_fit_support_and_unknowns(screen, tmp_path):
+    """Prepared, common and per-level counts retain their separate meanings."""
+    frame = _results_frame()
+    values = {
+        "n_rows_fitted_grna": [2955, 2800], "n_wells_grna": [620, 610],
+        "n_rows_fitted_gene": [2700, 0], "n_wells_gene": [600, 0],
+        "n_rows_fitted": [None, None], "n_wells": [None, None],
+        "n_rows_prepared": [3000, 3000], "n_wells_prepared": [625, 625],
+    }
+    for name, counts in values.items():
+        frame[name] = counts
+    frame.to_csv(tmp_path / "sweep_results.csv", index=False)
+    screen.destination.setText(str(tmp_path))
+    screen.load_results()
+    headers = [screen.table.horizontalHeaderItem(i).text()
+               for i in range(screen.table.columnCount())]
+    required = list(values)[:4]
+    first = headers.index(required[0])
+    assert headers[first:first + 4] == required
+    for name, counts in values.items():
+        column = headers.index(name)
+        assert not screen.table.isColumnHidden(column)
+        for row, count in enumerate(counts):
+            displayed = screen.table.item(row, column).text()
+            if count is None:
+                assert displayed in {"nan", "None", ""}
+            else:
+                assert float(displayed) == count
+
+
 # ---------------------------------------------------------------------------
 # Opening one row
 
