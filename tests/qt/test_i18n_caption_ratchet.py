@@ -1282,6 +1282,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # 544 and 573, 2026-09-26: the Blind switches of Annotate and Make
     # Masks, their notices and questions, and the Lock analysis button and
     # dialog (all alpha).
+    # 567, 2026-09-27: the Event Detection (Alpha) category help on Timelapse.
+    'Mitosis, egress, invasion and host death detected on tracks by a small '
+    'network trained on annotated events, with held-out precision and '
+    'recall, division links re-made from mitoses and time to each event per '
+    'condition.',
     # 537, 2026-09-27: the Lineage Trees (Alpha) category help on Timelapse.
     "Lineage trees drawn from the tracker's division links after each field "
     'is tracked, coloured by a measurement, with Newick and CSV export and '

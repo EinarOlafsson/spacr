@@ -1885,6 +1885,803 @@ def _run_lineage_step(src, name, object_type, mode, settings):
     return result
 
 
+_EVENT_BACKGROUND = 'none'
+_EVENT_CROP = 16
+_EVENT_SHAPE_COLUMNS = ('area', 'eccentricity', 'solidity')
+
+
+def _event_frame_features(mask_stack, images=None, crop=_EVENT_CROP):
+    """Shape and intensity of every tracked object in every frame, with crops.
+
+    :param mask_stack: ``(T, H, W)`` labels, each object labelled with its
+        track id.
+    :param images: ``(T, H, W)`` or ``(T, H, W, C)`` intensities, or None.
+    :param crop: side of the stored crop; the crop covers twice this many
+        pixels around the object's centre and is averaged down two-fold.
+    :returns: ``(features, crops)``: one row per object and frame with
+        ``frame``, ``track_id``, ``x``, ``y``, ``area``, ``eccentricity``,
+        ``solidity`` and, with images, ``intensity_mean_c<k>`` and
+        ``intensity_max_c<k>``; and a ``(rows, C, crop, crop)`` float16
+        array in the same order, or None without images. Intensities are
+        divided by each channel's 99.5th percentile over the movie.
+    """
+    masks = np.asarray(mask_stack)
+    imgs = None
+    if images is not None:
+        imgs = np.asarray(images, dtype=np.float32)
+        if imgs.ndim == 3:
+            imgs = imgs[..., None]
+        scale = np.percentile(imgs.reshape(-1, imgs.shape[-1]), 99.5, axis=0)
+        imgs = imgs / np.where(scale > 0, scale, 1.0)
+    rows, crops = [], []
+    for t in range(masks.shape[0]):
+        lab = masks[t].astype(np.int32)
+        if not lab.any():
+            continue
+        properties = ['label', 'centroid', 'area', 'eccentricity', 'solidity']
+        if imgs is not None:
+            properties += ['intensity_mean', 'intensity_max']
+        props = pd.DataFrame(regionprops_table(
+            lab, intensity_image=None if imgs is None else imgs[t],
+            properties=properties))
+        props = props.rename(columns={'label': 'track_id', 'centroid-0': 'y',
+                                      'centroid-1': 'x'})
+        props = props.rename(columns=lambda c: re.sub(
+            r'^(intensity_(?:mean|max))-(\d+)$', r'\1_c\2', c))
+        props.insert(0, 'frame', t)
+        rows.append(props)
+        if imgs is not None:
+            half = crop
+            padded = np.pad(imgs[t], ((half, half), (half, half), (0, 0)))
+            for y, x in zip(props['y'], props['x']):
+                r, c = int(round(y)) + half, int(round(x)) + half
+                patch = padded[r - half:r + half, c - half:c + half]
+                patch = patch.reshape(crop, 2, crop, 2, -1).mean(axis=(1, 3))
+                crops.append(np.moveaxis(patch, -1, 0).astype(np.float16))
+    if not rows:
+        return pd.DataFrame(columns=['frame', 'track_id', 'x', 'y']), None
+    features = pd.concat(rows, ignore_index=True)
+    return features, (np.stack(crops) if crops else None)
+
+
+def _event_track_table(tracks, features=None, radius=30.0):
+    """Per-frame inputs of the event detector for one field's tracks.
+
+    Joins the tracks with the frame features of
+    :func:`_event_frame_features` where there are any and adds what the
+    tracks themselves say: speed, the log change in area, whether the track
+    starts or ends in this frame (other than at the movie's first or last
+    frame), how many other tracks end within ``radius`` pixels in the same
+    frame and how many new tracks start within ``radius`` pixels in the
+    next frame.
+
+    :param tracks: tracks table with ``frame``, ``track_id``, ``x`` and ``y``.
+    :param features: optional frame features keyed by ``frame`` and
+        ``track_id``.
+    :param radius: neighbourhood radius in pixels.
+    :returns: the table, sorted by track and frame.
+    """
+    df = tracks.dropna(subset=['track_id', 'frame', 'x', 'y']).copy()
+    df['track_id'] = df['track_id'].astype(int)
+    df['frame'] = df['frame'].astype(int)
+    if features is not None and len(features):
+        extra = features.drop(columns=[c for c in ('x', 'y') if c in features.columns])
+        extra = extra.astype({'frame': int, 'track_id': int})
+        keep = [c for c in df.columns if c in ('frame', 'track_id', 'x', 'y',
+                                               'parent_track_id')]
+        df = df[keep].merge(extra, on=['frame', 'track_id'], how='left')
+    df = df.drop_duplicates(['track_id', 'frame']).sort_values(['track_id', 'frame'])
+    first, last = df['frame'].min(), df['frame'].max()
+    group = df.groupby('track_id')
+    step = np.hypot(group['x'].diff(), group['y'].diff()) / group['frame'].diff()
+    df['speed'] = step.fillna(0.0)
+    if 'area' in df.columns:
+        df['log_area_change'] = np.log(df['area'].clip(lower=1)).groupby(
+            df['track_id']).diff().fillna(0.0)
+    starts = group['frame'].transform('min')
+    ends = group['frame'].transform('max')
+    df['track_starts'] = ((df['frame'] == starts) & (df['frame'] > first)).astype(float)
+    df['track_ends'] = ((df['frame'] == ends) & (df['frame'] < last)).astype(float)
+    born = df[df['track_starts'] > 0]
+    dying = df[df['track_ends'] > 0]
+    new_near, end_near = [], []
+    for frame, x, y, track in zip(df['frame'], df['x'], df['y'], df['track_id']):
+        b = born[(born['frame'] == frame + 1) & (born['track_id'] != track)]
+        d = dying[(dying['frame'] == frame) & (dying['track_id'] != track)]
+        new_near.append(int((np.hypot(b['x'] - x, b['y'] - y) <= radius).sum()))
+        end_near.append(int((np.hypot(d['x'] - x, d['y'] - y) <= radius).sum()))
+    df['new_tracks_near'] = new_near
+    df['ended_tracks_near'] = end_near
+    return df.reset_index(drop=True)
+
+
+def _event_columns(table):
+    """The numeric inputs of the detector found in a track table.
+
+    :param table: from :func:`_event_track_table`.
+    :returns: column names, in a fixed order.
+    """
+    fixed = ['speed', 'track_starts', 'track_ends', 'new_tracks_near',
+             'ended_tracks_near', 'log_area_change', *_EVENT_SHAPE_COLUMNS]
+    found = [c for c in fixed if c in table.columns]
+    found += sorted(c for c in table.columns if c.startswith('intensity_'))
+    return found
+
+
+def _event_windows(table, columns, window, mean, std, crops=None):
+    """Cut every track into windows centred on each of its frames.
+
+    :param table: from :func:`_event_track_table`, one field.
+    :param columns: detector inputs; one missing from the table reads 0.
+    :param window: frames per window (odd; an even value is raised by one).
+    :param mean: per-column mean used to standardise.
+    :param std: per-column spread used to standardise.
+    :param crops: optional ``{(frame, track_id): (C, P, P) array}``.
+    :returns: ``(inputs, crop_windows, index)``: a ``(n, len(columns) + 1,
+        window)`` float32 array whose last row marks frames where the track
+        is present; a ``(n, window, C, P, P)`` array or None; and the
+        ``track_id`` and ``frame`` of each window's centre.
+    """
+    half = int(window) // 2
+    window = 2 * half + 1
+    values = np.zeros((len(table), len(columns)), dtype=np.float32)
+    for k, name in enumerate(columns):
+        if name in table.columns:
+            values[:, k] = pd.to_numeric(table[name], errors='coerce').to_numpy(dtype=np.float32)
+    values = (values - np.asarray(mean, dtype=np.float32)) / np.asarray(std, dtype=np.float32)
+    values = np.nan_to_num(values)
+    sample = next(iter(crops.values())) if crops else None
+    inputs, crop_windows, index = [], [], []
+    frames_all = table['frame'].to_numpy()
+    for track, rows in table.groupby('track_id', sort=False).indices.items():
+        frames = frames_all[rows]
+        start, stop = frames.min() - half, frames.max() + half
+        dense = np.zeros((stop - start + 1, len(columns) + 1), dtype=np.float32)
+        dense[frames - start, :-1] = values[rows]
+        dense[frames - start, -1] = 1.0
+        view = np.lib.stride_tricks.sliding_window_view(dense, window, axis=0)
+        inputs.append(view[frames - frames.min()])
+        index.extend((int(track), int(f)) for f in frames)
+        if sample is not None:
+            stack = np.zeros((stop - start + 1,) + sample.shape, dtype=np.float32)
+            for f in range(start, stop + 1):
+                patch = crops.get((f, int(track)))
+                if patch is not None:
+                    stack[f - start] = patch
+            crop_windows.append(np.stack([stack[f - frames.min():f - frames.min() + window]
+                                          for f in frames]))
+    if not inputs:
+        return (np.zeros((0, len(columns) + 1, window), np.float32), None,
+                pd.DataFrame(columns=['track_id', 'frame']))
+    return (np.concatenate(inputs).astype(np.float32),
+            np.concatenate(crop_windows) if crop_windows else None,
+            pd.DataFrame(index, columns=['track_id', 'frame']))
+
+
+def _event_network(n_inputs, n_classes, channels=0):
+    """The event classifier: a small image encoder and a temporal convolution.
+
+    Each frame's crop, when there are crops, is encoded by two convolutions
+    to 16 numbers that join the frame's track features; two temporal
+    convolutions over the window, pooled by mean and maximum, feed a linear
+    layer with one output per class.
+
+    :param n_inputs: track inputs per frame, the presence mark included.
+    :param n_classes: event classes, background included.
+    :param channels: crop channels, 0 for none.
+    :returns: a ``torch.nn.Module`` called as ``net(inputs, crops=None)``.
+    """
+    import torch
+    from torch import nn
+
+    class _EventNet(nn.Module):
+        """Temporal convolutional classifier of track windows."""
+
+        def __init__(self):
+            super().__init__()
+            self.encoder = None
+            width = n_inputs
+            if channels:
+                self.encoder = nn.Sequential(
+                    nn.Conv2d(channels, 8, 3, padding=1), nn.ReLU(),
+                    nn.MaxPool2d(2), nn.Conv2d(8, 16, 3, padding=1), nn.ReLU(),
+                    nn.AdaptiveAvgPool2d(1), nn.Flatten())
+                width += 16
+            self.temporal = nn.Sequential(
+                nn.Conv1d(width, 32, 3, padding=1), nn.ReLU(),
+                nn.Conv1d(32, 32, 3, padding=1), nn.ReLU())
+            self.head = nn.Linear(64, n_classes)
+
+        def forward(self, inputs, crops=None):
+            """Class scores for a batch of windows."""
+            if self.encoder is not None and crops is not None:
+                b, w = crops.shape[:2]
+                code = self.encoder(crops.reshape((b * w,) + crops.shape[2:]))
+                inputs = torch.cat([inputs, code.reshape(b, w, -1).transpose(1, 2)], dim=1)
+            hidden = self.temporal(inputs)
+            return self.head(torch.cat([hidden.mean(dim=2), hidden.amax(dim=2)], dim=1))
+
+    return _EventNet()
+
+
+def _event_labels(index, field, annotations, classes, radius=1):
+    """Training label of each window: the event at its centre, else background.
+
+    A window within ``radius`` frames of an annotated event is labelled with
+    it; windows one frame further out are given weight 0, so the detector
+    is not taught that the frames just around an event are background.
+
+    :param index: ``track_id`` and ``frame`` of each window's centre.
+    :param field: the field these windows come from.
+    :param annotations: ``field``, ``track_id``, ``frame``, ``event``.
+    :param classes: class names, background first.
+    :param radius: frames either side labelled as the event.
+    :returns: ``(labels, weights)`` arrays.
+    """
+    labels = np.zeros(len(index), dtype=np.int64)
+    weights = np.ones(len(index), dtype=np.float32)
+    ann = annotations[annotations['field'] == field]
+    code = {name: k for k, name in enumerate(classes)}
+    lookup = index.reset_index(drop=True)
+    for track, frame, event in zip(ann['track_id'], ann['frame'], ann['event']):
+        near = (lookup['track_id'] == int(track)).to_numpy()
+        offset = np.abs(lookup['frame'].to_numpy() - int(frame))
+        labels[near & (offset <= radius)] = code[event]
+        weights[near & (offset == radius + 1) & (labels == 0)] = 0.0
+    return labels, weights
+
+
+def _event_train(samples, classes, columns, *, window, channels=0,
+                 epochs=25, seed=0):
+    """Train the event classifier on windows from annotated fields.
+
+    :param samples: list of ``(inputs, crops, labels, weights)`` per field.
+    :param classes: class names, background first.
+    :param columns: the track inputs, stored with the model.
+    :param window: frames per window.
+    :param channels: crop channels, 0 for none.
+    :param epochs: passes over the windows.
+    :param seed: random seed. Training uses at most four CPU threads, which
+        is faster for a network this small than many.
+    :returns: the model as a dict: ``state`` (weights), ``classes``,
+        ``columns``, ``mean``, ``std``, ``window`` and ``channels``.
+    """
+    import torch
+
+    torch.manual_seed(seed)
+    rng = np.random.default_rng(seed)
+    inputs = np.concatenate([s[0] for s in samples])
+    crops = (np.concatenate([s[1] for s in samples]).astype(np.float32)
+             if channels else None)
+    labels = np.concatenate([s[2] for s in samples])
+    weights = np.concatenate([s[3] for s in samples])
+    counts = np.bincount(labels[weights > 0], minlength=len(classes)).astype(float)
+    class_weight = np.where(counts > 0, (counts.sum() / np.maximum(counts, 1)) ** 0.5, 0.0)
+    net = _event_network(inputs.shape[1], len(classes), channels)
+    optimiser = torch.optim.Adam(net.parameters(), lr=3e-3, weight_decay=1e-4)
+    loss_fn = torch.nn.CrossEntropyLoss(
+        weight=torch.tensor(class_weight, dtype=torch.float32), reduction='none')
+    x_all = torch.from_numpy(inputs)
+    c_all = torch.from_numpy(crops) if crops is not None else None
+    y_all = torch.from_numpy(labels)
+    w_all = torch.from_numpy(weights)
+    net.train()
+    threads = torch.get_num_threads()
+    torch.set_num_threads(min(threads, 4))
+    try:
+        for _ in range(int(epochs)):
+            order = rng.permutation(len(labels))
+            for start in range(0, len(order), 256):
+                pick = torch.from_numpy(order[start:start + 256])
+                scores = net(x_all[pick], None if c_all is None else c_all[pick])
+                loss = ((loss_fn(scores, y_all[pick]) * w_all[pick]).sum()
+                        / w_all[pick].sum().clamp(min=1.0))
+                optimiser.zero_grad()
+                loss.backward()
+                optimiser.step()
+    finally:
+        torch.set_num_threads(threads)
+    return {'state': {k: v.detach().clone() for k, v in net.state_dict().items()},
+            'classes': list(classes), 'columns': list(columns),
+            'window': int(window), 'channels': int(channels)}
+
+
+def _event_probabilities(model, inputs, crops=None):
+    """Class probabilities of each window.
+
+    :param model: from :func:`_event_train` or :func:`_event_load_model`.
+    :param inputs: windows from :func:`_event_windows`.
+    :param crops: their crops, or None.
+    :returns: ``(n, classes)`` array.
+    """
+    import torch
+
+    net = _event_network(inputs.shape[1], len(model['classes']), model['channels'])
+    net.load_state_dict(model['state'])
+    net.eval()
+    out = []
+    with torch.no_grad():
+        for start in range(0, len(inputs), 1024):
+            x = torch.from_numpy(inputs[start:start + 1024])
+            c = None
+            if model['channels'] and crops is not None:
+                c = torch.from_numpy(crops[start:start + 1024].astype(np.float32))
+            out.append(torch.softmax(net(x, c), dim=1).numpy())
+    return np.concatenate(out) if out else np.zeros((0, len(model['classes'])))
+
+
+def _event_peaks(index, probabilities, classes, threshold=0.5, tolerance=2):
+    """Time-stamp events from per-frame class probabilities.
+
+    An event is a frame where its class's probability reaches ``threshold``
+    and is the highest of that track within ``tolerance`` frames.
+
+    :param index: ``track_id`` and ``frame`` of each window.
+    :param probabilities: from :func:`_event_probabilities`.
+    :param classes: class names, background first.
+    :param threshold: smallest probability kept.
+    :param tolerance: frames either side a peak must beat.
+    :returns: one row per event: ``track_id``, ``frame``, ``event`` and
+        ``probability``.
+    """
+    events = []
+    frame = index.reset_index(drop=True).assign(_row=np.arange(len(index)))
+    for track, rows in frame.groupby('track_id'):
+        rows = rows.sort_values('frame')
+        frames = rows['frame'].to_numpy()
+        for k, name in enumerate(classes[1:], start=1):
+            p = probabilities[rows['_row'].to_numpy(), k]
+            for i in np.flatnonzero(p >= threshold):
+                near = np.abs(frames - frames[i]) <= tolerance
+                if p[i] >= p[near].max() and not (
+                        (p[near] == p[i]) & (frames[near] < frames[i])).any():
+                    events.append({'track_id': int(track), 'frame': int(frames[i]),
+                                   'event': name, 'probability': float(p[i])})
+    return pd.DataFrame(events, columns=['track_id', 'frame', 'event', 'probability'])
+
+
+def _event_scores(detected, annotations, classes, tolerance=2):
+    """Precision, recall and timing error of detected against annotated events.
+
+    A detection matches the nearest unmatched annotation of the same field,
+    track and class within ``tolerance`` frames, most probable detection
+    first.
+
+    :param detected: ``field``, ``track_id``, ``frame``, ``event``,
+        ``probability``.
+    :param annotations: ``field``, ``track_id``, ``frame``, ``event``.
+    :param classes: event classes to score.
+    :param tolerance: largest timing error of a match, in frames.
+    :returns: one row per class and an ``all`` row: ``annotated``,
+        ``detected``, ``true_positives``, ``precision``, ``recall``, ``f1``,
+        ``mean_abs_timing_error`` and ``max_abs_timing_error`` in frames.
+    """
+    rows, all_errors, totals = [], [], np.zeros(3, dtype=int)
+    for name in classes:
+        det = detected[detected['event'] == name].sort_values('probability', ascending=False)
+        ann = annotations[annotations['event'] == name]
+        free = {key: sorted(g['frame'].astype(int)) for key, g in
+                ann.groupby(['field', 'track_id'])}
+        errors = []
+        for field, track, frame in zip(det['field'], det['track_id'], det['frame']):
+            pool = free.get((field, int(track)), [])
+            if pool:
+                best = min(pool, key=lambda a: abs(a - int(frame)))
+                if abs(best - int(frame)) <= tolerance:
+                    pool.remove(best)
+                    errors.append(abs(best - int(frame)))
+        counts = np.array([len(ann), len(det), len(errors)])
+        totals += counts
+        all_errors += errors
+        rows.append(_event_score_row(name, counts, errors))
+    rows.append(_event_score_row('all', totals, all_errors))
+    return pd.DataFrame(rows)
+
+
+def _event_score_row(name, counts, errors):
+    """One row of :func:`_event_scores`."""
+    annotated, detected, hits = (int(c) for c in counts)
+    precision = hits / detected if detected else np.nan
+    recall = hits / annotated if annotated else np.nan
+    f1 = (2 * precision * recall / (precision + recall)
+          if hits else (0.0 if annotated or detected else np.nan))
+    return {'event': name, 'annotated': annotated, 'detected': detected,
+            'true_positives': hits, 'precision': precision, 'recall': recall,
+            'f1': f1,
+            'mean_abs_timing_error': float(np.mean(errors)) if errors else np.nan,
+            'max_abs_timing_error': float(np.max(errors)) if errors else np.nan}
+
+
+def _event_read_annotations(path):
+    """Read an annotated events table.
+
+    :param path: a table with ``field``, ``track_id``, ``frame`` and
+        ``event`` columns, and optionally ``object``.
+    :returns: the table with the event names stripped and lower-cased.
+    :raises ValueError: a missing column.
+    """
+    from .tabular import read_table
+
+    ann = read_table(path, canonicalise=False, report=None)
+    if 'field' not in ann.columns and 'fieldID' in ann.columns:
+        ann = ann.rename(columns={'fieldID': 'field'})
+    missing = {'field', 'track_id', 'frame', 'event'} - set(ann.columns)
+    if missing:
+        raise ValueError(f"Setting: timelapse_events_annotations {path} lacks "
+                         f"the column(s) {', '.join(sorted(missing))}.")
+    ann = ann.dropna(subset=['field', 'track_id', 'frame', 'event']).copy()
+    ann['field'] = ann['field'].astype(str)
+    ann['track_id'] = ann['track_id'].astype(int)
+    ann['frame'] = ann['frame'].astype(int)
+    ann['event'] = ann['event'].astype(str).str.strip().str.lower()
+    return ann[ann['event'] != _EVENT_BACKGROUND].reset_index(drop=True)
+
+
+def _event_fields(tracks_dir, object_type, prefix):
+    """The tracks tables of one object and tracker, by field name.
+
+    :returns: ``{field: path}``.
+    """
+    marker = f'{prefix}_tracks_{object_type}_'
+    found = {}
+    for path in sorted(glob.glob(os.path.join(tracks_dir, f'{marker}*.csv'))):
+        found[os.path.splitext(os.path.basename(path))[0][len(marker):]] = path
+    return found
+
+
+def _event_field_inputs(tracks_path, radius):
+    """The detector's track table and crops of one field.
+
+    Reads ``events/<stem>_features.csv`` and ``events/<stem>_crops.npz``
+    beside the tracks table when the tracking step wrote them.
+
+    :returns: ``(table, crops)``; ``crops`` maps ``(frame, track_id)`` to
+        the crop, or is None.
+    """
+    from .tabular import read_table
+
+    tracks = read_table(tracks_path, report=None)
+    stem = os.path.splitext(os.path.basename(tracks_path))[0]
+    base = os.path.join(os.path.dirname(tracks_path), 'events', stem)
+    features = crops = None
+    if os.path.isfile(base + '_features.csv'):
+        features = read_table(base + '_features.csv', report=None)
+    if os.path.isfile(base + '_crops.npz'):
+        with np.load(base + '_crops.npz') as store:
+            crops = {(int(f), int(t)): c for (f, t), c in
+                     zip(store['index'], store['crops'])}
+    return _event_track_table(tracks, features, radius=radius), crops
+
+
+def _event_fit(tables, annotations, *, window=9, epochs=25, seed=0):
+    """Fit the detector on annotated fields.
+
+    :param tables: ``{field: (table, crops)}`` from
+        :func:`_event_field_inputs`.
+    :param annotations: events of these fields; every event of a field
+        that has any annotation is taken to be annotated.
+    :returns: the model dict of :func:`_event_train` with ``mean`` and
+        ``std``.
+    """
+    classes = [_EVENT_BACKGROUND] + sorted(pd.unique(annotations['event']))
+    columns = _event_columns(pd.concat([t for t, _ in tables.values()]))
+    stacked = pd.concat([t for t, _ in tables.values()])
+    mean, std = [], []
+    for name in columns:
+        v = pd.to_numeric(stacked[name], errors='coerce') if name in stacked else pd.Series([0.0])
+        mean.append(float(np.nan_to_num(v.mean())))
+        std.append(float(v.std()) if np.isfinite(v.std()) and v.std() > 0 else 1.0)
+    use_crops = all(c for _, c in tables.values())
+    channels = next(iter(next(iter(tables.values()))[1].values())).shape[0] if use_crops else 0
+    samples = []
+    for field, (table, crops) in tables.items():
+        x, c, index = _event_windows(table, columns, window, mean, std,
+                                     crops if use_crops else None)
+        y, w = _event_labels(index, field, annotations, classes)
+        samples.append((x, c, y, w))
+    model = _event_train(samples, classes, columns, window=window,
+                         channels=channels, epochs=epochs, seed=seed)
+    model['mean'], model['std'] = mean, std
+    return model
+
+
+def _event_detect(model, table, crops=None, *, threshold=0.5, tolerance=2):
+    """Detect and time-stamp events on one field.
+
+    :returns: ``track_id``, ``frame``, ``event``, ``probability`` per event.
+    """
+    x, c, index = _event_windows(table, model['columns'], model['window'],
+                                 model['mean'], model['std'],
+                                 crops if model['channels'] else None)
+    if not len(index):
+        return pd.DataFrame(columns=['track_id', 'frame', 'event', 'probability'])
+    p = _event_probabilities(model, x, c)
+    return _event_peaks(index, p, model['classes'], threshold, tolerance)
+
+
+def _event_cross_validate(tables, annotations, *, window=9, threshold=0.5,
+                          tolerance=2, epochs=25, seed=0, folds=5):
+    """Precision, recall and timing error on held-out annotated data.
+
+    With two or more annotated fields each fold holds out whole fields (at
+    most ``folds`` folds); with one, it holds out every third track.
+
+    :returns: ``(scores, detections)``: :func:`_event_scores` of the pooled
+        held-out detections, and those detections.
+    """
+    fields = list(tables)
+    detections = []
+    if len(fields) >= 2:
+        groups = np.array_split(np.array(fields, dtype=object), min(folds, len(fields)))
+        for held in groups:
+            train = {f: tables[f] for f in fields if f not in set(held)}
+            model = _event_fit(train, annotations[annotations['field'].isin(train)],
+                               window=window, epochs=epochs, seed=seed)
+            for field in held:
+                found = _event_detect(model, *tables[field], threshold=threshold,
+                                      tolerance=tolerance)
+                detections.append(found.assign(field=field))
+    else:
+        field = fields[0]
+        table, crops = tables[field]
+        tracks = np.array(sorted(pd.unique(table['track_id'])))
+        for k in range(3):
+            held = set(tracks[k::3])
+            train = {field: (table[~table['track_id'].isin(held)], crops)}
+            model = _event_fit(train, annotations[~annotations['track_id'].isin(held)],
+                               window=window, epochs=epochs, seed=seed)
+            found = _event_detect(model, table[table['track_id'].isin(held)], crops,
+                                  threshold=threshold, tolerance=tolerance)
+            detections.append(found.assign(field=field))
+    detected = pd.concat(detections, ignore_index=True) if detections else pd.DataFrame(
+        columns=['track_id', 'frame', 'event', 'probability', 'field'])
+    classes = sorted(pd.unique(annotations['event']))
+    return _event_scores(detected, annotations, classes, tolerance), detected
+
+
+def _event_correct_divisions(tracks, events, *, mitosis='mitosis',
+                             max_distance=30.0, tolerance=2):
+    """Division links taken from detected mitoses.
+
+    For every detected mitosis of a mother track, each track that starts
+    within ``tolerance`` + 1 frames after it, within ``max_distance`` pixels
+    of the mother's position at the mitosis, is linked to her in
+    ``parent_track_id``. Links the tracker reported itself are kept; a new
+    track beside no detected mitosis gets no parent, which removes the
+    divisions that would otherwise be inferred from broken tracks.
+
+    :param tracks: one field's tracks table.
+    :param events: that field's detected events.
+    :returns: ``(corrected, links)``: the tracks with ``parent_track_id`` and
+        a table of the links added (``track_id``, ``parent_track_id``,
+        ``mitosis_frame``).
+    """
+    df = tracks.copy()
+    if 'parent_track_id' not in df.columns:
+        df['parent_track_id'] = 0
+    df['parent_track_id'] = pd.to_numeric(df['parent_track_id'], errors='coerce').fillna(0).astype(int)
+    starts = df.sort_values('frame').groupby('track_id').first()
+    has_parent = set(starts.index[starts['parent_track_id'] > 0].astype(int))
+    links = []
+    for mother, frame in zip(*(events.loc[events['event'] == mitosis, c]
+                               for c in ('track_id', 'frame'))):
+        where = df[(df['track_id'] == mother) & (df['frame'] <= frame)].sort_values('frame')
+        if where.empty:
+            continue
+        mx, my = where['x'].iloc[-1], where['y'].iloc[-1]
+        new = starts[(starts['frame'] > frame - 1) & (starts['frame'] <= frame + tolerance + 1)
+                     & (starts.index != mother)]
+        near = np.hypot(new['x'] - mx, new['y'] - my) <= max_distance
+        for daughter in new.index[near].astype(int):
+            if daughter in has_parent:
+                continue
+            has_parent.add(daughter)
+            df.loc[df['track_id'] == daughter, 'parent_track_id'] = int(mother)
+            links.append({'track_id': daughter, 'parent_track_id': int(mother),
+                          'mitosis_frame': int(frame)})
+    return df, pd.DataFrame(links, columns=['track_id', 'parent_track_id', 'mitosis_frame'])
+
+
+def _event_timing(tables, events, conditions=None):
+    """Time from each track's first frame to its first event of each kind.
+
+    :param tables: ``{field: track table}``.
+    :param events: detected events with ``field``.
+    :param conditions: ``name=wells`` entries; fields are otherwise grouped
+        by well.
+    :returns: ``{event: objects}`` in the form
+        :func:`spacr.measure._time_to_event_statistics` reads: one row per
+        track with ``duration`` (frames), ``event`` (1 or 0, censored at the
+        track's last frame), ``condition`` and ``well``, plus the order of
+        conditions under key ``'_order'`` per event.
+    """
+    from .measure import _time_to_event_groups
+
+    spans = []
+    for field, table in tables.items():
+        try:
+            key = schema.parse_prcf(field)
+            ids = (key.plateID, key.rowID, key.columnID, key.fieldID)
+        except Exception:
+            ids = (field, 'r0', 'c0', 'f0')
+        span = table.groupby('track_id')['frame'].agg(start='min', end='max').reset_index()
+        span['field'] = field
+        span['plateID'], span['rowID'], span['columnID'], span['fieldID'] = ids
+        spans.append(span)
+    spans = pd.concat(spans, ignore_index=True)
+    config = {'time_to_event_group': 'well', 'time_to_event_reference': '',
+              'time_to_event_conditions': list(conditions or []),
+              'time_to_event_covariates': []}
+    result = {}
+    for name in sorted(pd.unique(events['event'])) if len(events) else []:
+        first = (events[events['event'] == name].groupby(['field', 'track_id'])['frame']
+                 .min().rename('event_frame').reset_index())
+        objects = spans.merge(first, on=['field', 'track_id'], how='left')
+        objects['event'] = objects['event_frame'].notna().astype(int)
+        objects['duration'] = np.where(objects['event'] == 1,
+                                       objects['event_frame'] - objects['start'],
+                                       objects['end'] - objects['start']).astype(float)
+        objects['time_unit'] = 'frames'
+        grouped, order = _time_to_event_groups(objects, config)
+        if len(grouped):
+            result[name] = (grouped, order)
+    return result
+
+
+def _event_detection(tracks_dir, object_type, prefix, *, annotations=None,
+                     model_path=None, window=9, threshold=0.5, tolerance=2,
+                     conditions=None, max_distance=30.0, epochs=25, plot=True):
+    """Detect events on every tracked field of a run and write the results.
+
+    With ``annotations``, the detector is scored by cross-validation on the
+    annotated fields (``events/event_detection_scores.csv``), trained on all
+    of them and saved as ``events/event_model.pt``; otherwise the model at
+    ``model_path`` is used. Every field's events go to
+    ``events/<stem>_events.csv`` and together to ``events/events.csv``. With
+    a ``mitosis`` class the tracks are re-linked from the detected mitoses
+    (``events/<stem>_corrected.csv``) and lineage trees are drawn from them
+    under ``events/lineage``. The time to each kind of event is compared
+    across conditions with Kaplan-Meier curves and log-rank tests
+    (``events/event_timing_<event>_*.csv`` and figure).
+
+    :param tracks_dir: the run's ``tracks`` folder.
+    :param object_type: the tracked object.
+    :param prefix: the tracker's file prefix.
+    :returns: dict with ``scores`` (or None), ``events`` and ``paths``.
+    :raises ValueError: neither annotations nor a model.
+    """
+    import torch
+    from .measure import _time_to_event_figure, _time_to_event_statistics
+    from .tabular import write_table
+
+    out = os.path.join(tracks_dir, 'events')
+    os.makedirs(out, exist_ok=True)
+    fields = _event_fields(tracks_dir, object_type, prefix)
+    if not fields:
+        raise ValueError(f"No {prefix} tracks of {object_type} in {tracks_dir}.")
+    inputs = {f: _event_field_inputs(p, max_distance) for f, p in fields.items()}
+    paths, scores = {}, None
+    if annotations is not None:
+        ann = _event_read_annotations(annotations) if isinstance(annotations, str) else annotations
+        if 'object' in ann.columns:
+            ann = ann[ann['object'].astype(str).isin([object_type, 'nan', ''])]
+        ann = ann[ann['field'].isin(inputs)]
+        if ann.empty:
+            raise ValueError(f"Setting: timelapse_events_annotations names no "
+                             f"event on the {object_type} tracks of this run.")
+        annotated = {f: inputs[f] for f in pd.unique(ann['field'])}
+        scores, _ = _event_cross_validate(annotated, ann, window=window,
+                                          threshold=threshold, tolerance=tolerance,
+                                          epochs=epochs)
+        scores['tolerance_frames'] = tolerance
+        paths['scores'] = write_table(scores, os.path.join(out, 'event_detection_scores.csv'))
+        model = _event_fit(annotated, ann, window=window, epochs=epochs)
+        paths['model'] = os.path.join(out, 'event_model.pt')
+        torch.save(model, paths['model'])
+    elif model_path:
+        model = torch.load(model_path, map_location='cpu', weights_only=True)
+    else:
+        raise ValueError("Setting: timelapse_events needs annotated events in "
+                         "timelapse_events_annotations or a trained model in "
+                         "timelapse_events_model.")
+    found, corrected = [], {}
+    for field, (table, crops) in inputs.items():
+        events = _event_detect(model, table, crops, threshold=threshold,
+                               tolerance=tolerance).assign(field=field)
+        stem = os.path.splitext(os.path.basename(fields[field]))[0]
+        write_table(events, os.path.join(out, f'{stem}_events.csv'), canonicalise=False)
+        found.append(events)
+        if 'mitosis' in model['classes']:
+            fixed, _links = _event_correct_divisions(
+                table[['frame', 'track_id', 'x', 'y'] + (
+                    ['parent_track_id'] if 'parent_track_id' in table else [])],
+                events, max_distance=max_distance, tolerance=tolerance)
+            corrected[field] = write_table(fixed, os.path.join(out, f'{stem}_corrected.csv'))
+    events = pd.concat(found, ignore_index=True)
+    paths['events'] = write_table(events, os.path.join(out, 'events.csv'), canonicalise=False)
+    for field, path in corrected.items():
+        _lineage_trees_from_tracks(path, os.path.join(out, 'lineage'),
+                                   max_distance=-1.0, plot=plot)
+    if corrected:
+        paths['lineage'] = os.path.join(out, 'lineage')
+    timing = _event_timing({f: t for f, (t, _) in inputs.items()}, events, conditions)
+    for name, (objects, order) in timing.items():
+        stats = _time_to_event_statistics(objects, order, {'time_to_event_covariates': []})
+        for part in ('curves', 'summary', 'tests'):
+            paths[f'{name}_{part}'] = write_table(
+                stats[part], os.path.join(out, f'event_timing_{name}_{part}.csv'))
+        if plot:
+            fig = _time_to_event_figure(stats['curves'], stats['summary'],
+                                        stats['tests'], f'Time to {name}')
+            paths[f'{name}_figure'] = save_figure_to_path(
+                fig, os.path.join(out, f'event_timing_{name}.pdf'), close=True)
+    return {'scores': scores, 'events': events, 'paths': paths}
+
+
+def _run_event_features_step(src, name, object_type, mask_stack, images, mode, settings):
+    """Store the frame features and crops event detection reads, for one field.
+
+    Writes ``tracks/events/<tracker>_tracks_<object>_<name>_features.csv``
+    and ``..._crops.npz`` beside the tracks table. A failure is reported and
+    does not stop the run.
+    """
+    from .tabular import write_table
+
+    prefix = 'trackpy' if mode == 'iou' else mode
+    out = os.path.join(os.path.dirname(src), 'tracks', 'events')
+    stem = f'{prefix}_tracks_{object_type}_{name}'
+    try:
+        os.makedirs(out, exist_ok=True)
+        features, crops = _event_frame_features(mask_stack, images)
+        write_table(features, os.path.join(out, f'{stem}_features.csv'))
+        if crops is not None:
+            np.savez_compressed(os.path.join(out, f'{stem}_crops.npz'),
+                                index=features[['frame', 'track_id']].to_numpy(),
+                                crops=crops)
+    except Exception as exc:
+        print(f"Event features could not be stored for {name}: {exc}")
+
+
+def _run_event_detection_step(src, settings):
+    """Detect events on the tracks of a finished timelapse run.
+
+    Runs :func:`_event_detection` for every object in ``timelapse_objects``
+    with the ``timelapse_events_*`` settings. A failure is reported and does
+    not stop the run.
+
+    :param src: the run's source folder, holding ``tracks``.
+    :returns: ``{object: result}``.
+    """
+    mode = settings.get('timelapse_mode') or 'trackastra'
+    prefix = 'trackpy' if mode == 'iou' else mode
+    tracks_dir = os.path.join(src, 'tracks')
+    results = {}
+    for object_type in settings.get('timelapse_objects') or ['cell']:
+        try:
+            result = _event_detection(
+                tracks_dir, object_type, prefix,
+                annotations=settings.get('timelapse_events_annotations') or None,
+                model_path=settings.get('timelapse_events_model') or None,
+                window=int(settings.get('timelapse_events_window') or 9),
+                threshold=float(settings.get('timelapse_events_threshold') or 0.5),
+                conditions=settings.get('timelapse_events_conditions') or None,
+                max_distance=float(settings.get('timelapse_lineage_max_distance') or 30.0),
+                plot=bool(settings.get('save', True) or settings.get('plot', False)))
+        except Exception as exc:
+            print(f"Event detection ({object_type}) failed: {exc}")
+            continue
+        results[object_type] = result
+        counts = result['events']['event'].value_counts().to_dict()
+        print(f"Events ({object_type}): {counts or 'none'}; written to "
+              f"{os.path.join(tracks_dir, 'events')}")
+        if result['scores'] is not None:
+            overall = result['scores'].iloc[-1]
+            print(f"Held-out precision {overall['precision']:.2f}, recall "
+                  f"{overall['recall']:.2f}, mean timing error "
+                  f"{overall['mean_abs_timing_error']:.2f} frames")
+    return results
+
+
 def exponential_decay(x, a, b, c):
     """Return ``a * exp(-b * x) + c`` for curve fitting.
 
