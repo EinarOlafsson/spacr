@@ -5648,6 +5648,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     :param file: merged NPY filename below ``settings['src']``.
     :param settings: Measure configuration; original PSF intensity choice is
         the default. Label planes and exported crops keep their source pixels.
+        With an unmixing record from the parent, the measured channels are
+        unmixed before any preprocessing hook.
     :param psf_plan: immutable plan captured by the parent. When omitted for
         a direct processed call, the worker prepares one from its settings.
     :param psf_cancel: optional process-safe cancellation event.
@@ -5661,6 +5663,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     from .cancellation import PipelineCancelled
     from .psf_measurement import (prepare_measurement_psf, measurement_psf_record,
                                   measurement_psf_signature, SIGNATURE_KEY)
+    from .psf_pipeline import _UNMIX_RECORD_KEY, _apply_recorded_unmixing
 
     figs = {}
     grid = []
@@ -5717,6 +5720,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             figs[f'{file_name}__before_filtration'] = fig
 
         channel_arrays = data[..., settings['channels']].astype(data_type)
+        if settings.get(_UNMIX_RECORD_KEY):
+            channel_arrays = _apply_recorded_unmixing(channel_arrays, settings)
 
         if preprocessing_hooks():
             channel_arrays = apply_preprocessing_hooks(
@@ -6378,6 +6383,8 @@ def measure_crop(settings):
                     settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
                 validate_measurement_illumination_inputs(settings)
                 prepare_illumination_correction(settings)
+                from .psf_pipeline import _prepare_measure_unmixing
+                _prepare_measure_unmixing(settings)
 
                 if settings['cell_mask_dim'] is None:
                     settings['uninfected'] = True

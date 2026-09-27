@@ -972,6 +972,13 @@ def _set_psf_defaults(settings):
     settings.setdefault('psf_iterations', 20)
 
 
+def _set_unmix_defaults(settings):
+    """Populate the dormant spectral-unmixing settings, unmixing off."""
+    settings.setdefault('unmix', False)
+    settings.setdefault('unmix_controls', '')
+    settings.setdefault('unmix_background_percentile', 5.0)
+
+
 def _set_enhancement_defaults(settings):
     """Populate the dormant enhancement-chain settings, every step off.
 
@@ -1016,6 +1023,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('pipeline_style', 'v1')
     _set_psf_defaults(settings)
     settings.setdefault('psf_objective', 'auto')
+    _set_unmix_defaults(settings)
     _set_enhancement_defaults(settings)
     from .image_quality import DEFAULTS as image_quality_defaults
     for key, value in image_quality_defaults.items():
@@ -1653,6 +1661,7 @@ def get_measure_crop_settings(settings=None):
     _fold_renamed_settings(settings)
     _set_psf_defaults(settings)
     settings.setdefault('psf_measurement_source', 'original')
+    _set_unmix_defaults(settings)
     _requested_organelle_count = organelle_count(settings)
     import ast as _ast
     for _k, _v in list(settings.items()):
@@ -3213,6 +3222,8 @@ expected_types = {
     "psf_image_sampling_um": (list, type(None)),
     "psf_kernel_sampling_um": (list, type(None)),
     "psf_fwhm_um": (list, type(None)), "psf_iterations": int,
+    "unmix": bool, "unmix_controls": str,
+    "unmix_background_percentile": (float, int),
     "enhance_background": str, "enhance_background_radius": int,
     "enhance_background_scale": float,
     "enhance_denoise": str, "enhance_denoise_strength": float,
@@ -4159,6 +4170,9 @@ tooltips = {
     'psf_kernel_sampling_um': "(list or None) - Default None (unset). Measured kernel pixel spacing [Y, X] in micrometers. Must match image sampling; mismatched kernels are refused rather than silently resampled. Unused for a Gaussian approximation.",
     'psf_fwhm_um': "(list or None) - Default None (unset). Gaussian full width at half maximum [Y, X] in micrometers; both values must be positive and finite. Unset, Mask and timelapse calculate 0.51 × emission wavelength / NA from image metadata or psf_objective (520 nm, NA 0.75: 0.354 µm by default), an approximation of the ideal widefield PSF, not measured resolution. Measure requires it explicitly.",
     'psf_iterations': "(int) - Richardson–Lucy iterations, 1–200; default 20. Higher values may amplify noise and artifacts. Unused for convolution. Processing is cancellable between iterations, uses symmetric boundaries and retains floating point intensities without clipping to the integer source range.",
+    'unmix': "(bool) - Spectral unmixing: estimate how much of each dye bleeds into the other channels from single-stain control wells, then unmix every field before it is segmented or measured. Make Masks unmixes each raw field across all its channels before illumination correction, the PSF and the enhancement chain; Measure unmixes the measured channels before its preprocessing. The matrix is printed and recorded with the run. Needs unmix_controls. Default False.",
+    'unmix_controls': "(str) - The single-stain control wells, as channel:well[,well] entries separated by semicolons, for example 0:A01,A02; 1:B01. The channel is the dye's own channel, counted as in the stack or merged array; its wells hold that dye alone. Channels without controls are taken to bleed into nothing. Up to 24 fields per dye are read. Ignored unless unmix is on. Default blank.",
+    'unmix_background_percentile': "(float) - Percentile of each channel's pixels taken as its background, from 0 up to but not including 100. It is set aside before each field is unmixed and added back after, so a channel with no dye stays at its own background level rather than being pulled below it. Keep it below the fraction of the field that is empty. Default 5.0.",
     'enhance_background': "(str) - Background subtraction for every selected segmentation channel after illumination correction and before normalization, the first step of the enhancement chain Make Masks tunes. rolling_ball removes a fitted surface of the radius below and flattens uneven illumination; tophat keeps what is brighter than its surroundings and is faster; none is off. Set the radius larger than the largest object. A resumed run refuses Mask inputs made with a different chain. Default 'none'.",
     'enhance_background_radius': "(int) - Radius in pixels of the rolling ball or the top-hat disk. Make it larger than the largest object and smaller than the scale the illumination varies on; a radius under the object size removes the objects with the background. Default 50.",
     'enhance_background_scale': "(float) - Fraction of full size the background is estimated at, above 0 and at most 1. The surface is scaled back up before subtraction, so only the estimate is smaller; 1.0 is scikit-image's exact answer and is slow on large fields. Default 0.5.",
@@ -5235,6 +5249,9 @@ categories = {
     "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_objective",
                               "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
+
+    "Spectral Unmixing (Alpha)": ["unmix", "unmix_controls",
+                                  "unmix_background_percentile"],
 
     "Image Enhancement": ["enhance_background", "enhance_background_radius",
                           "enhance_background_scale",
@@ -7011,6 +7028,9 @@ ALPHA_FEATURES = {
     },
     581: {
         'settings': ('anndata_format', 'anndata_tidy_dir'),
+    },
+    538: {
+        'settings': ('unmix', 'unmix_controls', 'unmix_background_percentile'),
     },
 }
 

@@ -1387,6 +1387,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'S3-compatible endpoint (blank for Amazon S3)',
     'Use this location',
     's3://bucket/folder, gs://, az:// or https://',
+    # 538, 2026-09-27: the Spectral Unmixing (Alpha) category help.
+    'Bleed-through correction: how much of each dye is read in the other '
+    'channels is estimated from single-stain control wells, and every field '
+    'is unmixed with that matrix before it is segmented or measured. The '
+    'matrix is printed and recorded with the run.',
 })
 
 

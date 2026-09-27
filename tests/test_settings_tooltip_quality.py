@@ -827,7 +827,14 @@ def test_real_default_claims_have_no_unrecorded_drift():
                 for key in ("wound_closure", "wound_channel", "wound_window",
                             "wound_hours_per_frame", "wound_conditions")}
     assert item_536 <= compared_pairs
-    assert comparisons == 806
+    # 806 -> 815 on 2026-09-27, +9/-0 (item 538): unmix (False),
+    # unmix_controls (blank) and unmix_background_percentile (5.0), each
+    # resolved by Make Masks, Measure and External Masks.
+    item_538 = {(app, key) for app in ("mask", "measure", "external_masks")
+                for key in ("unmix", "unmix_controls",
+                            "unmix_background_percentile")}
+    assert item_538 <= compared_pairs
+    assert comparisons == 815
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -838,9 +845,11 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 16: item 535's eight cell-cycle claims in two apps, pinned above.
     # + 12: item 547's six profiling claims in two apps, pinned above.
     # + 10: item 536's five wound-closure claims in two apps, pinned above.
+    # + 9: item 538's three unmixing claims in three apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
-            + len(item_535) + len(item_547) + len(item_536) == comparisons)
+            + len(item_535) + len(item_547) + len(item_536)
+            + len(item_538) == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
